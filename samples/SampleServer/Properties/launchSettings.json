@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "IslandGateway.Sample": {
+      "commandName": "Project",
+      "launchBrowser": false,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:10000;http://localhost:10001"
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "SampleClient": {
+      "commandName": "Project",
+      "commandLineArgs": "-t https://localhost:1443"
+    }
+  }
+}

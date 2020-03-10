@@ -1,0 +1,96 @@
+﻿// <copyright file="BackendInfo.cs" company="Microsoft Corporation">
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// </copyright>
+
+using System.Collections.Generic;
+using System.Linq;
+using IslandGateway.Core.Service.Management;
+using IslandGateway.Core.Service.Proxy.Infra;
+using IslandGateway.Core.Util;
+using IslandGateway.CoreServicesBorrowed;
+using IslandGateway.Signals;
+
+namespace IslandGateway.Core.RuntimeModel
+{
+    /// <summary>
+    /// Representation of a backend for use at runtime.
+    /// </summary>
+    /// <remarks>
+    /// Note that while this class is immutable, specific members such as
+    /// <see cref="Config"/> and <see cref="DynamicState"/> hold mutable references
+    /// that can be updated atomically and which will always have latest information
+    /// relevant to this backend.
+    /// All members are thread safe.
+    /// </remarks>
+    internal sealed class BackendInfo
+    {
+        public BackendInfo(string backendId, IEndpointManager endpointManager, IProxyHttpClientFactory proxyHttpClientFactory)
+        {
+            Contracts.CheckNonEmpty(backendId, nameof(backendId));
+            Contracts.CheckValue(endpointManager, nameof(endpointManager));
+            Contracts.CheckValue(proxyHttpClientFactory, nameof(proxyHttpClientFactory));
+
+            this.BackendId = backendId;
+            this.EndpointManager = endpointManager;
+            this.ProxyHttpClientFactory = proxyHttpClientFactory;
+
+            this.DynamicState = this.CreateDynamicStateQuery();
+        }
+
+        public string BackendId { get; }
+
+        public IEndpointManager EndpointManager { get; }
+
+        /// <summary>
+        /// Used to create instances of <see cref="System.Net.Http.HttpClient"/>
+        /// when proxying requests to this backend.
+        /// </summary>
+        public IProxyHttpClientFactory ProxyHttpClientFactory { get; }
+
+        /// <summary>
+        /// Encapsulates parts of a backend that can change atomically
+        /// in reaction to config changes.
+        /// </summary>
+        public Signal<BackendConfig> Config { get; } = SignalFactory.Default.CreateSignal<BackendConfig>();
+
+        /// <summary>
+        /// Encapsulates parts of a backend that can change atomically
+        /// in reaction to runtime state changes (e.g. dynamic endpoint discovery).
+        /// </summary>
+        public IReadableSignal<BackendDynamicState> DynamicState { get; }
+
+        /// <summary>
+        /// Keeps track of the total number of concurrent requests on this backend.
+        /// </summary>
+        public AtomicCounter ConcurrencyCounter { get; } = new AtomicCounter();
+
+        /// <summary>
+        /// Sets up the data flow that keeps <see cref="DynamicState"/> up to date.
+        /// See <c>Util\Signals\Signals.md</c> for more information.
+        /// </summary>
+        private IReadableSignal<BackendDynamicState> CreateDynamicStateQuery()
+        {
+            var endpointsAndStateChanges =
+                this.EndpointManager.Items
+                    .SelectMany(endpoints =>
+                        endpoints
+                            .Select(endpoint => endpoint.DynamicState)
+                            .AnyChange())
+                    .DropValue();
+
+            return new[] { endpointsAndStateChanges, this.Config.DropValue() }
+                .AnyChange() // If any of them change...
+                .Select(
+                    _ =>
+                    {
+                        var allEndpoints = this.EndpointManager.Items.Value ?? new List<EndpointInfo>().AsReadOnly();
+                        var healthyEndpoints = (this.Config.Value?.HealthCheckOptions.Enabled ?? false)
+                            ? allEndpoints.Where(endpoint => endpoint.DynamicState.Value?.Health == EndpointHealth.Healthy).ToList().AsReadOnly()
+                            : allEndpoints;
+                        return new BackendDynamicState(
+                            allEndpoints: allEndpoints,
+                            healthyEndpoints: healthyEndpoints);
+                    });
+        }
+    }
+}
