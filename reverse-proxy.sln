@@ -22,7 +22,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IslandGateway.Common.Tests"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IslandGateway.Core.Tests", "test\IslandGateway.Core.Tests\IslandGateway.Core.Tests.csproj", "{3B188E4C-C926-4BED-94F3-0E83668FBAB0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IslandGateway.CoreServicesBorrowed.Test", "test\IslandGateway.CoreServicesBorrowed.Test\IslandGateway.CoreServicesBorrowed.Test.csproj", "{95DC0C76-C475-43D7-B416-0C169234BAB9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IslandGateway.CoreServicesBorrowed.Tests", "test\IslandGateway.CoreServicesBorrowed.Tests\IslandGateway.CoreServicesBorrowed.Tests.csproj", "{95DC0C76-C475-43D7-B416-0C169234BAB9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IslandGateway.Sample.Tests", "test\IslandGateway.Sample.Tests\IslandGateway.Sample.Tests.csproj", "{BAF28120-EF3A-4DFA-8F35-FC60554C93C0}"
 EndProject
