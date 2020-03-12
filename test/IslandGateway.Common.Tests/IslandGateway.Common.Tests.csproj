@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <OutputType>Library</OutputType>
-    <RootNamespace>IslandGateway.ServiceFabricIntegration</RootNamespace>
+    <RootNamespace>IslandGateway.Common</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
