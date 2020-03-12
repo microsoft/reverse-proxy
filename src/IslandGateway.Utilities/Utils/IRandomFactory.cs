@@ -4,7 +4,7 @@
 
 using System;
 
-namespace IslandGateway.CoreServicesBorrowed
+namespace IslandGateway.Utilities
 {
     /// <summary>
     /// Factory for creating random class. This factory let us able to inject random class into other class.

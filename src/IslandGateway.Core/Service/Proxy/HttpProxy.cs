@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 using IslandGateway.Core.Abstractions;
 using IslandGateway.Core.Service.Metrics;
 using IslandGateway.Core.Service.Proxy.Infra;
-using IslandGateway.CoreServicesBorrowed;
+using IslandGateway.Utilities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging;

@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using IslandGateway.Core.Abstractions;
 using IslandGateway.Core.ConfigModel;
-using IslandGateway.CoreServicesBorrowed;
+using IslandGateway.Utilities;
 using Microsoft.AspNetCore.Routing.Patterns;
 
 namespace IslandGateway.Core.Service

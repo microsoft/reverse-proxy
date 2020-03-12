@@ -16,7 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\IslandGateway.Common\IslandGateway.Common.csproj" />
-    <ProjectReference Include="..\IslandGateway.CoreServicesBorrowed\IslandGateway.CoreServicesBorrowed.csproj" />
+    <ProjectReference Include="..\IslandGateway.Utilities\IslandGateway.Utilities.csproj" />
     <ProjectReference Include="..\IslandGateway.Signals\IslandGateway.Signals.csproj" />
   </ItemGroup>
 

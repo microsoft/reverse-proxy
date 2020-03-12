@@ -3,7 +3,7 @@
 // </copyright>
 
 using IslandGateway.Core.Util;
-using IslandGateway.CoreServicesBorrowed;
+using IslandGateway.Utilities;
 using IslandGateway.Signals;
 
 namespace IslandGateway.Core.RuntimeModel

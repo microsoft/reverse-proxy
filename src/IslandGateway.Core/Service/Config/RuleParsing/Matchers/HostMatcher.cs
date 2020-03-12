@@ -2,7 +2,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
-using IslandGateway.CoreServicesBorrowed;
+using IslandGateway.Utilities;
 
 namespace IslandGateway.Core.Service
 {

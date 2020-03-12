@@ -12,7 +12,7 @@ using IslandGateway.Common.Abstractions.Time;
 using IslandGateway.Common.Util;
 using IslandGateway.Core.RuntimeModel;
 using IslandGateway.Core.Service.Management;
-using IslandGateway.CoreServicesBorrowed;
+using IslandGateway.Utilities;
 using Microsoft.Extensions.Logging;
 
 namespace IslandGateway.Core.Service.HealthProbe

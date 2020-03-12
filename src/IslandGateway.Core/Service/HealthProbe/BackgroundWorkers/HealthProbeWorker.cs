@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using IslandGateway.Core.Service.Management;
-using IslandGateway.CoreServicesBorrowed;
+using IslandGateway.Utilities;
 using Microsoft.Extensions.Logging;
 
 namespace IslandGateway.Core.Service.HealthProbe

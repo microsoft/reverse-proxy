@@ -4,7 +4,7 @@
 
 using System;
 
-namespace IslandGateway.CoreServicesBorrowed
+namespace IslandGateway.Utilities
 {
     /// <summary>
     /// Wrapper around <see cref="Random"/> that facilitates deterministic unit testing.

@@ -4,7 +4,7 @@
 
 using IslandGateway.Core.RuntimeModel;
 using IslandGateway.Core.Service.Proxy.Infra;
-using IslandGateway.CoreServicesBorrowed;
+using IslandGateway.Utilities;
 
 namespace IslandGateway.Core.Service.Management
 {

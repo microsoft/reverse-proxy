@@ -4,7 +4,7 @@
 
 using System;
 using IslandGateway.Common.Abstractions.Telemetry;
-using IslandGateway.CoreServicesBorrowed;
+using IslandGateway.Utilities;
 
 namespace IslandGateway.Core.Service.Metrics
 {

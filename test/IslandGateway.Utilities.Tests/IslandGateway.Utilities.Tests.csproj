@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <OutputType>Library</OutputType>
-    <RootNamespace>IslandGateway.CoreServicesBorrowed</RootNamespace>
+    <RootNamespace>IslandGateway.Utilities</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\IslandGateway.CoreServicesBorrowed\IslandGateway.CoreServicesBorrowed.csproj" />
+    <ProjectReference Include="..\..\src\IslandGateway.Utilities\IslandGateway.Utilities.csproj" />
     <ProjectReference Include="..\Tests.Common\Tests.Common.csproj" />
   </ItemGroup>
 </Project>

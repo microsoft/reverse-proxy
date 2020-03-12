@@ -5,7 +5,7 @@
 using System;
 using Autofac.Core;
 using Autofac.Extras.Moq;
-using IslandGateway.CoreServicesBorrowed;
+using IslandGateway.Utilities;
 using Moq;
 
 namespace Tests.Common

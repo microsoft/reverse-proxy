@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using IslandGateway.Core.Abstractions;
 using IslandGateway.Core.ConfigModel;
-using IslandGateway.CoreServicesBorrowed;
+using IslandGateway.Utilities;
 
 namespace IslandGateway.Core.Service
 {

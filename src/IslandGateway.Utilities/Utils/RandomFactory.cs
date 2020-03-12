@@ -4,7 +4,7 @@
 
 using System;
 
-namespace IslandGateway.CoreServicesBorrowed
+namespace IslandGateway.Utilities
 {
     /// <inheritdoc/>
     public class RandomFactory : IRandomFactory

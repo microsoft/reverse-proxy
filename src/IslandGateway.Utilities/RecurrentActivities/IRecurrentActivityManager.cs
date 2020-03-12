@@ -7,7 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using IslandGateway.Common.Abstractions.Telemetry;
 
-namespace IslandGateway.CoreServicesBorrowed
+namespace IslandGateway.Utilities
 {
     /// <summary>
     /// Assists in regularly executing a set of simple background tasks.

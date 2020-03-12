@@ -4,10 +4,10 @@
 
 using System;
 using FluentAssertions;
-using IslandGateway.CoreServicesBorrowed;
+using IslandGateway.Utilities;
 using Xunit;
 
-namespace IslandGateway.CoreServicesBorrowed
+namespace IslandGateway.Utilities
 {
     public class RandomFactoryTests
     {

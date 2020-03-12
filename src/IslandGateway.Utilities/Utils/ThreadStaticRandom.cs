@@ -4,7 +4,7 @@
 
 using System;
 
-namespace IslandGateway.CoreServicesBorrowed
+namespace IslandGateway.Utilities
 {
     /// <summary>
     /// Provides a thread static implementation of random numbers that optimizes not to lock on every invocation of random number generation.

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using IslandGateway.Core.Abstractions;
 using IslandGateway.Core.ConfigModel;
 using IslandGateway.Core.RuntimeModel;
-using IslandGateway.CoreServicesBorrowed;
+using IslandGateway.Utilities;
 using Microsoft.Extensions.Logging;
 using AspNetCore = Microsoft.AspNetCore;
 

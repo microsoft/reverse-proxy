@@ -15,7 +15,7 @@ using IslandGateway.Common.Telemetry;
 using IslandGateway.Common.Util;
 using IslandGateway.Core.RuntimeModel;
 using IslandGateway.Core.Service.Management;
-using IslandGateway.CoreServicesBorrowed;
+using IslandGateway.Utilities;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Tests.Common;

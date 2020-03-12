@@ -6,7 +6,7 @@ using System;
 using FluentAssertions;
 using Xunit;
 
-namespace IslandGateway.CoreServicesBorrowed
+namespace IslandGateway.Utilities
 {
     public class RandomWrapperTests
     {

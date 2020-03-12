@@ -3,7 +3,7 @@
 // </copyright>
 
 using System.Linq;
-using IslandGateway.CoreServicesBorrowed;
+using IslandGateway.Utilities;
 
 namespace IslandGateway.Core.Service
 {

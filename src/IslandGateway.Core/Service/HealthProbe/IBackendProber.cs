@@ -5,7 +5,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using IslandGateway.Core.RuntimeModel;
-using IslandGateway.CoreServicesBorrowed;
+using IslandGateway.Utilities;
 
 namespace IslandGateway.Core.Service.HealthProbe
 {

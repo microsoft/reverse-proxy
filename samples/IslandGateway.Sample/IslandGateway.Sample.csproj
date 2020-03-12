@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\IslandGateway.Core\IslandGateway.Core.csproj" />
-    <ProjectReference Include="..\..\src\IslandGateway.CoreServicesBorrowed\IslandGateway.CoreServicesBorrowed.csproj" />
+    <ProjectReference Include="..\..\src\IslandGateway.Utilities\IslandGateway.Utilities.csproj" />
   </ItemGroup>
 
   <ItemGroup>

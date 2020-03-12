@@ -3,7 +3,7 @@
 // </copyright>
 
 using System.Collections.Generic;
-using IslandGateway.CoreServicesBorrowed;
+using IslandGateway.Utilities;
 using AspNetCore = Microsoft.AspNetCore;
 
 namespace IslandGateway.Core.RuntimeModel

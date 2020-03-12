@@ -7,7 +7,7 @@ using System.Linq;
 using IslandGateway.Core.ConfigModel;
 using IslandGateway.Core.RuntimeModel;
 using IslandGateway.Core.Service.Proxy;
-using IslandGateway.CoreServicesBorrowed;
+using IslandGateway.Utilities;
 using AspNetCore = Microsoft.AspNetCore;
 
 namespace IslandGateway.Core.Service

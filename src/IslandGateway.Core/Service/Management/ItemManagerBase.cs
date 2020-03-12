@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using IslandGateway.CoreServicesBorrowed;
+using IslandGateway.Utilities;
 using IslandGateway.Signals;
 
 namespace IslandGateway.Core.Service.Management
