@@ -24,8 +24,8 @@ namespace IslandGateway.Signals
         /// </summary>
         internal Signal(SignalContext context)
         {
-            this.Context = context;
-            this._snapshot = new Snapshot(default);
+            Context = context;
+            _snapshot = new Snapshot(default);
         }
 
         /// <summary>
@@ -33,8 +33,8 @@ namespace IslandGateway.Signals
         /// </summary>
         internal Signal(SignalContext context, T value)
         {
-            this.Context = context;
-            this._snapshot = new Snapshot(value);
+            Context = context;
+            _snapshot = new Snapshot(value);
         }
 
         /// <inheritdoc/>
@@ -45,20 +45,20 @@ namespace IslandGateway.Signals
         /// </summary>
         public T Value
         {
-            get => Volatile.Read(ref this._snapshot).Value;
+            get => Volatile.Read(ref _snapshot).Value;
             set
             {
-                this.Context.QueueAction(() =>
+                Context.QueueAction(() =>
                 {
-                    var currentSnapshot = this._snapshot;
-                    Volatile.Write(ref this._snapshot, new Snapshot(value));
+                    var currentSnapshot = _snapshot;
+                    Volatile.Write(ref _snapshot, new Snapshot(value));
                     currentSnapshot.Notify();
                 });
             }
         }
 
         /// <inheritdoc/>
-        public ISignalSnapshot<T> GetSnapshot() => Volatile.Read(ref this._snapshot);
+        public ISignalSnapshot<T> GetSnapshot() => Volatile.Read(ref _snapshot);
 
         private class Snapshot : ISignalSnapshot<T>
         {
@@ -66,7 +66,7 @@ namespace IslandGateway.Signals
 
             public Snapshot(T value)
             {
-                this.Value = value;
+                Value = value;
             }
 
             private event Action ChangedEvent;
@@ -77,19 +77,19 @@ namespace IslandGateway.Signals
             /// <inheritdoc/>
             public IDisposable OnChange(Action action)
             {
-                this.ChangedEvent += action;
-                if (Volatile.Read(ref this._changed))
+                ChangedEvent += action;
+                if (Volatile.Read(ref _changed))
                 {
                     action();
                 }
 
-                return new UnsubscribeDisposable(() => this.ChangedEvent -= action);
+                return new UnsubscribeDisposable(() => ChangedEvent -= action);
             }
 
             internal void Notify()
             {
-                Volatile.Write(ref this._changed, true);
-                this.ChangedEvent?.Invoke();
+                Volatile.Write(ref _changed, true);
+                ChangedEvent?.Invoke();
             }
 
             private class UnsubscribeDisposable : IDisposable
@@ -98,13 +98,13 @@ namespace IslandGateway.Signals
 
                 public UnsubscribeDisposable(Action disposeAction)
                 {
-                    this._disposeAction = disposeAction;
+                    _disposeAction = disposeAction;
                 }
 
                 public void Dispose()
                 {
-                    this._disposeAction?.Invoke();
-                    this._disposeAction = null;
+                    _disposeAction?.Invoke();
+                    _disposeAction = null;
                 }
             }
         }

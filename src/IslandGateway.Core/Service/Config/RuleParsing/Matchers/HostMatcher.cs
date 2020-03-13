@@ -1,4 +1,4 @@
-﻿// <copyright file="HostMatcher.cs" company="Microsoft Corporation">
+// <copyright file="HostMatcher.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -15,6 +15,6 @@ namespace IslandGateway.Core.Service
             Contracts.CheckNonEmpty(args[0], $"{nameof(args)}[0]");
         }
 
-        public string Host => this.Args[0];
+        public string Host => Args[0];
     }
 }

@@ -21,14 +21,14 @@ namespace IslandGateway.Core.Service.Proxy.Tests
 
         public StreamCopierTests()
         {
-            this._metricCreator = this.Provide<IMetricCreator, TestMetricCreator>();
-            this._metrics = this.Create<GatewayMetrics>();
+            _metricCreator = Provide<IMetricCreator, TestMetricCreator>();
+            _metrics = Create<GatewayMetrics>();
         }
 
         [Fact]
         public void Constructor_Works()
         {
-            new StreamCopier(this._metrics, default(StreamCopyTelemetryContext));
+            new StreamCopier(_metrics, default(StreamCopyTelemetryContext));
         }
 
         [Fact]
@@ -44,14 +44,14 @@ namespace IslandGateway.Core.Service.Proxy.Tests
                 backendId: "be1",
                 routeId: "rt1",
                 endpointId: "ep1");
-            var sut = new StreamCopier(this._metrics, in proxyTelemetryContext);
+            var sut = new StreamCopier(_metrics, in proxyTelemetryContext);
 
             // Act
             await sut.CopyAsync(source, destination, CancellationToken.None);
 
             // Assert
             destination.ToArray().Should().BeEquivalentTo(sourceBytes);
-            this._metricCreator.MetricsLogged.Should().BeEquivalentTo(
+            _metricCreator.MetricsLogged.Should().BeEquivalentTo(
                 "StreamCopyBytes=131069;direction=upstream;backendId=be1;routeId=rt1;endpointId=ep1;protocol=",
                 "StreamCopyIops=2;direction=upstream;backendId=be1;routeId=rt1;endpointId=ep1;protocol=");
         }

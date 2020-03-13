@@ -93,13 +93,13 @@ namespace IslandGateway.Utilities
             /// </summary>
             public SwitchSchedulerAwaiter(TaskScheduler scheduler)
             {
-                this._scheduler = scheduler;
+                _scheduler = scheduler;
             }
 
             /// <summary>
             /// Whether the switch is completed.
             /// </summary>
-            public bool IsCompleted => this._scheduler == TaskScheduler.Current;
+            public bool IsCompleted => _scheduler == TaskScheduler.Current;
 
             /// <summary>
             /// Part of custom awaiter pattern.
@@ -116,7 +116,7 @@ namespace IslandGateway.Utilities
             /// <inheritdoc/>
             public void OnCompleted(Action continuation)
             {
-                this._scheduler.Run(continuation);
+                _scheduler.Run(continuation);
             }
         }
     }

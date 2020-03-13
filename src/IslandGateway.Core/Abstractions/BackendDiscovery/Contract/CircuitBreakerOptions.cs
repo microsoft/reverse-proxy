@@ -1,4 +1,4 @@
-﻿// <copyright file="CircuitBreakerOptions.cs" company="Microsoft Corporation">
+// <copyright file="CircuitBreakerOptions.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -27,8 +27,8 @@ namespace IslandGateway.Core.Abstractions
         {
             return new CircuitBreakerOptions
             {
-                MaxConcurrentRequests = this.MaxConcurrentRequests,
-                MaxConcurrentRetries = this.MaxConcurrentRetries,
+                MaxConcurrentRequests = MaxConcurrentRequests,
+                MaxConcurrentRetries = MaxConcurrentRetries,
             };
         }
     }

@@ -1,4 +1,4 @@
-﻿// <copyright file="RouteInfo.cs" company="Microsoft Corporation">
+// <copyright file="RouteInfo.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -21,7 +21,7 @@ namespace IslandGateway.Core.RuntimeModel
         public RouteInfo(string routeId)
         {
             Contracts.CheckNonEmpty(routeId, nameof(routeId));
-            this.RouteId = routeId;
+            RouteId = routeId;
         }
 
         public string RouteId { get; }

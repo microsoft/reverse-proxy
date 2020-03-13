@@ -1,4 +1,4 @@
-﻿// <copyright file="ProxyInvokerTests.cs" company="Microsoft Corporation">
+// <copyright file="ProxyInvokerTests.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -27,13 +27,13 @@ namespace IslandGateway.Core.Service.Proxy.Tests
     {
         public ProxyInvokerTests()
         {
-            this.Provide<IOperationLogger, TextOperationLogger>();
+            Provide<IOperationLogger, TextOperationLogger>();
         }
 
         [Fact]
         public void Constructor_Works()
         {
-            this.Create<ProxyInvoker>();
+            Create<ProxyInvoker>();
         }
 
         [Fact]
@@ -71,13 +71,13 @@ namespace IslandGateway.Core.Service.Proxy.Tests
             aspNetCoreEndpoints.Add(aspNetCoreEndpoint);
             httpContext.SetEndpoint(aspNetCoreEndpoint);
 
-            this.Mock<ILoadBalancer>()
+            Mock<ILoadBalancer>()
                 .Setup(l => l.PickEndpoint(It.IsAny<IReadOnlyList<EndpointInfo>>(), It.IsAny<IReadOnlyList<EndpointInfo>>(), It.IsAny<BackendConfig.BackendLoadBalancingOptions>()))
                 .Returns(endpoint1);
 
             var tcs1 = new TaskCompletionSource<bool>();
             var tcs2 = new TaskCompletionSource<bool>();
-            this.Mock<IHttpProxy>()
+            Mock<IHttpProxy>()
                 .Setup(h => h.ProxyAsync(
                     httpContext,
                     It.Is<Uri>(uri => uri == new Uri("https://localhost:123/a/b/api/test?a=b&c=d")),
@@ -93,7 +93,7 @@ namespace IslandGateway.Core.Service.Proxy.Tests
                     })
                 .Verifiable();
 
-            var sut = this.Create<ProxyInvoker>();
+            var sut = Create<ProxyInvoker>();
 
             // Act
             backend1.ConcurrencyCounter.Value.Should().Be(0);
@@ -110,7 +110,7 @@ namespace IslandGateway.Core.Service.Proxy.Tests
             endpoint1.ConcurrencyCounter.Value.Should().Be(0);
 
             // Assert
-            this.Mock<IHttpProxy>().Verify();
+            Mock<IHttpProxy>().Verify();
         }
 
         private static Endpoint CreateAspNetCoreEndpoint(RouteConfig routeConfig)

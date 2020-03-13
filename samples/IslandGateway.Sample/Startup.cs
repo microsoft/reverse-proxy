@@ -23,7 +23,7 @@ namespace IslandGateway.Sample
         /// </summary>
         public Startup(IConfiguration configuration)
         {
-            this._configuration = configuration;
+            _configuration = configuration;
         }
 
         /// <summary>
@@ -36,7 +36,7 @@ namespace IslandGateway.Sample
 
             // The following 2 lines are all that we need to react to config changes on the fly.
             // You can then change appsettings.json on disk and we will apply the new configs without a restart.
-            services.Configure<GatewayConfigRoot>(this._configuration.GetSection("Gateway"));
+            services.Configure<GatewayConfigRoot>(_configuration.GetSection("Gateway"));
             services.AddHostedService<GatewayConfigApplier>();
         }
 

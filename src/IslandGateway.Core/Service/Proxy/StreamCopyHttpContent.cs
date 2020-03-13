@@ -48,16 +48,16 @@ namespace IslandGateway.Core.Service.Proxy
             Contracts.CheckValue(source, nameof(source));
             Contracts.CheckValue(streamCopier, nameof(streamCopier));
 
-            this._source = source;
-            this._streamCopier = streamCopier;
-            this._cancellation = cancellation;
+            _source = source;
+            _streamCopier = streamCopier;
+            _cancellation = cancellation;
         }
 
         /// <summary>
         /// Gets a <see cref="System.Threading.Tasks.Task"/> that completes in successful or failed state
         /// mimicking the result of <see cref="SerializeToStreamAsync"/>.
         /// </summary>
-        public Task ConsumptionTask => this._tcs.Task;
+        public Task ConsumptionTask => _tcs.Task;
 
         /// <summary>
         /// Gets a value indicating whether consumption of this content has begun.
@@ -115,24 +115,24 @@ namespace IslandGateway.Core.Service.Proxy
         /// </remarks>
         protected override async Task SerializeToStreamAsync(Stream stream, TransportContext context)
         {
-            if (this.Started)
+            if (Started)
             {
                 throw new InvalidOperationException("Stream was already consumed.");
             }
 
-            this.Started = true;
+            Started = true;
             try
             {
                 // Immediately flush request stream to send headers
                 // https://github.com/dotnet/corefx/issues/39586#issuecomment-516210081
                 await stream.FlushAsync();
 
-                await this._streamCopier.CopyAsync(this._source, stream, this._cancellation);
-                this._tcs.TrySetResult(true);
+                await _streamCopier.CopyAsync(_source, stream, _cancellation);
+                _tcs.TrySetResult(true);
             }
             catch (Exception ex)
             {
-                this._tcs.TrySetException(ex);
+                _tcs.TrySetException(ex);
                 throw;
             }
         }

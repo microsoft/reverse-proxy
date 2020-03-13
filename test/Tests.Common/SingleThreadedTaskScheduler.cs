@@ -47,12 +47,12 @@ namespace Tests.Common
         /// </summary>
         public void RunUntilComplete(Func<Task> func)
         {
-            lock (this._lockObject)
+            lock (_lockObject)
             {
-                Contracts.Check(this._schedulerIsRunning == false, "Synchronous execution is not supported if already being executed.");
+                Contracts.Check(_schedulerIsRunning == false, "Synchronous execution is not supported if already being executed.");
 
                 bool flag = false;
-                this._suspendScheduler = true;
+                _suspendScheduler = true;
 
                 try
                 {
@@ -60,10 +60,10 @@ namespace Tests.Common
                 }
                 finally
                 {
-                    this._suspendScheduler = false;
+                    _suspendScheduler = false;
                 }
 
-                this.ExecuteTasksUntil(() => flag);
+                ExecuteTasksUntil(() => flag);
 
                 Contracts.Check(flag == true, "Task did not execute synchronously. Check for any non-single threaded work.");
             }
@@ -72,11 +72,11 @@ namespace Tests.Common
         /// <inheritdoc/>
         protected override void QueueTask(Task task)
         {
-            lock (this._lockObject)
+            lock (_lockObject)
             {
-                this._taskQueue.Enqueue(task);
+                _taskQueue.Enqueue(task);
 
-                this.ExecuteTasksUntil(() => false);
+                ExecuteTasksUntil(() => false);
             }
         }
 
@@ -89,7 +89,7 @@ namespace Tests.Common
         /// <inheritdoc/>
         protected override IEnumerable<Task> GetScheduledTasks()
         {
-            return this._taskQueue;
+            return _taskQueue;
         }
 
         /// <summary>
@@ -101,27 +101,27 @@ namespace Tests.Common
         /// </remarks>
         private void ExecuteTasksUntil(Func<bool> predicate)
         {
-            Contracts.Check(Monitor.IsEntered(this._lockObject), "Must hold lock when scheduling.");
+            Contracts.Check(Monitor.IsEntered(_lockObject), "Must hold lock when scheduling.");
 
             // Prevent reentrancy. Reentrancy can lead to stack overflow and difficulty when debugging.
-            if (this._schedulerIsRunning || this._suspendScheduler)
+            if (_schedulerIsRunning || _suspendScheduler)
             {
                 return;
             }
 
             try
             {
-                this._schedulerIsRunning = true;
+                _schedulerIsRunning = true;
                 while (predicate() == false)
                 {
-                    if (this._taskQueue.Count == 0)
+                    if (_taskQueue.Count == 0)
                     {
-                        if (this.OnIdle != null)
+                        if (OnIdle != null)
                         {
-                            this.OnIdle();
+                            OnIdle();
 
                             // OnIdle handler may have created more tasks. Try finding more work to execute.
-                            if (this._taskQueue.Count != 0)
+                            if (_taskQueue.Count != 0)
                             {
                                 continue;
                             }
@@ -131,13 +131,13 @@ namespace Tests.Common
                         return;
                     }
 
-                    var nextTask = this._taskQueue.Dequeue();
-                    this.TryExecuteTask(nextTask);
+                    var nextTask = _taskQueue.Dequeue();
+                    TryExecuteTask(nextTask);
                 }
             }
             finally
             {
-                this._schedulerIsRunning = false;
+                _schedulerIsRunning = false;
             }
         }
     }

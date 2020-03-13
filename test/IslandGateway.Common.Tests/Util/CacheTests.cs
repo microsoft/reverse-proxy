@@ -21,8 +21,8 @@ namespace IslandGateway.Common.Tests
         private VirtualMonotonicTimer _timer;
         public CacheTests()
         {
-            this._timer = new VirtualMonotonicTimer();
-            this.Provide<IMonotonicTimer>(this._timer);
+            _timer = new VirtualMonotonicTimer();
+            Provide<IMonotonicTimer>(_timer);
         }
 
         [Fact]
@@ -32,12 +32,12 @@ namespace IslandGateway.Common.Tests
             TimeSpan expirationTimeOffset = TimeSpan.FromMinutes(12);
             string key = "some key";
             string value = "some awesome value";
-            var cache = new Cache<string>(this._timer, expirationTimeOffset);
+            var cache = new Cache<string>(_timer, expirationTimeOffset);
             cache.Set(key, value);
 
             // Act
             var firstPresent = cache.TryGetValue(key, out string firstValueGot);
-            this._timer.AdvanceClockBy(expirationTimeOffset);
+            _timer.AdvanceClockBy(expirationTimeOffset);
             var secondPresent = cache.TryGetValue(key, out string secondValueGot);
 
             // Assert
@@ -54,13 +54,13 @@ namespace IslandGateway.Common.Tests
             TimeSpan expirationTimeOffset = TimeSpan.FromMinutes(12);
             string key = "some key";
             string value = "some awesome value";
-            var cache = new Cache<string>(this._timer, expirationTimeOffset);
+            var cache = new Cache<string>(_timer, expirationTimeOffset);
             cache.Set(key, value);
 
             // Act
             var firstPresent = cache.TryGetValue(key, out string firstValueGot);
-            this._timer.AdvanceClockBy(expirationTimeOffset);
-            this._timer.AdvanceClockBy(expirationTimeOffset);
+            _timer.AdvanceClockBy(expirationTimeOffset);
+            _timer.AdvanceClockBy(expirationTimeOffset);
             var secondPresent = cache.TryGetValue(key, out string secondValueGot);
 
             // Assert

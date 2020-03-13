@@ -18,16 +18,16 @@ namespace IslandGateway.Core.Service.Management
         private readonly Signal<IReadOnlyList<T>> _signal = SignalFactory.Default.CreateSignal<IReadOnlyList<T>>(new List<T>().AsReadOnly());
 
         /// <inheritdoc/>
-        public IReadableSignal<IReadOnlyList<T>> Items => this._signal;
+        public IReadableSignal<IReadOnlyList<T>> Items => _signal;
 
         /// <inheritdoc/>
         public T TryGetItem(string itemId)
         {
             Contracts.CheckNonEmpty(itemId, nameof(itemId));
 
-            lock (this._lockObject)
+            lock (_lockObject)
             {
-                this._items.TryGetValue(itemId, out var item);
+                _items.TryGetValue(itemId, out var item);
                 return item;
             }
         }
@@ -38,20 +38,20 @@ namespace IslandGateway.Core.Service.Management
             Contracts.CheckNonEmpty(itemId, nameof(itemId));
             Contracts.CheckValue(setupAction, nameof(setupAction));
 
-            lock (this._lockObject)
+            lock (_lockObject)
             {
-                bool existed = this._items.TryGetValue(itemId, out var item);
+                bool existed = _items.TryGetValue(itemId, out var item);
                 if (!existed)
                 {
-                    item = this.InstantiateItem(itemId);
+                    item = InstantiateItem(itemId);
                 }
 
                 setupAction(item);
 
                 if (!existed)
                 {
-                    this._items.Add(itemId, item);
-                    this.UpdateSignal();
+                    _items.Add(itemId, item);
+                    UpdateSignal();
                 }
 
                 return item;
@@ -61,9 +61,9 @@ namespace IslandGateway.Core.Service.Management
         /// <inheritdoc/>
         public IList<T> GetItems()
         {
-            lock (this._lockObject)
+            lock (_lockObject)
             {
-                return this._items.Values.ToList();
+                return _items.Values.ToList();
             }
         }
 
@@ -72,13 +72,13 @@ namespace IslandGateway.Core.Service.Management
         {
             Contracts.CheckNonEmpty(itemId, nameof(itemId));
 
-            lock (this._lockObject)
+            lock (_lockObject)
             {
-                bool removed = this._items.Remove(itemId);
+                bool removed = _items.Remove(itemId);
 
                 if (removed)
                 {
-                    this.UpdateSignal();
+                    UpdateSignal();
                 }
 
                 return removed;
@@ -92,7 +92,7 @@ namespace IslandGateway.Core.Service.Management
 
         private void UpdateSignal()
         {
-            this._signal.Value = this._items.Select(kvp => kvp.Value).ToList().AsReadOnly();
+            _signal.Value = _items.Select(kvp => kvp.Value).ToList().AsReadOnly();
         }
     }
 }

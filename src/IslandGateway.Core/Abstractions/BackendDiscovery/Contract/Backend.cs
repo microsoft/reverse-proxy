@@ -1,4 +1,4 @@
-﻿// <copyright file="Backend.cs" company="Microsoft Corporation">
+// <copyright file="Backend.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -59,13 +59,13 @@ namespace IslandGateway.Core.Abstractions
         {
             return new Backend
             {
-                BackendId = this.BackendId,
-                CircuitBreakerOptions = this.CircuitBreakerOptions?.DeepClone(),
-                QuotaOptions = this.QuotaOptions?.DeepClone(),
-                PartitioningOptions = this.PartitioningOptions?.DeepClone(),
-                LoadBalancingOptions = this.LoadBalancingOptions?.DeepClone(),
-                HealthCheckOptions = this.HealthCheckOptions?.DeepClone(),
-                Metadata = this.Metadata?.DeepClone(StringComparer.Ordinal),
+                BackendId = BackendId,
+                CircuitBreakerOptions = CircuitBreakerOptions?.DeepClone(),
+                QuotaOptions = QuotaOptions?.DeepClone(),
+                PartitioningOptions = PartitioningOptions?.DeepClone(),
+                LoadBalancingOptions = LoadBalancingOptions?.DeepClone(),
+                HealthCheckOptions = HealthCheckOptions?.DeepClone(),
+                Metadata = Metadata?.DeepClone(StringComparer.Ordinal),
             };
         }
     }

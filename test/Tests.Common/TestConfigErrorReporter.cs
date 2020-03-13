@@ -1,4 +1,4 @@
-﻿// <copyright file="TestConfigErrorReporter.cs" company="Microsoft Corporation">
+// <copyright file="TestConfigErrorReporter.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -13,7 +13,7 @@ namespace Tests.Common
 
         public void ReportError(string code, string elementId, string message)
         {
-            this.Errors.Add(new TestConfigError { ErrorCode = code, ElementId = elementId, Message = message });
+            Errors.Add(new TestConfigError { ErrorCode = code, ElementId = elementId, Message = message });
         }
     }
 }

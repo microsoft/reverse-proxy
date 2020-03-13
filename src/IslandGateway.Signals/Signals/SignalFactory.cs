@@ -17,7 +17,7 @@ namespace IslandGateway.Signals
         /// </summary>
         public SignalFactory()
         {
-            this._context = new SignalContext();
+            _context = new SignalContext();
         }
 
         /// <summary>
@@ -32,7 +32,7 @@ namespace IslandGateway.Signals
         /// </summary>
         public Signal<T> CreateSignal<T>()
         {
-            return new Signal<T>(this._context);
+            return new Signal<T>(_context);
         }
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace IslandGateway.Signals
         /// </summary>
         public Signal<T> CreateSignal<T>(T value)
         {
-            return new Signal<T>(this._context, value);
+            return new Signal<T>(_context, value);
         }
 
         /// <summary>
@@ -52,7 +52,7 @@ namespace IslandGateway.Signals
         /// </remarks>
         public Signal<Unit> CreateUnitSignal()
         {
-            return new Signal<Unit>(this._context, Unit.Instance);
+            return new Signal<Unit>(_context, Unit.Instance);
         }
     }
 }

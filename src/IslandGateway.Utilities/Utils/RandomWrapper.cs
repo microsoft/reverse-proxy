@@ -19,25 +19,25 @@ namespace IslandGateway.Utilities
         public RandomWrapper(Random random)
         {
             Contracts.CheckValue(random, nameof(random));
-            this._random = random;
+            _random = random;
         }
 
         /// <inheritdoc/>
         public int Next()
         {
-            return this._random.Next();
+            return _random.Next();
         }
 
         /// <inheritdoc/>
         public int Next(int maxValue)
         {
-            return this._random.Next(maxValue);
+            return _random.Next(maxValue);
         }
 
         /// <inheritdoc/>
         public int Next(int minValue, int maxValue)
         {
-            return this._random.Next(minValue, maxValue);
+            return _random.Next(minValue, maxValue);
         }
     }
 }

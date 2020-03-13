@@ -15,39 +15,39 @@ namespace IslandGateway.Core.Service.Metrics.Tests
 
         public GatewayMetricsTests()
         {
-            this._metricCreator = this.Provide<IMetricCreator, TestMetricCreator>();
+            _metricCreator = Provide<IMetricCreator, TestMetricCreator>();
         }
 
         [Fact]
         public void Constructor_Works()
         {
-            this.Create<GatewayMetrics>();
+            Create<GatewayMetrics>();
         }
 
         [Fact]
         public void StreamCopyBytes_Works()
         {
             // Arrange
-            var metrics = this.Create<GatewayMetrics>();
+            var metrics = Create<GatewayMetrics>();
 
             // Act
             metrics.StreamCopyBytes(123, "upstream", "be1", "rt1", "ep1", "prot");
 
             // Assert
-            this._metricCreator.MetricsLogged.Should().BeEquivalentTo("StreamCopyBytes=123;direction=upstream;backendId=be1;routeId=rt1;endpointId=ep1;protocol=prot");
+            _metricCreator.MetricsLogged.Should().BeEquivalentTo("StreamCopyBytes=123;direction=upstream;backendId=be1;routeId=rt1;endpointId=ep1;protocol=prot");
         }
 
         [Fact]
         public void StreamCopyIops_Works()
         {
             // Arrange
-            var metrics = this.Create<GatewayMetrics>();
+            var metrics = Create<GatewayMetrics>();
 
             // Act
             metrics.StreamCopyIops(123, "upstream", "be1", "rt1", "ep1", "prot");
 
             // Assert
-            this._metricCreator.MetricsLogged.Should().BeEquivalentTo("StreamCopyIops=123;direction=upstream;backendId=be1;routeId=rt1;endpointId=ep1;protocol=prot");
+            _metricCreator.MetricsLogged.Should().BeEquivalentTo("StreamCopyIops=123;direction=upstream;backendId=be1;routeId=rt1;endpointId=ep1;protocol=prot");
         }
     }
 }

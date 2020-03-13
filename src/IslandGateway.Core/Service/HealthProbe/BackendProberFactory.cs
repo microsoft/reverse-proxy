@@ -33,17 +33,17 @@ namespace IslandGateway.Core.Service.HealthProbe
             Contracts.CheckValue(operationLogger, nameof(operationLogger));
             Contracts.CheckValue(httpClientFactory, nameof(httpClientFactory));
 
-            this._timer = timer;
-            this._loggerFactory = loggerFactory;
-            this._httpClientFactory = httpClientFactory;
-            this._randomFactory = new RandomFactory();
-            this._operationLogger = operationLogger;
+            _timer = timer;
+            _loggerFactory = loggerFactory;
+            _httpClientFactory = httpClientFactory;
+            _randomFactory = new RandomFactory();
+            _operationLogger = operationLogger;
         }
 
         /// <inheritdoc/>
         public IBackendProber CreateBackendProber(string backendId, BackendConfig config, IEndpointManager endpointManager)
         {
-            return new BackendProber(backendId, config, endpointManager, this._timer, this._loggerFactory.CreateLogger<BackendProber>(), this._operationLogger, this._httpClientFactory.CreateHttpClient(), this._randomFactory);
+            return new BackendProber(backendId, config, endpointManager, _timer, _loggerFactory.CreateLogger<BackendProber>(), _operationLogger, _httpClientFactory.CreateHttpClient(), _randomFactory);
         }
     }
 }

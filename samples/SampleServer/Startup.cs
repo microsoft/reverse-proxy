@@ -20,7 +20,7 @@ namespace SampleServer
         /// </summary>
         public Startup(IConfiguration configuration)
         {
-            this._configuration = configuration;
+            _configuration = configuration;
         }
 
         /// <summary>

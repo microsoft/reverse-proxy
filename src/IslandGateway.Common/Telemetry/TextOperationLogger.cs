@@ -24,7 +24,7 @@ namespace IslandGateway.Common.Telemetry
         /// <param name="logger">Logger where text messages will be logger.</param>
         public TextOperationLogger(ILogger<TextOperationLogger> logger)
         {
-            this._logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         /// <inheritdoc/>
@@ -37,13 +37,13 @@ namespace IslandGateway.Common.Telemetry
             var stopwatch = ValueStopwatch.StartNew();
             try
             {
-                this._logger.LogInformation($"Operation started: {operationName}");
+                _logger.LogInformation($"Operation started: {operationName}");
                 action();
-                this._logger.LogInformation($"Operation ended: {operationName}, {stopwatch.Elapsed.TotalMilliseconds:F1}ms, success");
+                _logger.LogInformation($"Operation ended: {operationName}, {stopwatch.Elapsed.TotalMilliseconds:F1}ms, success");
             }
             catch (Exception ex)
             {
-                this._logger.LogInformation($"Operation ended: {operationName}, {stopwatch.Elapsed.TotalMilliseconds:F1}ms, error: {ex.Message}");
+                _logger.LogInformation($"Operation ended: {operationName}, {stopwatch.Elapsed.TotalMilliseconds:F1}ms, error: {ex.Message}");
                 throw;
             }
         }
@@ -54,14 +54,14 @@ namespace IslandGateway.Common.Telemetry
             var stopwatch = ValueStopwatch.StartNew();
             try
             {
-                this._logger.LogInformation($"Operation started: {operationName}");
+                _logger.LogInformation($"Operation started: {operationName}");
                 var res = func();
-                this._logger.LogInformation($"Operation ended: {operationName}, {stopwatch.Elapsed.TotalMilliseconds:F1}ms, success");
+                _logger.LogInformation($"Operation ended: {operationName}, {stopwatch.Elapsed.TotalMilliseconds:F1}ms, success");
                 return res;
             }
             catch (Exception ex)
             {
-                this._logger.LogInformation($"Operation ended: {operationName}, {stopwatch.Elapsed.TotalMilliseconds:F1}ms, error: {ex.Message}");
+                _logger.LogInformation($"Operation ended: {operationName}, {stopwatch.Elapsed.TotalMilliseconds:F1}ms, error: {ex.Message}");
                 throw;
             }
         }
@@ -72,13 +72,13 @@ namespace IslandGateway.Common.Telemetry
             var stopwatch = ValueStopwatch.StartNew();
             try
             {
-                this._logger.LogInformation($"Operation started: {operationName}");
+                _logger.LogInformation($"Operation started: {operationName}");
                 await action();
-                this._logger.LogInformation($"Operation ended: {operationName}, {stopwatch.Elapsed.TotalMilliseconds:F1}ms, success");
+                _logger.LogInformation($"Operation ended: {operationName}, {stopwatch.Elapsed.TotalMilliseconds:F1}ms, success");
             }
             catch (Exception ex)
             {
-                this._logger.LogInformation($"Operation ended: {operationName}, {stopwatch.Elapsed.TotalMilliseconds:F1}ms, error: {ex.Message}");
+                _logger.LogInformation($"Operation ended: {operationName}, {stopwatch.Elapsed.TotalMilliseconds:F1}ms, error: {ex.Message}");
                 throw;
             }
         }
@@ -89,14 +89,14 @@ namespace IslandGateway.Common.Telemetry
             var stopwatch = ValueStopwatch.StartNew();
             try
             {
-                this._logger.LogInformation($"Operation started: {operationName}");
+                _logger.LogInformation($"Operation started: {operationName}");
                 var res = await func();
-                this._logger.LogInformation($"Operation ended: {operationName}, {stopwatch.Elapsed.TotalMilliseconds:F1}ms, success");
+                _logger.LogInformation($"Operation ended: {operationName}, {stopwatch.Elapsed.TotalMilliseconds:F1}ms, success");
                 return res;
             }
             catch (Exception ex)
             {
-                this._logger.LogInformation($"Operation ended: {operationName}, {stopwatch.Elapsed.TotalMilliseconds:F1}ms, error: {ex.Message}");
+                _logger.LogInformation($"Operation ended: {operationName}, {stopwatch.Elapsed.TotalMilliseconds:F1}ms, error: {ex.Message}");
                 throw;
             }
         }

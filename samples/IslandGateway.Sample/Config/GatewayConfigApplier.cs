@@ -46,22 +46,22 @@ namespace IslandGateway.Sample.Config
             Contracts.CheckValue(gatewayManager, nameof(gatewayManager));
             Contracts.CheckValue(gatewayConfig, nameof(gatewayConfig));
 
-            this._logger = logger;
-            this._backendsRepo = backendsRepo;
-            this._endpointsRepo = endpointsRepo;
-            this._routesRepo = routesRepo;
-            this._gatewayManager = gatewayManager;
+            _logger = logger;
+            _backendsRepo = backendsRepo;
+            _endpointsRepo = endpointsRepo;
+            _routesRepo = routesRepo;
+            _gatewayManager = gatewayManager;
 
-            this._subscription = gatewayConfig.OnChange((newConfig, name) => this.Apply(newConfig));
-            this.Apply(gatewayConfig.CurrentValue);
+            _subscription = gatewayConfig.OnChange((newConfig, name) => Apply(newConfig));
+            Apply(gatewayConfig.CurrentValue);
         }
 
         public void Dispose()
         {
-            if (!this._disposed)
+            if (!_disposed)
             {
-                this._subscription.Dispose();
-                this._disposed = true;
+                _subscription.Dispose();
+                _disposed = true;
             }
         }
 
@@ -84,13 +84,13 @@ namespace IslandGateway.Sample.Config
                 return;
             }
 
-            this._logger.LogInformation("Applying gateway configs");
+            _logger.LogInformation("Applying gateway configs");
             try
             {
                 switch (config.DiscoveryMechanism)
                 {
                     case "static":
-                        await this.ApplyStaticConfigsAsync(config.StaticDiscoveryOptions, CancellationToken.None);
+                        await ApplyStaticConfigsAsync(config.StaticDiscoveryOptions, CancellationToken.None);
                         break;
                     default:
                         throw new Exception($"Config discovery mechanism '{config.DiscoveryMechanism}' is not supported.");
@@ -98,7 +98,7 @@ namespace IslandGateway.Sample.Config
             }
             catch (Exception ex)
             {
-                this._logger.LogError(ex, $"Failed to apply new configs: {ex.Message}");
+                _logger.LogError(ex, $"Failed to apply new configs: {ex.Message}");
             }
         }
 
@@ -109,16 +109,16 @@ namespace IslandGateway.Sample.Config
                 return;
             }
 
-            await this._backendsRepo.SetBackendsAsync(options.Backends, cancellation);
+            await _backendsRepo.SetBackendsAsync(options.Backends, cancellation);
             foreach (var kvp in options.Endpoints)
             {
-                await this._endpointsRepo.SetEndpointsAsync(kvp.Key, kvp.Value, cancellation);
+                await _endpointsRepo.SetEndpointsAsync(kvp.Key, kvp.Value, cancellation);
             }
 
-            await this._routesRepo.SetRoutesAsync(options.Routes, cancellation);
+            await _routesRepo.SetRoutesAsync(options.Routes, cancellation);
 
-            var errorReporter = new LoggerConfigErrorReporter(this._logger);
-            await this._gatewayManager.ApplyConfigurationsAsync(errorReporter, cancellation);
+            var errorReporter = new LoggerConfigErrorReporter(_logger);
+            await _gatewayManager.ApplyConfigurationsAsync(errorReporter, cancellation);
         }
 
         private class LoggerConfigErrorReporter : IConfigErrorReporter
@@ -127,12 +127,12 @@ namespace IslandGateway.Sample.Config
 
             public LoggerConfigErrorReporter(ILogger logger)
             {
-                this._logger = logger ?? throw new ArgumentNullException(nameof(logger));
+                _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             }
 
             public void ReportError(string code, string itemId, string message)
             {
-                this._logger.LogWarning($"Config error: '{code}', '{itemId}', '{message}'.");
+                _logger.LogWarning($"Config error: '{code}', '{itemId}', '{message}'.");
             }
         }
     }

@@ -1,4 +1,4 @@
-﻿// <copyright file="EndpointConfig.cs" company="Microsoft Corporation">
+// <copyright file="EndpointConfig.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -21,7 +21,7 @@ namespace IslandGateway.Core.RuntimeModel
         public EndpointConfig(string address)
         {
             Contracts.CheckNonEmpty(address, nameof(address));
-            this.Address = address;
+            Address = address;
         }
 
         // TODO: Make this a Uri.

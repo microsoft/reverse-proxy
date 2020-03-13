@@ -34,7 +34,7 @@ namespace IslandGateway.Common.Util
             // the second When doesn't need to start allocating Task.Delay timers until after the first expires.
             for (; ;)
             {
-                var now = this.CurrentTime;
+                var now = CurrentTime;
                 if (now >= until)
                 {
                     return;

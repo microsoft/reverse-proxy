@@ -22,7 +22,7 @@ namespace IslandGateway.Sample.Controllers
         public HealthController(ILogger<HealthController> logger)
         {
             Contracts.CheckValue(logger, nameof(logger));
-            this._logger = logger;
+            _logger = logger;
         }
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace IslandGateway.Sample.Controllers
         public IActionResult CheckHealth()
         {
             // TODO: Implement health controller, use guid in route.
-            return this.Ok();
+            return Ok();
         }
     }
 }

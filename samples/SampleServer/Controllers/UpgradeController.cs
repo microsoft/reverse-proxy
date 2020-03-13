@@ -25,7 +25,7 @@ namespace SampleServer.Controllers
         /// </summary>
         public UpgradeController(ILogger<UpgradeController> logger)
         {
-            this._logger = logger;
+            _logger = logger;
         }
 
         /// <summary>
@@ -36,19 +36,19 @@ namespace SampleServer.Controllers
         [Route("/api/rawupgrade")]
         public async Task RawUpgrade()
         {
-            var upgradeFeature = this.HttpContext.Features.Get<IHttpUpgradeFeature>();
+            var upgradeFeature = HttpContext.Features.Get<IHttpUpgradeFeature>();
             if (upgradeFeature != null && upgradeFeature.IsUpgradableRequest)
             {
                 using (var stream = await upgradeFeature.UpgradeAsync())
                 {
-                    this._logger.LogInformation("Upgraded connection.");
-                    await this.RunPingPongAsync(stream);
-                    this._logger.LogInformation("Finished.");
+                    _logger.LogInformation("Upgraded connection.");
+                    await RunPingPongAsync(stream);
+                    _logger.LogInformation("Finished.");
                 }
             }
             else
             {
-                this.HttpContext.Response.StatusCode = StatusCodes.Status426UpgradeRequired;
+                HttpContext.Response.StatusCode = StatusCodes.Status426UpgradeRequired;
             }
         }
 
@@ -60,7 +60,7 @@ namespace SampleServer.Controllers
         {
             var buffer = new byte[1];
             int read;
-            while ((read = await stream.ReadAsync(buffer, this.HttpContext.RequestAborted)) != 0)
+            while ((read = await stream.ReadAsync(buffer, HttpContext.RequestAborted)) != 0)
             {
                 if (buffer[0] == 255)
                 {

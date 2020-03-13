@@ -18,8 +18,8 @@ namespace IslandGateway.Core.Abstractions
 
         internal Result(bool isSuccess, T value)
         {
-            this.IsSuccess = isSuccess;
-            this._value = value;
+            IsSuccess = isSuccess;
+            _value = value;
         }
 
         public bool IsSuccess { get; }
@@ -28,12 +28,12 @@ namespace IslandGateway.Core.Abstractions
         {
             get
             {
-                if (!this.IsSuccess)
+                if (!IsSuccess)
                 {
-                    throw new Exception($"Cannot get {nameof(this.Value)} of a failed result.");
+                    throw new Exception($"Cannot get {nameof(Value)} of a failed result.");
                 }
 
-                return this._value;
+                return _value;
             }
         }
     }
@@ -52,9 +52,9 @@ namespace IslandGateway.Core.Abstractions
 
         private Result(bool isSuccess, TSuccess value, TError error)
         {
-            this.IsSuccess = isSuccess;
-            this._value = value;
-            this._error = error;
+            IsSuccess = isSuccess;
+            _value = value;
+            _error = error;
         }
 
         public bool IsSuccess { get; }
@@ -63,12 +63,12 @@ namespace IslandGateway.Core.Abstractions
         {
             get
             {
-                if (!this.IsSuccess)
+                if (!IsSuccess)
                 {
-                    throw new Exception($"Cannot get {nameof(this.Value)} of a failure result.");
+                    throw new Exception($"Cannot get {nameof(Value)} of a failure result.");
                 }
 
-                return this._value;
+                return _value;
             }
         }
 
@@ -76,12 +76,12 @@ namespace IslandGateway.Core.Abstractions
         {
             get
             {
-                if (this.IsSuccess)
+                if (IsSuccess)
                 {
-                    throw new Exception($"Cannot get {nameof(this.Error)} of a successful result.");
+                    throw new Exception($"Cannot get {nameof(Error)} of a successful result.");
                 }
 
-                return this._error;
+                return _error;
             }
         }
 

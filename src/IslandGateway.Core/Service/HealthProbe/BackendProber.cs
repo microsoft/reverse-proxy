@@ -53,18 +53,18 @@ namespace IslandGateway.Core.Service.HealthProbe
             Contracts.CheckValue(httpClient, nameof(httpClient));
             Contracts.CheckValue(randomFactory, nameof(randomFactory));
 
-            this.BackendId = backendId;
-            this.Config = config;
-            this._endpointManager = endpointManager;
-            this._timer = timer;
-            this._logger = logger;
-            this._operationLogger = operationLogger;
-            this._randomFactory = randomFactory;
+            BackendId = backendId;
+            Config = config;
+            _endpointManager = endpointManager;
+            _timer = timer;
+            _logger = logger;
+            _operationLogger = operationLogger;
+            _randomFactory = randomFactory;
 
-            this._healthControllerUrl = new Uri(this.Config.HealthCheckOptions.Path, UriKind.Relative);
-            this._healthCheckInterval = this.Config.HealthCheckOptions.Interval;
+            _healthControllerUrl = new Uri(Config.HealthCheckOptions.Path, UriKind.Relative);
+            _healthCheckInterval = Config.HealthCheckOptions.Interval;
 
-            this._backendProbeHttpClient = httpClient;
+            _backendProbeHttpClient = httpClient;
         }
 
         /// <inheritdoc/>
@@ -77,21 +77,21 @@ namespace IslandGateway.Core.Service.HealthProbe
         public void Start(AsyncSemaphore semaphore)
         {
             // Start background work, wake up for every interval(set in backend config).
-            this._backgroundPollingLoopTask = TaskScheduler.Current.Run(() => this.ProbeEndpointsAsync(semaphore, this._cts.Token));
+            _backgroundPollingLoopTask = TaskScheduler.Current.Run(() => ProbeEndpointsAsync(semaphore, _cts.Token));
         }
 
         /// <inheritdoc/>
         public async Task StopAsync()
         {
             // Generate Cancellation token.
-            this._cts.Cancel();
+            _cts.Cancel();
 
             // Wait until this prober is done, gracefully shut down the probing process.
-            await this._backgroundPollingLoopTask;
+            await _backgroundPollingLoopTask;
 
             // Release the cancellation source
-            this._cts.Dispose();
-            this._logger.LogInformation($"The backend prober for '{this.BackendId}' has stopped.");
+            _cts.Dispose();
+            _logger.LogInformation($"The backend prober for '{BackendId}' has stopped.");
         }
 
         /// <summary>
@@ -111,15 +111,15 @@ namespace IslandGateway.Core.Service.HealthProbe
                     try
                     {
                         // Submit probe requests.
-                        foreach (var endpoint in this._endpointManager.GetItems())
+                        foreach (var endpoint in _endpointManager.GetItems())
                         {
                             // Start a single probing attempt.
-                            probeTasks.Add(this.ProbeEndpointAsync(endpoint, semaphore, cancellationToken));
+                            probeTasks.Add(ProbeEndpointAsync(endpoint, semaphore, cancellationToken));
                         }
 
                         await Task.WhenAll(probeTasks);
                     }
-                    catch (OperationCanceledException) when (this._cts.IsCancellationRequested)
+                    catch (OperationCanceledException) when (_cts.IsCancellationRequested)
                     {
                         // If the cancel requested by our StopAsync method. It is a expected graceful shut down.
                         throw;
@@ -127,24 +127,24 @@ namespace IslandGateway.Core.Service.HealthProbe
                     catch (Exception ex) when (!ex.IsFatal())
                     {
                         // Swallow the nonfatal exception, we don not want the health check to break.
-                        this._logger.LogError(ex, $"Prober for '{this.BackendId}' encounters unexpected exception.");
+                        _logger.LogError(ex, $"Prober for '{BackendId}' encounters unexpected exception.");
                     }
 
-                    this._logger.LogInformation($"The backend prober for '{this.BackendId}' has checked all endpoints with time interval {this._healthCheckInterval.TotalSeconds} second.");
+                    _logger.LogInformation($"The backend prober for '{BackendId}' has checked all endpoints with time interval {_healthCheckInterval.TotalSeconds} second.");
 
                     // Wait for next probe cycle.
-                    await this._timer.Delay(this._healthCheckInterval, cancellationToken);
+                    await _timer.Delay(_healthCheckInterval, cancellationToken);
                 }
             }
-            catch (OperationCanceledException) when (this._cts.IsCancellationRequested)
+            catch (OperationCanceledException) when (_cts.IsCancellationRequested)
             {
                 // If the cancel requested by our StopAsync method. It is a expected graceful shut down.
-                this._logger.LogInformation($"Prober for backend '{this.BackendId}' has gracefully shutdown.");
+                _logger.LogInformation($"Prober for backend '{BackendId}' has gracefully shutdown.");
             }
             catch (Exception ex)
             {
                 // Swallow the exception, we want the health check continuously running like the heartbeat.
-                this._logger.LogError(ex, $"Prober for '{this.BackendId}' encounters unexpected exception.");
+                _logger.LogError(ex, $"Prober for '{BackendId}' encounters unexpected exception.");
             }
         }
 
@@ -154,24 +154,24 @@ namespace IslandGateway.Core.Service.HealthProbe
         private async Task ProbeEndpointAsync(EndpointInfo endpoint, AsyncSemaphore semaphore, CancellationToken cancellationToken)
         {
             // Conduct a dither for every endpoint probe to optimize concurrency.
-            var randomDither = this._randomFactory.CreateRandomInstance();
-            await this._timer.Delay(TimeSpan.FromMilliseconds(randomDither.Next(_ditheringIntervalInMilliseconds)), cancellationToken);
+            var randomDither = _randomFactory.CreateRandomInstance();
+            await _timer.Delay(TimeSpan.FromMilliseconds(randomDither.Next(_ditheringIntervalInMilliseconds)), cancellationToken);
 
             HealthProbeOutcome outcome = HealthProbeOutcome.Unknown;
             string logDetail = null;
 
             // Enforce max concurrency.
             await semaphore.WaitAsync();
-            this._logger.LogInformation($"The backend prober for backend: '{this.BackendId}', endpoint: `{endpoint.EndpointId}` has started.");
+            _logger.LogInformation($"The backend prober for backend: '{BackendId}', endpoint: `{endpoint.EndpointId}` has started.");
             try
             {
-                using (var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(this._cts.Token))
+                using (var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(_cts.Token))
                 {
                     // Set up timeout and start probing.
-                    timeoutCts.CancelAfter(_httpTimeoutInterval, this._timer);
-                    var response = await this._operationLogger.ExecuteAsync(
+                    timeoutCts.CancelAfter(_httpTimeoutInterval, _timer);
+                    var response = await _operationLogger.ExecuteAsync(
                             "IslandGateway.Core.Service.HealthProbe",
-                            () => this._backendProbeHttpClient.GetAsync(new Uri(new Uri(endpoint.Config.Value.Address, UriKind.Absolute), this._healthControllerUrl), timeoutCts.Token));
+                            () => _backendProbeHttpClient.GetAsync(new Uri(new Uri(endpoint.Config.Value.Address, UriKind.Absolute), _healthControllerUrl), timeoutCts.Token));
 
                     // Collect response status.
                     outcome = response.IsSuccessStatusCode ? HealthProbeOutcome.Success : HealthProbeOutcome.HttpFailure;
@@ -187,7 +187,7 @@ namespace IslandGateway.Core.Service.HealthProbe
             catch (OperationCanceledException)
             {
                 // If the cancel requested by our StopAsync method. It is a expected graceful shut down.
-                if (this._cts.IsCancellationRequested)
+                if (_cts.IsCancellationRequested)
                 {
                     outcome = HealthProbeOutcome.Canceled;
                     logDetail = "Operation deliberately canceled";
@@ -196,7 +196,7 @@ namespace IslandGateway.Core.Service.HealthProbe
                 else
                 {
                     outcome = HealthProbeOutcome.Timeout;
-                    logDetail = $"Health probe timed out after {this.Config.HealthCheckOptions.Interval.TotalSeconds} second";
+                    logDetail = $"Health probe timed out after {Config.HealthCheckOptions.Interval.TotalSeconds} second";
                 }
             }
             catch (Exception ex)
@@ -210,7 +210,7 @@ namespace IslandGateway.Core.Service.HealthProbe
                     // Update the health state base on the response.
                     var healthState = outcome == HealthProbeOutcome.Success ? EndpointHealth.Healthy : EndpointHealth.Unhealthy;
                     endpoint.DynamicState.Value = new EndpointDynamicState(healthState);
-                    this._logger.LogInformation($"Health probe result for endpoint '{endpoint.EndpointId}': {outcome}. Details: {logDetail}");
+                    _logger.LogInformation($"Health probe result for endpoint '{endpoint.EndpointId}': {outcome}. Details: {logDetail}");
                 }
 
                 // The probe operation is done, release the semaphore to allow other probes to proceed.

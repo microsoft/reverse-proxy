@@ -17,18 +17,18 @@ namespace IslandGateway.Core.Service.Metrics
         {
             Contracts.CheckValue(metricCreator, nameof(metricCreator));
 
-            this._streamCopyBytes = metricCreator.Create("StreamCopyBytes", "direction", "backendId", "routeId", "endpointId", "protocol");
-            this._streamCopyIops = metricCreator.Create("StreamCopyIops", "direction", "backendId", "routeId", "endpointId", "protocol");
+            _streamCopyBytes = metricCreator.Create("StreamCopyBytes", "direction", "backendId", "routeId", "endpointId", "protocol");
+            _streamCopyIops = metricCreator.Create("StreamCopyIops", "direction", "backendId", "routeId", "endpointId", "protocol");
         }
 
         public void StreamCopyBytes(long value, string direction, string backendId, string routeId, string endpointId, string protocol)
         {
-            this._streamCopyBytes(value, direction, backendId, routeId, endpointId, protocol);
+            _streamCopyBytes(value, direction, backendId, routeId, endpointId, protocol);
         }
 
         public void StreamCopyIops(long value, string direction, string backendId, string routeId, string endpointId, string protocol)
         {
-            this._streamCopyIops(value, direction, backendId, routeId, endpointId, protocol);
+            _streamCopyIops(value, direction, backendId, routeId, endpointId, protocol);
         }
     }
 }

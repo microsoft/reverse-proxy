@@ -1,4 +1,4 @@
-﻿// <copyright file="IslandGatewayBuilder.cs" company="Microsoft Corporation">
+// <copyright file="IslandGatewayBuilder.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -19,7 +19,7 @@ namespace IslandGateway.Core.Configuration.DependencyInjection
         public IslandGatewayBuilder(IServiceCollection services)
         {
             Contracts.CheckValue(services, nameof(services));
-            this.Services = services;
+            Services = services;
         }
 
         /// <summary>

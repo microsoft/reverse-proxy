@@ -30,7 +30,7 @@ namespace IslandGateway.Core.Service
         /// </summary>
         public GatewayDynamicEndpointDataSource()
         {
-            this.Update(new List<AspNetCore.Http.Endpoint>());
+            Update(new List<AspNetCore.Http.Endpoint>());
         }
 
         /// <inheritdoc/>
@@ -38,14 +38,14 @@ namespace IslandGateway.Core.Service
         {
             get
             {
-                return Volatile.Read(ref this._endpoints);
+                return Volatile.Read(ref _endpoints);
             }
         }
 
         /// <inheritdoc/>
         public override IChangeToken GetChangeToken()
         {
-            return Volatile.Read(ref this._changeToken);
+            return Volatile.Read(ref _changeToken);
         }
 
         /// <summary>
@@ -59,19 +59,19 @@ namespace IslandGateway.Core.Service
                 throw new ArgumentNullException(nameof(endpoints));
             }
 
-            lock (this._syncRoot)
+            lock (_syncRoot)
             {
                 // These steps are done in a specific order to ensure callers always see a consistent state.
 
                 // Step 1 - capture old token
-                var oldCancellationTokenSource = this._cancellationTokenSource;
+                var oldCancellationTokenSource = _cancellationTokenSource;
 
                 // Step 2 - update endpoints
-                Volatile.Write(ref this._endpoints, endpoints);
+                Volatile.Write(ref _endpoints, endpoints);
 
                 // Step 3 - create new change token
-                this._cancellationTokenSource = new CancellationTokenSource();
-                Volatile.Write(ref this._changeToken, new CancellationChangeToken(this._cancellationTokenSource.Token));
+                _cancellationTokenSource = new CancellationTokenSource();
+                Volatile.Write(ref _changeToken, new CancellationChangeToken(_cancellationTokenSource.Token));
 
                 // Step 4 - trigger old token
                 oldCancellationTokenSource?.Cancel();

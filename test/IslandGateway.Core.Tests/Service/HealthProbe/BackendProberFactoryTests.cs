@@ -25,17 +25,17 @@ namespace IslandGateway.Core.Service.HealthProbe
 
         public BackendProberFactoryTests()
         {
-            this._timer = new Mock<IMonotonicTimer>();
-            this._loggerFactory = new LoggerFactory();
-            this._httpClientFactory = new HealthProbeHttpClientFactory();
-            this._operationLogger = new Mock<IOperationLogger>();
+            _timer = new Mock<IMonotonicTimer>();
+            _loggerFactory = new LoggerFactory();
+            _httpClientFactory = new HealthProbeHttpClientFactory();
+            _operationLogger = new Mock<IOperationLogger>();
         }
 
         [Fact]
         public void WithNullParameter_BackendProberFactory_NotCreatebackendProber()
         {
             // Set up the factory.
-            var factory = new BackendProberFactory(this._timer.Object, this._loggerFactory, this._operationLogger.Object, this._httpClientFactory);
+            var factory = new BackendProberFactory(_timer.Object, _loggerFactory, _operationLogger.Object, _httpClientFactory);
 
             // Create prober should fail when parameter are set to null.
             Assert.Throws<ArgumentNullException>(() => factory.CreateBackendProber(null, null, null));
@@ -45,7 +45,7 @@ namespace IslandGateway.Core.Service.HealthProbe
         public void BackendProberFactory_CreateBackendProber()
         {
             // Set up the factory.
-            var factory = new BackendProberFactory(this._timer.Object, this._loggerFactory, this._operationLogger.Object, this._httpClientFactory);
+            var factory = new BackendProberFactory(_timer.Object, _loggerFactory, _operationLogger.Object, _httpClientFactory);
 
             // Create probers.
             string backendId = "example";

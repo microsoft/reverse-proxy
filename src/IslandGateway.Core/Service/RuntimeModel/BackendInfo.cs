@@ -1,4 +1,4 @@
-﻿// <copyright file="BackendInfo.cs" company="Microsoft Corporation">
+// <copyright file="BackendInfo.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -30,11 +30,11 @@ namespace IslandGateway.Core.RuntimeModel
             Contracts.CheckValue(endpointManager, nameof(endpointManager));
             Contracts.CheckValue(proxyHttpClientFactory, nameof(proxyHttpClientFactory));
 
-            this.BackendId = backendId;
-            this.EndpointManager = endpointManager;
-            this.ProxyHttpClientFactory = proxyHttpClientFactory;
+            BackendId = backendId;
+            EndpointManager = endpointManager;
+            ProxyHttpClientFactory = proxyHttpClientFactory;
 
-            this.DynamicState = this.CreateDynamicStateQuery();
+            DynamicState = CreateDynamicStateQuery();
         }
 
         public string BackendId { get; }
@@ -71,20 +71,20 @@ namespace IslandGateway.Core.RuntimeModel
         private IReadableSignal<BackendDynamicState> CreateDynamicStateQuery()
         {
             var endpointsAndStateChanges =
-                this.EndpointManager.Items
+                EndpointManager.Items
                     .SelectMany(endpoints =>
                         endpoints
                             .Select(endpoint => endpoint.DynamicState)
                             .AnyChange())
                     .DropValue();
 
-            return new[] { endpointsAndStateChanges, this.Config.DropValue() }
+            return new[] { endpointsAndStateChanges, Config.DropValue() }
                 .AnyChange() // If any of them change...
                 .Select(
                     _ =>
                     {
-                        var allEndpoints = this.EndpointManager.Items.Value ?? new List<EndpointInfo>().AsReadOnly();
-                        var healthyEndpoints = (this.Config.Value?.HealthCheckOptions.Enabled ?? false)
+                        var allEndpoints = EndpointManager.Items.Value ?? new List<EndpointInfo>().AsReadOnly();
+                        var healthyEndpoints = (Config.Value?.HealthCheckOptions.Enabled ?? false)
                             ? allEndpoints.Where(endpoint => endpoint.DynamicState.Value?.Health == EndpointHealth.Healthy).ToList().AsReadOnly()
                             : allEndpoints;
                         return new BackendDynamicState(

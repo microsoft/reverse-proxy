@@ -33,11 +33,11 @@ namespace IslandGateway.Common.Util
         /// </summary>
         public MonotonicTimer()
         {
-            this._timeProvider = Stopwatch.StartNew();
+            _timeProvider = Stopwatch.StartNew();
         }
 
         /// <inheritdoc />
-        public TimeSpan CurrentTime => this._timeProvider.Elapsed;
+        public TimeSpan CurrentTime => _timeProvider.Elapsed;
 
         /// <inheritdoc />
         public async Task DelayUntil(TimeSpan expiryTime, CancellationToken cancellationToken)
@@ -46,7 +46,7 @@ namespace IslandGateway.Common.Util
             // the second When doesn't need to start allocating Task.Delay timers until after the first expires.
             for (; ;)
             {
-                var now = this.CurrentTime;
+                var now = CurrentTime;
                 if (now >= expiryTime)
                 {
                     return;

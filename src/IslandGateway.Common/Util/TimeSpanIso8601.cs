@@ -25,7 +25,7 @@ namespace IslandGateway.Common.Util
         /// </summary>
         public TimeSpanIso8601(string iso8601Duration)
         {
-            this.Value = XmlConvert.ToTimeSpan(iso8601Duration);
+            Value = XmlConvert.ToTimeSpan(iso8601Duration);
         }
 
         /// <summary>

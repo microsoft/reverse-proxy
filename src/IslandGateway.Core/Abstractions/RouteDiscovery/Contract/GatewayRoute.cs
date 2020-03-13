@@ -1,4 +1,4 @@
-﻿// <copyright file="GatewayRoute.cs" company="Microsoft Corporation">
+// <copyright file="GatewayRoute.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -44,11 +44,11 @@ namespace IslandGateway.Core.Abstractions
         {
             return new GatewayRoute
             {
-                RouteId = this.RouteId,
-                Rule = this.Rule,
-                Priority = this.Priority,
-                BackendId = this.BackendId,
-                Metadata = this.Metadata?.DeepClone(StringComparer.Ordinal),
+                RouteId = RouteId,
+                Rule = Rule,
+                Priority = Priority,
+                BackendId = BackendId,
+                Metadata = Metadata?.DeepClone(StringComparer.Ordinal),
             };
         }
     }

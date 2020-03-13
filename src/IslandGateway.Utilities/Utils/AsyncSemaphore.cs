@@ -25,7 +25,7 @@ namespace IslandGateway.Utilities
         public AsyncSemaphore(int initialCount)
         {
             Contracts.Check(initialCount >= 0, $"{nameof(initialCount)} must be non-negative");
-            this._count = initialCount;
+            _count = initialCount;
         }
 
         /// <summary>
@@ -36,9 +36,9 @@ namespace IslandGateway.Utilities
         {
             get
             {
-                lock (this._waiters)
+                lock (_waiters)
                 {
-                    return this._count;
+                    return _count;
                 }
             }
         }
@@ -50,17 +50,17 @@ namespace IslandGateway.Utilities
         public async Task WaitAsync()
         {
             Task task;
-            lock (this._waiters)
+            lock (_waiters)
             {
-                if (this._count > 0)
+                if (_count > 0)
                 {
-                    this._count--;
+                    _count--;
                     return;
                 }
                 else
                 {
                     var waiter = new TaskCompletionSource<bool>();
-                    this._waiters.Enqueue(waiter);
+                    _waiters.Enqueue(waiter);
                     task = waiter.Task;
                 }
             }
@@ -74,15 +74,15 @@ namespace IslandGateway.Utilities
         public void Release()
         {
             TaskCompletionSource<bool> toRelease = null;
-            lock (this._waiters)
+            lock (_waiters)
             {
-                if (this._waiters.Count > 0)
+                if (_waiters.Count > 0)
                 {
-                    toRelease = this._waiters.Dequeue();
+                    toRelease = _waiters.Dequeue();
                 }
                 else
                 {
-                    this._count++;
+                    _count++;
                 }
             }
 

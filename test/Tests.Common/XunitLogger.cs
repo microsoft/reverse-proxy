@@ -16,8 +16,8 @@ namespace Tests.Common
 
         public XunitLogger(ITestOutputHelper testOutputHelper)
         {
-            this._testOutputHelper = testOutputHelper;
-            this._categoryName = typeof(TCategoryName).FullName;
+            _testOutputHelper = testOutputHelper;
+            _categoryName = typeof(TCategoryName).FullName;
         }
 
         public IDisposable BeginScope<TState>(TState state)
@@ -28,10 +28,10 @@ namespace Tests.Common
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
-            this._testOutputHelper.WriteLine($"{this._categoryName}[{logLevel}][{eventId}] {formatter(state, exception)}");
+            _testOutputHelper.WriteLine($"{_categoryName}[{logLevel}][{eventId}] {formatter(state, exception)}");
             if (exception != null)
             {
-                this._testOutputHelper.WriteLine(exception.ToString());
+                _testOutputHelper.WriteLine(exception.ToString());
             }
         }
 

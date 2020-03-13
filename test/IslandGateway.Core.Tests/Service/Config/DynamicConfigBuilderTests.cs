@@ -1,4 +1,4 @@
-﻿// <copyright file="DynamicConfigBuilderTests.cs" company="Microsoft Corporation">
+// <copyright file="DynamicConfigBuilderTests.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -19,7 +19,7 @@ namespace IslandGateway.Core.Service.Tests
         [Fact]
         public void Constructor_Works()
         {
-            this.Create<DynamicConfigBuilder>();
+            Create<DynamicConfigBuilder>();
         }
 
         [Fact]
@@ -29,7 +29,7 @@ namespace IslandGateway.Core.Service.Tests
             var errorReporter = new TestConfigErrorReporter();
 
             // Act
-            var configManager = this.Create<DynamicConfigBuilder>();
+            var configManager = Create<DynamicConfigBuilder>();
             var result = await configManager.BuildConfigAsync(errorReporter, CancellationToken.None);
 
             // Assert
@@ -45,16 +45,16 @@ namespace IslandGateway.Core.Service.Tests
         {
             // Arrange
             var errorReporter = new TestConfigErrorReporter();
-            this.Mock<IBackendsRepo>()
+            Mock<IBackendsRepo>()
                 .Setup(r => r.GetBackendsAsync(It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new List<Backend>());
 
-            this.Mock<IRoutesRepo>()
+            Mock<IRoutesRepo>()
                 .Setup(r => r.GetRoutesAsync(It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new List<GatewayRoute>());
 
             // Act
-            var configManager = this.Create<DynamicConfigBuilder>();
+            var configManager = Create<DynamicConfigBuilder>();
             var result = await configManager.BuildConfigAsync(errorReporter, CancellationToken.None);
 
             // Assert
@@ -72,20 +72,20 @@ namespace IslandGateway.Core.Service.Tests
             const string TestAddress = "https://localhost:123/";
 
             var errorReporter = new TestConfigErrorReporter();
-            this.Mock<IBackendsRepo>()
+            Mock<IBackendsRepo>()
                 .Setup(r => r.GetBackendsAsync(It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new Backend[] { new Backend { BackendId = "backend1" } });
 
-            this.Mock<IBackendEndpointsRepo>()
+            Mock<IBackendEndpointsRepo>()
                 .Setup(r => r.GetEndpointsAsync("backend1", It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new[] { new BackendEndpoint { EndpointId = "ep1", Address = TestAddress } });
 
-            this.Mock<IRoutesRepo>()
+            Mock<IRoutesRepo>()
                 .Setup(r => r.GetRoutesAsync(It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new List<GatewayRoute>());
 
             // Act
-            var configManager = this.Create<DynamicConfigBuilder>();
+            var configManager = Create<DynamicConfigBuilder>();
             var result = await configManager.BuildConfigAsync(errorReporter, CancellationToken.None);
 
             // Assert
@@ -104,26 +104,26 @@ namespace IslandGateway.Core.Service.Tests
         {
             // Arrange
             var errorReporter = new TestConfigErrorReporter();
-            this.Mock<IBackendsRepo>()
+            Mock<IBackendsRepo>()
                 .Setup(r => r.GetBackendsAsync(It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new List<Backend>());
 
             var route1 = new GatewayRoute { RouteId = "route1", Rule = "Host('example.com')", Priority = 1, BackendId = "backend1" };
-            this.Mock<IRoutesRepo>()
+            Mock<IRoutesRepo>()
                 .Setup(r => r.GetRoutesAsync(It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new[] { route1 });
 
             var parsedRoute1 = new ParsedRoute();
-            this.Mock<IRouteParser>()
+            Mock<IRouteParser>()
                 .Setup(r => r.ParseRoute(route1, errorReporter))
                 .Returns(Result.Success(parsedRoute1));
 
-            this.Mock<IRouteValidator>()
+            Mock<IRouteValidator>()
                 .Setup(r => r.ValidateRoute(parsedRoute1, errorReporter))
                 .Returns(true);
 
             // Act
-            var configManager = this.Create<DynamicConfigBuilder>();
+            var configManager = Create<DynamicConfigBuilder>();
             var result = await configManager.BuildConfigAsync(errorReporter, CancellationToken.None);
 
             // Assert
@@ -140,22 +140,22 @@ namespace IslandGateway.Core.Service.Tests
         {
             // Arrange
             var errorReporter = new TestConfigErrorReporter();
-            this.Mock<IBackendsRepo>()
+            Mock<IBackendsRepo>()
                 .Setup(r => r.GetBackendsAsync(It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new List<Backend>());
 
             var route1 = new GatewayRoute { RouteId = "route1", Rule = "Host('example.com')", Priority = 1, BackendId = "backend1" };
-            this.Mock<IRoutesRepo>()
+            Mock<IRoutesRepo>()
                 .Setup(r => r.GetRoutesAsync(It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new[] { route1 });
 
             var parsedRoute1 = new ParsedRoute();
-            this.Mock<IRouteParser>()
+            Mock<IRouteParser>()
                 .Setup(r => r.ParseRoute(route1, errorReporter))
                 .Returns(Result.Failure<ParsedRoute>());
 
             // Act
-            var configManager = this.Create<DynamicConfigBuilder>();
+            var configManager = Create<DynamicConfigBuilder>();
             var result = await configManager.BuildConfigAsync(errorReporter, CancellationToken.None);
 
             // Assert
@@ -170,26 +170,26 @@ namespace IslandGateway.Core.Service.Tests
         {
             // Arrange
             var errorReporter = new TestConfigErrorReporter();
-            this.Mock<IBackendsRepo>()
+            Mock<IBackendsRepo>()
                 .Setup(r => r.GetBackendsAsync(It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new List<Backend>());
 
             var route1 = new GatewayRoute { RouteId = "route1", Rule = "Host('example.com')", Priority = 1, BackendId = "backend1" };
-            this.Mock<IRoutesRepo>()
+            Mock<IRoutesRepo>()
                 .Setup(r => r.GetRoutesAsync(It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new[] { route1 });
 
             var parsedRoute1 = new ParsedRoute();
-            this.Mock<IRouteParser>()
+            Mock<IRouteParser>()
                 .Setup(r => r.ParseRoute(route1, errorReporter))
                 .Returns(Result.Success(parsedRoute1));
 
-            this.Mock<IRouteValidator>()
+            Mock<IRouteValidator>()
                 .Setup(r => r.ValidateRoute(parsedRoute1, errorReporter))
                 .Returns(false);
 
             // Act
-            var configManager = this.Create<DynamicConfigBuilder>();
+            var configManager = Create<DynamicConfigBuilder>();
             var result = await configManager.BuildConfigAsync(errorReporter, CancellationToken.None);
 
             // Assert

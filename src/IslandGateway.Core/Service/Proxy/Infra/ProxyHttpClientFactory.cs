@@ -31,7 +31,7 @@ namespace IslandGateway.Core.Service.Proxy.Infra
         /// </summary>
         public ProxyHttpClientFactory()
         {
-            this._normalHandler = new SocketsHttpHandler
+            _normalHandler = new SocketsHttpHandler
             {
                 UseProxy = false,
                 AllowAutoRedirect = false,
@@ -49,7 +49,7 @@ namespace IslandGateway.Core.Service.Proxy.Infra
             {
                 // NOTE: We don't use Lazy because its lock-free LazyThreadSafetyMode.PublicationOnly mode
                 // lacks proper handling of IDisposable values (suprious instances are not properly disposed).
-                var handler = Volatile.Read(ref this._upgradableHandler);
+                var handler = Volatile.Read(ref _upgradableHandler);
                 if (handler == null)
                 {
                     // Optimistically create a new instance hoping we will win a potential race below.
@@ -65,7 +65,7 @@ namespace IslandGateway.Core.Service.Proxy.Infra
                     };
 
                     HttpMessageHandler existingHandler;
-                    if ((existingHandler = Interlocked.CompareExchange(ref this._upgradableHandler, handler, null)) != null)
+                    if ((existingHandler = Interlocked.CompareExchange(ref _upgradableHandler, handler, null)) != null)
                     {
                         handler.Dispose();
                         handler = existingHandler;
@@ -79,29 +79,29 @@ namespace IslandGateway.Core.Service.Proxy.Infra
         /// <inheritdoc/>
         public HttpMessageInvoker CreateNormalClient()
         {
-            if (this._disposed)
+            if (_disposed)
             {
                 throw new ObjectDisposedException(typeof(ProxyHttpClientFactory).FullName);
             }
 
-            return new HttpMessageInvoker(this._normalHandler, disposeHandler: false);
+            return new HttpMessageInvoker(_normalHandler, disposeHandler: false);
         }
 
         /// <inheritdoc/>
         public HttpMessageInvoker CreateUpgradableClient()
         {
-            if (this._disposed)
+            if (_disposed)
             {
                 throw new ObjectDisposedException(typeof(ProxyHttpClientFactory).FullName);
             }
 
-            return new HttpMessageInvoker(this.UpgradableHandler, disposeHandler: false);
+            return new HttpMessageInvoker(UpgradableHandler, disposeHandler: false);
         }
 
         /// <inheritdoc/>
         public void Dispose()
         {
-            this.Dispose(true);
+            Dispose(true);
         }
 
         /// <summary>
@@ -113,24 +113,24 @@ namespace IslandGateway.Core.Service.Proxy.Infra
         /// </remarks>
         protected virtual void Dispose(bool disposing)
         {
-            if (!this._disposed)
+            if (!_disposed)
             {
                 if (disposing)
                 {
                     // TODO: This has high potential to cause coding defects. See if we can do better,
                     // perhaps do something like `Microsoft.Extensions.Http.LifetimeTrackingHttpMessageHandler`.
-                    this._normalHandler.Dispose();
+                    _normalHandler.Dispose();
 
-                    var currentUpgradableHandler = Volatile.Read(ref this._upgradableHandler);
+                    var currentUpgradableHandler = Volatile.Read(ref _upgradableHandler);
                     if (currentUpgradableHandler != null)
                     {
-                        if (Interlocked.CompareExchange(ref this._upgradableHandler, null, currentUpgradableHandler) == currentUpgradableHandler)
+                        if (Interlocked.CompareExchange(ref _upgradableHandler, null, currentUpgradableHandler) == currentUpgradableHandler)
                         {
                         }
                     }
                 }
 
-                this._disposed = true;
+                _disposed = true;
             }
         }
     }

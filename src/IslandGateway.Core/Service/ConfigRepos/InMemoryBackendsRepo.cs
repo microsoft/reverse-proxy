@@ -1,4 +1,4 @@
-﻿// <copyright file="InMemoryBackendsRepo.cs" company="Microsoft Corporation">
+// <copyright file="InMemoryBackendsRepo.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -14,13 +14,13 @@ namespace IslandGateway.Core.Service
         /// <inheritdoc/>
         public Task<IList<Backend>> GetBackendsAsync(CancellationToken cancellation)
         {
-            return Task.FromResult(this.Get());
+            return Task.FromResult(Get());
         }
 
         /// <inheritdoc/>
         public Task SetBackendsAsync(IList<Backend> backends, CancellationToken cancellation)
         {
-            this.Set(backends);
+            Set(backends);
             return Task.CompletedTask;
         }
     }

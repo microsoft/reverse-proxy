@@ -1,4 +1,4 @@
-﻿// <copyright file="BackendEndpoint.cs" company="Microsoft Corporation">
+// <copyright file="BackendEndpoint.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -32,9 +32,9 @@ namespace IslandGateway.Core.Abstractions
         {
             return new BackendEndpoint
             {
-                EndpointId = this.EndpointId,
-                Address = this.Address,
-                Metadata = this.Metadata?.DeepClone(StringComparer.Ordinal),
+                EndpointId = EndpointId,
+                Address = Address,
+                Metadata = Metadata?.DeepClone(StringComparer.Ordinal),
             };
         }
     }

@@ -1,4 +1,4 @@
-﻿// <copyright file="QuotaOptions.cs" company="Microsoft Corporation">
+// <copyright file="QuotaOptions.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -24,8 +24,8 @@ namespace IslandGateway.Core.Abstractions
         {
             return new QuotaOptions
             {
-                Average = this.Average,
-                Burst = this.Burst,
+                Average = Average,
+                Burst = Burst,
             };
         }
     }

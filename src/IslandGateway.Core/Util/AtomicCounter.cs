@@ -13,14 +13,14 @@ namespace IslandGateway.Core.Util
         /// <summary>
         /// Gets the current value of the counter.
         /// </summary>
-        public int Value => Volatile.Read(ref this._value);
+        public int Value => Volatile.Read(ref _value);
 
         /// <summary>
         /// Atomically increments the counter value by 1.
         /// </summary>
         public void Increment()
         {
-            Interlocked.Increment(ref this._value);
+            Interlocked.Increment(ref _value);
         }
 
         /// <summary>
@@ -28,7 +28,7 @@ namespace IslandGateway.Core.Util
         /// </summary>
         public void Decrement()
         {
-            Interlocked.Decrement(ref this._value);
+            Interlocked.Decrement(ref _value);
         }
 
         /// <summary>
@@ -41,12 +41,12 @@ namespace IslandGateway.Core.Util
         {
             while (true)
             {
-                int val = Volatile.Read(ref this._value);
+                int val = Volatile.Read(ref _value);
                 if (val >= max)
                 {
                     return false;
                 }
-                if (Interlocked.CompareExchange(ref this._value, val + 1, val) == val)
+                if (Interlocked.CompareExchange(ref _value, val + 1, val) == val)
                 {
                     return true;
                 }
@@ -63,12 +63,12 @@ namespace IslandGateway.Core.Util
         {
             while (true)
             {
-                int val = Volatile.Read(ref this._value);
+                int val = Volatile.Read(ref _value);
                 if (val <= min)
                 {
                     return false;
                 }
-                if (Interlocked.CompareExchange(ref this._value, val - 1, val) == val)
+                if (Interlocked.CompareExchange(ref _value, val - 1, val) == val)
                 {
                     return true;
                 }

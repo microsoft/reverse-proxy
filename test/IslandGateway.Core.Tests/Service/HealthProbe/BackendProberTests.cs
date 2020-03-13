@@ -47,8 +47,8 @@ namespace IslandGateway.Core.Service.HealthProbe
         public BackendProberTests()
         {
             // set up all the parameter needed for prober class
-            this._backendId = "example service";
-            this._backendConfig = new BackendConfig(
+            _backendId = "example service";
+            _backendConfig = new BackendConfig(
                 healthCheckOptions: new BackendConfig.BackendHealthCheckOptions(
                     enabled: true,
                     interval: TimeSpan.FromMilliseconds(100),
@@ -56,27 +56,27 @@ namespace IslandGateway.Core.Service.HealthProbe
                     port: 8000,
                     path: "/example"),
                 loadBalancingOptions: default);
-            this._timer = new VirtualMonotonicTimer();
-            this._semaphore = new AsyncSemaphore(10);
-            this._fakeRandom = new Mock<IRandom>();
-            this._fakeRandom.Setup(p => p.Next(It.IsAny<int>())).Returns(0);
-            this._randomFactory = new Mock<IRandomFactory>();
-            this._randomFactory.Setup(f => f.CreateRandomInstance()).Returns(this._fakeRandom.Object);
+            _timer = new VirtualMonotonicTimer();
+            _semaphore = new AsyncSemaphore(10);
+            _fakeRandom = new Mock<IRandom>();
+            _fakeRandom.Setup(p => p.Next(It.IsAny<int>())).Returns(0);
+            _randomFactory = new Mock<IRandomFactory>();
+            _randomFactory.Setup(f => f.CreateRandomInstance()).Returns(_fakeRandom.Object);
 
             // set up logger.
             var loggerFactory = new LoggerFactory();
-            this._logger = loggerFactory.CreateLogger<BackendProber>();
-            this._operationLogger = new TextOperationLogger(loggerFactory.CreateLogger<TextOperationLogger>());
+            _logger = loggerFactory.CreateLogger<BackendProber>();
+            _operationLogger = new TextOperationLogger(loggerFactory.CreateLogger<TextOperationLogger>());
 
             // set up the httpclient, we would mock the httpclient so we don not really make a real http request.
-            this._goodClient = MockHttpHandler.CreateClient(
+            _goodClient = MockHttpHandler.CreateClient(
                 async (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
                     await Task.Yield();
                     return new HttpResponseMessage((HttpStatusCode)200);
                 });
 
-            this._badClient = MockHttpHandler.CreateClient(
+            _badClient = MockHttpHandler.CreateClient(
                 async (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
                     await Task.Yield();
@@ -88,40 +88,40 @@ namespace IslandGateway.Core.Service.HealthProbe
         public async Task ProbeEndpointAsync_Dithering_Work()
         {
             // Set up necessary parameter.
-            var endpoints = this.EndpointManagerGenerator(1);
-            var prober = new BackendProber(this._backendId, this._backendConfig, endpoints, this._timer, this._logger, this._operationLogger, this._goodClient, this._randomFactory.Object);
+            var endpoints = EndpointManagerGenerator(1);
+            var prober = new BackendProber(_backendId, _backendConfig, endpoints, _timer, _logger, _operationLogger, _goodClient, _randomFactory.Object);
 
             // start probing the endpoint, it should mark our all our endpoints as state 'healthy'.
             using (var cts = new CancellationTokenSource())
             {
-                await new SingleThreadedTaskScheduler() { OnIdle = () => this._timer.AdvanceStep() }.Run(async () =>
+                await new SingleThreadedTaskScheduler() { OnIdle = () => _timer.AdvanceStep() }.Run(async () =>
                 {
-                    prober.Start(this._semaphore);
-                    await this._timer.Delay(TimeSpan.FromMilliseconds(501), cts.Token);
+                    prober.Start(_semaphore);
+                    await _timer.Delay(TimeSpan.FromMilliseconds(501), cts.Token);
                     await prober.StopAsync();
                 });
             }
 
             // Verify
-            this._fakeRandom.Verify(r => r.Next(It.IsAny<int>()));
+            _fakeRandom.Verify(r => r.Next(It.IsAny<int>()));
         }
 
         [Fact(Skip = BackendProberTests.SkipUnitTestSwitcher)]
         public async Task WithHealthyBackend_ProbeEndpointAsync_Work()
         {
             // Set up endpoints to be probed. Let endpoints to be in healthy state.
-            var endpoints = this.EndpointManagerGenerator(1);
+            var endpoints = EndpointManagerGenerator(1);
 
             // Set up the prober.
-            var prober = new BackendProber(this._backendId, this._backendConfig, endpoints, this._timer, this._logger, this._operationLogger, this._goodClient, this._randomFactory.Object);
+            var prober = new BackendProber(_backendId, _backendConfig, endpoints, _timer, _logger, _operationLogger, _goodClient, _randomFactory.Object);
 
             // start probing the endpoint, it should mark our all our endpoints as state 'healthy'.
             using (var cts = new CancellationTokenSource())
             {
-                await new SingleThreadedTaskScheduler() { OnIdle = () => this._timer.AdvanceStep() }.Run(async () =>
+                await new SingleThreadedTaskScheduler() { OnIdle = () => _timer.AdvanceStep() }.Run(async () =>
                 {
-                    prober.Start(this._semaphore);
-                    await this._timer.Delay(TimeSpan.FromMilliseconds(101), cts.Token);
+                    prober.Start(_semaphore);
+                    await _timer.Delay(TimeSpan.FromMilliseconds(101), cts.Token);
                     await prober.StopAsync();
                 });
             }
@@ -134,18 +134,18 @@ namespace IslandGateway.Core.Service.HealthProbe
         public async Task WithUnhealthyBackend_ProbeEndpointAsync_Work()
         {
             // Set up endpoints to be probed.
-            var endpoints = this.EndpointManagerGenerator(1);
+            var endpoints = EndpointManagerGenerator(1);
 
             // Set up the prober.
-            var prober = new BackendProber(this._backendId, this._backendConfig, endpoints, this._timer, this._logger, this._operationLogger, this._badClient, this._randomFactory.Object);
+            var prober = new BackendProber(_backendId, _backendConfig, endpoints, _timer, _logger, _operationLogger, _badClient, _randomFactory.Object);
 
             // start probing the endpoint, it should mark our all our endpoints as state 'unhealthy'.
             using (var cts = new CancellationTokenSource())
             {
-                await new SingleThreadedTaskScheduler() { OnIdle = () => this._timer.AdvanceStep() }.Run(async () =>
+                await new SingleThreadedTaskScheduler() { OnIdle = () => _timer.AdvanceStep() }.Run(async () =>
                 {
-                    prober.Start(this._semaphore);
-                    await this._timer.Delay(TimeSpan.FromMilliseconds(501), cts.Token);
+                    prober.Start(_semaphore);
+                    await _timer.Delay(TimeSpan.FromMilliseconds(501), cts.Token);
                     await prober.StopAsync();
                 });
             }
@@ -158,11 +158,11 @@ namespace IslandGateway.Core.Service.HealthProbe
         public async Task StopAsync_Work()
         {
             // Set up necessary parameter.
-            var endpoints = this.EndpointManagerGenerator(1);
-            var prober = new BackendProber(this._backendId, this._backendConfig, endpoints, this._timer, this._logger, this._operationLogger, this._goodClient, this._randomFactory.Object);
+            var endpoints = EndpointManagerGenerator(1);
+            var prober = new BackendProber(_backendId, _backendConfig, endpoints, _timer, _logger, _operationLogger, _goodClient, _randomFactory.Object);
 
             // Stop the prober. If the unit test could complete, it demonstrates the probing process has been aborted.
-            prober.Start(this._semaphore);
+            prober.Start(_semaphore);
             await prober.StopAsync();
         }
 
@@ -178,18 +178,18 @@ namespace IslandGateway.Core.Service.HealthProbe
                 });
 
             // Set up endpoints to be probed.
-            var endpoints = this.EndpointManagerGenerator(1);
+            var endpoints = EndpointManagerGenerator(1);
 
             // Set up the prober.
-            var prober = new BackendProber(this._backendId, this._backendConfig, endpoints, this._timer, this._logger, this._operationLogger, httpErrorClient, this._randomFactory.Object);
+            var prober = new BackendProber(_backendId, _backendConfig, endpoints, _timer, _logger, _operationLogger, httpErrorClient, _randomFactory.Object);
 
             // start probing the endpoint, it should mark our all our endpoints as state 'unhealthy'.
             using (var cts = new CancellationTokenSource())
             {
-                await new SingleThreadedTaskScheduler() { OnIdle = () => this._timer.AdvanceStep() }.Run(async () =>
+                await new SingleThreadedTaskScheduler() { OnIdle = () => _timer.AdvanceStep() }.Run(async () =>
                 {
-                    prober.Start(this._semaphore);
-                    await this._timer.Delay(TimeSpan.FromMilliseconds(501), cts.Token);
+                    prober.Start(_semaphore);
+                    await _timer.Delay(TimeSpan.FromMilliseconds(501), cts.Token);
                     await prober.StopAsync();
                 });
             }
@@ -210,18 +210,18 @@ namespace IslandGateway.Core.Service.HealthProbe
                 });
 
             // Set up endpoints to be probed.
-            var endpoints = this.EndpointManagerGenerator(1);
+            var endpoints = EndpointManagerGenerator(1);
 
             // Set up the prober.
-            var prober = new BackendProber(this._backendId, this._backendConfig, endpoints, this._timer, this._logger, this._operationLogger, httpTimeoutClient, this._randomFactory.Object);
+            var prober = new BackendProber(_backendId, _backendConfig, endpoints, _timer, _logger, _operationLogger, httpTimeoutClient, _randomFactory.Object);
 
             // start probing the endpoint, it should mark our all our endpoints as state 'unhealthy'.
             using (var cts = new CancellationTokenSource())
             {
-                await new SingleThreadedTaskScheduler() { OnIdle = () => this._timer.AdvanceStep() }.Run(async () =>
+                await new SingleThreadedTaskScheduler() { OnIdle = () => _timer.AdvanceStep() }.Run(async () =>
                 {
-                    prober.Start(this._semaphore);
-                    await this._timer.Delay(TimeSpan.FromMilliseconds(501), cts.Token);
+                    prober.Start(_semaphore);
+                    await _timer.Delay(TimeSpan.FromMilliseconds(501), cts.Token);
                     await prober.StopAsync();
                 });
             }
@@ -242,18 +242,18 @@ namespace IslandGateway.Core.Service.HealthProbe
                 });
 
             // Set up endpoints to be probed.
-            var endpoints = this.EndpointManagerGenerator(1);
+            var endpoints = EndpointManagerGenerator(1);
 
             // Set up the prober.
-            var prober = new BackendProber(this._backendId, this._backendConfig, endpoints, this._timer, this._logger, this._operationLogger, httpTimeoutClient, this._randomFactory.Object);
+            var prober = new BackendProber(_backendId, _backendConfig, endpoints, _timer, _logger, _operationLogger, httpTimeoutClient, _randomFactory.Object);
 
             // start probing the endpoint, it should mark our all our endpoints as state 'unhealthy'.
             using (var cts = new CancellationTokenSource())
             {
-                await new SingleThreadedTaskScheduler() { OnIdle = () => this._timer.AdvanceStep() }.Run(async () =>
+                await new SingleThreadedTaskScheduler() { OnIdle = () => _timer.AdvanceStep() }.Run(async () =>
                 {
-                    prober.Start(this._semaphore);
-                    await this._timer.Delay(TimeSpan.FromMilliseconds(501), cts.Token);
+                    prober.Start(_semaphore);
+                    await _timer.Delay(TimeSpan.FromMilliseconds(501), cts.Token);
                     await prober.StopAsync();
                 });
             }
@@ -287,7 +287,7 @@ namespace IslandGateway.Core.Service.HealthProbe
 
             private MockHttpHandler(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> func)
             {
-                this._func = func ?? throw new ArgumentNullException(nameof(func));
+                _func = func ?? throw new ArgumentNullException(nameof(func));
             }
 
             public static HttpClient CreateClient(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> func)
@@ -301,7 +301,7 @@ namespace IslandGateway.Core.Service.HealthProbe
 
             protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
             {
-                return this._func(request, cancellationToken);
+                return _func(request, cancellationToken);
             }
         }
     }

@@ -21,9 +21,9 @@ namespace IslandGateway.Core.Service
         {
             Contracts.CheckNonEmpty(backendId, nameof(backendId));
 
-            lock (this._lockObject)
+            lock (_lockObject)
             {
-                this._backendEndpoints.TryGetValue(backendId, out var results);
+                _backendEndpoints.TryGetValue(backendId, out var results);
                 return Task.FromResult(results?.DeepClone());
             }
         }
@@ -33,9 +33,9 @@ namespace IslandGateway.Core.Service
         {
             Contracts.CheckNonEmpty(backendId, nameof(backendId));
 
-            lock (this._lockObject)
+            lock (_lockObject)
             {
-                this._backendEndpoints[backendId] = endpoints?.DeepClone();
+                _backendEndpoints[backendId] = endpoints?.DeepClone();
             }
 
             return Task.CompletedTask;
@@ -46,9 +46,9 @@ namespace IslandGateway.Core.Service
         {
             Contracts.CheckNonEmpty(backendId, nameof(backendId));
 
-            lock (this._lockObject)
+            lock (_lockObject)
             {
-                this._backendEndpoints.Remove(backendId);
+                _backendEndpoints.Remove(backendId);
             }
 
             return Task.CompletedTask;

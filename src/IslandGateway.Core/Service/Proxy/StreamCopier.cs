@@ -25,8 +25,8 @@ namespace IslandGateway.Core.Service.Proxy
         public StreamCopier(GatewayMetrics metrics, in StreamCopyTelemetryContext context)
         {
             Contracts.CheckValue(metrics, nameof(metrics));
-            this._metrics = metrics;
-            this._context = context;
+            _metrics = metrics;
+            _context = context;
         }
 
         /// <inheritdoc/>
@@ -68,19 +68,19 @@ namespace IslandGateway.Core.Service.Proxy
                 ArrayPool<byte>.Shared.Return(buffer, clearArray: true);
 
                 // TODO: Populate metric dimension `protocol`.
-                this._metrics.StreamCopyBytes(
+                _metrics.StreamCopyBytes(
                     value: totalBytes,
-                    direction: this._context.Direction,
-                    backendId: this._context.BackendId,
-                    routeId: this._context.RouteId,
-                    endpointId: this._context.EndpointId,
+                    direction: _context.Direction,
+                    backendId: _context.BackendId,
+                    routeId: _context.RouteId,
+                    endpointId: _context.EndpointId,
                     protocol: string.Empty);
-                this._metrics.StreamCopyIops(
+                _metrics.StreamCopyIops(
                     value: iops,
-                    direction: this._context.Direction,
-                    backendId: this._context.BackendId,
-                    routeId: this._context.RouteId,
-                    endpointId: this._context.EndpointId,
+                    direction: _context.Direction,
+                    backendId: _context.BackendId,
+                    routeId: _context.RouteId,
+                    endpointId: _context.EndpointId,
                     protocol: string.Empty);
             }
         }

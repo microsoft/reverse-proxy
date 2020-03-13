@@ -1,4 +1,4 @@
-﻿// <copyright file="BackendWithEndpoints.cs" company="Microsoft Corporation">
+// <copyright file="BackendWithEndpoints.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -14,8 +14,8 @@ namespace IslandGateway.Core.ConfigModel
         {
             Contracts.CheckValue(backend, nameof(backend));
             Contracts.CheckValue(endpoints, nameof(endpoints));
-            this.Backend = backend;
-            this.Endpoints = endpoints;
+            Backend = backend;
+            Endpoints = endpoints;
         }
 
         public Backend Backend { get; }

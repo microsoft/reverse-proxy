@@ -14,17 +14,17 @@ namespace IslandGateway.Core.Service
 
         protected IList<T> Get()
         {
-            lock (this._syncRoot)
+            lock (_syncRoot)
             {
-                return this._items?.DeepClone();
+                return _items?.DeepClone();
             }
         }
 
         protected void Set(IList<T> items)
         {
-            lock (this._syncRoot)
+            lock (_syncRoot)
             {
-                this._items = items?.DeepClone();
+                _items = items?.DeepClone();
             }
         }
     }

@@ -21,7 +21,7 @@ namespace IslandGateway.Common.Util
 
         private ValueStopwatch(long startTimestamp)
         {
-            this._startTimestamp = startTimestamp;
+            _startTimestamp = startTimestamp;
         }
 
         /// <summary>
@@ -33,13 +33,13 @@ namespace IslandGateway.Common.Util
             {
                 // Start timestamp can't be zero in an initialized ValueStopwatch. It would have to be literally the first thing executed when the machine boots to be 0.
                 // So it being 0 is a clear indication of default(ValueStopwatch)
-                if (this._startTimestamp == 0)
+                if (_startTimestamp == 0)
                 {
                     throw new InvalidOperationException("An uninitialized, or 'default', ValueStopwatch cannot be used to get elapsed time.");
                 }
 
                 var end = Stopwatch.GetTimestamp();
-                var timestampDelta = end - this._startTimestamp;
+                var timestampDelta = end - _startTimestamp;
                 var ticks = (long)(_timestampToTicks * timestampDelta);
                 return new TimeSpan(ticks);
             }

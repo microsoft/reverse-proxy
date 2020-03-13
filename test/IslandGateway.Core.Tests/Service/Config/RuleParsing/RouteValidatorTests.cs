@@ -16,14 +16,14 @@ namespace IslandGateway.Core.Service.Tests
 
         public RouteValidatorTests()
         {
-            this.Provide<IRuleParser, RuleParser>();
-            this._routeParser = this.Create<RouteParser>();
+            Provide<IRuleParser, RuleParser>();
+            _routeParser = Create<RouteParser>();
         }
 
         [Fact]
         public void Constructor_Works()
         {
-            this.Create<RouteValidator>();
+            Create<RouteValidator>();
         }
 
         [Theory]
@@ -48,7 +48,7 @@ namespace IslandGateway.Core.Service.Tests
             };
 
             // Act
-            var result = this.RunScenario(route);
+            var result = RunScenario(route);
 
             // Assert
             result.IsSuccess.Should().BeTrue();
@@ -63,7 +63,7 @@ namespace IslandGateway.Core.Service.Tests
             // Arrange
             var errorReporter = new TestConfigErrorReporter();
             var parsedRoute = new ParsedRoute { RouteId = routeId };
-            var validator = this.Create<RouteValidator>();
+            var validator = Create<RouteValidator>();
 
             // Act
             bool isSuccess = validator.ValidateRoute(parsedRoute, errorReporter);
@@ -87,7 +87,7 @@ namespace IslandGateway.Core.Service.Tests
             };
 
             // Act
-            var result = this.RunScenario(route);
+            var result = RunScenario(route);
 
             // Assert
             result.IsSuccess.Should().BeFalse();
@@ -117,7 +117,7 @@ namespace IslandGateway.Core.Service.Tests
             };
 
             // Act
-            var result = this.RunScenario(route);
+            var result = RunScenario(route);
 
             // Assert
             result.IsSuccess.Should().BeFalse();
@@ -140,7 +140,7 @@ namespace IslandGateway.Core.Service.Tests
             };
 
             // Act
-            var result = this.RunScenario(route);
+            var result = RunScenario(route);
 
             // Assert
             result.IsSuccess.Should().BeFalse();
@@ -162,7 +162,7 @@ namespace IslandGateway.Core.Service.Tests
             };
 
             // Act
-            var result = this.RunScenario(route);
+            var result = RunScenario(route);
 
             // Assert
             result.IsSuccess.Should().BeFalse();
@@ -181,7 +181,7 @@ namespace IslandGateway.Core.Service.Tests
             };
 
             // Act
-            var result = this.RunScenario(route);
+            var result = RunScenario(route);
 
             // Assert
             result.IsSuccess.Should().BeFalse();
@@ -200,7 +200,7 @@ namespace IslandGateway.Core.Service.Tests
             };
 
             // Act
-            var result = this.RunScenario(route);
+            var result = RunScenario(route);
 
             // Assert
             result.IsSuccess.Should().BeFalse();
@@ -210,11 +210,11 @@ namespace IslandGateway.Core.Service.Tests
         private (bool IsSuccess, TestConfigErrorReporter ErrorReporter) RunScenario(GatewayRoute route)
         {
             var errorReporter = new TestConfigErrorReporter();
-            var parseResult = this._routeParser.ParseRoute(route, errorReporter);
+            var parseResult = _routeParser.ParseRoute(route, errorReporter);
             parseResult.IsSuccess.Should().BeTrue();
             var parsedRoute = parseResult.Value;
 
-            var validator = this.Create<RouteValidator>();
+            var validator = Create<RouteValidator>();
             bool isSuccess = validator.ValidateRoute(parsedRoute, errorReporter);
             return (isSuccess, errorReporter);
         }

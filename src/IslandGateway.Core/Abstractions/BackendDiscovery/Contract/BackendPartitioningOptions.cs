@@ -1,4 +1,4 @@
-﻿// <copyright file="BackendPartitioningOptions.cs" company="Microsoft Corporation">
+// <copyright file="BackendPartitioningOptions.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -29,9 +29,9 @@ namespace IslandGateway.Core.Abstractions
         {
             return new BackendPartitioningOptions
             {
-                PartitionCount = this.PartitionCount,
-                PartitionKeyExtractor = this.PartitionKeyExtractor,
-                PartitioningAlgorithm = this.PartitioningAlgorithm,
+                PartitionCount = PartitionCount,
+                PartitionKeyExtractor = PartitionKeyExtractor,
+                PartitioningAlgorithm = PartitioningAlgorithm,
             };
         }
     }

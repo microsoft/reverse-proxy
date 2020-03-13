@@ -19,14 +19,14 @@ namespace IslandGateway.Signals.Tests
         [Fact]
         public void Constructor_Works()
         {
-            this._factory.CreateSignal<Item>();
+            _factory.CreateSignal<Item>();
         }
 
         [Fact]
         public void Constructor_WithValue_Works()
         {
             // Act & Assert
-            Signal<int> signal = this._factory.CreateSignal(3);
+            Signal<int> signal = _factory.CreateSignal(3);
             signal.Value.Should().Be(3);
         }
 
@@ -34,7 +34,7 @@ namespace IslandGateway.Signals.Tests
         public void Constructor_Unit_Works()
         {
             // Act & Assert
-            Signal<Unit> signal = this._factory.CreateUnitSignal();
+            Signal<Unit> signal = _factory.CreateUnitSignal();
             signal.Value.Should().BeSameAs(Unit.Instance);
         }
 
@@ -42,7 +42,7 @@ namespace IslandGateway.Signals.Tests
         public void Value_Basics()
         {
             // Act & Assert
-            var signal = this._factory.CreateSignal<Item>();
+            var signal = _factory.CreateSignal<Item>();
             signal.Value.Should().BeNull();
 
             var item = new Item();
@@ -57,7 +57,7 @@ namespace IslandGateway.Signals.Tests
         public void GetSnapshot_Notifications_Work()
         {
             // Arrange
-            var signal = this._factory.CreateSignal<Item>();
+            var signal = _factory.CreateSignal<Item>();
 
             // Act & Assert
             int count1 = 0;
@@ -111,7 +111,7 @@ namespace IslandGateway.Signals.Tests
         {
             // Arrange
             const int Iterations = 100_000;
-            var signal = this._factory.CreateSignal<Item>();
+            var signal = _factory.CreateSignal<Item>();
             signal.Value = new Item();
 
             int concurrencyCounter = 0;

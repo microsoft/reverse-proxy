@@ -1,4 +1,4 @@
-﻿// <copyright file="RouteParserTests.cs" company="Microsoft Corporation">
+// <copyright file="RouteParserTests.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -15,7 +15,7 @@ namespace IslandGateway.Core.Service.Tests
         [Fact]
         public void Constructor_Works()
         {
-            this.Create<RouteParser>();
+            Create<RouteParser>();
         }
 
         [Fact]
@@ -29,10 +29,10 @@ namespace IslandGateway.Core.Service.Tests
 
             var matchers = new[] { new HostMatcher("Host", new[] { "example.com" }) };
             var ruleParseResult = Result<IList<RuleMatcherBase>, string>.Success(matchers);
-            this.Mock<IRuleParser>()
+            Mock<IRuleParser>()
                 .Setup(r => r.Parse(TestRule))
                 .Returns(ruleParseResult);
-            var routeParser = this.Create<RouteParser>();
+            var routeParser = Create<RouteParser>();
             var route = new GatewayRoute
             {
                 RouteId = TestRouteId,
@@ -66,7 +66,7 @@ namespace IslandGateway.Core.Service.Tests
             // Arrange
             var route = new GatewayRoute { RouteId = null };
             var errorReporter = new TestConfigErrorReporter();
-            var routeParser = this.Create<RouteParser>();
+            var routeParser = Create<RouteParser>();
 
             // Act
             var result = routeParser.ParseRoute(route, errorReporter);
@@ -84,7 +84,7 @@ namespace IslandGateway.Core.Service.Tests
             const string TestParserErrorMessage = "parser error message";
 
             var ruleParseResult = Result<IList<RuleMatcherBase>, string>.Failure(TestParserErrorMessage);
-            this.Mock<IRuleParser>()
+            Mock<IRuleParser>()
                 .Setup(r => r.Parse(TestRule))
                 .Returns(ruleParseResult);
             var route = new GatewayRoute
@@ -93,7 +93,7 @@ namespace IslandGateway.Core.Service.Tests
                 Rule = TestRule,
             };
             var errorReporter = new TestConfigErrorReporter();
-            var routeParser = this.Create<RouteParser>();
+            var routeParser = Create<RouteParser>();
 
             // Act
             var result = routeParser.ParseRoute(route, errorReporter);

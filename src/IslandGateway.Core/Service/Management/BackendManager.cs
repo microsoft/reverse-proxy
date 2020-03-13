@@ -18,15 +18,15 @@ namespace IslandGateway.Core.Service.Management
             Contracts.CheckValue(endpointManagerFactory, nameof(endpointManagerFactory));
             Contracts.CheckValue(httpClientFactoryFactory, nameof(httpClientFactoryFactory));
 
-            this._endpointManagerFactory = endpointManagerFactory;
-            this._httpClientFactoryFactory = httpClientFactoryFactory;
+            _endpointManagerFactory = endpointManagerFactory;
+            _httpClientFactoryFactory = httpClientFactoryFactory;
         }
 
         /// <inheritdoc/>
         protected override BackendInfo InstantiateItem(string itemId)
         {
-            var endpointManager = this._endpointManagerFactory.CreateEndpointManager();
-            var httpClientFactory = this._httpClientFactoryFactory.CreateFactory();
+            var endpointManager = _endpointManagerFactory.CreateEndpointManager();
+            var httpClientFactory = _httpClientFactoryFactory.CreateFactory();
             return new BackendInfo(itemId, endpointManager, httpClientFactory);
         }
     }

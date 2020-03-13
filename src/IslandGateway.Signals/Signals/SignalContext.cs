@@ -30,39 +30,39 @@ namespace IslandGateway.Signals
         /// </summary>
         internal void QueueAction(Action action)
         {
-            lock (this._workQueue)
+            lock (_workQueue)
             {
-                this._workQueue.Enqueue(action);
-                this.Execute();
+                _workQueue.Enqueue(action);
+                Execute();
             }
         }
 
         private void Execute()
         {
             // NOTE: We are already within the lock when this method is called.
-            if (this._isExecuting)
+            if (_isExecuting)
             {
                 // Prevent reentrancy. Reentrancy can lead to stack overflow and difficulty when debugging.
                 return;
             }
 
-            this._isExecuting = true;
+            _isExecuting = true;
             try
             {
                 while (true)
                 {
-                    if (this._workQueue.Count == 0)
+                    if (_workQueue.Count == 0)
                     {
                         return;
                     }
 
-                    var action = this._workQueue.Dequeue();
+                    var action = _workQueue.Dequeue();
                     action();
                 }
             }
             finally
             {
-                this._isExecuting = false;
+                _isExecuting = false;
             }
         }
     }

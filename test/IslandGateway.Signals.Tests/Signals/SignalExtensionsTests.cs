@@ -1,4 +1,4 @@
-﻿// <copyright file="SignalExtensionsTests.cs" company="Microsoft Corporation">
+// <copyright file="SignalExtensionsTests.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -206,7 +206,7 @@ namespace IslandGateway.Signals.Tests
         {
             public Item(int id)
             {
-                this.Id = id;
+                Id = id;
             }
 
             public int Id { get; }

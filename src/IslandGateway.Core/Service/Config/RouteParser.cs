@@ -15,7 +15,7 @@ namespace IslandGateway.Core.Service
         public RouteParser(IRuleParser ruleParser)
         {
             Contracts.CheckValue(ruleParser, nameof(ruleParser));
-            this._ruleParser = ruleParser;
+            _ruleParser = ruleParser;
         }
 
         public Result<ParsedRoute> ParseRoute(GatewayRoute route, IConfigErrorReporter errorReporter)
@@ -26,7 +26,7 @@ namespace IslandGateway.Core.Service
                 return Result.Failure<ParsedRoute>();
             }
 
-            var parsedRule = this._ruleParser.Parse(route.Rule);
+            var parsedRule = _ruleParser.Parse(route.Rule);
             if (!parsedRule.IsSuccess)
             {
                 errorReporter.ReportError(ConfigErrors.RouteBadRule, route.RouteId, $"Route '{route.RouteId}' has an invalid rule: {parsedRule.Error} (rule: {route.Rule}");

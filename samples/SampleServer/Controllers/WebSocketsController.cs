@@ -27,7 +27,7 @@ namespace SampleServer.Controllers
         /// </summary>
         public WebSocketsController(ILogger<WebSocketsController> logger)
         {
-            this._logger = logger;
+            _logger = logger;
         }
 
         /// <summary>
@@ -37,18 +37,18 @@ namespace SampleServer.Controllers
         [Route("/api/websockets")]
         public async Task WebSockets()
         {
-            if (!this.HttpContext.WebSockets.IsWebSocketRequest)
+            if (!HttpContext.WebSockets.IsWebSocketRequest)
             {
-                this.HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+                HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
             }
 
-            using (var webSocket = await this.HttpContext.WebSockets.AcceptWebSocketAsync())
+            using (var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync())
             {
-                this._logger.LogInformation("WebSockets established.");
-                await this.RunPingPongAsync(webSocket, this.HttpContext.RequestAborted);
+                _logger.LogInformation("WebSockets established.");
+                await RunPingPongAsync(webSocket, HttpContext.RequestAborted);
             }
 
-            this._logger.LogInformation("WebSockets finished.");
+            _logger.LogInformation("WebSockets finished.");
         }
 
         private async Task RunPingPongAsync(WebSocket webSocket, CancellationToken cancellation)

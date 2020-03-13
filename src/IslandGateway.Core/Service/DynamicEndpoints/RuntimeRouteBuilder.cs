@@ -22,7 +22,7 @@ namespace IslandGateway.Core.Service
         public RuntimeRouteBuilder(IProxyInvoker proxyInvoker)
         {
             Contracts.CheckValue(proxyInvoker, nameof(proxyInvoker));
-            this._proxyInvoker = proxyInvoker;
+            _proxyInvoker = proxyInvoker;
         }
 
         /// <inheritdoc/>
@@ -60,7 +60,7 @@ namespace IslandGateway.Core.Service
 
             // TODO: Propagate route priority
             var endpointBuilder = new AspNetCore.Routing.RouteEndpointBuilder(
-                requestDelegate: this._proxyInvoker.InvokeAsync,
+                requestDelegate: _proxyInvoker.InvokeAsync,
                 routePattern: AspNetCore.Routing.Patterns.RoutePatternFactory.Parse(pathPattern),
                 order: 0);
             endpointBuilder.DisplayName = source.RouteId;

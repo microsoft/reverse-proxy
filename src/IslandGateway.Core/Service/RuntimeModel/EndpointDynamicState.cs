@@ -1,4 +1,4 @@
-﻿// <copyright file="EndpointDynamicState.cs" company="Microsoft Corporation">
+// <copyright file="EndpointDynamicState.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -9,7 +9,7 @@ namespace IslandGateway.Core.RuntimeModel
         public EndpointDynamicState(
             EndpointHealth health)
         {
-            this.Health = health;
+            Health = health;
         }
 
         public EndpointHealth Health { get; }

@@ -34,20 +34,20 @@ namespace SampleServer.Controllers
         {
             var result = new
             {
-                this.Request.Protocol,
-                this.Request.Method,
+                Request.Protocol,
+                Request.Method,
 
-                this.Request.Scheme,
-                Host = this.Request.Host.Value,
-                Path = this.Request.Path.Value,
-                Query = this.Request.QueryString.Value,
+                Request.Scheme,
+                Host = Request.Host.Value,
+                Path = Request.Path.Value,
+                Query = Request.QueryString.Value,
 
-                Headers = this.Request.Headers.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToArray()),
+                Headers = Request.Headers.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToArray()),
 
                 Time = DateTimeOffset.UtcNow,
             };
 
-            return this.Ok(result);
+            return Ok(result);
         }
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace SampleServer.Controllers
         [Route("/api/statuscode")]
         public void Status(int statusCode)
         {
-            this.Response.StatusCode = statusCode;
+            Response.StatusCode = statusCode;
         }
 
         /// <summary>
@@ -69,7 +69,7 @@ namespace SampleServer.Controllers
         {
             foreach (var kvp in headers)
             {
-                this.Response.Headers.Add(kvp.Key, kvp.Value);
+                Response.Headers.Add(kvp.Key, kvp.Value);
             }
         }
 
@@ -84,12 +84,12 @@ namespace SampleServer.Controllers
         [Route("/api/stress")]
         public async Task Stress([FromQuery]int delay, [FromQuery]int responseSize)
         {
-            var bodyReader = this.Request.BodyReader;
+            var bodyReader = Request.BodyReader;
             if (bodyReader != null)
             {
                 while (true)
                 {
-                    var a = await this.Request.BodyReader.ReadAsync();
+                    var a = await Request.BodyReader.ReadAsync();
                     if (a.IsCompleted)
                     {
                         break;
@@ -102,7 +102,7 @@ namespace SampleServer.Controllers
                 await Task.Delay(delay);
             }
 
-            var bodyWriter = this.Response.BodyWriter;
+            var bodyWriter = Response.BodyWriter;
             if (bodyWriter != null && responseSize > 0)
             {
                 const int WriteBufferSize = 4096;
@@ -114,7 +114,7 @@ namespace SampleServer.Controllers
                 {
                     buffer[0] = (byte)(remaining * 17); // Make the output not all zeros
                     int toWrite = Math.Min(buffer.Length, remaining);
-                    await bodyWriter.WriteAsync(new ReadOnlyMemory<byte>(buffer, 0, toWrite), this.HttpContext.RequestAborted);
+                    await bodyWriter.WriteAsync(new ReadOnlyMemory<byte>(buffer, 0, toWrite), HttpContext.RequestAborted);
                     remaining -= toWrite;
                 }
             }

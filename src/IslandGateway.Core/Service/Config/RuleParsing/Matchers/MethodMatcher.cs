@@ -1,4 +1,4 @@
-﻿// <copyright file="MethodMatcher.cs" company="Microsoft Corporation">
+// <copyright file="MethodMatcher.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -14,6 +14,6 @@ namespace IslandGateway.Core.Service
             Contracts.Check(args.Length >= 1, $"Expected at least 1 argument, found {args.Length}.");
         }
 
-        public string[] Methods => this.Args;
+        public string[] Methods => Args;
     }
 }

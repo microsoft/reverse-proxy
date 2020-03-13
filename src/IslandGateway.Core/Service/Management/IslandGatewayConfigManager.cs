@@ -44,12 +44,12 @@ namespace IslandGateway.Core.Service.Management
             Contracts.CheckValue(routeManager, nameof(routeManager));
             Contracts.CheckValue(dynamicEndpointDataSource, nameof(dynamicEndpointDataSource));
 
-            this._logger = logger;
-            this._configBuilder = configBuilder;
-            this._routeEndpointBuilder = routeEndpointBuilder;
-            this._backendManager = backendManager;
-            this._routeManager = routeManager;
-            this._dynamicEndpointDataSource = dynamicEndpointDataSource;
+            _logger = logger;
+            _configBuilder = configBuilder;
+            _routeEndpointBuilder = routeEndpointBuilder;
+            _backendManager = backendManager;
+            _routeManager = routeManager;
+            _dynamicEndpointDataSource = dynamicEndpointDataSource;
         }
 
         /// <inheritdoc/>
@@ -60,15 +60,15 @@ namespace IslandGateway.Core.Service.Management
                 throw new ArgumentNullException(nameof(configErrorReporter));
             }
 
-            var configResult = await this._configBuilder.BuildConfigAsync(configErrorReporter, cancellation);
+            var configResult = await _configBuilder.BuildConfigAsync(configErrorReporter, cancellation);
             if (!configResult.IsSuccess)
             {
                 return false;
             }
 
             var config = configResult.Value;
-            this.UpdateRuntimeBackends(config);
-            this.UpdateRuntimeRoutes(config);
+            UpdateRuntimeBackends(config);
+            UpdateRuntimeRoutes(config);
 
             return true;
         }
@@ -81,11 +81,11 @@ namespace IslandGateway.Core.Service.Management
                 var configBackend = configBackendWithEndpoints.Backend;
                 desiredBackends.Add(configBackend.BackendId);
 
-                this._backendManager.GetOrCreateItem(
+                _backendManager.GetOrCreateItem(
                     itemId: configBackend.BackendId,
                     setupAction: backend =>
                     {
-                        this.UpdateRuntimeEndpoints(configBackendWithEndpoints.Endpoints, backend.EndpointManager);
+                        UpdateRuntimeEndpoints(configBackendWithEndpoints.Endpoints, backend.EndpointManager);
 
                         var newConfig = new BackendConfig(
                                 new BackendConfig.BackendHealthCheckOptions(
@@ -111,7 +111,7 @@ namespace IslandGateway.Core.Service.Management
                     });
             }
 
-            foreach (var existingBackend in this._backendManager.GetItems())
+            foreach (var existingBackend in _backendManager.GetItems())
             {
                 if (!desiredBackends.Contains(existingBackend.BackendId))
                 {
@@ -121,7 +121,7 @@ namespace IslandGateway.Core.Service.Management
                     // NOTE 2: Removing the backend from `IBackendManager` is safe and existing
                     // ASP .NET Core endpoints will continue to work with their existing behavior (until those endpoints are updated)
                     // and the Garbage Collector won't destroy this backend object while it's referenced elsewhere.
-                    this._backendManager.TryRemoveItem(existingBackend.BackendId);
+                    _backendManager.TryRemoveItem(existingBackend.BackendId);
                 }
             }
         }
@@ -170,9 +170,9 @@ namespace IslandGateway.Core.Service.Management
                 // Note that this can be null, and that is fine. The resulting route may match
                 // but would then fail to route, which is exactly what we were instructed to do in this case
                 // since no valid backend was specified.
-                var backendOrNull = this._backendManager.TryGetItem(configRoute.BackendId);
+                var backendOrNull = _backendManager.TryGetItem(configRoute.BackendId);
 
-                this._routeManager.GetOrCreateItem(
+                _routeManager.GetOrCreateItem(
                     itemId: configRoute.RouteId,
                     setupAction: route =>
                     {
@@ -185,13 +185,13 @@ namespace IslandGateway.Core.Service.Management
                             // Config changed, so update runtime route
                             changed = true;
 
-                            var newConfig = this._routeEndpointBuilder.Build(configRoute, backendOrNull, route);
+                            var newConfig = _routeEndpointBuilder.Build(configRoute, backendOrNull, route);
                             route.Config.Value = newConfig;
                         }
                     });
             }
 
-            foreach (var existingRoute in this._routeManager.GetItems())
+            foreach (var existingRoute in _routeManager.GetItems())
             {
                 if (!desiredRoutes.Contains(existingRoute.RouteId))
                 {
@@ -201,7 +201,7 @@ namespace IslandGateway.Core.Service.Management
                     // NOTE 2: Removing the route from `IRouteManager` is safe and existing
                     // ASP .NET Core endpoints will continue to work with their existing behavior since
                     // their copy of `RouteConfig` is immutable and remains operational in whichever state is was in.
-                    this._routeManager.TryRemoveItem(existingRoute.RouteId);
+                    _routeManager.TryRemoveItem(existingRoute.RouteId);
                     changed = true;
                 }
             }
@@ -209,7 +209,7 @@ namespace IslandGateway.Core.Service.Management
             if (changed)
             {
                 var aspNetCoreEndpoints = new List<AspNetCore.Http.Endpoint>();
-                foreach (var existingRoute in this._routeManager.GetItems())
+                foreach (var existingRoute in _routeManager.GetItems())
                 {
                     var runtimeConfig = existingRoute.Config.Value;
                     if (runtimeConfig?.AspNetCoreEndpoints != null)
@@ -219,7 +219,7 @@ namespace IslandGateway.Core.Service.Management
                 }
 
                 // This is where the new routes take effect!
-                this._dynamicEndpointDataSource.Update(aspNetCoreEndpoints);
+                _dynamicEndpointDataSource.Update(aspNetCoreEndpoints);
             }
         }
     }

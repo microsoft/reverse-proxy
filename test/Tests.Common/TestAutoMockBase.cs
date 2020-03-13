@@ -22,7 +22,7 @@ namespace Tests.Common
         /// </summary>
         public TestAutoMockBase()
         {
-            this.AutoMock = AutoMock.GetLoose();
+            AutoMock = AutoMock.GetLoose();
         }
 
         /// <summary>
@@ -35,8 +35,8 @@ namespace Tests.Common
         /// </summary>
         public void ResetMocks()
         {
-            this.AutoMock.Dispose();
-            this.AutoMock = AutoMock.GetLoose();
+            AutoMock.Dispose();
+            AutoMock = AutoMock.GetLoose();
         }
 
         /// <summary>
@@ -50,7 +50,7 @@ namespace Tests.Common
         public virtual TService Create<TService>(params Parameter[] parameters)
             where TService : class
         {
-            return this.AutoMock.Create<TService>(parameters);
+            return AutoMock.Create<TService>(parameters);
         }
 
         /// <summary>
@@ -61,7 +61,7 @@ namespace Tests.Common
         public Mock<TDependencyToMock> Mock<TDependencyToMock>()
             where TDependencyToMock : class
         {
-            return this.AutoMock.Mock<TDependencyToMock>();
+            return AutoMock.Mock<TDependencyToMock>();
         }
 
         /// <summary>
@@ -73,7 +73,7 @@ namespace Tests.Common
             where TService : class
         {
             Contracts.CheckValue(instance, nameof(instance));
-            this.AutoMock.Provide(instance);
+            AutoMock.Provide(instance);
         }
 
         /// <summary>
@@ -86,16 +86,16 @@ namespace Tests.Common
             where TService : class
             where TImplementation : TService
         {
-            return (TImplementation)this.AutoMock.Provide<TService, TImplementation>();
+            return (TImplementation)AutoMock.Provide<TService, TImplementation>();
         }
 
         /// <inheritdoc/>
         public virtual void Dispose()
         {
-            if (!this._isDisposed)
+            if (!_isDisposed)
             {
-                this.AutoMock.Dispose();
-                this._isDisposed = true;
+                AutoMock.Dispose();
+                _isDisposed = true;
             }
         }
     }
