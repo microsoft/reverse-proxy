@@ -1,6 +1,5 @@
-﻿// <copyright file="EndpointHealth.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 namespace IslandGateway.Core.RuntimeModel
 {

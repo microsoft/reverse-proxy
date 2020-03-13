@@ -1,6 +1,5 @@
-// <copyright file="BackendManager.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using IslandGateway.Core.RuntimeModel;
 using IslandGateway.Core.Service.Proxy.Infra;

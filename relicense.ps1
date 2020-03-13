@@ -5,6 +5,7 @@ Get-ChildItem -Recurse -Filter *.cs | ForEach-Object {
             "// Copyright (c) Microsoft Corporation.",
             "// Licensed under the MIT License."
         ) + $lines[3..$lines.Length]
-        [IO.File]::WriteAllText($_.FullName, [string]::Join("`n", $newLines))
+        $encoding = New-Object System.Text.UTF8Encoding $true
+        [IO.File]::WriteAllText($_.FullName, [string]::Join("`n", $newLines) + "`n", $encoding)
     }
 }
