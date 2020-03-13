@@ -83,7 +83,7 @@ namespace IslandGateway.Core.Util.Tests
         public void GetHashCode_Null_Works()
         {
             // Act
-            int code = ReferenceEqualityComparer<object>.Default.GetHashCode(null);
+            var code = ReferenceEqualityComparer<object>.Default.GetHashCode(null);
 
             // Assert
             code.Should().Be(0);

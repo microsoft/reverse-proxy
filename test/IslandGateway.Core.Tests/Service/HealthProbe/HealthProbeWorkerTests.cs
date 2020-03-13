@@ -21,9 +21,9 @@ namespace IslandGateway.Core.Service.HealthProbe
     {
         // The prober class is used by the healthProbe class, here we would mock the prober since we only care about the behavior of healthProbe class.
         // And we also want to customize the behavior of prober so we could have the full control of the unit test.
-        private Mock<IBackendProber> _backendProber;
-        private IBackendManager _backendManager;
-        private BackendConfig _backendConfig;
+        private readonly Mock<IBackendProber> _backendProber;
+        private readonly IBackendManager _backendManager;
+        private readonly BackendConfig _backendConfig;
 
         public HealthProbeWorkerTests()
         {
@@ -292,7 +292,7 @@ namespace IslandGateway.Core.Service.HealthProbe
         private static EndpointManager EndpointManagerGenerator(int num)
         {
             var endpointmanger = new EndpointManager();
-            for (int i = 0; i < num; i++)
+            for (var i = 0; i < num; i++)
             {
                 endpointmanger.GetOrCreateItem("endpoint" + i.ToString(), item => { item.Config.Value = new EndpointConfig("url"); });
             }

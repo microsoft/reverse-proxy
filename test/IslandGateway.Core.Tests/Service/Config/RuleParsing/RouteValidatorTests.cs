@@ -66,7 +66,7 @@ namespace IslandGateway.Core.Service.Tests
             var validator = Create<RouteValidator>();
 
             // Act
-            bool isSuccess = validator.ValidateRoute(parsedRoute, errorReporter);
+            var isSuccess = validator.ValidateRoute(parsedRoute, errorReporter);
 
             // Assert
             isSuccess.Should().BeFalse();
@@ -215,7 +215,7 @@ namespace IslandGateway.Core.Service.Tests
             var parsedRoute = parseResult.Value;
 
             var validator = Create<RouteValidator>();
-            bool isSuccess = validator.ValidateRoute(parsedRoute, errorReporter);
+            var isSuccess = validator.ValidateRoute(parsedRoute, errorReporter);
             return (isSuccess, errorReporter);
         }
     }

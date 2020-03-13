@@ -92,7 +92,7 @@ namespace IslandGateway.Core.Service.HealthProbe
             }
 
             // Step 5: Stop and remove probes for backends that no longer exist.
-            List<string> probersToRemove = new List<string>();
+            var probersToRemove = new List<string>();
             foreach (var kvp in _activeProbers)
             {
                 if (!backendIdList.Contains(kvp.Key))

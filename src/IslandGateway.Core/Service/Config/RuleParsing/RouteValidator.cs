@@ -48,7 +48,7 @@ namespace IslandGateway.Core.Service
             Contracts.CheckValue(route, nameof(route));
             Contracts.CheckValue(errorReporter, nameof(errorReporter));
 
-            bool success = true;
+            var success = true;
             if (string.IsNullOrEmpty(route.RouteId))
             {
                 errorReporter.ReportError(ConfigErrors.ParsedRouteMissingId, route.RouteId, $"Route has no {nameof(route.RouteId)}.");
@@ -89,7 +89,7 @@ namespace IslandGateway.Core.Service
 
         private static bool ValidateAllMatchers(string routeId, IList<RuleMatcherBase> matchers, IConfigErrorReporter errorReporter)
         {
-            bool success = true;
+            var success = true;
 
             foreach (var matcher in matchers)
             {
@@ -153,7 +153,7 @@ namespace IslandGateway.Core.Service
 
         private static bool ValidateMethodMatcher(MethodMatcher methodMatcher, out string errorMessage)
         {
-            HashSet<string> seenMethods = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var seenMethods = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (var method in methodMatcher.Methods)
             {
                 if (!seenMethods.Add(method))

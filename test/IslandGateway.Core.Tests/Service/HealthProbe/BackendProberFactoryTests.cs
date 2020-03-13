@@ -18,10 +18,10 @@ namespace IslandGateway.Core.Service.HealthProbe
 {
     public class BackendProberFactoryTests : TestAutoMockBase
     {
-        private Mock<IMonotonicTimer> _timer;
-        private Mock<IOperationLogger> _operationLogger;
-        private ILoggerFactory _loggerFactory;
-        private IHealthProbeHttpClientFactory _httpClientFactory;
+        private readonly Mock<IMonotonicTimer> _timer;
+        private readonly Mock<IOperationLogger> _operationLogger;
+        private readonly ILoggerFactory _loggerFactory;
+        private readonly IHealthProbeHttpClientFactory _httpClientFactory;
 
         public BackendProberFactoryTests()
         {
@@ -48,7 +48,7 @@ namespace IslandGateway.Core.Service.HealthProbe
             var factory = new BackendProberFactory(_timer.Object, _loggerFactory, _operationLogger.Object, _httpClientFactory);
 
             // Create probers.
-            string backendId = "example";
+            var backendId = "example";
             var backendConfig = new BackendConfig(
                 healthCheckOptions: new BackendConfig.BackendHealthCheckOptions(
                     enabled: true,

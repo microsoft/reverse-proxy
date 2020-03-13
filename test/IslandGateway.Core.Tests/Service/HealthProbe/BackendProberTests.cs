@@ -32,17 +32,17 @@ namespace IslandGateway.Core.Service.HealthProbe
         public const string SkipUnitTestSwitcher = "Single threaded task scheduler is not running in single thread.Need to investigate the problem in branch: nulyu/last_puzzle";
     #endif
 
-        private string _backendId;
-        private BackendConfig _backendConfig;
-        private AsyncSemaphore _semaphore;
-        private HttpClient _badClient;
-        private HttpClient _goodClient;
-        private VirtualMonotonicTimer _timer;
-        private ILogger<BackendProber> _logger;
-        private IOperationLogger _operationLogger;
+        private readonly string _backendId;
+        private readonly BackendConfig _backendConfig;
+        private readonly AsyncSemaphore _semaphore;
+        private readonly HttpClient _badClient;
+        private readonly HttpClient _goodClient;
+        private readonly VirtualMonotonicTimer _timer;
+        private readonly ILogger<BackendProber> _logger;
+        private readonly IOperationLogger _operationLogger;
 
-        private Mock<IRandom> _fakeRandom;
-        private Mock<IRandomFactory> _randomFactory;
+        private readonly Mock<IRandom> _fakeRandom;
+        private readonly Mock<IRandomFactory> _randomFactory;
 
         public BackendProberTests()
         {
@@ -265,7 +265,7 @@ namespace IslandGateway.Core.Service.HealthProbe
         private EndpointManager EndpointManagerGenerator(int num)
         {
             var endpointmanger = new EndpointManager();
-            for (int i = 0; i < num; i++)
+            for (var i = 0; i < num; i++)
             {
                 endpointmanger.GetOrCreateItem("endpoint" + i.ToString(), item => { item.Config.Value = new EndpointConfig("https://localhost:123/a/b/api/test"); });
             }

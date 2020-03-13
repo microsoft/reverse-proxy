@@ -161,7 +161,7 @@ namespace IslandGateway.Core.Service.Management
         private void UpdateRuntimeRoutes(DynamicConfigRoot config)
         {
             var desiredRoutes = new HashSet<string>(StringComparer.Ordinal);
-            bool changed = false;
+            var changed = false;
 
             foreach (var configRoute in config.Routes)
             {

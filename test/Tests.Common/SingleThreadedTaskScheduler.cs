@@ -51,7 +51,7 @@ namespace Tests.Common
             {
                 Contracts.Check(_schedulerIsRunning == false, "Synchronous execution is not supported if already being executed.");
 
-                bool flag = false;
+                var flag = false;
                 _suspendScheduler = true;
 
                 try

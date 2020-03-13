@@ -145,7 +145,7 @@ namespace IslandGateway.Core.Service.Proxy
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 2: Setup copy of request body (background) Downstream --► Gateway --► Upstream
             // Note that we must do this before step (3) because step (3) may also add headers to the HttpContent that we set up here.
-            StreamCopyHttpContent bodyToUpstreamContent = SetupCopyBodyUpstream(context.Request.Body, upstreamRequest, in proxyTelemetryContext, longCancellation);
+            var bodyToUpstreamContent = SetupCopyBodyUpstream(context.Request.Body, upstreamRequest, in proxyTelemetryContext, longCancellation);
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 3: Copy request headers Downstream --► Gateway --► Upstream
@@ -256,7 +256,7 @@ namespace IslandGateway.Core.Service.Proxy
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 3: Send the outgoing request using HttpMessageInvoker
             var upstreamResponse = await httpClient.SendAsync(upstreamRequest, shortCancellation);
-            bool upgraded = upstreamResponse.StatusCode == HttpStatusCode.SwitchingProtocols && upstreamResponse.Content != null;
+            var upgraded = upstreamResponse.StatusCode == HttpStatusCode.SwitchingProtocols && upstreamResponse.Content != null;
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 4: Copy response status line Downstream ◄-- Gateway ◄-- Upstream

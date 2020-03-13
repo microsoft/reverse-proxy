@@ -40,7 +40,7 @@ namespace IslandGateway.Core.Service.Management
 
             lock (_lockObject)
             {
-                bool existed = _items.TryGetValue(itemId, out var item);
+                var existed = _items.TryGetValue(itemId, out var item);
                 if (!existed)
                 {
                     item = InstantiateItem(itemId);
@@ -74,7 +74,7 @@ namespace IslandGateway.Core.Service.Management
 
             lock (_lockObject)
             {
-                bool removed = _items.Remove(itemId);
+                var removed = _items.Remove(itemId);
 
                 if (removed)
                 {

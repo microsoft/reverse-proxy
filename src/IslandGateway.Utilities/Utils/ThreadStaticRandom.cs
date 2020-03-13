@@ -29,7 +29,7 @@ namespace IslandGateway.Utilities
         {
             get
             {
-                RandomWrapper currentInstance = _threadLocalRandom;
+                var currentInstance = _threadLocalRandom;
 
                 // Check if for the current thread the seed has already been established. If not then lock on the global random instance to generate a seed value
                 if (currentInstance == null)

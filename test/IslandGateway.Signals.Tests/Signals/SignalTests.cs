@@ -14,7 +14,7 @@ namespace IslandGateway.Signals.Tests
     /// </summary>
     public class SignalTests
     {
-        private SignalFactory _factory = new SignalFactory();
+        private readonly SignalFactory _factory = new SignalFactory();
 
         [Fact]
         public void Constructor_Works()
@@ -26,7 +26,7 @@ namespace IslandGateway.Signals.Tests
         public void Constructor_WithValue_Works()
         {
             // Act & Assert
-            Signal<int> signal = _factory.CreateSignal(3);
+            var signal = _factory.CreateSignal(3);
             signal.Value.Should().Be(3);
         }
 
@@ -34,7 +34,7 @@ namespace IslandGateway.Signals.Tests
         public void Constructor_Unit_Works()
         {
             // Act & Assert
-            Signal<Unit> signal = _factory.CreateUnitSignal();
+            var signal = _factory.CreateUnitSignal();
             signal.Value.Should().BeSameAs(Unit.Instance);
         }
 
@@ -60,7 +60,7 @@ namespace IslandGateway.Signals.Tests
             var signal = _factory.CreateSignal<Item>();
 
             // Act & Assert
-            int count1 = 0;
+            var count1 = 0;
             var snapshot1 = signal.GetSnapshot();
             snapshot1.Value.Should().BeNull();
             snapshot1.OnChange(() => count1++);
@@ -72,7 +72,7 @@ namespace IslandGateway.Signals.Tests
 
             count1.Should().Be(1);
 
-            int count1_latesubscription = 0;
+            var count1_latesubscription = 0;
             snapshot1.OnChange(() => count1_latesubscription++);
             count1_latesubscription.Should().Be(1);
 
@@ -84,8 +84,8 @@ namespace IslandGateway.Signals.Tests
             var snapshot2b = signal.GetSnapshot();
             snapshot2b.Should().BeSameAs(snapshot2);
 
-            int count2a = 0;
-            int count2b = 0;
+            var count2a = 0;
+            var count2b = 0;
             snapshot2.OnChange(() => count2a++);
             snapshot2.OnChange(() => count2b++);
             count2a.Should().Be(0);
@@ -114,13 +114,13 @@ namespace IslandGateway.Signals.Tests
             var signal = _factory.CreateSignal<Item>();
             signal.Value = new Item();
 
-            int concurrencyCounter = 0;
-            int count = -1;
+            var concurrencyCounter = 0;
+            var count = -1;
 
             // Act & Assert
             signal.Select(item =>
             {
-                int concurrency = Interlocked.Increment(ref concurrencyCounter);
+                var concurrency = Interlocked.Increment(ref concurrencyCounter);
                 concurrency.Should().Be(1);
                 Interlocked.Increment(ref count);
                 Interlocked.Decrement(ref concurrencyCounter);

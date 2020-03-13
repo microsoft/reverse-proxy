@@ -52,7 +52,7 @@ namespace IslandGateway.Common.Telemetry
         /// <inheritdoc/>
         public Action<long, string[]> Create(string metricName, params string[] dimensionNames)
         {
-            int expectedDimensions = dimensionNames.Length;
+            var expectedDimensions = dimensionNames.Length;
             return (long value, string[] dimensions) =>
             {
                 if (dimensions == null || dimensions.Length != expectedDimensions)

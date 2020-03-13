@@ -17,7 +17,7 @@ namespace IslandGateway.Common.Util
     {
         private static readonly double _timestampToTicks = TimeSpan.TicksPerSecond / (double)Stopwatch.Frequency;
 
-        private long _startTimestamp;
+        private readonly long _startTimestamp;
 
         private ValueStopwatch(long startTimestamp)
         {

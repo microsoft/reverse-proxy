@@ -17,11 +17,11 @@ namespace IslandGateway.Core.Service.HealthProbe
     /// </summary>
     internal class BackendProberFactory : IBackendProberFactory
     {
-        private IMonotonicTimer _timer;
-        private ILoggerFactory _loggerFactory;
-        private IHealthProbeHttpClientFactory _httpClientFactory;
-        private IRandomFactory _randomFactory;
-        private IOperationLogger _operationLogger;
+        private readonly IMonotonicTimer _timer;
+        private readonly ILoggerFactory _loggerFactory;
+        private readonly IHealthProbeHttpClientFactory _httpClientFactory;
+        private readonly IRandomFactory _randomFactory;
+        private readonly IOperationLogger _operationLogger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BackendProberFactory"/> class.

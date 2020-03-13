@@ -18,7 +18,7 @@ namespace IslandGateway.Common.Util
     {
         private readonly TimeSpan _expirationTimeOffset;
         private readonly IMonotonicTimer _timer;
-        private Dictionary<string, Expirable> _cache = new Dictionary<string, Expirable>(StringComparer.Ordinal);
+        private readonly Dictionary<string, Expirable> _cache = new Dictionary<string, Expirable>(StringComparer.Ordinal);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Cache{T}"/> class.
@@ -36,7 +36,7 @@ namespace IslandGateway.Common.Util
         /// </summary>
         public T Get(string key)
         {
-            bool present = TryGetValue(key, out T value);
+            var present = TryGetValue(key, out var value);
             if (!present)
             {
                 throw new KeyNotFoundException($"Key {key} is not present.");
@@ -49,7 +49,7 @@ namespace IslandGateway.Common.Util
         /// </summary>
         public bool TryGetValue(string key, out T value)
         {
-            bool present = _cache.TryGetValue(key, out Expirable expirable);
+            var present = _cache.TryGetValue(key, out var expirable);
             if (!present || expirable.Expired(_timer))
             {
                 value = default;

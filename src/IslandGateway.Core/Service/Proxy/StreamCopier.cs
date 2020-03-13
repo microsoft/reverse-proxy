@@ -49,7 +49,7 @@ namespace IslandGateway.Core.Service.Proxy
                 {
                     cancellation.ThrowIfCancellationRequested();
                     iops++;
-                    int read = await source.ReadAsync(buffer, 0, buffer.Length, cancellation);
+                    var read = await source.ReadAsync(buffer, 0, buffer.Length, cancellation);
 
                     // End of the source stream.
                     if (read == 0)

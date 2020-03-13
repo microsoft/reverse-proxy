@@ -1,4 +1,4 @@
-﻿// <copyright file="CommandLineArgs.cs" company="Microsoft Corporation">
+// <copyright file="CommandLineArgs.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -22,7 +22,7 @@ namespace SampleClient
         {
             var result = new CommandLineArgs();
 
-            int i = 0;
+            var i = 0;
             for (i = 0; i < args.Length; i++)
             {
                 switch (args[i])

@@ -25,7 +25,7 @@ namespace IslandGateway.Utilities
             random.GetType().Should().Be(typeof(RandomWrapper));
 
             // Validate functionality
-            int num = random.Next(5);
+            var num = random.Next(5);
             num.Should().BeInRange(0, 5);
         }
     }

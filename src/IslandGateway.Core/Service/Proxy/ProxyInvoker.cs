@@ -141,7 +141,7 @@ namespace IslandGateway.Core.Service.Proxy
                 throw new ArgumentException(nameof(endpointAddress));
             }
 
-            bool stripSlash = endpointAddress.EndsWith('/');
+            var stripSlash = endpointAddress.EndsWith('/');
 
             // NOTE: This takes inspiration from Microsoft.AspNetCore.Http.Extensions.UriHelper.BuildAbsolute()
             var request = context.Request;

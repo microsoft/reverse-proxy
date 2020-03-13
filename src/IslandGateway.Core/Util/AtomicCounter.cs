@@ -41,7 +41,7 @@ namespace IslandGateway.Core.Util
         {
             while (true)
             {
-                int val = Volatile.Read(ref _value);
+                var val = Volatile.Read(ref _value);
                 if (val >= max)
                 {
                     return false;
@@ -63,7 +63,7 @@ namespace IslandGateway.Core.Util
         {
             while (true)
             {
-                int val = Volatile.Read(ref _value);
+                var val = Volatile.Read(ref _value);
                 if (val <= min)
                 {
                     return false;

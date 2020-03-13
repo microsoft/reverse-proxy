@@ -18,7 +18,7 @@ namespace IslandGateway.Common.Tests
 {
     public class CacheTests : TestAutoMockBase
     {
-        private VirtualMonotonicTimer _timer;
+        private readonly VirtualMonotonicTimer _timer;
         public CacheTests()
         {
             _timer = new VirtualMonotonicTimer();
@@ -29,16 +29,16 @@ namespace IslandGateway.Common.Tests
         public void Get_NotExpired_KeyIsPresent()
         {
             // Arrange
-            TimeSpan expirationTimeOffset = TimeSpan.FromMinutes(12);
-            string key = "some key";
-            string value = "some awesome value";
+            var expirationTimeOffset = TimeSpan.FromMinutes(12);
+            var key = "some key";
+            var value = "some awesome value";
             var cache = new Cache<string>(_timer, expirationTimeOffset);
             cache.Set(key, value);
 
             // Act
-            var firstPresent = cache.TryGetValue(key, out string firstValueGot);
+            var firstPresent = cache.TryGetValue(key, out var firstValueGot);
             _timer.AdvanceClockBy(expirationTimeOffset);
-            var secondPresent = cache.TryGetValue(key, out string secondValueGot);
+            var secondPresent = cache.TryGetValue(key, out var secondValueGot);
 
             // Assert
             firstValueGot.Should().Be(value);
@@ -51,17 +51,17 @@ namespace IslandGateway.Common.Tests
         public void Get_Expired_KeyIsNotPresent()
         {
             // Arrange
-            TimeSpan expirationTimeOffset = TimeSpan.FromMinutes(12);
-            string key = "some key";
-            string value = "some awesome value";
+            var expirationTimeOffset = TimeSpan.FromMinutes(12);
+            var key = "some key";
+            var value = "some awesome value";
             var cache = new Cache<string>(_timer, expirationTimeOffset);
             cache.Set(key, value);
 
             // Act
-            var firstPresent = cache.TryGetValue(key, out string firstValueGot);
+            var firstPresent = cache.TryGetValue(key, out var firstValueGot);
             _timer.AdvanceClockBy(expirationTimeOffset);
             _timer.AdvanceClockBy(expirationTimeOffset);
-            var secondPresent = cache.TryGetValue(key, out string secondValueGot);
+            var secondPresent = cache.TryGetValue(key, out var secondValueGot);
 
             // Assert
             firstValueGot.Should().Be(value);

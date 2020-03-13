@@ -104,7 +104,7 @@ namespace IslandGateway.Core.Service.HealthProbe
             {
                 while (true)
                 {
-                    List<Task> probeTasks = new List<Task>();
+                    var probeTasks = new List<Task>();
                     cancellationToken.ThrowIfCancellationRequested();
 
                     // try catch to prevent while loop crashed by any nonfatal exception
@@ -157,7 +157,7 @@ namespace IslandGateway.Core.Service.HealthProbe
             var randomDither = _randomFactory.CreateRandomInstance();
             await _timer.Delay(TimeSpan.FromMilliseconds(randomDither.Next(_ditheringIntervalInMilliseconds)), cancellationToken);
 
-            HealthProbeOutcome outcome = HealthProbeOutcome.Unknown;
+            var outcome = HealthProbeOutcome.Unknown;
             string logDetail = null;
 
             // Enforce max concurrency.

@@ -61,7 +61,7 @@ namespace IslandGateway.Core.Util.Tests
             const int Max = 80_000;
 
             var counter = new AtomicCounter();
-            int numCapped = 0;
+            var numCapped = 0;
 
             // Act
             Parallel.For(0, Iterations, i =>
@@ -85,7 +85,7 @@ namespace IslandGateway.Core.Util.Tests
             const int Min = -80_000;
 
             var counter = new AtomicCounter();
-            int numCapped = 0;
+            var numCapped = 0;
 
             // Act
             Parallel.For(0, Iterations, i =>

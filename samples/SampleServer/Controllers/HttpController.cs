@@ -107,13 +107,13 @@ namespace SampleServer.Controllers
             {
                 const int WriteBufferSize = 4096;
 
-                int remaining = responseSize;
+                var remaining = responseSize;
                 var buffer = new byte[WriteBufferSize];
 
                 while (remaining > 0)
                 {
                     buffer[0] = (byte)(remaining * 17); // Make the output not all zeros
-                    int toWrite = Math.Min(buffer.Length, remaining);
+                    var toWrite = Math.Min(buffer.Length, remaining);
                     await bodyWriter.WriteAsync(new ReadOnlyMemory<byte>(buffer, 0, toWrite), HttpContext.RequestAborted);
                     remaining -= toWrite;
                 }

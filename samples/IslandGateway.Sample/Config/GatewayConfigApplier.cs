@@ -29,7 +29,7 @@ namespace IslandGateway.Sample.Config
         private readonly IIslandGatewayConfigManager _gatewayManager;
 
         private bool _disposed;
-        private IDisposable _subscription;
+        private readonly IDisposable _subscription;
 
         public GatewayConfigApplier(
             ILogger<GatewayConfigApplier> logger,

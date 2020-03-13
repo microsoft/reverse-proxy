@@ -19,7 +19,7 @@ namespace IslandGateway.Signals.Tests
         {
             // Arrange
             var signal = SignalFactory.Default.CreateSignal<Item>();
-            IReadableSignal<int> derived = signal.Select(item => item?.Id ?? -1);
+            var derived = signal.Select(item => item?.Id ?? -1);
 
             // Act & Assert
             derived.Value.Should().Be(-1);
@@ -53,7 +53,7 @@ namespace IslandGateway.Signals.Tests
 
             selector.Value = b;
             x.Value.Should().Be(2);
-            bool notified = false;
+            var notified = false;
             x.GetSnapshot().OnChange(() => notified = true);
 
             a.Value = 3;
@@ -147,7 +147,7 @@ namespace IslandGateway.Signals.Tests
         public void AnyChange_NoSources_ReturnsNull()
         {
             // Act
-            IReadableSignal<Unit> signal = new IReadableSignal<Unit>[0].AnyChange();
+            var signal = new IReadableSignal<Unit>[0].AnyChange();
 
             // Assert
             signal.Should().BeNull();
@@ -179,7 +179,7 @@ namespace IslandGateway.Signals.Tests
             var c = SignalFactory.Default.CreateSignal<int>(3);
 
             // Act
-            int count = 0;
+            var count = 0;
             var derived = new[] { a, b, c }.AnyChange()
                 .Select(i => count++);
 

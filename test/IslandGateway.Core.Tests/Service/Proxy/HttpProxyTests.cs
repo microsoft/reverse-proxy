@@ -73,7 +73,7 @@ namespace IslandGateway.Core.Service.Proxy.Tests
                     // Use CopyToAsync as this is what HttpClient and friends use internally
                     await request.Content.CopyToAsync(capturedRequestContent);
                     capturedRequestContent.Position = 0;
-                    string capturedContentText = StreamToString(capturedRequestContent);
+                    var capturedContentText = StreamToString(capturedRequestContent);
                     capturedContentText.Should().Be("request content");
 
                     var response = new HttpResponseMessage((HttpStatusCode)234);
@@ -96,13 +96,13 @@ namespace IslandGateway.Core.Service.Proxy.Tests
 
             // Assert
             httpContext.Response.StatusCode.Should().Be(234);
-            string reasonPhrase = httpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase;
+            var reasonPhrase = httpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase;
             reasonPhrase.Should().Be("Test Reason Phrase");
             httpContext.Response.Headers["x-ms-response-test"].Should().BeEquivalentTo("response");
             httpContext.Response.Headers["Content-Language"].Should().BeEquivalentTo("responseLanguage");
 
             gatewayResponseStream.Position = 0;
-            string gatewayResponseText = StreamToString(gatewayResponseStream);
+            var gatewayResponseText = StreamToString(gatewayResponseStream);
             gatewayResponseText.Should().Be("response content");
         }
 
@@ -168,12 +168,12 @@ namespace IslandGateway.Core.Service.Proxy.Tests
             httpContext.Response.Headers["x-ms-response-test"].Should().BeEquivalentTo("response");
 
             downstreamStream.WriteStream.Position = 0;
-            string returnedToDownstream = StreamToString(downstreamStream.WriteStream);
+            var returnedToDownstream = StreamToString(downstreamStream.WriteStream);
             returnedToDownstream.Should().Be("response content");
 
             upstreamStream.Should().NotBeNull();
             upstreamStream.WriteStream.Position = 0;
-            string sentToUpstream = StreamToString(upstreamStream.WriteStream);
+            var sentToUpstream = StreamToString(upstreamStream.WriteStream);
             sentToUpstream.Should().Be("request content");
         }
 
@@ -233,13 +233,13 @@ namespace IslandGateway.Core.Service.Proxy.Tests
 
             // Assert
             httpContext.Response.StatusCode.Should().Be(234);
-            string reasonPhrase = httpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase;
+            var reasonPhrase = httpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase;
             reasonPhrase.Should().Be("Test Reason Phrase");
             httpContext.Response.Headers["x-ms-response-test"].Should().BeEquivalentTo("response");
             httpContext.Response.Headers["Content-Language"].Should().BeEquivalentTo("responseLanguage");
 
             gatewayResponseStream.Position = 0;
-            string gatewayResponseText = StreamToString(gatewayResponseStream);
+            var gatewayResponseText = StreamToString(gatewayResponseStream);
             gatewayResponseText.Should().Be("response content");
         }
 

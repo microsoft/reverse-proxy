@@ -1,4 +1,4 @@
-﻿// <copyright file="Program.cs" company="Microsoft Corporation">
+// <copyright file="Program.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -42,7 +42,7 @@ namespace SampleClient
             if (string.IsNullOrEmpty(parsedArgs.Scenario))
             {
                 // Execute all scenarios
-                bool success = true;
+                var success = true;
                 foreach (var kvp in scenarioFactories.OrderBy(kvp => kvp.Key))
                 {
                     Console.WriteLine();
