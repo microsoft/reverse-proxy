@@ -28,7 +28,7 @@ namespace IslandGateway.Core.Service.Proxy.Tests
         [Fact]
         public void Constructor_Works()
         {
-            new StreamCopier(_metrics, default(StreamCopyTelemetryContext));
+            new StreamCopier(_metrics, default);
         }
 
         [Fact]
