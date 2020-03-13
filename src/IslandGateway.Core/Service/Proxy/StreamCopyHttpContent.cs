@@ -1,4 +1,4 @@
-﻿// <copyright file="StreamCopyHttpContent.cs" company="Microsoft Corporation">
+// <copyright file="StreamCopyHttpContent.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -38,26 +38,26 @@ namespace IslandGateway.Core.Service.Proxy
     /// </remarks>
     internal class StreamCopyHttpContent : HttpContent
     {
-        private readonly Stream source;
-        private readonly IStreamCopier streamCopier;
-        private readonly CancellationToken cancellation;
-        private readonly TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
+        private readonly Stream _source;
+        private readonly IStreamCopier _streamCopier;
+        private readonly CancellationToken _cancellation;
+        private readonly TaskCompletionSource<bool> _tcs = new TaskCompletionSource<bool>();
 
         public StreamCopyHttpContent(Stream source, IStreamCopier streamCopier, CancellationToken cancellation)
         {
             Contracts.CheckValue(source, nameof(source));
             Contracts.CheckValue(streamCopier, nameof(streamCopier));
 
-            this.source = source;
-            this.streamCopier = streamCopier;
-            this.cancellation = cancellation;
+            this._source = source;
+            this._streamCopier = streamCopier;
+            this._cancellation = cancellation;
         }
 
         /// <summary>
         /// Gets a <see cref="System.Threading.Tasks.Task"/> that completes in successful or failed state
         /// mimicking the result of <see cref="SerializeToStreamAsync"/>.
         /// </summary>
-        public Task ConsumptionTask => this.tcs.Task;
+        public Task ConsumptionTask => this._tcs.Task;
 
         /// <summary>
         /// Gets a value indicating whether consumption of this content has begun.
@@ -127,12 +127,12 @@ namespace IslandGateway.Core.Service.Proxy
                 // https://github.com/dotnet/corefx/issues/39586#issuecomment-516210081
                 await stream.FlushAsync();
 
-                await this.streamCopier.CopyAsync(this.source, stream, this.cancellation);
-                this.tcs.TrySetResult(true);
+                await this._streamCopier.CopyAsync(this._source, stream, this._cancellation);
+                this._tcs.TrySetResult(true);
             }
             catch (Exception ex)
             {
-                this.tcs.TrySetException(ex);
+                this._tcs.TrySetException(ex);
                 throw;
             }
         }

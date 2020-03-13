@@ -1,4 +1,4 @@
-﻿// <copyright file="AsyncSemaphore.cs" company="Microsoft Corporation">
+// <copyright file="AsyncSemaphore.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -15,8 +15,8 @@ namespace IslandGateway.Utilities
     /// </remarks>
     public sealed class AsyncSemaphore
     {
-        private readonly Queue<TaskCompletionSource<bool>> waiters = new Queue<TaskCompletionSource<bool>>();
-        private int count;
+        private readonly Queue<TaskCompletionSource<bool>> _waiters = new Queue<TaskCompletionSource<bool>>();
+        private int _count;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AsyncSemaphore"/> class.
@@ -25,7 +25,7 @@ namespace IslandGateway.Utilities
         public AsyncSemaphore(int initialCount)
         {
             Contracts.Check(initialCount >= 0, $"{nameof(initialCount)} must be non-negative");
-            this.count = initialCount;
+            this._count = initialCount;
         }
 
         /// <summary>
@@ -36,9 +36,9 @@ namespace IslandGateway.Utilities
         {
             get
             {
-                lock (this.waiters)
+                lock (this._waiters)
                 {
-                    return this.count;
+                    return this._count;
                 }
             }
         }
@@ -50,17 +50,17 @@ namespace IslandGateway.Utilities
         public async Task WaitAsync()
         {
             Task task;
-            lock (this.waiters)
+            lock (this._waiters)
             {
-                if (this.count > 0)
+                if (this._count > 0)
                 {
-                    this.count--;
+                    this._count--;
                     return;
                 }
                 else
                 {
                     var waiter = new TaskCompletionSource<bool>();
-                    this.waiters.Enqueue(waiter);
+                    this._waiters.Enqueue(waiter);
                     task = waiter.Task;
                 }
             }
@@ -74,15 +74,15 @@ namespace IslandGateway.Utilities
         public void Release()
         {
             TaskCompletionSource<bool> toRelease = null;
-            lock (this.waiters)
+            lock (this._waiters)
             {
-                if (this.waiters.Count > 0)
+                if (this._waiters.Count > 0)
                 {
-                    toRelease = this.waiters.Dequeue();
+                    toRelease = this._waiters.Dequeue();
                 }
                 else
                 {
-                    this.count++;
+                    this._count++;
                 }
             }
 

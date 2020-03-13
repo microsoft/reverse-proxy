@@ -11,13 +11,13 @@ namespace Tests.Common
 {
     public class XunitLogger<TCategoryName> : ILogger<TCategoryName>
     {
-        private readonly ITestOutputHelper testOutputHelper;
-        private readonly string categoryName;
+        private readonly ITestOutputHelper _testOutputHelper;
+        private readonly string _categoryName;
 
         public XunitLogger(ITestOutputHelper testOutputHelper)
         {
-            this.testOutputHelper = testOutputHelper;
-            this.categoryName = typeof(TCategoryName).FullName;
+            this._testOutputHelper = testOutputHelper;
+            this._categoryName = typeof(TCategoryName).FullName;
         }
 
         public IDisposable BeginScope<TState>(TState state)
@@ -28,10 +28,10 @@ namespace Tests.Common
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
-            this.testOutputHelper.WriteLine($"{this.categoryName}[{logLevel}][{eventId}] {formatter(state, exception)}");
+            this._testOutputHelper.WriteLine($"{this._categoryName}[{logLevel}][{eventId}] {formatter(state, exception)}");
             if (exception != null)
             {
-                this.testOutputHelper.WriteLine(exception.ToString());
+                this._testOutputHelper.WriteLine(exception.ToString());
             }
         }
 
@@ -40,7 +40,9 @@ namespace Tests.Common
             private NoopDisposable()
             {
             }
+
             public static NoopDisposable Instance { get; set; } = new NoopDisposable();
+
             public void Dispose()
             {
             }

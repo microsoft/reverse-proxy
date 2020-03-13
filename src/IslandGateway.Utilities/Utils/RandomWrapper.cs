@@ -1,4 +1,4 @@
-﻿// <copyright file="RandomWrapper.cs" company="Microsoft Corporation">
+// <copyright file="RandomWrapper.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -11,7 +11,7 @@ namespace IslandGateway.Utilities
     /// </summary>
     public class RandomWrapper : IRandom
     {
-        private readonly Random random;
+        private readonly Random _random;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RandomWrapper"/> class.
@@ -19,25 +19,25 @@ namespace IslandGateway.Utilities
         public RandomWrapper(Random random)
         {
             Contracts.CheckValue(random, nameof(random));
-            this.random = random;
+            this._random = random;
         }
 
         /// <inheritdoc/>
         public int Next()
         {
-            return this.random.Next();
+            return this._random.Next();
         }
 
         /// <inheritdoc/>
         public int Next(int maxValue)
         {
-            return this.random.Next(maxValue);
+            return this._random.Next(maxValue);
         }
 
         /// <inheritdoc/>
         public int Next(int minValue, int maxValue)
         {
-            return this.random.Next(minValue, maxValue);
+            return this._random.Next(minValue, maxValue);
         }
     }
 }

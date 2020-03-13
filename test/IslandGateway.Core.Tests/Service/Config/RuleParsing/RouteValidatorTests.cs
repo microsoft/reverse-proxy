@@ -1,4 +1,4 @@
-﻿// <copyright file="RouteValidatorTests.cs" company="Microsoft Corporation">
+// <copyright file="RouteValidatorTests.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -12,12 +12,12 @@ namespace IslandGateway.Core.Service.Tests
 {
     public class RouteValidatorTests : TestAutoMockBase
     {
-        private readonly RouteParser routeParser;
+        private readonly RouteParser _routeParser;
 
         public RouteValidatorTests()
         {
             this.Provide<IRuleParser, RuleParser>();
-            this.routeParser = this.Create<RouteParser>();
+            this._routeParser = this.Create<RouteParser>();
         }
 
         [Fact]
@@ -210,7 +210,7 @@ namespace IslandGateway.Core.Service.Tests
         private (bool IsSuccess, TestConfigErrorReporter ErrorReporter) RunScenario(GatewayRoute route)
         {
             var errorReporter = new TestConfigErrorReporter();
-            var parseResult = this.routeParser.ParseRoute(route, errorReporter);
+            var parseResult = this._routeParser.ParseRoute(route, errorReporter);
             parseResult.IsSuccess.Should().BeTrue();
             var parsedRoute = parseResult.Value;
 

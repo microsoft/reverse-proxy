@@ -1,4 +1,4 @@
-﻿// <copyright file="GatewayConfigApplier.cs" company="Microsoft Corporation">
+// <copyright file="GatewayConfigApplier.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -22,14 +22,14 @@ namespace IslandGateway.Sample.Config
     /// </summary>
     internal class GatewayConfigApplier : IHostedService, IDisposable
     {
-        private readonly ILogger<GatewayConfigApplier> logger;
-        private readonly IBackendsRepo backendsRepo;
-        private readonly IBackendEndpointsRepo endpointsRepo;
-        private readonly IRoutesRepo routesRepo;
-        private readonly IIslandGatewayConfigManager gatewayManager;
+        private readonly ILogger<GatewayConfigApplier> _logger;
+        private readonly IBackendsRepo _backendsRepo;
+        private readonly IBackendEndpointsRepo _endpointsRepo;
+        private readonly IRoutesRepo _routesRepo;
+        private readonly IIslandGatewayConfigManager _gatewayManager;
 
-        private bool disposed;
-        private IDisposable subscription;
+        private bool _disposed;
+        private IDisposable _subscription;
 
         public GatewayConfigApplier(
             ILogger<GatewayConfigApplier> logger,
@@ -46,22 +46,22 @@ namespace IslandGateway.Sample.Config
             Contracts.CheckValue(gatewayManager, nameof(gatewayManager));
             Contracts.CheckValue(gatewayConfig, nameof(gatewayConfig));
 
-            this.logger = logger;
-            this.backendsRepo = backendsRepo;
-            this.endpointsRepo = endpointsRepo;
-            this.routesRepo = routesRepo;
-            this.gatewayManager = gatewayManager;
+            this._logger = logger;
+            this._backendsRepo = backendsRepo;
+            this._endpointsRepo = endpointsRepo;
+            this._routesRepo = routesRepo;
+            this._gatewayManager = gatewayManager;
 
-            this.subscription = gatewayConfig.OnChange((newConfig, name) => this.Apply(newConfig));
+            this._subscription = gatewayConfig.OnChange((newConfig, name) => this.Apply(newConfig));
             this.Apply(gatewayConfig.CurrentValue);
         }
 
         public void Dispose()
         {
-            if (!this.disposed)
+            if (!this._disposed)
             {
-                this.subscription.Dispose();
-                this.disposed = true;
+                this._subscription.Dispose();
+                this._disposed = true;
             }
         }
 
@@ -84,7 +84,7 @@ namespace IslandGateway.Sample.Config
                 return;
             }
 
-            this.logger.LogInformation("Applying gateway configs");
+            this._logger.LogInformation("Applying gateway configs");
             try
             {
                 switch (config.DiscoveryMechanism)
@@ -98,7 +98,7 @@ namespace IslandGateway.Sample.Config
             }
             catch (Exception ex)
             {
-                this.logger.LogError(ex, $"Failed to apply new configs: {ex.Message}");
+                this._logger.LogError(ex, $"Failed to apply new configs: {ex.Message}");
             }
         }
 
@@ -109,30 +109,30 @@ namespace IslandGateway.Sample.Config
                 return;
             }
 
-            await this.backendsRepo.SetBackendsAsync(options.Backends, cancellation);
+            await this._backendsRepo.SetBackendsAsync(options.Backends, cancellation);
             foreach (var kvp in options.Endpoints)
             {
-                await this.endpointsRepo.SetEndpointsAsync(kvp.Key, kvp.Value, cancellation);
+                await this._endpointsRepo.SetEndpointsAsync(kvp.Key, kvp.Value, cancellation);
             }
 
-            await this.routesRepo.SetRoutesAsync(options.Routes, cancellation);
+            await this._routesRepo.SetRoutesAsync(options.Routes, cancellation);
 
-            var errorReporter = new LoggerConfigErrorReporter(this.logger);
-            await this.gatewayManager.ApplyConfigurationsAsync(errorReporter, cancellation);
+            var errorReporter = new LoggerConfigErrorReporter(this._logger);
+            await this._gatewayManager.ApplyConfigurationsAsync(errorReporter, cancellation);
         }
 
         private class LoggerConfigErrorReporter : IConfigErrorReporter
         {
-            private readonly ILogger logger;
+            private readonly ILogger _logger;
 
             public LoggerConfigErrorReporter(ILogger logger)
             {
-                this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+                this._logger = logger ?? throw new ArgumentNullException(nameof(logger));
             }
 
             public void ReportError(string code, string itemId, string message)
             {
-                this.logger.LogWarning($"Config error: '{code}', '{itemId}', '{message}'.");
+                this._logger.LogWarning($"Config error: '{code}', '{itemId}', '{message}'.");
             }
         }
     }

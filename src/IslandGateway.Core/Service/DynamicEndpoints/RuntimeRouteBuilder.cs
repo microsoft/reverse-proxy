@@ -1,4 +1,4 @@
-﻿// <copyright file="RuntimeRouteBuilder.cs" company="Microsoft Corporation">
+// <copyright file="RuntimeRouteBuilder.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -17,12 +17,12 @@ namespace IslandGateway.Core.Service
     /// </summary>
     internal class RuntimeRouteBuilder : IRuntimeRouteBuilder
     {
-        private readonly IProxyInvoker proxyInvoker;
+        private readonly IProxyInvoker _proxyInvoker;
 
         public RuntimeRouteBuilder(IProxyInvoker proxyInvoker)
         {
             Contracts.CheckValue(proxyInvoker, nameof(proxyInvoker));
-            this.proxyInvoker = proxyInvoker;
+            this._proxyInvoker = proxyInvoker;
         }
 
         /// <inheritdoc/>
@@ -60,7 +60,7 @@ namespace IslandGateway.Core.Service
 
             // TODO: Propagate route priority
             var endpointBuilder = new AspNetCore.Routing.RouteEndpointBuilder(
-                requestDelegate: this.proxyInvoker.InvokeAsync,
+                requestDelegate: this._proxyInvoker.InvokeAsync,
                 routePattern: AspNetCore.Routing.Patterns.RoutePatternFactory.Parse(pathPattern),
                 order: 0);
             endpointBuilder.DisplayName = source.RouteId;

@@ -1,4 +1,4 @@
-﻿// <copyright file="StreamCopierTests.cs" company="Microsoft Corporation">
+// <copyright file="StreamCopierTests.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -16,19 +16,19 @@ namespace IslandGateway.Core.Service.Proxy.Tests
 {
     public class StreamCopierTests : TestAutoMockBase
     {
-        private readonly TestMetricCreator metricCreator;
-        private readonly GatewayMetrics metrics;
+        private readonly TestMetricCreator _metricCreator;
+        private readonly GatewayMetrics _metrics;
 
         public StreamCopierTests()
         {
-            this.metricCreator = this.Provide<IMetricCreator, TestMetricCreator>();
-            this.metrics = this.Create<GatewayMetrics>();
+            this._metricCreator = this.Provide<IMetricCreator, TestMetricCreator>();
+            this._metrics = this.Create<GatewayMetrics>();
         }
 
         [Fact]
         public void Constructor_Works()
         {
-            new StreamCopier(this.metrics, default(StreamCopyTelemetryContext));
+            new StreamCopier(this._metrics, default(StreamCopyTelemetryContext));
         }
 
         [Fact]
@@ -44,14 +44,14 @@ namespace IslandGateway.Core.Service.Proxy.Tests
                 backendId: "be1",
                 routeId: "rt1",
                 endpointId: "ep1");
-            var sut = new StreamCopier(this.metrics, in proxyTelemetryContext);
+            var sut = new StreamCopier(this._metrics, in proxyTelemetryContext);
 
             // Act
             await sut.CopyAsync(source, destination, CancellationToken.None);
 
             // Assert
             destination.ToArray().Should().BeEquivalentTo(sourceBytes);
-            this.metricCreator.MetricsLogged.Should().BeEquivalentTo(
+            this._metricCreator.MetricsLogged.Should().BeEquivalentTo(
                 "StreamCopyBytes=131069;direction=upstream;backendId=be1;routeId=rt1;endpointId=ep1;protocol=",
                 "StreamCopyIops=2;direction=upstream;backendId=be1;routeId=rt1;endpointId=ep1;protocol=");
         }

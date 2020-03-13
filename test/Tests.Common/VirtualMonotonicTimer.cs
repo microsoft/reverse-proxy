@@ -1,4 +1,4 @@
-﻿// <copyright file="VirtualMonotonicTimer.cs" company="Microsoft Corporation">
+// <copyright file="VirtualMonotonicTimer.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -21,7 +21,7 @@ namespace Tests.Common
     /// </remarks>
     public class VirtualMonotonicTimer : IMonotonicTimer
     {
-        private readonly SortedList<TimeSpan, DelayItem> delayItems = new SortedList<TimeSpan, DelayItem>();
+        private readonly SortedList<TimeSpan, DelayItem> _delayItems = new SortedList<TimeSpan, DelayItem>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="VirtualMonotonicTimer" /> class.
@@ -56,7 +56,7 @@ namespace Tests.Common
             }
 
             // Signal any delays that have expired by advancing the clock.
-            while (this.delayItems.Count > 0 && this.delayItems.ElementAt(0).Key <= targetTime)
+            while (this._delayItems.Count > 0 && this._delayItems.ElementAt(0).Key <= targetTime)
             {
                 this.AdvanceStep();
             }
@@ -86,12 +86,12 @@ namespace Tests.Common
             var task = delayTask.Signal.Task;
 
             // Note: sorted list doesn't allow duplicates, so increment expiry until unique.
-            while (this.delayItems.ContainsKey(expiryTime))
+            while (this._delayItems.ContainsKey(expiryTime))
             {
                 expiryTime += TimeSpan.FromTicks(1);
             }
 
-            this.delayItems.Add(expiryTime, delayTask);
+            this._delayItems.Add(expiryTime, delayTask);
 
             using (cancelationToken.Register(() => this.CancelTask(delayTask)))
             {
@@ -105,14 +105,14 @@ namespace Tests.Common
         /// <returns>True if any timers were found and signaled.</returns>
         public bool AdvanceStep()
         {
-            if (this.delayItems.Count > 0)
+            if (this._delayItems.Count > 0)
             {
-                var next = this.delayItems.ElementAt(0);
+                var next = this._delayItems.ElementAt(0);
                 this.CurrentTime = next.Key;
 
                 // Note: this will unfortunately have O(N) cost. However, this code is only used for testing right now, and the list is generally short. If that
                 // ever changes, suggest finding a priority queue / heap data structure for .Net (core libraries are lacking this data structure).
-                this.delayItems.RemoveAt(0);
+                this._delayItems.RemoveAt(0);
 
                 // Unblock the task. It's no longer asleep.
                 next.Value.Signal.TrySetResult(0);
@@ -129,10 +129,10 @@ namespace Tests.Common
 
         private void CancelTask(DelayItem delayTask)
         {
-            var i = this.delayItems.IndexOfValue(delayTask);
+            var i = this._delayItems.IndexOfValue(delayTask);
             if (i != -1)
             {
-                this.delayItems.RemoveAt(i);
+                this._delayItems.RemoveAt(i);
             }
 
             delayTask.Signal.TrySetCanceled();

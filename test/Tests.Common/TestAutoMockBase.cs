@@ -1,4 +1,4 @@
-﻿// <copyright file="TestAutoMockBase.cs" company="Microsoft Corporation">
+// <copyright file="TestAutoMockBase.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -15,7 +15,7 @@ namespace Tests.Common
     /// </summary>
     public class TestAutoMockBase : IDisposable
     {
-        private bool isDisposed = false;
+        private bool _isDisposed = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TestAutoMockBase" /> class.
@@ -92,10 +92,10 @@ namespace Tests.Common
         /// <inheritdoc/>
         public virtual void Dispose()
         {
-            if (!this.isDisposed)
+            if (!this._isDisposed)
             {
                 this.AutoMock.Dispose();
-                this.isDisposed = true;
+                this._isDisposed = true;
             }
         }
     }

@@ -1,4 +1,4 @@
-﻿// <copyright file="IslandGatewayConfigManager.cs" company="Microsoft Corporation">
+// <copyright file="IslandGatewayConfigManager.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -22,12 +22,12 @@ namespace IslandGateway.Core.Service.Management
     /// </summary>
     internal class IslandGatewayConfigManager : IIslandGatewayConfigManager
     {
-        private readonly ILogger<IslandGatewayConfigManager> logger;
-        private readonly IDynamicConfigBuilder configBuilder;
-        private readonly IRuntimeRouteBuilder routeEndpointBuilder;
-        private readonly IBackendManager backendManager;
-        private readonly IRouteManager routeManager;
-        private readonly IGatewayDynamicEndpointDataSource dynamicEndpointDataSource;
+        private readonly ILogger<IslandGatewayConfigManager> _logger;
+        private readonly IDynamicConfigBuilder _configBuilder;
+        private readonly IRuntimeRouteBuilder _routeEndpointBuilder;
+        private readonly IBackendManager _backendManager;
+        private readonly IRouteManager _routeManager;
+        private readonly IGatewayDynamicEndpointDataSource _dynamicEndpointDataSource;
 
         public IslandGatewayConfigManager(
             ILogger<IslandGatewayConfigManager> logger,
@@ -44,12 +44,12 @@ namespace IslandGateway.Core.Service.Management
             Contracts.CheckValue(routeManager, nameof(routeManager));
             Contracts.CheckValue(dynamicEndpointDataSource, nameof(dynamicEndpointDataSource));
 
-            this.logger = logger;
-            this.configBuilder = configBuilder;
-            this.routeEndpointBuilder = routeEndpointBuilder;
-            this.backendManager = backendManager;
-            this.routeManager = routeManager;
-            this.dynamicEndpointDataSource = dynamicEndpointDataSource;
+            this._logger = logger;
+            this._configBuilder = configBuilder;
+            this._routeEndpointBuilder = routeEndpointBuilder;
+            this._backendManager = backendManager;
+            this._routeManager = routeManager;
+            this._dynamicEndpointDataSource = dynamicEndpointDataSource;
         }
 
         /// <inheritdoc/>
@@ -60,7 +60,7 @@ namespace IslandGateway.Core.Service.Management
                 throw new ArgumentNullException(nameof(configErrorReporter));
             }
 
-            var configResult = await this.configBuilder.BuildConfigAsync(configErrorReporter, cancellation);
+            var configResult = await this._configBuilder.BuildConfigAsync(configErrorReporter, cancellation);
             if (!configResult.IsSuccess)
             {
                 return false;
@@ -81,7 +81,7 @@ namespace IslandGateway.Core.Service.Management
                 var configBackend = configBackendWithEndpoints.Backend;
                 desiredBackends.Add(configBackend.BackendId);
 
-                this.backendManager.GetOrCreateItem(
+                this._backendManager.GetOrCreateItem(
                     itemId: configBackend.BackendId,
                     setupAction: backend =>
                     {
@@ -111,7 +111,7 @@ namespace IslandGateway.Core.Service.Management
                     });
             }
 
-            foreach (var existingBackend in this.backendManager.GetItems())
+            foreach (var existingBackend in this._backendManager.GetItems())
             {
                 if (!desiredBackends.Contains(existingBackend.BackendId))
                 {
@@ -121,7 +121,7 @@ namespace IslandGateway.Core.Service.Management
                     // NOTE 2: Removing the backend from `IBackendManager` is safe and existing
                     // ASP .NET Core endpoints will continue to work with their existing behavior (until those endpoints are updated)
                     // and the Garbage Collector won't destroy this backend object while it's referenced elsewhere.
-                    this.backendManager.TryRemoveItem(existingBackend.BackendId);
+                    this._backendManager.TryRemoveItem(existingBackend.BackendId);
                 }
             }
         }
@@ -170,9 +170,9 @@ namespace IslandGateway.Core.Service.Management
                 // Note that this can be null, and that is fine. The resulting route may match
                 // but would then fail to route, which is exactly what we were instructed to do in this case
                 // since no valid backend was specified.
-                var backendOrNull = this.backendManager.TryGetItem(configRoute.BackendId);
+                var backendOrNull = this._backendManager.TryGetItem(configRoute.BackendId);
 
-                this.routeManager.GetOrCreateItem(
+                this._routeManager.GetOrCreateItem(
                     itemId: configRoute.RouteId,
                     setupAction: route =>
                     {
@@ -185,13 +185,13 @@ namespace IslandGateway.Core.Service.Management
                             // Config changed, so update runtime route
                             changed = true;
 
-                            var newConfig = this.routeEndpointBuilder.Build(configRoute, backendOrNull, route);
+                            var newConfig = this._routeEndpointBuilder.Build(configRoute, backendOrNull, route);
                             route.Config.Value = newConfig;
                         }
                     });
             }
 
-            foreach (var existingRoute in this.routeManager.GetItems())
+            foreach (var existingRoute in this._routeManager.GetItems())
             {
                 if (!desiredRoutes.Contains(existingRoute.RouteId))
                 {
@@ -201,7 +201,7 @@ namespace IslandGateway.Core.Service.Management
                     // NOTE 2: Removing the route from `IRouteManager` is safe and existing
                     // ASP .NET Core endpoints will continue to work with their existing behavior since
                     // their copy of `RouteConfig` is immutable and remains operational in whichever state is was in.
-                    this.routeManager.TryRemoveItem(existingRoute.RouteId);
+                    this._routeManager.TryRemoveItem(existingRoute.RouteId);
                     changed = true;
                 }
             }
@@ -209,7 +209,7 @@ namespace IslandGateway.Core.Service.Management
             if (changed)
             {
                 var aspNetCoreEndpoints = new List<AspNetCore.Http.Endpoint>();
-                foreach (var existingRoute in this.routeManager.GetItems())
+                foreach (var existingRoute in this._routeManager.GetItems())
                 {
                     var runtimeConfig = existingRoute.Config.Value;
                     if (runtimeConfig?.AspNetCoreEndpoints != null)
@@ -219,7 +219,7 @@ namespace IslandGateway.Core.Service.Management
                 }
 
                 // This is where the new routes take effect!
-                this.dynamicEndpointDataSource.Update(aspNetCoreEndpoints);
+                this._dynamicEndpointDataSource.Update(aspNetCoreEndpoints);
             }
         }
     }

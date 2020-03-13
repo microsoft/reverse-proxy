@@ -1,4 +1,4 @@
-﻿// <copyright file="BackendProberFactoryTests.cs" company="Microsoft Corporation">
+// <copyright file="BackendProberFactoryTests.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -18,24 +18,24 @@ namespace IslandGateway.Core.Service.HealthProbe
 {
     public class BackendProberFactoryTests : TestAutoMockBase
     {
-        private Mock<IMonotonicTimer> timer;
-        private Mock<IOperationLogger> operationLogger;
-        private ILoggerFactory loggerFactory;
-        private IHealthProbeHttpClientFactory httpClientFactory;
+        private Mock<IMonotonicTimer> _timer;
+        private Mock<IOperationLogger> _operationLogger;
+        private ILoggerFactory _loggerFactory;
+        private IHealthProbeHttpClientFactory _httpClientFactory;
 
         public BackendProberFactoryTests()
         {
-            this.timer = new Mock<IMonotonicTimer>();
-            this.loggerFactory = new LoggerFactory();
-            this.httpClientFactory = new HealthProbeHttpClientFactory();
-            this.operationLogger = new Mock<IOperationLogger>();
+            this._timer = new Mock<IMonotonicTimer>();
+            this._loggerFactory = new LoggerFactory();
+            this._httpClientFactory = new HealthProbeHttpClientFactory();
+            this._operationLogger = new Mock<IOperationLogger>();
         }
 
         [Fact]
         public void WithNullParameter_BackendProberFactory_NotCreatebackendProber()
         {
             // Set up the factory.
-            var factory = new BackendProberFactory(this.timer.Object, this.loggerFactory, this.operationLogger.Object, this.httpClientFactory);
+            var factory = new BackendProberFactory(this._timer.Object, this._loggerFactory, this._operationLogger.Object, this._httpClientFactory);
 
             // Create prober should fail when parameter are set to null.
             Assert.Throws<ArgumentNullException>(() => factory.CreateBackendProber(null, null, null));
@@ -45,7 +45,7 @@ namespace IslandGateway.Core.Service.HealthProbe
         public void BackendProberFactory_CreateBackendProber()
         {
             // Set up the factory.
-            var factory = new BackendProberFactory(this.timer.Object, this.loggerFactory, this.operationLogger.Object, this.httpClientFactory);
+            var factory = new BackendProberFactory(this._timer.Object, this._loggerFactory, this._operationLogger.Object, this._httpClientFactory);
 
             // Create probers.
             string backendId = "example";

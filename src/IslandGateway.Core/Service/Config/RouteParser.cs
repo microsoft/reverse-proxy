@@ -1,4 +1,4 @@
-﻿// <copyright file="RouteParser.cs" company="Microsoft Corporation">
+// <copyright file="RouteParser.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -10,12 +10,12 @@ namespace IslandGateway.Core.Service
 {
     internal class RouteParser : IRouteParser
     {
-        private readonly IRuleParser ruleParser;
+        private readonly IRuleParser _ruleParser;
 
         public RouteParser(IRuleParser ruleParser)
         {
             Contracts.CheckValue(ruleParser, nameof(ruleParser));
-            this.ruleParser = ruleParser;
+            this._ruleParser = ruleParser;
         }
 
         public Result<ParsedRoute> ParseRoute(GatewayRoute route, IConfigErrorReporter errorReporter)
@@ -26,7 +26,7 @@ namespace IslandGateway.Core.Service
                 return Result.Failure<ParsedRoute>();
             }
 
-            var parsedRule = this.ruleParser.Parse(route.Rule);
+            var parsedRule = this._ruleParser.Parse(route.Rule);
             if (!parsedRule.IsSuccess)
             {
                 errorReporter.ReportError(ConfigErrors.RouteBadRule, route.RouteId, $"Route '{route.RouteId}' has an invalid rule: {parsedRule.Error} (rule: {route.Rule}");

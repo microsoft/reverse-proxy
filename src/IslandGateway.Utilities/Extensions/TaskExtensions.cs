@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // <copyright file="TaskExtensions.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
@@ -86,20 +86,20 @@ namespace IslandGateway.Utilities
         /// </summary>
         public struct SwitchSchedulerAwaiter : INotifyCompletion
         {
-            private readonly TaskScheduler scheduler;
+            private readonly TaskScheduler _scheduler;
 
             /// <summary>
             /// Initializes a new instance of the <see cref="SwitchSchedulerAwaiter"/> struct.
             /// </summary>
             public SwitchSchedulerAwaiter(TaskScheduler scheduler)
             {
-                this.scheduler = scheduler;
+                this._scheduler = scheduler;
             }
 
             /// <summary>
             /// Whether the switch is completed.
             /// </summary>
-            public bool IsCompleted => this.scheduler == TaskScheduler.Current;
+            public bool IsCompleted => this._scheduler == TaskScheduler.Current;
 
             /// <summary>
             /// Part of custom awaiter pattern.
@@ -116,7 +116,7 @@ namespace IslandGateway.Utilities
             /// <inheritdoc/>
             public void OnCompleted(Action continuation)
             {
-                this.scheduler.Run(continuation);
+                this._scheduler.Run(continuation);
             }
         }
     }

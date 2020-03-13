@@ -1,4 +1,4 @@
-﻿// <copyright file="DynamicConfigBuilder.cs" company="Microsoft Corporation">
+// <copyright file="DynamicConfigBuilder.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -14,11 +14,11 @@ namespace IslandGateway.Core.Service
 {
     internal class DynamicConfigBuilder : IDynamicConfigBuilder
     {
-        private readonly IBackendsRepo backendsRepo;
-        private readonly IBackendEndpointsRepo endpointsRepo;
-        private readonly IRoutesRepo routesRepo;
-        private readonly IRouteParser routeParser;
-        private readonly IRouteValidator parsedRouteValidator;
+        private readonly IBackendsRepo _backendsRepo;
+        private readonly IBackendEndpointsRepo _endpointsRepo;
+        private readonly IRoutesRepo _routesRepo;
+        private readonly IRouteParser _routeParser;
+        private readonly IRouteValidator _parsedRouteValidator;
 
         public DynamicConfigBuilder(
             IBackendsRepo backendsRepo,
@@ -33,11 +33,11 @@ namespace IslandGateway.Core.Service
             Contracts.CheckValue(routeParser, nameof(routeParser));
             Contracts.CheckValue(parsedRouteValidator, nameof(parsedRouteValidator));
 
-            this.backendsRepo = backendsRepo;
-            this.endpointsRepo = endpointsRepo;
-            this.routesRepo = routesRepo;
-            this.routeParser = routeParser;
-            this.parsedRouteValidator = parsedRouteValidator;
+            this._backendsRepo = backendsRepo;
+            this._endpointsRepo = endpointsRepo;
+            this._routesRepo = routesRepo;
+            this._routeParser = routeParser;
+            this._parsedRouteValidator = parsedRouteValidator;
         }
 
         public async Task<Result<DynamicConfigRoot>> BuildConfigAsync(IConfigErrorReporter errorReporter, CancellationToken cancellation)
@@ -58,7 +58,7 @@ namespace IslandGateway.Core.Service
 
         private async Task<IList<BackendWithEndpoints>> GetBackendsWithEndpointsAsync(IConfigErrorReporter errorReporter, CancellationToken cancellation)
         {
-            var backends = await this.backendsRepo.GetBackendsAsync(cancellation);
+            var backends = await this._backendsRepo.GetBackendsAsync(cancellation);
             var sortedBackends = new SortedList<string, BackendWithEndpoints>(backends?.Count ?? 0, StringComparer.Ordinal);
             if (backends != null)
             {
@@ -84,7 +84,7 @@ namespace IslandGateway.Core.Service
 
         private async Task<IList<BackendEndpoint>> GetBackendEndpointsAsync(IConfigErrorReporter errorReporter, string backendId, CancellationToken cancellation)
         {
-            var endpoints = await this.endpointsRepo.GetEndpointsAsync(backendId, cancellation);
+            var endpoints = await this._endpointsRepo.GetEndpointsAsync(backendId, cancellation);
             var backendEndpoints = new SortedList<string, BackendEndpoint>(endpoints?.Count ?? 0, StringComparer.Ordinal);
             if (endpoints != null)
             {
@@ -105,7 +105,7 @@ namespace IslandGateway.Core.Service
 
         private async Task<IList<ParsedRoute>> GetRoutesAsync(IConfigErrorReporter errorReporter, CancellationToken cancellation)
         {
-            var routes = await this.routesRepo.GetRoutesAsync(cancellation);
+            var routes = await this._routesRepo.GetRoutesAsync(cancellation);
 
             var seenRouteIds = new HashSet<string>();
             var sortedRoutes = new SortedList<(int, string), ParsedRoute>(routes?.Count ?? 0);
@@ -119,7 +119,7 @@ namespace IslandGateway.Core.Service
                         continue;
                     }
 
-                    var parsedResult = this.routeParser.ParseRoute(route, errorReporter);
+                    var parsedResult = this._routeParser.ParseRoute(route, errorReporter);
                     if (!parsedResult.IsSuccess)
                     {
                         // routeParser already reported error message
@@ -127,7 +127,7 @@ namespace IslandGateway.Core.Service
                     }
 
                     var parsedRoute = parsedResult.Value;
-                    if (!this.parsedRouteValidator.ValidateRoute(parsedRoute, errorReporter))
+                    if (!this._parsedRouteValidator.ValidateRoute(parsedRoute, errorReporter))
                     {
                         // parsedRouteValidator already reported error message
                         continue;

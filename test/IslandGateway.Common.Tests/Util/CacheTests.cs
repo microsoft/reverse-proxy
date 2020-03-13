@@ -1,4 +1,4 @@
-﻿// <copyright file="CacheTests.cs" company="Microsoft Corporation">
+// <copyright file="CacheTests.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -18,11 +18,11 @@ namespace IslandGateway.Common.Tests
 {
     public class CacheTests : TestAutoMockBase
     {
-        private VirtualMonotonicTimer timer;
+        private VirtualMonotonicTimer _timer;
         public CacheTests()
         {
-            this.timer = new VirtualMonotonicTimer();
-            this.Provide<IMonotonicTimer>(this.timer);
+            this._timer = new VirtualMonotonicTimer();
+            this.Provide<IMonotonicTimer>(this._timer);
         }
 
         [Fact]
@@ -32,12 +32,12 @@ namespace IslandGateway.Common.Tests
             TimeSpan expirationTimeOffset = TimeSpan.FromMinutes(12);
             string key = "some key";
             string value = "some awesome value";
-            var cache = new Cache<string>(this.timer, expirationTimeOffset);
+            var cache = new Cache<string>(this._timer, expirationTimeOffset);
             cache.Set(key, value);
 
             // Act
             var firstPresent = cache.TryGetValue(key, out string firstValueGot);
-            this.timer.AdvanceClockBy(expirationTimeOffset);
+            this._timer.AdvanceClockBy(expirationTimeOffset);
             var secondPresent = cache.TryGetValue(key, out string secondValueGot);
 
             // Assert
@@ -54,13 +54,13 @@ namespace IslandGateway.Common.Tests
             TimeSpan expirationTimeOffset = TimeSpan.FromMinutes(12);
             string key = "some key";
             string value = "some awesome value";
-            var cache = new Cache<string>(this.timer, expirationTimeOffset);
+            var cache = new Cache<string>(this._timer, expirationTimeOffset);
             cache.Set(key, value);
 
             // Act
             var firstPresent = cache.TryGetValue(key, out string firstValueGot);
-            this.timer.AdvanceClockBy(expirationTimeOffset);
-            this.timer.AdvanceClockBy(expirationTimeOffset);
+            this._timer.AdvanceClockBy(expirationTimeOffset);
+            this._timer.AdvanceClockBy(expirationTimeOffset);
             var secondPresent = cache.TryGetValue(key, out string secondValueGot);
 
             // Assert

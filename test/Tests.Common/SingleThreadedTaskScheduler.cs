@@ -1,4 +1,4 @@
-﻿// <copyright file="SingleThreadedTaskScheduler.cs" company="Microsoft Corporation">
+// <copyright file="SingleThreadedTaskScheduler.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -26,15 +26,15 @@ namespace Tests.Common
     /// </remarks>
     public class SingleThreadedTaskScheduler : TaskScheduler
     {
-        private readonly object lockObject = new object();
-        private readonly Queue<Task> taskQueue = new Queue<Task>();
-        private bool schedulerIsRunning = false;
+        private readonly object _lockObject = new object();
+        private readonly Queue<Task> _taskQueue = new Queue<Task>();
+        private bool _schedulerIsRunning = false;
 
         // An indication to the scheduler to either attempt or not attempt to execute any scheduled tasks upon scheduling.
         // If the value is true, a call to TaskScheduler.Run() will queue the task on the current scheduler and attempt to execute
         // the tasks on the queue in the order they were put on the queue.
         // If the value is false, a call to TaskScheduler.Run() will queue the task on the current scheduler, but not execute it.
-        private bool suspendScheduler = false;
+        private bool _suspendScheduler = false;
 
         /// <summary>
         /// Gets or sets callback to invoke whenever the scheduler goes idle. This gives listeners a chance to create more work to schedule before the scheduler loop terminates.
@@ -47,12 +47,12 @@ namespace Tests.Common
         /// </summary>
         public void RunUntilComplete(Func<Task> func)
         {
-            lock (this.lockObject)
+            lock (this._lockObject)
             {
-                Contracts.Check(this.schedulerIsRunning == false, "Synchronous execution is not supported if already being executed.");
+                Contracts.Check(this._schedulerIsRunning == false, "Synchronous execution is not supported if already being executed.");
 
                 bool flag = false;
-                this.suspendScheduler = true;
+                this._suspendScheduler = true;
 
                 try
                 {
@@ -60,7 +60,7 @@ namespace Tests.Common
                 }
                 finally
                 {
-                    this.suspendScheduler = false;
+                    this._suspendScheduler = false;
                 }
 
                 this.ExecuteTasksUntil(() => flag);
@@ -72,9 +72,9 @@ namespace Tests.Common
         /// <inheritdoc/>
         protected override void QueueTask(Task task)
         {
-            lock (this.lockObject)
+            lock (this._lockObject)
             {
-                this.taskQueue.Enqueue(task);
+                this._taskQueue.Enqueue(task);
 
                 this.ExecuteTasksUntil(() => false);
             }
@@ -89,7 +89,7 @@ namespace Tests.Common
         /// <inheritdoc/>
         protected override IEnumerable<Task> GetScheduledTasks()
         {
-            return this.taskQueue;
+            return this._taskQueue;
         }
 
         /// <summary>
@@ -101,27 +101,27 @@ namespace Tests.Common
         /// </remarks>
         private void ExecuteTasksUntil(Func<bool> predicate)
         {
-            Contracts.Check(Monitor.IsEntered(this.lockObject), "Must hold lock when scheduling.");
+            Contracts.Check(Monitor.IsEntered(this._lockObject), "Must hold lock when scheduling.");
 
             // Prevent reentrancy. Reentrancy can lead to stack overflow and difficulty when debugging.
-            if (this.schedulerIsRunning || this.suspendScheduler)
+            if (this._schedulerIsRunning || this._suspendScheduler)
             {
                 return;
             }
 
             try
             {
-                this.schedulerIsRunning = true;
+                this._schedulerIsRunning = true;
                 while (predicate() == false)
                 {
-                    if (this.taskQueue.Count == 0)
+                    if (this._taskQueue.Count == 0)
                     {
                         if (this.OnIdle != null)
                         {
                             this.OnIdle();
 
                             // OnIdle handler may have created more tasks. Try finding more work to execute.
-                            if (this.taskQueue.Count != 0)
+                            if (this._taskQueue.Count != 0)
                             {
                                 continue;
                             }
@@ -131,13 +131,13 @@ namespace Tests.Common
                         return;
                     }
 
-                    var nextTask = this.taskQueue.Dequeue();
+                    var nextTask = this._taskQueue.Dequeue();
                     this.TryExecuteTask(nextTask);
                 }
             }
             finally
             {
-                this.schedulerIsRunning = false;
+                this._schedulerIsRunning = false;
             }
         }
     }

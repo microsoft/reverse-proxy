@@ -1,4 +1,4 @@
-﻿// <copyright file="SignalContext.cs" company="Microsoft Corporation">
+// <copyright file="SignalContext.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -18,8 +18,8 @@ namespace IslandGateway.Signals
     /// </remarks>
     public sealed class SignalContext
     {
-        private readonly Queue<Action> workQueue = new Queue<Action>();
-        private bool isExecuting;
+        private readonly Queue<Action> _workQueue = new Queue<Action>();
+        private bool _isExecuting;
 
         internal SignalContext()
         {
@@ -30,9 +30,9 @@ namespace IslandGateway.Signals
         /// </summary>
         internal void QueueAction(Action action)
         {
-            lock (this.workQueue)
+            lock (this._workQueue)
             {
-                this.workQueue.Enqueue(action);
+                this._workQueue.Enqueue(action);
                 this.Execute();
             }
         }
@@ -40,29 +40,29 @@ namespace IslandGateway.Signals
         private void Execute()
         {
             // NOTE: We are already within the lock when this method is called.
-            if (this.isExecuting)
+            if (this._isExecuting)
             {
                 // Prevent reentrancy. Reentrancy can lead to stack overflow and difficulty when debugging.
                 return;
             }
 
-            this.isExecuting = true;
+            this._isExecuting = true;
             try
             {
                 while (true)
                 {
-                    if (this.workQueue.Count == 0)
+                    if (this._workQueue.Count == 0)
                     {
                         return;
                     }
 
-                    var action = this.workQueue.Dequeue();
+                    var action = this._workQueue.Dequeue();
                     action();
                 }
             }
             finally
             {
-                this.isExecuting = false;
+                this._isExecuting = false;
             }
         }
     }

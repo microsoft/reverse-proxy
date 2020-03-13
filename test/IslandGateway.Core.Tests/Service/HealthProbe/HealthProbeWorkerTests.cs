@@ -1,4 +1,4 @@
-﻿// <copyright file="HealthProbeWorkerTests.cs" company="Microsoft Corporation">
+// <copyright file="HealthProbeWorkerTests.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -21,9 +21,9 @@ namespace IslandGateway.Core.Service.HealthProbe
     {
         // The prober class is used by the healthProbe class, here we would mock the prober since we only care about the behavior of healthProbe class.
         // And we also want to customize the behavior of prober so we could have the full control of the unit test.
-        private Mock<IBackendProber> backendProber;
-        private IBackendManager backendManager;
-        private BackendConfig backendConfig;
+        private Mock<IBackendProber> _backendProber;
+        private IBackendManager _backendManager;
+        private BackendConfig _backendConfig;
 
         public HealthProbeWorkerTests()
         {
@@ -35,8 +35,8 @@ namespace IslandGateway.Core.Service.HealthProbe
                 .Returns(new Mock<IProxyHttpClientFactory>().Object);
 
             // Set up backends. We are going to fake multiple service for us to probe.
-            this.backendManager = this.Provide<IBackendManager, BackendManager>();
-            this.backendConfig = new BackendConfig(
+            this._backendManager = this.Provide<IBackendManager, BackendManager>();
+            this._backendConfig = new BackendConfig(
                 healthCheckOptions: new BackendConfig.BackendHealthCheckOptions(
                     enabled: true,
                     interval: TimeSpan.FromSeconds(1),
@@ -47,18 +47,18 @@ namespace IslandGateway.Core.Service.HealthProbe
 
             // Set up prober. We do not want to let prober really perform any actions.
             // The behavior of prober should be tested in its own unit test, see "BackendProberTests.cs".
-            this.backendProber = new Mock<IBackendProber>();
-            this.backendProber.Setup(p => p.Start(It.IsAny<AsyncSemaphore>()));
-            this.backendProber.Setup(p => p.StopAsync());
-            this.backendProber.Setup(p => p.BackendId).Returns("service0");
-            this.backendProber.Setup(p => p.Config).Returns(this.backendConfig);
+            this._backendProber = new Mock<IBackendProber>();
+            this._backendProber.Setup(p => p.Start(It.IsAny<AsyncSemaphore>()));
+            this._backendProber.Setup(p => p.StopAsync());
+            this._backendProber.Setup(p => p.BackendId).Returns("service0");
+            this._backendProber.Setup(p => p.Config).Returns(this._backendConfig);
             this.Mock<IBackendProberFactory>()
                 .Setup(
                     r => r.CreateBackendProber(
                         It.IsAny<string>(),
                         It.IsAny<BackendConfig>(),
                         It.IsAny<IEndpointManager>()))
-                .Returns(this.backendProber.Object);
+                .Returns(this._backendProber.Object);
         }
 
         [Fact]
@@ -74,7 +74,7 @@ namespace IslandGateway.Core.Service.HealthProbe
             await health.UpdateTrackedBackends();
 
             // There is no service, no prober should be created or started.
-            this.backendProber.Verify(p => p.Start(It.IsAny<AsyncSemaphore>()), Times.Never());
+            this._backendProber.Verify(p => p.Start(It.IsAny<AsyncSemaphore>()), Times.Never());
         }
 
         [Fact]
@@ -87,16 +87,16 @@ namespace IslandGateway.Core.Service.HealthProbe
                 .Returns(endpointmanger);
 
             // Set up backends for probing, pretend that we have three services, each services have three replica.
-            this.backendManager.GetOrCreateItem("service0", item => { item.Config.Value = this.backendConfig; });
-            this.backendManager.GetOrCreateItem("service1", item => { item.Config.Value = this.backendConfig; });
-            this.backendManager.GetOrCreateItem("service2", item => { item.Config.Value = this.backendConfig; });
+            this._backendManager.GetOrCreateItem("service0", item => { item.Config.Value = this._backendConfig; });
+            this._backendManager.GetOrCreateItem("service1", item => { item.Config.Value = this._backendConfig; });
+            this._backendManager.GetOrCreateItem("service2", item => { item.Config.Value = this._backendConfig; });
 
             // Start probing.
             var health = this.Create<HealthProbeWorker>();
             await health.UpdateTrackedBackends();
 
             // There is three services, three prober should be created and started.
-            this.backendProber.Verify(p => p.Start(It.IsAny<AsyncSemaphore>()), Times.Exactly(3));
+            this._backendProber.Verify(p => p.Start(It.IsAny<AsyncSemaphore>()), Times.Exactly(3));
         }
 
         [Fact]
@@ -109,7 +109,7 @@ namespace IslandGateway.Core.Service.HealthProbe
                 .Returns(endpointmanger);
 
             // Set up backends for probing, pretend that we have three services, each services have three replica.
-            this.backendManager.GetOrCreateItem(
+            this._backendManager.GetOrCreateItem(
                 "service0",
                 item =>
                 {
@@ -128,7 +128,7 @@ namespace IslandGateway.Core.Service.HealthProbe
             await health.UpdateTrackedBackends();
 
             // Probing is disabled for this backend, no prober should be created or started.
-            this.backendProber.Verify(p => p.Start(It.IsAny<AsyncSemaphore>()), Times.Never());
+            this._backendProber.Verify(p => p.Start(It.IsAny<AsyncSemaphore>()), Times.Never());
         }
 
         [Fact]
@@ -142,14 +142,14 @@ namespace IslandGateway.Core.Service.HealthProbe
 
             // Set up backends for probing, pretend that we have one services, each services have one replica.
             // Note we did not provide config for this service.
-            this.backendManager.GetOrCreateItem("service0", item => { });
+            this._backendManager.GetOrCreateItem("service0", item => { });
 
             // Start probing.
             var health = this.Create<HealthProbeWorker>();
             await health.UpdateTrackedBackends();
 
             // There is one service but it does not have config, no prober should be created and started.
-            this.backendProber.Verify(p => p.Start(It.IsAny<AsyncSemaphore>()), Times.Never());
+            this._backendProber.Verify(p => p.Start(It.IsAny<AsyncSemaphore>()), Times.Never());
         }
 
         [Fact]
@@ -162,7 +162,7 @@ namespace IslandGateway.Core.Service.HealthProbe
                 .Returns(endpointmanger);
 
             // Set up backends for probing, pretend that we have one services, each services have one replica.
-            this.backendManager.GetOrCreateItem("service0", item => { item.Config.Value = this.backendConfig; });
+            this._backendManager.GetOrCreateItem("service0", item => { item.Config.Value = this._backendConfig; });
 
             var health = this.Create<HealthProbeWorker>();
 
@@ -172,7 +172,7 @@ namespace IslandGateway.Core.Service.HealthProbe
 
             // There is one service and service does not changed, prober should be only created and started once
             // no matter how many time probing is conducted.
-            this.backendProber.Verify(p => p.Start(It.IsAny<AsyncSemaphore>()), Times.Once);
+            this._backendProber.Verify(p => p.Start(It.IsAny<AsyncSemaphore>()), Times.Once);
         }
 
         [Fact]
@@ -185,13 +185,13 @@ namespace IslandGateway.Core.Service.HealthProbe
                 .Returns(endpointmanger);
 
             // Set up backends for probing, pretend that we have one services, each services have three replica.
-            this.backendManager.GetOrCreateItem("service0", item => { item.Config.Value = this.backendConfig; });
+            this._backendManager.GetOrCreateItem("service0", item => { item.Config.Value = this._backendConfig; });
 
             var health = this.Create<HealthProbeWorker>();
             await health.UpdateTrackedBackends();
 
             // After the probing has already started, let's update the backend config for the service.
-            this.backendManager.GetItems()[0].Config.Value = new BackendConfig(
+            this._backendManager.GetItems()[0].Config.Value = new BackendConfig(
                 healthCheckOptions: new BackendConfig.BackendHealthCheckOptions(
                     enabled: true,
                     interval: TimeSpan.FromSeconds(1),
@@ -203,8 +203,8 @@ namespace IslandGateway.Core.Service.HealthProbe
 
             // After the config is updated, the program should discover this change, create a new prober,
             // stop and remove the previous prober. So two creation and one stop in total.
-            this.backendProber.Verify(p => p.Start(It.IsAny<AsyncSemaphore>()), Times.Exactly(2));
-            this.backendProber.Verify(p => p.StopAsync(), Times.Once);
+            this._backendProber.Verify(p => p.Start(It.IsAny<AsyncSemaphore>()), Times.Exactly(2));
+            this._backendProber.Verify(p => p.StopAsync(), Times.Once);
         }
 
         [Fact]
@@ -217,13 +217,13 @@ namespace IslandGateway.Core.Service.HealthProbe
                 .Returns(endpointmanger);
 
             // Set up backends for probing, pretend that we have one services, each services have three replica.
-            this.backendManager.GetOrCreateItem("service0", item => { item.Config.Value = this.backendConfig; });
+            this._backendManager.GetOrCreateItem("service0", item => { item.Config.Value = this._backendConfig; });
 
             var health = this.Create<HealthProbeWorker>();
             await health.UpdateTrackedBackends();
 
             // After the probing has already started, let's update the backend config for the service.
-            this.backendManager.GetItems()[0].Config.Value = new BackendConfig(
+            this._backendManager.GetItems()[0].Config.Value = new BackendConfig(
                 healthCheckOptions: new BackendConfig.BackendHealthCheckOptions(
                     enabled: false,
                     interval: TimeSpan.FromSeconds(1),
@@ -235,8 +235,8 @@ namespace IslandGateway.Core.Service.HealthProbe
 
             // After the config is updated, the program should discover this change,
             // stop and remove the previous prober. So one creation and one stop in total.
-            this.backendProber.Verify(p => p.Start(It.IsAny<AsyncSemaphore>()), Times.Once);
-            this.backendProber.Verify(p => p.StopAsync(), Times.Once);
+            this._backendProber.Verify(p => p.Start(It.IsAny<AsyncSemaphore>()), Times.Once);
+            this._backendProber.Verify(p => p.StopAsync(), Times.Once);
         }
 
         [Fact]
@@ -249,20 +249,20 @@ namespace IslandGateway.Core.Service.HealthProbe
                 .Returns(endpointmanger);
 
             // Set up backends for probing, pretend that we have one services, each services have three replica.
-            this.backendManager.GetOrCreateItem("service0", item => { item.Config.Value = this.backendConfig; });
+            this._backendManager.GetOrCreateItem("service0", item => { item.Config.Value = this._backendConfig; });
 
             // Start probing.
             var health = this.Create<HealthProbeWorker>();
             await health.UpdateTrackedBackends();
 
             // After the probing has already started, let's remove the backend.
-            this.backendManager.TryRemoveItem("service0");
+            this._backendManager.TryRemoveItem("service0");
             await health.UpdateTrackedBackends();
 
             // After the backend is removed, the program should discover this removal,
             // stop and remove the prober for the removed service. So one creation and one stop in total.
-            this.backendProber.Verify(p => p.Start(It.IsAny<AsyncSemaphore>()), Times.Once);
-            this.backendProber.Verify(p => p.StopAsync(), Times.Once);
+            this._backendProber.Verify(p => p.Start(It.IsAny<AsyncSemaphore>()), Times.Once);
+            this._backendProber.Verify(p => p.StopAsync(), Times.Once);
         }
 
         [Fact]
@@ -275,9 +275,9 @@ namespace IslandGateway.Core.Service.HealthProbe
                 .Returns(endpointmanger);
 
             // Set up backends for probing, pretend that we have three services, each services have three replica.
-            this.backendManager.GetOrCreateItem("service0", item => { item.Config.Value = this.backendConfig; });
-            this.backendManager.GetOrCreateItem("service1", item => { item.Config.Value = this.backendConfig; });
-            this.backendManager.GetOrCreateItem("service2", item => { item.Config.Value = this.backendConfig; });
+            this._backendManager.GetOrCreateItem("service0", item => { item.Config.Value = this._backendConfig; });
+            this._backendManager.GetOrCreateItem("service1", item => { item.Config.Value = this._backendConfig; });
+            this._backendManager.GetOrCreateItem("service2", item => { item.Config.Value = this._backendConfig; });
 
             // Start probing.
             var health = this.Create<HealthProbeWorker>();
@@ -285,8 +285,8 @@ namespace IslandGateway.Core.Service.HealthProbe
 
             // Stop probing. We should expect three start and three stop.
             await health.StopAsync();
-            this.backendProber.Verify(p => p.Start(It.IsAny<AsyncSemaphore>()), Times.Exactly(3));
-            this.backendProber.Verify(p => p.StopAsync(), Times.Exactly(3));
+            this._backendProber.Verify(p => p.Start(It.IsAny<AsyncSemaphore>()), Times.Exactly(3));
+            this._backendProber.Verify(p => p.StopAsync(), Times.Exactly(3));
         }
 
         private static EndpointManager EndpointManagerGenerator(int num)

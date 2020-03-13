@@ -1,4 +1,4 @@
-﻿// <copyright file="SignalTests.cs" company="Microsoft Corporation">
+// <copyright file="SignalTests.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -14,19 +14,19 @@ namespace IslandGateway.Signals.Tests
     /// </summary>
     public class SignalTests
     {
-        private SignalFactory factory = new SignalFactory();
+        private SignalFactory _factory = new SignalFactory();
 
         [Fact]
         public void Constructor_Works()
         {
-            this.factory.CreateSignal<Item>();
+            this._factory.CreateSignal<Item>();
         }
 
         [Fact]
         public void Constructor_WithValue_Works()
         {
             // Act & Assert
-            Signal<int> signal = this.factory.CreateSignal(3);
+            Signal<int> signal = this._factory.CreateSignal(3);
             signal.Value.Should().Be(3);
         }
 
@@ -34,7 +34,7 @@ namespace IslandGateway.Signals.Tests
         public void Constructor_Unit_Works()
         {
             // Act & Assert
-            Signal<Unit> signal = this.factory.CreateUnitSignal();
+            Signal<Unit> signal = this._factory.CreateUnitSignal();
             signal.Value.Should().BeSameAs(Unit.Instance);
         }
 
@@ -42,7 +42,7 @@ namespace IslandGateway.Signals.Tests
         public void Value_Basics()
         {
             // Act & Assert
-            var signal = this.factory.CreateSignal<Item>();
+            var signal = this._factory.CreateSignal<Item>();
             signal.Value.Should().BeNull();
 
             var item = new Item();
@@ -57,7 +57,7 @@ namespace IslandGateway.Signals.Tests
         public void GetSnapshot_Notifications_Work()
         {
             // Arrange
-            var signal = this.factory.CreateSignal<Item>();
+            var signal = this._factory.CreateSignal<Item>();
 
             // Act & Assert
             int count1 = 0;
@@ -111,7 +111,7 @@ namespace IslandGateway.Signals.Tests
         {
             // Arrange
             const int Iterations = 100_000;
-            var signal = this.factory.CreateSignal<Item>();
+            var signal = this._factory.CreateSignal<Item>();
             signal.Value = new Item();
 
             int concurrencyCounter = 0;

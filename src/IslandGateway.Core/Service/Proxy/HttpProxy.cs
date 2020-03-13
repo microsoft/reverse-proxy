@@ -1,4 +1,4 @@
-﻿// <copyright file="HttpProxy.cs" company="Microsoft Corporation">
+// <copyright file="HttpProxy.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -31,24 +31,24 @@ namespace IslandGateway.Core.Service.Proxy
         internal static readonly Version Http2Version = new Version(2, 0);
 
         // TODO: Enumerate all headers to skip
-        private static readonly HashSet<string> HeadersToSkipGoingUpstream = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private static readonly HashSet<string> _headersToSkipGoingUpstream = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "Host",
         };
-        private static readonly HashSet<string> HeadersToSkipGoingDownstream = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private static readonly HashSet<string> _headersToSkipGoingDownstream = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "Transfer-Encoding",
         };
 
-        private readonly ILogger<ProxyInvoker> logger;
-        private readonly GatewayMetrics metrics;
+        private readonly ILogger<ProxyInvoker> _logger;
+        private readonly GatewayMetrics _metrics;
 
         public HttpProxy(ILogger<ProxyInvoker> logger, GatewayMetrics metrics)
         {
             Contracts.CheckValue(logger, nameof(logger));
             Contracts.CheckValue(metrics, nameof(metrics));
-            this.logger = logger;
-            this.metrics = metrics;
+            this._logger = logger;
+            this._metrics = metrics;
         }
 
         /// <summary>
@@ -160,7 +160,7 @@ namespace IslandGateway.Core.Service.Proxy
             if (upstreamResponse.Version.Major != 2 && HttpUtilities.IsHttp2(context.Request.Protocol))
             {
                 // TODO: Do something on connection downgrade...
-                this.logger.LogInformation($"HTTP version downgrade detected! This may break gRPC communications.");
+                this._logger.LogInformation($"HTTP version downgrade detected! This may break gRPC communications.");
             }
 
             // Assert that, if we are proxying content upstream, it must have started by now
@@ -292,7 +292,7 @@ namespace IslandGateway.Core.Service.Proxy
                 using (var gracefulCts = CancellationTokenSource.CreateLinkedTokenSource(longCancellation))
                 {
                     var upstreamCopier = new StreamCopier(
-                        this.metrics,
+                        this._metrics,
                         new StreamCopyTelemetryContext(
                             direction: "upstream",
                             backendId: proxyTelemetryContext.BackendId,
@@ -301,7 +301,7 @@ namespace IslandGateway.Core.Service.Proxy
                     var upstreamTask = upstreamCopier.CopyAsync(downstreamStream, upstreamStream, gracefulCts.Token);
 
                     var downstreamCopier = new StreamCopier(
-                        this.metrics,
+                        this._metrics,
                         new StreamCopyTelemetryContext(
                             direction: "downstream",
                             backendId: proxyTelemetryContext.BackendId,
@@ -332,7 +332,7 @@ namespace IslandGateway.Core.Service.Proxy
                 ////this.logger.LogInformation($"   Setting up downstream --> GW --> upstream body proxying");
 
                 var streamCopier = new StreamCopier(
-                    this.metrics,
+                    this._metrics,
                     new StreamCopyTelemetryContext(
                         direction: "upstream",
                         backendId: proxyTelemetryContext.BackendId,
@@ -354,7 +354,7 @@ namespace IslandGateway.Core.Service.Proxy
                     continue;
                 }
 
-                if (HeadersToSkipGoingUpstream.Contains(header.Key))
+                if (_headersToSkipGoingUpstream.Contains(header.Key))
                 {
                     continue;
                 }
@@ -384,7 +384,7 @@ namespace IslandGateway.Core.Service.Proxy
             {
                 foreach (var header in source)
                 {
-                    if (HeadersToSkipGoingDownstream.Contains(header.Key))
+                    if (_headersToSkipGoingDownstream.Contains(header.Key))
                     {
                         continue;
                     }
@@ -400,7 +400,7 @@ namespace IslandGateway.Core.Service.Proxy
             if (upstreamResponseContent != null)
             {
                 var streamCopier = new StreamCopier(
-                    this.metrics,
+                    this._metrics,
                     new StreamCopyTelemetryContext(
                         direction: "downstream",
                         backendId: proxyTelemetryContext.BackendId,

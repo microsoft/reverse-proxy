@@ -1,4 +1,4 @@
-﻿// <copyright file="IslandGatewayConfigManagerTests.cs" company="Microsoft Corporation">
+// <copyright file="IslandGatewayConfigManagerTests.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -16,8 +16,8 @@ namespace IslandGateway.Core.Service.Management.Tests
 {
     public class IslandGatewayConfigManagerTests : TestAutoMockBase
     {
-        private readonly IBackendManager backendManager;
-        private readonly IRouteManager routeManager;
+        private readonly IBackendManager _backendManager;
+        private readonly IRouteManager _routeManager;
 
         public IslandGatewayConfigManagerTests()
         {
@@ -29,8 +29,8 @@ namespace IslandGateway.Core.Service.Management.Tests
             // The following classes simply store information and using the actual implementations
             // is easier than replicating functionality with mocks.
             this.Provide<IEndpointManagerFactory, EndpointManagerFactory>();
-            this.backendManager = this.Provide<IBackendManager, BackendManager>();
-            this.routeManager = this.Provide<IRouteManager, RouteManager>();
+            this._backendManager = this.Provide<IBackendManager, BackendManager>();
+            this._routeManager = this.Provide<IRouteManager, RouteManager>();
             this.Provide<IRuntimeRouteBuilder, RuntimeRouteBuilder>();
         }
 
@@ -72,7 +72,7 @@ namespace IslandGateway.Core.Service.Management.Tests
             // Assert
             result.Should().BeTrue();
 
-            var actualBackends = this.backendManager.GetItems();
+            var actualBackends = this._backendManager.GetItems();
             actualBackends.Should().HaveCount(1);
             actualBackends[0].BackendId.Should().Be("backend1");
             actualBackends[0].EndpointManager.Should().NotBeNull();
@@ -84,7 +84,7 @@ namespace IslandGateway.Core.Service.Management.Tests
             actualEndpoints[0].Config.Value.Should().NotBeNull();
             actualEndpoints[0].Config.Value.Address.Should().Be(TestAddress);
 
-            var actualRoutes = this.routeManager.GetItems();
+            var actualRoutes = this._routeManager.GetItems();
             actualRoutes.Should().HaveCount(1);
             actualRoutes[0].RouteId.Should().Be("route1");
             actualRoutes[0].Config.Value.Should().NotBeNull();

@@ -1,4 +1,4 @@
-﻿// <copyright file="StreamCopier.cs" company="Microsoft Corporation">
+// <copyright file="StreamCopier.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -19,14 +19,14 @@ namespace IslandGateway.Core.Service.Proxy
         // Taken from https://github.com/aspnet/Proxy/blob/816f65429b29d98e3ca98dd6b4d5e990f5cc7c02/src/Microsoft.AspNetCore.Proxy/ProxyAdvancedExtensions.cs#L19
         private const int DefaultBufferSize = 81920;
 
-        private readonly StreamCopyTelemetryContext context;
-        private readonly GatewayMetrics metrics;
+        private readonly StreamCopyTelemetryContext _context;
+        private readonly GatewayMetrics _metrics;
 
         public StreamCopier(GatewayMetrics metrics, in StreamCopyTelemetryContext context)
         {
             Contracts.CheckValue(metrics, nameof(metrics));
-            this.metrics = metrics;
-            this.context = context;
+            this._metrics = metrics;
+            this._context = context;
         }
 
         /// <inheritdoc/>
@@ -68,19 +68,19 @@ namespace IslandGateway.Core.Service.Proxy
                 ArrayPool<byte>.Shared.Return(buffer, clearArray: true);
 
                 // TODO: Populate metric dimension `protocol`.
-                this.metrics.StreamCopyBytes(
+                this._metrics.StreamCopyBytes(
                     value: totalBytes,
-                    direction: this.context.Direction,
-                    backendId: this.context.BackendId,
-                    routeId: this.context.RouteId,
-                    endpointId: this.context.EndpointId,
+                    direction: this._context.Direction,
+                    backendId: this._context.BackendId,
+                    routeId: this._context.RouteId,
+                    endpointId: this._context.EndpointId,
                     protocol: string.Empty);
-                this.metrics.StreamCopyIops(
+                this._metrics.StreamCopyIops(
                     value: iops,
-                    direction: this.context.Direction,
-                    backendId: this.context.BackendId,
-                    routeId: this.context.RouteId,
-                    endpointId: this.context.EndpointId,
+                    direction: this._context.Direction,
+                    backendId: this._context.BackendId,
+                    routeId: this._context.RouteId,
+                    endpointId: this._context.EndpointId,
                     protocol: string.Empty);
             }
         }

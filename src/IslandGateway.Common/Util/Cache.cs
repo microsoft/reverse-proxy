@@ -16,9 +16,9 @@ namespace IslandGateway.Common.Util
     // TODO: do we want this to be thread safe?
     public class Cache<T>
     {
-        private readonly TimeSpan expirationTimeOffset;
-        private readonly IMonotonicTimer timer;
-        private Dictionary<string, Expirable> cache = new Dictionary<string, Expirable>(StringComparer.Ordinal);
+        private readonly TimeSpan _expirationTimeOffset;
+        private readonly IMonotonicTimer _timer;
+        private Dictionary<string, Expirable> _cache = new Dictionary<string, Expirable>(StringComparer.Ordinal);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Cache{T}"/> class.
@@ -27,8 +27,8 @@ namespace IslandGateway.Common.Util
         /// <param name="expirationTimeOffset">The time it takes for cache values to expire.</param>
         public Cache(IMonotonicTimer timer, TimeSpan expirationTimeOffset)
         {
-            this.timer = timer ?? throw new ArgumentNullException(nameof(timer));
-            this.expirationTimeOffset = expirationTimeOffset;
+            this._timer = timer ?? throw new ArgumentNullException(nameof(timer));
+            this._expirationTimeOffset = expirationTimeOffset;
         }
 
         /// <summary>
@@ -49,14 +49,14 @@ namespace IslandGateway.Common.Util
         /// </summary>
         public bool TryGetValue(string key, out T value)
         {
-            bool present = this.cache.TryGetValue(key, out Expirable expirable);
-            if (!present || expirable.Expired(this.timer))
+            bool present = this._cache.TryGetValue(key, out Expirable expirable);
+            if (!present || expirable.Expired(this._timer))
             {
                 value = default;
                 if (present)
                 {
                     // Take the oportunity to update internal state
-                    this.cache.Remove(key);
+                    this._cache.Remove(key);
                 }
                 return false;
             }
@@ -69,9 +69,9 @@ namespace IslandGateway.Common.Util
         /// </summary>
         public void Set(string key, T value)
         {
-            this.cache[key] = new Expirable(
+            this._cache[key] = new Expirable(
                 value: value,
-                expirationTime: this.timer.CurrentTime.Add(this.expirationTimeOffset));
+                expirationTime: this._timer.CurrentTime.Add(this._expirationTimeOffset));
         }
 
         /// <summary>
@@ -79,14 +79,14 @@ namespace IslandGateway.Common.Util
         /// </summary>
         public void Cleanup()
         {
-            var toRemove = this.cache
-                .Where(pair => pair.Value.Expired(this.timer))
+            var toRemove = this._cache
+                .Where(pair => pair.Value.Expired(this._timer))
                 .Select(pair => pair.Key)
                 .ToList();
 
             foreach (var key in toRemove)
             {
-                this.cache.Remove(key);
+                this._cache.Remove(key);
             }
         }
 

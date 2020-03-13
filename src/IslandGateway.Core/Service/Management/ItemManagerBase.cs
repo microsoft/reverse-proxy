@@ -1,4 +1,4 @@
-﻿// <copyright file="ItemManagerBase.cs" company="Microsoft Corporation">
+// <copyright file="ItemManagerBase.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -13,21 +13,21 @@ namespace IslandGateway.Core.Service.Management
     internal abstract class ItemManagerBase<T> : IItemManager<T>
         where T : class
     {
-        private readonly object lockObject = new object();
-        private readonly Dictionary<string, T> items = new Dictionary<string, T>(StringComparer.Ordinal);
-        private readonly Signal<IReadOnlyList<T>> signal = SignalFactory.Default.CreateSignal<IReadOnlyList<T>>(new List<T>().AsReadOnly());
+        private readonly object _lockObject = new object();
+        private readonly Dictionary<string, T> _items = new Dictionary<string, T>(StringComparer.Ordinal);
+        private readonly Signal<IReadOnlyList<T>> _signal = SignalFactory.Default.CreateSignal<IReadOnlyList<T>>(new List<T>().AsReadOnly());
 
         /// <inheritdoc/>
-        public IReadableSignal<IReadOnlyList<T>> Items => this.signal;
+        public IReadableSignal<IReadOnlyList<T>> Items => this._signal;
 
         /// <inheritdoc/>
         public T TryGetItem(string itemId)
         {
             Contracts.CheckNonEmpty(itemId, nameof(itemId));
 
-            lock (this.lockObject)
+            lock (this._lockObject)
             {
-                this.items.TryGetValue(itemId, out var item);
+                this._items.TryGetValue(itemId, out var item);
                 return item;
             }
         }
@@ -38,9 +38,9 @@ namespace IslandGateway.Core.Service.Management
             Contracts.CheckNonEmpty(itemId, nameof(itemId));
             Contracts.CheckValue(setupAction, nameof(setupAction));
 
-            lock (this.lockObject)
+            lock (this._lockObject)
             {
-                bool existed = this.items.TryGetValue(itemId, out var item);
+                bool existed = this._items.TryGetValue(itemId, out var item);
                 if (!existed)
                 {
                     item = this.InstantiateItem(itemId);
@@ -50,7 +50,7 @@ namespace IslandGateway.Core.Service.Management
 
                 if (!existed)
                 {
-                    this.items.Add(itemId, item);
+                    this._items.Add(itemId, item);
                     this.UpdateSignal();
                 }
 
@@ -61,9 +61,9 @@ namespace IslandGateway.Core.Service.Management
         /// <inheritdoc/>
         public IList<T> GetItems()
         {
-            lock (this.lockObject)
+            lock (this._lockObject)
             {
-                return this.items.Values.ToList();
+                return this._items.Values.ToList();
             }
         }
 
@@ -72,9 +72,9 @@ namespace IslandGateway.Core.Service.Management
         {
             Contracts.CheckNonEmpty(itemId, nameof(itemId));
 
-            lock (this.lockObject)
+            lock (this._lockObject)
             {
-                bool removed = this.items.Remove(itemId);
+                bool removed = this._items.Remove(itemId);
 
                 if (removed)
                 {
@@ -92,7 +92,7 @@ namespace IslandGateway.Core.Service.Management
 
         private void UpdateSignal()
         {
-            this.signal.Value = this.items.Select(kvp => kvp.Value).ToList().AsReadOnly();
+            this._signal.Value = this._items.Select(kvp => kvp.Value).ToList().AsReadOnly();
         }
     }
 }

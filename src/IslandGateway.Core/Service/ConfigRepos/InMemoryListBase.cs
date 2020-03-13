@@ -1,4 +1,4 @@
-﻿// <copyright file="InMemoryListBase.cs" company="Microsoft Corporation">
+// <copyright file="InMemoryListBase.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -9,22 +9,22 @@ namespace IslandGateway.Core.Service
     internal abstract class InMemoryListBase<T>
         where T : IDeepCloneable<T>
     {
-        private readonly object syncRoot = new object();
-        private IList<T> items;
+        private readonly object _syncRoot = new object();
+        private IList<T> _items;
 
         protected IList<T> Get()
         {
-            lock (this.syncRoot)
+            lock (this._syncRoot)
             {
-                return this.items?.DeepClone();
+                return this._items?.DeepClone();
             }
         }
 
         protected void Set(IList<T> items)
         {
-            lock (this.syncRoot)
+            lock (this._syncRoot)
             {
-                this.items = items?.DeepClone();
+                this._items = items?.DeepClone();
             }
         }
     }

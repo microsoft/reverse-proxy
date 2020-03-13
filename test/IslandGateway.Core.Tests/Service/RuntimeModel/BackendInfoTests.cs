@@ -1,4 +1,4 @@
-﻿// <copyright file="BackendInfoTests.cs" company="Microsoft Corporation">
+// <copyright file="BackendInfoTests.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -13,7 +13,7 @@ namespace IslandGateway.Core.RuntimeModel.Tests
 {
     public class BackendInfoTests : TestAutoMockBase
     {
-        private readonly IBackendManager backendManager;
+        private readonly IBackendManager _backendManager;
 
         public BackendInfoTests()
         {
@@ -21,14 +21,14 @@ namespace IslandGateway.Core.RuntimeModel.Tests
             // much more convenient than replicating functionality for the purpose of the tests.
             this.Provide<IEndpointManagerFactory, EndpointManagerFactory>();
             this.Provide<IProxyHttpClientFactoryFactory, ProxyHttpClientFactoryFactory>();
-            this.backendManager = this.Provide<IBackendManager, BackendManager>();
+            this._backendManager = this.Provide<IBackendManager, BackendManager>();
         }
 
         [Fact]
         public void DynamicState_WithoutHealthChecks_AssumesAllHealthy()
         {
             // Arrange
-            var backend = this.backendManager.GetOrCreateItem("abc", backend => { });
+            var backend = this._backendManager.GetOrCreateItem("abc", backend => { });
             var endpoint1 = backend.EndpointManager.GetOrCreateItem("ep1", endpoint => endpoint.DynamicState.Value = new EndpointDynamicState(EndpointHealth.Healthy));
             var endpoint2 = backend.EndpointManager.GetOrCreateItem("ep2", endpoint => endpoint.DynamicState.Value = new EndpointDynamicState(EndpointHealth.Unhealthy));
             var endpoint3 = backend.EndpointManager.GetOrCreateItem("ep3", endpoint => endpoint.DynamicState.Value = new EndpointDynamicState(EndpointHealth.Unknown));
@@ -43,7 +43,7 @@ namespace IslandGateway.Core.RuntimeModel.Tests
         public void DynamicState_WithHealthChecks_HonorsHealthState()
         {
             // Arrange
-            var backend = this.backendManager.GetOrCreateItem("abc", backend => EnableHealthChecks(backend));
+            var backend = this._backendManager.GetOrCreateItem("abc", backend => EnableHealthChecks(backend));
             var endpoint1 = backend.EndpointManager.GetOrCreateItem("ep1", endpoint => endpoint.DynamicState.Value = new EndpointDynamicState(EndpointHealth.Healthy));
             var endpoint2 = backend.EndpointManager.GetOrCreateItem("ep2", endpoint => endpoint.DynamicState.Value = new EndpointDynamicState(EndpointHealth.Unhealthy));
             var endpoint3 = backend.EndpointManager.GetOrCreateItem("ep3", endpoint => endpoint.DynamicState.Value = new EndpointDynamicState(EndpointHealth.Unknown));
@@ -59,7 +59,7 @@ namespace IslandGateway.Core.RuntimeModel.Tests
         public void DynamicState_ReactsToBackendConfigChanges()
         {
             // Arrange
-            var backend = this.backendManager.GetOrCreateItem("abc", backend => { });
+            var backend = this._backendManager.GetOrCreateItem("abc", backend => { });
 
             // Act & Assert
             var state1 = backend.DynamicState.Value;
@@ -76,7 +76,7 @@ namespace IslandGateway.Core.RuntimeModel.Tests
         public void DynamicState_ReactsToBackendEndpointChanges()
         {
             // Arrange
-            var backend = this.backendManager.GetOrCreateItem("abc", backend => { });
+            var backend = this._backendManager.GetOrCreateItem("abc", backend => { });
 
             // Act & Assert
             var state1 = backend.DynamicState.Value;
@@ -99,7 +99,7 @@ namespace IslandGateway.Core.RuntimeModel.Tests
         public void DynamicState_ReactsToBackendEndpointStateChanges()
         {
             // Arrange
-            var backend = this.backendManager.GetOrCreateItem("abc", backend => EnableHealthChecks(backend));
+            var backend = this._backendManager.GetOrCreateItem("abc", backend => EnableHealthChecks(backend));
 
             // Act & Assert
             var state1 = backend.DynamicState.Value;

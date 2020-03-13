@@ -1,4 +1,4 @@
-﻿// <copyright file="GatewayMetricsTests.cs" company="Microsoft Corporation">
+// <copyright file="GatewayMetricsTests.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -11,11 +11,11 @@ namespace IslandGateway.Core.Service.Metrics.Tests
 {
     public class GatewayMetricsTests : TestAutoMockBase
     {
-        private readonly TestMetricCreator metricCreator;
+        private readonly TestMetricCreator _metricCreator;
 
         public GatewayMetricsTests()
         {
-            this.metricCreator = this.Provide<IMetricCreator, TestMetricCreator>();
+            this._metricCreator = this.Provide<IMetricCreator, TestMetricCreator>();
         }
 
         [Fact]
@@ -34,7 +34,7 @@ namespace IslandGateway.Core.Service.Metrics.Tests
             metrics.StreamCopyBytes(123, "upstream", "be1", "rt1", "ep1", "prot");
 
             // Assert
-            this.metricCreator.MetricsLogged.Should().BeEquivalentTo("StreamCopyBytes=123;direction=upstream;backendId=be1;routeId=rt1;endpointId=ep1;protocol=prot");
+            this._metricCreator.MetricsLogged.Should().BeEquivalentTo("StreamCopyBytes=123;direction=upstream;backendId=be1;routeId=rt1;endpointId=ep1;protocol=prot");
         }
 
         [Fact]
@@ -47,7 +47,7 @@ namespace IslandGateway.Core.Service.Metrics.Tests
             metrics.StreamCopyIops(123, "upstream", "be1", "rt1", "ep1", "prot");
 
             // Assert
-            this.metricCreator.MetricsLogged.Should().BeEquivalentTo("StreamCopyIops=123;direction=upstream;backendId=be1;routeId=rt1;endpointId=ep1;protocol=prot");
+            this._metricCreator.MetricsLogged.Should().BeEquivalentTo("StreamCopyIops=123;direction=upstream;backendId=be1;routeId=rt1;endpointId=ep1;protocol=prot");
         }
     }
 }

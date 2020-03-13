@@ -1,4 +1,4 @@
-﻿// <copyright file="RouteValidator.cs" company="Microsoft Corporation">
+// <copyright file="RouteValidator.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -36,9 +36,9 @@ namespace IslandGateway.Core.Service
             @"(?:" + DnsLabelRegexPattern + @"\.)*" +
             DnsLabelRegexPattern +
             @"$";
-        private static readonly Regex HostNameRegex = new Regex(HostNameRegexPattern);
+        private static readonly Regex _hostNameRegex = new Regex(HostNameRegexPattern);
 
-        private static readonly HashSet<string> ValidMethods = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private static readonly HashSet<string> _validMethods = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "HEAD", "OPTIONS", "GET", "PUT", "POST", "PATCH", "DELETE", "TRACE",
         };
@@ -125,7 +125,7 @@ namespace IslandGateway.Core.Service
 
         private static bool ValidateHostMatcher(HostMatcher hostMatcher, out string errorMessage)
         {
-            if (!HostNameRegex.IsMatch(hostMatcher.Host))
+            if (!_hostNameRegex.IsMatch(hostMatcher.Host))
             {
                 errorMessage = $"Invalid host name '{hostMatcher.Host}'";
                 return false;
@@ -162,7 +162,7 @@ namespace IslandGateway.Core.Service
                     return false;
                 }
 
-                if (!ValidMethods.Contains(method))
+                if (!_validMethods.Contains(method))
                 {
                     errorMessage = $"Unsupported verb '{method}'";
                     return false;

@@ -20,14 +20,14 @@ namespace SampleServer.Controllers
     [ApiController]
     public class WebSocketsController : ControllerBase
     {
-        private readonly ILogger<WebSocketsController> logger;
+        private readonly ILogger<WebSocketsController> _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WebSocketsController"/> class.
         /// </summary>
         public WebSocketsController(ILogger<WebSocketsController> logger)
         {
-            this.logger = logger;
+            this._logger = logger;
         }
 
         /// <summary>
@@ -44,11 +44,11 @@ namespace SampleServer.Controllers
 
             using (var webSocket = await this.HttpContext.WebSockets.AcceptWebSocketAsync())
             {
-                this.logger.LogInformation("WebSockets established.");
+                this._logger.LogInformation("WebSockets established.");
                 await this.RunPingPongAsync(webSocket, this.HttpContext.RequestAborted);
             }
 
-            this.logger.LogInformation("WebSockets finished.");
+            this._logger.LogInformation("WebSockets finished.");
         }
 
         private async Task RunPingPongAsync(WebSocket webSocket, CancellationToken cancellation)

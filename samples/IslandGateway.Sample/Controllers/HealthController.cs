@@ -14,7 +14,7 @@ namespace IslandGateway.Sample.Controllers
     [ApiController]
     public class HealthController : ControllerBase
     {
-        private readonly ILogger<HealthController> logger;
+        private readonly ILogger<HealthController> _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HealthController"/> class.
@@ -22,7 +22,7 @@ namespace IslandGateway.Sample.Controllers
         public HealthController(ILogger<HealthController> logger)
         {
             Contracts.CheckValue(logger, nameof(logger));
-            this.logger = logger;
+            this._logger = logger;
         }
 
         /// <summary>

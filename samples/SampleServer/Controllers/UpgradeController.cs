@@ -18,14 +18,14 @@ namespace SampleServer.Controllers
     [ApiController]
     public class UpgradeController : ControllerBase
     {
-        private readonly ILogger<UpgradeController> logger;
+        private readonly ILogger<UpgradeController> _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UpgradeController"/> class.
         /// </summary>
         public UpgradeController(ILogger<UpgradeController> logger)
         {
-            this.logger = logger;
+            this._logger = logger;
         }
 
         /// <summary>
@@ -41,9 +41,9 @@ namespace SampleServer.Controllers
             {
                 using (var stream = await upgradeFeature.UpgradeAsync())
                 {
-                    this.logger.LogInformation("Upgraded connection.");
+                    this._logger.LogInformation("Upgraded connection.");
                     await this.RunPingPongAsync(stream);
-                    this.logger.LogInformation("Finished.");
+                    this._logger.LogInformation("Finished.");
                 }
             }
             else

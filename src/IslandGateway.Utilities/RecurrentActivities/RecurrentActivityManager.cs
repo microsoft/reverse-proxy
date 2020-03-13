@@ -1,4 +1,4 @@
-﻿// <copyright file="RecurrentActivityManager.cs" company="Microsoft Corporation">
+// <copyright file="RecurrentActivityManager.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
@@ -23,14 +23,14 @@ namespace IslandGateway.Utilities
     // TODO: 6106582: Find suitable replacement for RecurrentActivityManager
     public class RecurrentActivityManager : IRecurrentActivityManager
     {
-        private readonly object monitor = new object();
-        private readonly IOperationLogger operationLogger;
-        private readonly IMonotonicTimer monotonicTimer;
-        private readonly List<WorkItem> workItemList = new List<WorkItem>();
+        private readonly object _monitor = new object();
+        private readonly IOperationLogger _operationLogger;
+        private readonly IMonotonicTimer _monotonicTimer;
+        private readonly List<WorkItem> _workItemList = new List<WorkItem>();
 
         // Start / Stop fields.
-        private Task backgroundPollingLoopTask;
-        private CancellationTokenSource backgroundPollingLoopCancellation;
+        private Task _backgroundPollingLoopTask;
+        private CancellationTokenSource _backgroundPollingLoopCancellation;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RecurrentActivityManager"/> class.
@@ -44,8 +44,8 @@ namespace IslandGateway.Utilities
             Contracts.CheckValue(operationLogger, nameof(operationLogger));
             Contracts.CheckValue(monotonicTimer, nameof(monotonicTimer));
 
-            this.operationLogger = operationLogger;
-            this.monotonicTimer = monotonicTimer;
+            this._operationLogger = operationLogger;
+            this._monotonicTimer = monotonicTimer;
         }
 
         /// <inheritdoc />
@@ -54,30 +54,30 @@ namespace IslandGateway.Utilities
         /// <inheritdoc />
         public void Start()
         {
-            Contracts.Check(this.backgroundPollingLoopTask == null, "StartPolling must not be called when already started.");
+            Contracts.Check(this._backgroundPollingLoopTask == null, "StartPolling must not be called when already started.");
 
             // We don't expect the previous cancellation token to be still in use, but it would be preferable to not leak it.
-            this.backgroundPollingLoopCancellation?.Dispose();
+            this._backgroundPollingLoopCancellation?.Dispose();
 
             var cancellationTokenSource = new CancellationTokenSource();
-            this.backgroundPollingLoopCancellation = cancellationTokenSource;
-            this.backgroundPollingLoopTask = TaskScheduler.Current.Run(() => this.StartImpl(cancellationTokenSource.Token));
+            this._backgroundPollingLoopCancellation = cancellationTokenSource;
+            this._backgroundPollingLoopTask = TaskScheduler.Current.Run(() => this.StartImpl(cancellationTokenSource.Token));
         }
 
         /// <inheritdoc />
         public async Task StopAsync()
         {
-            Contracts.Check(this.backgroundPollingLoopTask != null, "Start must be called before Stop is called.");
+            Contracts.Check(this._backgroundPollingLoopTask != null, "Start must be called before Stop is called.");
             try
             {
-                this.backgroundPollingLoopCancellation.Cancel();
-                await this.backgroundPollingLoopTask;
+                this._backgroundPollingLoopCancellation.Cancel();
+                await this._backgroundPollingLoopTask;
             }
             finally
             {
-                this.backgroundPollingLoopCancellation.Dispose();
-                this.backgroundPollingLoopCancellation = null;
-                this.backgroundPollingLoopTask = null;
+                this._backgroundPollingLoopCancellation.Dispose();
+                this._backgroundPollingLoopCancellation = null;
+                this._backgroundPollingLoopTask = null;
             }
         }
 
@@ -106,15 +106,15 @@ namespace IslandGateway.Utilities
                 OperationName = operationName,
                 SchedulingInterval = schedulingInterval,
                 Func = func,
-                LastExecution = this.monotonicTimer.CurrentTime,
+                LastExecution = this._monotonicTimer.CurrentTime,
             };
             if (executeImmediately)
             {
-                workItem.Start(this.operationLogger, this.monotonicTimer);
+                workItem.Start(this._operationLogger, this._monotonicTimer);
             }
-            lock (this.monitor)
+            lock (this._monitor)
             {
-                this.workItemList.Add(workItem);
+                this._workItemList.Add(workItem);
             }
         }
 
@@ -134,7 +134,7 @@ namespace IslandGateway.Utilities
                     // not get their first run on time, running when the next pre-existing task
                     // was scheduled.
                     var wakeTime = this.GetNextWakeTime();
-                    await this.monotonicTimer.DelayUntil(wakeTime, cancellationToken);
+                    await this._monotonicTimer.DelayUntil(wakeTime, cancellationToken);
 
                     this.ExecuteEligibleWork(wakeTime);
                 }
@@ -150,14 +150,14 @@ namespace IslandGateway.Utilities
         /// <param name="wakeTime">The time when execution was resumed.</param>
         private void ExecuteEligibleWork(TimeSpan wakeTime)
         {
-            this.operationLogger.Execute(
+            this._operationLogger.Execute(
                 "CoreServices.Common.ExecuteEligibleWork",
                 () =>
                 {
                     List<WorkItem> tasksToRun = null;
-                    lock (this.monitor)
+                    lock (this._monitor)
                     {
-                        foreach (var item in this.workItemList)
+                        foreach (var item in this._workItemList)
                         {
                             if (item.CanRun(wakeTime))
                             {
@@ -169,7 +169,7 @@ namespace IslandGateway.Utilities
                     {
                         foreach (var item in tasksToRun)
                         {
-                            item.Start(this.operationLogger, this.monotonicTimer);
+                            item.Start(this._operationLogger, this._monotonicTimer);
                         }
                     }
                 });
@@ -182,15 +182,15 @@ namespace IslandGateway.Utilities
         /// <returns>Next execution time.</returns>
         private TimeSpan GetNextWakeTime()
         {
-            var currentTime = this.monotonicTimer.CurrentTime;
-            lock (this.monitor)
+            var currentTime = this._monotonicTimer.CurrentTime;
+            lock (this._monitor)
             {
-                if (this.workItemList.Count == 0)
+                if (this._workItemList.Count == 0)
                 {
-                    return this.monotonicTimer.CurrentTime + this.SchedulingGranularity;
+                    return this._monotonicTimer.CurrentTime + this.SchedulingGranularity;
                 }
 
-                return this.workItemList.Min(item => item.NextExecution(currentTime));
+                return this._workItemList.Min(item => item.NextExecution(currentTime));
             }
         }
 
@@ -199,8 +199,8 @@ namespace IslandGateway.Utilities
         /// </summary>
         private class WorkItem
         {
-            private readonly CancellationTokenSource cts = new CancellationTokenSource();
-            private volatile bool isExecuting;
+            private readonly CancellationTokenSource _cts = new CancellationTokenSource();
+            private volatile bool _isExecuting;
 
             public TimeSpan LastExecution { get; set; }
             public TimeSpan SchedulingInterval { get; set; }
@@ -215,7 +215,7 @@ namespace IslandGateway.Utilities
             /// <returns>Boolean indicating whether the task can run.</returns>
             internal bool CanRun(TimeSpan currentTime)
             {
-                return !this.isExecuting && currentTime >= this.LastExecution + this.SchedulingInterval;
+                return !this._isExecuting && currentTime >= this.LastExecution + this.SchedulingInterval;
             }
 
             /// <summary>
@@ -238,9 +238,9 @@ namespace IslandGateway.Utilities
             /// <param name="monotonicTimer">Instance of <see cref="IMonotonicTimer"/>.</param>
             internal async void Start(IOperationLogger operationLogger, IMonotonicTimer monotonicTimer)
             {
-                Contracts.Check(this.isExecuting == false, "Expected work item was not executing");
+                Contracts.Check(this._isExecuting == false, "Expected work item was not executing");
 
-                this.isExecuting = true;
+                this._isExecuting = true;
                 this.LastExecution = monotonicTimer.CurrentTime;
                 try
                 {
@@ -248,7 +248,7 @@ namespace IslandGateway.Utilities
                         this.OperationName,
                         async () =>
                         {
-                            await this.Func(this.cts.Token);
+                            await this.Func(this._cts.Token);
                         });
                 }
                 catch (Exception e) when (!e.IsFatal())
@@ -257,7 +257,7 @@ namespace IslandGateway.Utilities
                 }
                 finally
                 {
-                    this.isExecuting = false;
+                    this._isExecuting = false;
                 }
             }
         }
