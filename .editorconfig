@@ -1,4 +1,3 @@
-# Suppress: EC103
 ; EditorConfig to support per-solution formatting.
 ; Use the EditorConfig VS add-in to make this work.
 ; http://editorconfig.org/
@@ -28,9 +27,6 @@ indent_size = 2
 
 [*.json]
 indent_size = 2
-
-[*.{ps1,psm1}]
-indent_size = 4
 
 [*.sh]
 indent_size = 4
