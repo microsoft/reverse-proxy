@@ -1,6 +1,5 @@
-﻿// <copyright file="BackendProberFactory.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using IslandGateway.Common.Abstractions.Telemetry;
 using IslandGateway.Common.Abstractions.Time;
@@ -17,11 +16,11 @@ namespace IslandGateway.Core.Service.HealthProbe
     /// </summary>
     internal class BackendProberFactory : IBackendProberFactory
     {
-        private IMonotonicTimer timer;
-        private ILoggerFactory loggerFactory;
-        private IHealthProbeHttpClientFactory httpClientFactory;
-        private IRandomFactory randomFactory;
-        private IOperationLogger operationLogger;
+        private readonly IMonotonicTimer _timer;
+        private readonly ILoggerFactory _loggerFactory;
+        private readonly IHealthProbeHttpClientFactory _httpClientFactory;
+        private readonly IRandomFactory _randomFactory;
+        private readonly IOperationLogger _operationLogger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BackendProberFactory"/> class.
@@ -33,17 +32,17 @@ namespace IslandGateway.Core.Service.HealthProbe
             Contracts.CheckValue(operationLogger, nameof(operationLogger));
             Contracts.CheckValue(httpClientFactory, nameof(httpClientFactory));
 
-            this.timer = timer;
-            this.loggerFactory = loggerFactory;
-            this.httpClientFactory = httpClientFactory;
-            this.randomFactory = new RandomFactory();
-            this.operationLogger = operationLogger;
+            _timer = timer;
+            _loggerFactory = loggerFactory;
+            _httpClientFactory = httpClientFactory;
+            _randomFactory = new RandomFactory();
+            _operationLogger = operationLogger;
         }
 
         /// <inheritdoc/>
         public IBackendProber CreateBackendProber(string backendId, BackendConfig config, IEndpointManager endpointManager)
         {
-            return new BackendProber(backendId, config, endpointManager, this.timer, this.loggerFactory.CreateLogger<BackendProber>(), this.operationLogger, this.httpClientFactory.CreateHttpClient(), this.randomFactory);
+            return new BackendProber(backendId, config, endpointManager, _timer, _loggerFactory.CreateLogger<BackendProber>(), _operationLogger, _httpClientFactory.CreateHttpClient(), _randomFactory);
         }
     }
 }

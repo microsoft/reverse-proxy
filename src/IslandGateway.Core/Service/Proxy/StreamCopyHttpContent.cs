@@ -1,6 +1,5 @@
-﻿// <copyright file="StreamCopyHttpContent.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using System;
 using System.IO;
@@ -38,26 +37,26 @@ namespace IslandGateway.Core.Service.Proxy
     /// </remarks>
     internal class StreamCopyHttpContent : HttpContent
     {
-        private readonly Stream source;
-        private readonly IStreamCopier streamCopier;
-        private readonly CancellationToken cancellation;
-        private readonly TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
+        private readonly Stream _source;
+        private readonly IStreamCopier _streamCopier;
+        private readonly CancellationToken _cancellation;
+        private readonly TaskCompletionSource<bool> _tcs = new TaskCompletionSource<bool>();
 
         public StreamCopyHttpContent(Stream source, IStreamCopier streamCopier, CancellationToken cancellation)
         {
             Contracts.CheckValue(source, nameof(source));
             Contracts.CheckValue(streamCopier, nameof(streamCopier));
 
-            this.source = source;
-            this.streamCopier = streamCopier;
-            this.cancellation = cancellation;
+            _source = source;
+            _streamCopier = streamCopier;
+            _cancellation = cancellation;
         }
 
         /// <summary>
         /// Gets a <see cref="System.Threading.Tasks.Task"/> that completes in successful or failed state
         /// mimicking the result of <see cref="SerializeToStreamAsync"/>.
         /// </summary>
-        public Task ConsumptionTask => this.tcs.Task;
+        public Task ConsumptionTask => _tcs.Task;
 
         /// <summary>
         /// Gets a value indicating whether consumption of this content has begun.
@@ -115,24 +114,24 @@ namespace IslandGateway.Core.Service.Proxy
         /// </remarks>
         protected override async Task SerializeToStreamAsync(Stream stream, TransportContext context)
         {
-            if (this.Started)
+            if (Started)
             {
                 throw new InvalidOperationException("Stream was already consumed.");
             }
 
-            this.Started = true;
+            Started = true;
             try
             {
                 // Immediately flush request stream to send headers
                 // https://github.com/dotnet/corefx/issues/39586#issuecomment-516210081
                 await stream.FlushAsync();
 
-                await this.streamCopier.CopyAsync(this.source, stream, this.cancellation);
-                this.tcs.TrySetResult(true);
+                await _streamCopier.CopyAsync(_source, stream, _cancellation);
+                _tcs.TrySetResult(true);
             }
             catch (Exception ex)
             {
-                this.tcs.TrySetException(ex);
+                _tcs.TrySetException(ex);
                 throw;
             }
         }

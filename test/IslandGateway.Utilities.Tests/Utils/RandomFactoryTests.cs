@@ -1,6 +1,5 @@
-﻿// <copyright file="RandomFactoryTests.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using System;
 using FluentAssertions;
@@ -25,7 +24,7 @@ namespace IslandGateway.Utilities
             random.GetType().Should().Be(typeof(RandomWrapper));
 
             // Validate functionality
-            int num = random.Next(5);
+            var num = random.Next(5);
             num.Should().BeInRange(0, 5);
         }
     }

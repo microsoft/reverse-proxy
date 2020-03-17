@@ -1,6 +1,5 @@
-﻿// <copyright file="ProxyInvoker.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using System;
 using System.Net.Http;
@@ -22,10 +21,10 @@ namespace IslandGateway.Core.Service.Proxy
     /// </summary>
     internal class ProxyInvoker : IProxyInvoker
     {
-        private readonly ILogger<ProxyInvoker> logger;
-        private readonly IOperationLogger operationLogger;
-        private readonly ILoadBalancer loadBalancer;
-        private readonly IHttpProxy httpProxy;
+        private readonly ILogger<ProxyInvoker> _logger;
+        private readonly IOperationLogger _operationLogger;
+        private readonly ILoadBalancer _loadBalancer;
+        private readonly IHttpProxy _httpProxy;
 
         public ProxyInvoker(
             ILogger<ProxyInvoker> logger,
@@ -38,10 +37,10 @@ namespace IslandGateway.Core.Service.Proxy
             Contracts.CheckValue(loadBalancer, nameof(loadBalancer));
             Contracts.CheckValue(httpProxy, nameof(httpProxy));
 
-            this.logger = logger;
-            this.operationLogger = operationLogger;
-            this.loadBalancer = loadBalancer;
-            this.httpProxy = httpProxy;
+            _logger = logger;
+            _operationLogger = operationLogger;
+            _loadBalancer = loadBalancer;
+            _httpProxy = httpProxy;
         }
 
         /// <inheritdoc/>
@@ -81,9 +80,9 @@ namespace IslandGateway.Core.Service.Proxy
                 loadBalancingOptions = backendConfig.LoadBalancingOptions;
             }
 
-            var endpoint = this.operationLogger.Execute(
+            var endpoint = _operationLogger.Execute(
                 "IslandGateway.PickEndpoint",
-                () => this.loadBalancer.PickEndpoint(dynamicState.HealthyEndpoints, dynamicState.AllEndpoints, in loadBalancingOptions));
+                () => _loadBalancer.PickEndpoint(dynamicState.HealthyEndpoints, dynamicState.AllEndpoints, in loadBalancingOptions));
 
             if (endpoint == null)
             {
@@ -97,8 +96,8 @@ namespace IslandGateway.Core.Service.Proxy
             }
 
             // TODO: support StripPrefix and other url transformations
-            var targetUrl = this.BuildOutgoingUrl(context, endpointConfig.Address);
-            this.logger.LogInformation($"Proxying to {targetUrl}");
+            var targetUrl = BuildOutgoingUrl(context, endpointConfig.Address);
+            _logger.LogInformation($"Proxying to {targetUrl}");
             var targetUri = new Uri(targetUrl, UriKind.Absolute);
 
             using (var shortCts = CancellationTokenSource.CreateLinkedTokenSource(context.RequestAborted))
@@ -121,9 +120,9 @@ namespace IslandGateway.Core.Service.Proxy
                         routeId: routeConfig.Route.RouteId,
                         endpointId: endpoint.EndpointId);
 
-                    await this.operationLogger.ExecuteAsync(
+                    await _operationLogger.ExecuteAsync(
                         "IslandGateway.Proxy",
-                        () => this.httpProxy.ProxyAsync(context, targetUri, backend.ProxyHttpClientFactory, proxyTelemetryContext, shortCancellation: shortCts.Token, longCancellation: longCancellation));
+                        () => _httpProxy.ProxyAsync(context, targetUri, backend.ProxyHttpClientFactory, proxyTelemetryContext, shortCancellation: shortCts.Token, longCancellation: longCancellation));
                 }
                 finally
                 {
@@ -141,7 +140,7 @@ namespace IslandGateway.Core.Service.Proxy
                 throw new ArgumentException(nameof(endpointAddress));
             }
 
-            bool stripSlash = endpointAddress.EndsWith('/');
+            var stripSlash = endpointAddress.EndsWith('/');
 
             // NOTE: This takes inspiration from Microsoft.AspNetCore.Http.Extensions.UriHelper.BuildAbsolute()
             var request = context.Request;

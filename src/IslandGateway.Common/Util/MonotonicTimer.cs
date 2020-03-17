@@ -1,6 +1,5 @@
-﻿// <copyright file="MonotonicTimer.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using System;
 using System.Diagnostics;
@@ -21,23 +20,23 @@ namespace IslandGateway.Common.Util
         /// Specifies the minimum granularity of a scheduling tick. Larger values produce less precise scheduling. Smaller values
         /// produce unnecessary scheduling events, wasting CPU cycles and/or power.
         /// </summary>
-        private static readonly TimeSpan MinimalInterval = TimeSpan.FromMilliseconds(0.1);
+        private static readonly TimeSpan _minimalInterval = TimeSpan.FromMilliseconds(0.1);
 
         /// <summary>
         /// Use a System.Diagnostics.StopWatch to measure time. Even though it has a poorer resolution, it serves this purpose very well.
         /// </summary>
-        private readonly Stopwatch timeProvider;
+        private readonly Stopwatch _timeProvider;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MonotonicTimer"/> class.
         /// </summary>
         public MonotonicTimer()
         {
-            this.timeProvider = Stopwatch.StartNew();
+            _timeProvider = Stopwatch.StartNew();
         }
 
         /// <inheritdoc />
-        public TimeSpan CurrentTime => this.timeProvider.Elapsed;
+        public TimeSpan CurrentTime => _timeProvider.Elapsed;
 
         /// <inheritdoc />
         public async Task DelayUntil(TimeSpan expiryTime, CancellationToken cancellationToken)
@@ -46,13 +45,13 @@ namespace IslandGateway.Common.Util
             // the second When doesn't need to start allocating Task.Delay timers until after the first expires.
             for (; ;)
             {
-                var now = this.CurrentTime;
+                var now = CurrentTime;
                 if (now >= expiryTime)
                 {
                     return;
                 }
 
-                var delay = TimeUtil.Max(expiryTime - now, MinimalInterval);
+                var delay = TimeUtil.Max(expiryTime - now, _minimalInterval);
                 await Task.Delay(delay, cancellationToken);
             }
         }

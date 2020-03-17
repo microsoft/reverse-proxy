@@ -1,6 +1,5 @@
-﻿// <copyright file="HttpProxy.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using System;
 using System.Buffers;
@@ -31,24 +30,24 @@ namespace IslandGateway.Core.Service.Proxy
         internal static readonly Version Http2Version = new Version(2, 0);
 
         // TODO: Enumerate all headers to skip
-        private static readonly HashSet<string> HeadersToSkipGoingUpstream = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private static readonly HashSet<string> _headersToSkipGoingUpstream = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "Host",
         };
-        private static readonly HashSet<string> HeadersToSkipGoingDownstream = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private static readonly HashSet<string> _headersToSkipGoingDownstream = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "Transfer-Encoding",
         };
 
-        private readonly ILogger<ProxyInvoker> logger;
-        private readonly GatewayMetrics metrics;
+        private readonly ILogger<ProxyInvoker> _logger;
+        private readonly GatewayMetrics _metrics;
 
         public HttpProxy(ILogger<ProxyInvoker> logger, GatewayMetrics metrics)
         {
             Contracts.CheckValue(logger, nameof(logger));
             Contracts.CheckValue(metrics, nameof(metrics));
-            this.logger = logger;
-            this.metrics = metrics;
+            _logger = logger;
+            _metrics = metrics;
         }
 
         /// <summary>
@@ -93,11 +92,11 @@ namespace IslandGateway.Core.Service.Proxy
             var upgradeFeature = context.Features.Get<IHttpUpgradeFeature>();
             if (upgradeFeature == null || !upgradeFeature.IsUpgradableRequest)
             {
-                return this.NormalProxyAsync(context, targetUri, httpClientFactory.CreateNormalClient(), proxyTelemetryContext, shortCancellation, longCancellation);
+                return NormalProxyAsync(context, targetUri, httpClientFactory.CreateNormalClient(), proxyTelemetryContext, shortCancellation, longCancellation);
             }
             else
             {
-                return this.UpgradableProxyAsync(context, upgradeFeature, targetUri, httpClientFactory.CreateUpgradableClient(), proxyTelemetryContext, shortCancellation, longCancellation);
+                return UpgradableProxyAsync(context, upgradeFeature, targetUri, httpClientFactory.CreateUpgradableClient(), proxyTelemetryContext, shortCancellation, longCancellation);
             }
         }
 
@@ -145,11 +144,11 @@ namespace IslandGateway.Core.Service.Proxy
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 2: Setup copy of request body (background) Downstream --► Gateway --► Upstream
             // Note that we must do this before step (3) because step (3) may also add headers to the HttpContent that we set up here.
-            StreamCopyHttpContent bodyToUpstreamContent = this.SetupCopyBodyUpstream(context.Request.Body, upstreamRequest, in proxyTelemetryContext, longCancellation);
+            var bodyToUpstreamContent = SetupCopyBodyUpstream(context.Request.Body, upstreamRequest, in proxyTelemetryContext, longCancellation);
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 3: Copy request headers Downstream --► Gateway --► Upstream
-            this.CopyHeadersToUpstream(context.Request.Headers, upstreamRequest);
+            CopyHeadersToUpstream(context.Request.Headers, upstreamRequest);
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 4: Send the outgoing request using HttpClient
@@ -160,7 +159,7 @@ namespace IslandGateway.Core.Service.Proxy
             if (upstreamResponse.Version.Major != 2 && HttpUtilities.IsHttp2(context.Request.Protocol))
             {
                 // TODO: Do something on connection downgrade...
-                this.logger.LogInformation($"HTTP version downgrade detected! This may break gRPC communications.");
+                _logger.LogInformation($"HTTP version downgrade detected! This may break gRPC communications.");
             }
 
             // Assert that, if we are proxying content upstream, it must have started by now
@@ -180,7 +179,7 @@ namespace IslandGateway.Core.Service.Proxy
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 6: Copy response headers Downstream ◄-- Gateway ◄-- Upstream
-            this.CopyHeadersToDownstream(upstreamResponse, context.Response.Headers);
+            CopyHeadersToDownstream(upstreamResponse, context.Response.Headers);
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 7: Send response headers Downstream ◄-- Gateway ◄-- Upstream
@@ -192,7 +191,7 @@ namespace IslandGateway.Core.Service.Proxy
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 8: Copy response body Downstream ◄-- Gateway ◄-- Upstream
-            await this.CopyBodyDownstreamAsync(upstreamResponse.Content, context.Response.Body, proxyTelemetryContext, longCancellation);
+            await CopyBodyDownstreamAsync(upstreamResponse.Content, context.Response.Body, proxyTelemetryContext, longCancellation);
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 9: Wait for completion of step 2: copying request body Downstream --► Gateway --► Upstream
@@ -204,7 +203,7 @@ namespace IslandGateway.Core.Service.Proxy
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 10: Copy response trailer headers Downstream ◄-- Gateway ◄-- Upstream
-            this.CopyTrailingHeadersToDownstream(upstreamResponse, context);
+            CopyTrailingHeadersToDownstream(upstreamResponse, context);
         }
 
         /// <summary>
@@ -251,12 +250,12 @@ namespace IslandGateway.Core.Service.Proxy
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 2: Copy request headers Downstream --► Gateway --► Upstream
-            this.CopyHeadersToUpstream(context.Request.Headers, upstreamRequest);
+            CopyHeadersToUpstream(context.Request.Headers, upstreamRequest);
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 3: Send the outgoing request using HttpMessageInvoker
             var upstreamResponse = await httpClient.SendAsync(upstreamRequest, shortCancellation);
-            bool upgraded = upstreamResponse.StatusCode == HttpStatusCode.SwitchingProtocols && upstreamResponse.Content != null;
+            var upgraded = upstreamResponse.StatusCode == HttpStatusCode.SwitchingProtocols && upstreamResponse.Content != null;
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 4: Copy response status line Downstream ◄-- Gateway ◄-- Upstream
@@ -265,7 +264,7 @@ namespace IslandGateway.Core.Service.Proxy
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 5: Copy response headers Downstream ◄-- Gateway ◄-- Upstream
-            this.CopyHeadersToDownstream(upstreamResponse, context.Response.Headers);
+            CopyHeadersToDownstream(upstreamResponse, context.Response.Headers);
 
             if (!upgraded)
             {
@@ -277,7 +276,7 @@ namespace IslandGateway.Core.Service.Proxy
 
                 // :::::::::::::::::::::::::::::::::::::::::::::
                 // :: Step B-7: Copy response body Downstream ◄-- Gateway ◄-- Upstream
-                await this.CopyBodyDownstreamAsync(upstreamResponse.Content, context.Response.Body, proxyTelemetryContext, longCancellation);
+                await CopyBodyDownstreamAsync(upstreamResponse.Content, context.Response.Body, proxyTelemetryContext, longCancellation);
                 return;
             }
 
@@ -292,7 +291,7 @@ namespace IslandGateway.Core.Service.Proxy
                 using (var gracefulCts = CancellationTokenSource.CreateLinkedTokenSource(longCancellation))
                 {
                     var upstreamCopier = new StreamCopier(
-                        this.metrics,
+                        _metrics,
                         new StreamCopyTelemetryContext(
                             direction: "upstream",
                             backendId: proxyTelemetryContext.BackendId,
@@ -301,7 +300,7 @@ namespace IslandGateway.Core.Service.Proxy
                     var upstreamTask = upstreamCopier.CopyAsync(downstreamStream, upstreamStream, gracefulCts.Token);
 
                     var downstreamCopier = new StreamCopier(
-                        this.metrics,
+                        _metrics,
                         new StreamCopyTelemetryContext(
                             direction: "downstream",
                             backendId: proxyTelemetryContext.BackendId,
@@ -332,7 +331,7 @@ namespace IslandGateway.Core.Service.Proxy
                 ////this.logger.LogInformation($"   Setting up downstream --> GW --> upstream body proxying");
 
                 var streamCopier = new StreamCopier(
-                    this.metrics,
+                    _metrics,
                     new StreamCopyTelemetryContext(
                         direction: "upstream",
                         backendId: proxyTelemetryContext.BackendId,
@@ -354,7 +353,7 @@ namespace IslandGateway.Core.Service.Proxy
                     continue;
                 }
 
-                if (HeadersToSkipGoingUpstream.Contains(header.Key))
+                if (_headersToSkipGoingUpstream.Contains(header.Key))
                 {
                     continue;
                 }
@@ -384,7 +383,7 @@ namespace IslandGateway.Core.Service.Proxy
             {
                 foreach (var header in source)
                 {
-                    if (HeadersToSkipGoingDownstream.Contains(header.Key))
+                    if (_headersToSkipGoingDownstream.Contains(header.Key))
                     {
                         continue;
                     }
@@ -400,7 +399,7 @@ namespace IslandGateway.Core.Service.Proxy
             if (upstreamResponseContent != null)
             {
                 var streamCopier = new StreamCopier(
-                    this.metrics,
+                    _metrics,
                     new StreamCopyTelemetryContext(
                         direction: "downstream",
                         backendId: proxyTelemetryContext.BackendId,

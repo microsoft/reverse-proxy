@@ -1,6 +1,5 @@
-﻿// <copyright file="GatewayDynamicEndpointDataSourceTests.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using System.Collections.Generic;
 using FluentAssertions;
@@ -52,8 +51,8 @@ namespace IslandGateway.Core.Service.Tests
             var dataSource = new GatewayDynamicEndpointDataSource();
             var newEndpoints1 = new List<AspNetCore.Http.Endpoint>();
             var newEndpoints2 = new List<AspNetCore.Http.Endpoint>();
-            int signaled1 = 0;
-            int signaled2 = 0;
+            var signaled1 = 0;
+            var signaled2 = 0;
             IReadOnlyList<AspNetCore.Http.Endpoint> readEndpoints1 = null;
             IReadOnlyList<AspNetCore.Http.Endpoint> readEndpoints2 = null;
 

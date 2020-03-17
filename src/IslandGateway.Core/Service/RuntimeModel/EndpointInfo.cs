@@ -1,6 +1,5 @@
-﻿// <copyright file="EndpointInfo.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using IslandGateway.Core.Util;
 using IslandGateway.Utilities;
@@ -23,7 +22,7 @@ namespace IslandGateway.Core.RuntimeModel
         public EndpointInfo(string endpointId)
         {
             Contracts.CheckNonEmpty(endpointId, nameof(endpointId));
-            this.EndpointId = endpointId;
+            EndpointId = endpointId;
         }
 
         public string EndpointId { get; }

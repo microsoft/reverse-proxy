@@ -1,6 +1,5 @@
-﻿// <copyright file="IslandGatewayConfigManagerTests.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,28 +15,28 @@ namespace IslandGateway.Core.Service.Management.Tests
 {
     public class IslandGatewayConfigManagerTests : TestAutoMockBase
     {
-        private readonly IBackendManager backendManager;
-        private readonly IRouteManager routeManager;
+        private readonly IBackendManager _backendManager;
+        private readonly IRouteManager _routeManager;
 
         public IslandGatewayConfigManagerTests()
         {
             var httpClientFactoryMock = new Mock<IProxyHttpClientFactory>(MockBehavior.Strict);
-            this.Mock<IProxyHttpClientFactoryFactory>()
+            Mock<IProxyHttpClientFactoryFactory>()
                 .Setup(p => p.CreateFactory())
                 .Returns(httpClientFactoryMock.Object);
 
             // The following classes simply store information and using the actual implementations
             // is easier than replicating functionality with mocks.
-            this.Provide<IEndpointManagerFactory, EndpointManagerFactory>();
-            this.backendManager = this.Provide<IBackendManager, BackendManager>();
-            this.routeManager = this.Provide<IRouteManager, RouteManager>();
-            this.Provide<IRuntimeRouteBuilder, RuntimeRouteBuilder>();
+            Provide<IEndpointManagerFactory, EndpointManagerFactory>();
+            _backendManager = Provide<IBackendManager, BackendManager>();
+            _routeManager = Provide<IRouteManager, RouteManager>();
+            Provide<IRuntimeRouteBuilder, RuntimeRouteBuilder>();
         }
 
         [Fact]
         public void Constructor_Works()
         {
-            this.Create<IslandGatewayConfigManager>();
+            Create<IslandGatewayConfigManager>();
         }
 
         [Fact]
@@ -59,12 +58,12 @@ namespace IslandGateway.Core.Service.Management.Tests
                 Backends = new[] { new BackendWithEndpoints(backend, endpoints) },
                 Routes = new[] { route },
             };
-            this.Mock<IDynamicConfigBuilder>()
+            Mock<IDynamicConfigBuilder>()
                 .Setup(d => d.BuildConfigAsync(It.IsAny<IConfigErrorReporter>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(Result.Success(dynamicConfigRoot));
 
             var errorReporter = new TestConfigErrorReporter();
-            var gatewayManager = this.Create<IslandGatewayConfigManager>();
+            var gatewayManager = Create<IslandGatewayConfigManager>();
 
             // Act
             var result = await gatewayManager.ApplyConfigurationsAsync(errorReporter, CancellationToken.None);
@@ -72,7 +71,7 @@ namespace IslandGateway.Core.Service.Management.Tests
             // Assert
             result.Should().BeTrue();
 
-            var actualBackends = this.backendManager.GetItems();
+            var actualBackends = _backendManager.GetItems();
             actualBackends.Should().HaveCount(1);
             actualBackends[0].BackendId.Should().Be("backend1");
             actualBackends[0].EndpointManager.Should().NotBeNull();
@@ -84,7 +83,7 @@ namespace IslandGateway.Core.Service.Management.Tests
             actualEndpoints[0].Config.Value.Should().NotBeNull();
             actualEndpoints[0].Config.Value.Address.Should().Be(TestAddress);
 
-            var actualRoutes = this.routeManager.GetItems();
+            var actualRoutes = _routeManager.GetItems();
             actualRoutes.Should().HaveCount(1);
             actualRoutes[0].RouteId.Should().Be("route1");
             actualRoutes[0].Config.Value.Should().NotBeNull();

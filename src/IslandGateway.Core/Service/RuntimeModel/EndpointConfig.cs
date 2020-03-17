@@ -1,6 +1,5 @@
-﻿// <copyright file="EndpointConfig.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using IslandGateway.Utilities;
 
@@ -21,7 +20,7 @@ namespace IslandGateway.Core.RuntimeModel
         public EndpointConfig(string address)
         {
             Contracts.CheckNonEmpty(address, nameof(address));
-            this.Address = address;
+            Address = address;
         }
 
         // TODO: Make this a Uri.

@@ -1,6 +1,5 @@
-﻿// <copyright file="TextOperationLogger.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using System;
 using System.Threading.Tasks;
@@ -16,7 +15,7 @@ namespace IslandGateway.Common.Telemetry
     /// </summary>
     public class TextOperationLogger : IOperationLogger
     {
-        private readonly ILogger<TextOperationLogger> logger;
+        private readonly ILogger<TextOperationLogger> _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TextOperationLogger"/> class.
@@ -24,7 +23,7 @@ namespace IslandGateway.Common.Telemetry
         /// <param name="logger">Logger where text messages will be logger.</param>
         public TextOperationLogger(ILogger<TextOperationLogger> logger)
         {
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         /// <inheritdoc/>
@@ -37,13 +36,13 @@ namespace IslandGateway.Common.Telemetry
             var stopwatch = ValueStopwatch.StartNew();
             try
             {
-                this.logger.LogInformation($"Operation started: {operationName}");
+                _logger.LogInformation($"Operation started: {operationName}");
                 action();
-                this.logger.LogInformation($"Operation ended: {operationName}, {stopwatch.Elapsed.TotalMilliseconds:F1}ms, success");
+                _logger.LogInformation($"Operation ended: {operationName}, {stopwatch.Elapsed.TotalMilliseconds:F1}ms, success");
             }
             catch (Exception ex)
             {
-                this.logger.LogInformation($"Operation ended: {operationName}, {stopwatch.Elapsed.TotalMilliseconds:F1}ms, error: {ex.Message}");
+                _logger.LogInformation($"Operation ended: {operationName}, {stopwatch.Elapsed.TotalMilliseconds:F1}ms, error: {ex.Message}");
                 throw;
             }
         }
@@ -54,14 +53,14 @@ namespace IslandGateway.Common.Telemetry
             var stopwatch = ValueStopwatch.StartNew();
             try
             {
-                this.logger.LogInformation($"Operation started: {operationName}");
+                _logger.LogInformation($"Operation started: {operationName}");
                 var res = func();
-                this.logger.LogInformation($"Operation ended: {operationName}, {stopwatch.Elapsed.TotalMilliseconds:F1}ms, success");
+                _logger.LogInformation($"Operation ended: {operationName}, {stopwatch.Elapsed.TotalMilliseconds:F1}ms, success");
                 return res;
             }
             catch (Exception ex)
             {
-                this.logger.LogInformation($"Operation ended: {operationName}, {stopwatch.Elapsed.TotalMilliseconds:F1}ms, error: {ex.Message}");
+                _logger.LogInformation($"Operation ended: {operationName}, {stopwatch.Elapsed.TotalMilliseconds:F1}ms, error: {ex.Message}");
                 throw;
             }
         }
@@ -72,13 +71,13 @@ namespace IslandGateway.Common.Telemetry
             var stopwatch = ValueStopwatch.StartNew();
             try
             {
-                this.logger.LogInformation($"Operation started: {operationName}");
+                _logger.LogInformation($"Operation started: {operationName}");
                 await action();
-                this.logger.LogInformation($"Operation ended: {operationName}, {stopwatch.Elapsed.TotalMilliseconds:F1}ms, success");
+                _logger.LogInformation($"Operation ended: {operationName}, {stopwatch.Elapsed.TotalMilliseconds:F1}ms, success");
             }
             catch (Exception ex)
             {
-                this.logger.LogInformation($"Operation ended: {operationName}, {stopwatch.Elapsed.TotalMilliseconds:F1}ms, error: {ex.Message}");
+                _logger.LogInformation($"Operation ended: {operationName}, {stopwatch.Elapsed.TotalMilliseconds:F1}ms, error: {ex.Message}");
                 throw;
             }
         }
@@ -89,14 +88,14 @@ namespace IslandGateway.Common.Telemetry
             var stopwatch = ValueStopwatch.StartNew();
             try
             {
-                this.logger.LogInformation($"Operation started: {operationName}");
+                _logger.LogInformation($"Operation started: {operationName}");
                 var res = await func();
-                this.logger.LogInformation($"Operation ended: {operationName}, {stopwatch.Elapsed.TotalMilliseconds:F1}ms, success");
+                _logger.LogInformation($"Operation ended: {operationName}, {stopwatch.Elapsed.TotalMilliseconds:F1}ms, success");
                 return res;
             }
             catch (Exception ex)
             {
-                this.logger.LogInformation($"Operation ended: {operationName}, {stopwatch.Elapsed.TotalMilliseconds:F1}ms, error: {ex.Message}");
+                _logger.LogInformation($"Operation ended: {operationName}, {stopwatch.Elapsed.TotalMilliseconds:F1}ms, error: {ex.Message}");
                 throw;
             }
         }

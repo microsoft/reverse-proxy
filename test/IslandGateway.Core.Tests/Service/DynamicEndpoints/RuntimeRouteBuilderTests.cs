@@ -1,6 +1,5 @@
-﻿// <copyright file="RuntimeRouteBuilderTests.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using System;
 using System.Collections.Generic;
@@ -21,14 +20,14 @@ namespace IslandGateway.Core.Service.Tests
         [Fact]
         public void Constructor_Works()
         {
-            this.Create<RuntimeRouteBuilder>();
+            Create<RuntimeRouteBuilder>();
         }
 
         [Fact]
         public void BuildEndpoints_HostAndPath_Works()
         {
             // Arrange
-            var builder = this.Create<RuntimeRouteBuilder>();
+            var builder = Create<RuntimeRouteBuilder>();
             var parsedRoute = new ParsedRoute
             {
                 RouteId = "route1",
@@ -65,7 +64,7 @@ namespace IslandGateway.Core.Service.Tests
         public void BuildEndpoints_JustHost_Works()
         {
             // Arrange
-            var builder = this.Create<RuntimeRouteBuilder>();
+            var builder = Create<RuntimeRouteBuilder>();
             var parsedRoute = new ParsedRoute
             {
                 RouteId = "route1",
@@ -101,7 +100,7 @@ namespace IslandGateway.Core.Service.Tests
         public void BuildEndpoints_JustHostWithWildcard_Works()
         {
             // Arrange
-            var builder = this.Create<RuntimeRouteBuilder>();
+            var builder = Create<RuntimeRouteBuilder>();
             var parsedRoute = new ParsedRoute
             {
                 RouteId = "route1",
@@ -137,7 +136,7 @@ namespace IslandGateway.Core.Service.Tests
         public void BuildEndpoints_JustPath_Works()
         {
             // Arrange
-            var builder = this.Create<RuntimeRouteBuilder>();
+            var builder = Create<RuntimeRouteBuilder>();
             var parsedRoute = new ParsedRoute
             {
                 RouteId = "route1",
@@ -172,7 +171,7 @@ namespace IslandGateway.Core.Service.Tests
         public void BuildEndpoints_NullMatchers_Works()
         {
             // Arrange
-            var builder = this.Create<RuntimeRouteBuilder>();
+            var builder = Create<RuntimeRouteBuilder>();
             var parsedRoute = new ParsedRoute
             {
                 RouteId = "route1",
@@ -203,7 +202,7 @@ namespace IslandGateway.Core.Service.Tests
         public void BuildEndpoints_InvalidPath_BubblesOutException()
         {
             // Arrange
-            var builder = this.Create<RuntimeRouteBuilder>();
+            var builder = Create<RuntimeRouteBuilder>();
             var parsedRoute = new ParsedRoute
             {
                 RouteId = "route1",

@@ -1,6 +1,5 @@
-﻿// <copyright file="BackendWithEndpoints.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using System.Collections.Generic;
 using IslandGateway.Core.Abstractions;
@@ -14,8 +13,8 @@ namespace IslandGateway.Core.ConfigModel
         {
             Contracts.CheckValue(backend, nameof(backend));
             Contracts.CheckValue(endpoints, nameof(endpoints));
-            this.Backend = backend;
-            this.Endpoints = endpoints;
+            Backend = backend;
+            Endpoints = endpoints;
         }
 
         public Backend Backend { get; }

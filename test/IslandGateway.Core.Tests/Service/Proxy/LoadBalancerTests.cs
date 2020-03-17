@@ -1,6 +1,5 @@
-﻿// <copyright file="LoadBalancerTests.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using System;
 using FluentAssertions;
@@ -17,7 +16,7 @@ namespace IslandGateway.Core.Service.Proxy.Tests
         public void PickEndpoint_FirstWithoutEndpoints_Works()
         {
             // Arrange
-            var loadBalancer = this.Create<LoadBalancer>();
+            var loadBalancer = Create<LoadBalancer>();
             var endpoints = new EndpointInfo[0];
             var options = new BackendConfig.BackendLoadBalancingOptions(BackendConfig.BackendLoadBalancingOptions.LoadBalancingMode.First);
 
@@ -32,7 +31,7 @@ namespace IslandGateway.Core.Service.Proxy.Tests
         public void PickEndpoint_FirstWithEndpoints_Works()
         {
             // Arrange
-            var loadBalancer = this.Create<LoadBalancer>();
+            var loadBalancer = Create<LoadBalancer>();
             var endpoints = new[]
             {
                 new EndpointInfo("ep1"),
@@ -51,7 +50,7 @@ namespace IslandGateway.Core.Service.Proxy.Tests
         public void PickEndpoint_UnsupportedMode_Throws()
         {
             // Arrange
-            var loadBalancer = this.Create<LoadBalancer>();
+            var loadBalancer = Create<LoadBalancer>();
             var endpoints = new EndpointInfo[0];
             var options = new BackendConfig.BackendLoadBalancingOptions((BackendConfig.BackendLoadBalancingOptions.LoadBalancingMode)(-1));
 

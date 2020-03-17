@@ -1,6 +1,5 @@
-﻿// <copyright file="BackendConfig.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using System;
 
@@ -22,8 +21,8 @@ namespace IslandGateway.Core.RuntimeModel
             BackendHealthCheckOptions healthCheckOptions,
             BackendLoadBalancingOptions loadBalancingOptions)
         {
-            this.HealthCheckOptions = healthCheckOptions;
-            this.LoadBalancingOptions = loadBalancingOptions;
+            HealthCheckOptions = healthCheckOptions;
+            LoadBalancingOptions = loadBalancingOptions;
         }
 
         public BackendHealthCheckOptions HealthCheckOptions { get; }
@@ -41,11 +40,11 @@ namespace IslandGateway.Core.RuntimeModel
         {
             public BackendHealthCheckOptions(bool enabled, TimeSpan interval, TimeSpan timeout, int port, string path)
             {
-                this.Enabled = enabled;
-                this.Interval = interval;
-                this.Timeout = timeout;
-                this.Port = port;
-                this.Path = path;
+                Enabled = enabled;
+                Interval = interval;
+                Timeout = timeout;
+                Port = port;
+                Path = path;
             }
 
             /// <summary>
@@ -78,7 +77,7 @@ namespace IslandGateway.Core.RuntimeModel
         {
             public BackendLoadBalancingOptions(LoadBalancingMode mode)
             {
-                this.Mode = mode;
+                Mode = mode;
             }
 
             public enum LoadBalancingMode

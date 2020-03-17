@@ -1,6 +1,5 @@
-﻿// <copyright file="RouteConfig.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using System.Collections.Generic;
 using IslandGateway.Utilities;
@@ -30,11 +29,11 @@ namespace IslandGateway.Core.RuntimeModel
             Contracts.CheckValue(route, nameof(route));
             Contracts.CheckValue(aspNetCoreEndpoints, nameof(aspNetCoreEndpoints));
 
-            this.Route = route;
-            this.Rule = rule;
-            this.Priority = priority;
-            this.BackendOrNull = backendOrNull;
-            this.AspNetCoreEndpoints = aspNetCoreEndpoints;
+            Route = route;
+            Rule = rule;
+            Priority = priority;
+            BackendOrNull = backendOrNull;
+            AspNetCoreEndpoints = aspNetCoreEndpoints;
         }
 
         public RouteInfo Route { get; }

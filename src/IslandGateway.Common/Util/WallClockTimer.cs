@@ -1,6 +1,5 @@
-﻿// <copyright file="WallClockTimer.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using System;
 using System.Threading;
@@ -20,7 +19,7 @@ namespace IslandGateway.Common.Util
         /// Specifies the minimum granularity of a scheduling tick. Larger values produce less precise scheduling. Smaller values
         /// produce unnecessary scheduling events, wasting CPU cycles and/or power.
         /// </summary>
-        private static readonly TimeSpan MinimalInterval = TimeSpan.FromMilliseconds(10);
+        private static readonly TimeSpan _minimalInterval = TimeSpan.FromMilliseconds(10);
 
         /// <summary>
         /// Gets the current time.
@@ -34,13 +33,13 @@ namespace IslandGateway.Common.Util
             // the second When doesn't need to start allocating Task.Delay timers until after the first expires.
             for (; ;)
             {
-                var now = this.CurrentTime;
+                var now = CurrentTime;
                 if (now >= until)
                 {
                     return;
                 }
 
-                var delay = TimeUtil.Max(until - now, MinimalInterval);
+                var delay = TimeUtil.Max(until - now, _minimalInterval);
                 await Task.Delay(delay, cancellationToken);
             }
         }

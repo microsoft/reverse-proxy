@@ -1,6 +1,5 @@
-﻿// <copyright file="RuleParserTests.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using System;
 using System.Collections.Generic;
@@ -16,14 +15,14 @@ namespace IslandGateway.Core.Service.Tests
         [Fact]
         public void Constructor_Works()
         {
-            this.Create<RuleParser>();
+            Create<RuleParser>();
         }
 
         [Fact]
         public void NullInput_ThrowsArgumentNullException()
         {
             // Arrange
-            var parser = this.Create<RuleParser>();
+            var parser = Create<RuleParser>();
 
             // Act & Assert
             Action action = () => parser.Parse(null);
@@ -43,7 +42,7 @@ namespace IslandGateway.Core.Service.Tests
         public void ValidRule_Works(string input, string expectedOutputIfDifferent = null)
         {
             // Arrange
-            var parser = this.Create<RuleParser>();
+            var parser = Create<RuleParser>();
 
             // Act
             var output = parser.Parse(input);
@@ -64,7 +63,7 @@ namespace IslandGateway.Core.Service.Tests
         public void InvalidRuleSyntax_ProducesGoodErrorMessage(string input, string expectedOutput)
         {
             // Arrange
-            var parser = this.Create<RuleParser>();
+            var parser = Create<RuleParser>();
 
             // Act
             var output = parser.Parse(input);
@@ -84,7 +83,7 @@ namespace IslandGateway.Core.Service.Tests
         public void InvalidRuleSemantics_ProducesGoodErrorMessage(string input, string expectedOutput)
         {
             // Arrange
-            var parser = this.Create<RuleParser>();
+            var parser = Create<RuleParser>();
 
             // Act
             var output = parser.Parse(input);

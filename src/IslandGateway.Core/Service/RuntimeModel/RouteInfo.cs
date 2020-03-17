@@ -1,6 +1,5 @@
-﻿// <copyright file="RouteInfo.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using IslandGateway.Utilities;
 using IslandGateway.Signals;
@@ -21,7 +20,7 @@ namespace IslandGateway.Core.RuntimeModel
         public RouteInfo(string routeId)
         {
             Contracts.CheckNonEmpty(routeId, nameof(routeId));
-            this.RouteId = routeId;
+            RouteId = routeId;
         }
 
         public string RouteId { get; }

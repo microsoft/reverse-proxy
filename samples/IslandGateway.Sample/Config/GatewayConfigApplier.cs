@@ -1,6 +1,5 @@
-﻿// <copyright file="GatewayConfigApplier.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using System;
 using System.Threading;
@@ -22,14 +21,14 @@ namespace IslandGateway.Sample.Config
     /// </summary>
     internal class GatewayConfigApplier : IHostedService, IDisposable
     {
-        private readonly ILogger<GatewayConfigApplier> logger;
-        private readonly IBackendsRepo backendsRepo;
-        private readonly IBackendEndpointsRepo endpointsRepo;
-        private readonly IRoutesRepo routesRepo;
-        private readonly IIslandGatewayConfigManager gatewayManager;
+        private readonly ILogger<GatewayConfigApplier> _logger;
+        private readonly IBackendsRepo _backendsRepo;
+        private readonly IBackendEndpointsRepo _endpointsRepo;
+        private readonly IRoutesRepo _routesRepo;
+        private readonly IIslandGatewayConfigManager _gatewayManager;
 
-        private bool disposed;
-        private IDisposable subscription;
+        private bool _disposed;
+        private readonly IDisposable _subscription;
 
         public GatewayConfigApplier(
             ILogger<GatewayConfigApplier> logger,
@@ -46,22 +45,22 @@ namespace IslandGateway.Sample.Config
             Contracts.CheckValue(gatewayManager, nameof(gatewayManager));
             Contracts.CheckValue(gatewayConfig, nameof(gatewayConfig));
 
-            this.logger = logger;
-            this.backendsRepo = backendsRepo;
-            this.endpointsRepo = endpointsRepo;
-            this.routesRepo = routesRepo;
-            this.gatewayManager = gatewayManager;
+            _logger = logger;
+            _backendsRepo = backendsRepo;
+            _endpointsRepo = endpointsRepo;
+            _routesRepo = routesRepo;
+            _gatewayManager = gatewayManager;
 
-            this.subscription = gatewayConfig.OnChange((newConfig, name) => this.Apply(newConfig));
-            this.Apply(gatewayConfig.CurrentValue);
+            _subscription = gatewayConfig.OnChange((newConfig, name) => Apply(newConfig));
+            Apply(gatewayConfig.CurrentValue);
         }
 
         public void Dispose()
         {
-            if (!this.disposed)
+            if (!_disposed)
             {
-                this.subscription.Dispose();
-                this.disposed = true;
+                _subscription.Dispose();
+                _disposed = true;
             }
         }
 
@@ -84,13 +83,13 @@ namespace IslandGateway.Sample.Config
                 return;
             }
 
-            this.logger.LogInformation("Applying gateway configs");
+            _logger.LogInformation("Applying gateway configs");
             try
             {
                 switch (config.DiscoveryMechanism)
                 {
                     case "static":
-                        await this.ApplyStaticConfigsAsync(config.StaticDiscoveryOptions, CancellationToken.None);
+                        await ApplyStaticConfigsAsync(config.StaticDiscoveryOptions, CancellationToken.None);
                         break;
                     default:
                         throw new Exception($"Config discovery mechanism '{config.DiscoveryMechanism}' is not supported.");
@@ -98,7 +97,7 @@ namespace IslandGateway.Sample.Config
             }
             catch (Exception ex)
             {
-                this.logger.LogError(ex, $"Failed to apply new configs: {ex.Message}");
+                _logger.LogError(ex, $"Failed to apply new configs: {ex.Message}");
             }
         }
 
@@ -109,30 +108,30 @@ namespace IslandGateway.Sample.Config
                 return;
             }
 
-            await this.backendsRepo.SetBackendsAsync(options.Backends, cancellation);
+            await _backendsRepo.SetBackendsAsync(options.Backends, cancellation);
             foreach (var kvp in options.Endpoints)
             {
-                await this.endpointsRepo.SetEndpointsAsync(kvp.Key, kvp.Value, cancellation);
+                await _endpointsRepo.SetEndpointsAsync(kvp.Key, kvp.Value, cancellation);
             }
 
-            await this.routesRepo.SetRoutesAsync(options.Routes, cancellation);
+            await _routesRepo.SetRoutesAsync(options.Routes, cancellation);
 
-            var errorReporter = new LoggerConfigErrorReporter(this.logger);
-            await this.gatewayManager.ApplyConfigurationsAsync(errorReporter, cancellation);
+            var errorReporter = new LoggerConfigErrorReporter(_logger);
+            await _gatewayManager.ApplyConfigurationsAsync(errorReporter, cancellation);
         }
 
         private class LoggerConfigErrorReporter : IConfigErrorReporter
         {
-            private readonly ILogger logger;
+            private readonly ILogger _logger;
 
             public LoggerConfigErrorReporter(ILogger logger)
             {
-                this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+                _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             }
 
             public void ReportError(string code, string itemId, string message)
             {
-                this.logger.LogWarning($"Config error: '{code}', '{itemId}', '{message}'.");
+                _logger.LogWarning($"Config error: '{code}', '{itemId}', '{message}'.");
             }
         }
     }

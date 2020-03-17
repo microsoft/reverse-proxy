@@ -1,6 +1,5 @@
-﻿// <copyright file="CacheTests.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using System;
 using System.Collections.Generic;
@@ -18,27 +17,27 @@ namespace IslandGateway.Common.Tests
 {
     public class CacheTests : TestAutoMockBase
     {
-        private VirtualMonotonicTimer timer;
+        private readonly VirtualMonotonicTimer _timer;
         public CacheTests()
         {
-            this.timer = new VirtualMonotonicTimer();
-            this.Provide<IMonotonicTimer>(this.timer);
+            _timer = new VirtualMonotonicTimer();
+            Provide<IMonotonicTimer>(_timer);
         }
 
         [Fact]
         public void Get_NotExpired_KeyIsPresent()
         {
             // Arrange
-            TimeSpan expirationTimeOffset = TimeSpan.FromMinutes(12);
-            string key = "some key";
-            string value = "some awesome value";
-            var cache = new Cache<string>(this.timer, expirationTimeOffset);
+            var expirationTimeOffset = TimeSpan.FromMinutes(12);
+            var key = "some key";
+            var value = "some awesome value";
+            var cache = new Cache<string>(_timer, expirationTimeOffset);
             cache.Set(key, value);
 
             // Act
-            var firstPresent = cache.TryGetValue(key, out string firstValueGot);
-            this.timer.AdvanceClockBy(expirationTimeOffset);
-            var secondPresent = cache.TryGetValue(key, out string secondValueGot);
+            var firstPresent = cache.TryGetValue(key, out var firstValueGot);
+            _timer.AdvanceClockBy(expirationTimeOffset);
+            var secondPresent = cache.TryGetValue(key, out var secondValueGot);
 
             // Assert
             firstValueGot.Should().Be(value);
@@ -51,17 +50,17 @@ namespace IslandGateway.Common.Tests
         public void Get_Expired_KeyIsNotPresent()
         {
             // Arrange
-            TimeSpan expirationTimeOffset = TimeSpan.FromMinutes(12);
-            string key = "some key";
-            string value = "some awesome value";
-            var cache = new Cache<string>(this.timer, expirationTimeOffset);
+            var expirationTimeOffset = TimeSpan.FromMinutes(12);
+            var key = "some key";
+            var value = "some awesome value";
+            var cache = new Cache<string>(_timer, expirationTimeOffset);
             cache.Set(key, value);
 
             // Act
-            var firstPresent = cache.TryGetValue(key, out string firstValueGot);
-            this.timer.AdvanceClockBy(expirationTimeOffset);
-            this.timer.AdvanceClockBy(expirationTimeOffset);
-            var secondPresent = cache.TryGetValue(key, out string secondValueGot);
+            var firstPresent = cache.TryGetValue(key, out var firstValueGot);
+            _timer.AdvanceClockBy(expirationTimeOffset);
+            _timer.AdvanceClockBy(expirationTimeOffset);
+            var secondPresent = cache.TryGetValue(key, out var secondValueGot);
 
             // Assert
             firstValueGot.Should().Be(value);

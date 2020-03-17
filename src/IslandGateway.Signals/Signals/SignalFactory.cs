@@ -1,6 +1,5 @@
-﻿// <copyright file="SignalFactory.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 namespace IslandGateway.Signals
 {
@@ -10,14 +9,14 @@ namespace IslandGateway.Signals
     /// </summary>
     public sealed class SignalFactory
     {
-        private readonly SignalContext context;
+        private readonly SignalContext _context;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SignalFactory"/> class.
         /// </summary>
         public SignalFactory()
         {
-            this.context = new SignalContext();
+            _context = new SignalContext();
         }
 
         /// <summary>
@@ -32,7 +31,7 @@ namespace IslandGateway.Signals
         /// </summary>
         public Signal<T> CreateSignal<T>()
         {
-            return new Signal<T>(this.context);
+            return new Signal<T>(_context);
         }
 
         /// <summary>
@@ -40,7 +39,7 @@ namespace IslandGateway.Signals
         /// </summary>
         public Signal<T> CreateSignal<T>(T value)
         {
-            return new Signal<T>(this.context, value);
+            return new Signal<T>(_context, value);
         }
 
         /// <summary>
@@ -52,7 +51,7 @@ namespace IslandGateway.Signals
         /// </remarks>
         public Signal<Unit> CreateUnitSignal()
         {
-            return new Signal<Unit>(this.context, Unit.Instance);
+            return new Signal<Unit>(_context, Unit.Instance);
         }
     }
 }

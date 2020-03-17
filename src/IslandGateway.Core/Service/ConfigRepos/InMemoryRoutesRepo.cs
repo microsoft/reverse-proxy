@@ -1,6 +1,5 @@
-﻿// <copyright file="InMemoryRoutesRepo.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using System.Collections.Generic;
 using System.Threading;
@@ -14,13 +13,13 @@ namespace IslandGateway.Core.Service
         /// <inheritdoc/>
         public Task<IList<GatewayRoute>> GetRoutesAsync(CancellationToken cancellation)
         {
-            return Task.FromResult(this.Get());
+            return Task.FromResult(Get());
         }
 
         /// <inheritdoc/>
         public Task SetRoutesAsync(IList<GatewayRoute> routes, CancellationToken cancellation)
         {
-            this.Set(routes);
+            Set(routes);
             return Task.CompletedTask;
         }
     }

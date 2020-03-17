@@ -1,6 +1,5 @@
-﻿// <copyright file="InMemoryEndpointsRepo.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using System;
 using System.Collections.Generic;
@@ -13,17 +12,17 @@ namespace IslandGateway.Core.Service
 {
     internal class InMemoryEndpointsRepo : IBackendEndpointsRepo
     {
-        private readonly object lockObject = new object();
-        private readonly Dictionary<string, IList<BackendEndpoint>> backendEndpoints = new Dictionary<string, IList<BackendEndpoint>>(StringComparer.Ordinal);
+        private readonly object _lockObject = new object();
+        private readonly Dictionary<string, IList<BackendEndpoint>> _backendEndpoints = new Dictionary<string, IList<BackendEndpoint>>(StringComparer.Ordinal);
 
         /// <inheritdoc/>
         public Task<IList<BackendEndpoint>> GetEndpointsAsync(string backendId, CancellationToken cancellation)
         {
             Contracts.CheckNonEmpty(backendId, nameof(backendId));
 
-            lock (this.lockObject)
+            lock (_lockObject)
             {
-                this.backendEndpoints.TryGetValue(backendId, out var results);
+                _backendEndpoints.TryGetValue(backendId, out var results);
                 return Task.FromResult(results?.DeepClone());
             }
         }
@@ -33,9 +32,9 @@ namespace IslandGateway.Core.Service
         {
             Contracts.CheckNonEmpty(backendId, nameof(backendId));
 
-            lock (this.lockObject)
+            lock (_lockObject)
             {
-                this.backendEndpoints[backendId] = endpoints?.DeepClone();
+                _backendEndpoints[backendId] = endpoints?.DeepClone();
             }
 
             return Task.CompletedTask;
@@ -46,9 +45,9 @@ namespace IslandGateway.Core.Service
         {
             Contracts.CheckNonEmpty(backendId, nameof(backendId));
 
-            lock (this.lockObject)
+            lock (_lockObject)
             {
-                this.backendEndpoints.Remove(backendId);
+                _backendEndpoints.Remove(backendId);
             }
 
             return Task.CompletedTask;

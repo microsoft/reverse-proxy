@@ -1,6 +1,5 @@
-﻿// <copyright file="ItemManagerBaseTests.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using System;
 using System.Linq;
@@ -283,7 +282,7 @@ namespace IslandGateway.Core.Service.Management.Tests
         {
             public Item(string itemId)
             {
-                this.ItemId = itemId;
+                ItemId = itemId;
             }
 
             public string ItemId { get; }

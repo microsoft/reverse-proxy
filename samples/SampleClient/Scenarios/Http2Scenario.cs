@@ -1,6 +1,5 @@
-﻿// <copyright file="Http2Scenario.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using System;
 using System.Diagnostics;
@@ -35,7 +34,7 @@ namespace SampleClient.Scenarios
                 Console.WriteLine($"Received response: {(int)response.StatusCode} in {stopwatch.ElapsedMilliseconds} ms");
                 response.EnsureSuccessStatusCode();
                 var body = await response.Content.ReadAsStringAsync();
-                JsonDocument json = JsonDocument.Parse(body);
+                var json = JsonDocument.Parse(body);
                 Console.WriteLine($"Received response:{Environment.NewLine}{JsonSerializer.Serialize(json.RootElement, new JsonSerializerOptions { WriteIndented = true })}");
 
                 response.EnsureSuccessStatusCode();

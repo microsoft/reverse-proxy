@@ -1,6 +1,5 @@
-﻿// <copyright file="BackendDynamicState.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using System.Collections.Generic;
 using IslandGateway.Utilities;
@@ -16,8 +15,8 @@ namespace IslandGateway.Core.RuntimeModel
             Contracts.CheckValue(allEndpoints, nameof(allEndpoints));
             Contracts.CheckValue(healthyEndpoints, nameof(healthyEndpoints));
 
-            this.AllEndpoints = allEndpoints;
-            this.HealthyEndpoints = healthyEndpoints;
+            AllEndpoints = allEndpoints;
+            HealthyEndpoints = healthyEndpoints;
         }
 
         public IReadOnlyList<EndpointInfo> AllEndpoints { get; }

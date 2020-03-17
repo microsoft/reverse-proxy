@@ -1,6 +1,5 @@
-﻿// <copyright file="GatewayDynamicEndpointDataSource.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using System;
 using System.Collections.Generic;
@@ -19,18 +18,18 @@ namespace IslandGateway.Core.Service
     /// </remarks>
     internal class GatewayDynamicEndpointDataSource : AspNetCore.Routing.EndpointDataSource, IGatewayDynamicEndpointDataSource
     {
-        private readonly object syncRoot = new object();
+        private readonly object _syncRoot = new object();
 
-        private List<AspNetCore.Http.Endpoint> endpoints;
-        private CancellationTokenSource cancellationTokenSource;
-        private IChangeToken changeToken;
+        private List<AspNetCore.Http.Endpoint> _endpoints;
+        private CancellationTokenSource _cancellationTokenSource;
+        private IChangeToken _changeToken;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GatewayDynamicEndpointDataSource"/> class.
         /// </summary>
         public GatewayDynamicEndpointDataSource()
         {
-            this.Update(new List<AspNetCore.Http.Endpoint>());
+            Update(new List<AspNetCore.Http.Endpoint>());
         }
 
         /// <inheritdoc/>
@@ -38,14 +37,14 @@ namespace IslandGateway.Core.Service
         {
             get
             {
-                return Volatile.Read(ref this.endpoints);
+                return Volatile.Read(ref _endpoints);
             }
         }
 
         /// <inheritdoc/>
         public override IChangeToken GetChangeToken()
         {
-            return Volatile.Read(ref this.changeToken);
+            return Volatile.Read(ref _changeToken);
         }
 
         /// <summary>
@@ -59,19 +58,19 @@ namespace IslandGateway.Core.Service
                 throw new ArgumentNullException(nameof(endpoints));
             }
 
-            lock (this.syncRoot)
+            lock (_syncRoot)
             {
                 // These steps are done in a specific order to ensure callers always see a consistent state.
 
                 // Step 1 - capture old token
-                var oldCancellationTokenSource = this.cancellationTokenSource;
+                var oldCancellationTokenSource = _cancellationTokenSource;
 
                 // Step 2 - update endpoints
-                Volatile.Write(ref this.endpoints, endpoints);
+                Volatile.Write(ref _endpoints, endpoints);
 
                 // Step 3 - create new change token
-                this.cancellationTokenSource = new CancellationTokenSource();
-                Volatile.Write(ref this.changeToken, new CancellationChangeToken(this.cancellationTokenSource.Token));
+                _cancellationTokenSource = new CancellationTokenSource();
+                Volatile.Write(ref _changeToken, new CancellationChangeToken(_cancellationTokenSource.Token));
 
                 // Step 4 - trigger old token
                 oldCancellationTokenSource?.Cancel();

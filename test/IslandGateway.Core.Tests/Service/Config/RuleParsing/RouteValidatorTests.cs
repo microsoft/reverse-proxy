@@ -1,6 +1,5 @@
-﻿// <copyright file="RouteValidatorTests.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using FluentAssertions;
 using IslandGateway.Core.Abstractions;
@@ -12,18 +11,18 @@ namespace IslandGateway.Core.Service.Tests
 {
     public class RouteValidatorTests : TestAutoMockBase
     {
-        private readonly RouteParser routeParser;
+        private readonly RouteParser _routeParser;
 
         public RouteValidatorTests()
         {
-            this.Provide<IRuleParser, RuleParser>();
-            this.routeParser = this.Create<RouteParser>();
+            Provide<IRuleParser, RuleParser>();
+            _routeParser = Create<RouteParser>();
         }
 
         [Fact]
         public void Constructor_Works()
         {
-            this.Create<RouteValidator>();
+            Create<RouteValidator>();
         }
 
         [Theory]
@@ -48,7 +47,7 @@ namespace IslandGateway.Core.Service.Tests
             };
 
             // Act
-            var result = this.RunScenario(route);
+            var result = RunScenario(route);
 
             // Assert
             result.IsSuccess.Should().BeTrue();
@@ -63,10 +62,10 @@ namespace IslandGateway.Core.Service.Tests
             // Arrange
             var errorReporter = new TestConfigErrorReporter();
             var parsedRoute = new ParsedRoute { RouteId = routeId };
-            var validator = this.Create<RouteValidator>();
+            var validator = Create<RouteValidator>();
 
             // Act
-            bool isSuccess = validator.ValidateRoute(parsedRoute, errorReporter);
+            var isSuccess = validator.ValidateRoute(parsedRoute, errorReporter);
 
             // Assert
             isSuccess.Should().BeFalse();
@@ -87,7 +86,7 @@ namespace IslandGateway.Core.Service.Tests
             };
 
             // Act
-            var result = this.RunScenario(route);
+            var result = RunScenario(route);
 
             // Assert
             result.IsSuccess.Should().BeFalse();
@@ -117,7 +116,7 @@ namespace IslandGateway.Core.Service.Tests
             };
 
             // Act
-            var result = this.RunScenario(route);
+            var result = RunScenario(route);
 
             // Assert
             result.IsSuccess.Should().BeFalse();
@@ -140,7 +139,7 @@ namespace IslandGateway.Core.Service.Tests
             };
 
             // Act
-            var result = this.RunScenario(route);
+            var result = RunScenario(route);
 
             // Assert
             result.IsSuccess.Should().BeFalse();
@@ -162,7 +161,7 @@ namespace IslandGateway.Core.Service.Tests
             };
 
             // Act
-            var result = this.RunScenario(route);
+            var result = RunScenario(route);
 
             // Assert
             result.IsSuccess.Should().BeFalse();
@@ -181,7 +180,7 @@ namespace IslandGateway.Core.Service.Tests
             };
 
             // Act
-            var result = this.RunScenario(route);
+            var result = RunScenario(route);
 
             // Assert
             result.IsSuccess.Should().BeFalse();
@@ -200,7 +199,7 @@ namespace IslandGateway.Core.Service.Tests
             };
 
             // Act
-            var result = this.RunScenario(route);
+            var result = RunScenario(route);
 
             // Assert
             result.IsSuccess.Should().BeFalse();
@@ -210,12 +209,12 @@ namespace IslandGateway.Core.Service.Tests
         private (bool IsSuccess, TestConfigErrorReporter ErrorReporter) RunScenario(GatewayRoute route)
         {
             var errorReporter = new TestConfigErrorReporter();
-            var parseResult = this.routeParser.ParseRoute(route, errorReporter);
+            var parseResult = _routeParser.ParseRoute(route, errorReporter);
             parseResult.IsSuccess.Should().BeTrue();
             var parsedRoute = parseResult.Value;
 
-            var validator = this.Create<RouteValidator>();
-            bool isSuccess = validator.ValidateRoute(parsedRoute, errorReporter);
+            var validator = Create<RouteValidator>();
+            var isSuccess = validator.ValidateRoute(parsedRoute, errorReporter);
             return (isSuccess, errorReporter);
         }
     }

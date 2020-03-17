@@ -1,6 +1,5 @@
-// <copyright file="WebSocketsController.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using System;
 using System.IO;
@@ -20,14 +19,14 @@ namespace SampleServer.Controllers
     [ApiController]
     public class WebSocketsController : ControllerBase
     {
-        private readonly ILogger<WebSocketsController> logger;
+        private readonly ILogger<WebSocketsController> _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WebSocketsController"/> class.
         /// </summary>
         public WebSocketsController(ILogger<WebSocketsController> logger)
         {
-            this.logger = logger;
+            _logger = logger;
         }
 
         /// <summary>
@@ -37,18 +36,18 @@ namespace SampleServer.Controllers
         [Route("/api/websockets")]
         public async Task WebSockets()
         {
-            if (!this.HttpContext.WebSockets.IsWebSocketRequest)
+            if (!HttpContext.WebSockets.IsWebSocketRequest)
             {
-                this.HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+                HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
             }
 
-            using (var webSocket = await this.HttpContext.WebSockets.AcceptWebSocketAsync())
+            using (var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync())
             {
-                this.logger.LogInformation("WebSockets established.");
-                await this.RunPingPongAsync(webSocket, this.HttpContext.RequestAborted);
+                _logger.LogInformation("WebSockets established.");
+                await RunPingPongAsync(webSocket, HttpContext.RequestAborted);
             }
 
-            this.logger.LogInformation("WebSockets finished.");
+            _logger.LogInformation("WebSockets finished.");
         }
 
         private async Task RunPingPongAsync(WebSocket webSocket, CancellationToken cancellation)

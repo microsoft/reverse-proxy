@@ -1,6 +1,5 @@
-﻿// <copyright file="RuleMatcherBase.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using System.Linq;
 using IslandGateway.Utilities;
@@ -13,8 +12,8 @@ namespace IslandGateway.Core.Service
         {
             Contracts.CheckNonEmpty(name, nameof(name));
             Contracts.CheckValue(args, nameof(args));
-            this.Name = name;
-            this.Args = args;
+            Name = name;
+            Args = args;
         }
 
         internal string Name { get; }
@@ -22,11 +21,11 @@ namespace IslandGateway.Core.Service
 
         public override string ToString()
         {
-            return $"{this.Name}({FormatArgs()})";
+            return $"{Name}({FormatArgs()})";
 
             string FormatArgs()
             {
-                return string.Join(", ", this.Args.Select(FormatArg));
+                return string.Join(", ", Args.Select(FormatArg));
 
                 static string FormatArg(string arg)
                 {

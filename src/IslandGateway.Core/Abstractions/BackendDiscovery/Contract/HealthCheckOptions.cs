@@ -1,6 +1,5 @@
-﻿// <copyright file="HealthCheckOptions.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using System;
 
@@ -41,11 +40,11 @@ namespace IslandGateway.Core.Abstractions
         {
             return new HealthCheckOptions
             {
-                Enabled = this.Enabled,
-                Interval = this.Interval,
-                Timeout = this.Timeout,
-                Port = this.Port,
-                Path = this.Path,
+                Enabled = Enabled,
+                Interval = Interval,
+                Timeout = Timeout,
+                Port = Port,
+                Path = Path,
             };
         }
     }

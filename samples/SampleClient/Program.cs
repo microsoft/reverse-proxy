@@ -1,6 +1,5 @@
-﻿// <copyright file="Program.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using System;
 using System.Collections.Generic;
@@ -42,7 +41,7 @@ namespace SampleClient
             if (string.IsNullOrEmpty(parsedArgs.Scenario))
             {
                 // Execute all scenarios
-                bool success = true;
+                var success = true;
                 foreach (var kvp in scenarioFactories.OrderBy(kvp => kvp.Key))
                 {
                     Console.WriteLine();

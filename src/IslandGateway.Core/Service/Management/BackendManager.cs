@@ -1,6 +1,5 @@
-﻿// <copyright file="BackendManager.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using IslandGateway.Core.RuntimeModel;
 using IslandGateway.Core.Service.Proxy.Infra;
@@ -10,23 +9,23 @@ namespace IslandGateway.Core.Service.Management
 {
     internal sealed class BackendManager : ItemManagerBase<BackendInfo>, IBackendManager
     {
-        private readonly IEndpointManagerFactory endpointManagerFactory;
-        private readonly IProxyHttpClientFactoryFactory httpClientFactoryFactory;
+        private readonly IEndpointManagerFactory _endpointManagerFactory;
+        private readonly IProxyHttpClientFactoryFactory _httpClientFactoryFactory;
 
         public BackendManager(IEndpointManagerFactory endpointManagerFactory, IProxyHttpClientFactoryFactory httpClientFactoryFactory)
         {
             Contracts.CheckValue(endpointManagerFactory, nameof(endpointManagerFactory));
             Contracts.CheckValue(httpClientFactoryFactory, nameof(httpClientFactoryFactory));
 
-            this.endpointManagerFactory = endpointManagerFactory;
-            this.httpClientFactoryFactory = httpClientFactoryFactory;
+            _endpointManagerFactory = endpointManagerFactory;
+            _httpClientFactoryFactory = httpClientFactoryFactory;
         }
 
         /// <inheritdoc/>
         protected override BackendInfo InstantiateItem(string itemId)
         {
-            var endpointManager = this.endpointManagerFactory.CreateEndpointManager();
-            var httpClientFactory = this.httpClientFactoryFactory.CreateFactory();
+            var endpointManager = _endpointManagerFactory.CreateEndpointManager();
+            var httpClientFactory = _httpClientFactoryFactory.CreateFactory();
             return new BackendInfo(itemId, endpointManager, httpClientFactory);
         }
     }

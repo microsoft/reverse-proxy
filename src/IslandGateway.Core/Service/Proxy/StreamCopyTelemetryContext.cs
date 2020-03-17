@@ -1,6 +1,5 @@
-﻿// <copyright file="StreamCopyTelemetryContext.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 namespace IslandGateway.Core.Service.Proxy
 {
@@ -13,10 +12,10 @@ namespace IslandGateway.Core.Service.Proxy
             string routeId,
             string endpointId)
         {
-            this.Direction = direction;
-            this.BackendId = backendId;
-            this.RouteId = routeId;
-            this.EndpointId = endpointId;
+            Direction = direction;
+            BackendId = backendId;
+            RouteId = routeId;
+            EndpointId = endpointId;
         }
 
         public string Direction { get; }

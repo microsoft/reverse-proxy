@@ -1,6 +1,5 @@
-// <copyright file="Cache.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using System;
 using System.Collections.Generic;
@@ -16,9 +15,9 @@ namespace IslandGateway.Common.Util
     // TODO: do we want this to be thread safe?
     public class Cache<T>
     {
-        private readonly TimeSpan expirationTimeOffset;
-        private readonly IMonotonicTimer timer;
-        private Dictionary<string, Expirable> cache = new Dictionary<string, Expirable>(StringComparer.Ordinal);
+        private readonly TimeSpan _expirationTimeOffset;
+        private readonly IMonotonicTimer _timer;
+        private readonly Dictionary<string, Expirable> _cache = new Dictionary<string, Expirable>(StringComparer.Ordinal);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Cache{T}"/> class.
@@ -27,8 +26,8 @@ namespace IslandGateway.Common.Util
         /// <param name="expirationTimeOffset">The time it takes for cache values to expire.</param>
         public Cache(IMonotonicTimer timer, TimeSpan expirationTimeOffset)
         {
-            this.timer = timer ?? throw new ArgumentNullException(nameof(timer));
-            this.expirationTimeOffset = expirationTimeOffset;
+            _timer = timer ?? throw new ArgumentNullException(nameof(timer));
+            _expirationTimeOffset = expirationTimeOffset;
         }
 
         /// <summary>
@@ -36,7 +35,7 @@ namespace IslandGateway.Common.Util
         /// </summary>
         public T Get(string key)
         {
-            bool present = this.TryGetValue(key, out T value);
+            var present = TryGetValue(key, out var value);
             if (!present)
             {
                 throw new KeyNotFoundException($"Key {key} is not present.");
@@ -49,14 +48,14 @@ namespace IslandGateway.Common.Util
         /// </summary>
         public bool TryGetValue(string key, out T value)
         {
-            bool present = this.cache.TryGetValue(key, out Expirable expirable);
-            if (!present || expirable.Expired(this.timer))
+            var present = _cache.TryGetValue(key, out var expirable);
+            if (!present || expirable.Expired(_timer))
             {
                 value = default;
                 if (present)
                 {
                     // Take the oportunity to update internal state
-                    this.cache.Remove(key);
+                    _cache.Remove(key);
                 }
                 return false;
             }
@@ -69,9 +68,9 @@ namespace IslandGateway.Common.Util
         /// </summary>
         public void Set(string key, T value)
         {
-            this.cache[key] = new Expirable(
+            _cache[key] = new Expirable(
                 value: value,
-                expirationTime: this.timer.CurrentTime.Add(this.expirationTimeOffset));
+                expirationTime: _timer.CurrentTime.Add(_expirationTimeOffset));
         }
 
         /// <summary>
@@ -79,14 +78,14 @@ namespace IslandGateway.Common.Util
         /// </summary>
         public void Cleanup()
         {
-            var toRemove = this.cache
-                .Where(pair => pair.Value.Expired(this.timer))
+            var toRemove = _cache
+                .Where(pair => pair.Value.Expired(_timer))
                 .Select(pair => pair.Key)
                 .ToList();
 
             foreach (var key in toRemove)
             {
-                this.cache.Remove(key);
+                _cache.Remove(key);
             }
         }
 
@@ -94,12 +93,12 @@ namespace IslandGateway.Common.Util
         {
             internal Expirable(T value, TimeSpan expirationTime)
             {
-                this.Value = value;
-                this.ExpirationTime = expirationTime;
+                Value = value;
+                ExpirationTime = expirationTime;
             }
             internal T Value { get; }
             internal TimeSpan ExpirationTime { get; }
-            internal bool Expired(IMonotonicTimer timer) => this.ExpirationTime < timer.CurrentTime;
+            internal bool Expired(IMonotonicTimer timer) => ExpirationTime < timer.CurrentTime;
         }
     }
 }

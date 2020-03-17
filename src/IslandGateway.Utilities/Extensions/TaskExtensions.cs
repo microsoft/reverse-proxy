@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // <copyright file="TaskExtensions.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
@@ -23,7 +23,7 @@ namespace IslandGateway.Utilities
         /// <param name="action">Action to be scheduled.</param>
         /// <param name="cancelationToken">Cancelation token to link the new task to. If canceled before being scheduled, the action will not be run.</param>
         /// <returns>New task created for the action.</returns>
-        public static Task Run(this TaskScheduler scheduler, Action action, CancellationToken cancelationToken = default(CancellationToken))
+        public static Task Run(this TaskScheduler scheduler, Action action, CancellationToken cancelationToken = default)
         {
             var taskFactory = new TaskFactory(CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskContinuationOptions.None, scheduler);
             return taskFactory.StartNew(action, cancellationToken: cancelationToken);
@@ -37,7 +37,7 @@ namespace IslandGateway.Utilities
         /// <param name="function">Function to be scheduled.</param>
         /// <param name="cancelationToken">Cancelation token to link the new task to. If canceled before being scheduled, the action will not be run.</param>
         /// <returns>New task created for the function. This task completes with the result of calling the function.</returns>
-        public static Task<T> Run<T>(this TaskScheduler scheduler, Func<T> function, CancellationToken cancelationToken = default(CancellationToken))
+        public static Task<T> Run<T>(this TaskScheduler scheduler, Func<T> function, CancellationToken cancelationToken = default)
         {
             var taskFactory = new TaskFactory(CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskContinuationOptions.None, scheduler);
             return taskFactory.StartNew(function, cancellationToken: cancelationToken);
@@ -50,7 +50,7 @@ namespace IslandGateway.Utilities
         /// <param name="function">Function to be scheduled.</param>
         /// <param name="cancelationToken">Cancelation token to link the new task to. If canceled before being scheduled, the action will not be run.</param>
         /// <returns>New task created for the function. This task completes with the result of the task returned by the function.</returns>
-        public static async Task Run(this TaskScheduler scheduler, Func<Task> function, CancellationToken cancelationToken = default(CancellationToken))
+        public static async Task Run(this TaskScheduler scheduler, Func<Task> function, CancellationToken cancelationToken = default)
         {
             var taskFactory = new TaskFactory(CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskContinuationOptions.None, scheduler);
             var innerTask = await taskFactory.StartNew(function, cancellationToken: cancelationToken);
@@ -65,7 +65,7 @@ namespace IslandGateway.Utilities
         /// <param name="function">Function to be scheduled.</param>
         /// <param name="cancelationToken">Cancelation token to link the new task to. If canceled before being scheduled, the action will not be run.</param>
         /// <returns>New task created for the function. This task completes with the result of the task returned by the function.</returns>
-        public static async Task<T> Run<T>(this TaskScheduler scheduler, Func<Task<T>> function, CancellationToken cancelationToken = default(CancellationToken))
+        public static async Task<T> Run<T>(this TaskScheduler scheduler, Func<Task<T>> function, CancellationToken cancelationToken = default)
         {
             var taskFactory = new TaskFactory(CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskContinuationOptions.None, scheduler);
             var innerTask = await taskFactory.StartNew(function, cancellationToken: cancelationToken);
@@ -86,20 +86,20 @@ namespace IslandGateway.Utilities
         /// </summary>
         public struct SwitchSchedulerAwaiter : INotifyCompletion
         {
-            private readonly TaskScheduler scheduler;
+            private readonly TaskScheduler _scheduler;
 
             /// <summary>
             /// Initializes a new instance of the <see cref="SwitchSchedulerAwaiter"/> struct.
             /// </summary>
             public SwitchSchedulerAwaiter(TaskScheduler scheduler)
             {
-                this.scheduler = scheduler;
+                _scheduler = scheduler;
             }
 
             /// <summary>
             /// Whether the switch is completed.
             /// </summary>
-            public bool IsCompleted => this.scheduler == TaskScheduler.Current;
+            public bool IsCompleted => _scheduler == TaskScheduler.Current;
 
             /// <summary>
             /// Part of custom awaiter pattern.
@@ -116,7 +116,7 @@ namespace IslandGateway.Utilities
             /// <inheritdoc/>
             public void OnCompleted(Action continuation)
             {
-                this.scheduler.Run(continuation);
+                _scheduler.Run(continuation);
             }
         }
     }

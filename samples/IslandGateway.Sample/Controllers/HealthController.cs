@@ -1,6 +1,5 @@
-// <copyright file="HealthController.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using IslandGateway.Utilities;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +13,7 @@ namespace IslandGateway.Sample.Controllers
     [ApiController]
     public class HealthController : ControllerBase
     {
-        private readonly ILogger<HealthController> logger;
+        private readonly ILogger<HealthController> _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HealthController"/> class.
@@ -22,7 +21,7 @@ namespace IslandGateway.Sample.Controllers
         public HealthController(ILogger<HealthController> logger)
         {
             Contracts.CheckValue(logger, nameof(logger));
-            this.logger = logger;
+            _logger = logger;
         }
 
         /// <summary>
@@ -33,7 +32,7 @@ namespace IslandGateway.Sample.Controllers
         public IActionResult CheckHealth()
         {
             // TODO: Implement health controller, use guid in route.
-            return this.Ok();
+            return Ok();
         }
     }
 }

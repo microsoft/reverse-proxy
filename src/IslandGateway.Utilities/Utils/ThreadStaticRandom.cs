@@ -1,6 +1,5 @@
-﻿// <copyright file="ThreadStaticRandom.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using System;
 
@@ -14,13 +13,13 @@ namespace IslandGateway.Utilities
         /// <summary>
         /// This is the shared instance of <see cref="RandomWrapper"/> that would be used to generate a seed value for the Thread static instance.
         /// </summary>
-        private static readonly Lazy<RandomWrapper> GlobalRandom = new Lazy<RandomWrapper>(() => new RandomWrapper(new Random()));
+        private static readonly Lazy<RandomWrapper> _globalRandom = new Lazy<RandomWrapper>(() => new RandomWrapper(new Random()));
 
         /// <summary>
         /// This instance of <see cref="RandomWrapper"/> is unique to each thread.
         /// </summary>
         [ThreadStatic]
-        private static RandomWrapper threadLocalRandom = null;
+        private static RandomWrapper _threadLocalRandom = null;
 
         /// <summary>
         /// Gets the a thread safe instance of <see cref="RandomWrapper"/>.
@@ -29,22 +28,22 @@ namespace IslandGateway.Utilities
         {
             get
             {
-                RandomWrapper currentInstance = threadLocalRandom;
+                var currentInstance = _threadLocalRandom;
 
                 // Check if for the current thread the seed has already been established. If not then lock on the global random instance to generate a seed value
                 if (currentInstance == null)
                 {
                     int seedForThreadLocalInstance;
 
-                    lock (GlobalRandom.Value)
+                    lock (_globalRandom.Value)
                     {
-                        seedForThreadLocalInstance = GlobalRandom.Value.Next();
+                        seedForThreadLocalInstance = _globalRandom.Value.Next();
                     }
 
                     // Initialize the current instance with the seed
                     var random = new Random(seedForThreadLocalInstance);
                     currentInstance = new RandomWrapper(random);
-                    threadLocalRandom = currentInstance;
+                    _threadLocalRandom = currentInstance;
                 }
 
                 return currentInstance;

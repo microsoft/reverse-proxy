@@ -1,6 +1,5 @@
-﻿// <copyright file="MethodMatcher.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using IslandGateway.Utilities;
 
@@ -14,6 +13,6 @@ namespace IslandGateway.Core.Service
             Contracts.Check(args.Length >= 1, $"Expected at least 1 argument, found {args.Length}.");
         }
 
-        public string[] Methods => this.Args;
+        public string[] Methods => Args;
     }
 }

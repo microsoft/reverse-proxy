@@ -1,6 +1,5 @@
-﻿// <copyright file="NullMetricCreator.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using System;
 using IslandGateway.Common.Abstractions.Telemetry;
@@ -52,7 +51,7 @@ namespace IslandGateway.Common.Telemetry
         /// <inheritdoc/>
         public Action<long, string[]> Create(string metricName, params string[] dimensionNames)
         {
-            int expectedDimensions = dimensionNames.Length;
+            var expectedDimensions = dimensionNames.Length;
             return (long value, string[] dimensions) =>
             {
                 if (dimensions == null || dimensions.Length != expectedDimensions)

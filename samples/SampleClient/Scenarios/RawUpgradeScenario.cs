@@ -1,6 +1,5 @@
-﻿// <copyright file="RawUpgradeScenario.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using System;
 using System.Diagnostics;
@@ -42,11 +41,11 @@ namespace SampleClient.Scenarios
                 Console.WriteLine("Acquired upgraded stream. Testing bidirectional echo...");
                 stopwatch.Restart();
                 var buffer = new byte[1];
-                for (int i = 0; i <= 255; i++)
+                for (var i = 0; i <= 255; i++)
                 {
                     buffer[0] = (byte)i;
                     await rawStream.WriteAsync(buffer, 0, 1);
-                    int read = await rawStream.ReadAsync(buffer);
+                    var read = await rawStream.ReadAsync(buffer);
                     if (i == 255)
                     {
                         if (read != 0)

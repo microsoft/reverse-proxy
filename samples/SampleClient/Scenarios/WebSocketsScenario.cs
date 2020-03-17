@@ -1,6 +1,5 @@
-﻿// <copyright file="WebSocketsScenario.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using System;
 using System.Diagnostics;
@@ -18,7 +17,7 @@ namespace SampleClient.Scenarios
             var client = new ClientWebSocket();
             client.Options.AddSubProtocol("chat");
 
-            string webSocketsTarget = args.Target.Replace("https://", "wss://").Replace("http://", "ws://");
+            var webSocketsTarget = args.Target.Replace("https://", "wss://").Replace("http://", "ws://");
             var targetUri = new Uri(new Uri(webSocketsTarget, UriKind.Absolute), "api/websockets");
             Console.WriteLine($"Establishing WebSockets channel with {targetUri}...");
 
@@ -29,10 +28,10 @@ namespace SampleClient.Scenarios
             Console.WriteLine("Sending text messages...");
             var buffer = new byte[1024];
             stopwatch.Restart();
-            for (int i = 0; i < 256; i++)
+            for (var i = 0; i < 256; i++)
             {
-                string textToSend = $"Hello {i}";
-                int numBytes = Encoding.UTF8.GetBytes(textToSend, buffer.AsSpan());
+                var textToSend = $"Hello {i}";
+                var numBytes = Encoding.UTF8.GetBytes(textToSend, buffer.AsSpan());
                 await client.SendAsync(new ArraySegment<byte>(buffer, 0, numBytes), WebSocketMessageType.Text, endOfMessage: true, cancellation);
 
                 var message = await client.ReceiveAsync(buffer, cancellation);
@@ -44,7 +43,7 @@ namespace SampleClient.Scenarios
                 {
                     throw new Exception($"Expected to receive EndOfMessage = true.");
                 }
-                string text = Encoding.UTF8.GetString(buffer.AsSpan(0, message.Count));
+                var text = Encoding.UTF8.GetString(buffer.AsSpan(0, message.Count));
                 if (text != textToSend)
                 {
                     throw new Exception($"Expected to receive '{textToSend}', but got '{text}'.");
@@ -56,10 +55,10 @@ namespace SampleClient.Scenarios
 
             Console.WriteLine("Sending binary messages...");
             stopwatch.Restart();
-            for (int i = 0; i < 256; i++)
+            for (var i = 0; i < 256; i++)
             {
-                string textToSend = $"Hello {i}";
-                int numBytes = Encoding.UTF8.GetBytes(textToSend, buffer.AsSpan());
+                var textToSend = $"Hello {i}";
+                var numBytes = Encoding.UTF8.GetBytes(textToSend, buffer.AsSpan());
                 await client.SendAsync(new ArraySegment<byte>(buffer, 0, numBytes), WebSocketMessageType.Binary, endOfMessage: true, cancellation);
 
                 var message = await client.ReceiveAsync(buffer, cancellation);
@@ -71,7 +70,7 @@ namespace SampleClient.Scenarios
                 {
                     throw new Exception($"Expected to receive EndOfMessage = true.");
                 }
-                string text = Encoding.UTF8.GetString(buffer.AsSpan(0, message.Count));
+                var text = Encoding.UTF8.GetString(buffer.AsSpan(0, message.Count));
                 if (text != textToSend)
                 {
                     throw new Exception($"Expected to receive '{textToSend}', but got '{text}'.");

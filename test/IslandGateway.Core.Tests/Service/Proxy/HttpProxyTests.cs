@@ -1,6 +1,5 @@
-﻿// <copyright file="HttpProxyTests.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using System;
 using System.IO;
@@ -25,13 +24,13 @@ namespace IslandGateway.Core.Service.Proxy.Tests
     {
         public HttpProxyTests()
         {
-            this.Provide<IMetricCreator, TestMetricCreator>();
+            Provide<IMetricCreator, TestMetricCreator>();
         }
 
         [Fact]
         public void Constructor_Works()
         {
-            this.Create<HttpProxy>();
+            Create<HttpProxy>();
         }
 
         // Tests normal (as opposed to upgradable) request proxying.
@@ -54,7 +53,7 @@ namespace IslandGateway.Core.Service.Proxy.Tests
             httpContext.Response.Body = gatewayResponseStream;
 
             var targetUri = new Uri("https://localhost:123/a/b/api/test");
-            var sut = this.Create<HttpProxy>();
+            var sut = Create<HttpProxy>();
             var client = MockHttpHandler.CreateClient(
                 async (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
@@ -73,7 +72,7 @@ namespace IslandGateway.Core.Service.Proxy.Tests
                     // Use CopyToAsync as this is what HttpClient and friends use internally
                     await request.Content.CopyToAsync(capturedRequestContent);
                     capturedRequestContent.Position = 0;
-                    string capturedContentText = StreamToString(capturedRequestContent);
+                    var capturedContentText = StreamToString(capturedRequestContent);
                     capturedContentText.Should().Be("request content");
 
                     var response = new HttpResponseMessage((HttpStatusCode)234);
@@ -96,13 +95,13 @@ namespace IslandGateway.Core.Service.Proxy.Tests
 
             // Assert
             httpContext.Response.StatusCode.Should().Be(234);
-            string reasonPhrase = httpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase;
+            var reasonPhrase = httpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase;
             reasonPhrase.Should().Be("Test Reason Phrase");
             httpContext.Response.Headers["x-ms-response-test"].Should().BeEquivalentTo("response");
             httpContext.Response.Headers["Content-Language"].Should().BeEquivalentTo("responseLanguage");
 
             gatewayResponseStream.Position = 0;
-            string gatewayResponseText = StreamToString(gatewayResponseStream);
+            var gatewayResponseText = StreamToString(gatewayResponseStream);
             gatewayResponseText.Should().Be("response content");
         }
 
@@ -131,7 +130,7 @@ namespace IslandGateway.Core.Service.Proxy.Tests
             httpContext.Features.Set(upgradeFeatureMock.Object);
 
             var targetUri = new Uri("https://localhost:123/a/b/api/test?a=b&c=d");
-            var sut = this.Create<HttpProxy>();
+            var sut = Create<HttpProxy>();
             var client = MockHttpHandler.CreateClient(
                 async (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
@@ -168,12 +167,12 @@ namespace IslandGateway.Core.Service.Proxy.Tests
             httpContext.Response.Headers["x-ms-response-test"].Should().BeEquivalentTo("response");
 
             downstreamStream.WriteStream.Position = 0;
-            string returnedToDownstream = StreamToString(downstreamStream.WriteStream);
+            var returnedToDownstream = StreamToString(downstreamStream.WriteStream);
             returnedToDownstream.Should().Be("response content");
 
             upstreamStream.Should().NotBeNull();
             upstreamStream.WriteStream.Position = 0;
-            string sentToUpstream = StreamToString(upstreamStream.WriteStream);
+            var sentToUpstream = StreamToString(upstreamStream.WriteStream);
             sentToUpstream.Should().Be("request content");
         }
 
@@ -200,7 +199,7 @@ namespace IslandGateway.Core.Service.Proxy.Tests
             httpContext.Features.Set(upgradeFeatureMock.Object);
 
             var targetUri = new Uri("https://localhost:123/a/b/api/test?a=b&c=d");
-            var sut = this.Create<HttpProxy>();
+            var sut = Create<HttpProxy>();
             var client = MockHttpHandler.CreateClient(
                 async (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
@@ -233,13 +232,13 @@ namespace IslandGateway.Core.Service.Proxy.Tests
 
             // Assert
             httpContext.Response.StatusCode.Should().Be(234);
-            string reasonPhrase = httpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase;
+            var reasonPhrase = httpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase;
             reasonPhrase.Should().Be("Test Reason Phrase");
             httpContext.Response.Headers["x-ms-response-test"].Should().BeEquivalentTo("response");
             httpContext.Response.Headers["Content-Language"].Should().BeEquivalentTo("responseLanguage");
 
             gatewayResponseStream.Position = 0;
-            string gatewayResponseText = StreamToString(gatewayResponseStream);
+            var gatewayResponseText = StreamToString(gatewayResponseStream);
             gatewayResponseText.Should().Be("response content");
         }
 
@@ -279,7 +278,7 @@ namespace IslandGateway.Core.Service.Proxy.Tests
 
             protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
             {
-                return this.func(request, cancellationToken);
+                return func(request, cancellationToken);
             }
         }
 
@@ -290,8 +289,8 @@ namespace IslandGateway.Core.Service.Proxy.Tests
                 Contracts.CheckValue(readStream, nameof(readStream));
                 Contracts.CheckValue(writeStream, nameof(writeStream));
 
-                this.ReadStream = readStream;
-                this.WriteStream = writeStream;
+                ReadStream = readStream;
+                WriteStream = writeStream;
             }
 
             public MemoryStream ReadStream { get; }
@@ -310,12 +309,12 @@ namespace IslandGateway.Core.Service.Proxy.Tests
 
             public override int Read(byte[] buffer, int offset, int count)
             {
-                return this.ReadStream.Read(buffer, offset, count);
+                return ReadStream.Read(buffer, offset, count);
             }
 
             public override void Write(byte[] buffer, int offset, int count)
             {
-                this.WriteStream.Write(buffer, offset, count);
+                WriteStream.Write(buffer, offset, count);
             }
 
             public override void Flush()
@@ -350,7 +349,7 @@ namespace IslandGateway.Core.Service.Proxy.Tests
 
             protected override Task<Stream> CreateContentReadStreamAsync()
             {
-                return Task.FromResult(this.stream);
+                return Task.FromResult(stream);
             }
 
             protected override Task SerializeToStreamAsync(Stream stream, TransportContext context)

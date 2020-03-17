@@ -1,6 +1,5 @@
-// <copyright file="Startup.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using IslandGateway.Core;
 using IslandGateway.Core.Configuration.DependencyInjection;
@@ -16,14 +15,14 @@ namespace IslandGateway.Sample
     /// </summary>
     public class Startup
     {
-        private readonly IConfiguration configuration;
+        private readonly IConfiguration _configuration;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Startup"/> class.
         /// </summary>
         public Startup(IConfiguration configuration)
         {
-            this.configuration = configuration;
+            _configuration = configuration;
         }
 
         /// <summary>
@@ -36,7 +35,7 @@ namespace IslandGateway.Sample
 
             // The following 2 lines are all that we need to react to config changes on the fly.
             // You can then change appsettings.json on disk and we will apply the new configs without a restart.
-            services.Configure<GatewayConfigRoot>(this.configuration.GetSection("Gateway"));
+            services.Configure<GatewayConfigRoot>(_configuration.GetSection("Gateway"));
             services.AddHostedService<GatewayConfigApplier>();
         }
 

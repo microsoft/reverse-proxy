@@ -1,6 +1,5 @@
-﻿// <copyright file="TestConfigError.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 namespace Tests.Common
 {
@@ -28,7 +27,7 @@ namespace Tests.Common
         /// <inheritdoc/>
         public override string ToString()
         {
-            return $"Config error. ErrorCode='{this.ErrorCode}', ElementId='{this.ElementId}', Message='{this.Message}'.";
+            return $"Config error. ErrorCode='{ErrorCode}', ElementId='{ElementId}', Message='{Message}'.";
         }
     }
 }

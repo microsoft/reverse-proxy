@@ -1,6 +1,5 @@
-﻿// <copyright file="ValueStopwatch.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using System;
 using System.Diagnostics;
@@ -15,13 +14,13 @@ namespace IslandGateway.Common.Util
     /// </remarks>
     public struct ValueStopwatch
     {
-        private static readonly double TimestampToTicks = TimeSpan.TicksPerSecond / (double)Stopwatch.Frequency;
+        private static readonly double _timestampToTicks = TimeSpan.TicksPerSecond / (double)Stopwatch.Frequency;
 
-        private long startTimestamp;
+        private readonly long _startTimestamp;
 
         private ValueStopwatch(long startTimestamp)
         {
-            this.startTimestamp = startTimestamp;
+            _startTimestamp = startTimestamp;
         }
 
         /// <summary>
@@ -33,14 +32,14 @@ namespace IslandGateway.Common.Util
             {
                 // Start timestamp can't be zero in an initialized ValueStopwatch. It would have to be literally the first thing executed when the machine boots to be 0.
                 // So it being 0 is a clear indication of default(ValueStopwatch)
-                if (this.startTimestamp == 0)
+                if (_startTimestamp == 0)
                 {
                     throw new InvalidOperationException("An uninitialized, or 'default', ValueStopwatch cannot be used to get elapsed time.");
                 }
 
                 var end = Stopwatch.GetTimestamp();
-                var timestampDelta = end - this.startTimestamp;
-                var ticks = (long)(TimestampToTicks * timestampDelta);
+                var timestampDelta = end - _startTimestamp;
+                var ticks = (long)(_timestampToTicks * timestampDelta);
                 return new TimeSpan(ticks);
             }
         }

@@ -1,6 +1,5 @@
-﻿// <copyright file="RuleParser.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using System.Collections.Generic;
 using IslandGateway.Core.Abstractions;
@@ -13,10 +12,6 @@ using Superpower.Tokenizers;
 
 namespace IslandGateway.Core.Service
 {
-#pragma warning disable SA1200 // Using directives should be placed correctly
-    using RuleParseResult = Result<IList<RuleMatcherBase>, string>;
-#pragma warning restore SA1200 // Using directives should be placed correctly
-
     /// <summary>
     /// Interface for a class that parses Core Gateway rules
     /// such as <c>HostName('abc.example.com') &amp;&amp; PathPrefix('/a/b')</c>
@@ -50,7 +45,7 @@ namespace IslandGateway.Core.Service
             LogicalOr,
         }
 
-        public RuleParseResult Parse(string rule)
+        public Result<IList<RuleMatcherBase>, string> Parse(string rule)
         {
             Contracts.CheckValue(rule, nameof(rule));
 
@@ -62,7 +57,7 @@ namespace IslandGateway.Core.Service
             }
             catch (ParseException ex)
             {
-                return RuleParseResult.Failure($"Parse error: {ex.Message}");
+                return Result<IList<RuleMatcherBase>, string>.Failure($"Parse error: {ex.Message}");
             }
 
             var results = new List<RuleMatcherBase>(parsedNodes.Length);
@@ -74,34 +69,34 @@ namespace IslandGateway.Core.Service
                     case "HOST":
                         if (node.Arguments.Length != 1)
                         {
-                            return RuleParseResult.Failure($"'Host' matcher requires one argument, found {node.Arguments.Length}");
+                            return Result<IList<RuleMatcherBase>, string>.Failure($"'Host' matcher requires one argument, found {node.Arguments.Length}");
                         }
                         matcher = new HostMatcher("Host", node.Arguments);
                         break;
                     case "PATH":
                         if (node.Arguments.Length != 1)
                         {
-                            return RuleParseResult.Failure($"'Path' matcher requires one argument, found {node.Arguments.Length}");
+                            return Result<IList<RuleMatcherBase>, string>.Failure($"'Path' matcher requires one argument, found {node.Arguments.Length}");
                         }
                         matcher = new PathMatcher("Path", node.Arguments);
                         break;
                     case "METHOD":
                         if (node.Arguments.Length < 1)
                         {
-                            return RuleParseResult.Failure($"'Method' matcher requires at least one argument, found {node.Arguments.Length}");
+                            return Result<IList<RuleMatcherBase>, string>.Failure($"'Method' matcher requires at least one argument, found {node.Arguments.Length}");
                         }
                         matcher = new MethodMatcher("Method", node.Arguments);
                         break;
                     case "QUERY":
                     case "HEADER":
                     default:
-                        return RuleParseResult.Failure($"Unsupported matcher '{node.MatcherName}'");
+                        return Result<IList<RuleMatcherBase>, string>.Failure($"Unsupported matcher '{node.MatcherName}'");
                 }
 
                 results.Add(matcher);
             }
 
-            return RuleParseResult.Success(results);
+            return Result<IList<RuleMatcherBase>, string>.Success(results);
         }
 
         internal static class Lexer

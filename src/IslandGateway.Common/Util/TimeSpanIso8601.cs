@@ -1,6 +1,5 @@
-// <copyright file="TimeSpanIso8601.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using System;
 using System.ComponentModel;
@@ -25,7 +24,7 @@ namespace IslandGateway.Common.Util
         /// </summary>
         public TimeSpanIso8601(string iso8601Duration)
         {
-            this.Value = XmlConvert.ToTimeSpan(iso8601Duration);
+            Value = XmlConvert.ToTimeSpan(iso8601Duration);
         }
 
         /// <summary>

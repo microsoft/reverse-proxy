@@ -1,6 +1,5 @@
-// <copyright file="UpgradeController.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using System;
 using System.IO;
@@ -18,14 +17,14 @@ namespace SampleServer.Controllers
     [ApiController]
     public class UpgradeController : ControllerBase
     {
-        private readonly ILogger<UpgradeController> logger;
+        private readonly ILogger<UpgradeController> _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UpgradeController"/> class.
         /// </summary>
         public UpgradeController(ILogger<UpgradeController> logger)
         {
-            this.logger = logger;
+            _logger = logger;
         }
 
         /// <summary>
@@ -36,19 +35,19 @@ namespace SampleServer.Controllers
         [Route("/api/rawupgrade")]
         public async Task RawUpgrade()
         {
-            var upgradeFeature = this.HttpContext.Features.Get<IHttpUpgradeFeature>();
+            var upgradeFeature = HttpContext.Features.Get<IHttpUpgradeFeature>();
             if (upgradeFeature != null && upgradeFeature.IsUpgradableRequest)
             {
                 using (var stream = await upgradeFeature.UpgradeAsync())
                 {
-                    this.logger.LogInformation("Upgraded connection.");
-                    await this.RunPingPongAsync(stream);
-                    this.logger.LogInformation("Finished.");
+                    _logger.LogInformation("Upgraded connection.");
+                    await RunPingPongAsync(stream);
+                    _logger.LogInformation("Finished.");
                 }
             }
             else
             {
-                this.HttpContext.Response.StatusCode = StatusCodes.Status426UpgradeRequired;
+                HttpContext.Response.StatusCode = StatusCodes.Status426UpgradeRequired;
             }
         }
 
@@ -60,7 +59,7 @@ namespace SampleServer.Controllers
         {
             var buffer = new byte[1];
             int read;
-            while ((read = await stream.ReadAsync(buffer, this.HttpContext.RequestAborted)) != 0)
+            while ((read = await stream.ReadAsync(buffer, HttpContext.RequestAborted)) != 0)
             {
                 if (buffer[0] == 255)
                 {
