@@ -52,6 +52,8 @@ A Backend is a collection of one or more BackendEndpoints and a set of policies 
 
 Config reloading is not yet a blocking requirement but we do expect to need it in the future. This design needs to factor in how reloading might work when it does get added.
 
+** NOTE ** The proxy/gateway code has a concept of Signals that is used to convey config change. We need to see how this integrates with change notifications from our config sources and flows through the system.
+
 The Extensions config and options systems have support for change detection and reloading but very few components take advantage of it. Logging is the primary consumer today.
 
 One concern is that some change notification sources like files can trigger multiple times for a single event. The config system does not have built in handling for this, it's up to consumers to 'debounce' and filter out redundant notifications.
