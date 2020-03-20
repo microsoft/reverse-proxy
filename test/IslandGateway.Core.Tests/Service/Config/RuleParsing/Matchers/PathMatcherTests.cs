@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -16,22 +16,10 @@ namespace IslandGateway.Core.Service.Tests
             const string TestPattern = "/a";
 
             // Act
-            var matcher = new PathMatcher("Path", new[] { TestPattern });
+            var matcher = new PathMatcher(TestPattern);
 
             // Assert
             matcher.Pattern.Should().Be(TestPattern);
-        }
-
-        [Fact]
-        public void Constructor_InvalidArgCount_Throws()
-        {
-            // Arrange
-            Action action1 = () => new PathMatcher("Path", new string[0]);
-            Action action2 = () => new PathMatcher("Path", new[] { "a", "b" });
-
-            // Act & Assert
-            action1.Should().ThrowExactly<ArgumentException>();
-            action2.Should().ThrowExactly<ArgumentException>();
         }
 
         [Theory]
@@ -40,7 +28,7 @@ namespace IslandGateway.Core.Service.Tests
         public void Constructor_EmptyHostName_Throws(string hostName)
         {
             // Arrange
-            Action action = () => new PathMatcher("Path", new[] { hostName });
+            Action action = () => new PathMatcher(hostName);
 
             // Act & Assert
             action.Should().ThrowExactly<ArgumentNullException>();

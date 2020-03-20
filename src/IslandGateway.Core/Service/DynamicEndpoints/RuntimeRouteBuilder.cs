@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
@@ -39,7 +39,7 @@ namespace IslandGateway.Core.Service
             var aspNetCoreEndpoints = new List<AspNetCore.Http.Endpoint>(1);
             var newRouteConfig = new RouteConfig(
                 route: runtimeRoute,
-                rule: source.Rule,
+                matchers: source.Matchers,
                 priority: source.Priority,
                 backendOrNull: backendOrNull,
                 aspNetCoreEndpoints: aspNetCoreEndpoints.AsReadOnly());

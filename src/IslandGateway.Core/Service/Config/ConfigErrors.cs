@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 namespace IslandGateway.Core.Service
@@ -14,7 +14,6 @@ namespace IslandGateway.Core.Service
         internal const string RouteUnknownBackend = "Route_UnknownBackend";
         internal const string RouteNoBackends = "Route_NoBackends";
         internal const string RouteUnsupportedAction = "Route_UnsupportedAction";
-        internal const string RouteBadRule = "Route_BadRule";
 
         internal const string ParsedRouteMissingId = "ParsedRoute_MissingId";
         internal const string ParsedRouteRuleHasNoMatchers = "ParsedRoute_RuleHasNoMatchers";

@@ -1,6 +1,7 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using IslandGateway.Core.Abstractions;
 using IslandGateway.Core.ConfigModel;
 using IslandGateway.Utilities;
@@ -9,34 +10,29 @@ namespace IslandGateway.Core.Service
 {
     internal class RouteParser : IRouteParser
     {
-        private readonly IRuleParser _ruleParser;
-
-        public RouteParser(IRuleParser ruleParser)
-        {
-            Contracts.CheckValue(ruleParser, nameof(ruleParser));
-            _ruleParser = ruleParser;
-        }
-
         public Result<ParsedRoute> ParseRoute(GatewayRoute route, IConfigErrorReporter errorReporter)
         {
-            if (route.Rule == null)
+            var results = new List<RuleMatcherBase>(3);
+
+            if (route.Methods?.Length > 0)
             {
-                errorReporter.ReportError(ConfigErrors.RouteBadRule, route.RouteId, $"Route '{route.RouteId}' did not specify a rule");
-                return Result.Failure<ParsedRoute>();
+                results.Add(new MethodMatcher(route.Methods));
             }
 
-            var parsedRule = _ruleParser.Parse(route.Rule);
-            if (!parsedRule.IsSuccess)
+            if (!string.IsNullOrEmpty(route.Host))
             {
-                errorReporter.ReportError(ConfigErrors.RouteBadRule, route.RouteId, $"Route '{route.RouteId}' has an invalid rule: {parsedRule.Error} (rule: {route.Rule}");
-                return Result.Failure<ParsedRoute>();
+                results.Add(new HostMatcher(route.Host));
+            }
+
+            if (!string.IsNullOrEmpty(route.Path))
+            {
+                results.Add(new PathMatcher(route.Path));
             }
 
             var parsedRoute = new ParsedRoute
             {
                 RouteId = route.RouteId,
-                Rule = route.Rule,
-                Matchers = parsedRule.Value,
+                Matchers = results,
                 Priority = route.Priority,
                 BackendId = route.BackendId,
                 Metadata = route.Metadata,

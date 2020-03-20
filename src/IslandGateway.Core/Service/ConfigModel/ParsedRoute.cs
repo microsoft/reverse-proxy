@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
@@ -12,11 +12,6 @@ namespace IslandGateway.Core.ConfigModel
         /// Unique identifier of this route.
         /// </summary>
         public string RouteId { get; set; }
-
-        /// <summary>
-        ///  Gets or sets the original rule expression for this route.
-        /// </summary>
-        public string Rule { get; set; }
 
         /// <summary>
         /// Gets or sets the parsed matchers for this route. This is computed

@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using IslandGateway.Common.Abstractions.Telemetry;
@@ -43,7 +43,6 @@ namespace IslandGateway.Core.Configuration.DependencyInjection
         public static IIslandGatewayBuilder AddConfigBuilder(this IIslandGatewayBuilder builder)
         {
             builder.Services.AddSingleton<IDynamicConfigBuilder, DynamicConfigBuilder>();
-            builder.Services.AddSingleton<IRuleParser, RuleParser>();
             builder.Services.AddSingleton<IRouteParser, RouteParser>();
             builder.Services.AddSingleton<IRouteValidator, RouteValidator>();
             builder.Services.AddSingleton<IRuntimeRouteBuilder, RuntimeRouteBuilder>();

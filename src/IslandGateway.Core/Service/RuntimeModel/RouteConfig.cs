@@ -1,8 +1,11 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using IslandGateway.Core.ConfigModel;
+using IslandGateway.Core.Service;
 using IslandGateway.Utilities;
+using Microsoft.Extensions.FileSystemGlobbing;
 using AspNetCore = Microsoft.AspNetCore;
 
 namespace IslandGateway.Core.RuntimeModel
@@ -21,7 +24,7 @@ namespace IslandGateway.Core.RuntimeModel
     {
         public RouteConfig(
             RouteInfo route,
-            string rule,
+            IList<RuleMatcherBase> matchers,
             int? priority,
             BackendInfo backendOrNull,
             IReadOnlyList<AspNetCore.Http.Endpoint> aspNetCoreEndpoints)
@@ -30,7 +33,7 @@ namespace IslandGateway.Core.RuntimeModel
             Contracts.CheckValue(aspNetCoreEndpoints, nameof(aspNetCoreEndpoints));
 
             Route = route;
-            Rule = rule;
+            Matchers = matchers;
             Priority = priority;
             BackendOrNull = backendOrNull;
             AspNetCoreEndpoints = aspNetCoreEndpoints;
@@ -38,12 +41,33 @@ namespace IslandGateway.Core.RuntimeModel
 
         public RouteInfo Route { get; }
 
-        public string Rule { get; }
+        public IList<RuleMatcherBase> Matchers { get; }
 
         public int? Priority { get; }
 
         public BackendInfo BackendOrNull { get; }
 
         public IReadOnlyList<AspNetCore.Http.Endpoint> AspNetCoreEndpoints { get; }
+
+        public bool HasConfigChanged(ParsedRoute newConfig, BackendInfo backendOrNull)
+        {
+            if (Matchers.Count != newConfig.Matchers.Count
+                || Priority != newConfig.Priority
+                || BackendOrNull != backendOrNull)
+            {
+                return true;
+            }
+
+            // The list is assumed to be stable, we can just walk through them in order.
+            for (var i = 0; i < Matchers.Count; i++)
+            {
+                if (!Matchers[i].Equals(newConfig.Matchers[i]))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 }

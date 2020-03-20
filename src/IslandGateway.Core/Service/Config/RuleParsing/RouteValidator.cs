@@ -14,6 +14,7 @@ namespace IslandGateway.Core.Service
 {
     internal class RouteValidator : IRouteValidator
     {
+        // TODO: IDN support. How strictly do we need to validate this anyways? This is app config, not external input.
         /// <summary>
         /// Regex explanation:
         /// Either:
@@ -60,21 +61,10 @@ namespace IslandGateway.Core.Service
                 success = false;
             }
 
+            // TODO: Why is Host required? I'd only expect Host OR Path to be required, with Path being the more common usage.
             if (route.Matchers != null && !route.Matchers.Any(m => m is HostMatcher))
             {
                 errorReporter.ReportError(ConfigErrors.ParsedRouteRuleMissingHostMatcher, route.RouteId, $"Route '{route.RouteId}' rule is missing required matcher 'Host()'.");
-                success = false;
-            }
-
-            if (route.Matchers != null && route.Matchers.Count(m => m is HostMatcher) > 1)
-            {
-                errorReporter.ReportError(ConfigErrors.ParsedRouteRuleMultipleHostMatchers, route.RouteId, $"Route '{route.RouteId}' rule has more than one 'Host()' matcher.");
-                success = false;
-            }
-
-            if (route.Matchers != null && route.Matchers.Count(m => m is PathMatcher) > 1)
-            {
-                errorReporter.ReportError(ConfigErrors.ParsedRouteRuleMultiplePathMatchers, route.RouteId, $"Route '{route.RouteId}' rule has more than one 'Path()' matchers.");
                 success = false;
             }
 

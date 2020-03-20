@@ -1,19 +1,35 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using IslandGateway.Utilities;
 
 namespace IslandGateway.Core.Service
 {
     internal sealed class PathMatcher : RuleMatcherBase
     {
-        public PathMatcher(string name, string[] args)
-            : base(name, args)
+        public PathMatcher(string arg)
+            : base("Path")
         {
-            Contracts.Check(args.Length == 1, $"Expected 1 argument, found {args.Length}.");
-            Contracts.CheckNonEmpty(args[0], $"{nameof(args)}[0]");
+            Contracts.CheckNonEmpty(arg, $"{nameof(arg)}");
+            Pattern = arg;
         }
 
-        public string Pattern => Args[0];
+        public string Pattern { get; }
+
+        public override string ToString()
+        {
+            return $"{Name}({Pattern})";
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is PathMatcher other && string.Equals(Pattern, other.Pattern, StringComparison.Ordinal);
+        }
+
+        public override int GetHashCode()
+        {
+            return Pattern.GetHashCode();
+        }
     }
 }

@@ -62,7 +62,7 @@ namespace IslandGateway.Core.Service.Proxy.Tests
             var aspNetCoreEndpoints = new List<Endpoint>();
             var routeConfig = new RouteConfig(
                 route: new RouteInfo("route1"),
-                rule: "Host('example.com') && Path('/')",
+                matchers: new RuleMatcherBase[] { new HostMatcher("example.com"), new PathMatcher("/") },
                 priority: null,
                 backendOrNull: backend1,
                 aspNetCoreEndpoints: aspNetCoreEndpoints.AsReadOnly());

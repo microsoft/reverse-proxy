@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -16,7 +16,7 @@ namespace IslandGateway.Core.Service.Tests
             var methods = new[] { "GET" };
 
             // Act
-            var matcher = new MethodMatcher("Method", methods);
+            var matcher = new MethodMatcher(methods);
 
             // Assert
             matcher.Methods.Should().BeSameAs(methods);
@@ -26,7 +26,7 @@ namespace IslandGateway.Core.Service.Tests
         public void Constructor_InvalidArgCount_Throws()
         {
             // Arrange
-            Action action = () => new MethodMatcher("Method", new string[0]);
+            Action action = () => new MethodMatcher(new string[0]);
 
             // Act & Assert
             action.Should().ThrowExactly<ArgumentException>();

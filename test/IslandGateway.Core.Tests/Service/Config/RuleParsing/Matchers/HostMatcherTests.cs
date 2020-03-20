@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -16,22 +16,10 @@ namespace IslandGateway.Core.Service.Tests
             const string TestHost = "example.com";
 
             // Act
-            var matcher = new HostMatcher("Host", new[] { TestHost });
+            var matcher = new HostMatcher(TestHost);
 
             // Assert
             matcher.Host.Should().Be(TestHost);
-        }
-
-        [Fact]
-        public void Constructor_InvalidArgCount_Throws()
-        {
-            // Arrange
-            Action action1 = () => new HostMatcher("Host", new string[0]);
-            Action action2 = () => new HostMatcher("Host", new[] { "a", "b" });
-
-            // Act & Assert
-            action1.Should().ThrowExactly<ArgumentException>();
-            action2.Should().ThrowExactly<ArgumentException>();
         }
 
         [Theory]
@@ -40,7 +28,7 @@ namespace IslandGateway.Core.Service.Tests
         public void Constructor_EmptyHostName_Throws(string hostName)
         {
             // Arrange
-            Action action = () => new HostMatcher("Host", new[] { hostName });
+            Action action = () => new HostMatcher(hostName);
 
             // Act & Assert
             action.Should().ThrowExactly<ArgumentNullException>();

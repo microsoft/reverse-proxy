@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using FluentAssertions;
@@ -15,7 +15,6 @@ namespace IslandGateway.Core.Service.Tests
 
         public RouteValidatorTests()
         {
-            Provide<IRuleParser, RuleParser>();
             _routeParser = Create<RouteParser>();
         }
 
@@ -26,23 +25,23 @@ namespace IslandGateway.Core.Service.Tests
         }
 
         [Theory]
-        [InlineData("Host('example.com') && Path('/a/')")]
-        [InlineData("Host('example.com') && Path('/a/**')")]
-        [InlineData("Path('/a/**') && Host('example.com')")]
-        [InlineData("Path('/a/**') && Host('example.com') && Method('GET')")]
-        [InlineData("Host('example.com') && Method('get')")]
-        [InlineData("Host('example.com') && Method('gEt', 'put')")]
-        [InlineData("Host('example.com') && Method('gEt', 'put', 'POST', 'traCE', 'PATCH', 'DELETE', 'HEAd')")]
-        [InlineData("Host('*.example.com')")]
-        [InlineData("Host('a-b.example.com')")]
-        [InlineData("Host('a-b.b-c.example.com')")]
-        public void Accepts_ValidRules(string rule)
+        [InlineData("example.com", "/a/", null)]
+        [InlineData("example.com", "/a/**", null)]
+        [InlineData("example.com", "/a/**", "GET")]
+        [InlineData("example.com", null, "get")]
+        [InlineData("example.com", null, "gEt,put")]
+        [InlineData("example.com", null, "gEt,put,POST,traCE,PATCH,DELETE,Head")]
+        [InlineData("*.example.com", null, null)]
+        [InlineData("a-b.example.com", null, null)]
+        [InlineData("a-b.b-c.example.com", null, null)]
+        public void Accepts_ValidRules(string host, string path, string methods)
         {
             // Arrange
-            var route = new GatewayRoute
-            {
+            var route = new GatewayRoute {
                 RouteId = "route1",
-                Rule = rule,
+                Host = host,
+                Path = path,
+                Methods = methods?.Split(","),
                 BackendId = "be1",
             };
 
@@ -73,15 +72,15 @@ namespace IslandGateway.Core.Service.Tests
         }
 
         [Theory]
-        [InlineData("")]
-        [InlineData("Method('GET')")]
-        public void Rejects_MissingHost(string rule)
+        [InlineData(null)]
+        [InlineData("/")]
+        public void Rejects_MissingHost(string path)
         {
             // Arrange
             var route = new GatewayRoute
             {
                 RouteId = "route1",
-                Rule = rule,
+                Path = path,
                 BackendId = "be1",
             };
 
@@ -94,24 +93,24 @@ namespace IslandGateway.Core.Service.Tests
         }
 
         [Theory]
-        [InlineData("Host('.example.com')")]
-        [InlineData("Host('example*.com')")]
-        [InlineData("Host('example.*.com')")]
-        [InlineData("Host('example.*a.com')")]
-        [InlineData("Host('*example.com')")]
-        [InlineData("Host('-example.com')")]
-        [InlineData("Host('example-.com')")]
-        [InlineData("Host('-example-.com')")]
-        [InlineData("Host('a.-example.com')")]
-        [InlineData("Host('a.example-.com')")]
-        [InlineData("Host('a.-example-.com')")]
-        public void Rejects_InvalidHost(string rule)
+        [InlineData(".example.com")]
+        [InlineData("example*.com")]
+        [InlineData("example.*.com")]
+        [InlineData("example.*a.com")]
+        [InlineData("*example.com")]
+        [InlineData("-example.com")]
+        [InlineData("example-.com")]
+        [InlineData("-example-.com")]
+        [InlineData("a.-example.com")]
+        [InlineData("a.example-.com")]
+        [InlineData("a.-example-.com")]
+        public void Rejects_InvalidHost(string host)
         {
             // Arrange
             var route = new GatewayRoute
             {
                 RouteId = "route1",
-                Rule = rule,
+                Host = host,
                 BackendId = "be1",
             };
 
@@ -124,17 +123,18 @@ namespace IslandGateway.Core.Service.Tests
         }
 
         [Theory]
-        [InlineData("Host('example.com') && Path('/{***a}')")]
-        [InlineData("Host('example.com') && Path('/{')")]
-        [InlineData("Host('example.com') && Path('/}')")]
-        [InlineData("Host('example.com') && Path('/{ab/c}')")]
-        public void Rejects_InvalidPath(string rule)
+        [InlineData("/{***a}")]
+        [InlineData("/{")]
+        [InlineData("/}")]
+        [InlineData("/{ab/c}")]
+        public void Rejects_InvalidPath(string path)
         {
             // Arrange
             var route = new GatewayRoute
             {
                 RouteId = "route1",
-                Rule = rule,
+                Host = "example.com",
+                Path = path,
                 BackendId = "be1",
             };
 
@@ -147,16 +147,17 @@ namespace IslandGateway.Core.Service.Tests
         }
 
         [Theory]
-        [InlineData("Host('example.com') && Method('')")]
-        [InlineData("Host('example.com') && Method('gett')")]
-        [InlineData("Host('example.com') && Method('get', 'post', 'get')")]
-        public void Rejects_InvalidMethod(string rule)
+        [InlineData("")]
+        [InlineData("gett")]
+        [InlineData("get,post,get")]
+        public void Rejects_InvalidMethod(string methods)
         {
             // Arrange
             var route = new GatewayRoute
             {
                 RouteId = "route1",
-                Rule = rule,
+                Host = "example.com",
+                Methods = methods.Split(","),
                 BackendId = "be1",
             };
 
@@ -166,44 +167,6 @@ namespace IslandGateway.Core.Service.Tests
             // Assert
             result.IsSuccess.Should().BeFalse();
             result.ErrorReporter.Errors.Should().Contain(err => err.ErrorCode == ConfigErrors.ParsedRouteRuleInvalidMatcher && err.Message.Contains("verb"));
-        }
-
-        [Fact]
-        public void Rejects_MultipleHosts()
-        {
-            // Arrange
-            var route = new GatewayRoute
-            {
-                RouteId = "route1",
-                Rule = "Host('example.com') && Host('example.com')",
-                BackendId = "be1",
-            };
-
-            // Act
-            var result = RunScenario(route);
-
-            // Assert
-            result.IsSuccess.Should().BeFalse();
-            result.ErrorReporter.Errors.Should().Contain(err => err.ErrorCode == ConfigErrors.ParsedRouteRuleMultipleHostMatchers);
-        }
-
-        [Fact]
-        public void Rejects_MultiplePaths()
-        {
-            // Arrange
-            var route = new GatewayRoute
-            {
-                RouteId = "route1",
-                Rule = "Path('/a') && Path('/a')",
-                BackendId = "be1",
-            };
-
-            // Act
-            var result = RunScenario(route);
-
-            // Assert
-            result.IsSuccess.Should().BeFalse();
-            result.ErrorReporter.Errors.Should().Contain(err => err.ErrorCode == ConfigErrors.ParsedRouteRuleMultiplePathMatchers);
         }
 
         private (bool IsSuccess, TestConfigErrorReporter ErrorReporter) RunScenario(GatewayRoute route)
