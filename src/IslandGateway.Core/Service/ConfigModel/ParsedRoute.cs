@@ -2,10 +2,12 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Text;
 using IslandGateway.Core.Service;
 
 namespace IslandGateway.Core.ConfigModel
 {
+    // TODO: Do we even need the ParsedRoute? It now matches the GatewayRoute 1:1
     internal class ParsedRoute
     {
         /// <summary>
@@ -14,10 +16,31 @@ namespace IslandGateway.Core.ConfigModel
         public string RouteId { get; set; }
 
         /// <summary>
-        /// Gets or sets the parsed matchers for this route. This is computed
-        /// from the original route's rule.
+        /// Only match requests that use these optional HTTP methods. E.g. GET, POST.
         /// </summary>
-        public IList<RuleMatcherBase> Matchers { get; set; }
+        public string[] Methods { get; set; }
+
+        /// <summary>
+        /// Only match requests with the given Host header.
+        /// </summary>
+        public string Host { get; set; }
+
+        /// <summary>
+        /// Only match requests with the given Path pattern.
+        /// </summary>
+        public string Path { get; set; }
+
+        // TODO:
+        /// <summary>
+        /// Only match requests that contain all of these query parameters.
+        /// </summary>
+        // public ICollection<KeyValuePair<string, string>> QueryParameters { get; set; }
+
+        // TODO:
+        /// <summary>
+        /// Only match requests that contain all of these request headers.
+        /// </summary>
+        // public ICollection<KeyValuePair<string, string>> Headers { get; set; }
 
         /// <summary>
         /// Gets or sets the priority of this route.
@@ -35,5 +58,29 @@ namespace IslandGateway.Core.ConfigModel
         /// Arbitrary key-value pairs that further describe this route.
         /// </summary>
         public IDictionary<string, string> Metadata { get; set; }
+
+        internal string GetMatcherSummary()
+        {
+            var builder = new StringBuilder();
+
+            if (!string.IsNullOrEmpty(Host))
+            {
+                builder.AppendFormat("Host({0})", Host);
+            }
+
+            if (!string.IsNullOrEmpty(Path))
+            {
+                builder.AppendFormat("Path({0})", Path);
+            }
+
+            if (Methods != null && Methods.Length > 0)
+            {
+                builder.Append("Methods(");
+                builder.AppendJoin(',', Methods);
+                builder.Append(");");
+            }
+
+            return builder.ToString();
+        }
     }
 }

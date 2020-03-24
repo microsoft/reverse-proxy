@@ -43,7 +43,6 @@ namespace IslandGateway.Core.Configuration.DependencyInjection
         public static IIslandGatewayBuilder AddConfigBuilder(this IIslandGatewayBuilder builder)
         {
             builder.Services.AddSingleton<IDynamicConfigBuilder, DynamicConfigBuilder>();
-            builder.Services.AddSingleton<IRouteParser, RouteParser>();
             builder.Services.AddSingleton<IRouteValidator, RouteValidator>();
             builder.Services.AddSingleton<IRuntimeRouteBuilder, RuntimeRouteBuilder>();
             return builder;

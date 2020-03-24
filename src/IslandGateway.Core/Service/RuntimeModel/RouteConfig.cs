@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using IslandGateway.Core.ConfigModel;
 using IslandGateway.Core.Service;
 using IslandGateway.Utilities;
-using Microsoft.Extensions.FileSystemGlobbing;
 using AspNetCore = Microsoft.AspNetCore;
 
 namespace IslandGateway.Core.RuntimeModel
@@ -18,13 +17,13 @@ namespace IslandGateway.Core.RuntimeModel
     /// <remarks>
     /// All members must remain immutable to avoid thread safety issues.
     /// Instead, instances of <see cref="RouteConfig"/> are replaced
-    /// in ther entirety when values need to change.
+    /// in their entirety when values need to change.
     /// </remarks>
     internal sealed class RouteConfig
     {
         public RouteConfig(
             RouteInfo route,
-            IList<RuleMatcherBase> matchers,
+            string matcherSummary,
             int? priority,
             BackendInfo backendOrNull,
             IReadOnlyList<AspNetCore.Http.Endpoint> aspNetCoreEndpoints)
@@ -33,7 +32,7 @@ namespace IslandGateway.Core.RuntimeModel
             Contracts.CheckValue(aspNetCoreEndpoints, nameof(aspNetCoreEndpoints));
 
             Route = route;
-            Matchers = matchers;
+            MatcherSummary = matcherSummary;
             Priority = priority;
             BackendOrNull = backendOrNull;
             AspNetCoreEndpoints = aspNetCoreEndpoints;
@@ -41,7 +40,7 @@ namespace IslandGateway.Core.RuntimeModel
 
         public RouteInfo Route { get; }
 
-        public IList<RuleMatcherBase> Matchers { get; }
+        internal string MatcherSummary{ get; }
 
         public int? Priority { get; }
 
@@ -51,23 +50,9 @@ namespace IslandGateway.Core.RuntimeModel
 
         public bool HasConfigChanged(ParsedRoute newConfig, BackendInfo backendOrNull)
         {
-            if (Matchers.Count != newConfig.Matchers.Count
-                || Priority != newConfig.Priority
-                || BackendOrNull != backendOrNull)
-            {
-                return true;
-            }
-
-            // The list is assumed to be stable, we can just walk through them in order.
-            for (var i = 0; i < Matchers.Count; i++)
-            {
-                if (!Matchers[i].Equals(newConfig.Matchers[i]))
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            return Priority != newConfig.Priority
+                || BackendOrNull != backendOrNull
+                || !MatcherSummary.Equals(newConfig.GetMatcherSummary());
         }
     }
 }

@@ -11,13 +11,6 @@ namespace IslandGateway.Core.Service.Tests
 {
     public class RouteValidatorTests : TestAutoMockBase
     {
-        private readonly RouteParser _routeParser;
-
-        public RouteValidatorTests()
-        {
-            _routeParser = Create<RouteParser>();
-        }
-
         [Fact]
         public void Constructor_Works()
         {
@@ -37,7 +30,8 @@ namespace IslandGateway.Core.Service.Tests
         public void Accepts_ValidRules(string host, string path, string methods)
         {
             // Arrange
-            var route = new GatewayRoute {
+            var route = new ParsedRoute
+            {
                 RouteId = "route1",
                 Host = host,
                 Path = path,
@@ -77,7 +71,7 @@ namespace IslandGateway.Core.Service.Tests
         public void Rejects_MissingHost(string path)
         {
             // Arrange
-            var route = new GatewayRoute
+            var route = new ParsedRoute
             {
                 RouteId = "route1",
                 Path = path,
@@ -107,7 +101,7 @@ namespace IslandGateway.Core.Service.Tests
         public void Rejects_InvalidHost(string host)
         {
             // Arrange
-            var route = new GatewayRoute
+            var route = new ParsedRoute
             {
                 RouteId = "route1",
                 Host = host,
@@ -130,7 +124,7 @@ namespace IslandGateway.Core.Service.Tests
         public void Rejects_InvalidPath(string path)
         {
             // Arrange
-            var route = new GatewayRoute
+            var route = new ParsedRoute
             {
                 RouteId = "route1",
                 Host = "example.com",
@@ -153,7 +147,7 @@ namespace IslandGateway.Core.Service.Tests
         public void Rejects_InvalidMethod(string methods)
         {
             // Arrange
-            var route = new GatewayRoute
+            var route = new ParsedRoute
             {
                 RouteId = "route1",
                 Host = "example.com",
@@ -169,12 +163,9 @@ namespace IslandGateway.Core.Service.Tests
             result.ErrorReporter.Errors.Should().Contain(err => err.ErrorCode == ConfigErrors.ParsedRouteRuleInvalidMatcher && err.Message.Contains("verb"));
         }
 
-        private (bool IsSuccess, TestConfigErrorReporter ErrorReporter) RunScenario(GatewayRoute route)
+        private (bool IsSuccess, TestConfigErrorReporter ErrorReporter) RunScenario(ParsedRoute parsedRoute)
         {
             var errorReporter = new TestConfigErrorReporter();
-            var parseResult = _routeParser.ParseRoute(route, errorReporter);
-            parseResult.IsSuccess.Should().BeTrue();
-            var parsedRoute = parseResult.Value;
 
             var validator = Create<RouteValidator>();
             var isSuccess = validator.ValidateRoute(parsedRoute, errorReporter);

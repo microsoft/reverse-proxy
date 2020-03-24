@@ -112,13 +112,8 @@ namespace IslandGateway.Core.Service.Tests
                 .Setup(r => r.GetRoutesAsync(It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new[] { route1 });
 
-            var parsedRoute1 = new ParsedRoute();
-            Mock<IRouteParser>()
-                .Setup(r => r.ParseRoute(route1, errorReporter))
-                .Returns(Result.Success(parsedRoute1));
-
             Mock<IRouteValidator>()
-                .Setup(r => r.ValidateRoute(parsedRoute1, errorReporter))
+                .Setup(r => r.ValidateRoute(It.IsAny<ParsedRoute>(), errorReporter))
                 .Returns(true);
 
             // Act
@@ -131,7 +126,7 @@ namespace IslandGateway.Core.Service.Tests
             result.Value.Should().NotBeNull();
             result.Value.Backends.Should().BeEmpty();
             result.Value.Routes.Should().HaveCount(1);
-            result.Value.Routes[0].Should().BeSameAs(parsedRoute1);
+            result.Value.Routes[0].RouteId.Should().BeSameAs(route1.RouteId);
         }
 
         [Fact]
@@ -149,9 +144,6 @@ namespace IslandGateway.Core.Service.Tests
                 .ReturnsAsync(new[] { route1 });
 
             var parsedRoute1 = new ParsedRoute();
-            Mock<IRouteParser>()
-                .Setup(r => r.ParseRoute(route1, errorReporter))
-                .Returns(Result.Failure<ParsedRoute>());
 
             // Act
             var configManager = Create<DynamicConfigBuilder>();
@@ -179,9 +171,6 @@ namespace IslandGateway.Core.Service.Tests
                 .ReturnsAsync(new[] { route1 });
 
             var parsedRoute1 = new ParsedRoute();
-            Mock<IRouteParser>()
-                .Setup(r => r.ParseRoute(route1, errorReporter))
-                .Returns(Result.Success(parsedRoute1));
 
             Mock<IRouteValidator>()
                 .Setup(r => r.ValidateRoute(parsedRoute1, errorReporter))

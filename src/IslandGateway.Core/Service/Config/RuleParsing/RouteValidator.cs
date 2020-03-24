@@ -1,9 +1,8 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
 using IslandGateway.Core.Abstractions;
 using IslandGateway.Core.ConfigModel;
@@ -55,110 +54,76 @@ namespace IslandGateway.Core.Service
                 success = false;
             }
 
-            if ((route.Matchers?.Count ?? 0) == 0)
-            {
-                errorReporter.ReportError(ConfigErrors.ParsedRouteRuleHasNoMatchers, route.RouteId, $"Route '{route.RouteId}' rule has no matchers.");
-                success = false;
-            }
+            success &= ValidateHost(route.Host, route.RouteId, errorReporter);
+            success &= ValidatePath(route.Path, route.RouteId, errorReporter);
+            success &= ValidateMethods(route.Methods, route.RouteId, errorReporter);
 
+            return success;
+        }
+
+        private static bool ValidateHost(string host, string routeId, IConfigErrorReporter errorReporter)
+        {
             // TODO: Why is Host required? I'd only expect Host OR Path to be required, with Path being the more common usage.
-            if (route.Matchers != null && !route.Matchers.Any(m => m is HostMatcher))
+            if (string.IsNullOrEmpty(host))
             {
-                errorReporter.ReportError(ConfigErrors.ParsedRouteRuleMissingHostMatcher, route.RouteId, $"Route '{route.RouteId}' rule is missing required matcher 'Host()'.");
-                success = false;
-            }
-
-            if (route.Matchers != null && !ValidateAllMatchers(route.RouteId, route.Matchers, errorReporter))
-            {
-                success = false;
-            }
-
-            return success;
-        }
-
-        private static bool ValidateAllMatchers(string routeId, IList<RuleMatcherBase> matchers, IConfigErrorReporter errorReporter)
-        {
-            var success = true;
-
-            foreach (var matcher in matchers)
-            {
-                bool roundSuccess;
-                string errorMessage;
-
-                switch (matcher)
-                {
-                    case HostMatcher hostMatcher:
-                        roundSuccess = ValidateHostMatcher(hostMatcher, out errorMessage);
-                        break;
-                    case PathMatcher pathMatcher:
-                        roundSuccess = ValidatePathMatcher(pathMatcher, out errorMessage);
-                        break;
-                    case MethodMatcher methodMatcher:
-                        roundSuccess = ValidateMethodMatcher(methodMatcher, out errorMessage);
-                        break;
-                    default:
-                        roundSuccess = false;
-                        errorMessage = "Unknown matcher";
-                        break;
-                }
-
-                if (!roundSuccess)
-                {
-                    errorReporter.ReportError(ConfigErrors.ParsedRouteRuleInvalidMatcher, routeId, $"Invalid matcher '{matcher}'. {errorMessage}");
-                    success = false;
-                }
-            }
-
-            return success;
-        }
-
-        private static bool ValidateHostMatcher(HostMatcher hostMatcher, out string errorMessage)
-        {
-            if (!_hostNameRegex.IsMatch(hostMatcher.Host))
-            {
-                errorMessage = $"Invalid host name '{hostMatcher.Host}'";
+                errorReporter.ReportError(ConfigErrors.ParsedRouteRuleMissingHostMatcher, routeId, $"Route '{routeId}' is missing required field 'Host'.");
                 return false;
             }
 
-            errorMessage = null;
+            if (!_hostNameRegex.IsMatch(host))
+            {
+                errorReporter.ReportError(ConfigErrors.ParsedRouteRuleInvalidMatcher, routeId, $"Invalid host name '{host}'");
+                return false;
+            }
+
             return true;
         }
 
-        private static bool ValidatePathMatcher(PathMatcher pathMatcher, out string errorMessage)
+        private static bool ValidatePath(string path, string routeId, IConfigErrorReporter errorReporter)
         {
+            // Path is optional
+            if (string.IsNullOrEmpty(path))
+            {
+                return true;
+            }
+
             try
             {
-                RoutePatternFactory.Parse(pathMatcher.Pattern);
+                RoutePatternFactory.Parse(path);
             }
             catch (RoutePatternException ex)
             {
-                errorMessage = $"Invalid path pattern '{pathMatcher.Pattern}': {ex.Message}";
+                errorReporter.ReportError(ConfigErrors.ParsedRouteRuleInvalidMatcher, routeId, $"Invalid path pattern '{path}': {ex.Message}");
                 return false;
             }
 
-            errorMessage = null;
             return true;
         }
 
-        private static bool ValidateMethodMatcher(MethodMatcher methodMatcher, out string errorMessage)
+        private static bool ValidateMethods(string[] methods, string routeId, IConfigErrorReporter errorReporter)
         {
+            // Methods are optional
+            if (methods == null)
+            {
+                return true;
+            }
+
             var seenMethods = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            foreach (var method in methodMatcher.Methods)
+            foreach (var method in methods)
             {
                 if (!seenMethods.Add(method))
                 {
-                    errorMessage = $"Duplicate verb '{method}'";
+                    errorReporter.ReportError(ConfigErrors.ParsedRouteRuleInvalidMatcher, routeId, $"Duplicate verb '{method}'");
                     return false;
                 }
 
                 if (!_validMethods.Contains(method))
                 {
-                    errorMessage = $"Unsupported verb '{method}'";
+                    errorReporter.ReportError(ConfigErrors.ParsedRouteRuleInvalidMatcher, routeId, $"Unsupported verb '{method}'");
                     return false;
                 }
             }
 
-            errorMessage = null;
             return true;
         }
     }

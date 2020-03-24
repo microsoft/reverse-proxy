@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using FluentAssertions;
+using FluentAssertions.Common;
 using IslandGateway.Core.ConfigModel;
 using IslandGateway.Core.RuntimeModel;
 using IslandGateway.Core.Service.Management;
@@ -31,11 +32,8 @@ namespace IslandGateway.Core.Service.Tests
             var parsedRoute = new ParsedRoute
             {
                 RouteId = "route1",
-                Matchers = new List<RuleMatcherBase>
-                {
-                    new HostMatcher("example.com"),
-                    new PathMatcher("/a"),
-                },
+                Host = "example.com",
+                Path = "/a",
                 Priority = 12,
             };
             var backend = new BackendInfo("backend1", new EndpointManager(), new Mock<IProxyHttpClientFactory>().Object);
@@ -47,7 +45,7 @@ namespace IslandGateway.Core.Service.Tests
             // Assert
             config.BackendOrNull.Should().BeSameAs(backend);
             config.Priority.Should().Be(12);
-            config.Matchers.Should().BeEquivalentTo(parsedRoute.Matchers);
+            config.MatcherSummary.Should().Be(parsedRoute.GetMatcherSummary());
             config.AspNetCoreEndpoints.Should().HaveCount(1);
             var routeEndpoint = config.AspNetCoreEndpoints[0] as AspNetCore.Routing.RouteEndpoint;
             routeEndpoint.DisplayName.Should().Be("route1");
@@ -67,10 +65,7 @@ namespace IslandGateway.Core.Service.Tests
             var parsedRoute = new ParsedRoute
             {
                 RouteId = "route1",
-                Matchers = new List<RuleMatcherBase>
-                {
-                    new HostMatcher("example.com"),
-                },
+                Host = "example.com",
                 Priority = 12,
             };
             var backend = new BackendInfo("backend1", new EndpointManager(), new Mock<IProxyHttpClientFactory>().Object);
@@ -82,7 +77,7 @@ namespace IslandGateway.Core.Service.Tests
             // Assert
             config.BackendOrNull.Should().BeSameAs(backend);
             config.Priority.Should().Be(12);
-            config.Matchers.Should().BeEquivalentTo(parsedRoute.Matchers);
+            config.MatcherSummary.Should().Be(parsedRoute.GetMatcherSummary());
             config.AspNetCoreEndpoints.Should().HaveCount(1);
             var routeEndpoint = config.AspNetCoreEndpoints[0] as AspNetCore.Routing.RouteEndpoint;
             routeEndpoint.DisplayName.Should().Be("route1");
@@ -102,10 +97,7 @@ namespace IslandGateway.Core.Service.Tests
             var parsedRoute = new ParsedRoute
             {
                 RouteId = "route1",
-                Matchers = new List<RuleMatcherBase>
-                {
-                    new HostMatcher("*.example.com"),
-                },
+                Host = "*.example.com",
                 Priority = 12,
             };
             var backend = new BackendInfo("backend1", new EndpointManager(), new Mock<IProxyHttpClientFactory>().Object);
@@ -117,7 +109,7 @@ namespace IslandGateway.Core.Service.Tests
             // Assert
             config.BackendOrNull.Should().BeSameAs(backend);
             config.Priority.Should().Be(12);
-            config.Matchers.Should().BeEquivalentTo(parsedRoute.Matchers);
+            config.MatcherSummary.Should().Be(parsedRoute.GetMatcherSummary());
             config.AspNetCoreEndpoints.Should().HaveCount(1);
             var routeEndpoint = config.AspNetCoreEndpoints[0] as AspNetCore.Routing.RouteEndpoint;
             routeEndpoint.DisplayName.Should().Be("route1");
@@ -137,10 +129,7 @@ namespace IslandGateway.Core.Service.Tests
             var parsedRoute = new ParsedRoute
             {
                 RouteId = "route1",
-                Matchers = new List<RuleMatcherBase>
-                {
-                    new PathMatcher("/a"),
-                },
+                Path = "/a",
                 Priority = 12,
             };
             var backend = new BackendInfo("backend1", new EndpointManager(), new Mock<IProxyHttpClientFactory>().Object);
@@ -152,7 +141,7 @@ namespace IslandGateway.Core.Service.Tests
             // Assert
             config.BackendOrNull.Should().BeSameAs(backend);
             config.Priority.Should().Be(12);
-            config.Matchers.Should().BeEquivalentTo(parsedRoute.Matchers);
+            config.MatcherSummary.Should().Be(parsedRoute.GetMatcherSummary());
             config.AspNetCoreEndpoints.Should().HaveCount(1);
             var routeEndpoint = config.AspNetCoreEndpoints[0] as AspNetCore.Routing.RouteEndpoint;
             routeEndpoint.DisplayName.Should().Be("route1");
@@ -182,7 +171,7 @@ namespace IslandGateway.Core.Service.Tests
             // Assert
             config.BackendOrNull.Should().BeSameAs(backend);
             config.Priority.Should().Be(12);
-            config.Matchers.Should().BeNull();
+            config.MatcherSummary.Should().Be("");
             config.AspNetCoreEndpoints.Should().HaveCount(1);
             var routeEndpoint = config.AspNetCoreEndpoints[0] as AspNetCore.Routing.RouteEndpoint;
             routeEndpoint.DisplayName.Should().Be("route1");
@@ -201,10 +190,7 @@ namespace IslandGateway.Core.Service.Tests
             var parsedRoute = new ParsedRoute
             {
                 RouteId = "route1",
-                Matchers = new List<RuleMatcherBase>
-                {
-                    new PathMatcher("/{invalid"),
-                },
+                Path = "/{invalid",
                 Priority = 12,
             };
             var backend = new BackendInfo("backend1", new EndpointManager(), new Mock<IProxyHttpClientFactory>().Object);
