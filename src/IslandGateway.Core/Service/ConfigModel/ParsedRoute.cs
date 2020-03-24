@@ -18,7 +18,7 @@ namespace IslandGateway.Core.ConfigModel
         /// <summary>
         /// Only match requests that use these optional HTTP methods. E.g. GET, POST.
         /// </summary>
-        public string[] Methods { get; set; }
+        public IReadOnlyList<string> Methods { get; set; }
 
         /// <summary>
         /// Only match requests with the given Host header.
@@ -65,15 +65,15 @@ namespace IslandGateway.Core.ConfigModel
 
             if (!string.IsNullOrEmpty(Host))
             {
-                builder.AppendFormat("Host({0})", Host);
+                builder.AppendFormat("Host({0});", Host);
             }
 
             if (!string.IsNullOrEmpty(Path))
             {
-                builder.AppendFormat("Path({0})", Path);
+                builder.AppendFormat("Path({0});", Path);
             }
 
-            if (Methods != null && Methods.Length > 0)
+            if (Methods != null && Methods.Count > 0)
             {
                 builder.Append("Methods(");
                 builder.AppendJoin(',', Methods);

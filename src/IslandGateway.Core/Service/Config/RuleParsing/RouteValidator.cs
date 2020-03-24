@@ -42,6 +42,7 @@ namespace IslandGateway.Core.Service
             "HEAD", "OPTIONS", "GET", "PUT", "POST", "PATCH", "DELETE", "TRACE",
         };
 
+        // Note this performs all validation steps without short circuiting in order to report all possible errors.
         public bool ValidateRoute(ParsedRoute route, IConfigErrorReporter errorReporter)
         {
             Contracts.CheckValue(route, nameof(route));
@@ -100,7 +101,7 @@ namespace IslandGateway.Core.Service
             return true;
         }
 
-        private static bool ValidateMethods(string[] methods, string routeId, IConfigErrorReporter errorReporter)
+        private static bool ValidateMethods(IReadOnlyList<string> methods, string routeId, IConfigErrorReporter errorReporter)
         {
             // Methods are optional
             if (methods == null)

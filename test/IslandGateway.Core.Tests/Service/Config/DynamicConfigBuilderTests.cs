@@ -107,7 +107,7 @@ namespace IslandGateway.Core.Service.Tests
                 .Setup(r => r.GetBackendsAsync(It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new List<Backend>());
 
-            var route1 = new GatewayRoute { RouteId = "route1", Host = "example.com", Priority = 1, BackendId = "backend1" };
+            var route1 = new GatewayRoute { RouteId = "route1", Match = { Host = "example.com" }, Priority = 1, BackendId = "backend1" };
             Mock<IRoutesRepo>()
                 .Setup(r => r.GetRoutesAsync(It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new[] { route1 });
@@ -138,7 +138,7 @@ namespace IslandGateway.Core.Service.Tests
                 .Setup(r => r.GetBackendsAsync(It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new List<Backend>());
 
-            var route1 = new GatewayRoute { RouteId = "route1", Host = "example.com", Priority = 1, BackendId = "backend1" };
+            var route1 = new GatewayRoute { RouteId = "route1", Match = { Host = "example.com" }, Priority = 1, BackendId = "backend1" };
             Mock<IRoutesRepo>()
                 .Setup(r => r.GetRoutesAsync(It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new[] { route1 });
@@ -165,7 +165,7 @@ namespace IslandGateway.Core.Service.Tests
                 .Setup(r => r.GetBackendsAsync(It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new List<Backend>());
 
-            var route1 = new GatewayRoute { RouteId = "route1", Host = "example.com", Priority = 1, BackendId = "backend1" };
+            var route1 = new GatewayRoute { RouteId = "route1", Match = { Host = "example.com" }, Priority = 1, BackendId = "backend1" };
             Mock<IRoutesRepo>()
                 .Setup(r => r.GetRoutesAsync(It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new[] { route1 });

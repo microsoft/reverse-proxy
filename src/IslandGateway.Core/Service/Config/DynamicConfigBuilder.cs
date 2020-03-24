@@ -116,9 +116,9 @@ namespace IslandGateway.Core.Service
 
                     var parsedRoute = new ParsedRoute {
                         RouteId = route.RouteId,
-                        Methods = route.Methods,
-                        Host = route.Host,
-                        Path = route.Path,
+                        Methods = route.Match.Methods,
+                        Host = route.Match.Host,
+                        Path = route.Match.Path,
                         Priority = route.Priority,
                         BackendId = route.BackendId,
                         Metadata = route.Metadata,

@@ -61,6 +61,11 @@ namespace IslandGateway.Core.Service
                 endpointBuilder.Metadata.Add(new AspNetCore.Routing.HostAttribute(source.Host));
             }
 
+            if (source.Methods != null && source.Methods.Count > 0)
+            {
+                endpointBuilder.Metadata.Add(new AspNetCore.Routing.HttpMethodMetadata(source.Methods));
+            }
+
             var endpoint = endpointBuilder.Build();
             aspNetCoreEndpoints.Add(endpoint);
 
