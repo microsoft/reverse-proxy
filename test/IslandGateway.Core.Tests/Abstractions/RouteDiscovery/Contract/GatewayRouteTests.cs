@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
@@ -22,7 +22,12 @@ namespace IslandGateway.Core.Abstractions.Tests
             var sut = new GatewayRoute
             {
                 RouteId = "route1",
-                Rule = "Host('example.com')",
+                Match =
+                {
+                    Methods = new[] { "GET", "POST" },
+                    Host = "example.com",
+                    Path = "/",
+                },
                 Priority = 2,
                 BackendId = "backend1",
                 Metadata = new Dictionary<string, string>
@@ -37,7 +42,11 @@ namespace IslandGateway.Core.Abstractions.Tests
             // Assert
             clone.Should().NotBeSameAs(sut);
             clone.RouteId.Should().Be(sut.RouteId);
-            clone.Rule.Should().Be(sut.Rule);
+            clone.Match.Should().NotBeSameAs(sut.Match);
+            clone.Match.Methods.Should().NotBeSameAs(sut.Match.Methods);
+            clone.Match.Methods.Should().BeEquivalentTo(sut.Match.Methods);
+            clone.Match.Host.Should().Be(sut.Match.Host);
+            clone.Match.Path.Should().Be(sut.Match.Path);
             clone.Priority.Should().Be(sut.Priority);
             clone.BackendId.Should().Be(sut.BackendId);
             clone.Metadata.Should().NotBeNull();
@@ -57,7 +66,9 @@ namespace IslandGateway.Core.Abstractions.Tests
             // Assert
             clone.Should().NotBeSameAs(sut);
             clone.RouteId.Should().BeNull();
-            clone.Rule.Should().BeNull();
+            clone.Match.Methods.Should().BeNull();
+            clone.Match.Host.Should().BeNull();
+            clone.Match.Path.Should().BeNull();
             clone.Priority.Should().BeNull();
             clone.BackendId.Should().BeNull();
             clone.Metadata.Should().BeNull();

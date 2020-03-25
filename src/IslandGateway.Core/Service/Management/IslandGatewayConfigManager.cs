@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -177,9 +177,7 @@ namespace IslandGateway.Core.Service.Management
                     {
                         var currentRouteConfig = route.Config.Value;
                         if (currentRouteConfig == null ||
-                            currentRouteConfig.Rule != configRoute.Rule ||
-                            currentRouteConfig.Priority != configRoute.Priority ||
-                            currentRouteConfig.BackendOrNull != backendOrNull)
+                            currentRouteConfig.HasConfigChanged(configRoute, backendOrNull))
                         {
                             // Config changed, so update runtime route
                             changed = true;

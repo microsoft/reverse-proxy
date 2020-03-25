@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -16,26 +16,22 @@ namespace IslandGateway.Core.Service
         private readonly IBackendsRepo _backendsRepo;
         private readonly IBackendEndpointsRepo _endpointsRepo;
         private readonly IRoutesRepo _routesRepo;
-        private readonly IRouteParser _routeParser;
         private readonly IRouteValidator _parsedRouteValidator;
 
         public DynamicConfigBuilder(
             IBackendsRepo backendsRepo,
             IBackendEndpointsRepo endpointsRepo,
             IRoutesRepo routesRepo,
-            IRouteParser routeParser,
             IRouteValidator parsedRouteValidator)
         {
             Contracts.CheckValue(backendsRepo, nameof(backendsRepo));
             Contracts.CheckValue(endpointsRepo, nameof(endpointsRepo));
             Contracts.CheckValue(routesRepo, nameof(routesRepo));
-            Contracts.CheckValue(routeParser, nameof(routeParser));
             Contracts.CheckValue(parsedRouteValidator, nameof(parsedRouteValidator));
 
             _backendsRepo = backendsRepo;
             _endpointsRepo = endpointsRepo;
             _routesRepo = routesRepo;
-            _routeParser = routeParser;
             _parsedRouteValidator = parsedRouteValidator;
         }
 
@@ -118,14 +114,16 @@ namespace IslandGateway.Core.Service
                         continue;
                     }
 
-                    var parsedResult = _routeParser.ParseRoute(route, errorReporter);
-                    if (!parsedResult.IsSuccess)
-                    {
-                        // routeParser already reported error message
-                        continue;
-                    }
+                    var parsedRoute = new ParsedRoute {
+                        RouteId = route.RouteId,
+                        Methods = route.Match.Methods,
+                        Host = route.Match.Host,
+                        Path = route.Match.Path,
+                        Priority = route.Priority,
+                        BackendId = route.BackendId,
+                        Metadata = route.Metadata,
+                    };
 
-                    var parsedRoute = parsedResult.Value;
                     if (!_parsedRouteValidator.ValidateRoute(parsedRoute, errorReporter))
                     {
                         // parsedRouteValidator already reported error message

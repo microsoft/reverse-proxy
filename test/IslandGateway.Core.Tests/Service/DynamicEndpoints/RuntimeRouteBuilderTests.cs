@@ -1,9 +1,10 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
 using System.Collections.Generic;
 using FluentAssertions;
+using FluentAssertions.Common;
 using IslandGateway.Core.ConfigModel;
 using IslandGateway.Core.RuntimeModel;
 using IslandGateway.Core.Service.Management;
@@ -31,12 +32,8 @@ namespace IslandGateway.Core.Service.Tests
             var parsedRoute = new ParsedRoute
             {
                 RouteId = "route1",
-                Rule = "Host('example.com') && Path('/a')",
-                Matchers = new List<RuleMatcherBase>
-                {
-                    new HostMatcher("Host", new[] { "example.com" }),
-                    new PathMatcher("Path", new[] { "/a" }),
-                },
+                Host = "example.com",
+                Path = "/a",
                 Priority = 12,
             };
             var backend = new BackendInfo("backend1", new EndpointManager(), new Mock<IProxyHttpClientFactory>().Object);
@@ -48,7 +45,7 @@ namespace IslandGateway.Core.Service.Tests
             // Assert
             config.BackendOrNull.Should().BeSameAs(backend);
             config.Priority.Should().Be(12);
-            config.Rule.Should().Be("Host('example.com') && Path('/a')");
+            config.MatcherSummary.Should().Be(parsedRoute.GetMatcherSummary());
             config.AspNetCoreEndpoints.Should().HaveCount(1);
             var routeEndpoint = config.AspNetCoreEndpoints[0] as AspNetCore.Routing.RouteEndpoint;
             routeEndpoint.DisplayName.Should().Be("route1");
@@ -68,11 +65,7 @@ namespace IslandGateway.Core.Service.Tests
             var parsedRoute = new ParsedRoute
             {
                 RouteId = "route1",
-                Rule = "Host('example.com')",
-                Matchers = new List<RuleMatcherBase>
-                {
-                    new HostMatcher("Host", new[] { "example.com" }),
-                },
+                Host = "example.com",
                 Priority = 12,
             };
             var backend = new BackendInfo("backend1", new EndpointManager(), new Mock<IProxyHttpClientFactory>().Object);
@@ -84,7 +77,7 @@ namespace IslandGateway.Core.Service.Tests
             // Assert
             config.BackendOrNull.Should().BeSameAs(backend);
             config.Priority.Should().Be(12);
-            config.Rule.Should().Be("Host('example.com')");
+            config.MatcherSummary.Should().Be(parsedRoute.GetMatcherSummary());
             config.AspNetCoreEndpoints.Should().HaveCount(1);
             var routeEndpoint = config.AspNetCoreEndpoints[0] as AspNetCore.Routing.RouteEndpoint;
             routeEndpoint.DisplayName.Should().Be("route1");
@@ -104,11 +97,7 @@ namespace IslandGateway.Core.Service.Tests
             var parsedRoute = new ParsedRoute
             {
                 RouteId = "route1",
-                Rule = "Host('*.example.com')",
-                Matchers = new List<RuleMatcherBase>
-                {
-                    new HostMatcher("Host", new[] { "*.example.com" }),
-                },
+                Host = "*.example.com",
                 Priority = 12,
             };
             var backend = new BackendInfo("backend1", new EndpointManager(), new Mock<IProxyHttpClientFactory>().Object);
@@ -120,7 +109,7 @@ namespace IslandGateway.Core.Service.Tests
             // Assert
             config.BackendOrNull.Should().BeSameAs(backend);
             config.Priority.Should().Be(12);
-            config.Rule.Should().Be("Host('*.example.com')");
+            config.MatcherSummary.Should().Be(parsedRoute.GetMatcherSummary());
             config.AspNetCoreEndpoints.Should().HaveCount(1);
             var routeEndpoint = config.AspNetCoreEndpoints[0] as AspNetCore.Routing.RouteEndpoint;
             routeEndpoint.DisplayName.Should().Be("route1");
@@ -140,11 +129,7 @@ namespace IslandGateway.Core.Service.Tests
             var parsedRoute = new ParsedRoute
             {
                 RouteId = "route1",
-                Rule = "Path('/a')",
-                Matchers = new List<RuleMatcherBase>
-                {
-                    new PathMatcher("Path", new[] { "/a" }),
-                },
+                Path = "/a",
                 Priority = 12,
             };
             var backend = new BackendInfo("backend1", new EndpointManager(), new Mock<IProxyHttpClientFactory>().Object);
@@ -156,7 +141,7 @@ namespace IslandGateway.Core.Service.Tests
             // Assert
             config.BackendOrNull.Should().BeSameAs(backend);
             config.Priority.Should().Be(12);
-            config.Rule.Should().Be("Path('/a')");
+            config.MatcherSummary.Should().Be(parsedRoute.GetMatcherSummary());
             config.AspNetCoreEndpoints.Should().HaveCount(1);
             var routeEndpoint = config.AspNetCoreEndpoints[0] as AspNetCore.Routing.RouteEndpoint;
             routeEndpoint.DisplayName.Should().Be("route1");
@@ -175,7 +160,6 @@ namespace IslandGateway.Core.Service.Tests
             var parsedRoute = new ParsedRoute
             {
                 RouteId = "route1",
-                Rule = "Host('example.com')",
                 Priority = 12,
             };
             var backend = new BackendInfo("backend1", new EndpointManager(), new Mock<IProxyHttpClientFactory>().Object);
@@ -187,7 +171,7 @@ namespace IslandGateway.Core.Service.Tests
             // Assert
             config.BackendOrNull.Should().BeSameAs(backend);
             config.Priority.Should().Be(12);
-            config.Rule.Should().Be("Host('example.com')");
+            config.MatcherSummary.Should().Be("");
             config.AspNetCoreEndpoints.Should().HaveCount(1);
             var routeEndpoint = config.AspNetCoreEndpoints[0] as AspNetCore.Routing.RouteEndpoint;
             routeEndpoint.DisplayName.Should().Be("route1");
@@ -206,11 +190,7 @@ namespace IslandGateway.Core.Service.Tests
             var parsedRoute = new ParsedRoute
             {
                 RouteId = "route1",
-                Rule = "Path('/{invalid')",
-                Matchers = new List<RuleMatcherBase>
-                {
-                    new PathMatcher("Path", new[] { "/{invalid" }),
-                },
+                Path = "/{invalid",
                 Priority = 12,
             };
             var backend = new BackendInfo("backend1", new EndpointManager(), new Mock<IProxyHttpClientFactory>().Object);

@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
@@ -39,23 +39,14 @@ namespace IslandGateway.Core.Service
             var aspNetCoreEndpoints = new List<AspNetCore.Http.Endpoint>(1);
             var newRouteConfig = new RouteConfig(
                 route: runtimeRoute,
-                rule: source.Rule,
+                matcherSummary: source.GetMatcherSummary(),
                 priority: source.Priority,
                 backendOrNull: backendOrNull,
                 aspNetCoreEndpoints: aspNetCoreEndpoints.AsReadOnly());
 
             // TODO: Handle arbitrary AST's properly
-            string pathPattern;
-            var pathMatcher = (PathMatcher)source.Matchers?.FirstOrDefault(m => m is PathMatcher);
-            if (pathMatcher != null)
-            {
-                pathPattern = pathMatcher.Pattern;
-            }
-            else
-            {
-                // Catch-all pattern when no matcher was specified
-                pathPattern = "/{**catchall}";
-            }
+            // Catch-all pattern when no path was specified
+            var pathPattern = string.IsNullOrEmpty(source.Path) ? "/{**catchall}" : source.Path;
 
             // TODO: Propagate route priority
             var endpointBuilder = new AspNetCore.Routing.RouteEndpointBuilder(
@@ -65,10 +56,14 @@ namespace IslandGateway.Core.Service
             endpointBuilder.DisplayName = source.RouteId;
             endpointBuilder.Metadata.Add(newRouteConfig);
 
-            var hostMatcher = source.Matchers?.FirstOrDefault(m => m is HostMatcher) as HostMatcher;
-            if (hostMatcher != null)
+            if (source.Host != null)
             {
-                endpointBuilder.Metadata.Add(new AspNetCore.Routing.HostAttribute(hostMatcher.Host));
+                endpointBuilder.Metadata.Add(new AspNetCore.Routing.HostAttribute(source.Host));
+            }
+
+            if (source.Methods != null && source.Methods.Count > 0)
+            {
+                endpointBuilder.Metadata.Add(new AspNetCore.Routing.HttpMethodMetadata(source.Methods));
             }
 
             var endpoint = endpointBuilder.Build();

@@ -1,7 +1,9 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using IslandGateway.Core.ConfigModel;
+using IslandGateway.Core.Service;
 using IslandGateway.Utilities;
 using AspNetCore = Microsoft.AspNetCore;
 
@@ -15,13 +17,13 @@ namespace IslandGateway.Core.RuntimeModel
     /// <remarks>
     /// All members must remain immutable to avoid thread safety issues.
     /// Instead, instances of <see cref="RouteConfig"/> are replaced
-    /// in ther entirety when values need to change.
+    /// in their entirety when values need to change.
     /// </remarks>
     internal sealed class RouteConfig
     {
         public RouteConfig(
             RouteInfo route,
-            string rule,
+            string matcherSummary,
             int? priority,
             BackendInfo backendOrNull,
             IReadOnlyList<AspNetCore.Http.Endpoint> aspNetCoreEndpoints)
@@ -30,7 +32,7 @@ namespace IslandGateway.Core.RuntimeModel
             Contracts.CheckValue(aspNetCoreEndpoints, nameof(aspNetCoreEndpoints));
 
             Route = route;
-            Rule = rule;
+            MatcherSummary = matcherSummary;
             Priority = priority;
             BackendOrNull = backendOrNull;
             AspNetCoreEndpoints = aspNetCoreEndpoints;
@@ -38,12 +40,19 @@ namespace IslandGateway.Core.RuntimeModel
 
         public RouteInfo Route { get; }
 
-        public string Rule { get; }
+        internal string MatcherSummary{ get; }
 
         public int? Priority { get; }
 
         public BackendInfo BackendOrNull { get; }
 
         public IReadOnlyList<AspNetCore.Http.Endpoint> AspNetCoreEndpoints { get; }
+
+        public bool HasConfigChanged(ParsedRoute newConfig, BackendInfo backendOrNull)
+        {
+            return Priority != newConfig.Priority
+                || BackendOrNull != backendOrNull
+                || !MatcherSummary.Equals(newConfig.GetMatcherSummary());
+        }
     }
 }

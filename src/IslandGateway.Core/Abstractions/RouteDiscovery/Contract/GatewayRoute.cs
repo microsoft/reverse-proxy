@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -7,7 +7,7 @@ using System.Collections.Generic;
 namespace IslandGateway.Core.Abstractions
 {
     /// <summary>
-    /// Describes a route that matches incoming requests based on a <see cref="Rule"/>
+    /// Describes a route that matches incoming requests based on a the <see cref="Match"/> criteria
     /// and proxies matching requests to the backend identified by its <see cref="BackendId"/>.
     /// </summary>
     public sealed class GatewayRoute : IDeepCloneable<GatewayRoute>
@@ -17,10 +17,7 @@ namespace IslandGateway.Core.Abstractions
         /// </summary>
         public string RouteId { get; set; }
 
-        /// <summary>
-        /// Rule that incoming requests must match for this route to apply. E.g. <c>Host('example.com')</c>.
-        /// </summary>
-        public string Rule { get; set; }
+        public GatewayMatch Match { get; private set; } = new GatewayMatch();
 
         /// <summary>
         /// Optionally, a priority value for this route. Routes with higher numbers take precedence over lower numbers.
@@ -44,7 +41,7 @@ namespace IslandGateway.Core.Abstractions
             return new GatewayRoute
             {
                 RouteId = RouteId,
-                Rule = Rule,
+                Match = Match.DeepClone(),
                 Priority = Priority,
                 BackendId = BackendId,
                 Metadata = Metadata?.DeepClone(StringComparer.Ordinal),
