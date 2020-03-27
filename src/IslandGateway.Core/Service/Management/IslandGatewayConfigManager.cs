@@ -104,6 +104,15 @@ namespace IslandGateway.Core.Service.Management
                             currentBackendConfig.HealthCheckOptions.Port != newConfig.HealthCheckOptions.Port ||
                             currentBackendConfig.HealthCheckOptions.Path != newConfig.HealthCheckOptions.Path)
                         {
+                            if (currentBackendConfig == null)
+                            {
+                                _logger.LogDebug("Backend {backendId} has been added.", configBackend.BackendId);
+                            }
+                            else
+                            {
+                                _logger.LogDebug("Backend {backendId} has changed.", configBackend.BackendId);
+                            }
+
                             // Config changed, so update runtime backend
                             backend.Config.Value = newConfig;
                         }
@@ -120,6 +129,7 @@ namespace IslandGateway.Core.Service.Management
                     // NOTE 2: Removing the backend from `IBackendManager` is safe and existing
                     // ASP .NET Core endpoints will continue to work with their existing behavior (until those endpoints are updated)
                     // and the Garbage Collector won't destroy this backend object while it's referenced elsewhere.
+                    _logger.LogDebug("Backend {backendId} has been removed.", existingBackend.BackendId);
                     _backendManager.TryRemoveItem(existingBackend.BackendId);
                 }
             }
@@ -137,6 +147,14 @@ namespace IslandGateway.Core.Service.Management
                     {
                         if (endpoint.Config.Value?.Address != configEndpoint.Address)
                         {
+                            if (endpoint.Config.Value == null)
+                            {
+                                _logger.LogDebug("Endpoint {endpointId} has been added.", configEndpoint.EndpointId);
+                            }
+                            else
+                            {
+                                _logger.LogDebug("Endpoint {endpointId} has changed.", configEndpoint.EndpointId);
+                            }
                             endpoint.Config.Value = new EndpointConfig(configEndpoint.Address);
                         }
                     });
@@ -152,6 +170,7 @@ namespace IslandGateway.Core.Service.Management
                     // NOTE 2: Removing the endpoint from `IEndpointManager` is safe and existing
                     // backends will continue to work with their existing behavior (until those backends are updated)
                     // and the Garbage Collector won't destroy this backend object while it's referenced elsewhere.
+                    _logger.LogDebug("Endpoint {endpointId} has been removed.", existingEndpoint.EndpointId);
                     endpointManager.TryRemoveItem(existingEndpoint.EndpointId);
                 }
             }
@@ -181,6 +200,14 @@ namespace IslandGateway.Core.Service.Management
                         {
                             // Config changed, so update runtime route
                             changed = true;
+                            if (currentRouteConfig == null)
+                            {
+                                _logger.LogDebug("Route {routeId} has been added.", configRoute.RouteId);
+                            }
+                            else
+                            {
+                                _logger.LogDebug("Route {routeId} has changed.", configRoute.RouteId);
+                            }
 
                             var newConfig = _routeEndpointBuilder.Build(configRoute, backendOrNull, route);
                             route.Config.Value = newConfig;
@@ -198,6 +225,7 @@ namespace IslandGateway.Core.Service.Management
                     // NOTE 2: Removing the route from `IRouteManager` is safe and existing
                     // ASP .NET Core endpoints will continue to work with their existing behavior since
                     // their copy of `RouteConfig` is immutable and remains operational in whichever state is was in.
+                    _logger.LogDebug("Route {routeId} has been removed.", existingRoute.RouteId);
                     _routeManager.TryRemoveItem(existingRoute.RouteId);
                     changed = true;
                 }

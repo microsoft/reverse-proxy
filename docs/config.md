@@ -40,6 +40,21 @@ This basic structure is useful though the "Rule" [system](https://github.com/mic
 
 The GatewayRoute.Metadata dictionary may be able to be replaced or supplemented by giving direct access to the config node for that route. Compare to Kestrel's [EndpointConfig.ConfigSection](https://github.com/dotnet/aspnetcore/blob/f4d81e3af2b969744a57d76d4d622036ac514a6a/src/Servers/Kestrel/Core/src/Internal/ConfigurationReader.cs#L168-L175) property. That would allow for augmenting an endpoint with additional complex custom entries that the app code can reference for additional config actions.
 
+Update: The custom rule system was modified by [#24](https://github.com/microsoft/reverse-proxy/pull/24) so that the config now looks like this:
+```
+       "Routes": [
+         {
+           "RouteId": "backend1/route1",
+           "BackendId": "backend1",
+           "Match": {
+             "Methods": [ "GET", "POST" ],
+             "Host": "localhost",
+             "Path": "/{**catchall}"
+           }
+         }
+       ]
+```
+
 ## Backend configuration
 
 The proxy/gateway code defines the types [Backend](https://github.com/microsoft/reverse-proxy/blob/b2cf5bdddf7962a720672a75f2e93913d16dfee7/src/IslandGateway.Core/Abstractions/BackendDiscovery/Contract/Backend.cs) and [BackendEndpoint](https://github.com/microsoft/reverse-proxy/blob/b2cf5bdddf7962a720672a75f2e93913d16dfee7/src/IslandGateway.Core/Abstractions/BackendEndpointDiscovery/Contract/BackendEndpoint.cs) and allows these to be defined via config and referenced by name from routes.
@@ -47,6 +62,77 @@ The proxy/gateway code defines the types [Backend](https://github.com/microsoft/
 A BackendEndpoint defines a specific service instance with an id, address, and associated metadata.
 
 A Backend is a collection of one or more BackendEndpoints and a set of policies for choosing which endpoint to rout each request to (load balancing, circuit breakers, health checks, affinities, etc.). This seems a bit monolithic compared to our initial design explorations. We anticipate wanting to break these policies up into distinct steps in a pipeline to make them more replaceable. That said, we'll still need a config model for the default set of components and it may look very much like what's already here.
+
+Question: Why are the backends and the endpoints listed separately in config rather than nested? Object model links endpoints 1:1 with backends, so there doesn't seem to be a reason to list them separately.
+
+Existing:
+```
+      "Backends": [
+        {
+          "BackendId": "backend1"
+        },
+        {
+          "BackendId": "backend2"
+        }
+      ],
+      "Endpoints": {
+        "backend1": [
+          {
+            "EndpointId": "backend1/endpoint1",
+            "Address": "https://localhost:10000/"
+          }
+        ],
+        "backend2": [
+          {
+            "EndpointId": "backend2/endpoint1",
+            "Address": "https://localhost:10001/"
+          }
+        ]
+      },
+```
+Nested:
+```
+      "Backends": [
+        {
+          "BackendId": "backend1",
+          "Endpoints": [
+            {
+              "EndpointId": "backend1/endpoint1",
+              "Address": "https://localhost:10000/"
+            }
+          ],
+        },
+        {
+          "BackendId": "backend2"
+          "Endpoints": [
+            {
+              "EndpointId": "backend2/endpoint1",
+              "Address": "https://localhost:10001/"
+            }
+          ],
+        }
+      ],
+```
+Additional feedback: Why is it using arrays instead of objects? These items are not order sensitive, and they already have id properties anyways.
+```
+      "Backends": {
+        "backend1" : {
+          "Endpoints": [
+            "endpoint1": {
+              "Address": "https://localhost:10000/"
+            }
+          },
+        },
+        "backend2": {
+          "Endpoints": {
+            "endpoint1": {
+              "Address": "https://localhost:10001/"
+            }
+          },
+        }
+      },
+```
+
 
 ## Config reloading
 
@@ -62,7 +148,15 @@ Kestrel support for reloading config is tracked by https://github.com/dotnet/asp
 
 Reloading proxy config will need to happen atomically and avoid disrupting requests already in flight. We may need to rebuild portions of the app pipeline and swap them out for new requests, drain the old requests, and clean up the old pipelines. We also want to avoid a full reset for small config changes where possible. E.g. if only one route changes then ideally we'd only rebuild that route.
 
-Reloading should be something you can opt into or out of.
+Reloading should be something you can opt into or out of. Right now this is only possible at the config level by opting in or out for a config source, but that affects the whole app.
+
+Updates:
+
+Config reload for gateway routes, backends, and endpoints already works. You edit appsettings.json and it automatically reloads and reconfigures the routes. Note the config change notification usually gets fired twice and logs "Applying gateway configs" each time, but the change diff logic prevents an unnecessary update the second time. We may still want to do some debounce detection to prevent extra config diffs, but that's lower priority.
+
+@halter73 raised the question of how much effort we put in to make the kestrel reload atomic with the routing reload? Conceptually it makes sense to keep the two in sync, but pragmatically it's quite difficult as there's no connection between the two systems. They'd be reacting to the same change notification event in serial and requests in flight may see one set of changes without the other. We discussed this in the weekly sync and decided that since kestrel endpoint changes will be a less common scenario we won't initually worry about the atomicity here until we have customer feedback that demonstrates issues.
+
+Also, when a kestrel endpoint is modified or removed should existing connections on that endpoint be eagerly drained and closed, or should they be allowed to run a normal lifecycle? Kestrel does not currently track active connection per endpoint so additional tracking would be needed if we wanted to shut them down.
 
 ## Augmenting config via code
 

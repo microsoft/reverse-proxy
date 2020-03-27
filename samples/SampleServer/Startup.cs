@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Microsoft.AspNetCore.Builder;
@@ -36,7 +36,9 @@ namespace SampleServer
         /// </summary>
         public void Configure(IApplicationBuilder app)
         {
-            app.UseHttpsRedirection();
+            // Disabling https redirection behind the proxy. Forwarders are not currently set up so we can't tell if the external connection used https.
+            // Nor do we know the correct port to redirect to.
+            // app.UseHttpsRedirection();
 
             app.UseWebSockets();
 
