@@ -113,6 +113,26 @@ Nested:
         }
       ],
 ```
+Additional feedback: Why is it using arrays instead of objects? These items are not order sensitive, and they already have id properties anyways.
+```
+      "Backends": {
+        "backend1" : {
+          "Endpoints": [
+            "endpoint1": {
+              "Address": "https://localhost:10000/"
+            }
+          },
+        },
+        "backend2": {
+          "Endpoints": {
+            "endpoint1": {
+              "Address": "https://localhost:10001/"
+            }
+          },
+        }
+      },
+```
+
 
 ## Config reloading
 
