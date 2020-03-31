@@ -197,7 +197,7 @@ jobs:
         testResultsFiles: '*.xml' 
         searchFolder: '$(Build.SourcesDirectory)/artifacts/TestResults/$(_BuildConfig)'
         ${{ if eq(parameters.testRunTitle, '') }}:
-          testRunTitle: $(System.JobName)-xunit
+          testRunTitle: ${{ coalesce(parameters.name, '$(System.JobName)') }}-xunit
         ${{ if ne(parameters.testRunTitle, '') }}:
           testRunTitle: ${{ parameters.testRunTitle }}
         mergeTestResults: ${{ parameters.mergeTestResults }}
