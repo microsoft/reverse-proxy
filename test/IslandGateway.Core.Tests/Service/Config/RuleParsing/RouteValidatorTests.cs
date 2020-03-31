@@ -2,12 +2,12 @@
 // Licensed under the MIT License.
 
 using FluentAssertions;
-using IslandGateway.Core.Abstractions;
-using IslandGateway.Core.ConfigModel;
+using Microsoft.ReverseProxy.Core.Abstractions;
+using Microsoft.ReverseProxy.Core.ConfigModel;
 using Tests.Common;
 using Xunit;
 
-namespace IslandGateway.Core.Service.Tests
+namespace Microsoft.ReverseProxy.Core.Service.Tests
 {
     public class RouteValidatorTests : TestAutoMockBase
     {

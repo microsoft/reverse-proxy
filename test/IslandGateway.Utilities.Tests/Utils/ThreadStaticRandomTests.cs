@@ -5,7 +5,7 @@ using System;
 using FluentAssertions;
 using Xunit;
 
-namespace IslandGateway.Utilities
+namespace Microsoft.ReverseProxy.Utilities
 {
     public class ThreadStaticRandomTests
     {

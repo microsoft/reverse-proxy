@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using IslandGateway.Utilities;
-using IslandGateway.Signals;
+using Microsoft.ReverseProxy.Utilities;
+using Microsoft.ReverseProxy.Signals;
 
-namespace IslandGateway.Core.RuntimeModel
+namespace Microsoft.ReverseProxy.Core.RuntimeModel
 {
     /// <summary>
     /// Representation of a route for use at runtime.

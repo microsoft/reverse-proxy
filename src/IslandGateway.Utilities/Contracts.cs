@@ -3,7 +3,7 @@
 
 using System;
 
-namespace IslandGateway.Utilities
+namespace Microsoft.ReverseProxy.Utilities
 {
     /// <summary>
     /// Simple argument validation helpers.

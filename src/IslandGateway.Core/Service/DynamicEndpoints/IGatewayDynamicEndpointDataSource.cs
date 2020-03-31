@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using AspNetCore = Microsoft.AspNetCore;
 
-namespace IslandGateway.Core.Service
+namespace Microsoft.ReverseProxy.Core.Service
 {
     /// <summary>
     /// Provides a method to update the list of ASP .NET Core Endpoints

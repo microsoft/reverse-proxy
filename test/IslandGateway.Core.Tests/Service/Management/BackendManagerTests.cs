@@ -2,12 +2,12 @@
 // Licensed under the MIT License.
 
 using FluentAssertions;
-using IslandGateway.Core.Service.Proxy.Infra;
+using Microsoft.ReverseProxy.Core.Service.Proxy.Infra;
 using Moq;
 using Tests.Common;
 using Xunit;
 
-namespace IslandGateway.Core.Service.Management.Tests
+namespace Microsoft.ReverseProxy.Core.Service.Management.Tests
 {
     /// <summary>
     /// Tests for the <see cref="BackendManager"/> class.

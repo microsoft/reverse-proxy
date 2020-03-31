@@ -3,13 +3,13 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using IslandGateway.Core.Service.Management;
-using IslandGateway.Core.Service.Proxy.Infra;
-using IslandGateway.Core.Util;
-using IslandGateway.Utilities;
-using IslandGateway.Signals;
+using Microsoft.ReverseProxy.Core.Service.Management;
+using Microsoft.ReverseProxy.Core.Service.Proxy.Infra;
+using Microsoft.ReverseProxy.Core.Util;
+using Microsoft.ReverseProxy.Utilities;
+using Microsoft.ReverseProxy.Signals;
 
-namespace IslandGateway.Core.RuntimeModel
+namespace Microsoft.ReverseProxy.Core.RuntimeModel
 {
     /// <summary>
     /// Representation of a backend for use at runtime.

@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using IslandGateway.Core.ConfigModel;
-using IslandGateway.Core.RuntimeModel;
+using Microsoft.ReverseProxy.Core.ConfigModel;
+using Microsoft.ReverseProxy.Core.RuntimeModel;
 
-namespace IslandGateway.Core.Service
+namespace Microsoft.ReverseProxy.Core.Service
 {
     /// <summary>
     /// Interface for a class that transforms Core Gateway routes

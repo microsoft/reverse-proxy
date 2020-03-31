@@ -7,13 +7,13 @@ using System.Reflection;
 
 using FluentAssertions;
 
-using IslandGateway.Common.Abstractions.Time;
-using IslandGateway.Common.Util;
+using Microsoft.ReverseProxy.Common.Abstractions.Time;
+using Microsoft.ReverseProxy.Common.Util;
 using Tests.Common;
 
 using Xunit;
 
-namespace IslandGateway.Common.Tests
+namespace Microsoft.ReverseProxy.Common.Tests
 {
     public class CacheTests : TestAutoMockBase
     {

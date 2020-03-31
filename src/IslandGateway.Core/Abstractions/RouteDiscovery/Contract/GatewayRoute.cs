@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace IslandGateway.Core.Abstractions
+namespace Microsoft.ReverseProxy.Core.Abstractions
 {
     /// <summary>
     /// Describes a route that matches incoming requests based on a the <see cref="Match"/> criteria

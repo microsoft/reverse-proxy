@@ -7,7 +7,7 @@ using System.Linq;
 using FluentAssertions;
 using Xunit;
 
-namespace IslandGateway.Core.Util.Tests
+namespace Microsoft.ReverseProxy.Core.Util.Tests
 {
     public class ReferenceEqualityComparerTests
     {

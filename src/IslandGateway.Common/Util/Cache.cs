@@ -5,9 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-using IslandGateway.Common.Abstractions.Time;
+using Microsoft.ReverseProxy.Common.Abstractions.Time;
 
-namespace IslandGateway.Common.Util
+namespace Microsoft.ReverseProxy.Common.Util
 {
     /// <summary>
     /// TODO.

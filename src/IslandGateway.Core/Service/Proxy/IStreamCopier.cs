@@ -5,7 +5,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace IslandGateway.Core.Service.Proxy
+namespace Microsoft.ReverseProxy.Core.Service.Proxy
 {
     /// <summary>
     /// Provides a method to copy the contents of one stream to another stream.

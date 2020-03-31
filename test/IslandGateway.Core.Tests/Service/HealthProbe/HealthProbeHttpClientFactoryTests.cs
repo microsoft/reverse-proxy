@@ -5,7 +5,7 @@ using System.Net.Http;
 using FluentAssertions;
 using Xunit;
 
-namespace IslandGateway.Core.Service.HealthProbe
+namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
 {
     public class HealthProbeHttpClientFactoryTests
     {

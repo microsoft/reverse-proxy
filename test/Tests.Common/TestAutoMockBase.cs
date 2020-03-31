@@ -4,7 +4,7 @@
 using System;
 using Autofac.Core;
 using Autofac.Extras.Moq;
-using IslandGateway.Utilities;
+using Microsoft.ReverseProxy.Utilities;
 using Moq;
 
 namespace Tests.Common

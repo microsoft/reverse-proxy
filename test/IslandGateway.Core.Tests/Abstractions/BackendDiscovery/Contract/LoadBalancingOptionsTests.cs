@@ -4,7 +4,7 @@
 using FluentAssertions;
 using Xunit;
 
-namespace IslandGateway.Core.Abstractions.Tests
+namespace Microsoft.ReverseProxy.Core.Abstractions.Tests
 {
     public class LoadBalancingOptionsTests
     {

@@ -1,14 +1,14 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using IslandGateway.Common.Abstractions.Telemetry;
-using IslandGateway.Common.Abstractions.Time;
-using IslandGateway.Core.RuntimeModel;
-using IslandGateway.Core.Service.Management;
-using IslandGateway.Utilities;
 using Microsoft.Extensions.Logging;
+using Microsoft.ReverseProxy.Common.Abstractions.Telemetry;
+using Microsoft.ReverseProxy.Common.Abstractions.Time;
+using Microsoft.ReverseProxy.Core.RuntimeModel;
+using Microsoft.ReverseProxy.Core.Service.Management;
+using Microsoft.ReverseProxy.Utilities;
 
-namespace IslandGateway.Core.Service.HealthProbe
+namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
 {
     /// <summary>
     /// Factory class that provide instance of  <see cref="BackendProber"/> . The factory provide a way of dependency injection to pass

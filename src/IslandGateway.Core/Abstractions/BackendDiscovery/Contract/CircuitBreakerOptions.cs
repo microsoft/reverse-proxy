@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace IslandGateway.Core.Abstractions
+namespace Microsoft.ReverseProxy.Core.Abstractions
 {
     /// <summary>
     /// Circuit breaker options.

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace IslandGateway.Core.Abstractions
+namespace Microsoft.ReverseProxy.Core.Abstractions
 {
     /// <summary>
     /// Manages the set of backend endpoints. Changes only become effective when

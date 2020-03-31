@@ -3,7 +3,7 @@
 
 using System;
 
-namespace IslandGateway.Core.Abstractions
+namespace Microsoft.ReverseProxy.Core.Abstractions
 {
     /// <summary>
     /// Represents unexpected gateway errors.

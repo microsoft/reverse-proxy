@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace IslandGateway.Core.Abstractions
+namespace Microsoft.ReverseProxy.Core.Abstractions
 {
     /// <summary>
     /// Describes an endpoint of a backend. Not to be confused with ASP .NET Core Endpoint Routing.

@@ -4,16 +4,16 @@
 using System;
 
 using FluentAssertions;
-using IslandGateway.Common.Abstractions.Telemetry;
-using IslandGateway.Common.Abstractions.Time;
-using IslandGateway.Core.RuntimeModel;
-using IslandGateway.Core.Service.Management;
+using Microsoft.ReverseProxy.Common.Abstractions.Telemetry;
+using Microsoft.ReverseProxy.Common.Abstractions.Time;
+using Microsoft.ReverseProxy.Core.RuntimeModel;
+using Microsoft.ReverseProxy.Core.Service.Management;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Tests.Common;
 using Xunit;
 
-namespace IslandGateway.Core.Service.HealthProbe
+namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
 {
     public class BackendProberFactoryTests : TestAutoMockBase
     {

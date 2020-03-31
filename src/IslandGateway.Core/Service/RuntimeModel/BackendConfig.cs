@@ -3,7 +3,7 @@
 
 using System;
 
-namespace IslandGateway.Core.RuntimeModel
+namespace Microsoft.ReverseProxy.Core.RuntimeModel
 {
     /// <summary>
     /// Immutable representation of the portions of a backend

@@ -3,12 +3,12 @@
 
 using System;
 using FluentAssertions;
-using IslandGateway.Core.Service.Management;
-using IslandGateway.Core.Service.Proxy.Infra;
+using Microsoft.ReverseProxy.Core.Service.Management;
+using Microsoft.ReverseProxy.Core.Service.Proxy.Infra;
 using Tests.Common;
 using Xunit;
 
-namespace IslandGateway.Core.RuntimeModel.Tests
+namespace Microsoft.ReverseProxy.Core.RuntimeModel.Tests
 {
     public class BackendInfoTests : TestAutoMockBase
     {

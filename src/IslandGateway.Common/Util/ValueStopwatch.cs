@@ -4,7 +4,7 @@
 using System;
 using System.Diagnostics;
 
-namespace IslandGateway.Common.Util
+namespace Microsoft.ReverseProxy.Common.Util
 {
     /// <summary>
     /// Value-type replacement for <see cref="Stopwatch"/> which avoids allocations.

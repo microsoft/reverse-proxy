@@ -2,10 +2,10 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using IslandGateway.Core.Abstractions;
-using IslandGateway.Utilities;
+using Microsoft.ReverseProxy.Core.Abstractions;
+using Microsoft.ReverseProxy.Utilities;
 
-namespace IslandGateway.Core.ConfigModel
+namespace Microsoft.ReverseProxy.Core.ConfigModel
 {
     internal class BackendWithEndpoints
     {

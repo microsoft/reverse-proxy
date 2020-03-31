@@ -5,16 +5,16 @@ using System;
 using System.Collections.Generic;
 using FluentAssertions;
 using FluentAssertions.Common;
-using IslandGateway.Core.ConfigModel;
-using IslandGateway.Core.RuntimeModel;
-using IslandGateway.Core.Service.Management;
-using IslandGateway.Core.Service.Proxy.Infra;
+using Microsoft.ReverseProxy.Core.ConfigModel;
+using Microsoft.ReverseProxy.Core.RuntimeModel;
+using Microsoft.ReverseProxy.Core.Service.Management;
+using Microsoft.ReverseProxy.Core.Service.Proxy.Infra;
 using Moq;
 using Tests.Common;
 using Xunit;
 using AspNetCore = Microsoft.AspNetCore;
 
-namespace IslandGateway.Core.Service.Tests
+namespace Microsoft.ReverseProxy.Core.Service.Tests
 {
     public class RuntimeRouteBuilderTests : TestAutoMockBase
     {

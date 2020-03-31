@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace IslandGateway.Core
+namespace Microsoft.ReverseProxy.Core
 {
     internal static class DeepCloneableExtensions
     {

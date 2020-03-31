@@ -5,10 +5,10 @@ using System.Buffers;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using IslandGateway.Core.Service.Metrics;
-using IslandGateway.Utilities;
+using Microsoft.ReverseProxy.Core.Service.Metrics;
+using Microsoft.ReverseProxy.Utilities;
 
-namespace IslandGateway.Core.Service.Proxy
+namespace Microsoft.ReverseProxy.Core.Service.Proxy
 {
     /// <summary>
     /// Default implementation of <see cref="IStreamCopier"/>.

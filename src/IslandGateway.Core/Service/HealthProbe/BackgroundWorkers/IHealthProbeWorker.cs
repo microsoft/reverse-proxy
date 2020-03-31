@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 
 using System.Threading.Tasks;
-using IslandGateway.Core.Service.Management;
+using Microsoft.ReverseProxy.Core.Service.Management;
 
-namespace IslandGateway.Core.Service.HealthProbe
+namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
 {
     /// <summary>
     /// Interface for the active health probe background worker,

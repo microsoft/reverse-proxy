@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using IslandGateway.Core.Abstractions;
-using IslandGateway.Core.ConfigModel;
+using Microsoft.ReverseProxy.Core.Abstractions;
+using Microsoft.ReverseProxy.Core.ConfigModel;
 
-namespace IslandGateway.Core.Service
+namespace Microsoft.ReverseProxy.Core.Service
 {
     /// <summary>
     /// Provides a method to validate a route.

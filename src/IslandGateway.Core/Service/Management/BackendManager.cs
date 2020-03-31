@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using IslandGateway.Core.RuntimeModel;
-using IslandGateway.Core.Service.Proxy.Infra;
-using IslandGateway.Utilities;
+using Microsoft.ReverseProxy.Core.RuntimeModel;
+using Microsoft.ReverseProxy.Core.Service.Proxy.Infra;
+using Microsoft.ReverseProxy.Utilities;
 
-namespace IslandGateway.Core.Service.Management
+namespace Microsoft.ReverseProxy.Core.Service.Management
 {
     internal sealed class BackendManager : ItemManagerBase<BackendInfo>, IBackendManager
     {

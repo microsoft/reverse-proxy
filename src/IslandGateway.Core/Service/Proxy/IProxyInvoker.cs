@@ -4,7 +4,7 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
-namespace IslandGateway.Core.Service.Proxy
+namespace Microsoft.ReverseProxy.Core.Service.Proxy
 {
     /// <summary>
     /// Provides a method to proxy the request to the appropriate target.

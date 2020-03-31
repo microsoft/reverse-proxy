@@ -3,7 +3,7 @@
 
 using System.Net.Http;
 
-namespace IslandGateway.Core.Service.Proxy.Infra
+namespace Microsoft.ReverseProxy.Core.Service.Proxy.Infra
 {
     /// <summary>
     /// Provides a method to create instances of <see cref="IProxyHttpClientFactory"/>

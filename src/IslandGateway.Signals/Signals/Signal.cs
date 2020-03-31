@@ -4,7 +4,7 @@
 using System;
 using System.Threading;
 
-namespace IslandGateway.Signals
+namespace Microsoft.ReverseProxy.Signals
 {
     /// <summary>
     /// Represents a signal that holds a value of type <typeparamref name="T"/>

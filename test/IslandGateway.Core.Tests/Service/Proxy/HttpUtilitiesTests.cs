@@ -6,7 +6,7 @@ using System.Net.Http;
 using FluentAssertions;
 using Xunit;
 
-namespace IslandGateway.Core.Service.Proxy.Tests
+namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
 {
     public class HttpUtilitiesTests
     {

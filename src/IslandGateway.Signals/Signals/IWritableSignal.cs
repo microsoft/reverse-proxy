@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace IslandGateway.Signals
+namespace Microsoft.ReverseProxy.Signals
 {
     /// <summary>
     /// Represents a signal whose value can be set at any time, and

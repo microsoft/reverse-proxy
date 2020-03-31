@@ -4,7 +4,7 @@
 using FluentAssertions;
 using Xunit;
 
-namespace IslandGateway.Core.Service.Management.Tests
+namespace Microsoft.ReverseProxy.Core.Service.Management.Tests
 {
     /// <summary>
     /// Tests for the <see cref="RouteManager"/> class.

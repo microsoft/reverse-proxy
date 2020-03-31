@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using IslandGateway.Core.Util;
-using IslandGateway.Utilities;
-using IslandGateway.Signals;
+using Microsoft.ReverseProxy.Core.Util;
+using Microsoft.ReverseProxy.Utilities;
+using Microsoft.ReverseProxy.Signals;
 
-namespace IslandGateway.Core.RuntimeModel
+namespace Microsoft.ReverseProxy.Core.RuntimeModel
 {
     /// <summary>
     /// Representation of a backend's endpoint for use at runtime.

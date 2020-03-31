@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -11,16 +11,16 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
-using IslandGateway.Core.Abstractions;
-using IslandGateway.Core.Service.Metrics;
-using IslandGateway.Core.Service.Proxy.Infra;
-using IslandGateway.Utilities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
+using Microsoft.ReverseProxy.Core.Abstractions;
+using Microsoft.ReverseProxy.Core.Service.Metrics;
+using Microsoft.ReverseProxy.Core.Service.Proxy.Infra;
+using Microsoft.ReverseProxy.Utilities;
 
-namespace IslandGateway.Core.Service.Proxy
+namespace Microsoft.ReverseProxy.Core.Service.Proxy
 {
     /// <summary>
     /// Default implementation of <see cref="IHttpProxy"/>.

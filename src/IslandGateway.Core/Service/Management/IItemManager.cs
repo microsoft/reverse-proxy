@@ -3,9 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using IslandGateway.Signals;
+using Microsoft.ReverseProxy.Signals;
 
-namespace IslandGateway.Core.Service.Management
+namespace Microsoft.ReverseProxy.Core.Service.Management
 {
     /// <summary>
     /// Manages the runtime state of items.

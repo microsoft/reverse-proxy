@@ -4,9 +4,9 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using IslandGateway.Core.Abstractions;
+using Microsoft.ReverseProxy.Core.Abstractions;
 
-namespace IslandGateway.Core.Service
+namespace Microsoft.ReverseProxy.Core.Service
 {
     internal class InMemoryBackendsRepo : InMemoryListBase<Backend>, IBackendsRepo
     {

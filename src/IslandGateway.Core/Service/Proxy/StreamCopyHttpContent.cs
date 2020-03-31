@@ -7,9 +7,9 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using IslandGateway.Utilities;
+using Microsoft.ReverseProxy.Utilities;
 
-namespace IslandGateway.Core.Service.Proxy
+namespace Microsoft.ReverseProxy.Core.Service.Proxy
 {
     /// <summary>
     /// Custom <see cref="HttpContent"/>

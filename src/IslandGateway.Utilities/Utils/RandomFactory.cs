@@ -3,7 +3,7 @@
 
 using System;
 
-namespace IslandGateway.Utilities
+namespace Microsoft.ReverseProxy.Utilities
 {
     /// <inheritdoc/>
     public class RandomFactory : IRandomFactory

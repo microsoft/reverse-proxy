@@ -1,11 +1,11 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace IslandGateway.Common.Abstractions.Time
+namespace Microsoft.ReverseProxy.Common.Abstractions.Time
 {
     /// <summary>
     /// Abstraction for measuring time that is monotonically increasing.

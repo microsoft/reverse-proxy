@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace IslandGateway.Core.Service.Management
+namespace Microsoft.ReverseProxy.Core.Service.Management
 {
     /// <summary>
     /// Provides a method <see cref="CreateEndpointManager"/> used to manage

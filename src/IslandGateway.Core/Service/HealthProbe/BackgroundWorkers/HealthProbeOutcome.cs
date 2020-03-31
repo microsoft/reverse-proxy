@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace IslandGateway.Core.Service.HealthProbe
+namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
 {
     // The outcome of probing the endpoint health. The class enumerate the below possible state.
     // This is also offering help on logging.

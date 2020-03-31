@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace IslandGateway.Core
+namespace Microsoft.ReverseProxy.Core
 {
     /// <summary>
     /// Interface for a class that can be deep-cloned.

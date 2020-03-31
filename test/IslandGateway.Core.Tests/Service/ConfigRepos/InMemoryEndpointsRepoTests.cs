@@ -5,10 +5,10 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using IslandGateway.Core.Abstractions;
+using Microsoft.ReverseProxy.Core.Abstractions;
 using Xunit;
 
-namespace IslandGateway.Core.Service.Tests
+namespace Microsoft.ReverseProxy.Core.Service.Tests
 {
     public class InMemoryEndpointsRepoTests
     {

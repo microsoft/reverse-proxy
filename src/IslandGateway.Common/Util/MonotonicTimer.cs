@@ -6,9 +6,9 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
-using IslandGateway.Common.Abstractions.Time;
+using Microsoft.ReverseProxy.Common.Abstractions.Time;
 
-namespace IslandGateway.Common.Util
+namespace Microsoft.ReverseProxy.Common.Util
 {
     /// <summary>
     /// Provides a way to measure time in a monotonic fashion, immune to any system clock changes.

@@ -12,7 +12,7 @@ using FluentAssertions;
 using Moq;
 using Xunit;
 
-namespace IslandGateway.Core.Service.Proxy.Tests
+namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
 {
     public class StreamCopyHttpContentTests
     {

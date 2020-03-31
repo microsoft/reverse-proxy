@@ -3,12 +3,12 @@
 
 using System;
 using FluentAssertions;
-using IslandGateway.Core.Abstractions;
-using IslandGateway.Core.RuntimeModel;
+using Microsoft.ReverseProxy.Core.Abstractions;
+using Microsoft.ReverseProxy.Core.RuntimeModel;
 using Tests.Common;
 using Xunit;
 
-namespace IslandGateway.Core.Service.Proxy.Tests
+namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
 {
     public class LoadBalancerTests : TestAutoMockBase
     {

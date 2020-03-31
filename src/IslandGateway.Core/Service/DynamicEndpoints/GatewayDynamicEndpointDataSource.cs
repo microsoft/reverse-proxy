@@ -7,7 +7,7 @@ using System.Threading;
 using Microsoft.Extensions.Primitives;
 using AspNetCore = Microsoft.AspNetCore;
 
-namespace IslandGateway.Core.Service
+namespace Microsoft.ReverseProxy.Core.Service
 {
     /// <summary>
     /// Implementation of <see cref="AspNetCore.Routing.EndpointDataSource"/> that supports being dynamically updated

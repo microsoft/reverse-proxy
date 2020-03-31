@@ -2,12 +2,12 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using IslandGateway.Core.ConfigModel;
-using IslandGateway.Core.Service;
-using IslandGateway.Utilities;
+using Microsoft.ReverseProxy.Core.ConfigModel;
+using Microsoft.ReverseProxy.Core.Service;
+using Microsoft.ReverseProxy.Utilities;
 using AspNetCore = Microsoft.AspNetCore;
 
-namespace IslandGateway.Core.RuntimeModel
+namespace Microsoft.ReverseProxy.Core.RuntimeModel
 {
     /// <summary>
     /// Immutable representation of the portions of a route

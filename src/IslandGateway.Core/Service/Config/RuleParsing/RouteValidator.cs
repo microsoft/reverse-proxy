@@ -4,12 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using IslandGateway.Core.Abstractions;
-using IslandGateway.Core.ConfigModel;
-using IslandGateway.Utilities;
 using Microsoft.AspNetCore.Routing.Patterns;
+using Microsoft.ReverseProxy.Core.Abstractions;
+using Microsoft.ReverseProxy.Core.ConfigModel;
+using Microsoft.ReverseProxy.Utilities;
 
-namespace IslandGateway.Core.Service
+namespace Microsoft.ReverseProxy.Core.Service
 {
     internal class RouteValidator : IRouteValidator
     {

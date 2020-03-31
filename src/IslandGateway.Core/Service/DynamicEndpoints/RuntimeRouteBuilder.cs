@@ -3,13 +3,13 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using IslandGateway.Core.ConfigModel;
-using IslandGateway.Core.RuntimeModel;
-using IslandGateway.Core.Service.Proxy;
-using IslandGateway.Utilities;
+using Microsoft.ReverseProxy.Core.ConfigModel;
+using Microsoft.ReverseProxy.Core.RuntimeModel;
+using Microsoft.ReverseProxy.Core.Service.Proxy;
+using Microsoft.ReverseProxy.Utilities;
 using AspNetCore = Microsoft.AspNetCore;
 
-namespace IslandGateway.Core.Service
+namespace Microsoft.ReverseProxy.Core.Service
 {
     /// <summary>
     /// Default implementation of the <see cref="IRuntimeRouteBuilder"/> interface.

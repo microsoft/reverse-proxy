@@ -1,11 +1,11 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using IslandGateway.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.ReverseProxy.Utilities;
 
-namespace IslandGateway.Sample.Controllers
+namespace Microsoft.ReverseProxy.Sample.Controllers
 {
     /// <summary>
     /// Controller for health check api.

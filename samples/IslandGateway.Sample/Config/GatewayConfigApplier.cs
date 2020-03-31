@@ -1,16 +1,16 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using IslandGateway.Core.Abstractions;
-using IslandGateway.Utilities;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.ReverseProxy.Core.Abstractions;
+using Microsoft.ReverseProxy.Utilities;
 
-namespace IslandGateway.Sample.Config
+namespace Microsoft.ReverseProxy.Sample.Config
 {
     /// <summary>
     /// Reacts to configuration changes for type <see cref="GatewayConfigRoot"/>

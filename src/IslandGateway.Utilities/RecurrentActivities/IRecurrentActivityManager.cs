@@ -4,9 +4,9 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using IslandGateway.Common.Abstractions.Telemetry;
+using Microsoft.ReverseProxy.Common.Abstractions.Telemetry;
 
-namespace IslandGateway.Utilities
+namespace Microsoft.ReverseProxy.Utilities
 {
     /// <summary>
     /// Assists in regularly executing a set of simple background tasks.

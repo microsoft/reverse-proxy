@@ -3,7 +3,7 @@
 
 using Microsoft.Extensions.DependencyInjection;
 
-namespace IslandGateway.Core.Configuration.DependencyInjection
+namespace Microsoft.ReverseProxy.Core.Configuration.DependencyInjection
 {
     /// <summary>
     /// Island Gateway builder interface.

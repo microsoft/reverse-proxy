@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using IslandGateway.Utilities;
+using Microsoft.ReverseProxy.Utilities;
 
-namespace IslandGateway.Core.RuntimeModel
+namespace Microsoft.ReverseProxy.Core.RuntimeModel
 {
     internal sealed class BackendDynamicState
     {

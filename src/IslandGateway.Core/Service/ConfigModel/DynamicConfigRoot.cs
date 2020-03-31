@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace IslandGateway.Core.ConfigModel
+namespace Microsoft.ReverseProxy.Core.ConfigModel
 {
     internal class DynamicConfigRoot
     {

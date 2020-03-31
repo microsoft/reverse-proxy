@@ -5,10 +5,10 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
-using IslandGateway.Signals;
+using Microsoft.ReverseProxy.Signals;
 using Xunit;
 
-namespace IslandGateway.Core.Service.Management.Tests
+namespace Microsoft.ReverseProxy.Core.Service.Management.Tests
 {
     public class ItemManagerBaseTests
     {

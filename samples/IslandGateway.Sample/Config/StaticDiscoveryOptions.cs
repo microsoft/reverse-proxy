@@ -3,9 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using IslandGateway.Core.Abstractions;
+using Microsoft.ReverseProxy.Core.Abstractions;
 
-namespace IslandGateway.Sample.Config
+namespace Microsoft.ReverseProxy.Sample.Config
 {
     internal class StaticDiscoveryOptions
     {

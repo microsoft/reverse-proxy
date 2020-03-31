@@ -3,7 +3,7 @@
 
 using Xunit;
 
-namespace IslandGateway.Sample.Tests
+namespace Microsoft.ReverseProxy.Sample.Tests
 {
     public class DummyTests
     {

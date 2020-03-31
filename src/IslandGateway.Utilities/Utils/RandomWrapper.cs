@@ -3,7 +3,7 @@
 
 using System;
 
-namespace IslandGateway.Utilities
+namespace Microsoft.ReverseProxy.Utilities
 {
     /// <summary>
     /// Wrapper around <see cref="Random"/> that facilitates deterministic unit testing.

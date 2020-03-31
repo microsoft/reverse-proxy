@@ -5,9 +5,9 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-using IslandGateway.Common.Abstractions.Time;
+using Microsoft.ReverseProxy.Common.Abstractions.Time;
 
-namespace IslandGateway.Common.Util
+namespace Microsoft.ReverseProxy.Common.Util
 {
     /// <summary>
     /// Extension methods for <see cref="MonotonicTimer"/>.

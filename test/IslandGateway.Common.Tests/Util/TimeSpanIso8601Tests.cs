@@ -7,11 +7,11 @@ using System.Reflection;
 
 using FluentAssertions;
 
-using IslandGateway.Common.Util;
+using Microsoft.ReverseProxy.Common.Util;
 
 using Xunit;
 
-namespace IslandGateway.Common.Tests
+namespace Microsoft.ReverseProxy.Common.Tests
 {
     public class TimeSpanIso8601Tests
     {

@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace IslandGateway.Core.Service
+namespace Microsoft.ReverseProxy.Core.Service
 {
     internal abstract class InMemoryListBase<T>
         where T : IDeepCloneable<T>

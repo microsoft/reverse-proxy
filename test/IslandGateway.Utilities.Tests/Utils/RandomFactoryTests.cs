@@ -3,10 +3,10 @@
 
 using System;
 using FluentAssertions;
-using IslandGateway.Utilities;
+using Microsoft.ReverseProxy.Utilities;
 using Xunit;
 
-namespace IslandGateway.Utilities
+namespace Microsoft.ReverseProxy.Utilities
 {
     public class RandomFactoryTests
     {

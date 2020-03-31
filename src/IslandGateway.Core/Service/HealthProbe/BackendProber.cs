@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -6,15 +6,15 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using IslandGateway.Common.Abstractions.Telemetry;
-using IslandGateway.Common.Abstractions.Time;
-using IslandGateway.Common.Util;
-using IslandGateway.Core.RuntimeModel;
-using IslandGateway.Core.Service.Management;
-using IslandGateway.Utilities;
 using Microsoft.Extensions.Logging;
+using Microsoft.ReverseProxy.Common.Abstractions.Telemetry;
+using Microsoft.ReverseProxy.Common.Abstractions.Time;
+using Microsoft.ReverseProxy.Common.Util;
+using Microsoft.ReverseProxy.Core.RuntimeModel;
+using Microsoft.ReverseProxy.Core.Service.Management;
+using Microsoft.ReverseProxy.Utilities;
 
-namespace IslandGateway.Core.Service.HealthProbe
+namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
 {
     internal class BackendProber : IBackendProber
     {

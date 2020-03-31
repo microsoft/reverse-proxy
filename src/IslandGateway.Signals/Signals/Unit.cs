@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace IslandGateway.Signals
+namespace Microsoft.ReverseProxy.Signals
 {
     /// <summary>
     /// Dummy value which can be used as a type parameter with <see cref="Signal{T}"/>

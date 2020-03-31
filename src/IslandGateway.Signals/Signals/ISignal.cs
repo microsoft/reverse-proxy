@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace IslandGateway.Signals
+namespace Microsoft.ReverseProxy.Signals
 {
     /// <summary>
     /// All signals implement this interface, which includes a property

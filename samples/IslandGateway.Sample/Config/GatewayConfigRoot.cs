@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace IslandGateway.Sample.Config
+namespace Microsoft.ReverseProxy.Sample.Config
 {
     internal class GatewayConfigRoot
     {

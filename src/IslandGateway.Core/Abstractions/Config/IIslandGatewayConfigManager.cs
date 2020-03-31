@@ -3,9 +3,9 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using IslandGateway.Core.Service;
+using Microsoft.ReverseProxy.Core.Service;
 
-namespace IslandGateway.Core.Abstractions
+namespace Microsoft.ReverseProxy.Core.Abstractions
 {
     /// <summary>
     /// High-level management of Island Gateway state.

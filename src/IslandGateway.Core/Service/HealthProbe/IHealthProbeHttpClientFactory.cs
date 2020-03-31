@@ -3,7 +3,7 @@
 
 using System.Net.Http;
 
-namespace IslandGateway.Core.Service.HealthProbe
+namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
 {
     /// <summary>
     /// Factory for creating http client instance. This factory let us able to inject http client into backendProber class.

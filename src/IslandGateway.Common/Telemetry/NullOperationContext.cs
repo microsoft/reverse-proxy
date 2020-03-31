@@ -1,9 +1,9 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using IslandGateway.Common.Abstractions.Telemetry;
+using Microsoft.ReverseProxy.Common.Abstractions.Telemetry;
 
-namespace IslandGateway.Common.Telemetry
+namespace Microsoft.ReverseProxy.Common.Telemetry
 {
     /// <summary>
     /// Implementation of <see cref="IOperationContext"/>

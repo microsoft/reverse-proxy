@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
 
-namespace IslandGateway.Signals.Tests
+namespace Microsoft.ReverseProxy.Signals.Tests
 {
     /// <summary>
     /// Tests for the <see cref="Signal{T}"/> class.

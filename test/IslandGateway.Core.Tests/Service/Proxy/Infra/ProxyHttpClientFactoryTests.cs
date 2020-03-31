@@ -2,11 +2,11 @@
 // Licensed under the MIT License.
 
 using FluentAssertions;
-using IslandGateway.Core.Service.Proxy.Infra;
+using Microsoft.ReverseProxy.Core.Service.Proxy.Infra;
 using Tests.Common;
 using Xunit;
 
-namespace IslandGateway.Core.Service.Proxy.Tests
+namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
 {
     public class ProxyHttpClientFactoryTests : TestAutoMockBase
     {

@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -9,16 +9,16 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using IslandGateway.Common.Abstractions.Telemetry;
-using IslandGateway.Core.Service.Proxy.Infra;
-using IslandGateway.Utilities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.ReverseProxy.Common.Abstractions.Telemetry;
+using Microsoft.ReverseProxy.Core.Service.Proxy.Infra;
+using Microsoft.ReverseProxy.Utilities;
 using Moq;
 using Tests.Common;
 using Xunit;
 
-namespace IslandGateway.Core.Service.Proxy.Tests
+namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
 {
     public class HttpProxyTests : TestAutoMockBase
     {

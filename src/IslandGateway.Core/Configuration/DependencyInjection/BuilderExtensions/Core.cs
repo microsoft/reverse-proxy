@@ -1,19 +1,19 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using IslandGateway.Common.Abstractions.Telemetry;
-using IslandGateway.Common.Abstractions.Time;
-using IslandGateway.Common.Telemetry;
-using IslandGateway.Common.Util;
-using IslandGateway.Core.Abstractions;
-using IslandGateway.Core.Service;
-using IslandGateway.Core.Service.Management;
-using IslandGateway.Core.Service.Metrics;
-using IslandGateway.Core.Service.Proxy;
-using IslandGateway.Core.Service.Proxy.Infra;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.ReverseProxy.Common.Abstractions.Telemetry;
+using Microsoft.ReverseProxy.Common.Abstractions.Time;
+using Microsoft.ReverseProxy.Common.Telemetry;
+using Microsoft.ReverseProxy.Common.Util;
+using Microsoft.ReverseProxy.Core.Abstractions;
+using Microsoft.ReverseProxy.Core.Service;
+using Microsoft.ReverseProxy.Core.Service.Management;
+using Microsoft.ReverseProxy.Core.Service.Metrics;
+using Microsoft.ReverseProxy.Core.Service.Proxy;
+using Microsoft.ReverseProxy.Core.Service.Proxy.Infra;
 
-namespace IslandGateway.Core.Configuration.DependencyInjection
+namespace Microsoft.ReverseProxy.Core.Configuration.DependencyInjection
 {
     internal static class Core
     {

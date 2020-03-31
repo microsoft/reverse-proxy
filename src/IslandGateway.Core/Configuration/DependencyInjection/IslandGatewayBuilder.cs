@@ -1,10 +1,10 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using IslandGateway.Utilities;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.ReverseProxy.Utilities;
 
-namespace IslandGateway.Core.Configuration.DependencyInjection
+namespace Microsoft.ReverseProxy.Core.Configuration.DependencyInjection
 {
     /// <summary>
     /// Island Gateway builder for DI configuration.

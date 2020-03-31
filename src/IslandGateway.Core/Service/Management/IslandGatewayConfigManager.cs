@@ -5,14 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using IslandGateway.Core.Abstractions;
-using IslandGateway.Core.ConfigModel;
-using IslandGateway.Core.RuntimeModel;
-using IslandGateway.Utilities;
 using Microsoft.Extensions.Logging;
-using AspNetCore = Microsoft.AspNetCore;
+using Microsoft.ReverseProxy.Core.Abstractions;
+using Microsoft.ReverseProxy.Core.ConfigModel;
+using Microsoft.ReverseProxy.Core.RuntimeModel;
+using Microsoft.ReverseProxy.Utilities;
 
-namespace IslandGateway.Core.Service.Management
+namespace Microsoft.ReverseProxy.Core.Service.Management
 {
     /// <summary>
     /// Default implementation of <see cref="IIslandGatewayConfigManager"/>

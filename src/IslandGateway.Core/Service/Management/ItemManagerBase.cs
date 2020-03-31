@@ -4,10 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using IslandGateway.Utilities;
-using IslandGateway.Signals;
+using Microsoft.ReverseProxy.Utilities;
+using Microsoft.ReverseProxy.Signals;
 
-namespace IslandGateway.Core.Service.Management
+namespace Microsoft.ReverseProxy.Core.Service.Management
 {
     internal abstract class ItemManagerBase<T> : IItemManager<T>
         where T : class

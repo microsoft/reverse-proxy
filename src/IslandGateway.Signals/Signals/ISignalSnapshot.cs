@@ -3,7 +3,7 @@
 
 using System;
 
-namespace IslandGateway.Signals
+namespace Microsoft.ReverseProxy.Signals
 {
     /// <summary>
     /// Snapshot of a <see cref="Signal{T}"/> allowing to subscribe to state changes.

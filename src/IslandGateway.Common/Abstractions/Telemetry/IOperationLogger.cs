@@ -1,10 +1,10 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
 using System.Threading.Tasks;
 
-namespace IslandGateway.Common.Abstractions.Telemetry
+namespace Microsoft.ReverseProxy.Common.Abstractions.Telemetry
 {
     /// <summary>
     /// Provides methods to log telemetry for the execution of chunks of

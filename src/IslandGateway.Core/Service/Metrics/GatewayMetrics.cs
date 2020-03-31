@@ -2,10 +2,10 @@
 // Licensed under the MIT License.
 
 using System;
-using IslandGateway.Common.Abstractions.Telemetry;
-using IslandGateway.Utilities;
+using Microsoft.ReverseProxy.Common.Abstractions.Telemetry;
+using Microsoft.ReverseProxy.Utilities;
 
-namespace IslandGateway.Core.Service.Metrics
+namespace Microsoft.ReverseProxy.Core.Service.Metrics
 {
     internal class GatewayMetrics
     {

@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using IslandGateway.Core.RuntimeModel;
+using Microsoft.ReverseProxy.Core.RuntimeModel;
 
-namespace IslandGateway.Core.Service.Proxy
+namespace Microsoft.ReverseProxy.Core.Service.Proxy
 {
     /// <summary>
     /// Provides a method that applies a load balancing policy

@@ -4,14 +4,14 @@
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using IslandGateway.Core.Abstractions;
-using IslandGateway.Core.ConfigModel;
-using IslandGateway.Core.Service.Proxy.Infra;
+using Microsoft.ReverseProxy.Core.Abstractions;
+using Microsoft.ReverseProxy.Core.ConfigModel;
+using Microsoft.ReverseProxy.Core.Service.Proxy.Infra;
 using Moq;
 using Tests.Common;
 using Xunit;
 
-namespace IslandGateway.Core.Service.Management.Tests
+namespace Microsoft.ReverseProxy.Core.Service.Management.Tests
 {
     public class IslandGatewayConfigManagerTests : TestAutoMockBase
     {

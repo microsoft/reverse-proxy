@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace IslandGateway.Signals
+namespace Microsoft.ReverseProxy.Signals
 {
     /// <summary>
     /// Extension methods for <see cref="IReadableSignal{T}"/>.

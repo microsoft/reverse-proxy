@@ -3,9 +3,9 @@
 
 using System.Collections.Generic;
 using System.Text;
-using IslandGateway.Core.Service;
+using Microsoft.ReverseProxy.Core.Service;
 
-namespace IslandGateway.Core.ConfigModel
+namespace Microsoft.ReverseProxy.Core.ConfigModel
 {
     // TODO: Do we even need the ParsedRoute? It now matches the GatewayRoute 1:1
     internal class ParsedRoute

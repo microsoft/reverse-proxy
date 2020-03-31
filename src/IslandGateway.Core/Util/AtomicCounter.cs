@@ -3,7 +3,7 @@
 
 using System.Threading;
 
-namespace IslandGateway.Core.Util
+namespace Microsoft.ReverseProxy.Core.Util
 {
     internal class AtomicCounter
     {

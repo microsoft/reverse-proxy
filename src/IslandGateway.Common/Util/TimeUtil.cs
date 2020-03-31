@@ -3,7 +3,7 @@
 
 using System;
 
-namespace IslandGateway.Common.Util
+namespace Microsoft.ReverseProxy.Common.Util
 {
     /// <summary>
     /// Time and date utilities.

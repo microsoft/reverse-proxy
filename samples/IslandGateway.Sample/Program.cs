@@ -4,7 +4,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
-namespace IslandGateway.Sample
+namespace Microsoft.ReverseProxy.Sample
 {
     /// <summary>
     /// Class that contains the entrypoint for the Island Gateway sample app.

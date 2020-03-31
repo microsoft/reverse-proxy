@@ -1,13 +1,13 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
 using System.Threading.Tasks;
-using IslandGateway.Common.Abstractions.Telemetry;
-using IslandGateway.Common.Util;
 using Microsoft.Extensions.Logging;
+using Microsoft.ReverseProxy.Common.Abstractions.Telemetry;
+using Microsoft.ReverseProxy.Common.Util;
 
-namespace IslandGateway.Common.Telemetry
+namespace Microsoft.ReverseProxy.Common.Telemetry
 {
     /// <summary>
     /// Default implementation of <see cref="IOperationLogger"/>

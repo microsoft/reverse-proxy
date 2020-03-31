@@ -6,7 +6,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 
-namespace IslandGateway.Core.Service.Proxy.Infra
+namespace Microsoft.ReverseProxy.Core.Service.Proxy.Infra
 {
     /// <summary>
     /// Default implementation of <see cref="IProxyHttpClientFactory"/>.

@@ -6,12 +6,12 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using IslandGateway.Common.Abstractions.Telemetry;
-using IslandGateway.Core.Service.Metrics;
+using Microsoft.ReverseProxy.Common.Abstractions.Telemetry;
+using Microsoft.ReverseProxy.Core.Service.Metrics;
 using Tests.Common;
 using Xunit;
 
-namespace IslandGateway.Core.Service.Proxy.Tests
+namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
 {
     public class StreamCopierTests : TestAutoMockBase
     {

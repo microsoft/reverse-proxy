@@ -2,11 +2,11 @@
 // Licensed under the MIT License.
 
 using FluentAssertions;
-using IslandGateway.Common.Abstractions.Telemetry;
+using Microsoft.ReverseProxy.Common.Abstractions.Telemetry;
 using Tests.Common;
 using Xunit;
 
-namespace IslandGateway.Core.Service.Metrics.Tests
+namespace Microsoft.ReverseProxy.Core.Service.Metrics.Tests
 {
     public class GatewayMetricsTests : TestAutoMockBase
     {

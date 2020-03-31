@@ -5,7 +5,7 @@ using System;
 using System.Net.Http;
 using Microsoft.AspNetCore.Http;
 
-namespace IslandGateway.Core.Service.Proxy
+namespace Microsoft.ReverseProxy.Core.Service.Proxy
 {
     internal static class HttpUtilities
     {

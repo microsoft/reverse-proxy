@@ -3,10 +3,10 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using IslandGateway.Core.RuntimeModel;
-using IslandGateway.Utilities;
+using Microsoft.ReverseProxy.Core.RuntimeModel;
+using Microsoft.ReverseProxy.Utilities;
 
-namespace IslandGateway.Core.Service.HealthProbe
+namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
 {
     /// <summary>
     /// An interface for the prober <see cref="BackendProber"/>. Prober is the worker to check and update

@@ -1,9 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using IslandGateway.Core.RuntimeModel;
+using Microsoft.ReverseProxy.Core.RuntimeModel;
 
-namespace IslandGateway.Core.Service.Management
+namespace Microsoft.ReverseProxy.Core.Service.Management
 {
     internal sealed class EndpointManager : ItemManagerBase<EndpointInfo>, IEndpointManager
     {

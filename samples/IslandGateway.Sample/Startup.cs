@@ -1,14 +1,14 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using IslandGateway.Core;
-using IslandGateway.Core.Configuration.DependencyInjection;
-using IslandGateway.Sample.Config;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.ReverseProxy.Core;
+using Microsoft.ReverseProxy.Core.Configuration.DependencyInjection;
+using Microsoft.ReverseProxy.Sample.Config;
 
-namespace IslandGateway.Sample
+namespace Microsoft.ReverseProxy.Sample
 {
     /// <summary>
     /// ASP .NET Core pipeline initialization.

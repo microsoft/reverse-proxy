@@ -5,9 +5,9 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-using IslandGateway.Common.Abstractions.Time;
+using Microsoft.ReverseProxy.Common.Abstractions.Time;
 
-namespace IslandGateway.Common.Util
+namespace Microsoft.ReverseProxy.Common.Util
 {
     /// <summary>
     /// Provides a way to measure time that tracks the wall clock time. Unlike <see cref="MonotonicTimer"/>, this class allows the possibility

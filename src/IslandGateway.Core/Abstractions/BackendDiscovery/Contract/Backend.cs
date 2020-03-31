@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace IslandGateway.Core.Abstractions
+namespace Microsoft.ReverseProxy.Core.Abstractions
 {
     /// <summary>
     /// A backend is a group of equivalent endpoints and associated policies.

@@ -3,7 +3,7 @@
 
 using System;
 
-namespace IslandGateway.Core.Abstractions
+namespace Microsoft.ReverseProxy.Core.Abstractions
 {
     /// <summary>
     /// Represents the result as either successful with a corresponding value of type <typeparamref name="T"/>

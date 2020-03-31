@@ -6,7 +6,7 @@ using FluentAssertions;
 using Xunit;
 using AspNetCore = Microsoft.AspNetCore;
 
-namespace IslandGateway.Core.Service.Tests
+namespace Microsoft.ReverseProxy.Core.Service.Tests
 {
     public class GatewayDynamicEndpointDataSourceTests
     {

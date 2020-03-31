@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-namespace IslandGateway.Core.Util
+namespace Microsoft.ReverseProxy.Core.Util
 {
     /// <summary>
     /// A comparer based on the object reference equality only.

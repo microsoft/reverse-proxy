@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 // #define LOCAL
@@ -9,18 +9,18 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using IslandGateway.Common.Abstractions.Telemetry;
-using IslandGateway.Common.Telemetry;
-using IslandGateway.Common.Util;
-using IslandGateway.Core.RuntimeModel;
-using IslandGateway.Core.Service.Management;
-using IslandGateway.Utilities;
 using Microsoft.Extensions.Logging;
+using Microsoft.ReverseProxy.Common.Abstractions.Telemetry;
+using Microsoft.ReverseProxy.Common.Telemetry;
+using Microsoft.ReverseProxy.Common.Util;
+using Microsoft.ReverseProxy.Core.RuntimeModel;
+using Microsoft.ReverseProxy.Core.Service.Management;
+using Microsoft.ReverseProxy.Utilities;
 using Moq;
 using Tests.Common;
 using Xunit;
 
-namespace IslandGateway.Core.Service.HealthProbe
+namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
 {
     public class BackendProberTests : TestAutoMockBase
     {
