@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <OutputType>Library</OutputType>
-    <RootNamespace>IslandGateway.Core</RootNamespace>
+    <RootNamespace>ReverseProxy.Sample</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\IslandGateway.Core\IslandGateway.Core.csproj" />
+    <ProjectReference Include="..\..\samples\ReverseProxy.Sample\ReverseProxy.Sample.csproj" />
     <ProjectReference Include="..\Tests.Common\Tests.Common.csproj" />
   </ItemGroup>
 

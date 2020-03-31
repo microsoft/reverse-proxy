@@ -14,8 +14,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\IslandGateway.Utilities\IslandGateway.Utilities.csproj" />
-    <ProjectReference Include="..\..\src\IslandGateway.Core\IslandGateway.Core.csproj" />
+    <ProjectReference Include="..\..\src\ReverseProxy.Utilities\ReverseProxy.Utilities.csproj" />
+    <ProjectReference Include="..\..\src\ReverseProxy.Core\ReverseProxy.Core.csproj" />
   </ItemGroup>
 
 </Project>

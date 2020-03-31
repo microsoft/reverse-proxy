@@ -3,12 +3,12 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <OutputType>Library</OutputType>
-    <RootNamespace>IslandGateway.Core</RootNamespace>
+    <RootNamespace>ReverseProxy.Core</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
     <InternalsVisibleTo Include="DynamicProxyGenAssembly2" Key="$(MoqPublicKey)" />
-    <InternalsVisibleTo Include="IslandGateway.Core.Tests" />
+    <InternalsVisibleTo Include="ReverseProxy.Core.Tests" />
   </ItemGroup>
 
   <ItemGroup>
@@ -16,9 +16,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\IslandGateway.Common\IslandGateway.Common.csproj" />
-    <ProjectReference Include="..\IslandGateway.Utilities\IslandGateway.Utilities.csproj" />
-    <ProjectReference Include="..\IslandGateway.Signals\IslandGateway.Signals.csproj" />
+    <ProjectReference Include="..\ReverseProxy.Common\ReverseProxy.Common.csproj" />
+    <ProjectReference Include="..\ReverseProxy.Utilities\ReverseProxy.Utilities.csproj" />
+    <ProjectReference Include="..\ReverseProxy.Signals\ReverseProxy.Signals.csproj" />
   </ItemGroup>
 
   <ItemGroup>
