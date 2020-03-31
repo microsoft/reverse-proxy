@@ -1,12 +1,12 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 namespace Microsoft.ReverseProxy.Sample.Config
 {
-    internal class GatewayConfigRoot
+    internal class ProxyConfigRoot
     {
         /// <summary>
-        /// Discovery mechanism used to configure Backends, Endpoints and Routes in Island Gateway.
+        /// Discovery mechanism used to configure Backends, Endpoints and Routes in Reverse Proxy.
         /// Accepted values are:
         /// <list type="bullet">
         ///   <item>

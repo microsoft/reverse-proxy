@@ -3,9 +3,7 @@
 
 using System.Collections.Generic;
 using Microsoft.ReverseProxy.Core.ConfigModel;
-using Microsoft.ReverseProxy.Core.Service;
 using Microsoft.ReverseProxy.Utilities;
-using AspNetCore = Microsoft.AspNetCore;
 
 namespace Microsoft.ReverseProxy.Core.RuntimeModel
 {

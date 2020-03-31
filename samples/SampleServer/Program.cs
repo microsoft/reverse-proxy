@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Microsoft.AspNetCore.Hosting;
@@ -7,7 +7,7 @@ using Microsoft.Extensions.Hosting;
 namespace SampleServer
 {
     /// <summary>
-    /// Class that contains the entrypoint for the Island Gateway sample app.
+    /// Class that contains the entrypoint for the Reverse Proxy sample app.
     /// </summary>
     public class Program
     {

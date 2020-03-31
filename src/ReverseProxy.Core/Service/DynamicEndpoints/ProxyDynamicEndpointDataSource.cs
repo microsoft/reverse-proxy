@@ -1,11 +1,10 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using Microsoft.Extensions.Primitives;
-using AspNetCore = Microsoft.AspNetCore;
 
 namespace Microsoft.ReverseProxy.Core.Service
 {
@@ -16,7 +15,7 @@ namespace Microsoft.ReverseProxy.Core.Service
     /// <remarks>
     /// This takes inspiration from <a href="https://github.com/aspnet/AspNetCore/blob/master/src/Mvc/Mvc.Core/src/Routing/ActionEndpointDataSourceBase.cs"/>.
     /// </remarks>
-    internal class GatewayDynamicEndpointDataSource : AspNetCore.Routing.EndpointDataSource, IGatewayDynamicEndpointDataSource
+    internal class ProxyDynamicEndpointDataSource : AspNetCore.Routing.EndpointDataSource, IProxyDynamicEndpointDataSource
     {
         private readonly object _syncRoot = new object();
 
@@ -25,9 +24,9 @@ namespace Microsoft.ReverseProxy.Core.Service
         private IChangeToken _changeToken;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="GatewayDynamicEndpointDataSource"/> class.
+        /// Initializes a new instance of the <see cref="ProxyDynamicEndpointDataSource"/> class.
         /// </summary>
-        public GatewayDynamicEndpointDataSource()
+        public ProxyDynamicEndpointDataSource()
         {
             Update(new List<AspNetCore.Http.Endpoint>());
         }

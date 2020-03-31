@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
@@ -9,7 +9,7 @@ namespace Microsoft.ReverseProxy.Core.Abstractions
 {
     /// <summary>
     /// Manages the set of backend endpoints. Changes only become effective when
-    /// <see cref="IIslandGatewayConfigManager.ApplyConfigurationsAsync"/> is called.
+    /// <see cref="IReverseProxyConfigManager.ApplyConfigurationsAsync"/> is called.
     /// </summary>
     public interface IBackendEndpointsRepo
     {

@@ -40,9 +40,9 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
         };
 
         private readonly ILogger<ProxyInvoker> _logger;
-        private readonly GatewayMetrics _metrics;
+        private readonly ProxyMetrics _metrics;
 
-        public HttpProxy(ILogger<ProxyInvoker> logger, GatewayMetrics metrics)
+        public HttpProxy(ILogger<ProxyInvoker> logger, ProxyMetrics metrics)
         {
             Contracts.CheckValue(logger, nameof(logger));
             Contracts.CheckValue(metrics, nameof(metrics));
@@ -54,8 +54,8 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
         /// Proxies the incoming request to the upstream server, and the response back to our client.
         /// </summary>
         /// <remarks>
-        /// In what follows, as well as throughout in Island Gateway, we consider
-        /// the following picture as illustrative of the Gateway.
+        /// In what follows, as well as throughout in Reverse Proxy, we consider
+        /// the following picture as illustrative of the Proxy.
         /// <code>
         ///      +-------------------+
         ///      |  Upstream server  +
@@ -64,7 +64,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
         ///        (b) |       | (c)
         ///            |       ▼
         ///      +-------------------+
-        ///      |      Gateway      +
+        ///      |      Proxy        +
         ///      +-------------------+
         ///            ▲       |
         ///        (a) |       | (d)
@@ -106,15 +106,15 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
         /// <remarks>
         /// Normal proxying comprises the following steps:
         ///    (1)  Create outgoing HttpRequestMessage
-        ///    (2)  Setup copy of request body (background)             Downstream --► Gateway --► Upstream
-        ///    (3)  Copy request headers                                Downstream --► Gateway --► Upstream
-        ///    (4)  Send the outgoing request using HttpMessageInvoker  Downstream --► Gateway --► Upstream
-        ///    (5)  Copy response status line                           Downstream ◄-- Gateway ◄-- Upstream
-        ///    (6)  Copy response headers                               Downstream ◄-- Gateway ◄-- Upstream
-        ///    (7)  Send response headers                               Downstream ◄-- Gateway ◄-- Upstream
-        ///    (8)  Copy response body                                  Downstream ◄-- Gateway ◄-- Upstream
-        ///    (9)  Wait for completion of step 2: copying request body Downstream --► Gateway --► Upstream
-        ///    (10) Copy response trailer headers                       Downstream ◄-- Gateway ◄-- Upstream
+        ///    (2)  Setup copy of request body (background)             Downstream --► Proxy --► Upstream
+        ///    (3)  Copy request headers                                Downstream --► Proxy --► Upstream
+        ///    (4)  Send the outgoing request using HttpMessageInvoker  Downstream --► Proxy --► Upstream
+        ///    (5)  Copy response status line                           Downstream ◄-- Proxy ◄-- Upstream
+        ///    (6)  Copy response headers                               Downstream ◄-- Proxy ◄-- Upstream
+        ///    (7)  Send response headers                               Downstream ◄-- Proxy ◄-- Upstream
+        ///    (8)  Copy response body                                  Downstream ◄-- Proxy ◄-- Upstream
+        ///    (9)  Wait for completion of step 2: copying request body Downstream --► Proxy --► Upstream
+        ///    (10) Copy response trailer headers                       Downstream ◄-- Proxy ◄-- Upstream
         ///
         /// ASP .NET Core (Kestrel) will finally send response trailers (if any)
         /// after we complete the steps above and relinquish control.
@@ -142,17 +142,17 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
             };
 
             // :::::::::::::::::::::::::::::::::::::::::::::
-            // :: Step 2: Setup copy of request body (background) Downstream --► Gateway --► Upstream
+            // :: Step 2: Setup copy of request body (background) Downstream --► Proxy --► Upstream
             // Note that we must do this before step (3) because step (3) may also add headers to the HttpContent that we set up here.
             var bodyToUpstreamContent = SetupCopyBodyUpstream(context.Request.Body, upstreamRequest, in proxyTelemetryContext, longCancellation);
 
             // :::::::::::::::::::::::::::::::::::::::::::::
-            // :: Step 3: Copy request headers Downstream --► Gateway --► Upstream
+            // :: Step 3: Copy request headers Downstream --► Proxy --► Upstream
             CopyHeadersToUpstream(context.Request.Headers, upstreamRequest);
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 4: Send the outgoing request using HttpClient
-            ////this.logger.LogInformation($"   Starting GW --> upstream request");
+            ////this.logger.LogInformation($"   Starting Proxy --> upstream request");
             var upstreamResponse = await httpClient.SendAsync(upstreamRequest, shortCancellation);
 
             // Detect connection downgrade, which may be problematic for e.g. gRPC.
@@ -168,41 +168,41 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
             // cause us to wait forever in step 9, so fail fast here.
             if (bodyToUpstreamContent != null && !bodyToUpstreamContent.Started)
             {
-                throw new GatewayException("Proxying the downstream request body to the upstream server hasn't started. This is a coding defect.");
+                throw new ReverseProxyException("Proxying the downstream request body to the upstream server hasn't started. This is a coding defect.");
             }
 
             // :::::::::::::::::::::::::::::::::::::::::::::
-            // :: Step 5: Copy response status line Downstream ◄-- Gateway ◄-- Upstream
-            ////this.logger.LogInformation($"   Setting downstream <-- GW status: {(int)upstreamResponse.StatusCode} {upstreamResponse.ReasonPhrase}");
+            // :: Step 5: Copy response status line Downstream ◄-- Proxy ◄-- Upstream
+            ////this.logger.LogInformation($"   Setting downstream <-- Proxy status: {(int)upstreamResponse.StatusCode} {upstreamResponse.ReasonPhrase}");
             context.Response.StatusCode = (int)upstreamResponse.StatusCode;
             context.Features.Get<IHttpResponseFeature>().ReasonPhrase = upstreamResponse.ReasonPhrase;
 
             // :::::::::::::::::::::::::::::::::::::::::::::
-            // :: Step 6: Copy response headers Downstream ◄-- Gateway ◄-- Upstream
+            // :: Step 6: Copy response headers Downstream ◄-- Proxy ◄-- Upstream
             CopyHeadersToDownstream(upstreamResponse, context.Response.Headers);
 
             // :::::::::::::::::::::::::::::::::::::::::::::
-            // :: Step 7: Send response headers Downstream ◄-- Gateway ◄-- Upstream
+            // :: Step 7: Send response headers Downstream ◄-- Proxy ◄-- Upstream
             // This is important to avoid any extra delays in sending response headers
             // e.g. if the upstream server is slow to provide its response body.
-            ////this.logger.LogInformation($"   Starting downstream <-- GW response");
+            ////this.logger.LogInformation($"   Starting downstream <-- Proxy response");
             // TODO: Some of the tasks in steps (7) - (9) may go unobserved depending on what fails first. Needs more consideration.
             await context.Response.StartAsync(shortCancellation);
 
             // :::::::::::::::::::::::::::::::::::::::::::::
-            // :: Step 8: Copy response body Downstream ◄-- Gateway ◄-- Upstream
+            // :: Step 8: Copy response body Downstream ◄-- Proxy ◄-- Upstream
             await CopyBodyDownstreamAsync(upstreamResponse.Content, context.Response.Body, proxyTelemetryContext, longCancellation);
 
             // :::::::::::::::::::::::::::::::::::::::::::::
-            // :: Step 9: Wait for completion of step 2: copying request body Downstream --► Gateway --► Upstream
+            // :: Step 9: Wait for completion of step 2: copying request body Downstream --► Proxy --► Upstream
             if (bodyToUpstreamContent != null)
             {
-                ////this.logger.LogInformation($"   Waiting for downstream --> GW --> upstream body proxying to complete");
+                ////this.logger.LogInformation($"   Waiting for downstream --> Proxy --> upstream body proxying to complete");
                 await bodyToUpstreamContent.ConsumptionTask;
             }
 
             // :::::::::::::::::::::::::::::::::::::::::::::
-            // :: Step 10: Copy response trailer headers Downstream ◄-- Gateway ◄-- Upstream
+            // :: Step 10: Copy response trailer headers Downstream ◄-- Proxy ◄-- Upstream
             CopyTrailingHeadersToDownstream(upstreamResponse, context);
         }
 
@@ -212,17 +212,17 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
         /// <remarks>
         /// Upgradable request proxying comprises the following steps:
         ///    (1)  Create outgoing HttpRequestMessage
-        ///    (2)  Copy request headers                                              Downstream ---► Gateway ---► Upstream
-        ///    (3)  Send the outgoing request using HttpMessageInvoker                Downstream ---► Gateway ---► Upstream
-        ///    (4)  Copy response status line                                         Downstream ◄--- Gateway ◄--- Upstream
-        ///    (5)  Copy response headers                                             Downstream ◄--- Gateway ◄--- Upstream
+        ///    (2)  Copy request headers                                              Downstream ---► Proxy ---► Upstream
+        ///    (3)  Send the outgoing request using HttpMessageInvoker                Downstream ---► Proxy ---► Upstream
+        ///    (4)  Copy response status line                                         Downstream ◄--- Proxy ◄--- Upstream
+        ///    (5)  Copy response headers                                             Downstream ◄--- Proxy ◄--- Upstream
         ///       Scenario A: upgrade with upstream worked (got 101 response)
-        ///          (A-6)  Upgrade downstream channel (also sends response headers)  Downstream ◄--- Gateway ◄--- Upstream
-        ///          (A-7)  Copy duplex streams                                       Downstream ◄--► Gateway ◄--► Upstream
+        ///          (A-6)  Upgrade downstream channel (also sends response headers)  Downstream ◄--- Proxy ◄--- Upstream
+        ///          (A-7)  Copy duplex streams                                       Downstream ◄--► Proxy ◄--► Upstream
         ///       ---- or ----
         ///       Scenario B: upgrade with upstream failed (got non-101 response)
-        ///          (B-6)  Send response headers                                     Downstream ◄--- Gateway ◄--- Upstream
-        ///          (B-7)  Copy response body                                        Downstream ◄--- Gateway ◄--- Upstream
+        ///          (B-6)  Send response headers                                     Downstream ◄--- Proxy ◄--- Upstream
+        ///          (B-7)  Copy response body                                        Downstream ◄--- Proxy ◄--- Upstream
         ///
         /// This takes care of WebSockets as well as any other upgradable protocol.
         /// </remarks>
@@ -249,7 +249,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
             };
 
             // :::::::::::::::::::::::::::::::::::::::::::::
-            // :: Step 2: Copy request headers Downstream --► Gateway --► Upstream
+            // :: Step 2: Copy request headers Downstream --► Proxy --► Upstream
             CopyHeadersToUpstream(context.Request.Headers, upstreamRequest);
 
             // :::::::::::::::::::::::::::::::::::::::::::::
@@ -258,24 +258,24 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
             var upgraded = upstreamResponse.StatusCode == HttpStatusCode.SwitchingProtocols && upstreamResponse.Content != null;
 
             // :::::::::::::::::::::::::::::::::::::::::::::
-            // :: Step 4: Copy response status line Downstream ◄-- Gateway ◄-- Upstream
+            // :: Step 4: Copy response status line Downstream ◄-- Proxy ◄-- Upstream
             context.Response.StatusCode = (int)upstreamResponse.StatusCode;
             context.Features.Get<IHttpResponseFeature>().ReasonPhrase = upstreamResponse.ReasonPhrase;
 
             // :::::::::::::::::::::::::::::::::::::::::::::
-            // :: Step 5: Copy response headers Downstream ◄-- Gateway ◄-- Upstream
+            // :: Step 5: Copy response headers Downstream ◄-- Proxy ◄-- Upstream
             CopyHeadersToDownstream(upstreamResponse, context.Response.Headers);
 
             if (!upgraded)
             {
                 // :::::::::::::::::::::::::::::::::::::::::::::
-                // :: Step B-6: Send response headers Downstream ◄-- Gateway ◄-- Upstream
+                // :: Step B-6: Send response headers Downstream ◄-- Proxy ◄-- Upstream
                 // This is important to avoid any extra delays in sending response headers
                 // e.g. if the upstream server is slow to provide its response body.
                 await context.Response.StartAsync(shortCancellation);
 
                 // :::::::::::::::::::::::::::::::::::::::::::::
-                // :: Step B-7: Copy response body Downstream ◄-- Gateway ◄-- Upstream
+                // :: Step B-7: Copy response body Downstream ◄-- Proxy ◄-- Upstream
                 await CopyBodyDownstreamAsync(upstreamResponse.Content, context.Response.Body, proxyTelemetryContext, longCancellation);
                 return;
             }
@@ -328,7 +328,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
             StreamCopyHttpContent contentToUpstream = null;
             if (source != null)
             {
-                ////this.logger.LogInformation($"   Setting up downstream --> GW --> upstream body proxying");
+                ////this.logger.LogInformation($"   Setting up downstream --> Proxy --> upstream body proxying");
 
                 var streamCopier = new StreamCopier(
                     _metrics,
@@ -358,7 +358,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
                     continue;
                 }
 
-                ////this.logger.LogInformation($"   Copying downstream --> GW --> upstream request header {header.Key}: {header.Value}");
+                ////this.logger.LogInformation($"   Copying downstream --> Proxy --> upstream request header {header.Key}: {header.Value}");
 
                 // Note: HttpClient.SendAsync will end up sending the union of
                 // HttpRequestMessage.Headers and HttpRequestMessage.Content.Headers.
@@ -388,7 +388,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
                         continue;
                     }
 
-                    ////this.logger.LogInformation($"   Copying downstream <-- GW <-- upstream response header {header.Key}: {string.Join(",", header.Value)}");
+                    ////this.logger.LogInformation($"   Copying downstream <-- Proxy <-- upstream response header {header.Key}: {string.Join(",", header.Value)}");
                     destination.TryAdd(header.Key, new StringValues(header.Value.ToArray()));
                 }
             }
@@ -406,7 +406,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
                         routeId: proxyTelemetryContext.RouteId,
                         endpointId: proxyTelemetryContext.EndpointId));
 
-                ////this.logger.LogInformation($"   Waiting for downstream <-- GW <-- upstream body proxying");
+                ////this.logger.LogInformation($"   Waiting for downstream <-- Proxy <-- upstream body proxying");
                 var upstreamResponseStream = await upstreamResponseContent.ReadAsStreamAsync();
                 await streamCopier.CopyAsync(upstreamResponseStream, destination, cancellation);
             }
@@ -419,7 +419,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
             var responseTrailersFeature = context.Features.Get<IHttpResponseTrailersFeature>();
             if (responseTrailersFeature?.Trailers != null && !responseTrailersFeature.Trailers.IsReadOnly)
             {
-                // Note that trailers, if any, should already have been declared in Gateway's response
+                // Note that trailers, if any, should already have been declared in Proxy's response
                 // by virtue of us having proxied all upstream response headers in step 6.
                 foreach (var header in source.TrailingHeaders)
                 {

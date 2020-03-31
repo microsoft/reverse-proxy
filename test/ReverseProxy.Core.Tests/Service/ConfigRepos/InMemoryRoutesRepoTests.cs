@@ -38,7 +38,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             var repo = new InMemoryRoutesRepo();
 
             // Act
-            var task = repo.SetRoutesAsync(new GatewayRoute[0], CancellationToken.None);
+            var task = repo.SetRoutesAsync(new ProxyRoute[0], CancellationToken.None);
 
             // Assert
             task.IsCompleted.Should().BeTrue("should complete synchronously");
@@ -68,7 +68,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
                 cts.Cancel();
 
                 // Act & Assert
-                await repo.SetRoutesAsync(new GatewayRoute[0], cts.Token);
+                await repo.SetRoutesAsync(new ProxyRoute[0], cts.Token);
             }
         }
 
@@ -90,9 +90,9 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
         {
             // Arrange
             var repo = new InMemoryRoutesRepo();
-            var routes = new List<GatewayRoute>
+            var routes = new List<ProxyRoute>
             {
-                new GatewayRoute { RouteId = "route1" },
+                new ProxyRoute { RouteId = "route1" },
             };
 
             // Act
@@ -100,7 +100,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
 
             // Modify input, should not affect output
             routes[0].RouteId = "modified";
-            routes.Add(new GatewayRoute { RouteId = "route2" });
+            routes.Add(new ProxyRoute { RouteId = "route2" });
 
             var result = await repo.GetRoutesAsync(CancellationToken.None);
 
@@ -117,7 +117,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             var repo = new InMemoryRoutesRepo();
             var routes = new[]
             {
-                new GatewayRoute { RouteId = "route1" },
+                new ProxyRoute { RouteId = "route1" },
             };
 
             // Act
@@ -126,7 +126,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
 
             // Modify first results, should not affect future results
             result1[0].RouteId = "modified";
-            result1.Add(new GatewayRoute { RouteId = "route2" });
+            result1.Add(new ProxyRoute { RouteId = "route2" });
 
             var result2 = await repo.GetRoutesAsync(CancellationToken.None);
 

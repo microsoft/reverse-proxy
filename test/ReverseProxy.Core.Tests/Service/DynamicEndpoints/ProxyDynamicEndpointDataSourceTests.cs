@@ -1,26 +1,25 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
 using FluentAssertions;
 using Xunit;
-using AspNetCore = Microsoft.AspNetCore;
 
 namespace Microsoft.ReverseProxy.Core.Service.Tests
 {
-    public class GatewayDynamicEndpointDataSourceTests
+    public class ProxyDynamicEndpointDataSourceTests
     {
         [Fact]
         public void Constructor_Works()
         {
-            new GatewayDynamicEndpointDataSource();
+            new ProxyDynamicEndpointDataSource();
         }
 
         [Fact]
         public void Endpoints_StartsEmpty()
         {
             // Arrange
-            var dataSource = new GatewayDynamicEndpointDataSource();
+            var dataSource = new ProxyDynamicEndpointDataSource();
 
             // Act
             var endpoints = dataSource.Endpoints;
@@ -33,7 +32,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
         public void GetChangeToken_InitialValue()
         {
             // Arrange
-            var dataSource = new GatewayDynamicEndpointDataSource();
+            var dataSource = new ProxyDynamicEndpointDataSource();
 
             // Act
             var changeToken = dataSource.GetChangeToken();
@@ -48,7 +47,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
         public void GetChangeToken_SignalsChange()
         {
             // Arrange
-            var dataSource = new GatewayDynamicEndpointDataSource();
+            var dataSource = new ProxyDynamicEndpointDataSource();
             var newEndpoints1 = new List<AspNetCore.Http.Endpoint>();
             var newEndpoints2 = new List<AspNetCore.Http.Endpoint>();
             var signaled1 = 0;

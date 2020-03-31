@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Microsoft.Extensions.DependencyInjection;
@@ -7,16 +7,16 @@ namespace Microsoft.ReverseProxy.Core.Configuration.DependencyInjection
 {
     /// <summary>
     /// Extensions for <see cref="IServiceCollection"/>
-    /// used to register Island Gateway's components.
+    /// used to register the ReverseProxy's components.
     /// </summary>
-    public static class IslandGatewayServiceCollectionExtensions
+    public static class ReverseProxyServiceCollectionExtensions
     {
         /// <summary>
-        /// Adds Island Gateway's services to Dependency Injection.
+        /// Adds ReverseProxy's services to Dependency Injection.
         /// </summary>
-        public static IIslandGatewayBuilder AddIslandGateway(this IServiceCollection services)
+        public static IReverseProxyBuilder AddReverseProxy(this IServiceCollection services)
         {
-            var builder = new IslandGatewayBuilder(services);
+            var builder = new ReverseProxyBuilder(services);
             builder
                 .AddTelemetryShims()
                 .AddMetrics()

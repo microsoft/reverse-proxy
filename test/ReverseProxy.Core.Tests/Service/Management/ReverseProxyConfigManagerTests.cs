@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.Threading;
@@ -13,12 +13,12 @@ using Xunit;
 
 namespace Microsoft.ReverseProxy.Core.Service.Management.Tests
 {
-    public class IslandGatewayConfigManagerTests : TestAutoMockBase
+    public class ReverseProxyConfigManagerTests : TestAutoMockBase
     {
         private readonly IBackendManager _backendManager;
         private readonly IRouteManager _routeManager;
 
-        public IslandGatewayConfigManagerTests()
+        public ReverseProxyConfigManagerTests()
         {
             var httpClientFactoryMock = new Mock<IProxyHttpClientFactory>(MockBehavior.Strict);
             Mock<IProxyHttpClientFactoryFactory>()
@@ -36,7 +36,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Management.Tests
         [Fact]
         public void Constructor_Works()
         {
-            Create<IslandGatewayConfigManager>();
+            Create<ReverseProxyConfigManager>();
         }
 
         [Fact]
@@ -63,10 +63,10 @@ namespace Microsoft.ReverseProxy.Core.Service.Management.Tests
                 .ReturnsAsync(Result.Success(dynamicConfigRoot));
 
             var errorReporter = new TestConfigErrorReporter();
-            var gatewayManager = Create<IslandGatewayConfigManager>();
+            var proxyManager = Create<ReverseProxyConfigManager>();
 
             // Act
-            var result = await gatewayManager.ApplyConfigurationsAsync(errorReporter, CancellationToken.None);
+            var result = await proxyManager.ApplyConfigurationsAsync(errorReporter, CancellationToken.None);
 
             // Assert
             result.Should().BeTrue();

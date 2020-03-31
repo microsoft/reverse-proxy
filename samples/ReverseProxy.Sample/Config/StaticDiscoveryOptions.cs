@@ -11,6 +11,6 @@ namespace Microsoft.ReverseProxy.Sample.Config
     {
         public IList<Backend> Backends { get; } = new List<Backend>();
         public IDictionary<string, IList<BackendEndpoint>> Endpoints { get; } = new Dictionary<string, IList<BackendEndpoint>>(StringComparer.Ordinal);
-        public IList<GatewayRoute> Routes { get; } = new List<GatewayRoute>();
+        public IList<ProxyRoute> Routes { get; } = new List<ProxyRoute>();
     }
 }

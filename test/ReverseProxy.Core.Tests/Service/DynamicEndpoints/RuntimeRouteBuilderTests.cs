@@ -2,9 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using FluentAssertions;
-using FluentAssertions.Common;
 using Microsoft.ReverseProxy.Core.ConfigModel;
 using Microsoft.ReverseProxy.Core.RuntimeModel;
 using Microsoft.ReverseProxy.Core.Service.Management;
@@ -12,7 +10,6 @@ using Microsoft.ReverseProxy.Core.Service.Proxy.Infra;
 using Moq;
 using Tests.Common;
 using Xunit;
-using AspNetCore = Microsoft.AspNetCore;
 
 namespace Microsoft.ReverseProxy.Core.Service.Tests
 {

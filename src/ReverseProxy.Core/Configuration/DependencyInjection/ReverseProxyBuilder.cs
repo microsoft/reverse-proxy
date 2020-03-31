@@ -7,15 +7,15 @@ using Microsoft.ReverseProxy.Utilities;
 namespace Microsoft.ReverseProxy.Core.Configuration.DependencyInjection
 {
     /// <summary>
-    /// Island Gateway builder for DI configuration.
+    /// Reverse Proxy builder for DI configuration.
     /// </summary>
-    internal class IslandGatewayBuilder : IIslandGatewayBuilder
+    internal class ReverseProxyBuilder : IReverseProxyBuilder
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="IslandGatewayBuilder"/> class.
+        /// Initializes a new instance of the <see cref="ReverseProxyBuilder"/> class.
         /// </summary>
         /// <param name="services">Services collection.</param>
-        public IslandGatewayBuilder(IServiceCollection services)
+        public ReverseProxyBuilder(IServiceCollection services)
         {
             Contracts.CheckValue(services, nameof(services));
             Services = services;

@@ -1,7 +1,7 @@
-﻿# IslandGateway.RuntimeModel namespace
+# ReverseProxy.RuntimeModel namespace
 
 Classes in this folder define the internal representation
-of IslandGateway's runtime state used in perf-critical code paths.
+of ReverseProxy's runtime state used in perf-critical code paths.
 
 All classes should be immutable, and all members and members of members
 MUST be either:
@@ -18,18 +18,18 @@ and each thread can operate safely with up-to-date yet consistent information
 ## Class naming conventions
 
 * Classes named `*Info` (`RouteInfo`, `BackendInfo`, `EndpointInfo`)
-  represent the 3 primary abstractions in Island Gateway (Routes, Backends and Endpoints);
+  represent the 3 primary abstractions in Reverse Proxy (Routes, Backends and Endpoints);
 
 * Classes named `*Config` (`RouteConfig`, `BackendConfig`, `EndpointConfig`)
   represent portions of the 3 abstractions that only change in reaction to 
-  Island Gateway config changes.
+  Reverse Proxy config changes.
   For example, when the health check interval for a backend is updated,
   a new instance of `BackendConfig` is created with the new values,
   and the corresponding `AtomicHolder` in `BackendInfo` is updated to point at the new instance;
 
 * Classes named `*DynamicState` (`BackendDynamicState`, `EndpointDynamicState`)
   represent portions of the 3 abstractions that change in reaction to
-  Island Gateway's runtime state.
+  Reverse Proxy's runtime state.
   For example, when new endpoints are discovered for a backend,
   a new instance of `BackendDynamicState` is created with the new values,
   and the corresponding `AtomicHolder` in `BackendInfo` is updated to point at the new instance;

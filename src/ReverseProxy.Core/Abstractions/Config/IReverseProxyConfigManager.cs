@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.Threading;
@@ -8,9 +8,9 @@ using Microsoft.ReverseProxy.Core.Service;
 namespace Microsoft.ReverseProxy.Core.Abstractions
 {
     /// <summary>
-    /// High-level management of Island Gateway state.
+    /// High-level management of Reverse Proxy state.
     /// </summary>
-    public interface IIslandGatewayConfigManager
+    public interface IReverseProxyConfigManager
     {
         /// <summary>
         /// Applies latest configurations obtained from <see cref="IDynamicConfigBuilder"/>.

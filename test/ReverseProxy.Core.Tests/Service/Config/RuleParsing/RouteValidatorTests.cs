@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using FluentAssertions;
-using Microsoft.ReverseProxy.Core.Abstractions;
 using Microsoft.ReverseProxy.Core.ConfigModel;
 using Tests.Common;
 using Xunit;

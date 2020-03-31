@@ -58,7 +58,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
             Action action = () => loadBalancer.PickEndpoint(endpoints, endpoints, in options);
 
             // Assert
-            action.Should().ThrowExactly<GatewayException>()
+            action.Should().ThrowExactly<ReverseProxyException>()
                 .Which.Message.Should().Be("Load balancing mode '-1' is not supported.");
         }
     }

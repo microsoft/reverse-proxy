@@ -13,46 +13,46 @@ using Microsoft.ReverseProxy.Utilities;
 namespace Microsoft.ReverseProxy.Sample.Config
 {
     /// <summary>
-    /// Reacts to configuration changes for type <see cref="GatewayConfigRoot"/>
+    /// Reacts to configuration changes for type <see cref="ProxyConfigRoot"/>
     /// via <see cref="IOptionsMonitor{TOptions}"/>, and applies configurations
-    /// to the Island Gateway core.
+    /// to the Reverse Proxy core.
     /// When configs are loaded from appsettings.json, this takes care of hot updates
     /// when appsettings.json is modified on disk.
     /// </summary>
-    internal class GatewayConfigApplier : IHostedService, IDisposable
+    internal class ProxyConfigApplier : IHostedService, IDisposable
     {
-        private readonly ILogger<GatewayConfigApplier> _logger;
+        private readonly ILogger<ProxyConfigApplier> _logger;
         private readonly IBackendsRepo _backendsRepo;
         private readonly IBackendEndpointsRepo _endpointsRepo;
         private readonly IRoutesRepo _routesRepo;
-        private readonly IIslandGatewayConfigManager _gatewayManager;
+        private readonly IReverseProxyConfigManager _proxyManager;
 
         private bool _disposed;
         private readonly IDisposable _subscription;
 
-        public GatewayConfigApplier(
-            ILogger<GatewayConfigApplier> logger,
+        public ProxyConfigApplier(
+            ILogger<ProxyConfigApplier> logger,
             IBackendsRepo backendsRepo,
             IBackendEndpointsRepo endpointsRepo,
             IRoutesRepo routesRepo,
-            IIslandGatewayConfigManager gatewayManager,
-            IOptionsMonitor<GatewayConfigRoot> gatewayConfig)
+            IReverseProxyConfigManager proxyManager,
+            IOptionsMonitor<ProxyConfigRoot> proxyConfig)
         {
             Contracts.CheckValue(logger, nameof(logger));
             Contracts.CheckValue(backendsRepo, nameof(backendsRepo));
             Contracts.CheckValue(endpointsRepo, nameof(endpointsRepo));
             Contracts.CheckValue(routesRepo, nameof(routesRepo));
-            Contracts.CheckValue(gatewayManager, nameof(gatewayManager));
-            Contracts.CheckValue(gatewayConfig, nameof(gatewayConfig));
+            Contracts.CheckValue(proxyManager, nameof(proxyManager));
+            Contracts.CheckValue(proxyConfig, nameof(proxyConfig));
 
             _logger = logger;
             _backendsRepo = backendsRepo;
             _endpointsRepo = endpointsRepo;
             _routesRepo = routesRepo;
-            _gatewayManager = gatewayManager;
+            _proxyManager = proxyManager;
 
-            _subscription = gatewayConfig.OnChange((newConfig, name) => Apply(newConfig));
-            Apply(gatewayConfig.CurrentValue);
+            _subscription = proxyConfig.OnChange((newConfig, name) => Apply(newConfig));
+            Apply(proxyConfig.CurrentValue);
         }
 
         public void Dispose()
@@ -76,14 +76,14 @@ namespace Microsoft.ReverseProxy.Sample.Config
             return Task.CompletedTask;
         }
 
-        private async void Apply(GatewayConfigRoot config)
+        private async void Apply(ProxyConfigRoot config)
         {
             if (config == null)
             {
                 return;
             }
 
-            _logger.LogInformation("Applying gateway configs");
+            _logger.LogInformation("Applying proxy configs");
             try
             {
                 switch (config.DiscoveryMechanism)
@@ -117,7 +117,7 @@ namespace Microsoft.ReverseProxy.Sample.Config
             await _routesRepo.SetRoutesAsync(options.Routes, cancellation);
 
             var errorReporter = new LoggerConfigErrorReporter(_logger);
-            await _gatewayManager.ApplyConfigurationsAsync(errorReporter, cancellation);
+            await _proxyManager.ApplyConfigurationsAsync(errorReporter, cancellation);
         }
 
         private class LoggerConfigErrorReporter : IConfigErrorReporter

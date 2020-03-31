@@ -1,8 +1,7 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using AspNetCore = Microsoft.AspNetCore;
 
 namespace Microsoft.ReverseProxy.Core.Service
 {
@@ -10,7 +9,7 @@ namespace Microsoft.ReverseProxy.Core.Service
     /// Provides a method to update the list of ASP .NET Core Endpoints
     /// on an instance of <see cref="AspNetCore.Routing.EndpointDataSource"/>.
     /// </summary>
-    internal interface IGatewayDynamicEndpointDataSource
+    internal interface IProxyDynamicEndpointDataSource
     {
         /// <summary>
         /// Applies a new set of ASP .NET Core endpoints. Changes take effect immediately.

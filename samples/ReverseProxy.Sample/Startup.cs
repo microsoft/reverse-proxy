@@ -31,12 +31,12 @@ namespace Microsoft.ReverseProxy.Sample
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddIslandGateway();
+            services.AddReverseProxy();
 
             // The following 2 lines are all that we need to react to config changes on the fly.
             // You can then change appsettings.json on disk and we will apply the new configs without a restart.
-            services.Configure<GatewayConfigRoot>(_configuration.GetSection("Gateway"));
-            services.AddHostedService<GatewayConfigApplier>();
+            services.Configure<ProxyConfigRoot>(_configuration.GetSection("ReverseProxy"));
+            services.AddHostedService<ProxyConfigApplier>();
         }
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace Microsoft.ReverseProxy.Sample
                 endpoints.MapControllers();
             });
 
-            app.UseIslandGateway();
+            app.UseReverseProxy();
         }
     }
 }

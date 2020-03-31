@@ -169,7 +169,7 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
                     // Set up timeout and start probing.
                     timeoutCts.CancelAfter(_httpTimeoutInterval, _timer);
                     var response = await _operationLogger.ExecuteAsync(
-                            "IslandGateway.Core.Service.HealthProbe",
+                            "ReverseProxy.Core.Service.HealthProbe",
                             () => _backendProbeHttpClient.GetAsync(new Uri(new Uri(endpoint.Config.Value.Address, UriKind.Absolute), _healthControllerUrl), timeoutCts.Token));
 
                     // Collect response status.

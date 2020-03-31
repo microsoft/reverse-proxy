@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -8,7 +8,7 @@ namespace Microsoft.ReverseProxy.Core.Abstractions
 {
     /// <summary>
     /// A backend is a group of equivalent endpoints and associated policies.
-    /// A route maps requests to a backend, and Island Gateway handles that request
+    /// A route maps requests to a backend, and Reverse Proxy handles that request
     /// by proxying to any endpoint within the matching backend,
     /// honoring load balancing and partitioning policies when applicable.
     /// </summary>

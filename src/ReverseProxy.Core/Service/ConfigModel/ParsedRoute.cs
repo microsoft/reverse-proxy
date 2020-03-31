@@ -3,11 +3,10 @@
 
 using System.Collections.Generic;
 using System.Text;
-using Microsoft.ReverseProxy.Core.Service;
 
 namespace Microsoft.ReverseProxy.Core.ConfigModel
 {
-    // TODO: Do we even need the ParsedRoute? It now matches the GatewayRoute 1:1
+    // TODO: Do we even need the ParsedRoute? It now matches the ProxyRoute 1:1
     internal class ParsedRoute
     {
         /// <summary>

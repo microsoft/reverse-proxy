@@ -7,19 +7,19 @@ using Xunit;
 
 namespace Microsoft.ReverseProxy.Core.Abstractions.Tests
 {
-    public class GatewayRouteTests
+    public class ProxyRouteTests
     {
         [Fact]
         public void Constructor_Works()
         {
-            new GatewayRoute();
+            new ProxyRoute();
         }
 
         [Fact]
         public void DeepClone_Works()
         {
             // Arrange
-            var sut = new GatewayRoute
+            var sut = new ProxyRoute
             {
                 RouteId = "route1",
                 Match =
@@ -58,7 +58,7 @@ namespace Microsoft.ReverseProxy.Core.Abstractions.Tests
         public void DeepClone_Nulls_Works()
         {
             // Arrange
-            var sut = new GatewayRoute();
+            var sut = new ProxyRoute();
 
             // Act
             var clone = sut.DeepClone();

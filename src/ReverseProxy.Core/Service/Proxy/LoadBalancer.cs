@@ -33,7 +33,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
                 case BackendConfig.BackendLoadBalancingOptions.LoadBalancingMode.PowerOfTwoChoices:
                     throw new NotImplementedException();
                 default:
-                    throw new GatewayException($"Load balancing mode '{loadBalancingOptions.Mode}' is not supported.");
+                    throw new ReverseProxyException($"Load balancing mode '{loadBalancingOptions.Mode}' is not supported.");
             }
         }
     }

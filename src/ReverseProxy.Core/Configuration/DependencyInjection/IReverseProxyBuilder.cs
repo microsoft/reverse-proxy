@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Microsoft.Extensions.DependencyInjection;
@@ -6,9 +6,9 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.ReverseProxy.Core.Configuration.DependencyInjection
 {
     /// <summary>
-    /// Island Gateway builder interface.
+    /// Reverse Proxy builder interface.
     /// </summary>
-    public interface IIslandGatewayBuilder
+    public interface IReverseProxyBuilder
     {
         /// <summary>
         /// Gets the services.

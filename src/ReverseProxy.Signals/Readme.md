@@ -1,4 +1,4 @@
-﻿# IslandGateway.Signals
+# ReverseProxy.Signals
 
 ## Overview
 
@@ -24,13 +24,13 @@ Signals are in many ways related to observables (think `rx`, `Reactive` or
 comes from the ability to apply primitives (see `SignalExtensions`)
 to produce derived signals from existing signals.
 
-Island Gateway leverages signals to optimize performance on hot paths
+Reverse Proxy leverages signals to optimize performance on hot paths
 by precomputing necessary routing information such as the set of healthy endpoints in a backend.
 This is done by writing a LINQ-query over other signals to create a new signal
 which is kept up to date automagically. In the hot path, it suffices to read the current value
 of the derived signal, which will always have a materialized immutable result.
 
-A data flow diagram of one of the places where signals are used in Island Gateway
+A data flow diagram of one of the places where signals are used in Reverse Proxy
 is shown below. Double arrows denote data flows implemented with signals:
 
 ```

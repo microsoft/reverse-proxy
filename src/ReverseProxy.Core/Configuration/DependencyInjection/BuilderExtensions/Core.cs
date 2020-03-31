@@ -17,21 +17,21 @@ namespace Microsoft.ReverseProxy.Core.Configuration.DependencyInjection
 {
     internal static class Core
     {
-        public static IIslandGatewayBuilder AddTelemetryShims(this IIslandGatewayBuilder builder)
+        public static IReverseProxyBuilder AddTelemetryShims(this IReverseProxyBuilder builder)
         {
-            // NOTE: Consumers of IslandGateway are expected to replace these with their own classes
+            // NOTE: Consumers of ReverseProxy are expected to replace these with their own classes
             builder.Services.AddSingleton<IMetricCreator, NullMetricCreator>();
             builder.Services.AddSingleton<IOperationLogger, TextOperationLogger>();
             return builder;
         }
 
-        public static IIslandGatewayBuilder AddMetrics(this IIslandGatewayBuilder builder)
+        public static IReverseProxyBuilder AddMetrics(this IReverseProxyBuilder builder)
         {
-            builder.Services.AddSingleton<GatewayMetrics>();
+            builder.Services.AddSingleton<ProxyMetrics>();
             return builder;
         }
 
-        public static IIslandGatewayBuilder AddInMemoryRepos(this IIslandGatewayBuilder builder)
+        public static IReverseProxyBuilder AddInMemoryRepos(this IReverseProxyBuilder builder)
         {
             builder.Services.AddSingleton<IBackendsRepo, InMemoryBackendsRepo>();
             builder.Services.AddSingleton<IBackendEndpointsRepo, InMemoryEndpointsRepo>();
@@ -40,7 +40,7 @@ namespace Microsoft.ReverseProxy.Core.Configuration.DependencyInjection
             return builder;
         }
 
-        public static IIslandGatewayBuilder AddConfigBuilder(this IIslandGatewayBuilder builder)
+        public static IReverseProxyBuilder AddConfigBuilder(this IReverseProxyBuilder builder)
         {
             builder.Services.AddSingleton<IDynamicConfigBuilder, DynamicConfigBuilder>();
             builder.Services.AddSingleton<IRouteValidator, RouteValidator>();
@@ -48,7 +48,7 @@ namespace Microsoft.ReverseProxy.Core.Configuration.DependencyInjection
             return builder;
         }
 
-        public static IIslandGatewayBuilder AddRuntimeStateManagers(this IIslandGatewayBuilder builder)
+        public static IReverseProxyBuilder AddRuntimeStateManagers(this IReverseProxyBuilder builder)
         {
             builder.Services.AddSingleton<IEndpointManagerFactory, EndpointManagerFactory>();
             builder.Services.AddSingleton<IBackendManager, BackendManager>();
@@ -56,19 +56,19 @@ namespace Microsoft.ReverseProxy.Core.Configuration.DependencyInjection
             return builder;
         }
 
-        public static IIslandGatewayBuilder AddConfigManager(this IIslandGatewayBuilder builder)
+        public static IReverseProxyBuilder AddConfigManager(this IReverseProxyBuilder builder)
         {
-            builder.Services.AddSingleton<IIslandGatewayConfigManager, IslandGatewayConfigManager>();
+            builder.Services.AddSingleton<IReverseProxyConfigManager, ReverseProxyConfigManager>();
             return builder;
         }
 
-        public static IIslandGatewayBuilder AddDynamicEndpointDataSource(this IIslandGatewayBuilder builder)
+        public static IReverseProxyBuilder AddDynamicEndpointDataSource(this IReverseProxyBuilder builder)
         {
-            builder.Services.AddSingleton<IGatewayDynamicEndpointDataSource, GatewayDynamicEndpointDataSource>();
+            builder.Services.AddSingleton<IProxyDynamicEndpointDataSource, ProxyDynamicEndpointDataSource>();
             return builder;
         }
 
-        public static IIslandGatewayBuilder AddProxy(this IIslandGatewayBuilder builder)
+        public static IReverseProxyBuilder AddProxy(this IReverseProxyBuilder builder)
         {
             builder.Services.AddSingleton<IProxyHttpClientFactoryFactory, ProxyHttpClientFactoryFactory>();
             builder.Services.AddSingleton<ILoadBalancer, LoadBalancer>();
@@ -77,7 +77,7 @@ namespace Microsoft.ReverseProxy.Core.Configuration.DependencyInjection
             return builder;
         }
 
-        public static IIslandGatewayBuilder AddBackgroundWorkers(this IIslandGatewayBuilder builder)
+        public static IReverseProxyBuilder AddBackgroundWorkers(this IReverseProxyBuilder builder)
         {
             builder.Services.AddSingleton<IMonotonicTimer, MonotonicTimer>();
 

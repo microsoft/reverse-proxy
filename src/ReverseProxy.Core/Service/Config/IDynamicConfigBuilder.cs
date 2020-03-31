@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.Threading;
@@ -14,7 +14,7 @@ namespace Microsoft.ReverseProxy.Core.Service
     internal interface IDynamicConfigBuilder
     {
         /// <summary>
-        /// Creates a <see cref="DynamicConfigRoot"/> object representing the current desired gateway dynamic configurations.
+        /// Creates a <see cref="DynamicConfigRoot"/> object representing the current desired proxy dynamic configurations.
         /// </summary>
         Task<Result<DynamicConfigRoot>> BuildConfigAsync(IConfigErrorReporter errorReporter, CancellationToken cancellation);
     }

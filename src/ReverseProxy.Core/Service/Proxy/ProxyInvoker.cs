@@ -49,25 +49,25 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
             var aspNetCoreEndpoint = context.GetEndpoint();
             if (aspNetCoreEndpoint == null)
             {
-                throw new GatewayException($"ASP .NET Core Endpoint wasn't set for the current request. This is a coding defect.");
+                throw new ReverseProxyException($"ASP .NET Core Endpoint wasn't set for the current request. This is a coding defect.");
             }
 
             var routeConfig = aspNetCoreEndpoint.Metadata.GetMetadata<RouteConfig>();
             if (routeConfig == null)
             {
-                throw new GatewayException($"ASP .NET Core Endpoint is missing {typeof(RouteConfig).FullName} metadata. This is a coding defect.");
+                throw new ReverseProxyException($"ASP .NET Core Endpoint is missing {typeof(RouteConfig).FullName} metadata. This is a coding defect.");
             }
 
             var backend = routeConfig.BackendOrNull;
             if (backend == null)
             {
-                throw new GatewayException($"Route has no backend information.");
+                throw new ReverseProxyException($"Route has no backend information.");
             }
 
             var dynamicState = backend.DynamicState.Value;
             if (dynamicState == null)
             {
-                throw new GatewayException($"Route has no up to date information on its backend '{backend.BackendId}'. Perhaps the backend hasn't been probed yet? This can happen when a new backend is added but isn't ready to serve traffic yet.");
+                throw new ReverseProxyException($"Route has no up to date information on its backend '{backend.BackendId}'. Perhaps the backend hasn't been probed yet? This can happen when a new backend is added but isn't ready to serve traffic yet.");
             }
 
             // TODO: Set defaults properly
@@ -79,18 +79,18 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
             }
 
             var endpoint = _operationLogger.Execute(
-                "IslandGateway.PickEndpoint",
+                "ReverseProxy.PickEndpoint",
                 () => _loadBalancer.PickEndpoint(dynamicState.HealthyEndpoints, dynamicState.AllEndpoints, in loadBalancingOptions));
 
             if (endpoint == null)
             {
-                throw new GatewayException($"No available endpoints.");
+                throw new ReverseProxyException($"No available endpoints.");
             }
 
             var endpointConfig = endpoint.Config.Value;
             if (endpointConfig == null)
             {
-                throw new GatewayException($"Chosen endpoint has no configs set: '{endpoint.EndpointId}'");
+                throw new ReverseProxyException($"Chosen endpoint has no configs set: '{endpoint.EndpointId}'");
             }
 
             // TODO: support StripPrefix and other url transformations
@@ -110,7 +110,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
                     backend.ConcurrencyCounter.Increment();
                     endpoint.ConcurrencyCounter.Increment();
 
-                    // TODO: Duplex channels should not have a timeout (?), but must react to Gateway force-shutdown signals.
+                    // TODO: Duplex channels should not have a timeout (?), but must react to Proxy force-shutdown signals.
                     var longCancellation = context.RequestAborted;
 
                     var proxyTelemetryContext = new ProxyTelemetryContext(
@@ -119,7 +119,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
                         endpointId: endpoint.EndpointId);
 
                     await _operationLogger.ExecuteAsync(
-                        "IslandGateway.Proxy",
+                        "ReverseProxy.Proxy",
                         () => _httpProxy.ProxyAsync(context, targetUri, backend.ProxyHttpClientFactory, proxyTelemetryContext, shortCancellation: shortCts.Token, longCancellation: longCancellation));
                 }
                 finally

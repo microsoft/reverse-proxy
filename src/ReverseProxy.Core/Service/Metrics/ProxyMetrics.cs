@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -7,12 +7,12 @@ using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Core.Service.Metrics
 {
-    internal class GatewayMetrics
+    internal class ProxyMetrics
     {
         private readonly Action<long, string, string, string, string, string> _streamCopyBytes;
         private readonly Action<long, string, string, string, string, string> _streamCopyIops;
 
-        public GatewayMetrics(IMetricCreator metricCreator)
+        public ProxyMetrics(IMetricCreator metricCreator)
         {
             Contracts.CheckValue(metricCreator, nameof(metricCreator));
 

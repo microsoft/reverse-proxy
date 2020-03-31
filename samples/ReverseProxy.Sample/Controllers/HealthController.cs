@@ -25,7 +25,7 @@ namespace Microsoft.ReverseProxy.Sample.Controllers
         }
 
         /// <summary>
-        /// Returns 200 if Gateway is healthy.
+        /// Returns 200 if Proxy is healthy.
         /// </summary>
         [HttpGet]
         [Route("/api/health")]

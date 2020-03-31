@@ -11,26 +11,26 @@ namespace Microsoft.ReverseProxy.Core
 {
     /// <summary>
     /// Extension methods for <see cref="IApplicationBuilder"/>
-    /// used to add Island Gateway to the ASP .NET Core request pipeline.
+    /// used to add Reverse Proxy to the ASP .NET Core request pipeline.
     /// </summary>
-    public static class IslandGatewayApplicationBuilderExtensions
+    public static class ReverseProxyApplicationBuilderExtensions
     {
         /// <summary>
-        /// Adds Island Gateway to the ASP .NET Core request pipeline.
+        /// Adds Reverse Proxy to the ASP .NET Core request pipeline.
         /// </summary>
-        public static IApplicationBuilder UseIslandGateway(this IApplicationBuilder app)
+        public static IApplicationBuilder UseReverseProxy(this IApplicationBuilder app)
         {
             // Branch the pipeline so that our endpoints don't interfere with any already setup in the current pipeline
             return app.Map(
                 PathString.Empty,
                 branched =>
                 {
-                    branched.UseIslandGatewayOnBranchedPipeline();
+                    branched.UseReverseProxyOnBranchedPipeline();
                 });
         }
 
         // NOTE: This is a separate method to help ensure no other middlewares are mistakenly added to the parent pipeline
-        private static void UseIslandGatewayOnBranchedPipeline(this IApplicationBuilder app)
+        private static void UseReverseProxyOnBranchedPipeline(this IApplicationBuilder app)
         {
             app.UseRouting();
 
@@ -43,7 +43,7 @@ namespace Microsoft.ReverseProxy.Core
 
             app.UseEndpoints(endpoints =>
             {
-                var dataSource = (EndpointDataSource)endpoints.ServiceProvider.GetRequiredService<IGatewayDynamicEndpointDataSource>();
+                var dataSource = (EndpointDataSource)endpoints.ServiceProvider.GetRequiredService<IProxyDynamicEndpointDataSource>();
                 endpoints.DataSources.Add(dataSource);
             });
         }

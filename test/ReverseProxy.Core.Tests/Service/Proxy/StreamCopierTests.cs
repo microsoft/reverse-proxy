@@ -16,12 +16,12 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
     public class StreamCopierTests : TestAutoMockBase
     {
         private readonly TestMetricCreator _metricCreator;
-        private readonly GatewayMetrics _metrics;
+        private readonly ProxyMetrics _metrics;
 
         public StreamCopierTests()
         {
             _metricCreator = Provide<IMetricCreator, TestMetricCreator>();
-            _metrics = Create<GatewayMetrics>();
+            _metrics = Create<ProxyMetrics>();
         }
 
         [Fact]

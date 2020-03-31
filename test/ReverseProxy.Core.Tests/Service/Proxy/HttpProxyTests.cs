@@ -49,8 +49,8 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
             httpContext.Request.Headers.Add("Content-Language", "requestLanguage");
             httpContext.Request.Body = StringToStream("request content");
 
-            var gatewayResponseStream = new MemoryStream();
-            httpContext.Response.Body = gatewayResponseStream;
+            var proxyResponseStream = new MemoryStream();
+            httpContext.Response.Body = proxyResponseStream;
 
             var targetUri = new Uri("https://localhost:123/a/b/api/test");
             var sut = Create<HttpProxy>();
@@ -100,9 +100,9 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
             httpContext.Response.Headers["x-ms-response-test"].Should().BeEquivalentTo("response");
             httpContext.Response.Headers["Content-Language"].Should().BeEquivalentTo("responseLanguage");
 
-            gatewayResponseStream.Position = 0;
-            var gatewayResponseText = StreamToString(gatewayResponseStream);
-            gatewayResponseText.Should().Be("response content");
+            proxyResponseStream.Position = 0;
+            var proxyResponseText = StreamToString(proxyResponseStream);
+            proxyResponseText.Should().Be("response content");
         }
 
         // Tests proxying an upgradable request.
@@ -191,8 +191,8 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
             httpContext.Request.Headers.Add(":host", "example.com");
             httpContext.Request.Headers.Add("x-ms-request-test", "request");
 
-            var gatewayResponseStream = new MemoryStream();
-            httpContext.Response.Body = gatewayResponseStream;
+            var proxyResponseStream = new MemoryStream();
+            httpContext.Response.Body = proxyResponseStream;
 
             var upgradeFeatureMock = new Mock<IHttpUpgradeFeature>(MockBehavior.Strict);
             upgradeFeatureMock.SetupGet(u => u.IsUpgradableRequest).Returns(true);
@@ -237,9 +237,9 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
             httpContext.Response.Headers["x-ms-response-test"].Should().BeEquivalentTo("response");
             httpContext.Response.Headers["Content-Language"].Should().BeEquivalentTo("responseLanguage");
 
-            gatewayResponseStream.Position = 0;
-            var gatewayResponseText = StreamToString(gatewayResponseStream);
-            gatewayResponseText.Should().Be("response content");
+            proxyResponseStream.Position = 0;
+            var proxyResponseText = StreamToString(proxyResponseStream);
+            proxyResponseText.Should().Be("response content");
         }
 
         private static MemoryStream StringToStream(string text)

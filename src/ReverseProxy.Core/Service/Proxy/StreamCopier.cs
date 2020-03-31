@@ -19,9 +19,9 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
         private const int DefaultBufferSize = 81920;
 
         private readonly StreamCopyTelemetryContext _context;
-        private readonly GatewayMetrics _metrics;
+        private readonly ProxyMetrics _metrics;
 
-        public StreamCopier(GatewayMetrics metrics, in StreamCopyTelemetryContext context)
+        public StreamCopier(ProxyMetrics metrics, in StreamCopyTelemetryContext context)
         {
             Contracts.CheckValue(metrics, nameof(metrics));
             _metrics = metrics;

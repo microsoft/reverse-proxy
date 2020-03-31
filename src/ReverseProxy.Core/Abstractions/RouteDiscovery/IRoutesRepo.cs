@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
@@ -9,18 +9,18 @@ namespace Microsoft.ReverseProxy.Core.Abstractions
 {
     /// <summary>
     /// Manages the set of routes. Changes only become effective when
-    /// <see cref="IIslandGatewayConfigManager.ApplyConfigurationsAsync"/> is called.
+    /// <see cref="IReverseProxyConfigManager.ApplyConfigurationsAsync"/> is called.
     /// </summary>
     public interface IRoutesRepo
     {
         /// <summary>
         /// Gets the current set of routes.
         /// </summary>
-        Task<IList<GatewayRoute>> GetRoutesAsync(CancellationToken cancellation);
+        Task<IList<ProxyRoute>> GetRoutesAsync(CancellationToken cancellation);
 
         /// <summary>
         /// Sets the current set of routes.
         /// </summary>
-        Task SetRoutesAsync(IList<GatewayRoute> routes, CancellationToken cancellation);
+        Task SetRoutesAsync(IList<ProxyRoute> routes, CancellationToken cancellation);
     }
 }

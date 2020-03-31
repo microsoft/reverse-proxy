@@ -1,9 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using FluentAssertions;
-using Microsoft.ReverseProxy.Utilities;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Utilities

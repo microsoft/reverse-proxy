@@ -9,7 +9,7 @@ namespace Microsoft.ReverseProxy.Core.Abstractions
      /// <summary>
      /// Describes the matching criteria for a route.
      /// </summary>
-    public class GatewayMatch : IDeepCloneable<GatewayMatch>
+    public class ProxyMatch : IDeepCloneable<ProxyMatch>
     {
         /// <summary>
         /// Only match requests that use these optional HTTP methods. E.g. GET, POST.
@@ -38,9 +38,9 @@ namespace Microsoft.ReverseProxy.Core.Abstractions
         /// </summary>
         // public ICollection<KeyValuePair<string, string>> Headers { get; set; }
 
-        GatewayMatch IDeepCloneable<GatewayMatch>.DeepClone()
+        ProxyMatch IDeepCloneable<ProxyMatch>.DeepClone()
         {
-            return new GatewayMatch()
+            return new ProxyMatch()
             {
                 Methods = Methods?.ToArray(),
                 Host = Host,

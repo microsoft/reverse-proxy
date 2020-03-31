@@ -10,14 +10,14 @@ namespace Microsoft.ReverseProxy.Core.Abstractions
     /// Describes a route that matches incoming requests based on a the <see cref="Match"/> criteria
     /// and proxies matching requests to the backend identified by its <see cref="BackendId"/>.
     /// </summary>
-    public sealed class GatewayRoute : IDeepCloneable<GatewayRoute>
+    public sealed class ProxyRoute : IDeepCloneable<ProxyRoute>
     {
         /// <summary>
         /// Globally unique identifier of the route.
         /// </summary>
         public string RouteId { get; set; }
 
-        public GatewayMatch Match { get; private set; } = new GatewayMatch();
+        public ProxyMatch Match { get; private set; } = new ProxyMatch();
 
         /// <summary>
         /// Optionally, a priority value for this route. Routes with higher numbers take precedence over lower numbers.
@@ -36,9 +36,9 @@ namespace Microsoft.ReverseProxy.Core.Abstractions
         public IDictionary<string, string> Metadata { get; set; }
 
         /// <inheritdoc/>
-        GatewayRoute IDeepCloneable<GatewayRoute>.DeepClone()
+        ProxyRoute IDeepCloneable<ProxyRoute>.DeepClone()
         {
-            return new GatewayRoute
+            return new ProxyRoute
             {
                 RouteId = RouteId,
                 Match = Match.DeepClone(),

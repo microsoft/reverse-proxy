@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -13,7 +13,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Infra
     /// <remarks>
     /// This is somewhat similarly to `System.Net.Http.IHttpClientFactory`,
     /// except that this factory class is meant for direct use,
-    /// which Gateway requires in order to keep separate pools for each backend.
+    /// which Proxy requires in order to keep separate pools for each backend.
     /// </remarks>
     internal interface IProxyHttpClientFactory : IDisposable
     {

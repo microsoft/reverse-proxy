@@ -12,11 +12,11 @@ Config based proxies are common and we'll need to support at least basic proxy s
 
 ## Config systems:
 
-We have three relevant components that already have config systems: Kestrel, UrlRewrite, and IslandGateway.
+We have three relevant components that already have config systems: Kestrel, UrlRewrite, and ReverseProxy.
 
 - [Kestrel](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel?view=aspnetcore-3.1#endpoint-configuration)
 - [UrlRewrite](https://github.com/dotnet/aspnetcore/blob/f4d81e3af2b969744a57d76d4d622036ac514a6a/src/Middleware/Rewrite/sample/UrlRewrite.xml#L1-L11)
-- [IslandGateway](https://github.com/microsoft/reverse-proxy/blob/b2cf5bdddf7962a720672a75f2e93913d16dfee7/samples/IslandGateway.Sample/appsettings.json#L10-L34)
+- [ReverseProxy](https://github.com/microsoft/reverse-proxy/blob/b2cf5bdddf7962a720672a75f2e93913d16dfee7/samples/IslandGateway.Sample/appsettings.json#L10-L34)
 
 Proposals:
 - The Kestrel config and the Proxy/Gadeway config should remain adjacent, not merged. Inbound and outbound are distinct concerns. As long as both are available in the same broader config system then that's close enough.
@@ -24,7 +24,7 @@ Proposals:
 
 ## Route config:
 
-The proxy/Gateway has a [config mechanism](https://github.com/microsoft/reverse-proxy/blob/b2cf5bdddf7962a720672a75f2e93913d16dfee7/samples/IslandGateway.Sample/appsettings.json#L26-L32) to define routes and map those to back end groups.
+The proxy has a [config mechanism](https://github.com/microsoft/reverse-proxy/blob/b2cf5bdddf7962a720672a75f2e93913d16dfee7/samples/IslandGateway.Sample/appsettings.json#L26-L32) to define routes and map those to back end groups.
 ```
       "Routes": [
         {
@@ -34,11 +34,11 @@ The proxy/Gateway has a [config mechanism](https://github.com/microsoft/reverse-
         }
       ]
 ```
-This maps to a [GatewayRoute](https://github.com/microsoft/reverse-proxy/blob/b2cf5bdddf7962a720672a75f2e93913d16dfee7/src/IslandGateway.Core/Abstractions/RouteDiscovery/Contract/GatewayRoute.cs) type.
+This maps to a [ProxyRoute](https://github.com/microsoft/reverse-proxy/blob/b2cf5bdddf7962a720672a75f2e93913d16dfee7/src/IslandGateway.Core/Abstractions/RouteDiscovery/Contract/GatewayRoute.cs) type.
 
 This basic structure is useful though the "Rule" [system](https://github.com/microsoft/reverse-proxy/blob/b2cf5bdddf7962a720672a75f2e93913d16dfee7/src/IslandGateway.Core/Service/Config/RuleParsing/RuleParser.cs) seems overly complex. Need to circle back with DavidN on this. We may be able to simplify that down to independent keys for matching Host, Path, Header, etc.. It's not clear that the additional `&&` or `||` aspects are necessary here. If we used separate properties then it would be implicitly `&&` based. To achieve `||` you'd define additional routes. This is also an area where augmenting with code defined constraints could be useful to handle the more complex scenarios. 
 
-The GatewayRoute.Metadata dictionary may be able to be replaced or supplemented by giving direct access to the config node for that route. Compare to Kestrel's [EndpointConfig.ConfigSection](https://github.com/dotnet/aspnetcore/blob/f4d81e3af2b969744a57d76d4d622036ac514a6a/src/Servers/Kestrel/Core/src/Internal/ConfigurationReader.cs#L168-L175) property. That would allow for augmenting an endpoint with additional complex custom entries that the app code can reference for additional config actions.
+The ProxyRoute.Metadata dictionary may be able to be replaced or supplemented by giving direct access to the config node for that route. Compare to Kestrel's [EndpointConfig.ConfigSection](https://github.com/dotnet/aspnetcore/blob/f4d81e3af2b969744a57d76d4d622036ac514a6a/src/Servers/Kestrel/Core/src/Internal/ConfigurationReader.cs#L168-L175) property. That would allow for augmenting an endpoint with additional complex custom entries that the app code can reference for additional config actions.
 
 Update: The custom rule system was modified by [#24](https://github.com/microsoft/reverse-proxy/pull/24) so that the config now looks like this:
 ```
@@ -57,7 +57,7 @@ Update: The custom rule system was modified by [#24](https://github.com/microsof
 
 ## Backend configuration
 
-The proxy/gateway code defines the types [Backend](https://github.com/microsoft/reverse-proxy/blob/b2cf5bdddf7962a720672a75f2e93913d16dfee7/src/IslandGateway.Core/Abstractions/BackendDiscovery/Contract/Backend.cs) and [BackendEndpoint](https://github.com/microsoft/reverse-proxy/blob/b2cf5bdddf7962a720672a75f2e93913d16dfee7/src/IslandGateway.Core/Abstractions/BackendEndpointDiscovery/Contract/BackendEndpoint.cs) and allows these to be defined via config and referenced by name from routes.
+The proxy code defines the types [Backend](https://github.com/microsoft/reverse-proxy/blob/b2cf5bdddf7962a720672a75f2e93913d16dfee7/src/IslandGateway.Core/Abstractions/BackendDiscovery/Contract/Backend.cs) and [BackendEndpoint](https://github.com/microsoft/reverse-proxy/blob/b2cf5bdddf7962a720672a75f2e93913d16dfee7/src/IslandGateway.Core/Abstractions/BackendEndpointDiscovery/Contract/BackendEndpoint.cs) and allows these to be defined via config and referenced by name from routes.
 
 A BackendEndpoint defines a specific service instance with an id, address, and associated metadata.
 
@@ -138,7 +138,7 @@ Additional feedback: Why is it using arrays instead of objects? These items are 
 
 Config reloading is not yet a blocking requirement but we do expect to need it in the future. This design needs to factor in how reloading might work when it does get added.
 
-** NOTE ** The proxy/gateway code has a concept of Signals that is used to convey config change. We need to see how this integrates with change notifications from our config sources and flows through the system.
+** NOTE ** The proxy code has a concept of Signals that is used to convey config change. We need to see how this integrates with change notifications from our config sources and flows through the system.
 
 The Extensions config and options systems have support for change detection and reloading but very few components take advantage of it. Logging is the primary consumer today.
 
@@ -152,7 +152,7 @@ Reloading should be something you can opt into or out of. Right now this is only
 
 Updates:
 
-Config reload for gateway routes, backends, and endpoints already works. You edit appsettings.json and it automatically reloads and reconfigures the routes. Note the config change notification usually gets fired twice and logs "Applying gateway configs" each time, but the change diff logic prevents an unnecessary update the second time. We may still want to do some debounce detection to prevent extra config diffs, but that's lower priority.
+Config reload for proxy routes, backends, and endpoints already works. You edit appsettings.json and it automatically reloads and reconfigures the routes. Note the config change notification usually gets fired twice and logs "Applying proxy configs" each time, but the change diff logic prevents an unnecessary update the second time. We may still want to do some debounce detection to prevent extra config diffs, but that's lower priority.
 
 @halter73 raised the question of how much effort we put in to make the kestrel reload atomic with the routing reload? Conceptually it makes sense to keep the two in sync, but pragmatically it's quite difficult as there's no connection between the two systems. They'd be reacting to the same change notification event in serial and requests in flight may see one set of changes without the other. We discussed this in the weekly sync and decided that since kestrel endpoint changes will be a less common scenario we won't initually worry about the atomicity here until we have customer feedback that demonstrates issues.
 
@@ -184,6 +184,6 @@ Some things are easier to do in code and we want to be able to support that whil
     });
 ```
 
-The proxy/gateway code already has named routes, backends, backend endpoints, etc., so we should be able to build a similar code augmentation for those.
+The proxy code already has named routes, backends, backend endpoints, etc., so we should be able to build a similar code augmentation for those.
 
 Reloadable config complicates this pattern. The code augmentation actions will need to be captured for the lifetime of the app rather than just for startup so they can be re-run later.

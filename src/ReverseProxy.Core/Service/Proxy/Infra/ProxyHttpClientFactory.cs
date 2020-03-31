@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -36,7 +36,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Infra
                 AllowAutoRedirect = false,
                 AutomaticDecompression = DecompressionMethods.None,
                 UseCookies = false,
-                MaxConnectionsPerServer = int.MaxValue, // Gateway manages max connections
+                MaxConnectionsPerServer = int.MaxValue, // Proxy manages max connections
 
                 // NOTE: MaxResponseHeadersLength = 64, which means up to 64 KB of headers are allowed by default as of .NET Core 3.1.
             };
@@ -59,7 +59,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Infra
                         AllowAutoRedirect = false,
                         AutomaticDecompression = DecompressionMethods.None,
                         UseCookies = false,
-                        MaxConnectionsPerServer = int.MaxValue, // Gateway manages max connections
+                        MaxConnectionsPerServer = int.MaxValue, // Proxy manages max connections
                         PooledConnectionLifetime = TimeSpan.Zero, // Do not reuse connections
                     };
 

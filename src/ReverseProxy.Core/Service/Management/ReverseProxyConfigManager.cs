@@ -14,26 +14,26 @@ using Microsoft.ReverseProxy.Utilities;
 namespace Microsoft.ReverseProxy.Core.Service.Management
 {
     /// <summary>
-    /// Default implementation of <see cref="IIslandGatewayConfigManager"/>
-    /// which provides a method to apply Gateway configuration changes
+    /// Default implementation of <see cref="IReverseProxyConfigManager"/>
+    /// which provides a method to apply Proxy configuration changes
     /// by leveraging <see cref="IDynamicConfigBuilder"/>.
     /// </summary>
-    internal class IslandGatewayConfigManager : IIslandGatewayConfigManager
+    internal class ReverseProxyConfigManager : IReverseProxyConfigManager
     {
-        private readonly ILogger<IslandGatewayConfigManager> _logger;
+        private readonly ILogger<ReverseProxyConfigManager> _logger;
         private readonly IDynamicConfigBuilder _configBuilder;
         private readonly IRuntimeRouteBuilder _routeEndpointBuilder;
         private readonly IBackendManager _backendManager;
         private readonly IRouteManager _routeManager;
-        private readonly IGatewayDynamicEndpointDataSource _dynamicEndpointDataSource;
+        private readonly IProxyDynamicEndpointDataSource _dynamicEndpointDataSource;
 
-        public IslandGatewayConfigManager(
-            ILogger<IslandGatewayConfigManager> logger,
+        public ReverseProxyConfigManager(
+            ILogger<ReverseProxyConfigManager> logger,
             IDynamicConfigBuilder configBuilder,
             IRuntimeRouteBuilder routeEndpointBuilder,
             IBackendManager backendManager,
             IRouteManager routeManager,
-            IGatewayDynamicEndpointDataSource dynamicEndpointDataSource)
+            IProxyDynamicEndpointDataSource dynamicEndpointDataSource)
         {
             Contracts.CheckValue(logger, nameof(logger));
             Contracts.CheckValue(configBuilder, nameof(configBuilder));

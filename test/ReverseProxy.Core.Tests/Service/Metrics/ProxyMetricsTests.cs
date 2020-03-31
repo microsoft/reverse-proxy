@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using FluentAssertions;
@@ -8,11 +8,11 @@ using Xunit;
 
 namespace Microsoft.ReverseProxy.Core.Service.Metrics.Tests
 {
-    public class GatewayMetricsTests : TestAutoMockBase
+    public class ProxyMetricsTests : TestAutoMockBase
     {
         private readonly TestMetricCreator _metricCreator;
 
-        public GatewayMetricsTests()
+        public ProxyMetricsTests()
         {
             _metricCreator = Provide<IMetricCreator, TestMetricCreator>();
         }
@@ -20,14 +20,14 @@ namespace Microsoft.ReverseProxy.Core.Service.Metrics.Tests
         [Fact]
         public void Constructor_Works()
         {
-            Create<GatewayMetrics>();
+            Create<ProxyMetrics>();
         }
 
         [Fact]
         public void StreamCopyBytes_Works()
         {
             // Arrange
-            var metrics = Create<GatewayMetrics>();
+            var metrics = Create<ProxyMetrics>();
 
             // Act
             metrics.StreamCopyBytes(123, "upstream", "be1", "rt1", "ep1", "prot");
@@ -40,7 +40,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Metrics.Tests
         public void StreamCopyIops_Works()
         {
             // Arrange
-            var metrics = Create<GatewayMetrics>();
+            var metrics = Create<ProxyMetrics>();
 
             // Act
             metrics.StreamCopyIops(123, "upstream", "be1", "rt1", "ep1", "prot");
