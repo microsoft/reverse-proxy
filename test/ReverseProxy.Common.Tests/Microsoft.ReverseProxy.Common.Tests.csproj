@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <OutputType>Library</OutputType>
-    <RootNamespace>ReverseProxy.Signals</RootNamespace>
+    <RootNamespace>ReverseProxy.Common</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,8 +12,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\ReverseProxy.Signals\ReverseProxy.Signals.csproj" />
-    <ProjectReference Include="..\Tests.Common\Tests.Common.csproj" />
+    <ProjectReference Include="..\..\src\ReverseProxy.Common\Microsoft.ReverseProxy.Common.csproj" />
+    <ProjectReference Include="..\..\test\Tests.Common\Tests.Common.csproj" />
   </ItemGroup>
 
 </Project>

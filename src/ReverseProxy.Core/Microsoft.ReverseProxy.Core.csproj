@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="DynamicProxyGenAssembly2" Key="$(MoqPublicKey)" />
-    <InternalsVisibleTo Include="ReverseProxy.Core.Tests" />
+    <InternalsVisibleTo Include="Microsoft.ReverseProxy.Core.Tests" />
   </ItemGroup>
 
   <ItemGroup>
@@ -16,9 +16,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ReverseProxy.Common\ReverseProxy.Common.csproj" />
-    <ProjectReference Include="..\ReverseProxy.Utilities\ReverseProxy.Utilities.csproj" />
-    <ProjectReference Include="..\ReverseProxy.Signals\ReverseProxy.Signals.csproj" />
+    <ProjectReference Include="..\ReverseProxy.Common\Microsoft.ReverseProxy.Common.csproj" />
+    <ProjectReference Include="..\ReverseProxy.Utilities\Microsoft.ReverseProxy.Utilities.csproj" />
+    <ProjectReference Include="..\ReverseProxy.Signals\Microsoft.ReverseProxy.Signals.csproj" />
   </ItemGroup>
 
   <ItemGroup>

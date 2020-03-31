@@ -9,6 +9,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ReverseProxy.Common\ReverseProxy.Common.csproj" />
+    <ProjectReference Include="..\ReverseProxy.Common\Microsoft.ReverseProxy.Common.csproj" />
   </ItemGroup>
 </Project>
