@@ -25,7 +25,7 @@ parameters:
   enablePublishTestResults: false
   enablePublishUsingPipelines: false
   mergeTestResults: false
-  testRunTitle: $(AgentOsName)-$(BuildConfiguration)-xunit
+  testRunTitle: '${{ parameters.name }}-xunit'
   name: ''
   preSteps: []
   runAsPublic: false
