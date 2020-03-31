@@ -18,6 +18,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
         [Fact]
         public void Constructor_Works()
         {
+            Assert.False(true, "Whaaaaa!?");
             Create<DynamicConfigBuilder>();
         }
 
