@@ -7,6 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="DynamicProxyGenAssembly2" Key="$(MoqPublicKey)" />
+    <InternalsVisibleTo Include="IslandGateway.Sample.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\src\IslandGateway.Core\IslandGateway.Core.csproj" />
     <ProjectReference Include="..\..\src\IslandGateway.Utilities\IslandGateway.Utilities.csproj" />
   </ItemGroup>
