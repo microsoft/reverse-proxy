@@ -1,0 +1,167 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using System;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using Microsoft.ReverseProxy.Common.Abstractions.Telemetry;
+using Microsoft.ReverseProxy.Core.Abstractions;
+using Microsoft.ReverseProxy.Core.RuntimeModel;
+using Microsoft.ReverseProxy.Utilities;
+
+namespace Microsoft.ReverseProxy.Core.Service.Proxy
+{
+    /// <summary>
+    /// Default implementation of <see cref="IProxyInvoker"/>.
+    /// </summary>
+    internal class ProxyInvoker : IProxyInvoker
+    {
+        private readonly ILogger<ProxyInvoker> _logger;
+        private readonly IOperationLogger _operationLogger;
+        private readonly ILoadBalancer _loadBalancer;
+        private readonly IHttpProxy _httpProxy;
+
+        public ProxyInvoker(
+            ILogger<ProxyInvoker> logger,
+            IOperationLogger operationLogger,
+            ILoadBalancer loadBalancer,
+            IHttpProxy httpProxy)
+        {
+            Contracts.CheckValue(logger, nameof(logger));
+            Contracts.CheckValue(operationLogger, nameof(operationLogger));
+            Contracts.CheckValue(loadBalancer, nameof(loadBalancer));
+            Contracts.CheckValue(httpProxy, nameof(httpProxy));
+
+            _logger = logger;
+            _operationLogger = operationLogger;
+            _loadBalancer = loadBalancer;
+            _httpProxy = httpProxy;
+        }
+
+        /// <inheritdoc/>
+        public async Task InvokeAsync(HttpContext context)
+        {
+            Contracts.CheckValue(context, nameof(context));
+
+            var aspNetCoreEndpoint = context.GetEndpoint();
+            if (aspNetCoreEndpoint == null)
+            {
+                throw new ReverseProxyException($"ASP .NET Core Endpoint wasn't set for the current request. This is a coding defect.");
+            }
+
+            var routeConfig = aspNetCoreEndpoint.Metadata.GetMetadata<RouteConfig>();
+            if (routeConfig == null)
+            {
+                throw new ReverseProxyException($"ASP .NET Core Endpoint is missing {typeof(RouteConfig).FullName} metadata. This is a coding defect.");
+            }
+
+            var backend = routeConfig.BackendOrNull;
+            if (backend == null)
+            {
+                throw new ReverseProxyException($"Route has no backend information.");
+            }
+
+            var dynamicState = backend.DynamicState.Value;
+            if (dynamicState == null)
+            {
+                throw new ReverseProxyException($"Route has no up to date information on its backend '{backend.BackendId}'. Perhaps the backend hasn't been probed yet? This can happen when a new backend is added but isn't ready to serve traffic yet.");
+            }
+
+            // TODO: Set defaults properly
+            BackendConfig.BackendLoadBalancingOptions loadBalancingOptions = default;
+            var backendConfig = backend.Config.Value;
+            if (backendConfig != null)
+            {
+                loadBalancingOptions = backendConfig.LoadBalancingOptions;
+            }
+
+            var endpoint = _operationLogger.Execute(
+                "ReverseProxy.PickEndpoint",
+                () => _loadBalancer.PickEndpoint(dynamicState.HealthyEndpoints, dynamicState.AllEndpoints, in loadBalancingOptions));
+
+            if (endpoint == null)
+            {
+                throw new ReverseProxyException($"No available endpoints.");
+            }
+
+            var endpointConfig = endpoint.Config.Value;
+            if (endpointConfig == null)
+            {
+                throw new ReverseProxyException($"Chosen endpoint has no configs set: '{endpoint.EndpointId}'");
+            }
+
+            // TODO: support StripPrefix and other url transformations
+            var targetUrl = BuildOutgoingUrl(context, endpointConfig.Address);
+            _logger.LogInformation($"Proxying to {targetUrl}");
+            var targetUri = new Uri(targetUrl, UriKind.Absolute);
+
+            using (var shortCts = CancellationTokenSource.CreateLinkedTokenSource(context.RequestAborted))
+            {
+                // TODO: Configurable timeout, measure from request start, make it unit-testable
+                shortCts.CancelAfter(TimeSpan.FromSeconds(30));
+
+                // TODO: Retry against other endpoints
+                try
+                {
+                    // TODO: Apply caps
+                    backend.ConcurrencyCounter.Increment();
+                    endpoint.ConcurrencyCounter.Increment();
+
+                    // TODO: Duplex channels should not have a timeout (?), but must react to Proxy force-shutdown signals.
+                    var longCancellation = context.RequestAborted;
+
+                    var proxyTelemetryContext = new ProxyTelemetryContext(
+                        backendId: backend.BackendId,
+                        routeId: routeConfig.Route.RouteId,
+                        endpointId: endpoint.EndpointId);
+
+                    await _operationLogger.ExecuteAsync(
+                        "ReverseProxy.Proxy",
+                        () => _httpProxy.ProxyAsync(context, targetUri, backend.ProxyHttpClientFactory, proxyTelemetryContext, shortCancellation: shortCts.Token, longCancellation: longCancellation));
+                }
+                finally
+                {
+                    endpoint.ConcurrencyCounter.Decrement();
+                    backend.ConcurrencyCounter.Decrement();
+                }
+            }
+        }
+
+        private string BuildOutgoingUrl(HttpContext context, string endpointAddress)
+        {
+            // "http://a".Length = 8
+            if (endpointAddress == null || endpointAddress.Length < 8)
+            {
+                throw new ArgumentException(nameof(endpointAddress));
+            }
+
+            var stripSlash = endpointAddress.EndsWith('/');
+
+            // NOTE: This takes inspiration from Microsoft.AspNetCore.Http.Extensions.UriHelper.BuildAbsolute()
+            var request = context.Request;
+            var combinedPath = (request.PathBase.HasValue || request.Path.HasValue) ? (request.PathBase + request.Path).ToString() : "/";
+            var encodedQuery = request.QueryString.ToString();
+
+            // PERF: Calculate string length to allocate correct buffer size for StringBuilder.
+            var length = endpointAddress.Length + combinedPath.Length + encodedQuery.Length + (stripSlash ? -1 : 0);
+
+            var builder = new StringBuilder(length);
+            if (stripSlash)
+            {
+                builder.Append(endpointAddress, 0, endpointAddress.Length - 1);
+            }
+            else
+            {
+                builder.Append(endpointAddress);
+            }
+
+            builder.Append(combinedPath);
+            builder.Append(encodedQuery);
+
+            return builder.ToString();
+        }
+    }
+}

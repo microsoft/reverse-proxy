@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "ReverseProxy.Sample": {
+      "commandName": "Project",
+      "launchBrowser": false,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:1443;http://localhost:180"
+    }
+  }
+}

@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using IslandGateway.Common.Abstractions.Telemetry;
+using Microsoft.ReverseProxy.Common.Abstractions.Telemetry;
 
 namespace Tests.Common
 {

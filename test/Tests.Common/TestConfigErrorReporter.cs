@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using IslandGateway.Core.Abstractions;
+using Microsoft.ReverseProxy.Core.Abstractions;
 
 namespace Tests.Common
 {

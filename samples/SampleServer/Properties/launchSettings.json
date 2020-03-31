@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "IslandGateway.Sample": {
+    "ReverseProxy.Sample": {
       "commandName": "Project",
       "launchBrowser": false,
       "environmentVariables": {

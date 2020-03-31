@@ -10,27 +10,25 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		NuGet.config = NuGet.config
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IslandGateway.Common", "src\IslandGateway.Common\IslandGateway.Common.csproj", "{C89BCE14-7BCA-4E06-A75B-15B96ADFD259}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ReverseProxy.Common", "src\ReverseProxy.Common\Microsoft.ReverseProxy.Common.csproj", "{C89BCE14-7BCA-4E06-A75B-15B96ADFD259}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IslandGateway.Core", "src\IslandGateway.Core\IslandGateway.Core.csproj", "{568EF8AE-7624-490D-A19F-C25D076FF091}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ReverseProxy.Core", "src\ReverseProxy.Core\Microsoft.ReverseProxy.Core.csproj", "{568EF8AE-7624-490D-A19F-C25D076FF091}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IslandGateway.Utilities", "src\IslandGateway.Utilities\IslandGateway.Utilities.csproj", "{251332FE-2A63-4C47-8C60-5A2008C1D702}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ReverseProxy.Utilities", "src\ReverseProxy.Utilities\Microsoft.ReverseProxy.Utilities.csproj", "{251332FE-2A63-4C47-8C60-5A2008C1D702}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IslandGateway.Signals", "src\IslandGateway.Signals\IslandGateway.Signals.csproj", "{6BA0272C-19DF-4348-8B33-AFEAE6A93542}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ReverseProxy.Signals", "src\ReverseProxy.Signals\Microsoft.ReverseProxy.Signals.csproj", "{6BA0272C-19DF-4348-8B33-AFEAE6A93542}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests.Common", "test\Tests.Common\Tests.Common.csproj", "{B54B2F89-2721-4C69-BF52-515DCAA66E86}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IslandGateway.Common.Tests", "test\IslandGateway.Common.Tests\IslandGateway.Common.Tests.csproj", "{78E10C53-8E26-4E3F-8726-47C11AE65DDF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ReverseProxy.Common.Tests", "test\ReverseProxy.Common.Tests\Microsoft.ReverseProxy.Common.Tests.csproj", "{78E10C53-8E26-4E3F-8726-47C11AE65DDF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IslandGateway.Core.Tests", "test\IslandGateway.Core.Tests\IslandGateway.Core.Tests.csproj", "{3B188E4C-C926-4BED-94F3-0E83668FBAB0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ReverseProxy.Core.Tests", "test\ReverseProxy.Core.Tests\Microsoft.ReverseProxy.Core.Tests.csproj", "{3B188E4C-C926-4BED-94F3-0E83668FBAB0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IslandGateway.Utilities.Tests", "test\IslandGateway.Utilities.Tests\IslandGateway.Utilities.Tests.csproj", "{95DC0C76-C475-43D7-B416-0C169234BAB9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ReverseProxy.Utilities.Tests", "test\ReverseProxy.Utilities.Tests\Microsoft.ReverseProxy.Utilities.Tests.csproj", "{95DC0C76-C475-43D7-B416-0C169234BAB9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IslandGateway.Sample.Tests", "test\IslandGateway.Sample.Tests\IslandGateway.Sample.Tests.csproj", "{BAF28120-EF3A-4DFA-8F35-FC60554C93C0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ReverseProxy.Signals.Tests", "test\ReverseProxy.Signals.Tests\Microsoft.ReverseProxy.Signals.Tests.csproj", "{1ED60DCE-10C4-4D3A-AEF4-A3EE728747AD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IslandGateway.Signals.Tests", "test\IslandGateway.Signals.Tests\IslandGateway.Signals.Tests.csproj", "{1ED60DCE-10C4-4D3A-AEF4-A3EE728747AD}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IslandGateway.Sample", "samples\IslandGateway.Sample\IslandGateway.Sample.csproj", "{8ECD71FA-3E74-4F4E-AE5D-0C4681F8A7B7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReverseProxy.Sample", "samples\ReverseProxy.Sample\ReverseProxy.Sample.csproj", "{8ECD71FA-3E74-4F4E-AE5D-0C4681F8A7B7}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleClient", "samples\SampleClient\SampleClient.csproj", "{D294FD0A-CF8E-4DB2-B722-08577DB890D2}"
 EndProject
@@ -119,14 +117,6 @@ Global
 		{95DC0C76-C475-43D7-B416-0C169234BAB9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{95DC0C76-C475-43D7-B416-0C169234BAB9}.Release|x64.ActiveCfg = Release|Any CPU
 		{95DC0C76-C475-43D7-B416-0C169234BAB9}.Release|x64.Build.0 = Release|Any CPU
-		{BAF28120-EF3A-4DFA-8F35-FC60554C93C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BAF28120-EF3A-4DFA-8F35-FC60554C93C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BAF28120-EF3A-4DFA-8F35-FC60554C93C0}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{BAF28120-EF3A-4DFA-8F35-FC60554C93C0}.Debug|x64.Build.0 = Debug|Any CPU
-		{BAF28120-EF3A-4DFA-8F35-FC60554C93C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BAF28120-EF3A-4DFA-8F35-FC60554C93C0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BAF28120-EF3A-4DFA-8F35-FC60554C93C0}.Release|x64.ActiveCfg = Release|Any CPU
-		{BAF28120-EF3A-4DFA-8F35-FC60554C93C0}.Release|x64.Build.0 = Release|Any CPU
 		{1ED60DCE-10C4-4D3A-AEF4-A3EE728747AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1ED60DCE-10C4-4D3A-AEF4-A3EE728747AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1ED60DCE-10C4-4D3A-AEF4-A3EE728747AD}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -172,7 +162,6 @@ Global
 		{78E10C53-8E26-4E3F-8726-47C11AE65DDF} = {0631147E-34BB-456D-B214-5B202C516D5C}
 		{3B188E4C-C926-4BED-94F3-0E83668FBAB0} = {0631147E-34BB-456D-B214-5B202C516D5C}
 		{95DC0C76-C475-43D7-B416-0C169234BAB9} = {0631147E-34BB-456D-B214-5B202C516D5C}
-		{BAF28120-EF3A-4DFA-8F35-FC60554C93C0} = {0631147E-34BB-456D-B214-5B202C516D5C}
 		{1ED60DCE-10C4-4D3A-AEF4-A3EE728747AD} = {0631147E-34BB-456D-B214-5B202C516D5C}
 		{8ECD71FA-3E74-4F4E-AE5D-0C4681F8A7B7} = {149C61A2-D9F8-49B9-9F9B-3C953FEF53AA}
 		{D294FD0A-CF8E-4DB2-B722-08577DB890D2} = {149C61A2-D9F8-49B9-9F9B-3C953FEF53AA}
