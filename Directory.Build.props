@@ -4,10 +4,13 @@
 
   <PropertyGroup>
     <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
+    <PackageIcon></PackageIcon>
+    <PackageIconFullPath></PackageIconFullPath>
   </PropertyGroup>
   <PropertyGroup>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <StrongNameKeyId>Microsoft</StrongNameKeyId>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
   </PropertyGroup>
 
   <PropertyGroup>
