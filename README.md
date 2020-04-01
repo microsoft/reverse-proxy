@@ -10,7 +10,9 @@ We expect YARP to ship as a library and project template that together provide a
 
 To build the repo, you should only need to run `Build.cmd` (on Windows) or `Build.sh` (on Linux or macOS). The script will download the .NET SDK and build the solution.
 
-To set up local development with Visual Studio, Visual Studio for Mac or Visual Studio Code, follow these steps:
+To set up local development with Visual Studio, Visual Studio for Mac or Visual Studio Code, you need to put the local copy of the .NET SDK in your `PATH` environment variable. Our `Restore` script fetches the latest build of .NET 5 and installs it to a `.dotnet` directory *within* this repository.
+
+We provide some scripts to set all this up for you. Just follow these steps:
 
 1. Run the `Restore.cmd`/`Restore.sh` script to fetch the required .NET SDK locally (to the `.dotnet` directory within this repo)
 1. "Dot-source" the `activate` script to put the local .NET SDK on the PATH
@@ -20,8 +22,6 @@ To set up local development with Visual Studio, Visual Studio for Mac or Visual 
 1. Launch VS, VS for Mac, or VS Code!
 
 As a short-cut, you can also just run the `startvs.cmd` script to launch Visual Studio on Windows. There's no need to use the `activate` script in that case.
-
-We use a local copy of the .NET SDK because we will soon be using pre-release .NET 5 SDK builds!
 
 If you're having trouble building the project, or developing in Visual Studio, please file a bug to let us know and we'll help out (and fix our scripts/tools as needed)!
 
