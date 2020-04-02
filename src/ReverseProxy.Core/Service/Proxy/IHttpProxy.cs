@@ -17,6 +17,8 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
         /// <summary>
         /// Proxies the incoming request to the upstream server, and the response back to our client.
         /// </summary>
+        /// <param name="longCancellation">This should be linked to a client disconnect notification like <see cref="HttpContext.RequestAborted"/>
+        /// to avoid leaking long running requests.</param>
         Task ProxyAsync(
             HttpContext context,
             Uri targetUri,
