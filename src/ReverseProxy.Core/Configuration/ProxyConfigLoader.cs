@@ -10,8 +10,11 @@ using Microsoft.Extensions.Options;
 using Microsoft.ReverseProxy.Core.Abstractions;
 using Microsoft.ReverseProxy.Utilities;
 
-namespace Microsoft.ReverseProxy.Sample.Config
+namespace Microsoft.ReverseProxy.Core.Configuration
 {
+    // TODO: It's weird that this is an IHostedService.
+    // Could this be moved to MapReverseProxy?
+
     /// <summary>
     /// Reacts to configuration changes for type <see cref="ProxyConfigRoot"/>
     /// via <see cref="IOptionsMonitor{TOptions}"/>, and applies configurations
@@ -19,25 +22,28 @@ namespace Microsoft.ReverseProxy.Sample.Config
     /// When configs are loaded from appsettings.json, this takes care of hot updates
     /// when appsettings.json is modified on disk.
     /// </summary>
-    internal class ProxyConfigApplier : IHostedService, IDisposable
+    internal class ProxyConfigLoader : IHostedService, IDisposable
     {
-        private readonly ILogger<ProxyConfigApplier> _logger;
+        private readonly IOptions<ProxyConfigLoaderOptions> _options;
+        private readonly ILogger<ProxyConfigLoader> _logger;
         private readonly IBackendsRepo _backendsRepo;
         private readonly IBackendEndpointsRepo _endpointsRepo;
         private readonly IRoutesRepo _routesRepo;
         private readonly IReverseProxyConfigManager _proxyManager;
-
+        private readonly IOptionsMonitor<ProxyConfigOptions> _proxyConfig;
         private bool _disposed;
-        private readonly IDisposable _subscription;
+        private IDisposable _subscription;
 
-        public ProxyConfigApplier(
-            ILogger<ProxyConfigApplier> logger,
+        public ProxyConfigLoader(
+            IOptions<ProxyConfigLoaderOptions> options,
+            ILogger<ProxyConfigLoader> logger,
             IBackendsRepo backendsRepo,
             IBackendEndpointsRepo endpointsRepo,
             IRoutesRepo routesRepo,
             IReverseProxyConfigManager proxyManager,
-            IOptionsMonitor<ProxyConfigRoot> proxyConfig)
+            IOptionsMonitor<ProxyConfigOptions> proxyConfig)
         {
+            Contracts.CheckValue(options, nameof(options));
             Contracts.CheckValue(logger, nameof(logger));
             Contracts.CheckValue(backendsRepo, nameof(backendsRepo));
             Contracts.CheckValue(endpointsRepo, nameof(endpointsRepo));
@@ -45,38 +51,40 @@ namespace Microsoft.ReverseProxy.Sample.Config
             Contracts.CheckValue(proxyManager, nameof(proxyManager));
             Contracts.CheckValue(proxyConfig, nameof(proxyConfig));
 
+            _options = options;
             _logger = logger;
             _backendsRepo = backendsRepo;
             _endpointsRepo = endpointsRepo;
             _routesRepo = routesRepo;
             _proxyManager = proxyManager;
-
-            _subscription = proxyConfig.OnChange((newConfig, name) => Apply(newConfig));
-            Apply(proxyConfig.CurrentValue);
+            _proxyConfig = proxyConfig;
         }
 
         public void Dispose()
         {
             if (!_disposed)
             {
-                _subscription.Dispose();
+                _subscription?.Dispose();
                 _disposed = true;
             }
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            // Nothing to start
-            return Task.CompletedTask;
+            if (_options.Value.ReloadOnChange)
+            {
+                _subscription = _proxyConfig.OnChange((newConfig, name) => _ = ApplyAsync(newConfig));
+            }
+            return ApplyAsync(_proxyConfig.CurrentValue);
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            // Nothing to stop
+            _subscription?.Dispose();
             return Task.CompletedTask;
         }
 
-        private async void Apply(ProxyConfigRoot config)
+        private async Task ApplyAsync(ProxyConfigOptions config)
         {
             if (config == null)
             {
@@ -86,38 +94,21 @@ namespace Microsoft.ReverseProxy.Sample.Config
             _logger.LogInformation("Applying proxy configs");
             try
             {
-                switch (config.DiscoveryMechanism)
+                await _backendsRepo.SetBackendsAsync(config.Backends, CancellationToken.None);
+                foreach (var kvp in config.Endpoints)
                 {
-                    case "static":
-                        await ApplyStaticConfigsAsync(config.StaticDiscoveryOptions, CancellationToken.None);
-                        break;
-                    default:
-                        throw new Exception($"Config discovery mechanism '{config.DiscoveryMechanism}' is not supported.");
+                    await _endpointsRepo.SetEndpointsAsync(kvp.Key, kvp.Value, CancellationToken.None);
                 }
+
+                await _routesRepo.SetRoutesAsync(config.Routes, CancellationToken.None);
+
+                var errorReporter = new LoggerConfigErrorReporter(_logger);
+                await _proxyManager.ApplyConfigurationsAsync(errorReporter, CancellationToken.None);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Failed to apply new configs: {ex.Message}");
             }
-        }
-
-        private async Task ApplyStaticConfigsAsync(StaticDiscoveryOptions options, CancellationToken cancellation)
-        {
-            if (options == null)
-            {
-                return;
-            }
-
-            await _backendsRepo.SetBackendsAsync(options.Backends, cancellation);
-            foreach (var kvp in options.Endpoints)
-            {
-                await _endpointsRepo.SetEndpointsAsync(kvp.Key, kvp.Value, cancellation);
-            }
-
-            await _routesRepo.SetRoutesAsync(options.Routes, cancellation);
-
-            var errorReporter = new LoggerConfigErrorReporter(_logger);
-            await _proxyManager.ApplyConfigurationsAsync(errorReporter, cancellation);
         }
 
         private class LoggerConfigErrorReporter : IConfigErrorReporter
