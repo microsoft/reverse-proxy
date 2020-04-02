@@ -282,45 +282,31 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step A-6: Upgrade the downstream channel. This will send all response headers too.
-            using (var downstreamStream = await upgradeFeature.UpgradeAsync())
-            {
-                // :::::::::::::::::::::::::::::::::::::::::::::
-                // :: Step A-7: Copy duplex streams
-                var upstreamStream = await upstreamResponse.Content.ReadAsStreamAsync();
+            using var downstreamStream = await upgradeFeature.UpgradeAsync();
 
-                using (var gracefulCts = CancellationTokenSource.CreateLinkedTokenSource(longCancellation))
-                {
-                    var upstreamCopier = new StreamCopier(
-                        _metrics,
-                        new StreamCopyTelemetryContext(
-                            direction: "upstream",
-                            backendId: proxyTelemetryContext.BackendId,
-                            routeId: proxyTelemetryContext.RouteId,
-                            endpointId: proxyTelemetryContext.EndpointId));
-                    var upstreamTask = upstreamCopier.CopyAsync(downstreamStream, upstreamStream, gracefulCts.Token);
+            // :::::::::::::::::::::::::::::::::::::::::::::
+            // :: Step A-7: Copy duplex streams
+            var upstreamStream = await upstreamResponse.Content.ReadAsStreamAsync();
 
-                    var downstreamCopier = new StreamCopier(
-                        _metrics,
-                        new StreamCopyTelemetryContext(
-                            direction: "downstream",
-                            backendId: proxyTelemetryContext.BackendId,
-                            routeId: proxyTelemetryContext.RouteId,
-                            endpointId: proxyTelemetryContext.EndpointId));
-                    var downstreamTask = downstreamCopier.CopyAsync(upstreamStream, downstreamStream, gracefulCts.Token);
+            var upstreamCopier = new StreamCopier(
+                _metrics,
+                new StreamCopyTelemetryContext(
+                    direction: "upstream",
+                    backendId: proxyTelemetryContext.BackendId,
+                    routeId: proxyTelemetryContext.RouteId,
+                    endpointId: proxyTelemetryContext.EndpointId));
+            var upstreamTask = upstreamCopier.CopyAsync(downstreamStream, upstreamStream, longCancellation);
 
-                    await Task.WhenAny(upstreamTask, downstreamTask);
-                    longCancellation.ThrowIfCancellationRequested();
-                    gracefulCts.Cancel();
-                    try
-                    {
-                        await Task.WhenAll(upstreamTask, downstreamTask);
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        // Graceful shutdown...
-                    }
-                }
-            }
+            var downstreamCopier = new StreamCopier(
+                _metrics,
+                new StreamCopyTelemetryContext(
+                    direction: "downstream",
+                    backendId: proxyTelemetryContext.BackendId,
+                    routeId: proxyTelemetryContext.RouteId,
+                    endpointId: proxyTelemetryContext.EndpointId));
+            var downstreamTask = downstreamCopier.CopyAsync(upstreamStream, downstreamStream, longCancellation);
+
+            await Task.WhenAll(upstreamTask, downstreamTask);
         }
 
         private StreamCopyHttpContent SetupCopyBodyUpstream(Stream source, HttpRequestMessage upstreamRequest, in ProxyTelemetryContext proxyTelemetryContext, CancellationToken cancellation)
