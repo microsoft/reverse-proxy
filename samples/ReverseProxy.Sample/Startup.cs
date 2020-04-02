@@ -4,7 +4,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.ReverseProxy.Core;
 using Microsoft.ReverseProxy.Core.Configuration.DependencyInjection;
 using Microsoft.ReverseProxy.Sample.Config;
 
@@ -51,9 +50,8 @@ namespace Microsoft.ReverseProxy.Sample
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapReverseProxy();
             });
-
-            app.UseReverseProxy();
         }
     }
 }
