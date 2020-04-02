@@ -10,6 +10,8 @@ We expect YARP to ship as a library and project template that together provide a
 
 To build the repo, you should only need to run `Build.cmd` (on Windows) or `Build.sh` (on Linux or macOS). The script will download the .NET SDK and build the solution.
 
+For VS on Windows, you can run the `startvs.cmd` script to launch Visual Studio on Windows using the appropriate local copy of the .NET SDK.
+
 To set up local development with Visual Studio, Visual Studio for Mac or Visual Studio Code, you need to put the local copy of the .NET SDK in your `PATH` environment variable. Our `Restore` script fetches the latest build of .NET 5 and installs it to a `.dotnet` directory *within* this repository.
 
 We provide some scripts to set all this up for you. Just follow these steps:
@@ -21,13 +23,11 @@ We provide some scripts to set all this up for you. Just follow these steps:
     1. For CMD, there is no supported script. You can manually add the `.dotnet` directory **within this repo** to your `PATH`. Ensure `where dotnet` shows a path within this repository!
 1. Launch VS, VS for Mac, or VS Code!
 
-As a short-cut, you can also just run the `startvs.cmd` script to launch Visual Studio on Windows. There's no need to use the `activate` script in that case.
-
 If you're having trouble building the project, or developing in Visual Studio, please file a bug to let us know and we'll help out (and fix our scripts/tools as needed)!
 
 # Getting started
 
-Take a look at the [Sample App](samples/ReverseProxy.Sample), which configures a proxy to route traffic on all paths to a single backend server (the example backend server is [provided as well](samples/SampleServer)). We'll be publishing more docs and tutorials as the project develops!
+Take a look at the [sample apps](samples/), for some examples of how to use YARP. We'll be publishing more docs and tutorials as the project develops!
 
 # Roadmap
 
