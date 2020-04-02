@@ -77,6 +77,8 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
         /// (a) and (b) show the *request* path, going *upstream* from the client to the target.
         /// (c) and (d) show the *response* path, going *downstream* from the target back to the client.
         /// </remarks>
+        /// <param name="longCancellation">This should be linked to a client disconnect notification like <see cref="HttpContext.RequestAborted"/>
+        /// to avoid leaking long running requests.</param>
         public Task ProxyAsync(
             HttpContext context,
             Uri targetUri,
