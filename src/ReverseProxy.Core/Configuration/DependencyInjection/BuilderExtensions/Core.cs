@@ -34,7 +34,6 @@ namespace Microsoft.ReverseProxy.Core.Configuration.DependencyInjection
         public static IReverseProxyBuilder AddInMemoryRepos(this IReverseProxyBuilder builder)
         {
             builder.Services.AddSingleton<IBackendsRepo, InMemoryBackendsRepo>();
-            builder.Services.AddSingleton<IBackendEndpointsRepo, InMemoryEndpointsRepo>();
             builder.Services.AddSingleton<IRoutesRepo, InMemoryRoutesRepo>();
 
             return builder;

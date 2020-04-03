@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
@@ -21,7 +21,6 @@ namespace Microsoft.ReverseProxy.Core.Abstractions.Tests
             // Arrange
             var backend = new Backend
             {
-                BackendId = "backend1",
                 CircuitBreakerOptions = new CircuitBreakerOptions(),
                 QuotaOptions = new QuotaOptions(),
                 PartitioningOptions = new BackendPartitioningOptions(),
@@ -38,7 +37,6 @@ namespace Microsoft.ReverseProxy.Core.Abstractions.Tests
 
             // Assert
             clone.Should().NotBeSameAs(backend);
-            clone.BackendId.Should().Be("backend1");
             clone.CircuitBreakerOptions.Should().NotBeNull();
             clone.CircuitBreakerOptions.Should().NotBeSameAs(backend.CircuitBreakerOptions);
             clone.QuotaOptions.Should().NotBeNull();
@@ -65,7 +63,6 @@ namespace Microsoft.ReverseProxy.Core.Abstractions.Tests
 
             // Assert
             clone.Should().NotBeSameAs(backend);
-            clone.BackendId.Should().BeNull();
             clone.CircuitBreakerOptions.Should().BeNull();
             clone.QuotaOptions.Should().BeNull();
             clone.PartitioningOptions.Should().BeNull();

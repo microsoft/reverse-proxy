@@ -74,16 +74,16 @@ namespace Microsoft.ReverseProxy.Core.Service.Management
         private void UpdateRuntimeBackends(DynamicConfigRoot config)
         {
             var desiredBackends = new HashSet<string>(StringComparer.Ordinal);
-            foreach (var configBackendWithEndpoints in config.Backends)
+            foreach (var configBackendPair in config.Backends)
             {
-                var configBackend = configBackendWithEndpoints.Backend;
-                desiredBackends.Add(configBackend.BackendId);
+                var configBackend = configBackendPair.Value;
+                desiredBackends.Add(configBackendPair.Key);
 
                 _backendManager.GetOrCreateItem(
-                    itemId: configBackend.BackendId,
+                    itemId: configBackendPair.Key,
                     setupAction: backend =>
                     {
-                        UpdateRuntimeEndpoints(configBackendWithEndpoints.Endpoints, backend.EndpointManager);
+                        UpdateRuntimeEndpoints(configBackend.Endpoints, backend.EndpointManager);
 
                         var newConfig = new BackendConfig(
                                 new BackendConfig.BackendHealthCheckOptions(
@@ -105,11 +105,11 @@ namespace Microsoft.ReverseProxy.Core.Service.Management
                         {
                             if (currentBackendConfig == null)
                             {
-                                _logger.LogDebug("Backend {backendId} has been added.", configBackend.BackendId);
+                                _logger.LogDebug("Backend {backendId} has been added.", configBackendPair.Key);
                             }
                             else
                             {
-                                _logger.LogDebug("Backend {backendId} has changed.", configBackend.BackendId);
+                                _logger.LogDebug("Backend {backendId} has changed.", configBackendPair.Key);
                             }
 
                             // Config changed, so update runtime backend
@@ -134,27 +134,27 @@ namespace Microsoft.ReverseProxy.Core.Service.Management
             }
         }
 
-        private void UpdateRuntimeEndpoints(IList<BackendEndpoint> configEndpoints, IEndpointManager endpointManager)
+        private void UpdateRuntimeEndpoints(IDictionary<string, BackendEndpoint> configEndpoints, IEndpointManager endpointManager)
         {
             var desiredEndpoints = new HashSet<string>(StringComparer.Ordinal);
             foreach (var configEndpoint in configEndpoints)
             {
-                desiredEndpoints.Add(configEndpoint.EndpointId);
+                desiredEndpoints.Add(configEndpoint.Key);
                 endpointManager.GetOrCreateItem(
-                    itemId: configEndpoint.EndpointId,
+                    itemId: configEndpoint.Key,
                     setupAction: endpoint =>
                     {
-                        if (endpoint.Config.Value?.Address != configEndpoint.Address)
+                        if (endpoint.Config.Value?.Address != configEndpoint.Value.Address)
                         {
                             if (endpoint.Config.Value == null)
                             {
-                                _logger.LogDebug("Endpoint {endpointId} has been added.", configEndpoint.EndpointId);
+                                _logger.LogDebug("Endpoint {endpointId} has been added.", configEndpoint.Key);
                             }
                             else
                             {
-                                _logger.LogDebug("Endpoint {endpointId} has changed.", configEndpoint.EndpointId);
+                                _logger.LogDebug("Endpoint {endpointId} has changed.", configEndpoint.Key);
                             }
-                            endpoint.Config.Value = new EndpointConfig(configEndpoint.Address);
+                            endpoint.Config.Value = new EndpointConfig(configEndpoint.Value.Address);
                         }
                     });
             }

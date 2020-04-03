@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
@@ -23,6 +23,11 @@ namespace Microsoft.ReverseProxy.Core
         public static IDictionary<string, string> DeepClone(this IDictionary<string, string> dictionary, IEqualityComparer<string> comparer)
         {
             return dictionary.ToDictionary(entry => entry.Key, entry => entry.Value, comparer);
+        }
+
+        public static IDictionary<string, TValue> DeepClone<TValue>(this IDictionary<string, TValue> dictionary, IEqualityComparer<string> comparer) where TValue : IDeepCloneable<TValue>
+        {
+            return dictionary.ToDictionary(entry => entry.Key, entry => entry.Value.DeepClone(), comparer);
         }
     }
 }

@@ -27,7 +27,6 @@ namespace Microsoft.ReverseProxy.Core.Configuration
         private readonly IOptions<ProxyConfigLoaderOptions> _options;
         private readonly ILogger<ProxyConfigLoader> _logger;
         private readonly IBackendsRepo _backendsRepo;
-        private readonly IBackendEndpointsRepo _endpointsRepo;
         private readonly IRoutesRepo _routesRepo;
         private readonly IReverseProxyConfigManager _proxyManager;
         private readonly IOptionsMonitor<ProxyConfigOptions> _proxyConfig;
@@ -38,7 +37,6 @@ namespace Microsoft.ReverseProxy.Core.Configuration
             IOptions<ProxyConfigLoaderOptions> options,
             ILogger<ProxyConfigLoader> logger,
             IBackendsRepo backendsRepo,
-            IBackendEndpointsRepo endpointsRepo,
             IRoutesRepo routesRepo,
             IReverseProxyConfigManager proxyManager,
             IOptionsMonitor<ProxyConfigOptions> proxyConfig)
@@ -46,7 +44,6 @@ namespace Microsoft.ReverseProxy.Core.Configuration
             Contracts.CheckValue(options, nameof(options));
             Contracts.CheckValue(logger, nameof(logger));
             Contracts.CheckValue(backendsRepo, nameof(backendsRepo));
-            Contracts.CheckValue(endpointsRepo, nameof(endpointsRepo));
             Contracts.CheckValue(routesRepo, nameof(routesRepo));
             Contracts.CheckValue(proxyManager, nameof(proxyManager));
             Contracts.CheckValue(proxyConfig, nameof(proxyConfig));
@@ -54,7 +51,6 @@ namespace Microsoft.ReverseProxy.Core.Configuration
             _options = options;
             _logger = logger;
             _backendsRepo = backendsRepo;
-            _endpointsRepo = endpointsRepo;
             _routesRepo = routesRepo;
             _proxyManager = proxyManager;
             _proxyConfig = proxyConfig;
@@ -95,11 +91,6 @@ namespace Microsoft.ReverseProxy.Core.Configuration
             try
             {
                 await _backendsRepo.SetBackendsAsync(config.Backends, CancellationToken.None);
-                foreach (var kvp in config.Endpoints)
-                {
-                    await _endpointsRepo.SetEndpointsAsync(kvp.Key, kvp.Value, CancellationToken.None);
-                }
-
                 await _routesRepo.SetRoutesAsync(config.Routes, CancellationToken.None);
 
                 var errorReporter = new LoggerConfigErrorReporter(_logger);

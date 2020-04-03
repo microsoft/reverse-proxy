@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -11,11 +11,6 @@ namespace Microsoft.ReverseProxy.Core.Abstractions
     /// </summary>
     public sealed class BackendEndpoint : IDeepCloneable<BackendEndpoint>
     {
-        /// <summary>
-        /// Unique identifier of this endpoint. This must be globally unique.
-        /// </summary>
-        public string EndpointId { get; set; }
-
         /// <summary>
         /// Address of this endpoint. E.g. <c>https://127.0.0.1:123/abcd1234/</c>.
         /// </summary>
@@ -31,7 +26,6 @@ namespace Microsoft.ReverseProxy.Core.Abstractions
         {
             return new BackendEndpoint
             {
-                EndpointId = EndpointId,
                 Address = Address,
                 Metadata = Metadata?.DeepClone(StringComparer.Ordinal),
             };
