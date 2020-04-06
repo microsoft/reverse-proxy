@@ -25,7 +25,7 @@ parameters:
   enablePublishTestResults: false
   enablePublishUsingPipelines: false
   mergeTestResults: false
-  testRunTitle: ''
+  testRunTitle: $(AgentOsName)-$(BuildConfiguration)-xunit
   name: ''
   preSteps: []
   runAsPublic: false
@@ -196,10 +196,7 @@ jobs:
         testResultsFormat: 'xUnit'
         testResultsFiles: '*.xml' 
         searchFolder: '$(Build.SourcesDirectory)/artifacts/TestResults/$(_BuildConfig)'
-        ${{ if eq(parameters.testRunTitle, '') }}:
-          testRunTitle: ${{ coalesce(parameters.name, '$(System.JobName)') }}-xunit
-        ${{ if ne(parameters.testRunTitle, '') }}:
-          testRunTitle: ${{ parameters.testRunTitle }}
+        testRunTitle: ${{ parameters.testRunTitle }}
         mergeTestResults: ${{ parameters.mergeTestResults }}
       continueOnError: true
       condition: always()
