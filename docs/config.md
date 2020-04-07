@@ -133,6 +133,26 @@ Additional feedback: Why is it using arrays instead of objects? These items are 
       },
 ```
 
+Update: The backend and endpoint layout has been modified to the following:
+```
+
+    "Backends": {
+      "backend1": {
+        "Endpoints": {
+          "backend1/endpoint1": {
+            "Address": "https://localhost:10000/"
+          }
+        }
+      },
+      "backend2": {
+        "Endpoints": {
+          "backend2/endpoint1": {
+            "Address": "https://localhost:10001/"
+          }
+        }
+      }
+    },
+```
 
 ## Config reloading
 
@@ -157,6 +177,10 @@ Config reload for proxy routes, backends, and endpoints already works. You edit 
 @halter73 raised the question of how much effort we put in to make the kestrel reload atomic with the routing reload? Conceptually it makes sense to keep the two in sync, but pragmatically it's quite difficult as there's no connection between the two systems. They'd be reacting to the same change notification event in serial and requests in flight may see one set of changes without the other. We discussed this in the weekly sync and decided that since kestrel endpoint changes will be a less common scenario we won't initually worry about the atomicity here until we have customer feedback that demonstrates issues.
 
 Also, when a kestrel endpoint is modified or removed should existing connections on that endpoint be eagerly drained and closed, or should they be allowed to run a normal lifecycle? Kestrel does not currently track active connection per endpoint so additional tracking would be needed if we wanted to shut them down.
+
+Updates:
+
+The config reload code has been moved from the sample into the product assemblies.
 
 ## Augmenting config via code
 
