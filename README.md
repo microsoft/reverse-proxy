@@ -23,7 +23,9 @@ We provide some scripts to set all this up for you. Just follow these steps:
     1. For CMD, there is no supported script. You can manually add the `.dotnet` directory **within this repo** to your `PATH`. Ensure `where dotnet` shows a path within this repository!
 1. Launch VS, VS for Mac, or VS Code!
 
-If you're having trouble building the project, or developing in Visual Studio, please file a bug to let us know and we'll help out (and fix our scripts/tools as needed)!
+When you're done, you can run the `deactivate` function to undo the changes to your `PATH`.
+
+If you're having trouble building the project, or developing in Visual Studio, please file an issue to let us know and we'll help out (and fix our scripts/tools as needed)!
 
 # Getting started
 
