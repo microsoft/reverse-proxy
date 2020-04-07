@@ -1,6 +1,6 @@
 The MIT License (MIT)
 
-Copyright (c) .NET Foundation and Contributors
+Copyright (c) Microsoft Corporation.
 
 All rights reserved.
 
