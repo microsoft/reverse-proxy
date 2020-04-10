@@ -21,5 +21,8 @@ namespace Microsoft.ReverseProxy.Core.Service
         internal const string ParsedRouteRuleMultipleHostMatchers = "ParsedRoute_RuleMultipleHostMatchers";
         internal const string ParsedRouteRuleMultiplePathMatchers = "ParsedRoute_RuleMultiplePathMatchers";
         internal const string ParsedRouteRuleInvalidMatcher = "ParsedRoute_RuleInvalidMatcher";
+
+        internal const string ConfigBuilderBackendException = "ConfigBuilder_BackendException";
+        internal const string ConfigBuilderRouteException = "ConfigBuilder_RouteException";
     }
 }
