@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
@@ -21,7 +21,6 @@ namespace Microsoft.ReverseProxy.Core.Abstractions.Tests
             // Arrange
             var sut = new BackendEndpoint
             {
-                EndpointId = "ep1",
                 Address = "https://127.0.0.1:123/a",
                 Metadata = new Dictionary<string, string>
                 {
@@ -34,7 +33,6 @@ namespace Microsoft.ReverseProxy.Core.Abstractions.Tests
 
             // Assert
             clone.Should().NotBeSameAs(sut);
-            clone.EndpointId.Should().Be(sut.EndpointId);
             clone.Address.Should().Be(sut.Address);
             clone.Metadata.Should().NotBeNull();
             clone.Metadata.Should().NotBeSameAs(sut.Metadata);
@@ -52,7 +50,6 @@ namespace Microsoft.ReverseProxy.Core.Abstractions.Tests
 
             // Assert
             clone.Should().NotBeSameAs(sut);
-            clone.EndpointId.Should().BeNull();
             clone.Address.Should().BeNull();
             clone.Metadata.Should().BeNull();
         }

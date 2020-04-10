@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.ReverseProxy.Core.Configuration.DependencyInjection
@@ -27,6 +28,22 @@ namespace Microsoft.ReverseProxy.Core.Configuration.DependencyInjection
                 .AddDynamicEndpointDataSource()
                 .AddProxy()
                 .AddBackgroundWorkers();
+
+            return builder;
+        }
+
+        /// <summary>
+        /// Loads routes and endpoints from config.
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="config"></param>
+        /// <param name="reloadOnChange"></param>
+        /// <returns></returns>
+        public static IReverseProxyBuilder LoadFromConfig(this IReverseProxyBuilder builder, IConfiguration config, bool reloadOnChange = true)
+        {
+            builder.Services.Configure<ProxyConfigOptions>(config);
+            builder.Services.Configure<ProxyConfigOptions>(options => options.ReloadOnChange = reloadOnChange);
+            builder.Services.AddHostedService<ProxyConfigLoader>();
 
             return builder;
         }

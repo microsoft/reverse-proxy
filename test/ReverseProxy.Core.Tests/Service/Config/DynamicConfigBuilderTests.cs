@@ -46,7 +46,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             var errorReporter = new TestConfigErrorReporter();
             Mock<IBackendsRepo>()
                 .Setup(r => r.GetBackendsAsync(It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new List<Backend>());
+                .ReturnsAsync(new Dictionary<string, Backend>());
 
             Mock<IRoutesRepo>()
                 .Setup(r => r.GetRoutesAsync(It.IsAny<CancellationToken>()))
@@ -73,11 +73,18 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             var errorReporter = new TestConfigErrorReporter();
             Mock<IBackendsRepo>()
                 .Setup(r => r.GetBackendsAsync(It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new Backend[] { new Backend { BackendId = "backend1" } });
-
-            Mock<IBackendEndpointsRepo>()
-                .Setup(r => r.GetEndpointsAsync("backend1", It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new[] { new BackendEndpoint { EndpointId = "ep1", Address = TestAddress } });
+                .ReturnsAsync(new Dictionary<string, Backend>
+                {
+                    {
+                        "backend1", new Backend
+                        {
+                            Endpoints =
+                            {
+                                { "ep1", new BackendEndpoint { Address = TestAddress } }
+                            }
+                        }
+                    }
+                });
 
             Mock<IRoutesRepo>()
                 .Setup(r => r.GetRoutesAsync(It.IsAny<CancellationToken>()))
@@ -92,10 +99,12 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             errorReporter.Errors.Should().BeEmpty();
             result.Value.Should().NotBeNull();
             result.Value.Backends.Should().HaveCount(1);
-            result.Value.Backends[0].Backend.BackendId.Should().Be("backend1");
-            result.Value.Backends[0].Endpoints.Should().HaveCount(1);
-            result.Value.Backends[0].Endpoints[0].EndpointId.Should().Be("ep1");
-            result.Value.Backends[0].Endpoints[0].Address.Should().Be(TestAddress);
+            var backend = result.Value.Backends["backend1"];
+            backend.Should().NotBeNull();
+            backend.Endpoints.Should().HaveCount(1);
+            var endpoint = backend.Endpoints["ep1"];
+            endpoint.Should().NotBeNull();
+            endpoint.Address.Should().Be(TestAddress);
         }
 
         [Fact]
@@ -105,7 +114,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             var errorReporter = new TestConfigErrorReporter();
             Mock<IBackendsRepo>()
                 .Setup(r => r.GetBackendsAsync(It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new List<Backend>());
+                .ReturnsAsync(new Dictionary<string, Backend>());
 
             var route1 = new ProxyRoute { RouteId = "route1", Match = { Host = "example.com" }, Priority = 1, BackendId = "backend1" };
             Mock<IRoutesRepo>()
@@ -136,7 +145,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             var errorReporter = new TestConfigErrorReporter();
             Mock<IBackendsRepo>()
                 .Setup(r => r.GetBackendsAsync(It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new List<Backend>());
+                .ReturnsAsync(new Dictionary<string, Backend>());
 
             var route1 = new ProxyRoute { RouteId = "route1", Match = { Host = "example.com" }, Priority = 1, BackendId = "backend1" };
             Mock<IRoutesRepo>()
@@ -163,7 +172,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             var errorReporter = new TestConfigErrorReporter();
             Mock<IBackendsRepo>()
                 .Setup(r => r.GetBackendsAsync(It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new List<Backend>());
+                .ReturnsAsync(new Dictionary<string, Backend>());
 
             var route1 = new ProxyRoute { RouteId = "route1", Match = { Host = "example.com" }, Priority = 1, BackendId = "backend1" };
             Mock<IRoutesRepo>()

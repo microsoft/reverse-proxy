@@ -16,11 +16,11 @@ namespace Microsoft.ReverseProxy.Core.Abstractions
         /// <summary>
         /// Gets the current set of backends.
         /// </summary>
-        Task<IList<Backend>> GetBackendsAsync(CancellationToken cancellation);
+        Task<IDictionary<string, Backend>> GetBackendsAsync(CancellationToken cancellation);
 
         /// <summary>
         /// Sets the current set of backends.
         /// </summary>
-        Task SetBackendsAsync(IList<Backend> backends, CancellationToken cancellation);
+        Task SetBackendsAsync(IDictionary<string, Backend> backends, CancellationToken cancellation);
     }
 }

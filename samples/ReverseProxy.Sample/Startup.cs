@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.ReverseProxy.Core.Configuration.DependencyInjection;
-using Microsoft.ReverseProxy.Sample.Config;
 
 namespace Microsoft.ReverseProxy.Sample
 {
@@ -30,12 +29,7 @@ namespace Microsoft.ReverseProxy.Sample
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddReverseProxy();
-
-            // The following 2 lines are all that we need to react to config changes on the fly.
-            // You can then change appsettings.json on disk and we will apply the new configs without a restart.
-            services.Configure<ProxyConfigRoot>(_configuration.GetSection("ReverseProxy"));
-            services.AddHostedService<ProxyConfigApplier>();
+            services.AddReverseProxy().LoadFromConfig(_configuration.GetSection("ReverseProxy"), reloadOnChange: true);
         }
 
         /// <summary>

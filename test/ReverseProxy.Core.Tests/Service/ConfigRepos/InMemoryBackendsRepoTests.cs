@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
@@ -38,7 +38,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             var repo = new InMemoryBackendsRepo();
 
             // Act
-            var task = repo.SetBackendsAsync(new Backend[0], CancellationToken.None);
+            var task = repo.SetBackendsAsync(new Dictionary<string, Backend>(), CancellationToken.None);
 
             // Assert
             task.IsCompleted.Should().BeTrue("should complete synchronously");
@@ -68,7 +68,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
                 cts.Cancel();
 
                 // Act & Assert
-                await repo.SetBackendsAsync(new Backend[0], cts.Token);
+                await repo.SetBackendsAsync(new Dictionary<string, Backend>(), cts.Token);
             }
         }
 
@@ -90,24 +90,25 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
         {
             // Arrange
             var repo = new InMemoryBackendsRepo();
-            var backends = new List<Backend>
+            var backends = new Dictionary<string, Backend>
             {
-                new Backend { BackendId = "backend1" },
+                {  "backend1", new Backend { CircuitBreakerOptions = new CircuitBreakerOptions() { MaxConcurrentRequests = 10 } } }
             };
 
             // Act
             await repo.SetBackendsAsync(backends, CancellationToken.None);
 
             // Modify input, should not affect output
-            backends[0].BackendId = "modified";
-            backends.Add(new Backend { BackendId = "backend2" });
+            backends["backend1"].CircuitBreakerOptions.MaxConcurrentRequests = -1;
+            backends.Add("backend2", new Backend { CircuitBreakerOptions = new CircuitBreakerOptions() { MaxConcurrentRequests = 30 } });
 
             var result = await repo.GetBackendsAsync(CancellationToken.None);
 
             // Assert
             result.Should().HaveCount(1);
             result.Should().NotBeSameAs(backends);
-            result[0].BackendId.Should().Be("backend1");
+            result["backend1"].CircuitBreakerOptions.Should().NotBeSameAs(backends["backend1"].CircuitBreakerOptions);
+            result["backend1"].CircuitBreakerOptions.MaxConcurrentRequests.Should().Be(10);
         }
 
         [Fact]
@@ -115,9 +116,9 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
         {
             // Arrange
             var repo = new InMemoryBackendsRepo();
-            var backends = new[]
+            var backends = new Dictionary<string, Backend>
             {
-                new Backend { BackendId = "backend1" },
+                {  "backend1", new Backend { CircuitBreakerOptions = new CircuitBreakerOptions() { MaxConcurrentRequests = 10 } } }
             };
 
             // Act
@@ -125,8 +126,8 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             var result1 = await repo.GetBackendsAsync(CancellationToken.None);
 
             // Modify first results, should not affect future results
-            result1[0].BackendId = "modified";
-            result1.Add(new Backend { BackendId = "backend2" });
+            result1["backend1"].CircuitBreakerOptions.MaxConcurrentRequests = -1;
+            result1.Add("backend2", new Backend { CircuitBreakerOptions = new CircuitBreakerOptions() { MaxConcurrentRequests = 30 } });
 
             var result2 = await repo.GetBackendsAsync(CancellationToken.None);
 
@@ -134,7 +135,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             result2.Should().HaveCount(1);
             result2.Should().NotBeSameAs(result1);
             result2.Should().NotBeSameAs(backends);
-            result2[0].BackendId.Should().Be("backend1");
+            result2["backend1"].CircuitBreakerOptions.MaxConcurrentRequests.Should().Be(10);
         }
     }
 }

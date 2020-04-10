@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -45,8 +46,12 @@ namespace Microsoft.ReverseProxy.Core.Service.Management.Tests
             // Arrange
             const string TestAddress = "https://localhost:123/";
 
-            var backend = new Backend { BackendId = "backend1" };
-            var endpoints = new[] { new BackendEndpoint { EndpointId = "ep1", Address = TestAddress } };
+            var backend = new Backend
+            {
+                Endpoints = {
+                    { "ep1", new BackendEndpoint { Address = TestAddress } }
+                }
+            };
             var route = new ParsedRoute
             {
                 RouteId = "route1",
@@ -55,7 +60,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Management.Tests
 
             var dynamicConfigRoot = new DynamicConfigRoot
             {
-                Backends = new[] { new BackendWithEndpoints(backend, endpoints) },
+                Backends = new Dictionary<string, Backend> { { "backend1", backend }  },
                 Routes = new[] { route },
             };
             Mock<IDynamicConfigBuilder>()

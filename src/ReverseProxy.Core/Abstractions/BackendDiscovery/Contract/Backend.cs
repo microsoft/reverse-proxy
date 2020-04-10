@@ -12,17 +12,8 @@ namespace Microsoft.ReverseProxy.Core.Abstractions
     /// by proxying to any endpoint within the matching backend,
     /// honoring load balancing and partitioning policies when applicable.
     /// </summary>
-    /// <remarks>
-    /// When proxying to Service Fabric services, a <see cref="Backend"/> will generally correspond to a Serice Fabric service instance,
-    /// and the backend endpoints correspond to the endpoints of the replicas of said service.
-    /// </remarks>
     public sealed class Backend : IDeepCloneable<Backend>
     {
-        /// <summary>
-        /// Unique identifier of this backend. No other backend may specify the same value.
-        /// </summary>
-        public string BackendId { get; set; }
-
         /// <summary>
         /// Circuit breaker options.
         /// </summary>
@@ -49,6 +40,11 @@ namespace Microsoft.ReverseProxy.Core.Abstractions
         public HealthCheckOptions HealthCheckOptions { get; set; }
 
         /// <summary>
+        /// The set of backend endpoints associated with this backend.
+        /// </summary>
+        public IDictionary<string, BackendEndpoint> Endpoints { get; private set; } = new Dictionary<string, BackendEndpoint>(StringComparer.Ordinal);
+
+        /// <summary>
         /// Arbitrary key-value pairs that further describe this backend.
         /// </summary>
         public IDictionary<string, string> Metadata { get; set; }
@@ -58,12 +54,12 @@ namespace Microsoft.ReverseProxy.Core.Abstractions
         {
             return new Backend
             {
-                BackendId = BackendId,
                 CircuitBreakerOptions = CircuitBreakerOptions?.DeepClone(),
                 QuotaOptions = QuotaOptions?.DeepClone(),
                 PartitioningOptions = PartitioningOptions?.DeepClone(),
                 LoadBalancingOptions = LoadBalancingOptions?.DeepClone(),
                 HealthCheckOptions = HealthCheckOptions?.DeepClone(),
+                Endpoints = Endpoints.DeepClone(StringComparer.Ordinal),
                 Metadata = Metadata?.DeepClone(StringComparer.Ordinal),
             };
         }

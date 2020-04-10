@@ -1,13 +1,14 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using Microsoft.ReverseProxy.Core.Abstractions;
 
 namespace Microsoft.ReverseProxy.Core.ConfigModel
 {
     internal class DynamicConfigRoot
     {
-        public IList<BackendWithEndpoints> Backends { get; set; }
+        public IDictionary<string, Backend> Backends { get; set; }
         public IList<ParsedRoute> Routes { get; set; }
     }
 }
