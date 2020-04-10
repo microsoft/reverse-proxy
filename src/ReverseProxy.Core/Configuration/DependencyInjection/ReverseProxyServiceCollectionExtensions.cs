@@ -42,8 +42,8 @@ namespace Microsoft.ReverseProxy.Core.Configuration.DependencyInjection
         public static IReverseProxyBuilder LoadFromConfig(this IReverseProxyBuilder builder, IConfiguration config, bool reloadOnChange = true)
         {
             builder.Services.Configure<ProxyConfigOptions>(config);
+            builder.Services.Configure<ProxyConfigOptions>(options => options.ReloadOnChange = reloadOnChange);
             builder.Services.AddHostedService<ProxyConfigLoader>();
-            builder.Services.Configure<ProxyConfigLoaderOptions>(options => options.ReloadOnChange = reloadOnChange);
 
             return builder;
         }

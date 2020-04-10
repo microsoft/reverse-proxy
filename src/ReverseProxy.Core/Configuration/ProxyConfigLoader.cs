@@ -24,7 +24,6 @@ namespace Microsoft.ReverseProxy.Core.Configuration
     /// </summary>
     internal class ProxyConfigLoader : IHostedService, IDisposable
     {
-        private readonly IOptions<ProxyConfigLoaderOptions> _options;
         private readonly ILogger<ProxyConfigLoader> _logger;
         private readonly IBackendsRepo _backendsRepo;
         private readonly IRoutesRepo _routesRepo;
@@ -34,21 +33,18 @@ namespace Microsoft.ReverseProxy.Core.Configuration
         private IDisposable _subscription;
 
         public ProxyConfigLoader(
-            IOptions<ProxyConfigLoaderOptions> options,
             ILogger<ProxyConfigLoader> logger,
             IBackendsRepo backendsRepo,
             IRoutesRepo routesRepo,
             IReverseProxyConfigManager proxyManager,
             IOptionsMonitor<ProxyConfigOptions> proxyConfig)
         {
-            Contracts.CheckValue(options, nameof(options));
             Contracts.CheckValue(logger, nameof(logger));
             Contracts.CheckValue(backendsRepo, nameof(backendsRepo));
             Contracts.CheckValue(routesRepo, nameof(routesRepo));
             Contracts.CheckValue(proxyManager, nameof(proxyManager));
             Contracts.CheckValue(proxyConfig, nameof(proxyConfig));
 
-            _options = options;
             _logger = logger;
             _backendsRepo = backendsRepo;
             _routesRepo = routesRepo;
@@ -67,7 +63,7 @@ namespace Microsoft.ReverseProxy.Core.Configuration
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            if (_options.Value.ReloadOnChange)
+            if (_proxyConfig.CurrentValue.ReloadOnChange)
             {
                 _subscription = _proxyConfig.OnChange((newConfig, name) => _ = ApplyAsync(newConfig));
             }
@@ -113,7 +109,12 @@ namespace Microsoft.ReverseProxy.Core.Configuration
 
             public void ReportError(string code, string itemId, string message)
             {
-                _logger.LogWarning($"Config error: '{code}', '{itemId}', '{message}'.");
+                _logger.LogWarning("Config error: '{code}', '{itemId}', '{message}'.", code, itemId, message);
+            }
+
+            public void ReportError(string code, string itemId, string message, Exception ex)
+            {
+                _logger.LogWarning(ex, "Config error: '{code}', '{itemId}', '{message}'.", code, itemId, message);
             }
         }
     }

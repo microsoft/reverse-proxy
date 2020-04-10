@@ -12,10 +12,6 @@ namespace Microsoft.ReverseProxy.Core.Abstractions
     /// by proxying to any endpoint within the matching backend,
     /// honoring load balancing and partitioning policies when applicable.
     /// </summary>
-    /// <remarks>
-    /// When proxying to Service Fabric services, a <see cref="Backend"/> will generally correspond to a Serice Fabric service instance,
-    /// and the backend endpoints correspond to the endpoints of the replicas of said service.
-    /// </remarks>
     public sealed class Backend : IDeepCloneable<Backend>
     {
         /// <summary>
