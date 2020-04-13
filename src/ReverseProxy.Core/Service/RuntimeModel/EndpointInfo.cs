@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Microsoft.ReverseProxy.Core.Util;
@@ -17,7 +17,7 @@ namespace Microsoft.ReverseProxy.Core.RuntimeModel
     /// relevant to this endpoint.
     /// All members are thread safe.
     /// </remarks>
-    internal sealed class EndpointInfo
+    public sealed class EndpointInfo
     {
         public EndpointInfo(string endpointId)
         {

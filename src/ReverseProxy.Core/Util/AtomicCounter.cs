@@ -1,11 +1,11 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.Threading;
 
 namespace Microsoft.ReverseProxy.Core.Util
 {
-    internal class AtomicCounter
+    public class AtomicCounter
     {
         private int _value;
 

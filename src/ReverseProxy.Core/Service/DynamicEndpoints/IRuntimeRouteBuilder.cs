@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.ReverseProxy.Core.ConfigModel;
 using Microsoft.ReverseProxy.Core.RuntimeModel;
 
@@ -28,5 +29,7 @@ namespace Microsoft.ReverseProxy.Core.Service
         /// <paramref name="source"/> and <paramref name="backendOrNull"/>.
         /// </param>
         RouteConfig Build(ParsedRoute source, BackendInfo backendOrNull, RouteInfo runtimeRoute);
+
+        void SetProxyPipeline(RequestDelegate pipeline);
     }
 }

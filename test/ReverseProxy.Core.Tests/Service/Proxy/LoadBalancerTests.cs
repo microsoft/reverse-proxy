@@ -20,7 +20,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
             var options = new BackendConfig.BackendLoadBalancingOptions(BackendConfig.BackendLoadBalancingOptions.LoadBalancingMode.First);
 
             // Act
-            var result = loadBalancer.PickEndpoint(endpoints, endpoints, in options);
+            var result = loadBalancer.PickEndpoint(endpoints, in options);
 
             // Assert
             Assert.Null(result);
@@ -39,7 +39,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
             var options = new BackendConfig.BackendLoadBalancingOptions(BackendConfig.BackendLoadBalancingOptions.LoadBalancingMode.First);
 
             // Act
-            var result = loadBalancer.PickEndpoint(endpoints, endpoints, in options);
+            var result = loadBalancer.PickEndpoint(endpoints, in options);
 
             // Assert
             Assert.Same(endpoints[0], result);
@@ -54,10 +54,11 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
             var options = new BackendConfig.BackendLoadBalancingOptions((BackendConfig.BackendLoadBalancingOptions.LoadBalancingMode)(-1));
 
             // Act
-            Action action = () => loadBalancer.PickEndpoint(endpoints, endpoints, in options);
+            Action action = () => loadBalancer.PickEndpoint(endpoints, in options);
 
             // Assert
-            Assert.Throws<ReverseProxyException>(action);
+            var ex = Assert.Throws<NotSupportedException>(action);
+            Assert.Equal("Load balancing mode '-1' is not supported.", ex.Message);
         }
     }
 }

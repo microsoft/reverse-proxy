@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -15,7 +15,7 @@ namespace Microsoft.ReverseProxy.Core.RuntimeModel
     /// Instead, instances of <see cref="BackendConfig"/> are replaced
     /// in ther entirety when values need to change.
     /// </remarks>
-    internal sealed class BackendConfig
+    public sealed class BackendConfig
     {
         public BackendConfig(
             BackendHealthCheckOptions healthCheckOptions,
@@ -36,7 +36,7 @@ namespace Microsoft.ReverseProxy.Core.RuntimeModel
         /// Struct used only to keep things organized as we add more configuration options inside of `BackendConfig`.
         /// Each "feature" can have its own struct.
         /// </remarks>
-        internal readonly struct BackendHealthCheckOptions
+        public readonly struct BackendHealthCheckOptions
         {
             public BackendHealthCheckOptions(bool enabled, TimeSpan interval, TimeSpan timeout, int port, string path)
             {
@@ -73,7 +73,7 @@ namespace Microsoft.ReverseProxy.Core.RuntimeModel
             public string Path { get; }
         }
 
-        internal readonly struct BackendLoadBalancingOptions
+        public readonly struct BackendLoadBalancingOptions
         {
             public BackendLoadBalancingOptions(LoadBalancingMode mode)
             {

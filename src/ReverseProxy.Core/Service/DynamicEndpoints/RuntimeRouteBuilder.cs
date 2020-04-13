@@ -1,10 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.ReverseProxy.Core.ConfigModel;
 using Microsoft.ReverseProxy.Core.RuntimeModel;
-using Microsoft.ReverseProxy.Core.Service.Proxy;
 using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Core.Service
@@ -14,12 +16,11 @@ namespace Microsoft.ReverseProxy.Core.Service
     /// </summary>
     internal class RuntimeRouteBuilder : IRuntimeRouteBuilder
     {
-        private readonly IProxyInvoker _proxyInvoker;
+        private RequestDelegate _pipeline;
 
-        public RuntimeRouteBuilder(IProxyInvoker proxyInvoker)
+        public void SetProxyPipeline(RequestDelegate pipeline)
         {
-            Contracts.CheckValue(proxyInvoker, nameof(proxyInvoker));
-            _proxyInvoker = proxyInvoker;
+            _pipeline = pipeline ?? throw new ArgumentNullException(nameof(pipeline));
         }
 
         /// <inheritdoc/>
@@ -48,7 +49,7 @@ namespace Microsoft.ReverseProxy.Core.Service
 
             // TODO: Propagate route priority
             var endpointBuilder = new AspNetCore.Routing.RouteEndpointBuilder(
-                requestDelegate: _proxyInvoker.InvokeAsync,
+                requestDelegate: Invoke,
                 routePattern: AspNetCore.Routing.Patterns.RoutePatternFactory.Parse(pathPattern),
                 order: 0);
             endpointBuilder.DisplayName = source.RouteId;
@@ -68,6 +69,14 @@ namespace Microsoft.ReverseProxy.Core.Service
             aspNetCoreEndpoints.Add(endpoint);
 
             return newRouteConfig;
+        }
+
+        // This indirection is needed because on startup the routes are loaded from config and built before the
+        // proxy pipeline gets built.
+        private Task Invoke(HttpContext context)
+        {
+            var pipeline = _pipeline ?? throw new InvalidOperationException("The pipeline hasn't been provided yet.");
+            return pipeline(context);
         }
     }
 }

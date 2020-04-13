@@ -71,7 +71,6 @@ namespace Microsoft.ReverseProxy.Core.Configuration.DependencyInjection
         {
             builder.Services.AddSingleton<IProxyHttpClientFactoryFactory, ProxyHttpClientFactoryFactory>();
             builder.Services.AddSingleton<ILoadBalancer, LoadBalancer>();
-            builder.Services.AddSingleton<IProxyInvoker, ProxyInvoker>();
             builder.Services.AddSingleton<IHttpProxy, HttpProxy>();
             return builder;
         }

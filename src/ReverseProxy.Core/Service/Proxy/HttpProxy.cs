@@ -39,10 +39,10 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
             "Transfer-Encoding",
         };
 
-        private readonly ILogger<ProxyInvoker> _logger;
+        private readonly ILogger _logger;
         private readonly ProxyMetrics _metrics;
 
-        public HttpProxy(ILogger<ProxyInvoker> logger, ProxyMetrics metrics)
+        public HttpProxy(ILogger<HttpProxy> logger, ProxyMetrics metrics)
         {
             Contracts.CheckValue(logger, nameof(logger));
             Contracts.CheckValue(metrics, nameof(metrics));
@@ -170,7 +170,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
             // cause us to wait forever in step 9, so fail fast here.
             if (bodyToUpstreamContent != null && !bodyToUpstreamContent.Started)
             {
-                throw new ReverseProxyException("Proxying the downstream request body to the upstream server hasn't started. This is a coding defect.");
+                throw new InvalidOperationException("Proxying the downstream request body to the upstream server hasn't started. This is a coding defect.");
             }
 
             // :::::::::::::::::::::::::::::::::::::::::::::
