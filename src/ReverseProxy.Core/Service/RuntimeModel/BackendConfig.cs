@@ -25,9 +25,9 @@ namespace Microsoft.ReverseProxy.Core.RuntimeModel
             LoadBalancingOptions = loadBalancingOptions;
         }
 
-        internal BackendHealthCheckOptions HealthCheckOptions { get; }
+        public BackendHealthCheckOptions HealthCheckOptions { get; }
 
-        internal BackendLoadBalancingOptions LoadBalancingOptions { get; }
+        public BackendLoadBalancingOptions LoadBalancingOptions { get; }
 
         /// <summary>
         /// Active health probing options for a backend.
@@ -36,7 +36,7 @@ namespace Microsoft.ReverseProxy.Core.RuntimeModel
         /// Struct used only to keep things organized as we add more configuration options inside of `BackendConfig`.
         /// Each "feature" can have its own struct.
         /// </remarks>
-        public readonly struct BackendHealthCheckOptions
+        internal readonly struct BackendHealthCheckOptions
         {
             public BackendHealthCheckOptions(bool enabled, TimeSpan interval, TimeSpan timeout, int port, string path)
             {
@@ -73,7 +73,7 @@ namespace Microsoft.ReverseProxy.Core.RuntimeModel
             public string Path { get; }
         }
 
-        public readonly struct BackendLoadBalancingOptions
+        internal readonly struct BackendLoadBalancingOptions
         {
             public BackendLoadBalancingOptions(LoadBalancingMode mode)
             {
