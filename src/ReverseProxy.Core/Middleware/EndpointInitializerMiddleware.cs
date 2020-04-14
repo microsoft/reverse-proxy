@@ -26,17 +26,11 @@ namespace Microsoft.ReverseProxy.Core.Middleware
 
         public Task Invoke(HttpContext context)
         {
-            var aspNetCoreEndpoint = context.GetEndpoint();
-            if (aspNetCoreEndpoint == null)
-            {
-                throw new InvalidOperationException($"ASP .NET Core Endpoint wasn't set for the current request. This is a coding defect.");
-            }
+            var aspNetCoreEndpoint = context.GetEndpoint()
+                ?? throw new InvalidOperationException($"Routing Endpoint wasn't set for the current request.");
 
-            var routeConfig = aspNetCoreEndpoint.Metadata.GetMetadata<RouteConfig>();
-            if (routeConfig == null)
-            {
-                throw new InvalidOperationException($"ASP .NET Core Endpoint is missing {typeof(RouteConfig).FullName} metadata. This is a coding defect.");
-            }
+            var routeConfig = aspNetCoreEndpoint.Metadata.GetMetadata<RouteConfig>()
+                ?? throw new InvalidOperationException($"Routing Endpoint is missing {typeof(RouteConfig).FullName} metadata.");
 
             var backend = routeConfig.BackendOrNull;
             if (backend == null)
@@ -56,7 +50,7 @@ namespace Microsoft.ReverseProxy.Core.Middleware
 
             if (dynamicState.HealthyEndpoints.Count == 0)
             {
-                _logger.LogDebug($"No available healthy endpoints.");
+                _logger.LogInformation($"No available healthy endpoints.");
                 context.Response.StatusCode = 503;
                 return Task.CompletedTask;
             }

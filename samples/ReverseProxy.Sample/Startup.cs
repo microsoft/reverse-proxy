@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.ReverseProxy.Core.Configuration.DependencyInjection;
-using Microsoft.ReverseProxy.Core.Middleware;
 
 namespace Microsoft.ReverseProxy.Sample
 {

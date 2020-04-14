@@ -15,7 +15,7 @@ namespace Microsoft.ReverseProxy.Core.RuntimeModel
     /// Instead, instances of <see cref="BackendConfig"/> are replaced
     /// in ther entirety when values need to change.
     /// </remarks>
-    public sealed class BackendConfig
+    internal sealed class BackendConfig
     {
         public BackendConfig(
             BackendHealthCheckOptions healthCheckOptions,
@@ -25,9 +25,9 @@ namespace Microsoft.ReverseProxy.Core.RuntimeModel
             LoadBalancingOptions = loadBalancingOptions;
         }
 
-        public BackendHealthCheckOptions HealthCheckOptions { get; }
+        internal BackendHealthCheckOptions HealthCheckOptions { get; }
 
-        public BackendLoadBalancingOptions LoadBalancingOptions { get; }
+        internal BackendLoadBalancingOptions LoadBalancingOptions { get; }
 
         /// <summary>
         /// Active health probing options for a backend.

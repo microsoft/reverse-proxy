@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -43,26 +42,25 @@ namespace Microsoft.ReverseProxy.Core.Middleware
         {
             Contracts.CheckValue(context, nameof(context));
 
-            var aspNetCoreEndpoint = context.GetEndpoint();
-            var routeConfig = aspNetCoreEndpoint.Metadata.GetMetadata<RouteConfig>();
-            var backend = routeConfig.BackendOrNull;
-
+            var backend = context.Features.Get<BackendInfo>() ?? throw new InvalidOperationException("Backend unspecified.");
             var endpoints = context.Features.Get<IAvailableBackendEndpointsFeature>()?.Endpoints
                 ?? throw new InvalidOperationException("The AvailableBackendEndpoints collection was not set.");
+            var routeConfig = context.GetEndpoint()?.Metadata.GetMetadata<RouteConfig>()
+                ?? throw new InvalidOperationException("RouteConfig unspecified.");
 
             if (endpoints.Count == 0)
             {
-                _logger.LogInformation("No available endpoints.");
+                _logger.LogWarning("No available endpoints.");
                 context.Response.StatusCode = 503;
                 return;
             }
 
+            var endpoint = endpoints[0];
             if (endpoints.Count > 1)
             {
                 _logger.LogWarning("More than one endpoint available, load balancing may not be configured correctly. Choosing randomly.");
+                endpoint = endpoints[_random.Next(endpoints.Count)];
             }
-
-            var endpoint = endpoints[_random.Next(endpoints.Count)];
 
             var endpointConfig = endpoint.Config.Value;
             if (endpointConfig == null)

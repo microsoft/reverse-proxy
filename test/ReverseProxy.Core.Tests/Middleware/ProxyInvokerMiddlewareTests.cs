@@ -59,6 +59,7 @@ namespace Microsoft.ReverseProxy.Core.Middleware.Tests
                 });
             httpContext.Features.Set<IAvailableBackendEndpointsFeature>(
                 new AvailableBackendEndpointsFeature() { Endpoints = new List<EndpointInfo>() { endpoint1 }.AsReadOnly() });
+            httpContext.Features.Set(backend1);
 
             var aspNetCoreEndpoints = new List<Endpoint>();
             var routeConfig = new RouteConfig(

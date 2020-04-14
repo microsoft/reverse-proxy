@@ -10,7 +10,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
     /// Provides a method that applies a load balancing policy
     /// to select a backend endpoint.
     /// </summary>
-    public interface ILoadBalancer
+    internal interface ILoadBalancer
     {
         /// <summary>
         /// Picks an endpoint to send traffic to.

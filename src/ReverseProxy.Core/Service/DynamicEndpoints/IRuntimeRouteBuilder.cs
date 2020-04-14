@@ -30,6 +30,9 @@ namespace Microsoft.ReverseProxy.Core.Service
         /// </param>
         RouteConfig Build(ParsedRoute source, BackendInfo backendOrNull, RouteInfo runtimeRoute);
 
+        /// <summary>
+        /// Sets the middleware pipeline to use when building routes.
+        /// </summary>
         void SetProxyPipeline(RequestDelegate pipeline);
     }
 }

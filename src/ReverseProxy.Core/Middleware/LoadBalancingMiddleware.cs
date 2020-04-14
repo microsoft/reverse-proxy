@@ -15,7 +15,7 @@ namespace Microsoft.ReverseProxy.Core.Middleware
     /// <summary>
     /// Load balances across the available endpoints.
     /// </summary>
-    public class LoadBalancingMiddleware
+    internal class LoadBalancingMiddleware
     {
         private readonly ILogger _logger;
         private readonly IOperationLogger _operationLogger;
@@ -50,12 +50,12 @@ namespace Microsoft.ReverseProxy.Core.Middleware
 
             if (endpoint == null)
             {
-                _logger.LogDebug($"No available endpoints after load balancing.");
+                _logger.LogWarning($"No available endpoints after load balancing.");
                 context.Response.StatusCode = 503;
                 return Task.CompletedTask;
             }
 
-            endpointsFeature.Endpoints = new List<EndpointInfo>() { endpoint }.AsReadOnly();
+            endpointsFeature.Endpoints = new[] { endpoint };
 
             return _next(context);
         }
