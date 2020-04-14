@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.ReverseProxy.Core.RuntimeModel;
-using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Core.Middleware
 {
@@ -21,11 +20,8 @@ namespace Microsoft.ReverseProxy.Core.Middleware
         public EndpointInitializerMiddleware(RequestDelegate next,
             ILogger<EndpointInitializerMiddleware> logger)
         {
-            Contracts.CheckValue(logger, nameof(logger));
-            Contracts.CheckValue(next, nameof(next));
-
-            _logger = logger;
-            _next = next;
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _next = next ?? throw new ArgumentNullException(nameof(next));
         }
 
         public Task Invoke(HttpContext context)

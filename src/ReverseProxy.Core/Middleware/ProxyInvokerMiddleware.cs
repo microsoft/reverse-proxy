@@ -6,8 +6,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.ReverseProxy.Common.Abstractions.Telemetry;
@@ -22,7 +20,8 @@ namespace Microsoft.ReverseProxy.Core.Middleware
     /// </summary>
     internal class ProxyInvokerMiddleware
     {
-        private readonly RequestDelegate _next; // Unused
+        private readonly Random _random = new Random();
+        private readonly RequestDelegate _next; // Unused, this middleware is always terminal
         private readonly ILogger _logger;
         private readonly IOperationLogger _operationLogger;
         private readonly IHttpProxy _httpProxy;
@@ -33,13 +32,10 @@ namespace Microsoft.ReverseProxy.Core.Middleware
             IOperationLogger operationLogger,
             IHttpProxy httpProxy)
         {
-            Contracts.CheckValue(logger, nameof(logger));
-            Contracts.CheckValue(operationLogger, nameof(operationLogger));
-            Contracts.CheckValue(httpProxy, nameof(httpProxy));
-            _next = next;
-            _logger = logger;
-            _operationLogger = operationLogger;
-            _httpProxy = httpProxy;
+            _next = next ?? throw new ArgumentNullException(nameof(next));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _operationLogger = operationLogger ?? throw new ArgumentNullException(nameof(operationLogger));
+            _httpProxy = httpProxy ?? throw new ArgumentNullException(nameof(httpProxy));
         }
 
         /// <inheritdoc/>
@@ -56,17 +52,17 @@ namespace Microsoft.ReverseProxy.Core.Middleware
 
             if (endpoints.Count == 0)
             {
-                _logger.LogDebug("No available endpoints.");
+                _logger.LogInformation("No available endpoints.");
                 context.Response.StatusCode = 503;
                 return;
             }
 
             if (endpoints.Count > 1)
             {
-                _logger.LogDebug("More than one endpoint available, choosing the first.");
+                _logger.LogWarning("More than one endpoint available, load balancing may not be configured correctly. Choosing randomly.");
             }
 
-            var endpoint = endpoints.First();
+            var endpoint = endpoints[_random.Next(endpoints.Count)];
 
             var endpointConfig = endpoint.Config.Value;
             if (endpointConfig == null)

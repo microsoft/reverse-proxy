@@ -9,7 +9,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.ReverseProxy.Common.Abstractions.Telemetry;
 using Microsoft.ReverseProxy.Core.RuntimeModel;
 using Microsoft.ReverseProxy.Core.Service.Proxy;
-using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Core.Middleware
 {
@@ -29,15 +28,10 @@ namespace Microsoft.ReverseProxy.Core.Middleware
             IOperationLogger operationLogger,
             ILoadBalancer loadBalancer)
         {
-            Contracts.CheckValue(next, nameof(next));
-            Contracts.CheckValue(logger, nameof(logger));
-            Contracts.CheckValue(operationLogger, nameof(operationLogger));
-            Contracts.CheckValue(loadBalancer, nameof(loadBalancer));
-
-            _next = next;
-            _logger = logger;
-            _operationLogger = operationLogger;
-            _loadBalancer = loadBalancer;
+            _next = next ?? throw new ArgumentNullException(nameof(next));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _operationLogger = operationLogger ?? throw new ArgumentNullException(nameof(operationLogger));
+            _loadBalancer = loadBalancer ?? throw new ArgumentNullException(nameof(loadBalancer));
         }
 
         public Task Invoke(HttpContext context)
