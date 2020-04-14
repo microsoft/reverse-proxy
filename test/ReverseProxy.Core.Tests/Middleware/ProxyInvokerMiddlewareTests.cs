@@ -57,7 +57,8 @@ namespace Microsoft.ReverseProxy.Core.Middleware.Tests
                     endpoint.Config.Value = new EndpointConfig("https://localhost:123/a/b/");
                     endpoint.DynamicState.Value = new EndpointDynamicState(EndpointHealth.Healthy);
                 });
-            httpContext.Features.Set(new AvailableBackendEndpointsFeature() { Endpoints = new List<EndpointInfo>() { endpoint1 }.AsReadOnly() });
+            httpContext.Features.Set<IAvailableBackendEndpointsFeature>(
+                new AvailableBackendEndpointsFeature() { Endpoints = new List<EndpointInfo>() { endpoint1 }.AsReadOnly() });
 
             var aspNetCoreEndpoints = new List<Endpoint>();
             var routeConfig = new RouteConfig(

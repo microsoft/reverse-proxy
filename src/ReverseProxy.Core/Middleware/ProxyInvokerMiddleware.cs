@@ -51,7 +51,7 @@ namespace Microsoft.ReverseProxy.Core.Middleware
             var routeConfig = aspNetCoreEndpoint.Metadata.GetMetadata<RouteConfig>();
             var backend = routeConfig.BackendOrNull;
 
-            var endpoints = context.Features.Get<AvailableBackendEndpointsFeature>()?.Endpoints
+            var endpoints = context.Features.Get<IAvailableBackendEndpointsFeature>()?.Endpoints
                 ?? throw new InvalidOperationException("The AvailableBackendEndpoints collection was not set.");
 
             if (endpoints.Count == 0)

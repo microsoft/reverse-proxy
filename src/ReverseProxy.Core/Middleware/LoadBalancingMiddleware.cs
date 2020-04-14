@@ -43,7 +43,7 @@ namespace Microsoft.ReverseProxy.Core.Middleware
         public Task Invoke(HttpContext context)
         { 
             var backend = context.Features.Get<BackendInfo>() ?? throw new InvalidOperationException("Backend unspecified.");
-            var endpointsFeature = context.Features.Get<AvailableBackendEndpointsFeature>();
+            var endpointsFeature = context.Features.Get<IAvailableBackendEndpointsFeature>();
             var endpoints = endpointsFeature?.Endpoints
                 ?? throw new InvalidOperationException("The AvailableBackendEndpoints collection was not set.");
 

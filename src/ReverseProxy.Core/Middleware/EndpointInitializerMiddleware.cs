@@ -66,7 +66,7 @@ namespace Microsoft.ReverseProxy.Core.Middleware
             }
 
             context.Features.Set(backend);
-            context.Features.Set(new AvailableBackendEndpointsFeature() { Endpoints = dynamicState.HealthyEndpoints });
+            context.Features.Set<IAvailableBackendEndpointsFeature>(new AvailableBackendEndpointsFeature() { Endpoints = dynamicState.HealthyEndpoints });
 
             return _next(context);
         }
