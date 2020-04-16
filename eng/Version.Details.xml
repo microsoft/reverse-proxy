@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Dependencies>
   <ProductDependencies>
+    <Dependency Name="Microsoft.NETCore.App" Version="5.0.0-preview.4.20215.10">
+      <Uri>https://github.com/dotnet/runtime</Uri>
+      <Sha>5395b14eb4b924419b3d4732582a22ac72571d9f</Sha>
+    </Dependency>
   </ProductDependencies>
   <ToolsetDependencies>
     <Dependency Name="Microsoft.DotNet.Arcade.Sdk" Version="5.0.0-beta.20201.2">
