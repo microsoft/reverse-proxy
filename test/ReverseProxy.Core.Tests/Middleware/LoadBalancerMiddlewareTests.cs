@@ -1,9 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -25,6 +23,7 @@ namespace Microsoft.ReverseProxy.Core.Middleware.Tests
         public LoadBalancerMiddlewareTests()
         {
             Provide<IOperationLogger, TextOperationLogger>();
+            Provide<RequestDelegate>(context => Task.CompletedTask);
         }
 
         [Fact]
@@ -33,17 +32,9 @@ namespace Microsoft.ReverseProxy.Core.Middleware.Tests
             Create<LoadBalancingMiddleware>();
         }
 
-        [Fact(Skip = "Copied from ProxyInvoker, needs rewriting")]
+        [Fact]
         public async Task Invoke_Works()
         {
-            // Arrange
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Method = "GET";
-            httpContext.Request.Scheme = "https";
-            httpContext.Request.Host = new HostString("example.com");
-            httpContext.Request.Path = "/api/test";
-            httpContext.Request.QueryString = new QueryString("?a=b&c=d");
-
             var proxyHttpClientFactoryMock = new Mock<IProxyHttpClientFactory>();
             var backend1 = new BackendInfo(
                 backendId: "backend1",
@@ -51,6 +42,13 @@ namespace Microsoft.ReverseProxy.Core.Middleware.Tests
                 proxyHttpClientFactory: proxyHttpClientFactoryMock.Object);
             var endpoint1 = backend1.EndpointManager.GetOrCreateItem(
                 "endpoint1",
+                endpoint =>
+                {
+                    endpoint.Config.Value = new EndpointConfig("https://localhost:123/a/b/");
+                    endpoint.DynamicState.Value = new EndpointDynamicState(EndpointHealth.Healthy);
+                });
+            var endpoint2 = backend1.EndpointManager.GetOrCreateItem(
+                "endpoint2",
                 endpoint =>
                 {
                     endpoint.Config.Value = new EndpointConfig("https://localhost:123/a/b/");
@@ -66,48 +64,83 @@ namespace Microsoft.ReverseProxy.Core.Middleware.Tests
                 aspNetCoreEndpoints: aspNetCoreEndpoints.AsReadOnly());
             var aspNetCoreEndpoint = CreateAspNetCoreEndpoint(routeConfig);
             aspNetCoreEndpoints.Add(aspNetCoreEndpoint);
+            var httpContext = new DefaultHttpContext();
             httpContext.SetEndpoint(aspNetCoreEndpoint);
 
             Mock<ILoadBalancer>()
                 .Setup(l => l.PickEndpoint(It.IsAny<IReadOnlyList<EndpointInfo>>(),  It.IsAny<BackendConfig.BackendLoadBalancingOptions>()))
                 .Returns(endpoint1);
 
-            var tcs1 = new TaskCompletionSource<bool>();
-            var tcs2 = new TaskCompletionSource<bool>();
-            Mock<IHttpProxy>()
-                .Setup(h => h.ProxyAsync(
-                    httpContext,
-                    It.Is<Uri>(uri => uri == new Uri("https://localhost:123/a/b/api/test?a=b&c=d")),
-                    proxyHttpClientFactoryMock.Object,
-                    It.Is<ProxyTelemetryContext>(ctx => ctx.BackendId == "backend1" && ctx.RouteId == "route1" && ctx.EndpointId == "endpoint1"),
-                    It.IsAny<CancellationToken>(),
-                    It.IsAny<CancellationToken>()))
-                .Returns(
-                    async () =>
-                    {
-                        tcs1.TrySetResult(true);
-                        await tcs2.Task;
-                    })
-                .Verifiable();
+            httpContext.Features.Set<IAvailableBackendEndpointsFeature>(
+                new AvailableBackendEndpointsFeature() { Endpoints = new List<EndpointInfo>() { endpoint1, endpoint2 }.AsReadOnly() });
+            httpContext.Features.Set(backend1);
 
-            var sut = Create<ProxyInvokerMiddleware>();
+            var sut = Create<LoadBalancingMiddleware>();
 
-            // Act
-            Assert.Equal(0, backend1.ConcurrencyCounter.Value);
-            Assert.Equal(0, endpoint1.ConcurrencyCounter.Value);
+            await sut.Invoke(httpContext);
 
-            var task = sut.Invoke(httpContext);
-            await tcs1.Task; // Wait until we get to the proxying step.
-            Assert.Equal(1, backend1.ConcurrencyCounter.Value);
-            Assert.Equal(1, endpoint1.ConcurrencyCounter.Value);
+            var feature = httpContext.Features.Get<IAvailableBackendEndpointsFeature>();
+            Assert.NotNull(feature);
+            Assert.NotNull(feature.Endpoints);
+            Assert.Equal(1, feature.Endpoints.Count);
+            Assert.Same(endpoint1, feature.Endpoints[0]);
 
-            tcs2.TrySetResult(true);
-            await task;
-            Assert.Equal(0, backend1.ConcurrencyCounter.Value);
-            Assert.Equal(0, endpoint1.ConcurrencyCounter.Value);
+            Assert.Equal(200, httpContext.Response.StatusCode);
+        }
 
-            // Assert
-            Mock<IHttpProxy>().Verify();
+        [Fact]
+        public async Task Invoke_ServiceReturnsNoResults_503()
+        {
+            var proxyHttpClientFactoryMock = new Mock<IProxyHttpClientFactory>();
+            var backend1 = new BackendInfo(
+                backendId: "backend1",
+                endpointManager: new EndpointManager(),
+                proxyHttpClientFactory: proxyHttpClientFactoryMock.Object);
+            var endpoint1 = backend1.EndpointManager.GetOrCreateItem(
+                "endpoint1",
+                endpoint =>
+                {
+                    endpoint.Config.Value = new EndpointConfig("https://localhost:123/a/b/");
+                    endpoint.DynamicState.Value = new EndpointDynamicState(EndpointHealth.Healthy);
+                });
+            var endpoint2 = backend1.EndpointManager.GetOrCreateItem(
+                "endpoint2",
+                endpoint =>
+                {
+                    endpoint.Config.Value = new EndpointConfig("https://localhost:123/a/b/");
+                    endpoint.DynamicState.Value = new EndpointDynamicState(EndpointHealth.Healthy);
+                });
+
+            var aspNetCoreEndpoints = new List<Endpoint>();
+            var routeConfig = new RouteConfig(
+                route: new RouteInfo("route1"),
+                matcherSummary: null,
+                priority: null,
+                backendOrNull: backend1,
+                aspNetCoreEndpoints: aspNetCoreEndpoints.AsReadOnly());
+            var aspNetCoreEndpoint = CreateAspNetCoreEndpoint(routeConfig);
+            aspNetCoreEndpoints.Add(aspNetCoreEndpoint);
+            var httpContext = new DefaultHttpContext();
+            httpContext.SetEndpoint(aspNetCoreEndpoint);
+
+            Mock<ILoadBalancer>()
+                .Setup(l => l.PickEndpoint(It.IsAny<IReadOnlyList<EndpointInfo>>(), It.IsAny<BackendConfig.BackendLoadBalancingOptions>()))
+                .Returns((EndpointInfo)null);
+
+            httpContext.Features.Set<IAvailableBackendEndpointsFeature>(
+                new AvailableBackendEndpointsFeature() { Endpoints = new List<EndpointInfo>() { endpoint1, endpoint2 }.AsReadOnly() });
+            httpContext.Features.Set(backend1);
+
+            var sut = Create<LoadBalancingMiddleware>();
+
+            await sut.Invoke(httpContext);
+
+            var feature = httpContext.Features.Get<IAvailableBackendEndpointsFeature>();
+            Assert.NotNull(feature);
+            Assert.NotNull(feature.Endpoints);
+            Assert.Equal(2, feature.Endpoints.Count); // Unmodified
+
+            Assert.Equal(503, httpContext.Response.StatusCode);
         }
 
         private static Endpoint CreateAspNetCoreEndpoint(RouteConfig routeConfig)
