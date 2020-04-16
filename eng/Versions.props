@@ -4,4 +4,8 @@
     <VersionPrefix>0.1.0</VersionPrefix>
     <PreReleaseVersionLabel>alpha1</PreReleaseVersionLabel>
   </PropertyGroup>
+  <!--Package versions-->
+  <PropertyGroup>
+    <MicrosoftNETCoreAppPackageVersion>5.0.0-preview.4.20215.10</MicrosoftNETCoreAppPackageVersion>
+  </PropertyGroup>
 </Project>
