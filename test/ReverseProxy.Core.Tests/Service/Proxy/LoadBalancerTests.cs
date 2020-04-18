@@ -1,8 +1,7 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
-using FluentAssertions;
 using Microsoft.ReverseProxy.Core.Abstractions;
 using Microsoft.ReverseProxy.Core.RuntimeModel;
 using Tests.Common;
@@ -24,7 +23,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
             var result = loadBalancer.PickEndpoint(endpoints, endpoints, in options);
 
             // Assert
-            result.Should().BeNull();
+            Assert.Null(result);
         }
 
         [Fact]
@@ -43,7 +42,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
             var result = loadBalancer.PickEndpoint(endpoints, endpoints, in options);
 
             // Assert
-            result.Should().BeSameAs(endpoints[0]);
+            Assert.Equal(endpoints[0], result);
         }
 
         [Fact]
@@ -58,8 +57,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
             Action action = () => loadBalancer.PickEndpoint(endpoints, endpoints, in options);
 
             // Assert
-            action.Should().ThrowExactly<ReverseProxyException>()
-                .Which.Message.Should().Be("Load balancing mode '-1' is not supported.");
+            Assert.Throws<ReverseProxyException>(action);
         }
     }
 }

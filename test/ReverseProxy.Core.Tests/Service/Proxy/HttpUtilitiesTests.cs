@@ -1,9 +1,8 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
 using System.Net.Http;
-using FluentAssertions;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
@@ -13,49 +12,49 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
         [Fact]
         public void GetHttpMethod_Get_Works()
         {
-            HttpUtilities.GetHttpMethod("GET").Should().BeSameAs(HttpMethod.Get);
+            Assert.Equal(HttpMethod.Get, HttpUtilities.GetHttpMethod("GET"));
         }
 
         [Fact]
         public void GetHttpMethod_Post_Works()
         {
-            HttpUtilities.GetHttpMethod("POST").Should().BeSameAs(HttpMethod.Post);
+            Assert.Equal(HttpMethod.Post, HttpUtilities.GetHttpMethod("POST"));
         }
 
         [Fact]
         public void GetHttpMethod_Put_Works()
         {
-            HttpUtilities.GetHttpMethod("PUT").Should().BeSameAs(HttpMethod.Put);
+            Assert.Equal(HttpMethod.Put, HttpUtilities.GetHttpMethod("PUT"));
         }
 
         [Fact]
         public void GetHttpMethod_Delete_Works()
         {
-            HttpUtilities.GetHttpMethod("DELETE").Should().BeSameAs(HttpMethod.Delete);
+            Assert.Equal(HttpMethod.Delete, HttpUtilities.GetHttpMethod("DELETE"));
         }
 
         [Fact]
         public void GetHttpMethod_Options_Works()
         {
-            HttpUtilities.GetHttpMethod("OPTIONS").Should().BeSameAs(HttpMethod.Options);
+            Assert.Equal(HttpMethod.Options, HttpUtilities.GetHttpMethod("OPTIONS"));
         }
 
         [Fact]
         public void GetHttpMethod_Head_Works()
         {
-            HttpUtilities.GetHttpMethod("HEAD").Should().BeSameAs(HttpMethod.Head);
+            Assert.Equal(HttpMethod.Head, HttpUtilities.GetHttpMethod("HEAD"));
         }
 
         [Fact]
         public void GetHttpMethod_Patch_Works()
         {
-            HttpUtilities.GetHttpMethod("PATCH").Should().BeSameAs(HttpMethod.Patch);
+            Assert.Equal(HttpMethod.Patch, HttpUtilities.GetHttpMethod("PATCH"));
         }
 
         [Fact]
         public void GetHttpMethod_Trace_Works()
         {
-            HttpUtilities.GetHttpMethod("TRACE").Should().BeSameAs(HttpMethod.Trace);
+            Assert.Equal(HttpMethod.Trace, HttpUtilities.GetHttpMethod("TRACE"));
         }
 
         [Theory]
@@ -72,7 +71,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
             Action action = () => HttpUtilities.GetHttpMethod(method);
 
             // Assert
-            action.Should().ThrowExactly<InvalidOperationException>();
+            Assert.Throws<InvalidOperationException>(action);
         }
 
         [Theory]
@@ -81,7 +80,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
         [InlineData("hTtP/2")]
         public void IsHttp2_TrueCases_ReturnsTrue(string protocol)
         {
-            HttpUtilities.IsHttp2(protocol).Should().BeTrue();
+            Assert.True(HttpUtilities.IsHttp2(protocol));
         }
 
         [Theory]
@@ -91,7 +90,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
         [InlineData(" http/2")]
         public void IsHttp2_FalseCases_ReturnsFalse(string protocol)
         {
-            HttpUtilities.IsHttp2(protocol).Should().BeFalse();
+            Assert.False(HttpUtilities.IsHttp2(protocol));
         }
     }
 }

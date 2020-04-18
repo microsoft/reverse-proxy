@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using FluentAssertions;
 using Microsoft.ReverseProxy.Core.ConfigModel;
 using Tests.Common;
 using Xunit;
@@ -42,8 +41,8 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             var result = RunScenario(route);
 
             // Assert
-            result.IsSuccess.Should().BeTrue();
-            result.ErrorReporter.Errors.Should().BeEmpty();
+            Assert.True(result.IsSuccess);
+            Assert.Empty(result.ErrorReporter.Errors);
         }
 
         [Theory]
@@ -60,8 +59,8 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             var isSuccess = validator.ValidateRoute(parsedRoute, errorReporter);
 
             // Assert
-            isSuccess.Should().BeFalse();
-            errorReporter.Errors.Should().Contain(err => err.ErrorCode == ConfigErrors.ParsedRouteMissingId);
+            Assert.False(isSuccess);
+            Assert.Contains(errorReporter.Errors, err => err.ErrorCode == ConfigErrors.ParsedRouteMissingId);
         }
 
         [Theory]
@@ -81,8 +80,8 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             var result = RunScenario(route);
 
             // Assert
-            result.IsSuccess.Should().BeFalse();
-            result.ErrorReporter.Errors.Should().Contain(err => err.ErrorCode == ConfigErrors.ParsedRouteRuleMissingHostMatcher);
+            Assert.False(result.IsSuccess);
+            Assert.Contains(result.ErrorReporter.Errors, err => err.ErrorCode == ConfigErrors.ParsedRouteRuleMissingHostMatcher);
         }
 
         [Theory]
@@ -111,8 +110,8 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             var result = RunScenario(route);
 
             // Assert
-            result.IsSuccess.Should().BeFalse();
-            result.ErrorReporter.Errors.Should().Contain(err => err.ErrorCode == ConfigErrors.ParsedRouteRuleInvalidMatcher && err.Message.Contains("Invalid host name"));
+            Assert.False(result.IsSuccess);
+            Assert.Contains(result.ErrorReporter.Errors, err => err.ErrorCode == ConfigErrors.ParsedRouteRuleInvalidMatcher && err.Message.Contains("Invalid host name"));
         }
 
         [Theory]
@@ -135,8 +134,8 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             var result = RunScenario(route);
 
             // Assert
-            result.IsSuccess.Should().BeFalse();
-            result.ErrorReporter.Errors.Should().Contain(err => err.ErrorCode == ConfigErrors.ParsedRouteRuleInvalidMatcher && err.Message.Contains("Invalid path pattern"));
+            Assert.False(result.IsSuccess);
+            Assert.Contains(result.ErrorReporter.Errors, err => err.ErrorCode == ConfigErrors.ParsedRouteRuleInvalidMatcher && err.Message.Contains("Invalid path pattern"));
         }
 
         [Theory]
@@ -158,8 +157,8 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             var result = RunScenario(route);
 
             // Assert
-            result.IsSuccess.Should().BeFalse();
-            result.ErrorReporter.Errors.Should().Contain(err => err.ErrorCode == ConfigErrors.ParsedRouteRuleInvalidMatcher && err.Message.Contains("verb"));
+            Assert.False(result.IsSuccess);
+            Assert.Contains(result.ErrorReporter.Errors, err => err.ErrorCode == ConfigErrors.ParsedRouteRuleInvalidMatcher && err.Message.Contains("verb"));
         }
 
         private (bool IsSuccess, TestConfigErrorReporter ErrorReporter) RunScenario(ParsedRoute parsedRoute)

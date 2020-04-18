@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using FluentAssertions;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Core.Abstractions.Tests
@@ -40,18 +39,18 @@ namespace Microsoft.ReverseProxy.Core.Abstractions.Tests
             var clone = sut.DeepClone();
 
             // Assert
-            clone.Should().NotBeSameAs(sut);
-            clone.RouteId.Should().Be(sut.RouteId);
-            clone.Match.Should().NotBeSameAs(sut.Match);
-            clone.Match.Methods.Should().NotBeSameAs(sut.Match.Methods);
-            clone.Match.Methods.Should().BeEquivalentTo(sut.Match.Methods);
-            clone.Match.Host.Should().Be(sut.Match.Host);
-            clone.Match.Path.Should().Be(sut.Match.Path);
-            clone.Priority.Should().Be(sut.Priority);
-            clone.BackendId.Should().Be(sut.BackendId);
-            clone.Metadata.Should().NotBeNull();
-            clone.Metadata.Should().NotBeSameAs(sut.Metadata);
-            clone.Metadata["key"].Should().Be("value");
+            Assert.NotEqual(sut, clone);
+            Assert.Equal(sut.RouteId, clone.RouteId);
+            Assert.NotEqual(sut.Match, clone.Match);
+            Assert.NotStrictEqual(sut.Match.Methods, clone.Match.Methods);
+            Assert.Equal(sut.Match.Methods, clone.Match.Methods);
+            Assert.Equal(sut.Match.Host, clone.Match.Host);
+            Assert.Equal(sut.Match.Path, clone.Match.Path);
+            Assert.Equal(sut.Priority, clone.Priority);
+            Assert.Equal(sut.BackendId, clone.BackendId);
+            Assert.NotNull(clone.Metadata);
+            Assert.NotStrictEqual(sut.Metadata, clone.Metadata);
+            Assert.Equal("value", clone.Metadata["key"]);
         }
 
         [Fact]
@@ -64,14 +63,14 @@ namespace Microsoft.ReverseProxy.Core.Abstractions.Tests
             var clone = sut.DeepClone();
 
             // Assert
-            clone.Should().NotBeSameAs(sut);
-            clone.RouteId.Should().BeNull();
-            clone.Match.Methods.Should().BeNull();
-            clone.Match.Host.Should().BeNull();
-            clone.Match.Path.Should().BeNull();
-            clone.Priority.Should().BeNull();
-            clone.BackendId.Should().BeNull();
-            clone.Metadata.Should().BeNull();
+            Assert.NotEqual(sut, clone);
+            Assert.Null(clone.RouteId);
+            Assert.Null(clone.Match.Methods);
+            Assert.Null(clone.Match.Host);
+            Assert.Null(clone.Match.Path);
+            Assert.Null(clone.Priority);
+            Assert.Null(clone.BackendId);
+            Assert.Null(clone.Metadata);
         }
     }
 }

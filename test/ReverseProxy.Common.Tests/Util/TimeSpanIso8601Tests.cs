@@ -1,12 +1,8 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
-
-using FluentAssertions;
-
 using Microsoft.ReverseProxy.Common.Util;
-
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Common.Tests
@@ -28,7 +24,8 @@ namespace Microsoft.ReverseProxy.Common.Tests
             var timeSpan = new TimeSpanIso8601(iso8601String);
 
             // Assert
-            timeSpan.Value.Should().Be(new TimeSpan(expectedDays, expectedHours, expectedMinutes, expectedSeconds));
+            var expectedValue = new TimeSpan(expectedDays, expectedHours, expectedMinutes, expectedSeconds);
+            Assert.Equal(expectedValue, timeSpan.Value);
         }
     }
 }

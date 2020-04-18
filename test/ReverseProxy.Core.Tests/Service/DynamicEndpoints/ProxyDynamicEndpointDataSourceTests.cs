@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using FluentAssertions;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Core.Service.Tests
@@ -25,7 +24,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             var endpoints = dataSource.Endpoints;
 
             // Assert
-            endpoints.Should().BeEmpty();
+            Assert.Empty(endpoints);
         }
 
         [Fact]
@@ -38,9 +37,9 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             var changeToken = dataSource.GetChangeToken();
 
             // Assert
-            changeToken.Should().NotBeNull();
-            changeToken.ActiveChangeCallbacks.Should().BeTrue();
-            changeToken.HasChanged.Should().BeFalse();
+            Assert.NotNull(changeToken);
+            Assert.True(changeToken.ActiveChangeCallbacks);
+            Assert.False(changeToken.HasChanged);
         }
 
         [Fact]
@@ -65,9 +64,9 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
                 }, null);
 
             // updating should signal the current change token
-            signaled1.Should().Be(0);
+            Assert.Equal(0, signaled1);
             dataSource.Update(newEndpoints1);
-            signaled1.Should().Be(1);
+            Assert.Equal(1, signaled1);
 
             var changeToken2 = dataSource.GetChangeToken();
             changeToken2.RegisterChangeCallback(
@@ -78,13 +77,13 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
                 }, null);
 
             // updating again should only signal the new change token
-            signaled2.Should().Be(0);
+            Assert.Equal(0, signaled2);
             dataSource.Update(newEndpoints2);
-            signaled1.Should().Be(1);
-            signaled2.Should().Be(1);
+            Assert.Equal(1, signaled1);
+            Assert.Equal(1, signaled2);
 
-            readEndpoints1.Should().BeSameAs(newEndpoints1);
-            readEndpoints2.Should().BeSameAs(newEndpoints2);
+            Assert.Equal(newEndpoints1, readEndpoints1);
+            Assert.Equal(newEndpoints2, readEndpoints2);
         }
     }
 }

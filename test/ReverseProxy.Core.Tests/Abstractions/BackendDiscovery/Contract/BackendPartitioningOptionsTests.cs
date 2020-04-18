@@ -1,7 +1,6 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using FluentAssertions;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Core.Abstractions.Tests
@@ -29,10 +28,10 @@ namespace Microsoft.ReverseProxy.Core.Abstractions.Tests
             var clone = sut.DeepClone();
 
             // Assert
-            clone.Should().NotBeSameAs(sut);
-            clone.PartitionCount.Should().Be(sut.PartitionCount);
-            clone.PartitionKeyExtractor.Should().Be(sut.PartitionKeyExtractor);
-            clone.PartitioningAlgorithm.Should().Be(sut.PartitioningAlgorithm);
+            Assert.NotEqual(sut, clone);
+            Assert.Equal(sut.PartitionCount, clone.PartitionCount);
+            Assert.Equal(sut.PartitionKeyExtractor, clone.PartitionKeyExtractor);
+            Assert.Equal(sut.PartitioningAlgorithm, clone.PartitioningAlgorithm);
         }
     }
 }

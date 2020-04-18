@@ -1,14 +1,10 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
-
-using FluentAssertions;
-
 using Microsoft.ReverseProxy.Common.Abstractions.Time;
 using Microsoft.ReverseProxy.Common.Util;
 using Tests.Common;
-
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Common.Tests
@@ -38,10 +34,10 @@ namespace Microsoft.ReverseProxy.Common.Tests
             var secondPresent = cache.TryGetValue(key, out var secondValueGot);
 
             // Assert
-            firstValueGot.Should().Be(value);
-            firstPresent.Should().BeTrue();
-            secondValueGot.Should().Be(value);
-            secondPresent.Should().BeTrue();
+            Assert.Equal(value, firstValueGot);
+            Assert.True(firstPresent);
+            Assert.Equal(value, secondValueGot);
+            Assert.True(secondPresent);
         }
 
         [Fact]
@@ -61,9 +57,9 @@ namespace Microsoft.ReverseProxy.Common.Tests
             var secondPresent = cache.TryGetValue(key, out var secondValueGot);
 
             // Assert
-            firstValueGot.Should().Be(value);
-            firstPresent.Should().BeTrue();
-            secondPresent.Should().BeFalse();
+            Assert.Equal(value, firstValueGot);
+            Assert.True(firstPresent);
+            Assert.False(secondPresent);
         }
     }
 }

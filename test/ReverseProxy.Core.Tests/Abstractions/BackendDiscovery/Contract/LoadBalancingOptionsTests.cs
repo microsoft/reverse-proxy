@@ -1,7 +1,6 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using FluentAssertions;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Core.Abstractions.Tests
@@ -26,7 +25,7 @@ namespace Microsoft.ReverseProxy.Core.Abstractions.Tests
             var clone = sut.DeepClone();
 
             // Assert
-            clone.Should().NotBeSameAs(sut);
+            Assert.NotEqual(sut, clone);
         }
     }
 }

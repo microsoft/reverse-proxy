@@ -8,7 +8,6 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.ReverseProxy.Common.Abstractions.Telemetry;
 using Microsoft.ReverseProxy.Common.Telemetry;
@@ -125,8 +124,7 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
                 });
             }
 
-            endpoints.GetItems()[0].DynamicState.Value.Health.Should().NotBe(null);
-            endpoints.GetItems()[0].DynamicState.Value.Health.Should().Be(EndpointHealth.Healthy);
+            Assert.Equal(EndpointHealth.Healthy, endpoints.GetItems()[0].DynamicState.Value.Health);
         }
 
         [Fact(Skip = BackendProberTests.SkipUnitTestSwitcher)]
@@ -149,8 +147,7 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
                 });
             }
 
-            endpoints.GetItems()[0].DynamicState.Value.Health.Should().NotBe(null);
-            endpoints.GetItems()[0].DynamicState.Value.Health.Should().Be(EndpointHealth.Unhealthy);
+            Assert.Equal(EndpointHealth.Unhealthy, endpoints.GetItems()[0].DynamicState.Value.Health);
         }
 
         [Fact]
@@ -193,8 +190,7 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
                 });
             }
 
-            endpoints.GetItems()[0].DynamicState.Value.Health.Should().NotBe(null);
-            endpoints.GetItems()[0].DynamicState.Value.Health.Should().Be(EndpointHealth.Unhealthy);
+            Assert.Equal(EndpointHealth.Unhealthy, endpoints.GetItems()[0].DynamicState.Value.Health);
         }
 
         [Fact(Skip = BackendProberTests.SkipUnitTestSwitcher)]
@@ -225,8 +221,7 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
                 });
             }
 
-            endpoints.GetItems()[0].DynamicState.Value.Health.Should().NotBe(null);
-            endpoints.GetItems()[0].DynamicState.Value.Health.Should().Be(EndpointHealth.Unhealthy);
+            Assert.Equal(EndpointHealth.Unhealthy, endpoints.GetItems()[0].DynamicState.Value.Health);
         }
 
         [Fact(Skip = BackendProberTests.SkipUnitTestSwitcher)]
@@ -257,8 +252,7 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
                 });
             }
 
-            endpoints.GetItems()[0].DynamicState.Value.Health.Should().NotBe(null);
-            endpoints.GetItems()[0].DynamicState.Value.Health.Should().Be(EndpointHealth.Unhealthy);
+            Assert.Equal(EndpointHealth.Unhealthy, endpoints.GetItems()[0].DynamicState.Value.Health);
         }
 
         private EndpointManager EndpointManagerGenerator(int num)

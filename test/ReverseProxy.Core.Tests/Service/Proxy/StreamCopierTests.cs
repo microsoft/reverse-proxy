@@ -1,11 +1,10 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
 using Microsoft.ReverseProxy.Common.Abstractions.Telemetry;
 using Microsoft.ReverseProxy.Core.Service.Metrics;
 using Tests.Common;
@@ -49,10 +48,9 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
             await sut.CopyAsync(source, destination, CancellationToken.None);
 
             // Assert
-            destination.ToArray().Should().BeEquivalentTo(sourceBytes);
-            _metricCreator.MetricsLogged.Should().BeEquivalentTo(
-                "StreamCopyBytes=131069;direction=upstream;backendId=be1;routeId=rt1;endpointId=ep1;protocol=",
-                "StreamCopyIops=2;direction=upstream;backendId=be1;routeId=rt1;endpointId=ep1;protocol=");
+            Assert.Equal(sourceBytes, destination.ToArray());
+            Assert.Equal("StreamCopyBytes=131069;direction=upstream;backendId=be1;routeId=rt1;endpointId=ep1;protocol=", _metricCreator.MetricsLogged[0]);
+            Assert.Equal("StreamCopyIops=2;direction=upstream;backendId=be1;routeId=rt1;endpointId=ep1;protocol=", _metricCreator.MetricsLogged[1]);
         }
     }
 }

@@ -1,10 +1,9 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
 using Microsoft.ReverseProxy.Core.Abstractions;
 using Xunit;
 
@@ -28,7 +27,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             var task = repo.GetRoutesAsync(CancellationToken.None);
 
             // Assert
-            task.IsCompleted.Should().BeTrue("should complete synchronously");
+            Assert.True(task.IsCompleted, "should complete synchronously");
         }
 
         [Fact]
@@ -41,7 +40,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             var task = repo.SetRoutesAsync(new ProxyRoute[0], CancellationToken.None);
 
             // Assert
-            task.IsCompleted.Should().BeTrue("should complete synchronously");
+            Assert.True(task.IsCompleted, "should complete synchronously");
         }
 
         [Fact]
@@ -82,7 +81,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             var result = await repo.GetRoutesAsync(CancellationToken.None);
 
             // Assert
-            result.Should().BeNull();
+            Assert.Null(result);
         }
 
         [Fact]
@@ -105,9 +104,9 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             var result = await repo.GetRoutesAsync(CancellationToken.None);
 
             // Assert
-            result.Should().HaveCount(1);
-            result.Should().NotBeSameAs(routes);
-            result[0].RouteId.Should().Be("route1");
+            Assert.Single(result);
+            Assert.NotEqual(routes, result);
+            Assert.Equal("route1", result[0].RouteId);
         }
 
         [Fact]
@@ -131,10 +130,10 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             var result2 = await repo.GetRoutesAsync(CancellationToken.None);
 
             // Assert
-            result2.Should().HaveCount(1);
-            result2.Should().NotBeSameAs(result1);
-            result2.Should().NotBeSameAs(routes);
-            result2[0].RouteId.Should().Be("route1");
+            Assert.Single(result2);
+            Assert.NotEqual(result1, result2);
+            Assert.NotEqual(routes, result2);
+            Assert.Equal("route1", result2[0].RouteId);
         }
     }
 }

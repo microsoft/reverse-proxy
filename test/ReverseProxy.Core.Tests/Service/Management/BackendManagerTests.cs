@@ -1,7 +1,6 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using FluentAssertions;
 using Microsoft.ReverseProxy.Core.Service.Proxy.Infra;
 using Moq;
 using Tests.Common;
@@ -39,10 +38,10 @@ namespace Microsoft.ReverseProxy.Core.Service.Management.Tests
             var item = manager.GetOrCreateItem("abc", item => { });
 
             // Assert
-            item.Should().NotBeNull();
-            item.BackendId.Should().Be("abc");
-            item.EndpointManager.Should().BeSameAs(endpointManager);
-            item.ProxyHttpClientFactory.Should().BeSameAs(proxyHttpClientFactory);
+            Assert.NotNull(item);
+            Assert.Equal("abc", item.BackendId);
+            Assert.Equal(endpointManager, item.EndpointManager);
+            Assert.Equal(proxyHttpClientFactory, item.ProxyHttpClientFactory);
         }
     }
 }

@@ -1,10 +1,9 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using FluentAssertions;
 using Microsoft.ReverseProxy.Signals;
 using Xunit;
 
@@ -28,7 +27,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Management.Tests
             var item = manager.TryGetItem("abc");
 
             // Assert
-            item.Should().BeNull();
+            Assert.Null(item);
         }
 
         [Fact]
@@ -42,9 +41,9 @@ namespace Microsoft.ReverseProxy.Core.Service.Management.Tests
             var item = manager.TryGetItem("abc");
 
             // Assert
-            item.Should().NotBeNull();
-            item.ItemId.Should().Be("abc");
-            item.Value.Should().Be(1);
+            Assert.NotNull(item);
+            Assert.Equal("abc", item.ItemId);
+            Assert.Equal(1, item.Value);
         }
 
         [Fact]
@@ -61,17 +60,17 @@ namespace Microsoft.ReverseProxy.Core.Service.Management.Tests
             var actual3 = manager.TryGetItem("aBc");
 
             // Assert
-            item1.Should().NotBeNull();
-            item2.Should().NotBeNull();
-            item1.Should().NotBeSameAs(item2);
+            Assert.NotNull(item1);
+            Assert.NotNull(item2);
+            Assert.NotEqual(item2, item1);
 
-            actual1.Should().NotBeNull();
-            actual1.Should().BeSameAs(item1);
+            Assert.NotNull(actual1);
+            Assert.Equal(item1, actual1);
 
-            actual2.Should().NotBeNull();
-            actual2.Should().BeSameAs(item2);
+            Assert.NotNull(actual2);
+            Assert.Equal(item2, actual2);
 
-            actual3.Should().BeNull();
+            Assert.Null(actual3);
         }
 
         [Fact]
@@ -85,13 +84,13 @@ namespace Microsoft.ReverseProxy.Core.Service.Management.Tests
             var item2 = manager.GetOrCreateItem("def", item => item.Value = 2);
 
             // Assert
-            item1.Should().NotBeNull();
-            item1.ItemId.Should().Be("abc");
-            item1.Value.Should().Be(1);
+            Assert.NotNull(item1);
+            Assert.Equal("abc", item1.ItemId);
+            Assert.Equal(1, item1.Value);
 
-            item2.Should().NotBeNull();
-            item2.ItemId.Should().Be("def");
-            item2.Value.Should().Be(2);
+            Assert.NotNull(item2);
+            Assert.Equal("def", item2.ItemId);
+            Assert.Equal(2, item2.Value);
         }
 
         [Fact]
@@ -105,22 +104,22 @@ namespace Microsoft.ReverseProxy.Core.Service.Management.Tests
                 "abc",
                 item =>
                 {
-                    item.Value.Should().Be(0);
+                    Assert.Equal(0, item.Value);
                     item.Value = 1;
                 });
             var item2 = manager.GetOrCreateItem(
                 "abc",
                 item =>
                 {
-                    item.Value.Should().Be(1);
+                    Assert.Equal(1, item.Value);
                     item.Value = 2;
                 });
 
             // Assert
-            item1.Should().NotBeNull();
-            item1.ItemId.Should().Be("abc");
-            item1.Value.Should().Be(2);
-            item1.Should().BeSameAs(item2);
+            Assert.NotNull(item1);
+            Assert.Equal("abc", item1.ItemId);
+            Assert.Equal(2, item1.Value);
+            Assert.Equal(item2, item1);
         }
 
         [Fact]
@@ -134,26 +133,26 @@ namespace Microsoft.ReverseProxy.Core.Service.Management.Tests
                 "abc",
                 item =>
                 {
-                    item.Value.Should().Be(0);
+                    Assert.Equal(0, item.Value);
                     item.Value = 1;
                 });
-            manager.TryRemoveItem("abc").Should().BeTrue();
+            Assert.True(manager.TryRemoveItem("abc"));
             var item2 = manager.GetOrCreateItem(
                 "abc",
                 item =>
                 {
-                    item.Value.Should().Be(0);
+                    Assert.Equal(0, item.Value);
                     item.Value = 2;
                 });
 
             // Assert
-            item1.Should().NotBeNull();
-            item1.ItemId.Should().Be("abc");
-            item1.Value.Should().Be(1);
+            Assert.NotNull(item1);
+            Assert.Equal("abc", item1.ItemId);
+            Assert.Equal(1, item1.Value);
 
-            item2.Should().NotBeNull();
-            item2.ItemId.Should().Be("abc");
-            item2.Value.Should().Be(2);
+            Assert.NotNull(item2);
+            Assert.Equal("abc", item2.ItemId);
+            Assert.Equal(2, item2.Value);
         }
 
         [Fact]
@@ -166,8 +165,8 @@ namespace Microsoft.ReverseProxy.Core.Service.Management.Tests
             Action action = () => manager.GetOrCreateItem("abc", item => throw new Exception());
 
             // Assert
-            action.Should().ThrowExactly<Exception>();
-            manager.GetItems().Should().BeEmpty();
+            Assert.Throws<Exception>(action);
+            Assert.Empty(manager.GetItems());
         }
 
         [Fact]
@@ -185,9 +184,9 @@ namespace Microsoft.ReverseProxy.Core.Service.Management.Tests
 
             // Assert
             var item = manager.TryGetItem("abc");
-            item.Should().NotBeNull();
-            item.ItemId.Should().Be("abc");
-            item.Value.Should().Be(Iterations);
+            Assert.NotNull(item);
+            Assert.Equal("abc", item.ItemId);
+            Assert.Equal(Iterations, item.Value);
         }
 
         [Fact]
@@ -200,7 +199,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Management.Tests
             var items = manager.GetItems();
 
             // Assert
-            items.Should().BeEmpty();
+            Assert.Empty(items);
         }
 
         [Fact]
@@ -214,8 +213,8 @@ namespace Microsoft.ReverseProxy.Core.Service.Management.Tests
             var items = manager.GetItems();
 
             // Assert
-            items.Should().HaveCount(1);
-            items[0].Should().BeSameAs(item);
+            Assert.Single(items);
+            Assert.Equal(item, items[0]);
         }
 
         [Fact]
@@ -230,9 +229,9 @@ namespace Microsoft.ReverseProxy.Core.Service.Management.Tests
             var items = manager.GetItems();
 
             // Assert
-            items.Should().HaveCount(2);
-            items.Should().Contain(item1);
-            items.Should().Contain(item2);
+            Assert.Equal(2, items.Count);
+            Assert.Contains(item1, items);
+            Assert.Contains(item2, items);
         }
 
         [Fact]
@@ -247,8 +246,8 @@ namespace Microsoft.ReverseProxy.Core.Service.Management.Tests
             var result2 = manager.TryRemoveItem("abc");
 
             // Assert
-            result1.Should().BeTrue();
-            result2.Should().BeFalse();
+            Assert.True(result1);
+            Assert.False(result2);
         }
 
         [Fact]
@@ -262,12 +261,12 @@ namespace Microsoft.ReverseProxy.Core.Service.Management.Tests
             manager.GetOrCreateItem("abc", item => { });
             manager.GetOrCreateItem("def", item => { });
 
-            itemsCountSignal.Value.Should().Be(2);
+            Assert.Equal(2, itemsCountSignal.Value);
 
             manager.TryRemoveItem("abc");
             manager.TryRemoveItem("def");
 
-            itemsCountSignal.Value.Should().Be(0);
+            Assert.Equal(0, itemsCountSignal.Value);
         }
 
         private class TestItemManager : ItemManagerBase<Item>

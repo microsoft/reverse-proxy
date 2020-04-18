@@ -1,9 +1,8 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
 
-using FluentAssertions;
 using Microsoft.ReverseProxy.Common.Abstractions.Telemetry;
 using Microsoft.ReverseProxy.Common.Abstractions.Time;
 using Microsoft.ReverseProxy.Core.RuntimeModel;
@@ -60,8 +59,8 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
             var prober = factory.CreateBackendProber(backendId, backendConfig, endpointManager);
 
             // Validate.
-            prober.Should().NotBeNull();
-            prober.GetType().Should().Be(typeof(BackendProber));
+            Assert.NotNull(prober);
+            Assert.IsType<BackendProber>(prober);
         }
     }
 }

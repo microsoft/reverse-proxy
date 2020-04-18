@@ -1,8 +1,7 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
-using FluentAssertions;
 using Microsoft.ReverseProxy.Core.Service.Management;
 using Microsoft.ReverseProxy.Core.Service.Proxy.Infra;
 using Tests.Common;
@@ -34,8 +33,15 @@ namespace Microsoft.ReverseProxy.Core.RuntimeModel.Tests
             var endpoint4 = backend.EndpointManager.GetOrCreateItem("ep4", endpoint => endpoint.DynamicState.Value = new EndpointDynamicState(EndpointHealth.Healthy));
 
             // Assert
-            backend.DynamicState.Value.AllEndpoints.Should().BeEquivalentTo(endpoint1, endpoint2, endpoint3, endpoint4);
-            backend.DynamicState.Value.HealthyEndpoints.Should().BeEquivalentTo(endpoint1, endpoint2, endpoint3, endpoint4);
+            Assert.Equal(endpoint1, backend.DynamicState.Value.AllEndpoints[0]);
+            Assert.Equal(endpoint2, backend.DynamicState.Value.AllEndpoints[1]);
+            Assert.Equal(endpoint3, backend.DynamicState.Value.AllEndpoints[2]);
+            Assert.Equal(endpoint4, backend.DynamicState.Value.AllEndpoints[3]);
+
+            Assert.Equal(endpoint1, backend.DynamicState.Value.HealthyEndpoints[0]);
+            Assert.Equal(endpoint2, backend.DynamicState.Value.HealthyEndpoints[1]);
+            Assert.Equal(endpoint3, backend.DynamicState.Value.HealthyEndpoints[2]);
+            Assert.Equal(endpoint4, backend.DynamicState.Value.HealthyEndpoints[3]);
         }
 
         [Fact]
@@ -49,8 +55,13 @@ namespace Microsoft.ReverseProxy.Core.RuntimeModel.Tests
             var endpoint4 = backend.EndpointManager.GetOrCreateItem("ep4", endpoint => endpoint.DynamicState.Value = new EndpointDynamicState(EndpointHealth.Healthy));
 
             // Assert
-            backend.DynamicState.Value.AllEndpoints.Should().BeEquivalentTo(endpoint1, endpoint2, endpoint3, endpoint4);
-            backend.DynamicState.Value.HealthyEndpoints.Should().BeEquivalentTo(endpoint1, endpoint4);
+            Assert.Equal(endpoint1, backend.DynamicState.Value.AllEndpoints[0]);
+            Assert.Equal(endpoint2, backend.DynamicState.Value.AllEndpoints[1]);
+            Assert.Equal(endpoint3, backend.DynamicState.Value.AllEndpoints[2]);
+            Assert.Equal(endpoint4, backend.DynamicState.Value.AllEndpoints[3]);
+
+            Assert.Equal(endpoint1, backend.DynamicState.Value.HealthyEndpoints[0]);
+            Assert.Equal(endpoint4, backend.DynamicState.Value.HealthyEndpoints[1]);
         }
 
         // Verify that we detect changes to a backend's BackendInfo.Config
@@ -62,12 +73,12 @@ namespace Microsoft.ReverseProxy.Core.RuntimeModel.Tests
 
             // Act & Assert
             var state1 = backend.DynamicState.Value;
-            state1.Should().NotBeNull();
-            state1.AllEndpoints.Should().BeEmpty();
+            Assert.NotNull(state1);
+            Assert.Empty(state1.AllEndpoints);
 
             backend.Config.Value = new BackendConfig(healthCheckOptions: default, loadBalancingOptions: default);
-            backend.DynamicState.Value.Should().NotBeSameAs(state1);
-            backend.DynamicState.Value.AllEndpoints.Should().BeEmpty();
+            Assert.NotEqual(state1, backend.DynamicState.Value);
+            Assert.Empty(backend.DynamicState.Value.AllEndpoints);
         }
 
         // Verify that we detect addition / removal of a backend's endpoint
@@ -79,18 +90,18 @@ namespace Microsoft.ReverseProxy.Core.RuntimeModel.Tests
 
             // Act & Assert
             var state1 = backend.DynamicState.Value;
-            state1.Should().NotBeNull();
-            state1.AllEndpoints.Should().BeEmpty();
+            Assert.NotNull(state1);
+            Assert.Empty(state1.AllEndpoints);
 
             var endpoint = backend.EndpointManager.GetOrCreateItem("ep1", endpoint => { });
-            backend.DynamicState.Value.Should().NotBeSameAs(state1);
+            Assert.NotEqual(state1, backend.DynamicState.Value);
             var state2 = backend.DynamicState.Value;
-            state2.AllEndpoints.Should().BeEquivalentTo(endpoint);
+            Assert.Contains(endpoint, state2.AllEndpoints);
 
             backend.EndpointManager.TryRemoveItem("ep1");
-            backend.DynamicState.Value.Should().NotBeSameAs(state2);
+            Assert.NotEqual(state2, backend.DynamicState.Value);
             var state3 = backend.DynamicState.Value;
-            state3.AllEndpoints.Should().BeEmpty();
+            Assert.Empty(state3.AllEndpoints);
         }
 
         // Verify that we detect dynamic state changes on a backend's existing endpoints
@@ -102,26 +113,26 @@ namespace Microsoft.ReverseProxy.Core.RuntimeModel.Tests
 
             // Act & Assert
             var state1 = backend.DynamicState.Value;
-            state1.Should().NotBeNull();
-            state1.AllEndpoints.Should().BeEmpty();
+            Assert.NotNull(state1);
+            Assert.Empty(state1.AllEndpoints);
 
             var endpoint = backend.EndpointManager.GetOrCreateItem("ep1", endpoint => { });
-            backend.DynamicState.Value.Should().NotBeSameAs(state1);
+            Assert.NotEqual(state1, backend.DynamicState.Value);
             var state2 = backend.DynamicState.Value;
 
             endpoint.DynamicState.Value = new EndpointDynamicState(EndpointHealth.Unhealthy);
-            backend.DynamicState.Value.Should().NotBeSameAs(state2);
+            Assert.NotEqual(state2, backend.DynamicState.Value);
             var state3 = backend.DynamicState.Value;
 
-            state3.AllEndpoints.Should().BeEquivalentTo(endpoint);
-            state3.HealthyEndpoints.Should().BeEmpty();
+            Assert.Contains(endpoint, state3.AllEndpoints);
+            Assert.Empty(state3.HealthyEndpoints);
 
             endpoint.DynamicState.Value = new EndpointDynamicState(EndpointHealth.Healthy);
-            backend.DynamicState.Value.Should().NotBeSameAs(state3);
+            Assert.NotEqual(state3, backend.DynamicState.Value);
             var state4 = backend.DynamicState.Value;
 
-            state4.AllEndpoints.Should().BeEquivalentTo(endpoint);
-            state4.HealthyEndpoints.Should().BeEquivalentTo(endpoint);
+            Assert.Contains(endpoint, state4.AllEndpoints);
+            Assert.Contains(endpoint, state4.HealthyEndpoints);
         }
 
         private static void EnableHealthChecks(BackendInfo backend)

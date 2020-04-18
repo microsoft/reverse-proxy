@@ -1,7 +1,6 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using FluentAssertions;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Core.Service.Management.Tests
@@ -28,8 +27,8 @@ namespace Microsoft.ReverseProxy.Core.Service.Management.Tests
             var item = manager.GetOrCreateItem("abc", item => { });
 
             // Assert
-            item.Should().NotBeNull();
-            item.RouteId.Should().Be("abc");
+            Assert.NotNull(item);
+            Assert.Equal("abc", item.RouteId);
         }
     }
 }

@@ -1,8 +1,7 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.Net.Http;
-using FluentAssertions;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
@@ -21,10 +20,10 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
             var httpClient3 = new HttpClient();
 
             // Validation
-            httpClient1.Should().NotBeNull();
-            httpClient2.Should().NotBeNull();
-            httpClient1.Should().NotBeSameAs(httpClient2);
-            httpClient1.GetType().Should().Be(typeof(HttpClient));
+            Assert.NotNull(httpClient1);
+            Assert.NotNull(httpClient2);
+            Assert.NotEqual(httpClient2, httpClient1);
+            Assert.IsType<HttpClient>(httpClient1);
         }
     }
 }
