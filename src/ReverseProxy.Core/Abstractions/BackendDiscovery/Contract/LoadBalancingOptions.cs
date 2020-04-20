@@ -1,5 +1,7 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
+using Microsoft.ReverseProxy.Core.RuntimeModel;
 
 namespace Microsoft.ReverseProxy.Core.Abstractions
 {
@@ -8,10 +10,13 @@ namespace Microsoft.ReverseProxy.Core.Abstractions
     /// </summary>
     public sealed class LoadBalancingOptions
     {
+        public LoadBalancingMode Mode { get; set; }
+
         internal LoadBalancingOptions DeepClone()
         {
             return new LoadBalancingOptions
             {
+                Mode = Mode,
             };
         }
     }

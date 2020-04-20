@@ -80,13 +80,6 @@ namespace Microsoft.ReverseProxy.Core.RuntimeModel
                 Mode = mode;
             }
 
-            public enum LoadBalancingMode
-            {
-                First,
-                Random,
-                PowerOfTwoChoices,
-            }
-
             public LoadBalancingMode Mode { get; }
         }
     }

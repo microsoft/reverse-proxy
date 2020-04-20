@@ -32,7 +32,7 @@ namespace Microsoft.ReverseProxy.Core.Abstractions
         /// <summary>
         /// Load balancing options.
         /// </summary>
-        public LoadBalancingOptions LoadBalancingOptions { get; set; }
+        public LoadBalancingOptions LoadBalancing { get; set; }
 
         /// <summary>
         /// Active health checking options.
@@ -57,7 +57,7 @@ namespace Microsoft.ReverseProxy.Core.Abstractions
                 CircuitBreakerOptions = CircuitBreakerOptions?.DeepClone(),
                 QuotaOptions = QuotaOptions?.DeepClone(),
                 PartitioningOptions = PartitioningOptions?.DeepClone(),
-                LoadBalancingOptions = LoadBalancingOptions?.DeepClone(),
+                LoadBalancing = LoadBalancing?.DeepClone(),
                 HealthCheckOptions = HealthCheckOptions?.DeepClone(),
                 Endpoints = Endpoints.DeepClone(StringComparer.Ordinal),
                 Metadata = Metadata?.DeepClone(StringComparer.Ordinal),
