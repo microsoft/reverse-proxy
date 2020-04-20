@@ -47,7 +47,7 @@ namespace Microsoft.ReverseProxy.Core.Abstractions.Tests
             Assert.NotNull(clone.HealthCheckOptions);
             Assert.NotSame(backend.HealthCheckOptions, clone.HealthCheckOptions);
             Assert.NotNull(clone.Metadata);
-            Assert.NotStrictEqual(backend.Metadata, clone.Metadata);
+            Assert.NotSame(backend.Metadata, clone.Metadata);
             Assert.Equal("value", clone.Metadata["key"]);
         }
 
