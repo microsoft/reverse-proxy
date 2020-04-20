@@ -28,7 +28,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
             // Assert
             Assert.NotNull(actual1);
             Assert.NotNull(actual2);
-            Assert.NotEqual(actual2, actual1);
+            Assert.NotSame(actual2, actual1);
         }
 
         [Fact]
@@ -44,7 +44,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
             // Assert
             Assert.NotNull(actual1);
             Assert.NotNull(actual2);
-            Assert.NotEqual(actual2, actual1);
+            Assert.NotSame(actual2, actual1);
         }
     }
 }

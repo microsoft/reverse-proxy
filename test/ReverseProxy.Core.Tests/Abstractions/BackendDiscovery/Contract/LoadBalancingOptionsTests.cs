@@ -25,7 +25,7 @@ namespace Microsoft.ReverseProxy.Core.Abstractions.Tests
             var clone = sut.DeepClone();
 
             // Assert
-            Assert.NotEqual(sut, clone);
+            Assert.NotSame(sut, clone);
         }
     }
 }

@@ -62,13 +62,13 @@ namespace Microsoft.ReverseProxy.Core.Service.Management.Tests
             // Assert
             Assert.NotNull(item1);
             Assert.NotNull(item2);
-            Assert.NotEqual(item2, item1);
+            Assert.NotSame(item2, item1);
 
             Assert.NotNull(actual1);
-            Assert.Equal(item1, actual1);
+            Assert.Same(item1, actual1);
 
             Assert.NotNull(actual2);
-            Assert.Equal(item2, actual2);
+            Assert.Same(item2, actual2);
 
             Assert.Null(actual3);
         }
@@ -119,7 +119,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Management.Tests
             Assert.NotNull(item1);
             Assert.Equal("abc", item1.ItemId);
             Assert.Equal(2, item1.Value);
-            Assert.Equal(item2, item1);
+            Assert.Same(item2, item1);
         }
 
         [Fact]
@@ -214,7 +214,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Management.Tests
 
             // Assert
             Assert.Single(items);
-            Assert.Equal(item, items[0]);
+            Assert.Same(item, items[0]);
         }
 
         [Fact]

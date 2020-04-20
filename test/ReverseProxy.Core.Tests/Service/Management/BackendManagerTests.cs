@@ -40,8 +40,8 @@ namespace Microsoft.ReverseProxy.Core.Service.Management.Tests
             // Assert
             Assert.NotNull(item);
             Assert.Equal("abc", item.BackendId);
-            Assert.Equal(endpointManager, item.EndpointManager);
-            Assert.Equal(proxyHttpClientFactory, item.ProxyHttpClientFactory);
+            Assert.Same(endpointManager, item.EndpointManager);
+            Assert.Same(proxyHttpClientFactory, item.ProxyHttpClientFactory);
         }
     }
 }

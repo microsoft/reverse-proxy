@@ -82,8 +82,8 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             Assert.Equal(1, signaled1);
             Assert.Equal(1, signaled2);
 
-            Assert.Equal(newEndpoints1, readEndpoints1);
-            Assert.Equal(newEndpoints2, readEndpoints2);
+            Assert.Same(newEndpoints1, readEndpoints1);
+            Assert.Same(newEndpoints2, readEndpoints2);
         }
     }
 }

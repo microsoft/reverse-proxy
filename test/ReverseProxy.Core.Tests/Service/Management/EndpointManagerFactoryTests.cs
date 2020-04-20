@@ -26,7 +26,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Management.Tests
             // Assert
             Assert.NotNull(manager1);
             Assert.NotNull(manager2);
-            Assert.NotEqual(manager2, manager1);
+            Assert.NotSame(manager2, manager1);
         }
     }
 }

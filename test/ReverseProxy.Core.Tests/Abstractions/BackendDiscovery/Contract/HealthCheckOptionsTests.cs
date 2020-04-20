@@ -31,7 +31,7 @@ namespace Microsoft.ReverseProxy.Core.Abstractions.Tests
             var clone = sut.DeepClone();
 
             // Assert
-            Assert.NotEqual(sut, clone);
+            Assert.NotSame(sut, clone);
             Assert.Equal(sut.Enabled, clone.Enabled);
             Assert.Equal(sut.Interval, clone.Interval);
             Assert.Equal(sut.Timeout, clone.Timeout);

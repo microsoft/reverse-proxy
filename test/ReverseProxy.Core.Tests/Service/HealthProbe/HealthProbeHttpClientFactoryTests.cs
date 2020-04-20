@@ -22,7 +22,7 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
             // Validation
             Assert.NotNull(httpClient1);
             Assert.NotNull(httpClient2);
-            Assert.NotEqual(httpClient2, httpClient1);
+            Assert.NotSame(httpClient2, httpClient1);
             Assert.IsType<HttpClient>(httpClient1);
         }
     }

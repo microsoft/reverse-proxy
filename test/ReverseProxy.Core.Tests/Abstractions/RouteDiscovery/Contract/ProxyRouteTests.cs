@@ -39,17 +39,17 @@ namespace Microsoft.ReverseProxy.Core.Abstractions.Tests
             var clone = sut.DeepClone();
 
             // Assert
-            Assert.NotEqual(sut, clone);
+            Assert.NotSame(sut, clone);
             Assert.Equal(sut.RouteId, clone.RouteId);
-            Assert.NotEqual(sut.Match, clone.Match);
-            Assert.NotStrictEqual(sut.Match.Methods, clone.Match.Methods);
+            Assert.NotSame(sut.Match, clone.Match);
+            Assert.NotSame(sut.Match.Methods, clone.Match.Methods);
             Assert.Equal(sut.Match.Methods, clone.Match.Methods);
             Assert.Equal(sut.Match.Host, clone.Match.Host);
             Assert.Equal(sut.Match.Path, clone.Match.Path);
             Assert.Equal(sut.Priority, clone.Priority);
             Assert.Equal(sut.BackendId, clone.BackendId);
             Assert.NotNull(clone.Metadata);
-            Assert.NotStrictEqual(sut.Metadata, clone.Metadata);
+            Assert.NotSame(sut.Metadata, clone.Metadata);
             Assert.Equal("value", clone.Metadata["key"]);
         }
 
@@ -63,7 +63,7 @@ namespace Microsoft.ReverseProxy.Core.Abstractions.Tests
             var clone = sut.DeepClone();
 
             // Assert
-            Assert.NotEqual(sut, clone);
+            Assert.NotSame(sut, clone);
             Assert.Null(clone.RouteId);
             Assert.Null(clone.Match.Methods);
             Assert.Null(clone.Match.Host);

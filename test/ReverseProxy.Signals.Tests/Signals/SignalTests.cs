@@ -33,7 +33,7 @@ namespace Microsoft.ReverseProxy.Signals.Tests
         {
             // Act & Assert
             var signal = _factory.CreateUnitSignal();
-            Assert.Equal(Unit.Instance, signal.Value);
+            Assert.Same(Unit.Instance, signal.Value);
         }
 
         [Fact]
@@ -45,7 +45,7 @@ namespace Microsoft.ReverseProxy.Signals.Tests
 
             var item = new Item();
             signal.Value = item;
-            Assert.Equal(item, signal.Value);
+            Assert.Same(item, signal.Value);
 
             signal.Value = null;
             Assert.Null(signal.Value);
@@ -76,11 +76,11 @@ namespace Microsoft.ReverseProxy.Signals.Tests
 
             // Get a new snapshot after we changed the value
             var snapshot2 = signal.GetSnapshot();
-            Assert.Equal(item1, snapshot2.Value);
+            Assert.Same(item1, snapshot2.Value);
 
             // Get another snapshot without changing the value
             var snapshot2b = signal.GetSnapshot();
-            Assert.Equal(snapshot2, snapshot2b);
+            Assert.Same(snapshot2, snapshot2b);
 
             var count2a = 0;
             var count2b = 0;
@@ -96,7 +96,7 @@ namespace Microsoft.ReverseProxy.Signals.Tests
 
             var snapshot3 = signal.GetSnapshot();
             Assert.NotEqual(snapshot2, snapshot3);
-            Assert.Equal(item1, snapshot3.Value);
+            Assert.Same(item1, snapshot3.Value);
 
             // Should not notify previous subscribers again
             Assert.Equal(1, count1);

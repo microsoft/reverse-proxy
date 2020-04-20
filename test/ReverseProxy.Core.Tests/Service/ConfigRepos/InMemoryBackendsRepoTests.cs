@@ -105,8 +105,8 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
 
             // Assert
             Assert.Single(result);
-            Assert.NotEqual(backends, result);
-            Assert.NotEqual(backends["backend1"].CircuitBreakerOptions, result["backend1"].CircuitBreakerOptions);
+            Assert.NotSame(backends, result);
+            Assert.NotSame(backends["backend1"].CircuitBreakerOptions, result["backend1"].CircuitBreakerOptions);
             Assert.Equal(10, result["backend1"].CircuitBreakerOptions.MaxConcurrentRequests);
         }
 
@@ -132,8 +132,8 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
 
             // Assert
             Assert.Single(result2);
-            Assert.NotEqual(result1, result2);
-            Assert.NotEqual(backends, result2);
+            Assert.NotSame(result1, result2);
+            Assert.NotSame(backends, result2);
             Assert.Equal(10, result2["backend1"].CircuitBreakerOptions.MaxConcurrentRequests);
         }
     }

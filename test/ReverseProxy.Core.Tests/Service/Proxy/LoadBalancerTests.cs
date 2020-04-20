@@ -42,7 +42,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
             var result = loadBalancer.PickEndpoint(endpoints, endpoints, in options);
 
             // Assert
-            Assert.Equal(endpoints[0], result);
+            Assert.Same(endpoints[0], result);
         }
 
         [Fact]

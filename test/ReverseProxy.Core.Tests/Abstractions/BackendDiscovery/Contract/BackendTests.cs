@@ -35,17 +35,17 @@ namespace Microsoft.ReverseProxy.Core.Abstractions.Tests
             var clone = backend.DeepClone();
 
             // Assert
-            Assert.NotEqual(backend, clone);
+            Assert.NotSame(backend, clone);
             Assert.NotNull(clone.CircuitBreakerOptions);
-            Assert.NotEqual(backend.CircuitBreakerOptions, clone.CircuitBreakerOptions);
+            Assert.NotSame(backend.CircuitBreakerOptions, clone.CircuitBreakerOptions);
             Assert.NotNull(clone.QuotaOptions);
-            Assert.NotEqual(backend.QuotaOptions, clone.QuotaOptions);
+            Assert.NotSame(backend.QuotaOptions, clone.QuotaOptions);
             Assert.NotNull(clone.PartitioningOptions);
-            Assert.NotEqual(backend.PartitioningOptions, clone.PartitioningOptions);
+            Assert.NotSame(backend.PartitioningOptions, clone.PartitioningOptions);
             Assert.NotNull(clone.LoadBalancingOptions);
-            Assert.NotEqual(backend.LoadBalancingOptions, clone.LoadBalancingOptions);
+            Assert.NotSame(backend.LoadBalancingOptions, clone.LoadBalancingOptions);
             Assert.NotNull(clone.HealthCheckOptions);
-            Assert.NotEqual(backend.HealthCheckOptions, clone.HealthCheckOptions);
+            Assert.NotSame(backend.HealthCheckOptions, clone.HealthCheckOptions);
             Assert.NotNull(clone.Metadata);
             Assert.NotStrictEqual(backend.Metadata, clone.Metadata);
             Assert.Equal("value", clone.Metadata["key"]);
@@ -61,7 +61,7 @@ namespace Microsoft.ReverseProxy.Core.Abstractions.Tests
             var clone = backend.DeepClone();
 
             // Assert
-            Assert.NotEqual(backend, clone);
+            Assert.NotSame(backend, clone);
             Assert.Null(clone.CircuitBreakerOptions);
             Assert.Null(clone.QuotaOptions);
             Assert.Null(clone.PartitioningOptions);

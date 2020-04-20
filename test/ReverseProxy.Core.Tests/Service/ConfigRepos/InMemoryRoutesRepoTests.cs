@@ -105,7 +105,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
 
             // Assert
             Assert.Single(result);
-            Assert.NotEqual(routes, result);
+            Assert.NotSame(routes, result);
             Assert.Equal("route1", result[0].RouteId);
         }
 
@@ -131,8 +131,8 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
 
             // Assert
             Assert.Single(result2);
-            Assert.NotEqual(result1, result2);
-            Assert.NotEqual(routes, result2);
+            Assert.NotSame(result1, result2);
+            Assert.NotSame(routes, result2);
             Assert.Equal("route1", result2[0].RouteId);
         }
     }

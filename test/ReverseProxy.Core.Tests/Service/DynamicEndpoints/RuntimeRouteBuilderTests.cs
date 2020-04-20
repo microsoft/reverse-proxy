@@ -39,13 +39,13 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             var config = builder.Build(parsedRoute, backend, routeInfo);
 
             // Assert
-            Assert.Equal(backend, config.BackendOrNull);
+            Assert.Same(backend, config.BackendOrNull);
             Assert.Equal(12, config.Priority);
             Assert.Equal(parsedRoute.GetMatcherSummary(), config.MatcherSummary);
             Assert.Single(config.AspNetCoreEndpoints);
             var routeEndpoint = config.AspNetCoreEndpoints[0] as AspNetCore.Routing.RouteEndpoint;
             Assert.Equal("route1", routeEndpoint.DisplayName);
-            Assert.Equal(config, routeEndpoint.Metadata.GetMetadata<RouteConfig>());
+            Assert.Same(config, routeEndpoint.Metadata.GetMetadata<RouteConfig>());
             Assert.Equal("/a", routeEndpoint.RoutePattern.RawText);
 
             var hostMetadata = routeEndpoint.Metadata.GetMetadata<AspNetCore.Routing.HostAttribute>();
@@ -72,13 +72,13 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             var config = builder.Build(parsedRoute, backend, routeInfo);
 
             // Assert
-            Assert.Equal(backend, config.BackendOrNull);
+            Assert.Same(backend, config.BackendOrNull);
             Assert.Equal(12, config.Priority);
             Assert.Equal(parsedRoute.GetMatcherSummary(), config.MatcherSummary);
             Assert.Single(config.AspNetCoreEndpoints);
             var routeEndpoint = config.AspNetCoreEndpoints[0] as AspNetCore.Routing.RouteEndpoint;
             Assert.Equal("route1", routeEndpoint.DisplayName);
-            Assert.Equal(config, routeEndpoint.Metadata.GetMetadata<RouteConfig>());
+            Assert.Same(config, routeEndpoint.Metadata.GetMetadata<RouteConfig>());
             Assert.Equal("/{**catchall}", routeEndpoint.RoutePattern.RawText);
 
             var hostMetadata = routeEndpoint.Metadata.GetMetadata<AspNetCore.Routing.HostAttribute>();
@@ -105,13 +105,13 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             var config = builder.Build(parsedRoute, backend, routeInfo);
 
             // Assert
-            Assert.Equal(backend, config.BackendOrNull);
+            Assert.Same(backend, config.BackendOrNull);
             Assert.Equal(12, config.Priority);
             Assert.Equal(parsedRoute.GetMatcherSummary(), config.MatcherSummary);
             Assert.Single(config.AspNetCoreEndpoints);
             var routeEndpoint = config.AspNetCoreEndpoints[0] as AspNetCore.Routing.RouteEndpoint;
             Assert.Equal("route1", routeEndpoint.DisplayName);
-            Assert.Equal(config, routeEndpoint.Metadata.GetMetadata<RouteConfig>());
+            Assert.Same(config, routeEndpoint.Metadata.GetMetadata<RouteConfig>());
             Assert.Equal("/{**catchall}", routeEndpoint.RoutePattern.RawText);
 
             var hostMetadata = routeEndpoint.Metadata.GetMetadata<AspNetCore.Routing.HostAttribute>();
@@ -138,13 +138,13 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             var config = builder.Build(parsedRoute, backend, routeInfo);
 
             // Assert
-            Assert.Equal(backend, config.BackendOrNull);
+            Assert.Same(backend, config.BackendOrNull);
             Assert.Equal(12, config.Priority);
             Assert.Equal(parsedRoute.GetMatcherSummary(), config.MatcherSummary);
             Assert.Single(config.AspNetCoreEndpoints);
             var routeEndpoint = config.AspNetCoreEndpoints[0] as AspNetCore.Routing.RouteEndpoint;
             Assert.Equal("route1", routeEndpoint.DisplayName);
-            Assert.Equal(config, routeEndpoint.Metadata.GetMetadata<RouteConfig>());
+            Assert.Same(config, routeEndpoint.Metadata.GetMetadata<RouteConfig>());
             Assert.Equal("/a", routeEndpoint.RoutePattern.RawText);
 
             var hostMetadata = routeEndpoint.Metadata.GetMetadata<AspNetCore.Routing.HostAttribute>();
@@ -168,13 +168,13 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             var config = builder.Build(parsedRoute, backend, routeInfo);
 
             // Assert
-            Assert.Equal(backend, config.BackendOrNull);
+            Assert.Same(backend, config.BackendOrNull);
             Assert.Equal(12, config.Priority);
             Assert.Empty(config.MatcherSummary);
             Assert.Single(config.AspNetCoreEndpoints);
             var routeEndpoint = config.AspNetCoreEndpoints[0] as AspNetCore.Routing.RouteEndpoint;
             Assert.Equal("route1", routeEndpoint.DisplayName);
-            Assert.Equal(config, routeEndpoint.Metadata.GetMetadata<RouteConfig>());
+            Assert.Same(config, routeEndpoint.Metadata.GetMetadata<RouteConfig>());
             Assert.Equal("/{**catchall}", routeEndpoint.RoutePattern.RawText);
 
             var hostMetadata = routeEndpoint.Metadata.GetMetadata<AspNetCore.Routing.HostAttribute>();

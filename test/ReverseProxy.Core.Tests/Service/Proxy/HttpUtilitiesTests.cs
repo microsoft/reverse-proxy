@@ -12,49 +12,49 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
         [Fact]
         public void GetHttpMethod_Get_Works()
         {
-            Assert.Equal(HttpMethod.Get, HttpUtilities.GetHttpMethod("GET"));
+            Assert.Same(HttpMethod.Get, HttpUtilities.GetHttpMethod("GET"));
         }
 
         [Fact]
         public void GetHttpMethod_Post_Works()
         {
-            Assert.Equal(HttpMethod.Post, HttpUtilities.GetHttpMethod("POST"));
+            Assert.Same(HttpMethod.Post, HttpUtilities.GetHttpMethod("POST"));
         }
 
         [Fact]
         public void GetHttpMethod_Put_Works()
         {
-            Assert.Equal(HttpMethod.Put, HttpUtilities.GetHttpMethod("PUT"));
+            Assert.Same(HttpMethod.Put, HttpUtilities.GetHttpMethod("PUT"));
         }
 
         [Fact]
         public void GetHttpMethod_Delete_Works()
         {
-            Assert.Equal(HttpMethod.Delete, HttpUtilities.GetHttpMethod("DELETE"));
+            Assert.Same(HttpMethod.Delete, HttpUtilities.GetHttpMethod("DELETE"));
         }
 
         [Fact]
         public void GetHttpMethod_Options_Works()
         {
-            Assert.Equal(HttpMethod.Options, HttpUtilities.GetHttpMethod("OPTIONS"));
+            Assert.Same(HttpMethod.Options, HttpUtilities.GetHttpMethod("OPTIONS"));
         }
 
         [Fact]
         public void GetHttpMethod_Head_Works()
         {
-            Assert.Equal(HttpMethod.Head, HttpUtilities.GetHttpMethod("HEAD"));
+            Assert.Same(HttpMethod.Head, HttpUtilities.GetHttpMethod("HEAD"));
         }
 
         [Fact]
         public void GetHttpMethod_Patch_Works()
         {
-            Assert.Equal(HttpMethod.Patch, HttpUtilities.GetHttpMethod("PATCH"));
+            Assert.Same(HttpMethod.Patch, HttpUtilities.GetHttpMethod("PATCH"));
         }
 
         [Fact]
         public void GetHttpMethod_Trace_Works()
         {
-            Assert.Equal(HttpMethod.Trace, HttpUtilities.GetHttpMethod("TRACE"));
+            Assert.Same(HttpMethod.Trace, HttpUtilities.GetHttpMethod("TRACE"));
         }
 
         [Theory]

@@ -91,7 +91,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Management.Tests
             Assert.Single(actualRoutes);
             Assert.Equal("route1", actualRoutes[0].RouteId);
             Assert.NotNull(actualRoutes[0].Config.Value);
-            Assert.Equal(actualBackends[0], actualRoutes[0].Config.Value.BackendOrNull);
+            Assert.Same(actualBackends[0], actualRoutes[0].Config.Value.BackendOrNull);
         }
     }
 }

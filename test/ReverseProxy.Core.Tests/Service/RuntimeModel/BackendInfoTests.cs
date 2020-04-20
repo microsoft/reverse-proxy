@@ -77,7 +77,7 @@ namespace Microsoft.ReverseProxy.Core.RuntimeModel.Tests
             Assert.Empty(state1.AllEndpoints);
 
             backend.Config.Value = new BackendConfig(healthCheckOptions: default, loadBalancingOptions: default);
-            Assert.NotEqual(state1, backend.DynamicState.Value);
+            Assert.NotSame(state1, backend.DynamicState.Value);
             Assert.Empty(backend.DynamicState.Value.AllEndpoints);
         }
 
@@ -94,12 +94,12 @@ namespace Microsoft.ReverseProxy.Core.RuntimeModel.Tests
             Assert.Empty(state1.AllEndpoints);
 
             var endpoint = backend.EndpointManager.GetOrCreateItem("ep1", endpoint => { });
-            Assert.NotEqual(state1, backend.DynamicState.Value);
+            Assert.NotSame(state1, backend.DynamicState.Value);
             var state2 = backend.DynamicState.Value;
             Assert.Contains(endpoint, state2.AllEndpoints);
 
             backend.EndpointManager.TryRemoveItem("ep1");
-            Assert.NotEqual(state2, backend.DynamicState.Value);
+            Assert.NotSame(state2, backend.DynamicState.Value);
             var state3 = backend.DynamicState.Value;
             Assert.Empty(state3.AllEndpoints);
         }
@@ -117,18 +117,18 @@ namespace Microsoft.ReverseProxy.Core.RuntimeModel.Tests
             Assert.Empty(state1.AllEndpoints);
 
             var endpoint = backend.EndpointManager.GetOrCreateItem("ep1", endpoint => { });
-            Assert.NotEqual(state1, backend.DynamicState.Value);
+            Assert.NotSame(state1, backend.DynamicState.Value);
             var state2 = backend.DynamicState.Value;
 
             endpoint.DynamicState.Value = new EndpointDynamicState(EndpointHealth.Unhealthy);
-            Assert.NotEqual(state2, backend.DynamicState.Value);
+            Assert.NotSame(state2, backend.DynamicState.Value);
             var state3 = backend.DynamicState.Value;
 
             Assert.Contains(endpoint, state3.AllEndpoints);
             Assert.Empty(state3.HealthyEndpoints);
 
             endpoint.DynamicState.Value = new EndpointDynamicState(EndpointHealth.Healthy);
-            Assert.NotEqual(state3, backend.DynamicState.Value);
+            Assert.NotSame(state3, backend.DynamicState.Value);
             var state4 = backend.DynamicState.Value;
 
             Assert.Contains(endpoint, state4.AllEndpoints);

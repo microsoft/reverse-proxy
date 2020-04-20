@@ -31,10 +31,10 @@ namespace Microsoft.ReverseProxy.Core.Abstractions.Tests
             var clone = sut.DeepClone();
 
             // Assert
-            Assert.NotEqual(sut, clone);
+            Assert.NotSame(sut, clone);
             Assert.Equal(sut.Address, clone.Address);
             Assert.NotNull(clone.Metadata);
-            Assert.NotStrictEqual(sut.Metadata, clone.Metadata);
+            Assert.NotSame(sut.Metadata, clone.Metadata);
             Assert.Equal("value", clone.Metadata["key"]);
         }
 
@@ -48,7 +48,7 @@ namespace Microsoft.ReverseProxy.Core.Abstractions.Tests
             var clone = sut.DeepClone();
 
             // Assert
-            Assert.NotEqual(sut, clone);
+            Assert.NotSame(sut, clone);
             Assert.Null(clone.Address);
             Assert.Null(clone.Metadata);
         }

@@ -27,7 +27,7 @@ namespace Microsoft.ReverseProxy.Core.Abstractions.Tests
             var clone = sut.DeepClone();
 
             // Assert
-            Assert.NotEqual(sut, clone);
+            Assert.NotSame(sut, clone);
             Assert.Equal(sut.MaxConcurrentRequests, clone.MaxConcurrentRequests);
             Assert.Equal(sut.MaxConcurrentRetries, clone.MaxConcurrentRetries);
         }
