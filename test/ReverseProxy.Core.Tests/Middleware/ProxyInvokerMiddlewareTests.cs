@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Patterns;
@@ -93,8 +92,8 @@ namespace Microsoft.ReverseProxy.Core.Middleware.Tests
             var sut = Create<ProxyInvokerMiddleware>();
 
             // Act
-            backend1.ConcurrencyCounter.Value.Should().Be(0);
-            endpoint1.ConcurrencyCounter.Value.Should().Be(0);
+            Assert.Equal(0, backend1.ConcurrencyCounter.Value);
+            Assert.Equal(0, endpoint1.ConcurrencyCounter.Value);
 
             var task = sut.Invoke(httpContext);
             if (task.IsFaulted)
@@ -103,13 +102,13 @@ namespace Microsoft.ReverseProxy.Core.Middleware.Tests
                 await task;
             }
             await tcs1.Task; // Wait until we get to the proxying step.
-            backend1.ConcurrencyCounter.Value.Should().Be(1);
-            endpoint1.ConcurrencyCounter.Value.Should().Be(1);
+            Assert.Equal(1, backend1.ConcurrencyCounter.Value);
+            Assert.Equal(1, endpoint1.ConcurrencyCounter.Value);
 
             tcs2.TrySetResult(true);
             await task;
-            backend1.ConcurrencyCounter.Value.Should().Be(0);
-            endpoint1.ConcurrencyCounter.Value.Should().Be(0);
+            Assert.Equal(0, backend1.ConcurrencyCounter.Value);
+            Assert.Equal(0, endpoint1.ConcurrencyCounter.Value);
 
             // Assert
             Mock<IHttpProxy>().Verify();
