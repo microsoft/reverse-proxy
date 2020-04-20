@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using FluentAssertions;
 using Microsoft.ReverseProxy.Common.Abstractions.Telemetry;
 using Tests.Common;
 using Xunit;
@@ -33,7 +32,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Metrics.Tests
             metrics.StreamCopyBytes(123, "upstream", "be1", "rt1", "ep1", "prot");
 
             // Assert
-            _metricCreator.MetricsLogged.Should().BeEquivalentTo("StreamCopyBytes=123;direction=upstream;backendId=be1;routeId=rt1;endpointId=ep1;protocol=prot");
+            Assert.Contains("StreamCopyBytes=123;direction=upstream;backendId=be1;routeId=rt1;endpointId=ep1;protocol=prot", _metricCreator.MetricsLogged);
         }
 
         [Fact]
@@ -46,7 +45,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Metrics.Tests
             metrics.StreamCopyIops(123, "upstream", "be1", "rt1", "ep1", "prot");
 
             // Assert
-            _metricCreator.MetricsLogged.Should().BeEquivalentTo("StreamCopyIops=123;direction=upstream;backendId=be1;routeId=rt1;endpointId=ep1;protocol=prot");
+            Assert.Contains("StreamCopyIops=123;direction=upstream;backendId=be1;routeId=rt1;endpointId=ep1;protocol=prot", _metricCreator.MetricsLogged);
         }
     }
 }

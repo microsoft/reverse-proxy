@@ -1,9 +1,8 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
 using System.Threading.Tasks;
-using FluentAssertions;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Signals.Tests
@@ -21,16 +20,16 @@ namespace Microsoft.ReverseProxy.Signals.Tests
             var derived = signal.Select(item => item?.Id ?? -1);
 
             // Act & Assert
-            derived.Value.Should().Be(-1);
+            Assert.Equal(-1, derived.Value);
 
             signal.Value = new Item(1);
-            derived.Value.Should().Be(1);
+            Assert.Equal(1, derived.Value);
 
             signal.Value = new Item(7);
-            derived.Value.Should().Be(7);
+            Assert.Equal(7, derived.Value);
 
             signal.Value = null;
-            derived.Value.Should().Be(-1);
+            Assert.Equal(-1, derived.Value);
         }
 
         [Fact]
@@ -45,22 +44,22 @@ namespace Microsoft.ReverseProxy.Signals.Tests
             // Act
             var x = selector.Flatten();
 
-            x.Value.Should().Be(0);
+            Assert.Equal(0, x.Value);
 
             a.Value = 1;
-            x.Value.Should().Be(1);
+            Assert.Equal(1, x.Value);
 
             selector.Value = b;
-            x.Value.Should().Be(2);
+            Assert.Equal(2, x.Value);
             var notified = false;
             x.GetSnapshot().OnChange(() => notified = true);
 
             a.Value = 3;
-            x.Value.Should().Be(2);
-            notified.Should().BeFalse();
+            Assert.Equal(2, x.Value);
+            Assert.False(notified);
 
             selector.Value = null;
-            x.Value.Should().Be(default);
+            Assert.Equal(0, x.Value);
         }
 
         [Fact]
@@ -74,8 +73,7 @@ namespace Microsoft.ReverseProxy.Signals.Tests
             Action action = () => signal2.Flatten();
 
             // Assert
-            action.Should().ThrowExactly<InvalidOperationException>()
-                .WithMessage("*Cannot mix signals*");
+            Assert.Throws<InvalidOperationException>(action);
         }
 
         [Fact]
@@ -87,16 +85,16 @@ namespace Microsoft.ReverseProxy.Signals.Tests
             var x = a.SelectMany(a_ => b.Select(b_ => (aVal: a_, bVal: b_)));
 
             // Act & Assert
-            x.Value.aVal.Should().Be(1);
-            x.Value.bVal.Should().Be(2);
+            Assert.Equal(1, x.Value.aVal);
+            Assert.Equal(2, x.Value.bVal);
 
             a.Value = 3;
-            x.Value.aVal.Should().Be(3);
-            x.Value.bVal.Should().Be(2);
+            Assert.Equal(3, x.Value.aVal);
+            Assert.Equal(2, x.Value.bVal);
 
             b.Value = 4;
-            x.Value.aVal.Should().Be(3);
-            x.Value.bVal.Should().Be(4);
+            Assert.Equal(3, x.Value.aVal);
+            Assert.Equal(4, x.Value.bVal);
         }
 
         [Fact]
@@ -110,10 +108,10 @@ namespace Microsoft.ReverseProxy.Signals.Tests
             var derived = dropped.Select(_ => source.Value);
 
             // Act
-            derived.Value.Should().Be(7);
+            Assert.Equal(7, derived.Value);
 
             source.Value = 3;
-            derived.Value.Should().Be(3);
+            Assert.Equal(3, derived.Value);
         }
 
         [Fact]
@@ -127,19 +125,19 @@ namespace Microsoft.ReverseProxy.Signals.Tests
             var derived = new[] { a, b, c }.AnyChange();
 
             // Act
-            derived.Value.Should().Be(1);
+            Assert.Equal(1, derived.Value);
 
             a.Value = 2;
-            derived.Value.Should().Be(2);
+            Assert.Equal(2, derived.Value);
 
             b.Value = 5;
-            derived.Value.Should().Be(5);
+            Assert.Equal(5, derived.Value);
 
             c.Value = 4;
-            derived.Value.Should().Be(4);
+            Assert.Equal(4, derived.Value);
 
             a.Value = 9;
-            derived.Value.Should().Be(9);
+            Assert.Equal(9, derived.Value);
         }
 
         [Fact]
@@ -149,7 +147,7 @@ namespace Microsoft.ReverseProxy.Signals.Tests
             var signal = new IReadableSignal<Unit>[0].AnyChange();
 
             // Assert
-            signal.Should().BeNull();
+            Assert.Null(signal);
         }
 
         [Fact]
@@ -163,8 +161,7 @@ namespace Microsoft.ReverseProxy.Signals.Tests
             Action action = () => new[] { signal1, signal2 }.AnyChange();
 
             // Assert
-            action.Should().ThrowExactly<InvalidOperationException>()
-                .WithMessage("*Cannot mix signals*");
+            Assert.Throws<InvalidOperationException>(action);
         }
 
         [Fact]
@@ -198,7 +195,7 @@ namespace Microsoft.ReverseProxy.Signals.Tests
                 }
             });
 
-            count.Should().Be(Iterations + 1);
+            Assert.Equal(Iterations + 1, count);
         }
 
         private class Item

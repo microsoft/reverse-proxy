@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentAssertions" Version="5.10.0" />
     <PackageReference Include="coverlet.collector" Version="1.0.1" />
   </ItemGroup>
 

@@ -1,9 +1,8 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Signals.Tests
@@ -26,7 +25,7 @@ namespace Microsoft.ReverseProxy.Signals.Tests
         {
             // Act & Assert
             var signal = _factory.CreateSignal(3);
-            signal.Value.Should().Be(3);
+            Assert.Equal(3, signal.Value);
         }
 
         [Fact]
@@ -34,7 +33,7 @@ namespace Microsoft.ReverseProxy.Signals.Tests
         {
             // Act & Assert
             var signal = _factory.CreateUnitSignal();
-            signal.Value.Should().BeSameAs(Unit.Instance);
+            Assert.Same(Unit.Instance, signal.Value);
         }
 
         [Fact]
@@ -42,14 +41,14 @@ namespace Microsoft.ReverseProxy.Signals.Tests
         {
             // Act & Assert
             var signal = _factory.CreateSignal<Item>();
-            signal.Value.Should().BeNull();
+            Assert.Null(signal.Value);
 
             var item = new Item();
             signal.Value = item;
-            signal.Value.Should().BeSameAs(item);
+            Assert.Same(item, signal.Value);
 
             signal.Value = null;
-            signal.Value.Should().BeNull();
+            Assert.Null(signal.Value);
         }
 
         [Fact]
@@ -61,48 +60,48 @@ namespace Microsoft.ReverseProxy.Signals.Tests
             // Act & Assert
             var count1 = 0;
             var snapshot1 = signal.GetSnapshot();
-            snapshot1.Value.Should().BeNull();
+            Assert.Null(snapshot1.Value);
             snapshot1.OnChange(() => count1++);
-            count1.Should().Be(0);
+            Assert.Equal(0, count1);
 
             // Change it once
             var item1 = new Item();
             signal.Value = item1;
 
-            count1.Should().Be(1);
+            Assert.Equal(1, count1);
 
             var count1_latesubscription = 0;
             snapshot1.OnChange(() => count1_latesubscription++);
-            count1_latesubscription.Should().Be(1);
+            Assert.Equal(1, count1_latesubscription);
 
             // Get a new snapshot after we changed the value
             var snapshot2 = signal.GetSnapshot();
-            snapshot2.Value.Should().BeSameAs(item1);
+            Assert.Same(item1, snapshot2.Value);
 
             // Get another snapshot without changing the value
             var snapshot2b = signal.GetSnapshot();
-            snapshot2b.Should().BeSameAs(snapshot2);
+            Assert.Same(snapshot2, snapshot2b);
 
             var count2a = 0;
             var count2b = 0;
             snapshot2.OnChange(() => count2a++);
             snapshot2.OnChange(() => count2b++);
-            count2a.Should().Be(0);
-            count2b.Should().Be(0);
+            Assert.Equal(0, count2a);
+            Assert.Equal(0, count2b);
 
             // Setting a new value, even if same as old value, should still trigger notifications
             signal.Value = item1;
-            count2a.Should().Be(1);
-            count2b.Should().Be(1);
+            Assert.Equal(1, count2a);
+            Assert.Equal(1, count2b);
 
             var snapshot3 = signal.GetSnapshot();
-            snapshot3.Should().NotBeSameAs(snapshot2);
-            snapshot3.Value.Should().BeSameAs(item1);
+            Assert.NotEqual(snapshot2, snapshot3);
+            Assert.Same(item1, snapshot3.Value);
 
             // Should not notify previous subscribers again
-            count1.Should().Be(1);
-            count2a.Should().Be(1);
-            count2b.Should().Be(1);
+            Assert.Equal(1, count1);
+            Assert.Equal(1, count2a);
+            Assert.Equal(1, count2b);
         }
 
         [Fact]
@@ -120,7 +119,7 @@ namespace Microsoft.ReverseProxy.Signals.Tests
             signal.Select(item =>
             {
                 var concurrency = Interlocked.Increment(ref concurrencyCounter);
-                concurrency.Should().Be(1);
+                Assert.Equal(1, concurrency);
                 Interlocked.Increment(ref count);
                 Interlocked.Decrement(ref concurrencyCounter);
                 return (object)null;
@@ -131,7 +130,7 @@ namespace Microsoft.ReverseProxy.Signals.Tests
                 signal.Value = new Item();
             });
 
-            count.Should().Be(Iterations);
+            Assert.Equal(Iterations, count);
         }
 
         private class Item

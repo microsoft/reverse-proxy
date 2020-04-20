@@ -8,7 +8,6 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.ReverseProxy.Common.Abstractions.Telemetry;
@@ -59,13 +58,13 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
                 {
                     await Task.Yield();
 
-                    request.Version.Should().BeEquivalentTo(new Version(2, 0));
-                    request.Method.Should().Be(HttpMethod.Post);
-                    request.RequestUri.Should().Be(targetUri);
-                    request.Headers.GetValues("x-ms-request-test").Should().BeEquivalentTo("request");
+                    Assert.Equal(new Version(2, 0), request.Version);
+                    Assert.Equal(HttpMethod.Post, request.Method);
+                    Assert.Equal(targetUri, request.RequestUri);
+                    Assert.Contains("request", request.Headers.GetValues("x-ms-request-test"));
 
-                    request.Content.Should().NotBeNull();
-                    request.Content.Headers.GetValues("Content-Language").Should().BeEquivalentTo("requestLanguage");
+                    Assert.NotNull(request.Content);
+                    Assert.Contains("requestLanguage", request.Content.Headers.GetValues("Content-Language"));
 
                     var capturedRequestContent = new MemoryStream();
 
@@ -73,7 +72,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
                     await request.Content.CopyToAsync(capturedRequestContent);
                     capturedRequestContent.Position = 0;
                     var capturedContentText = StreamToString(capturedRequestContent);
-                    capturedContentText.Should().Be("request content");
+                    Assert.Equal("request content", capturedContentText);
 
                     var response = new HttpResponseMessage((HttpStatusCode)234);
                     response.ReasonPhrase = "Test Reason Phrase";
@@ -94,15 +93,15 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
             await sut.ProxyAsync(httpContext, targetUri, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
 
             // Assert
-            httpContext.Response.StatusCode.Should().Be(234);
+            Assert.Equal(234, httpContext.Response.StatusCode);
             var reasonPhrase = httpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase;
-            reasonPhrase.Should().Be("Test Reason Phrase");
-            httpContext.Response.Headers["x-ms-response-test"].Should().BeEquivalentTo("response");
-            httpContext.Response.Headers["Content-Language"].Should().BeEquivalentTo("responseLanguage");
+            Assert.Equal("Test Reason Phrase", reasonPhrase);
+            Assert.Contains("response", httpContext.Response.Headers["x-ms-response-test"].ToArray());
+            Assert.Contains("responseLanguage", httpContext.Response.Headers["Content-Language"].ToArray());
 
             proxyResponseStream.Position = 0;
             var proxyResponseText = StreamToString(proxyResponseStream);
-            proxyResponseText.Should().Be("response content");
+            Assert.Equal("response content", proxyResponseText);
         }
 
         // Tests proxying an upgradable request.
@@ -136,12 +135,12 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
                 {
                     await Task.Yield();
 
-                    request.Version.Should().BeEquivalentTo(new Version(1, 1));
-                    request.Method.Should().Be(HttpMethod.Get);
-                    request.RequestUri.Should().Be(targetUri);
-                    request.Headers.GetValues("x-ms-request-test").Should().BeEquivalentTo("request");
+                    Assert.Equal(new Version(1, 1), request.Version);
+                    Assert.Equal(HttpMethod.Get, request.Method);
+                    Assert.Equal(targetUri, request.RequestUri);
+                    Assert.Contains("request", request.Headers.GetValues("x-ms-request-test"));
 
-                    request.Content.Should().BeNull();
+                    Assert.Null(request.Content);
 
                     var response = new HttpResponseMessage(HttpStatusCode.SwitchingProtocols);
                     response.Headers.TryAddWithoutValidation("x-ms-response-test", "response");
@@ -163,17 +162,17 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
             await sut.ProxyAsync(httpContext, targetUri, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
 
             // Assert
-            httpContext.Response.StatusCode.Should().Be(StatusCodes.Status101SwitchingProtocols);
-            httpContext.Response.Headers["x-ms-response-test"].Should().BeEquivalentTo("response");
+            Assert.Equal(StatusCodes.Status101SwitchingProtocols, httpContext.Response.StatusCode);
+            Assert.Contains("response", httpContext.Response.Headers["x-ms-response-test"].ToArray());
 
             downstreamStream.WriteStream.Position = 0;
             var returnedToDownstream = StreamToString(downstreamStream.WriteStream);
-            returnedToDownstream.Should().Be("response content");
+            Assert.Equal("response content", returnedToDownstream);
 
-            upstreamStream.Should().NotBeNull();
+            Assert.NotNull(upstreamStream);
             upstreamStream.WriteStream.Position = 0;
             var sentToUpstream = StreamToString(upstreamStream.WriteStream);
-            sentToUpstream.Should().Be("request content");
+            Assert.Equal("request content", sentToUpstream);
         }
 
         // Tests proxying an upgradable request where the upstream refused to upgrade.
@@ -205,12 +204,12 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
                 {
                     await Task.Yield();
 
-                    request.Version.Should().BeEquivalentTo(new Version(1, 1));
-                    request.Method.Should().Be(HttpMethod.Get);
-                    request.RequestUri.Should().Be(targetUri);
-                    request.Headers.GetValues("x-ms-request-test").Should().BeEquivalentTo("request");
+                    Assert.Equal(new Version(1, 1), request.Version);
+                    Assert.Equal(HttpMethod.Get, request.Method);
+                    Assert.Equal(targetUri, request.RequestUri);
+                    Assert.Contains("request", request.Headers.GetValues("x-ms-request-test"));
 
-                    request.Content.Should().BeNull();
+                    Assert.Null(request.Content);
 
                     var response = new HttpResponseMessage((HttpStatusCode)234);
                     response.ReasonPhrase = "Test Reason Phrase";
@@ -231,15 +230,15 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
             await sut.ProxyAsync(httpContext, targetUri, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
 
             // Assert
-            httpContext.Response.StatusCode.Should().Be(234);
+            Assert.Equal(234, httpContext.Response.StatusCode);
             var reasonPhrase = httpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase;
-            reasonPhrase.Should().Be("Test Reason Phrase");
-            httpContext.Response.Headers["x-ms-response-test"].Should().BeEquivalentTo("response");
-            httpContext.Response.Headers["Content-Language"].Should().BeEquivalentTo("responseLanguage");
+            Assert.Equal("Test Reason Phrase", reasonPhrase);
+            Assert.Contains("response", httpContext.Response.Headers["x-ms-response-test"].ToArray());
+            Assert.Contains("responseLanguage", httpContext.Response.Headers["Content-Language"].ToArray());
 
             proxyResponseStream.Position = 0;
             var proxyResponseText = StreamToString(proxyResponseStream);
-            proxyResponseText.Should().Be("response content");
+            Assert.Equal("response content", proxyResponseText);
         }
 
         private static MemoryStream StringToStream(string text)

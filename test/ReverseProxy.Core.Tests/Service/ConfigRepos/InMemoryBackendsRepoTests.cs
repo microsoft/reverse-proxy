@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
 using Microsoft.ReverseProxy.Core.Abstractions;
 using Xunit;
 
@@ -28,7 +27,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             var task = repo.GetBackendsAsync(CancellationToken.None);
 
             // Assert
-            task.IsCompleted.Should().BeTrue("should complete synchronously");
+            Assert.True(task.IsCompleted, "should complete synchronously");
         }
 
         [Fact]
@@ -41,7 +40,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             var task = repo.SetBackendsAsync(new Dictionary<string, Backend>(), CancellationToken.None);
 
             // Assert
-            task.IsCompleted.Should().BeTrue("should complete synchronously");
+            Assert.True(task.IsCompleted, "should complete synchronously");
         }
 
         [Fact]
@@ -82,7 +81,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             var result = await repo.GetBackendsAsync(CancellationToken.None);
 
             // Assert
-            result.Should().BeNull();
+            Assert.Null(result);
         }
 
         [Fact]
@@ -105,10 +104,10 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             var result = await repo.GetBackendsAsync(CancellationToken.None);
 
             // Assert
-            result.Should().HaveCount(1);
-            result.Should().NotBeSameAs(backends);
-            result["backend1"].CircuitBreakerOptions.Should().NotBeSameAs(backends["backend1"].CircuitBreakerOptions);
-            result["backend1"].CircuitBreakerOptions.MaxConcurrentRequests.Should().Be(10);
+            Assert.Single(result);
+            Assert.NotSame(backends, result);
+            Assert.NotSame(backends["backend1"].CircuitBreakerOptions, result["backend1"].CircuitBreakerOptions);
+            Assert.Equal(10, result["backend1"].CircuitBreakerOptions.MaxConcurrentRequests);
         }
 
         [Fact]
@@ -132,10 +131,10 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             var result2 = await repo.GetBackendsAsync(CancellationToken.None);
 
             // Assert
-            result2.Should().HaveCount(1);
-            result2.Should().NotBeSameAs(result1);
-            result2.Should().NotBeSameAs(backends);
-            result2["backend1"].CircuitBreakerOptions.MaxConcurrentRequests.Should().Be(10);
+            Assert.Single(result2);
+            Assert.NotSame(result1, result2);
+            Assert.NotSame(backends, result2);
+            Assert.Equal(10, result2["backend1"].CircuitBreakerOptions.MaxConcurrentRequests);
         }
     }
 }

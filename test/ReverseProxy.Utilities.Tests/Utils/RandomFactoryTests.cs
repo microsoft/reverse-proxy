@@ -1,7 +1,6 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using FluentAssertions;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Utilities
@@ -18,12 +17,12 @@ namespace Microsoft.ReverseProxy.Utilities
             var random = factory.CreateRandomInstance();
 
             // Validate.
-            random.Should().NotBeNull();
-            random.GetType().Should().Be(typeof(RandomWrapper));
+            Assert.NotNull(random);
+            Assert.IsType<RandomWrapper>(random);
 
             // Validate functionality
             var num = random.Next(5);
-            num.Should().BeInRange(0, 5);
+            Assert.InRange(num, 0, 5);
         }
     }
 }

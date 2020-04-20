@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
 using Microsoft.ReverseProxy.Core.Abstractions;
 using Microsoft.ReverseProxy.Core.ConfigModel;
 using Moq;
@@ -32,11 +31,11 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             var result = await configManager.BuildConfigAsync(errorReporter, CancellationToken.None);
 
             // Assert
-            result.IsSuccess.Should().BeTrue();
-            errorReporter.Errors.Should().BeEmpty();
-            result.Value.Should().NotBeNull();
-            result.Value.Backends.Should().BeEmpty();
-            result.Value.Routes.Should().BeEmpty();
+            Assert.True(result.IsSuccess);
+            Assert.Empty(errorReporter.Errors);
+            Assert.NotNull(result.Value);
+            Assert.Empty(result.Value.Backends);
+            Assert.Empty(result.Value.Routes);
         }
 
         [Fact]
@@ -57,11 +56,11 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             var result = await configManager.BuildConfigAsync(errorReporter, CancellationToken.None);
 
             // Assert
-            result.IsSuccess.Should().BeTrue();
-            errorReporter.Errors.Should().BeEmpty();
-            result.Value.Should().NotBeNull();
-            result.Value.Backends.Should().BeEmpty();
-            result.Value.Routes.Should().BeEmpty();
+            Assert.True(result.IsSuccess);
+            Assert.Empty(errorReporter.Errors);
+            Assert.NotNull(result.Value);
+            Assert.Empty(result.Value.Backends);
+            Assert.Empty(result.Value.Routes);
         }
 
         [Fact]
@@ -95,16 +94,16 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             var result = await configManager.BuildConfigAsync(errorReporter, CancellationToken.None);
 
             // Assert
-            result.IsSuccess.Should().BeTrue();
-            errorReporter.Errors.Should().BeEmpty();
-            result.Value.Should().NotBeNull();
-            result.Value.Backends.Should().HaveCount(1);
+            Assert.True(result.IsSuccess);
+            Assert.Empty(errorReporter.Errors);
+            Assert.NotNull(result.Value);
+            Assert.Single(result.Value.Backends);
             var backend = result.Value.Backends["backend1"];
-            backend.Should().NotBeNull();
-            backend.Endpoints.Should().HaveCount(1);
+            Assert.NotNull(backend);
+            Assert.Single(backend.Endpoints);
             var endpoint = backend.Endpoints["ep1"];
-            endpoint.Should().NotBeNull();
-            endpoint.Address.Should().Be(TestAddress);
+            Assert.NotNull(endpoint);
+            Assert.Equal(TestAddress, endpoint.Address);
         }
 
         [Fact]
@@ -130,12 +129,12 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             var result = await configManager.BuildConfigAsync(errorReporter, CancellationToken.None);
 
             // Assert
-            result.IsSuccess.Should().BeTrue();
-            errorReporter.Errors.Should().BeEmpty();
-            result.Value.Should().NotBeNull();
-            result.Value.Backends.Should().BeEmpty();
-            result.Value.Routes.Should().HaveCount(1);
-            result.Value.Routes[0].RouteId.Should().BeSameAs(route1.RouteId);
+            Assert.True(result.IsSuccess);
+            Assert.Empty(errorReporter.Errors);
+            Assert.NotNull(result.Value);
+            Assert.Empty(result.Value.Backends);
+            Assert.Single(result.Value.Routes);
+            Assert.Same(route1.RouteId, result.Value.Routes[0].RouteId);
         }
 
         [Fact]
@@ -159,10 +158,10 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             var result = await configManager.BuildConfigAsync(errorReporter, CancellationToken.None);
 
             // Assert
-            result.IsSuccess.Should().BeTrue();
-            result.Value.Should().NotBeNull();
-            result.Value.Backends.Should().BeEmpty();
-            result.Value.Routes.Should().BeEmpty();
+            Assert.True(result.IsSuccess);
+            Assert.NotNull(result.Value);
+            Assert.Empty(result.Value.Backends);
+            Assert.Empty(result.Value.Routes);
         }
 
         [Fact]
@@ -190,10 +189,10 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             var result = await configManager.BuildConfigAsync(errorReporter, CancellationToken.None);
 
             // Assert
-            result.IsSuccess.Should().BeTrue();
-            result.Value.Should().NotBeNull();
-            result.Value.Backends.Should().BeEmpty();
-            result.Value.Routes.Should().BeEmpty();
+            Assert.True(result.IsSuccess);
+            Assert.NotNull(result.Value);
+            Assert.Empty(result.Value.Backends);
+            Assert.Empty(result.Value.Routes);
         }
     }
 }

@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using FluentAssertions;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Core.Abstractions.Tests
@@ -32,11 +31,11 @@ namespace Microsoft.ReverseProxy.Core.Abstractions.Tests
             var clone = sut.DeepClone();
 
             // Assert
-            clone.Should().NotBeSameAs(sut);
-            clone.Address.Should().Be(sut.Address);
-            clone.Metadata.Should().NotBeNull();
-            clone.Metadata.Should().NotBeSameAs(sut.Metadata);
-            clone.Metadata["key"].Should().Be("value");
+            Assert.NotSame(sut, clone);
+            Assert.Equal(sut.Address, clone.Address);
+            Assert.NotNull(clone.Metadata);
+            Assert.NotSame(sut.Metadata, clone.Metadata);
+            Assert.Equal("value", clone.Metadata["key"]);
         }
 
         [Fact]
@@ -49,9 +48,9 @@ namespace Microsoft.ReverseProxy.Core.Abstractions.Tests
             var clone = sut.DeepClone();
 
             // Assert
-            clone.Should().NotBeSameAs(sut);
-            clone.Address.Should().BeNull();
-            clone.Metadata.Should().BeNull();
+            Assert.NotSame(sut, clone);
+            Assert.Null(clone.Address);
+            Assert.Null(clone.Metadata);
         }
     }
 }

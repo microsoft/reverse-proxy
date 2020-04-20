@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using FluentAssertions;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Core.Abstractions.Tests
@@ -36,20 +35,20 @@ namespace Microsoft.ReverseProxy.Core.Abstractions.Tests
             var clone = backend.DeepClone();
 
             // Assert
-            clone.Should().NotBeSameAs(backend);
-            clone.CircuitBreakerOptions.Should().NotBeNull();
-            clone.CircuitBreakerOptions.Should().NotBeSameAs(backend.CircuitBreakerOptions);
-            clone.QuotaOptions.Should().NotBeNull();
-            clone.QuotaOptions.Should().NotBeSameAs(backend.QuotaOptions);
-            clone.PartitioningOptions.Should().NotBeNull();
-            clone.PartitioningOptions.Should().NotBeSameAs(backend.PartitioningOptions);
-            clone.LoadBalancingOptions.Should().NotBeNull();
-            clone.LoadBalancingOptions.Should().NotBeSameAs(backend.LoadBalancingOptions);
-            clone.HealthCheckOptions.Should().NotBeNull();
-            clone.HealthCheckOptions.Should().NotBeSameAs(backend.HealthCheckOptions);
-            clone.Metadata.Should().NotBeNull();
-            clone.Metadata.Should().NotBeSameAs(backend.Metadata);
-            clone.Metadata["key"].Should().Be("value");
+            Assert.NotSame(backend, clone);
+            Assert.NotNull(clone.CircuitBreakerOptions);
+            Assert.NotSame(backend.CircuitBreakerOptions, clone.CircuitBreakerOptions);
+            Assert.NotNull(clone.QuotaOptions);
+            Assert.NotSame(backend.QuotaOptions, clone.QuotaOptions);
+            Assert.NotNull(clone.PartitioningOptions);
+            Assert.NotSame(backend.PartitioningOptions, clone.PartitioningOptions);
+            Assert.NotNull(clone.LoadBalancingOptions);
+            Assert.NotSame(backend.LoadBalancingOptions, clone.LoadBalancingOptions);
+            Assert.NotNull(clone.HealthCheckOptions);
+            Assert.NotSame(backend.HealthCheckOptions, clone.HealthCheckOptions);
+            Assert.NotNull(clone.Metadata);
+            Assert.NotSame(backend.Metadata, clone.Metadata);
+            Assert.Equal("value", clone.Metadata["key"]);
         }
 
         [Fact]
@@ -62,13 +61,13 @@ namespace Microsoft.ReverseProxy.Core.Abstractions.Tests
             var clone = backend.DeepClone();
 
             // Assert
-            clone.Should().NotBeSameAs(backend);
-            clone.CircuitBreakerOptions.Should().BeNull();
-            clone.QuotaOptions.Should().BeNull();
-            clone.PartitioningOptions.Should().BeNull();
-            clone.LoadBalancingOptions.Should().BeNull();
-            clone.HealthCheckOptions.Should().BeNull();
-            clone.Metadata.Should().BeNull();
+            Assert.NotSame(backend, clone);
+            Assert.Null(clone.CircuitBreakerOptions);
+            Assert.Null(clone.QuotaOptions);
+            Assert.Null(clone.PartitioningOptions);
+            Assert.Null(clone.LoadBalancingOptions);
+            Assert.Null(clone.HealthCheckOptions);
+            Assert.Null(clone.Metadata);
         }
     }
 }

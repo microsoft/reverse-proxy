@@ -1,7 +1,6 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using FluentAssertions;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Core.Service.Management.Tests
@@ -25,9 +24,9 @@ namespace Microsoft.ReverseProxy.Core.Service.Management.Tests
             var manager2 = factory.CreateEndpointManager();
 
             // Assert
-            manager1.Should().NotBeNull();
-            manager2.Should().NotBeNull();
-            manager1.Should().NotBeSameAs(manager2);
+            Assert.NotNull(manager1);
+            Assert.NotNull(manager2);
+            Assert.NotSame(manager2, manager1);
         }
     }
 }

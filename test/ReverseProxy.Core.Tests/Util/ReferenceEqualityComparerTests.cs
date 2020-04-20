@@ -1,10 +1,9 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using FluentAssertions;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Core.Util.Tests
@@ -21,7 +20,7 @@ namespace Microsoft.ReverseProxy.Core.Util.Tests
             var equals = ReferenceEqualityComparer<object>.Default.Equals(obj, obj);
 
             // Assert
-            equals.Should().BeTrue();
+            Assert.True(equals);
         }
 
         [Fact]
@@ -31,7 +30,7 @@ namespace Microsoft.ReverseProxy.Core.Util.Tests
             var equals = ReferenceEqualityComparer<object>.Default.Equals(null, null);
 
             // Assert
-            equals.Should().BeTrue();
+            Assert.True(equals);
         }
 
         [Fact]
@@ -44,7 +43,7 @@ namespace Microsoft.ReverseProxy.Core.Util.Tests
             var equals = ReferenceEqualityComparer<object>.Default.Equals(null, item);
 
             // Assert
-            equals.Should().BeFalse();
+            Assert.False(equals);
         }
 
         [Fact]
@@ -57,7 +56,7 @@ namespace Microsoft.ReverseProxy.Core.Util.Tests
             var equals = ReferenceEqualityComparer<object>.Default.Equals(item, null);
 
             // Assert
-            equals.Should().BeFalse();
+            Assert.False(equals);
         }
 
         [Fact]
@@ -71,11 +70,11 @@ namespace Microsoft.ReverseProxy.Core.Util.Tests
             var codes2 = items.Select(item => ReferenceEqualityComparer<object>.Default.GetHashCode(item)).ToList();
 
             // Assert
-            codes1.Should().BeEquivalentTo(codes2);
+            Assert.Equal(codes2, codes1);
 
             // Producing the same hash code for lots of different objects
             // is technically possible, but extremely unlikely.
-            codes1.Should().Contain(code => code != codes1[0]);
+            Assert.Contains(codes1, code => code != codes1[0]);
         }
 
         [Fact]
@@ -85,7 +84,7 @@ namespace Microsoft.ReverseProxy.Core.Util.Tests
             var code = ReferenceEqualityComparer<object>.Default.GetHashCode(null);
 
             // Assert
-            code.Should().Be(0);
+            Assert.Equal(0, code);
         }
 
         [Fact]
@@ -101,7 +100,7 @@ namespace Microsoft.ReverseProxy.Core.Util.Tests
             var added = dict.Add(item2);
 
             // Assert
-            added.Should().BeFalse($"since {nameof(EverythingEquals)} implements IEquatable<>, that implementation is used by default");
+            Assert.False(added, $"since {nameof(EverythingEquals)} implements IEquatable<>, that implementation is used by default");
         }
 
         [Fact]
@@ -117,7 +116,7 @@ namespace Microsoft.ReverseProxy.Core.Util.Tests
             var added = dict.Add(item2);
 
             // Assert
-            added.Should().BeTrue();
+            Assert.True(added);
         }
 
         private class EverythingEquals : IEquatable<EverythingEquals>

@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -8,7 +8,6 @@ using System.Net.Http;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
 using Moq;
 using Xunit;
 
@@ -34,13 +33,13 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
             var sut = new StreamCopyHttpContent(source, streamCopierMock.Object, CancellationToken.None);
 
             // Act & Assert
-            sut.ConsumptionTask.IsCompleted.Should().BeFalse();
-            sut.Started.Should().BeFalse();
+            Assert.False(sut.ConsumptionTask.IsCompleted);
+            Assert.False(sut.Started);
             await sut.CopyToAsync(destination);
 
-            sut.Started.Should().BeTrue();
-            sut.ConsumptionTask.IsCompleted.Should().BeTrue();
-            destination.ToArray().Should().BeEquivalentTo(sourceBytes);
+            Assert.True(sut.Started);
+            Assert.True(sut.ConsumptionTask.IsCompleted);
+            Assert.Equal(sourceBytes, destination.ToArray());
         }
 
         [Fact]
@@ -61,20 +60,20 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
             var sut = new StreamCopyHttpContent(source, streamCopierMock.Object, CancellationToken.None);
 
             // Act & Assert
-            sut.ConsumptionTask.IsCompleted.Should().BeFalse();
-            sut.Started.Should().BeFalse();
+            Assert.False(sut.ConsumptionTask.IsCompleted);
+            Assert.False(sut.Started);
             var task = sut.CopyToAsync(destination);
 
-            sut.Started.Should().BeTrue(); // This should happen synchronously
-            sut.ConsumptionTask.IsCompleted.Should().BeFalse(); // This cannot happen until the tcs releases it
+            Assert.True(sut.Started); // This should happen synchronously
+            Assert.False(sut.ConsumptionTask.IsCompleted); // This cannot happen until the tcs releases it
 
             tcs.TrySetResult(true);
             await task;
-            sut.ConsumptionTask.IsCompleted.Should().BeTrue();
+            Assert.True(sut.ConsumptionTask.IsCompleted);
         }
 
         [Fact]
-        public async Task ReadAsStreamAsync_Throws()
+        public Task ReadAsStreamAsync_Throws()
         {
             // Arrange
             var source = new MemoryStream();
@@ -85,7 +84,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
             Func<Task> func = () => sut.ReadAsStreamAsync();
 
             // Assert
-            await func.Should().ThrowExactlyAsync<NotImplementedException>();
+            return Assert.ThrowsAsync<NotImplementedException>(func);
         }
 
         [Fact]
@@ -101,9 +100,9 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
             // to support duplex channels.This test helps detect regressions or changes in undocumented behavior
             // in .NET Core, and it passes as of .NET Core 3.1.
             var allowDuplexProperty = typeof(HttpContent).GetProperty("AllowDuplex", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            allowDuplexProperty.Should().NotBeNull();
+            Assert.NotNull(allowDuplexProperty);
             var allowDuplex = (bool)allowDuplexProperty.GetValue(sut);
-            allowDuplex.Should().BeTrue();
+            Assert.True(allowDuplex);
         }
     }
 }

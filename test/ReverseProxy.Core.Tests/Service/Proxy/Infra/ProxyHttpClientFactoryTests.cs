@@ -1,7 +1,6 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using FluentAssertions;
 using Microsoft.ReverseProxy.Core.Service.Proxy.Infra;
 using Tests.Common;
 using Xunit;
@@ -27,9 +26,9 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
             var actual2 = factory.CreateNormalClient();
 
             // Assert
-            actual1.Should().NotBeNull();
-            actual2.Should().NotBeNull();
-            actual1.Should().NotBeSameAs(actual2);
+            Assert.NotNull(actual1);
+            Assert.NotNull(actual2);
+            Assert.NotSame(actual2, actual1);
         }
 
         [Fact]
@@ -43,9 +42,9 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
             var actual2 = factory.CreateUpgradableClient();
 
             // Assert
-            actual1.Should().NotBeNull();
-            actual2.Should().NotBeNull();
-            actual1.Should().NotBeSameAs(actual2);
+            Assert.NotNull(actual1);
+            Assert.NotNull(actual2);
+            Assert.NotSame(actual2, actual1);
         }
     }
 }

@@ -1,9 +1,8 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Core.Util.Tests
@@ -31,7 +30,7 @@ namespace Microsoft.ReverseProxy.Core.Util.Tests
             });
 
             // Assert
-            counter.Value.Should().Be(Iterations);
+            Assert.Equal(Iterations, counter.Value);
         }
 
         [Fact]
@@ -49,7 +48,7 @@ namespace Microsoft.ReverseProxy.Core.Util.Tests
             });
 
             // Assert
-            counter.Value.Should().Be(-Iterations);
+            Assert.Equal(-Iterations, counter.Value);
         }
 
         [Fact]
@@ -72,8 +71,8 @@ namespace Microsoft.ReverseProxy.Core.Util.Tests
             });
 
             // Assert
-            counter.Value.Should().Be(Max);
-            numCapped.Should().Be(Iterations - Max);
+            Assert.Equal(Max, counter.Value);
+            Assert.Equal(Iterations - Max, numCapped);
         }
 
         [Fact]
@@ -96,8 +95,8 @@ namespace Microsoft.ReverseProxy.Core.Util.Tests
             });
 
             // Assert
-            counter.Value.Should().Be(Min);
-            numCapped.Should().Be(Min + Iterations);
+            Assert.Equal(Min, counter.Value);
+            Assert.Equal(Min + Iterations, numCapped);
         }
     }
 }

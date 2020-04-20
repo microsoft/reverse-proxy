@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
 using Microsoft.ReverseProxy.Core.Abstractions;
 using Microsoft.ReverseProxy.Core.ConfigModel;
 using Microsoft.ReverseProxy.Core.Service.Proxy.Infra;
@@ -74,25 +73,25 @@ namespace Microsoft.ReverseProxy.Core.Service.Management.Tests
             var result = await proxyManager.ApplyConfigurationsAsync(errorReporter, CancellationToken.None);
 
             // Assert
-            result.Should().BeTrue();
+            Assert.True(result);
 
             var actualBackends = _backendManager.GetItems();
-            actualBackends.Should().HaveCount(1);
-            actualBackends[0].BackendId.Should().Be("backend1");
-            actualBackends[0].EndpointManager.Should().NotBeNull();
-            actualBackends[0].Config.Value.Should().NotBeNull();
+            Assert.Single(actualBackends);
+            Assert.Equal("backend1", actualBackends[0].BackendId);
+            Assert.NotNull(actualBackends[0].EndpointManager);
+            Assert.NotNull(actualBackends[0].Config.Value);
 
             var actualEndpoints = actualBackends[0].EndpointManager.GetItems();
-            actualEndpoints.Should().HaveCount(1);
-            actualEndpoints[0].EndpointId.Should().Be("ep1");
-            actualEndpoints[0].Config.Value.Should().NotBeNull();
-            actualEndpoints[0].Config.Value.Address.Should().Be(TestAddress);
+            Assert.Single(actualEndpoints);
+            Assert.Equal("ep1", actualEndpoints[0].EndpointId);
+            Assert.NotNull(actualEndpoints[0].Config.Value);
+            Assert.Equal(TestAddress, actualEndpoints[0].Config.Value.Address);
 
             var actualRoutes = _routeManager.GetItems();
-            actualRoutes.Should().HaveCount(1);
-            actualRoutes[0].RouteId.Should().Be("route1");
-            actualRoutes[0].Config.Value.Should().NotBeNull();
-            actualRoutes[0].Config.Value.BackendOrNull.Should().BeSameAs(actualBackends[0]);
+            Assert.Single(actualRoutes);
+            Assert.Equal("route1", actualRoutes[0].RouteId);
+            Assert.NotNull(actualRoutes[0].Config.Value);
+            Assert.Same(actualBackends[0], actualRoutes[0].Config.Value.BackendOrNull);
         }
     }
 }
