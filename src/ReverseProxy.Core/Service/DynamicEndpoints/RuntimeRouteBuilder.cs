@@ -35,7 +35,7 @@ namespace Microsoft.ReverseProxy.Core.Service
             // and passing a read-only wrapper of it to `RouteConfig.ctor`.
             // Recall that `List<T>.AsReadOnly()` creates a wrapper over the original list,
             // and changes to the underlying list *are* reflected on the read-only view.
-            var aspNetCoreEndpoints = new List<AspNetCore.Http.Endpoint>(1);
+            var aspNetCoreEndpoints = new List<Endpoint>(1);
             var newRouteConfig = new RouteConfig(
                 route: runtimeRoute,
                 matcherSummary: source.GetMatcherSummary(),
@@ -49,7 +49,7 @@ namespace Microsoft.ReverseProxy.Core.Service
 
             // TODO: Propagate route priority
             var endpointBuilder = new AspNetCore.Routing.RouteEndpointBuilder(
-                requestDelegate: Invoke,
+                requestDelegate: _pipeline ?? Invoke,
                 routePattern: AspNetCore.Routing.Patterns.RoutePatternFactory.Parse(pathPattern),
                 order: 0);
             endpointBuilder.DisplayName = source.RouteId;
