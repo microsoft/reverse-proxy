@@ -52,7 +52,7 @@ namespace Microsoft.ReverseProxy.Utilities
                 {
                     exception = exception.InnerException;
                 }
-                else if (exception is AggregateException)
+                else if (exception is AggregateException aex)
                 {
                     // AggregateException can contain other AggregateExceptions in its InnerExceptions list so we
                     // flatten it first. That will essentially create a list of exceptions from the AggregateException's
@@ -69,7 +69,6 @@ namespace Microsoft.ReverseProxy.Utilities
                     // On that note that's another reason why we want to flatten here as opposed to just let recursion do its magic
                     // since in an unlikely case there is a circle we'll get OutOfMemory here instead of StackOverflow which is
                     // a lesser of the two evils.
-                    var aex = exception as AggregateException; // Can't be null
                     var faex = aex.Flatten();
                     var iexs = faex.InnerExceptions;
                     if (iexs != null)
