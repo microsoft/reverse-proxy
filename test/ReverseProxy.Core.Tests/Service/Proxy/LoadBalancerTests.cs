@@ -139,28 +139,18 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
         {
             internal TestRandom Instance { get; set; }
 
-            public IRandom CreateRandomInstance()
+            public Random CreateRandomInstance()
             {
                 return Instance;
             }
         }
 
-        public class TestRandom : IRandom
+        public class TestRandom : Random
         {
             public int[] Sequence { get; set; }
             public int Offset { get; set; }
 
-            public int Next()
-            {
-                return Sequence[Offset++];
-            }
-
-            public int Next(int maxValue)
-            {
-                return Sequence[Offset++];
-            }
-
-            public int Next(int minValue, int maxValue)
+            public override int Next(int maxValue)
             {
                 return Sequence[Offset++];
             }
