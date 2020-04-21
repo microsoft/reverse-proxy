@@ -158,7 +158,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
             var upstreamResponse = await httpClient.SendAsync(upstreamRequest, shortCancellation);
 
             // Detect connection downgrade, which may be problematic for e.g. gRPC.
-            if (upstreamResponse.Version.Major != 2 && HttpUtilities.IsHttp2(context.Request.Protocol))
+            if (upstreamResponse.Version.Major != 2 && HttpProtocol.IsHttp2(context.Request.Protocol))
             {
                 // TODO: Do something on connection downgrade...
                 _logger.LogInformation($"HTTP version downgrade detected! This may break gRPC communications.");
