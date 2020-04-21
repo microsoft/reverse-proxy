@@ -60,7 +60,6 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
         [Theory]
         [InlineData(null)]
         [InlineData("")]
-        [InlineData("get")]
         [InlineData(" GET")]
         [InlineData("GET ")]
         [InlineData("CONNECT")]
@@ -72,25 +71,6 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
 
             // Assert
             Assert.Throws<InvalidOperationException>(action);
-        }
-
-        [Theory]
-        [InlineData("HTTP/2")]
-        [InlineData("http/2")]
-        [InlineData("hTtP/2")]
-        public void IsHttp2_TrueCases_ReturnsTrue(string protocol)
-        {
-            Assert.True(HttpUtilities.IsHttp2(protocol));
-        }
-
-        [Theory]
-        [InlineData("HTTP/1")]
-        [InlineData("HTTP/1.1")]
-        [InlineData("http/2 ")]
-        [InlineData(" http/2")]
-        public void IsHttp2_FalseCases_ReturnsFalse(string protocol)
-        {
-            Assert.False(HttpUtilities.IsHttp2(protocol));
         }
     }
 }

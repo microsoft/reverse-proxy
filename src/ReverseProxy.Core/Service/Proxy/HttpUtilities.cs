@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -15,42 +15,53 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
         /// </summary>
         public static HttpMethod GetHttpMethod(string method)
         {
-            // NOTE: ASP .NET Core always produces HttpRequest.Method with the exact strings below.
-            // See: https://github.com/dotnet/aspnetcore/blob/master/src/Servers/Kestrel/Core/src/Internal/Infrastructure/HttpUtilities.Generated.cs
-            switch (method)
+            if (HttpMethods.IsGet(method))
             {
-                case "GET":
-                    return HttpMethod.Get;
-                case "POST":
-                    return HttpMethod.Post;
-                case "PUT":
-                    return HttpMethod.Put;
-                case "DELETE":
-                    return HttpMethod.Delete;
-                case "OPTIONS":
-                    return HttpMethod.Options;
-                case "HEAD":
-                    return HttpMethod.Head;
-                case "PATCH":
-                    return HttpMethod.Patch;
-                case "TRACE":
-                    return HttpMethod.Trace;
-
-                // NOTE: Proxying "CONNECT" is not supported (by design!)
-                ////case "CONNECT":
-                ////    return new HttpMethod("CONNECT");
+                return HttpMethod.Get;
             }
 
-            throw new InvalidOperationException($"Unsupported request method '{method}'.");
-        }
+            if (HttpMethods.IsPost(method))
+            {
+                return HttpMethod.Post;
+            }
 
-        /// <summary>
-        /// Checks whether the given protocol (usually obtained from <see cref="HttpRequest.Protocol"/>)
-        /// is HTTP 2.0.
-        /// </summary>
-        public static bool IsHttp2(string protocol)
-        {
-            return string.Equals("HTTP/2", protocol, StringComparison.OrdinalIgnoreCase);
+            if (HttpMethods.IsPut(method))
+            {
+                return HttpMethod.Put;
+            }
+
+            if (HttpMethods.IsDelete(method))
+            {
+                return HttpMethod.Delete;
+            }
+
+            if (HttpMethods.IsOptions(method))
+            {
+                return HttpMethod.Options;
+            }
+
+            if (HttpMethods.IsHead(method))
+            {
+                return HttpMethod.Head;
+            }
+
+            if (HttpMethods.IsPatch(method))
+            {
+                return HttpMethod.Patch;
+            }
+
+            if (HttpMethods.IsTrace(method))
+            {
+                return HttpMethod.Trace;
+            }
+
+            // NOTE: Proxying "CONNECT" is not supported (by design!)
+            //if (HttpMethods.IsConnect(method))
+            //{
+            //    return new HttpMethod("CONNECT");
+            //}
+
+            throw new InvalidOperationException($"Unsupported request method '{method}'.");
         }
     }
 }
