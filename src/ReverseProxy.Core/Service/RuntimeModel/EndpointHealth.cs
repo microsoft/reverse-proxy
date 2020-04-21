@@ -1,9 +1,9 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 namespace Microsoft.ReverseProxy.Core.RuntimeModel
 {
-    internal enum EndpointHealth
+    public enum EndpointHealth
     {
         Unknown,
 

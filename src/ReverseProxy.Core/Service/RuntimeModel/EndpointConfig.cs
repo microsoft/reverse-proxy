@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Microsoft.ReverseProxy.Utilities;
@@ -15,7 +15,7 @@ namespace Microsoft.ReverseProxy.Core.RuntimeModel
     /// Instead, instances of <see cref="EndpointConfig"/> are replaced
     /// in ther entirety when values need to change.
     /// </remarks>
-    internal sealed class EndpointConfig
+    public sealed class EndpointConfig
     {
         public EndpointConfig(string address)
         {

@@ -12,16 +12,17 @@ using Microsoft.ReverseProxy.Common.Abstractions.Telemetry;
 using Microsoft.ReverseProxy.Common.Telemetry;
 using Microsoft.ReverseProxy.Core.RuntimeModel;
 using Microsoft.ReverseProxy.Core.Service.Management;
+using Microsoft.ReverseProxy.Core.Service.Proxy;
 using Microsoft.ReverseProxy.Core.Service.Proxy.Infra;
 using Moq;
 using Tests.Common;
 using Xunit;
 
-namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
+namespace Microsoft.ReverseProxy.Core.Middleware.Tests
 {
-    public class ProxyInvokerTests : TestAutoMockBase
+    public class ProxyInvokerMiddlewareTests : TestAutoMockBase
     {
-        public ProxyInvokerTests()
+        public ProxyInvokerMiddlewareTests()
         {
             Provide<IOperationLogger, TextOperationLogger>();
         }
@@ -29,11 +30,11 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
         [Fact]
         public void Constructor_Works()
         {
-            Create<ProxyInvoker>();
+            Create<ProxyInvokerMiddleware>();
         }
 
         [Fact]
-        public async Task InvokeAsync_Works()
+        public async Task Invoke_Works()
         {
             // Arrange
             var httpContext = new DefaultHttpContext();
@@ -55,6 +56,9 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
                     endpoint.Config.Value = new EndpointConfig("https://localhost:123/a/b/");
                     endpoint.DynamicState.Value = new EndpointDynamicState(EndpointHealth.Healthy);
                 });
+            httpContext.Features.Set<IAvailableBackendEndpointsFeature>(
+                new AvailableBackendEndpointsFeature() { Endpoints = new List<EndpointInfo>() { endpoint1 }.AsReadOnly() });
+            httpContext.Features.Set(backend1);
 
             var aspNetCoreEndpoints = new List<Endpoint>();
             var routeConfig = new RouteConfig(
@@ -66,10 +70,6 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
             var aspNetCoreEndpoint = CreateAspNetCoreEndpoint(routeConfig);
             aspNetCoreEndpoints.Add(aspNetCoreEndpoint);
             httpContext.SetEndpoint(aspNetCoreEndpoint);
-
-            Mock<ILoadBalancer>()
-                .Setup(l => l.PickEndpoint(It.IsAny<IReadOnlyList<EndpointInfo>>(), It.IsAny<IReadOnlyList<EndpointInfo>>(), It.IsAny<BackendConfig.BackendLoadBalancingOptions>()))
-                .Returns(endpoint1);
 
             var tcs1 = new TaskCompletionSource<bool>();
             var tcs2 = new TaskCompletionSource<bool>();
@@ -89,13 +89,18 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
                     })
                 .Verifiable();
 
-            var sut = Create<ProxyInvoker>();
+            var sut = Create<ProxyInvokerMiddleware>();
 
             // Act
             Assert.Equal(0, backend1.ConcurrencyCounter.Value);
             Assert.Equal(0, endpoint1.ConcurrencyCounter.Value);
 
-            var task = sut.InvokeAsync(httpContext);
+            var task = sut.Invoke(httpContext);
+            if (task.IsFaulted)
+            {
+                // Something went wrong, don't hang the test.
+                await task;
+            }
             await tcs1.Task; // Wait until we get to the proxying step.
             Assert.Equal(1, backend1.ConcurrencyCounter.Value);
             Assert.Equal(1, endpoint1.ConcurrencyCounter.Value);

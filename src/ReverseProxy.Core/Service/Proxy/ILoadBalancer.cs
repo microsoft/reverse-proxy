@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
@@ -17,8 +17,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
         /// </summary>
         // TODO: How to ensure retries pick a different endpoint when available?
         EndpointInfo PickEndpoint(
-            IReadOnlyList<EndpointInfo> healthyEndpoints,
-            IReadOnlyList<EndpointInfo> allEndpoints,
+            IReadOnlyList<EndpointInfo> availableEndpoints,
             in BackendConfig.BackendLoadBalancingOptions loadBalancingOptions);
     }
 }

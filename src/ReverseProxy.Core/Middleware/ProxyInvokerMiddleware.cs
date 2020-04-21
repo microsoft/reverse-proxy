@@ -8,89 +8,64 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.ReverseProxy.Common.Abstractions.Telemetry;
-using Microsoft.ReverseProxy.Core.Abstractions;
 using Microsoft.ReverseProxy.Core.RuntimeModel;
+using Microsoft.ReverseProxy.Core.Service.Proxy;
 using Microsoft.ReverseProxy.Utilities;
 
-namespace Microsoft.ReverseProxy.Core.Service.Proxy
+namespace Microsoft.ReverseProxy.Core.Middleware
 {
     /// <summary>
-    /// Default implementation of <see cref="IProxyInvoker"/>.
+    /// Invokes the proxy at the end of the request processing pipeline.
     /// </summary>
-    internal class ProxyInvoker : IProxyInvoker
+    internal class ProxyInvokerMiddleware
     {
-        private readonly ILogger<ProxyInvoker> _logger;
+        private readonly Random _random = new Random();
+        private readonly RequestDelegate _next; // Unused, this middleware is always terminal
+        private readonly ILogger _logger;
         private readonly IOperationLogger _operationLogger;
-        private readonly ILoadBalancer _loadBalancer;
         private readonly IHttpProxy _httpProxy;
 
-        public ProxyInvoker(
-            ILogger<ProxyInvoker> logger,
+        public ProxyInvokerMiddleware(
+            RequestDelegate next,
+            ILogger<ProxyInvokerMiddleware> logger,
             IOperationLogger operationLogger,
-            ILoadBalancer loadBalancer,
             IHttpProxy httpProxy)
         {
-            Contracts.CheckValue(logger, nameof(logger));
-            Contracts.CheckValue(operationLogger, nameof(operationLogger));
-            Contracts.CheckValue(loadBalancer, nameof(loadBalancer));
-            Contracts.CheckValue(httpProxy, nameof(httpProxy));
-
-            _logger = logger;
-            _operationLogger = operationLogger;
-            _loadBalancer = loadBalancer;
-            _httpProxy = httpProxy;
+            _next = next ?? throw new ArgumentNullException(nameof(next));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _operationLogger = operationLogger ?? throw new ArgumentNullException(nameof(operationLogger));
+            _httpProxy = httpProxy ?? throw new ArgumentNullException(nameof(httpProxy));
         }
 
         /// <inheritdoc/>
-        public async Task InvokeAsync(HttpContext context)
+        public async Task Invoke(HttpContext context)
         {
             Contracts.CheckValue(context, nameof(context));
 
-            var aspNetCoreEndpoint = context.GetEndpoint();
-            if (aspNetCoreEndpoint == null)
+            var backend = context.Features.Get<BackendInfo>() ?? throw new InvalidOperationException("Backend unspecified.");
+            var endpoints = context.Features.Get<IAvailableBackendEndpointsFeature>()?.Endpoints
+                ?? throw new InvalidOperationException("The AvailableBackendEndpoints collection was not set.");
+            var routeConfig = context.GetEndpoint()?.Metadata.GetMetadata<RouteConfig>()
+                ?? throw new InvalidOperationException("RouteConfig unspecified.");
+
+            if (endpoints.Count == 0)
             {
-                throw new ReverseProxyException($"ASP .NET Core Endpoint wasn't set for the current request. This is a coding defect.");
+                _logger.LogWarning("No available endpoints.");
+                context.Response.StatusCode = 503;
+                return;
             }
 
-            var routeConfig = aspNetCoreEndpoint.Metadata.GetMetadata<RouteConfig>();
-            if (routeConfig == null)
+            var endpoint = endpoints[0];
+            if (endpoints.Count > 1)
             {
-                throw new ReverseProxyException($"ASP .NET Core Endpoint is missing {typeof(RouteConfig).FullName} metadata. This is a coding defect.");
-            }
-
-            var backend = routeConfig.BackendOrNull;
-            if (backend == null)
-            {
-                throw new ReverseProxyException($"Route has no backend information.");
-            }
-
-            var dynamicState = backend.DynamicState.Value;
-            if (dynamicState == null)
-            {
-                throw new ReverseProxyException($"Route has no up to date information on its backend '{backend.BackendId}'. Perhaps the backend hasn't been probed yet? This can happen when a new backend is added but isn't ready to serve traffic yet.");
-            }
-
-            // TODO: Set defaults properly
-            BackendConfig.BackendLoadBalancingOptions loadBalancingOptions = default;
-            var backendConfig = backend.Config.Value;
-            if (backendConfig != null)
-            {
-                loadBalancingOptions = backendConfig.LoadBalancingOptions;
-            }
-
-            var endpoint = _operationLogger.Execute(
-                "ReverseProxy.PickEndpoint",
-                () => _loadBalancer.PickEndpoint(dynamicState.HealthyEndpoints, dynamicState.AllEndpoints, in loadBalancingOptions));
-
-            if (endpoint == null)
-            {
-                throw new ReverseProxyException($"No available endpoints.");
+                _logger.LogWarning("More than one endpoint available, load balancing may not be configured correctly. Choosing randomly.");
+                endpoint = endpoints[_random.Next(endpoints.Count)];
             }
 
             var endpointConfig = endpoint.Config.Value;
             if (endpointConfig == null)
             {
-                throw new ReverseProxyException($"Chosen endpoint has no configs set: '{endpoint.EndpointId}'");
+                throw new InvalidOperationException($"Chosen endpoint has no configs set: '{endpoint.EndpointId}'");
             }
 
             // TODO: support StripPrefix and other url transformations

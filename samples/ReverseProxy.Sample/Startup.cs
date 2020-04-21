@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Net;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.ReverseProxy.Core.Configuration.DependencyInjection;
@@ -44,7 +46,18 @@ namespace Microsoft.ReverseProxy.Sample
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapReverseProxy();
+                endpoints.MapReverseProxy(proxyPipeline =>
+                {
+                    proxyPipeline.UseProxyLoadBalancing();
+                    // Customize the request before forwarding
+                    proxyPipeline.Use((context, next) =>
+                    {
+                        var connection = context.Connection;
+                        context.Request.Headers.AppendCommaSeparatedValues("X-Forwarded-For",
+                            new IPEndPoint(connection.RemoteIpAddress, connection.RemotePort).ToString());
+                        return next();
+                    });
+                });
             });
         }
     }
