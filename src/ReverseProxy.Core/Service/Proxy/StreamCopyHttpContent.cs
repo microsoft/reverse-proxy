@@ -39,16 +39,18 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
     {
         private readonly Stream _source;
         private readonly IStreamCopier _streamCopier;
+        private readonly bool _autoFlushHttpClientOutgoingStream;
         private readonly CancellationToken _cancellation;
         private readonly TaskCompletionSource<bool> _tcs = new TaskCompletionSource<bool>();
 
-        public StreamCopyHttpContent(Stream source, IStreamCopier streamCopier, CancellationToken cancellation)
+        public StreamCopyHttpContent(Stream source, IStreamCopier streamCopier, bool autoFlushHttpClientOutgoingStream, CancellationToken cancellation)
         {
             Contracts.CheckValue(source, nameof(source));
             Contracts.CheckValue(streamCopier, nameof(streamCopier));
 
             _source = source;
             _streamCopier = streamCopier;
+            _autoFlushHttpClientOutgoingStream = autoFlushHttpClientOutgoingStream;
             _cancellation = cancellation;
         }
 
@@ -122,6 +124,16 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
             Started = true;
             try
             {
+                if (_autoFlushHttpClientOutgoingStream)
+                {
+                    // HttpClient's machinery keeps an internal buffer that doesn't get flushed to the socket on every write.
+                    // Some protocols (e.g. gRPC) may rely on specific bytes being sent, and HttpClient's buffering would prevent it.
+                    // AutoFlushingStream delegates to the provided stream, adding calls to FlushAsync on every WriteAsync.
+                    // Note that HttpClient does NOT call Flush on the underlying socket, so the perf impact of this is expected to be small.
+                    // This statement is based on current knowledge as of .NET Core 3.1.201.
+                    stream = new AutoFlushingStream(stream);
+                }
+
                 // Immediately flush request stream to send headers
                 // https://github.com/dotnet/corefx/issues/39586#issuecomment-516210081
                 await stream.FlushAsync();

@@ -107,16 +107,16 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
         /// </summary>
         /// <remarks>
         /// Normal proxying comprises the following steps:
+        ///    (0) Disable ASP .NET Core limits for gRPC requests
         ///    (1)  Create outgoing HttpRequestMessage
-        ///    (2)  Setup copy of request body (background)             Downstream --► Proxy --► Upstream
-        ///    (3)  Copy request headers                                Downstream --► Proxy --► Upstream
-        ///    (4)  Send the outgoing request using HttpMessageInvoker  Downstream --► Proxy --► Upstream
-        ///    (5)  Copy response status line                           Downstream ◄-- Proxy ◄-- Upstream
-        ///    (6)  Copy response headers                               Downstream ◄-- Proxy ◄-- Upstream
-        ///    (7)  Send response headers                               Downstream ◄-- Proxy ◄-- Upstream
-        ///    (8)  Copy response body                                  Downstream ◄-- Proxy ◄-- Upstream
-        ///    (9)  Wait for completion of step 2: copying request body Downstream --► Proxy --► Upstream
-        ///    (10) Copy response trailer headers                       Downstream ◄-- Proxy ◄-- Upstream
+        ///    (2) Setup copy of request body (background)             Downstream --► Proxy --► Upstream
+        ///    (3) Copy request headers                                Downstream --► Proxy --► Upstream
+        ///    (4) Send the outgoing request using HttpMessageInvoker  Downstream --► Proxy --► Upstream
+        ///    (5) Copy response status line                           Downstream ◄-- Proxy ◄-- Upstream
+        ///    (6) Copy response headers                               Downstream ◄-- Proxy ◄-- Upstream
+        ///    (7) Copy response body                                  Downstream ◄-- Proxy ◄-- Upstream
+        ///    (8) Copy response trailer headers and finish response   Downstream ◄-- Proxy ◄-- Upstream
+        ///    (9) Wait for completion of step 2: copying request body Downstream --► Proxy --► Upstream
         ///
         /// ASP .NET Core (Kestrel) will finally send response trailers (if any)
         /// after we complete the steps above and relinquish control.
@@ -134,6 +134,15 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
             Contracts.CheckValue(httpClient, nameof(httpClient));
 
             // :::::::::::::::::::::::::::::::::::::::::::::
+            // :: Step 0: Disable ASP .NET Core limits for gRPC requests
+            bool isIncomingHttp2 = HttpProtocol.IsHttp2(context.Request.Protocol);
+            bool isLikelyGrpc = isIncomingHttp2 && GRpcProtocolHelper.IsGRpcContentType(context.Request.ContentType);
+            if (isLikelyGrpc)
+            {
+                this.DisableMinRequestBodyDataRateAndMaxRequestBodySize(context);
+            }
+
+            // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 1: Create outgoing HttpRequestMessage
             var upstreamRequest = new HttpRequestMessage(HttpUtilities.GetHttpMethod(context.Request.Method), targetUri)
             {
@@ -146,7 +155,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 2: Setup copy of request body (background) Downstream --► Proxy --► Upstream
             // Note that we must do this before step (3) because step (3) may also add headers to the HttpContent that we set up here.
-            var bodyToUpstreamContent = SetupCopyBodyUpstream(context.Request.Body, upstreamRequest, in proxyTelemetryContext, longCancellation);
+            var bodyToUpstreamContent = SetupCopyBodyUpstream(context.Request.Body, upstreamRequest, in proxyTelemetryContext, isLikelyGrpc, longCancellation);
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 3: Copy request headers Downstream --► Proxy --► Upstream
@@ -158,7 +167,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
             var upstreamResponse = await httpClient.SendAsync(upstreamRequest, shortCancellation);
 
             // Detect connection downgrade, which may be problematic for e.g. gRPC.
-            if (upstreamResponse.Version.Major != 2 && HttpProtocol.IsHttp2(context.Request.Protocol))
+            if (isIncomingHttp2 && upstreamResponse.Version.Major != 2)
             {
                 // TODO: Do something on connection downgrade...
                 _logger.LogInformation($"HTTP version downgrade detected! This may break gRPC communications.");
@@ -183,17 +192,33 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
             // :: Step 6: Copy response headers Downstream ◄-- Proxy ◄-- Upstream
             CopyHeadersToDownstream(upstreamResponse, context.Response.Headers);
 
-            // :::::::::::::::::::::::::::::::::::::::::::::
-            // :: Step 7: Send response headers Downstream ◄-- Proxy ◄-- Upstream
-            // This is important to avoid any extra delays in sending response headers
-            // e.g. if the upstream server is slow to provide its response body.
-            ////this.logger.LogInformation($"   Starting downstream <-- Proxy response");
+            // NOTE: it may *seem* wise to call `context.Response.StartAsync()` at this point
+            // since it looks like we are ready to send back response headers
+            // (and this might help reduce extra delays while we wait to receive the body from upstream).
+            // HOWEVER, this would produce the wrong result if it turns out that there is no content
+            // from the upstream -- instead of sending headers and terminating the stream at once,
+            // we would send headers thinking a body may be coming, and there is none.
+            // This is problematic on gRPC connections when the upstream server encounters an error,
+            // in which case it immediately returns the response headers and trailing headers, but no content,
+            // and clients misbehave if the initial headers response does not indicate stream end.
+
             // TODO: Some of the tasks in steps (7) - (9) may go unobserved depending on what fails first. Needs more consideration.
-            await context.Response.StartAsync(shortCancellation);
 
             // :::::::::::::::::::::::::::::::::::::::::::::
-            // :: Step 8: Copy response body Downstream ◄-- Proxy ◄-- Upstream
+            // :: Step 7: Copy response body Downstream ◄-- Proxy ◄-- Upstream
             await CopyBodyDownstreamAsync(upstreamResponse.Content, context.Response.Body, proxyTelemetryContext, longCancellation);
+
+            // :::::::::::::::::::::::::::::::::::::::::::::
+            // :: Step 8: Copy response trailer headers and finish response Downstream ◄-- Proxy ◄-- Upstream
+            CopyTrailingHeadersToDownstream(upstreamResponse, context);
+
+            // NOTE: We must call `CompleteAsync` so that Kestrel will flush all bytes to the client.
+            // In the case where there was no response body,
+            // this is also when headers and trailing headers are sent to the client.
+            // Without this, the client might wait forever waiting for response bytes,
+            // while we might wait forever waiting for request bytes,
+            // leading to a stuck connection and no way to make progress.
+            await context.Response.CompleteAsync();
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 9: Wait for completion of step 2: copying request body Downstream --► Proxy --► Upstream
@@ -202,10 +227,6 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
                 ////this.logger.LogInformation($"   Waiting for downstream --> Proxy --> upstream body proxying to complete");
                 await bodyToUpstreamContent.ConsumptionTask;
             }
-
-            // :::::::::::::::::::::::::::::::::::::::::::::
-            // :: Step 10: Copy response trailer headers Downstream ◄-- Proxy ◄-- Upstream
-            CopyTrailingHeadersToDownstream(upstreamResponse, context);
         }
 
         /// <summary>
@@ -311,13 +332,22 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
             await Task.WhenAll(upstreamTask, downstreamTask);
         }
 
-        private StreamCopyHttpContent SetupCopyBodyUpstream(Stream source, HttpRequestMessage upstreamRequest, in ProxyTelemetryContext proxyTelemetryContext, CancellationToken cancellation)
+        private StreamCopyHttpContent SetupCopyBodyUpstream(Stream source, HttpRequestMessage upstreamRequest, in ProxyTelemetryContext proxyTelemetryContext, bool isLikelyGrpc, CancellationToken cancellation)
         {
             StreamCopyHttpContent contentToUpstream = null;
             if (source != null)
             {
                 ////this.logger.LogInformation($"   Setting up downstream --> Proxy --> upstream body proxying");
 
+                // Note on `autoFlushHttpClientOutgoingStream: isLikelyGrpc`:
+                // The.NET Core HttpClient stack keeps its own buffers on top of the underlying outgoing connection socket.
+                // We flush those buffers down to the socket on every write when this is set,
+                // but it does NOT result in calls to flush on the underlying socket.
+                // This is necessary because we proxy http2 transparently,
+                // and we are deliberately unaware of packet structure used e.g. in gRPC duplex channels.
+                // Because the sockets aren't flushed, the perf impact of this choice is expected to be small.
+                // Future: It may be wise to set this to true for *all* http2 incoming requests,
+                // but for now, out of an abundance of caution, we only do it for requests that look like gRPC.
                 var streamCopier = new StreamCopier(
                     _metrics,
                     new StreamCopyTelemetryContext(
@@ -325,7 +355,11 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
                         backendId: proxyTelemetryContext.BackendId,
                         routeId: proxyTelemetryContext.RouteId,
                         endpointId: proxyTelemetryContext.EndpointId));
-                contentToUpstream = new StreamCopyHttpContent(source, streamCopier, cancellation);
+                contentToUpstream = new StreamCopyHttpContent(
+                    source: source,
+                    streamCopier: streamCopier,
+                    autoFlushHttpClientOutgoingStream: isLikelyGrpc,
+                    cancellation: cancellation);
                 upstreamRequest.Content = contentToUpstream;
             }
 
@@ -412,6 +446,40 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
                 foreach (var header in source.TrailingHeaders)
                 {
                     responseTrailersFeature.Trailers.Add(header.Key, new StringValues(header.Value.ToArray()));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Disable some ASP .NET Core server limits so that we can handle long-running gRPC requests unconstrained.
+        /// Note that the gRPC server implementation on ASP .NET Core does the same for client-streaming and duplex methods.
+        /// Since in Gateway we have no way to determine if the current request requires client-streaming or duplex comm,
+        /// we do this for *all* incoming requests that look like they might be gRPC.
+        /// </summary>
+        /// <remarks>
+        /// Inspired on
+        /// <see href="https://github.com/grpc/grpc-dotnet/blob/3ce9b104524a4929f5014c13cd99ba9a1c2431d4/src/Grpc.AspNetCore.Server/Internal/CallHandlers/ServerCallHandlerBase.cs#L127"/>.
+        /// </remarks>
+        private void DisableMinRequestBodyDataRateAndMaxRequestBodySize(HttpContext httpContext)
+        {
+            var minRequestBodyDataRateFeature = httpContext.Features.Get<IHttpMinRequestBodyDataRateFeature>();
+            if (minRequestBodyDataRateFeature != null)
+            {
+                minRequestBodyDataRateFeature.MinDataRate = null;
+            }
+
+            var maxRequestBodySizeFeature = httpContext.Features.Get<IHttpMaxRequestBodySizeFeature>();
+            if (maxRequestBodySizeFeature != null)
+            {
+                if (!maxRequestBodySizeFeature.IsReadOnly)
+                {
+                    maxRequestBodySizeFeature.MaxRequestBodySize = null;
+                }
+                else
+                {
+                    // IsReadOnly could be true if middleware has already started reading the request body
+                    // In that case we can't disable the max request body size for the request stream
+                    _logger.LogWarning("Unable to disable max request body size.");
                 }
             }
         }
