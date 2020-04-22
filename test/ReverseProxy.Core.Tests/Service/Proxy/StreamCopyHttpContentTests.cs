@@ -30,7 +30,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
                 .Setup(s => s.CopyAsync(source, destination, It.IsAny<CancellationToken>()))
                 .Returns(() => source.CopyToAsync(destination));
 
-            var sut = new StreamCopyHttpContent(source, streamCopierMock.Object, CancellationToken.None);
+            var sut = new StreamCopyHttpContent(source, streamCopierMock.Object, autoFlushHttpClientOutgoingStream: false, CancellationToken.None);
 
             // Act & Assert
             Assert.False(sut.ConsumptionTask.IsCompleted);
@@ -40,6 +40,38 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
             Assert.True(sut.Started);
             Assert.True(sut.ConsumptionTask.IsCompleted);
             Assert.Equal(sourceBytes, destination.ToArray());
+        }
+
+        [Theory]
+        [InlineData(false, 1)] // we expect to always flush at least once to trigger sending request headers
+        [InlineData(true, 2)]
+        public async Task CopyToAsync_AutoFlushing(bool autoFlush, int expectedFlushes)
+        {
+            // Arrange
+            const int SourceSize = (128 * 1024) - 3;
+
+            var sourceBytes = Enumerable.Range(0, SourceSize).Select(i => (byte)(i % 256)).ToArray();
+            var source = new MemoryStream(sourceBytes);
+            var destination = new MemoryStream();
+            var flushCountingDestination = new FlushCountingStream(destination);
+
+            var streamCopierMock = new Mock<IStreamCopier>();
+            streamCopierMock
+                .Setup(s => s.CopyAsync(source, It.IsAny<Stream>(), It.IsAny<CancellationToken>()))
+                .Returns((Stream source_, Stream destination_, CancellationToken cancellation_) =>
+                    source_.CopyToAsync(destination_));
+
+            var sut = new StreamCopyHttpContent(source, streamCopierMock.Object, autoFlushHttpClientOutgoingStream: autoFlush, CancellationToken.None);
+
+            // Act & Assert
+            Assert.False(sut.ConsumptionTask.IsCompleted);
+            Assert.False(sut.Started);
+            await sut.CopyToAsync(flushCountingDestination);
+
+            Assert.True(sut.Started);
+            Assert.True(sut.ConsumptionTask.IsCompleted);
+            Assert.Equal(sourceBytes, destination.ToArray());
+            Assert.Equal(expectedFlushes, flushCountingDestination.NumFlushes);
         }
 
         [Fact]
@@ -57,7 +89,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
                     await tcs.Task;
                 });
 
-            var sut = new StreamCopyHttpContent(source, streamCopierMock.Object, CancellationToken.None);
+            var sut = new StreamCopyHttpContent(source, streamCopierMock.Object, autoFlushHttpClientOutgoingStream: false, CancellationToken.None);
 
             // Act & Assert
             Assert.False(sut.ConsumptionTask.IsCompleted);
@@ -78,7 +110,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
             // Arrange
             var source = new MemoryStream();
             var destination = new MemoryStream();
-            var sut = new StreamCopyHttpContent(source, new Mock<IStreamCopier>().Object, CancellationToken.None);
+            var sut = new StreamCopyHttpContent(source, new Mock<IStreamCopier>().Object, autoFlushHttpClientOutgoingStream: false, CancellationToken.None);
 
             // Act
             Func<Task> func = () => sut.ReadAsStreamAsync();
@@ -93,7 +125,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
             // Arrange
             var source = new MemoryStream();
             var streamCopierMock = new Mock<IStreamCopier>();
-            var sut = new StreamCopyHttpContent(source, streamCopierMock.Object, CancellationToken.None);
+            var sut = new StreamCopyHttpContent(source, streamCopierMock.Object, autoFlushHttpClientOutgoingStream: false, CancellationToken.None);
 
             // Assert
             // This is an internal property that HttpClient and friends use internally and which must be true
@@ -103,6 +135,73 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
             Assert.NotNull(allowDuplexProperty);
             var allowDuplex = (bool)allowDuplexProperty.GetValue(sut);
             Assert.True(allowDuplex);
+        }
+
+        private class FlushCountingStream : Stream
+        {
+            private readonly Stream _stream;
+
+            public FlushCountingStream(Stream stream)
+            {
+                _stream = stream;
+            }
+
+            public int NumFlushes { get; private set; }
+
+            public override bool CanRead => _stream.CanRead;
+
+            public override bool CanSeek => _stream.CanSeek;
+
+            public override bool CanWrite => _stream.CanWrite;
+
+            public override long Length => _stream.Length;
+
+            public override long Position
+            {
+                get => _stream.Position;
+                set => _stream.Position = value;
+            }
+
+            public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+            {
+                return _stream.WriteAsync(buffer, offset, count, cancellationToken);
+            }
+
+            public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
+            {
+                return _stream.WriteAsync(buffer, cancellationToken);
+            }
+
+            public override async Task FlushAsync(CancellationToken cancellationToken)
+            {
+                await _stream.FlushAsync(cancellationToken);
+                NumFlushes++;
+            }
+
+            public override void Flush()
+            {
+                _stream.Flush();
+            }
+
+            public override int Read(byte[] buffer, int offset, int count)
+            {
+                return _stream.Read(buffer, offset, count);
+            }
+
+            public override long Seek(long offset, SeekOrigin origin)
+            {
+                return _stream.Seek(offset, origin);
+            }
+
+            public override void SetLength(long value)
+            {
+                _stream.SetLength(value);
+            }
+
+            public override void Write(byte[] buffer, int offset, int count)
+            {
+                _stream.Write(buffer, offset, count);
+            }
         }
     }
 }

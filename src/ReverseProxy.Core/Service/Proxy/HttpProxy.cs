@@ -13,9 +13,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Server.Kestrel.Core.Features;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
-using Microsoft.ReverseProxy.Core.Abstractions;
 using Microsoft.ReverseProxy.Core.Service.Metrics;
 using Microsoft.ReverseProxy.Core.Service.Proxy.Infra;
 using Microsoft.ReverseProxy.Utilities;
@@ -135,11 +135,11 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 0: Disable ASP .NET Core limits for gRPC requests
-            bool isIncomingHttp2 = HttpProtocol.IsHttp2(context.Request.Protocol);
-            bool isLikelyGrpc = isIncomingHttp2 && GRpcProtocolHelper.IsGRpcContentType(context.Request.ContentType);
+            var isIncomingHttp2 = HttpProtocol.IsHttp2(context.Request.Protocol);
+            var isLikelyGrpc = isIncomingHttp2 && GRpcProtocolHelper.IsGRpcContentType(context.Request.ContentType);
             if (isLikelyGrpc)
             {
-                this.DisableMinRequestBodyDataRateAndMaxRequestBodySize(context);
+                DisableMinRequestBodyDataRateAndMaxRequestBodySize(context);
             }
 
             // :::::::::::::::::::::::::::::::::::::::::::::
