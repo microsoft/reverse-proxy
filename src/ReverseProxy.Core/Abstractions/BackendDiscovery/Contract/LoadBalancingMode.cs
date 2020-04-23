@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Microsoft.ReverseProxy.Core.RuntimeModel
+namespace Microsoft.ReverseProxy.Core.Abstractions
 {
     /// <summary>
     /// Load balancing strategies for endpoint selection.

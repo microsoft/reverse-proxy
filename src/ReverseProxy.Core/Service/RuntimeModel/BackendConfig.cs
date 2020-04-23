@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using Microsoft.ReverseProxy.Core.Abstractions;
 
 namespace Microsoft.ReverseProxy.Core.RuntimeModel
 {
