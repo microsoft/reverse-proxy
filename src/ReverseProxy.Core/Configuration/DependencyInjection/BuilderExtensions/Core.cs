@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.ReverseProxy.Common.Abstractions.Telemetry;
 using Microsoft.ReverseProxy.Common.Abstractions.Time;
 using Microsoft.ReverseProxy.Common.Telemetry;
@@ -20,64 +21,64 @@ namespace Microsoft.ReverseProxy.Core.Configuration.DependencyInjection
         public static IReverseProxyBuilder AddTelemetryShims(this IReverseProxyBuilder builder)
         {
             // NOTE: Consumers of ReverseProxy are expected to replace these with their own classes
-            builder.Services.AddSingleton<IMetricCreator, NullMetricCreator>();
-            builder.Services.AddSingleton<IOperationLogger, TextOperationLogger>();
+            builder.Services.TryAddSingleton<IMetricCreator, NullMetricCreator>();
+            builder.Services.TryAddSingleton<IOperationLogger, TextOperationLogger>();
             return builder;
         }
 
         public static IReverseProxyBuilder AddMetrics(this IReverseProxyBuilder builder)
         {
-            builder.Services.AddSingleton<ProxyMetrics>();
+            builder.Services.TryAddSingleton<ProxyMetrics>();
             return builder;
         }
 
         public static IReverseProxyBuilder AddInMemoryRepos(this IReverseProxyBuilder builder)
         {
-            builder.Services.AddSingleton<IBackendsRepo, InMemoryBackendsRepo>();
-            builder.Services.AddSingleton<IRoutesRepo, InMemoryRoutesRepo>();
+            builder.Services.TryAddSingleton<IBackendsRepo, InMemoryBackendsRepo>();
+            builder.Services.TryAddSingleton<IRoutesRepo, InMemoryRoutesRepo>();
 
             return builder;
         }
 
         public static IReverseProxyBuilder AddConfigBuilder(this IReverseProxyBuilder builder)
         {
-            builder.Services.AddSingleton<IDynamicConfigBuilder, DynamicConfigBuilder>();
-            builder.Services.AddSingleton<IRouteValidator, RouteValidator>();
-            builder.Services.AddSingleton<IRuntimeRouteBuilder, RuntimeRouteBuilder>();
+            builder.Services.TryAddSingleton<IDynamicConfigBuilder, DynamicConfigBuilder>();
+            builder.Services.TryAddSingleton<IRouteValidator, RouteValidator>();
+            builder.Services.TryAddSingleton<IRuntimeRouteBuilder, RuntimeRouteBuilder>();
             return builder;
         }
 
         public static IReverseProxyBuilder AddRuntimeStateManagers(this IReverseProxyBuilder builder)
         {
-            builder.Services.AddSingleton<IEndpointManagerFactory, EndpointManagerFactory>();
-            builder.Services.AddSingleton<IBackendManager, BackendManager>();
-            builder.Services.AddSingleton<IRouteManager, RouteManager>();
+            builder.Services.TryAddSingleton<IEndpointManagerFactory, EndpointManagerFactory>();
+            builder.Services.TryAddSingleton<IBackendManager, BackendManager>();
+            builder.Services.TryAddSingleton<IRouteManager, RouteManager>();
             return builder;
         }
 
         public static IReverseProxyBuilder AddConfigManager(this IReverseProxyBuilder builder)
         {
-            builder.Services.AddSingleton<IReverseProxyConfigManager, ReverseProxyConfigManager>();
+            builder.Services.TryAddSingleton<IReverseProxyConfigManager, ReverseProxyConfigManager>();
             return builder;
         }
 
         public static IReverseProxyBuilder AddDynamicEndpointDataSource(this IReverseProxyBuilder builder)
         {
-            builder.Services.AddSingleton<IProxyDynamicEndpointDataSource, ProxyDynamicEndpointDataSource>();
+            builder.Services.TryAddSingleton<IProxyDynamicEndpointDataSource, ProxyDynamicEndpointDataSource>();
             return builder;
         }
 
         public static IReverseProxyBuilder AddProxy(this IReverseProxyBuilder builder)
         {
-            builder.Services.AddSingleton<IProxyHttpClientFactoryFactory, ProxyHttpClientFactoryFactory>();
-            builder.Services.AddSingleton<ILoadBalancer, LoadBalancer>();
-            builder.Services.AddSingleton<IHttpProxy, HttpProxy>();
+            builder.Services.TryAddSingleton<IProxyHttpClientFactoryFactory, ProxyHttpClientFactoryFactory>();
+            builder.Services.TryAddSingleton<ILoadBalancer, LoadBalancer>();
+            builder.Services.TryAddSingleton<IHttpProxy, HttpProxy>();
             return builder;
         }
 
         public static IReverseProxyBuilder AddBackgroundWorkers(this IReverseProxyBuilder builder)
         {
-            builder.Services.AddSingleton<IMonotonicTimer, MonotonicTimer>();
+            builder.Services.TryAddSingleton<IMonotonicTimer, MonotonicTimer>();
 
             return builder;
         }
