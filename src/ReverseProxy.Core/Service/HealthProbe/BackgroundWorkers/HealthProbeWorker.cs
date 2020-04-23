@@ -76,7 +76,7 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
                 if (!createNewProber)
                 {
                     var reason = backendConfig == null ? "no backend configuration" : $"{nameof(backendConfig.HealthCheckOptions)}.{nameof(backendConfig.HealthCheckOptions.Enabled)} = false";
-                    Log.HealthCheckDisabled(_logger, backend.BackendId);
+                    Log.HealthCheckDisabled(_logger, backend.BackendId, reason);
                 }
 
                 // Step 4: New prober need to been created, start the new registered prober.
@@ -131,7 +131,7 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
                 EventIds.HealthCheckStopping,
                 "Health check work stopping prober for '{backendId}'.");
 
-            private static readonly Action<ILogger, string, Exception> _healthCheckDisabled = LoggerMessage.Define<string>(
+            private static readonly Action<ILogger, string, string, Exception> _healthCheckDisabled = LoggerMessage.Define<string, string>(
                 LogLevel.Information,
                 EventIds.HealthCheckDisabled,
                 "Health check prober for backend '{backendId}' is disabled because {reason}.");
@@ -153,9 +153,9 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
                 _healthCheckStopping(logger, backendId, null);
             }
 
-            public static void HealthCheckDisabled(ILogger logger, string backendId)
+            public static void HealthCheckDisabled(ILogger logger, string backendId, string reason)
             {
-                _healthCheckDisabled(logger, backendId, null);
+                _healthCheckDisabled(logger, backendId, reason, null);
             }
 
             public static void ProberCreated(ILogger logger, string backendId)
