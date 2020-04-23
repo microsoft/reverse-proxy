@@ -1,5 +1,7 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
+using System;
 
 namespace Microsoft.ReverseProxy.Utilities
 {
@@ -7,7 +9,7 @@ namespace Microsoft.ReverseProxy.Utilities
     public class RandomFactory : IRandomFactory
     {
         /// <inheritdoc/>
-        public IRandom CreateRandomInstance()
+        public Random CreateRandomInstance()
         {
             return ThreadStaticRandom.Instance;
         }

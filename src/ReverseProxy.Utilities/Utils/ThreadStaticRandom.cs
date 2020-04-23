@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -10,44 +10,8 @@ namespace Microsoft.ReverseProxy.Utilities
     /// </summary>
     public class ThreadStaticRandom
     {
-        /// <summary>
-        /// This is the shared instance of <see cref="RandomWrapper"/> that would be used to generate a seed value for the Thread static instance.
-        /// </summary>
-        private static readonly Lazy<RandomWrapper> _globalRandom = new Lazy<RandomWrapper>(() => new RandomWrapper(new Random()));
-
-        /// <summary>
-        /// This instance of <see cref="RandomWrapper"/> is unique to each thread.
-        /// </summary>
         [ThreadStatic]
-        private static RandomWrapper _threadLocalRandom = null;
-
-        /// <summary>
-        /// Gets the a thread safe instance of <see cref="RandomWrapper"/>.
-        /// </summary>
-        public static IRandom Instance
-        {
-            get
-            {
-                var currentInstance = _threadLocalRandom;
-
-                // Check if for the current thread the seed has already been established. If not then lock on the global random instance to generate a seed value
-                if (currentInstance == null)
-                {
-                    int seedForThreadLocalInstance;
-
-                    lock (_globalRandom.Value)
-                    {
-                        seedForThreadLocalInstance = _globalRandom.Value.Next();
-                    }
-
-                    // Initialize the current instance with the seed
-                    var random = new Random(seedForThreadLocalInstance);
-                    currentInstance = new RandomWrapper(random);
-                    _threadLocalRandom = currentInstance;
-                }
-
-                return currentInstance;
-            }
-        }
+        private static Random t_inst;
+        public static Random Instance => t_inst ??= new Random();
     }
 }

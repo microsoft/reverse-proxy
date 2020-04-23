@@ -23,7 +23,7 @@ namespace Microsoft.ReverseProxy.Core.Abstractions.Tests
                 CircuitBreakerOptions = new CircuitBreakerOptions(),
                 QuotaOptions = new QuotaOptions(),
                 PartitioningOptions = new BackendPartitioningOptions(),
-                LoadBalancingOptions = new LoadBalancingOptions(),
+                LoadBalancing = new LoadBalancingOptions(),
                 HealthCheckOptions = new HealthCheckOptions(),
                 Metadata = new Dictionary<string, string>
                 {
@@ -42,8 +42,8 @@ namespace Microsoft.ReverseProxy.Core.Abstractions.Tests
             Assert.NotSame(backend.QuotaOptions, clone.QuotaOptions);
             Assert.NotNull(clone.PartitioningOptions);
             Assert.NotSame(backend.PartitioningOptions, clone.PartitioningOptions);
-            Assert.NotNull(clone.LoadBalancingOptions);
-            Assert.NotSame(backend.LoadBalancingOptions, clone.LoadBalancingOptions);
+            Assert.NotNull(clone.LoadBalancing);
+            Assert.NotSame(backend.LoadBalancing, clone.LoadBalancing);
             Assert.NotNull(clone.HealthCheckOptions);
             Assert.NotSame(backend.HealthCheckOptions, clone.HealthCheckOptions);
             Assert.NotNull(clone.Metadata);
@@ -65,7 +65,7 @@ namespace Microsoft.ReverseProxy.Core.Abstractions.Tests
             Assert.Null(clone.CircuitBreakerOptions);
             Assert.Null(clone.QuotaOptions);
             Assert.Null(clone.PartitioningOptions);
-            Assert.Null(clone.LoadBalancingOptions);
+            Assert.Null(clone.LoadBalancing);
             Assert.Null(clone.HealthCheckOptions);
             Assert.Null(clone.Metadata);
         }
