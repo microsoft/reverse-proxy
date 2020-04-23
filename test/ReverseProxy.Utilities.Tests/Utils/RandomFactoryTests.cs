@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Utilities
@@ -18,7 +19,7 @@ namespace Microsoft.ReverseProxy.Utilities
 
             // Validate.
             Assert.NotNull(random);
-            Assert.IsType<RandomWrapper>(random);
+            Assert.IsType<Random>(random);
 
             // Validate functionality
             var num = random.Next(5);

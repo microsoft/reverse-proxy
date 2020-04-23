@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.ReverseProxy.Common.Abstractions.Telemetry;
@@ -13,6 +14,7 @@ using Microsoft.ReverseProxy.Core.Service.Management;
 using Microsoft.ReverseProxy.Core.Service.Metrics;
 using Microsoft.ReverseProxy.Core.Service.Proxy;
 using Microsoft.ReverseProxy.Core.Service.Proxy.Infra;
+using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Core.Configuration.DependencyInjection
 {
@@ -72,6 +74,7 @@ namespace Microsoft.ReverseProxy.Core.Configuration.DependencyInjection
         {
             builder.Services.TryAddSingleton<IProxyHttpClientFactoryFactory, ProxyHttpClientFactoryFactory>();
             builder.Services.TryAddSingleton<ILoadBalancer, LoadBalancer>();
+            builder.Services.TryAddSingleton<IRandomFactory, RandomFactory>();
             builder.Services.TryAddSingleton<IHttpProxy, HttpProxy>();
             return builder;
         }

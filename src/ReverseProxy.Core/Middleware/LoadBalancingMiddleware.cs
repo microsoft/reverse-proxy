@@ -41,7 +41,6 @@ namespace Microsoft.ReverseProxy.Core.Middleware
             var endpoints = endpointsFeature?.Endpoints
                 ?? throw new InvalidOperationException("The AvailableBackendEndpoints collection was not set.");
 
-            // TODO: Set defaults properly
             var loadBalancingOptions = backend.Config.Value?.LoadBalancingOptions ?? default;
 
             var endpoint = _operationLogger.Execute(

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using Microsoft.ReverseProxy.Core.Abstractions;
 
 namespace Microsoft.ReverseProxy.Core.RuntimeModel
 {
@@ -78,13 +79,6 @@ namespace Microsoft.ReverseProxy.Core.RuntimeModel
             public BackendLoadBalancingOptions(LoadBalancingMode mode)
             {
                 Mode = mode;
-            }
-
-            public enum LoadBalancingMode
-            {
-                First,
-                Random,
-                PowerOfTwoChoices,
             }
 
             public LoadBalancingMode Mode { get; }

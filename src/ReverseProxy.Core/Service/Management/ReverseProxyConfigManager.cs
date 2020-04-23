@@ -93,7 +93,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Management
                                     port: configBackend.HealthCheckOptions?.Port ?? 0,
                                     path: configBackend.HealthCheckOptions?.Path ?? string.Empty),
                                 new BackendConfig.BackendLoadBalancingOptions(
-                                    mode: BackendConfig.BackendLoadBalancingOptions.LoadBalancingMode.First));
+                                    mode: configBackend.LoadBalancing?.Mode ?? default));
 
                         var currentBackendConfig = backend.Config.Value;
                         if (currentBackendConfig == null ||
