@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
+using Microsoft.ReverseProxy.Common;
 using Microsoft.ReverseProxy.Core.Abstractions;
 using Microsoft.ReverseProxy.Core.Service.Metrics;
 using Microsoft.ReverseProxy.Core.Service.Proxy.Infra;
@@ -161,7 +162,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
             if (upstreamResponse.Version.Major != 2 && HttpProtocol.IsHttp2(context.Request.Protocol))
             {
                 // TODO: Do something on connection downgrade...
-                _logger.LogInformation($"HTTP version downgrade detected! This may break gRPC communications.");
+                _logger.LogInformation(EventIds.HttpDowngradeDeteced, "HTTP version downgrade detected! This may break gRPC communications.");
             }
 
             // Assert that, if we are proxying content upstream, it must have started by now

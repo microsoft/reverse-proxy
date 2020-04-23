@@ -22,7 +22,6 @@ namespace Microsoft.ReverseProxy.Core.Middleware.Tests
     {
         public EndpointInitializerMiddlewareTests()
         {
-            Provide<IOperationLogger, TextOperationLogger>();
             Provide<RequestDelegate>(context => Task.CompletedTask);
         }
 

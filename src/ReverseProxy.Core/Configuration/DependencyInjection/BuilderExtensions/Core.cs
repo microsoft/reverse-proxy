@@ -21,7 +21,7 @@ namespace Microsoft.ReverseProxy.Core.Configuration.DependencyInjection
         {
             // NOTE: Consumers of ReverseProxy are expected to replace these with their own classes
             builder.Services.AddSingleton<IMetricCreator, NullMetricCreator>();
-            builder.Services.AddSingleton<IOperationLogger, TextOperationLogger>();
+            builder.Services.AddSingleton(typeof(IOperationLogger<>), typeof(TextOperationLogger<>));
             return builder;
         }
 

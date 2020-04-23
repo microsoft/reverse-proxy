@@ -17,23 +17,23 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
     internal class BackendProberFactory : IBackendProberFactory
     {
         private readonly IMonotonicTimer _timer;
-        private readonly ILoggerFactory _loggerFactory;
+        private readonly ILogger<BackendProber> _logger;
         private readonly IHealthProbeHttpClientFactory _httpClientFactory;
         private readonly IRandomFactory _randomFactory;
-        private readonly IOperationLogger _operationLogger;
+        private readonly IOperationLogger<BackendProber> _operationLogger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BackendProberFactory"/> class.
         /// </summary>
-        public BackendProberFactory(IMonotonicTimer timer, ILoggerFactory loggerFactory, IOperationLogger operationLogger, IHealthProbeHttpClientFactory httpClientFactory)
+        public BackendProberFactory(IMonotonicTimer timer, ILogger<BackendProber> logger, IOperationLogger<BackendProber> operationLogger, IHealthProbeHttpClientFactory httpClientFactory)
         {
             Contracts.CheckValue(timer, nameof(timer));
-            Contracts.CheckValue(loggerFactory, nameof(loggerFactory));
+            Contracts.CheckValue(logger, nameof(logger));
             Contracts.CheckValue(operationLogger, nameof(operationLogger));
             Contracts.CheckValue(httpClientFactory, nameof(httpClientFactory));
 
             _timer = timer;
-            _loggerFactory = loggerFactory;
+            _logger = logger;
             _httpClientFactory = httpClientFactory;
             _randomFactory = new RandomFactory();
             _operationLogger = operationLogger;
@@ -42,7 +42,7 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
         /// <inheritdoc/>
         public IBackendProber CreateBackendProber(string backendId, BackendConfig config, IEndpointManager endpointManager)
         {
-            return new BackendProber(backendId, config, endpointManager, _timer, _loggerFactory.CreateLogger<BackendProber>(), _operationLogger, _httpClientFactory.CreateHttpClient(), _randomFactory);
+            return new BackendProber(backendId, config, endpointManager, _timer, _logger, _operationLogger, _httpClientFactory.CreateHttpClient(), _randomFactory);
         }
     }
 }

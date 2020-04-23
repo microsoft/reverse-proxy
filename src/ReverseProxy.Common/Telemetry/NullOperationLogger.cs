@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -11,7 +11,7 @@ namespace Microsoft.ReverseProxy.Common.Telemetry
     /// Implementation of <see cref="IOperationLogger"/>
     /// which doesn't log anything.
     /// </summary>
-    public class NullOperationLogger : IOperationLogger
+    public class NullOperationLogger<TCategoryName> : IOperationLogger<TCategoryName>
     {
         /// <inheritdoc/>
         public IOperationContext Context => new NullOperationContext();

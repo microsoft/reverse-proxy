@@ -22,7 +22,7 @@ namespace Microsoft.ReverseProxy.Core.Middleware.Tests
     {
         public LoadBalancerMiddlewareTests()
         {
-            Provide<IOperationLogger, TextOperationLogger>();
+            Provide<IOperationLogger<LoadBalancingMiddleware>, TextOperationLogger<LoadBalancingMiddleware>>();
             Provide<RequestDelegate>(context => Task.CompletedTask);
         }
 

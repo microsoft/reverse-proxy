@@ -13,15 +13,15 @@ namespace Microsoft.ReverseProxy.Common.Telemetry
     /// Default implementation of <see cref="IOperationLogger"/>
     /// which logs activity start / end events as Information messages.
     /// </summary>
-    public class TextOperationLogger : IOperationLogger
+    public class TextOperationLogger<TCategoryName> : IOperationLogger<TCategoryName>
     {
-        private readonly ILogger<TextOperationLogger> _logger;
+        private readonly ILogger<TCategoryName> _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TextOperationLogger"/> class.
         /// </summary>
         /// <param name="logger">Logger where text messages will be logger.</param>
-        public TextOperationLogger(ILogger<TextOperationLogger> logger)
+        public TextOperationLogger(ILogger<TCategoryName> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
@@ -36,13 +36,13 @@ namespace Microsoft.ReverseProxy.Common.Telemetry
             var stopwatch = ValueStopwatch.StartNew();
             try
             {
-                _logger.LogInformation($"Operation started: {operationName}");
+                Log.OperationStarted(_logger, operationName);
                 action();
-                _logger.LogInformation($"Operation ended: {operationName}, {stopwatch.Elapsed.TotalMilliseconds:F1}ms, success");
+                Log.OperationEnded(_logger, operationName, stopwatch.Elapsed.TotalMilliseconds);
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"Operation ended: {operationName}, {stopwatch.Elapsed.TotalMilliseconds:F1}ms, error: {ex.Message}");
+                Log.OperationFailed(_logger, operationName, stopwatch.Elapsed.TotalMilliseconds, ex.Message);
                 throw;
             }
         }
@@ -53,14 +53,14 @@ namespace Microsoft.ReverseProxy.Common.Telemetry
             var stopwatch = ValueStopwatch.StartNew();
             try
             {
-                _logger.LogInformation($"Operation started: {operationName}");
+                Log.OperationStarted(_logger, operationName);
                 var res = func();
-                _logger.LogInformation($"Operation ended: {operationName}, {stopwatch.Elapsed.TotalMilliseconds:F1}ms, success");
+                Log.OperationEnded(_logger, operationName, stopwatch.Elapsed.TotalMilliseconds);
                 return res;
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"Operation ended: {operationName}, {stopwatch.Elapsed.TotalMilliseconds:F1}ms, error: {ex.Message}");
+                Log.OperationFailed(_logger, operationName, stopwatch.Elapsed.TotalMilliseconds, ex.Message);
                 throw;
             }
         }
@@ -71,13 +71,13 @@ namespace Microsoft.ReverseProxy.Common.Telemetry
             var stopwatch = ValueStopwatch.StartNew();
             try
             {
-                _logger.LogInformation($"Operation started: {operationName}");
+                Log.OperationStarted(_logger, operationName);
                 await action();
-                _logger.LogInformation($"Operation ended: {operationName}, {stopwatch.Elapsed.TotalMilliseconds:F1}ms, success");
+                Log.OperationEnded(_logger, operationName, stopwatch.Elapsed.TotalMilliseconds);
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"Operation ended: {operationName}, {stopwatch.Elapsed.TotalMilliseconds:F1}ms, error: {ex.Message}");
+                Log.OperationFailed(_logger, operationName, stopwatch.Elapsed.TotalMilliseconds, ex.Message);
                 throw;
             }
         }
@@ -88,15 +88,48 @@ namespace Microsoft.ReverseProxy.Common.Telemetry
             var stopwatch = ValueStopwatch.StartNew();
             try
             {
-                _logger.LogInformation($"Operation started: {operationName}");
+                Log.OperationStarted(_logger, operationName);
                 var res = await func();
-                _logger.LogInformation($"Operation ended: {operationName}, {stopwatch.Elapsed.TotalMilliseconds:F1}ms, success");
+                Log.OperationEnded(_logger, operationName, stopwatch.Elapsed.TotalMilliseconds);
                 return res;
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"Operation ended: {operationName}, {stopwatch.Elapsed.TotalMilliseconds:F1}ms, error: {ex.Message}");
+                Log.OperationFailed(_logger, operationName, stopwatch.Elapsed.TotalMilliseconds, ex.Message);
                 throw;
+            }
+        }
+
+        private static class Log
+        {
+            private static readonly Action<ILogger, string, Exception> _operationStarted = LoggerMessage.Define<string>(
+                LogLevel.Information,
+                EventIds.OperationStarted,
+                "Operation started: {operationName}");
+
+            private static readonly Action<ILogger, string, double, Exception> _operationEnded = LoggerMessage.Define<string, double>(
+                LogLevel.Information,
+                EventIds.OperationEnded,
+                "Operation ended: {operationName}, {operationDuration}ms, success");
+
+            private static readonly Action<ILogger, string, double, string, Exception> _operationFailed = LoggerMessage.Define<string, double, string>(
+                LogLevel.Information,
+                EventIds.OperationFailed,
+                "Operation ended: {operationName}, {operationDuration}ms, error: {operationError}");
+
+            public static void OperationStarted(ILogger logger, string operationName)
+            {
+                _operationStarted(logger, operationName, null);
+            }
+
+            public static void OperationEnded(ILogger logger, string operationName, double operationDuration)
+            {
+                _operationEnded(logger, operationName, operationDuration, null);
+            }
+
+            public static void OperationFailed(ILogger logger, string operationName, double operationDuration, string operationError)
+            {
+                _operationFailed(logger, operationName, operationDuration, operationError, null);
             }
         }
     }

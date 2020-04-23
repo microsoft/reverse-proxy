@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Microsoft.ReverseProxy.Common;
 using Microsoft.ReverseProxy.Common.Abstractions.Telemetry;
 using Microsoft.ReverseProxy.Common.Abstractions.Time;
 using Microsoft.ReverseProxy.Common.Util;
@@ -25,7 +26,7 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
         private readonly IRandomFactory _randomFactory;
         private readonly IEndpointManager _endpointManager;
         private readonly ILogger<BackendProber> _logger;
-        private readonly IOperationLogger _operationLogger;
+        private readonly IOperationLogger<BackendProber> _operationLogger;
 
         private Task _backgroundPollingLoopTask;
         private readonly TimeSpan _healthCheckInterval;
@@ -41,7 +42,7 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
         /// HealthProbe would query the health controller of the endpoint and update the health state for every endpoint
         /// periodically base on the time interval user specified in backend.
         /// </summary>
-        public BackendProber(string backendId, BackendConfig config, IEndpointManager endpointManager, IMonotonicTimer timer, ILogger<BackendProber> logger, IOperationLogger operationLogger, HttpClient httpClient, IRandomFactory randomFactory)
+        public BackendProber(string backendId, BackendConfig config, IEndpointManager endpointManager, IMonotonicTimer timer, ILogger<BackendProber> logger, IOperationLogger<BackendProber> operationLogger, HttpClient httpClient, IRandomFactory randomFactory)
         {
             Contracts.CheckValue(backendId, nameof(backendId));
             Contracts.CheckValue(config, nameof(config));
@@ -90,7 +91,7 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
 
             // Release the cancellation source
             _cts.Dispose();
-            _logger.LogInformation($"The backend prober for '{BackendId}' has stopped.");
+            Log.ProberStopped(_logger, BackendId);
         }
 
         /// <summary>
@@ -126,10 +127,10 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
                     catch (Exception ex) when (!ex.IsFatal())
                     {
                         // Swallow the nonfatal exception, we don not want the health check to break.
-                        _logger.LogError(ex, $"Prober for '{BackendId}' encounters unexpected exception.");
+                        Log.ProberFailed(_logger, BackendId, ex);
                     }
 
-                    _logger.LogInformation($"The backend prober for '{BackendId}' has checked all endpoints with time interval {_healthCheckInterval.TotalSeconds} second.");
+                    Log.ProberChecked(_logger, BackendId, _healthCheckInterval.TotalSeconds);
 
                     // Wait for next probe cycle.
                     await _timer.Delay(_healthCheckInterval, cancellationToken);
@@ -138,12 +139,12 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
             catch (OperationCanceledException) when (_cts.IsCancellationRequested)
             {
                 // If the cancel requested by our StopAsync method. It is a expected graceful shut down.
-                _logger.LogInformation($"Prober for backend '{BackendId}' has gracefully shutdown.");
+                Log.ProberGracefulShutdown(_logger, BackendId);
             }
             catch (Exception ex)
             {
                 // Swallow the exception, we want the health check continuously running like the heartbeat.
-                _logger.LogError(ex, $"Prober for '{BackendId}' encounters unexpected exception.");
+                Log.ProberFailed(_logger, BackendId, ex);
             }
         }
 
@@ -161,7 +162,7 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
 
             // Enforce max concurrency.
             await semaphore.WaitAsync();
-            _logger.LogInformation($"The backend prober for backend: '{BackendId}', endpoint: `{endpoint.EndpointId}` has started.");
+            Log.ProberStarted(_logger, BackendId, endpoint.EndpointId);
             try
             {
                 using (var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(_cts.Token))
@@ -209,11 +210,74 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
                     // Update the health state base on the response.
                     var healthState = outcome == HealthProbeOutcome.Success ? EndpointHealth.Healthy : EndpointHealth.Unhealthy;
                     endpoint.DynamicState.Value = new EndpointDynamicState(healthState);
-                    _logger.LogInformation($"Health probe result for endpoint '{endpoint.EndpointId}': {outcome}. Details: {logDetail}");
+                    Log.ProberResult(_logger, endpoint.EndpointId, outcome, logDetail);
                 }
 
                 // The probe operation is done, release the semaphore to allow other probes to proceed.
                 semaphore.Release();
+            }
+        }
+
+        private static class Log
+        {
+            private static readonly Action<ILogger, string, Exception> _proberStopped = LoggerMessage.Define<string>(
+               LogLevel.Information,
+               EventIds.ProberStopped,
+               "The backend prober for '{backendId}' has stopped.");
+
+            private static readonly Action<ILogger, string, Exception> _proberFailed = LoggerMessage.Define<string>(
+               LogLevel.Error,
+               EventIds.ProberFailed,
+               "Prober for '{backendId}' encounters unexpected exception.");
+
+            private static readonly Action<ILogger, string, double, Exception> _proberChecked = LoggerMessage.Define<string, double>(
+               LogLevel.Information,
+               EventIds.ProberChecked,
+               "The backend prober for '{backendId}' has checked all endpoints with time interval {proberCheckInterval} second.");
+
+            private static readonly Action<ILogger, string, Exception> _proberGracefulShutdown = LoggerMessage.Define<string>(
+                LogLevel.Information,
+                EventIds.ProberGracefulShutdown,
+                "Prober for backend '{backendId}' has gracefully shutdown.");
+
+            private static readonly Action<ILogger, string, string, Exception> _proberStarted = LoggerMessage.Define<string, string>(
+                LogLevel.Information,
+                EventIds.ProberStarted,
+                "The backend prober for backend: '{backendId}', endpoint: `{endpointId}` has started.");
+
+            private static readonly Action<ILogger, string, HealthProbeOutcome, string, Exception> _proberResult = LoggerMessage.Define<string, HealthProbeOutcome, string>(
+                LogLevel.Information,
+                EventIds.ProberResult,
+                "Health probe result for endpoint '{endpointId}': {probeOutcome}. Details: {probeOutcomeDetail}");
+
+            public static void ProberStopped(ILogger logger, string backendId)
+            {
+                _proberStopped(logger, backendId, null);
+            }
+
+            public static void ProberFailed(ILogger logger, string backendId, Exception exception)
+            {
+                _proberFailed(logger, backendId, exception);
+            }
+
+            public static void ProberChecked(ILogger logger, string backendId, double proberCheckInterval)
+            {
+                _proberChecked(logger, backendId, proberCheckInterval, null);
+            }
+
+            public static void ProberGracefulShutdown(ILogger logger, string backendId)
+            {
+                _proberGracefulShutdown(logger, backendId, null);
+            }
+
+            public static void ProberStarted(ILogger logger, string backendId, string endpointId)
+            {
+                _proberStarted(logger, backendId, endpointId, null);
+            }
+
+            public static void ProberResult(ILogger logger, string endpointId, HealthProbeOutcome proberOutcome, string probeOutcomeDetail)
+            {
+                _proberResult(logger, endpointId, proberOutcome, probeOutcomeDetail, null);
             }
         }
     }
