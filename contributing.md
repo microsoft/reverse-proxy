@@ -9,7 +9,7 @@ Start a discussion on the [repository issue tracker](https://github.com/microsof
 
 We love issues. Issues are the best place to discuss bugs, feature requests, ideas, designs etc. Issues are the way for everyone to communicate. We use issues to communicate across the team (and not just because we're currently all working from home due to Covid19.) Almost all contributions should start with an issue - even if its just filing the issue.
 
-If the conversations on an issue to wander off from the initial topic, and new ideas or issues get introduced, then those should be split off into separate issues. That makes it much easier to triage the issue as the decision can/should apply to the main concept, and those separate issues won't be lost and will also be considered. So if in doubt create a new issue, and add links from both the new and original issue to each other. The new issue can always be closed if it turns out to be a duplicate.
+If the conversations on an issue wander off from the initial topic, and new ideas or issues get introduced, then those should be split off into separate issues. That makes it much easier to triage the issue as the decision can/should apply to the main concept, and those separate issues won't be lost and will also be considered. So if in doubt create a new issue, and add links from both the new and original issue to each other. The new issue can always be closed if it turns out to be a duplicate.
 
 In particular, conversations on closed issues won't cause an issue to be re-opened, and so are unlikely to be noticed, so please create a new issue and refer to the old one with a link.
 
