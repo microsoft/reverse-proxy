@@ -19,7 +19,7 @@ We provide some scripts to set all this up for you. Just follow these steps:
 1. Run the `Restore.cmd`/`Restore.sh` script to fetch the required .NET SDK locally (to the `.dotnet` directory within this repo)
 1. "Dot-source" the `activate` script to put the local .NET SDK on the PATH
     1. For PowerShell, run: `. .\activate.ps1` (note the leading `. `, it is required!)
-    1. For Linux/macOS/WSL, run: `. .\activate.sh`
+    1. For Linux/macOS/WSL, run: `. ./activate.sh`
     1. For CMD, there is no supported script. You can manually add the `.dotnet` directory **within this repo** to your `PATH`. Ensure `where dotnet` shows a path within this repository!
 1. Launch VS, VS for Mac, or VS Code!
 
