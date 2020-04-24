@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.ReverseProxy.Core.Abstractions;
+using Microsoft.ReverseProxy.Core.Util;
 
 namespace Microsoft.ReverseProxy.Core.RuntimeModel
 {
@@ -79,9 +80,13 @@ namespace Microsoft.ReverseProxy.Core.RuntimeModel
             public BackendLoadBalancingOptions(LoadBalancingMode mode)
             {
                 Mode = mode;
+                // Increment returns the new value and we want the first return value to be 0.
+                RoundRobinState = new AtomicCounter() { Value = -1 };
             }
 
             public LoadBalancingMode Mode { get; }
+
+            public AtomicCounter RoundRobinState { get; }
         }
     }
 }

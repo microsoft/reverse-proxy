@@ -12,22 +12,25 @@ namespace Microsoft.ReverseProxy.Core.Util
         /// <summary>
         /// Gets the current value of the counter.
         /// </summary>
-        public int Value => Volatile.Read(ref _value);
+        public int Value {
+            get => Volatile.Read(ref _value);
+            set => Volatile.Write(ref _value, value);
+        }
 
         /// <summary>
         /// Atomically increments the counter value by 1.
         /// </summary>
-        public void Increment()
+        public int Increment()
         {
-            Interlocked.Increment(ref _value);
+            return Interlocked.Increment(ref _value);
         }
 
         /// <summary>
         /// Atomically decrements the counter value by 1.
         /// </summary>
-        public void Decrement()
+        public int Decrement()
         {
-            Interlocked.Decrement(ref _value);
+            return Interlocked.Decrement(ref _value);
         }
 
         /// <summary>

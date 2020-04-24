@@ -22,6 +22,10 @@ namespace Microsoft.ReverseProxy.Core.Abstractions
         /// </summary>
         Random,
         /// <summary>
+        /// Selects an endpoint by cycling through them in order.
+        /// </summary>
+        RoundRobin,
+        /// <summary>
         /// Select the first endpoint without considering load. This is useful for dual endpoint fail-over systems.
         /// </summary>
         First,
