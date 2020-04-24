@@ -84,7 +84,7 @@ namespace Microsoft.ReverseProxy.Core.Configuration
                 return;
             }
 
-            _logger.LogInformation(EventIds.ApplyProxyConfig, "Applying proxy configs");
+            Log.ApplyProxyConfig(_logger);
             try
             {
                 await _backendsRepo.SetBackendsAsync(config.Backends, CancellationToken.None);
@@ -127,6 +127,11 @@ namespace Microsoft.ReverseProxy.Core.Configuration
                 EventIds.ConfigError,
                 "Config error: '{code}', '{itemId}', '{message}'.");
 
+            private static readonly Action<ILogger, Exception> _applyProxyConfig = LoggerMessage.Define(
+                LogLevel.Information,
+                EventIds.ApplyProxyConfig,
+                "Applying proxy configs");
+
             public static void ApplyProxyConfigFailed(ILogger logger, string errorMessage, Exception exception)
             {
                 _applyProxyConfigFailed(logger, errorMessage, exception);
@@ -135,6 +140,11 @@ namespace Microsoft.ReverseProxy.Core.Configuration
             public static void ConfigError(ILogger logger, string code, string itemId, string message)
             {
                 _configError(logger, code, itemId, message, null);
+            }
+
+            public static void ApplyProxyConfig(ILogger logger)
+            {
+                _applyProxyConfig(logger, null);
             }
         }
     }

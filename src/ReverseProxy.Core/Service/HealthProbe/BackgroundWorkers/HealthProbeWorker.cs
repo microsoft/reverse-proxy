@@ -121,7 +121,7 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
             }
 
             await Task.WhenAll(stopTasks);
-            _logger.LogInformation(EventIds.HealthCheckGracefulShutdown, "Health check has gracefully shut down.");
+            Log.HealthCheckGracefulShutdown(_logger);
         }
 
         private static class Log
@@ -148,6 +148,11 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
                 "Added {addedProbers} probes, removed {removedProbers} probes. " +
                 "There are now {activeProbers} probes.");
 
+            private static readonly Action<ILogger, Exception> _healthCheckGracefulShutdown = LoggerMessage.Define(
+                LogLevel.Information,
+                EventIds.HealthCheckGracefulShutdown,
+                "Health check has gracefully shut down.");
+
             public static void HealthCheckStopping(ILogger logger, string backendId)
             {
                 _healthCheckStopping(logger, backendId, null);
@@ -166,6 +171,11 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
             public static void ProberUpdated(ILogger logger, int addedProbers, int removedProbers, int activeProbers)
             {
                 _proberUpdated(logger, addedProbers, removedProbers, activeProbers, null);
+            }
+
+            public static void HealthCheckGracefulShutdown(ILogger logger)
+            {
+                _healthCheckGracefulShutdown(logger, null);
             }
         }
     }

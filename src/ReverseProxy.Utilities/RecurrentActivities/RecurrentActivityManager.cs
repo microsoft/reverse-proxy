@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -100,7 +100,8 @@ namespace Microsoft.ReverseProxy.Utilities
         /// <inheritdoc />
         public void AddWork(string operationName, TimeSpan schedulingInterval, Func<CancellationToken, Task> func, bool executeImmediately = false)
         {
-            var workItem = new WorkItem {
+            var workItem = new WorkItem
+            {
                 OperationName = operationName,
                 SchedulingInterval = schedulingInterval,
                 Func = func,

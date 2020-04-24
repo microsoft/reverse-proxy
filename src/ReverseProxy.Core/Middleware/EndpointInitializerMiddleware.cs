@@ -8,7 +8,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.ReverseProxy.Common;
 using Microsoft.ReverseProxy.Core.RuntimeModel;
 
-
 namespace Microsoft.ReverseProxy.Core.Middleware
 {
     /// <summary>
