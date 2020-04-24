@@ -11,7 +11,7 @@ We love issues. Issues are the best place to discuss bugs, feature requests, ide
 
 If the conversations on an issue wander off from the initial topic, and new ideas or issues get introduced, then those should be split off into separate issues. That makes it much easier to triage the issue as the decision can/should apply to the main concept, and those separate issues won't be lost and will also be considered. So if in doubt create a new issue, and add links from both the new and original issue to each other. The new issue can always be closed if it turns out to be a duplicate.
 
-In particular, conversations on closed issues won't cause an issue to be re-opened, and so are unlikely to be noticed, so please create a new issue and refer to the old one with a link.
+In particular, conversations on closed issues *won't cause an issue to be re-opened*, and are unlikely to be noticed, so please create a new issue and refer to the old one with a link.
 
 ## Bugs
 
