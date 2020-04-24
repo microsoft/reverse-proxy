@@ -10,7 +10,7 @@ namespace Microsoft.ReverseProxy.Utilities
     /// Alternative to SemaphoreSlim that respects the current thread scheduler.
     /// </summary>
     /// <remarks>
-    /// Based on <c>https://blogs.msdn.microsoft.com/pfxteam/2012/02/12/building-async-coordination-primitives-part-5-asyncsemaphore/</c>.
+    /// Based on <c>https://devblogs.microsoft.com/pfxteam/building-async-coordination-primitives-part-5-asyncsemaphore/</c>.
     /// </remarks>
     public sealed class AsyncSemaphore
     {
