@@ -24,7 +24,7 @@ namespace Microsoft.ReverseProxy.Core.Middleware.Tests
     {
         public ProxyInvokerMiddlewareTests()
         {
-            Provide<IOperationLogger, TextOperationLogger>();
+            Provide<IOperationLogger<ProxyInvokerMiddleware>, TextOperationLogger<ProxyInvokerMiddleware>>();
         }
 
         [Fact]

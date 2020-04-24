@@ -37,7 +37,7 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
         private readonly HttpClient _goodClient;
         private readonly VirtualMonotonicTimer _timer;
         private readonly ILogger<BackendProber> _logger;
-        private readonly IOperationLogger _operationLogger;
+        private readonly IOperationLogger<BackendProber> _operationLogger;
 
         private readonly Mock<Random> _fakeRandom;
         private readonly Mock<IRandomFactory> _randomFactory;
@@ -64,7 +64,7 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
             // set up logger.
             var loggerFactory = new LoggerFactory();
             _logger = loggerFactory.CreateLogger<BackendProber>();
-            _operationLogger = new TextOperationLogger(loggerFactory.CreateLogger<TextOperationLogger>());
+            _operationLogger = new TextOperationLogger<BackendProber>(loggerFactory.CreateLogger<BackendProber>());
 
             // set up the httpclient, we would mock the httpclient so we don not really make a real http request.
             _goodClient = MockHttpHandler.CreateClient(

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Microsoft.ReverseProxy.Common;
 using Microsoft.ReverseProxy.Core.Service.Management;
 using Microsoft.ReverseProxy.Utilities;
 
@@ -58,7 +59,7 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
                         activeProber.Config != backendConfig)
                     {
                         // Current prober is not using latest config, stop and remove the outdated prober.
-                        _logger.LogInformation($"Health check work stopping prober for '{backend.BackendId}'.");
+                        Log.HealthCheckStopping(_logger, backend.BackendId);
                         stopTasks.Add(activeProber.StopAsync());
                         _activeProbers.Remove(backend.BackendId);
 
@@ -75,7 +76,7 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
                 if (!createNewProber)
                 {
                     var reason = backendConfig == null ? "no backend configuration" : $"{nameof(backendConfig.HealthCheckOptions)}.{nameof(backendConfig.HealthCheckOptions.Enabled)} = false";
-                    _logger.LogInformation($"Health check prober for backend: '{backend.BackendId}' is disabled because {reason}.");
+                    Log.HealthCheckDisabled(_logger, backend.BackendId, reason);
                 }
 
                 // Step 4: New prober need to been created, start the new registered prober.
@@ -85,7 +86,7 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
                     var newProber = _backendProberFactory.CreateBackendProber(backend.BackendId, backendConfig, backend.EndpointManager);
                     _activeProbers.Add(backend.BackendId, newProber);
                     proberAdded++;
-                    _logger.LogInformation($"Prober for backend '{backend.BackendId}' has created.");
+                    Log.ProberCreated(_logger, backend.BackendId);
                     newProber.Start(_semaphore);
                 }
             }
@@ -97,7 +98,7 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
                 if (!backendIdList.Contains(kvp.Key))
                 {
                     // Gracefully shut down the probe.
-                    _logger.LogInformation($"Health check work stopping prober for '{kvp.Key}'.");
+                    Log.HealthCheckStopping(_logger, kvp.Key);
                     stopTasks.Add(kvp.Value.StopAsync());
                     probersToRemove.Add(kvp.Key);
                 }
@@ -106,7 +107,7 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
             // remove the probes for backends that were removed.
             probersToRemove.ForEach(p => _activeProbers.Remove(p));
             await Task.WhenAll(stopTasks);
-            _logger.LogInformation($"Health check prober are updated. Added {proberAdded} probes, removed {probersToRemove.Count} probes. There are now {_activeProbers.Count} probes.");
+            Log.ProberUpdated(_logger, proberAdded, probersToRemove.Count, _activeProbers.Count);
         }
 
         public async Task StopAsync()
@@ -120,7 +121,62 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
             }
 
             await Task.WhenAll(stopTasks);
-            _logger.LogInformation($"Health check has gracefully shut down.");
+            Log.HealthCheckGracefulShutdown(_logger);
+        }
+
+        private static class Log
+        {
+            private static readonly Action<ILogger, string, Exception> _healthCheckStopping = LoggerMessage.Define<string>(
+                LogLevel.Information,
+                EventIds.HealthCheckStopping,
+                "Health check work stopping prober for '{backendId}'.");
+
+            private static readonly Action<ILogger, string, string, Exception> _healthCheckDisabled = LoggerMessage.Define<string, string>(
+                LogLevel.Information,
+                EventIds.HealthCheckDisabled,
+                "Health check prober for backend '{backendId}' is disabled because {reason}.");
+
+            private static readonly Action<ILogger, string, Exception> _proberCreated = LoggerMessage.Define<string>(
+                LogLevel.Information,
+                EventIds.ProberCreated,
+                "Prober for backend '{backendId}' has created.");
+
+            private static readonly Action<ILogger, int, int, int, Exception> _proberUpdated = LoggerMessage.Define<int, int, int>(
+                LogLevel.Information,
+                EventIds.ProberUpdated,
+                "Health check prober are updated. " +
+                "Added {addedProbers} probes, removed {removedProbers} probes. " +
+                "There are now {activeProbers} probes.");
+
+            private static readonly Action<ILogger, Exception> _healthCheckGracefulShutdown = LoggerMessage.Define(
+                LogLevel.Information,
+                EventIds.HealthCheckGracefulShutdown,
+                "Health check has gracefully shut down.");
+
+            public static void HealthCheckStopping(ILogger logger, string backendId)
+            {
+                _healthCheckStopping(logger, backendId, null);
+            }
+
+            public static void HealthCheckDisabled(ILogger logger, string backendId, string reason)
+            {
+                _healthCheckDisabled(logger, backendId, reason, null);
+            }
+
+            public static void ProberCreated(ILogger logger, string backendId)
+            {
+                _proberCreated(logger, backendId, null);
+            }
+
+            public static void ProberUpdated(ILogger logger, int addedProbers, int removedProbers, int activeProbers)
+            {
+                _proberUpdated(logger, addedProbers, removedProbers, activeProbers, null);
+            }
+
+            public static void HealthCheckGracefulShutdown(ILogger logger)
+            {
+                _healthCheckGracefulShutdown(logger, null);
+            }
         }
     }
 }
