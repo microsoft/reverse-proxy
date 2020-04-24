@@ -42,7 +42,7 @@ We are using project boards to track development of YARP:
 
 Our primary focus is going to be on features and work items that are listed in the planning board for the next release. Every feature should have an issue, where scoping and design will be discussed. If you wish to contribute, we'd prefer to agree to a design in the issue, before submitting a PR. The last thing we want is for you to spend time working on a feature and then have the PR rejected or sit and get stale.
 
-There is a cost to accepting PRs, so our primary focus is going to be on work items listed on the planning board. The decisions about what is on the board was based on the resources of the YARP team, and the knowlege we had at the time. We may be wrong, and the community may have better ideas - create an issue and get some community concensus and we'll reassess our decisions.
+There is a cost to accepting PRs. We really appreciate your help and contributions but it takes time for us to review your code, and the team will be responsible for maintaining it. Our primary focus is going to be on work items listed on the planning board. We're happy to take a look at PRs contributing other features, but our focus will be on the work we already have planned. Those decisions aren't final though, and we change them over time as we learn new things. Feel free to file issues or comment on existing ones if you have new data to provide!
 
 ### Extensibility
 
