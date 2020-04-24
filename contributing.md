@@ -1,6 +1,6 @@
 # YARP Contribution Guide
 
-We want YARP to be a true open source project and accept 3rd party contributions, but like all open source projects need to set some guidelines on how and what to contribute. There can be nothing more frustrating than working on a change for some time, and it then sitting forever as a PR. The purpose of this doc is to set expectations for how best to contribute so that YARP can benefit from the communities skills and knowlege.
+We're excited to accept contributions, but like all open source projects need to set some guidelines on how and what to contribute. There can be nothing more frustrating than working on a change for some time, only to have it sitting forever as a PR. The purpose of this doc is to set expectations for how best to contribute so that YARP can benefit from the communities skills and knowlege.
 
 ## General feedback and discussions?
 Start a discussion on the [repository issue tracker](https://github.com/microsoft/reverse-proxy/issues).
