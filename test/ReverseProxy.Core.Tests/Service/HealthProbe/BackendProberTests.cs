@@ -39,7 +39,7 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
         private readonly ILogger<BackendProber> _logger;
         private readonly IOperationLogger<BackendProber> _operationLogger;
 
-        private readonly Mock<IRandom> _fakeRandom;
+        private readonly Mock<Random> _fakeRandom;
         private readonly Mock<IRandomFactory> _randomFactory;
 
         public BackendProberTests()
@@ -56,7 +56,7 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
                 loadBalancingOptions: default);
             _timer = new VirtualMonotonicTimer();
             _semaphore = new AsyncSemaphore(10);
-            _fakeRandom = new Mock<IRandom>();
+            _fakeRandom = new Mock<Random>();
             _fakeRandom.Setup(p => p.Next(It.IsAny<int>())).Returns(0);
             _randomFactory = new Mock<IRandomFactory>();
             _randomFactory.Setup(f => f.CreateRandomInstance()).Returns(_fakeRandom.Object);

@@ -1,5 +1,7 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
+using System;
 
 namespace Microsoft.ReverseProxy.Utilities
 {
@@ -12,6 +14,6 @@ namespace Microsoft.ReverseProxy.Utilities
         /// <summary>
         /// Create a instance of random class.
         /// </summary>
-        IRandom CreateRandomInstance();
+        Random CreateRandomInstance();
     }
 }
