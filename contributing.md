@@ -54,13 +54,6 @@ You will need to sign a [Contributor License Agreement](https://cla.opensource.m
 
 If you don't know what a pull request is read this article: https://help.github.com/articles/using-pull-requests. Make sure the repository can build and all tests pass. Familiarize yourself with the project workflow and our coding conventions.
 
-### Tests
-
--  Tests need to be provided for every bug/feature that is completed.
--  Tests only need to be present for issues that need to be verified by QA (for example, not tasks)
--  If there is a scenario that is far too hard to test there does not need to be a test for it.
-  - "Too hard" is determined by the team as a whole.
-
 ### Feedback
 
 Your pull request will now go through extensive checks by the subject matter experts on our team. Please be patient; we have hundreds of pull requests across all of our repositories. Update your pull request according to feedback until it is approved by one of the YARP team members. All changes go through this process and a PR may go through multiple revisions until its accepted. This document has been through the same process, and if you look at the history there were probably multiple edits to each PR. After that, one of our team members may adjust the branch you merge into based on the expected release schedule.
