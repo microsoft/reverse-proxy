@@ -40,7 +40,7 @@ We are using project boards to track development of YARP:
 * [Planning](https://github.com/microsoft/reverse-proxy/projects/5) - this board lists the features / work items for the next major release of YARP
 * [Active Work](https://github.com/microsoft/reverse-proxy/projects/1) - this board is tracking what YARP team members are working on
 
-Our primary focus is going to be on features and work items that are listed in the planning board for the next release. At the time of writing we are targetting 1.0, the goal of which is to stand up the core functionality so that people can start trying YARP. Every feature for that mile stone should have an issue, where scoping and design will be discussed. If you wish to contribute, we'd prefer to agree to a design in the issue, before submitting a PR. The last thing we want is for you to spend time working on a feature and then have the PR rejected or sit and get stale.
+Our primary focus is going to be on features and work items that are listed in the planning board for the next release. Every feature should have an issue, where scoping and design will be discussed. If you wish to contribute, we'd prefer to agree to a design in the issue, before submitting a PR. The last thing we want is for you to spend time working on a feature and then have the PR rejected or sit and get stale.
 
 There is a cost to accepting PRs, so our primary focus is going to be on work items listed on the planning board. The decisions about what is on the board was based on the resources of the YARP team, and the knowlege we had at the time. We may be wrong, and the community may have better ideas - create an issue and get some community concensus and we'll reassess our decisions.
 
