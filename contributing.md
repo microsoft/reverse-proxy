@@ -46,7 +46,7 @@ There is a cost to accepting PRs. We really appreciate your help and contributio
 
 ### Extensibility
 
-One of the primary goals of YARP is to be easily extensible. Each deployemnt situation will be different, and the features that are "in the box" may not do exactly what you need. The goal is for you to be able to insert additional modules in the pipeline, or replace a module to achieve the functionality that you need. The answer to many feature requests may be that it should be a custom module, rather than a change to the existing feature. In those cases, we are unlikely to want a PR for the module, but will be very interested in any changes to the core that enable the extensibility for you to achieve your scenario.
+One of the primary goals of YARP is to be easily extensible. Each deployment situation will be different, and the features that are "in the box" may not do exactly what you need. The goal is for you to be able to insert additional modules in the pipeline, or replace a module to achieve the functionality that you need. The answer to many feature requests may be that it should be a custom module, rather than a change to the existing feature. In those cases, we are unlikely to want a PR for the module, but will be very interested in any changes to the core that enable the extensibility for you to achieve your scenario.
 
 ### Submitting a pull request
 
