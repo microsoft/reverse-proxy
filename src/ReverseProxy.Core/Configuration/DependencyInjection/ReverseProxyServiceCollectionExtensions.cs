@@ -2,9 +2,10 @@
 // Licensed under the MIT License.
 
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.ReverseProxy.Core.Configuration;
+using Microsoft.ReverseProxy.Core.Configuration.DependencyInjection;
 
-namespace Microsoft.ReverseProxy.Core.Configuration.DependencyInjection
+namespace Microsoft.Extensions.DependencyInjection
 {
     /// <summary>
     /// Extensions for <see cref="IServiceCollection"/>
