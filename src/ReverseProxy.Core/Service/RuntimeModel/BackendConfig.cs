@@ -86,7 +86,7 @@ namespace Microsoft.ReverseProxy.Core.RuntimeModel
 
             public LoadBalancingMode Mode { get; }
 
-            public AtomicCounter RoundRobinState { get; }
+            internal AtomicCounter RoundRobinState { get; }
         }
     }
 }
