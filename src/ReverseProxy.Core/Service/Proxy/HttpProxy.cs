@@ -140,7 +140,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
 
             // NOTE: We heuristically assume gRPC-looking requests may require streaming semantics.
             // See https://github.com/microsoft/reverse-proxy/issues/118 for design discussion.
-            var isStreamingRequest = isIncomingHttp2 && GrpcProtocolHelper.IsGRpcContentType(context.Request.ContentType);
+            var isStreamingRequest = isIncomingHttp2 && GrpcProtocolHelper.IsGrpcContentType(context.Request.ContentType);
             if (isStreamingRequest)
             {
                 DisableMinRequestBodyDataRateAndMaxRequestBodySize(context);
