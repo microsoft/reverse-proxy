@@ -11,11 +11,11 @@ namespace SampleClient
         {
         }
 
-        public bool Help { get; set; }
+        public bool Help { get; private set; }
 
-        public string Scenario { get; set; }
+        public string Scenario { get; private set; }
 
-        public string Target { get; set; } = "https://localhost:1443/";
+        public string Target { get; private set; } = "https://localhost:1443/";
 
         public static CommandLineArgs Parse(string[] args)
         {
@@ -40,8 +40,6 @@ namespace SampleClient
                     case "-t":
                         result.Target = args[++i];
                         break;
-                    default:
-                        break;
                 }
             }
 
@@ -56,9 +54,10 @@ namespace SampleClient
             {
                 if (remainder.Length == 0)
                 {
-                    throw new ArgumentException($"Expected additional args.");
+                    throw new ArgumentException("Expected additional args.");
                 }
-                else if (remainder.Length > 1)
+
+                if (remainder.Length > 1)
                 {
                     throw new ArgumentException($"Unexpected arg '{remainder[1]}'.");
                 }
@@ -73,7 +72,8 @@ namespace SampleClient
             Console.WriteLine("ReverseProxy SampleClient.");
             Console.WriteLine();
             Console.WriteLine("--scenario <name>, -s <name>: Runs only the specified scenario.");
-            Console.WriteLine("--target <uri>, -t <uri>: Sets the target uri. By default, 'https://localhost:1443/' is used.");
+            Console.WriteLine(
+                "--target <uri>, -t <uri>: Sets the target uri. By default, 'https://localhost:1443/' is used.");
             Console.WriteLine("--help, -h, -?, /?: Shows this help information.");
         }
     }

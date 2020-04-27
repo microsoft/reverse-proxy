@@ -3,21 +3,21 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp5.0</TargetFramework>
     <OutputType>Exe</OutputType>
-    <RootNamespace>ReverseProxy.Sample</RootNamespace>
+    <RootNamespace>Microsoft.ReverseProxy.Sample</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <InternalsVisibleTo Include="DynamicProxyGenAssembly2" Key="$(MoqPublicKey)" />
-    <InternalsVisibleTo Include="ReverseProxy.Sample.Tests" />
+    <InternalsVisibleTo Include="DynamicProxyGenAssembly2" Key="$(MoqPublicKey)"/>
+    <InternalsVisibleTo Include="ReverseProxy.Sample.Tests"/>
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\ReverseProxy.Core\Microsoft.ReverseProxy.Core.csproj" />
-    <ProjectReference Include="..\..\src\ReverseProxy.Utilities\Microsoft.ReverseProxy.Utilities.csproj" />
+    <ProjectReference Include="..\..\src\ReverseProxy.Core\Microsoft.ReverseProxy.Core.csproj"/>
+    <ProjectReference Include="..\..\src\ReverseProxy.Utilities\Microsoft.ReverseProxy.Utilities.csproj"/>
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Properties\" />
+    <Folder Include="Properties\"/>
   </ItemGroup>
 
 </Project>

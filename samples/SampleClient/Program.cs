@@ -30,12 +30,11 @@ namespace SampleClient
                 return 1;
             }
 
-            var scenarioFactories = new Dictionary<string, Func<IScenario>>(StringComparer.OrdinalIgnoreCase)
-            {
-                { "Http1", () => new Http1Scenario() },
-                { "Http2", () => new Http2Scenario() },
-                { "RawUpgrade", () => new RawUpgradeScenario() },
-                { "WebSockets", () => new WebSocketsScenario() },
+            var scenarioFactories = new Dictionary<string, Func<IScenario>>(StringComparer.OrdinalIgnoreCase) {
+                {"Http1", () => new Http1Scenario()},
+                {"Http2", () => new Http2Scenario()},
+                {"RawUpgrade", () => new RawUpgradeScenario()},
+                {"WebSockets", () => new WebSocketsScenario()}
             };
 
             if (string.IsNullOrEmpty(parsedArgs.Scenario))

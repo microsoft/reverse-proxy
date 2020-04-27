@@ -32,24 +32,29 @@ namespace SampleClient.Scenarios
             {
                 var textToSend = $"Hello {i}";
                 var numBytes = Encoding.UTF8.GetBytes(textToSend, buffer.AsSpan());
-                await client.SendAsync(new ArraySegment<byte>(buffer, 0, numBytes), WebSocketMessageType.Text, endOfMessage: true, cancellation);
+                await client.SendAsync(new ArraySegment<byte>(buffer, 0, numBytes), WebSocketMessageType.Text, true,
+                    cancellation);
 
                 var message = await client.ReceiveAsync(buffer, cancellation);
                 if (message.MessageType != WebSocketMessageType.Text)
                 {
                     throw new Exception($"Expected to receive a text message, got '{message.MessageType}' intead.");
                 }
+
                 if (!message.EndOfMessage)
                 {
-                    throw new Exception($"Expected to receive EndOfMessage = true.");
+                    throw new Exception("Expected to receive EndOfMessage = true.");
                 }
+
                 var text = Encoding.UTF8.GetString(buffer.AsSpan(0, message.Count));
                 if (text != textToSend)
                 {
                     throw new Exception($"Expected to receive '{textToSend}', but got '{text}'.");
                 }
+
                 Console.Write(".");
             }
+
             Console.WriteLine();
             Console.WriteLine($"Completed 256 text messages in {stopwatch.ElapsedMilliseconds} ms.");
 
@@ -59,17 +64,20 @@ namespace SampleClient.Scenarios
             {
                 var textToSend = $"Hello {i}";
                 var numBytes = Encoding.UTF8.GetBytes(textToSend, buffer.AsSpan());
-                await client.SendAsync(new ArraySegment<byte>(buffer, 0, numBytes), WebSocketMessageType.Binary, endOfMessage: true, cancellation);
+                await client.SendAsync(new ArraySegment<byte>(buffer, 0, numBytes), WebSocketMessageType.Binary, true,
+                    cancellation);
 
                 var message = await client.ReceiveAsync(buffer, cancellation);
                 if (message.MessageType != WebSocketMessageType.Binary)
                 {
                     throw new Exception($"Expected to receive a text message, got '{message.MessageType}' intead.");
                 }
+
                 if (!message.EndOfMessage)
                 {
-                    throw new Exception($"Expected to receive EndOfMessage = true.");
+                    throw new Exception("Expected to receive EndOfMessage = true.");
                 }
+
                 var text = Encoding.UTF8.GetString(buffer.AsSpan(0, message.Count));
                 if (text != textToSend)
                 {
@@ -78,6 +86,7 @@ namespace SampleClient.Scenarios
 
                 Console.Write(".");
             }
+
             Console.WriteLine();
             Console.WriteLine($"Completed 256 binary messages in {stopwatch.ElapsedMilliseconds} ms.");
 

@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 namespace SampleServer.Controllers
 {
     /// <summary>
-    /// Sample controller.
+    ///     Sample controller.
     /// </summary>
     [ApiController]
     public class WebSocketsController : ControllerBase
@@ -20,7 +20,7 @@ namespace SampleServer.Controllers
         private readonly ILogger<WebSocketsController> _logger;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="WebSocketsController"/> class.
+        ///     Initializes a new instance of the <see cref="WebSocketsController" /> class.
         /// </summary>
         public WebSocketsController(ILogger<WebSocketsController> logger)
         {
@@ -28,7 +28,7 @@ namespace SampleServer.Controllers
         }
 
         /// <summary>
-        /// Returns a 200 response.
+        ///     Returns a 200 response.
         /// </summary>
         [HttpGet]
         [Route("/api/websockets")]
@@ -60,7 +60,8 @@ namespace SampleServer.Controllers
                     return;
                 }
 
-                await webSocket.SendAsync(new ArraySegment<byte>(buffer, 0, message.Count), message.MessageType, message.EndOfMessage, cancellation);
+                await webSocket.SendAsync(new ArraySegment<byte>(buffer, 0, message.Count), message.MessageType,
+                    message.EndOfMessage, cancellation);
             }
         }
     }

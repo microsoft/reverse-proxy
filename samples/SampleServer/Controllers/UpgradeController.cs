@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 namespace SampleServer.Controllers
 {
     /// <summary>
-    /// Sample controller.
+    ///     Sample controller.
     /// </summary>
     [ApiController]
     public class UpgradeController : ControllerBase
@@ -19,7 +19,7 @@ namespace SampleServer.Controllers
         private readonly ILogger<UpgradeController> _logger;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="UpgradeController"/> class.
+        ///     Initializes a new instance of the <see cref="UpgradeController" /> class.
         /// </summary>
         public UpgradeController(ILogger<UpgradeController> logger)
         {
@@ -27,8 +27,8 @@ namespace SampleServer.Controllers
         }
 
         /// <summary>
-        /// Upgrades the connection to a raw socket stream, then implements a simple byte ping/pong server.
-        /// Note that this does not use WebSockets, and relies solely on HTTP/1.1 connection upgrade mechanism.
+        ///     Upgrades the connection to a raw socket stream, then implements a simple byte ping/pong server.
+        ///     Note that this does not use WebSockets, and relies solely on HTTP/1.1 connection upgrade mechanism.
         /// </summary>
         [HttpGet]
         [Route("/api/rawupgrade")]
@@ -51,8 +51,8 @@ namespace SampleServer.Controllers
         }
 
         /// <summary>
-        /// Simple echo protocol that echo's each received byte.
-        /// <c>255</c> is treated as a special "goodbye" message, which causes us to drop the connection.
+        ///     Simple echo protocol that echo's each received byte.
+        ///     <c>255</c> is treated as a special "goodbye" message, which causes us to drop the connection.
         /// </summary>
         private async Task RunPingPongAsync(Stream stream)
         {

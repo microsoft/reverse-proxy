@@ -8,7 +8,7 @@ using Microsoft.ReverseProxy.Utilities;
 namespace Microsoft.ReverseProxy.Sample.Controllers
 {
     /// <summary>
-    /// Controller for health check api.
+    ///     Controller for health check api.
     /// </summary>
     [ApiController]
     public class HealthController : ControllerBase
@@ -16,7 +16,7 @@ namespace Microsoft.ReverseProxy.Sample.Controllers
         private readonly ILogger<HealthController> _logger;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="HealthController"/> class.
+        ///     Initializes a new instance of the <see cref="HealthController" /> class.
         /// </summary>
         public HealthController(ILogger<HealthController> logger)
         {
@@ -25,7 +25,7 @@ namespace Microsoft.ReverseProxy.Sample.Controllers
         }
 
         /// <summary>
-        /// Returns 200 if Proxy is healthy.
+        ///     Returns 200 if Proxy is healthy.
         /// </summary>
         [HttpGet]
         [Route("/api/health")]

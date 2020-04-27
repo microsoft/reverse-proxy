@@ -7,12 +7,12 @@ using Microsoft.Extensions.Hosting;
 namespace Microsoft.ReverseProxy.Sample
 {
     /// <summary>
-    /// Class that contains the entrypoint for the Reverse Proxy sample app.
+    ///     Class that contains the entrypoint for the Reverse Proxy sample app.
     /// </summary>
     public class Program
     {
         /// <summary>
-        /// Entrypoint of the application.
+        ///     Entrypoint of the application.
         /// </summary>
         public static void Main(string[] args)
         {

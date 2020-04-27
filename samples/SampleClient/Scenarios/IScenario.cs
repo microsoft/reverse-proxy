@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 namespace SampleClient.Scenarios
 {
     /// <summary>
-    /// Interface for the implementation of a scenario that can be executed asynchronously.
+    ///     Interface for the implementation of a scenario that can be executed asynchronously.
     /// </summary>
     internal interface IScenario
     {
         /// <summary>
-        /// Executes the scenario asynchronously.
+        ///     Executes the scenario asynchronously.
         /// </summary>
         Task ExecuteAsync(CommandLineArgs args, CancellationToken cancellation);
     }
