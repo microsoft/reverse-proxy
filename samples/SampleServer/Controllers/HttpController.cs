@@ -62,9 +62,9 @@ namespace SampleServer.Controllers
         [Route("/api/headers")]
         public void Headers([FromBody] Dictionary<string, string> headers)
         {
-            foreach (var kvp in headers)
+            foreach (var (key, value) in headers)
             {
-                Response.Headers.Add(kvp.Key, kvp.Value);
+                Response.Headers.Add(key, value);
             }
         }
 
@@ -79,7 +79,7 @@ namespace SampleServer.Controllers
         [Route("/api/stress")]
         public async Task Stress([FromQuery] int delay, [FromQuery] int responseSize)
         {
-            var bodyReader = Request.BodyReader;
+            var bodyReader = HttpContext.Request.BodyReader;
             if (bodyReader != null)
             {
                 while (true)

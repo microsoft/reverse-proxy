@@ -69,8 +69,7 @@ namespace SampleClient
 
         public static void ShowHelp()
         {
-            Console.WriteLine("ReverseProxy SampleClient.");
-            Console.WriteLine();
+            Console.WriteLine("ReverseProxy SampleClient.\n");
             Console.WriteLine("--scenario <name>, -s <name>: Runs only the specified scenario.");
             Console.WriteLine(
                 "--target <uri>, -t <uri>: Sets the target uri. By default, 'https://localhost:1443/' is used.");

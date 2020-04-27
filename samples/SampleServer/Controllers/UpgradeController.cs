@@ -35,19 +35,16 @@ namespace SampleServer.Controllers
         public async Task RawUpgrade()
         {
             var upgradeFeature = HttpContext.Features.Get<IHttpUpgradeFeature>();
-            if (upgradeFeature != null && upgradeFeature.IsUpgradableRequest)
-            {
-                using (var stream = await upgradeFeature.UpgradeAsync())
-                {
-                    _logger.LogInformation("Upgraded connection.");
-                    await RunPingPongAsync(stream);
-                    _logger.LogInformation("Finished.");
-                }
-            }
-            else
+            if (upgradeFeature == null || !upgradeFeature.IsUpgradableRequest)
             {
                 HttpContext.Response.StatusCode = StatusCodes.Status426UpgradeRequired;
+                return;
             }
+
+            await using var stream = await upgradeFeature.UpgradeAsync();
+            _logger.LogInformation("Upgraded connection.");
+            await RunPingPongAsync(stream);
+            _logger.LogInformation("Finished.");
         }
 
         /// <summary>

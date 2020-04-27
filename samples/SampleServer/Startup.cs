@@ -16,7 +16,8 @@ namespace SampleServer
         /// </summary>
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers()
+            services
+                .AddControllers()
                 .AddJsonOptions(options => options.JsonSerializerOptions.WriteIndented = true);
         }
 

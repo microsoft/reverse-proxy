@@ -33,7 +33,9 @@ namespace SampleClient.Scenarios
             var body = await response.Content.ReadAsStringAsync(cancellation);
             var json = JsonDocument.Parse(body);
             Console.WriteLine(
-                $"Received response:{Environment.NewLine}{JsonSerializer.Serialize(json.RootElement, new JsonSerializerOptions {WriteIndented = true})}");
+                $"Received response:" +
+                $"{Environment.NewLine}" +
+                $"{JsonSerializer.Serialize(json.RootElement, new JsonSerializerOptions {WriteIndented = true})}");
 
             response.EnsureSuccessStatusCode();
         }
