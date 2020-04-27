@@ -216,13 +216,16 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
             // :: Step 8: Copy response trailer headers and finish response Downstream ◄-- Proxy ◄-- Upstream
             CopyTrailingHeadersToDownstream(upstreamResponse, context);
 
-            // NOTE: We must call `CompleteAsync` so that Kestrel will flush all bytes to the client.
-            // In the case where there was no response body,
-            // this is also when headers and trailing headers are sent to the client.
-            // Without this, the client might wait forever waiting for response bytes,
-            // while we might wait forever waiting for request bytes,
-            // leading to a stuck connection and no way to make progress.
-            await context.Response.CompleteAsync();
+            if (isStreamingRequest)
+            {
+                // NOTE: We must call `CompleteAsync` so that Kestrel will flush all bytes to the client.
+                // In the case where there was no response body,
+                // this is also when headers and trailing headers are sent to the client.
+                // Without this, the client might wait forever waiting for response bytes,
+                // while we might wait forever waiting for request bytes,
+                // leading to a stuck connection and no way to make progress.
+                await context.Response.CompleteAsync();
+            }
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 9: Wait for completion of step 2: copying request body Downstream --► Proxy --► Upstream
