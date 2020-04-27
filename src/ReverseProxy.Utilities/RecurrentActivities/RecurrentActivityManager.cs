@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -23,7 +23,7 @@ namespace Microsoft.ReverseProxy.Utilities
     public class RecurrentActivityManager : IRecurrentActivityManager
     {
         private readonly object _monitor = new object();
-        private readonly IOperationLogger _operationLogger;
+        private readonly IOperationLogger<RecurrentActivityManager> _operationLogger;
         private readonly IMonotonicTimer _monotonicTimer;
         private readonly List<WorkItem> _workItemList = new List<WorkItem>();
 
@@ -37,7 +37,7 @@ namespace Microsoft.ReverseProxy.Utilities
         /// <param name="operationLogger">The operation logger.</param>
         /// <param name="monotonicTimer">Instance of <see cref="IMonotonicTimer"/> to aid in testability of the class.</param>
         public RecurrentActivityManager(
-            IOperationLogger operationLogger,
+            IOperationLogger<RecurrentActivityManager> operationLogger,
             IMonotonicTimer monotonicTimer)
         {
             Contracts.CheckValue(operationLogger, nameof(operationLogger));
@@ -126,7 +126,7 @@ namespace Microsoft.ReverseProxy.Utilities
         {
             try
             {
-                for (; ;)
+                for (; ; )
                 {
                     // Note: this approach to scheduling assumes that all tasks are added
                     // before Start is called, otherwise tasks added after Start is called might
@@ -235,7 +235,7 @@ namespace Microsoft.ReverseProxy.Utilities
             /// </summary>
             /// <param name="operationLogger">Instance of <see cref="IOperationLogger"/>.</param>
             /// <param name="monotonicTimer">Instance of <see cref="IMonotonicTimer"/>.</param>
-            internal async void Start(IOperationLogger operationLogger, IMonotonicTimer monotonicTimer)
+            internal async void Start(IOperationLogger<RecurrentActivityManager> operationLogger, IMonotonicTimer monotonicTimer)
             {
                 Contracts.Check(_isExecuting == false, "Expected work item was not executing");
 

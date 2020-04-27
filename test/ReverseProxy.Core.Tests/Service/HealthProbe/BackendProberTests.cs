@@ -37,9 +37,9 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
         private readonly HttpClient _goodClient;
         private readonly VirtualMonotonicTimer _timer;
         private readonly ILogger<BackendProber> _logger;
-        private readonly IOperationLogger _operationLogger;
+        private readonly IOperationLogger<BackendProber> _operationLogger;
 
-        private readonly Mock<IRandom> _fakeRandom;
+        private readonly Mock<Random> _fakeRandom;
         private readonly Mock<IRandomFactory> _randomFactory;
 
         public BackendProberTests()
@@ -56,7 +56,7 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
                 loadBalancingOptions: default);
             _timer = new VirtualMonotonicTimer();
             _semaphore = new AsyncSemaphore(10);
-            _fakeRandom = new Mock<IRandom>();
+            _fakeRandom = new Mock<Random>();
             _fakeRandom.Setup(p => p.Next(It.IsAny<int>())).Returns(0);
             _randomFactory = new Mock<IRandomFactory>();
             _randomFactory.Setup(f => f.CreateRandomInstance()).Returns(_fakeRandom.Object);
@@ -64,7 +64,7 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
             // set up logger.
             var loggerFactory = new LoggerFactory();
             _logger = loggerFactory.CreateLogger<BackendProber>();
-            _operationLogger = new TextOperationLogger(loggerFactory.CreateLogger<TextOperationLogger>());
+            _operationLogger = new TextOperationLogger<BackendProber>(loggerFactory.CreateLogger<BackendProber>());
 
             // set up the httpclient, we would mock the httpclient so we don not really make a real http request.
             _goodClient = MockHttpHandler.CreateClient(

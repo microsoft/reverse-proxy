@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.ReverseProxy.Common;
 using Microsoft.ReverseProxy.Core.Abstractions;
 using Microsoft.ReverseProxy.Utilities;
 
@@ -83,7 +84,7 @@ namespace Microsoft.ReverseProxy.Core.Configuration
                 return;
             }
 
-            _logger.LogInformation("Applying proxy configs");
+            Log.ApplyProxyConfig(_logger);
             try
             {
                 await _backendsRepo.SetBackendsAsync(config.Backends, CancellationToken.None);
@@ -94,7 +95,7 @@ namespace Microsoft.ReverseProxy.Core.Configuration
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Failed to apply new configs: {ex.Message}");
+                Log.ApplyProxyConfigFailed(_logger, ex.Message, ex);
             }
         }
 
@@ -109,12 +110,41 @@ namespace Microsoft.ReverseProxy.Core.Configuration
 
             public void ReportError(string code, string itemId, string message)
             {
-                _logger.LogWarning("Config error: '{code}', '{itemId}', '{message}'.", code, itemId, message);
+                Log.ConfigError(_logger, code, itemId, message);
+            }
+        }
+
+
+        private static class Log
+        {
+            private static readonly Action<ILogger, string, Exception> _applyProxyConfigFailed = LoggerMessage.Define<string>(
+                LogLevel.Error,
+                EventIds.ApplyProxyConfigFailed,
+                "Failed to apply new configs: {errorMessage}");
+
+            private static readonly Action<ILogger, string, string, string, Exception> _configError = LoggerMessage.Define<string, string, string>(
+                LogLevel.Warning,
+                EventIds.ConfigError,
+                "Config error: '{code}', '{itemId}', '{message}'.");
+
+            private static readonly Action<ILogger, Exception> _applyProxyConfig = LoggerMessage.Define(
+                LogLevel.Information,
+                EventIds.ApplyProxyConfig,
+                "Applying proxy configs");
+
+            public static void ApplyProxyConfigFailed(ILogger logger, string errorMessage, Exception exception)
+            {
+                _applyProxyConfigFailed(logger, errorMessage, exception);
             }
 
-            public void ReportError(string code, string itemId, string message, Exception ex)
+            public static void ConfigError(ILogger logger, string code, string itemId, string message)
             {
-                _logger.LogWarning(ex, "Config error: '{code}', '{itemId}', '{message}'.", code, itemId, message);
+                _configError(logger, code, itemId, message, null);
+            }
+
+            public static void ApplyProxyConfig(ILogger logger)
+            {
+                _applyProxyConfig(logger, null);
             }
         }
     }

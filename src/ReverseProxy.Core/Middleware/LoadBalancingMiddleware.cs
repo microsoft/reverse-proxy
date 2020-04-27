@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.ReverseProxy.Common;
 using Microsoft.ReverseProxy.Common.Abstractions.Telemetry;
 using Microsoft.ReverseProxy.Core.RuntimeModel;
 using Microsoft.ReverseProxy.Core.Service.Proxy;
@@ -18,14 +19,14 @@ namespace Microsoft.ReverseProxy.Core.Middleware
     internal class LoadBalancingMiddleware
     {
         private readonly ILogger _logger;
-        private readonly IOperationLogger _operationLogger;
+        private readonly IOperationLogger<LoadBalancingMiddleware> _operationLogger;
         private readonly ILoadBalancer _loadBalancer;
         private readonly RequestDelegate _next;
 
         public LoadBalancingMiddleware(
             RequestDelegate next,
             ILogger<LoadBalancingMiddleware> logger,
-            IOperationLogger operationLogger,
+            IOperationLogger<LoadBalancingMiddleware> operationLogger,
             ILoadBalancer loadBalancer)
         {
             _next = next ?? throw new ArgumentNullException(nameof(next));
@@ -41,7 +42,6 @@ namespace Microsoft.ReverseProxy.Core.Middleware
             var endpoints = endpointsFeature?.Endpoints
                 ?? throw new InvalidOperationException("The AvailableBackendEndpoints collection was not set.");
 
-            // TODO: Set defaults properly
             var loadBalancingOptions = backend.Config.Value?.LoadBalancingOptions ?? default;
 
             var endpoint = _operationLogger.Execute(
@@ -50,7 +50,7 @@ namespace Microsoft.ReverseProxy.Core.Middleware
 
             if (endpoint == null)
             {
-                _logger.LogWarning($"No available endpoints after load balancing.");
+                Log.NoAvailableEndpoints(_logger, backend.BackendId);
                 context.Response.StatusCode = 503;
                 return Task.CompletedTask;
             }
@@ -58,6 +58,19 @@ namespace Microsoft.ReverseProxy.Core.Middleware
             endpointsFeature.Endpoints = new[] { endpoint };
 
             return _next(context);
+        }
+
+        private static class Log
+        {
+            private static readonly Action<ILogger, string, Exception> _noAvailableEndpoints = LoggerMessage.Define<string>(
+                LogLevel.Warning,
+                EventIds.NoAvailableEndpoints,
+                "No available endpoints after load balancing for backend `{backendId}`.");
+
+            public static void NoAvailableEndpoints(ILogger logger, string backendId)
+            {
+                _noAvailableEndpoints(logger, backendId, null);
+            }
         }
     }
 }

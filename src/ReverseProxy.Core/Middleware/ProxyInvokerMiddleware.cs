@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.ReverseProxy.Common;
 using Microsoft.ReverseProxy.Common.Abstractions.Telemetry;
 using Microsoft.ReverseProxy.Core.RuntimeModel;
 using Microsoft.ReverseProxy.Core.Service.Proxy;
@@ -22,13 +23,13 @@ namespace Microsoft.ReverseProxy.Core.Middleware
         private readonly Random _random = new Random();
         private readonly RequestDelegate _next; // Unused, this middleware is always terminal
         private readonly ILogger _logger;
-        private readonly IOperationLogger _operationLogger;
+        private readonly IOperationLogger<ProxyInvokerMiddleware> _operationLogger;
         private readonly IHttpProxy _httpProxy;
 
         public ProxyInvokerMiddleware(
             RequestDelegate next,
             ILogger<ProxyInvokerMiddleware> logger,
-            IOperationLogger operationLogger,
+            IOperationLogger<ProxyInvokerMiddleware> operationLogger,
             IHttpProxy httpProxy)
         {
             _next = next ?? throw new ArgumentNullException(nameof(next));
@@ -50,7 +51,7 @@ namespace Microsoft.ReverseProxy.Core.Middleware
 
             if (endpoints.Count == 0)
             {
-                _logger.LogWarning("No available endpoints.");
+                Log.NoAvailableEndpoints(_logger, backend.BackendId);
                 context.Response.StatusCode = 503;
                 return;
             }
@@ -58,7 +59,7 @@ namespace Microsoft.ReverseProxy.Core.Middleware
             var endpoint = endpoints[0];
             if (endpoints.Count > 1)
             {
-                _logger.LogWarning("More than one endpoint available, load balancing may not be configured correctly. Choosing randomly.");
+                Log.MultipleEndpointsAvailable(_logger, backend.BackendId);
                 endpoint = endpoints[_random.Next(endpoints.Count)];
             }
 
@@ -70,7 +71,7 @@ namespace Microsoft.ReverseProxy.Core.Middleware
 
             // TODO: support StripPrefix and other url transformations
             var targetUrl = BuildOutgoingUrl(context, endpointConfig.Address);
-            _logger.LogInformation($"Proxying to {targetUrl}");
+            Log.Proxying(_logger, targetUrl);
             var targetUri = new Uri(targetUrl, UriKind.Absolute);
 
             using (var shortCts = CancellationTokenSource.CreateLinkedTokenSource(context.RequestAborted))
@@ -137,6 +138,39 @@ namespace Microsoft.ReverseProxy.Core.Middleware
             builder.Append(encodedQuery);
 
             return builder.ToString();
+        }
+
+        private static class Log
+        {
+            private static readonly Action<ILogger, string, Exception> _noAvailableEndpoints = LoggerMessage.Define<string>(
+                LogLevel.Warning,
+                EventIds.NoAvailableEndpoints,
+                "No available endpoints after load balancing for backend `{backendId}`.");
+
+            private static readonly Action<ILogger, string, Exception> _multipleEndpointsAvailable = LoggerMessage.Define<string>(
+                LogLevel.Warning,
+                EventIds.MultipleEndpointsAvailable,
+                "More than one endpoint available for backend `{backendId}`, load balancing may not be configured correctly. Choosing randomly.");
+
+            private static readonly Action<ILogger, string, Exception> _proxying = LoggerMessage.Define<string>(
+                LogLevel.Information,
+                EventIds.Proxying,
+                "Proxying to {targetUrl}");
+
+            public static void NoAvailableEndpoints(ILogger logger, string backendId)
+            {
+                _noAvailableEndpoints(logger, backendId, null);
+            }
+
+            public static void MultipleEndpointsAvailable(ILogger logger, string backendId)
+            {
+                _multipleEndpointsAvailable(logger, backendId, null);
+            }
+
+            public static void Proxying(ILogger logger, string targetUrl)
+            {
+                _proxying(logger, targetUrl, null);
+            }
         }
     }
 }

@@ -10,7 +10,7 @@ namespace Microsoft.ReverseProxy.Common.Abstractions.Telemetry
     /// Provides methods to log telemetry for the execution of chunks of
     /// synchronous or asynchronous operations.
     /// </summary>
-    public interface IOperationLogger
+    public interface IOperationLogger<TCategoryName>
     {
         /// <summary>
         /// Gets the context for the current operation.

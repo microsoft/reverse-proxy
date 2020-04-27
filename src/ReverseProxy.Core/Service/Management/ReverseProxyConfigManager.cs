@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Microsoft.ReverseProxy.Common;
 using Microsoft.ReverseProxy.Core.Abstractions;
 using Microsoft.ReverseProxy.Core.ConfigModel;
 using Microsoft.ReverseProxy.Core.RuntimeModel;
@@ -93,7 +94,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Management
                                     port: configBackend.HealthCheckOptions?.Port ?? 0,
                                     path: configBackend.HealthCheckOptions?.Path ?? string.Empty),
                                 new BackendConfig.BackendLoadBalancingOptions(
-                                    mode: BackendConfig.BackendLoadBalancingOptions.LoadBalancingMode.First));
+                                    mode: configBackend.LoadBalancing?.Mode ?? default));
 
                         var currentBackendConfig = backend.Config.Value;
                         if (currentBackendConfig == null ||
@@ -105,11 +106,11 @@ namespace Microsoft.ReverseProxy.Core.Service.Management
                         {
                             if (currentBackendConfig == null)
                             {
-                                _logger.LogDebug("Backend {backendId} has been added.", configBackendPair.Key);
+                                Log.BackendAdded(_logger, configBackendPair.Key);
                             }
                             else
                             {
-                                _logger.LogDebug("Backend {backendId} has changed.", configBackendPair.Key);
+                                Log.BackendChanged(_logger, configBackendPair.Key);
                             }
 
                             // Config changed, so update runtime backend
@@ -128,7 +129,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Management
                     // NOTE 2: Removing the backend from `IBackendManager` is safe and existing
                     // ASP .NET Core endpoints will continue to work with their existing behavior (until those endpoints are updated)
                     // and the Garbage Collector won't destroy this backend object while it's referenced elsewhere.
-                    _logger.LogDebug("Backend {backendId} has been removed.", existingBackend.BackendId);
+                    Log.BackendRemoved(_logger, existingBackend.BackendId);
                     _backendManager.TryRemoveItem(existingBackend.BackendId);
                 }
             }
@@ -148,11 +149,11 @@ namespace Microsoft.ReverseProxy.Core.Service.Management
                         {
                             if (endpoint.Config.Value == null)
                             {
-                                _logger.LogDebug("Endpoint {endpointId} has been added.", configEndpoint.Key);
+                                Log.EndpointAdded(_logger, configEndpoint.Key);
                             }
                             else
                             {
-                                _logger.LogDebug("Endpoint {endpointId} has changed.", configEndpoint.Key);
+                                Log.EndpointChanged(_logger, configEndpoint.Key);
                             }
                             endpoint.Config.Value = new EndpointConfig(configEndpoint.Value.Address);
                         }
@@ -169,7 +170,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Management
                     // NOTE 2: Removing the endpoint from `IEndpointManager` is safe and existing
                     // backends will continue to work with their existing behavior (until those backends are updated)
                     // and the Garbage Collector won't destroy this backend object while it's referenced elsewhere.
-                    _logger.LogDebug("Endpoint {endpointId} has been removed.", existingEndpoint.EndpointId);
+                    Log.EndpointRemoved(_logger, existingEndpoint.EndpointId);
                     endpointManager.TryRemoveItem(existingEndpoint.EndpointId);
                 }
             }
@@ -201,11 +202,11 @@ namespace Microsoft.ReverseProxy.Core.Service.Management
                             changed = true;
                             if (currentRouteConfig == null)
                             {
-                                _logger.LogDebug("Route {routeId} has been added.", configRoute.RouteId);
+                                Log.RouteAdded(_logger, configRoute.RouteId);
                             }
                             else
                             {
-                                _logger.LogDebug("Route {routeId} has changed.", configRoute.RouteId);
+                                Log.RouteChanged(_logger, configRoute.RouteId);
                             }
 
                             var newConfig = _routeEndpointBuilder.Build(configRoute, backendOrNull, route);
@@ -224,7 +225,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Management
                     // NOTE 2: Removing the route from `IRouteManager` is safe and existing
                     // ASP .NET Core endpoints will continue to work with their existing behavior since
                     // their copy of `RouteConfig` is immutable and remains operational in whichever state is was in.
-                    _logger.LogDebug("Route {routeId} has been removed.", existingRoute.RouteId);
+                    Log.RouteRemoved(_logger, existingRoute.RouteId);
                     _routeManager.TryRemoveItem(existingRoute.RouteId);
                     changed = true;
                 }
@@ -244,6 +245,99 @@ namespace Microsoft.ReverseProxy.Core.Service.Management
 
                 // This is where the new routes take effect!
                 _dynamicEndpointDataSource.Update(aspNetCoreEndpoints);
+            }
+        }
+
+        private static class Log
+        {
+            private static readonly Action<ILogger, string, Exception> _backendAdded = LoggerMessage.Define<string>(
+                  LogLevel.Debug,
+                  EventIds.BackendAdded,
+                  "Backend `{backendId}` has been added.");
+
+            private static readonly Action<ILogger, string, Exception> _backendChanged = LoggerMessage.Define<string>(
+                LogLevel.Debug,
+                EventIds.BackendChanged,
+                "Backend `{backendId}` has changed.");
+
+            private static readonly Action<ILogger, string, Exception> _backendRemoved = LoggerMessage.Define<string>(
+                LogLevel.Debug,
+                EventIds.BackendRemoved,
+                "Backend `{backendId}` has been removed.");
+
+            private static readonly Action<ILogger, string, Exception> _endpointAdded = LoggerMessage.Define<string>(
+                LogLevel.Debug,
+                EventIds.EndpointAdded,
+                "Endpoint `{endpointId}` has been added.");
+
+            private static readonly Action<ILogger, string, Exception> _endpointChanged = LoggerMessage.Define<string>(
+                LogLevel.Debug,
+                EventIds.EndpointChanged,
+                "Endpoint `{endpointId}` has changed.");
+
+            private static readonly Action<ILogger, string, Exception> _endpointRemoved = LoggerMessage.Define<string>(
+                LogLevel.Debug,
+                EventIds.EndpointRemoved,
+                "Endpoint `{endpointId}` has been removed.");
+
+            private static readonly Action<ILogger, string, Exception> _routeAdded = LoggerMessage.Define<string>(
+                LogLevel.Debug,
+                EventIds.RouteAdded,
+                "Route `{routeId}` has been added.");
+
+            private static readonly Action<ILogger, string, Exception> _routeChanged = LoggerMessage.Define<string>(
+                LogLevel.Debug,
+                EventIds.RouteChanged,
+                "Route `{routeId}` has changed.");
+
+            private static readonly Action<ILogger, string, Exception> _routeRemoved = LoggerMessage.Define<string>(
+                LogLevel.Debug,
+                EventIds.RouteRemoved,
+                "Route `{routeId}` has been removed.");
+
+            public static void BackendAdded(ILogger logger, string backendId)
+            {
+                _backendAdded(logger, backendId, null);
+            }
+
+            public static void BackendChanged(ILogger logger, string backendId)
+            {
+                _backendChanged(logger, backendId, null);
+            }
+
+            public static void BackendRemoved(ILogger logger, string backendId)
+            {
+                _backendRemoved(logger, backendId, null);
+            }
+
+            public static void EndpointAdded(ILogger logger, string endpointId)
+            {
+                _endpointAdded(logger, endpointId, null);
+            }
+
+            public static void EndpointChanged(ILogger logger, string endpointId)
+            {
+                _endpointChanged(logger, endpointId, null);
+            }
+
+            public static void EndpointRemoved(ILogger logger, string endpointId)
+            {
+                _endpointRemoved(logger, endpointId, null);
+            }
+
+            public static void RouteAdded(ILogger logger, string routeId)
+            {
+                _routeAdded(logger, routeId, null);
+            }
+
+            public static void RouteChanged(ILogger logger, string routeId)
+            {
+                _routeChanged(logger, routeId, null);
+            }
+
+            public static void RouteRemoved(ILogger logger, string routeId)
+            {
+                _routeRemoved(logger, routeId, null);
             }
         }
     }
