@@ -5,10 +5,12 @@ using System;
 
 namespace Microsoft.ReverseProxy.Core
 {
-    internal static class GRpcProtocolHelper
+    internal static class GrpcProtocolHelper
     {
         internal const string GrpcContentType = "application/grpc";
 
+        // NOTE: When https://github.com/dotnet/aspnetcore/issues/21265 is addressed,
+        // this can be replaced with `MediaTypeHeaderValue.IsSubsetOf(...)`.
         /// <summary>
         /// Checks whether the provided content type header value represents a gRPC request.
         /// Takes inspiration from

@@ -107,8 +107,8 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
         /// </summary>
         /// <remarks>
         /// Normal proxying comprises the following steps:
-        ///    (0) Disable ASP .NET Core limits for gRPC requests
-        ///    (1)  Create outgoing HttpRequestMessage
+        ///    (0) Disable ASP .NET Core limits for streaming requests
+        ///    (1) Create outgoing HttpRequestMessage
         ///    (2) Setup copy of request body (background)             Downstream --► Proxy --► Upstream
         ///    (3) Copy request headers                                Downstream --► Proxy --► Upstream
         ///    (4) Send the outgoing request using HttpMessageInvoker  Downstream --► Proxy --► Upstream
@@ -134,10 +134,13 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
             Contracts.CheckValue(httpClient, nameof(httpClient));
 
             // :::::::::::::::::::::::::::::::::::::::::::::
-            // :: Step 0: Disable ASP .NET Core limits for gRPC requests
+            // :: Step 0: Disable ASP .NET Core limits for streaming requests
             var isIncomingHttp2 = HttpProtocol.IsHttp2(context.Request.Protocol);
-            var isLikelyGrpc = isIncomingHttp2 && GRpcProtocolHelper.IsGRpcContentType(context.Request.ContentType);
-            if (isLikelyGrpc)
+
+            // NOTE: We heuristically assume gRPC-looking requests may require streaming semantics.
+            // See https://github.com/microsoft/reverse-proxy/issues/118 for design discussion.
+            var isStreamingRequest = isIncomingHttp2 && GrpcProtocolHelper.IsGRpcContentType(context.Request.ContentType);
+            if (isStreamingRequest)
             {
                 DisableMinRequestBodyDataRateAndMaxRequestBodySize(context);
             }
@@ -155,7 +158,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 2: Setup copy of request body (background) Downstream --► Proxy --► Upstream
             // Note that we must do this before step (3) because step (3) may also add headers to the HttpContent that we set up here.
-            var bodyToUpstreamContent = SetupCopyBodyUpstream(context.Request.Body, upstreamRequest, in proxyTelemetryContext, isLikelyGrpc, longCancellation);
+            var bodyToUpstreamContent = SetupCopyBodyUpstream(context.Request.Body, upstreamRequest, in proxyTelemetryContext, isStreamingRequest, longCancellation);
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 3: Copy request headers Downstream --► Proxy --► Upstream
@@ -332,14 +335,14 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
             await Task.WhenAll(upstreamTask, downstreamTask);
         }
 
-        private StreamCopyHttpContent SetupCopyBodyUpstream(Stream source, HttpRequestMessage upstreamRequest, in ProxyTelemetryContext proxyTelemetryContext, bool isLikelyGrpc, CancellationToken cancellation)
+        private StreamCopyHttpContent SetupCopyBodyUpstream(Stream source, HttpRequestMessage upstreamRequest, in ProxyTelemetryContext proxyTelemetryContext, bool isStreamingRequest, CancellationToken cancellation)
         {
             StreamCopyHttpContent contentToUpstream = null;
             if (source != null)
             {
                 ////this.logger.LogInformation($"   Setting up downstream --> Proxy --> upstream body proxying");
 
-                // Note on `autoFlushHttpClientOutgoingStream: isLikelyGrpc`:
+                // Note on `autoFlushHttpClientOutgoingStream: isStreamingRequest`:
                 // The.NET Core HttpClient stack keeps its own buffers on top of the underlying outgoing connection socket.
                 // We flush those buffers down to the socket on every write when this is set,
                 // but it does NOT result in calls to flush on the underlying socket.
@@ -358,7 +361,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
                 contentToUpstream = new StreamCopyHttpContent(
                     source: source,
                     streamCopier: streamCopier,
-                    autoFlushHttpClientOutgoingStream: isLikelyGrpc,
+                    autoFlushHttpClientOutgoingStream: isStreamingRequest,
                     cancellation: cancellation);
                 upstreamRequest.Content = contentToUpstream;
             }
