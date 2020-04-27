@@ -353,9 +353,9 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
                 // HttpRequestMessage.Headers and HttpRequestMessage.Content.Headers.
                 // We don't really care where the proxied headers appear among those 2,
                 // as long as they appear in one (and only one, otherwise they would be duplicated).
-                if (!destination.Headers.TryAddWithoutValidation(header.Key, header.Value.ToArray()))
+                if (!destination.Headers.TryAddWithoutValidation(header.Key, values: header.Value))
                 {
-                    destination.Content?.Headers.TryAddWithoutValidation(header.Key, header.Value.ToArray());
+                    destination.Content?.Headers.TryAddWithoutValidation(header.Key, values: header.Value);
                 }
             }
         }
