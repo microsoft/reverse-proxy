@@ -34,7 +34,7 @@ namespace SampleClient.Scenarios
                 var numBytes = Encoding.UTF8.GetBytes(textToSend, buffer.AsSpan());
                 await client.SendAsync(new ArraySegment<byte>(buffer, 0, numBytes),
                     WebSocketMessageType.Text,
-                    true,
+                    endOfMessage: true,
                     cancellation);
 
                 var message = await client.ReceiveAsync(buffer, cancellation);

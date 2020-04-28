@@ -10,13 +10,13 @@ using Microsoft.AspNetCore.Mvc;
 namespace SampleServer.Controllers
 {
     /// <summary>
-    ///     Sample controller.
+    /// Sample controller.
     /// </summary>
     [ApiController]
     public class HttpController : ControllerBase
     {
         /// <summary>
-        ///     Returns a 200 response.
+        /// Returns a 200 response.
         /// </summary>
         [HttpGet]
         [Route("/api/noop")]
@@ -25,7 +25,7 @@ namespace SampleServer.Controllers
         }
 
         /// <summary>
-        ///     Returns a 200 response dumping all info from the incoming request.
+        /// Returns a 200 response dumping all info from the incoming request.
         /// </summary>
         [HttpGet]
         [Route("/api/dump")]
@@ -46,7 +46,7 @@ namespace SampleServer.Controllers
         }
 
         /// <summary>
-        ///     Returns a 200 response dumping all info from the incoming request.
+        /// Returns a 200 response dumping all info from the incoming request.
         /// </summary>
         [HttpGet]
         [Route("/api/statuscode")]
@@ -56,7 +56,7 @@ namespace SampleServer.Controllers
         }
 
         /// <summary>
-        ///     Returns a 200 response dumping all info from the incoming request.
+        /// Returns a 200 response dumping all info from the incoming request.
         /// </summary>
         [HttpGet]
         [Route("/api/headers")]
@@ -69,8 +69,8 @@ namespace SampleServer.Controllers
         }
 
         /// <summary>
-        ///     Returns a 200 response after <paramref name="delay" /> milliseconds
-        ///     and containing with <paramref name="responseSize" /> bytes in the response body.
+        /// Returns a 200 response after <paramref name="delay" /> milliseconds
+        /// and containing with <paramref name="responseSize" /> bytes in the response body.
         /// </summary>
         [HttpGet]
         [HttpPut]
@@ -79,7 +79,7 @@ namespace SampleServer.Controllers
         [Route("/api/stress")]
         public async Task Stress([FromQuery] int delay, [FromQuery] int responseSize)
         {
-            var bodyReader = HttpContext.Request.BodyReader;
+            var bodyReader = Request.BodyReader;
             if (bodyReader != null)
             {
                 while (true)

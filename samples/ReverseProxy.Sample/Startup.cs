@@ -10,14 +10,14 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.ReverseProxy.Sample
 {
     /// <summary>
-    ///     ASP .NET Core pipeline initialization.
+    /// ASP .NET Core pipeline initialization.
     /// </summary>
     public class Startup
     {
         private readonly IConfiguration _configuration;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="Startup" /> class.
+        /// Initializes a new instance of the <see cref="Startup" /> class.
         /// </summary>
         public Startup(IConfiguration configuration)
         {
@@ -25,16 +25,16 @@ namespace Microsoft.ReverseProxy.Sample
         }
 
         /// <summary>
-        ///     This method gets called by the runtime. Use this method to add services to the container.
+        /// This method gets called by the runtime. Use this method to add services to the container.
         /// </summary>
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddReverseProxy().LoadFromConfig(_configuration.GetSection("ReverseProxy"));
+            services.AddReverseProxy().LoadFromConfig(_configuration.GetSection("ReverseProxy"), reloadOnChange: true);
         }
 
         /// <summary>
-        ///     This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        /// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         /// </summary>
         public void Configure(IApplicationBuilder app)
         {

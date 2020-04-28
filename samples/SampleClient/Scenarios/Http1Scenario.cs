@@ -15,7 +15,8 @@ namespace SampleClient.Scenarios
     {
         public async Task ExecuteAsync(CommandLineArgs args, CancellationToken cancellation)
         {
-            using var handler = new HttpClientHandler {
+            using var handler = new HttpClientHandler
+            {
                 AllowAutoRedirect = false,
                 AutomaticDecompression = DecompressionMethods.None,
                 UseCookies = false,

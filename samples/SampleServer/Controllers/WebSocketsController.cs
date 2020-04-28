@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 namespace SampleServer.Controllers
 {
     /// <summary>
-    ///     Sample controller.
+    /// Sample controller.
     /// </summary>
     [ApiController]
     public class WebSocketsController : ControllerBase
@@ -20,7 +20,7 @@ namespace SampleServer.Controllers
         private readonly ILogger<WebSocketsController> _logger;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="WebSocketsController" /> class.
+        /// Initializes a new instance of the <see cref="WebSocketsController" /> class.
         /// </summary>
         public WebSocketsController(ILogger<WebSocketsController> logger)
         {
