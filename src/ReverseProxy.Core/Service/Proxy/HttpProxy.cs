@@ -343,6 +343,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
                     continue;
                 }
 
+                // Filter out HTTP/2 pseudo headers like ":method" and ":path", those go into other fields.
                 if (header.Key.Length > 0 && header.Key[0] == ':')
                 {
                     continue;
