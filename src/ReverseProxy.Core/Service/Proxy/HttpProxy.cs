@@ -361,16 +361,18 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
                 // as long as they appear in one (and only one, otherwise they would be duplicated).
                 if (headerValueCount == 1)
                 {
-                    if (!destination.Headers.TryAddWithoutValidation(header.Key, value: header.Value))
+                    string headerValue = header.Value;
+                    if (!destination.Headers.TryAddWithoutValidation(header.Key, headerValue))
                     {
-                        destination.Content?.Headers.TryAddWithoutValidation(header.Key, value: header.Value);
+                        destination.Content?.Headers.TryAddWithoutValidation(header.Key, headerValue);
                     }
                 }
                 else
                 {
-                    if (!destination.Headers.TryAddWithoutValidation(header.Key, values: header.Value))
+                    string[] headerValues = header.Value;
+                    if (!destination.Headers.TryAddWithoutValidation(header.Key, headerValues))
                     {
-                        destination.Content?.Headers.TryAddWithoutValidation(header.Key, values: header.Value);
+                        destination.Content?.Headers.TryAddWithoutValidation(header.Key, headerValues);
                     }
                 }
             }
