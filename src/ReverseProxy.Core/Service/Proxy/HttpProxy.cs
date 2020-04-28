@@ -337,6 +337,13 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
         {
             foreach (var header in source)
             {
+                var headerValueCount = header.Value.Count;
+                if (headerValueCount == 0)
+                {
+                    continue;
+                }
+
+                // Filter out HTTP/2 pseudo headers like ":method" and ":path", those go into other fields.
                 if (header.Key.Length > 0 && header.Key[0] == ':')
                 {
                     continue;
@@ -353,9 +360,21 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
                 // HttpRequestMessage.Headers and HttpRequestMessage.Content.Headers.
                 // We don't really care where the proxied headers appear among those 2,
                 // as long as they appear in one (and only one, otherwise they would be duplicated).
-                if (!destination.Headers.TryAddWithoutValidation(header.Key, header.Value.ToArray()))
+                if (headerValueCount == 1)
                 {
-                    destination.Content?.Headers.TryAddWithoutValidation(header.Key, header.Value.ToArray());
+                    string headerValue = header.Value;
+                    if (!destination.Headers.TryAddWithoutValidation(header.Key, headerValue))
+                    {
+                        destination.Content?.Headers.TryAddWithoutValidation(header.Key, headerValue);
+                    }
+                }
+                else
+                {
+                    string[] headerValues = header.Value;
+                    if (!destination.Headers.TryAddWithoutValidation(header.Key, headerValues))
+                    {
+                        destination.Content?.Headers.TryAddWithoutValidation(header.Key, headerValues);
+                    }
                 }
             }
         }
