@@ -66,7 +66,9 @@ namespace SampleClient.Scenarios
             {
                 var textToSend = $"Hello {i}";
                 var numBytes = Encoding.UTF8.GetBytes(textToSend, buffer.AsSpan());
-                await client.SendAsync(new ArraySegment<byte>(buffer, 0, numBytes), WebSocketMessageType.Binary, true,
+                await client.SendAsync(new ArraySegment<byte>(buffer, 0, numBytes),
+                    WebSocketMessageType.Binary,
+                    endOfMessage: true,
                     cancellation);
 
                 var message = await client.ReceiveAsync(buffer, cancellation);

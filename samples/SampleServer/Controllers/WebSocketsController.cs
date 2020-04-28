@@ -28,7 +28,7 @@ namespace SampleServer.Controllers
         }
 
         /// <summary>
-        ///     Returns a 200 response.
+        /// Returns a 200 response.
         /// </summary>
         [HttpGet]
         [Route("/api/websockets")]
