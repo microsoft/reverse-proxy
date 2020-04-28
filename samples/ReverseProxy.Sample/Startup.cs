@@ -46,6 +46,10 @@ namespace Microsoft.ReverseProxy.Sample
                     {
                         backend.HealthCheckOptions.Enabled = true;
                     }
+
+                    // Or wrap the meatadata in config sugar
+                    var config = new ConfigurationBuilder().AddInMemoryCollection(backend.Metadata).Build();
+                    backend.HealthCheckOptions.Enabled = config.GetValue<bool>("CustomHealth");
                 })
                 .ConfigureBackend("backend1", backend =>
                 {
