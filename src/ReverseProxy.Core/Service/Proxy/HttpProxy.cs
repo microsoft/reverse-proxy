@@ -337,6 +337,11 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
         {
             foreach (var header in source)
             {
+                if (header.Value.Count == 0)
+                {
+                    continue;
+                }
+
                 if (header.Key.Length > 0 && header.Key[0] == ':')
                 {
                     continue;
@@ -353,9 +358,19 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
                 // HttpRequestMessage.Headers and HttpRequestMessage.Content.Headers.
                 // We don't really care where the proxied headers appear among those 2,
                 // as long as they appear in one (and only one, otherwise they would be duplicated).
-                if (!destination.Headers.TryAddWithoutValidation(header.Key, values: header.Value))
+                if (header.Value.Count == 1)
                 {
-                    destination.Content?.Headers.TryAddWithoutValidation(header.Key, values: header.Value);
+                    if (!destination.Headers.TryAddWithoutValidation(header.Key, value: header.Value))
+                    {
+                        destination.Content?.Headers.TryAddWithoutValidation(header.Key, value: header.Value);
+                    }
+                }
+                else
+                {
+                    if (!destination.Headers.TryAddWithoutValidation(header.Key, values: header.Value))
+                    {
+                        destination.Content?.Headers.TryAddWithoutValidation(header.Key, values: header.Value);
+                    }
                 }
             }
         }
