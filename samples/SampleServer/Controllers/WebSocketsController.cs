@@ -20,7 +20,7 @@ namespace SampleServer.Controllers
         private readonly ILogger<WebSocketsController> _logger;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="WebSocketsController"/> class.
+        /// Initializes a new instance of the <see cref="WebSocketsController" /> class.
         /// </summary>
         public WebSocketsController(ILogger<WebSocketsController> logger)
         {
@@ -48,7 +48,7 @@ namespace SampleServer.Controllers
             _logger.LogInformation("WebSockets finished.");
         }
 
-        private async Task RunPingPongAsync(WebSocket webSocket, CancellationToken cancellation)
+        private static async Task RunPingPongAsync(WebSocket webSocket, CancellationToken cancellation)
         {
             var buffer = new byte[1024];
             while (true)
@@ -60,7 +60,10 @@ namespace SampleServer.Controllers
                     return;
                 }
 
-                await webSocket.SendAsync(new ArraySegment<byte>(buffer, 0, message.Count), message.MessageType, message.EndOfMessage, cancellation);
+                await webSocket.SendAsync(new ArraySegment<byte>(buffer, 0, message.Count),
+                    message.MessageType,
+                    message.EndOfMessage,
+                    cancellation);
             }
         }
     }

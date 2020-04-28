@@ -17,7 +17,7 @@ namespace Microsoft.ReverseProxy.Sample
         private readonly IConfiguration _configuration;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Startup"/> class.
+        /// Initializes a new instance of the <see cref="Startup" /> class.
         /// </summary>
         public Startup(IConfiguration configuration)
         {

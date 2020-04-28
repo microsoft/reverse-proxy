@@ -31,19 +31,15 @@ namespace SampleServer.Controllers
         [Route("/api/dump")]
         public IActionResult Dump()
         {
-            var result = new
-            {
+            var result = new {
                 Request.Protocol,
                 Request.Method,
-
                 Request.Scheme,
                 Host = Request.Host.Value,
                 Path = Request.Path.Value,
                 Query = Request.QueryString.Value,
-
                 Headers = Request.Headers.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToArray()),
-
-                Time = DateTimeOffset.UtcNow,
+                Time = DateTimeOffset.UtcNow
             };
 
             return Ok(result);
@@ -66,22 +62,22 @@ namespace SampleServer.Controllers
         [Route("/api/headers")]
         public void Headers([FromBody] Dictionary<string, string> headers)
         {
-            foreach (var kvp in headers)
+            foreach (var (key, value) in headers)
             {
-                Response.Headers.Add(kvp.Key, kvp.Value);
+                Response.Headers.Add(key, value);
             }
         }
 
         /// <summary>
-        /// Returns a 200 response after <paramref name="delay"/> milliseconds
-        /// and containing with <paramref name="responseSize"/> bytes in the response body.
+        /// Returns a 200 response after <paramref name="delay" /> milliseconds
+        /// and containing with <paramref name="responseSize" /> bytes in the response body.
         /// </summary>
         [HttpGet]
         [HttpPut]
         [HttpPost]
         [HttpPatch]
         [Route("/api/stress")]
-        public async Task Stress([FromQuery]int delay, [FromQuery]int responseSize)
+        public async Task Stress([FromQuery] int delay, [FromQuery] int responseSize)
         {
             var bodyReader = Request.BodyReader;
             if (bodyReader != null)
@@ -113,7 +109,8 @@ namespace SampleServer.Controllers
                 {
                     buffer[0] = (byte)(remaining * 17); // Make the output not all zeros
                     var toWrite = Math.Min(buffer.Length, remaining);
-                    await bodyWriter.WriteAsync(new ReadOnlyMemory<byte>(buffer, 0, toWrite), HttpContext.RequestAborted);
+                    await bodyWriter.WriteAsync(new ReadOnlyMemory<byte>(buffer, 0, toWrite),
+                        HttpContext.RequestAborted);
                     remaining -= toWrite;
                 }
             }
