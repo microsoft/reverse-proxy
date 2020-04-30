@@ -40,6 +40,9 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
             {
                 case LoadBalancingMode.First:
                     return endpoints[0];
+                case LoadBalancingMode.RoundRobin:
+                    var offset = loadBalancingOptions.RoundRobinState.Increment();
+                    return endpoints[offset % endpoints.Count];
                 case LoadBalancingMode.Random:
                     var random = _randomFactory.CreateRandomInstance();
                     return endpoints[random.Next(endpointCount)];

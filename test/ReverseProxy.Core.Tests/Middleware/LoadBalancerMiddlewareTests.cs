@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Patterns;
 using Microsoft.ReverseProxy.Common.Abstractions.Telemetry;
 using Microsoft.ReverseProxy.Common.Telemetry;
+using Microsoft.ReverseProxy.Core.Abstractions;
 using Microsoft.ReverseProxy.Core.RuntimeModel;
 using Microsoft.ReverseProxy.Core.Service.Management;
 using Microsoft.ReverseProxy.Core.Service.Proxy;
@@ -40,6 +41,7 @@ namespace Microsoft.ReverseProxy.Core.Middleware.Tests
                 backendId: "backend1",
                 endpointManager: new EndpointManager(),
                 proxyHttpClientFactory: proxyHttpClientFactoryMock.Object);
+            backend1.Config.Value = new BackendConfig(default, new BackendConfig.BackendLoadBalancingOptions(LoadBalancingMode.RoundRobin));
             var endpoint1 = backend1.EndpointManager.GetOrCreateItem(
                 "endpoint1",
                 endpoint =>
@@ -66,10 +68,7 @@ namespace Microsoft.ReverseProxy.Core.Middleware.Tests
             aspNetCoreEndpoints.Add(aspNetCoreEndpoint);
             var httpContext = new DefaultHttpContext();
             httpContext.SetEndpoint(aspNetCoreEndpoint);
-
-            Mock<ILoadBalancer>()
-                .Setup(l => l.PickEndpoint(It.IsAny<IReadOnlyList<EndpointInfo>>(),  It.IsAny<BackendConfig.BackendLoadBalancingOptions>()))
-                .Returns(endpoint1);
+            Provide<ILoadBalancer, LoadBalancer>();
 
             httpContext.Features.Set<IAvailableBackendEndpointsFeature>(
                 new AvailableBackendEndpointsFeature() { Endpoints = new List<EndpointInfo>() { endpoint1, endpoint2 }.AsReadOnly() });

@@ -135,6 +135,29 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
             Assert.Same(result, endpoints[1]);
         }
 
+        [Fact]
+        public void PickEndpoint_RoundRobin_Works()
+        {
+            var loadBalancer = Create<LoadBalancer>();
+            var endpoints = new[]
+            {
+                new EndpointInfo("ep1"),
+                new EndpointInfo("ep2"),
+            };
+            endpoints[0].ConcurrencyCounter.Increment();
+            var options = new BackendConfig.BackendLoadBalancingOptions(LoadBalancingMode.RoundRobin);
+
+            var result0 = loadBalancer.PickEndpoint(endpoints, in options);
+            var result1 = loadBalancer.PickEndpoint(endpoints, in options);
+            var result2 = loadBalancer.PickEndpoint(endpoints, in options);
+            var result3 = loadBalancer.PickEndpoint(endpoints, in options);
+
+            Assert.Same(result0, endpoints[0]);
+            Assert.Same(result1, endpoints[1]);
+            Assert.Same(result2, endpoints[0]);
+            Assert.Same(result3, endpoints[1]);
+        }
+
         internal class TestRandomFactory : IRandomFactory
         {
             internal TestRandom Instance { get; set; }
