@@ -6,6 +6,6 @@
   </PropertyGroup>
   <!--Package versions-->
   <PropertyGroup>
-    <MicrosoftNETCoreAppPackageVersion>5.0.0-preview.5.20226.8</MicrosoftNETCoreAppPackageVersion>
+    <MicrosoftNETCoreAppPackageVersion>5.0.0-preview.4.20227.9</MicrosoftNETCoreAppPackageVersion>
   </PropertyGroup>
 </Project>
