@@ -1,11 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Net;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.ReverseProxy.Core.Abstractions;
@@ -34,43 +32,9 @@ namespace Microsoft.ReverseProxy.Sample
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddMemoryCache();
             services.AddReverseProxy()
                 .LoadFromConfig(_configuration.GetSection("ReverseProxy"), reloadOnChange: true)
-                .ConfigureBackendDefaults((id, backend) =>
-                {
-                    backend.HealthCheckOptions ??= new HealthCheckOptions();
-                    // How to use custom metadata to configure backends
-                    if (backend.Metadata?.TryGetValue("CustomHealth", out var customHealth) ?? false
-                        && string.Equals(customHealth, "true", StringComparison.OrdinalIgnoreCase))
-                    {
-                        backend.HealthCheckOptions.Enabled = true;
-                    }
-
-                    // Or wrap the meatadata in config sugar
-                    var config = new ConfigurationBuilder().AddInMemoryCollection(backend.Metadata).Build();
-                    backend.HealthCheckOptions.Enabled = config.GetValue<bool>("CustomHealth");
-                })
-                .ConfigureBackend("backend1", backend =>
-                {
-                    backend.HealthCheckOptions.Enabled = false;
-                })
-                .ConfigureRouteDefaults(route =>
-                {
-                    // Do not let config based routes take priority over code based routes.
-                    // Lower numbers are higher priority.
-                    if (route.Priority.HasValue && route.Priority.Value < 0)
-                    {
-                        route.Priority = 0;
-                    }
-                })
-                // If I need services as part of the config:
-                .ConfigureRoute<IMemoryCache>("route1", (route, cache) =>
-                {
-                    var value = cache.Get<int>("key");
-                    route.Priority = value;
-                })
-                ;
+                .AddProxyConfigFilter<CustomConfigFilter>();
         }
 
         /// <summary>

@@ -14,22 +14,22 @@ namespace Microsoft.ReverseProxy.Core.Service
 {
     internal class DynamicConfigBuilder : IDynamicConfigBuilder
     {
-        private readonly DynamicConfigBuilderOptions _options;
+        private readonly IEnumerable<IProxyConfigFilter> _filters;
         private readonly IBackendsRepo _backendsRepo;
         private readonly IRoutesRepo _routesRepo;
         private readonly IRouteValidator _parsedRouteValidator;
 
         public DynamicConfigBuilder(
-            IOptions<DynamicConfigBuilderOptions> options,
+            IEnumerable<IProxyConfigFilter> filters,
             IBackendsRepo backendsRepo,
             IRoutesRepo routesRepo,
             IRouteValidator parsedRouteValidator)
         {
-            Contracts.CheckValue(options, nameof(options));
+            Contracts.CheckValue(filters, nameof(filters));
             Contracts.CheckValue(backendsRepo, nameof(backendsRepo));
             Contracts.CheckValue(routesRepo, nameof(routesRepo));
             Contracts.CheckValue(parsedRouteValidator, nameof(parsedRouteValidator));
-            _options = options.Value;
+            _filters = filters;
             _backendsRepo = backendsRepo;
             _routesRepo = routesRepo;
             _parsedRouteValidator = parsedRouteValidator;
@@ -60,19 +60,9 @@ namespace Microsoft.ReverseProxy.Core.Service
             {
                 try
                 {
-                    // Default config for all backends
-                    foreach (var backendConfig in _options.BackendDefaultConfigs)
+                    foreach (var filter in _filters)
                     {
-                        backendConfig(id, backend);
-                    }
-
-                    // Specific config for this backend
-                    if (_options.BackendConfigs.TryGetValue(id, out var backendConfigs))
-                    {
-                        foreach (var backendConfig in backendConfigs)
-                        {
-                            backendConfig(backend);
-                        }
+                        await filter.ConfigureBackendAsync(id, backend, cancellation);
                     }
 
                     configuredBackends[id] = backend;
@@ -107,19 +97,9 @@ namespace Microsoft.ReverseProxy.Core.Service
 
                 try
                 {
-                    // Default config for all routes
-                    foreach (var routeConfig in _options.RouteDefaultConfigs)
+                    foreach (var filter in _filters)
                     {
-                        routeConfig(route);
-                    }
-
-                    // Specific config for this route
-                    if (_options.RouteConfigs.TryGetValue(route.RouteId, out var routeConfigs))
-                    {
-                        foreach (var routeConfig in routeConfigs)
-                        {
-                            routeConfig(route);
-                        }
+                        await filter.ConfigureRouteAsync(route, cancellation);
                     }
                 }
                 catch (Exception ex)

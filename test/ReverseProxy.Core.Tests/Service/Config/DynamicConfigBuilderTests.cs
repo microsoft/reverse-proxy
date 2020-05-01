@@ -169,18 +169,29 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             Assert.Empty(result.Value.Routes);
         }
 
+        private class BackendAndRouteFilter : IProxyConfigFilter
+        {
+            public Task ConfigureBackendAsync(string id, Backend backend, CancellationToken cancel)
+            {
+                backend.HealthCheckOptions = new HealthCheckOptions() { Enabled = true, Interval = TimeSpan.FromSeconds(12) };
+                return Task.CompletedTask;
+            }
+
+            public Task ConfigureRouteAsync(ProxyRoute route, CancellationToken cancel)
+            {
+                route.Priority = 12;
+                return Task.CompletedTask;
+            }
+        }
+
         [Fact]
-        public async Task BuildConfigAsync_ConfigureBackendActions_Works()
+        public async Task BuildConfigAsync_ConfigFilterConfiguresBackend_Works()
         {
             var errorReporter = new TestConfigErrorReporter();
             var configBuilder = CreateConfigBuilder(CreateOneBackend(), new TestRoutesRepo(),
                 proxyBuilder =>
                 {
-                    proxyBuilder.ConfigureBackendDefaults((id, backend) =>
-                    {
-                        backend.HealthCheckOptions = new HealthCheckOptions() { Enabled = true, Interval = TimeSpan.FromSeconds(12) };
-                    });
-                    proxyBuilder.ConfigureBackend("backend1", backend => backend.HealthCheckOptions.Port = 13);
+                    proxyBuilder.AddProxyConfigFilter<BackendAndRouteFilter>();
                 });
 
             var result = await configBuilder.BuildConfigAsync(errorReporter, CancellationToken.None);
@@ -193,60 +204,33 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             Assert.NotNull(backend);
             Assert.True(backend.HealthCheckOptions.Enabled);
             Assert.Equal(TimeSpan.FromSeconds(12), backend.HealthCheckOptions.Interval);
-            Assert.Equal(13, backend.HealthCheckOptions.Port);
             Assert.Single(backend.Endpoints);
             var endpoint = backend.Endpoints["ep1"];
             Assert.NotNull(endpoint);
             Assert.Equal(TestAddress, endpoint.Address);
         }
 
-        [Fact]
-        public async Task BuildConfigAsync_ConfigureBackendActionsWithServices_Works()
+        private class BackendAndRouteThrows : IProxyConfigFilter
         {
-            var errorReporter = new TestConfigErrorReporter();
-            TestService testServiceInstance = null;
-            var configBuilder = CreateConfigBuilder(CreateOneBackend(), new TestRoutesRepo(),
-                proxyBuilder =>
-                {
-                    proxyBuilder.ConfigureBackendDefaults<TestService>((id, backend, testService) =>
-                    {
-                        testService.CallCount++;
-                        testServiceInstance = testService;
-                        backend.HealthCheckOptions = new HealthCheckOptions() { Enabled = true, Interval = TimeSpan.FromSeconds(12) };
-                    });
-                    proxyBuilder.ConfigureBackend<TestService>("backend1", (backend, testService) =>
-                    {
-                        testService.CallCount++;
-                        backend.HealthCheckOptions.Port = 13;
-                    });
-                });
+            public Task ConfigureBackendAsync(string id, Backend backend, CancellationToken cancel)
+            {
+                throw new NotFiniteNumberException("Test exception");
+            }
 
-            var result = await configBuilder.BuildConfigAsync(errorReporter, CancellationToken.None);
-
-            Assert.True(result.IsSuccess);
-            Assert.Empty(errorReporter.Errors);
-            Assert.NotNull(result.Value);
-            Assert.Single(result.Value.Backends);
-            var backend = result.Value.Backends["backend1"];
-            Assert.NotNull(backend);
-            Assert.True(backend.HealthCheckOptions.Enabled);
-            Assert.Equal(TimeSpan.FromSeconds(12), backend.HealthCheckOptions.Interval);
-            Assert.Equal(13, backend.HealthCheckOptions.Port);
-            Assert.Single(backend.Endpoints);
-            var endpoint = backend.Endpoints["ep1"];
-            Assert.NotNull(endpoint);
-            Assert.Equal(TestAddress, endpoint.Address);
-            Assert.Equal(2, testServiceInstance.CallCount);
+            public Task ConfigureRouteAsync(ProxyRoute route, CancellationToken cancel)
+            {
+                throw new NotFiniteNumberException("Test exception");
+            }
         }
 
         [Fact]
-        public async Task BuildConfigAsync_ConfigureBackendDefaultsActionThrows_BackendSkipped()
+        public async Task BuildConfigAsync_ConfigFilterBackendActionThrows_BackendSkipped()
         {
             var errorReporter = new TestConfigErrorReporter();
             var configBuilder = CreateConfigBuilder(CreateOneBackend(), new TestRoutesRepo(),
                 proxyBuilder =>
                 {
-                    proxyBuilder.ConfigureBackendDefaults((id, backend) => throw new NotFiniteNumberException("Test exception"));
+                    proxyBuilder.AddProxyConfigFilter<BackendAndRouteThrows>();
                 });
 
             var result = await configBuilder.BuildConfigAsync(errorReporter, CancellationToken.None);
@@ -260,34 +244,14 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
         }
 
         [Fact]
-        public async Task BuildConfigAsync_ConfigureBackendActionThrows_BackendSkipped()
-        {
-            var errorReporter = new TestConfigErrorReporter();
-            var configBuilder = CreateConfigBuilder(CreateOneBackend(), new TestRoutesRepo(),
-                proxyBuilder =>
-                {
-                    proxyBuilder.ConfigureBackend("backend1", backend => throw new NotFiniteNumberException("Test exception"));
-                });
-
-            var result = await configBuilder.BuildConfigAsync(errorReporter, CancellationToken.None);
-
-            Assert.True(result.IsSuccess);
-            Assert.NotNull(result.Value);
-            Assert.Empty(result.Value.Backends);
-            Assert.NotEmpty(errorReporter.Errors);
-            Assert.IsType<NotFiniteNumberException>(errorReporter.Errors.Single().Exception);
-        }
-
-        [Fact]
-        public async Task BuildConfigAsync_ConfigureRouteActions_Works()
+        public async Task BuildConfigAsync_ConfigFilterRouteActions_Works()
         {
             var errorReporter = new TestConfigErrorReporter();
             var route1 = new ProxyRoute { RouteId = "route1", Match = { Host = "example.com" }, Priority = 1, BackendId = "backend1" };
             var configBuilder = CreateConfigBuilder(new TestBackendsRepo(), new TestRoutesRepo(new[] { route1 }),
                 proxyBuilder =>
                 {
-                    proxyBuilder.ConfigureRouteDefaults(route => route.Priority = 12);
-                    proxyBuilder.ConfigureRoute("route1", route => route.Match.Path = "/CustomPath");
+                    proxyBuilder.AddProxyConfigFilter<BackendAndRouteFilter>();
                 });
 
             var result = await configBuilder.BuildConfigAsync(errorReporter, CancellationToken.None);
@@ -299,50 +263,10 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             Assert.Single(result.Value.Routes);
             Assert.Same(route1.RouteId, result.Value.Routes[0].RouteId);
             Assert.Equal(12, route1.Priority);
-            Assert.Equal("/CustomPath", route1.Match.Path);
         }
 
         [Fact]
-        public async Task BuildConfigAsync_ConfigureRouteActionsWithServices_Works()
-        {
-            var errorReporter = new TestConfigErrorReporter();
-            TestService testServiceInstance = null;
-            var route1 = new ProxyRoute { RouteId = "route1", Match = { Host = "example.com" }, Priority = 1, BackendId = "backend1" };
-            var route2 = new ProxyRoute { RouteId = "route2", Match = { Host = "example.com" }, Priority = 1, BackendId = "backend2" };
-            var configBuilder = CreateConfigBuilder(new TestBackendsRepo(), new TestRoutesRepo(new[] { route1, route2 }),
-                proxyBuilder =>
-                {
-                    proxyBuilder.ConfigureRouteDefaults<TestService>((route, service) =>
-                    {
-                        service.CallCount++;
-                        testServiceInstance = service;
-                        route.Priority = 12;
-                    });
-                    proxyBuilder.ConfigureRoute<TestService>("route1", (route, service) =>
-                    {
-                        service.CallCount++;
-                        route.Match.Path = "/CustomPath";
-                    });
-                });
-
-            var result = await configBuilder.BuildConfigAsync(errorReporter, CancellationToken.None);
-
-            Assert.True(result.IsSuccess);
-            Assert.Empty(errorReporter.Errors);
-            Assert.NotNull(result.Value);
-            Assert.Empty(result.Value.Backends);
-            Assert.Equal(2, result.Value.Routes.Count);
-            Assert.Same(route1.RouteId, result.Value.Routes[0].RouteId);
-            Assert.Same(route2.RouteId, result.Value.Routes[1].RouteId);
-            Assert.Equal(12, route1.Priority);
-            Assert.Equal(12, route2.Priority);
-            Assert.Equal("/CustomPath", route1.Match.Path);
-            Assert.Null(route2.Match.Path);
-            Assert.Equal(3, testServiceInstance.CallCount);
-        }
-
-        [Fact]
-        public async Task BuildConfigAsync_ConfigureRouteDefaultsActionThrows_SkipsRoute()
+        public async Task BuildConfigAsync_ConfigFilterRouteActionThrows_SkipsRoute()
         {
             var errorReporter = new TestConfigErrorReporter();
             var route1 = new ProxyRoute { RouteId = "route1", Match = { Host = "example.com" }, Priority = 1, BackendId = "backend1" };
@@ -350,7 +274,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             var configBuilder = CreateConfigBuilder(new TestBackendsRepo(), new TestRoutesRepo(new[] { route1, route2 }),
                 proxyBuilder =>
                 {
-                    proxyBuilder.ConfigureRouteDefaults(route => throw new NotFiniteNumberException("Test exception"));
+                    proxyBuilder.AddProxyConfigFilter<BackendAndRouteThrows>();
                 });
 
             var result = await configBuilder.BuildConfigAsync(errorReporter, CancellationToken.None);
@@ -363,28 +287,6 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             Assert.Equal(2, errorReporter.Errors.Count);
             Assert.IsType<NotFiniteNumberException>(errorReporter.Errors.First().Exception);
             Assert.IsType<NotFiniteNumberException>(errorReporter.Errors.Skip(1).First().Exception);
-        }
-
-        [Fact]
-        public async Task BuildConfigAsync_ConfigureRouteActionThrows_SkipsRoute()
-        {
-            var errorReporter = new TestConfigErrorReporter();
-            var route1 = new ProxyRoute { RouteId = "route1", Match = { Host = "example.com" }, Priority = 1, BackendId = "backend1" };
-            var route2 = new ProxyRoute { RouteId = "route2", Match = { Host = "example2.com" }, Priority = 1, BackendId = "backend2" };
-            var configBuilder = CreateConfigBuilder(new TestBackendsRepo(), new TestRoutesRepo(new[] { route1, route2 }),
-                proxyBuilder =>
-                {
-                    proxyBuilder.ConfigureRoute("route1", route => throw new NotFiniteNumberException("Test exception"));
-                });
-
-            var result = await configBuilder.BuildConfigAsync(errorReporter, CancellationToken.None);
-
-            Assert.True(result.IsSuccess);
-            Assert.NotNull(result.Value);
-            Assert.Empty(result.Value.Backends);
-            Assert.Single(result.Value.Routes);
-            Assert.Same(route2.RouteId, result.Value.Routes[0].RouteId);
-            Assert.IsType<NotFiniteNumberException>(errorReporter.Errors.Single().Exception);
         }
     }
 }
