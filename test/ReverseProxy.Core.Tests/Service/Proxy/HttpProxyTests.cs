@@ -3,6 +3,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -39,14 +40,15 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
             // Arrange
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "POST";
-            httpContext.Request.Scheme = "https";
-            httpContext.Request.Host = new HostString("example.com");
+            httpContext.Request.Scheme = "http";
+            httpContext.Request.Host = new HostString("example.com:3456");
             httpContext.Request.Path = "/api/test";
             httpContext.Request.QueryString = new QueryString("?a=b&c=d");
-            httpContext.Request.Headers.Add(":host", "example.com");
+            httpContext.Request.Headers.Add(":authority", "example.com:3456");
             httpContext.Request.Headers.Add("x-ms-request-test", "request");
             httpContext.Request.Headers.Add("Content-Language", "requestLanguage");
             httpContext.Request.Body = StringToStream("request content");
+            httpContext.Connection.RemoteIpAddress = IPAddress.Loopback;
 
             var proxyResponseStream = new MemoryStream();
             httpContext.Response.Body = proxyResponseStream;
@@ -62,6 +64,11 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
                     Assert.Equal(HttpMethod.Post, request.Method);
                     Assert.Equal(targetUri, request.RequestUri);
                     Assert.Contains("request", request.Headers.GetValues("x-ms-request-test"));
+                    Assert.Null(request.Headers.Host);
+                    Assert.False(request.Headers.TryGetValues(":authority", out var value));
+                    Assert.Equal("127.0.0.1", request.Headers.GetValues("x-forwarded-for").Single());
+                    Assert.Equal("example.com:3456", request.Headers.GetValues("x-forwarded-host").Single());
+                    Assert.Equal("http", request.Headers.GetValues("x-forwarded-proto").Single());
 
                     Assert.NotNull(request.Content);
                     Assert.Contains("requestLanguage", request.Content.Headers.GetValues("Content-Language"));
@@ -104,6 +111,62 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
             Assert.Equal("response content", proxyResponseText);
         }
 
+        [Fact]
+        public async Task ProxyAsync_NormalRequestWithExistingForwarders_Appends()
+        {
+            // Arrange
+            var httpContext = new DefaultHttpContext();
+            httpContext.Request.Method = "GET";
+            httpContext.Request.Scheme = "http";
+            httpContext.Request.Host = new HostString("example.com:3456");
+            httpContext.Request.Path = "/api/test";
+            httpContext.Request.QueryString = new QueryString("?a=b&c=d");
+            httpContext.Request.Headers.Add(":authority", "example.com:3456");
+            httpContext.Request.Headers.Add("x-forwarded-for", "::1");
+            httpContext.Request.Headers.Add("x-forwarded-proto", "https");
+            httpContext.Request.Headers.Add("x-forwarded-host", "some.other.host:4567");
+            httpContext.Connection.RemoteIpAddress = IPAddress.Loopback;
+
+            var proxyResponseStream = new MemoryStream();
+            httpContext.Response.Body = proxyResponseStream;
+
+            var targetUri = new Uri("https://localhost:123/a/b/api/test");
+            var sut = Create<HttpProxy>();
+            var client = MockHttpHandler.CreateClient(
+                async (HttpRequestMessage request, CancellationToken cancellationToken) =>
+                {
+                    await Task.Yield();
+
+                    Assert.Equal(new Version(2, 0), request.Version);
+                    Assert.Equal(HttpMethod.Get, request.Method);
+                    Assert.Equal(targetUri, request.RequestUri);
+                    Assert.Equal(new[] { "::1", "127.0.0.1" }, request.Headers.GetValues("x-forwarded-for"));
+                    Assert.Equal(new[] { "https", "http" }, request.Headers.GetValues("x-forwarded-proto"));
+                    Assert.Equal(new[] { "some.other.host:4567", "example.com:3456" }, request.Headers.GetValues("x-forwarded-host"));
+                    Assert.Null(request.Headers.Host);
+                    Assert.False(request.Headers.TryGetValues(":authority", out var value));
+
+                    // The proxy throws if the request body is not read.
+                    await request.Content.CopyToAsync(Stream.Null);
+
+                    var response = new HttpResponseMessage((HttpStatusCode)234);
+                    return response;
+                });
+            var factoryMock = new Mock<IProxyHttpClientFactory>();
+            factoryMock.Setup(f => f.CreateNormalClient()).Returns(client);
+
+            var proxyTelemetryContext = new ProxyTelemetryContext(
+                backendId: "be1",
+                routeId: "rt1",
+                endpointId: "ep1");
+
+            // Act
+            await sut.ProxyAsync(httpContext, targetUri, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+
+            // Assert
+            Assert.Equal(234, httpContext.Response.StatusCode);
+        }
+
         // Tests proxying an upgradable request.
         [Fact]
         public async Task ProxyAsync_UpgradableRequest_Works()
@@ -111,12 +174,13 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
             // Arrange
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "GET";
-            httpContext.Request.Scheme = "https";
-            httpContext.Request.Host = new HostString("example.com");
+            httpContext.Request.Scheme = "http";
+            httpContext.Request.Host = new HostString("example.com:3456");
             httpContext.Request.Path = "/api/test";
             httpContext.Request.QueryString = new QueryString("?a=b&c=d");
-            httpContext.Request.Headers.Add(":host", "example.com");
+            httpContext.Request.Headers.Add(":authority", "example.com:3456");
             httpContext.Request.Headers.Add("x-ms-request-test", "request");
+            httpContext.Connection.RemoteIpAddress = IPAddress.Loopback;
 
             var downstreamStream = new DuplexStream(
                 readStream: StringToStream("request content"),
@@ -139,6 +203,11 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
                     Assert.Equal(HttpMethod.Get, request.Method);
                     Assert.Equal(targetUri, request.RequestUri);
                     Assert.Contains("request", request.Headers.GetValues("x-ms-request-test"));
+                    Assert.Null(request.Headers.Host);
+                    Assert.False(request.Headers.TryGetValues(":authority", out var value));
+                    Assert.Equal("127.0.0.1", request.Headers.GetValues("x-forwarded-for").Single());
+                    Assert.Equal("example.com:3456", request.Headers.GetValues("x-forwarded-host").Single());
+                    Assert.Equal("http", request.Headers.GetValues("x-forwarded-proto").Single());
 
                     Assert.Null(request.Content);
 

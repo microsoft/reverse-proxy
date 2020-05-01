@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.ReverseProxy.Core.Middleware;
 
 namespace Microsoft.ReverseProxy.Sample
 {
@@ -47,15 +48,21 @@ namespace Microsoft.ReverseProxy.Sample
                 endpoints.MapControllers();
                 endpoints.MapReverseProxy(proxyPipeline =>
                 {
-                    proxyPipeline.UseProxyLoadBalancing();
-                    // Customize the request before forwarding
+                    // Custom endpoint selection
                     proxyPipeline.Use((context, next) =>
                     {
-                        var connection = context.Connection;
-                        context.Request.Headers.AppendCommaSeparatedValues("X-Forwarded-For",
-                            new IPEndPoint(connection.RemoteIpAddress, connection.RemotePort).ToString());
+                        var someCriteria = false; // MeetsCriteria(context);
+                        if (someCriteria)
+                        {
+                            var availableEndpointsFeature = context.Features.Get<IAvailableBackendEndpointsFeature>();
+                            var endpoint = availableEndpointsFeature.Endpoints[0]; // PickEndpoint(availableEndpointsFeature.Endpoints);
+                            // Load balancing will no-op if we've already reduced the list of available endpoints to 1.
+                            availableEndpointsFeature.Endpoints = new[] { endpoint };
+                        }
+
                         return next();
                     });
+                    proxyPipeline.UseProxyLoadBalancing();
                 });
             });
         }

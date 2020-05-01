@@ -13,6 +13,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Server.Kestrel.Core.Features;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
@@ -163,7 +164,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 3: Copy request headers Downstream --► Proxy --► Upstream
-            CopyHeadersToUpstream(context.Request.Headers, upstreamRequest);
+            CopyHeadersToUpstream(context, upstreamRequest);
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 4: Send the outgoing request using HttpClient
@@ -183,6 +184,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
             // cause us to wait forever in step 9, so fail fast here.
             if (bodyToUpstreamContent != null && !bodyToUpstreamContent.Started)
             {
+                // TODO: bodyToUpstreamContent is never null. HttpClient might would not need to read the body in some scenarios, such as an early auth failure with Expect: 100-continue.
                 throw new InvalidOperationException("Proxying the downstream request body to the upstream server hasn't started. This is a coding defect.");
             }
 
@@ -280,7 +282,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 2: Copy request headers Downstream --► Proxy --► Upstream
-            CopyHeadersToUpstream(context.Request.Headers, upstreamRequest);
+            CopyHeadersToUpstream(context, upstreamRequest);
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 3: Send the outgoing request using HttpMessageInvoker
@@ -342,6 +344,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
         private StreamCopyHttpContent SetupCopyBodyUpstream(Stream source, HttpRequestMessage upstreamRequest, in ProxyTelemetryContext proxyTelemetryContext, bool isStreamingRequest, CancellationToken cancellation)
         {
             StreamCopyHttpContent contentToUpstream = null;
+            // TODO: the request body is never null.
             if (source != null)
             {
                 ////this.logger.LogInformation($"   Setting up downstream --> Proxy --> upstream body proxying");
@@ -373,9 +376,9 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
             return contentToUpstream;
         }
 
-        private void CopyHeadersToUpstream(IHeaderDictionary source, HttpRequestMessage destination)
+        private void CopyHeadersToUpstream(HttpContext context, HttpRequestMessage destination)
         {
-            foreach (var header in source)
+            foreach (var header in context.Request.Headers)
             {
                 var headerValueCount = header.Value.Count;
                 if (headerValueCount == 0)
@@ -416,6 +419,17 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
                         destination.Content?.Headers.TryAddWithoutValidation(header.Key, headerValues);
                     }
                 }
+            }
+
+            // Add common forwarders
+            // TODO: these need to be customizable
+            // https://github.com/microsoft/reverse-proxy/issues/13
+            // https://github.com/microsoft/reverse-proxy/issues/21
+            destination.Headers.TryAddWithoutValidation(ForwardedHeadersDefaults.XForwardedProtoHeaderName, context.Request.Scheme);
+            destination.Headers.TryAddWithoutValidation(ForwardedHeadersDefaults.XForwardedHostHeaderName, context.Request.Host.ToString());
+            if (context.Connection.RemoteIpAddress != null)
+            {
+                destination.Headers.TryAddWithoutValidation(ForwardedHeadersDefaults.XForwardedForHeaderName, context.Connection.RemoteIpAddress.ToString());
             }
         }
 
