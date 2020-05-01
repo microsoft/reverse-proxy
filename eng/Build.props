@@ -4,5 +4,6 @@
         <!-- Exclude samples, they aren't packable -->
         <ProjectToBuild Include="$(RepoRoot)src\**\*.csproj" />
         <ProjectToBuild Include="$(RepoRoot)test\**\*.csproj" />
+        <ProjectToBuild Include="$(RepoRoot)docs\docfx\docfx.csproj" Condition="'$(OS)' == 'Windows_NT'" />
     </ItemGroup>
 </Project>
