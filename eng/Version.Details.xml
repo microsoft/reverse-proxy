@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Dependencies>
   <ProductDependencies>
-    <Dependency Name="Microsoft.NETCore.App" Version="5.0.0-preview.4.20227.9">
+    <Dependency Name="Microsoft.NETCore.App" Version="5.0.0-preview.4.20251.6">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>6d1f7e01d3429054ec3dcb7c75b3450b9fe1429e</Sha>
+      <Sha>47ec733ba79b196e4e09d0c89bad245155002353</Sha>
     </Dependency>
   </ProductDependencies>
   <ToolsetDependencies>
