@@ -1,9 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using Microsoft.Extensions.Configuration;
 using Microsoft.ReverseProxy.Core.Configuration;
 using Microsoft.ReverseProxy.Core.Configuration.DependencyInjection;
+using Microsoft.ReverseProxy.Core.Service;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -36,16 +38,26 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>
         /// Loads routes and endpoints from config.
         /// </summary>
-        /// <param name="builder"></param>
-        /// <param name="config"></param>
-        /// <param name="reloadOnChange"></param>
-        /// <returns></returns>
-        public static IReverseProxyBuilder LoadFromConfig(this IReverseProxyBuilder builder, IConfiguration config, bool reloadOnChange = true)
+        public static IReverseProxyBuilder LoadFromConfig(this IReverseProxyBuilder builder, IConfiguration config)
         {
             builder.Services.Configure<ProxyConfigOptions>(config);
-            builder.Services.Configure<ProxyConfigOptions>(options => options.ReloadOnChange = reloadOnChange);
             builder.Services.AddHostedService<ProxyConfigLoader>();
 
+            return builder;
+        }
+
+        /// <summary>
+        /// Registers a singleton IProxyConfigFilter service. Multiple filters are allowed and they will be run in registration order.
+        /// </summary>
+        /// <typeparam name="TService">A class that implements IProxyConfigFilter.</typeparam>
+        public static IReverseProxyBuilder AddProxyConfigFilter<TService>(this IReverseProxyBuilder builder) where TService : class, IProxyConfigFilter
+        {
+            if (builder is null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            builder.Services.AddSingleton<IProxyConfigFilter, TService>();
             return builder;
         }
     }

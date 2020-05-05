@@ -64,10 +64,7 @@ namespace Microsoft.ReverseProxy.Core.Configuration
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            if (_proxyConfig.CurrentValue.ReloadOnChange)
-            {
-                _subscription = _proxyConfig.OnChange((newConfig, name) => _ = ApplyAsync(newConfig));
-            }
+            _subscription = _proxyConfig.OnChange((newConfig, name) => _ = ApplyAsync(newConfig));
             return ApplyAsync(_proxyConfig.CurrentValue);
         }
 
@@ -112,6 +109,11 @@ namespace Microsoft.ReverseProxy.Core.Configuration
             {
                 Log.ConfigError(_logger, code, itemId, message);
             }
+
+            public void ReportError(string code, string itemId, string message, Exception ex)
+            {
+                Log.ConfigError(_logger, ex, code, itemId, message);
+            }
         }
 
 
@@ -140,6 +142,11 @@ namespace Microsoft.ReverseProxy.Core.Configuration
             public static void ConfigError(ILogger logger, string code, string itemId, string message)
             {
                 _configError(logger, code, itemId, message, null);
+            }
+
+            public static void ConfigError(ILogger logger, Exception ex, string code, string itemId, string message)
+            {
+                _configError(logger, code, itemId, message, ex);
             }
 
             public static void ApplyProxyConfig(ILogger logger)

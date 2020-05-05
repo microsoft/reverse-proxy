@@ -1,5 +1,7 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
+using System;
 
 namespace Microsoft.ReverseProxy.Core.Abstractions
 {
@@ -12,5 +14,10 @@ namespace Microsoft.ReverseProxy.Core.Abstractions
         /// Reports a configuration error.
         /// </summary>
         void ReportError(string code, string itemId, string message);
+
+        /// <summary>
+        /// Reports a configuration error.
+        /// </summary>
+        void ReportError(string code, string itemId, string message, Exception ex);
     }
 }

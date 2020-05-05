@@ -2,16 +2,15 @@
 // Licensed under the MIT License.
 
 using System;
-
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.ReverseProxy.Common.Abstractions.Telemetry;
 using Microsoft.ReverseProxy.Common.Abstractions.Time;
 using Microsoft.ReverseProxy.Core.RuntimeModel;
 using Microsoft.ReverseProxy.Core.Service.Management;
-using Microsoft.Extensions.Logging;
 using Moq;
 using Tests.Common;
 using Xunit;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
 {

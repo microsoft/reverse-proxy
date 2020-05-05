@@ -1,5 +1,7 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
+using System;
 
 namespace Tests.Common
 {
@@ -24,10 +26,15 @@ namespace Tests.Common
         /// </summary>
         public string Message { get; set; }
 
+        /// <summary>
+        /// Any exception thrown.
+        /// </summary>
+        public Exception Exception { get; set; }
+
         /// <inheritdoc/>
         public override string ToString()
         {
-            return $"Config error. ErrorCode='{ErrorCode}', ElementId='{ElementId}', Message='{Message}'.";
+            return $"Config error. ErrorCode='{ErrorCode}', ElementId='{ElementId}', Message='{Message}'. " + Exception;
         }
     }
 }

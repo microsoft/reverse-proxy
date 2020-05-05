@@ -20,7 +20,7 @@ namespace Microsoft.ReverseProxy.Core.Abstractions
         public ProxyMatch Match { get; private set; } = new ProxyMatch();
 
         /// <summary>
-        /// Optionally, a priority value for this route. Routes with higher numbers take precedence over lower numbers.
+        /// Optionally, a priority value for this route. Routes with lower numbers take precedence over higher numbers.
         /// </summary>
         public int? Priority { get; set; }
 
