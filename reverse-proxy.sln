@@ -41,11 +41,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{6CBE18D4-64E9-492B-BB02-58CD57126C10}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{BC344A50-8F81-4762-9F4B-12714693144B}"
-	ProjectSection(SolutionItems) = preProject
-		docs\config.md = docs\config.md
-	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "docfx", "docs\docfx\docfx.csproj", "{7F6D4710-07D1-49D0-8EAE-675A3A9B50E3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "docfx", "docs\docfx\docfx.csproj", "{7F6D4710-07D1-49D0-8EAE-675A3A9B50E3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
