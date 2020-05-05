@@ -30,7 +30,7 @@ namespace Microsoft.ReverseProxy.Sample
         {
             services.AddControllers();
             services.AddReverseProxy()
-                .LoadFromConfig(_configuration.GetSection("ReverseProxy"), reloadOnChange: true)
+                .LoadFromConfig(_configuration.GetSection("ReverseProxy"))
                 .AddProxyConfigFilter<CustomConfigFilter>();
         }
 

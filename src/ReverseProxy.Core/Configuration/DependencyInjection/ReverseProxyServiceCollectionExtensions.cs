@@ -38,11 +38,9 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>
         /// Loads routes and endpoints from config.
         /// </summary>
-        /// <param name="reloadOnChange">Indicates if the proxy config should be reloaded when the config file is changed. The default is true.</param>
-        public static IReverseProxyBuilder LoadFromConfig(this IReverseProxyBuilder builder, IConfiguration config, bool reloadOnChange = true)
+        public static IReverseProxyBuilder LoadFromConfig(this IReverseProxyBuilder builder, IConfiguration config)
         {
             builder.Services.Configure<ProxyConfigOptions>(config);
-            builder.Services.Configure<ProxyConfigOptions>(options => options.ReloadOnChange = reloadOnChange);
             builder.Services.AddHostedService<ProxyConfigLoader>();
 
             return builder;

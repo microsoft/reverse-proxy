@@ -64,10 +64,7 @@ namespace Microsoft.ReverseProxy.Core.Configuration
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            if (_proxyConfig.CurrentValue.ReloadOnChange)
-            {
-                _subscription = _proxyConfig.OnChange((newConfig, name) => _ = ApplyAsync(newConfig));
-            }
+            _subscription = _proxyConfig.OnChange((newConfig, name) => _ = ApplyAsync(newConfig));
             return ApplyAsync(_proxyConfig.CurrentValue);
         }
 
