@@ -169,6 +169,43 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             Assert.Empty(result.Value.Routes);
         }
 
+        [Fact]
+        public async Task BuildConfigAsync_ConfigFilterRouteActions_CanFixBrokenRoute()
+        {
+            var errorReporter = new TestConfigErrorReporter();
+            var route1 = new ProxyRoute { RouteId = "route1", Match = { Host = "invalid host name" }, Priority = 1, BackendId = "backend1" };
+            var configBuilder = CreateConfigBuilder(new TestBackendsRepo(), new TestRoutesRepo(new[] { route1 }),
+                proxyBuilder =>
+                {
+                    proxyBuilder.AddProxyConfigFilter<FixRouteHostFilter>();
+                });
+
+            var result = await configBuilder.BuildConfigAsync(errorReporter, CancellationToken.None);
+
+            Assert.True(result.IsSuccess);
+            Assert.Empty(errorReporter.Errors);
+            Assert.NotNull(result.Value);
+            Assert.Empty(result.Value.Backends);
+            Assert.Single(result.Value.Routes);
+            var builtRoute = result.Value.Routes[0];
+            Assert.Same(route1.RouteId, builtRoute.RouteId);
+            Assert.Equal("example.com", builtRoute.Host);
+        }
+
+        private class FixRouteHostFilter : IProxyConfigFilter
+        {
+            public Task ConfigureBackendAsync(string id, Backend backend, CancellationToken cancel)
+            {
+                return Task.CompletedTask;
+            }
+
+            public Task ConfigureRouteAsync(ProxyRoute route, CancellationToken cancel)
+            {
+                route.Match.Host = "example.com";
+                return Task.CompletedTask;
+            }
+        }
+
         private class BackendAndRouteFilter : IProxyConfigFilter
         {
             public Task ConfigureBackendAsync(string id, Backend backend, CancellationToken cancel)
@@ -231,6 +268,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
                 proxyBuilder =>
                 {
                     proxyBuilder.AddProxyConfigFilter<BackendAndRouteThrows>();
+                    proxyBuilder.AddProxyConfigFilter<BackendAndRouteThrows>();
                 });
 
             var result = await configBuilder.BuildConfigAsync(errorReporter, CancellationToken.None);
@@ -274,6 +312,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             var configBuilder = CreateConfigBuilder(new TestBackendsRepo(), new TestRoutesRepo(new[] { route1, route2 }),
                 proxyBuilder =>
                 {
+                    proxyBuilder.AddProxyConfigFilter<BackendAndRouteThrows>();
                     proxyBuilder.AddProxyConfigFilter<BackendAndRouteThrows>();
                 });
 
