@@ -3,7 +3,7 @@
 We are aiming to ship YARP previews aligned with .NET 5, since we are working on changes to the runtime that will improve the experience for YARP. As part of that, our schedule for a preview milestone has three phases:
 
 1. Open development and receiving new builds of .NET 5 - Commits are going to `master` and new builds of .NET 5 are coming regularly
-2. Open development, .NET 5 builds frozen - After .NET 5 branches for a release, we will switch `master` to receive builds from that branch. Our development will continue.
+2. Open development, .NET 5 builds frozen - .NET 5 branches about a month before release, so after they branch we will switch `master` to receive builds from that release branch. Our development will continue until approximately a week before release.
 3. Branch and prepare for release - Prior to the release date, we'll branch and prepare for release.
 
 ## Scheduling
