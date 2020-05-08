@@ -17,6 +17,10 @@ namespace BenchmarkApp
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
+#if !DEBUG
+                    // The benchmark infrastructure seems to default to a development environment, but it always uses Release builds.
+                    webBuilder.UseEnvironment(Environments.Production);
+#endif
                     webBuilder.UseStartup<Startup>();
                 });
     }

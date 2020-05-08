@@ -9,9 +9,4 @@
     <ProjectReference Include="..\..\src\ReverseProxy.Utilities\Microsoft.ReverseProxy.Utilities.csproj" />
   </ItemGroup>
 
-  <!--<ItemGroup Condition="$(TargetFramework) == 'netcoreapp3.1' or $(TargetFramework) == 'netcoreapp5.0'">
-    <FrameworkReference Update="Microsoft.AspNetCore.App" RuntimeFrameworkVersion="$(MicrosoftAspNetCoreAppPackageVersion)" />
-    <FrameworkReference Update="Microsoft.NETCore.App" RuntimeFrameworkVersion="$(MicrosoftNETCoreAppPackageVersion)" />
-  </ItemGroup>-->
-
 </Project>
