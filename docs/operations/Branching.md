@@ -149,7 +149,7 @@ Merge Policies:
 
 3. Save and close the editor window.
 
-Finally, restore the `master` branch to pulling the latest bits from .NET 5:
+Restore the `master` branch to pulling the latest bits from .NET 5:
 
 1. Run `darc get-subscriptions --target-repo microsoft/reverse-proxy --source-repo dotnet/runtime` to get the subscription from `dotnet/runtime` to `microsoft/reverse-proxy`
 2. Copy the `Id` value
@@ -160,8 +160,8 @@ Finally, restore the `master` branch to pulling the latest bits from .NET 5:
 6. Answer `y` to `Trigger this subscription immediately?` and a PR will be opened to update versions to the latest ones in that channel.
 7. Merge the PR as soon as feasible.
 
-## Releasing Packages
+Finally, update branding in `master`:
 
-In order to release packages, we first need to identify the final build. Assuming we've branched, the latest build of the Azure Pipeline [`microsoft-reverse-proxy-official`](https://dev.azure.com/dnceng/internal/_build?definitionId=809&_a=summary) should contain the final bits.
-
-Remaining docs TBD.
+1. Edit the file [`eng/Version.props`](../../eng/Version.props)
+2. Set `PreReleaseVersionLabel` to `preview.X` (where `X` is the next preview number)
+3. Send a PR and merge it ASAP (auto-merge is your friend).
