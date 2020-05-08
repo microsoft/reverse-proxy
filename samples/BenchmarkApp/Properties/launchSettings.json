@@ -1,0 +1,15 @@
+{
+  "profiles": {
+    "BenchmarkApp": {
+      "commandName": "Project",
+      "commandLineArgs": "--urls http://localhost:5000 --backendUrls http://localhost:10010"
+    },
+    "Debug": {
+      "commandName": "Project",
+      "commandLineArgs": "--urls http://localhost:5000 --backendUrls http://localhost:10010",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}
