@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
@@ -23,14 +23,14 @@ namespace Microsoft.ReverseProxy.Core.RuntimeModel
     /// </remarks>
     internal sealed class BackendInfo
     {
-        public BackendInfo(string backendId, IEndpointManager endpointManager, IProxyHttpClientFactory proxyHttpClientFactory)
+        public BackendInfo(string backendId, IDestinationManager destinationManager, IProxyHttpClientFactory proxyHttpClientFactory)
         {
             Contracts.CheckNonEmpty(backendId, nameof(backendId));
-            Contracts.CheckValue(endpointManager, nameof(endpointManager));
+            Contracts.CheckValue(destinationManager, nameof(destinationManager));
             Contracts.CheckValue(proxyHttpClientFactory, nameof(proxyHttpClientFactory));
 
             BackendId = backendId;
-            EndpointManager = endpointManager;
+            DestinationManager = destinationManager;
             ProxyHttpClientFactory = proxyHttpClientFactory;
 
             DynamicState = CreateDynamicStateQuery();
@@ -38,7 +38,7 @@ namespace Microsoft.ReverseProxy.Core.RuntimeModel
 
         public string BackendId { get; }
 
-        public IEndpointManager EndpointManager { get; }
+        public IDestinationManager DestinationManager { get; }
 
         /// <summary>
         /// Used to create instances of <see cref="System.Net.Http.HttpClient"/>
@@ -70,7 +70,7 @@ namespace Microsoft.ReverseProxy.Core.RuntimeModel
         private IReadableSignal<BackendDynamicState> CreateDynamicStateQuery()
         {
             var endpointsAndStateChanges =
-                EndpointManager.Items
+                DestinationManager.Items
                     .SelectMany(endpoints =>
                         endpoints
                             .Select(endpoint => endpoint.DynamicState)
@@ -82,13 +82,13 @@ namespace Microsoft.ReverseProxy.Core.RuntimeModel
                 .Select(
                     _ =>
                     {
-                        var allEndpoints = EndpointManager.Items.Value ?? new List<EndpointInfo>().AsReadOnly();
+                        var allDestinations = DestinationManager.Items.Value ?? new List<DestinationInfo>().AsReadOnly();
                         var healthyEndpoints = (Config.Value?.HealthCheckOptions.Enabled ?? false)
-                            ? allEndpoints.Where(endpoint => endpoint.DynamicState.Value?.Health == EndpointHealth.Healthy).ToList().AsReadOnly()
-                            : allEndpoints;
+                            ? allDestinations.Where(endpoint => endpoint.DynamicState.Value?.Health == DestinationHealth.Healthy).ToList().AsReadOnly()
+                            : allDestinations;
                         return new BackendDynamicState(
-                            allEndpoints: allEndpoints,
-                            healthyEndpoints: healthyEndpoints);
+                            allDestinations: allDestinations,
+                            healthyDestinations: healthyEndpoints);
                     });
         }
     }

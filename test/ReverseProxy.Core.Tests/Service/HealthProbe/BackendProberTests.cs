@@ -83,13 +83,13 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
         }
 
         [Fact(Skip = BackendProberTests.SkipUnitTestSwitcher)]
-        public async Task ProbeEndpointAsync_Dithering_Work()
+        public async Task ProbeDestinationAsync_Dithering_Work()
         {
             // Set up necessary parameter.
-            var endpoints = EndpointManagerGenerator(1);
-            var prober = new BackendProber(_backendId, _backendConfig, endpoints, _timer, _logger, _operationLogger, _goodClient, _randomFactory.Object);
+            var destinations = DestinationManagerGenerator(1);
+            var prober = new BackendProber(_backendId, _backendConfig, destinations, _timer, _logger, _operationLogger, _goodClient, _randomFactory.Object);
 
-            // start probing the endpoint, it should mark our all our endpoints as state 'healthy'.
+            // start probing the destination, it should mark our all our destinations as state 'healthy'.
             using (var cts = new CancellationTokenSource())
             {
                 await new SingleThreadedTaskScheduler() { OnIdle = () => _timer.AdvanceStep() }.Run(async () =>
@@ -105,15 +105,15 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
         }
 
         [Fact(Skip = BackendProberTests.SkipUnitTestSwitcher)]
-        public async Task WithHealthyBackend_ProbeEndpointAsync_Work()
+        public async Task WithHealthyBackend_ProbeDestinationAsync_Work()
         {
-            // Set up endpoints to be probed. Let endpoints to be in healthy state.
-            var endpoints = EndpointManagerGenerator(1);
+            // Set up destinations to be probed. Let destinations to be in healthy state.
+            var destinations = DestinationManagerGenerator(1);
 
             // Set up the prober.
-            var prober = new BackendProber(_backendId, _backendConfig, endpoints, _timer, _logger, _operationLogger, _goodClient, _randomFactory.Object);
+            var prober = new BackendProber(_backendId, _backendConfig, destinations, _timer, _logger, _operationLogger, _goodClient, _randomFactory.Object);
 
-            // start probing the endpoint, it should mark our all our endpoints as state 'healthy'.
+            // start probing the destination, it should mark our all our destinations as state 'healthy'.
             using (var cts = new CancellationTokenSource())
             {
                 await new SingleThreadedTaskScheduler() { OnIdle = () => _timer.AdvanceStep() }.Run(async () =>
@@ -124,19 +124,19 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
                 });
             }
 
-            Assert.Equal(EndpointHealth.Healthy, endpoints.GetItems()[0].DynamicState.Value.Health);
+            Assert.Equal(DestinationHealth.Healthy, destinations.GetItems()[0].DynamicState.Value.Health);
         }
 
         [Fact(Skip = BackendProberTests.SkipUnitTestSwitcher)]
-        public async Task WithUnhealthyBackend_ProbeEndpointAsync_Work()
+        public async Task WithUnhealthyBackend_ProbeDestinationAsync_Work()
         {
-            // Set up endpoints to be probed.
-            var endpoints = EndpointManagerGenerator(1);
+            // Set up destinations to be probed.
+            var destinations = DestinationManagerGenerator(1);
 
             // Set up the prober.
-            var prober = new BackendProber(_backendId, _backendConfig, endpoints, _timer, _logger, _operationLogger, _badClient, _randomFactory.Object);
+            var prober = new BackendProber(_backendId, _backendConfig, destinations, _timer, _logger, _operationLogger, _badClient, _randomFactory.Object);
 
-            // start probing the endpoint, it should mark our all our endpoints as state 'unhealthy'.
+            // start probing the destination, it should mark our all our destinations as state 'unhealthy'.
             using (var cts = new CancellationTokenSource())
             {
                 await new SingleThreadedTaskScheduler() { OnIdle = () => _timer.AdvanceStep() }.Run(async () =>
@@ -147,15 +147,15 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
                 });
             }
 
-            Assert.Equal(EndpointHealth.Unhealthy, endpoints.GetItems()[0].DynamicState.Value.Health);
+            Assert.Equal(DestinationHealth.Unhealthy, destinations.GetItems()[0].DynamicState.Value.Health);
         }
 
         [Fact]
         public async Task StopAsync_Work()
         {
             // Set up necessary parameter.
-            var endpoints = EndpointManagerGenerator(1);
-            var prober = new BackendProber(_backendId, _backendConfig, endpoints, _timer, _logger, _operationLogger, _goodClient, _randomFactory.Object);
+            var destinations = DestinationManagerGenerator(1);
+            var prober = new BackendProber(_backendId, _backendConfig, destinations, _timer, _logger, _operationLogger, _goodClient, _randomFactory.Object);
 
             // Stop the prober. If the unit test could complete, it demonstrates the probing process has been aborted.
             prober.Start(_semaphore);
@@ -163,7 +163,7 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
         }
 
         [Fact(Skip = BackendProberTests.SkipUnitTestSwitcher)]
-        public async Task ThroweHttpRequestException_ProbeEndpointsAsync_ShouldNotFail()
+        public async Task ThroweHttpRequestException_ProbeDestinationsAsync_ShouldNotFail()
         {
             // Mock a exception that would happen during http request.
             var httpErrorClient = MockHttpHandler.CreateClient(
@@ -173,13 +173,13 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
                     throw new HttpRequestException();
                 });
 
-            // Set up endpoints to be probed.
-            var endpoints = EndpointManagerGenerator(1);
+            // Set up destinations to be probed.
+            var destinations = DestinationManagerGenerator(1);
 
             // Set up the prober.
-            var prober = new BackendProber(_backendId, _backendConfig, endpoints, _timer, _logger, _operationLogger, httpErrorClient, _randomFactory.Object);
+            var prober = new BackendProber(_backendId, _backendConfig, destinations, _timer, _logger, _operationLogger, httpErrorClient, _randomFactory.Object);
 
-            // start probing the endpoint, it should mark our all our endpoints as state 'unhealthy'.
+            // start probing the destination, it should mark our all our destinations as state 'unhealthy'.
             using (var cts = new CancellationTokenSource())
             {
                 await new SingleThreadedTaskScheduler() { OnIdle = () => _timer.AdvanceStep() }.Run(async () =>
@@ -190,11 +190,11 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
                 });
             }
 
-            Assert.Equal(EndpointHealth.Unhealthy, endpoints.GetItems()[0].DynamicState.Value.Health);
+            Assert.Equal(DestinationHealth.Unhealthy, destinations.GetItems()[0].DynamicState.Value.Health);
         }
 
         [Fact(Skip = BackendProberTests.SkipUnitTestSwitcher)]
-        public async Task ThroweTimeoutException_ProbeEndpointsAsync_ShouldNotFail()
+        public async Task ThroweTimeoutException_ProbeDestinationsAsync_ShouldNotFail()
         {
             // Mock a exception that would happen during http request.
             var httpTimeoutClient = MockHttpHandler.CreateClient(
@@ -204,13 +204,13 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
                     throw new OperationCanceledException();
                 });
 
-            // Set up endpoints to be probed.
-            var endpoints = EndpointManagerGenerator(1);
+            // Set up destinations to be probed.
+            var destinations = DestinationManagerGenerator(1);
 
             // Set up the prober.
-            var prober = new BackendProber(_backendId, _backendConfig, endpoints, _timer, _logger, _operationLogger, httpTimeoutClient, _randomFactory.Object);
+            var prober = new BackendProber(_backendId, _backendConfig, destinations, _timer, _logger, _operationLogger, httpTimeoutClient, _randomFactory.Object);
 
-            // start probing the endpoint, it should mark our all our endpoints as state 'unhealthy'.
+            // start probing the destination, it should mark our all our destinations as state 'unhealthy'.
             using (var cts = new CancellationTokenSource())
             {
                 await new SingleThreadedTaskScheduler() { OnIdle = () => _timer.AdvanceStep() }.Run(async () =>
@@ -221,11 +221,11 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
                 });
             }
 
-            Assert.Equal(EndpointHealth.Unhealthy, endpoints.GetItems()[0].DynamicState.Value.Health);
+            Assert.Equal(DestinationHealth.Unhealthy, destinations.GetItems()[0].DynamicState.Value.Health);
         }
 
         [Fact(Skip = BackendProberTests.SkipUnitTestSwitcher)]
-        public async Task ThroweUnexpectedException_ProbeEndpointsAsync_ShouldThrowButNotFail()
+        public async Task ThroweUnexpectedException_ProbeDestinationsAsync_ShouldThrowButNotFail()
         {
             // Mock a exception that would happen during http request.
             var httpTimeoutClient = MockHttpHandler.CreateClient(
@@ -235,13 +235,13 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
                     throw new Exception();
                 });
 
-            // Set up endpoints to be probed.
-            var endpoints = EndpointManagerGenerator(1);
+            // Set up destinations to be probed.
+            var destinations = DestinationManagerGenerator(1);
 
             // Set up the prober.
-            var prober = new BackendProber(_backendId, _backendConfig, endpoints, _timer, _logger, _operationLogger, httpTimeoutClient, _randomFactory.Object);
+            var prober = new BackendProber(_backendId, _backendConfig, destinations, _timer, _logger, _operationLogger, httpTimeoutClient, _randomFactory.Object);
 
-            // start probing the endpoint, it should mark our all our endpoints as state 'unhealthy'.
+            // start probing the destination, it should mark our all our destinations as state 'unhealthy'.
             using (var cts = new CancellationTokenSource())
             {
                 await new SingleThreadedTaskScheduler() { OnIdle = () => _timer.AdvanceStep() }.Run(async () =>
@@ -252,18 +252,18 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
                 });
             }
 
-            Assert.Equal(EndpointHealth.Unhealthy, endpoints.GetItems()[0].DynamicState.Value.Health);
+            Assert.Equal(DestinationHealth.Unhealthy, destinations.GetItems()[0].DynamicState.Value.Health);
         }
 
-        private EndpointManager EndpointManagerGenerator(int num)
+        private DestinationManager DestinationManagerGenerator(int num)
         {
-            var endpointmanger = new EndpointManager();
+            var destinationManger = new DestinationManager();
             for (var i = 0; i < num; i++)
             {
-                endpointmanger.GetOrCreateItem("endpoint" + i.ToString(), item => { item.Config.Value = new EndpointConfig("https://localhost:123/a/b/api/test"); });
+                destinationManger.GetOrCreateItem("destination" + i.ToString(), item => { item.Config.Value = new DestinationConfig("https://localhost:123/a/b/api/test"); });
             }
 
-            return endpointmanger;
+            return destinationManger;
         }
 
         /// <summary>

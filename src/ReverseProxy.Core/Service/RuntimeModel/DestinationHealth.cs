@@ -3,7 +3,7 @@
 
 namespace Microsoft.ReverseProxy.Core.RuntimeModel
 {
-    public enum EndpointHealth
+    public enum DestinationHealth
     {
         Unknown,
 

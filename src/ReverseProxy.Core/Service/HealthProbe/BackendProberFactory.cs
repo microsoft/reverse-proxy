@@ -40,9 +40,9 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
         }
 
         /// <inheritdoc/>
-        public IBackendProber CreateBackendProber(string backendId, BackendConfig config, IEndpointManager endpointManager)
+        public IBackendProber CreateBackendProber(string backendId, BackendConfig config, IDestinationManager destinationManager)
         {
-            return new BackendProber(backendId, config, endpointManager, _timer, _logger, _operationLogger, _httpClientFactory.CreateHttpClient(), _randomFactory);
+            return new BackendProber(backendId, config, destinationManager, _timer, _logger, _operationLogger, _httpClientFactory.CreateHttpClient(), _randomFactory);
         }
     }
 }

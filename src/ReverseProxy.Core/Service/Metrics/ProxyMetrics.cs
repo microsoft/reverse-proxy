@@ -16,18 +16,18 @@ namespace Microsoft.ReverseProxy.Core.Service.Metrics
         {
             Contracts.CheckValue(metricCreator, nameof(metricCreator));
 
-            _streamCopyBytes = metricCreator.Create("StreamCopyBytes", "direction", "backendId", "routeId", "endpointId", "protocol");
-            _streamCopyIops = metricCreator.Create("StreamCopyIops", "direction", "backendId", "routeId", "endpointId", "protocol");
+            _streamCopyBytes = metricCreator.Create("StreamCopyBytes", "direction", "backendId", "routeId", "destinationId", "protocol");
+            _streamCopyIops = metricCreator.Create("StreamCopyIops", "direction", "backendId", "routeId", "destinationId", "protocol");
         }
 
-        public void StreamCopyBytes(long value, string direction, string backendId, string routeId, string endpointId, string protocol)
+        public void StreamCopyBytes(long value, string direction, string backendId, string routeId, string destinationId, string protocol)
         {
-            _streamCopyBytes(value, direction, backendId, routeId, endpointId, protocol);
+            _streamCopyBytes(value, direction, backendId, routeId, destinationId, protocol);
         }
 
-        public void StreamCopyIops(long value, string direction, string backendId, string routeId, string endpointId, string protocol)
+        public void StreamCopyIops(long value, string direction, string backendId, string routeId, string destinationId, string protocol)
         {
-            _streamCopyIops(value, direction, backendId, routeId, endpointId, protocol);
+            _streamCopyIops(value, direction, backendId, routeId, destinationId, protocol);
         }
     }
 }

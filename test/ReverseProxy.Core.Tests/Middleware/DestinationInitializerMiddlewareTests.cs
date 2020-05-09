@@ -18,9 +18,9 @@ using Xunit;
 
 namespace Microsoft.ReverseProxy.Core.Middleware.Tests
 {
-    public class EndpointInitializerMiddlewareTests : TestAutoMockBase
+    public class DestinationInitializerMiddlewareTests : TestAutoMockBase
     {
-        public EndpointInitializerMiddlewareTests()
+        public DestinationInitializerMiddlewareTests()
         {
             Provide<RequestDelegate>(context => Task.CompletedTask);
         }
@@ -28,7 +28,7 @@ namespace Microsoft.ReverseProxy.Core.Middleware.Tests
         [Fact]
         public void Constructor_Works()
         {
-            Create<EndpointInitializerMiddleware>();
+            Create<DestinationInitializerMiddleware>();
         }
         
         [Fact]
@@ -37,14 +37,14 @@ namespace Microsoft.ReverseProxy.Core.Middleware.Tests
             var proxyHttpClientFactoryMock = new Mock<IProxyHttpClientFactory>();
             var backend1 = new BackendInfo(
                 backendId: "backend1",
-                endpointManager: new EndpointManager(),
+                destinationManager: new DestinationManager(),
                 proxyHttpClientFactory: proxyHttpClientFactoryMock.Object);
-            var endpoint1 = backend1.EndpointManager.GetOrCreateItem(
-                "endpoint1",
-                endpoint =>
+            var destination1 = backend1.DestinationManager.GetOrCreateItem(
+                "destination1",
+                destination =>
                 {
-                    endpoint.Config.Value = new EndpointConfig("https://localhost:123/a/b/");
-                    endpoint.DynamicState.Value = new EndpointDynamicState(EndpointHealth.Healthy);
+                    destination.Config.Value = new DestinationConfig("https://localhost:123/a/b/");
+                    destination.DynamicState.Value = new DestinationDynamicState(DestinationHealth.Healthy);
                 });
 
             var aspNetCoreEndpoints = new List<Endpoint>();
@@ -59,15 +59,15 @@ namespace Microsoft.ReverseProxy.Core.Middleware.Tests
             var httpContext = new DefaultHttpContext();
             httpContext.SetEndpoint(aspNetCoreEndpoint);
 
-            var sut = Create<EndpointInitializerMiddleware>();
+            var sut = Create<DestinationInitializerMiddleware>();
 
             await sut.Invoke(httpContext);
 
-            var feature = httpContext.Features.Get<IAvailableBackendEndpointsFeature>();
+            var feature = httpContext.Features.Get<IAvailableDestinationsFeature>();
             Assert.NotNull(feature);
-            Assert.NotNull(feature.Endpoints);
-            Assert.Equal(1, feature.Endpoints.Count);
-            Assert.Same(endpoint1, feature.Endpoints[0]);
+            Assert.NotNull(feature.Destinations);
+            Assert.Equal(1, feature.Destinations.Count);
+            Assert.Same(destination1, feature.Destinations[0]);
 
             var backend = httpContext.Features.Get<BackendInfo>();
             Assert.Same(backend1, backend);
@@ -81,17 +81,17 @@ namespace Microsoft.ReverseProxy.Core.Middleware.Tests
             var proxyHttpClientFactoryMock = new Mock<IProxyHttpClientFactory>();
             var backend1 = new BackendInfo(
                 backendId: "backend1",
-                endpointManager: new EndpointManager(),
+                destinationManager: new DestinationManager(),
                 proxyHttpClientFactory: proxyHttpClientFactoryMock.Object);
             backend1.Config.Value = new BackendConfig(
                 new BackendConfig.BackendHealthCheckOptions(enabled: true, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan, 0, ""),
                 new BackendConfig.BackendLoadBalancingOptions());
-            var endpoint1 = backend1.EndpointManager.GetOrCreateItem(
-                "endpoint1",
-                endpoint =>
+            var destination1 = backend1.DestinationManager.GetOrCreateItem(
+                "destination1",
+                destination =>
                 {
-                    endpoint.Config.Value = new EndpointConfig("https://localhost:123/a/b/");
-                    endpoint.DynamicState.Value = new EndpointDynamicState(EndpointHealth.Unhealthy);
+                    destination.Config.Value = new DestinationConfig("https://localhost:123/a/b/");
+                    destination.DynamicState.Value = new DestinationDynamicState(DestinationHealth.Unhealthy);
                 });
 
             var aspNetCoreEndpoints = new List<Endpoint>();
@@ -106,11 +106,11 @@ namespace Microsoft.ReverseProxy.Core.Middleware.Tests
             var httpContext = new DefaultHttpContext();
             httpContext.SetEndpoint(aspNetCoreEndpoint);
 
-            var sut = Create<EndpointInitializerMiddleware>();
+            var sut = Create<DestinationInitializerMiddleware>();
 
             await sut.Invoke(httpContext);
 
-            var feature = httpContext.Features.Get<IAvailableBackendEndpointsFeature>();
+            var feature = httpContext.Features.Get<IAvailableDestinationsFeature>();
             Assert.Null(feature);
 
             var backend = httpContext.Features.Get<BackendInfo>();

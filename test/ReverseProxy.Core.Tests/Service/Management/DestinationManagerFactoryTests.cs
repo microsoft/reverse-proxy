@@ -5,23 +5,23 @@ using Xunit;
 
 namespace Microsoft.ReverseProxy.Core.Service.Management.Tests
 {
-    public class EndpointManagerFactoryTests
+    public class DestinationManagerFactoryTests
     {
         [Fact]
         public void Constructor_Works()
         {
-            new EndpointManagerFactory();
+            new DestinationManagerFactory();
         }
 
         [Fact]
         public void CreateEndpointManager_CreatesNewInstances()
         {
             // Arrange
-            var factory = new EndpointManagerFactory();
+            var factory = new DestinationManagerFactory();
 
             // Act
-            var manager1 = factory.CreateEndpointManager();
-            var manager2 = factory.CreateEndpointManager();
+            var manager1 = factory.CreateDestinationManager();
+            var manager2 = factory.CreateDestinationManager();
 
             // Assert
             Assert.NotNull(manager1);

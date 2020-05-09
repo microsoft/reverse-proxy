@@ -12,9 +12,9 @@ namespace Microsoft.ReverseProxy.Common
         public static readonly EventId ConfigError = new EventId(3, "ConfigError");
         public static readonly EventId NoBackendFound = new EventId(4, "NoBackendFound");
         public static readonly EventId BackendDataNotAvailable = new EventId(5, "BackendDataNotAvailable");
-        public static readonly EventId NoHealthyEndpoints = new EventId(6, "NoHealthyEndpoints");
-        public static readonly EventId NoAvailableEndpoints = new EventId(7, "NoAvailableEndpoints");
-        public static readonly EventId MultipleEndpointsAvailable = new EventId(8, "MultipleEndpointsAvailable");
+        public static readonly EventId NoHealthyDestinations = new EventId(6, "NoHealthyDestinations");
+        public static readonly EventId NoAvailableDestinations = new EventId(7, "NoAvailableDestinations");
+        public static readonly EventId MultipleDestinationsAvailable = new EventId(8, "MultipleDestinationsAvailable");
         public static readonly EventId Proxying = new EventId(9, "Proxying");
         public static readonly EventId HealthCheckStopping = new EventId(10, "HealthCheckStopping");
         public static readonly EventId HealthCheckDisabled = new EventId(11, "HealthCheckDisabled");
@@ -30,9 +30,9 @@ namespace Microsoft.ReverseProxy.Common
         public static readonly EventId BackendAdded = new EventId(21, "BackendAdded");
         public static readonly EventId BackendChanged = new EventId(22, "BackendChanged");
         public static readonly EventId BackendRemoved = new EventId(23, "BackendRemoved");
-        public static readonly EventId EndpointAdded = new EventId(24, "EndpointAdded");
-        public static readonly EventId EndpointChanged = new EventId(25, "EndpointChanged");
-        public static readonly EventId EndpointRemoved = new EventId(26, "EndpointRemoved");
+        public static readonly EventId DestinationAdded = new EventId(24, "EndpointAdded");
+        public static readonly EventId DestinationChanged = new EventId(25, "EndpointChanged");
+        public static readonly EventId DestinationRemoved = new EventId(26, "EndpointRemoved");
         public static readonly EventId RouteAdded = new EventId(27, "RouteAdded");
         public static readonly EventId RouteChanged = new EventId(28, "RouteChanged");
         public static readonly EventId RouteRemoved = new EventId(29, "RouteRemoved");

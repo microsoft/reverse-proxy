@@ -71,9 +71,9 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
                 {
                     "backend1", new Backend
                     {
-                        Endpoints =
+                        Destinations =
                         {
-                            { "ep1", new BackendEndpoint { Address = TestAddress } }
+                            { "d1", new Destination { Address = TestAddress } }
                         }
                     }
                 }
@@ -131,10 +131,10 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             Assert.Single(result.Value.Backends);
             var backend = result.Value.Backends["backend1"];
             Assert.NotNull(backend);
-            Assert.Single(backend.Endpoints);
-            var endpoint = backend.Endpoints["ep1"];
-            Assert.NotNull(endpoint);
-            Assert.Equal(TestAddress, endpoint.Address);
+            Assert.Single(backend.Destinations);
+            var destination = backend.Destinations["d1"];
+            Assert.NotNull(destination);
+            Assert.Equal(TestAddress, destination.Address);
         }
 
         [Fact]
@@ -241,10 +241,10 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             Assert.NotNull(backend);
             Assert.True(backend.HealthCheckOptions.Enabled);
             Assert.Equal(TimeSpan.FromSeconds(12), backend.HealthCheckOptions.Interval);
-            Assert.Single(backend.Endpoints);
-            var endpoint = backend.Endpoints["ep1"];
-            Assert.NotNull(endpoint);
-            Assert.Equal(TestAddress, endpoint.Address);
+            Assert.Single(backend.Destinations);
+            var destination = backend.Destinations["d1"];
+            Assert.NotNull(destination);
+            Assert.Equal(TestAddress, destination.Address);
         }
 
         private class BackendAndRouteThrows : IProxyConfigFilter

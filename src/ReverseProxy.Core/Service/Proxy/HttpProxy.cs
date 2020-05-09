@@ -326,7 +326,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
                     direction: "upstream",
                     backendId: proxyTelemetryContext.BackendId,
                     routeId: proxyTelemetryContext.RouteId,
-                    endpointId: proxyTelemetryContext.EndpointId));
+                    destinationId: proxyTelemetryContext.DestinationId));
             var upstreamTask = upstreamCopier.CopyAsync(downstreamStream, upstreamStream, longCancellation);
 
             var downstreamCopier = new StreamCopier(
@@ -335,7 +335,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
                     direction: "downstream",
                     backendId: proxyTelemetryContext.BackendId,
                     routeId: proxyTelemetryContext.RouteId,
-                    endpointId: proxyTelemetryContext.EndpointId));
+                    destinationId: proxyTelemetryContext.DestinationId));
             var downstreamTask = downstreamCopier.CopyAsync(upstreamStream, downstreamStream, longCancellation);
 
             await Task.WhenAll(upstreamTask, downstreamTask);
@@ -364,7 +364,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
                         direction: "upstream",
                         backendId: proxyTelemetryContext.BackendId,
                         routeId: proxyTelemetryContext.RouteId,
-                        endpointId: proxyTelemetryContext.EndpointId));
+                        destinationId: proxyTelemetryContext.DestinationId));
                 contentToUpstream = new StreamCopyHttpContent(
                     source: source,
                     streamCopier: streamCopier,
@@ -466,7 +466,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
                         direction: "downstream",
                         backendId: proxyTelemetryContext.BackendId,
                         routeId: proxyTelemetryContext.RouteId,
-                        endpointId: proxyTelemetryContext.EndpointId));
+                        destinationId: proxyTelemetryContext.DestinationId));
 
                 ////this.logger.LogInformation($"   Waiting for downstream <-- Proxy <-- upstream body proxying");
                 var upstreamResponseStream = await upstreamResponseContent.ReadAsStreamAsync();

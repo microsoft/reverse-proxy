@@ -6,29 +6,29 @@ using Xunit;
 namespace Microsoft.ReverseProxy.Core.Service.Management.Tests
 {
     /// <summary>
-    /// Tests for the <see cref="EndpointManager"/> class.
+    /// Tests for the <see cref="DestinationManager"/> class.
     /// Additional scenarios are covered in <see cref="ItemManagerBaseTests"/>.
     /// </summary>
-    public class EndpointManagerTests
+    public class DestinationManagerTests
     {
         [Fact]
         public void Constructor_Works()
         {
-            new EndpointManager();
+            new DestinationManager();
         }
 
         [Fact]
         public void GetOrCreateItem_NonExistentItem_CreatesNewItem()
         {
             // Arrange
-            var manager = new EndpointManager();
+            var manager = new DestinationManager();
 
             // Act
             var item = manager.GetOrCreateItem("abc", item => { });
 
             // Assert
             Assert.NotNull(item);
-            Assert.Equal("abc", item.EndpointId);
+            Assert.Equal("abc", item.DestinationId);
         }
     }
 }

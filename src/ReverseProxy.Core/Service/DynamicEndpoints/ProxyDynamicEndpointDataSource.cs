@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 
 namespace Microsoft.ReverseProxy.Core.Service
@@ -19,7 +20,7 @@ namespace Microsoft.ReverseProxy.Core.Service
     {
         private readonly object _syncRoot = new object();
 
-        private List<AspNetCore.Http.Endpoint> _endpoints;
+        private List<Endpoint> _endpoints;
         private CancellationTokenSource _cancellationTokenSource;
         private IChangeToken _changeToken;
 
@@ -28,11 +29,11 @@ namespace Microsoft.ReverseProxy.Core.Service
         /// </summary>
         public ProxyDynamicEndpointDataSource()
         {
-            Update(new List<AspNetCore.Http.Endpoint>());
+            Update(new List<Endpoint>());
         }
 
         /// <inheritdoc/>
-        public override IReadOnlyList<AspNetCore.Http.Endpoint> Endpoints
+        public override IReadOnlyList<Endpoint> Endpoints
         {
             get
             {
@@ -50,7 +51,7 @@ namespace Microsoft.ReverseProxy.Core.Service
         /// Applies a new set of ASP .NET Core endpoints. Changes take effect immediately.
         /// </summary>
         /// <param name="endpoints">New endpoints to apply.</param>
-        public void Update(List<AspNetCore.Http.Endpoint> endpoints)
+        public void Update(List<Endpoint> endpoints)
         {
             if (endpoints == null)
             {

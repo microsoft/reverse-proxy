@@ -94,7 +94,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
             var proxyTelemetryContext = new ProxyTelemetryContext(
                 backendId: "be1",
                 routeId: "rt1",
-                endpointId: "ep1");
+                destinationId: "d1");
 
             // Act
             await sut.ProxyAsync(httpContext, targetUri, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
@@ -158,7 +158,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
             var proxyTelemetryContext = new ProxyTelemetryContext(
                 backendId: "be1",
                 routeId: "rt1",
-                endpointId: "ep1");
+                destinationId: "d1");
 
             // Act
             await sut.ProxyAsync(httpContext, targetUri, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
@@ -225,7 +225,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
             var proxyTelemetryContext = new ProxyTelemetryContext(
                 backendId: "be1",
                 routeId: "rt1",
-                endpointId: "ep1");
+                destinationId: "d1");
 
             // Act
             await sut.ProxyAsync(httpContext, targetUri, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
@@ -293,7 +293,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
             var proxyTelemetryContext = new ProxyTelemetryContext(
                 backendId: "be1",
                 routeId: "rt1",
-                endpointId: "ep1");
+                destinationId: "d1");
 
             // Act
             await sut.ProxyAsync(httpContext, targetUri, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);

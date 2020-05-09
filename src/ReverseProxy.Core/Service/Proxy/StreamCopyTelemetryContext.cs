@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 namespace Microsoft.ReverseProxy.Core.Service.Proxy
@@ -10,17 +10,17 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
             string direction,
             string backendId,
             string routeId,
-            string endpointId)
+            string destinationId)
         {
             Direction = direction;
             BackendId = backendId;
             RouteId = routeId;
-            EndpointId = endpointId;
+            DestinationId = destinationId;
         }
 
         public string Direction { get; }
         public string BackendId { get; }
         public string RouteId { get; }
-        public string EndpointId { get; }
+        public string DestinationId { get; }
     }
 }

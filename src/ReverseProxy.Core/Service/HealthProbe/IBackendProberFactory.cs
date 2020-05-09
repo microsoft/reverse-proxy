@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Microsoft.ReverseProxy.Core.RuntimeModel;
@@ -15,6 +15,6 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
         /// <summary>
         /// Create a instance of <see cref="BackendProber"/>.
         /// </summary>
-        IBackendProber CreateBackendProber(string backendId, BackendConfig config, IEndpointManager endpointManager);
+        IBackendProber CreateBackendProber(string backendId, BackendConfig config, IDestinationManager destinationManager);
     }
 }

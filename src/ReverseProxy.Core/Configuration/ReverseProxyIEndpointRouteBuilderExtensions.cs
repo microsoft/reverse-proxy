@@ -42,7 +42,7 @@ namespace Microsoft.AspNetCore.Builder
             }
 
             var appBuilder = endpoints.CreateApplicationBuilder();
-            appBuilder.UseMiddleware<EndpointInitializerMiddleware>();
+            appBuilder.UseMiddleware<DestinationInitializerMiddleware>();
             configureApp(appBuilder);
             appBuilder.UseMiddleware<ProxyInvokerMiddleware>();
             var app = appBuilder.Build();

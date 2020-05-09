@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -14,7 +13,7 @@ using Microsoft.ReverseProxy.Core.Service.Proxy;
 namespace Microsoft.ReverseProxy.Core.Middleware
 {
     /// <summary>
-    /// Load balances across the available endpoints.
+    /// Load balances across the available destinations.
     /// </summary>
     internal class LoadBalancingMiddleware
     {
@@ -38,39 +37,39 @@ namespace Microsoft.ReverseProxy.Core.Middleware
         public Task Invoke(HttpContext context)
         { 
             var backend = context.Features.Get<BackendInfo>() ?? throw new InvalidOperationException("Backend unspecified.");
-            var endpointsFeature = context.Features.Get<IAvailableBackendEndpointsFeature>();
-            var endpoints = endpointsFeature?.Endpoints
-                ?? throw new InvalidOperationException("The AvailableBackendEndpoints collection was not set.");
+            var destinationsFeature = context.Features.Get<IAvailableDestinationsFeature>();
+            var destinations = destinationsFeature?.Destinations
+                ?? throw new InvalidOperationException("The IAvailableDestinationsFeature Destinations collection was not set.");
 
             var loadBalancingOptions = backend.Config.Value?.LoadBalancingOptions
                 ?? new BackendConfig.BackendLoadBalancingOptions(default);
 
-            var endpoint = _operationLogger.Execute(
-                "ReverseProxy.PickEndpoint",
-                () => _loadBalancer.PickEndpoint(endpoints, in loadBalancingOptions));
+            var destination = _operationLogger.Execute(
+                "ReverseProxy.PickDestination",
+                () => _loadBalancer.PickDestination(destinations, in loadBalancingOptions));
 
-            if (endpoint == null)
+            if (destination == null)
             {
-                Log.NoAvailableEndpoints(_logger, backend.BackendId);
+                Log.NoAvailableDestinations(_logger, backend.BackendId);
                 context.Response.StatusCode = 503;
                 return Task.CompletedTask;
             }
 
-            endpointsFeature.Endpoints = new[] { endpoint };
+            destinationsFeature.Destinations = new[] { destination };
 
             return _next(context);
         }
 
         private static class Log
         {
-            private static readonly Action<ILogger, string, Exception> _noAvailableEndpoints = LoggerMessage.Define<string>(
+            private static readonly Action<ILogger, string, Exception> _noAvailableDestinations = LoggerMessage.Define<string>(
                 LogLevel.Warning,
-                EventIds.NoAvailableEndpoints,
-                "No available endpoints after load balancing for backend `{backendId}`.");
+                EventIds.NoAvailableDestinations,
+                "No available destinations after load balancing for backend `{backendId}`.");
 
-            public static void NoAvailableEndpoints(ILogger logger, string backendId)
+            public static void NoAvailableDestinations(ILogger logger, string backendId)
             {
-                _noAvailableEndpoints(logger, backendId, null);
+                _noAvailableDestinations(logger, backendId, null);
             }
         }
     }

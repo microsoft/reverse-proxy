@@ -33,7 +33,7 @@ namespace Microsoft.ReverseProxy.Core.RuntimeModel
             MatcherSummary = matcherSummary;
             Priority = priority;
             BackendOrNull = backendOrNull;
-            AspNetCoreEndpoints = aspNetCoreEndpoints;
+            Endpoints = aspNetCoreEndpoints;
         }
 
         public RouteInfo Route { get; }
@@ -44,7 +44,7 @@ namespace Microsoft.ReverseProxy.Core.RuntimeModel
 
         public BackendInfo BackendOrNull { get; }
 
-        public IReadOnlyList<AspNetCore.Http.Endpoint> AspNetCoreEndpoints { get; }
+        public IReadOnlyList<AspNetCore.Http.Endpoint> Endpoints { get; }
 
         public bool HasConfigChanged(ParsedRoute newConfig, BackendInfo backendOrNull)
         {
