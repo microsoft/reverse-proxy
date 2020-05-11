@@ -397,24 +397,24 @@ references:
   commentId: F:Microsoft.ReverseProxy.Common.EventIds.ConfigError
   fullName: Microsoft.ReverseProxy.Common.EventIds.ConfigError
   nameWithType: EventIds.ConfigError
-- uid: Microsoft.ReverseProxy.Common.EventIds.EndpointAdded
-  name: EndpointAdded
-  href: api/Microsoft.ReverseProxy.Common.EventIds.html#Microsoft_ReverseProxy_Common_EventIds_EndpointAdded
-  commentId: F:Microsoft.ReverseProxy.Common.EventIds.EndpointAdded
-  fullName: Microsoft.ReverseProxy.Common.EventIds.EndpointAdded
-  nameWithType: EventIds.EndpointAdded
-- uid: Microsoft.ReverseProxy.Common.EventIds.EndpointChanged
-  name: EndpointChanged
-  href: api/Microsoft.ReverseProxy.Common.EventIds.html#Microsoft_ReverseProxy_Common_EventIds_EndpointChanged
-  commentId: F:Microsoft.ReverseProxy.Common.EventIds.EndpointChanged
-  fullName: Microsoft.ReverseProxy.Common.EventIds.EndpointChanged
-  nameWithType: EventIds.EndpointChanged
-- uid: Microsoft.ReverseProxy.Common.EventIds.EndpointRemoved
-  name: EndpointRemoved
-  href: api/Microsoft.ReverseProxy.Common.EventIds.html#Microsoft_ReverseProxy_Common_EventIds_EndpointRemoved
-  commentId: F:Microsoft.ReverseProxy.Common.EventIds.EndpointRemoved
-  fullName: Microsoft.ReverseProxy.Common.EventIds.EndpointRemoved
-  nameWithType: EventIds.EndpointRemoved
+- uid: Microsoft.ReverseProxy.Common.EventIds.DestinationAdded
+  name: DestinationAdded
+  href: api/Microsoft.ReverseProxy.Common.EventIds.html#Microsoft_ReverseProxy_Common_EventIds_DestinationAdded
+  commentId: F:Microsoft.ReverseProxy.Common.EventIds.DestinationAdded
+  fullName: Microsoft.ReverseProxy.Common.EventIds.DestinationAdded
+  nameWithType: EventIds.DestinationAdded
+- uid: Microsoft.ReverseProxy.Common.EventIds.DestinationChanged
+  name: DestinationChanged
+  href: api/Microsoft.ReverseProxy.Common.EventIds.html#Microsoft_ReverseProxy_Common_EventIds_DestinationChanged
+  commentId: F:Microsoft.ReverseProxy.Common.EventIds.DestinationChanged
+  fullName: Microsoft.ReverseProxy.Common.EventIds.DestinationChanged
+  nameWithType: EventIds.DestinationChanged
+- uid: Microsoft.ReverseProxy.Common.EventIds.DestinationRemoved
+  name: DestinationRemoved
+  href: api/Microsoft.ReverseProxy.Common.EventIds.html#Microsoft_ReverseProxy_Common_EventIds_DestinationRemoved
+  commentId: F:Microsoft.ReverseProxy.Common.EventIds.DestinationRemoved
+  fullName: Microsoft.ReverseProxy.Common.EventIds.DestinationRemoved
+  nameWithType: EventIds.DestinationRemoved
 - uid: Microsoft.ReverseProxy.Common.EventIds.HealthCheckDisabled
   name: HealthCheckDisabled
   href: api/Microsoft.ReverseProxy.Common.EventIds.html#Microsoft_ReverseProxy_Common_EventIds_HealthCheckDisabled
@@ -439,30 +439,30 @@ references:
   commentId: F:Microsoft.ReverseProxy.Common.EventIds.HttpDowngradeDeteced
   fullName: Microsoft.ReverseProxy.Common.EventIds.HttpDowngradeDeteced
   nameWithType: EventIds.HttpDowngradeDeteced
-- uid: Microsoft.ReverseProxy.Common.EventIds.MultipleEndpointsAvailable
-  name: MultipleEndpointsAvailable
-  href: api/Microsoft.ReverseProxy.Common.EventIds.html#Microsoft_ReverseProxy_Common_EventIds_MultipleEndpointsAvailable
-  commentId: F:Microsoft.ReverseProxy.Common.EventIds.MultipleEndpointsAvailable
-  fullName: Microsoft.ReverseProxy.Common.EventIds.MultipleEndpointsAvailable
-  nameWithType: EventIds.MultipleEndpointsAvailable
-- uid: Microsoft.ReverseProxy.Common.EventIds.NoAvailableEndpoints
-  name: NoAvailableEndpoints
-  href: api/Microsoft.ReverseProxy.Common.EventIds.html#Microsoft_ReverseProxy_Common_EventIds_NoAvailableEndpoints
-  commentId: F:Microsoft.ReverseProxy.Common.EventIds.NoAvailableEndpoints
-  fullName: Microsoft.ReverseProxy.Common.EventIds.NoAvailableEndpoints
-  nameWithType: EventIds.NoAvailableEndpoints
+- uid: Microsoft.ReverseProxy.Common.EventIds.MultipleDestinationsAvailable
+  name: MultipleDestinationsAvailable
+  href: api/Microsoft.ReverseProxy.Common.EventIds.html#Microsoft_ReverseProxy_Common_EventIds_MultipleDestinationsAvailable
+  commentId: F:Microsoft.ReverseProxy.Common.EventIds.MultipleDestinationsAvailable
+  fullName: Microsoft.ReverseProxy.Common.EventIds.MultipleDestinationsAvailable
+  nameWithType: EventIds.MultipleDestinationsAvailable
+- uid: Microsoft.ReverseProxy.Common.EventIds.NoAvailableDestinations
+  name: NoAvailableDestinations
+  href: api/Microsoft.ReverseProxy.Common.EventIds.html#Microsoft_ReverseProxy_Common_EventIds_NoAvailableDestinations
+  commentId: F:Microsoft.ReverseProxy.Common.EventIds.NoAvailableDestinations
+  fullName: Microsoft.ReverseProxy.Common.EventIds.NoAvailableDestinations
+  nameWithType: EventIds.NoAvailableDestinations
 - uid: Microsoft.ReverseProxy.Common.EventIds.NoBackendFound
   name: NoBackendFound
   href: api/Microsoft.ReverseProxy.Common.EventIds.html#Microsoft_ReverseProxy_Common_EventIds_NoBackendFound
   commentId: F:Microsoft.ReverseProxy.Common.EventIds.NoBackendFound
   fullName: Microsoft.ReverseProxy.Common.EventIds.NoBackendFound
   nameWithType: EventIds.NoBackendFound
-- uid: Microsoft.ReverseProxy.Common.EventIds.NoHealthyEndpoints
-  name: NoHealthyEndpoints
-  href: api/Microsoft.ReverseProxy.Common.EventIds.html#Microsoft_ReverseProxy_Common_EventIds_NoHealthyEndpoints
-  commentId: F:Microsoft.ReverseProxy.Common.EventIds.NoHealthyEndpoints
-  fullName: Microsoft.ReverseProxy.Common.EventIds.NoHealthyEndpoints
-  nameWithType: EventIds.NoHealthyEndpoints
+- uid: Microsoft.ReverseProxy.Common.EventIds.NoHealthyDestinations
+  name: NoHealthyDestinations
+  href: api/Microsoft.ReverseProxy.Common.EventIds.html#Microsoft_ReverseProxy_Common_EventIds_NoHealthyDestinations
+  commentId: F:Microsoft.ReverseProxy.Common.EventIds.NoHealthyDestinations
+  fullName: Microsoft.ReverseProxy.Common.EventIds.NoHealthyDestinations
+  nameWithType: EventIds.NoHealthyDestinations
 - uid: Microsoft.ReverseProxy.Common.EventIds.OperationEnded
   name: OperationEnded
   href: api/Microsoft.ReverseProxy.Common.EventIds.html#Microsoft_ReverseProxy_Common_EventIds_OperationEnded
@@ -1196,19 +1196,19 @@ references:
   isSpec: "True"
   fullName: Microsoft.ReverseProxy.Core.Abstractions.Backend.CircuitBreakerOptions
   nameWithType: Backend.CircuitBreakerOptions
-- uid: Microsoft.ReverseProxy.Core.Abstractions.Backend.Endpoints
-  name: Endpoints
-  href: api/Microsoft.ReverseProxy.Core.Abstractions.Backend.html#Microsoft_ReverseProxy_Core_Abstractions_Backend_Endpoints
-  commentId: P:Microsoft.ReverseProxy.Core.Abstractions.Backend.Endpoints
-  fullName: Microsoft.ReverseProxy.Core.Abstractions.Backend.Endpoints
-  nameWithType: Backend.Endpoints
-- uid: Microsoft.ReverseProxy.Core.Abstractions.Backend.Endpoints*
-  name: Endpoints
-  href: api/Microsoft.ReverseProxy.Core.Abstractions.Backend.html#Microsoft_ReverseProxy_Core_Abstractions_Backend_Endpoints_
-  commentId: Overload:Microsoft.ReverseProxy.Core.Abstractions.Backend.Endpoints
+- uid: Microsoft.ReverseProxy.Core.Abstractions.Backend.Destinations
+  name: Destinations
+  href: api/Microsoft.ReverseProxy.Core.Abstractions.Backend.html#Microsoft_ReverseProxy_Core_Abstractions_Backend_Destinations
+  commentId: P:Microsoft.ReverseProxy.Core.Abstractions.Backend.Destinations
+  fullName: Microsoft.ReverseProxy.Core.Abstractions.Backend.Destinations
+  nameWithType: Backend.Destinations
+- uid: Microsoft.ReverseProxy.Core.Abstractions.Backend.Destinations*
+  name: Destinations
+  href: api/Microsoft.ReverseProxy.Core.Abstractions.Backend.html#Microsoft_ReverseProxy_Core_Abstractions_Backend_Destinations_
+  commentId: Overload:Microsoft.ReverseProxy.Core.Abstractions.Backend.Destinations
   isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Core.Abstractions.Backend.Endpoints
-  nameWithType: Backend.Endpoints
+  fullName: Microsoft.ReverseProxy.Core.Abstractions.Backend.Destinations
+  nameWithType: Backend.Destinations
 - uid: Microsoft.ReverseProxy.Core.Abstractions.Backend.HealthCheckOptions
   name: HealthCheckOptions
   href: api/Microsoft.ReverseProxy.Core.Abstractions.Backend.html#Microsoft_ReverseProxy_Core_Abstractions_Backend_HealthCheckOptions
@@ -1274,38 +1274,6 @@ references:
   isSpec: "True"
   fullName: Microsoft.ReverseProxy.Core.Abstractions.Backend.QuotaOptions
   nameWithType: Backend.QuotaOptions
-- uid: Microsoft.ReverseProxy.Core.Abstractions.BackendEndpoint
-  name: BackendEndpoint
-  href: api/Microsoft.ReverseProxy.Core.Abstractions.BackendEndpoint.html
-  commentId: T:Microsoft.ReverseProxy.Core.Abstractions.BackendEndpoint
-  fullName: Microsoft.ReverseProxy.Core.Abstractions.BackendEndpoint
-  nameWithType: BackendEndpoint
-- uid: Microsoft.ReverseProxy.Core.Abstractions.BackendEndpoint.Address
-  name: Address
-  href: api/Microsoft.ReverseProxy.Core.Abstractions.BackendEndpoint.html#Microsoft_ReverseProxy_Core_Abstractions_BackendEndpoint_Address
-  commentId: P:Microsoft.ReverseProxy.Core.Abstractions.BackendEndpoint.Address
-  fullName: Microsoft.ReverseProxy.Core.Abstractions.BackendEndpoint.Address
-  nameWithType: BackendEndpoint.Address
-- uid: Microsoft.ReverseProxy.Core.Abstractions.BackendEndpoint.Address*
-  name: Address
-  href: api/Microsoft.ReverseProxy.Core.Abstractions.BackendEndpoint.html#Microsoft_ReverseProxy_Core_Abstractions_BackendEndpoint_Address_
-  commentId: Overload:Microsoft.ReverseProxy.Core.Abstractions.BackendEndpoint.Address
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Core.Abstractions.BackendEndpoint.Address
-  nameWithType: BackendEndpoint.Address
-- uid: Microsoft.ReverseProxy.Core.Abstractions.BackendEndpoint.Metadata
-  name: Metadata
-  href: api/Microsoft.ReverseProxy.Core.Abstractions.BackendEndpoint.html#Microsoft_ReverseProxy_Core_Abstractions_BackendEndpoint_Metadata
-  commentId: P:Microsoft.ReverseProxy.Core.Abstractions.BackendEndpoint.Metadata
-  fullName: Microsoft.ReverseProxy.Core.Abstractions.BackendEndpoint.Metadata
-  nameWithType: BackendEndpoint.Metadata
-- uid: Microsoft.ReverseProxy.Core.Abstractions.BackendEndpoint.Metadata*
-  name: Metadata
-  href: api/Microsoft.ReverseProxy.Core.Abstractions.BackendEndpoint.html#Microsoft_ReverseProxy_Core_Abstractions_BackendEndpoint_Metadata_
-  commentId: Overload:Microsoft.ReverseProxy.Core.Abstractions.BackendEndpoint.Metadata
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Core.Abstractions.BackendEndpoint.Metadata
-  nameWithType: BackendEndpoint.Metadata
 - uid: Microsoft.ReverseProxy.Core.Abstractions.BackendPartitioningOptions
   name: BackendPartitioningOptions
   href: api/Microsoft.ReverseProxy.Core.Abstractions.BackendPartitioningOptions.html
@@ -1383,6 +1351,38 @@ references:
   isSpec: "True"
   fullName: Microsoft.ReverseProxy.Core.Abstractions.CircuitBreakerOptions.MaxConcurrentRetries
   nameWithType: CircuitBreakerOptions.MaxConcurrentRetries
+- uid: Microsoft.ReverseProxy.Core.Abstractions.Destination
+  name: Destination
+  href: api/Microsoft.ReverseProxy.Core.Abstractions.Destination.html
+  commentId: T:Microsoft.ReverseProxy.Core.Abstractions.Destination
+  fullName: Microsoft.ReverseProxy.Core.Abstractions.Destination
+  nameWithType: Destination
+- uid: Microsoft.ReverseProxy.Core.Abstractions.Destination.Address
+  name: Address
+  href: api/Microsoft.ReverseProxy.Core.Abstractions.Destination.html#Microsoft_ReverseProxy_Core_Abstractions_Destination_Address
+  commentId: P:Microsoft.ReverseProxy.Core.Abstractions.Destination.Address
+  fullName: Microsoft.ReverseProxy.Core.Abstractions.Destination.Address
+  nameWithType: Destination.Address
+- uid: Microsoft.ReverseProxy.Core.Abstractions.Destination.Address*
+  name: Address
+  href: api/Microsoft.ReverseProxy.Core.Abstractions.Destination.html#Microsoft_ReverseProxy_Core_Abstractions_Destination_Address_
+  commentId: Overload:Microsoft.ReverseProxy.Core.Abstractions.Destination.Address
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Core.Abstractions.Destination.Address
+  nameWithType: Destination.Address
+- uid: Microsoft.ReverseProxy.Core.Abstractions.Destination.Metadata
+  name: Metadata
+  href: api/Microsoft.ReverseProxy.Core.Abstractions.Destination.html#Microsoft_ReverseProxy_Core_Abstractions_Destination_Metadata
+  commentId: P:Microsoft.ReverseProxy.Core.Abstractions.Destination.Metadata
+  fullName: Microsoft.ReverseProxy.Core.Abstractions.Destination.Metadata
+  nameWithType: Destination.Metadata
+- uid: Microsoft.ReverseProxy.Core.Abstractions.Destination.Metadata*
+  name: Metadata
+  href: api/Microsoft.ReverseProxy.Core.Abstractions.Destination.html#Microsoft_ReverseProxy_Core_Abstractions_Destination_Metadata_
+  commentId: Overload:Microsoft.ReverseProxy.Core.Abstractions.Destination.Metadata
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Core.Abstractions.Destination.Metadata
+  nameWithType: Destination.Metadata
 - uid: Microsoft.ReverseProxy.Core.Abstractions.HealthCheckOptions
   name: HealthCheckOptions
   href: api/Microsoft.ReverseProxy.Core.Abstractions.HealthCheckOptions.html
@@ -1802,209 +1802,209 @@ references:
   commentId: N:Microsoft.ReverseProxy.Core.Middleware
   fullName: Microsoft.ReverseProxy.Core.Middleware
   nameWithType: Microsoft.ReverseProxy.Core.Middleware
-- uid: Microsoft.ReverseProxy.Core.Middleware.AvailableBackendEndpointsFeature
-  name: AvailableBackendEndpointsFeature
-  href: api/Microsoft.ReverseProxy.Core.Middleware.AvailableBackendEndpointsFeature.html
-  commentId: T:Microsoft.ReverseProxy.Core.Middleware.AvailableBackendEndpointsFeature
-  fullName: Microsoft.ReverseProxy.Core.Middleware.AvailableBackendEndpointsFeature
-  nameWithType: AvailableBackendEndpointsFeature
-- uid: Microsoft.ReverseProxy.Core.Middleware.AvailableBackendEndpointsFeature.Endpoints
-  name: Endpoints
-  href: api/Microsoft.ReverseProxy.Core.Middleware.AvailableBackendEndpointsFeature.html#Microsoft_ReverseProxy_Core_Middleware_AvailableBackendEndpointsFeature_Endpoints
-  commentId: P:Microsoft.ReverseProxy.Core.Middleware.AvailableBackendEndpointsFeature.Endpoints
-  fullName: Microsoft.ReverseProxy.Core.Middleware.AvailableBackendEndpointsFeature.Endpoints
-  nameWithType: AvailableBackendEndpointsFeature.Endpoints
-- uid: Microsoft.ReverseProxy.Core.Middleware.AvailableBackendEndpointsFeature.Endpoints*
-  name: Endpoints
-  href: api/Microsoft.ReverseProxy.Core.Middleware.AvailableBackendEndpointsFeature.html#Microsoft_ReverseProxy_Core_Middleware_AvailableBackendEndpointsFeature_Endpoints_
-  commentId: Overload:Microsoft.ReverseProxy.Core.Middleware.AvailableBackendEndpointsFeature.Endpoints
+- uid: Microsoft.ReverseProxy.Core.Middleware.AvailableDestinationsFeature
+  name: AvailableDestinationsFeature
+  href: api/Microsoft.ReverseProxy.Core.Middleware.AvailableDestinationsFeature.html
+  commentId: T:Microsoft.ReverseProxy.Core.Middleware.AvailableDestinationsFeature
+  fullName: Microsoft.ReverseProxy.Core.Middleware.AvailableDestinationsFeature
+  nameWithType: AvailableDestinationsFeature
+- uid: Microsoft.ReverseProxy.Core.Middleware.AvailableDestinationsFeature.Destinations
+  name: Destinations
+  href: api/Microsoft.ReverseProxy.Core.Middleware.AvailableDestinationsFeature.html#Microsoft_ReverseProxy_Core_Middleware_AvailableDestinationsFeature_Destinations
+  commentId: P:Microsoft.ReverseProxy.Core.Middleware.AvailableDestinationsFeature.Destinations
+  fullName: Microsoft.ReverseProxy.Core.Middleware.AvailableDestinationsFeature.Destinations
+  nameWithType: AvailableDestinationsFeature.Destinations
+- uid: Microsoft.ReverseProxy.Core.Middleware.AvailableDestinationsFeature.Destinations*
+  name: Destinations
+  href: api/Microsoft.ReverseProxy.Core.Middleware.AvailableDestinationsFeature.html#Microsoft_ReverseProxy_Core_Middleware_AvailableDestinationsFeature_Destinations_
+  commentId: Overload:Microsoft.ReverseProxy.Core.Middleware.AvailableDestinationsFeature.Destinations
   isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Core.Middleware.AvailableBackendEndpointsFeature.Endpoints
-  nameWithType: AvailableBackendEndpointsFeature.Endpoints
-- uid: Microsoft.ReverseProxy.Core.Middleware.IAvailableBackendEndpointsFeature
-  name: IAvailableBackendEndpointsFeature
-  href: api/Microsoft.ReverseProxy.Core.Middleware.IAvailableBackendEndpointsFeature.html
-  commentId: T:Microsoft.ReverseProxy.Core.Middleware.IAvailableBackendEndpointsFeature
-  fullName: Microsoft.ReverseProxy.Core.Middleware.IAvailableBackendEndpointsFeature
-  nameWithType: IAvailableBackendEndpointsFeature
-- uid: Microsoft.ReverseProxy.Core.Middleware.IAvailableBackendEndpointsFeature.Endpoints
-  name: Endpoints
-  href: api/Microsoft.ReverseProxy.Core.Middleware.IAvailableBackendEndpointsFeature.html#Microsoft_ReverseProxy_Core_Middleware_IAvailableBackendEndpointsFeature_Endpoints
-  commentId: P:Microsoft.ReverseProxy.Core.Middleware.IAvailableBackendEndpointsFeature.Endpoints
-  fullName: Microsoft.ReverseProxy.Core.Middleware.IAvailableBackendEndpointsFeature.Endpoints
-  nameWithType: IAvailableBackendEndpointsFeature.Endpoints
-- uid: Microsoft.ReverseProxy.Core.Middleware.IAvailableBackendEndpointsFeature.Endpoints*
-  name: Endpoints
-  href: api/Microsoft.ReverseProxy.Core.Middleware.IAvailableBackendEndpointsFeature.html#Microsoft_ReverseProxy_Core_Middleware_IAvailableBackendEndpointsFeature_Endpoints_
-  commentId: Overload:Microsoft.ReverseProxy.Core.Middleware.IAvailableBackendEndpointsFeature.Endpoints
+  fullName: Microsoft.ReverseProxy.Core.Middleware.AvailableDestinationsFeature.Destinations
+  nameWithType: AvailableDestinationsFeature.Destinations
+- uid: Microsoft.ReverseProxy.Core.Middleware.IAvailableDestinationsFeature
+  name: IAvailableDestinationsFeature
+  href: api/Microsoft.ReverseProxy.Core.Middleware.IAvailableDestinationsFeature.html
+  commentId: T:Microsoft.ReverseProxy.Core.Middleware.IAvailableDestinationsFeature
+  fullName: Microsoft.ReverseProxy.Core.Middleware.IAvailableDestinationsFeature
+  nameWithType: IAvailableDestinationsFeature
+- uid: Microsoft.ReverseProxy.Core.Middleware.IAvailableDestinationsFeature.Destinations
+  name: Destinations
+  href: api/Microsoft.ReverseProxy.Core.Middleware.IAvailableDestinationsFeature.html#Microsoft_ReverseProxy_Core_Middleware_IAvailableDestinationsFeature_Destinations
+  commentId: P:Microsoft.ReverseProxy.Core.Middleware.IAvailableDestinationsFeature.Destinations
+  fullName: Microsoft.ReverseProxy.Core.Middleware.IAvailableDestinationsFeature.Destinations
+  nameWithType: IAvailableDestinationsFeature.Destinations
+- uid: Microsoft.ReverseProxy.Core.Middleware.IAvailableDestinationsFeature.Destinations*
+  name: Destinations
+  href: api/Microsoft.ReverseProxy.Core.Middleware.IAvailableDestinationsFeature.html#Microsoft_ReverseProxy_Core_Middleware_IAvailableDestinationsFeature_Destinations_
+  commentId: Overload:Microsoft.ReverseProxy.Core.Middleware.IAvailableDestinationsFeature.Destinations
   isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Core.Middleware.IAvailableBackendEndpointsFeature.Endpoints
-  nameWithType: IAvailableBackendEndpointsFeature.Endpoints
+  fullName: Microsoft.ReverseProxy.Core.Middleware.IAvailableDestinationsFeature.Destinations
+  nameWithType: IAvailableDestinationsFeature.Destinations
 - uid: Microsoft.ReverseProxy.Core.RuntimeModel
   name: Microsoft.ReverseProxy.Core.RuntimeModel
   href: api/Microsoft.ReverseProxy.Core.RuntimeModel.html
   commentId: N:Microsoft.ReverseProxy.Core.RuntimeModel
   fullName: Microsoft.ReverseProxy.Core.RuntimeModel
   nameWithType: Microsoft.ReverseProxy.Core.RuntimeModel
-- uid: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointConfig
-  name: EndpointConfig
-  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.EndpointConfig.html
-  commentId: T:Microsoft.ReverseProxy.Core.RuntimeModel.EndpointConfig
-  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointConfig
-  nameWithType: EndpointConfig
-- uid: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointConfig.#ctor(System.String)
-  name: EndpointConfig(String)
-  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.EndpointConfig.html#Microsoft_ReverseProxy_Core_RuntimeModel_EndpointConfig__ctor_System_String_
-  commentId: M:Microsoft.ReverseProxy.Core.RuntimeModel.EndpointConfig.#ctor(System.String)
-  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointConfig.EndpointConfig(System.String)
-  nameWithType: EndpointConfig.EndpointConfig(String)
-- uid: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointConfig.#ctor*
-  name: EndpointConfig
-  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.EndpointConfig.html#Microsoft_ReverseProxy_Core_RuntimeModel_EndpointConfig__ctor_
-  commentId: Overload:Microsoft.ReverseProxy.Core.RuntimeModel.EndpointConfig.#ctor
+- uid: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationConfig
+  name: DestinationConfig
+  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.DestinationConfig.html
+  commentId: T:Microsoft.ReverseProxy.Core.RuntimeModel.DestinationConfig
+  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationConfig
+  nameWithType: DestinationConfig
+- uid: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationConfig.#ctor(System.String)
+  name: DestinationConfig(String)
+  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.DestinationConfig.html#Microsoft_ReverseProxy_Core_RuntimeModel_DestinationConfig__ctor_System_String_
+  commentId: M:Microsoft.ReverseProxy.Core.RuntimeModel.DestinationConfig.#ctor(System.String)
+  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationConfig.DestinationConfig(System.String)
+  nameWithType: DestinationConfig.DestinationConfig(String)
+- uid: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationConfig.#ctor*
+  name: DestinationConfig
+  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.DestinationConfig.html#Microsoft_ReverseProxy_Core_RuntimeModel_DestinationConfig__ctor_
+  commentId: Overload:Microsoft.ReverseProxy.Core.RuntimeModel.DestinationConfig.#ctor
   isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointConfig.EndpointConfig
-  nameWithType: EndpointConfig.EndpointConfig
-- uid: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointConfig.Address
+  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationConfig.DestinationConfig
+  nameWithType: DestinationConfig.DestinationConfig
+- uid: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationConfig.Address
   name: Address
-  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.EndpointConfig.html#Microsoft_ReverseProxy_Core_RuntimeModel_EndpointConfig_Address
-  commentId: P:Microsoft.ReverseProxy.Core.RuntimeModel.EndpointConfig.Address
-  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointConfig.Address
-  nameWithType: EndpointConfig.Address
-- uid: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointConfig.Address*
+  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.DestinationConfig.html#Microsoft_ReverseProxy_Core_RuntimeModel_DestinationConfig_Address
+  commentId: P:Microsoft.ReverseProxy.Core.RuntimeModel.DestinationConfig.Address
+  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationConfig.Address
+  nameWithType: DestinationConfig.Address
+- uid: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationConfig.Address*
   name: Address
-  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.EndpointConfig.html#Microsoft_ReverseProxy_Core_RuntimeModel_EndpointConfig_Address_
-  commentId: Overload:Microsoft.ReverseProxy.Core.RuntimeModel.EndpointConfig.Address
+  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.DestinationConfig.html#Microsoft_ReverseProxy_Core_RuntimeModel_DestinationConfig_Address_
+  commentId: Overload:Microsoft.ReverseProxy.Core.RuntimeModel.DestinationConfig.Address
   isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointConfig.Address
-  nameWithType: EndpointConfig.Address
-- uid: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointDynamicState
-  name: EndpointDynamicState
-  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.EndpointDynamicState.html
-  commentId: T:Microsoft.ReverseProxy.Core.RuntimeModel.EndpointDynamicState
-  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointDynamicState
-  nameWithType: EndpointDynamicState
-- uid: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointDynamicState.#ctor(Microsoft.ReverseProxy.Core.RuntimeModel.EndpointHealth)
-  name: EndpointDynamicState(EndpointHealth)
-  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.EndpointDynamicState.html#Microsoft_ReverseProxy_Core_RuntimeModel_EndpointDynamicState__ctor_Microsoft_ReverseProxy_Core_RuntimeModel_EndpointHealth_
-  commentId: M:Microsoft.ReverseProxy.Core.RuntimeModel.EndpointDynamicState.#ctor(Microsoft.ReverseProxy.Core.RuntimeModel.EndpointHealth)
-  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointDynamicState.EndpointDynamicState(Microsoft.ReverseProxy.Core.RuntimeModel.EndpointHealth)
-  nameWithType: EndpointDynamicState.EndpointDynamicState(EndpointHealth)
-- uid: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointDynamicState.#ctor*
-  name: EndpointDynamicState
-  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.EndpointDynamicState.html#Microsoft_ReverseProxy_Core_RuntimeModel_EndpointDynamicState__ctor_
-  commentId: Overload:Microsoft.ReverseProxy.Core.RuntimeModel.EndpointDynamicState.#ctor
+  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationConfig.Address
+  nameWithType: DestinationConfig.Address
+- uid: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationDynamicState
+  name: DestinationDynamicState
+  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.DestinationDynamicState.html
+  commentId: T:Microsoft.ReverseProxy.Core.RuntimeModel.DestinationDynamicState
+  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationDynamicState
+  nameWithType: DestinationDynamicState
+- uid: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationDynamicState.#ctor(Microsoft.ReverseProxy.Core.RuntimeModel.DestinationHealth)
+  name: DestinationDynamicState(DestinationHealth)
+  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.DestinationDynamicState.html#Microsoft_ReverseProxy_Core_RuntimeModel_DestinationDynamicState__ctor_Microsoft_ReverseProxy_Core_RuntimeModel_DestinationHealth_
+  commentId: M:Microsoft.ReverseProxy.Core.RuntimeModel.DestinationDynamicState.#ctor(Microsoft.ReverseProxy.Core.RuntimeModel.DestinationHealth)
+  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationDynamicState.DestinationDynamicState(Microsoft.ReverseProxy.Core.RuntimeModel.DestinationHealth)
+  nameWithType: DestinationDynamicState.DestinationDynamicState(DestinationHealth)
+- uid: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationDynamicState.#ctor*
+  name: DestinationDynamicState
+  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.DestinationDynamicState.html#Microsoft_ReverseProxy_Core_RuntimeModel_DestinationDynamicState__ctor_
+  commentId: Overload:Microsoft.ReverseProxy.Core.RuntimeModel.DestinationDynamicState.#ctor
   isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointDynamicState.EndpointDynamicState
-  nameWithType: EndpointDynamicState.EndpointDynamicState
-- uid: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointDynamicState.Health
+  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationDynamicState.DestinationDynamicState
+  nameWithType: DestinationDynamicState.DestinationDynamicState
+- uid: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationDynamicState.Health
   name: Health
-  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.EndpointDynamicState.html#Microsoft_ReverseProxy_Core_RuntimeModel_EndpointDynamicState_Health
-  commentId: P:Microsoft.ReverseProxy.Core.RuntimeModel.EndpointDynamicState.Health
-  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointDynamicState.Health
-  nameWithType: EndpointDynamicState.Health
-- uid: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointDynamicState.Health*
+  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.DestinationDynamicState.html#Microsoft_ReverseProxy_Core_RuntimeModel_DestinationDynamicState_Health
+  commentId: P:Microsoft.ReverseProxy.Core.RuntimeModel.DestinationDynamicState.Health
+  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationDynamicState.Health
+  nameWithType: DestinationDynamicState.Health
+- uid: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationDynamicState.Health*
   name: Health
-  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.EndpointDynamicState.html#Microsoft_ReverseProxy_Core_RuntimeModel_EndpointDynamicState_Health_
-  commentId: Overload:Microsoft.ReverseProxy.Core.RuntimeModel.EndpointDynamicState.Health
+  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.DestinationDynamicState.html#Microsoft_ReverseProxy_Core_RuntimeModel_DestinationDynamicState_Health_
+  commentId: Overload:Microsoft.ReverseProxy.Core.RuntimeModel.DestinationDynamicState.Health
   isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointDynamicState.Health
-  nameWithType: EndpointDynamicState.Health
-- uid: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointHealth
-  name: EndpointHealth
-  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.EndpointHealth.html
-  commentId: T:Microsoft.ReverseProxy.Core.RuntimeModel.EndpointHealth
-  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointHealth
-  nameWithType: EndpointHealth
-- uid: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointHealth.Healthy
+  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationDynamicState.Health
+  nameWithType: DestinationDynamicState.Health
+- uid: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationHealth
+  name: DestinationHealth
+  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.DestinationHealth.html
+  commentId: T:Microsoft.ReverseProxy.Core.RuntimeModel.DestinationHealth
+  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationHealth
+  nameWithType: DestinationHealth
+- uid: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationHealth.Healthy
   name: Healthy
-  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.EndpointHealth.html#Microsoft_ReverseProxy_Core_RuntimeModel_EndpointHealth_Healthy
-  commentId: F:Microsoft.ReverseProxy.Core.RuntimeModel.EndpointHealth.Healthy
-  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointHealth.Healthy
-  nameWithType: EndpointHealth.Healthy
-- uid: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointHealth.Unhealthy
+  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.DestinationHealth.html#Microsoft_ReverseProxy_Core_RuntimeModel_DestinationHealth_Healthy
+  commentId: F:Microsoft.ReverseProxy.Core.RuntimeModel.DestinationHealth.Healthy
+  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationHealth.Healthy
+  nameWithType: DestinationHealth.Healthy
+- uid: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationHealth.Unhealthy
   name: Unhealthy
-  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.EndpointHealth.html#Microsoft_ReverseProxy_Core_RuntimeModel_EndpointHealth_Unhealthy
-  commentId: F:Microsoft.ReverseProxy.Core.RuntimeModel.EndpointHealth.Unhealthy
-  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointHealth.Unhealthy
-  nameWithType: EndpointHealth.Unhealthy
-- uid: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointHealth.Unknown
+  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.DestinationHealth.html#Microsoft_ReverseProxy_Core_RuntimeModel_DestinationHealth_Unhealthy
+  commentId: F:Microsoft.ReverseProxy.Core.RuntimeModel.DestinationHealth.Unhealthy
+  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationHealth.Unhealthy
+  nameWithType: DestinationHealth.Unhealthy
+- uid: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationHealth.Unknown
   name: Unknown
-  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.EndpointHealth.html#Microsoft_ReverseProxy_Core_RuntimeModel_EndpointHealth_Unknown
-  commentId: F:Microsoft.ReverseProxy.Core.RuntimeModel.EndpointHealth.Unknown
-  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointHealth.Unknown
-  nameWithType: EndpointHealth.Unknown
-- uid: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointInfo
-  name: EndpointInfo
-  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.EndpointInfo.html
-  commentId: T:Microsoft.ReverseProxy.Core.RuntimeModel.EndpointInfo
-  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointInfo
-  nameWithType: EndpointInfo
-- uid: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointInfo.#ctor(System.String)
-  name: EndpointInfo(String)
-  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.EndpointInfo.html#Microsoft_ReverseProxy_Core_RuntimeModel_EndpointInfo__ctor_System_String_
-  commentId: M:Microsoft.ReverseProxy.Core.RuntimeModel.EndpointInfo.#ctor(System.String)
-  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointInfo.EndpointInfo(System.String)
-  nameWithType: EndpointInfo.EndpointInfo(String)
-- uid: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointInfo.#ctor*
-  name: EndpointInfo
-  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.EndpointInfo.html#Microsoft_ReverseProxy_Core_RuntimeModel_EndpointInfo__ctor_
-  commentId: Overload:Microsoft.ReverseProxy.Core.RuntimeModel.EndpointInfo.#ctor
+  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.DestinationHealth.html#Microsoft_ReverseProxy_Core_RuntimeModel_DestinationHealth_Unknown
+  commentId: F:Microsoft.ReverseProxy.Core.RuntimeModel.DestinationHealth.Unknown
+  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationHealth.Unknown
+  nameWithType: DestinationHealth.Unknown
+- uid: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationInfo
+  name: DestinationInfo
+  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.DestinationInfo.html
+  commentId: T:Microsoft.ReverseProxy.Core.RuntimeModel.DestinationInfo
+  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationInfo
+  nameWithType: DestinationInfo
+- uid: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationInfo.#ctor(System.String)
+  name: DestinationInfo(String)
+  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.DestinationInfo.html#Microsoft_ReverseProxy_Core_RuntimeModel_DestinationInfo__ctor_System_String_
+  commentId: M:Microsoft.ReverseProxy.Core.RuntimeModel.DestinationInfo.#ctor(System.String)
+  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationInfo.DestinationInfo(System.String)
+  nameWithType: DestinationInfo.DestinationInfo(String)
+- uid: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationInfo.#ctor*
+  name: DestinationInfo
+  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.DestinationInfo.html#Microsoft_ReverseProxy_Core_RuntimeModel_DestinationInfo__ctor_
+  commentId: Overload:Microsoft.ReverseProxy.Core.RuntimeModel.DestinationInfo.#ctor
   isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointInfo.EndpointInfo
-  nameWithType: EndpointInfo.EndpointInfo
-- uid: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointInfo.ConcurrencyCounter
+  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationInfo.DestinationInfo
+  nameWithType: DestinationInfo.DestinationInfo
+- uid: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationInfo.ConcurrencyCounter
   name: ConcurrencyCounter
-  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.EndpointInfo.html#Microsoft_ReverseProxy_Core_RuntimeModel_EndpointInfo_ConcurrencyCounter
-  commentId: P:Microsoft.ReverseProxy.Core.RuntimeModel.EndpointInfo.ConcurrencyCounter
-  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointInfo.ConcurrencyCounter
-  nameWithType: EndpointInfo.ConcurrencyCounter
-- uid: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointInfo.ConcurrencyCounter*
+  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.DestinationInfo.html#Microsoft_ReverseProxy_Core_RuntimeModel_DestinationInfo_ConcurrencyCounter
+  commentId: P:Microsoft.ReverseProxy.Core.RuntimeModel.DestinationInfo.ConcurrencyCounter
+  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationInfo.ConcurrencyCounter
+  nameWithType: DestinationInfo.ConcurrencyCounter
+- uid: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationInfo.ConcurrencyCounter*
   name: ConcurrencyCounter
-  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.EndpointInfo.html#Microsoft_ReverseProxy_Core_RuntimeModel_EndpointInfo_ConcurrencyCounter_
-  commentId: Overload:Microsoft.ReverseProxy.Core.RuntimeModel.EndpointInfo.ConcurrencyCounter
+  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.DestinationInfo.html#Microsoft_ReverseProxy_Core_RuntimeModel_DestinationInfo_ConcurrencyCounter_
+  commentId: Overload:Microsoft.ReverseProxy.Core.RuntimeModel.DestinationInfo.ConcurrencyCounter
   isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointInfo.ConcurrencyCounter
-  nameWithType: EndpointInfo.ConcurrencyCounter
-- uid: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointInfo.Config
+  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationInfo.ConcurrencyCounter
+  nameWithType: DestinationInfo.ConcurrencyCounter
+- uid: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationInfo.Config
   name: Config
-  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.EndpointInfo.html#Microsoft_ReverseProxy_Core_RuntimeModel_EndpointInfo_Config
-  commentId: P:Microsoft.ReverseProxy.Core.RuntimeModel.EndpointInfo.Config
-  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointInfo.Config
-  nameWithType: EndpointInfo.Config
-- uid: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointInfo.Config*
+  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.DestinationInfo.html#Microsoft_ReverseProxy_Core_RuntimeModel_DestinationInfo_Config
+  commentId: P:Microsoft.ReverseProxy.Core.RuntimeModel.DestinationInfo.Config
+  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationInfo.Config
+  nameWithType: DestinationInfo.Config
+- uid: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationInfo.Config*
   name: Config
-  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.EndpointInfo.html#Microsoft_ReverseProxy_Core_RuntimeModel_EndpointInfo_Config_
-  commentId: Overload:Microsoft.ReverseProxy.Core.RuntimeModel.EndpointInfo.Config
+  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.DestinationInfo.html#Microsoft_ReverseProxy_Core_RuntimeModel_DestinationInfo_Config_
+  commentId: Overload:Microsoft.ReverseProxy.Core.RuntimeModel.DestinationInfo.Config
   isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointInfo.Config
-  nameWithType: EndpointInfo.Config
-- uid: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointInfo.DynamicState
+  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationInfo.Config
+  nameWithType: DestinationInfo.Config
+- uid: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationInfo.DestinationId
+  name: DestinationId
+  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.DestinationInfo.html#Microsoft_ReverseProxy_Core_RuntimeModel_DestinationInfo_DestinationId
+  commentId: P:Microsoft.ReverseProxy.Core.RuntimeModel.DestinationInfo.DestinationId
+  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationInfo.DestinationId
+  nameWithType: DestinationInfo.DestinationId
+- uid: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationInfo.DestinationId*
+  name: DestinationId
+  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.DestinationInfo.html#Microsoft_ReverseProxy_Core_RuntimeModel_DestinationInfo_DestinationId_
+  commentId: Overload:Microsoft.ReverseProxy.Core.RuntimeModel.DestinationInfo.DestinationId
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationInfo.DestinationId
+  nameWithType: DestinationInfo.DestinationId
+- uid: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationInfo.DynamicState
   name: DynamicState
-  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.EndpointInfo.html#Microsoft_ReverseProxy_Core_RuntimeModel_EndpointInfo_DynamicState
-  commentId: P:Microsoft.ReverseProxy.Core.RuntimeModel.EndpointInfo.DynamicState
-  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointInfo.DynamicState
-  nameWithType: EndpointInfo.DynamicState
-- uid: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointInfo.DynamicState*
+  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.DestinationInfo.html#Microsoft_ReverseProxy_Core_RuntimeModel_DestinationInfo_DynamicState
+  commentId: P:Microsoft.ReverseProxy.Core.RuntimeModel.DestinationInfo.DynamicState
+  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationInfo.DynamicState
+  nameWithType: DestinationInfo.DynamicState
+- uid: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationInfo.DynamicState*
   name: DynamicState
-  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.EndpointInfo.html#Microsoft_ReverseProxy_Core_RuntimeModel_EndpointInfo_DynamicState_
-  commentId: Overload:Microsoft.ReverseProxy.Core.RuntimeModel.EndpointInfo.DynamicState
+  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.DestinationInfo.html#Microsoft_ReverseProxy_Core_RuntimeModel_DestinationInfo_DynamicState_
+  commentId: Overload:Microsoft.ReverseProxy.Core.RuntimeModel.DestinationInfo.DynamicState
   isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointInfo.DynamicState
-  nameWithType: EndpointInfo.DynamicState
-- uid: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointInfo.EndpointId
-  name: EndpointId
-  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.EndpointInfo.html#Microsoft_ReverseProxy_Core_RuntimeModel_EndpointInfo_EndpointId
-  commentId: P:Microsoft.ReverseProxy.Core.RuntimeModel.EndpointInfo.EndpointId
-  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointInfo.EndpointId
-  nameWithType: EndpointInfo.EndpointId
-- uid: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointInfo.EndpointId*
-  name: EndpointId
-  href: api/Microsoft.ReverseProxy.Core.RuntimeModel.EndpointInfo.html#Microsoft_ReverseProxy_Core_RuntimeModel_EndpointInfo_EndpointId_
-  commentId: Overload:Microsoft.ReverseProxy.Core.RuntimeModel.EndpointInfo.EndpointId
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.EndpointInfo.EndpointId
-  nameWithType: EndpointInfo.EndpointId
+  fullName: Microsoft.ReverseProxy.Core.RuntimeModel.DestinationInfo.DynamicState
+  nameWithType: DestinationInfo.DynamicState
 - uid: Microsoft.ReverseProxy.Core.Service
   name: Microsoft.ReverseProxy.Core.Service
   href: api/Microsoft.ReverseProxy.Core.Service.html
