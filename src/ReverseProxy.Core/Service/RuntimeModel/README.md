@@ -18,7 +18,7 @@ and each thread can operate safely with up-to-date yet consistent information
 ## Class naming conventions
 
 * Classes named `*Info` (`RouteInfo`, `BackendInfo`, `EndpointInfo`)
-  represent the 3 primary abstractions in Reverse Proxy (Routes, Backends and Endpoints);
+  represent the 3 primary abstractions in Reverse Proxy (Routes, Backends and Destinations);
 
 * Classes named `*Config` (`RouteConfig`, `BackendConfig`, `EndpointConfig`)
   represent portions of the 3 abstractions that only change in reaction to 
@@ -30,6 +30,6 @@ and each thread can operate safely with up-to-date yet consistent information
 * Classes named `*DynamicState` (`BackendDynamicState`, `EndpointDynamicState`)
   represent portions of the 3 abstractions that change in reaction to
   Reverse Proxy's runtime state.
-  For example, when new endpoints are discovered for a backend,
+  For example, when new destinations are discovered for a backend,
   a new instance of `BackendDynamicState` is created with the new values,
   and the corresponding `AtomicHolder` in `BackendInfo` is updated to point at the new instance;

@@ -23,44 +23,44 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
         internal TestRandomFactory RandomFactory { get; set; }
 
         [Fact]
-        public void PickEndpoint_WithoutEndpoints_Null()
+        public void PickDestination_WithoutDestinations_Null()
         {
             var loadBalancer = Create<LoadBalancer>();
-            var endpoints = new EndpointInfo[0];
+            var destinations = new DestinationInfo[0];
             var options = new BackendConfig.BackendLoadBalancingOptions((LoadBalancingMode)(-1));
 
-            var result = loadBalancer.PickEndpoint(endpoints, in options);
+            var result = loadBalancer.PickDestination(destinations, in options);
 
             Assert.Null(result);
         }
 
         [Fact]
-        public void PickEndpoint_SingleEndpoints_ShortCircuit()
+        public void PickDestination_SingleDestinations_ShortCircuit()
         {
             var loadBalancer = Create<LoadBalancer>();
-            var endpoints = new[]
+            var destinations = new[]
             {
-                new EndpointInfo("ep1"),
+                new DestinationInfo("d1"),
             };
             var options = new BackendConfig.BackendLoadBalancingOptions((LoadBalancingMode)(-1));
 
-            var result = loadBalancer.PickEndpoint(endpoints, in options);
+            var result = loadBalancer.PickDestination(destinations, in options);
 
-            Assert.Equal(result, endpoints[0]);
+            Assert.Equal(result, destinations[0]);
         }
 
         [Fact]
-        public void PickEndpoint_UnsupportedMode_Throws()
+        public void PickDestination_UnsupportedMode_Throws()
         {
             var loadBalancer = Create<LoadBalancer>();
-            var endpoints = new[]
+            var destinations = new[]
             {
-                new EndpointInfo("ep1"),
-                new EndpointInfo("ep2"),
+                new DestinationInfo("d1"),
+                new DestinationInfo("d2"),
             };
             var options = new BackendConfig.BackendLoadBalancingOptions((LoadBalancingMode)(-1));
 
-            Action action = () => loadBalancer.PickEndpoint(endpoints, in options);
+            Action action = () => loadBalancer.PickDestination(destinations, in options);
 
             // Assert
             var ex = Assert.Throws<NotSupportedException>(action);
@@ -68,94 +68,94 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
         }
 
         [Fact]
-        public void PickEndpoint_FirstWithEndpoints_Works()
+        public void PickDestination_FirstWithDestinations_Works()
         {
             var loadBalancer = Create<LoadBalancer>();
-            var endpoints = new[]
+            var destinations = new[]
             {
-                new EndpointInfo("ep1"),
-                new EndpointInfo("ep2"),
+                new DestinationInfo("d1"),
+                new DestinationInfo("d2"),
             };
             var options = new BackendConfig.BackendLoadBalancingOptions(LoadBalancingMode.First);
 
-            var result = loadBalancer.PickEndpoint(endpoints, in options);
+            var result = loadBalancer.PickDestination(destinations, in options);
 
-            Assert.Same(endpoints[0], result);
+            Assert.Same(destinations[0], result);
         }
 
         [Fact]
-        public void PickEndpoint_Random_Works()
+        public void PickDestination_Random_Works()
         {
             var loadBalancer = Create<LoadBalancer>();
-            var endpoints = new[]
+            var destinations = new[]
             {
-                new EndpointInfo("ep1"),
-                new EndpointInfo("ep2"),
+                new DestinationInfo("d1"),
+                new DestinationInfo("d2"),
             };
             RandomInstance.Sequence = new[] { 1 };
             var options = new BackendConfig.BackendLoadBalancingOptions(LoadBalancingMode.Random);
 
-            var result = loadBalancer.PickEndpoint(endpoints, in options);
+            var result = loadBalancer.PickDestination(destinations, in options);
 
-            Assert.Same(result, endpoints[1]);
+            Assert.Same(result, destinations[1]);
         }
 
         [Fact]
-        public void PickEndpoint_PowerOfTwoChoices_Works()
+        public void PickDestination_PowerOfTwoChoices_Works()
         {
             var loadBalancer = Create<LoadBalancer>();
-            var endpoints = new[]
+            var destinations = new[]
             {
-                new EndpointInfo("ep1"),
-                new EndpointInfo("ep2"),
+                new DestinationInfo("d1"),
+                new DestinationInfo("d2"),
             };
-            endpoints[0].ConcurrencyCounter.Increment();
+            destinations[0].ConcurrencyCounter.Increment();
             RandomInstance.Sequence = new[] { 1, 0 };
             var options = new BackendConfig.BackendLoadBalancingOptions(LoadBalancingMode.PowerOfTwoChoices);
 
-            var result = loadBalancer.PickEndpoint(endpoints, in options);
+            var result = loadBalancer.PickDestination(destinations, in options);
 
-            Assert.Same(result, endpoints[1]);
+            Assert.Same(result, destinations[1]);
         }
 
         [Fact]
-        public void PickEndpoint_LeastRequests_Works()
+        public void PickDestination_LeastRequests_Works()
         {
             var loadBalancer = Create<LoadBalancer>();
-            var endpoints = new[]
+            var destinations = new[]
             {
-                new EndpointInfo("ep1"),
-                new EndpointInfo("ep2"),
+                new DestinationInfo("d1"),
+                new DestinationInfo("d2"),
             };
-            endpoints[0].ConcurrencyCounter.Increment();
+            destinations[0].ConcurrencyCounter.Increment();
             var options = new BackendConfig.BackendLoadBalancingOptions(LoadBalancingMode.LeastRequests);
 
-            var result = loadBalancer.PickEndpoint(endpoints, in options);
+            var result = loadBalancer.PickDestination(destinations, in options);
 
-            Assert.Same(result, endpoints[1]);
+            Assert.Same(result, destinations[1]);
         }
 
         [Fact]
-        public void PickEndpoint_RoundRobin_Works()
+        public void PickDestination_RoundRobin_Works()
         {
             var loadBalancer = Create<LoadBalancer>();
-            var endpoints = new[]
+            var destinations = new[]
             {
-                new EndpointInfo("ep1"),
-                new EndpointInfo("ep2"),
+                new DestinationInfo("d1"),
+                new DestinationInfo("d2"),
             };
-            endpoints[0].ConcurrencyCounter.Increment();
+            destinations[0].ConcurrencyCounter.Increment();
             var options = new BackendConfig.BackendLoadBalancingOptions(LoadBalancingMode.RoundRobin);
 
-            var result0 = loadBalancer.PickEndpoint(endpoints, in options);
-            var result1 = loadBalancer.PickEndpoint(endpoints, in options);
-            var result2 = loadBalancer.PickEndpoint(endpoints, in options);
-            var result3 = loadBalancer.PickEndpoint(endpoints, in options);
+            var result0 = loadBalancer.PickDestination(destinations, in options);
+            var result1 = loadBalancer.PickDestination(destinations, in options);
+            var result2 = loadBalancer.PickDestination(destinations, in options);
+            var result3 = loadBalancer.PickDestination(destinations, in options);
 
-            Assert.Same(result0, endpoints[0]);
-            Assert.Same(result1, endpoints[1]);
-            Assert.Same(result2, endpoints[0]);
-            Assert.Same(result3, endpoints[1]);
+            Assert.Same(result0, destinations[0]);
+            Assert.Same(result1, destinations[1]);
+            Assert.Same(result2, destinations[0]);
+            Assert.Same(result3, destinations[1]);
         }
 
         internal class TestRandomFactory : IRandomFactory

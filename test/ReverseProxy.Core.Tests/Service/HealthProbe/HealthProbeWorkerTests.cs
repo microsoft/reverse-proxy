@@ -56,7 +56,7 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
                     r => r.CreateBackendProber(
                         It.IsAny<string>(),
                         It.IsAny<BackendConfig>(),
-                        It.IsAny<IEndpointManager>()))
+                        It.IsAny<IDestinationManager>()))
                 .Returns(_backendProber.Object);
         }
 
@@ -79,11 +79,11 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
         [Fact]
         public async Task UpdateTrackedBackends_HasBackends_ShouldStartProber()
         {
-            // Set up endpoints for probing, pretend that we have three replica.
-            var endpointmanger = EndpointManagerGenerator(3);
-            Mock<IEndpointManagerFactory>()
-                .Setup(e => e.CreateEndpointManager())
-                .Returns(endpointmanger);
+            // Set up destinations for probing, pretend that we have three replica.
+            var destinationmanger = DestinationManagerGenerator(3);
+            Mock<IDestinationManagerFactory>()
+                .Setup(e => e.CreateDestinationManager())
+                .Returns(destinationmanger);
 
             // Set up backends for probing, pretend that we have three services, each services have three replica.
             _backendManager.GetOrCreateItem("service0", item => { item.Config.Value = _backendConfig; });
@@ -101,11 +101,11 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
         [Fact]
         public async Task UpdateTrackedBackends_ProbeNotEnabled_ShouldNotStartProber()
         {
-            // Set up endpoints for probing, pretend that we have three replica.
-            var endpointmanger = EndpointManagerGenerator(3);
-            Mock<IEndpointManagerFactory>()
-                .Setup(e => e.CreateEndpointManager())
-                .Returns(endpointmanger);
+            // Set up destinations for probing, pretend that we have three replica.
+            var destinationmanger = DestinationManagerGenerator(3);
+            Mock<IDestinationManagerFactory>()
+                .Setup(e => e.CreateDestinationManager())
+                .Returns(destinationmanger);
 
             // Set up backends for probing, pretend that we have three services, each services have three replica.
             _backendManager.GetOrCreateItem(
@@ -133,11 +133,11 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
         [Fact]
         public async Task UpdateTrackedBackends_BackendWithNoConfig_ShouldNotStartProber()
         {
-            // Set up endpoints for probing, pretend that we have one replica.
-            var endpointmanger = EndpointManagerGenerator(1);
-            Mock<IEndpointManagerFactory>()
-                .Setup(e => e.CreateEndpointManager())
-                .Returns(endpointmanger);
+            // Set up destinations for probing, pretend that we have one replica.
+            var destinationmanger = DestinationManagerGenerator(1);
+            Mock<IDestinationManagerFactory>()
+                .Setup(e => e.CreateDestinationManager())
+                .Returns(destinationmanger);
 
             // Set up backends for probing, pretend that we have one services, each services have one replica.
             // Note we did not provide config for this service.
@@ -154,11 +154,11 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
         [Fact]
         public async Task UpdateTrackedBackends_BackendDidNotChange_StartsProberOnlyOnce()
         {
-            // Set up endpoints for probing, pretend that we have three replica.
-            var endpointmanger = EndpointManagerGenerator(1);
-            Mock<IEndpointManagerFactory>()
-                .Setup(e => e.CreateEndpointManager())
-                .Returns(endpointmanger);
+            // Set up destinations for probing, pretend that we have three replica.
+            var destinationmanger = DestinationManagerGenerator(1);
+            Mock<IDestinationManagerFactory>()
+                .Setup(e => e.CreateDestinationManager())
+                .Returns(destinationmanger);
 
             // Set up backends for probing, pretend that we have one services, each services have one replica.
             _backendManager.GetOrCreateItem("service0", item => { item.Config.Value = _backendConfig; });
@@ -177,11 +177,11 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
         [Fact]
         public async Task UpdateTrackedBackends_BackendConfigChange_RecreatesProber()
         {
-            // Set up endpoints for probing, pretend that we have three replica.
-            var endpointmanger = EndpointManagerGenerator(3);
-            Mock<IEndpointManagerFactory>()
-                .Setup(e => e.CreateEndpointManager())
-                .Returns(endpointmanger);
+            // Set up destinations for probing, pretend that we have three replica.
+            var destinationmanger = DestinationManagerGenerator(3);
+            Mock<IDestinationManagerFactory>()
+                .Setup(e => e.CreateDestinationManager())
+                .Returns(destinationmanger);
 
             // Set up backends for probing, pretend that we have one services, each services have three replica.
             _backendManager.GetOrCreateItem("service0", item => { item.Config.Value = _backendConfig; });
@@ -209,11 +209,11 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
         [Fact]
         public async Task UpdateTrackedBackends_BackendConfigDisabledProbing_StopsProber()
         {
-            // Set up endpoints for probing, pretend that we have three replica.
-            var endpointmanger = EndpointManagerGenerator(3);
-            Mock<IEndpointManagerFactory>()
-                .Setup(e => e.CreateEndpointManager())
-                .Returns(endpointmanger);
+            // Set up destinations for probing, pretend that we have three replica.
+            var destinationmanger = DestinationManagerGenerator(3);
+            Mock<IDestinationManagerFactory>()
+                .Setup(e => e.CreateDestinationManager())
+                .Returns(destinationmanger);
 
             // Set up backends for probing, pretend that we have one services, each services have three replica.
             _backendManager.GetOrCreateItem("service0", item => { item.Config.Value = _backendConfig; });
@@ -241,11 +241,11 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
         [Fact]
         public async Task UpdateTrackedBackends_RemovedBackend_StopsProber()
         {
-            // Set up endpoints for probing, pretend that we have three replica.
-            var endpointmanger = EndpointManagerGenerator(3);
-            Mock<IEndpointManagerFactory>()
-                .Setup(e => e.CreateEndpointManager())
-                .Returns(endpointmanger);
+            // Set up destinations for probing, pretend that we have three replica.
+            var destinationmanger = DestinationManagerGenerator(3);
+            Mock<IDestinationManagerFactory>()
+                .Setup(e => e.CreateDestinationManager())
+                .Returns(destinationmanger);
 
             // Set up backends for probing, pretend that we have one services, each services have three replica.
             _backendManager.GetOrCreateItem("service0", item => { item.Config.Value = _backendConfig; });
@@ -267,11 +267,11 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
         [Fact]
         public async Task StopAsync_StopsAllProbers()
         {
-            // Set up endpoints for probing, pretend that we have three replica.
-            var endpointmanger = EndpointManagerGenerator(3);
-            Mock<IEndpointManagerFactory>()
-                .Setup(e => e.CreateEndpointManager())
-                .Returns(endpointmanger);
+            // Set up destinations for probing, pretend that we have three replica.
+            var destinationmanger = DestinationManagerGenerator(3);
+            Mock<IDestinationManagerFactory>()
+                .Setup(e => e.CreateDestinationManager())
+                .Returns(destinationmanger);
 
             // Set up backends for probing, pretend that we have three services, each services have three replica.
             _backendManager.GetOrCreateItem("service0", item => { item.Config.Value = _backendConfig; });
@@ -288,15 +288,15 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
             _backendProber.Verify(p => p.StopAsync(), Times.Exactly(3));
         }
 
-        private static EndpointManager EndpointManagerGenerator(int num)
+        private static DestinationManager DestinationManagerGenerator(int num)
         {
-            var endpointmanger = new EndpointManager();
+            var destinationmanger = new DestinationManager();
             for (var i = 0; i < num; i++)
             {
-                endpointmanger.GetOrCreateItem("endpoint" + i.ToString(), item => { item.Config.Value = new EndpointConfig("url"); });
+                destinationmanger.GetOrCreateItem("destination" + i.ToString(), item => { item.Config.Value = new DestinationConfig("url"); });
             }
 
-            return endpointmanger;
+            return destinationmanger;
         }
     }
 }

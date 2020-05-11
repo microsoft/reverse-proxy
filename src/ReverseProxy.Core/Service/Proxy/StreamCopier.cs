@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.Buffers;
@@ -72,14 +72,14 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
                     direction: _context.Direction,
                     backendId: _context.BackendId,
                     routeId: _context.RouteId,
-                    endpointId: _context.EndpointId,
+                    destinationId: _context.DestinationId,
                     protocol: string.Empty);
                 _metrics.StreamCopyIops(
                     value: iops,
                     direction: _context.Direction,
                     backendId: _context.BackendId,
                     routeId: _context.RouteId,
-                    endpointId: _context.EndpointId,
+                    destinationId: _context.DestinationId,
                     protocol: string.Empty);
             }
         }

@@ -8,7 +8,7 @@ using Microsoft.ReverseProxy.Signals;
 namespace Microsoft.ReverseProxy.Core.RuntimeModel
 {
     /// <summary>
-    /// Representation of a backend's endpoint for use at runtime.
+    /// Representation of a backend's destination for use at runtime.
     /// </summary>
     /// <remarks>
     /// Note that while this class is immutable, specific members such as
@@ -17,27 +17,27 @@ namespace Microsoft.ReverseProxy.Core.RuntimeModel
     /// relevant to this endpoint.
     /// All members are thread safe.
     /// </remarks>
-    public sealed class EndpointInfo
+    public sealed class DestinationInfo
     {
-        public EndpointInfo(string endpointId)
+        public DestinationInfo(string destinationId)
         {
-            Contracts.CheckNonEmpty(endpointId, nameof(endpointId));
-            EndpointId = endpointId;
+            Contracts.CheckNonEmpty(destinationId, nameof(destinationId));
+            DestinationId = destinationId;
         }
 
-        public string EndpointId { get; }
+        public string DestinationId { get; }
 
         /// <summary>
         /// Encapsulates parts of an endpoint that can change atomically
         /// in reaction to config changes.
         /// </summary>
-        public Signal<EndpointConfig> Config { get; } = SignalFactory.Default.CreateSignal<EndpointConfig>();
+        public Signal<DestinationConfig> Config { get; } = SignalFactory.Default.CreateSignal<DestinationConfig>();
 
         /// <summary>
-        /// Encapsulates parts of an endpoint that can change atomically
+        /// Encapsulates parts of an destination that can change atomically
         /// in reaction to runtime state changes (e.g. endpoint health states).
         /// </summary>
-        public Signal<EndpointDynamicState> DynamicState { get; } = SignalFactory.Default.CreateSignal<EndpointDynamicState>();
+        public Signal<DestinationDynamicState> DynamicState { get; } = SignalFactory.Default.CreateSignal<DestinationDynamicState>();
 
         /// <summary>
         /// Keeps track of the total number of concurrent requests on this endpoint.

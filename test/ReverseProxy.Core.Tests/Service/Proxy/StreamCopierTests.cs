@@ -41,7 +41,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
                 direction: "upstream",
                 backendId: "be1",
                 routeId: "rt1",
-                endpointId: "ep1");
+                destinationId: "d1");
             var sut = new StreamCopier(_metrics, in proxyTelemetryContext);
 
             // Act
@@ -49,8 +49,8 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy.Tests
 
             // Assert
             Assert.Equal(sourceBytes, destination.ToArray());
-            Assert.Equal("StreamCopyBytes=131069;direction=upstream;backendId=be1;routeId=rt1;endpointId=ep1;protocol=", _metricCreator.MetricsLogged[0]);
-            Assert.Equal("StreamCopyIops=2;direction=upstream;backendId=be1;routeId=rt1;endpointId=ep1;protocol=", _metricCreator.MetricsLogged[1]);
+            Assert.Equal("StreamCopyBytes=131069;direction=upstream;backendId=be1;routeId=rt1;destinationId=d1;protocol=", _metricCreator.MetricsLogged[0]);
+            Assert.Equal("StreamCopyIops=2;direction=upstream;backendId=be1;routeId=rt1;destinationId=d1;protocol=", _metricCreator.MetricsLogged[1]);
         }
     }
 }

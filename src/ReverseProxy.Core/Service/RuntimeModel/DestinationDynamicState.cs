@@ -3,14 +3,14 @@
 
 namespace Microsoft.ReverseProxy.Core.RuntimeModel
 {
-    public sealed class EndpointDynamicState
+    public sealed class DestinationDynamicState
     {
-        public EndpointDynamicState(
-            EndpointHealth health)
+        public DestinationDynamicState(
+            DestinationHealth health)
         {
             Health = health;
         }
 
-        public EndpointHealth Health { get; }
+        public DestinationHealth Health { get; }
     }
 }

@@ -11,14 +11,14 @@ namespace Microsoft.ReverseProxy.Core.Abstractions.Tests
         [Fact]
         public void Constructor_Works()
         {
-            new BackendEndpoint();
+            new Destination();
         }
 
         [Fact]
         public void DeepClone_Works()
         {
             // Arrange
-            var sut = new BackendEndpoint
+            var sut = new Destination
             {
                 Address = "https://127.0.0.1:123/a",
                 Metadata = new Dictionary<string, string>
@@ -42,7 +42,7 @@ namespace Microsoft.ReverseProxy.Core.Abstractions.Tests
         public void DeepClone_Nulls_Works()
         {
             // Arrange
-            var sut = new BackendEndpoint();
+            var sut = new Destination();
 
             // Act
             var clone = sut.DeepClone();

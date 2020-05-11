@@ -24,7 +24,7 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
         // TODO: Replace with thread-safe and unit-testable random provider.
         private static readonly int _ditheringIntervalInMilliseconds = 1000;
         private readonly IRandomFactory _randomFactory;
-        private readonly IEndpointManager _endpointManager;
+        private readonly IDestinationManager _destinationManager;
         private readonly ILogger<BackendProber> _logger;
         private readonly IOperationLogger<BackendProber> _operationLogger;
 
@@ -38,15 +38,15 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BackendProber"/> class.
-        /// HealthProber is the unit that checks the health state for all endpoints(replica) of a backend(service)
-        /// HealthProbe would query the health controller of the endpoint and update the health state for every endpoint
+        /// HealthProber is the unit that checks the health state for all destinations(replica) of a backend(service)
+        /// HealthProbe would query the health controller of the destination and update the health state for every destination
         /// periodically base on the time interval user specified in backend.
         /// </summary>
-        public BackendProber(string backendId, BackendConfig config, IEndpointManager endpointManager, IMonotonicTimer timer, ILogger<BackendProber> logger, IOperationLogger<BackendProber> operationLogger, HttpClient httpClient, IRandomFactory randomFactory)
+        public BackendProber(string backendId, BackendConfig config, IDestinationManager destinationManager, IMonotonicTimer timer, ILogger<BackendProber> logger, IOperationLogger<BackendProber> operationLogger, HttpClient httpClient, IRandomFactory randomFactory)
         {
             Contracts.CheckValue(backendId, nameof(backendId));
             Contracts.CheckValue(config, nameof(config));
-            Contracts.CheckValue(endpointManager, nameof(endpointManager));
+            Contracts.CheckValue(destinationManager, nameof(destinationManager));
             Contracts.CheckValue(timer, nameof(timer));
             Contracts.CheckValue(logger, nameof(logger));
             Contracts.CheckValue(operationLogger, nameof(operationLogger));
@@ -55,7 +55,7 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
 
             BackendId = backendId;
             Config = config;
-            _endpointManager = endpointManager;
+            _destinationManager = destinationManager;
             _timer = timer;
             _logger = logger;
             _operationLogger = operationLogger;
@@ -77,7 +77,7 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
         public void Start(AsyncSemaphore semaphore)
         {
             // Start background work, wake up for every interval(set in backend config).
-            _backgroundPollingLoopTask = TaskScheduler.Current.Run(() => ProbeEndpointsAsync(semaphore, _cts.Token));
+            _backgroundPollingLoopTask = TaskScheduler.Current.Run(() => ProbeDestinationsAsync(semaphore, _cts.Token));
         }
 
         /// <inheritdoc/>
@@ -95,9 +95,9 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
         }
 
         /// <summary>
-        /// Async methods that conduct http request to query the health state from the health controller of every endpoints.
+        /// Async methods that conduct http request to query the health state from the health controller of every destination.
         /// </summary>
-        private async Task ProbeEndpointsAsync(AsyncSemaphore semaphore, CancellationToken cancellationToken)
+        private async Task ProbeDestinationsAsync(AsyncSemaphore semaphore, CancellationToken cancellationToken)
         {
             // Always continue probing until receives cancellation token.
             try
@@ -111,10 +111,10 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
                     try
                     {
                         // Submit probe requests.
-                        foreach (var endpoint in _endpointManager.GetItems())
+                        foreach (var destination in _destinationManager.GetItems())
                         {
                             // Start a single probing attempt.
-                            probeTasks.Add(ProbeEndpointAsync(endpoint, semaphore, cancellationToken));
+                            probeTasks.Add(ProbeDestinationAsync(destination, semaphore, cancellationToken));
                         }
 
                         await Task.WhenAll(probeTasks);
@@ -149,9 +149,9 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
         }
 
         /// <summary>
-        /// A probe attempt to one endpoint.
+        /// A probe attempt to one destination.
         /// </summary>
-        private async Task ProbeEndpointAsync(EndpointInfo endpoint, AsyncSemaphore semaphore, CancellationToken cancellationToken)
+        private async Task ProbeDestinationAsync(DestinationInfo destination, AsyncSemaphore semaphore, CancellationToken cancellationToken)
         {
             // Conduct a dither for every endpoint probe to optimize concurrency.
             var randomDither = _randomFactory.CreateRandomInstance();
@@ -162,7 +162,7 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
 
             // Enforce max concurrency.
             await semaphore.WaitAsync();
-            Log.ProberStarted(_logger, BackendId, endpoint.EndpointId);
+            Log.ProberStarted(_logger, BackendId, destination.DestinationId);
             try
             {
                 using (var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(_cts.Token))
@@ -171,7 +171,7 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
                     timeoutCts.CancelAfter(_httpTimeoutInterval, _timer);
                     var response = await _operationLogger.ExecuteAsync(
                             "ReverseProxy.Core.Service.HealthProbe",
-                            () => _backendProbeHttpClient.GetAsync(new Uri(new Uri(endpoint.Config.Value.Address, UriKind.Absolute), _healthControllerUrl), timeoutCts.Token));
+                            () => _backendProbeHttpClient.GetAsync(new Uri(new Uri(destination.Config.Value.Address, UriKind.Absolute), _healthControllerUrl), timeoutCts.Token));
 
                     // Collect response status.
                     outcome = response.IsSuccessStatusCode ? HealthProbeOutcome.Success : HealthProbeOutcome.HttpFailure;
@@ -201,16 +201,16 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
             }
             catch (Exception ex)
             {
-                throw new Exception($"Prober for '{endpoint.EndpointId}' encounters unexpected exception.", ex);
+                throw new Exception($"Prober for '{destination.DestinationId}' encounters unexpected exception.", ex);
             }
             finally
             {
                 if (outcome != HealthProbeOutcome.Canceled)
                 {
                     // Update the health state base on the response.
-                    var healthState = outcome == HealthProbeOutcome.Success ? EndpointHealth.Healthy : EndpointHealth.Unhealthy;
-                    endpoint.DynamicState.Value = new EndpointDynamicState(healthState);
-                    Log.ProberResult(_logger, endpoint.EndpointId, outcome, logDetail);
+                    var healthState = outcome == HealthProbeOutcome.Success ? DestinationHealth.Healthy : DestinationHealth.Unhealthy;
+                    destination.DynamicState.Value = new DestinationDynamicState(healthState);
+                    Log.ProberResult(_logger, destination.DestinationId, outcome, logDetail);
                 }
 
                 // The probe operation is done, release the semaphore to allow other probes to proceed.
@@ -233,7 +233,7 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
             private static readonly Action<ILogger, string, double, Exception> _proberChecked = LoggerMessage.Define<string, double>(
                LogLevel.Information,
                EventIds.ProberChecked,
-               "The backend prober for '{backendId}' has checked all endpoints with time interval {proberCheckInterval} second.");
+               "The backend prober for '{backendId}' has checked all destinations with time interval {proberCheckInterval} second.");
 
             private static readonly Action<ILogger, string, Exception> _proberGracefulShutdown = LoggerMessage.Define<string>(
                 LogLevel.Information,

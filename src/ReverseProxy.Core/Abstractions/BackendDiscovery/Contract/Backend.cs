@@ -40,9 +40,9 @@ namespace Microsoft.ReverseProxy.Core.Abstractions
         public HealthCheckOptions HealthCheckOptions { get; set; }
 
         /// <summary>
-        /// The set of backend endpoints associated with this backend.
+        /// The set of destinations associated with this backend.
         /// </summary>
-        public IDictionary<string, BackendEndpoint> Endpoints { get; private set; } = new Dictionary<string, BackendEndpoint>(StringComparer.Ordinal);
+        public IDictionary<string, Destination> Destinations { get; private set; } = new Dictionary<string, Destination>(StringComparer.Ordinal);
 
         /// <summary>
         /// Arbitrary key-value pairs that further describe this backend.
@@ -59,7 +59,7 @@ namespace Microsoft.ReverseProxy.Core.Abstractions
                 PartitioningOptions = PartitioningOptions?.DeepClone(),
                 LoadBalancing = LoadBalancing?.DeepClone(),
                 HealthCheckOptions = HealthCheckOptions?.DeepClone(),
-                Endpoints = Endpoints.DeepClone(StringComparer.Ordinal),
+                Destinations = Destinations.DeepClone(StringComparer.Ordinal),
                 Metadata = Metadata?.DeepClone(StringComparer.Ordinal),
             };
         }

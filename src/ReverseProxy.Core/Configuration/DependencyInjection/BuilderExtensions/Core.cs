@@ -52,7 +52,7 @@ namespace Microsoft.ReverseProxy.Core.Configuration.DependencyInjection
 
         public static IReverseProxyBuilder AddRuntimeStateManagers(this IReverseProxyBuilder builder)
         {
-            builder.Services.TryAddSingleton<IEndpointManagerFactory, EndpointManagerFactory>();
+            builder.Services.TryAddSingleton<IDestinationManagerFactory, DestinationManagerFactory>();
             builder.Services.TryAddSingleton<IBackendManager, BackendManager>();
             builder.Services.TryAddSingleton<IRouteManager, RouteManager>();
             return builder;

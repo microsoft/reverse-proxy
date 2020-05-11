@@ -83,7 +83,7 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
                 if (createNewProber)
                 {
                     // Start probing health for all endpoints(replica) in this backend(service).
-                    var newProber = _backendProberFactory.CreateBackendProber(backend.BackendId, backendConfig, backend.EndpointManager);
+                    var newProber = _backendProberFactory.CreateBackendProber(backend.BackendId, backendConfig, backend.DestinationManager);
                     _activeProbers.Add(backend.BackendId, newProber);
                     proberAdded++;
                     Log.ProberCreated(_logger, backend.BackendId);

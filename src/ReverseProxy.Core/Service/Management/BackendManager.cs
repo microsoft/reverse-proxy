@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Microsoft.ReverseProxy.Core.RuntimeModel;
@@ -9,24 +9,24 @@ namespace Microsoft.ReverseProxy.Core.Service.Management
 {
     internal sealed class BackendManager : ItemManagerBase<BackendInfo>, IBackendManager
     {
-        private readonly IEndpointManagerFactory _endpointManagerFactory;
+        private readonly IDestinationManagerFactory _destinationManagerFactory;
         private readonly IProxyHttpClientFactoryFactory _httpClientFactoryFactory;
 
-        public BackendManager(IEndpointManagerFactory endpointManagerFactory, IProxyHttpClientFactoryFactory httpClientFactoryFactory)
+        public BackendManager(IDestinationManagerFactory destinationManagerFactory, IProxyHttpClientFactoryFactory httpClientFactoryFactory)
         {
-            Contracts.CheckValue(endpointManagerFactory, nameof(endpointManagerFactory));
+            Contracts.CheckValue(destinationManagerFactory, nameof(destinationManagerFactory));
             Contracts.CheckValue(httpClientFactoryFactory, nameof(httpClientFactoryFactory));
 
-            _endpointManagerFactory = endpointManagerFactory;
+            _destinationManagerFactory = destinationManagerFactory;
             _httpClientFactoryFactory = httpClientFactoryFactory;
         }
 
         /// <inheritdoc/>
         protected override BackendInfo InstantiateItem(string itemId)
         {
-            var endpointManager = _endpointManagerFactory.CreateEndpointManager();
+            var destinationManager = _destinationManagerFactory.CreateDestinationManager();
             var httpClientFactory = _httpClientFactoryFactory.CreateFactory();
-            return new BackendInfo(itemId, endpointManager, httpClientFactory);
+            return new BackendInfo(itemId, destinationManager, httpClientFactory);
         }
     }
 }

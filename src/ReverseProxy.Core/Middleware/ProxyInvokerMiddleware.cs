@@ -44,33 +44,33 @@ namespace Microsoft.ReverseProxy.Core.Middleware
             Contracts.CheckValue(context, nameof(context));
 
             var backend = context.Features.Get<BackendInfo>() ?? throw new InvalidOperationException("Backend unspecified.");
-            var endpoints = context.Features.Get<IAvailableBackendEndpointsFeature>()?.Endpoints
-                ?? throw new InvalidOperationException("The AvailableBackendEndpoints collection was not set.");
+            var destinations = context.Features.Get<IAvailableDestinationsFeature>()?.Destinations
+                ?? throw new InvalidOperationException("The IAvailableDestinationsFeature Destinations collection was not set.");
             var routeConfig = context.GetEndpoint()?.Metadata.GetMetadata<RouteConfig>()
                 ?? throw new InvalidOperationException("RouteConfig unspecified.");
 
-            if (endpoints.Count == 0)
+            if (destinations.Count == 0)
             {
-                Log.NoAvailableEndpoints(_logger, backend.BackendId);
+                Log.NoAvailableDestinations(_logger, backend.BackendId);
                 context.Response.StatusCode = 503;
                 return;
             }
 
-            var endpoint = endpoints[0];
-            if (endpoints.Count > 1)
+            var destination = destinations[0];
+            if (destinations.Count > 1)
             {
-                Log.MultipleEndpointsAvailable(_logger, backend.BackendId);
-                endpoint = endpoints[_random.Next(endpoints.Count)];
+                Log.MultipleDestinationsAvailable(_logger, backend.BackendId);
+                destination = destinations[_random.Next(destinations.Count)];
             }
 
-            var endpointConfig = endpoint.Config.Value;
-            if (endpointConfig == null)
+            var destinationConfig = destination.Config.Value;
+            if (destinationConfig == null)
             {
-                throw new InvalidOperationException($"Chosen endpoint has no configs set: '{endpoint.EndpointId}'");
+                throw new InvalidOperationException($"Chosen destination has no configs set: '{destination.DestinationId}'");
             }
 
             // TODO: support StripPrefix and other url transformations
-            var targetUrl = BuildOutgoingUrl(context, endpointConfig.Address);
+            var targetUrl = BuildOutgoingUrl(context, destinationConfig.Address);
             Log.Proxying(_logger, targetUrl);
             var targetUri = new Uri(targetUrl, UriKind.Absolute);
 
@@ -79,12 +79,12 @@ namespace Microsoft.ReverseProxy.Core.Middleware
                 // TODO: Configurable timeout, measure from request start, make it unit-testable
                 shortCts.CancelAfter(TimeSpan.FromSeconds(30));
 
-                // TODO: Retry against other endpoints
+                // TODO: Retry against other destinations
                 try
                 {
                     // TODO: Apply caps
                     backend.ConcurrencyCounter.Increment();
-                    endpoint.ConcurrencyCounter.Increment();
+                    destination.ConcurrencyCounter.Increment();
 
                     // TODO: Duplex channels should not have a timeout (?), but must react to Proxy force-shutdown signals.
                     var longCancellation = context.RequestAborted;
@@ -92,7 +92,7 @@ namespace Microsoft.ReverseProxy.Core.Middleware
                     var proxyTelemetryContext = new ProxyTelemetryContext(
                         backendId: backend.BackendId,
                         routeId: routeConfig.Route.RouteId,
-                        endpointId: endpoint.EndpointId);
+                        destinationId: destination.DestinationId);
 
                     await _operationLogger.ExecuteAsync(
                         "ReverseProxy.Proxy",
@@ -100,21 +100,21 @@ namespace Microsoft.ReverseProxy.Core.Middleware
                 }
                 finally
                 {
-                    endpoint.ConcurrencyCounter.Decrement();
+                    destination.ConcurrencyCounter.Decrement();
                     backend.ConcurrencyCounter.Decrement();
                 }
             }
         }
 
-        private string BuildOutgoingUrl(HttpContext context, string endpointAddress)
+        private string BuildOutgoingUrl(HttpContext context, string destinationAddress)
         {
             // "http://a".Length = 8
-            if (endpointAddress == null || endpointAddress.Length < 8)
+            if (destinationAddress == null || destinationAddress.Length < 8)
             {
-                throw new ArgumentException(nameof(endpointAddress));
+                throw new ArgumentException(nameof(destinationAddress));
             }
 
-            var stripSlash = endpointAddress.EndsWith('/');
+            var stripSlash = destinationAddress.EndsWith('/');
 
             // NOTE: This takes inspiration from Microsoft.AspNetCore.Http.Extensions.UriHelper.BuildAbsolute()
             var request = context.Request;
@@ -122,16 +122,16 @@ namespace Microsoft.ReverseProxy.Core.Middleware
             var encodedQuery = request.QueryString.ToString();
 
             // PERF: Calculate string length to allocate correct buffer size for StringBuilder.
-            var length = endpointAddress.Length + combinedPath.Length + encodedQuery.Length + (stripSlash ? -1 : 0);
+            var length = destinationAddress.Length + combinedPath.Length + encodedQuery.Length + (stripSlash ? -1 : 0);
 
             var builder = new StringBuilder(length);
             if (stripSlash)
             {
-                builder.Append(endpointAddress, 0, endpointAddress.Length - 1);
+                builder.Append(destinationAddress, 0, destinationAddress.Length - 1);
             }
             else
             {
-                builder.Append(endpointAddress);
+                builder.Append(destinationAddress);
             }
 
             builder.Append(combinedPath);
@@ -142,29 +142,29 @@ namespace Microsoft.ReverseProxy.Core.Middleware
 
         private static class Log
         {
-            private static readonly Action<ILogger, string, Exception> _noAvailableEndpoints = LoggerMessage.Define<string>(
+            private static readonly Action<ILogger, string, Exception> _noAvailableDestinations = LoggerMessage.Define<string>(
                 LogLevel.Warning,
-                EventIds.NoAvailableEndpoints,
-                "No available endpoints after load balancing for backend `{backendId}`.");
+                EventIds.NoAvailableDestinations,
+                "No available destinations after load balancing for backend `{backendId}`.");
 
-            private static readonly Action<ILogger, string, Exception> _multipleEndpointsAvailable = LoggerMessage.Define<string>(
+            private static readonly Action<ILogger, string, Exception> _multipleDestinationsAvailable = LoggerMessage.Define<string>(
                 LogLevel.Warning,
-                EventIds.MultipleEndpointsAvailable,
-                "More than one endpoint available for backend `{backendId}`, load balancing may not be configured correctly. Choosing randomly.");
+                EventIds.MultipleDestinationsAvailable,
+                "More than one destination available for backend `{backendId}`, load balancing may not be configured correctly. Choosing randomly.");
 
             private static readonly Action<ILogger, string, Exception> _proxying = LoggerMessage.Define<string>(
                 LogLevel.Information,
                 EventIds.Proxying,
                 "Proxying to {targetUrl}");
 
-            public static void NoAvailableEndpoints(ILogger logger, string backendId)
+            public static void NoAvailableDestinations(ILogger logger, string backendId)
             {
-                _noAvailableEndpoints(logger, backendId, null);
+                _noAvailableDestinations(logger, backendId, null);
             }
 
-            public static void MultipleEndpointsAvailable(ILogger logger, string backendId)
+            public static void MultipleDestinationsAvailable(ILogger logger, string backendId)
             {
-                _multipleEndpointsAvailable(logger, backendId, null);
+                _multipleDestinationsAvailable(logger, backendId, null);
             }
 
             public static void Proxying(ILogger logger, string targetUrl)

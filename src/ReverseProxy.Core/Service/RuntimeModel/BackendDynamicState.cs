@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
@@ -9,18 +9,18 @@ namespace Microsoft.ReverseProxy.Core.RuntimeModel
     internal sealed class BackendDynamicState
     {
         public BackendDynamicState(
-            IReadOnlyList<EndpointInfo> allEndpoints,
-            IReadOnlyList<EndpointInfo> healthyEndpoints)
+            IReadOnlyList<DestinationInfo> allDestinations,
+            IReadOnlyList<DestinationInfo> healthyDestinations)
         {
-            Contracts.CheckValue(allEndpoints, nameof(allEndpoints));
-            Contracts.CheckValue(healthyEndpoints, nameof(healthyEndpoints));
+            Contracts.CheckValue(allDestinations, nameof(allDestinations));
+            Contracts.CheckValue(healthyDestinations, nameof(healthyDestinations));
 
-            AllEndpoints = allEndpoints;
-            HealthyEndpoints = healthyEndpoints;
+            AllDestinations = allDestinations;
+            HealthyDestinations = healthyDestinations;
         }
 
-        public IReadOnlyList<EndpointInfo> AllEndpoints { get; }
+        public IReadOnlyList<DestinationInfo> AllDestinations { get; }
 
-        public IReadOnlyList<EndpointInfo> HealthyEndpoints { get; }
+        public IReadOnlyList<DestinationInfo> HealthyDestinations { get; }
     }
 }

@@ -55,8 +55,8 @@ namespace Microsoft.ReverseProxy.Core.Service.HealthProbe
                     port: 8000,
                     path: "/example"),
                 loadBalancingOptions: default);
-            var endpointManager = new EndpointManager();
-            var prober = factory.CreateBackendProber(backendId, backendConfig, endpointManager);
+            var destinationManager = new DestinationManager();
+            var prober = factory.CreateBackendProber(backendId, backendConfig, destinationManager);
 
             // Validate.
             Assert.NotNull(prober);

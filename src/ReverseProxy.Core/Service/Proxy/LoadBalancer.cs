@@ -21,8 +21,8 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
             _randomFactory = randomFactory;
         }
 
-        public EndpointInfo PickEndpoint(
-            IReadOnlyList<EndpointInfo> endpoints,
+        public DestinationInfo PickDestination(
+            IReadOnlyList<DestinationInfo> endpoints,
             in BackendConfig.BackendLoadBalancingOptions loadBalancingOptions)
         {
             var endpointCount = endpoints.Count;

@@ -27,7 +27,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Management.Tests
 
             // The following classes simply store information and using the actual implementations
             // is easier than replicating functionality with mocks.
-            Provide<IEndpointManagerFactory, EndpointManagerFactory>();
+            Provide<IDestinationManagerFactory, DestinationManagerFactory>();
             _backendManager = Provide<IBackendManager, BackendManager>();
             _routeManager = Provide<IRouteManager, RouteManager>();
             Provide<IRuntimeRouteBuilder, RuntimeRouteBuilder>();
@@ -40,15 +40,15 @@ namespace Microsoft.ReverseProxy.Core.Service.Management.Tests
         }
 
         [Fact]
-        public async Task ApplyConfigurationsAsync_OneBackendOneEndpointOneRoute_Works()
+        public async Task ApplyConfigurationsAsync_OneBackendOneDestinationOneRoute_Works()
         {
             // Arrange
             const string TestAddress = "https://localhost:123/";
 
             var backend = new Backend
             {
-                Endpoints = {
-                    { "ep1", new BackendEndpoint { Address = TestAddress } }
+                Destinations = {
+                    { "d1", new Destination { Address = TestAddress } }
                 }
             };
             var route = new ParsedRoute
@@ -78,14 +78,14 @@ namespace Microsoft.ReverseProxy.Core.Service.Management.Tests
             var actualBackends = _backendManager.GetItems();
             Assert.Single(actualBackends);
             Assert.Equal("backend1", actualBackends[0].BackendId);
-            Assert.NotNull(actualBackends[0].EndpointManager);
+            Assert.NotNull(actualBackends[0].DestinationManager);
             Assert.NotNull(actualBackends[0].Config.Value);
 
-            var actualEndpoints = actualBackends[0].EndpointManager.GetItems();
-            Assert.Single(actualEndpoints);
-            Assert.Equal("ep1", actualEndpoints[0].EndpointId);
-            Assert.NotNull(actualEndpoints[0].Config.Value);
-            Assert.Equal(TestAddress, actualEndpoints[0].Config.Value.Address);
+            var actualDestinations = actualBackends[0].DestinationManager.GetItems();
+            Assert.Single(actualDestinations);
+            Assert.Equal("d1", actualDestinations[0].DestinationId);
+            Assert.NotNull(actualDestinations[0].Config.Value);
+            Assert.Equal(TestAddress, actualDestinations[0].Config.Value.Address);
 
             var actualRoutes = _routeManager.GetItems();
             Assert.Single(actualRoutes);

@@ -32,7 +32,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
                 Path = "/a",
                 Priority = 12,
             };
-            var backend = new BackendInfo("backend1", new EndpointManager(), new Mock<IProxyHttpClientFactory>().Object);
+            var backend = new BackendInfo("backend1", new DestinationManager(), new Mock<IProxyHttpClientFactory>().Object);
             var routeInfo = new RouteInfo("route1");
 
             // Act
@@ -42,8 +42,8 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             Assert.Same(backend, config.BackendOrNull);
             Assert.Equal(12, config.Priority);
             Assert.Equal(parsedRoute.GetMatcherSummary(), config.MatcherSummary);
-            Assert.Single(config.AspNetCoreEndpoints);
-            var routeEndpoint = config.AspNetCoreEndpoints[0] as AspNetCore.Routing.RouteEndpoint;
+            Assert.Single(config.Endpoints);
+            var routeEndpoint = config.Endpoints[0] as AspNetCore.Routing.RouteEndpoint;
             Assert.Equal("route1", routeEndpoint.DisplayName);
             Assert.Same(config, routeEndpoint.Metadata.GetMetadata<RouteConfig>());
             Assert.Equal("/a", routeEndpoint.RoutePattern.RawText);
@@ -65,7 +65,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
                 Host = "example.com",
                 Priority = 12,
             };
-            var backend = new BackendInfo("backend1", new EndpointManager(), new Mock<IProxyHttpClientFactory>().Object);
+            var backend = new BackendInfo("backend1", new DestinationManager(), new Mock<IProxyHttpClientFactory>().Object);
             var routeInfo = new RouteInfo("route1");
 
             // Act
@@ -75,8 +75,8 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             Assert.Same(backend, config.BackendOrNull);
             Assert.Equal(12, config.Priority);
             Assert.Equal(parsedRoute.GetMatcherSummary(), config.MatcherSummary);
-            Assert.Single(config.AspNetCoreEndpoints);
-            var routeEndpoint = config.AspNetCoreEndpoints[0] as AspNetCore.Routing.RouteEndpoint;
+            Assert.Single(config.Endpoints);
+            var routeEndpoint = config.Endpoints[0] as AspNetCore.Routing.RouteEndpoint;
             Assert.Equal("route1", routeEndpoint.DisplayName);
             Assert.Same(config, routeEndpoint.Metadata.GetMetadata<RouteConfig>());
             Assert.Equal("/{**catchall}", routeEndpoint.RoutePattern.RawText);
@@ -98,7 +98,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
                 Host = "*.example.com",
                 Priority = 12,
             };
-            var backend = new BackendInfo("backend1", new EndpointManager(), new Mock<IProxyHttpClientFactory>().Object);
+            var backend = new BackendInfo("backend1", new DestinationManager(), new Mock<IProxyHttpClientFactory>().Object);
             var routeInfo = new RouteInfo("route1");
 
             // Act
@@ -108,8 +108,8 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             Assert.Same(backend, config.BackendOrNull);
             Assert.Equal(12, config.Priority);
             Assert.Equal(parsedRoute.GetMatcherSummary(), config.MatcherSummary);
-            Assert.Single(config.AspNetCoreEndpoints);
-            var routeEndpoint = config.AspNetCoreEndpoints[0] as AspNetCore.Routing.RouteEndpoint;
+            Assert.Single(config.Endpoints);
+            var routeEndpoint = config.Endpoints[0] as AspNetCore.Routing.RouteEndpoint;
             Assert.Equal("route1", routeEndpoint.DisplayName);
             Assert.Same(config, routeEndpoint.Metadata.GetMetadata<RouteConfig>());
             Assert.Equal("/{**catchall}", routeEndpoint.RoutePattern.RawText);
@@ -131,7 +131,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
                 Path = "/a",
                 Priority = 12,
             };
-            var backend = new BackendInfo("backend1", new EndpointManager(), new Mock<IProxyHttpClientFactory>().Object);
+            var backend = new BackendInfo("backend1", new DestinationManager(), new Mock<IProxyHttpClientFactory>().Object);
             var routeInfo = new RouteInfo("route1");
 
             // Act
@@ -141,8 +141,8 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             Assert.Same(backend, config.BackendOrNull);
             Assert.Equal(12, config.Priority);
             Assert.Equal(parsedRoute.GetMatcherSummary(), config.MatcherSummary);
-            Assert.Single(config.AspNetCoreEndpoints);
-            var routeEndpoint = config.AspNetCoreEndpoints[0] as AspNetCore.Routing.RouteEndpoint;
+            Assert.Single(config.Endpoints);
+            var routeEndpoint = config.Endpoints[0] as AspNetCore.Routing.RouteEndpoint;
             Assert.Equal("route1", routeEndpoint.DisplayName);
             Assert.Same(config, routeEndpoint.Metadata.GetMetadata<RouteConfig>());
             Assert.Equal("/a", routeEndpoint.RoutePattern.RawText);
@@ -161,7 +161,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
                 RouteId = "route1",
                 Priority = 12,
             };
-            var backend = new BackendInfo("backend1", new EndpointManager(), new Mock<IProxyHttpClientFactory>().Object);
+            var backend = new BackendInfo("backend1", new DestinationManager(), new Mock<IProxyHttpClientFactory>().Object);
             var routeInfo = new RouteInfo("route1");
 
             // Act
@@ -171,8 +171,8 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             Assert.Same(backend, config.BackendOrNull);
             Assert.Equal(12, config.Priority);
             Assert.Empty(config.MatcherSummary);
-            Assert.Single(config.AspNetCoreEndpoints);
-            var routeEndpoint = config.AspNetCoreEndpoints[0] as AspNetCore.Routing.RouteEndpoint;
+            Assert.Single(config.Endpoints);
+            var routeEndpoint = config.Endpoints[0] as AspNetCore.Routing.RouteEndpoint;
             Assert.Equal("route1", routeEndpoint.DisplayName);
             Assert.Same(config, routeEndpoint.Metadata.GetMetadata<RouteConfig>());
             Assert.Equal("/{**catchall}", routeEndpoint.RoutePattern.RawText);
@@ -192,7 +192,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
                 Path = "/{invalid",
                 Priority = 12,
             };
-            var backend = new BackendInfo("backend1", new EndpointManager(), new Mock<IProxyHttpClientFactory>().Object);
+            var backend = new BackendInfo("backend1", new DestinationManager(), new Mock<IProxyHttpClientFactory>().Object);
             var routeInfo = new RouteInfo("route1");
 
             // Act

@@ -54,10 +54,10 @@ namespace Microsoft.ReverseProxy.Sample
                         var someCriteria = false; // MeetsCriteria(context);
                         if (someCriteria)
                         {
-                            var availableEndpointsFeature = context.Features.Get<IAvailableBackendEndpointsFeature>();
-                            var endpoint = availableEndpointsFeature.Endpoints[0]; // PickEndpoint(availableEndpointsFeature.Endpoints);
-                            // Load balancing will no-op if we've already reduced the list of available endpoints to 1.
-                            availableEndpointsFeature.Endpoints = new[] { endpoint };
+                            var availableDestinationsFeature = context.Features.Get<IAvailableDestinationsFeature>();
+                            var destination = availableDestinationsFeature.Destinations[0]; // PickDestination(availableDestinationsFeature.Destinations);
+                            // Load balancing will no-op if we've already reduced the list of available destinations to 1.
+                            availableDestinationsFeature.Destinations = new[] { destination };
                         }
 
                         return next();

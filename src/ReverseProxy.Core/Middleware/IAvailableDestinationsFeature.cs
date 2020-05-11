@@ -7,13 +7,13 @@ using Microsoft.ReverseProxy.Core.RuntimeModel;
 namespace Microsoft.ReverseProxy.Core.Middleware
 {
     /// <summary>
-    /// Tracks proxy backend endpoints that are available to handle the current request.
+    /// Tracks proxy backend destinations that are available to handle the current request.
     /// </summary>
-    public interface IAvailableBackendEndpointsFeature
+    public interface IAvailableDestinationsFeature
     {
         /// <summary>
-        /// Backend endpoints that can handle the current request.
+        /// Backend destinations that can handle the current request.
         /// </summary>
-        IReadOnlyList<EndpointInfo> Endpoints { get; set; }
+        IReadOnlyList<DestinationInfo> Destinations { get; set; }
     }
 }

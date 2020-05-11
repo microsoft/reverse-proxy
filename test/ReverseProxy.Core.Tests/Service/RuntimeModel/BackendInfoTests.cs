@@ -17,7 +17,7 @@ namespace Microsoft.ReverseProxy.Core.RuntimeModel.Tests
         {
             // These are satellite classes with simple functionality and adding the actual implementations
             // much more convenient than replicating functionality for the purpose of the tests.
-            Provide<IEndpointManagerFactory, EndpointManagerFactory>();
+            Provide<IDestinationManagerFactory, DestinationManagerFactory>();
             Provide<IProxyHttpClientFactoryFactory, ProxyHttpClientFactoryFactory>();
             _backendManager = Provide<IBackendManager, BackendManager>();
         }
@@ -27,21 +27,21 @@ namespace Microsoft.ReverseProxy.Core.RuntimeModel.Tests
         {
             // Arrange
             var backend = _backendManager.GetOrCreateItem("abc", backend => { });
-            var endpoint1 = backend.EndpointManager.GetOrCreateItem("ep1", endpoint => endpoint.DynamicState.Value = new EndpointDynamicState(EndpointHealth.Healthy));
-            var endpoint2 = backend.EndpointManager.GetOrCreateItem("ep2", endpoint => endpoint.DynamicState.Value = new EndpointDynamicState(EndpointHealth.Unhealthy));
-            var endpoint3 = backend.EndpointManager.GetOrCreateItem("ep3", endpoint => endpoint.DynamicState.Value = new EndpointDynamicState(EndpointHealth.Unknown));
-            var endpoint4 = backend.EndpointManager.GetOrCreateItem("ep4", endpoint => endpoint.DynamicState.Value = new EndpointDynamicState(EndpointHealth.Healthy));
+            var destination1 = backend.DestinationManager.GetOrCreateItem("d1", destination => destination.DynamicState.Value = new DestinationDynamicState(DestinationHealth.Healthy));
+            var destination2 = backend.DestinationManager.GetOrCreateItem("d2", destination => destination.DynamicState.Value = new DestinationDynamicState(DestinationHealth.Unhealthy));
+            var destination3 = backend.DestinationManager.GetOrCreateItem("d3", destination => destination.DynamicState.Value = new DestinationDynamicState(DestinationHealth.Unknown));
+            var destination4 = backend.DestinationManager.GetOrCreateItem("d4", destination => destination.DynamicState.Value = new DestinationDynamicState(DestinationHealth.Healthy));
 
             // Assert
-            Assert.Equal(endpoint1, backend.DynamicState.Value.AllEndpoints[0]);
-            Assert.Equal(endpoint2, backend.DynamicState.Value.AllEndpoints[1]);
-            Assert.Equal(endpoint3, backend.DynamicState.Value.AllEndpoints[2]);
-            Assert.Equal(endpoint4, backend.DynamicState.Value.AllEndpoints[3]);
+            Assert.Equal(destination1, backend.DynamicState.Value.AllDestinations[0]);
+            Assert.Equal(destination2, backend.DynamicState.Value.AllDestinations[1]);
+            Assert.Equal(destination3, backend.DynamicState.Value.AllDestinations[2]);
+            Assert.Equal(destination4, backend.DynamicState.Value.AllDestinations[3]);
 
-            Assert.Equal(endpoint1, backend.DynamicState.Value.HealthyEndpoints[0]);
-            Assert.Equal(endpoint2, backend.DynamicState.Value.HealthyEndpoints[1]);
-            Assert.Equal(endpoint3, backend.DynamicState.Value.HealthyEndpoints[2]);
-            Assert.Equal(endpoint4, backend.DynamicState.Value.HealthyEndpoints[3]);
+            Assert.Equal(destination1, backend.DynamicState.Value.HealthyDestinations[0]);
+            Assert.Equal(destination2, backend.DynamicState.Value.HealthyDestinations[1]);
+            Assert.Equal(destination3, backend.DynamicState.Value.HealthyDestinations[2]);
+            Assert.Equal(destination4, backend.DynamicState.Value.HealthyDestinations[3]);
         }
 
         [Fact]
@@ -49,19 +49,19 @@ namespace Microsoft.ReverseProxy.Core.RuntimeModel.Tests
         {
             // Arrange
             var backend = _backendManager.GetOrCreateItem("abc", backend => EnableHealthChecks(backend));
-            var endpoint1 = backend.EndpointManager.GetOrCreateItem("ep1", endpoint => endpoint.DynamicState.Value = new EndpointDynamicState(EndpointHealth.Healthy));
-            var endpoint2 = backend.EndpointManager.GetOrCreateItem("ep2", endpoint => endpoint.DynamicState.Value = new EndpointDynamicState(EndpointHealth.Unhealthy));
-            var endpoint3 = backend.EndpointManager.GetOrCreateItem("ep3", endpoint => endpoint.DynamicState.Value = new EndpointDynamicState(EndpointHealth.Unknown));
-            var endpoint4 = backend.EndpointManager.GetOrCreateItem("ep4", endpoint => endpoint.DynamicState.Value = new EndpointDynamicState(EndpointHealth.Healthy));
+            var destination1 = backend.DestinationManager.GetOrCreateItem("d1", destination => destination.DynamicState.Value = new DestinationDynamicState(DestinationHealth.Healthy));
+            var destination2 = backend.DestinationManager.GetOrCreateItem("d2", destination => destination.DynamicState.Value = new DestinationDynamicState(DestinationHealth.Unhealthy));
+            var destination3 = backend.DestinationManager.GetOrCreateItem("d3", destination => destination.DynamicState.Value = new DestinationDynamicState(DestinationHealth.Unknown));
+            var destination4 = backend.DestinationManager.GetOrCreateItem("d4", destination => destination.DynamicState.Value = new DestinationDynamicState(DestinationHealth.Healthy));
 
             // Assert
-            Assert.Equal(endpoint1, backend.DynamicState.Value.AllEndpoints[0]);
-            Assert.Equal(endpoint2, backend.DynamicState.Value.AllEndpoints[1]);
-            Assert.Equal(endpoint3, backend.DynamicState.Value.AllEndpoints[2]);
-            Assert.Equal(endpoint4, backend.DynamicState.Value.AllEndpoints[3]);
+            Assert.Equal(destination1, backend.DynamicState.Value.AllDestinations[0]);
+            Assert.Equal(destination2, backend.DynamicState.Value.AllDestinations[1]);
+            Assert.Equal(destination3, backend.DynamicState.Value.AllDestinations[2]);
+            Assert.Equal(destination4, backend.DynamicState.Value.AllDestinations[3]);
 
-            Assert.Equal(endpoint1, backend.DynamicState.Value.HealthyEndpoints[0]);
-            Assert.Equal(endpoint4, backend.DynamicState.Value.HealthyEndpoints[1]);
+            Assert.Equal(destination1, backend.DynamicState.Value.HealthyDestinations[0]);
+            Assert.Equal(destination4, backend.DynamicState.Value.HealthyDestinations[1]);
         }
 
         // Verify that we detect changes to a backend's BackendInfo.Config
@@ -74,14 +74,14 @@ namespace Microsoft.ReverseProxy.Core.RuntimeModel.Tests
             // Act & Assert
             var state1 = backend.DynamicState.Value;
             Assert.NotNull(state1);
-            Assert.Empty(state1.AllEndpoints);
+            Assert.Empty(state1.AllDestinations);
 
             backend.Config.Value = new BackendConfig(healthCheckOptions: default, loadBalancingOptions: default);
             Assert.NotSame(state1, backend.DynamicState.Value);
-            Assert.Empty(backend.DynamicState.Value.AllEndpoints);
+            Assert.Empty(backend.DynamicState.Value.AllDestinations);
         }
 
-        // Verify that we detect addition / removal of a backend's endpoint
+        // Verify that we detect addition / removal of a backend's destination
         [Fact]
         public void DynamicState_ReactsToBackendEndpointChanges()
         {
@@ -91,20 +91,20 @@ namespace Microsoft.ReverseProxy.Core.RuntimeModel.Tests
             // Act & Assert
             var state1 = backend.DynamicState.Value;
             Assert.NotNull(state1);
-            Assert.Empty(state1.AllEndpoints);
+            Assert.Empty(state1.AllDestinations);
 
-            var endpoint = backend.EndpointManager.GetOrCreateItem("ep1", endpoint => { });
+            var destination = backend.DestinationManager.GetOrCreateItem("d1", destination => { });
             Assert.NotSame(state1, backend.DynamicState.Value);
             var state2 = backend.DynamicState.Value;
-            Assert.Contains(endpoint, state2.AllEndpoints);
+            Assert.Contains(destination, state2.AllDestinations);
 
-            backend.EndpointManager.TryRemoveItem("ep1");
+            backend.DestinationManager.TryRemoveItem("d1");
             Assert.NotSame(state2, backend.DynamicState.Value);
             var state3 = backend.DynamicState.Value;
-            Assert.Empty(state3.AllEndpoints);
+            Assert.Empty(state3.AllDestinations);
         }
 
-        // Verify that we detect dynamic state changes on a backend's existing endpoints
+        // Verify that we detect dynamic state changes on a backend's existing destinations
         [Fact]
         public void DynamicState_ReactsToBackendEndpointStateChanges()
         {
@@ -114,30 +114,30 @@ namespace Microsoft.ReverseProxy.Core.RuntimeModel.Tests
             // Act & Assert
             var state1 = backend.DynamicState.Value;
             Assert.NotNull(state1);
-            Assert.Empty(state1.AllEndpoints);
+            Assert.Empty(state1.AllDestinations);
 
-            var endpoint = backend.EndpointManager.GetOrCreateItem("ep1", endpoint => { });
+            var destination = backend.DestinationManager.GetOrCreateItem("d1", destination => { });
             Assert.NotSame(state1, backend.DynamicState.Value);
             var state2 = backend.DynamicState.Value;
 
-            endpoint.DynamicState.Value = new EndpointDynamicState(EndpointHealth.Unhealthy);
+            destination.DynamicState.Value = new DestinationDynamicState(DestinationHealth.Unhealthy);
             Assert.NotSame(state2, backend.DynamicState.Value);
             var state3 = backend.DynamicState.Value;
 
-            Assert.Contains(endpoint, state3.AllEndpoints);
-            Assert.Empty(state3.HealthyEndpoints);
+            Assert.Contains(destination, state3.AllDestinations);
+            Assert.Empty(state3.HealthyDestinations);
 
-            endpoint.DynamicState.Value = new EndpointDynamicState(EndpointHealth.Healthy);
+            destination.DynamicState.Value = new DestinationDynamicState(DestinationHealth.Healthy);
             Assert.NotSame(state3, backend.DynamicState.Value);
             var state4 = backend.DynamicState.Value;
 
-            Assert.Contains(endpoint, state4.AllEndpoints);
-            Assert.Contains(endpoint, state4.HealthyEndpoints);
+            Assert.Contains(destination, state4.AllDestinations);
+            Assert.Contains(destination, state4.HealthyDestinations);
         }
 
         private static void EnableHealthChecks(BackendInfo backend)
         {
-            // Pretend that health checks are enabled so that endpoint health states are honored
+            // Pretend that health checks are enabled so that destination health states are honored
             backend.Config.Value = new BackendConfig(
                 healthCheckOptions: new BackendConfig.BackendHealthCheckOptions(
                     enabled: true,

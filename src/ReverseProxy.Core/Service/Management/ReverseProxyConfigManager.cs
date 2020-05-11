@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.ReverseProxy.Common;
 using Microsoft.ReverseProxy.Core.Abstractions;
@@ -84,7 +85,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Management
                     itemId: configBackendPair.Key,
                     setupAction: backend =>
                     {
-                        UpdateRuntimeEndpoints(configBackend.Endpoints, backend.EndpointManager);
+                        UpdateRuntimeDestinations(configBackend.Destinations, backend.DestinationManager);
 
                         var newConfig = new BackendConfig(
                                 new BackendConfig.BackendHealthCheckOptions(
@@ -135,43 +136,43 @@ namespace Microsoft.ReverseProxy.Core.Service.Management
             }
         }
 
-        private void UpdateRuntimeEndpoints(IDictionary<string, BackendEndpoint> configEndpoints, IEndpointManager endpointManager)
+        private void UpdateRuntimeDestinations(IDictionary<string, Destination> configDestinations, IDestinationManager destinationManager)
         {
-            var desiredEndpoints = new HashSet<string>(StringComparer.Ordinal);
-            foreach (var configEndpoint in configEndpoints)
+            var desiredDestinations = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var configDestination in configDestinations)
             {
-                desiredEndpoints.Add(configEndpoint.Key);
-                endpointManager.GetOrCreateItem(
-                    itemId: configEndpoint.Key,
-                    setupAction: endpoint =>
+                desiredDestinations.Add(configDestination.Key);
+                destinationManager.GetOrCreateItem(
+                    itemId: configDestination.Key,
+                    setupAction: destination =>
                     {
-                        if (endpoint.Config.Value?.Address != configEndpoint.Value.Address)
+                        if (destination.Config.Value?.Address != configDestination.Value.Address)
                         {
-                            if (endpoint.Config.Value == null)
+                            if (destination.Config.Value == null)
                             {
-                                Log.EndpointAdded(_logger, configEndpoint.Key);
+                                Log.DestinationAdded(_logger, configDestination.Key);
                             }
                             else
                             {
-                                Log.EndpointChanged(_logger, configEndpoint.Key);
+                                Log.DestinationChanged(_logger, configDestination.Key);
                             }
-                            endpoint.Config.Value = new EndpointConfig(configEndpoint.Value.Address);
+                            destination.Config.Value = new DestinationConfig(configDestination.Value.Address);
                         }
                     });
             }
 
-            foreach (var existingEndpoint in endpointManager.GetItems())
+            foreach (var existingDestination in destinationManager.GetItems())
             {
-                if (!desiredEndpoints.Contains(existingEndpoint.EndpointId))
+                if (!desiredDestinations.Contains(existingDestination.DestinationId))
                 {
                     // NOTE 1: This is safe to do within the `foreach` loop
-                    // because `IEndpointManager.GetItems` returns a copy of the list of endpoints.
+                    // because `IDestinationManager.GetItems` returns a copy of the list of destinations.
                     //
                     // NOTE 2: Removing the endpoint from `IEndpointManager` is safe and existing
                     // backends will continue to work with their existing behavior (until those backends are updated)
                     // and the Garbage Collector won't destroy this backend object while it's referenced elsewhere.
-                    Log.EndpointRemoved(_logger, existingEndpoint.EndpointId);
-                    endpointManager.TryRemoveItem(existingEndpoint.EndpointId);
+                    Log.DestinationRemoved(_logger, existingDestination.DestinationId);
+                    destinationManager.TryRemoveItem(existingDestination.DestinationId);
                 }
             }
         }
@@ -233,18 +234,18 @@ namespace Microsoft.ReverseProxy.Core.Service.Management
 
             if (changed)
             {
-                var aspNetCoreEndpoints = new List<AspNetCore.Http.Endpoint>();
+                var endpoints = new List<Endpoint>();
                 foreach (var existingRoute in _routeManager.GetItems())
                 {
                     var runtimeConfig = existingRoute.Config.Value;
-                    if (runtimeConfig?.AspNetCoreEndpoints != null)
+                    if (runtimeConfig?.Endpoints != null)
                     {
-                        aspNetCoreEndpoints.AddRange(runtimeConfig.AspNetCoreEndpoints);
+                        endpoints.AddRange(runtimeConfig.Endpoints);
                     }
                 }
 
                 // This is where the new routes take effect!
-                _dynamicEndpointDataSource.Update(aspNetCoreEndpoints);
+                _dynamicEndpointDataSource.Update(endpoints);
             }
         }
 
@@ -265,20 +266,20 @@ namespace Microsoft.ReverseProxy.Core.Service.Management
                 EventIds.BackendRemoved,
                 "Backend `{backendId}` has been removed.");
 
-            private static readonly Action<ILogger, string, Exception> _endpointAdded = LoggerMessage.Define<string>(
+            private static readonly Action<ILogger, string, Exception> _destinationAdded = LoggerMessage.Define<string>(
                 LogLevel.Debug,
-                EventIds.EndpointAdded,
-                "Endpoint `{endpointId}` has been added.");
+                EventIds.DestinationAdded,
+                "Destination `{destinationId}` has been added.");
 
-            private static readonly Action<ILogger, string, Exception> _endpointChanged = LoggerMessage.Define<string>(
+            private static readonly Action<ILogger, string, Exception> _destinationChanged = LoggerMessage.Define<string>(
                 LogLevel.Debug,
-                EventIds.EndpointChanged,
-                "Endpoint `{endpointId}` has changed.");
+                EventIds.DestinationChanged,
+                "Destination `{destinationId}` has changed.");
 
-            private static readonly Action<ILogger, string, Exception> _endpointRemoved = LoggerMessage.Define<string>(
+            private static readonly Action<ILogger, string, Exception> _destinationRemoved = LoggerMessage.Define<string>(
                 LogLevel.Debug,
-                EventIds.EndpointRemoved,
-                "Endpoint `{endpointId}` has been removed.");
+                EventIds.DestinationRemoved,
+                "Destination `{destinationId}` has been removed.");
 
             private static readonly Action<ILogger, string, Exception> _routeAdded = LoggerMessage.Define<string>(
                 LogLevel.Debug,
@@ -310,19 +311,19 @@ namespace Microsoft.ReverseProxy.Core.Service.Management
                 _backendRemoved(logger, backendId, null);
             }
 
-            public static void EndpointAdded(ILogger logger, string endpointId)
+            public static void DestinationAdded(ILogger logger, string destinationId)
             {
-                _endpointAdded(logger, endpointId, null);
+                _destinationAdded(logger, destinationId, null);
             }
 
-            public static void EndpointChanged(ILogger logger, string endpointId)
+            public static void DestinationChanged(ILogger logger, string destinationId)
             {
-                _endpointChanged(logger, endpointId, null);
+                _destinationChanged(logger, destinationId, null);
             }
 
-            public static void EndpointRemoved(ILogger logger, string endpointId)
+            public static void DestinationRemoved(ILogger logger, string destinationId)
             {
-                _endpointRemoved(logger, endpointId, null);
+                _destinationRemoved(logger, destinationId, null);
             }
 
             public static void RouteAdded(ILogger logger, string routeId)

@@ -8,16 +8,16 @@ namespace Microsoft.ReverseProxy.Core.Service.Proxy
 {
     /// <summary>
     /// Provides a method that applies a load balancing policy
-    /// to select a backend endpoint.
+    /// to select a destination.
     /// </summary>
     internal interface ILoadBalancer
     {
         /// <summary>
-        /// Picks an endpoint to send traffic to.
+        /// Picks a destination to send traffic to.
         /// </summary>
-        // TODO: How to ensure retries pick a different endpoint when available?
-        EndpointInfo PickEndpoint(
-            IReadOnlyList<EndpointInfo> availableEndpoints,
+        // TODO: How to ensure retries pick a different destination when available?
+        DestinationInfo PickDestination(
+            IReadOnlyList<DestinationInfo> availableDestinations,
             in BackendConfig.BackendLoadBalancingOptions loadBalancingOptions);
     }
 }

@@ -11,15 +11,15 @@ using Microsoft.ReverseProxy.Core.RuntimeModel;
 namespace Microsoft.ReverseProxy.Core.Middleware
 {
     /// <summary>
-    /// Initializes the proxy processing pipeline with the available healthy endpoints.
+    /// Initializes the proxy processing pipeline with the available healthy destinations.
     /// </summary>
-    internal class EndpointInitializerMiddleware
+    internal class DestinationInitializerMiddleware
     {
         private readonly ILogger _logger;
         private readonly RequestDelegate _next;
 
-        public EndpointInitializerMiddleware(RequestDelegate next,
-            ILogger<EndpointInitializerMiddleware> logger)
+        public DestinationInitializerMiddleware(RequestDelegate next,
+            ILogger<DestinationInitializerMiddleware> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _next = next ?? throw new ArgumentNullException(nameof(next));
@@ -27,10 +27,10 @@ namespace Microsoft.ReverseProxy.Core.Middleware
 
         public Task Invoke(HttpContext context)
         {
-            var aspNetCoreEndpoint = context.GetEndpoint()
+            var endpoint = context.GetEndpoint()
                 ?? throw new InvalidOperationException($"Routing Endpoint wasn't set for the current request.");
 
-            var routeConfig = aspNetCoreEndpoint.Metadata.GetMetadata<RouteConfig>()
+            var routeConfig = endpoint.Metadata.GetMetadata<RouteConfig>()
                 ?? throw new InvalidOperationException($"Routing Endpoint is missing {typeof(RouteConfig).FullName} metadata.");
 
             var backend = routeConfig.BackendOrNull;
@@ -49,15 +49,15 @@ namespace Microsoft.ReverseProxy.Core.Middleware
                 return Task.CompletedTask;
             }
 
-            if (dynamicState.HealthyEndpoints.Count == 0)
+            if (dynamicState.HealthyDestinations.Count == 0)
             {
-                Log.NoHealthyEndpoints(_logger, routeConfig.Route.RouteId, backend.BackendId);
+                Log.NoHealthyDestinations(_logger, routeConfig.Route.RouteId, backend.BackendId);
                 context.Response.StatusCode = 503;
                 return Task.CompletedTask;
             }
 
             context.Features.Set(backend);
-            context.Features.Set<IAvailableBackendEndpointsFeature>(new AvailableBackendEndpointsFeature() { Endpoints = dynamicState.HealthyEndpoints });
+            context.Features.Set<IAvailableDestinationsFeature>(new AvailableDestinationsFeature() { Destinations = dynamicState.HealthyDestinations });
 
             return _next(context);
         }
@@ -76,10 +76,10 @@ namespace Microsoft.ReverseProxy.Core.Middleware
                 "Perhaps the backend hasn't been probed yet? " +
                 "This can happen when a new backend is added but isn't ready to serve traffic yet.");
 
-            private static readonly Action<ILogger, string, string, Exception> _noHealthyEndpoints = LoggerMessage.Define<string, string>(
+            private static readonly Action<ILogger, string, string, Exception> _noHealthyDestinations = LoggerMessage.Define<string, string>(
                 LogLevel.Information,
-                EventIds.NoHealthyEndpoints,
-                "Route `{routeId}` has no available healthy endpoints for Backend `{backendId}`.");
+                EventIds.NoHealthyDestinations,
+                "Route `{routeId}` has no available healthy destinations for Backend `{backendId}`.");
 
             public static void NoBackendFound(ILogger logger, string routeId)
             {
@@ -91,9 +91,9 @@ namespace Microsoft.ReverseProxy.Core.Middleware
                 _backendDataNotAvailable(logger, routeId, backendId, null);
             }
 
-            public static void NoHealthyEndpoints(ILogger logger, string routeId, string backendId)
+            public static void NoHealthyDestinations(ILogger logger, string routeId, string backendId)
             {
-                _noHealthyEndpoints(logger, routeId, backendId, null);
+                _noHealthyDestinations(logger, routeId, backendId, null);
             }
         }
     }

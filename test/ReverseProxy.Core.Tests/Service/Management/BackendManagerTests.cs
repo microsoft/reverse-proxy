@@ -24,10 +24,10 @@ namespace Microsoft.ReverseProxy.Core.Service.Management.Tests
         public void GetOrCreateItem_NonExistentItem_CreatesNewItem()
         {
             // Arrange
-            var endpointManager = new EndpointManager();
+            var endpointManager = new DestinationManager();
             var proxyHttpClientFactory = new Mock<IProxyHttpClientFactory>().Object;
-            Mock<IEndpointManagerFactory>()
-                .Setup(e => e.CreateEndpointManager())
+            Mock<IDestinationManagerFactory>()
+                .Setup(e => e.CreateDestinationManager())
                 .Returns(endpointManager);
             Mock<IProxyHttpClientFactoryFactory>()
                 .Setup(e => e.CreateFactory())
@@ -40,7 +40,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Management.Tests
             // Assert
             Assert.NotNull(item);
             Assert.Equal("abc", item.BackendId);
-            Assert.Same(endpointManager, item.EndpointManager);
+            Assert.Same(endpointManager, item.DestinationManager);
             Assert.Same(proxyHttpClientFactory, item.ProxyHttpClientFactory);
         }
     }
