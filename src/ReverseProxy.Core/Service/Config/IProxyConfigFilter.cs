@@ -17,7 +17,7 @@ namespace Microsoft.ReverseProxy.Core.Service
         /// </summary>
         /// <param name="id">The id for the backend.</param>
         /// <param name="backend">The Backend instance to configure.</param>
-        Task ConfigureBackendAsync(string id, Backend backend, CancellationToken cancel);
+        Task ConfigureBackendAsync(Backend backend, CancellationToken cancel);
 
         /// <summary>
         /// Allows modification of a route configuration.

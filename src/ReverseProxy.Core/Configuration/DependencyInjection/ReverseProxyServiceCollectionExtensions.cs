@@ -41,6 +41,15 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IReverseProxyBuilder LoadFromConfig(this IReverseProxyBuilder builder, IConfiguration config)
         {
             builder.Services.Configure<ProxyConfigOptions>(config);
+            builder.Services.AddOptions().PostConfigure<ProxyConfigOptions>(options =>
+            {
+                foreach (var (id, backend) in options.Backends)
+                {
+                    // The Object style config binding puts the id as the key in the dictionary, but later we want it on the
+                    // backend object as well.
+                    backend.Id = id;
+                }
+            });
             builder.Services.AddHostedService<ProxyConfigLoader>();
 
             return builder;
