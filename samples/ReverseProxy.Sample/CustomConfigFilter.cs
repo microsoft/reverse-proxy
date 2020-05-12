@@ -12,7 +12,7 @@ namespace Microsoft.ReverseProxy.Sample
 {
     public class CustomConfigFilter : IProxyConfigFilter
     {
-        public Task ConfigureBackendAsync(string id, Backend backend, CancellationToken cancel)
+        public Task ConfigureBackendAsync(Backend backend, CancellationToken cancel)
         {
             backend.HealthCheckOptions ??= new HealthCheckOptions();
             // How to use custom metadata to configure backends

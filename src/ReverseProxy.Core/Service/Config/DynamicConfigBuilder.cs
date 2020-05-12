@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
@@ -60,9 +61,16 @@ namespace Microsoft.ReverseProxy.Core.Service
             {
                 try
                 {
+                    if (id != backend.Id)
+                    {
+                        errorReporter.ReportError(ConfigErrors.ConfigBuilderBackendIdMismatch, id,
+                            $"The backend Id '{backend.Id}' and its lookup key '{id}' do not match.");
+                        continue;
+                    }
+
                     foreach (var filter in _filters)
                     {
-                        await filter.ConfigureBackendAsync(id, backend, cancellation);
+                        await filter.ConfigureBackendAsync(backend, cancellation);
                     }
 
                     configuredBackends[id] = backend;

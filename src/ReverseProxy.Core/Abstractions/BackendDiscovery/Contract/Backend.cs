@@ -15,6 +15,11 @@ namespace Microsoft.ReverseProxy.Core.Abstractions
     public sealed class Backend : IDeepCloneable<Backend>
     {
         /// <summary>
+        /// The Id for this backend. This needs to be globally unique.
+        /// </summary>
+        public string Id { get; set; }
+
+        /// <summary>
         /// Circuit breaker options.
         /// </summary>
         public CircuitBreakerOptions CircuitBreakerOptions { get; set; }
@@ -54,6 +59,7 @@ namespace Microsoft.ReverseProxy.Core.Abstractions
         {
             return new Backend
             {
+                Id = Id,
                 CircuitBreakerOptions = CircuitBreakerOptions?.DeepClone(),
                 QuotaOptions = QuotaOptions?.DeepClone(),
                 PartitioningOptions = PartitioningOptions?.DeepClone(),

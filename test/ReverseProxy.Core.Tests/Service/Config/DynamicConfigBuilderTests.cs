@@ -71,6 +71,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
                 {
                     "backend1", new Backend
                     {
+                        Id = "backend1",
                         Destinations =
                         {
                             { "d1", new Destination { Address = TestAddress } }
@@ -131,6 +132,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
             Assert.Single(result.Value.Backends);
             var backend = result.Value.Backends["backend1"];
             Assert.NotNull(backend);
+            Assert.Equal("backend1", backend.Id);
             Assert.Single(backend.Destinations);
             var destination = backend.Destinations["d1"];
             Assert.NotNull(destination);
@@ -194,7 +196,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
 
         private class FixRouteHostFilter : IProxyConfigFilter
         {
-            public Task ConfigureBackendAsync(string id, Backend backend, CancellationToken cancel)
+            public Task ConfigureBackendAsync(Backend backend, CancellationToken cancel)
             {
                 return Task.CompletedTask;
             }
@@ -208,7 +210,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
 
         private class BackendAndRouteFilter : IProxyConfigFilter
         {
-            public Task ConfigureBackendAsync(string id, Backend backend, CancellationToken cancel)
+            public Task ConfigureBackendAsync(Backend backend, CancellationToken cancel)
             {
                 backend.HealthCheckOptions = new HealthCheckOptions() { Enabled = true, Interval = TimeSpan.FromSeconds(12) };
                 return Task.CompletedTask;
@@ -249,7 +251,7 @@ namespace Microsoft.ReverseProxy.Core.Service.Tests
 
         private class BackendAndRouteThrows : IProxyConfigFilter
         {
-            public Task ConfigureBackendAsync(string id, Backend backend, CancellationToken cancel)
+            public Task ConfigureBackendAsync(Backend backend, CancellationToken cancel)
             {
                 throw new NotFiniteNumberException("Test exception");
             }
