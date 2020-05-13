@@ -43,7 +43,7 @@ namespace BenchmarkApp
             var backendCount = 0;
             foreach (var backendUrl in backendUrls.Split(';'))
             {
-                configDictionary.Add($"Backends:backend:Endpoints:endpoint{backendCount++}:Address", backendUrl);
+                configDictionary.Add($"Backends:backend:Destinations:destination{backendCount++}:Address", backendUrl);
             }
 
             var proxyConfig = new ConfigurationBuilder().AddInMemoryCollection(configDictionary).Build();
