@@ -5,8 +5,8 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
-using Microsoft.ReverseProxy.Core.Abstractions;
-using Microsoft.ReverseProxy.Core.Service;
+using Microsoft.ReverseProxy.Abstractions;
+using Microsoft.ReverseProxy.Service;
 
 namespace Microsoft.ReverseProxy.Sample
 {

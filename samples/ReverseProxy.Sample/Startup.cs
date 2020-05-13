@@ -4,7 +4,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.ReverseProxy.Core.Middleware;
+using Microsoft.ReverseProxy.Middleware;
 
 namespace Microsoft.ReverseProxy.Sample
 {
