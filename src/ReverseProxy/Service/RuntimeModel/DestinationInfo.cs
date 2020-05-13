@@ -1,9 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.ReverseProxy.Utilities;
-using Microsoft.ReverseProxy.Utilities;
 using Microsoft.ReverseProxy.Signals;
+using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.RuntimeModel
 {

@@ -1,19 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Abstractions.Telemetry;
 using Microsoft.ReverseProxy.Abstractions.Time;
-using Microsoft.ReverseProxy.Telemetry;
-using Microsoft.ReverseProxy.Utilities;
-using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Service;
 using Microsoft.ReverseProxy.Service.Management;
 using Microsoft.ReverseProxy.Service.Metrics;
 using Microsoft.ReverseProxy.Service.Proxy;
 using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
+using Microsoft.ReverseProxy.Telemetry;
 using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
