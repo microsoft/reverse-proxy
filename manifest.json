@@ -293,23 +293,11 @@
     },
     {
       "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.ReverseProxy.Abstractions.Time.IWallClockTimer.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.ReverseProxy.Abstractions.Time.IWallClockTimer.html",
-          "hash": "vjPTeU82XRU7W9aV8DY0Zw=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
       "source_relative_path": "api/Microsoft.ReverseProxy.Abstractions.Time.yml",
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Abstractions.Time.html",
-          "hash": "foakiGEqtvCl3xL16GwVag=="
+          "hash": "ya3KexAl6h59yDqBxHMCWw=="
         }
       },
       "is_incremental": false,
@@ -346,18 +334,6 @@
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Configuration.DependencyInjection.html",
           "hash": "7KRSV8V+2X5sfq7A69cLWw=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.ReverseProxy.EventIds.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.ReverseProxy.EventIds.html",
-          "hash": "kHAAFCv3Y9GQcTPbarP3WQ=="
         }
       },
       "is_incremental": false,
@@ -665,59 +641,11 @@
     },
     {
       "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.ReverseProxy.Utilities.AsyncSemaphore.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.ReverseProxy.Utilities.AsyncSemaphore.html",
-          "hash": "n7Bu9kdJUxS+IA7iDIOfqg=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
       "source_relative_path": "api/Microsoft.ReverseProxy.Utilities.AtomicCounter.yml",
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Utilities.AtomicCounter.html",
           "hash": "CjYcobpNH+tXTZVhnbR6Ow=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.ReverseProxy.Utilities.Cache-1.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.ReverseProxy.Utilities.Cache-1.html",
-          "hash": "qFmIzsy7j/WN+CkEbfwi7Q=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.ReverseProxy.Utilities.Contracts.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.ReverseProxy.Utilities.Contracts.html",
-          "hash": "3KgabbQdj2PFJ6iYUR4BIw=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.ReverseProxy.Utilities.ExceptionExtensions.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.ReverseProxy.Utilities.ExceptionExtensions.html",
-          "hash": "ve+m9IX4qcHOCmfQwASKJw=="
         }
       },
       "is_incremental": false,
@@ -797,119 +725,11 @@
     },
     {
       "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.ReverseProxy.Utilities.TaskExtensions.SwitchSchedulerAwaiter.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.ReverseProxy.Utilities.TaskExtensions.SwitchSchedulerAwaiter.html",
-          "hash": "YEpVJn8PRAkUUclVQuw2Hg=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.ReverseProxy.Utilities.TaskExtensions.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.ReverseProxy.Utilities.TaskExtensions.html",
-          "hash": "a+pupi88kaM8IoTd3LqStg=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.ReverseProxy.Utilities.ThreadStaticRandom.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.ReverseProxy.Utilities.ThreadStaticRandom.html",
-          "hash": "aic8pOda0Fu/KVBLsYl0Wg=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.ReverseProxy.Utilities.TimeSpanIso8601.Converter.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.ReverseProxy.Utilities.TimeSpanIso8601.Converter.html",
-          "hash": "j1+BTd/CywE4fsg1SsHrrQ=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.ReverseProxy.Utilities.TimeSpanIso8601.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.ReverseProxy.Utilities.TimeSpanIso8601.html",
-          "hash": "MsKKP8DJDWTPB6xWf5g3iw=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.ReverseProxy.Utilities.TimeUtil.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.ReverseProxy.Utilities.TimeUtil.html",
-          "hash": "nIvoXs+OcyMZWkvuSTHL1Q=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.ReverseProxy.Utilities.ValueStopwatch.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.ReverseProxy.Utilities.ValueStopwatch.html",
-          "hash": "fTTm+wnLT3q6s/RompSTzA=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.ReverseProxy.Utilities.WallClockTimer.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.ReverseProxy.Utilities.WallClockTimer.html",
-          "hash": "i/4r86uuEdO0vNJHLHODoA=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
       "source_relative_path": "api/Microsoft.ReverseProxy.Utilities.yml",
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Utilities.html",
-          "hash": "kRx+L+KTVi9+FiyrD+kBRw=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.ReverseProxy.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.ReverseProxy.html",
-          "hash": "m1erB53oaIU7XpXleCtdGw=="
+          "hash": "ZQiRT0+qs+2mes3YYZuNIA=="
         }
       },
       "is_incremental": false,
@@ -933,7 +753,7 @@
       "output": {
         ".html": {
           "relative_path": "api/toc.html",
-          "hash": "yUfdFqX2LYBsVq+hYskIFg=="
+          "hash": "mpGk++IbpqiMMAvOjEk00g=="
         }
       },
       "is_incremental": false,
@@ -1020,7 +840,7 @@
         "ManagedReferenceDocumentProcessor": {
           "can_incremental": false,
           "incrementalPhase": "build",
-          "total_file_count": 76,
+          "total_file_count": 61,
           "skipped_file_count": 0
         },
         "TocDocumentProcessor": {
