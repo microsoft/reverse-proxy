@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -9,7 +9,7 @@ namespace Microsoft.ReverseProxy.Utilities
     /// Simple argument validation helpers.
     /// </summary>
     // TODO: 6106627: find suitable replacement for CoreServicesBorrowed.Contracts
-    public static class Contracts
+    internal static class Contracts
     {
         /// <summary>
         /// Verifies that <paramref name="value"/> is not null, and throws

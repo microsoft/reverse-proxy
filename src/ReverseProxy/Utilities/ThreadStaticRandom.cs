@@ -8,7 +8,7 @@ namespace Microsoft.ReverseProxy.Utilities
     /// <summary>
     /// Provides a thread static implementation of random numbers that optimizes not to lock on every invocation of random number generation.
     /// </summary>
-    public class ThreadStaticRandom
+    internal class ThreadStaticRandom
     {
         [ThreadStatic]
         private static Random t_inst;

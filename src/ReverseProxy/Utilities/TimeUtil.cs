@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -8,7 +8,7 @@ namespace Microsoft.ReverseProxy.Utilities
     /// <summary>
     /// Time and date utilities.
     /// </summary>
-    public static class TimeUtil
+    internal static class TimeUtil
     {
         /// <summary>
         /// This is the maximum <see cref="TimeSpan"/> that <see cref="System.Threading.CancellationTokenSource.CancelAfter(TimeSpan)"/> will accept.

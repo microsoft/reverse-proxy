@@ -14,7 +14,7 @@ namespace Microsoft.ReverseProxy.Utilities
     /// <summary>
     /// Extensions for the <see cref="Exception"/> class.
     /// </summary>
-    public static class ExceptionExtensions
+    internal static class ExceptionExtensions
     {
         /// <summary>
         /// Determines whether the provided <paramref name="exception"/> should be considered fatal. An exception

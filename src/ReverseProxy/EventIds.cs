@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Microsoft.ReverseProxy
 {
-    public static class EventIds
+    internal static class EventIds
     {
         public static readonly EventId ApplyProxyConfig = new EventId(1, "ApplyProxyConfig");
         public static readonly EventId ApplyProxyConfigFailed = new EventId(2, "ApplyProxyConfigFailed");
