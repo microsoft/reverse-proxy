@@ -14,7 +14,7 @@ namespace Microsoft.ReverseProxy.Utilities
     /// <summary>
     /// Extensions for the <see cref="Task"/> class.
     /// </summary>
-    public static class TaskExtensions
+    internal static class TaskExtensions
     {
         /// <summary>
         /// Runs an action on the current scheduler instead of the default scheduler.

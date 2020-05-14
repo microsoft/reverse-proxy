@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
@@ -12,7 +12,7 @@ namespace Microsoft.ReverseProxy.Utilities
     /// <remarks>
     /// Based on <c>https://blogs.msdn.microsoft.com/pfxteam/2012/02/12/building-async-coordination-primitives-part-5-asyncsemaphore/</c>.
     /// </remarks>
-    public sealed class AsyncSemaphore
+    internal sealed class AsyncSemaphore
     {
         private readonly Queue<TaskCompletionSource<bool>> _waiters = new Queue<TaskCompletionSource<bool>>();
         private int _count;
