@@ -4,14 +4,16 @@
 imports:
   - https://raw.githubusercontent.com/aspnet/Benchmarks/master/src/BenchmarksDriver2/benchmarks.proxy.yml
 
+variables:
+  serverPort: 5000
+
 jobs:
   yarp:
     source:
       repository: https://github.com/microsoft/reverse-proxy.git
-      branchOrCommit: halter73/benchmark-testing
+      branchOrCommit: master
       project: samples/BenchmarkApp/BenchmarkApp.csproj
     readyStateText: Application started.
-    variables:
     arguments: '--urls {{serverUri}}:{{serverPort}} --backendUrls {{downstreamUri}}'
     port: 5000
 
@@ -23,9 +25,5 @@ scenarios:
       job: yarp
     warmup:
       job: bombardier
-      variables:
-        serverPort: 5000
     load:
       job: bombardier
-      variables:
-        serverPort: 5000
