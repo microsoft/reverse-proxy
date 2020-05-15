@@ -88,6 +88,15 @@ stages:
             artifactType: Container
             parallel: true
         - task: PublishBuildArtifacts@1
+          displayName: Upload Test Logs
+          condition: always()
+          continueOnError: true
+          inputs:
+            pathtoPublish: artifacts/logs/$(_BuildConfig)/
+            artifactName: $(Agent.Os)_$(Agent.JobName) Logs
+            artifactType: Container
+            parallel: true
+        - task: PublishBuildArtifacts@1
           displayName: Upload package artifacts
           condition: and(succeeded(), eq(variables['system.pullrequest.isfork'], false), eq(variables['_BuildConfig'], 'Release'))
           inputs:
@@ -129,6 +138,15 @@ stages:
             artifactName: $(Agent.Os)_$(Agent.JobName) TestResults
             artifactType: Container
             parallel: true
+        - task: PublishBuildArtifacts@1
+          displayName: Upload Test Logs
+          condition: always()
+          continueOnError: true
+          inputs:
+            pathtoPublish: artifacts/logs/$(_BuildConfig)/
+            artifactName: $(Agent.Os)_$(Agent.JobName) Logs
+            artifactType: Container
+            parallel: true
 
       - job: macOS_10_14
         displayName: 'macOS 10.14'
@@ -159,6 +177,15 @@ stages:
           inputs:
             pathtoPublish: artifacts/TestResults/$(_BuildConfig)/
             artifactName: $(Agent.Os)_$(Agent.JobName) TestResults
+            artifactType: Container
+            parallel: true
+        - task: PublishBuildArtifacts@1
+          displayName: Upload Test Logs
+          condition: always()
+          continueOnError: true
+          inputs:
+            pathtoPublish: artifacts/logs/$(_BuildConfig)/
+            artifactName: $(Agent.Os)_$(Agent.JobName) Logs
             artifactType: Container
             parallel: true
 
