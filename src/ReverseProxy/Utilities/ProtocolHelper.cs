@@ -5,9 +5,20 @@ using System;
 
 namespace Microsoft.ReverseProxy
 {
-    internal static class GrpcProtocolHelper
+    internal static class ProtocolHelper
     {
         internal const string GrpcContentType = "application/grpc";
+
+        public static bool IsHttp2(string protocol)
+        {
+#if NETCOREAPP5_0
+            return Microsoft.AspNetCore.Http.HttpProtocol.IsHttp2(protocol);
+#elif NETCOREAPP3_1
+            return StringComparer.OrdinalIgnoreCase.Equals("HTTP/2", protocol);
+#else
+            TFMs need to be updated
+#endif
+        }
 
         // NOTE: When https://github.com/dotnet/aspnetcore/issues/21265 is addressed,
         // this can be replaced with `MediaTypeHeaderValue.IsSubsetOf(...)`.
