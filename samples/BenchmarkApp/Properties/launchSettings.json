@@ -1,8 +1,8 @@
 {
   "profiles": {
-    "ReverseProxy.Sample": {
+    "BenchmarkApp": {
       "commandName": "Project",
-      "launchBrowser": false,
+      "commandLineArgs": "--urls http://localhost:5000 --backendUrls http://localhost:10010",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
