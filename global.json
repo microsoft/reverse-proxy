@@ -12,6 +12,12 @@
       "dotnet/x86": [
         "$(MicrosoftNETCoreAppPackageVersion)",
         "3.1.0"
+      ],
+      "aspnetcore/x64": [
+        "3.1.0"
+      ],
+      "aspnetcore/x86": [
+        "3.1.0"
       ]
     }
   },
