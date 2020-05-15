@@ -16,7 +16,7 @@ namespace Microsoft.ReverseProxy
 #elif NETCOREAPP3_1
             return StringComparer.OrdinalIgnoreCase.Equals("HTTP/2", protocol);
 #else
-            TFMs need to be updated
+#error A target framework was added to the project and needs to be added to this condition.
 #endif
         }
 
