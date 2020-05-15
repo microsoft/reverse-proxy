@@ -88,11 +88,11 @@ stages:
             artifactType: Container
             parallel: true
         - task: PublishBuildArtifacts@1
-          displayName: Upload Test Logs
+          displayName: Upload Logs
           condition: always()
           continueOnError: true
           inputs:
-            pathtoPublish: artifacts/logs/$(_BuildConfig)/
+            pathtoPublish: artifacts/log/$(_BuildConfig)/
             artifactName: $(Agent.Os)_$(Agent.JobName) Logs
             artifactType: Container
             parallel: true
@@ -139,11 +139,11 @@ stages:
             artifactType: Container
             parallel: true
         - task: PublishBuildArtifacts@1
-          displayName: Upload Test Logs
+          displayName: Upload Logs
           condition: always()
           continueOnError: true
           inputs:
-            pathtoPublish: artifacts/logs/$(_BuildConfig)/
+            pathtoPublish: artifacts/log/$(_BuildConfig)/
             artifactName: $(Agent.Os)_$(Agent.JobName) Logs
             artifactType: Container
             parallel: true
@@ -180,11 +180,11 @@ stages:
             artifactType: Container
             parallel: true
         - task: PublishBuildArtifacts@1
-          displayName: Upload Test Logs
+          displayName: Upload Logs
           condition: always()
           continueOnError: true
           inputs:
-            pathtoPublish: artifacts/logs/$(_BuildConfig)/
+            pathtoPublish: artifacts/log/$(_BuildConfig)/
             artifactName: $(Agent.Os)_$(Agent.JobName) Logs
             artifactType: Container
             parallel: true
