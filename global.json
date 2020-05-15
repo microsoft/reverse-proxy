@@ -6,10 +6,18 @@
     "dotnet": "5.0.100-preview.5.20251.2",
     "runtimes": {
       "dotnet/x64": [
-        "$(MicrosoftNETCoreAppPackageVersion)"
+        "$(MicrosoftNETCoreAppPackageVersion)",
+        "3.1.0"
       ],
       "dotnet/x86": [
-        "$(MicrosoftNETCoreAppPackageVersion)"
+        "$(MicrosoftNETCoreAppPackageVersion)",
+        "3.1.0"
+      ],
+      "aspnetcore/x64": [
+        "3.1.0"
+      ],
+      "aspnetcore/x86": [
+        "3.1.0"
       ]
     }
   },
