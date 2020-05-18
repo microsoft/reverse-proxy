@@ -85,7 +85,8 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 proxyHttpClientFactory: proxyHttpClientFactoryMock.Object);
             backend1.Config.Value = new BackendConfig(
                 new BackendConfig.BackendHealthCheckOptions(enabled: true, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan, 0, ""),
-                new BackendConfig.BackendLoadBalancingOptions());
+                new BackendConfig.BackendLoadBalancingOptions(),
+                new BackendConfig.BackendSessionAffinityOptions());
             var destination1 = backend1.DestinationManager.GetOrCreateItem(
                 "destination1",
                 destination =>

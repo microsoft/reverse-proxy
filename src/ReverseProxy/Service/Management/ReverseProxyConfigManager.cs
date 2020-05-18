@@ -94,7 +94,11 @@ namespace Microsoft.ReverseProxy.Service.Management
                                     port: configBackend.HealthCheckOptions?.Port ?? 0,
                                     path: configBackend.HealthCheckOptions?.Path ?? string.Empty),
                                 new BackendConfig.BackendLoadBalancingOptions(
-                                    mode: configBackend.LoadBalancing?.Mode ?? default));
+                                    mode: configBackend.LoadBalancing?.Mode ?? default),
+                                new BackendConfig.BackendSessionAffinityOptions(
+                                    enabled: configBackend.SessionAffinity != null,
+                                    mode: configBackend.SessionAffinity?.Mode ?? default,
+                                    customHeaderName: configBackend.SessionAffinity?.CustomHeaderName));
 
                         var currentBackendConfig = backend.Config.Value;
                         if (currentBackendConfig == null ||

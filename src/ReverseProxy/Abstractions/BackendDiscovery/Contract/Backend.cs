@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract;
 
 namespace Microsoft.ReverseProxy.Abstractions
 {
@@ -40,6 +41,11 @@ namespace Microsoft.ReverseProxy.Abstractions
         public LoadBalancingOptions LoadBalancing { get; set; }
 
         /// <summary>
+        /// Session affinity options.
+        /// </summary>
+        public SessionAffinityOptions SessionAffinity { get; set; }
+
+        /// <summary>
         /// Active health checking options.
         /// </summary>
         public HealthCheckOptions HealthCheckOptions { get; set; }
@@ -64,6 +70,7 @@ namespace Microsoft.ReverseProxy.Abstractions
                 QuotaOptions = QuotaOptions?.DeepClone(),
                 PartitioningOptions = PartitioningOptions?.DeepClone(),
                 LoadBalancing = LoadBalancing?.DeepClone(),
+                SessionAffinity = SessionAffinity?.DeepClone(),
                 HealthCheckOptions = HealthCheckOptions?.DeepClone(),
                 Destinations = Destinations.DeepClone(StringComparer.Ordinal),
                 Metadata = Metadata?.DeepClone(StringComparer.Ordinal),

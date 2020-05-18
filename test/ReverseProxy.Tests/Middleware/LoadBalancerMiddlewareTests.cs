@@ -41,7 +41,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 backendId: "backend1",
                 destinationManager: new DestinationManager(),
                 proxyHttpClientFactory: proxyHttpClientFactoryMock.Object);
-            backend1.Config.Value = new BackendConfig(default, new BackendConfig.BackendLoadBalancingOptions(LoadBalancingMode.RoundRobin));
+            backend1.Config.Value = new BackendConfig(default, new BackendConfig.BackendLoadBalancingOptions(LoadBalancingMode.RoundRobin), default);
             var destination1 = backend1.DestinationManager.GetOrCreateItem(
                 "destination1",
                 destination =>

@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.ReverseProxy.Abstractions;
+using Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract;
 using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.RuntimeModel
@@ -21,15 +22,19 @@ namespace Microsoft.ReverseProxy.RuntimeModel
     {
         public BackendConfig(
             BackendHealthCheckOptions healthCheckOptions,
-            BackendLoadBalancingOptions loadBalancingOptions)
+            BackendLoadBalancingOptions loadBalancingOptions,
+            BackendSessionAffinityOptions sessionAffinityOptions)
         {
             HealthCheckOptions = healthCheckOptions;
             LoadBalancingOptions = loadBalancingOptions;
+            SessionAffinityOptions = sessionAffinityOptions;
         }
 
         public BackendHealthCheckOptions HealthCheckOptions { get; }
 
         public BackendLoadBalancingOptions LoadBalancingOptions { get; }
+
+        public BackendSessionAffinityOptions SessionAffinityOptions { get; }
 
         /// <summary>
         /// Active health probing options for a backend.
@@ -87,6 +92,22 @@ namespace Microsoft.ReverseProxy.RuntimeModel
             public LoadBalancingMode Mode { get; }
 
             internal AtomicCounter RoundRobinState { get; }
+        }
+
+        internal readonly struct BackendSessionAffinityOptions
+        {
+            public BackendSessionAffinityOptions(bool enabled, SessionAffinityMode mode, string customHeaderName)
+            {
+                Mode = mode;
+                CustomHeaderName = customHeaderName;
+                Enabled = enabled;
+            }
+
+            public bool Enabled { get; }
+
+            public SessionAffinityMode Mode { get; }
+
+            public string CustomHeaderName { get;  }
         }
     }
 }

@@ -54,7 +54,8 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
                     timeout: TimeSpan.FromSeconds(60),
                     port: 8000,
                     path: "/example"),
-                loadBalancingOptions: default);
+                loadBalancingOptions: default,
+                sessionAffinityOptions: default);
             var destinationManager = new DestinationManager();
             var prober = factory.CreateBackendProber(backendId, backendConfig, destinationManager);
 

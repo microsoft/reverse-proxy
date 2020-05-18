@@ -52,7 +52,8 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
                     timeout: TimeSpan.FromSeconds(60),
                     port: 8000,
                     path: "/example"),
-                loadBalancingOptions: default);
+                loadBalancingOptions: default,
+                sessionAffinityOptions: default);
             _timer = new VirtualMonotonicTimer();
             _semaphore = new AsyncSemaphore(10);
             _fakeRandom = new Mock<Random>();

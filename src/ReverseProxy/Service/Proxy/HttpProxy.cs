@@ -19,6 +19,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Microsoft.ReverseProxy.Service.Metrics;
 using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
+using Microsoft.ReverseProxy.Service.SessionAffinity;
 using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Service.Proxy
@@ -42,13 +43,16 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 
         private readonly ILogger _logger;
         private readonly ProxyMetrics _metrics;
+        private readonly ISessionAffinityProvider _sessionAffinityProvider;
 
-        public HttpProxy(ILogger<HttpProxy> logger, ProxyMetrics metrics)
+        public HttpProxy(ILogger<HttpProxy> logger, ProxyMetrics metrics, ISessionAffinityProvider sessionAffinityProvider)
         {
             Contracts.CheckValue(logger, nameof(logger));
             Contracts.CheckValue(metrics, nameof(metrics));
+            Contracts.CheckValue(sessionAffinityProvider, nameof(sessionAffinityProvider));
             _logger = logger;
             _metrics = metrics;
+            _sessionAffinityProvider = sessionAffinityProvider;
         }
 
         /// <summary>
@@ -296,6 +300,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 5: Copy response headers Downstream ◄-- Proxy ◄-- Upstream
             CopyHeadersToDownstream(upstreamResponse, context.Response.Headers);
+            _sessionAffinityProvider.SetAffinityKeyOnDownstreamResponse(context);
 
             if (!upgraded)
             {

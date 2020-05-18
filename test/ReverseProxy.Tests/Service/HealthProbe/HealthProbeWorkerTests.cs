@@ -41,7 +41,8 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
                     timeout: TimeSpan.FromSeconds(1),
                     port: 8000,
                     path: "/example"),
-                loadBalancingOptions: default);
+                loadBalancingOptions: default,
+                sessionAffinityOptions: default);
 
             // Set up prober. We do not want to let prober really perform any actions.
             // The behavior of prober should be tested in its own unit test, see "BackendProberTests.cs".
@@ -118,7 +119,8 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
                             timeout: TimeSpan.FromSeconds(20),
                             port: 1234,
                             path: "/"),
-                        loadBalancingOptions: default);
+                        loadBalancingOptions: default,
+                        sessionAffinityOptions: default);
                 });
 
             // Start probing.
@@ -196,7 +198,8 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
                     timeout: TimeSpan.FromSeconds(1),
                     port: 8000,
                     path: "/newexample"),
-                loadBalancingOptions: default);
+                loadBalancingOptions: default,
+                sessionAffinityOptions: default);
             await health.UpdateTrackedBackends();
 
             // After the config is updated, the program should discover this change, create a new prober,
@@ -228,7 +231,8 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
                     timeout: TimeSpan.FromSeconds(1),
                     port: 8000,
                     path: "/newexample"),
-                loadBalancingOptions: default);
+                loadBalancingOptions: default,
+                sessionAffinityOptions: default);
             await health.UpdateTrackedBackends();
 
             // After the config is updated, the program should discover this change,

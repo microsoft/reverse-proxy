@@ -10,6 +10,7 @@ using Microsoft.ReverseProxy.Service.Management;
 using Microsoft.ReverseProxy.Service.Metrics;
 using Microsoft.ReverseProxy.Service.Proxy;
 using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
+using Microsoft.ReverseProxy.Service.SessionAffinity;
 using Microsoft.ReverseProxy.Telemetry;
 using Microsoft.ReverseProxy.Utilities;
 
@@ -79,6 +80,13 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
         public static IReverseProxyBuilder AddBackgroundWorkers(this IReverseProxyBuilder builder)
         {
             builder.Services.TryAddSingleton<IMonotonicTimer, MonotonicTimer>();
+
+            return builder;
+        }
+
+        public static IReverseProxyBuilder AddSessionAffinityProvider(this IReverseProxyBuilder builder)
+        {
+            builder.Services.TryAddSingleton<ISessionAffinityProvider, SessionAffinityProvider>();
 
             return builder;
         }
