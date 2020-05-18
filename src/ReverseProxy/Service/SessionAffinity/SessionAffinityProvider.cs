@@ -45,6 +45,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
 
             context.Features.Set<ISessionAffinityFeature>(new SessionAffinityFeature { DestinationKey = requestAffinityKey, Mode = options.Mode, CustomHeaderName = options.CustomHeaderName });
 
+            // It's allowed to affinitize a request to a pool of destinations so as to enable load-balancing among them
             var matchingDestinations = new List<DestinationInfo>();
             for(var i = 0; i < destinations.Count; i++)
             {
