@@ -5,6 +5,10 @@
       <Uri>https://github.com/dotnet/runtime</Uri>
       <Sha>47ec733ba79b196e4e09d0c89bad245155002353</Sha>
     </Dependency>
+    <Dependency Name="Microsoft.AspNetCore.App" Version="" CoherentParentDependency="Microsoft.NETCore.App">
+      <Uri>https://github.com/dotnet/aspnetcore</Uri>
+      <Sha />
+    </Dependency>
   </ProductDependencies>
   <ToolsetDependencies>
     <Dependency Name="Microsoft.DotNet.Arcade.Sdk" Version="5.0.0-beta.20261.9">
