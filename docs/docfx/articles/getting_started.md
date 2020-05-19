@@ -84,11 +84,13 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 
 The configuration for YARP is defined in the appsettings.json file. It defines a set of:
 
-Routes - which map incoming requests to the backend clusters based on aspects of the request such as host name, path, method, request headers etc. Specifying a Host is the only required field. Routes are ordered, so the "app1" route needs to be defined first as  "route2" will act as a catchall for all paths that have not already been matched. 
+Routes - which map incoming requests to the backend clusters based on aspects of the request such as host name, path, method, request headers etc. Specifying a Host is the only required field. Routes are ordered, so the "app1" route needs to be defined first as "route2" will act as a catchall for all paths that have not already been matched. 
 
 Backends - which are the clusters of destination servers that requests can be routed to and load balanced across.
 
-Address is the URI prefix that will have the original request path appended to it 
+Address is the URI prefix that will have the original request path appended to it.
+
+You can find out more about the available configuration options by looking at [ProxyConfigOptions](xref:Microsoft.ReverseProxy.Configuration.ProxyConfigOptions).
  
  ```
  {
