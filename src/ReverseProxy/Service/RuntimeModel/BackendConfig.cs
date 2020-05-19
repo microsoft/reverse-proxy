@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract;
 using Microsoft.ReverseProxy.Utilities;
@@ -96,18 +97,18 @@ namespace Microsoft.ReverseProxy.RuntimeModel
 
         internal readonly struct BackendSessionAffinityOptions
         {
-            public BackendSessionAffinityOptions(bool enabled, SessionAffinityMode mode, string customHeaderName)
+            public BackendSessionAffinityOptions(bool enabled, string mode, IDictionary<string, string> settings)
             {
                 Mode = mode;
-                CustomHeaderName = customHeaderName;
+                Settings = (IReadOnlyDictionary<string, string>) settings; // Assume that actual dictionary type always implements IReadOnlyDictionary
                 Enabled = enabled;
             }
 
             public bool Enabled { get; }
 
-            public SessionAffinityMode Mode { get; }
+            public string Mode { get; }
 
-            public string CustomHeaderName { get;  }
+            public IReadOnlyDictionary<string, string> Settings { get;  }
         }
     }
 }

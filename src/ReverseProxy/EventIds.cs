@@ -41,5 +41,6 @@ namespace Microsoft.ReverseProxy
         public static readonly EventId OperationEnded = new EventId(32, "OperationEnded");
         public static readonly EventId OperationFailed = new EventId(33, "OperationFailed");
         public static readonly EventId AffinitizedDestinationIsNotFound = new EventId(34, "AffinitizedDestinationIsNotFound");
+        public static readonly EventId AttemptToAffinitizeMultipleDestinations = new EventId(35, "AttemptToAffinitizeMultipleDestinations");
     }
 }

@@ -43,16 +43,13 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 
         private readonly ILogger _logger;
         private readonly ProxyMetrics _metrics;
-        private readonly ISessionAffinityProvider _sessionAffinityProvider;
 
-        public HttpProxy(ILogger<HttpProxy> logger, ProxyMetrics metrics, ISessionAffinityProvider sessionAffinityProvider)
+        public HttpProxy(ILogger<HttpProxy> logger, ProxyMetrics metrics)
         {
             Contracts.CheckValue(logger, nameof(logger));
             Contracts.CheckValue(metrics, nameof(metrics));
-            Contracts.CheckValue(sessionAffinityProvider, nameof(sessionAffinityProvider));
             _logger = logger;
             _metrics = metrics;
-            _sessionAffinityProvider = sessionAffinityProvider;
         }
 
         /// <summary>
@@ -300,7 +297,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 5: Copy response headers Downstream ◄-- Proxy ◄-- Upstream
             CopyHeadersToDownstream(upstreamResponse, context.Response.Headers);
-            _sessionAffinityProvider.SetAffinityKeyOnDownstreamResponse(context);
 
             if (!upgraded)
             {
@@ -455,7 +451,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                     }
 
                     ////this.logger.LogInformation($"   Copying downstream <-- Proxy <-- upstream response header {header.Key}: {string.Join(",", header.Value)}");
-                    destination.TryAdd(header.Key, new StringValues(header.Value.ToArray()));
+                    destination.Append(header.Key, new StringValues(header.Value.ToArray()));
                 }
             }
         }

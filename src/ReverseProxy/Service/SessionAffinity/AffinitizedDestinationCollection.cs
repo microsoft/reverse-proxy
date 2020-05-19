@@ -10,14 +10,12 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
     {
         public readonly IReadOnlyList<DestinationInfo> Destinations;
 
-        public readonly string RequestKey;
+        public readonly object RequestKey;
 
-        public AffinitizedDestinationCollection(IReadOnlyList<DestinationInfo> destinations, string requestKey)
+        public AffinitizedDestinationCollection(IReadOnlyList<DestinationInfo> destinations, object requestKey)
         {
             Destinations = destinations;
             RequestKey = requestKey;
         }
-
-        public bool RequestKeyFound => RequestKey != null;
     }
 }

@@ -1,8 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.ReverseProxy.Abstractions;
+using Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract;
 using Microsoft.ReverseProxy.Abstractions.Telemetry;
 using Microsoft.ReverseProxy.Abstractions.Time;
 using Microsoft.ReverseProxy.Service;
@@ -86,7 +89,11 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
 
         public static IReverseProxyBuilder AddSessionAffinityProvider(this IReverseProxyBuilder builder)
         {
-            builder.Services.TryAddSingleton<ISessionAffinityProvider, SessionAffinityProvider>();
+            builder.Services.TryAddSingleton<CookieSessionAffinityProviderOptions>();
+            builder.Services.TryAddEnumerable(new[] {
+                new ServiceDescriptor(typeof(ISessionAffinityProvider), typeof(CookieSessionAffinityProvider), ServiceLifetime.Singleton),
+                new ServiceDescriptor(typeof(ISessionAffinityProvider), typeof(CustomHeaderSessionAffinityProvider), ServiceLifetime.Singleton)
+            });
 
             return builder;
         }

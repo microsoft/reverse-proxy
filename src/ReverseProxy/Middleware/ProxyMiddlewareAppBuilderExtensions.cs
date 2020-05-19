@@ -17,5 +17,15 @@ namespace Microsoft.AspNetCore.Builder
         {
             return builder.UseMiddleware<LoadBalancingMiddleware>();
         }
+
+        /// <summary>
+        /// Load balances across the available endpoints and maintains session affinity.
+        /// </summary>
+        public static IApplicationBuilder UseProxyLoadBalancingWithSessionAffinity(this IApplicationBuilder builder)
+        {
+            return builder.UseMiddleware<AffinitizedDestinationLookupMiddleware>()
+                .UseMiddleware<LoadBalancingMiddleware>()
+                .UseMiddleware<AffinitizeRequestMiddleware>();
+        }
     }
 }
