@@ -35,7 +35,7 @@ namespace Microsoft.ReverseProxy.Middleware
 
         public Task Invoke(HttpContext context)
         { 
-            var backend = context.GetRequiredBacked();
+            var backend = context.GetRequiredBackend();
             var destinationsFeature = context.GetRequiredDestinationFeature();
             var destinations = destinationsFeature.Destinations;
 

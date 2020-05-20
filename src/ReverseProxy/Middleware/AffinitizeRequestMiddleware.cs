@@ -16,8 +16,9 @@ namespace Microsoft.ReverseProxy.Middleware
     /// </summary>
     internal class AffinitizeRequestMiddleware
     {
+        private readonly Random _random = new Random();
         private readonly RequestDelegate _next;
-        private readonly IDictionary<string, ISessionAffinityProvider> _sessionAffinityProviders = new Dictionary<string, ISessionAffinityProvider>();
+        private readonly IDictionary<string, ISessionAffinityProvider> _sessionAffinityProviders;
         private readonly ILogger _logger;
 
         public AffinitizeRequestMiddleware(RequestDelegate next, IEnumerable<ISessionAffinityProvider> sessionAffinityProviders, ILogger<AffinitizeRequestMiddleware> logger)
@@ -29,9 +30,8 @@ namespace Microsoft.ReverseProxy.Middleware
 
         public Task Invoke(HttpContext context)
         {
-            var backend = context.GetRequiredBacked();
-            var options = backend.Config.Value?.SessionAffinityOptions
-                ?? new BackendConfig.BackendSessionAffinityOptions(false, default, default);
+            var backend = context.GetRequiredBackend();
+            var options = backend.Config.Value?.SessionAffinityOptions ?? default;
 
             if (options.Enabled)
             {
@@ -42,8 +42,13 @@ namespace Microsoft.ReverseProxy.Middleware
                     Log.AttemptToAffinitizeMultipleDestinations(_logger, backend.BackendId);
                 }
 
-                var destination = destinationsFeature.Destinations[0]; // We always pick the first destination even if there are still a number of them.
-                                                                       // It's assumed that all of them match to the request's affinity key.
+                var destinations = destinationsFeature.Destinations;
+                var destination = destinations[0];
+                if (destinations.Count > 1)
+                {
+                    Log.AttemptToAffinitizeMultipleDestinations(_logger, backend.BackendId);
+                    destination = destinations[_random.Next(destinations.Count)]; // It's assumed that all of them match to the request's affinity key.
+                }
 
                 var currentProvider = _sessionAffinityProviders.GetRequiredProvider(options.Mode);
                 currentProvider.AffinitizeRequest(context, options, destination);

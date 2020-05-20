@@ -29,7 +29,7 @@ namespace Microsoft.ReverseProxy.Middleware
 
         public Task Invoke(HttpContext context)
         {
-            var backend = context.GetRequiredBacked();
+            var backend = context.GetRequiredBackend();
             var destinationsFeature = context.GetRequiredDestinationFeature();
             var destinations = destinationsFeature.Destinations;
 
@@ -39,15 +39,15 @@ namespace Microsoft.ReverseProxy.Middleware
             if (options.Enabled)
             {
                 var currentProvider = _sessionAffinityProviders.GetRequiredProvider(options.Mode);
-                if (currentProvider.TryFindAffinitizedDestinations(context, destinations, options, out var affinitizedDestinations))
+                if (currentProvider.TryFindAffinitizedDestinations(context, destinations, options, out var affinityResult))
                 {
-                    if (affinitizedDestinations.Destinations.Count > 0)
+                    if (affinityResult.Destinations.Count > 0)
                     {
-                        destinations = affinitizedDestinations.Destinations;
+                        destinations = affinityResult.Destinations;
                     }
                     else
                     {
-                        Log.AffinitizedDestinationIsNotFound(_logger, affinitizedDestinations.RequestKey?.ToString(), backend.BackendId);
+                        Log.AffinitizedDestinationIsNotFound(_logger, backend.BackendId);
                         context.Response.StatusCode = 503;
                         return Task.CompletedTask;
                     }
@@ -59,14 +59,14 @@ namespace Microsoft.ReverseProxy.Middleware
 
         private static class Log
         {
-            private static readonly Action<ILogger, string, string, Exception> _affinitizedDestinationIsNotFound = LoggerMessage.Define<string, string>(
+            private static readonly Action<ILogger, string, Exception> _affinitizedDestinationIsNotFound = LoggerMessage.Define<string>(
                 LogLevel.Warning,
                 EventIds.AffinitizedDestinationIsNotFound,
-                "No destinations found for the affinitized request with key `{affinityKey}` on backend `{backendId}`.");
+                "No destinations found for the affinitized request on backend `{backendId}`.");
 
-            public static void AffinitizedDestinationIsNotFound(ILogger logger, string affinityKey, string backendId)
+            public static void AffinitizedDestinationIsNotFound(ILogger logger, string backendId)
             {
-                _affinitizedDestinationIsNotFound(logger, affinityKey, backendId, null);
+                _affinitizedDestinationIsNotFound(logger, backendId, null);
             }
         }
     }

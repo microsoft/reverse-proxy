@@ -6,16 +6,13 @@ using Microsoft.ReverseProxy.RuntimeModel;
 
 namespace Microsoft.ReverseProxy.Service.SessionAffinity
 {
-    public readonly struct AffinitizedDestinationCollection
+    public readonly struct AffinityResult
     {
         public readonly IReadOnlyList<DestinationInfo> Destinations;
 
-        public readonly object RequestKey;
-
-        public AffinitizedDestinationCollection(IReadOnlyList<DestinationInfo> destinations, object requestKey)
+        public AffinityResult(IReadOnlyList<DestinationInfo> destinations)
         {
             Destinations = destinations;
-            RequestKey = requestKey;
         }
     }
 }

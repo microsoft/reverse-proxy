@@ -30,11 +30,11 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
             SetEncryptedAffinityKey(context, options, encryptedKey);
         }
 
-        public virtual bool TryFindAffinitizedDestinations(HttpContext context, IReadOnlyList<DestinationInfo> destinations, BackendConfig.BackendSessionAffinityOptions options, out AffinitizedDestinationCollection affinitizedDestinations)
+        public virtual bool TryFindAffinitizedDestinations(HttpContext context, IReadOnlyList<DestinationInfo> destinations, BackendConfig.BackendSessionAffinityOptions options, out AffinityResult affinityResult)
         {
             if (!options.Enabled || destinations.Count == 0)
             {
-                affinitizedDestinations = default;
+                affinityResult = default;
                 return false;
             }
 
@@ -43,7 +43,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
             // TBD. Support different failure modes
             if (requestAffinityKey == null)
             {
-                affinitizedDestinations = default;
+                affinityResult = default;
                 return false;
             }
 
@@ -59,7 +59,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
                 }
             }
 
-            affinitizedDestinations = new AffinitizedDestinationCollection(matchingDestinations, requestAffinityKey);
+            affinityResult = new AffinityResult(matchingDestinations);
             return true;
         }
 

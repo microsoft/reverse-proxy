@@ -89,7 +89,6 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
 
         public static IReverseProxyBuilder AddSessionAffinityProvider(this IReverseProxyBuilder builder)
         {
-            builder.Services.TryAddSingleton<CookieSessionAffinityProviderOptions>();
             builder.Services.TryAddEnumerable(new[] {
                 new ServiceDescriptor(typeof(ISessionAffinityProvider), typeof(CookieSessionAffinityProvider), ServiceLifetime.Singleton),
                 new ServiceDescriptor(typeof(ISessionAffinityProvider), typeof(CustomHeaderSessionAffinityProvider), ServiceLifetime.Singleton)

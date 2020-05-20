@@ -62,7 +62,9 @@ namespace Microsoft.ReverseProxy.Sample
 
                         return next();
                     });
-                    proxyPipeline.UseProxyLoadBalancingWithSessionAffinity();
+                    proxyPipeline.UseAffinitizedDestinationLookup();
+                    proxyPipeline.UseProxyLoadBalancing();
+                    proxyPipeline.UseRequestAffinity();
                 });
             });
         }

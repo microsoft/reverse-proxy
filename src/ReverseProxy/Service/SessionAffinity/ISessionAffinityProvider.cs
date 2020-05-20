@@ -14,7 +14,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
     internal interface ISessionAffinityProvider
     {
         /// <summary>
-        /// Session affinity mode this type provides.
+        ///  A unique identifier for this session affinity implementation. This will be referenced from config.
         /// </summary>
         public string Mode { get; }
 
@@ -24,9 +24,9 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
         /// <param name="context">Current request's context.</param>
         /// <param name="destinations"><see cref="DestinationInfo"/>s available for the request.</param>
         /// <param name="options">Affinity options.</param>
-        /// <param name="affinitizedDestinations">Affinitized <see cref="DestinationInfo"/>s found for the request.</param>
+        /// <param name="affinityResult">Affinitized <see cref="DestinationInfo"/>s found for the request.</param>
         /// <returns><see cref="true"/> if affinitized <see cref="DestinationInfo"/>s were successfully found, otherwise <see cref="false"/>.</returns>
-        public bool TryFindAffinitizedDestinations(HttpContext context, IReadOnlyList<DestinationInfo> destinations, BackendConfig.BackendSessionAffinityOptions options, out AffinitizedDestinationCollection affinitizedDestinations);
+        public bool TryFindAffinitizedDestinations(HttpContext context, IReadOnlyList<DestinationInfo> destinations, BackendConfig.BackendSessionAffinityOptions options, out AffinityResult affinityResult);
 
         /// <summary>
         /// Affinitize the current request to the given <see cref="DestinationInfo"/> by setting the affinity key extracted from <see cref="DestinationInfo"/>.

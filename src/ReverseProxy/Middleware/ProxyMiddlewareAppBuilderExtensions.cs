@@ -19,13 +19,22 @@ namespace Microsoft.AspNetCore.Builder
         }
 
         /// <summary>
-        /// Load balances across the available endpoints and maintains session affinity.
+        /// Looks up one or multiple destinations affinitized to the request by an affinity key.
+        /// It only find affinitized destinations, but do not actually routes request to any of them.
+        /// Instead destinations are passed further to pipeline for load balancing or other processing steps.
         /// </summary>
-        public static IApplicationBuilder UseProxyLoadBalancingWithSessionAffinity(this IApplicationBuilder builder)
+        public static IApplicationBuilder UseAffinitizedDestinationLookup(this IApplicationBuilder builder)
         {
-            return builder.UseMiddleware<AffinitizedDestinationLookupMiddleware>()
-                .UseMiddleware<LoadBalancingMiddleware>()
-                .UseMiddleware<AffinitizeRequestMiddleware>();
+            return builder.UseMiddleware<AffinitizedDestinationLookupMiddleware>();
+        }
+
+        /// <summary>
+        /// Routes the request to an affinitized destination looked up on previous steps.
+        /// If there are multiple affinitized destinations found for the request, it randomly picks one of them.
+        /// </summary>
+        public static IApplicationBuilder UseRequestAffinity(this IApplicationBuilder builder)
+        {
+            return builder.UseMiddleware<AffinitizeRequestMiddleware>();
         }
     }
 }

@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 using Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract;
 using Microsoft.ReverseProxy.RuntimeModel;
 
@@ -12,9 +13,9 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
     {
         private readonly CookieSessionAffinityProviderOptions _providerOptions;
 
-        public CookieSessionAffinityProvider(CookieSessionAffinityProviderOptions providerOptions)
+        public CookieSessionAffinityProvider(IOptions<CookieSessionAffinityProviderOptions> providerOptions)
         {
-            _providerOptions = providerOptions ?? throw new ArgumentNullException(nameof(providerOptions));
+            _providerOptions = providerOptions?.Value ?? throw new ArgumentNullException(nameof(providerOptions));
         }
 
         public override string Mode => "Cookie";

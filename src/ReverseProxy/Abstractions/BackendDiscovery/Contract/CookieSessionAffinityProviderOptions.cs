@@ -15,8 +15,6 @@ namespace Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract
 
         public static readonly string DefaultCookieName = ".Microsoft.ReverseProxy.Affinity";
 
-        public static readonly string DefaultCookiePath = "/";
-
         public CookieBuilder Cookie
         {
             get => _cookieBuilder;
@@ -28,9 +26,8 @@ namespace Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract
             public AffinityCookieBuilder()
             {
                 Name = DefaultCookieName;
-                Path = DefaultCookiePath;
                 SecurePolicy = CookieSecurePolicy.None;
-                SameSite = SameSiteMode.Lax;
+                SameSite = SameSiteMode.Unspecified;
                 HttpOnly = true;
                 IsEssential = false;
             }

@@ -16,7 +16,7 @@ namespace Microsoft.ReverseProxy.Middleware
                 throw new ArgumentNullException(nameof(sessionAffinityProviders));
             }
 
-            var result = new Dictionary<string, ISessionAffinityProvider>();
+            var result = new Dictionary<string, ISessionAffinityProvider>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var provider in sessionAffinityProviders)
             {
