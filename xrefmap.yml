@@ -1,6 +1,9 @@
 ### YamlMime:XRefMap
 sorted: true
 references:
+- uid: getting_started
+  name: Getting Started with YARP
+  href: articles/getting_started.html
 - uid: intro
   name: Welcome to the YARP documentation!
   href: articles/index.html
@@ -2189,6 +2192,3 @@ references:
 - uid: root
   name: YARP Documentation
   href: index.html
-- uid: tutorial
-  name: Getting Started with YARP
-  href: articles/tutorial.html
