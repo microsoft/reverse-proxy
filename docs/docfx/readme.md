@@ -1,6 +1,6 @@
 # DocFx
 
-This project builds the API and concept docs for this reverse-proxy repo.
+This project builds the API and concept docs for this reverse-proxy repo. It uses a library called [DocFx](https://dotnet.github.io/docfx/tutorial/docfx_getting_started.html).
 
 ## Bulding the docs
 
