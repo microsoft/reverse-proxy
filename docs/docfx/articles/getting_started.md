@@ -5,9 +5,9 @@ title: Getting Started with YARP
 
 # Getting Started with YARP
 
-YARP is designed as a library that provides the core proxy functionality which you can then customize by adding or replacing modules. YARP is currently supplied as a nuget package and code snippets. We plan on having a project template, and pre-built exe in the future. 
+YARP is designed as a library that provides the core proxy functionality which you can then customize by adding or replacing modules. YARP is currently provided as a NuGet package and code snippets. We plan on providing a project template and pre-built exe in the future. 
 
-YARP supports ASP.NET Core 3.1 or 5.0 preview4 or later. You can download preview 4 of .NET 5 SDK from https://dotnet.microsoft.com/download/dotnet/5.0.
+YARP supports ASP.NET Core 3.1 and 5.0.0 Preview 4 or later. You can download the .NET 5 Preview 4 SDK from https://dotnet.microsoft.com/download/dotnet/5.0.
 
 ### Create a new project
 
@@ -60,7 +60,7 @@ public void ConfigureServices(IServiceCollection services)
 } 
 ```
 
-The `Configure` method defines the ASP.NET pipeline for processing requests. The reverse proxy is plugged in to ASP.NET endpoint routing, and then has its own sub pipeline for the proxy. Here proxy pipeline modules, such as load balancing can be added to customize the handling of the request. 
+The `Configure` method defines the ASP.NET pipeline for processing requests. The reverse proxy is plugged into ASP.NET endpoint routing, and then has its own sub-pipeline for the proxy. Here proxy pipeline modules, such as load balancing, can be added to customize the handling of the request. 
 ```
 public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 {
@@ -88,9 +88,9 @@ Routes - which map incoming requests to the backend clusters based on aspects of
 
 Backends - which are the clusters of destination servers that requests can be routed to and load balanced across.
 
-Address is the URI prefix that will have the original request path appended to it.
+Address is the URI prefix that will have the original request path and query appended to it.
 
-You can find out more about the available configuration options by looking at [ProxyConfigOptions](xref:Microsoft.ReverseProxy.Configuration.ProxyConfigOptions).
+You can find out more about the available configuration options by looking at [ProxyRoute](xref:Microsoft.ReverseProxy.Abstractions.ProxyRoute) and [Backend](xref:Microsoft.ReverseProxy.Abstractions.Backend).
  
  ```
  {
