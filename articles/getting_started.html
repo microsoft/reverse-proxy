@@ -124,7 +124,7 @@ public void ConfigureServices(IServiceCollection services)
 </code></pre>
 <h3 id="configuration">Configuration</h3>
 <p>The configuration for YARP is defined in the appsettings.json file. It defines a set of:</p>
-<p>Routes - which map incoming requests to the backend clusters based on aspects of the request such as host name, path, method, request headers etc. Specifying a Host is the only required field. Routes are ordered, so the &quot;app1&quot; route needs to be defined first as &quot;route2&quot; will act as a catchall for all paths that have not already been matched.</p>
+<p>Routes - which map incoming requests to the backend clusters based on aspects of the request such as host name, path, method, request headers etc. Specifying a Host is the only required field. Routes are ordered, so the &quot;app1&quot; route needs to be defined first since &quot;route2&quot; will act as a catchall for all paths that have not already been matched.</p>
 <p>Backends - which are the clusters of destination servers that requests can be routed to and load balanced across.</p>
 <p>Address is the URI prefix that will have the original request path and query appended to it.</p>
 <p>You can find out more about the available configuration options by looking at <a class="xref" href="../api/Microsoft.ReverseProxy.Abstractions.ProxyRoute.html">ProxyRoute</a> and <a class="xref" href="../api/Microsoft.ReverseProxy.Abstractions.Backend.html">Backend</a>.</p>
