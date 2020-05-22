@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using Microsoft.ReverseProxy.Signals;
 using Microsoft.ReverseProxy.Utilities;
 
@@ -18,6 +19,8 @@ namespace Microsoft.ReverseProxy.RuntimeModel
     /// </remarks>
     public sealed class DestinationInfo
     {
+        private IReadOnlyList<DestinationInfo> _collection;
+
         public DestinationInfo(string destinationId)
         {
             Contracts.CheckNonEmpty(destinationId, nameof(destinationId));
@@ -42,5 +45,17 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         /// Keeps track of the total number of concurrent requests on this endpoint.
         /// </summary>
         public AtomicCounter ConcurrencyCounter { get; } = new AtomicCounter();
+
+        internal IReadOnlyList<DestinationInfo> Collection
+        {
+            get
+            {
+                if (_collection == null)
+                {
+                    _collection = new[] { this };
+                }
+                return _collection;
+            }
+        } 
     }
 }

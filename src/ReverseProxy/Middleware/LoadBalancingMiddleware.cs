@@ -54,7 +54,7 @@ namespace Microsoft.ReverseProxy.Middleware
                 return Task.CompletedTask;
             }
 
-            destinationsFeature.Destinations = new[] { destination };
+            destinationsFeature.Destinations = destination.Collection;
 
             return _next(context);
         }
