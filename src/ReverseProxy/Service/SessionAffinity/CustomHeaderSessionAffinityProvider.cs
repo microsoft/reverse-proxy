@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using Microsoft.ReverseProxy.RuntimeModel;
@@ -11,9 +13,11 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
     {
         private const string CustomHeaderNameKey = "CustomHeaderName";
 
-        public override string Mode => "CustomHeader";
+        public CustomHeaderSessionAffinityProvider(IDataProtectionProvider dataProtectionProvider, IEnumerable<IMissingDestinationHandler> missingDestinationHandlers)
+            : base(dataProtectionProvider, missingDestinationHandlers)
+        {}
 
-        //TBD. Add logging.
+        public override string Mode => "CustomHeader";
 
         protected override string GetDestinationAffinityKey(DestinationInfo destination)
         {
@@ -24,14 +28,14 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
         {
             var customHeaderName = GetSettingValue(CustomHeaderNameKey, options);
             var keyHeaderValues = context.Request.Headers[customHeaderName];
-            return !StringValues.IsNullOrEmpty(keyHeaderValues) ? keyHeaderValues[0] : null; // We always take the first value of a custom header storing an affinity key
+            var encryptedRequestKey = !StringValues.IsNullOrEmpty(keyHeaderValues) ? keyHeaderValues[0] : null; // We always take the first value of a custom header storing an affinity key
+            return encryptedRequestKey != null ? DataProtector.Unprotect(encryptedRequestKey) : null;
         }
 
-        protected override void SetEncryptedAffinityKey(HttpContext context, BackendConfig.BackendSessionAffinityOptions options, string encryptedKey)
+        protected override void SetAffinityKey(HttpContext context, BackendConfig.BackendSessionAffinityOptions options, string unencryptedKey)
         {
-            var cookieName = GetSettingValue(CustomHeaderNameKey, options);
-            // TBD. The affinity key must be encrypted.
-            context.Response.Cookies.Append(cookieName, encryptedKey);
+            var customHeaderName = GetSettingValue(CustomHeaderNameKey, options);
+            context.Response.Headers.Append(customHeaderName, DataProtector.Protect(unencryptedKey));
         }
     }
 }

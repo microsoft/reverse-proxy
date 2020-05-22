@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.ReverseProxy.Abstractions.Telemetry;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.SessionAffinity;
 
@@ -18,12 +19,18 @@ namespace Microsoft.ReverseProxy.Middleware
     {
         private readonly RequestDelegate _next;
         private readonly IDictionary<string, ISessionAffinityProvider> _sessionAffinityProviders = new Dictionary<string, ISessionAffinityProvider>();
+        private readonly IOperationLogger<AffinitizedDestinationLookupMiddleware> _operationLogger;
         private readonly ILogger _logger;
 
-        public AffinitizedDestinationLookupMiddleware(RequestDelegate next, IEnumerable<ISessionAffinityProvider> sessionAffinityProviders, ILogger<AffinitizedDestinationLookupMiddleware> logger)
+        public AffinitizedDestinationLookupMiddleware(
+            RequestDelegate next,
+            IEnumerable<ISessionAffinityProvider> sessionAffinityProviders,
+            IOperationLogger<AffinitizedDestinationLookupMiddleware> operationLogger,
+            ILogger<AffinitizedDestinationLookupMiddleware> logger)
         {
             _next = next ?? throw new ArgumentNullException(nameof(next));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _operationLogger = operationLogger ?? throw new ArgumentNullException(nameof(logger));
             _sessionAffinityProviders = sessionAffinityProviders.ToProviderDictionary();
         }
 
@@ -34,16 +41,19 @@ namespace Microsoft.ReverseProxy.Middleware
             var destinations = destinationsFeature.Destinations;
 
             var options = backend.Config.Value?.SessionAffinityOptions
-                ?? new BackendConfig.BackendSessionAffinityOptions(false, default, default);
+                ?? new BackendConfig.BackendSessionAffinityOptions(false, default, default, default);
 
             if (options.Enabled)
             {
-                var currentProvider = _sessionAffinityProviders.GetRequiredProvider(options.Mode);
-                if (currentProvider.TryFindAffinitizedDestinations(context, destinations, options, out var affinityResult))
+                var affinitizedDestinations = _operationLogger.Execute(
+                    "ReverseProxy.FindAffinitizedDestinations",
+                    () => FindAffinitizedDestinations(context, destinations, options));
+                if (affinitizedDestinations.DestinationsFound)
                 {
-                    if (affinityResult.Destinations.Count > 0)
+                    if (affinitizedDestinations.Result.Destinations.Count > 0)
                     {
-                        destinations = affinityResult.Destinations;
+                        destinations = affinitizedDestinations.Result.Destinations;
+                        destinationsFeature.Destinations = destinations;
                     }
                     else
                     {
@@ -55,6 +65,13 @@ namespace Microsoft.ReverseProxy.Middleware
             }
 
             return _next(context);
+        }
+
+        private (bool DestinationsFound, AffinityResult Result) FindAffinitizedDestinations(HttpContext context, IReadOnlyList<DestinationInfo> destinations, BackendConfig.BackendSessionAffinityOptions options)
+        {
+            var currentProvider = _sessionAffinityProviders.GetRequiredServiceById(options.Mode);
+            var destinationsFound = currentProvider.TryFindAffinitizedDestinations(context, destinations, options, out var affinityResult);
+            return (destinationsFound, affinityResult);
         }
 
         private static class Log

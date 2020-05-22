@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.ReverseProxy.RuntimeModel;
 
@@ -11,6 +12,14 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
     internal abstract class BaseSessionAffinityProvider<T> : ISessionAffinityProvider
     {
         protected static readonly object AffinityKeyId = new object();
+        protected readonly IDataProtector DataProtector;
+        protected readonly IDictionary<string, IMissingDestinationHandler> MissingDestinationHandlers;
+
+        protected BaseSessionAffinityProvider(IDataProtectionProvider dataProtectionProvider, IEnumerable<IMissingDestinationHandler> missingDestinationHandlers)
+        {
+            DataProtector = dataProtectionProvider?.CreateProtector(GetType().FullName) ?? throw new ArgumentNullException(nameof(dataProtectionProvider));
+            MissingDestinationHandlers = missingDestinationHandlers?.ToHandlerDictionary() ?? throw new ArgumentNullException(nameof(missingDestinationHandlers));
+        }
 
         public abstract string Mode { get; }
 
@@ -26,8 +35,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
                 affinityKey = GetDestinationAffinityKey(destination);
             }
 
-            var encryptedKey = (string)affinityKey; // TBD. The affinity key must be encrypted.
-            SetEncryptedAffinityKey(context, options, encryptedKey);
+            SetAffinityKey(context, options, (T)affinityKey);
         }
 
         public virtual bool TryFindAffinitizedDestinations(HttpContext context, IReadOnlyList<DestinationInfo> destinations, BackendConfig.BackendSessionAffinityOptions options, out AffinityResult affinityResult)
@@ -40,7 +48,6 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
 
             var requestAffinityKey = GetRequestAffinityKey(context, options);
 
-            // TBD. Support different failure modes
             if (requestAffinityKey == null)
             {
                 affinityResult = default;
@@ -59,13 +66,23 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
                 }
             }
 
-            affinityResult = new AffinityResult(matchingDestinations);
+            if (matchingDestinations.Count == 0)
+            {
+                var failureHandler = MissingDestinationHandlers[options.MissingDestinationHandler];
+                var newAffinitizedDestinations = failureHandler.Handle(context, options, requestAffinityKey, destinations);
+                affinityResult = new AffinityResult(newAffinitizedDestinations);
+            }
+            else
+            {
+                affinityResult = new AffinityResult(matchingDestinations);
+            }
+
             return true;
         }
 
         protected virtual string GetSettingValue(string key, BackendConfig.BackendSessionAffinityOptions options)
         {
-            if (options.Settings.TryGetValue(key, out var value))
+            if (options.Settings == null || !options.Settings.TryGetValue(key, out var value))
             {
                 throw new ArgumentException(nameof(options), $"{nameof(CookieSessionAffinityProvider)} couldn't find the required parameter {key} in session affinity settings.");
             }
@@ -77,6 +94,6 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
 
         protected abstract T GetRequestAffinityKey(HttpContext context, BackendConfig.BackendSessionAffinityOptions options);
 
-        protected abstract void SetEncryptedAffinityKey(HttpContext context, BackendConfig.BackendSessionAffinityOptions options, string encryptedKey);
+        protected abstract void SetAffinityKey(HttpContext context, BackendConfig.BackendSessionAffinityOptions options, T unencryptedKey);
     }
 }

@@ -97,16 +97,19 @@ namespace Microsoft.ReverseProxy.RuntimeModel
 
         internal readonly struct BackendSessionAffinityOptions
         {
-            public BackendSessionAffinityOptions(bool enabled, string mode, IDictionary<string, string> settings)
+            public BackendSessionAffinityOptions(bool enabled, string mode, string missingDestinationHandler, IReadOnlyDictionary<string, string> settings)
             {
                 Mode = mode;
-                Settings = (IReadOnlyDictionary<string, string>) settings; // Assume that actual dictionary type always implements IReadOnlyDictionary
+                MissingDestinationHandler = missingDestinationHandler;
+                Settings = settings;
                 Enabled = enabled;
             }
 
             public bool Enabled { get; }
 
             public string Mode { get; }
+
+            public string MissingDestinationHandler { get; }
 
             public IReadOnlyDictionary<string, string> Settings { get;  }
         }

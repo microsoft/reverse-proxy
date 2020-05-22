@@ -19,9 +19,10 @@ namespace Microsoft.AspNetCore.Builder
         }
 
         /// <summary>
-        /// Looks up one or multiple destinations affinitized to the request by an affinity key.
-        /// It only find affinitized destinations, but do not actually routes request to any of them.
-        /// Instead destinations are passed further to pipeline for load balancing or other processing steps.
+        /// Checks if a request has an established affinity relationship and if the associated destination is available.
+        /// This should be placed before load balancing and other destination selection components.
+        /// Requests without an affinity relationship will be a processed normally and have the affinity relationship
+        /// established by a later component. See <see cref="UseRequestAffinitizer"/>.
         /// </summary>
         public static IApplicationBuilder UseAffinitizedDestinationLookup(this IApplicationBuilder builder)
         {
@@ -29,10 +30,11 @@ namespace Microsoft.AspNetCore.Builder
         }
 
         /// <summary>
-        /// Routes the request to an affinitized destination looked up on previous steps.
+        /// Establishes the affinity relationship to the selected destination.
         /// If there are multiple affinitized destinations found for the request, it randomly picks one of them.
+        /// This should be placed after load balancing and other destination selection processes.
         /// </summary>
-        public static IApplicationBuilder UseRequestAffinity(this IApplicationBuilder builder)
+        public static IApplicationBuilder UseRequestAffinitizer(this IApplicationBuilder builder)
         {
             return builder.UseMiddleware<AffinitizeRequestMiddleware>();
         }

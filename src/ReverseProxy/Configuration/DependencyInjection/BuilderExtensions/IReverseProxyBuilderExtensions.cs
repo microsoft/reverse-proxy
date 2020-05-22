@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.ReverseProxy.Abstractions;
@@ -90,10 +91,26 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
         public static IReverseProxyBuilder AddSessionAffinityProvider(this IReverseProxyBuilder builder)
         {
             builder.Services.TryAddEnumerable(new[] {
+                new ServiceDescriptor(typeof(IMissingDestinationHandler), typeof(PickRandomMissingDestinationHandler), ServiceLifetime.Singleton),
+                new ServiceDescriptor(typeof(IMissingDestinationHandler), typeof(ReturnErrorMissingDestinationHandler), ServiceLifetime.Singleton)
+            });
+            builder.Services.TryAddEnumerable(new[] {
                 new ServiceDescriptor(typeof(ISessionAffinityProvider), typeof(CookieSessionAffinityProvider), ServiceLifetime.Singleton),
                 new ServiceDescriptor(typeof(ISessionAffinityProvider), typeof(CustomHeaderSessionAffinityProvider), ServiceLifetime.Singleton)
             });
 
+            return builder;
+        }
+
+        public static IReverseProxyBuilder AddDataProtection(this IReverseProxyBuilder builder)
+        {
+            builder.Services.AddDataProtection();
+            return builder;
+        }
+
+        public static IReverseProxyBuilder AddDataProtection(this IReverseProxyBuilder builder, Action<DataProtectionOptions> setupAction)
+        {
+            builder.Services.AddDataProtection(setupAction);
             return builder;
         }
     }

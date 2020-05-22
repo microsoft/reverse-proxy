@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.ReverseProxy.Abstractions.Telemetry;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.SessionAffinity;
 
@@ -19,13 +20,19 @@ namespace Microsoft.ReverseProxy.Middleware
         private readonly Random _random = new Random();
         private readonly RequestDelegate _next;
         private readonly IDictionary<string, ISessionAffinityProvider> _sessionAffinityProviders;
+        private readonly IOperationLogger<AffinitizeRequestMiddleware> _operationLogger;
         private readonly ILogger _logger;
 
-        public AffinitizeRequestMiddleware(RequestDelegate next, IEnumerable<ISessionAffinityProvider> sessionAffinityProviders, ILogger<AffinitizeRequestMiddleware> logger)
+        public AffinitizeRequestMiddleware(
+            RequestDelegate next,
+            IEnumerable<ISessionAffinityProvider> sessionAffinityProviders,
+            IOperationLogger<AffinitizeRequestMiddleware> operationLogger,
+            ILogger<AffinitizeRequestMiddleware> logger)
         {
             _next = next ?? throw new ArgumentNullException(nameof(next));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _sessionAffinityProviders = sessionAffinityProviders.ToProviderDictionary();
+            _operationLogger = operationLogger ?? throw new ArgumentNullException(nameof(operationLogger));
         }
 
         public Task Invoke(HttpContext context)
@@ -36,25 +43,25 @@ namespace Microsoft.ReverseProxy.Middleware
             if (options.Enabled)
             {
                 var destinationsFeature = context.GetRequiredDestinationFeature();
-
-                if (destinationsFeature.Destinations.Count > 1)
-                {
-                    Log.AttemptToAffinitizeMultipleDestinations(_logger, backend.BackendId);
-                }
-
-                var destinations = destinationsFeature.Destinations;
-                var destination = destinations[0];
-                if (destinations.Count > 1)
-                {
-                    Log.AttemptToAffinitizeMultipleDestinations(_logger, backend.BackendId);
-                    destination = destinations[_random.Next(destinations.Count)]; // It's assumed that all of them match to the request's affinity key.
-                }
-
-                var currentProvider = _sessionAffinityProviders.GetRequiredProvider(options.Mode);
-                currentProvider.AffinitizeRequest(context, options, destination);
+                var destination = _operationLogger.Execute("ReverseProxy.AffinitizeRequest", () => AffinitizeRequest(context, backend, options, destinationsFeature.Destinations));
+                destinationsFeature.Destinations = new[] { destination };
             }
 
             return _next(context);
+        }
+
+        private DestinationInfo AffinitizeRequest(HttpContext context, BackendInfo backend, BackendConfig.BackendSessionAffinityOptions options, IReadOnlyList<DestinationInfo> destinations)
+        {
+            var destination = destinations[0];
+            if (destinations.Count > 1)
+            {
+                Log.AttemptToAffinitizeMultipleDestinations(_logger, backend.BackendId);
+                destination = destinations[_random.Next(destinations.Count)]; // It's assumed that all of them match to the request's affinity key.
+            }
+
+            var currentProvider = _sessionAffinityProviders.GetRequiredServiceById(options.Mode);
+            currentProvider.AffinitizeRequest(context, options, destination);
+            return destination;
         }
 
         private static class Log
@@ -62,7 +69,7 @@ namespace Microsoft.ReverseProxy.Middleware
             private static readonly Action<ILogger, string, Exception> _attemptToAffinitizeMultipleDestinations = LoggerMessage.Define<string>(
                 LogLevel.Warning,
                 EventIds.AttemptToAffinitizeMultipleDestinations,
-                "Attempt to affinitize multiple destinations to the same request on backend `{backendId}`. The first destination will be used.");
+                "The request still has multiple destinations on the backend {backendId} to choose from when establishing affinity, load balancing may not be properly configured. A random destination will be used.");
 
             public static void AttemptToAffinitizeMultipleDestinations(ILogger logger, string backendId)
             {

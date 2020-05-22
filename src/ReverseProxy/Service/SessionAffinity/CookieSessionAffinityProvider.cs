@@ -3,9 +3,11 @@
 
 using System;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Options;
 using Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract;
 using Microsoft.ReverseProxy.RuntimeModel;
+using System.Collections.Generic;
 
 namespace Microsoft.ReverseProxy.Service.SessionAffinity
 {
@@ -13,14 +15,16 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
     {
         private readonly CookieSessionAffinityProviderOptions _providerOptions;
 
-        public CookieSessionAffinityProvider(IOptions<CookieSessionAffinityProviderOptions> providerOptions)
+        public CookieSessionAffinityProvider(
+            IOptions<CookieSessionAffinityProviderOptions> providerOptions,
+            IDataProtectionProvider dataProtectionProvider,
+            IEnumerable<IMissingDestinationHandler> missingDestinationHandlers)
+            : base(dataProtectionProvider, missingDestinationHandlers)
         {
             _providerOptions = providerOptions?.Value ?? throw new ArgumentNullException(nameof(providerOptions));
         }
 
         public override string Mode => "Cookie";
-
-        //TBD. Add logging.
 
         protected override string GetDestinationAffinityKey(DestinationInfo destination)
         {
@@ -29,14 +33,14 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
 
         protected override string GetRequestAffinityKey(HttpContext context, BackendConfig.BackendSessionAffinityOptions options)
         {
-            return context.Request.Cookies.TryGetValue(_providerOptions.Cookie.Name, out var keyInCookie) ? keyInCookie : null;
+            var encryptedRequestKey = context.Request.Cookies.TryGetValue(_providerOptions.Cookie.Name, out var keyInCookie) ? keyInCookie : null;
+            return encryptedRequestKey != null ? DataProtector.Unprotect(encryptedRequestKey) : null;
         }
 
-        protected override void SetEncryptedAffinityKey(HttpContext context, BackendConfig.BackendSessionAffinityOptions options, string encryptedKey)
+        protected override void SetAffinityKey(HttpContext context, BackendConfig.BackendSessionAffinityOptions options, string unencryptedKey)
         {
             var affinityCookieOptions = _providerOptions.Cookie.Build(context);
-            // TBD. The affinity key must be encrypted.
-            context.Response.Cookies.Append(_providerOptions.Cookie.Name, encryptedKey, affinityCookieOptions);
+            context.Response.Cookies.Append(_providerOptions.Cookie.Name, DataProtector.Protect(unencryptedKey), affinityCookieOptions);
         }
     }
 }
