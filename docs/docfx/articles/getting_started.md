@@ -17,7 +17,7 @@ Start by creating an "Empty" ASP.NET Core application using the command line:
 dotnet new web -n MyProxy 
 ```
 
-use `-f` to specify `netcoreapp3.1` or `netcoreapp5.0`.
+use `-f` to specify `netcoreapp3.1` or `net5.0`.
 
 Or create a new ASP.NET Core web application in Visual Studio, and choose "Empty" for the project template. 
 
@@ -27,7 +27,7 @@ Open the Project and make sure it includes the appropriate target framework:
  
  ```
 <PropertyGroup>
-  <TargetFramework>netcoreapp5.0</TargetFramework>
+  <TargetFramework>net5.0</TargetFramework>
 </PropertyGroup> 
 ```
 
