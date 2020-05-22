@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -21,7 +20,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         /// to avoid leaking long running requests.</param>
         Task ProxyAsync(
             HttpContext context,
-            Uri targetUri,
+            string destinationPrefix,
             IProxyHttpClientFactory httpClientFactory,
             ProxyTelemetryContext proxyTelemetryContext,
             CancellationToken shortCancellation,

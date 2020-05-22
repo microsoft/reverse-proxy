@@ -41,7 +41,8 @@ namespace Microsoft.ReverseProxy.Service
                 matcherSummary: source.GetMatcherSummary(),
                 priority: source.Priority,
                 backendOrNull: backendOrNull,
-                aspNetCoreEndpoints: aspNetCoreEndpoints.AsReadOnly());
+                aspNetCoreEndpoints: aspNetCoreEndpoints.AsReadOnly(),
+                requestParamterTransforms: null);
 
             // TODO: Handle arbitrary AST's properly
             // Catch-all pattern when no path was specified

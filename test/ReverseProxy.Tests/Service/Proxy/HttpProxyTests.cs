@@ -53,7 +53,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var proxyResponseStream = new MemoryStream();
             httpContext.Response.Body = proxyResponseStream;
 
-            var targetUri = new Uri("https://localhost:123/a/b/api/test");
+            var destinationPrefix = "https://localhost:123/a/b/";
+            var targetUri = "https://localhost:123/a/b/api/test?a=b&c=d";
             var sut = Create<HttpProxy>();
             var client = MockHttpHandler.CreateClient(
                 async (HttpRequestMessage request, CancellationToken cancellationToken) =>
@@ -62,7 +63,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
                     Assert.Equal(new Version(2, 0), request.Version);
                     Assert.Equal(HttpMethod.Post, request.Method);
-                    Assert.Equal(targetUri, request.RequestUri);
+                    Assert.Equal(targetUri, request.RequestUri.AbsoluteUri);
                     Assert.Contains("request", request.Headers.GetValues("x-ms-request-test"));
                     Assert.Null(request.Headers.Host);
                     Assert.False(request.Headers.TryGetValues(":authority", out var value));
@@ -97,7 +98,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 destinationId: "d1");
 
             // Act
-            await sut.ProxyAsync(httpContext, targetUri, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+            await sut.ProxyAsync(httpContext, destinationPrefix, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
 
             // Assert
             Assert.Equal(234, httpContext.Response.StatusCode);
@@ -130,7 +131,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var proxyResponseStream = new MemoryStream();
             httpContext.Response.Body = proxyResponseStream;
 
-            var targetUri = new Uri("https://localhost:123/a/b/api/test");
+            var destinationPrefix = "https://localhost:123/a/b/";
+            var targetUri = "https://localhost:123/a/b/api/test?a=b&c=d";
             var sut = Create<HttpProxy>();
             var client = MockHttpHandler.CreateClient(
                 async (HttpRequestMessage request, CancellationToken cancellationToken) =>
@@ -139,7 +141,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
                     Assert.Equal(new Version(2, 0), request.Version);
                     Assert.Equal(HttpMethod.Get, request.Method);
-                    Assert.Equal(targetUri, request.RequestUri);
+                    Assert.Equal(targetUri, request.RequestUri.AbsoluteUri);
                     Assert.Equal(new[] { "::1", "127.0.0.1" }, request.Headers.GetValues("x-forwarded-for"));
                     Assert.Equal(new[] { "https", "http" }, request.Headers.GetValues("x-forwarded-proto"));
                     Assert.Equal(new[] { "some.other.host:4567", "example.com:3456" }, request.Headers.GetValues("x-forwarded-host"));
@@ -161,7 +163,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 destinationId: "d1");
 
             // Act
-            await sut.ProxyAsync(httpContext, targetUri, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+            await sut.ProxyAsync(httpContext, destinationPrefix, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
 
             // Assert
             Assert.Equal(234, httpContext.Response.StatusCode);
@@ -192,7 +194,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             upgradeFeatureMock.Setup(u => u.UpgradeAsync()).ReturnsAsync(downstreamStream);
             httpContext.Features.Set(upgradeFeatureMock.Object);
 
-            var targetUri = new Uri("https://localhost:123/a/b/api/test?a=b&c=d");
+            var destinationPrefix = "https://localhost:123/a/b/";
+            var targetUri = "https://localhost:123/a/b/api/test?a=b&c=d";
             var sut = Create<HttpProxy>();
             var client = MockHttpHandler.CreateClient(
                 async (HttpRequestMessage request, CancellationToken cancellationToken) =>
@@ -201,7 +204,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
                     Assert.Equal(new Version(1, 1), request.Version);
                     Assert.Equal(HttpMethod.Get, request.Method);
-                    Assert.Equal(targetUri, request.RequestUri);
+                    Assert.Equal(targetUri, request.RequestUri.AbsoluteUri);
                     Assert.Contains("request", request.Headers.GetValues("x-ms-request-test"));
                     Assert.Null(request.Headers.Host);
                     Assert.False(request.Headers.TryGetValues(":authority", out var value));
@@ -228,7 +231,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 destinationId: "d1");
 
             // Act
-            await sut.ProxyAsync(httpContext, targetUri, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+            await sut.ProxyAsync(httpContext, destinationPrefix, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
 
             // Assert
             Assert.Equal(StatusCodes.Status101SwitchingProtocols, httpContext.Response.StatusCode);
@@ -266,7 +269,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             upgradeFeatureMock.SetupGet(u => u.IsUpgradableRequest).Returns(true);
             httpContext.Features.Set(upgradeFeatureMock.Object);
 
-            var targetUri = new Uri("https://localhost:123/a/b/api/test?a=b&c=d");
+            var destinationPrefix = "https://localhost:123/a/b/";
+            var targetUri = "https://localhost:123/a/b/api/test?a=b&c=d";
             var sut = Create<HttpProxy>();
             var client = MockHttpHandler.CreateClient(
                 async (HttpRequestMessage request, CancellationToken cancellationToken) =>
@@ -275,7 +279,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
                     Assert.Equal(new Version(1, 1), request.Version);
                     Assert.Equal(HttpMethod.Get, request.Method);
-                    Assert.Equal(targetUri, request.RequestUri);
+                    Assert.Equal(targetUri, request.RequestUri.AbsoluteUri);
                     Assert.Contains("request", request.Headers.GetValues("x-ms-request-test"));
 
                     Assert.Null(request.Content);
@@ -296,7 +300,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 destinationId: "d1");
 
             // Act
-            await sut.ProxyAsync(httpContext, targetUri, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+            await sut.ProxyAsync(httpContext, destinationPrefix, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
 
             // Assert
             Assert.Equal(234, httpContext.Response.StatusCode);

@@ -3,7 +3,7 @@
 
 using Microsoft.AspNetCore.Http;
 
-namespace ReverseProxy.Core.Service.RuntimeModel.Transforms
+namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
     public class RequestParametersTransformContext
     {

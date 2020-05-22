@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace ReverseProxy.Core.Service.RuntimeModel.Transforms
+namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
     public abstract class RequestParametersTransform
     {

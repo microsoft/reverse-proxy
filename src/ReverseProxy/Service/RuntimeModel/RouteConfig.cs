@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Microsoft.ReverseProxy.ConfigModel;
+using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.RuntimeModel
@@ -24,7 +25,8 @@ namespace Microsoft.ReverseProxy.RuntimeModel
             string matcherSummary,
             int? priority,
             BackendInfo backendOrNull,
-            IReadOnlyList<AspNetCore.Http.Endpoint> aspNetCoreEndpoints)
+            IReadOnlyList<AspNetCore.Http.Endpoint> aspNetCoreEndpoints,
+            IReadOnlyList<RequestParametersTransform> requestParamterTransforms)
         {
             Contracts.CheckValue(route, nameof(route));
             Contracts.CheckValue(aspNetCoreEndpoints, nameof(aspNetCoreEndpoints));
@@ -34,6 +36,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
             Priority = priority;
             BackendOrNull = backendOrNull;
             Endpoints = aspNetCoreEndpoints;
+            RequestParamterTransforms = requestParamterTransforms;
         }
 
         public RouteInfo Route { get; }
@@ -45,6 +48,8 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         public BackendInfo BackendOrNull { get; }
 
         public IReadOnlyList<AspNetCore.Http.Endpoint> Endpoints { get; }
+
+        public IReadOnlyList<RequestParametersTransform> RequestParamterTransforms { get; }
 
         public bool HasConfigChanged(ParsedRoute newConfig, BackendInfo backendOrNull)
         {

@@ -9,9 +9,11 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Server.Kestrel.Core.Features;
@@ -83,15 +85,20 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         /// to avoid leaking long running requests.</param>
         public Task ProxyAsync(
             HttpContext context,
-            Uri targetUri,
+            string destinationPrefix,
             IProxyHttpClientFactory httpClientFactory,
             ProxyTelemetryContext proxyTelemetryContext,
             CancellationToken shortCancellation,
             CancellationToken longCancellation)
         {
             Contracts.CheckValue(context, nameof(context));
-            Contracts.CheckValue(targetUri, nameof(targetUri));
+            Contracts.CheckValue(destinationPrefix, nameof(destinationPrefix));
             Contracts.CheckValue(httpClientFactory, nameof(httpClientFactory));
+
+            // TODO: support StripPrefix and other url transformations
+            var targetUrl = BuildOutgoingUrl(context, destinationPrefix);
+            Log.Proxying(_logger, targetUrl);
+            var targetUri = new Uri(targetUrl, UriKind.Absolute);
 
             var upgradeFeature = context.Features.Get<IHttpUpgradeFeature>();
             if (upgradeFeature == null || !upgradeFeature.IsUpgradableRequest)
@@ -341,6 +348,21 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             await Task.WhenAll(upstreamTask, downstreamTask);
         }
 
+        private string BuildOutgoingUrl(HttpContext context, string destinationAddress)
+        {
+            // "http://a".Length = 8
+            if (destinationAddress == null || destinationAddress.Length < 8)
+            {
+                throw new ArgumentException(nameof(destinationAddress));
+            }
+
+            UriHelper.FromAbsolute(destinationAddress, out var scheme, out var host, out var path, out _, out _); // Query and Fragment are not supported here.
+
+            // TODO: Transform
+            var request = context.Request;
+            return UriHelper.BuildAbsolute(scheme, host, path, request.Path, request.QueryString);
+        }
+
         private StreamCopyHttpContent SetupCopyBodyUpstream(Stream source, HttpRequestMessage upstreamRequest, in ProxyTelemetryContext proxyTelemetryContext, bool isStreamingRequest, CancellationToken cancellation)
         {
             StreamCopyHttpContent contentToUpstream = null;
@@ -531,9 +553,19 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 EventIds.HttpDowngradeDeteced,
                 "Health check has gracefully shut down.");
 
+            private static readonly Action<ILogger, string, Exception> _proxying = LoggerMessage.Define<string>(
+                LogLevel.Information,
+                EventIds.Proxying,
+                "Proxying to {targetUrl}");
+
             public static void HttpDowngradeDeteced(ILogger logger)
             {
                 _httpDowngradeDeteced(logger, null);
+            }
+
+            public static void Proxying(ILogger logger, string targetUrl)
+            {
+                _proxying(logger, targetUrl, null);
             }
         }
     }
