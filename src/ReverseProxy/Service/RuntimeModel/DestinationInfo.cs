@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using Microsoft.ReverseProxy.Signals;
 using Microsoft.ReverseProxy.Utilities;
@@ -17,10 +19,8 @@ namespace Microsoft.ReverseProxy.RuntimeModel
     /// relevant to this endpoint.
     /// All members are thread safe.
     /// </remarks>
-    public sealed class DestinationInfo
+    public sealed class DestinationInfo : IReadOnlyList<DestinationInfo>
     {
-        private IReadOnlyList<DestinationInfo> _collection;
-
         public DestinationInfo(string destinationId)
         {
             Contracts.CheckNonEmpty(destinationId, nameof(destinationId));
@@ -46,16 +46,66 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         /// </summary>
         public AtomicCounter ConcurrencyCounter { get; } = new AtomicCounter();
 
-        internal IReadOnlyList<DestinationInfo> Collection
+        DestinationInfo IReadOnlyList<DestinationInfo>.this[int index]
         {
             get
             {
-                if (_collection == null)
+                if (index == 0)
                 {
-                    _collection = new[] { this };
+                    return this;
                 }
-                return _collection;
+                else
+                {
+                    throw new IndexOutOfRangeException();
+                }
             }
-        } 
+        }
+
+        int IReadOnlyCollection<DestinationInfo>.Count => 1;
+
+        IEnumerator<DestinationInfo> IEnumerable<DestinationInfo>.GetEnumerator()
+        {
+            return new Enumerator(this);
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return new Enumerator(this);
+        }
+
+        public struct Enumerator : IEnumerator<DestinationInfo>
+        {
+            private bool _read;
+
+            public Enumerator(DestinationInfo destinationInfo)
+            {
+                Current = destinationInfo;
+                _read = false;
+            }
+
+            public DestinationInfo Current { get; }
+
+            object IEnumerator.Current => Current;
+
+            public bool MoveNext()
+            {
+                if (!_read)
+                {
+                    _read = true;
+                    return true;
+                }
+                return false;
+            }
+
+            public void Dispose()
+            {
+
+            }
+
+            public void Reset()
+            {
+
+            }
+        }
     }
 }
