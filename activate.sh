@@ -88,7 +88,7 @@ fi
 printf "${_MAGENTA}Enabled the .NET Core environment. Execute 'deactivate' to exit.${_RESET}\n"
 
 if [ ! -f "$DOTNET_ROOT/dotnet" ]; then
-    printf "${_YELLOW}.NET Core has not been installed yet. Run $DIR/restore.sh to install it.${_RESET}\n"
+    printf "${_YELLOW}.NET Core has not been installed yet. Run $DIR/Restore.sh to install it.${_RESET}\n"
 else
     printf "dotnet = $DOTNET_ROOT/dotnet\n"
 fi
