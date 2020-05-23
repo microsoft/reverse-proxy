@@ -47,19 +47,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         public AtomicCounter ConcurrencyCounter { get; } = new AtomicCounter();
 
         DestinationInfo IReadOnlyList<DestinationInfo>.this[int index]
-        {
-            get
-            {
-                if (index == 0)
-                {
-                    return this;
-                }
-                else
-                {
-                    throw new IndexOutOfRangeException();
-                }
-            }
-        }
+            => index == 0 ? this : throw new IndexOutOfRangeException();
 
         int IReadOnlyCollection<DestinationInfo>.Count => 1;
 
