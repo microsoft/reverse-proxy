@@ -33,7 +33,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel
         public void DestionationInfoReadOnlyList()
         {
             // Arrange
-            var destinationInfo = new DestinationInfo("destionation1");
+            var destinationInfo = new DestinationInfo("destionation2");
 
             // Act
             IReadOnlyList<DestinationInfo> list = destinationInfo;
