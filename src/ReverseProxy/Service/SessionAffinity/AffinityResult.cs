@@ -8,7 +8,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
 {
     public readonly struct AffinityResult
     {
-        public readonly IReadOnlyList<DestinationInfo> Destinations;
+        public IReadOnlyList<DestinationInfo> Destinations { get; }
 
         public AffinityResult(IReadOnlyList<DestinationInfo> destinations)
         {
