@@ -42,11 +42,11 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                     return endpoints[0];
                 case LoadBalancingMode.RoundRobin:
                     var offset = loadBalancingOptions.RoundRobinState.Increment();
-                    // Preventing negative indicies from being computed.
-                    // Masking instead of Math.Abs to preserve ordering of indices.
-                    // There may be a discontinuity when the sign of `offset` changes every 2B requests
-                    // but that should be acceptable.
-                    return endpoints[(offset & 0x7FFFFFFF) % endpoints.Count];
+                    // Preventing negative indicies from being computed by making offset unsigned.
+                    // Ordering of index selection is consistent across all offsets.
+                    // There will only be a discontinuity at Int32.MaxValue -> 0 and only
+                    // if 2^32 is not evenly divisible by endpoints.Count.
+                    return endpoints[(uint)offset % endpoints.Count];
                 case LoadBalancingMode.Random:
                     var random = _randomFactory.CreateRandomInstance();
                     return endpoints[random.Next(endpointCount)];
