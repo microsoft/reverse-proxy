@@ -17,6 +17,7 @@ using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
 using Moq;
 using Tests.Common;
 using Xunit;
+using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 
 namespace Microsoft.ReverseProxy.Middleware.Tests
 {
@@ -78,6 +79,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 .Setup(h => h.ProxyAsync(
                     httpContext,
                     It.Is<string>(uri => uri == "https://localhost:123/a/b/"),
+                    It.IsAny<IReadOnlyList<RequestParametersTransform>>(),
                     proxyHttpClientFactoryMock.Object,
                     It.Is<ProxyTelemetryContext>(ctx => ctx.BackendId == "backend1" && ctx.RouteId == "route1" && ctx.DestinationId == "destination1"),
                     It.IsAny<CancellationToken>(),

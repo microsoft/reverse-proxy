@@ -93,7 +93,7 @@ namespace Microsoft.ReverseProxy.Middleware
 
                     await _operationLogger.ExecuteAsync(
                         "ReverseProxy.Proxy",
-                        () => _httpProxy.ProxyAsync(context, destinationConfig.Address, backend.ProxyHttpClientFactory, proxyTelemetryContext, shortCancellation: shortCts.Token, longCancellation: longCancellation));
+                        () => _httpProxy.ProxyAsync(context, destinationConfig.Address, routeConfig.RequestParamterTransforms, backend.ProxyHttpClientFactory, proxyTelemetryContext, shortCancellation: shortCts.Token, longCancellation: longCancellation));
                 }
                 finally
                 {

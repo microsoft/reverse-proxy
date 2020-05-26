@@ -21,7 +21,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Microsoft.ReverseProxy.Service.Metrics;
 using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
-using Microsoft.ReverseProxy.Service.SessionAffinity;
+using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Service.Proxy
@@ -31,7 +31,15 @@ namespace Microsoft.ReverseProxy.Service.Proxy
     /// </summary>
     internal class HttpProxy : IHttpProxy
     {
-        internal static readonly Version Http2Version = new Version(2, 0);
+#if NETCOREAPP3_1
+        private static readonly Version Http2Version = new Version(2, 0);
+        private static readonly Version Http11Version = new Version(1, 1);
+#elif NETCOREAPP5_0
+        private static readonly Version Http2Version = HttpVersion.Version20;
+        private static readonly Version Http11Version = HttpVersion.Version11;
+#else
+#error A target framework was added to the project and needs to be added to this condition.
+#endif
 
         // TODO: Enumerate all headers to skip
         private static readonly HashSet<string> _headersToSkipGoingUpstream = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
@@ -86,6 +94,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         public Task ProxyAsync(
             HttpContext context,
             string destinationPrefix,
+            IReadOnlyList<RequestParametersTransform> requestTransforms,
             IProxyHttpClientFactory httpClientFactory,
             ProxyTelemetryContext proxyTelemetryContext,
             CancellationToken shortCancellation,
@@ -95,19 +104,16 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             Contracts.CheckValue(destinationPrefix, nameof(destinationPrefix));
             Contracts.CheckValue(httpClientFactory, nameof(httpClientFactory));
 
-            // TODO: support StripPrefix and other url transformations
-            var targetUrl = BuildOutgoingUrl(context, destinationPrefix);
-            Log.Proxying(_logger, targetUrl);
-            var targetUri = new Uri(targetUrl, UriKind.Absolute);
+            var request = CreateRequestMessage(context, destinationPrefix, requestTransforms);
 
             var upgradeFeature = context.Features.Get<IHttpUpgradeFeature>();
             if (upgradeFeature == null || !upgradeFeature.IsUpgradableRequest)
             {
-                return NormalProxyAsync(context, targetUri, httpClientFactory.CreateNormalClient(), proxyTelemetryContext, shortCancellation, longCancellation);
+                return NormalProxyAsync(context, request, httpClientFactory.CreateNormalClient(), proxyTelemetryContext, shortCancellation, longCancellation);
             }
             else
             {
-                return UpgradableProxyAsync(context, upgradeFeature, targetUri, httpClientFactory.CreateUpgradableClient(), proxyTelemetryContext, shortCancellation, longCancellation);
+                return UpgradableProxyAsync(context, upgradeFeature, request, httpClientFactory.CreateUpgradableClient(), proxyTelemetryContext, shortCancellation, longCancellation);
             }
         }
 
@@ -132,14 +138,14 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         /// </remarks>
         private async Task NormalProxyAsync(
             HttpContext context,
-            Uri targetUri,
+            HttpRequestMessage upstreamRequest,
             HttpMessageInvoker httpClient,
             ProxyTelemetryContext proxyTelemetryContext,
             CancellationToken shortCancellation,
             CancellationToken longCancellation)
         {
             Contracts.CheckValue(context, nameof(context));
-            Contracts.CheckValue(targetUri, nameof(targetUri));
+            Contracts.CheckValue(upstreamRequest, nameof(upstreamRequest));
             Contracts.CheckValue(httpClient, nameof(httpClient));
 
             // :::::::::::::::::::::::::::::::::::::::::::::
@@ -156,13 +162,10 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 1: Create outgoing HttpRequestMessage
-            var upstreamRequest = new HttpRequestMessage(HttpUtilities.GetHttpMethod(context.Request.Method), targetUri)
-            {
-                // We request HTTP/2, but HttpClient will fallback to HTTP/1.1 if it cannot establish HTTP/2 with the target.
-                // This is done without extra round-trips thanks to ALPN. We can detect a downgrade after calling HttpClient.SendAsync
-                // (see Step 3 below). TBD how this will change when HTTP/3 is supported.
-                Version = Http2Version,
-            };
+            // We request HTTP/2, but HttpClient will fallback to HTTP/1.1 if it cannot establish HTTP/2 with the target.
+            // This is done without extra round-trips thanks to ALPN. We can detect a downgrade after calling HttpClient.SendAsync
+            // (see Step 3 below). TBD how this will change when HTTP/3 is supported.
+            upstreamRequest.Version = Http2Version;
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 2: Setup copy of request body (background) Downstream --► Proxy --► Upstream
@@ -268,7 +271,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         private async Task UpgradableProxyAsync(
             HttpContext context,
             IHttpUpgradeFeature upgradeFeature,
-            Uri targetUri,
+            HttpRequestMessage upstreamRequest,
             HttpMessageInvoker httpClient,
             ProxyTelemetryContext proxyTelemetryContext,
             CancellationToken shortCancellation,
@@ -276,16 +279,13 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         {
             Contracts.CheckValue(context, nameof(context));
             Contracts.CheckValue(upgradeFeature, nameof(upgradeFeature));
-            Contracts.CheckValue(targetUri, nameof(targetUri));
+            Contracts.CheckValue(upstreamRequest, nameof(upstreamRequest));
             Contracts.CheckValue(httpClient, nameof(httpClient));
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 1: Create outgoing HttpRequestMessage
-            var upstreamRequest = new HttpRequestMessage(HttpUtilities.GetHttpMethod(context.Request.Method), targetUri)
-            {
-                // Default to HTTP/1.1 for proxying upgradable requests. This is already the default as of .NET Core 3.1
-                Version = new Version(1, 1),
-            };
+            // Default to HTTP/1.1 for proxying upgradable requests. This is already the default as of .NET Core 3.1
+            upstreamRequest.Version = Http11Version;
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 2: Copy request headers Downstream --► Proxy --► Upstream
@@ -348,7 +348,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             await Task.WhenAll(upstreamTask, downstreamTask);
         }
 
-        private string BuildOutgoingUrl(HttpContext context, string destinationAddress)
+        private HttpRequestMessage CreateRequestMessage(HttpContext context, string destinationAddress,
+            IReadOnlyList<RequestParametersTransform> requestTransforms)
         {
             // "http://a".Length = 8
             if (destinationAddress == null || destinationAddress.Length < 8)
@@ -356,11 +357,36 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 throw new ArgumentException(nameof(destinationAddress));
             }
 
-            UriHelper.FromAbsolute(destinationAddress, out var scheme, out var host, out var path, out _, out _); // Query and Fragment are not supported here.
+            UriHelper.FromAbsolute(destinationAddress, out var destinationScheme, out var destinationHost, out var destinationPathBase, out _, out _); // Query and Fragment are not supported here.
 
-            // TODO: Transform
             var request = context.Request;
-            return UriHelper.BuildAbsolute(scheme, host, path, request.Path, request.QueryString);
+            if (requestTransforms == null || requestTransforms.Count == 0)
+            {
+                // TODO: destination vs request PathBase policy?
+                var url = UriHelper.BuildAbsolute(destinationScheme, destinationHost, destinationPathBase, request.Path, request.QueryString);
+                Log.Proxying(_logger, url);
+                var uri = new Uri(url, UriKind.Absolute);
+                return new HttpRequestMessage(HttpUtilities.GetHttpMethod(context.Request.Method), uri);
+            }
+
+            var transformContext = new RequestParametersTransformContext()
+            {
+                HttpContext = context,
+                Method = request.Method,
+                PathBase = destinationPathBase,
+                Path = request.Path,
+                Query = request.QueryString,
+            };
+            foreach (var transform in requestTransforms)
+            {
+                transform.Run(transformContext);
+            }
+
+            // TODO: destination vs request PathBase policy?
+            var targetUrl = UriHelper.BuildAbsolute(destinationScheme, destinationHost, transformContext.PathBase, transformContext.Path, transformContext.Query);
+            Log.Proxying(_logger, targetUrl);
+            var targetUri = new Uri(targetUrl, UriKind.Absolute);
+            return new HttpRequestMessage(HttpUtilities.GetHttpMethod(transformContext.Method), targetUri);
         }
 
         private StreamCopyHttpContent SetupCopyBodyUpstream(Stream source, HttpRequestMessage upstreamRequest, in ProxyTelemetryContext proxyTelemetryContext, bool isStreamingRequest, CancellationToken cancellation)
