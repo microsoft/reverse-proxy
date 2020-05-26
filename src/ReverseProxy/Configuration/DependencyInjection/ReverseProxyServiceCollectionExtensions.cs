@@ -29,7 +29,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddRuntimeStateManagers()
                 .AddConfigManager()
                 .AddDynamicEndpointDataSource()
-                .AddDataProtection()
                 .AddSessionAffinityProvider()
                 .AddProxy()
                 .AddBackgroundWorkers();

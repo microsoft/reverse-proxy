@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Microsoft.ReverseProxy.RuntimeModel;
 
@@ -13,8 +14,11 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
     {
         private const string CustomHeaderNameKey = "CustomHeaderName";
 
-        public CustomHeaderSessionAffinityProvider(IDataProtectionProvider dataProtectionProvider, IEnumerable<IMissingDestinationHandler> missingDestinationHandlers)
-            : base(dataProtectionProvider, missingDestinationHandlers)
+        public CustomHeaderSessionAffinityProvider(
+            IDataProtectionProvider dataProtectionProvider,
+            IEnumerable<IMissingDestinationHandler> missingDestinationHandlers,
+            ILogger<CustomHeaderSessionAffinityProvider> logger)
+            : base(dataProtectionProvider, missingDestinationHandlers, logger)
         {}
 
         public override string Mode => "CustomHeader";

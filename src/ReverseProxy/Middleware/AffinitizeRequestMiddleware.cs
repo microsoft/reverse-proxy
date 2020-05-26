@@ -43,37 +43,55 @@ namespace Microsoft.ReverseProxy.Middleware
             if (options.Enabled)
             {
                 var destinationsFeature = context.GetRequiredDestinationFeature();
-                var destination = _operationLogger.Execute("ReverseProxy.AffinitizeRequest", () => AffinitizeRequest(context, backend, options, destinationsFeature.Destinations));
-                destinationsFeature.Destinations = new[] { destination };
+                var candidateDestinations = destinationsFeature.Destinations;
+                if (candidateDestinations.Count == 0)
+                {
+                    Log.NoDestinationOnBackendToEstablishRequestAffinity(_logger, backend.BackendId);
+                    context.Response.StatusCode = 503;
+                    return Task.CompletedTask;
+                }
+                var destinations = _operationLogger.Execute("ReverseProxy.AffinitizeRequest", () => AffinitizeRequest(context, backend, options, candidateDestinations));
+                destinationsFeature.Destinations = destinations;
             }
 
             return _next(context);
         }
 
-        private DestinationInfo AffinitizeRequest(HttpContext context, BackendInfo backend, BackendConfig.BackendSessionAffinityOptions options, IReadOnlyList<DestinationInfo> destinations)
+        private IReadOnlyList<DestinationInfo> AffinitizeRequest(HttpContext context, BackendInfo backend, BackendConfig.BackendSessionAffinityOptions options, IReadOnlyList<DestinationInfo> destinations)
         {
-            var destination = destinations[0];
-            if (destinations.Count > 1)
+            var result = destinations;
+            if (result.Count > 1)
             {
-                Log.AttemptToAffinitizeMultipleDestinations(_logger, backend.BackendId);
-                destination = destinations[_random.Next(destinations.Count)]; // It's assumed that all of them match to the request's affinity key.
+                Log.MultipleDestinationsOnBackendToEstablishRequestAffinity(_logger, backend.BackendId);
+                var singleDestination = destinations[_random.Next(destinations.Count)]; // It's assumed that all of them match to the request's affinity key.
+                result = new[] { singleDestination };
             }
 
             var currentProvider = _sessionAffinityProviders.GetRequiredServiceById(options.Mode);
-            currentProvider.AffinitizeRequest(context, options, destination);
-            return destination;
+            currentProvider.AffinitizeRequest(context, options, result[0]);
+            return result;
         }
 
         private static class Log
         {
-            private static readonly Action<ILogger, string, Exception> _attemptToAffinitizeMultipleDestinations = LoggerMessage.Define<string>(
+            private static readonly Action<ILogger, string, Exception> _multipleDestinationsOnBackendToEstablishRequestAffinity = LoggerMessage.Define<string>(
                 LogLevel.Warning,
-                EventIds.AttemptToAffinitizeMultipleDestinations,
-                "The request still has multiple destinations on the backend {backendId} to choose from when establishing affinity, load balancing may not be properly configured. A random destination will be used.");
+                EventIds.MultipleDestinationsOnBackendToEstablishRequestAffinity,
+                "The request still has multiple destinations on the backend `{backendId}` to choose from when establishing affinity, load balancing may not be properly configured. A random destination will be used.");
 
-            public static void AttemptToAffinitizeMultipleDestinations(ILogger logger, string backendId)
+            private static readonly Action<ILogger, string, Exception> _noDestinationOnBackendToEstablishRequestAffinity = LoggerMessage.Define<string>(
+                LogLevel.Error,
+                EventIds.NoDestinationOnBackendToEstablishRequestAffinity,
+                "The request doesn't have any destinations on the backend `{backendId}` to choose from when establishing affinity, load balancing may not be properly configured.");
+
+            public static void MultipleDestinationsOnBackendToEstablishRequestAffinity(ILogger logger, string backendId)
             {
-                _attemptToAffinitizeMultipleDestinations(logger, backendId, null);
+                _multipleDestinationsOnBackendToEstablishRequestAffinity(logger, backendId, null);
+            }
+
+            public static void NoDestinationOnBackendToEstablishRequestAffinity(ILogger logger, string backendId)
+            {
+                _noDestinationOnBackendToEstablishRequestAffinity(logger, backendId, null);
             }
         }
     }

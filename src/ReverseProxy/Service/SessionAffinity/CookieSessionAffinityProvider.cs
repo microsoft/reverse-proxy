@@ -8,6 +8,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract;
 using Microsoft.ReverseProxy.RuntimeModel;
 using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.ReverseProxy.Service.SessionAffinity
 {
@@ -18,8 +19,9 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
         public CookieSessionAffinityProvider(
             IOptions<CookieSessionAffinityProviderOptions> providerOptions,
             IDataProtectionProvider dataProtectionProvider,
-            IEnumerable<IMissingDestinationHandler> missingDestinationHandlers)
-            : base(dataProtectionProvider, missingDestinationHandlers)
+            IEnumerable<IMissingDestinationHandler> missingDestinationHandlers,
+            ILogger<CookieSessionAffinityProvider> logger)
+            : base(dataProtectionProvider, missingDestinationHandlers, logger)
         {
             _providerOptions = providerOptions?.Value ?? throw new ArgumentNullException(nameof(providerOptions));
         }

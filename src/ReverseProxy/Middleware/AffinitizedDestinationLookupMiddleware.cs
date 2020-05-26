@@ -40,14 +40,13 @@ namespace Microsoft.ReverseProxy.Middleware
             var destinationsFeature = context.GetRequiredDestinationFeature();
             var destinations = destinationsFeature.Destinations;
 
-            var options = backend.Config.Value?.SessionAffinityOptions
-                ?? new BackendConfig.BackendSessionAffinityOptions(false, default, default, default);
+            var options = backend.Config.Value?.SessionAffinityOptions ?? default;
 
             if (options.Enabled)
             {
                 var affinitizedDestinations = _operationLogger.Execute(
                     "ReverseProxy.FindAffinitizedDestinations",
-                    () => FindAffinitizedDestinations(context, destinations, options));
+                    () => FindAffinitizedDestinations(context, destinations, backend, options));
                 if (affinitizedDestinations.DestinationsFound)
                 {
                     if (affinitizedDestinations.Result.Destinations.Count > 0)
@@ -67,10 +66,10 @@ namespace Microsoft.ReverseProxy.Middleware
             return _next(context);
         }
 
-        private (bool DestinationsFound, AffinityResult Result) FindAffinitizedDestinations(HttpContext context, IReadOnlyList<DestinationInfo> destinations, BackendConfig.BackendSessionAffinityOptions options)
+        private (bool DestinationsFound, AffinityResult Result) FindAffinitizedDestinations(HttpContext context, IReadOnlyList<DestinationInfo> destinations, BackendInfo backend, BackendConfig.BackendSessionAffinityOptions options)
         {
             var currentProvider = _sessionAffinityProviders.GetRequiredServiceById(options.Mode);
-            var destinationsFound = currentProvider.TryFindAffinitizedDestinations(context, destinations, options, out var affinityResult);
+            var destinationsFound = currentProvider.TryFindAffinitizedDestinations(context, destinations, backend, options, out var affinityResult);
             return (destinationsFound, affinityResult);
         }
 

@@ -101,17 +101,5 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
 
             return builder;
         }
-
-        public static IReverseProxyBuilder AddDataProtection(this IReverseProxyBuilder builder)
-        {
-            builder.Services.AddDataProtection();
-            return builder;
-        }
-
-        public static IReverseProxyBuilder AddDataProtection(this IReverseProxyBuilder builder, Action<DataProtectionOptions> setupAction)
-        {
-            builder.Services.AddDataProtection(setupAction);
-            return builder;
-        }
     }
 }
