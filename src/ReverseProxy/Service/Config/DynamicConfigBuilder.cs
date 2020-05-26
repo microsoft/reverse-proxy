@@ -5,7 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using Microsoft.ReverseProxy.Abstractions;
+using Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract;
 using Microsoft.ReverseProxy.ConfigModel;
 using Microsoft.ReverseProxy.Service.SessionAffinity;
 using Microsoft.ReverseProxy.Utilities;
@@ -20,6 +22,7 @@ namespace Microsoft.ReverseProxy.Service
         private readonly IRouteValidator _parsedRouteValidator;
         private readonly IDictionary<string, ISessionAffinityProvider> _sessionAffinityProviders;
         private readonly IDictionary<string, IMissingDestinationHandler> _missingDestionationHandlers;
+        private readonly SessionAffinityDefaultOptions _sessionAffinityDefaultOptions;
 
         public DynamicConfigBuilder(
             IEnumerable<IProxyConfigFilter> filters,
@@ -27,7 +30,8 @@ namespace Microsoft.ReverseProxy.Service
             IRoutesRepo routesRepo,
             IRouteValidator parsedRouteValidator,
             IEnumerable<ISessionAffinityProvider> sessionAffinityProviders,
-            IEnumerable<IMissingDestinationHandler> missingDestinationHandlers)
+            IEnumerable<IMissingDestinationHandler> missingDestinationHandlers,
+            IOptions<SessionAffinityDefaultOptions> sessionAffinityDefaultOptions)
         {
             Contracts.CheckValue(filters, nameof(filters));
             Contracts.CheckValue(backendsRepo, nameof(backendsRepo));
@@ -41,6 +45,7 @@ namespace Microsoft.ReverseProxy.Service
             _parsedRouteValidator = parsedRouteValidator;
             _sessionAffinityProviders = sessionAffinityProviders.ToProviderDictionary();
             _missingDestionationHandlers = missingDestinationHandlers.ToHandlerDictionary();
+            _sessionAffinityDefaultOptions = sessionAffinityDefaultOptions?.Value ?? throw new ArgumentNullException(nameof(sessionAffinityDefaultOptions));
         }
 
         public async Task<Result<DynamicConfigRoot>> BuildConfigAsync(IConfigErrorReporter errorReporter, CancellationToken cancellation)
@@ -100,22 +105,24 @@ namespace Microsoft.ReverseProxy.Service
                 return;
             }
 
-            var affinityMode = backend.SessionAffinity.Mode;
-            if (affinityMode == null)
+            if (backend.SessionAffinity.Mode == null)
             {
-                errorReporter.ReportError(ConfigErrors.ConfigBuilderBackendSessionAffinityModeIsNull, id, $"The session affinity mode is null for the backend {backend.Id}.");
+                backend.SessionAffinity.Mode = _sessionAffinityDefaultOptions.DefaultMode;
             }
-            else if (!_sessionAffinityProviders.ContainsKey(affinityMode))
+
+            var affinityMode = backend.SessionAffinity.Mode;
+            if (!_sessionAffinityProviders.ContainsKey(affinityMode))
             {
                 errorReporter.ReportError(ConfigErrors.ConfigBuilderBackendNoProviderFoundForSessionAffinityMode, id, $"No matching {nameof(ISessionAffinityProvider)} found for the session affinity mode {affinityMode} set on the backend {backend.Id}.");
             }
 
-            var missingDestinationHandler = backend.SessionAffinity.MissingDestinationHandler;
-            if (missingDestinationHandler == null)
+            if (backend.SessionAffinity.MissingDestinationHandler == null)
             {
-                errorReporter.ReportError(ConfigErrors.ConfigBuilderBackendMissingDestinationHandlerIsNull, id, $"The missing affinitizated destination handler name is null for the backend {backend.Id}.");
+                backend.SessionAffinity.MissingDestinationHandler = _sessionAffinityDefaultOptions.MissingDestinationHandler;
             }
-            else if (!_missingDestionationHandlers.ContainsKey(missingDestinationHandler))
+
+            var missingDestinationHandler = backend.SessionAffinity.MissingDestinationHandler;
+            if (!_missingDestionationHandlers.ContainsKey(missingDestinationHandler))
             {
                 errorReporter.ReportError(ConfigErrors.ConfigBuilderBackendNoMissingDestinationHandlerFoundForSpecifiedName, id, $"No matching {nameof(IMissingDestinationHandler)} found for the missing affinitizated destination handler name {missingDestinationHandler} set on the backend {backend.Id}.");
             }
