@@ -18,7 +18,7 @@ namespace Microsoft.ReverseProxy.Middleware
     internal class AffinitizedDestinationLookupMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly IDictionary<string, ISessionAffinityProvider> _sessionAffinityProviders = new Dictionary<string, ISessionAffinityProvider>();
+        private readonly IDictionary<string, ISessionAffinityProvider> _sessionAffinityProviders;
         private readonly IOperationLogger<AffinitizedDestinationLookupMiddleware> _operationLogger;
         private readonly ILogger _logger;
 
