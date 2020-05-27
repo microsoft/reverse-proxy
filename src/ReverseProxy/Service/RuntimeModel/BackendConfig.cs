@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract;
 using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.RuntimeModel
@@ -19,7 +18,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
     /// Instead, instances of <see cref="BackendConfig"/> are replaced
     /// in ther entirety when values need to change.
     /// </remarks>
-    internal sealed class BackendConfig
+    public sealed class BackendConfig
     {
         public BackendConfig(
             BackendHealthCheckOptions healthCheckOptions,
@@ -44,7 +43,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         /// Struct used only to keep things organized as we add more configuration options inside of `BackendConfig`.
         /// Each "feature" can have its own struct.
         /// </remarks>
-        internal readonly struct BackendHealthCheckOptions
+        public readonly struct BackendHealthCheckOptions
         {
             public BackendHealthCheckOptions(bool enabled, TimeSpan interval, TimeSpan timeout, int port, string path)
             {
@@ -81,7 +80,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
             public string Path { get; }
         }
 
-        internal readonly struct BackendLoadBalancingOptions
+        public readonly struct BackendLoadBalancingOptions
         {
             public BackendLoadBalancingOptions(LoadBalancingMode mode)
             {
@@ -95,7 +94,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
             internal AtomicCounter RoundRobinState { get; }
         }
 
-        internal readonly struct BackendSessionAffinityOptions
+        public readonly struct BackendSessionAffinityOptions
         {
             public BackendSessionAffinityOptions(bool enabled, string mode, string missingDestinationHandler, IReadOnlyDictionary<string, string> settings)
             {

@@ -69,7 +69,7 @@ namespace Microsoft.ReverseProxy.Middleware
         private (bool DestinationsFound, AffinityResult Result) FindAffinitizedDestinations(HttpContext context, IReadOnlyList<DestinationInfo> destinations, BackendInfo backend, BackendConfig.BackendSessionAffinityOptions options)
         {
             var currentProvider = _sessionAffinityProviders.GetRequiredServiceById(options.Mode);
-            var destinationsFound = currentProvider.TryFindAffinitizedDestinations(context, destinations, backend, options, out var affinityResult);
+            var destinationsFound = currentProvider.TryFindAffinitizedDestinations(context, destinations, backend.BackendId, options, out var affinityResult);
             return (destinationsFound, affinityResult);
         }
 

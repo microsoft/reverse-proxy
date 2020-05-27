@@ -29,7 +29,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddRuntimeStateManagers()
                 .AddConfigManager()
                 .AddDynamicEndpointDataSource()
-                .AddSessionAffinityProvider()
+                .AddSessionAffinityProvider(true)
                 .AddProxy()
                 .AddBackgroundWorkers();
 

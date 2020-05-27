@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
+using Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract;
 using Microsoft.ReverseProxy.RuntimeModel;
 
 namespace Microsoft.ReverseProxy.Service.SessionAffinity
@@ -12,7 +13,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
     {
         private readonly Random _random = new Random();
 
-        public string Name => "PickRandom";
+        public string Name => SessionAffinityBuiltIns.MissingDestinationHandlers.PickRandom;
 
         public IReadOnlyList<DestinationInfo> Handle(HttpContext context, BackendConfig.BackendSessionAffinityOptions options, object affinityKey, IReadOnlyList<DestinationInfo> availableDestinations)
         {

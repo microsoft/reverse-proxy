@@ -10,8 +10,8 @@ namespace Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract
     /// </summary>
     public class SessionAffinityDefaultOptions
     {
-        private string _defaultMode = "Cookie";
-        private string _defaultMissingDestinationHandler = "ReturnError";
+        private string _defaultMode = SessionAffinityBuiltIns.Modes.Cookie;
+        private string _defaultMissingDestinationHandler = SessionAffinityBuiltIns.MissingDestinationHandlers.ReturnError;
 
         /// <summary>
         /// Default session affinity mode to be used when none is specified for a backend.
@@ -30,5 +30,11 @@ namespace Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract
             get => _defaultMissingDestinationHandler;
             set => _defaultMissingDestinationHandler = value ?? throw new ArgumentNullException(nameof(value));
         }
+
+        /// <summary>
+        /// If set to <see cref="true"/> enables session affinity for all backends using the default settings
+        /// which can be ovewritten by backend's configuration section.
+        /// </summary>
+        public bool EnabledForAllBackends { get; set; }
     }
 }

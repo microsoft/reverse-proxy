@@ -27,12 +27,12 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
                 return destination.DestinationId;
             }
 
-            protected override string GetRequestAffinityKey(HttpContext context, BackendConfig.BackendSessionAffinityOptions options)
+            protected override string GetRequestAffinityKey(HttpContext context, in BackendConfig.BackendSessionAffinityOptions options)
             {
                 return (string)context.Items[AffinityKeyItemName];
             }
 
-            protected override void SetAffinityKey(HttpContext context, BackendConfig.BackendSessionAffinityOptions options, string unencryptedKey)
+            protected override void SetAffinityKey(HttpContext context, in BackendConfig.BackendSessionAffinityOptions options, string unencryptedKey)
             {
                 context.Items[AffinityKeyItemName] = unencryptedKey;
             }

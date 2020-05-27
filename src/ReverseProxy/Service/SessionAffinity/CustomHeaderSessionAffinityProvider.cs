@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
+using Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract;
 using Microsoft.ReverseProxy.RuntimeModel;
 
 namespace Microsoft.ReverseProxy.Service.SessionAffinity
@@ -21,14 +22,14 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
             : base(dataProtectionProvider, missingDestinationHandlers, logger)
         {}
 
-        public override string Mode => "CustomHeader";
+        public override string Mode => SessionAffinityBuiltIns.Modes.CustomHeander;
 
         protected override string GetDestinationAffinityKey(DestinationInfo destination)
         {
             return destination.DestinationId;
         }
 
-        protected override string GetRequestAffinityKey(HttpContext context, BackendConfig.BackendSessionAffinityOptions options)
+        protected override string GetRequestAffinityKey(HttpContext context, in BackendConfig.BackendSessionAffinityOptions options)
         {
             var customHeaderName = GetSettingValue(CustomHeaderNameKey, options);
             var keyHeaderValues = context.Request.Headers[customHeaderName];
@@ -36,7 +37,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
             return encryptedRequestKey != null ? DataProtector.Unprotect(encryptedRequestKey) : null;
         }
 
-        protected override void SetAffinityKey(HttpContext context, BackendConfig.BackendSessionAffinityOptions options, string unencryptedKey)
+        protected override void SetAffinityKey(HttpContext context, in BackendConfig.BackendSessionAffinityOptions options, string unencryptedKey)
         {
             var customHeaderName = GetSettingValue(CustomHeaderNameKey, options);
             context.Response.Headers.Append(customHeaderName, DataProtector.Protect(unencryptedKey));

@@ -80,12 +80,12 @@ namespace Microsoft.ReverseProxy.Service
                         continue;
                     }
 
-                    ValidateSessionAffinity(errorReporter, id, backend);
-
                     foreach (var filter in _filters)
                     {
                         await filter.ConfigureBackendAsync(backend, cancellation);
                     }
+
+                    ValidateSessionAffinity(errorReporter, id, backend);
 
                     configuredBackends[id] = backend;
                 }
@@ -100,12 +100,20 @@ namespace Microsoft.ReverseProxy.Service
 
         private void ValidateSessionAffinity(IConfigErrorReporter errorReporter, string id, Backend backend)
         {
-            if (backend.SessionAffinity == null) // Session affinity is disabled
+            if (backend.SessionAffinity == null)
             {
-                return;
+                if (_sessionAffinityDefaultOptions.EnabledForAllBackends)
+                {
+                    backend.SessionAffinity = new SessionAffinityOptions();
+                }
+                else
+                {
+                    // Session affinity is disabled
+                    return;
+                }
             }
 
-            if (backend.SessionAffinity.Mode == null)
+            if (string.IsNullOrEmpty(backend.SessionAffinity.Mode))
             {
                 backend.SessionAffinity.Mode = _sessionAffinityDefaultOptions.DefaultMode;
             }
@@ -116,7 +124,7 @@ namespace Microsoft.ReverseProxy.Service
                 errorReporter.ReportError(ConfigErrors.ConfigBuilderBackendNoProviderFoundForSessionAffinityMode, id, $"No matching {nameof(ISessionAffinityProvider)} found for the session affinity mode {affinityMode} set on the backend {backend.Id}.");
             }
 
-            if (backend.SessionAffinity.MissingDestinationHandler == null)
+            if (string.IsNullOrEmpty(backend.SessionAffinity.MissingDestinationHandler))
             {
                 backend.SessionAffinity.MissingDestinationHandler = _sessionAffinityDefaultOptions.MissingDestinationHandler;
             }

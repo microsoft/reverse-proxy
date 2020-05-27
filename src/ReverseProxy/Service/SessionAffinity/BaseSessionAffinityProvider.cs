@@ -26,7 +26,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
 
         public abstract string Mode { get; }
 
-        public virtual void AffinitizeRequest(HttpContext context, BackendConfig.BackendSessionAffinityOptions options, DestinationInfo destination)
+        public virtual void AffinitizeRequest(HttpContext context, in BackendConfig.BackendSessionAffinityOptions options, DestinationInfo destination)
         {
             if (!options.Enabled)
             {
@@ -42,17 +42,10 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
             SetAffinityKey(context, options, (T)affinityKey);
         }
 
-        public virtual bool TryFindAffinitizedDestinations(HttpContext context, IReadOnlyList<DestinationInfo> destinations, BackendInfo backend, BackendConfig.BackendSessionAffinityOptions options, out AffinityResult affinityResult)
+        public virtual bool TryFindAffinitizedDestinations(HttpContext context, IReadOnlyList<DestinationInfo> destinations, string backendId, in BackendConfig.BackendSessionAffinityOptions options, out AffinityResult affinityResult)
         {
             if (!options.Enabled)
             {
-                affinityResult = default;
-                return false;
-            }
-
-            if (destinations.Count == 0)
-            {
-                Log.AffinityCannotBeEstablishedBecauseNoDestinationsFound(Logger, backend.BackendId);
                 affinityResult = default;
                 return false;
             }
@@ -65,23 +58,29 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
                 return false;
             }
 
-            if (!context.Items.TryAdd(AffinityKeyId, requestAffinityKey))
-            {
-                Log.RequestAffinityKeyAlreadyPresentInContext(Logger, backend.BackendId);
-                throw new InvalidOperationException("Request affinitization failed.");
-            }
-
             var matchingDestinations = new DestinationInfo[1];
-            for (var i = 0; i < destinations.Count; i++)
+            if (destinations.Count > 0)
             {
-                if (requestAffinityKey.Equals(GetDestinationAffinityKey(destinations[i])))
+                context.Items[AffinityKeyId] = requestAffinityKey;
+
+                for (var i = 0; i < destinations.Count; i++)
                 {
-                    matchingDestinations[0] = destinations[i]; // It's allowed to affinitize a request to a pool of destinations so as to enable load-balancing among them.
-                    break;                                     // However, we currently stop after the first match found to avoid performance degradation.
+                    if (requestAffinityKey.Equals(GetDestinationAffinityKey(destinations[i])))
+                    {
+                        // It's allowed to affinitize a request to a pool of destinations so as to enable load-balancing among them.
+                        // However, we currently stop after the first match found to avoid performance degradation.
+                        matchingDestinations[0] = destinations[i];
+                        break;
+                    }
                 }
             }
+            else
+            {
+                Log.AffinityCannotBeEstablishedBecauseNoDestinationsFound(Logger, backendId);
+            }
 
-            if (matchingDestinations.Length == 0)
+            // Empty destination list passed to this method is handled the same way as if no matching destinations are found.
+            if (matchingDestinations[0] == null)
             {
                 var failureHandler = MissingDestinationHandlers[options.MissingDestinationHandler];
                 var newAffinitizedDestinations = failureHandler.Handle(context, options, requestAffinityKey, destinations);
@@ -107,9 +106,9 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
 
         protected abstract T GetDestinationAffinityKey(DestinationInfo destination);
 
-        protected abstract T GetRequestAffinityKey(HttpContext context, BackendConfig.BackendSessionAffinityOptions options);
+        protected abstract T GetRequestAffinityKey(HttpContext context, in BackendConfig.BackendSessionAffinityOptions options);
 
-        protected abstract void SetAffinityKey(HttpContext context, BackendConfig.BackendSessionAffinityOptions options, T unencryptedKey);
+        protected abstract void SetAffinityKey(HttpContext context, in BackendConfig.BackendSessionAffinityOptions options, T unencryptedKey);
 
         private static class Log
         {
@@ -123,11 +122,6 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
                 EventIds.RequestAffinityToDestinationCannotBeEstablishedBecauseAffinitizationDisabled,
                 "The request affinity to destination `{destinationId}` cannot be established because affinitization is disabled for the backend.");
 
-            private static readonly Action<ILogger, string, Exception> _requestAffinityKeyAlreadyPresentInContext = LoggerMessage.Define<string>(
-                LogLevel.Error,
-                EventIds.RequestAffinityKeyAlreadyPresentInContext,
-                "The request affinity key is already present in HttpContext. Affinization failed for backend `{backendId}`.");
-
             public static void AffinityCannotBeEstablishedBecauseNoDestinationsFound(ILogger logger, string backendId)
             {
                 _affinityCannotBeEstablishedBecauseNoDestinationsFound(logger, backendId, null);
@@ -136,11 +130,6 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
             public static void RequestAffinityToDestinationCannotBeEstablishedBecauseAffinitizationDisabled(ILogger logger, string destinationId)
             {
                 _requestAffinityToDestinationCannotBeEstablishedBecauseAffinitizationDisabled(logger, destinationId, null);
-            }
-
-            public static void RequestAffinityKeyAlreadyPresentInContext(ILogger logger, string backendId)
-            {
-                _requestAffinityKeyAlreadyPresentInContext(logger, backendId, null);
             }
         }
     }

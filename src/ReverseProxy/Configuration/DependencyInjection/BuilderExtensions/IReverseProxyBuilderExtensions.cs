@@ -88,8 +88,13 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
             return builder;
         }
 
-        public static IReverseProxyBuilder AddSessionAffinityProvider(this IReverseProxyBuilder builder)
+        public static IReverseProxyBuilder AddSessionAffinityProvider(this IReverseProxyBuilder builder, bool enableForAllBackends)
         {
+            if (enableForAllBackends)
+            {
+                builder.Services.AddOptions<SessionAffinityDefaultOptions>().Configure(o => o.EnabledForAllBackends = true);
+            }
+
             builder.Services.TryAddEnumerable(new[] {
                 new ServiceDescriptor(typeof(IMissingDestinationHandler), typeof(PickRandomMissingDestinationHandler), ServiceLifetime.Singleton),
                 new ServiceDescriptor(typeof(IMissingDestinationHandler), typeof(ReturnErrorMissingDestinationHandler), ServiceLifetime.Singleton)
