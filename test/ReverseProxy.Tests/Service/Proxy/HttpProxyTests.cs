@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.ReverseProxy.Abstractions.Telemetry;
 using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
+using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 using Microsoft.ReverseProxy.Utilities;
 using Moq;
 using Tests.Common;
@@ -99,6 +100,89 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
             // Act
             await sut.ProxyAsync(httpContext, destinationPrefix, requestTransforms: null, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+
+            // Assert
+            Assert.Equal(234, httpContext.Response.StatusCode);
+            var reasonPhrase = httpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase;
+            Assert.Equal("Test Reason Phrase", reasonPhrase);
+            Assert.Contains("response", httpContext.Response.Headers["x-ms-response-test"].ToArray());
+            Assert.Contains("responseLanguage", httpContext.Response.Headers["Content-Language"].ToArray());
+
+            proxyResponseStream.Position = 0;
+            var proxyResponseText = StreamToString(proxyResponseStream);
+            Assert.Equal("response content", proxyResponseText);
+        }
+
+        [Fact]
+        public async Task ProxyAsync_NormalRequestWithParamterTransforms_Works()
+        {
+            // Arrange
+            var httpContext = new DefaultHttpContext();
+            httpContext.Request.Method = "POST";
+            httpContext.Request.Scheme = "http";
+            httpContext.Request.Host = new HostString("example.com:3456");
+            httpContext.Request.Path = "/api/test";
+            httpContext.Request.QueryString = new QueryString("?a=b&c=d");
+            httpContext.Request.Headers.Add(":authority", "example.com:3456");
+            httpContext.Request.Headers.Add("x-ms-request-test", "request");
+            httpContext.Request.Headers.Add("Content-Language", "requestLanguage");
+            httpContext.Request.Body = StringToStream("request content");
+            httpContext.Connection.RemoteIpAddress = IPAddress.Loopback;
+
+            var proxyResponseStream = new MemoryStream();
+            httpContext.Response.Body = proxyResponseStream;
+
+            var destinationPrefix = "https://localhost:123/a/b/";
+            var transforms = new[]
+            {
+                new PathStringTransform(PathStringTransform.TransformMode.Prepend, transformPathBase: false, "/prependPath"),
+                new PathStringTransform(PathStringTransform.TransformMode.Prepend, transformPathBase: true, "/prependPathBase"),
+            };
+            var targetUri = "https://localhost:123/prependPathBase/a/b/prependPath/api/test?a=b&c=d";
+            var sut = Create<HttpProxy>();
+            var client = MockHttpHandler.CreateClient(
+                async (HttpRequestMessage request, CancellationToken cancellationToken) =>
+                {
+                    await Task.Yield();
+
+                    Assert.Equal(new Version(2, 0), request.Version);
+                    Assert.Equal(HttpMethod.Post, request.Method);
+                    Assert.Equal(targetUri, request.RequestUri.AbsoluteUri);
+                    Assert.Contains("request", request.Headers.GetValues("x-ms-request-test"));
+                    Assert.Null(request.Headers.Host);
+                    Assert.False(request.Headers.TryGetValues(":authority", out var value));
+                    Assert.Equal("127.0.0.1", request.Headers.GetValues("x-forwarded-for").Single());
+                    Assert.Equal("example.com:3456", request.Headers.GetValues("x-forwarded-host").Single());
+                    Assert.Equal("http", request.Headers.GetValues("x-forwarded-proto").Single());
+
+                    Assert.NotNull(request.Content);
+                    Assert.Contains("requestLanguage", request.Content.Headers.GetValues("Content-Language"));
+
+                    var capturedRequestContent = new MemoryStream();
+
+                    // Use CopyToAsync as this is what HttpClient and friends use internally
+                    await request.Content.CopyToAsync(capturedRequestContent);
+                    capturedRequestContent.Position = 0;
+                    var capturedContentText = StreamToString(capturedRequestContent);
+                    Assert.Equal("request content", capturedContentText);
+
+                    var response = new HttpResponseMessage((HttpStatusCode)234);
+                    response.ReasonPhrase = "Test Reason Phrase";
+                    response.Headers.TryAddWithoutValidation("x-ms-response-test", "response");
+                    response.Content = new StreamContent(StringToStream("response content"));
+                    response.Content.Headers.TryAddWithoutValidation("Content-Language", "responseLanguage");
+                    return response;
+                });
+            var factoryMock = new Mock<IProxyHttpClientFactory>();
+            factoryMock.Setup(f => f.CreateNormalClient()).Returns(client);
+
+            var proxyTelemetryContext = new ProxyTelemetryContext(
+                backendId: "be1",
+                routeId: "rt1",
+                destinationId: "d1");
+
+            // Act
+            await sut.ProxyAsync(httpContext, destinationPrefix, requestTransforms: transforms, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
 
             // Assert
             Assert.Equal(234, httpContext.Response.StatusCode);

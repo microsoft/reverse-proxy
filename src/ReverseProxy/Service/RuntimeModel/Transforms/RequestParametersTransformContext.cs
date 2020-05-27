@@ -7,7 +7,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
     public class RequestParametersTransformContext
     {
-        public HttpContext HttpContext { get; internal set; }
+        public HttpContext HttpContext { get; set; }
         public string Method { get; set; }
         public PathString PathBase { get; set; }
         public PathString Path { get; set; }

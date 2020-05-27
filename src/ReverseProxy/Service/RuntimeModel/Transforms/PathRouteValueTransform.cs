@@ -13,7 +13,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
     /// <summary>
     /// Generates a new request path by plugging matched route parameters into the given pattern.
     /// </summary>
-    public class RouteValuePathTransform : RequestParametersTransform
+    public class PathRouteValueTransform : RequestParametersTransform
     {
         private string Pattern { get; set; }
 
