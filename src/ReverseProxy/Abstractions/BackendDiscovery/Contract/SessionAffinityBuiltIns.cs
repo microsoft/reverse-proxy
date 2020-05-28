@@ -15,11 +15,11 @@ namespace Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract
             public static string CustomHeander => "CustomHeader";
         }
 
-        public static class MissingDestinationHandlers
+        public static class AffinityFailurePolicies
         {
-            public static string PickRandom => "PickRandom";
+            public static string Redistribute => "Redistribute";
 
-            public static string ReturnError => "ReturnError";
+            public static string Return503Error => "Return503Error";
         }
     }
 }

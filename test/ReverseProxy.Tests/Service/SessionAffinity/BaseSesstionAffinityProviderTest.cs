@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -16,8 +15,8 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
         {
             public static readonly string AffinityKeyItemName = "StubAffinityKey";
 
-            public SessionAffinityProviderStub(IDataProtectionProvider dataProtectionProvider, IEnumerable<IMissingDestinationHandler> missingDestinationHandlers, ILogger logger)
-                : base(dataProtectionProvider, missingDestinationHandlers, logger)
+            public SessionAffinityProviderStub(IDataProtectionProvider dataProtectionProvider, ILogger logger)
+                : base(dataProtectionProvider, logger)
             {}
 
             public override string Mode => "Stub";
@@ -27,9 +26,9 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
                 return destination.DestinationId;
             }
 
-            protected override string GetRequestAffinityKey(HttpContext context, in BackendConfig.BackendSessionAffinityOptions options)
+            protected override (string Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, in BackendConfig.BackendSessionAffinityOptions options)
             {
-                return (string)context.Items[AffinityKeyItemName];
+                return (Key: (string)context.Items[AffinityKeyItemName], ExtractedSuccessfully: true);
             }
 
             protected override void SetAffinityKey(HttpContext context, in BackendConfig.BackendSessionAffinityOptions options, string unencryptedKey)

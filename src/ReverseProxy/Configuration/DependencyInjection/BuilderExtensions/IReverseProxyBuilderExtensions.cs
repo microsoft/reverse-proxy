@@ -88,16 +88,18 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
             return builder;
         }
 
-        public static IReverseProxyBuilder AddSessionAffinityProvider(this IReverseProxyBuilder builder, bool enableForAllBackends)
+        public static IReverseProxyBuilder AddSessionAffinityProvider(this IReverseProxyBuilder builder)
         {
-            if (enableForAllBackends)
-            {
-                builder.Services.AddOptions<SessionAffinityDefaultOptions>().Configure(o => o.EnabledForAllBackends = true);
-            }
+            return builder.AddSessionAffinityProvider(_ => { });
+        }
+
+        public static IReverseProxyBuilder AddSessionAffinityProvider(this IReverseProxyBuilder builder, Action<SessionAffinityDefaultOptions> configureOptions)
+        {
+            builder.Services.AddOptions<SessionAffinityDefaultOptions>().Configure(configureOptions);
 
             builder.Services.TryAddEnumerable(new[] {
-                new ServiceDescriptor(typeof(IMissingDestinationHandler), typeof(PickRandomMissingDestinationHandler), ServiceLifetime.Singleton),
-                new ServiceDescriptor(typeof(IMissingDestinationHandler), typeof(ReturnErrorMissingDestinationHandler), ServiceLifetime.Singleton)
+                new ServiceDescriptor(typeof(IAffinityFailurePolicy), typeof(RedistributeAffinityFailurePolicy), ServiceLifetime.Singleton),
+                new ServiceDescriptor(typeof(IAffinityFailurePolicy), typeof(Return503ErrorAffinityFailurePolicy), ServiceLifetime.Singleton)
             });
             builder.Services.TryAddEnumerable(new[] {
                 new ServiceDescriptor(typeof(ISessionAffinityProvider), typeof(CookieSessionAffinityProvider), ServiceLifetime.Singleton),

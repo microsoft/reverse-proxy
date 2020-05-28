@@ -11,7 +11,7 @@ namespace Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract
     public class SessionAffinityDefaultOptions
     {
         private string _defaultMode = SessionAffinityBuiltIns.Modes.Cookie;
-        private string _defaultMissingDestinationHandler = SessionAffinityBuiltIns.MissingDestinationHandlers.ReturnError;
+        private string _defaultAffinityFailurePolicy = SessionAffinityBuiltIns.AffinityFailurePolicies.Redistribute;
 
         /// <summary>
         /// Default session affinity mode to be used when none is specified for a backend.
@@ -23,12 +23,12 @@ namespace Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract
         }
 
         /// <summary>
-        /// Default strategy handling missing destination for an affinitized request.
+        /// Default affinity failure handling policy.
         /// </summary>
-        public string MissingDestinationHandler
+        public string AffinityFailurePolicy
         {
-            get => _defaultMissingDestinationHandler;
-            set => _defaultMissingDestinationHandler = value ?? throw new ArgumentNullException(nameof(value));
+            get => _defaultAffinityFailurePolicy;
+            set => _defaultAffinityFailurePolicy = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         /// <summary>

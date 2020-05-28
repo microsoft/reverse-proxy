@@ -21,7 +21,7 @@ namespace Microsoft.ReverseProxy.Service
         private readonly IRoutesRepo _routesRepo;
         private readonly IRouteValidator _parsedRouteValidator;
         private readonly IDictionary<string, ISessionAffinityProvider> _sessionAffinityProviders;
-        private readonly IDictionary<string, IMissingDestinationHandler> _missingDestionationHandlers;
+        private readonly IDictionary<string, IAffinityFailurePolicy> _affinityFailurePolicies;
         private readonly SessionAffinityDefaultOptions _sessionAffinityDefaultOptions;
 
         public DynamicConfigBuilder(
@@ -30,7 +30,7 @@ namespace Microsoft.ReverseProxy.Service
             IRoutesRepo routesRepo,
             IRouteValidator parsedRouteValidator,
             IEnumerable<ISessionAffinityProvider> sessionAffinityProviders,
-            IEnumerable<IMissingDestinationHandler> missingDestinationHandlers,
+            IEnumerable<IAffinityFailurePolicy> affinityFailurePolicies,
             IOptions<SessionAffinityDefaultOptions> sessionAffinityDefaultOptions)
         {
             Contracts.CheckValue(filters, nameof(filters));
@@ -38,13 +38,13 @@ namespace Microsoft.ReverseProxy.Service
             Contracts.CheckValue(routesRepo, nameof(routesRepo));
             Contracts.CheckValue(parsedRouteValidator, nameof(parsedRouteValidator));
             Contracts.CheckValue(sessionAffinityProviders, nameof(sessionAffinityProviders));
-            Contracts.CheckValue(missingDestinationHandlers, nameof(missingDestinationHandlers));
+            Contracts.CheckValue(affinityFailurePolicies, nameof(affinityFailurePolicies));
             _filters = filters;
             _backendsRepo = backendsRepo;
             _routesRepo = routesRepo;
             _parsedRouteValidator = parsedRouteValidator;
             _sessionAffinityProviders = sessionAffinityProviders.ToProviderDictionary();
-            _missingDestionationHandlers = missingDestinationHandlers.ToHandlerDictionary();
+            _affinityFailurePolicies = affinityFailurePolicies.ToPolicyDictionary();
             _sessionAffinityDefaultOptions = sessionAffinityDefaultOptions?.Value ?? throw new ArgumentNullException(nameof(sessionAffinityDefaultOptions));
         }
 
@@ -124,15 +124,15 @@ namespace Microsoft.ReverseProxy.Service
                 errorReporter.ReportError(ConfigErrors.ConfigBuilderBackendNoProviderFoundForSessionAffinityMode, id, $"No matching {nameof(ISessionAffinityProvider)} found for the session affinity mode {affinityMode} set on the backend {backend.Id}.");
             }
 
-            if (string.IsNullOrEmpty(backend.SessionAffinity.MissingDestinationHandler))
+            if (string.IsNullOrEmpty(backend.SessionAffinity.AffinityFailurePolicy))
             {
-                backend.SessionAffinity.MissingDestinationHandler = _sessionAffinityDefaultOptions.MissingDestinationHandler;
+                backend.SessionAffinity.AffinityFailurePolicy = _sessionAffinityDefaultOptions.AffinityFailurePolicy;
             }
 
-            var missingDestinationHandler = backend.SessionAffinity.MissingDestinationHandler;
-            if (!_missingDestionationHandlers.ContainsKey(missingDestinationHandler))
+            var affinityFailurePolicy = backend.SessionAffinity.AffinityFailurePolicy;
+            if (!_affinityFailurePolicies.ContainsKey(affinityFailurePolicy))
             {
-                errorReporter.ReportError(ConfigErrors.ConfigBuilderBackendNoMissingDestinationHandlerFoundForSpecifiedName, id, $"No matching {nameof(IMissingDestinationHandler)} found for the missing affinitizated destination handler name {missingDestinationHandler} set on the backend {backend.Id}.");
+                errorReporter.ReportError(ConfigErrors.ConfigBuilderBackendNoAffinityFailurePolicyFoundForSpecifiedName, id, $"No matching {nameof(IAffinityFailurePolicy)} found for the affinity failure policy name {affinityFailurePolicy} set on the backend {backend.Id}.");
             }
         }
 

@@ -34,9 +34,9 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
             return ToDictionaryById(sessionAffinityProviders, p => p.Mode);
         }
 
-        public static IDictionary<string, IMissingDestinationHandler> ToHandlerDictionary(this IEnumerable<IMissingDestinationHandler> missingDestinationHandlers)
+        public static IDictionary<string, IAffinityFailurePolicy> ToPolicyDictionary(this IEnumerable<IAffinityFailurePolicy> affinityFailurePolicies)
         {
-            return ToDictionaryById(missingDestinationHandlers, p => p.Name);
+            return ToDictionaryById(affinityFailurePolicies, p => p.Name);
         }
 
         public static T GetRequiredServiceById<T>(this IDictionary<string, T> services, string id)

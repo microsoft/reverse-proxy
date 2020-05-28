@@ -19,7 +19,7 @@ namespace Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract
         /// <summary>
         /// Strategy handling missing destination for an affinitized request.
         /// </summary>
-        public string MissingDestinationHandler { get; set; }
+        public string AffinityFailurePolicy { get; set; }
 
         /// <summary>
         /// Key-value pair collection holding extra settings specific to different affinity modes.
@@ -31,7 +31,7 @@ namespace Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract
             return new SessionAffinityOptions
             {
                 Mode = Mode,
-                MissingDestinationHandler = MissingDestinationHandler,
+                AffinityFailurePolicy = AffinityFailurePolicy,
                 Settings = Settings?.DeepClone(StringComparer.Ordinal)
             };
         }

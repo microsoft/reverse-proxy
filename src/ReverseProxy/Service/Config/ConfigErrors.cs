@@ -24,7 +24,7 @@ namespace Microsoft.ReverseProxy.Service
 
         internal const string ConfigBuilderBackendIdMismatch = "ConfigBuilder_BackendIdMismatch";
         internal const string ConfigBuilderBackendNoProviderFoundForSessionAffinityMode = "ConfigBuilder_BackendNoProviderFoundForSessionAffinityMode";
-        internal const string ConfigBuilderBackendNoMissingDestinationHandlerFoundForSpecifiedName = "ConfigBuilder_NoMissingDestinationHandlerFoundForSpecifiedName";
+        internal const string ConfigBuilderBackendNoAffinityFailurePolicyFoundForSpecifiedName = "ConfigBuilder_NoAffinityFailurePolicyFoundForSpecifiedName";
         internal const string ConfigBuilderBackendException = "ConfigBuilder_BackendException";
         internal const string ConfigBuilderRouteException = "ConfigBuilder_RouteException";
     }

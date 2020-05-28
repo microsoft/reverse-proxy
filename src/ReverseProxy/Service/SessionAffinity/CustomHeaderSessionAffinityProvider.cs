@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -17,9 +16,8 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
 
         public CustomHeaderSessionAffinityProvider(
             IDataProtectionProvider dataProtectionProvider,
-            IEnumerable<IMissingDestinationHandler> missingDestinationHandlers,
             ILogger<CustomHeaderSessionAffinityProvider> logger)
-            : base(dataProtectionProvider, missingDestinationHandlers, logger)
+            : base(dataProtectionProvider, logger)
         {}
 
         public override string Mode => SessionAffinityBuiltIns.Modes.CustomHeander;
@@ -29,18 +27,18 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
             return destination.DestinationId;
         }
 
-        protected override string GetRequestAffinityKey(HttpContext context, in BackendConfig.BackendSessionAffinityOptions options)
+        protected override (string Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, in BackendConfig.BackendSessionAffinityOptions options)
         {
             var customHeaderName = GetSettingValue(CustomHeaderNameKey, options);
             var keyHeaderValues = context.Request.Headers[customHeaderName];
             var encryptedRequestKey = !StringValues.IsNullOrEmpty(keyHeaderValues) ? keyHeaderValues[0] : null; // We always take the first value of a custom header storing an affinity key
-            return encryptedRequestKey != null ? DataProtector.Unprotect(encryptedRequestKey) : null;
+            return Unprotect(encryptedRequestKey);
         }
 
         protected override void SetAffinityKey(HttpContext context, in BackendConfig.BackendSessionAffinityOptions options, string unencryptedKey)
         {
             var customHeaderName = GetSettingValue(CustomHeaderNameKey, options);
-            context.Response.Headers.Append(customHeaderName, DataProtector.Protect(unencryptedKey));
+            context.Response.Headers.Append(customHeaderName, Protect(unencryptedKey));
         }
     }
 }

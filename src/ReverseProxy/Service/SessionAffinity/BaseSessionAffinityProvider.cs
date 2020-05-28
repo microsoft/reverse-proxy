@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -12,15 +13,13 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
 {
     internal abstract class BaseSessionAffinityProvider<T> : ISessionAffinityProvider
     {
+        private readonly IDataProtector _dataProtector;
         protected static readonly object AffinityKeyId = new object();
-        protected readonly IDataProtector DataProtector;
-        protected readonly IDictionary<string, IMissingDestinationHandler> MissingDestinationHandlers;
         protected readonly ILogger Logger;
 
-        protected BaseSessionAffinityProvider(IDataProtectionProvider dataProtectionProvider, IEnumerable<IMissingDestinationHandler> missingDestinationHandlers, ILogger logger)
+        protected BaseSessionAffinityProvider(IDataProtectionProvider dataProtectionProvider, ILogger logger)
         {
-            DataProtector = dataProtectionProvider?.CreateProtector(GetType().FullName) ?? throw new ArgumentNullException(nameof(dataProtectionProvider));
-            MissingDestinationHandlers = missingDestinationHandlers?.ToHandlerDictionary() ?? throw new ArgumentNullException(nameof(missingDestinationHandlers));
+            _dataProtector = dataProtectionProvider?.CreateProtector(GetType().FullName) ?? throw new ArgumentNullException(nameof(dataProtectionProvider));
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -34,7 +33,8 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
                 return;
             }
 
-            if (!context.Items.TryGetValue(AffinityKeyId, out var affinityKey)) // If affinity key is already set on request, we assume that passed destination always matches to that key
+            // If affinity key is already set on request, we assume that passed destination always matches to that key
+            if (!context.Items.TryGetValue(AffinityKeyId, out var affinityKey))
             {
                 affinityKey = GetDestinationAffinityKey(destination);
             }
@@ -42,20 +42,19 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
             SetAffinityKey(context, options, (T)affinityKey);
         }
 
-        public virtual bool TryFindAffinitizedDestinations(HttpContext context, IReadOnlyList<DestinationInfo> destinations, string backendId, in BackendConfig.BackendSessionAffinityOptions options, out AffinityResult affinityResult)
+        public virtual AffinityResult FindAffinitizedDestinations(HttpContext context, IReadOnlyList<DestinationInfo> destinations, string backendId, in BackendConfig.BackendSessionAffinityOptions options)
         {
             if (!options.Enabled)
             {
-                affinityResult = default;
-                return false;
+                // This case is handled separately to improve the type autonomy and the pipeline extensibility
+                return new AffinityResult(null, AffinityStatus.AffinityDisabled);
             }
 
             var requestAffinityKey = GetRequestAffinityKey(context, options);
 
-            if (requestAffinityKey == null)
+            if (requestAffinityKey.Key == null)
             {
-                affinityResult = default;
-                return false;
+                return new AffinityResult(null, requestAffinityKey.ExtractedSuccessfully ? AffinityStatus.AffinityKeyNotSet : AffinityStatus.AffinityKeyExtractionFailed);
             }
 
             var matchingDestinations = new DestinationInfo[1];
@@ -82,16 +81,10 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
             // Empty destination list passed to this method is handled the same way as if no matching destinations are found.
             if (matchingDestinations[0] == null)
             {
-                var failureHandler = MissingDestinationHandlers[options.MissingDestinationHandler];
-                var newAffinitizedDestinations = failureHandler.Handle(context, options, requestAffinityKey, destinations);
-                affinityResult = new AffinityResult(newAffinitizedDestinations);
-            }
-            else
-            {
-                affinityResult = new AffinityResult(matchingDestinations);
+                return new AffinityResult(null, AffinityStatus.DestinationNotFound);
             }
 
-            return true;
+            return new AffinityResult(matchingDestinations, AffinityStatus.OK);
         }
 
         protected virtual string GetSettingValue(string key, BackendConfig.BackendSessionAffinityOptions options)
@@ -106,9 +99,64 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
 
         protected abstract T GetDestinationAffinityKey(DestinationInfo destination);
 
-        protected abstract T GetRequestAffinityKey(HttpContext context, in BackendConfig.BackendSessionAffinityOptions options);
+        protected abstract (T Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, in BackendConfig.BackendSessionAffinityOptions options);
 
         protected abstract void SetAffinityKey(HttpContext context, in BackendConfig.BackendSessionAffinityOptions options, T unencryptedKey);
+
+        protected string Protect(string unencryptedKey)
+        {
+            if (string.IsNullOrEmpty(unencryptedKey))
+            {
+                return unencryptedKey;
+            }
+
+            var userData = Encoding.UTF8.GetBytes(unencryptedKey);
+
+            var protectedData = _dataProtector.Protect(userData);
+            return Convert.ToBase64String(protectedData).TrimEnd('=');
+        }
+
+        protected (string Key, bool ExtractedSuccessfully) Unprotect(string encryptedRequestKey)
+        {
+            if (string.IsNullOrEmpty(encryptedRequestKey))
+            {
+                return (Key: null, ExtractedSuccessfully: true);
+            }
+
+            try
+            {
+                var keyBytes = Convert.FromBase64String(Pad(encryptedRequestKey));
+                if (keyBytes == null)
+                {
+                    Log.RequestAffinityKeyCookieCannotBeDecodedFromBase64(Logger);
+                    return (Key: null, ExtractedSuccessfully: false);
+                }
+
+                var decryptedKeyBytes = _dataProtector.Unprotect(keyBytes);
+                if (decryptedKeyBytes == null)
+                {
+                    Log.RequestAffinityKeyCookieDecryptionFailed(Logger, null);
+                    return (Key: null, ExtractedSuccessfully: false);
+                }
+
+                return (Key: Encoding.UTF8.GetString(decryptedKeyBytes), ExtractedSuccessfully: true);
+            }
+            catch (Exception ex)
+            {
+                Log.RequestAffinityKeyCookieDecryptionFailed(Logger, ex);
+                return (Key: null, ExtractedSuccessfully: false);
+            }
+        }
+
+        private static string Pad(string text)
+        {
+            var padding = 3 - ((text.Length + 3) % 4);
+            if (padding == 0)
+            {
+                return text;
+            }
+            return text + new string('=', padding);
+        }
 
         private static class Log
         {
@@ -122,6 +170,16 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
                 EventIds.RequestAffinityToDestinationCannotBeEstablishedBecauseAffinitizationDisabled,
                 "The request affinity to destination `{destinationId}` cannot be established because affinitization is disabled for the backend.");
 
+            private static readonly Action<ILogger, Exception> _requestAffinityKeyCookieDecryptionFailed = LoggerMessage.Define(
+                LogLevel.Error,
+                EventIds.RequestAffinityKeyCookieDecryptionFailed,
+                "The request affinity key cookie decryption failed.");
+
+            private static readonly Action<ILogger, Exception> _requestAffinityKeyCookieCannotBeDecodedFromBase64 = LoggerMessage.Define(
+                LogLevel.Error,
+                EventIds.RequestAffinityKeyCookieCannotBeDecodedFromBase64,
+                "The request affinity key cookie cannot be decoded from Base64 representation.");
+
             public static void AffinityCannotBeEstablishedBecauseNoDestinationsFound(ILogger logger, string backendId)
             {
                 _affinityCannotBeEstablishedBecauseNoDestinationsFound(logger, backendId, null);
@@ -130,6 +188,16 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
             public static void RequestAffinityToDestinationCannotBeEstablishedBecauseAffinitizationDisabled(ILogger logger, string destinationId)
             {
                 _requestAffinityToDestinationCannotBeEstablishedBecauseAffinitizationDisabled(logger, destinationId, null);
+            }
+
+            public static void RequestAffinityKeyCookieDecryptionFailed(ILogger logger, Exception ex)
+            {
+                _requestAffinityKeyCookieDecryptionFailed(logger, ex);
+            }
+
+            public static void RequestAffinityKeyCookieCannotBeDecodedFromBase64(ILogger logger)
+            {
+                _requestAffinityKeyCookieCannotBeDecodedFromBase64(logger, null);
             }
         }
     }

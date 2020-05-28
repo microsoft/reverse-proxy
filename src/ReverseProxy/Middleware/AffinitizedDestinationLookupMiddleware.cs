@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.ReverseProxy.Abstractions.Telemetry;
@@ -19,12 +20,14 @@ namespace Microsoft.ReverseProxy.Middleware
     {
         private readonly RequestDelegate _next;
         private readonly IDictionary<string, ISessionAffinityProvider> _sessionAffinityProviders;
+        private readonly IDictionary<string, IAffinityFailurePolicy> _affinityFailurePolicies;
         private readonly IOperationLogger<AffinitizedDestinationLookupMiddleware> _operationLogger;
         private readonly ILogger _logger;
 
         public AffinitizedDestinationLookupMiddleware(
             RequestDelegate next,
             IEnumerable<ISessionAffinityProvider> sessionAffinityProviders,
+            IEnumerable<IAffinityFailurePolicy> affinityFailurePolicies,
             IOperationLogger<AffinitizedDestinationLookupMiddleware> operationLogger,
             ILogger<AffinitizedDestinationLookupMiddleware> logger)
         {
@@ -32,9 +35,10 @@ namespace Microsoft.ReverseProxy.Middleware
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _operationLogger = operationLogger ?? throw new ArgumentNullException(nameof(logger));
             _sessionAffinityProviders = sessionAffinityProviders.ToProviderDictionary();
+            _affinityFailurePolicies = affinityFailurePolicies?.ToPolicyDictionary() ?? throw new ArgumentNullException(nameof(affinityFailurePolicies));
         }
 
-        public Task Invoke(HttpContext context)
+        public async Task Invoke(HttpContext context)
         {
             var backend = context.GetRequiredBackend();
             var destinationsFeature = context.GetRequiredDestinationFeature();
@@ -44,45 +48,54 @@ namespace Microsoft.ReverseProxy.Middleware
 
             if (options.Enabled)
             {
-                var affinitizedDestinations = _operationLogger.Execute(
+                var affinityResult = _operationLogger.Execute(
                     "ReverseProxy.FindAffinitizedDestinations",
-                    () => FindAffinitizedDestinations(context, destinations, backend, options));
-                if (affinitizedDestinations.DestinationsFound)
+                    () => {
+                        var currentProvider = _sessionAffinityProviders.GetRequiredServiceById(options.Mode);
+                        return currentProvider.FindAffinitizedDestinations(context, destinations, backend.BackendId, options);
+                    });
+                switch (affinityResult.Status)
                 {
-                    if (affinitizedDestinations.Result.Destinations.Count > 0)
-                    {
-                        destinations = affinitizedDestinations.Result.Destinations;
-                        destinationsFeature.Destinations = destinations;
-                    }
-                    else
-                    {
-                        Log.AffinitizedDestinationIsNotFound(_logger, backend.BackendId);
-                        context.Response.StatusCode = 503;
-                        return Task.CompletedTask;
-                    }
+                    case AffinityStatus.OK:
+                        destinationsFeature.Destinations = affinityResult.Destinations;
+                        break;
+                    // This implementation treat them the same.
+                    case AffinityStatus.AffinityDisabled:
+                    case AffinityStatus.AffinityKeyNotSet:
+                        // Nothing to do so just continue processing
+                        break;
+                    case AffinityStatus.AffinityKeyExtractionFailed:
+                    case AffinityStatus.DestinationNotFound:
+                        await _operationLogger.ExecuteAsync("ReverseProxy.HandleAffinityFailure", async () =>
+                        {
+                            var failurePolicy = _affinityFailurePolicies.GetRequiredServiceById(options.AffinityFailurePolicy);
+                            if (!await failurePolicy.Handle(context, options, affinityResult.Status))
+                            {
+                                // Policy reported the failure is unrecoverable and took the full responsibility for its handling,
+                                // so we simply stop processing.
+                                Log.AffinityResolutionFailedForBackend(_logger, backend.BackendId);
+                                return;
+                            }
+                        });
+                        break;
+                    default:
+                        throw new NotSupportedException($"Affinity status '{affinityResult.Status}' is not supported.");
                 }
             }
 
-            return _next(context);
-        }
-
-        private (bool DestinationsFound, AffinityResult Result) FindAffinitizedDestinations(HttpContext context, IReadOnlyList<DestinationInfo> destinations, BackendInfo backend, BackendConfig.BackendSessionAffinityOptions options)
-        {
-            var currentProvider = _sessionAffinityProviders.GetRequiredServiceById(options.Mode);
-            var destinationsFound = currentProvider.TryFindAffinitizedDestinations(context, destinations, backend.BackendId, options, out var affinityResult);
-            return (destinationsFound, affinityResult);
+            await _next(context);
         }
 
         private static class Log
         {
-            private static readonly Action<ILogger, string, Exception> _affinitizedDestinationIsNotFound = LoggerMessage.Define<string>(
+            private static readonly Action<ILogger, string, Exception> _affinityResolutioFailedForBackend = LoggerMessage.Define<string>(
                 LogLevel.Warning,
-                EventIds.AffinitizedDestinationIsNotFound,
-                "No destinations found for the affinitized request on backend `{backendId}`.");
+                EventIds.AffinityResolutionFailedForBackend,
+                "Affinity resolution failed for backend `{backendId}`.");
 
-            public static void AffinitizedDestinationIsNotFound(ILogger logger, string backendId)
+            public static void AffinityResolutionFailedForBackend(ILogger logger, string backendId)
             {
-                _affinitizedDestinationIsNotFound(logger, backendId, null);
+                _affinityResolutioFailedForBackend(logger, backendId, null);
             }
         }
     }

@@ -40,7 +40,7 @@ namespace Microsoft.ReverseProxy
         public static readonly EventId OperationStarted = new EventId(31, "OperationStarted");
         public static readonly EventId OperationEnded = new EventId(32, "OperationEnded");
         public static readonly EventId OperationFailed = new EventId(33, "OperationFailed");
-        public static readonly EventId AffinitizedDestinationIsNotFound = new EventId(34, "AffinitizedDestinationIsNotFound");
+        public static readonly EventId AffinityResolutionFailedForBackend = new EventId(34, "AffinityResolutionFailedForBackend");
         public static readonly EventId MultipleDestinationsOnBackendToEstablishRequestAffinity = new EventId(35, "MultipleDestinationsOnBackendToEstablishRequestAffinity");
         public static readonly EventId AffinityCannotBeEstablishedBecauseNoDestinationsFoundOnBackend = new EventId(36, "AffinityCannotBeEstablishedBecauseNoDestinationsFoundOnBackend");
         public static readonly EventId RequestAffinityToDestinationCannotBeEstablishedBecauseAffinitizationDisabled = new EventId(37, "RequestAffinityToDestinationCannotBeEstablishedBecauseAffinitizationDisabled");
