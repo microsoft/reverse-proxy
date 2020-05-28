@@ -63,7 +63,8 @@ namespace Microsoft.ReverseProxy.Middleware
             if (result.Count > 1)
             {
                 Log.MultipleDestinationsOnBackendToEstablishRequestAffinity(_logger, backend.BackendId);
-                var singleDestination = destinations[_random.Next(destinations.Count)]; // It's assumed that all of them match to the request's affinity key.
+                // It's assumed that all of them match to the request's affinity key.
+                var singleDestination = destinations[_random.Next(destinations.Count)];
                 result = new[] { singleDestination };
             }
 

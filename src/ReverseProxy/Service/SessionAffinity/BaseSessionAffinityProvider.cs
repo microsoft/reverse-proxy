@@ -33,13 +33,12 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
                 return;
             }
 
-            // If affinity key is already set on request, we assume that passed destination always matches to that key
-            if (!context.Items.TryGetValue(AffinityKeyId, out var affinityKey))
+            // Affinity key is set on the response only if it's a new affinity.
+            if (!context.Items.ContainsKey(AffinityKeyId))
             {
-                affinityKey = GetDestinationAffinityKey(destination);
+                var affinityKey = GetDestinationAffinityKey(destination);
+                SetAffinityKey(context, options, affinityKey);
             }
-
-            SetAffinityKey(context, options, (T)affinityKey);
         }
 
         public virtual AffinityResult FindAffinitizedDestinations(HttpContext context, IReadOnlyList<DestinationInfo> destinations, string backendId, in BackendConfig.BackendSessionAffinityOptions options)
@@ -60,8 +59,6 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
             var matchingDestinations = new DestinationInfo[1];
             if (destinations.Count > 0)
             {
-                context.Items[AffinityKeyId] = requestAffinityKey;
-
                 for (var i = 0; i < destinations.Count; i++)
                 {
                     if (requestAffinityKey.Equals(GetDestinationAffinityKey(destinations[i])))
@@ -84,6 +81,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
                 return new AffinityResult(null, AffinityStatus.DestinationNotFound);
             }
 
+            context.Items[AffinityKeyId] = requestAffinityKey;
             return new AffinityResult(matchingDestinations, AffinityStatus.OK);
         }
 
