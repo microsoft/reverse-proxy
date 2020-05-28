@@ -31,8 +31,20 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
         {
             var customHeaderName = GetSettingValue(CustomHeaderNameKey, options);
             var keyHeaderValues = context.Request.Headers[customHeaderName];
-            var encryptedRequestKey = !StringValues.IsNullOrEmpty(keyHeaderValues) ? keyHeaderValues[0] : null; // We always take the first value of a custom header storing an affinity key
-            return Unprotect(encryptedRequestKey);
+
+            if (StringValues.IsNullOrEmpty(keyHeaderValues))
+            {
+                // It means affinity key is not defined that is a successful case
+                return (Key: null, ExtractedSuccessfully: true);
+            }
+
+            if (keyHeaderValues.Count > 1)
+            {
+                // Multiple values is an ambiguous case which is considered a key extraction failure
+                return (Key: null, ExtractedSuccessfully: false);
+            }
+
+            return Unprotect(keyHeaderValues[0]);
         }
 
         protected override void SetAffinityKey(HttpContext context, in BackendConfig.BackendSessionAffinityOptions options, string unencryptedKey)
