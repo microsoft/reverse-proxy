@@ -51,21 +51,26 @@ namespace Microsoft.ReverseProxy.RuntimeModel
 
         int IReadOnlyCollection<DestinationInfo>.Count => 1;
 
-        IEnumerator<DestinationInfo> IEnumerable<DestinationInfo>.GetEnumerator()
+        public Enumerator GetEnumerator()
         {
             return new Enumerator(this);
         }
 
+        IEnumerator<DestinationInfo> IEnumerable<DestinationInfo>.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return new Enumerator(this);
+            return GetEnumerator();
         }
 
         public struct Enumerator : IEnumerator<DestinationInfo>
         {
             private bool _read;
 
-            public Enumerator(DestinationInfo destinationInfo)
+            internal Enumerator(DestinationInfo destinationInfo)
             {
                 Current = destinationInfo;
                 _read = false;
@@ -90,9 +95,9 @@ namespace Microsoft.ReverseProxy.RuntimeModel
 
             }
 
-            public void Reset()
+            void IEnumerator.Reset()
             {
-
+                throw new NotSupportedException();
             }
         }
     }
