@@ -46,7 +46,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
             var result = loadBalancer.PickDestination(destinations, in options);
 
-            Assert.Equal(result, destinations[0]);
+            Assert.Same(result, destinations[0]);
         }
 
         [Fact]
