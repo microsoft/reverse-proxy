@@ -58,6 +58,8 @@ namespace Microsoft.ReverseProxy.ConfigModel
         /// </summary>
         public IDictionary<string, string> Metadata { get; set; }
 
+        public IList<IDictionary<string, string>> Transforms { get; set; }
+
         internal string GetMatcherSummary()
         {
             var builder = new StringBuilder();
@@ -78,6 +80,8 @@ namespace Microsoft.ReverseProxy.ConfigModel
                 builder.AppendJoin(',', Methods);
                 builder.Append(");");
             }
+
+            // TODO: Transforms?
 
             return builder.ToString();
         }

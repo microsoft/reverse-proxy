@@ -5,8 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.ReverseProxy.ConfigModel;
 using Microsoft.ReverseProxy.RuntimeModel;
+using Microsoft.ReverseProxy.Service.Config;
 using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Service
@@ -16,7 +18,13 @@ namespace Microsoft.ReverseProxy.Service
     /// </summary>
     internal class RuntimeRouteBuilder : IRuntimeRouteBuilder
     {
+        private readonly ITransformBuilder _transformBuilder;
         private RequestDelegate _pipeline;
+
+        public RuntimeRouteBuilder(ITransformBuilder transformBuilder)
+        {
+            _transformBuilder = transformBuilder;
+        }
 
         public void SetProxyPipeline(RequestDelegate pipeline)
         {
@@ -28,6 +36,8 @@ namespace Microsoft.ReverseProxy.Service
         {
             Contracts.CheckValue(source, nameof(source));
             Contracts.CheckValue(runtimeRoute, nameof(runtimeRoute));
+
+            _transformBuilder.Build(source.Transforms, out var requestParamterTransforms); // TODO: HeaderTransforms, etc...
 
             // NOTE: `new RouteConfig(...)` needs a reference to the list of ASP .NET Core endpoints,
             // but the ASP .NET Core endpoints cannot be created without a `RouteConfig` metadata item.
@@ -42,7 +52,7 @@ namespace Microsoft.ReverseProxy.Service
                 priority: source.Priority,
                 backendOrNull: backendOrNull,
                 aspNetCoreEndpoints: aspNetCoreEndpoints.AsReadOnly(),
-                requestParamterTransforms: null);
+                requestParamterTransforms: requestParamterTransforms);
 
             // TODO: Handle arbitrary AST's properly
             // Catch-all pattern when no path was specified

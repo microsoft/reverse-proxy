@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Microsoft.ReverseProxy.Abstractions
 {
@@ -35,6 +36,8 @@ namespace Microsoft.ReverseProxy.Abstractions
         /// </summary>
         public IDictionary<string, string> Metadata { get; set; }
 
+        public IList<IDictionary<string, string>> Transforms { get; set; }
+
         /// <inheritdoc/>
         ProxyRoute IDeepCloneable<ProxyRoute>.DeepClone()
         {
@@ -45,6 +48,7 @@ namespace Microsoft.ReverseProxy.Abstractions
                 Priority = Priority,
                 BackendId = BackendId,
                 Metadata = Metadata?.DeepClone(StringComparer.Ordinal),
+                Transforms = Transforms.Select(d => new Dictionary<string, string>(d, StringComparer.OrdinalIgnoreCase)).ToList<IDictionary<string, string>>(),
             };
         }
     }

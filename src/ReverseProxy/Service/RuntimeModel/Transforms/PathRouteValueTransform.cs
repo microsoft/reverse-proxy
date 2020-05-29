@@ -17,9 +17,14 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
     {
         private string Pattern { get; set; }
 
+        public PathRouteValueTransform(string pattern)
+        {
+            Pattern = pattern;
+        }
+
         public override void Run(RequestParametersTransformContext context)
         {
-            throw new NotImplementedException();
+            // throw new NotImplementedException();
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -29,6 +29,7 @@ namespace SampleServer.Controllers
         /// </summary>
         [HttpGet]
         [Route("/api/dump")]
+        [Route("/{**catchall}", Order = int.MaxValue)] // Make this the default route if nothing matches
         public IActionResult Dump()
         {
             var result = new {
@@ -36,6 +37,7 @@ namespace SampleServer.Controllers
                 Request.Method,
                 Request.Scheme,
                 Host = Request.Host.Value,
+                PathBase = Request.PathBase.Value,
                 Path = Request.Path.Value,
                 Query = Request.QueryString.Value,
                 Headers = Request.Headers.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToArray()),

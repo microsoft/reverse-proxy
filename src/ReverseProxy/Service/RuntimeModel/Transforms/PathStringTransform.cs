@@ -36,7 +36,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                 case TransformMode.Append:
                     result = input + Value;
                     break;
-                case TransformMode.RemoveStart:
+                case TransformMode.RemovePrefix:
                     input.StartsWithSegments(Value, out result);
                     break;
                 case TransformMode.RemoveEnd: // TODO:
@@ -59,7 +59,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             Set,
             Prepend,
             Append,
-            RemoveStart,
+            RemovePrefix,
             RemoveEnd,
         }
     }
