@@ -44,7 +44,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
             Assert.NotSame(backend.PartitioningOptions, clone.PartitioningOptions);
             Assert.NotNull(clone.LoadBalancing);
             Assert.NotSame(backend.LoadBalancing, clone.LoadBalancing);
-            Assert.NotNull(clone.HealthCheckOptions);
+            Assert.Null(clone.HealthCheckOptions);
             Assert.NotSame(backend.HealthCheckOptions, clone.HealthCheckOptions);
             Assert.NotNull(clone.Metadata);
             Assert.NotSame(backend.Metadata, clone.Metadata);
