@@ -33,15 +33,15 @@ namespace Microsoft.ReverseProxy.RuntimeModel.Tests
             var destination4 = backend.DestinationManager.GetOrCreateItem("d4", destination => destination.DynamicState.Value = new DestinationDynamicState(DestinationHealth.Healthy));
 
             // Assert
-            Assert.Equal(destination1, backend.DynamicState.Value.AllDestinations[0]);
-            Assert.Equal(destination2, backend.DynamicState.Value.AllDestinations[1]);
-            Assert.Equal(destination3, backend.DynamicState.Value.AllDestinations[2]);
-            Assert.Equal(destination4, backend.DynamicState.Value.AllDestinations[3]);
+            Assert.Same(destination1, backend.DynamicState.Value.AllDestinations[0]);
+            Assert.Same(destination2, backend.DynamicState.Value.AllDestinations[1]);
+            Assert.Same(destination3, backend.DynamicState.Value.AllDestinations[2]);
+            Assert.Same(destination4, backend.DynamicState.Value.AllDestinations[3]);
 
-            Assert.Equal(destination1, backend.DynamicState.Value.HealthyDestinations[0]);
-            Assert.Equal(destination2, backend.DynamicState.Value.HealthyDestinations[1]);
-            Assert.Equal(destination3, backend.DynamicState.Value.HealthyDestinations[2]);
-            Assert.Equal(destination4, backend.DynamicState.Value.HealthyDestinations[3]);
+            Assert.Same(destination1, backend.DynamicState.Value.HealthyDestinations[0]);
+            Assert.Same(destination2, backend.DynamicState.Value.HealthyDestinations[1]);
+            Assert.Same(destination3, backend.DynamicState.Value.HealthyDestinations[2]);
+            Assert.Same(destination4, backend.DynamicState.Value.HealthyDestinations[3]);
         }
 
         [Fact]
