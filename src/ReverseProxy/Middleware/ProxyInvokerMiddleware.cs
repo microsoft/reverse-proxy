@@ -19,7 +19,7 @@ namespace Microsoft.ReverseProxy.Middleware
     /// </summary>
     internal class ProxyInvokerMiddleware
     {
-        private readonly Random _random = new Random();
+        private readonly IRandomFactory _randomFactory = new RandomFactory();
         private readonly RequestDelegate _next; // Unused, this middleware is always terminal
         private readonly ILogger _logger;
         private readonly IOperationLogger<ProxyInvokerMiddleware> _operationLogger;
@@ -58,8 +58,9 @@ namespace Microsoft.ReverseProxy.Middleware
             var destination = destinations[0];
             if (destinations.Count > 1)
             {
+                var random = _randomFactory.CreateRandomInstance();
                 Log.MultipleDestinationsAvailable(_logger, backend.BackendId);
-                destination = destinations[_random.Next(destinations.Count)];
+                destination = destinations[random.Next(destinations.Count)];
             }
 
             var destinationConfig = destination.Config.Value;
