@@ -23,7 +23,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         Task ProxyAsync(
             HttpContext context,
             string destinationPrefix,
-            IReadOnlyList<RequestParametersTransform> requestTransforms,
+            Transforms transforms,
             IProxyHttpClientFactory httpClientFactory,
             ProxyTelemetryContext proxyTelemetryContext,
             CancellationToken shortCancellation,

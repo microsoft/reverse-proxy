@@ -99,7 +99,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 destinationId: "d1");
 
             // Act
-            await sut.ProxyAsync(httpContext, destinationPrefix, requestTransforms: null, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+            await sut.ProxyAsync(httpContext, destinationPrefix, transforms: null, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
 
             // Assert
             Assert.Equal(234, httpContext.Response.StatusCode);
@@ -133,11 +133,11 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             httpContext.Response.Body = proxyResponseStream;
 
             var destinationPrefix = "https://localhost:123/a/b/";
-            var transforms = new[]
+            var transforms = new Transforms(new[]
             {
                 new PathStringTransform(PathStringTransform.TransformMode.Prepend, transformPathBase: false, "/prependPath"),
                 new PathStringTransform(PathStringTransform.TransformMode.Prepend, transformPathBase: true, "/prependPathBase"),
-            };
+            });
             var targetUri = "https://localhost:123/prependPathBase/a/b/prependPath/api/test?a=b&c=d";
             var sut = Create<HttpProxy>();
             var client = MockHttpHandler.CreateClient(
@@ -182,7 +182,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 destinationId: "d1");
 
             // Act
-            await sut.ProxyAsync(httpContext, destinationPrefix, requestTransforms: transforms, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+            await sut.ProxyAsync(httpContext, destinationPrefix, transforms: transforms, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
 
             // Assert
             Assert.Equal(234, httpContext.Response.StatusCode);
@@ -247,7 +247,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 destinationId: "d1");
 
             // Act
-            await sut.ProxyAsync(httpContext, destinationPrefix, requestTransforms: null, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+            await sut.ProxyAsync(httpContext, destinationPrefix, transforms: null, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
 
             // Assert
             Assert.Equal(234, httpContext.Response.StatusCode);
@@ -315,7 +315,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 destinationId: "d1");
 
             // Act
-            await sut.ProxyAsync(httpContext, destinationPrefix, requestTransforms: null, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+            await sut.ProxyAsync(httpContext, destinationPrefix, transforms: null, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
 
             // Assert
             Assert.Equal(StatusCodes.Status101SwitchingProtocols, httpContext.Response.StatusCode);
@@ -384,7 +384,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 destinationId: "d1");
 
             // Act
-            await sut.ProxyAsync(httpContext, destinationPrefix, requestTransforms: null, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+            await sut.ProxyAsync(httpContext, destinationPrefix, transforms: null, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
 
             // Assert
             Assert.Equal(234, httpContext.Response.StatusCode);

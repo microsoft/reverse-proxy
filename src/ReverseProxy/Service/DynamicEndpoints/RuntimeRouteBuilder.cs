@@ -37,7 +37,7 @@ namespace Microsoft.ReverseProxy.Service
             Contracts.CheckValue(source, nameof(source));
             Contracts.CheckValue(runtimeRoute, nameof(runtimeRoute));
 
-            _transformBuilder.Build(source.Transforms, out var requestParamterTransforms); // TODO: HeaderTransforms, etc...
+            _transformBuilder.Build(source.Transforms, out var transforms); // TODO: HeaderTransforms, etc...
 
             // NOTE: `new RouteConfig(...)` needs a reference to the list of ASP .NET Core endpoints,
             // but the ASP .NET Core endpoints cannot be created without a `RouteConfig` metadata item.
@@ -52,7 +52,7 @@ namespace Microsoft.ReverseProxy.Service
                 priority: source.Priority,
                 backendOrNull: backendOrNull,
                 aspNetCoreEndpoints: aspNetCoreEndpoints.AsReadOnly(),
-                requestParamterTransforms: requestParamterTransforms);
+                transforms: transforms);
 
             // TODO: Handle arbitrary AST's properly
             // Catch-all pattern when no path was specified

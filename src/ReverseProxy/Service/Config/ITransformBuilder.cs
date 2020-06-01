@@ -8,6 +8,6 @@ namespace Microsoft.ReverseProxy.Service.Config
 {
     public interface ITransformBuilder
     {
-        void Build(IList<IDictionary<string, string>> transforms, out IReadOnlyList<RequestParametersTransform> requestParamterTransforms);
+        void Build(IList<IDictionary<string, string>> rawTransforms, out Transforms transforms);
     }
 }

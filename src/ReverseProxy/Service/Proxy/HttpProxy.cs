@@ -94,7 +94,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         public Task ProxyAsync(
             HttpContext context,
             string destinationPrefix,
-            IReadOnlyList<RequestParametersTransform> requestTransforms,
+            Transforms transforms,
             IProxyHttpClientFactory httpClientFactory,
             ProxyTelemetryContext proxyTelemetryContext,
             CancellationToken shortCancellation,
@@ -104,7 +104,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             Contracts.CheckValue(destinationPrefix, nameof(destinationPrefix));
             Contracts.CheckValue(httpClientFactory, nameof(httpClientFactory));
 
-            var request = CreateRequestMessage(context, destinationPrefix, requestTransforms);
+            var request = CreateRequestMessage(context, destinationPrefix, transforms?.RequestTransforms);
 
             var upgradeFeature = context.Features.Get<IHttpUpgradeFeature>();
             if (upgradeFeature == null || !upgradeFeature.IsUpgradableRequest)
@@ -349,7 +349,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         }
 
         private HttpRequestMessage CreateRequestMessage(HttpContext context, string destinationAddress,
-            IReadOnlyList<RequestParametersTransform> requestTransforms)
+            IReadOnlyList<RequestParametersTransform> transforms)
         {
             // "http://a".Length = 8
             if (destinationAddress == null || destinationAddress.Length < 8)
@@ -360,7 +360,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             UriHelper.FromAbsolute(destinationAddress, out var destinationScheme, out var destinationHost, out var destinationPathBase, out _, out _); // Query and Fragment are not supported here.
 
             var request = context.Request;
-            if (requestTransforms == null || requestTransforms.Count == 0)
+            if (transforms == null || transforms.Count == 0)
             {
                 // TODO: destination vs request PathBase policy?
                 var url = UriHelper.BuildAbsolute(destinationScheme, destinationHost, destinationPathBase, request.Path, request.QueryString);
@@ -377,7 +377,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 Path = request.Path,
                 Query = request.QueryString,
             };
-            foreach (var transform in requestTransforms)
+            foreach (var transform in transforms)
             {
                 transform.Run(transformContext);
             }

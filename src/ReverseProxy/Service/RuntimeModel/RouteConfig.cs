@@ -26,7 +26,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
             int? priority,
             BackendInfo backendOrNull,
             IReadOnlyList<AspNetCore.Http.Endpoint> aspNetCoreEndpoints,
-            IReadOnlyList<RequestParametersTransform> requestParamterTransforms)
+            Transforms transforms)
         {
             Contracts.CheckValue(route, nameof(route));
             Contracts.CheckValue(aspNetCoreEndpoints, nameof(aspNetCoreEndpoints));
@@ -36,7 +36,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
             Priority = priority;
             BackendOrNull = backendOrNull;
             Endpoints = aspNetCoreEndpoints;
-            RequestParamterTransforms = requestParamterTransforms;
+            Transforms = transforms;
         }
 
         public RouteInfo Route { get; }
@@ -49,7 +49,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
 
         public IReadOnlyList<AspNetCore.Http.Endpoint> Endpoints { get; }
 
-        public IReadOnlyList<RequestParametersTransform> RequestParamterTransforms { get; }
+        public Transforms Transforms { get; }
 
         public bool HasConfigChanged(ParsedRoute newConfig, BackendInfo backendOrNull)
         {

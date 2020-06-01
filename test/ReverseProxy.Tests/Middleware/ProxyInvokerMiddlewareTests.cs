@@ -68,7 +68,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 priority: null,
                 backendOrNull: backend1,
                 aspNetCoreEndpoints: aspNetCoreEndpoints.AsReadOnly(),
-                requestParamterTransforms: null);
+                transforms: null);
             var aspNetCoreEndpoint = CreateAspNetCoreEndpoint(routeConfig);
             aspNetCoreEndpoints.Add(aspNetCoreEndpoint);
             httpContext.SetEndpoint(aspNetCoreEndpoint);
@@ -79,7 +79,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 .Setup(h => h.ProxyAsync(
                     httpContext,
                     It.Is<string>(uri => uri == "https://localhost:123/a/b/"),
-                    It.IsAny<IReadOnlyList<RequestParametersTransform>>(),
+                    It.IsAny<Transforms>(),
                     proxyHttpClientFactoryMock.Object,
                     It.Is<ProxyTelemetryContext>(ctx => ctx.BackendId == "backend1" && ctx.RouteId == "route1" && ctx.DestinationId == "destination1"),
                     It.IsAny<CancellationToken>(),

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing.Template;
+using Microsoft.ReverseProxy.Service.Config;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 
 namespace Microsoft.ReverseProxy.Service.Config
@@ -18,43 +19,43 @@ namespace Microsoft.ReverseProxy.Service.Config
             _binderFactory = binderFactory;
         }
 
-        public void Build(IList<IDictionary<string, string>> transforms, out IReadOnlyList<RequestParametersTransform> requestParamterTransforms)
+        public void Build(IList<IDictionary<string, string>> rawTransforms, out Transforms transforms)
         {
-            requestParamterTransforms = null;
-            if (transforms == null || transforms.Count == 0)
+            transforms = null;
+            if (rawTransforms == null || rawTransforms.Count == 0)
             {
                 return;
             }
 
             var builtTransforms = new List<RequestParametersTransform>();
 
-            foreach (var transform in transforms)
+            foreach (var rawTransform in rawTransforms)
             {
                 // TODO: Ensure path string formats like starts with /
-                if (transform.TryGetValue("PathPrefix", out var pathPrefix))
+                if (rawTransform.TryGetValue("PathPrefix", out var pathPrefix))
                 {
                     builtTransforms.Add(new PathStringTransform(PathStringTransform.TransformMode.Prepend, transformPathBase: false, new PathString(pathPrefix)));
                 }
-                else if (transform.TryGetValue("PathRemovePrefix", out var pathRemovePrefix))
+                else if (rawTransform.TryGetValue("PathRemovePrefix", out var pathRemovePrefix))
                 {
                     builtTransforms.Add(new PathStringTransform(PathStringTransform.TransformMode.RemovePrefix, transformPathBase: false, new PathString(pathRemovePrefix)));
                 }
-                else if (transform.TryGetValue("PathSet", out var pathSet))
+                else if (rawTransform.TryGetValue("PathSet", out var pathSet))
                 {
                     builtTransforms.Add(new PathStringTransform(PathStringTransform.TransformMode.Set, transformPathBase: false, new PathString(pathSet)));
                 }
-                else if (transform.TryGetValue("PathPattern", out var pathPattern))
+                else if (rawTransform.TryGetValue("PathPattern", out var pathPattern))
                 {
                     builtTransforms.Add(new PathRouteValueTransform(pathPattern, _binderFactory));
                 }
                 else
                 {
                     // TODO: Make this a route validation error?
-                    throw new NotImplementedException(string.Join(';', transform.Keys));
+                    throw new NotImplementedException(string.Join(';', rawTransform.Keys));
                 }
             }
 
-            requestParamterTransforms = builtTransforms.AsReadOnly();
+            transforms = new Transforms(builtTransforms.AsReadOnly());
         }
     }
 }
