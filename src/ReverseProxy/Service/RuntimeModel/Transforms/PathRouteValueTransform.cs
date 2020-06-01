@@ -1,12 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing.Patterns;
+using Microsoft.AspNetCore.Routing.Template;
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
@@ -15,16 +11,17 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
     /// </summary>
     public class PathRouteValueTransform : RequestParametersTransform
     {
-        private string Pattern { get; set; }
+        private readonly TemplateBinder _binder;
 
-        public PathRouteValueTransform(string pattern)
+        public PathRouteValueTransform(string pattern, TemplateBinderFactory binderFactory)
         {
-            Pattern = pattern;
+            // TODO: Config validation
+            _binder = binderFactory.Create(RoutePatternFactory.Parse(pattern));
         }
 
         public override void Run(RequestParametersTransformContext context)
         {
-            // throw new NotImplementedException();
+            context.Path = _binder.BindValues(context.HttpContext.Request.RouteValues);
         }
     }
 }

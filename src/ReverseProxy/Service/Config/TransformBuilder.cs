@@ -4,12 +4,20 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing.Template;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 
 namespace Microsoft.ReverseProxy.Service.Config
 {
     public class TransformBuilder : ITransformBuilder
     {
+        private readonly TemplateBinderFactory _binderFactory;
+
+        public TransformBuilder(TemplateBinderFactory binderFactory)
+        {
+            _binderFactory = binderFactory;
+        }
+
         public void Build(IList<IDictionary<string, string>> transforms, out IReadOnlyList<RequestParametersTransform> requestParamterTransforms)
         {
             requestParamterTransforms = null;
@@ -37,7 +45,7 @@ namespace Microsoft.ReverseProxy.Service.Config
                 }
                 else if (transform.TryGetValue("PathPattern", out var pathPattern))
                 {
-                    builtTransforms.Add(new PathRouteValueTransform(pathPattern));
+                    builtTransforms.Add(new PathRouteValueTransform(pathPattern, _binderFactory));
                 }
                 else
                 {
