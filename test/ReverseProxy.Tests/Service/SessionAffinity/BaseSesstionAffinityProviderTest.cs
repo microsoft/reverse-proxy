@@ -20,9 +20,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
         private const string InvalidKeyNull = "!invalid key - null!";
         private const string InvalidKeyThrow = "!invalid key - throw!";
         private const string KeyName = "StubAffinityKey";
-        private static readonly BackendConfig.BackendSessionAffinityOptions _defaultOptions = new BackendConfig.BackendSessionAffinityOptions(true, "Stub", "Return503", new Dictionary<string, string> { { "AffinityKeyName", KeyName } });
-        private static readonly byte[] _encryptedNullBytes = Encoding.UTF8.GetBytes(InvalidKeyNull);
-        private static readonly byte[] _encryptedThrowBytes = Encoding.UTF8.GetBytes(InvalidKeyThrow);
+        private readonly BackendConfig.BackendSessionAffinityOptions _defaultOptions = new BackendConfig.BackendSessionAffinityOptions(true, "Stub", "Return503", new Dictionary<string, string> { { "AffinityKeyName", KeyName } });
 
         [Theory]
         [MemberData(nameof(FindAffinitizedDestinationsCases))]
@@ -131,13 +129,13 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
             yield return new object[] { GetHttpContext(new[] { (KeyName, "dest-B") }), destinations, AffinityStatus.OK, destinations[1], Encoding.UTF8.GetBytes("dest-B"), true };
             yield return new object[] { GetHttpContext(new[] { (KeyName, "dest-Z") }), destinations, AffinityStatus.DestinationNotFound, null, Encoding.UTF8.GetBytes("dest-Z"), true };
             yield return new object[] { GetHttpContext(new[] { (KeyName, "dest-B") }), new DestinationInfo[0], AffinityStatus.DestinationNotFound, null, Encoding.UTF8.GetBytes("dest-B"), true };
-            yield return new object[] { GetHttpContext(new[] { (KeyName, InvalidKeyNull) }), destinations, AffinityStatus.AffinityKeyExtractionFailed, null, _encryptedNullBytes, true };
-            yield return new object[] { GetHttpContext(new[] { (KeyName, InvalidKeyThrow) }), destinations, AffinityStatus.AffinityKeyExtractionFailed, null, _encryptedThrowBytes, true };
+            yield return new object[] { GetHttpContext(new[] { (KeyName, InvalidKeyNull) }), destinations, AffinityStatus.AffinityKeyExtractionFailed, null, Encoding.UTF8.GetBytes(InvalidKeyNull), true };
+            yield return new object[] { GetHttpContext(new[] { (KeyName, InvalidKeyThrow) }), destinations, AffinityStatus.AffinityKeyExtractionFailed, null, Encoding.UTF8.GetBytes(InvalidKeyThrow), true };
         }
 
         private static BackendConfig.BackendSessionAffinityOptions GetOptionsWithUnknownSetting()
         {
-            return new BackendConfig.BackendSessionAffinityOptions(true, _defaultOptions.Mode, _defaultOptions.AffinityFailurePolicy, new Dictionary<string, string> { { "Unknown", "ZZZ" } });
+            return new BackendConfig.BackendSessionAffinityOptions(true, "Stub", "Return503", new Dictionary<string, string> { { "Unknown", "ZZZ" } });
         }
 
         private static HttpContext GetHttpContext((string Key, string Value)[] items)
@@ -152,10 +150,12 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
         private Mock<IDataProtector> GetDataProtector()
         {
             var result = Mock<IDataProtector>();
+            var nullBytes = Encoding.UTF8.GetBytes(InvalidKeyNull);
+            var throwBytes = Encoding.UTF8.GetBytes(InvalidKeyThrow);
             result.Setup(p => p.Protect(It.IsAny<byte[]>())).Returns((byte[] k) => k);
             result.Setup(p => p.Unprotect(It.IsAny<byte[]>())).Returns((byte[] k) => k);
-            result.Setup(p => p.Unprotect(It.Is<byte[]>(b => b.SequenceEqual(_encryptedNullBytes)))).Returns((byte[])null);
-            result.Setup(p => p.Unprotect(It.Is<byte[]>(b => b.SequenceEqual(_encryptedThrowBytes)))).Throws<InvalidOperationException>();
+            result.Setup(p => p.Unprotect(It.Is<byte[]>(b => b.SequenceEqual(nullBytes)))).Returns((byte[])null);
+            result.Setup(p => p.Unprotect(It.Is<byte[]>(b => b.SequenceEqual(throwBytes)))).Throws<InvalidOperationException>();
             result.Setup(p => p.CreateProtector(It.IsAny<string>())).Returns(result.Object);
             return result;
         }
