@@ -27,6 +27,8 @@ namespace Microsoft.ReverseProxy.Service.Tests
             servicesBuilder.AddSingleton(backends);
             servicesBuilder.AddSingleton(routes);
             servicesBuilder.AddSingleton<TestService>();
+            servicesBuilder.AddDataProtection();
+            servicesBuilder.AddLogging();
             var services = servicesBuilder.BuildServiceProvider();
             return services.GetRequiredService<IDynamicConfigBuilder>();
         }
