@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.ReverseProxy.Service.SessionAffinity;
 
 namespace Microsoft.ReverseProxy.Service.SessionAffinity
 {

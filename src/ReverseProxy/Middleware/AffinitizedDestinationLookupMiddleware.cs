@@ -66,17 +66,20 @@ namespace Microsoft.ReverseProxy.Middleware
                         break;
                     case AffinityStatus.AffinityKeyExtractionFailed:
                     case AffinityStatus.DestinationNotFound:
-                        await _operationLogger.ExecuteAsync("ReverseProxy.HandleAffinityFailure", async () =>
+                        var failureHandled = await _operationLogger.ExecuteAsync("ReverseProxy.HandleAffinityFailure", async () =>
                         {
                             var failurePolicy = _affinityFailurePolicies.GetRequiredServiceById(options.AffinityFailurePolicy);
-                            if (!await failurePolicy.Handle(context, options, affinityResult.Status))
-                            {
-                                // Policy reported the failure is unrecoverable and took the full responsibility for its handling,
-                                // so we simply stop processing.
-                                Log.AffinityResolutionFailedForBackend(_logger, backend.BackendId);
-                                return;
-                            }
+                            return await failurePolicy.Handle(context, options, affinityResult.Status);
                         });
+
+                        if (!failureHandled)
+                        {
+                            // Policy reported the failure is unrecoverable and took the full responsibility for its handling,
+                            // so we simply stop processing.
+                            Log.AffinityResolutionFailedForBackend(_logger, backend.BackendId);
+                            return;
+                        }
+
                         break;
                     default:
                         throw new NotSupportedException($"Affinity status '{affinityResult.Status}' is not supported.");
