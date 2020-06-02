@@ -8,6 +8,7 @@ using Microsoft.ReverseProxy.Abstractions.Telemetry;
 using Microsoft.ReverseProxy.Abstractions.Time;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Management;
+using Microsoft.ReverseProxy.Utilities;
 using Moq;
 using Tests.Common;
 using Xunit;
@@ -18,6 +19,7 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
     {
         private readonly Mock<IMonotonicTimer> _timer;
         private readonly Mock<IOperationLogger<BackendProber>> _operationLogger;
+        private readonly Mock<IRandomFactory> _randomFactory;
         private readonly ILogger<BackendProber> _logger;
         private readonly IHealthProbeHttpClientFactory _httpClientFactory;
 
@@ -27,13 +29,14 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
             _logger = NullLogger<BackendProber>.Instance;
             _httpClientFactory = new HealthProbeHttpClientFactory();
             _operationLogger = new Mock<IOperationLogger<BackendProber>>();
+            _randomFactory = new Mock<IRandomFactory>();
         }
 
         [Fact]
         public void WithNullParameter_BackendProberFactory_NotCreatebackendProber()
         {
             // Set up the factory.
-            var factory = new BackendProberFactory(_timer.Object, _logger, _operationLogger.Object, _httpClientFactory);
+            var factory = new BackendProberFactory(_timer.Object, _logger, _operationLogger.Object, _httpClientFactory, _randomFactory.Object);
 
             // Create prober should fail when parameter are set to null.
             Assert.Throws<ArgumentNullException>(() => factory.CreateBackendProber(null, null, null));
@@ -43,7 +46,7 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
         public void BackendProberFactory_CreateBackendProber()
         {
             // Set up the factory.
-            var factory = new BackendProberFactory(_timer.Object, _logger, _operationLogger.Object, _httpClientFactory);
+            var factory = new BackendProberFactory(_timer.Object, _logger, _operationLogger.Object, _httpClientFactory, _randomFactory.Object);
 
             // Create probers.
             var backendId = "example";

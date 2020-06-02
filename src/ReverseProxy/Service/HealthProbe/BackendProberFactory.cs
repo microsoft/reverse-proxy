@@ -25,17 +25,23 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
         /// <summary>
         /// Initializes a new instance of the <see cref="BackendProberFactory"/> class.
         /// </summary>
-        public BackendProberFactory(IMonotonicTimer timer, ILogger<BackendProber> logger, IOperationLogger<BackendProber> operationLogger, IHealthProbeHttpClientFactory httpClientFactory)
+        public BackendProberFactory(
+            IMonotonicTimer timer,
+            ILogger<BackendProber> logger,
+            IOperationLogger<BackendProber> operationLogger,
+            IHealthProbeHttpClientFactory httpClientFactory,
+            IRandomFactory randomFactory)
         {
             Contracts.CheckValue(timer, nameof(timer));
             Contracts.CheckValue(logger, nameof(logger));
             Contracts.CheckValue(operationLogger, nameof(operationLogger));
             Contracts.CheckValue(httpClientFactory, nameof(httpClientFactory));
+            Contracts.CheckValue(randomFactory, nameof(randomFactory));
 
             _timer = timer;
             _logger = logger;
             _httpClientFactory = httpClientFactory;
-            _randomFactory = new RandomFactory();
+            _randomFactory = randomFactory;
             _operationLogger = operationLogger;
         }
 
