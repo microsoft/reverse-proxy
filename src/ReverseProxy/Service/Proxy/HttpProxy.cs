@@ -30,16 +30,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy
     /// </summary>
     internal class HttpProxy : IHttpProxy
     {
-#if NETCOREAPP3_1
-        private static readonly Version Http2Version = new Version(2, 0);
-        private static readonly Version Http11Version = new Version(1, 1);
-#elif NETCOREAPP5_0
-        private static readonly Version Http2Version = HttpVersion.Version20;
-        private static readonly Version Http11Version = HttpVersion.Version11;
-#else
-#error A target framework was added to the project and needs to be added to this condition.
-#endif
-
         private static readonly HashSet<string> _headersToSkipGoingDownstream = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "Transfer-Encoding",
@@ -160,7 +150,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             // We request HTTP/2, but HttpClient will fallback to HTTP/1.1 if it cannot establish HTTP/2 with the target.
             // This is done without extra round-trips thanks to ALPN. We can detect a downgrade after calling HttpClient.SendAsync
             // (see Step 3 below). TBD how this will change when HTTP/3 is supported.
-            upstreamRequest.Version = Http2Version;
+            upstreamRequest.Version = ProtocolHelper.Http2Version;
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 2: Setup copy of request body (background) Downstream --► Proxy --► Upstream
@@ -281,7 +271,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 1: Create outgoing HttpRequestMessage
             // Default to HTTP/1.1 for proxying upgradable requests. This is already the default as of .NET Core 3.1
-            upstreamRequest.Version = Http11Version;
+            upstreamRequest.Version = ProtocolHelper.Http11Version;
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 2: Copy request headers Downstream --► Proxy --► Upstream

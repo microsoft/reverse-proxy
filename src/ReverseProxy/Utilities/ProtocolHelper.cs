@@ -2,11 +2,22 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Net;
 
 namespace Microsoft.ReverseProxy
 {
     internal static class ProtocolHelper
     {
+#if NETCOREAPP5_0
+        internal static readonly Version Http2Version = HttpVersion.Version20;
+        internal static readonly Version Http11Version = HttpVersion.Version11;
+#elif NETCOREAPP3_1
+        internal static readonly Version Http2Version = new Version(2, 0);
+        internal static readonly Version Http11Version = new Version(1, 1);
+#else
+#error A target framework was added to the project and needs to be added to this condition.
+#endif
+
         internal const string GrpcContentType = "application/grpc";
 
         public static bool IsHttp2(string protocol)
