@@ -51,11 +51,11 @@ namespace Microsoft.ReverseProxy.Service.Config
                 {
                     requestTransforms.Add(new PathRouteValueTransform(pathPattern, _binderFactory));
                 }
-                else if (rawTransform.TryGetValue("CopyRequestHeaders", out var copyHeaders))
+                else if (rawTransform.TryGetValue("RequestHeadersCopy", out var copyHeaders))
                 {
                     copyRequestHeaders = string.Equals("True", copyHeaders, StringComparison.OrdinalIgnoreCase);
                 }
-                else if (rawTransform.TryGetValue("UseOriginalHost", out var originalHost))
+                else if (rawTransform.TryGetValue("RequestHeaderOriginalHost", out var originalHost))
                 {
                     useOriginalHost = string.Equals("True", originalHost, StringComparison.OrdinalIgnoreCase);
                 }
