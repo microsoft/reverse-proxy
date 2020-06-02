@@ -14,8 +14,16 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
 
         public Task<bool> Handle(HttpContext context, BackendConfig.BackendSessionAffinityOptions options, AffinityStatus affinityStatus)
         {
+            if (affinityStatus == AffinityStatus.OK
+                || affinityStatus == AffinityStatus.AffinityKeyNotSet
+                || affinityStatus == AffinityStatus.AffinityDisabled)
+            {
+                // We shouldn't get here, but allow the request to proceed further if that's the case.
+                return Task.FromResult(true);
+            }
+
             context.Response.StatusCode = 503;
-            return Task.FromResult(true);
+            return Task.FromResult(false);
         }
     }
 }

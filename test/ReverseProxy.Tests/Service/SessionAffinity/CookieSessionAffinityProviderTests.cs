@@ -3,14 +3,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract;
 using Microsoft.ReverseProxy.RuntimeModel;
-using Moq;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Service.SessionAffinity
@@ -24,7 +20,13 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
         [Fact]
         public void FindAffinitizedDestination_AffinityKeyIsNotSetOnRequest_ReturnKeyNotSet()
         {
-            var provider = new CookieSessionAffinityProvider(Options.Create(_defaultProviderOptions), GetDataProtector().Object, GetLogger().Object);
+            var provider = new CookieSessionAffinityProvider(
+                Options.Create(_defaultProviderOptions),
+                AffinityTestHelper.GetDataProtector().Object,
+                AffinityTestHelper.GetLogger<CookieSessionAffinityProvider>().Object);
+
+            Assert.Equal(SessionAffinityBuiltIns.Modes.Cookie, provider.Mode);
+
             var context = new DefaultHttpContext();
             context.Request.Headers["Cookie"] = new[] { $"Some-Cookie=ZZZ" };
 
@@ -37,7 +39,10 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
         [Fact]
         public void FindAffinitizedDestination_AffinityKeyIsSetOnRequest_Success()
         {
-            var provider = new CookieSessionAffinityProvider(Options.Create(_defaultProviderOptions), GetDataProtector().Object, GetLogger().Object);
+            var provider = new CookieSessionAffinityProvider(
+                Options.Create(_defaultProviderOptions),
+                AffinityTestHelper.GetDataProtector().Object,
+                AffinityTestHelper.GetLogger<CookieSessionAffinityProvider>().Object);
             var context = new DefaultHttpContext();
             var affinitizedDestination = _destinations[1];
             context.Request.Headers["Cookie"] = GetCookieWithAffinity(affinitizedDestination);
@@ -52,7 +57,10 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
         [Fact]
         public void AffinitizedRequest_AffinityKeyIsNotExtracted_SetKeyOnResponse()
         {
-            var provider = new CookieSessionAffinityProvider(Options.Create(_defaultProviderOptions), GetDataProtector().Object, GetLogger().Object);
+            var provider = new CookieSessionAffinityProvider(
+                Options.Create(_defaultProviderOptions),
+                AffinityTestHelper.GetDataProtector().Object,
+                AffinityTestHelper.GetLogger<CookieSessionAffinityProvider>().Object);
             var context = new DefaultHttpContext();
 
             provider.AffinitizeRequest(context, _defaultOptions, _destinations[1]);
@@ -62,9 +70,36 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
         }
 
         [Fact]
+        public void AffinitizeRequest_CookieBuilderSettingsChanged_UseNewSettings()
+        {
+            var providerOptions = new CookieSessionAffinityProviderOptions();
+            providerOptions.Cookie.Domain = "mydomain.my";
+            providerOptions.Cookie.HttpOnly = false;
+            providerOptions.Cookie.IsEssential = true;
+            providerOptions.Cookie.MaxAge = TimeSpan.FromHours(1);
+            providerOptions.Cookie.Name = "My.Affinity";
+            providerOptions.Cookie.Path = "/some";
+            providerOptions.Cookie.SameSite = SameSiteMode.Lax;
+            providerOptions.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+            var provider = new CookieSessionAffinityProvider(
+                Options.Create(providerOptions),
+                AffinityTestHelper.GetDataProtector().Object,
+                AffinityTestHelper.GetLogger<CookieSessionAffinityProvider>().Object);
+            var context = new DefaultHttpContext();
+
+            provider.AffinitizeRequest(context, _defaultOptions, _destinations[1]);
+
+            var affinityCookieHeader = context.Response.Headers["Set-Cookie"];
+            Assert.Equal("My.Affinity=ZGVzdC1C; max-age=3600; domain=mydomain.my; path=/some; secure; samesite=lax", affinityCookieHeader);
+        }
+
+        [Fact]
         public void AffinitizedRequest_AffinityKeyIsExtracted_DoNothing()
         {
-            var provider = new CookieSessionAffinityProvider(Options.Create(_defaultProviderOptions), GetDataProtector().Object, GetLogger().Object);
+            var provider = new CookieSessionAffinityProvider(
+                Options.Create(_defaultProviderOptions),
+                AffinityTestHelper.GetDataProtector().Object,
+                AffinityTestHelper.GetLogger<CookieSessionAffinityProvider>().Object);
             var context = new DefaultHttpContext();
             var affinitizedDestination = _destinations[0];
             context.Request.Headers["Cookie"] = GetCookieWithAffinity(affinitizedDestination);
@@ -80,21 +115,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
 
         private string[] GetCookieWithAffinity(DestinationInfo affinitizedDestination)
         {
-            return new[] { $"Some-Cookie=ZZZ", $"{_defaultProviderOptions.Cookie.Name}={Convert.ToBase64String(Encoding.UTF8.GetBytes(affinitizedDestination.DestinationId))}" };
-        }
-
-        private static Mock<ILogger<CookieSessionAffinityProvider>> GetLogger()
-        {
-            return new Mock<ILogger<CookieSessionAffinityProvider>>();
-        }
-
-        private static Mock<IDataProtector> GetDataProtector()
-        {
-            var protector = new Mock<IDataProtector>();
-            protector.Setup(p => p.CreateProtector(It.IsAny<string>())).Returns(protector.Object);
-            protector.Setup(p => p.Protect(It.IsAny<byte[]>())).Returns((byte[] b) => b);
-            protector.Setup(p => p.Unprotect(It.IsAny<byte[]>())).Returns((byte[] b) => b);
-            return protector;
+            return new[] { $"Some-Cookie=ZZZ", $"{_defaultProviderOptions.Cookie.Name}={affinitizedDestination.DestinationId.ToUTF8BytesInBase64()}" };
         }
     }
 }

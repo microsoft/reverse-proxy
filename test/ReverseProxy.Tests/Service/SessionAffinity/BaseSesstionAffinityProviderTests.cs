@@ -15,7 +15,7 @@ using Xunit;
 
 namespace Microsoft.ReverseProxy.Service.SessionAffinity
 {
-    public class BaseSesstionAffinityProviderTest : TestAutoMockBase
+    public class BaseSesstionAffinityProviderTests : TestAutoMockBase
     {
         private const string InvalidKeyNull = "!invalid key - null!";
         private const string InvalidKeyThrow = "!invalid key - throw!";

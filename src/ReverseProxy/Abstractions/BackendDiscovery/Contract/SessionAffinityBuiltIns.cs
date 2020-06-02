@@ -12,7 +12,7 @@ namespace Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract
         {
             public static string Cookie => "Cookie";
 
-            public static string CustomHeander => "CustomHeader";
+            public static string CustomHeader => "CustomHeader";
         }
 
         public static class AffinityFailurePolicies
