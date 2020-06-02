@@ -19,7 +19,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             _binder = binderFactory.Create(RoutePatternFactory.Parse(pattern));
         }
 
-        public override void Run(RequestParametersTransformContext context)
+        public override void Apply(RequestParametersTransformContext context)
         {
             context.Path = _binder.BindValues(context.HttpContext.Request.RouteValues);
         }

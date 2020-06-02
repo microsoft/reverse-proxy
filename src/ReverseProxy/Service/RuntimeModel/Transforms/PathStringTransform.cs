@@ -21,7 +21,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 
         public bool TransformPathBase { get; }
 
-        public override void Run(RequestParametersTransformContext context)
+        public override void Apply(RequestParametersTransformContext context)
         {
             var input = TransformPathBase ? context.PathBase : context.Path;
             PathString result;

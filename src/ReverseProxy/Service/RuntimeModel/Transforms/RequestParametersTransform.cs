@@ -5,6 +5,6 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
     public abstract class RequestParametersTransform
     {
-        public abstract void Run(RequestParametersTransformContext context);
+        public abstract void Apply(RequestParametersTransformContext context);
     }
 }
