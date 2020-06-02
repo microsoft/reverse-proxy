@@ -81,6 +81,13 @@
     <div class="level0"><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object">Object</a></div>
     <div class="level1"><span class="xref">DestinationInfo</span></div>
   </div>
+  <div classs="implements">
+    <h5>Implements</h5>
+    <div><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist-1">IReadOnlyList</a>&lt;<a class="xref" href="Microsoft.ReverseProxy.RuntimeModel.DestinationInfo.html">DestinationInfo</a>&gt;</div>
+    <div><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.collections.generic.ireadonlycollection-1">IReadOnlyCollection</a>&lt;<a class="xref" href="Microsoft.ReverseProxy.RuntimeModel.DestinationInfo.html">DestinationInfo</a>&gt;</div>
+    <div><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="Microsoft.ReverseProxy.RuntimeModel.DestinationInfo.html">DestinationInfo</a>&gt;</div>
+    <div><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.collections.ienumerable">IEnumerable</a></div>
+  </div>
   <div class="inheritedMembers">
     <h5>Inherited Members</h5>
     <div>
@@ -109,7 +116,7 @@
   <h6><strong>Assembly</strong>: Microsoft.ReverseProxy.dll</h6>
   <h5 id="Microsoft_ReverseProxy_RuntimeModel_DestinationInfo_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public sealed class DestinationInfo</code></pre>
+    <pre><code class="lang-csharp hljs">public sealed class DestinationInfo : IReadOnlyList&lt;DestinationInfo&gt;, IReadOnlyCollection&lt;DestinationInfo&gt;, IEnumerable&lt;DestinationInfo&gt;, IEnumerable</code></pre>
   </div>
   <h5 id="Microsoft_ReverseProxy_RuntimeModel_DestinationInfo_remarks"><strong>Remarks</strong></h5>
   <div class="markdown level0 remarks"><p>Note that while this class is immutable, specific members such as
@@ -125,7 +132,7 @@ All members are thread safe.</p>
     <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_RuntimeModel_DestinationInfo__ctor_System_String_.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.RuntimeModel.DestinationInfo.%23ctor(System.String)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/RuntimeModel/DestinationInfo.cs/#L21">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/RuntimeModel/DestinationInfo.cs/#L24">View Source</a>
   </span>
   <a id="Microsoft_ReverseProxy_RuntimeModel_DestinationInfo__ctor_" data-uid="Microsoft.ReverseProxy.RuntimeModel.DestinationInfo.#ctor*"></a>
   <h4 id="Microsoft_ReverseProxy_RuntimeModel_DestinationInfo__ctor_System_String_" data-uid="Microsoft.ReverseProxy.RuntimeModel.DestinationInfo.#ctor(System.String)">DestinationInfo(String)</h4>
@@ -159,7 +166,7 @@ All members are thread safe.</p>
     <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_RuntimeModel_DestinationInfo_ConcurrencyCounter.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.RuntimeModel.DestinationInfo.ConcurrencyCounter%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/RuntimeModel/DestinationInfo.cs/#L44">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/RuntimeModel/DestinationInfo.cs/#L47">View Source</a>
   </span>
   <a id="Microsoft_ReverseProxy_RuntimeModel_DestinationInfo_ConcurrencyCounter_" data-uid="Microsoft.ReverseProxy.RuntimeModel.DestinationInfo.ConcurrencyCounter*"></a>
   <h4 id="Microsoft_ReverseProxy_RuntimeModel_DestinationInfo_ConcurrencyCounter" data-uid="Microsoft.ReverseProxy.RuntimeModel.DestinationInfo.ConcurrencyCounter">ConcurrencyCounter</h4>
@@ -190,7 +197,7 @@ All members are thread safe.</p>
     <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_RuntimeModel_DestinationInfo_Config.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.RuntimeModel.DestinationInfo.Config%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/RuntimeModel/DestinationInfo.cs/#L33">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/RuntimeModel/DestinationInfo.cs/#L36">View Source</a>
   </span>
   <a id="Microsoft_ReverseProxy_RuntimeModel_DestinationInfo_Config_" data-uid="Microsoft.ReverseProxy.RuntimeModel.DestinationInfo.Config*"></a>
   <h4 id="Microsoft_ReverseProxy_RuntimeModel_DestinationInfo_Config" data-uid="Microsoft.ReverseProxy.RuntimeModel.DestinationInfo.Config">Config</h4>
@@ -222,7 +229,7 @@ in reaction to config changes.</p>
     <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_RuntimeModel_DestinationInfo_DestinationId.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.RuntimeModel.DestinationInfo.DestinationId%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/RuntimeModel/DestinationInfo.cs/#L27">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/RuntimeModel/DestinationInfo.cs/#L30">View Source</a>
   </span>
   <a id="Microsoft_ReverseProxy_RuntimeModel_DestinationInfo_DestinationId_" data-uid="Microsoft.ReverseProxy.RuntimeModel.DestinationInfo.DestinationId*"></a>
   <h4 id="Microsoft_ReverseProxy_RuntimeModel_DestinationInfo_DestinationId" data-uid="Microsoft.ReverseProxy.RuntimeModel.DestinationInfo.DestinationId">DestinationId</h4>
@@ -252,7 +259,7 @@ in reaction to config changes.</p>
     <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_RuntimeModel_DestinationInfo_DynamicState.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.RuntimeModel.DestinationInfo.DynamicState%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/RuntimeModel/DestinationInfo.cs/#L39">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/RuntimeModel/DestinationInfo.cs/#L42">View Source</a>
   </span>
   <a id="Microsoft_ReverseProxy_RuntimeModel_DestinationInfo_DynamicState_" data-uid="Microsoft.ReverseProxy.RuntimeModel.DestinationInfo.DynamicState*"></a>
   <h4 id="Microsoft_ReverseProxy_RuntimeModel_DestinationInfo_DynamicState" data-uid="Microsoft.ReverseProxy.RuntimeModel.DestinationInfo.DynamicState">DynamicState</h4>
@@ -279,6 +286,190 @@ in reaction to runtime state changes (e.g. endpoint health states).</p>
       </tr>
     </tbody>
   </table>
+  <h3 id="methods">Methods
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_RuntimeModel_DestinationInfo_GetEnumerator.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.RuntimeModel.DestinationInfo.GetEnumerator%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/RuntimeModel/DestinationInfo.cs/#L54">View Source</a>
+  </span>
+  <a id="Microsoft_ReverseProxy_RuntimeModel_DestinationInfo_GetEnumerator_" data-uid="Microsoft.ReverseProxy.RuntimeModel.DestinationInfo.GetEnumerator*"></a>
+  <h4 id="Microsoft_ReverseProxy_RuntimeModel_DestinationInfo_GetEnumerator" data-uid="Microsoft.ReverseProxy.RuntimeModel.DestinationInfo.GetEnumerator">GetEnumerator()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public DestinationInfo.Enumerator GetEnumerator()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Microsoft.ReverseProxy.RuntimeModel.DestinationInfo.Enumerator.html">DestinationInfo.Enumerator</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="eii">Explicit Interface Implementations
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_RuntimeModel_DestinationInfo_System_Collections_Generic_IEnumerable_Microsoft_ReverseProxy_RuntimeModel_DestinationInfo__GetEnumerator.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.RuntimeModel.DestinationInfo.System%23Collections%23Generic%23IEnumerable%7BMicrosoft%23ReverseProxy%23RuntimeModel%23DestinationInfo%7D%23GetEnumerator%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/RuntimeModel/DestinationInfo.cs/#L59">View Source</a>
+  </span>
+  <a id="Microsoft_ReverseProxy_RuntimeModel_DestinationInfo_System_Collections_Generic_IEnumerable_Microsoft_ReverseProxy_RuntimeModel_DestinationInfo__GetEnumerator_" data-uid="Microsoft.ReverseProxy.RuntimeModel.DestinationInfo.System#Collections#Generic#IEnumerable{Microsoft#ReverseProxy#RuntimeModel#DestinationInfo}#GetEnumerator*"></a>
+  <h4 id="Microsoft_ReverseProxy_RuntimeModel_DestinationInfo_System_Collections_Generic_IEnumerable_Microsoft_ReverseProxy_RuntimeModel_DestinationInfo__GetEnumerator" data-uid="Microsoft.ReverseProxy.RuntimeModel.DestinationInfo.System#Collections#Generic#IEnumerable{Microsoft#ReverseProxy#RuntimeModel#DestinationInfo}#GetEnumerator">IEnumerable&lt;DestinationInfo&gt;.GetEnumerator()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IEnumerator&lt;DestinationInfo&gt; IEnumerable&lt;DestinationInfo&gt;.GetEnumerator()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.collections.generic.ienumerator-1">IEnumerator</a>&lt;<a class="xref" href="Microsoft.ReverseProxy.RuntimeModel.DestinationInfo.html">DestinationInfo</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_RuntimeModel_DestinationInfo_System_Collections_Generic_IReadOnlyCollection_Microsoft_ReverseProxy_RuntimeModel_DestinationInfo__Count.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.RuntimeModel.DestinationInfo.System%23Collections%23Generic%23IReadOnlyCollection%7BMicrosoft%23ReverseProxy%23RuntimeModel%23DestinationInfo%7D%23Count%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/RuntimeModel/DestinationInfo.cs/#L52">View Source</a>
+  </span>
+  <a id="Microsoft_ReverseProxy_RuntimeModel_DestinationInfo_System_Collections_Generic_IReadOnlyCollection_Microsoft_ReverseProxy_RuntimeModel_DestinationInfo__Count_" data-uid="Microsoft.ReverseProxy.RuntimeModel.DestinationInfo.System#Collections#Generic#IReadOnlyCollection{Microsoft#ReverseProxy#RuntimeModel#DestinationInfo}#Count*"></a>
+  <h4 id="Microsoft_ReverseProxy_RuntimeModel_DestinationInfo_System_Collections_Generic_IReadOnlyCollection_Microsoft_ReverseProxy_RuntimeModel_DestinationInfo__Count" data-uid="Microsoft.ReverseProxy.RuntimeModel.DestinationInfo.System#Collections#Generic#IReadOnlyCollection{Microsoft#ReverseProxy#RuntimeModel#DestinationInfo}#Count">IReadOnlyCollection&lt;DestinationInfo&gt;.Count</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">int IReadOnlyCollection&lt;DestinationInfo&gt;.Count { get; }</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.int32">Int32</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_RuntimeModel_DestinationInfo_System_Collections_Generic_IReadOnlyList_Microsoft_ReverseProxy_RuntimeModel_DestinationInfo__Item_System_Int32_.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.RuntimeModel.DestinationInfo.System%23Collections%23Generic%23IReadOnlyList%7BMicrosoft%23ReverseProxy%23RuntimeModel%23DestinationInfo%7D%23Item(System.Int32)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/RuntimeModel/DestinationInfo.cs/#L49">View Source</a>
+  </span>
+  <a id="Microsoft_ReverseProxy_RuntimeModel_DestinationInfo_System_Collections_Generic_IReadOnlyList_Microsoft_ReverseProxy_RuntimeModel_DestinationInfo__Item_" data-uid="Microsoft.ReverseProxy.RuntimeModel.DestinationInfo.System#Collections#Generic#IReadOnlyList{Microsoft#ReverseProxy#RuntimeModel#DestinationInfo}#Item*"></a>
+  <h4 id="Microsoft_ReverseProxy_RuntimeModel_DestinationInfo_System_Collections_Generic_IReadOnlyList_Microsoft_ReverseProxy_RuntimeModel_DestinationInfo__Item_System_Int32_" data-uid="Microsoft.ReverseProxy.RuntimeModel.DestinationInfo.System#Collections#Generic#IReadOnlyList{Microsoft#ReverseProxy#RuntimeModel#DestinationInfo}#Item(System.Int32)">IReadOnlyList&lt;DestinationInfo&gt;.Item[Int32]</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">DestinationInfo IReadOnlyList&lt;DestinationInfo&gt;.this[int index] { get; }</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.int32">Int32</a></td>
+        <td><span class="parametername">index</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Microsoft.ReverseProxy.RuntimeModel.DestinationInfo.html">DestinationInfo</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_RuntimeModel_DestinationInfo_System_Collections_IEnumerable_GetEnumerator.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.RuntimeModel.DestinationInfo.System%23Collections%23IEnumerable%23GetEnumerator%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/RuntimeModel/DestinationInfo.cs/#L64">View Source</a>
+  </span>
+  <a id="Microsoft_ReverseProxy_RuntimeModel_DestinationInfo_System_Collections_IEnumerable_GetEnumerator_" data-uid="Microsoft.ReverseProxy.RuntimeModel.DestinationInfo.System#Collections#IEnumerable#GetEnumerator*"></a>
+  <h4 id="Microsoft_ReverseProxy_RuntimeModel_DestinationInfo_System_Collections_IEnumerable_GetEnumerator" data-uid="Microsoft.ReverseProxy.RuntimeModel.DestinationInfo.System#Collections#IEnumerable#GetEnumerator">IEnumerable.GetEnumerator()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IEnumerator IEnumerable.GetEnumerator()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.collections.ienumerator">IEnumerator</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="implements">Implements</h3>
+  <div>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist-1">System.Collections.Generic.IReadOnlyList&lt;T&gt;</a>
+  </div>
+  <div>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.collections.generic.ireadonlycollection-1">System.Collections.Generic.IReadOnlyCollection&lt;T&gt;</a>
+  </div>
+  <div>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">System.Collections.Generic.IEnumerable&lt;T&gt;</a>
+  </div>
+  <div>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.collections.ienumerable">System.Collections.IEnumerable</a>
+  </div>
 </article>
           </div>
           
@@ -290,7 +481,7 @@ in reaction to runtime state changes (e.g. endpoint health states).</p>
                     <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_RuntimeModel_DestinationInfo.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.RuntimeModel.DestinationInfo%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
                   </li>
                   <li>
-                    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/RuntimeModel/DestinationInfo.cs/#L19" class="contribution-link">View Source</a>
+                    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/RuntimeModel/DestinationInfo.cs/#L22" class="contribution-link">View Source</a>
                   </li>
                 </ul>
               </div>

@@ -413,11 +413,23 @@
     },
     {
       "type": "ManagedReference",
+      "source_relative_path": "api/Microsoft.ReverseProxy.RuntimeModel.DestinationInfo.Enumerator.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Microsoft.ReverseProxy.RuntimeModel.DestinationInfo.Enumerator.html",
+          "hash": "qX99afDvztuCoWPtf48aMg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
       "source_relative_path": "api/Microsoft.ReverseProxy.RuntimeModel.DestinationInfo.yml",
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.RuntimeModel.DestinationInfo.html",
-          "hash": "FwXx4UNccrWvJpCBHugIXQ=="
+          "hash": "V3+Pb5Aoun90qPYb21g4kQ=="
         }
       },
       "is_incremental": false,
@@ -429,7 +441,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.RuntimeModel.html",
-          "hash": "6gIIovdCYc2388gXRktPrQ=="
+          "hash": "BFEb7VO//SbokM0jx7Y7QQ=="
         }
       },
       "is_incremental": false,
@@ -753,7 +765,7 @@
       "output": {
         ".html": {
           "relative_path": "api/toc.html",
-          "hash": "mpGk++IbpqiMMAvOjEk00g=="
+          "hash": "x07A0t8B8ug7uB94fwM9Ew=="
         }
       },
       "is_incremental": false,
@@ -864,7 +876,7 @@
         "ManagedReferenceDocumentProcessor": {
           "can_incremental": false,
           "incrementalPhase": "build",
-          "total_file_count": 61,
+          "total_file_count": 62,
           "skipped_file_count": 0
         },
         "TocDocumentProcessor": {
