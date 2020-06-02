@@ -40,11 +40,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 #error A target framework was added to the project and needs to be added to this condition.
 #endif
 
-        // TODO: Enumerate all headers to skip
-        private static readonly HashSet<string> _headersToSkipGoingUpstream = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-        {
-            "Host",
-        };
         private static readonly HashSet<string> _headersToSkipGoingDownstream = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "Transfer-Encoding",
@@ -442,12 +437,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 
                     // Filter out HTTP/2 pseudo headers like ":method" and ":path", those go into other fields.
                     if (headerName.Length > 0 && headerName[0] == ':')
-                    {
-                        continue;
-                    }
-
-                    // TODO: Turn this into a configurable transformation on the proxy/route? It's only the Host header, and sometimes people want that.
-                    if (_headersToSkipGoingUpstream.Contains(headerName))
                     {
                         continue;
                     }

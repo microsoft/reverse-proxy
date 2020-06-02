@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing.Template;
+using Microsoft.Net.Http.Headers;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 
 namespace Microsoft.ReverseProxy.Service.Config
@@ -27,17 +28,14 @@ namespace Microsoft.ReverseProxy.Service.Config
             }
 
             bool? copyRequestHeaders = null;
+            bool? useOriginalHost = null;
             var requestTransforms = new List<RequestParametersTransform>();
             var requestHeaderTransforms = new Dictionary<string, RequestHeaderTransform>();
 
             foreach (var rawTransform in rawTransforms)
             {
-                if (rawTransform.TryGetValue("CopyRequestHeaders", out var copyHeaders))
-                {
-                    copyRequestHeaders = string.Equals("True", copyHeaders, StringComparison.OrdinalIgnoreCase);
-                }
                 // TODO: Ensure path string formats like starts with /
-                else if (rawTransform.TryGetValue("PathPrefix", out var pathPrefix))
+                if (rawTransform.TryGetValue("PathPrefix", out var pathPrefix))
                 {
                     requestTransforms.Add(new PathStringTransform(PathStringTransform.TransformMode.Prepend, transformPathBase: false, new PathString(pathPrefix)));
                 }
@@ -52,6 +50,14 @@ namespace Microsoft.ReverseProxy.Service.Config
                 else if (rawTransform.TryGetValue("PathPattern", out var pathPattern))
                 {
                     requestTransforms.Add(new PathRouteValueTransform(pathPattern, _binderFactory));
+                }
+                else if (rawTransform.TryGetValue("CopyRequestHeaders", out var copyHeaders))
+                {
+                    copyRequestHeaders = string.Equals("True", copyHeaders, StringComparison.OrdinalIgnoreCase);
+                }
+                else if (rawTransform.TryGetValue("UseOriginalHost", out var originalHost))
+                {
+                    useOriginalHost = string.Equals("True", originalHost, StringComparison.OrdinalIgnoreCase);
                 }
                 else if (rawTransform.TryGetValue("RequestHeader", out var headerName))
                 {
@@ -73,6 +79,12 @@ namespace Microsoft.ReverseProxy.Service.Config
                     // TODO: Make this a route validation error?
                     throw new NotImplementedException(string.Join(';', rawTransform.Keys));
                 }
+            }
+
+            // If there's no transform defined for Host, suppress the host by default
+            if (!requestHeaderTransforms.ContainsKey(HeaderNames.Host) && !(useOriginalHost ?? false))
+            {
+                requestHeaderTransforms[HeaderNames.Host] = new RequestHeaderValueTransform(null, append: false);
             }
 
             transforms = new Transforms(requestTransforms, copyRequestHeaders, requestHeaderTransforms);
