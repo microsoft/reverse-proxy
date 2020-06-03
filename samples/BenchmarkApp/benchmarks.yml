@@ -23,7 +23,5 @@ scenarios:
       job: downstream
     application:
       job: yarp
-    warmup:
-      job: bombardier
     load:
       job: bombardier

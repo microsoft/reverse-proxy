@@ -42,7 +42,10 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                     return endpoints[0];
                 case LoadBalancingMode.RoundRobin:
                     var offset = loadBalancingOptions.RoundRobinState.Increment();
-                    return endpoints[offset % endpoints.Count];
+                    // Preventing negative indicies from being computed by masking off sign.
+                    // Ordering of index selection is consistent across all offsets.
+                    // There may be a discontinuity when the sign of offset changes.
+                    return endpoints[(offset & 0x7FFFFFFF) % endpoints.Count];
                 case LoadBalancingMode.Random:
                     var random = _randomFactory.CreateRandomInstance();
                     return endpoints[random.Next(endpointCount)];

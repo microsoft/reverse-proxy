@@ -39,8 +39,8 @@ jobs:
           if ($LASTEXITCODE -eq 0) {
             Write-Host "No changes to commit!"
           } else {
-            git config --global user.name "$env:GITHUB_ACTOR"
-            git config --global user.email "$env:GITHUB_ACTOR@users.noreply.github.com"
+            git config --global user.name "github-actions[bot]"
+            git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git commit -m"Updated docs from commit $env:GITHUB_SHA on $env:GITHUB_REF"
             git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
             git push origin gh-pages

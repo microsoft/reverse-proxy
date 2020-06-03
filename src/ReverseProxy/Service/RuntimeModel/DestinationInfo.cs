@@ -1,6 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using Microsoft.ReverseProxy.Signals;
 using Microsoft.ReverseProxy.Utilities;
 
@@ -16,7 +19,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
     /// relevant to this endpoint.
     /// All members are thread safe.
     /// </remarks>
-    public sealed class DestinationInfo
+    public sealed class DestinationInfo : IReadOnlyList<DestinationInfo>
     {
         public DestinationInfo(string destinationId)
         {
@@ -42,5 +45,60 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         /// Keeps track of the total number of concurrent requests on this endpoint.
         /// </summary>
         public AtomicCounter ConcurrencyCounter { get; } = new AtomicCounter();
+
+        DestinationInfo IReadOnlyList<DestinationInfo>.this[int index]
+            => index == 0 ? this : throw new IndexOutOfRangeException();
+
+        int IReadOnlyCollection<DestinationInfo>.Count => 1;
+
+        public Enumerator GetEnumerator()
+        {
+            return new Enumerator(this);
+        }
+
+        IEnumerator<DestinationInfo> IEnumerable<DestinationInfo>.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        public struct Enumerator : IEnumerator<DestinationInfo>
+        {
+            private bool _read;
+
+            internal Enumerator(DestinationInfo destinationInfo)
+            {
+                Current = destinationInfo;
+                _read = false;
+            }
+
+            public DestinationInfo Current { get; }
+
+            object IEnumerator.Current => Current;
+
+            public bool MoveNext()
+            {
+                if (!_read)
+                {
+                    _read = true;
+                    return true;
+                }
+                return false;
+            }
+
+            public void Dispose()
+            {
+
+            }
+
+            void IEnumerator.Reset()
+            {
+                throw new NotSupportedException();
+            }
+        }
     }
 }

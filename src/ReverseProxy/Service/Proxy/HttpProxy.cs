@@ -137,11 +137,11 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 0: Disable ASP .NET Core limits for streaming requests
-            var isIncomingHttp2 = HttpProtocol.IsHttp2(context.Request.Protocol);
+            var isIncomingHttp2 = ProtocolHelper.IsHttp2(context.Request.Protocol);
 
             // NOTE: We heuristically assume gRPC-looking requests may require streaming semantics.
             // See https://github.com/microsoft/reverse-proxy/issues/118 for design discussion.
-            var isStreamingRequest = isIncomingHttp2 && GrpcProtocolHelper.IsGrpcContentType(context.Request.ContentType);
+            var isStreamingRequest = isIncomingHttp2 && ProtocolHelper.IsGrpcContentType(context.Request.ContentType);
             if (isStreamingRequest)
             {
                 DisableMinRequestBodyDataRateAndMaxRequestBodySize(context);
