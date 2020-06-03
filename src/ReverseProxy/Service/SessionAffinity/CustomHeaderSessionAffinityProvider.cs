@@ -20,7 +20,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
             : base(dataProtectionProvider, logger)
         {}
 
-        public override string Mode => SessionAffinityBuiltIns.Modes.CustomHeader;
+        public override string Mode => SessionAffinityConstants.Modes.CustomHeader;
 
         protected override string GetDestinationAffinityKey(DestinationInfo destination)
         {

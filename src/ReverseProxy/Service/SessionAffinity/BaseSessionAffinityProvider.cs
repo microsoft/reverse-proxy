@@ -61,6 +61,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
             {
                 for (var i = 0; i < destinations.Count; i++)
                 {
+                    // TODO: Add fast destination lookup by ID
                     if (requestAffinityKey.Key.Equals(GetDestinationAffinityKey(destinations[i])))
                     {
                         // It's allowed to affinitize a request to a pool of destinations so as to enable load-balancing among them.

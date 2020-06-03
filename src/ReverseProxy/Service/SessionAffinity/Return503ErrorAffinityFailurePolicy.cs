@@ -10,7 +10,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
 {
     internal class Return503ErrorAffinityFailurePolicy : IAffinityFailurePolicy
     {
-        public string Name => SessionAffinityBuiltIns.AffinityFailurePolicies.Return503Error;
+        public string Name => SessionAffinityConstants.AffinityFailurePolicies.Return503Error;
 
         public Task<bool> Handle(HttpContext context, BackendConfig.BackendSessionAffinityOptions options, AffinityStatus affinityStatus)
         {

@@ -10,7 +10,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
 {
     internal class RedistributeAffinityFailurePolicy : IAffinityFailurePolicy
     {
-        public string Name => SessionAffinityBuiltIns.AffinityFailurePolicies.Redistribute;
+        public string Name => SessionAffinityConstants.AffinityFailurePolicies.Redistribute;
 
         public Task<bool> Handle(HttpContext context, BackendConfig.BackendSessionAffinityOptions options, AffinityStatus affinityStatus)
         {

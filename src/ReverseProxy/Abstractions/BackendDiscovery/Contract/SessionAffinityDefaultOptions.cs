@@ -10,8 +10,8 @@ namespace Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract
     /// </summary>
     public class SessionAffinityDefaultOptions
     {
-        private string _defaultMode = SessionAffinityBuiltIns.Modes.Cookie;
-        private string _defaultAffinityFailurePolicy = SessionAffinityBuiltIns.AffinityFailurePolicies.Redistribute;
+        private string _defaultMode = SessionAffinityConstants.Modes.Cookie;
+        private string _defaultAffinityFailurePolicy = SessionAffinityConstants.AffinityFailurePolicies.Redistribute;
 
         /// <summary>
         /// Default session affinity mode to be used when none is specified for a backend.

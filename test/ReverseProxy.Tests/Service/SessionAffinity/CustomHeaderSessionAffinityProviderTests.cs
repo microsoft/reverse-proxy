@@ -22,7 +22,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
         {
             var provider = new CustomHeaderSessionAffinityProvider(AffinityTestHelper.GetDataProtector().Object, AffinityTestHelper.GetLogger<CustomHeaderSessionAffinityProvider>().Object);
 
-            Assert.Equal(SessionAffinityBuiltIns.Modes.CustomHeader, provider.Mode);
+            Assert.Equal(SessionAffinityConstants.Modes.CustomHeader, provider.Mode);
 
             var context = new DefaultHttpContext();
             context.Request.Headers["SomeHeader"] = new[] { "SomeValue" };

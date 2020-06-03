@@ -24,7 +24,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
             _providerOptions = providerOptions?.Value ?? throw new ArgumentNullException(nameof(providerOptions));
         }
 
-        public override string Mode => SessionAffinityBuiltIns.Modes.Cookie;
+        public override string Mode => SessionAffinityConstants.Modes.Cookie;
 
         protected override string GetDestinationAffinityKey(DestinationInfo destination)
         {

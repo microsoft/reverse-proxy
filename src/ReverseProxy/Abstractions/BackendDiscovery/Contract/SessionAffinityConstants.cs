@@ -6,7 +6,7 @@ namespace Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract
     /// <summary>
     /// Names of built-in session affinity services.
     /// </summary>
-    public static class SessionAffinityBuiltIns
+    public static class SessionAffinityConstants
     {
         public static class Modes
         {

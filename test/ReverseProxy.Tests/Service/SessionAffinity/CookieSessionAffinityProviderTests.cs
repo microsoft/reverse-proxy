@@ -25,7 +25,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
                 AffinityTestHelper.GetDataProtector().Object,
                 AffinityTestHelper.GetLogger<CookieSessionAffinityProvider>().Object);
 
-            Assert.Equal(SessionAffinityBuiltIns.Modes.Cookie, provider.Mode);
+            Assert.Equal(SessionAffinityConstants.Modes.Cookie, provider.Mode);
 
             var context = new DefaultHttpContext();
             context.Request.Headers["Cookie"] = new[] { $"Some-Cookie=ZZZ" };

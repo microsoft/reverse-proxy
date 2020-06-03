@@ -18,7 +18,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
         {
             var policy = new RedistributeAffinityFailurePolicy();
 
-            Assert.Equal(SessionAffinityBuiltIns.AffinityFailurePolicies.Redistribute, policy.Name);
+            Assert.Equal(SessionAffinityConstants.AffinityFailurePolicies.Redistribute, policy.Name);
             Assert.True(await policy.Handle(new DefaultHttpContext(), default, status));
         }
 
