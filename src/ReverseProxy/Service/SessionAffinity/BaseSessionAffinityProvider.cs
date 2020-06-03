@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
@@ -29,7 +30,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
         {
             if (!options.Enabled)
             {
-                Log.RequestAffinityToDestinationCannotBeEstablishedBecauseAffinitizationDisabled(Logger, destination.DestinationId);
+                Debug.Fail("AffinitizeRequest is called when session affinity is disabled");
                 return;
             }
 
@@ -45,6 +46,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
         {
             if (!options.Enabled)
             {
+                Debug.Fail("FindAffinitizedDestinations when session affinity is disabled");
                 // This case is handled separately to improve the type autonomy and the pipeline extensibility
                 return new AffinityResult(null, AffinityStatus.AffinityDisabled);
             }
@@ -56,7 +58,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
                 return new AffinityResult(null, requestAffinityKey.ExtractedSuccessfully ? AffinityStatus.AffinityKeyNotSet : AffinityStatus.AffinityKeyExtractionFailed);
             }
 
-            var matchingDestinations = new DestinationInfo[1];
+            IReadOnlyList<DestinationInfo> matchingDestinations = null;
             if (destinations.Count > 0)
             {
                 for (var i = 0; i < destinations.Count; i++)
@@ -66,7 +68,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
                     {
                         // It's allowed to affinitize a request to a pool of destinations so as to enable load-balancing among them.
                         // However, we currently stop after the first match found to avoid performance degradation.
-                        matchingDestinations[0] = destinations[i];
+                        matchingDestinations = destinations[i];
                         break;
                     }
                 }
@@ -77,7 +79,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
             }
 
             // Empty destination list passed to this method is handled the same way as if no matching destinations are found.
-            if (matchingDestinations[0] == null)
+            if (matchingDestinations == null)
             {
                 return new AffinityResult(null, AffinityStatus.DestinationNotFound);
             }
@@ -164,11 +166,6 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
                 EventIds.AffinityCannotBeEstablishedBecauseNoDestinationsFoundOnBackend,
                 "The request affinity cannot be established because no destinations are found on backend `{backendId}`.");
 
-            private static readonly Action<ILogger, string, Exception> _requestAffinityToDestinationCannotBeEstablishedBecauseAffinitizationDisabled = LoggerMessage.Define<string>(
-                LogLevel.Warning,
-                EventIds.RequestAffinityToDestinationCannotBeEstablishedBecauseAffinitizationDisabled,
-                "The request affinity to destination `{destinationId}` cannot be established because affinitization is disabled for the backend.");
-
             private static readonly Action<ILogger, Exception> _requestAffinityKeyCookieDecryptionFailed = LoggerMessage.Define(
                 LogLevel.Error,
                 EventIds.RequestAffinityKeyCookieDecryptionFailed,
@@ -182,11 +179,6 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
             public static void AffinityCannotBeEstablishedBecauseNoDestinationsFound(ILogger logger, string backendId)
             {
                 _affinityCannotBeEstablishedBecauseNoDestinationsFound(logger, backendId, null);
-            }
-
-            public static void RequestAffinityToDestinationCannotBeEstablishedBecauseAffinitizationDisabled(ILogger logger, string destinationId)
-            {
-                _requestAffinityToDestinationCannotBeEstablishedBecauseAffinitizationDisabled(logger, destinationId, null);
             }
 
             public static void RequestAffinityKeyCookieDecryptionFailed(ILogger logger, Exception ex)

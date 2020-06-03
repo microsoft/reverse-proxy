@@ -44,33 +44,36 @@ namespace Microsoft.ReverseProxy.Middleware
             {
                 var destinationsFeature = context.GetRequiredDestinationFeature();
                 var candidateDestinations = destinationsFeature.Destinations;
+
                 if (candidateDestinations.Count == 0)
                 {
+                    // Only log the warning about missing destinations here, but allow the request to proceed further.
+                    // The final check for selected destination is to be done at the pipeline end.
                     Log.NoDestinationOnBackendToEstablishRequestAffinity(_logger, backend.BackendId);
-                    context.Response.StatusCode = 503;
-                    return Task.CompletedTask;
                 }
-                var destinations = _operationLogger.Execute("ReverseProxy.AffinitizeRequest", () => AffinitizeRequest(context, backend, options, candidateDestinations));
-                destinationsFeature.Destinations = destinations;
+                else
+                {
+                    var chosenDestination = candidateDestinations[0];
+                    if (candidateDestinations.Count > 1)
+                    {
+                        Log.MultipleDestinationsOnBackendToEstablishRequestAffinity(_logger, backend.BackendId);
+                        // It's assumed that all of them match to the request's affinity key.
+                        chosenDestination = candidateDestinations[_random.Next(candidateDestinations.Count)];
+                    }
+
+                    _operationLogger.Execute("ReverseProxy.AffinitizeRequest", () => AffinitizeRequest(context, options, chosenDestination));
+
+                    destinationsFeature.Destinations = chosenDestination;
+                }
             }
 
             return _next(context);
         }
 
-        private IReadOnlyList<DestinationInfo> AffinitizeRequest(HttpContext context, BackendInfo backend, BackendConfig.BackendSessionAffinityOptions options, IReadOnlyList<DestinationInfo> destinations)
+        private void AffinitizeRequest(HttpContext context, BackendConfig.BackendSessionAffinityOptions options, DestinationInfo destination)
         {
-            var result = destinations;
-            if (result.Count > 1)
-            {
-                Log.MultipleDestinationsOnBackendToEstablishRequestAffinity(_logger, backend.BackendId);
-                // It's assumed that all of them match to the request's affinity key.
-                var singleDestination = destinations[_random.Next(destinations.Count)];
-                result = new[] { singleDestination };
-            }
-
             var currentProvider = _sessionAffinityProviders.GetRequiredServiceById(options.Mode);
-            currentProvider.AffinitizeRequest(context, options, result[0]);
-            return result;
+            currentProvider.AffinitizeRequest(context, options, destination);
         }
 
         private static class Log

@@ -53,6 +53,8 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
             }
         }
 
+        // Current version of test SDK cannot properly handle Debug.Fail, so the tests are skipped in Debug
+#if RELEASE
         [Fact]
         public void FindAffinitizedDestination_AffinityDisabledOnBackend_ReturnsAffinityDisabled()
         {
@@ -72,6 +74,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
             Assert.Null(provider.LastSetEncryptedKey);
             dataProtector.Verify(p => p.Protect(It.IsAny<byte[]>()), Times.Never);
         }
+#endif
 
         [Fact]
         public void AffinitizeRequest_RequestIsAffinitized_DoNothing()

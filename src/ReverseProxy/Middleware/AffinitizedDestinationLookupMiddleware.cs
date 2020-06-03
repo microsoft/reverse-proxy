@@ -66,13 +66,13 @@ namespace Microsoft.ReverseProxy.Middleware
                         break;
                     case AffinityStatus.AffinityKeyExtractionFailed:
                     case AffinityStatus.DestinationNotFound:
-                        var failureHandled = await _operationLogger.ExecuteAsync("ReverseProxy.HandleAffinityFailure", async () =>
+                        var responseSent = await _operationLogger.ExecuteAsync("ReverseProxy.HandleAffinityFailure", async () =>
                         {
                             var failurePolicy = _affinityFailurePolicies.GetRequiredServiceById(options.AffinityFailurePolicy);
                             return await failurePolicy.Handle(context, options, affinityResult.Status);
                         });
 
-                        if (!failureHandled)
+                        if (!responseSent)
                         {
                             // Policy reported the failure is unrecoverable and took the full responsibility for its handling,
                             // so we simply stop processing.
