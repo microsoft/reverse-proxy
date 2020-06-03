@@ -51,7 +51,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
 
             Assert.Equal(AffinityStatus.OK, affinityResult.Status);
             Assert.Equal(1, affinityResult.Destinations.Count);
-            Assert.Equal(affinitizedDestination, affinityResult.Destinations[0]);
+            Assert.Same(affinitizedDestination, affinityResult.Destinations[0]);
         }
 
         [Fact]

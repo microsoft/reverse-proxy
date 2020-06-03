@@ -61,7 +61,7 @@ namespace Microsoft.ReverseProxy.Middleware
             }
             else
             {
-                Assert.Equal(_destinations, destinationFeature.Destinations);
+                Assert.Same(_destinations, destinationFeature.Destinations);
             }
         }
 

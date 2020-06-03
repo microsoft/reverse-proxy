@@ -42,7 +42,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
             }
 
             Assert.Equal(expectedStatus, affinityResult.Status);
-            Assert.Equal(expectedDestination, affinityResult.Destinations?.FirstOrDefault());
+            Assert.Same(expectedDestination, affinityResult.Destinations?.FirstOrDefault());
             if (expectedDestination != null)
             {
                 Assert.Equal(1, affinityResult.Destinations.Count);
