@@ -18,7 +18,6 @@ namespace Microsoft.ReverseProxy.Middleware
     {
         [Theory]
         [InlineData(AffinityStatus.AffinityKeyNotSet, null)]
-        [InlineData(AffinityStatus.AffinityDisabled, null)]
         [InlineData(AffinityStatus.OK, AffinitizedDestinationName)]
         public async Task Invoke_SuccessfulFlow_CallNext(AffinityStatus status, string foundDestinationId)
         {

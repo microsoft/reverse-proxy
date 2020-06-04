@@ -53,16 +53,12 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
             }
         }
 
-        // Current version of test SDK cannot properly handle Debug.Fail, so the tests are skipped in Debug
-#if RELEASE
         [Fact]
         public void FindAffinitizedDestination_AffinityDisabledOnBackend_ReturnsAffinityDisabled()
         {
             var provider = new ProviderStub(GetDataProtector().Object, Mock<ILogger>().Object);
             var options = new BackendConfig.BackendSessionAffinityOptions(false, _defaultOptions.Mode, _defaultOptions.AffinityFailurePolicy, _defaultOptions.Settings);
-            var affinityResult = provider.FindAffinitizedDestinations(new DefaultHttpContext(), new[] { new DestinationInfo("1") }, "backend-1", options);
-            Assert.Equal(AffinityStatus.AffinityDisabled, affinityResult.Status);
-            Assert.Null(affinityResult.Destinations);
+            Assert.Throws<InvalidOperationException>(() => provider.FindAffinitizedDestinations(new DefaultHttpContext(), new[] { new DestinationInfo("1") }, "backend-1", options));
         }
 
         [Fact]
@@ -70,11 +66,8 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
         {
             var dataProtector = GetDataProtector();
             var provider = new ProviderStub(dataProtector.Object, Mock<ILogger>().Object);
-            provider.AffinitizeRequest(new DefaultHttpContext(), default, new DestinationInfo("id"));
-            Assert.Null(provider.LastSetEncryptedKey);
-            dataProtector.Verify(p => p.Protect(It.IsAny<byte[]>()), Times.Never);
+            Assert.Throws<InvalidOperationException>(() => provider.AffinitizeRequest(new DefaultHttpContext(), default, new DestinationInfo("id")));
         }
-#endif
 
         [Fact]
         public void AffinitizeRequest_RequestIsAffinitized_DoNothing()

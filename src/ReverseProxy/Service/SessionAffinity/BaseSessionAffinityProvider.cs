@@ -30,8 +30,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
         {
             if (!options.Enabled)
             {
-                Debug.Fail("AffinitizeRequest is called when session affinity is disabled");
-                return;
+                throw new InvalidOperationException($"Session affinity is disabled for backend.");
             }
 
             // Affinity key is set on the response only if it's a new affinity.
@@ -46,9 +45,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
         {
             if (!options.Enabled)
             {
-                Debug.Fail("FindAffinitizedDestinations when session affinity is disabled");
-                // This case is handled separately to improve the type autonomy and the pipeline extensibility
-                return new AffinityResult(null, AffinityStatus.AffinityDisabled);
+                throw new InvalidOperationException($"Session affinity is disabled for backend {backendId}.");
             }
 
             var requestAffinityKey = GetRequestAffinityKey(context, options);

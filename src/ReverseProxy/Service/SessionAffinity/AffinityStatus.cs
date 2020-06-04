@@ -9,7 +9,6 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
     public enum AffinityStatus
     {
         OK,
-        AffinityDisabled,
         AffinityKeyNotSet,
         AffinityKeyExtractionFailed,
         DestinationNotFound

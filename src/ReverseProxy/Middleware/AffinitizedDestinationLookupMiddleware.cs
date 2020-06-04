@@ -59,8 +59,6 @@ namespace Microsoft.ReverseProxy.Middleware
                     case AffinityStatus.OK:
                         destinationsFeature.Destinations = affinityResult.Destinations;
                         break;
-                    // This implementation treat them the same.
-                    case AffinityStatus.AffinityDisabled:
                     case AffinityStatus.AffinityKeyNotSet:
                         // Nothing to do so just continue processing
                         break;

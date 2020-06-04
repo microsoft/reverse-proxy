@@ -27,7 +27,6 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
         [Theory]
         [InlineData(AffinityStatus.OK)]
         [InlineData(AffinityStatus.AffinityKeyNotSet)]
-        [InlineData(AffinityStatus.AffinityDisabled)]
         public async Task Handle_SuccessfulAffinityStatus_ReturnTrue(AffinityStatus status)
         {
             var policy = new Return503ErrorAffinityFailurePolicy();

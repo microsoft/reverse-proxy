@@ -15,8 +15,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
         public Task<bool> Handle(HttpContext context, BackendConfig.BackendSessionAffinityOptions options, AffinityStatus affinityStatus)
         {
             if (affinityStatus == AffinityStatus.OK
-                || affinityStatus == AffinityStatus.AffinityKeyNotSet
-                || affinityStatus == AffinityStatus.AffinityDisabled)
+                || affinityStatus == AffinityStatus.AffinityKeyNotSet)
             {
                 // We shouldn't get here, but allow the request to proceed further if that's the case.
                 return Task.FromResult(true);
