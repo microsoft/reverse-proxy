@@ -149,6 +149,10 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             {
                 { "transformHeader", new ResponseHeaderValueTransform("value", append: false, always: true) },
                 { "x-ms-response-test", new ResponseHeaderValueTransform("value", append: true, always: false) }
+            },
+            new Dictionary<string, ResponseHeaderTransform>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "trailerTransform", new ResponseHeaderValueTransform("value", append: false, always: true) }
             });
             var targetUri = "https://localhost:123/prependPathBase/a/b/prependPath/api/test?a=b&c=d";
             var sut = Create<HttpProxy>();
@@ -204,6 +208,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.Equal(new[] { "response", "value" }, httpContext.Response.Headers["x-ms-response-test"].ToArray());
             Assert.Contains("responseLanguage", httpContext.Response.Headers["Content-Language"].ToArray());
             Assert.Contains("value", httpContext.Response.Headers["transformHeader"].ToArray());
+            Assert.Equal(new[] { "value" }, httpContext.Features.Get<IHttpResponseTrailersFeature>().Trailers?["trailerTransform"].ToArray());
 
             proxyResponseStream.Position = 0;
             var proxyResponseText = StreamToString(proxyResponseStream);
@@ -241,6 +246,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 { "transformHeader", new RequestHeaderValueTransform("value", append: false) },
                 { "x-ms-request-test", new RequestHeaderValueTransform("transformValue", append: true) },
             },
+            new Dictionary<string, ResponseHeaderTransform>(StringComparer.OrdinalIgnoreCase),
             new Dictionary<string, ResponseHeaderTransform>(StringComparer.OrdinalIgnoreCase));
             var targetUri = "https://localhost:123/prependPathBase/a/b/prependPath/api/test?a=b&c=d";
             var sut = Create<HttpProxy>();
