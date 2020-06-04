@@ -13,7 +13,9 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
     {
         public static Mock<ILogger<T>> GetLogger<T>()
         {
-            return new Mock<ILogger<T>>();
+            var result = new Mock<ILogger<T>>();
+            result.Setup(l => l.IsEnabled(It.IsAny<LogLevel>())).Returns(true);
+            return result;
         }
 
         public static Mock<IDataProtector> GetDataProtector()

@@ -10,12 +10,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Moq;
-using Tests.Common;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Service.SessionAffinity
 {
-    public class BaseSesstionAffinityProviderTests : TestAutoMockBase
+    public class BaseSesstionAffinityProviderTests
     {
         private const string InvalidKeyNull = "!invalid key - null!";
         private const string InvalidKeyThrow = "!invalid key - throw!";
@@ -30,10 +29,13 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
             AffinityStatus expectedStatus,
             DestinationInfo expectedDestination,
             byte[] expectedEncryptedKey,
-            bool unprotectCalled)
+            bool unprotectCalled,
+            LogLevel? expectedLogLevel,
+            EventId expectedEventId)
         {
             var dataProtector = GetDataProtector();
-            var provider = new ProviderStub(dataProtector.Object, Mock<ILogger>().Object);
+            var logger = AffinityTestHelper.GetLogger<BaseSessionAffinityProvider<string>>();
+            var provider = new ProviderStub(dataProtector.Object, logger.Object);
             var affinityResult = provider.FindAffinitizedDestinations(context, allDestinations, "backend-1", _defaultOptions);
 
             if(unprotectCalled)
@@ -43,6 +45,14 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
 
             Assert.Equal(expectedStatus, affinityResult.Status);
             Assert.Same(expectedDestination, affinityResult.Destinations?.FirstOrDefault());
+
+            if (expectedLogLevel != null)
+            {
+                logger.Verify(
+                    l => l.Log(expectedLogLevel.Value, expectedEventId, It.IsAny<It.IsAnyType>(), It.IsAny<Exception>(), (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
+                    Times.Once);
+            }
+
             if (expectedDestination != null)
             {
                 Assert.Equal(1, affinityResult.Destinations.Count);
@@ -56,7 +66,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
         [Fact]
         public void FindAffinitizedDestination_AffinityDisabledOnBackend_ReturnsAffinityDisabled()
         {
-            var provider = new ProviderStub(GetDataProtector().Object, Mock<ILogger>().Object);
+            var provider = new ProviderStub(GetDataProtector().Object, AffinityTestHelper.GetLogger<BaseSessionAffinityProvider<string>>().Object);
             var options = new BackendConfig.BackendSessionAffinityOptions(false, _defaultOptions.Mode, _defaultOptions.AffinityFailurePolicy, _defaultOptions.Settings);
             Assert.Throws<InvalidOperationException>(() => provider.FindAffinitizedDestinations(new DefaultHttpContext(), new[] { new DestinationInfo("1") }, "backend-1", options));
         }
@@ -65,7 +75,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
         public void AffinitizeRequest_AffinitiDisabled_DoNothing()
         {
             var dataProtector = GetDataProtector();
-            var provider = new ProviderStub(dataProtector.Object, Mock<ILogger>().Object);
+            var provider = new ProviderStub(dataProtector.Object, AffinityTestHelper.GetLogger<BaseSessionAffinityProvider<string>>().Object);
             Assert.Throws<InvalidOperationException>(() => provider.AffinitizeRequest(new DefaultHttpContext(), default, new DestinationInfo("id")));
         }
 
@@ -73,7 +83,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
         public void AffinitizeRequest_RequestIsAffinitized_DoNothing()
         {
             var dataProtector = GetDataProtector();
-            var provider = new ProviderStub(dataProtector.Object, Mock<ILogger>().Object);
+            var provider = new ProviderStub(dataProtector.Object, AffinityTestHelper.GetLogger<BaseSessionAffinityProvider<string>>().Object);
             var context = new DefaultHttpContext();
             provider.DirectlySetExtractedKeyOnContext(context, "ExtractedKey");
             provider.AffinitizeRequest(context, _defaultOptions, new DestinationInfo("id"));
@@ -85,7 +95,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
         public void AffinitizeRequest_RequestIsNotAffinitized_SetAffinityKey()
         {
             var dataProtector = GetDataProtector();
-            var provider = new ProviderStub(dataProtector.Object, Mock<ILogger>().Object);
+            var provider = new ProviderStub(dataProtector.Object, AffinityTestHelper.GetLogger<BaseSessionAffinityProvider<string>>().Object);
             var destination = new DestinationInfo("dest-A");
             provider.AffinitizeRequest(new DefaultHttpContext(), _defaultOptions, destination);
             Assert.Equal("ZGVzdC1B", provider.LastSetEncryptedKey);
@@ -96,7 +106,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
         [Fact]
         public void FindAffinitizedDestinations_AffinityOptionSettingNotFound_Throw()
         {
-            var provider = new ProviderStub(GetDataProtector().Object, Mock<ILogger>().Object);
+            var provider = new ProviderStub(GetDataProtector().Object, AffinityTestHelper.GetLogger<BaseSessionAffinityProvider<string>>().Object);
             var options = GetOptionsWithUnknownSetting();
             Assert.Throws<ArgumentException>(() => provider.FindAffinitizedDestinations(new DefaultHttpContext(), new[] { new DestinationInfo("dest-A") }, "backend-1", options));
         }
@@ -104,7 +114,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
         [Fact]
         public void AffinitizeRequest_AffinityOptionSettingNotFound_Throw()
         {
-            var provider = new ProviderStub(GetDataProtector().Object, Mock<ILogger>().Object);
+            var provider = new ProviderStub(GetDataProtector().Object, AffinityTestHelper.GetLogger<BaseSessionAffinityProvider<string>>().Object);
             var options = GetOptionsWithUnknownSetting();
             Assert.Throws<ArgumentException>(() => provider.AffinitizeRequest(new DefaultHttpContext(), options, new DestinationInfo("dest-A")));
         }
@@ -112,21 +122,22 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
         [Fact]
         public void Ctor_MandatoryArgumentIsNull_Throw()
         {
-            Assert.Throws<ArgumentNullException>(() => new ProviderStub(null, Mock<ILogger>().Object));
+            Assert.Throws<ArgumentNullException>(() => new ProviderStub(null, new Mock<ILogger>().Object));
             // CreateDataProtector will return null
-            Assert.Throws<ArgumentNullException>(() => new ProviderStub(Mock<IDataProtector>().Object, Mock<ILogger>().Object));
+            Assert.Throws<ArgumentNullException>(() => new ProviderStub(new Mock<IDataProtector>().Object, new Mock<ILogger>().Object));
             Assert.Throws<ArgumentNullException>(() => new ProviderStub(GetDataProtector().Object, null));
         }
 
         public static IEnumerable<object[]> FindAffinitizedDestinationsCases()
         {
             var destinations = new[] { new DestinationInfo("dest-A"), new DestinationInfo("dest-B"), new DestinationInfo("dest-C") };
-            yield return new object[] { GetHttpContext(new[] { ("SomeKey", "SomeValue") }), destinations, AffinityStatus.AffinityKeyNotSet, null, null, false };
-            yield return new object[] { GetHttpContext(new[] { (KeyName, "dest-B") }), destinations, AffinityStatus.OK, destinations[1], Encoding.UTF8.GetBytes("dest-B"), true };
-            yield return new object[] { GetHttpContext(new[] { (KeyName, "dest-Z") }), destinations, AffinityStatus.DestinationNotFound, null, Encoding.UTF8.GetBytes("dest-Z"), true };
-            yield return new object[] { GetHttpContext(new[] { (KeyName, "dest-B") }), new DestinationInfo[0], AffinityStatus.DestinationNotFound, null, Encoding.UTF8.GetBytes("dest-B"), true };
-            yield return new object[] { GetHttpContext(new[] { (KeyName, InvalidKeyNull) }), destinations, AffinityStatus.AffinityKeyExtractionFailed, null, Encoding.UTF8.GetBytes(InvalidKeyNull), true };
-            yield return new object[] { GetHttpContext(new[] { (KeyName, InvalidKeyThrow) }), destinations, AffinityStatus.AffinityKeyExtractionFailed, null, Encoding.UTF8.GetBytes(InvalidKeyThrow), true };
+            yield return new object[] { GetHttpContext(new[] { ("SomeKey", "SomeValue") }), destinations, AffinityStatus.AffinityKeyNotSet, null, null, false, null, null };
+            yield return new object[] { GetHttpContext(new[] { (KeyName, "dest-B") }), destinations, AffinityStatus.OK, destinations[1], Encoding.UTF8.GetBytes("dest-B"), true, null, null };
+            yield return new object[] { GetHttpContext(new[] { (KeyName, "dest-Z") }), destinations, AffinityStatus.DestinationNotFound, null, Encoding.UTF8.GetBytes("dest-Z"), true, LogLevel.Warning, EventIds.DestinationMatchingToAffinityKeyNotFound };
+            yield return new object[] { GetHttpContext(new[] { (KeyName, "dest-B") }), new DestinationInfo[0], AffinityStatus.DestinationNotFound, null, Encoding.UTF8.GetBytes("dest-B"), true, LogLevel.Warning, EventIds.AffinityCannotBeEstablishedBecauseNoDestinationsFoundOnBackend };
+            yield return new object[] { GetHttpContext(new[] { (KeyName, "/////") }, false), destinations, AffinityStatus.AffinityKeyExtractionFailed, null, Encoding.UTF8.GetBytes(InvalidKeyNull), false, LogLevel.Error, EventIds.RequestAffinityKeyDecryptionFailed };
+            yield return new object[] { GetHttpContext(new[] { (KeyName, InvalidKeyNull) }), destinations, AffinityStatus.AffinityKeyExtractionFailed, null, Encoding.UTF8.GetBytes(InvalidKeyNull), true, LogLevel.Error, EventIds.RequestAffinityKeyDecryptionFailed };
+            yield return new object[] { GetHttpContext(new[] { (KeyName, InvalidKeyThrow) }), destinations, AffinityStatus.AffinityKeyExtractionFailed, null, Encoding.UTF8.GetBytes(InvalidKeyThrow), true, LogLevel.Error, EventIds.RequestAffinityKeyDecryptionFailed };
         }
 
         private static BackendConfig.BackendSessionAffinityOptions GetOptionsWithUnknownSetting()
@@ -134,18 +145,18 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
             return new BackendConfig.BackendSessionAffinityOptions(true, "Stub", "Return503", new Dictionary<string, string> { { "Unknown", "ZZZ" } });
         }
 
-        private static HttpContext GetHttpContext((string Key, string Value)[] items)
+        private static HttpContext GetHttpContext((string Key, string Value)[] items, bool encodeToBase64 = true)
         {
             var context = new DefaultHttpContext
             {
-                Items = items.ToDictionary(i => (object)i.Key, i => (object)Convert.ToBase64String(Encoding.UTF8.GetBytes(i.Value)))
+                Items = items.ToDictionary(i => (object)i.Key, i => encodeToBase64 ? (object)Convert.ToBase64String(Encoding.UTF8.GetBytes(i.Value)) : i.Value)
             };
             return context;
         }
 
         private Mock<IDataProtector> GetDataProtector()
         {
-            var result = Mock<IDataProtector>();
+            var result = new Mock<IDataProtector>();
             var nullBytes = Encoding.UTF8.GetBytes(InvalidKeyNull);
             var throwBytes = Encoding.UTF8.GetBytes(InvalidKeyThrow);
             result.Setup(p => p.Protect(It.IsAny<byte[]>())).Returns((byte[] k) => k);

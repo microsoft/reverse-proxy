@@ -69,6 +69,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
                         break;
                     }
                 }
+                Log.DestinationMatchingToAffinityKeyNotFound(Logger, backendId);
             }
             else
             {
@@ -124,16 +125,11 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
             try
             {
                 var keyBytes = Convert.FromBase64String(Pad(encryptedRequestKey));
-                if (keyBytes == null)
-                {
-                    Log.RequestAffinityKeyCookieCannotBeDecodedFromBase64(Logger);
-                    return (Key: null, ExtractedSuccessfully: false);
-                }
 
                 var decryptedKeyBytes = _dataProtector.Unprotect(keyBytes);
                 if (decryptedKeyBytes == null)
                 {
-                    Log.RequestAffinityKeyCookieDecryptionFailed(Logger, null);
+                    Log.RequestAffinityKeyDecryptionFailed(Logger, null);
                     return (Key: null, ExtractedSuccessfully: false);
                 }
 
@@ -141,7 +137,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
             }
             catch (Exception ex)
             {
-                Log.RequestAffinityKeyCookieDecryptionFailed(Logger, ex);
+                Log.RequestAffinityKeyDecryptionFailed(Logger, ex);
                 return (Key: null, ExtractedSuccessfully: false);
             }
         }
@@ -163,29 +159,29 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
                 EventIds.AffinityCannotBeEstablishedBecauseNoDestinationsFoundOnBackend,
                 "The request affinity cannot be established because no destinations are found on backend `{backendId}`.");
 
-            private static readonly Action<ILogger, Exception> _requestAffinityKeyCookieDecryptionFailed = LoggerMessage.Define(
+            private static readonly Action<ILogger, Exception> _requestAffinityKeyDecryptionFailed = LoggerMessage.Define(
                 LogLevel.Error,
-                EventIds.RequestAffinityKeyCookieDecryptionFailed,
-                "The request affinity key cookie decryption failed.");
+                EventIds.RequestAffinityKeyDecryptionFailed,
+                "The request affinity key decryption failed.");
 
-            private static readonly Action<ILogger, Exception> _requestAffinityKeyCookieCannotBeDecodedFromBase64 = LoggerMessage.Define(
-                LogLevel.Error,
-                EventIds.RequestAffinityKeyCookieCannotBeDecodedFromBase64,
-                "The request affinity key cookie cannot be decoded from Base64 representation.");
+            private static readonly Action<ILogger, string, Exception> _destinationMatchingToAffinityKeyNotFound = LoggerMessage.Define<string>(
+                LogLevel.Warning,
+                EventIds.DestinationMatchingToAffinityKeyNotFound,
+                "Destination matching to the request affinity key is not found on backend `{backnedId}`. Configured failure policy will be applied.");
 
             public static void AffinityCannotBeEstablishedBecauseNoDestinationsFound(ILogger logger, string backendId)
             {
                 _affinityCannotBeEstablishedBecauseNoDestinationsFound(logger, backendId, null);
             }
 
-            public static void RequestAffinityKeyCookieDecryptionFailed(ILogger logger, Exception ex)
+            public static void RequestAffinityKeyDecryptionFailed(ILogger logger, Exception ex)
             {
-                _requestAffinityKeyCookieDecryptionFailed(logger, ex);
+                _requestAffinityKeyDecryptionFailed(logger, ex);
             }
 
-            public static void RequestAffinityKeyCookieCannotBeDecodedFromBase64(ILogger logger)
+            public static void DestinationMatchingToAffinityKeyNotFound(ILogger logger, string backendId)
             {
-                _requestAffinityKeyCookieCannotBeDecodedFromBase64(logger, null);
+                _destinationMatchingToAffinityKeyNotFound(logger, backendId, null);
             }
         }
     }

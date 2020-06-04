@@ -44,7 +44,7 @@ namespace Microsoft.ReverseProxy
         public static readonly EventId MultipleDestinationsOnBackendToEstablishRequestAffinity = new EventId(35, "MultipleDestinationsOnBackendToEstablishRequestAffinity");
         public static readonly EventId AffinityCannotBeEstablishedBecauseNoDestinationsFoundOnBackend = new EventId(36, "AffinityCannotBeEstablishedBecauseNoDestinationsFoundOnBackend");
         public static readonly EventId NoDestinationOnBackendToEstablishRequestAffinity = new EventId(37, "NoDestinationOnBackendToEstablishRequestAffinity");
-        public static readonly EventId RequestAffinityKeyCookieCannotBeDecodedFromBase64 = new EventId(38, "RequestAffinityKeyCookieCannotBeDecodedFromBase64");
-        public static readonly EventId RequestAffinityKeyCookieDecryptionFailed = new EventId(39, "RequestAffinityKeyCookieDecryptionFailed");
+        public static readonly EventId RequestAffinityKeyDecryptionFailed = new EventId(38, "RequestAffinityKeyDecryptionFailed");
+        public static readonly EventId DestinationMatchingToAffinityKeyNotFound = new EventId(39, "DestinationMatchingToAffinityKeyNotFound");
     }
 }

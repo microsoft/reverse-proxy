@@ -63,8 +63,7 @@ namespace Microsoft.ReverseProxy.Middleware
                 GetProviderForRandomDestination(expectedMode, Destinations, p => invokedMode = p.Mode)
             };
             var nextInvoked = false;
-            var logger = new Mock<ILogger<AffinitizeRequestMiddleware>>();
-            logger.Setup(l => l.IsEnabled(LogLevel.Warning)).Returns(true);
+            var logger = AffinityTestHelper.GetLogger<AffinitizeRequestMiddleware>();
             var middleware = new AffinitizeRequestMiddleware(c => {
                 nextInvoked = true;
                 return Task.CompletedTask;
@@ -98,8 +97,7 @@ namespace Microsoft.ReverseProxy.Middleware
         {
             var backend = GetBackend();
             var nextInvoked = false;
-            var logger = new Mock<ILogger<AffinitizeRequestMiddleware>>();
-            logger.Setup(l => l.IsEnabled(LogLevel.Warning)).Returns(true);
+            var logger = AffinityTestHelper.GetLogger<AffinitizeRequestMiddleware>();
             var middleware = new AffinitizeRequestMiddleware(c => {
                     nextInvoked = true;
                     return Task.CompletedTask;

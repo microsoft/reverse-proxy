@@ -68,7 +68,7 @@ namespace Microsoft.ReverseProxy.Middleware
         [InlineData(AffinityStatus.DestinationNotFound, false)]
         [InlineData(AffinityStatus.AffinityKeyExtractionFailed, true)]
         [InlineData(AffinityStatus.AffinityKeyExtractionFailed, false)]
-        public async Task Invoke_ErrorFlow_CallFailurePolicy(AffinityStatus affinityStatus, bool handled)
+        public async Task Invoke_ErrorFlow_CallFailurePolicy(AffinityStatus affinityStatus, bool keepProcessing)
         {
             var backend = GetBackend();
             var providers = RegisterAffinityProviders(true, Destinations, backend.BackendId, ("Mode-B", affinityStatus, null, _ => { }));
@@ -77,15 +77,16 @@ namespace Microsoft.ReverseProxy.Middleware
             var failurePolicies = RegisterFailurePolicies(
                 affinityStatus,
                 ("Policy-0", false, p => throw new InvalidOperationException($"Policy {p.Name} call is not expected.")),
-                (expectedPolicy, handled, p => invokedPolicy = p.Name));
+                (expectedPolicy, keepProcessing, p => invokedPolicy = p.Name));
             var nextInvoked = false;
+            var logger = AffinityTestHelper.GetLogger<AffinitizedDestinationLookupMiddleware>();
             var middleware = new AffinitizedDestinationLookupMiddleware(c => {
                     nextInvoked = true;
                     return Task.CompletedTask;
                 },
                 providers.Select(p => p.Object), failurePolicies.Select(p => p.Object),
                 GetOperationLogger(true),
-                new Mock<ILogger<AffinitizedDestinationLookupMiddleware>>().Object);
+                logger.Object);
             var context = new DefaultHttpContext();
             context.Features.Set(backend);
             var destinationFeature = GetDestinationsFeature(Destinations);
@@ -94,10 +95,16 @@ namespace Microsoft.ReverseProxy.Middleware
             await middleware.Invoke(context);
 
             Assert.Equal(expectedPolicy, invokedPolicy);
-            Assert.Equal(handled, nextInvoked);
+            Assert.Equal(keepProcessing, nextInvoked);
             failurePolicies[0].VerifyGet(p => p.Name, Times.Once);
             failurePolicies[0].VerifyNoOtherCalls();
             failurePolicies[1].VerifyAll();
+            if (!keepProcessing)
+            {
+                logger.Verify(
+                    l => l.Log(LogLevel.Warning, EventIds.AffinityResolutionFailedForBackend, It.IsAny<It.IsAnyType>(), null, (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
+                    Times.Once);
+            }
         }
 
         private IOperationLogger<AffinitizedDestinationLookupMiddleware> GetOperationLogger(bool callFailurePolicy)
