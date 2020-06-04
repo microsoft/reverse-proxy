@@ -84,7 +84,7 @@ namespace Microsoft.ReverseProxy.Middleware
                 "The request still has multiple destinations on the backend `{backendId}` to choose from when establishing affinity, load balancing may not be properly configured. A random destination will be used.");
 
             private static readonly Action<ILogger, string, Exception> _noDestinationOnBackendToEstablishRequestAffinity = LoggerMessage.Define<string>(
-                LogLevel.Error,
+                LogLevel.Warning,
                 EventIds.NoDestinationOnBackendToEstablishRequestAffinity,
                 "The request doesn't have any destinations on the backend `{backendId}` to choose from when establishing affinity, load balancing may not be properly configured.");
 

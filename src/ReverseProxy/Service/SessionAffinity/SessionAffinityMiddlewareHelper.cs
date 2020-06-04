@@ -21,7 +21,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
             {
                 if (!result.TryAdd(idSelector(service), service))
                 {
-                    throw new ArgumentException(nameof(services), $"More than one {nameof(T)} found with the same identifier.");
+                    throw new ArgumentException(nameof(services), $"More than one {typeof(T)} found with the same identifier.");
                 }
             }
 
@@ -42,7 +42,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
         {
             if (!services.TryGetValue(id, out var result))
             {
-                throw new ArgumentException(nameof(id), $"No {nameof(T)} was found for the id {id}.");
+                throw new ArgumentException(nameof(id), $"No {typeof(T)} was found for the id {id}.");
             }
             return result;
         }
