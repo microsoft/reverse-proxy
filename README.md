@@ -12,7 +12,7 @@ For the latest status updates, see our [Status Report thread](https://github.com
 
 # Build
 
-To build the repo, you should only need to run `Build.cmd` (on Windows) or `Build.sh` (on Linux or macOS). The script will download the .NET SDK and build the solution.
+To build the repo, you should only need to run `build.cmd` (on Windows) or `build.sh` (on Linux or macOS). The script will download the .NET SDK and build the solution.
 
 For VS on Windows, you can run the `startvs.cmd` script to launch Visual Studio on Windows using the appropriate local copy of the .NET SDK.
 
@@ -20,7 +20,7 @@ To set up local development with Visual Studio, Visual Studio for Mac or Visual 
 
 We provide some scripts to set all this up for you. Just follow these steps:
 
-1. Run the `Restore.cmd`/`Restore.sh` script to fetch the required .NET SDK locally (to the `.dotnet` directory within this repo)
+1. Run the `restore.cmd`/`restore.sh` script to fetch the required .NET SDK locally (to the `.dotnet` directory within this repo)
 1. "Dot-source" the `activate` script to put the local .NET SDK on the PATH
     1. For PowerShell, run: `. .\activate.ps1` (note the leading `. `, it is required!)
     1. For Linux/macOS/WSL, run: `. ./activate.sh`
