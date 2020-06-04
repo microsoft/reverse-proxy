@@ -476,7 +476,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             // HttpRequestMessage.Headers and HttpRequestMessage.Content.Headers.
             // We don't really care where the proxied headers appear among those 2,
             // as long as they appear in one (and only one, otherwise they would be duplicated).
-            void AddHeader(HttpRequestMessage request, string headerName, StringValues value)
+            static void AddHeader(HttpRequestMessage request, string headerName, StringValues value)
             {
                 if (value.Count == 1)
                 {
