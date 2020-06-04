@@ -7,11 +7,14 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
     public class Transforms
     {
-        public Transforms(IReadOnlyList<RequestParametersTransform> requestTransforms, bool? copyRequestHeaders, IReadOnlyDictionary<string, RequestHeaderTransform> requestHeaderTransforms)
+        public Transforms(IReadOnlyList<RequestParametersTransform> requestTransforms, bool? copyRequestHeaders,
+            IReadOnlyDictionary<string, RequestHeaderTransform> requestHeaderTransforms,
+            IReadOnlyDictionary<string, ResponseHeaderTransform> responseHeaderTransforms)
         {
             CopyRequestHeaders = copyRequestHeaders;
             RequestTransforms = requestTransforms;
             RequestHeaderTransforms = requestHeaderTransforms;
+            ResponseHeaderTransforms = responseHeaderTransforms;
         }
 
         public bool? CopyRequestHeaders { get; }
@@ -19,5 +22,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         public IReadOnlyList<RequestParametersTransform> RequestTransforms { get; }
 
         public IReadOnlyDictionary<string, RequestHeaderTransform> RequestHeaderTransforms { get; }
+
+        public IReadOnlyDictionary<string, ResponseHeaderTransform> ResponseHeaderTransforms { get; }
     }
 }

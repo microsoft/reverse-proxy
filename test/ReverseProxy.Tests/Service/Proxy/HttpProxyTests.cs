@@ -140,10 +140,15 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 new PathStringTransform(PathStringTransform.TransformMode.Prepend, transformPathBase: true, "/prependPathBase"),
             },
             copyRequestHeaders: true,
-            new Dictionary<string, RequestHeaderTransform>()
+            new Dictionary<string, RequestHeaderTransform>(StringComparer.OrdinalIgnoreCase)
             {
                 { "transformHeader", new RequestHeaderValueTransform("value", append: false) },
                 { "x-ms-request-test", new RequestHeaderValueTransform("transformValue", append: true) },
+            },
+            new Dictionary<string, ResponseHeaderTransform>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "transformHeader", new ResponseHeaderValueTransform("value", append: false, always: true) },
+                { "x-ms-response-test", new ResponseHeaderValueTransform("value", append: true, always: false) }
             });
             var targetUri = "https://localhost:123/prependPathBase/a/b/prependPath/api/test?a=b&c=d";
             var sut = Create<HttpProxy>();
@@ -196,8 +201,9 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.Equal(234, httpContext.Response.StatusCode);
             var reasonPhrase = httpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase;
             Assert.Equal("Test Reason Phrase", reasonPhrase);
-            Assert.Contains("response", httpContext.Response.Headers["x-ms-response-test"].ToArray());
+            Assert.Equal(new[] { "response", "value" }, httpContext.Response.Headers["x-ms-response-test"].ToArray());
             Assert.Contains("responseLanguage", httpContext.Response.Headers["Content-Language"].ToArray());
+            Assert.Contains("value", httpContext.Response.Headers["transformHeader"].ToArray());
 
             proxyResponseStream.Position = 0;
             var proxyResponseText = StreamToString(proxyResponseStream);
@@ -230,11 +236,12 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 new PathStringTransform(PathStringTransform.TransformMode.Prepend, transformPathBase: true, "/prependPathBase"),
             },
             copyRequestHeaders: false,
-            new Dictionary<string, RequestHeaderTransform>()
+            new Dictionary<string, RequestHeaderTransform>(StringComparer.OrdinalIgnoreCase)
             {
                 { "transformHeader", new RequestHeaderValueTransform("value", append: false) },
                 { "x-ms-request-test", new RequestHeaderValueTransform("transformValue", append: true) },
-            });
+            },
+            new Dictionary<string, ResponseHeaderTransform>(StringComparer.OrdinalIgnoreCase));
             var targetUri = "https://localhost:123/prependPathBase/a/b/prependPath/api/test?a=b&c=d";
             var sut = Create<HttpProxy>();
             var client = MockHttpHandler.CreateClient(

@@ -31,6 +31,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             bool? useOriginalHost = null;
             var requestTransforms = new List<RequestParametersTransform>();
             var requestHeaderTransforms = new Dictionary<string, RequestHeaderTransform>();
+            var responseHeaderTransforms = new Dictionary<string, ResponseHeaderTransform>();
 
             foreach (var rawTransform in rawTransforms)
             {
@@ -74,6 +75,27 @@ namespace Microsoft.ReverseProxy.Service.Config
                         throw new NotImplementedException(string.Join(';', rawTransform.Keys));
                     }
                 }
+                else if (rawTransform.TryGetValue("ResponseHeader", out var responseHeaderName))
+                {
+                    var always = false;
+                    if (rawTransform.TryGetValue("When", out var whenValue) && string.Equals("always", whenValue, StringComparison.OrdinalIgnoreCase))
+                    {
+                        always = true;
+                    }
+
+                    if (rawTransform.TryGetValue("Set", out var setValue))
+                    {
+                        responseHeaderTransforms[responseHeaderName] = new ResponseHeaderValueTransform(setValue, append: false, always);
+                    }
+                    else if (rawTransform.TryGetValue("Append", out var appendValue))
+                    {
+                        responseHeaderTransforms[responseHeaderName] = new ResponseHeaderValueTransform(appendValue, append: true, always);
+                    }
+                    else
+                    {
+                        throw new NotImplementedException(string.Join(';', rawTransform.Keys));
+                    }
+                }
                 else
                 {
                     // TODO: Make this a route validation error?
@@ -87,7 +109,7 @@ namespace Microsoft.ReverseProxy.Service.Config
                 requestHeaderTransforms[HeaderNames.Host] = new RequestHeaderValueTransform(null, append: false);
             }
 
-            transforms = new Transforms(requestTransforms, copyRequestHeaders, requestHeaderTransforms);
+            transforms = new Transforms(requestTransforms, copyRequestHeaders, requestHeaderTransforms, responseHeaderTransforms);
         }
     }
 }

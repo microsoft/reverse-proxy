@@ -191,7 +191,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 6: Copy response headers Downstream ◄-- Proxy ◄-- Upstream
-            CopyHeadersToDownstream(upstreamResponse, context.Response.Headers);
+            CopyHeadersToDownstream(upstreamResponse, context, transforms?.ResponseHeaderTransforms);
 
             // NOTE: it may *seem* wise to call `context.Response.StartAsync()` at this point
             // since it looks like we are ready to send back response headers
@@ -289,7 +289,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 5: Copy response headers Downstream ◄-- Proxy ◄-- Upstream
-            CopyHeadersToDownstream(upstreamResponse, context.Response.Headers);
+            CopyHeadersToDownstream(upstreamResponse, context, transforms?.ResponseHeaderTransforms);
 
             if (!upgraded)
             {
@@ -413,7 +413,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         private void CopyHeadersToUpstream(HttpContext context, HttpRequestMessage destination, bool? copyAllHeaders, IReadOnlyDictionary<string, RequestHeaderTransform> transforms)
         {
             // Transforms that were run in the first pass.
-            HashSet<string> runTransforms = null;
+            HashSet<string> transformsRun = null;
             if (copyAllHeaders ?? true)
             {
                 foreach (var header in context.Request.Headers)
@@ -433,7 +433,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 
                     if (transforms.TryGetValue(headerName, out var transform))
                     {
-                        (runTransforms ??= new HashSet<string>(StringComparer.OrdinalIgnoreCase)).Add(headerName);
+                        (transformsRun ??= new HashSet<string>(StringComparer.OrdinalIgnoreCase)).Add(headerName);
                         value = transform.Apply(context, value);
                         if (StringValues.IsNullOrEmpty(value))
                         {
@@ -450,13 +450,13 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             // Run any transforms that weren't run yet.
             foreach (var (headerName, transform) in transforms) // TODO: What about multiple transforms per header? Last wins?
             {
-                if (!(runTransforms?.Contains(headerName) ?? false))
+                if (!(transformsRun?.Contains(headerName) ?? false))
                 {
-                    var values = context.Request.Headers[headerName];
-                    var result = transform.Apply(context, values);
-                    if (!string.IsNullOrEmpty(result))
+                    var headerValue = context.Request.Headers[headerName];
+                    headerValue = transform.Apply(context, headerValue);
+                    if (!StringValues.IsNullOrEmpty(headerValue))
                     {
-                        AddHeader(destination, headerName, result);
+                        AddHeader(destination, headerName, headerValue);
                     }
                 }
             }
@@ -497,25 +497,55 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             }
         }
 
-        private void CopyHeadersToDownstream(HttpResponseMessage source, IHeaderDictionary destination)
+        private void CopyHeadersToDownstream(HttpResponseMessage source, HttpContext destination, IReadOnlyDictionary<string, ResponseHeaderTransform> responseHeaderTransforms)
         {
-            CopyHeaders(source.Headers, destination);
+            // Transforms that were run in the first pass.
+            HashSet<string> transformsRun = null;
+            CopyHeaders(source, source.Headers, destination, responseHeaderTransforms, ref transformsRun);
             if (source.Content != null)
             {
-                CopyHeaders(source.Content.Headers, destination);
+                CopyHeaders(source, source.Content.Headers, destination, responseHeaderTransforms, ref transformsRun);
             }
 
-            static void CopyHeaders(HttpHeaders source, IHeaderDictionary destination)
+            var responseHeaders = destination.Response.Headers;
+            // Run any transforms that weren't run yet.
+            foreach (var (headerName, transform) in responseHeaderTransforms) // TODO: What about multiple transforms per header? Last wins?
             {
+                if (!(transformsRun?.Contains(headerName) ?? false))
+                {
+                    var headerValue = StringValues.Empty;
+                    headerValue = transform.Apply(destination, source, headerValue);
+                    if (!StringValues.IsNullOrEmpty(headerValue))
+                    {
+                        ////this.logger.LogInformation($"   Copying downstream <-- Proxy <-- upstream response header {header.Key}: {string.Join(",", header.Value)}");
+                        responseHeaders.Append(headerName, headerValue);
+                    }
+                }
+            }
+
+            static void CopyHeaders(HttpResponseMessage response, HttpHeaders source, HttpContext destination, IReadOnlyDictionary<string, ResponseHeaderTransform> transforms, ref HashSet<string> transformsRun)
+            {
+                var responseHeaders = destination.Response.Headers;
                 foreach (var header in source)
                 {
-                    if (_headersToSkipGoingDownstream.Contains(header.Key))
+                    var headerName = header.Key;
+                    // TODO: this list only contains "Transfer-Encoding" because that messes up Kestrel. If we don't need to add any more here then it would be more efficient to
+                    // check for the single value directly.
+                    if (_headersToSkipGoingDownstream.Contains(headerName))
                     {
                         continue;
                     }
-
-                    ////this.logger.LogInformation($"   Copying downstream <-- Proxy <-- upstream response header {header.Key}: {string.Join(",", header.Value)}");
-                    destination.Append(header.Key, new StringValues(header.Value.ToArray()));
+                    var headerValue = new StringValues(header.Value.ToArray());
+                    if (transforms.TryGetValue(headerName, out var transform))
+                    {
+                        (transformsRun ??= new HashSet<string>(StringComparer.OrdinalIgnoreCase)).Add(headerName);
+                        headerValue = transform.Apply(destination, response, headerValue);
+                    }
+                    if (!StringValues.IsNullOrEmpty(headerValue))
+                    {
+                        ////this.logger.LogInformation($"   Copying downstream <-- Proxy <-- upstream response header {header.Key}: {string.Join(",", header.Value)}");
+                        responseHeaders.Append(headerName, headerValue);
+                    }
                 }
             }
         }
