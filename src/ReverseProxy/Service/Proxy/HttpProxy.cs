@@ -461,17 +461,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 }
             }
 
-            // Add common forwarders
-            // TODO: these need to be customizable. Turn these into transforms generated when building the route from config.
-            // https://github.com/microsoft/reverse-proxy/issues/13
-            // https://github.com/microsoft/reverse-proxy/issues/21
-            destination.Headers.TryAddWithoutValidation(ForwardedHeadersDefaults.XForwardedProtoHeaderName, context.Request.Scheme);
-            destination.Headers.TryAddWithoutValidation(ForwardedHeadersDefaults.XForwardedHostHeaderName, context.Request.Host.ToString());
-            if (context.Connection.RemoteIpAddress != null)
-            {
-                destination.Headers.TryAddWithoutValidation(ForwardedHeadersDefaults.XForwardedForHeaderName, context.Connection.RemoteIpAddress.ToString());
-            }
-
             // Note: HttpClient.SendAsync will end up sending the union of
             // HttpRequestMessage.Headers and HttpRequestMessage.Content.Headers.
             // We don't really care where the proxied headers appear among those 2,

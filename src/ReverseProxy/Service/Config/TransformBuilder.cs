@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Routing.Template;
 using Microsoft.Net.Http.Headers;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
@@ -29,6 +30,7 @@ namespace Microsoft.ReverseProxy.Service.Config
 
             bool? copyRequestHeaders = null;
             bool? useOriginalHost = null;
+            bool? forwardersSet = null;
             var requestTransforms = new List<RequestParametersTransform>();
             var requestHeaderTransforms = new Dictionary<string, RequestHeaderTransform>();
             var responseHeaderTransforms = new Dictionary<string, ResponseHeaderTransform>();
@@ -118,6 +120,53 @@ namespace Microsoft.ReverseProxy.Service.Config
                         throw new NotImplementedException(string.Join(';', rawTransform.Keys));
                     }
                 }
+                else if (rawTransform.TryGetValue("X-Forwarded", out var xforwardedHeaders))
+                {
+                    forwardersSet = true;
+
+                    var append = true;
+                    if (rawTransform.TryGetValue("Append", out var appendValue) && string.Equals("false", appendValue, StringComparison.OrdinalIgnoreCase))
+                    {
+                        append = false;
+                    }
+
+                    var prefix = "X-Forwarded-";
+                    if (rawTransform.TryGetValue("Prefix", out var prefixValue))
+                    {
+                        prefix = prefixValue;
+                    }
+
+                    // for, host, proto, PathBase
+                    var tokens = xforwardedHeaders.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+                    foreach (var token in tokens)
+                    {
+                        if (string.Equals(token, "For", StringComparison.OrdinalIgnoreCase))
+                        {
+                            requestHeaderTransforms[prefix + "For"] = new RequestHeaderXForwardedForTransform(append);
+                        }
+                        else if (string.Equals(token, "Host", StringComparison.OrdinalIgnoreCase))
+                        {
+                            requestHeaderTransforms[prefix + "Host"] = new RequestHeaderXForwardedHostTransform(append);
+                        }
+                        else if (string.Equals(token, "Proto", StringComparison.OrdinalIgnoreCase))
+                        {
+                            requestHeaderTransforms[prefix + "Proto"] = new RequestHeaderXForwardedProtoTransform(append);
+                        }
+                        else if (string.Equals(token, "PathBase", StringComparison.OrdinalIgnoreCase))
+                        {
+                            requestHeaderTransforms[prefix + "PathBase"] = new RequestHeaderXForwardedPathBaseTransform(append);
+                        }
+                        else
+                        {
+                            throw new NotImplementedException(token);
+                        }
+                    }
+                }
+                else if (rawTransform.TryGetValue("ClientCert", out var clientCertHeader))
+                {
+                    requestHeaderTransforms[clientCertHeader] = new RequestHeaderClientCertTransform();
+                }
                 else
                 {
                     // TODO: Make this a route validation error?
@@ -129,6 +178,27 @@ namespace Microsoft.ReverseProxy.Service.Config
             if (!requestHeaderTransforms.ContainsKey(HeaderNames.Host) && !(useOriginalHost ?? false))
             {
                 requestHeaderTransforms[HeaderNames.Host] = new RequestHeaderValueTransform(null, append: false);
+            }
+
+            // Add default forwarders
+            if (!forwardersSet.GetValueOrDefault())
+            {
+                if (!requestHeaderTransforms.ContainsKey(ForwardedHeadersDefaults.XForwardedProtoHeaderName))
+                {
+                    requestHeaderTransforms[ForwardedHeadersDefaults.XForwardedProtoHeaderName] = new RequestHeaderXForwardedProtoTransform(append: true);
+                }
+                if (!requestHeaderTransforms.ContainsKey(ForwardedHeadersDefaults.XForwardedHostHeaderName))
+                {
+                    requestHeaderTransforms[ForwardedHeadersDefaults.XForwardedHostHeaderName] = new RequestHeaderXForwardedHostTransform(append: true);
+                }
+                if (!requestHeaderTransforms.ContainsKey(ForwardedHeadersDefaults.XForwardedForHeaderName))
+                {
+                    requestHeaderTransforms[ForwardedHeadersDefaults.XForwardedForHeaderName] = new RequestHeaderXForwardedForTransform(append: true);
+                }
+                if (!requestHeaderTransforms.ContainsKey("X-Forwarded-PathBase"))
+                {
+                    requestHeaderTransforms["X-Forwarded-PathBase"] = new RequestHeaderXForwardedPathBaseTransform(append: true);
+                }
             }
 
             transforms = new Transforms(requestTransforms, copyRequestHeaders, requestHeaderTransforms, responseHeaderTransforms, responseTrailerTransforms);
