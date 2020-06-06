@@ -60,7 +60,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             var aspNetCoreEndpoints = new List<Endpoint>();
             var routeConfig = new RouteConfig(
                 route: new RouteInfo("route1"),
-                matcherSummary: null,
+                configHash: 0,
                 priority: null,
                 backendOrNull: backend1,
                 aspNetCoreEndpoints: aspNetCoreEndpoints.AsReadOnly(),
@@ -114,7 +114,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             var aspNetCoreEndpoints = new List<Endpoint>();
             var routeConfig = new RouteConfig(
                 route: new RouteInfo("route1"),
-                matcherSummary: null,
+                configHash: 0,
                 priority: null,
                 backendOrNull: backend1,
                 aspNetCoreEndpoints: aspNetCoreEndpoints.AsReadOnly(),

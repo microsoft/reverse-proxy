@@ -1,8 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 
 namespace Microsoft.ReverseProxy.ConfigModel
 {
@@ -60,30 +61,59 @@ namespace Microsoft.ReverseProxy.ConfigModel
 
         public IList<IDictionary<string, string>> Transforms { get; set; }
 
-        internal string GetMatcherSummary()
+        // Used to diff for config changes
+        internal int GetConfigHash()
         {
-            var builder = new StringBuilder();
+            var hash = 0;
 
-            if (!string.IsNullOrEmpty(Host))
+            if (!string.IsNullOrEmpty(RouteId))
             {
-                builder.AppendFormat("Host({0});", Host);
-            }
-
-            if (!string.IsNullOrEmpty(Path))
-            {
-                builder.AppendFormat("Path({0});", Path);
+                hash ^= RouteId.GetHashCode();
             }
 
             if (Methods != null && Methods.Count > 0)
             {
-                builder.Append("Methods(");
-                builder.AppendJoin(',', Methods);
-                builder.Append(");");
+                // Assumes un-ordered
+                hash ^= Methods.Select(item => item.GetHashCode())
+                    .Aggregate((total, nextCode) => total ^ nextCode);
             }
 
-            // TODO: Transforms?
+            if (!string.IsNullOrEmpty(Host))
+            {
+                hash ^= Host.GetHashCode();
+            }
 
-            return builder.ToString();
+            if (!string.IsNullOrEmpty(Path))
+            {
+                hash ^= Path.GetHashCode();
+            }
+
+            if (Priority.HasValue)
+            {
+                hash ^= Priority.GetHashCode();
+            }
+
+            if (!string.IsNullOrEmpty(BackendId))
+            {
+                hash ^= BackendId.GetHashCode();
+            }
+
+            if (Metadata != null)
+            {
+                hash ^= Metadata.Select(item => HashCode.Combine(item.Key.GetHashCode(), item.Value.GetHashCode()))
+                    .Aggregate((total, nextCode) => total ^ nextCode);
+            }
+
+            if (Transforms != null)
+            {
+                // TODO: Doesn't handle list reordering
+                hash ^= Transforms.Select(transform =>
+                    transform.Select(item => HashCode.Combine(item.Key.GetHashCode(), item.Value.GetHashCode()))
+                        .Aggregate((total, nextCode) => total ^ nextCode))
+                    .Aggregate((total, nextCode) => total ^ nextCode);
+            }
+
+            return hash;
         }
     }
 }

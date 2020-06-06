@@ -22,7 +22,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
     {
         public RouteConfig(
             RouteInfo route,
-            string matcherSummary,
+            int configHash,
             int? priority,
             BackendInfo backendOrNull,
             IReadOnlyList<AspNetCore.Http.Endpoint> aspNetCoreEndpoints,
@@ -32,7 +32,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
             Contracts.CheckValue(aspNetCoreEndpoints, nameof(aspNetCoreEndpoints));
 
             Route = route;
-            MatcherSummary = matcherSummary;
+            ConfigHash = configHash;
             Priority = priority;
             BackendOrNull = backendOrNull;
             Endpoints = aspNetCoreEndpoints;
@@ -41,7 +41,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
 
         public RouteInfo Route { get; }
 
-        internal string MatcherSummary{ get; }
+        internal int ConfigHash { get; }
 
         public int? Priority { get; }
 
@@ -53,9 +53,8 @@ namespace Microsoft.ReverseProxy.RuntimeModel
 
         public bool HasConfigChanged(ParsedRoute newConfig, BackendInfo backendOrNull)
         {
-            return Priority != newConfig.Priority
-                || BackendOrNull != backendOrNull
-                || !MatcherSummary.Equals(newConfig.GetMatcherSummary());
+            return BackendOrNull != backendOrNull
+                || !ConfigHash.Equals(newConfig.GetConfigHash());
         }
     }
 }
