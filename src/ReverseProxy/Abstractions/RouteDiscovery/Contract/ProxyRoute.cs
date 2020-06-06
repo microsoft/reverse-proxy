@@ -48,7 +48,7 @@ namespace Microsoft.ReverseProxy.Abstractions
                 Priority = Priority,
                 BackendId = BackendId,
                 Metadata = Metadata?.DeepClone(StringComparer.Ordinal),
-                Transforms = Transforms.Select(d => new Dictionary<string, string>(d, StringComparer.OrdinalIgnoreCase)).ToList<IDictionary<string, string>>(),
+                Transforms = Transforms?.Select(d => new Dictionary<string, string>(d, StringComparer.OrdinalIgnoreCase)).ToList<IDictionary<string, string>>(),
             };
         }
     }

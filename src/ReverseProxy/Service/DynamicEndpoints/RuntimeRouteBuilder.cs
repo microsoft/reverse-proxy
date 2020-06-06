@@ -47,12 +47,12 @@ namespace Microsoft.ReverseProxy.Service
             // and changes to the underlying list *are* reflected on the read-only view.
             var aspNetCoreEndpoints = new List<Endpoint>(1);
             var newRouteConfig = new RouteConfig(
-                route: runtimeRoute,
-                matcherSummary: source.GetMatcherSummary(),
-                priority: source.Priority,
-                backendOrNull: backendOrNull,
-                aspNetCoreEndpoints: aspNetCoreEndpoints.AsReadOnly(),
-                transforms: transforms);
+                runtimeRoute,
+                source.GetConfigHash(),
+                source.Priority,
+                backendOrNull,
+                aspNetCoreEndpoints.AsReadOnly(),
+                transforms);
 
             // TODO: Handle arbitrary AST's properly
             // Catch-all pattern when no path was specified

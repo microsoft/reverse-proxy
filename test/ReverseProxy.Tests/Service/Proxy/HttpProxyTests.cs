@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.Net.Http.Headers;
 using Microsoft.ReverseProxy.Abstractions.Telemetry;
 using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
@@ -67,11 +68,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     Assert.Equal(HttpMethod.Post, request.Method);
                     Assert.Equal(targetUri, request.RequestUri.AbsoluteUri);
                     Assert.Contains("request", request.Headers.GetValues("x-ms-request-test"));
-                    Assert.Null(request.Headers.Host);
+                    Assert.Equal("example.com:3456", request.Headers.Host);
                     Assert.False(request.Headers.TryGetValues(":authority", out var value));
-                    Assert.Equal("127.0.0.1", request.Headers.GetValues("x-forwarded-for").Single());
-                    Assert.Equal("example.com:3456", request.Headers.GetValues("x-forwarded-host").Single());
-                    Assert.Equal("http", request.Headers.GetValues("x-forwarded-proto").Single());
 
                     Assert.NotNull(request.Content);
                     Assert.Contains("requestLanguage", request.Content.Headers.GetValues("Content-Language"));
@@ -129,6 +127,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             httpContext.Request.Headers.Add("Content-Language", "requestLanguage");
             httpContext.Request.Body = StringToStream("request content");
             httpContext.Connection.RemoteIpAddress = IPAddress.Loopback;
+            httpContext.Features.Set<IHttpResponseTrailersFeature>(new TestTrailersFeature());
 
             var proxyResponseStream = new MemoryStream();
             httpContext.Response.Body = proxyResponseStream;
@@ -144,6 +143,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             {
                 { "transformHeader", new RequestHeaderValueTransform("value", append: false) },
                 { "x-ms-request-test", new RequestHeaderValueTransform("transformValue", append: true) },
+                { HeaderNames.Host, new RequestHeaderValueTransform(null, append: false) }
             },
             new Dictionary<string, ResponseHeaderTransform>(StringComparer.OrdinalIgnoreCase)
             {
@@ -168,9 +168,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     Assert.Equal(new[] { "request", "transformValue" }, request.Headers.GetValues("x-ms-request-test"));
                     Assert.Null(request.Headers.Host);
                     Assert.False(request.Headers.TryGetValues(":authority", out var value));
-                    Assert.Equal("127.0.0.1", request.Headers.GetValues("x-forwarded-for").Single());
-                    Assert.Equal("example.com:3456", request.Headers.GetValues("x-forwarded-host").Single());
-                    Assert.Equal("http", request.Headers.GetValues("x-forwarded-proto").Single());
 
                     Assert.NotNull(request.Content);
                     Assert.Contains("requestLanguage", request.Content.Headers.GetValues("Content-Language"));
@@ -223,7 +220,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             httpContext.Request.Method = "POST";
             httpContext.Request.Scheme = "http";
             httpContext.Request.Host = new HostString("example.com:3456");
-            httpContext.Request.Path = "/api/test";
+            httpContext.Request.PathBase = "/api";
+            httpContext.Request.Path = "/test";
             httpContext.Request.QueryString = new QueryString("?a=b&c=d");
             httpContext.Request.Headers.Add(":authority", "example.com:3456");
             httpContext.Request.Headers.Add("x-ms-request-test", "request");
@@ -245,10 +243,14 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             {
                 { "transformHeader", new RequestHeaderValueTransform("value", append: false) },
                 { "x-ms-request-test", new RequestHeaderValueTransform("transformValue", append: true) },
+                { "x-forwarded-for", new RequestHeaderXForwardedForTransform(append: true) },
+                { "x-forwarded-host", new RequestHeaderXForwardedHostTransform(append: true) },
+                { "x-forwarded-proto", new RequestHeaderXForwardedProtoTransform(append: true) },
+                { "x-forwarded-pathbase", new RequestHeaderXForwardedPathBaseTransform(append: true) },
             },
             new Dictionary<string, ResponseHeaderTransform>(StringComparer.OrdinalIgnoreCase),
             new Dictionary<string, ResponseHeaderTransform>(StringComparer.OrdinalIgnoreCase));
-            var targetUri = "https://localhost:123/prependPathBase/a/b/prependPath/api/test?a=b&c=d";
+            var targetUri = "https://localhost:123/prependPathBase/a/b/prependPath/test?a=b&c=d";
             var sut = Create<HttpProxy>();
             var client = MockHttpHandler.CreateClient(
                 async (HttpRequestMessage request, CancellationToken cancellationToken) =>
@@ -265,6 +267,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     Assert.Equal("127.0.0.1", request.Headers.GetValues("x-forwarded-for").Single());
                     Assert.Equal("example.com:3456", request.Headers.GetValues("x-forwarded-host").Single());
                     Assert.Equal("http", request.Headers.GetValues("x-forwarded-proto").Single());
+                    Assert.Equal("/api", request.Headers.GetValues("x-forwarded-pathbase").Single());
 
                     Assert.NotNull(request.Content);
                     Assert.False(request.Content.Headers.TryGetValues("Content-Language", out var _));
@@ -337,10 +340,10 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     Assert.Equal(new Version(2, 0), request.Version);
                     Assert.Equal(HttpMethod.Get, request.Method);
                     Assert.Equal(targetUri, request.RequestUri.AbsoluteUri);
-                    Assert.Equal(new[] { "::1", "127.0.0.1" }, request.Headers.GetValues("x-forwarded-for"));
-                    Assert.Equal(new[] { "https", "http" }, request.Headers.GetValues("x-forwarded-proto"));
-                    Assert.Equal(new[] { "some.other.host:4567", "example.com:3456" }, request.Headers.GetValues("x-forwarded-host"));
-                    Assert.Null(request.Headers.Host);
+                    Assert.Equal(new[] { "::1" }, request.Headers.GetValues("x-forwarded-for"));
+                    Assert.Equal(new[] { "https" }, request.Headers.GetValues("x-forwarded-proto"));
+                    Assert.Equal(new[] { "some.other.host:4567" }, request.Headers.GetValues("x-forwarded-host"));
+                    Assert.Equal("example.com:3456", request.Headers.Host);
                     Assert.False(request.Headers.TryGetValues(":authority", out var value));
 
                     // The proxy throws if the request body is not read.
@@ -401,11 +404,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     Assert.Equal(HttpMethod.Get, request.Method);
                     Assert.Equal(targetUri, request.RequestUri.AbsoluteUri);
                     Assert.Contains("request", request.Headers.GetValues("x-ms-request-test"));
-                    Assert.Null(request.Headers.Host);
+                    Assert.Equal("example.com:3456", request.Headers.Host);
                     Assert.False(request.Headers.TryGetValues(":authority", out var value));
-                    Assert.Equal("127.0.0.1", request.Headers.GetValues("x-forwarded-for").Single());
-                    Assert.Equal("example.com:3456", request.Headers.GetValues("x-forwarded-host").Single());
-                    Assert.Equal("http", request.Headers.GetValues("x-forwarded-proto").Single());
 
                     Assert.Null(request.Content);
 
@@ -628,6 +628,11 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             {
                 throw new NotImplementedException();
             }
+        }
+
+        private class TestTrailersFeature : IHttpResponseTrailersFeature
+        {
+            public IHeaderDictionary Trailers { get; set; } = new HeaderDictionary();
         }
     }
 }
