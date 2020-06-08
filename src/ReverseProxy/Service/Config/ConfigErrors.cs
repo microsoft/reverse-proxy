@@ -16,6 +16,7 @@ namespace Microsoft.ReverseProxy.Service
         internal const string RouteUnsupportedAction = "Route_UnsupportedAction";
 
         internal const string ParsedRouteMissingId = "ParsedRoute_MissingId";
+        internal const string ParsedRouteMissingHostAndPath = "ParsedRoute_MissingHostAndPath";
         internal const string ParsedRouteRuleHasNoMatchers = "ParsedRoute_RuleHasNoMatchers";
         internal const string ParsedRouteRuleMissingHostMatcher = "ParsedRoute_RuleMissingHostMatcher";
         internal const string ParsedRouteRuleMultipleHostMatchers = "ParsedRoute_RuleMultipleHostMatchers";

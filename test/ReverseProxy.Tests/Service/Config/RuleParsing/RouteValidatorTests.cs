@@ -19,6 +19,8 @@ namespace Microsoft.ReverseProxy.Service.Tests
         [InlineData("example.com", "/a/", null)]
         [InlineData("example.com", "/a/**", null)]
         [InlineData("example.com", "/a/**", "GET")]
+        [InlineData(null, "/a/", null)]
+        [InlineData(null, "/a/**", "GET")]
         [InlineData("example.com", null, "get")]
         [InlineData("example.com", null, "gEt,put")]
         [InlineData("example.com", null, "gEt,put,POST,traCE,PATCH,DELETE,Head")]
@@ -63,16 +65,13 @@ namespace Microsoft.ReverseProxy.Service.Tests
             Assert.Contains(errorReporter.Errors, err => err.ErrorCode == ConfigErrors.ParsedRouteMissingId);
         }
 
-        [Theory]
-        [InlineData(null)]
-        [InlineData("/")]
-        public void Rejects_MissingHost(string path)
+        [Fact]
+        public void Rejects_MissingHostAndPath()
         {
             // Arrange
             var route = new ParsedRoute
             {
                 RouteId = "route1",
-                Path = path,
                 BackendId = "be1",
             };
 
@@ -81,7 +80,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
 
             // Assert
             Assert.False(result.IsSuccess);
-            Assert.Contains(result.ErrorReporter.Errors, err => err.ErrorCode == ConfigErrors.ParsedRouteRuleMissingHostMatcher);
+            Assert.Contains(result.ErrorReporter.Errors, err => err.ErrorCode == ConfigErrors.ParsedRouteMissingHostAndPath);
         }
 
         [Theory]
@@ -125,7 +124,6 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var route = new ParsedRoute
             {
                 RouteId = "route1",
-                Host = "example.com",
                 Path = path,
                 BackendId = "be1",
             };
@@ -148,7 +146,6 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var route = new ParsedRoute
             {
                 RouteId = "route1",
-                Host = "example.com",
                 Methods = methods.Split(","),
                 BackendId = "be1",
             };
