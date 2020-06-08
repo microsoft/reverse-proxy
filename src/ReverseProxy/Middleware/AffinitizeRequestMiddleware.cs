@@ -59,11 +59,10 @@ namespace Microsoft.ReverseProxy.Middleware
                         Log.MultipleDestinationsOnBackendToEstablishRequestAffinity(_logger, backend.BackendId);
                         // It's assumed that all of them match to the request's affinity key.
                         chosenDestination = candidateDestinations[_random.Next(candidateDestinations.Count)];
+                        destinationsFeature.Destinations = chosenDestination;
                     }
 
                     _operationLogger.Execute("ReverseProxy.AffinitizeRequest", () => AffinitizeRequest(context, options, chosenDestination));
-
-                    destinationsFeature.Destinations = chosenDestination;
                 }
             }
 
