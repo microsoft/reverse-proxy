@@ -57,7 +57,7 @@ namespace Microsoft.ReverseProxy.Service
 
             if (string.IsNullOrEmpty(route.Host) && string.IsNullOrEmpty(route.Path))
             {
-                errorReporter.ReportError(ConfigErrors.ParsedRouteMissingHostAndPath, route.RouteId, $"Route requires {nameof(route.Host)} or {nameof(route.Path)} specified.");
+                errorReporter.ReportError(ConfigErrors.ParsedRouteRuleHasNoMatchers, route.RouteId, $"Route requires {nameof(route.Host)} or {nameof(route.Path)} specified.");
                 success = false;
             }
 

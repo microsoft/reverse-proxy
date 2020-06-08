@@ -80,7 +80,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
 
             // Assert
             Assert.False(result.IsSuccess);
-            Assert.Contains(result.ErrorReporter.Errors, err => err.ErrorCode == ConfigErrors.ParsedRouteMissingHostAndPath);
+            Assert.Contains(result.ErrorReporter.Errors, err => err.ErrorCode == ConfigErrors.ParsedRouteRuleHasNoMatchers);
         }
 
         [Theory]
