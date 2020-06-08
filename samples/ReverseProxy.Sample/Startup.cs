@@ -29,7 +29,6 @@ namespace Microsoft.ReverseProxy.Sample
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddDataProtection();
             services.AddReverseProxy()
                 .LoadFromConfig(_configuration.GetSection("ReverseProxy"))
                 .AddProxyConfigFilter<CustomConfigFilter>();

@@ -49,15 +49,21 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
             Assert.Same(affinitizedDestination, affinityResult.Destinations[0]);
         }
 
-        [Fact]
-        public void FindAffinitizedDestination_CustomHeaderNameIsNotSpecified_Throw()
+        [Theory]
+        [MemberData(nameof(FindAffinitizedDestination_CustomHeaderNameIsNotSpecified_Cases))]
+        public void FindAffinitizedDestination_CustomHeaderNameIsNotSpecified_UseDefaultName(Dictionary<string, string> settings)
         {
-            var options = new BackendConfig.BackendSessionAffinityOptions(true, "CustomHeader", "Return503", null);
+            var options = new BackendConfig.BackendSessionAffinityOptions(true, "CustomHeader", "Return503", settings);
             var provider = new CustomHeaderSessionAffinityProvider(AffinityTestHelper.GetDataProtector().Object, AffinityTestHelper.GetLogger<CustomHeaderSessionAffinityProvider>().Object);
             var context = new DefaultHttpContext();
-            context.Request.Headers["SomeHeader"] = new[] { "SomeValue" };
+            var affinitizedDestination = _destinations[1];
+            context.Request.Headers[CustomHeaderSessionAffinityProvider.DefaultCustomHeaderName] = new[] { affinitizedDestination.DestinationId.ToUTF8BytesInBase64() };
 
-            Assert.Throws<ArgumentException>(() => provider.FindAffinitizedDestinations(context, _destinations, "backend-1", options));
+            var affinityResult = provider.FindAffinitizedDestinations(context, _destinations, "backend-1", options);
+
+            Assert.Equal(AffinityStatus.OK, affinityResult.Status);
+            Assert.Equal(1, affinityResult.Destinations.Count);
+            Assert.Same(affinitizedDestination, affinityResult.Destinations[0]);
         }
 
         [Fact]
@@ -90,6 +96,12 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
             provider.AffinitizeRequest(context, _defaultOptions, affinitizedDestination);
 
             Assert.False(context.Response.Headers.ContainsKey(AffinityHeaderName));
+        }
+
+        public static IEnumerable<object[]> FindAffinitizedDestination_CustomHeaderNameIsNotSpecified_Cases()
+        {
+            yield return new object[] { null };
+            yield return new object[] { new Dictionary<string, string> { { "SomeSetting", "SomeValue" } } };
         }
     }
 }

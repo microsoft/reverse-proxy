@@ -33,6 +33,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddProxy()
                 .AddBackgroundWorkers();
 
+            services.AddDataProtection();
+
             return builder;
         }
 

@@ -90,13 +90,6 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
 
         public static IReverseProxyBuilder AddSessionAffinityProvider(this IReverseProxyBuilder builder)
         {
-            return builder.AddSessionAffinityProvider(_ => { });
-        }
-
-        public static IReverseProxyBuilder AddSessionAffinityProvider(this IReverseProxyBuilder builder, Action<SessionAffinityDefaultOptions> configureOptions)
-        {
-            builder.Services.AddOptions<SessionAffinityDefaultOptions>().Configure(configureOptions);
-
             builder.Services.TryAddEnumerable(new[] {
                 new ServiceDescriptor(typeof(IAffinityFailurePolicy), typeof(RedistributeAffinityFailurePolicy), ServiceLifetime.Singleton),
                 new ServiceDescriptor(typeof(IAffinityFailurePolicy), typeof(Return503ErrorAffinityFailurePolicy), ServiceLifetime.Singleton)

@@ -12,6 +12,11 @@ namespace Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract
     public sealed class SessionAffinityOptions
     {
         /// <summary>
+        /// Indicates whether session affinity is enabled.
+        /// </summary>
+        public bool Enabled { get; set; }
+
+        /// <summary>
         /// Session affinity mode which is implemented by one of providers.
         /// </summary>
         public string Mode { get; set; }
@@ -30,6 +35,7 @@ namespace Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract
         {
             return new SessionAffinityOptions
             {
+                Enabled = Enabled,
                 Mode = Mode,
                 AffinityFailurePolicy = AffinityFailurePolicy,
                 Settings = Settings?.DeepClone(StringComparer.Ordinal)

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract;
@@ -27,13 +28,12 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
         [Theory]
         [InlineData(AffinityStatus.OK)]
         [InlineData(AffinityStatus.AffinityKeyNotSet)]
-        public async Task Handle_SuccessfulAffinityStatus_ReturnTrue(AffinityStatus status)
+        public async Task Handle_SuccessfulAffinityStatus_Throw(AffinityStatus status)
         {
             var policy = new Return503ErrorAffinityFailurePolicy();
             var context = new DefaultHttpContext();
 
-            Assert.True(await policy.Handle(context, default, status));
-            Assert.Equal(200, context.Response.StatusCode);
+            await Assert.ThrowsAsync<InvalidOperationException>(() => policy.Handle(context, default, status));
         }
     }
 }

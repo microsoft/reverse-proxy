@@ -8,7 +8,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
 {
     internal static class SessionAffinityMiddlewareHelper
     {
-        public static IDictionary<string, T> ToDictionaryById<T>(this IEnumerable<T> services, Func<T, string> idSelector)
+        public static IDictionary<string, T> ToDictionaryByUniqueId<T>(this IEnumerable<T> services, Func<T, string> idSelector)
         {
             if (services == null)
             {
@@ -30,12 +30,12 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
 
         public static IDictionary<string, ISessionAffinityProvider> ToProviderDictionary(this IEnumerable<ISessionAffinityProvider> sessionAffinityProviders)
         {
-            return ToDictionaryById(sessionAffinityProviders, p => p.Mode);
+            return ToDictionaryByUniqueId(sessionAffinityProviders, p => p.Mode);
         }
 
         public static IDictionary<string, IAffinityFailurePolicy> ToPolicyDictionary(this IEnumerable<IAffinityFailurePolicy> affinityFailurePolicies)
         {
-            return ToDictionaryById(affinityFailurePolicies, p => p.Name);
+            return ToDictionaryByUniqueId(affinityFailurePolicies, p => p.Name);
         }
 
         public static T GetRequiredServiceById<T>(this IDictionary<string, T> services, string id)

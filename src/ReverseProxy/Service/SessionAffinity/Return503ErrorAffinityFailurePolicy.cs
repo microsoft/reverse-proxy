@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract;
@@ -17,8 +18,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
             if (affinityStatus == AffinityStatus.OK
                 || affinityStatus == AffinityStatus.AffinityKeyNotSet)
             {
-                // We shouldn't get here, but allow the request to proceed further if that's the case.
-                return Task.FromResult(true);
+                throw new InvalidOperationException($"{nameof(Return503ErrorAffinityFailurePolicy)} is called to handle a successful request's affinity status {affinityStatus}.");
             }
 
             context.Response.StatusCode = 503;

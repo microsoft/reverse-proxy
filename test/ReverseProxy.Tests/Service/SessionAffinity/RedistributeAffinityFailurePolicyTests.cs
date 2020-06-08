@@ -22,6 +22,17 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
             Assert.True(await policy.Handle(new DefaultHttpContext(), default, status));
         }
 
+        [Theory]
+        [InlineData(AffinityStatus.OK)]
+        [InlineData(AffinityStatus.AffinityKeyNotSet)]
+        public async Task Handle_SuccessfulAffinityStatus_Throw(AffinityStatus status)
+        {
+            var policy = new RedistributeAffinityFailurePolicy();
+            var context = new DefaultHttpContext();
+
+            await Assert.ThrowsAsync<InvalidOperationException>(() => policy.Handle(context, default, status));
+        }
+
         public static IEnumerable<object[]> HandleCases()
         {
             // Successful statuses are also included because redistribute policy is not supposed to validate this parameter

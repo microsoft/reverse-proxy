@@ -22,7 +22,6 @@ namespace Microsoft.ReverseProxy.Service
         private readonly IRouteValidator _parsedRouteValidator;
         private readonly IDictionary<string, ISessionAffinityProvider> _sessionAffinityProviders;
         private readonly IDictionary<string, IAffinityFailurePolicy> _affinityFailurePolicies;
-        private readonly SessionAffinityDefaultOptions _sessionAffinityDefaultOptions;
 
         public DynamicConfigBuilder(
             IEnumerable<IProxyConfigFilter> filters,
@@ -30,8 +29,7 @@ namespace Microsoft.ReverseProxy.Service
             IRoutesRepo routesRepo,
             IRouteValidator parsedRouteValidator,
             IEnumerable<ISessionAffinityProvider> sessionAffinityProviders,
-            IEnumerable<IAffinityFailurePolicy> affinityFailurePolicies,
-            IOptions<SessionAffinityDefaultOptions> sessionAffinityDefaultOptions)
+            IEnumerable<IAffinityFailurePolicy> affinityFailurePolicies)
         {
             Contracts.CheckValue(filters, nameof(filters));
             Contracts.CheckValue(backendsRepo, nameof(backendsRepo));
@@ -45,7 +43,6 @@ namespace Microsoft.ReverseProxy.Service
             _parsedRouteValidator = parsedRouteValidator;
             _sessionAffinityProviders = sessionAffinityProviders.ToProviderDictionary();
             _affinityFailurePolicies = affinityFailurePolicies.ToPolicyDictionary();
-            _sessionAffinityDefaultOptions = sessionAffinityDefaultOptions?.Value ?? throw new ArgumentNullException(nameof(sessionAffinityDefaultOptions));
         }
 
         public async Task<Result<DynamicConfigRoot>> BuildConfigAsync(IConfigErrorReporter errorReporter, CancellationToken cancellation)
@@ -100,22 +97,15 @@ namespace Microsoft.ReverseProxy.Service
 
         private void ValidateSessionAffinity(IConfigErrorReporter errorReporter, string id, Backend backend)
         {
-            if (backend.SessionAffinity == null)
+            if (backend.SessionAffinity == null || !backend.SessionAffinity.Enabled)
             {
-                if (_sessionAffinityDefaultOptions.EnabledForAllBackends)
-                {
-                    backend.SessionAffinity = new SessionAffinityOptions();
-                }
-                else
-                {
-                    // Session affinity is disabled
-                    return;
-                }
+                // Session affinity is disabled
+                return;
             }
 
             if (string.IsNullOrEmpty(backend.SessionAffinity.Mode))
             {
-                backend.SessionAffinity.Mode = _sessionAffinityDefaultOptions.DefaultMode;
+                backend.SessionAffinity.Mode = SessionAffinityConstants.Modes.Cookie;
             }
 
             var affinityMode = backend.SessionAffinity.Mode;
@@ -126,7 +116,7 @@ namespace Microsoft.ReverseProxy.Service
 
             if (string.IsNullOrEmpty(backend.SessionAffinity.AffinityFailurePolicy))
             {
-                backend.SessionAffinity.AffinityFailurePolicy = _sessionAffinityDefaultOptions.AffinityFailurePolicy;
+                backend.SessionAffinity.AffinityFailurePolicy = SessionAffinityConstants.AffinityFailurePolicies.Redistribute;
             }
 
             var affinityFailurePolicy = backend.SessionAffinity.AffinityFailurePolicy;

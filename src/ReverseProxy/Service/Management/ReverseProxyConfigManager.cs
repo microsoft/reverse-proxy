@@ -96,7 +96,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                                 new BackendConfig.BackendLoadBalancingOptions(
                                     mode: configBackend.LoadBalancing?.Mode ?? default),
                                 new BackendConfig.BackendSessionAffinityOptions(
-                                    enabled: configBackend.SessionAffinity != null,
+                                    enabled: configBackend.SessionAffinity?.Enabled ?? false,
                                     mode: configBackend.SessionAffinity?.Mode,
                                     affinityFailurePolicy: configBackend.SessionAffinity?.AffinityFailurePolicy,
                                     settings: configBackend.SessionAffinity?.Settings as IReadOnlyDictionary<string, string>));
