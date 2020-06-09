@@ -75,10 +75,10 @@ namespace Microsoft.ReverseProxy.Middleware
                     break;
                 case AffinityStatus.AffinityKeyExtractionFailed:
                 case AffinityStatus.DestinationNotFound:
-                    var keepProcessing = await _operationLogger.ExecuteAsync("ReverseProxy.HandleAffinityFailure", async () =>
+                    var keepProcessing = await _operationLogger.ExecuteAsync("ReverseProxy.HandleAffinityFailure", () =>
                     {
                         var failurePolicy = _affinityFailurePolicies.GetRequiredServiceById(options.AffinityFailurePolicy);
-                        return await failurePolicy.Handle(context, options, affinityResult.Status);
+                        return failurePolicy.Handle(context, options, affinityResult.Status);
                     });
 
                     if (!keepProcessing)
