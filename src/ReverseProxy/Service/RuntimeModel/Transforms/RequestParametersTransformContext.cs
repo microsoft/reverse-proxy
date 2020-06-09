@@ -9,7 +9,6 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
     {
         public HttpContext HttpContext { get; set; }
         public string Method { get; set; }
-        public PathString PathBase { get; set; }
         public PathString Path { get; set; }
         public QueryString Query { get; set; }
     }

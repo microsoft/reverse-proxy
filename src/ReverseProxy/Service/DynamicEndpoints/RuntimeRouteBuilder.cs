@@ -36,7 +36,7 @@ namespace Microsoft.ReverseProxy.Service
             Contracts.CheckValue(source, nameof(source));
             Contracts.CheckValue(runtimeRoute, nameof(runtimeRoute));
 
-            _transformBuilder.Build(source.Transforms, out var transforms); // TODO: HeaderTransforms, etc...
+            var transforms = _transformBuilder.Build(source.Transforms);
 
             // NOTE: `new RouteConfig(...)` needs a reference to the list of ASP .NET Core endpoints,
             // but the ASP .NET Core endpoints cannot be created without a `RouteConfig` metadata item.

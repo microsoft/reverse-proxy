@@ -59,6 +59,9 @@ namespace Microsoft.ReverseProxy.ConfigModel
         /// </summary>
         public IDictionary<string, string> Metadata { get; set; }
 
+        /// <summary>
+        /// Parameters used to transform the request and response. See <see cref="ITransformBuilder"/>.
+        /// </summary>
         public IList<IDictionary<string, string>> Transforms { get; set; }
 
         // Used to diff for config changes
@@ -106,7 +109,7 @@ namespace Microsoft.ReverseProxy.ConfigModel
 
             if (Transforms != null)
             {
-                // TODO: Doesn't handle list reordering
+                // TODO: Doesn't handle list reordering. Is that significant?
                 hash ^= Transforms.Select(transform =>
                     transform.Select(item => HashCode.Combine(item.Key.GetHashCode(), item.Value.GetHashCode()))
                         .Aggregate((total, nextCode) => total ^ nextCode))

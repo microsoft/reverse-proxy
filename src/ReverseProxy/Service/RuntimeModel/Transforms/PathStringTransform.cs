@@ -27,14 +27,11 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                 case PathTransformMode.Set:
                     result = Value;
                     break;
-                case PathTransformMode.Prepend:
+                case PathTransformMode.Prefix:
                     result = Value + input;
                     break;
-                case PathTransformMode.Append:
-                    result = input + Value;
-                    break;
                 case PathTransformMode.RemovePrefix:
-                    input.StartsWithSegments(Value, out result);
+                    result = input.StartsWithSegments(Value, out var remainder) ? remainder : input;
                     break;
                 default:
                     throw new NotImplementedException(Mode.ToString());
@@ -46,8 +43,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         public enum PathTransformMode
         {
             Set,
-            Prepend,
-            Append,
+            Prefix,
             RemovePrefix,
         }
     }

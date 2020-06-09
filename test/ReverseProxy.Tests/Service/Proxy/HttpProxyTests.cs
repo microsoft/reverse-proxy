@@ -135,7 +135,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var destinationPrefix = "https://localhost:123/a/b/";
             var transforms = new Transforms(new[]
             {
-                new PathStringTransform(PathStringTransform.PathTransformMode.Prepend, "/prependPath"),
+                new PathStringTransform(PathStringTransform.PathTransformMode.Prefix, "/prependPath"),
             },
             copyRequestHeaders: true,
             new Dictionary<string, RequestHeaderTransform>(StringComparer.OrdinalIgnoreCase)
@@ -234,7 +234,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var destinationPrefix = "https://localhost:123/a/b/";
             var transforms = new Transforms(new[]
             {
-                new PathStringTransform(PathStringTransform.PathTransformMode.Prepend, "/prependPath"),
+                new PathStringTransform(PathStringTransform.PathTransformMode.Prefix, "/prependPath"),
             },
             copyRequestHeaders: false,
             new Dictionary<string, RequestHeaderTransform>(StringComparer.OrdinalIgnoreCase)

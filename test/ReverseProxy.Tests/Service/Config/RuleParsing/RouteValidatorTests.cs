@@ -1,7 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
+using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.ConfigModel;
+using Microsoft.ReverseProxy.Service.Config;
+using Moq;
 using Tests.Common;
 using Xunit;
 
@@ -162,6 +166,8 @@ namespace Microsoft.ReverseProxy.Service.Tests
         {
             var errorReporter = new TestConfigErrorReporter();
 
+            Mock<ITransformBuilder>().Setup(builder
+                => builder.Validate(It.IsAny<IList<IDictionary<string, string>>>(), It.IsAny<string>(), It.IsAny<IConfigErrorReporter>())).Returns(true);
             var validator = Create<RouteValidator>();
             var isSuccess = validator.ValidateRoute(parsedRoute, errorReporter);
             return (isSuccess, errorReporter);

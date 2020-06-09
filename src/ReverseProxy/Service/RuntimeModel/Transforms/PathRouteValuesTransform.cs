@@ -9,13 +9,22 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
     /// <summary>
     /// Generates a new request path by plugging matched route parameters into the given pattern.
     /// </summary>
-    public class PathRouteValueTransform : RequestParametersTransform
+    public class PathRouteValuesTransform : RequestParametersTransform
     {
         private readonly TemplateBinder _binder;
 
-        public PathRouteValueTransform(string pattern, TemplateBinderFactory binderFactory)
+        public PathRouteValuesTransform(string pattern, TemplateBinderFactory binderFactory)
         {
-            // TODO: Config validation
+            if (pattern is null)
+            {
+                throw new System.ArgumentNullException(nameof(pattern));
+            }
+
+            if (binderFactory is null)
+            {
+                throw new System.ArgumentNullException(nameof(binderFactory));
+            }
+
             _binder = binderFactory.Create(RoutePatternFactory.Parse(pattern));
         }
 

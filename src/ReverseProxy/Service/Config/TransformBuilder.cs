@@ -31,7 +31,11 @@ namespace Microsoft.ReverseProxy.Service.Config
 
             foreach (var rawTransform in rawTransforms)
             {
-                if (rawTransform.TryGetValue("PathPrefix", out var pathPrefix))
+                if (rawTransform.TryGetValue("PathSet", out var pathSet))
+                {
+                    success &= TryCheckTooManyParameters(rawTransform, routeId, expected: 1, errorReporter);
+                }
+                else if (rawTransform.TryGetValue("PathPrefix", out var pathPrefix))
                 {
                     success &= TryCheckTooManyParameters(rawTransform, routeId, expected: 1, errorReporter);
                 }
@@ -39,13 +43,10 @@ namespace Microsoft.ReverseProxy.Service.Config
                 {
                     success &= TryCheckTooManyParameters(rawTransform, routeId, expected: 1, errorReporter);
                 }
-                else if (rawTransform.TryGetValue("PathSet", out var pathSet))
-                {
-                    success &= TryCheckTooManyParameters(rawTransform, routeId, expected: 1, errorReporter);
-                }
                 else if (rawTransform.TryGetValue("PathPattern", out var pathPattern))
                 {
                     success &= TryCheckTooManyParameters(rawTransform, routeId, expected: 1, errorReporter);
+                    // TODO: Validate the pattern format. Does it build?
                 }
                 else if (rawTransform.TryGetValue("RequestHeadersCopy", out var copyHeaders))
                 {
@@ -171,12 +172,11 @@ namespace Microsoft.ReverseProxy.Service.Config
             return success;
         }
 
-        public void Build(IList<IDictionary<string, string>> rawTransforms, out Transforms transforms)
+        public Transforms Build(IList<IDictionary<string, string>> rawTransforms)
         {
-            transforms = null;
             if (rawTransforms == null || rawTransforms.Count == 0)
             {
-                return;
+                return null;
             }
 
             bool? copyRequestHeaders = null;
@@ -189,23 +189,23 @@ namespace Microsoft.ReverseProxy.Service.Config
 
             foreach (var rawTransform in rawTransforms)
             {
-                if (rawTransform.TryGetValue("PathPrefix", out var pathPrefix))
+                if (rawTransform.TryGetValue("PathSet", out var pathSet))
+                {
+                    CheckTooManyParameters(rawTransform, expected: 1);
+                    var path = MakePathString(pathSet);
+                    requestTransforms.Add(new PathStringTransform(PathStringTransform.PathTransformMode.Set, path));
+                }
+                else if (rawTransform.TryGetValue("PathPrefix", out var pathPrefix))
                 {
                     CheckTooManyParameters(rawTransform, expected: 1);
                     var path = MakePathString(pathPrefix);
-                    requestTransforms.Add(new PathStringTransform(PathStringTransform.PathTransformMode.Prepend, path));
+                    requestTransforms.Add(new PathStringTransform(PathStringTransform.PathTransformMode.Prefix, path));
                 }
                 else if (rawTransform.TryGetValue("PathRemovePrefix", out var pathRemovePrefix))
                 {
                     CheckTooManyParameters(rawTransform, expected: 1);
                     var path = MakePathString(pathRemovePrefix);
                     requestTransforms.Add(new PathStringTransform(PathStringTransform.PathTransformMode.RemovePrefix, path));
-                }
-                else if (rawTransform.TryGetValue("PathSet", out var pathSet))
-                {
-                    CheckTooManyParameters(rawTransform, expected: 1);
-                    var path = MakePathString(pathSet);
-                    requestTransforms.Add(new PathStringTransform(PathStringTransform.PathTransformMode.Set, path));
                 }
                 else if (rawTransform.TryGetValue("PathPattern", out var pathPattern))
                 {
@@ -214,7 +214,7 @@ namespace Microsoft.ReverseProxy.Service.Config
                     {
                         pathPattern = "/" + pathPattern;
                     }
-                    requestTransforms.Add(new PathRouteValueTransform(pathPattern, _binderFactory));
+                    requestTransforms.Add(new PathRouteValuesTransform(pathPattern, _binderFactory));
                 }
                 else if (rawTransform.TryGetValue("RequestHeadersCopy", out var copyHeaders))
                 {
@@ -231,6 +231,7 @@ namespace Microsoft.ReverseProxy.Service.Config
                     CheckTooManyParameters(rawTransform, expected: 2);
                     if (rawTransform.TryGetValue("Set", out var setValue))
                     {
+                        // TODO: What about multiple transforms per header? Last wins? We don't have any examples for needing multiple.
                         requestHeaderTransforms[headerName] = new RequestHeaderValueTransform(setValue, append: false);
                     }
                     else if (rawTransform.TryGetValue("Append", out var appendValue))
@@ -380,7 +381,7 @@ namespace Microsoft.ReverseProxy.Service.Config
                 }
             }
 
-            transforms = new Transforms(requestTransforms, copyRequestHeaders, requestHeaderTransforms, responseHeaderTransforms, responseTrailerTransforms);
+            return new Transforms(requestTransforms, copyRequestHeaders, requestHeaderTransforms, responseHeaderTransforms, responseTrailerTransforms);
         }
 
         private bool TryCheckTooManyParameters(IDictionary<string, string> rawTransform, string routeId, int expected, IConfigErrorReporter errorReporter)

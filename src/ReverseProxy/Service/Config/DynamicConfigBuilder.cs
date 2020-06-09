@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract;
 using Microsoft.ReverseProxy.ConfigModel;
-using Microsoft.ReverseProxy.Service.Config;
 using Microsoft.ReverseProxy.Service.SessionAffinity;
 using Microsoft.ReverseProxy.Utilities;
 

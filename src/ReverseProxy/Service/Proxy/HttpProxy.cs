@@ -14,7 +14,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Http.Features;
-using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Server.Kestrel.Core.Features;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
@@ -86,6 +85,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         {
             Contracts.CheckValue(context, nameof(context));
             Contracts.CheckValue(destinationPrefix, nameof(destinationPrefix));
+            Contracts.CheckValue(transforms, nameof(transforms));
             Contracts.CheckValue(httpClientFactory, nameof(httpClientFactory));
 
             var request = CreateRequestMessage(context, destinationPrefix, transforms?.RequestTransforms);
@@ -343,12 +343,12 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 throw new ArgumentException(nameof(destinationAddress));
             }
 
+            // TODO Perf: We could probably avoid splitting this and just append the final path and query
             UriHelper.FromAbsolute(destinationAddress, out var destinationScheme, out var destinationHost, out var destinationPathBase, out _, out _); // Query and Fragment are not supported here.
 
             var request = context.Request;
             if (transforms == null || transforms.Count == 0)
             {
-                // TODO: destination vs request PathBase policy?
                 var url = UriHelper.BuildAbsolute(destinationScheme, destinationHost, destinationPathBase, request.Path, request.QueryString);
                 Log.Proxying(_logger, url);
                 var uri = new Uri(url, UriKind.Absolute);
@@ -359,7 +359,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             {
                 HttpContext = context,
                 Method = request.Method,
-                PathBase = destinationPathBase,
                 Path = request.Path,
                 Query = request.QueryString,
             };
@@ -368,8 +367,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 transform.Apply(transformContext);
             }
 
-            // TODO: destination vs request PathBase policy?
-            var targetUrl = UriHelper.BuildAbsolute(destinationScheme, destinationHost, transformContext.PathBase, transformContext.Path, transformContext.Query);
+            var targetUrl = UriHelper.BuildAbsolute(destinationScheme, destinationHost, destinationPathBase, transformContext.Path, transformContext.Query);
             Log.Proxying(_logger, targetUrl);
             var targetUri = new Uri(targetUrl, UriKind.Absolute);
             return new HttpRequestMessage(HttpUtilities.GetHttpMethod(transformContext.Method), targetUri);
@@ -441,8 +439,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                         }
                     }
 
-                    ////this.logger.LogInformation($"   Copying downstream --> Proxy --> upstream request header {header.Key}: {header.Value}");
-
                     AddHeader(destination, headerName, value);
                 }
             }
@@ -450,7 +446,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             // Run any transforms that weren't run yet.
             if (transforms != null)
             {
-                foreach (var (headerName, transform) in transforms) // TODO: What about multiple transforms per header? Last wins?
+                foreach (var (headerName, transform) in transforms)
                 {
                     if (!(transformsRun?.Contains(headerName) ?? false))
                     {
