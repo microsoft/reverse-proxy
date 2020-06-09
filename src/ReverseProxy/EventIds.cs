@@ -40,5 +40,13 @@ namespace Microsoft.ReverseProxy
         public static readonly EventId OperationStarted = new EventId(31, "OperationStarted");
         public static readonly EventId OperationEnded = new EventId(32, "OperationEnded");
         public static readonly EventId OperationFailed = new EventId(33, "OperationFailed");
+        public static readonly EventId AffinityResolutionFailedForBackend = new EventId(34, "AffinityResolutionFailedForBackend");
+        public static readonly EventId MultipleDestinationsOnBackendToEstablishRequestAffinity = new EventId(35, "MultipleDestinationsOnBackendToEstablishRequestAffinity");
+        public static readonly EventId AffinityCannotBeEstablishedBecauseNoDestinationsFoundOnBackend = new EventId(36, "AffinityCannotBeEstablishedBecauseNoDestinationsFoundOnBackend");
+        public static readonly EventId NoDestinationOnBackendToEstablishRequestAffinity = new EventId(37, "NoDestinationOnBackendToEstablishRequestAffinity");
+        public static readonly EventId RequestAffinityKeyDecryptionFailed = new EventId(38, "RequestAffinityKeyDecryptionFailed");
+        public static readonly EventId DestinationMatchingToAffinityKeyNotFound = new EventId(39, "DestinationMatchingToAffinityKeyNotFound");
+        public static readonly EventId RequestAffinityHeaderHasMultipleValues = new EventId(40, "RequestAffinityHeaderHasMultipleValues");
+        public static readonly EventId AffinityResolutionFailureWasHandledProcessingWillBeContinued = new EventId(41, "AffinityResolutionFailureWasHandledProcessingWillBeContinued");
     }
 }

@@ -22,7 +22,9 @@ namespace Microsoft.AspNetCore.Builder
         {
             endpoints.MapReverseProxy(app =>
             {
+                app.UseAffinitizedDestinationLookup();
                 app.UseProxyLoadBalancing();
+                app.UseRequestAffinitizer();
             });
         }
 

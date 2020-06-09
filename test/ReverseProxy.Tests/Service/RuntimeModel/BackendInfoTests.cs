@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.ReverseProxy.Service.Management;
 using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
 using Tests.Common;
@@ -76,7 +77,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel.Tests
             Assert.NotNull(state1);
             Assert.Empty(state1.AllDestinations);
 
-            backend.Config.Value = new BackendConfig(healthCheckOptions: default, loadBalancingOptions: default);
+            backend.Config.Value = new BackendConfig(healthCheckOptions: default, loadBalancingOptions: default, sessionAffinityOptions: default);
             Assert.NotSame(state1, backend.DynamicState.Value);
             Assert.Empty(backend.DynamicState.Value.AllDestinations);
         }
@@ -145,7 +146,8 @@ namespace Microsoft.ReverseProxy.RuntimeModel.Tests
                     timeout: TimeSpan.FromSeconds(30),
                     port: 30000,
                     path: "/"),
-                loadBalancingOptions: default);
+                loadBalancingOptions: default,
+                sessionAffinityOptions: default);
         }
     }
 }

@@ -19,6 +19,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Microsoft.ReverseProxy.Service.Metrics;
 using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
+using Microsoft.ReverseProxy.Service.SessionAffinity;
 using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Service.Proxy
@@ -450,7 +451,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                     }
 
                     ////this.logger.LogInformation($"   Copying downstream <-- Proxy <-- upstream response header {header.Key}: {string.Join(",", header.Value)}");
-                    destination.TryAdd(header.Key, new StringValues(header.Value.ToArray()));
+                    destination.Append(header.Key, new StringValues(header.Value.ToArray()));
                 }
             }
         }

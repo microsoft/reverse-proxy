@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -34,7 +34,8 @@ namespace SampleClient
                 {"Http1", () => new Http1Scenario()},
                 {"Http2", () => new Http2Scenario()},
                 {"RawUpgrade", () => new RawUpgradeScenario()},
-                {"WebSockets", () => new WebSocketsScenario()}
+                {"WebSockets", () => new WebSocketsScenario()},
+                {"SessionAffinity", () => new SessionAffinityScenario()}
             };
 
             if (string.IsNullOrEmpty(parsedArgs.Scenario))

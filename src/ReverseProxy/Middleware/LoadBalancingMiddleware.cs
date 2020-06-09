@@ -35,10 +35,9 @@ namespace Microsoft.ReverseProxy.Middleware
 
         public Task Invoke(HttpContext context)
         { 
-            var backend = context.Features.Get<BackendInfo>() ?? throw new InvalidOperationException("Backend unspecified.");
-            var destinationsFeature = context.Features.Get<IAvailableDestinationsFeature>();
-            var destinations = destinationsFeature?.Destinations
-                ?? throw new InvalidOperationException("The IAvailableDestinationsFeature Destinations collection was not set.");
+            var backend = context.GetRequiredBackend();
+            var destinationsFeature = context.GetRequiredDestinationFeature();
+            var destinations = destinationsFeature.Destinations;
 
             var loadBalancingOptions = backend.Config.Value?.LoadBalancingOptions
                 ?? new BackendConfig.BackendLoadBalancingOptions(default);

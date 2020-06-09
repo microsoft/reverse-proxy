@@ -7,8 +7,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Patterns;
-using Microsoft.ReverseProxy.Abstractions.Telemetry;
-using Microsoft.ReverseProxy.Telemetry;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Management;
 using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
@@ -85,7 +83,8 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 proxyHttpClientFactory: proxyHttpClientFactoryMock.Object);
             backend1.Config.Value = new BackendConfig(
                 new BackendConfig.BackendHealthCheckOptions(enabled: true, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan, 0, ""),
-                new BackendConfig.BackendLoadBalancingOptions());
+                new BackendConfig.BackendLoadBalancingOptions(),
+                new BackendConfig.BackendSessionAffinityOptions());
             var destination1 = backend1.DestinationManager.GetOrCreateItem(
                 "destination1",
                 destination =>
