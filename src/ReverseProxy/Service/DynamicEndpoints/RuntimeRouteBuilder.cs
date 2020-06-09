@@ -55,7 +55,7 @@ namespace Microsoft.ReverseProxy.Service
             endpointBuilder.DisplayName = source.RouteId;
             endpointBuilder.Metadata.Add(newRouteConfig);
 
-            if (source.Host != null)
+            if (!string.IsNullOrEmpty(source.Host))
             {
                 endpointBuilder.Metadata.Add(new AspNetCore.Routing.HostAttribute(source.Host));
             }
