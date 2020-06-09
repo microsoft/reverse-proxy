@@ -5,10 +5,10 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Namespace Microsoft.ReverseProxy.RuntimeModel
+    <title>Namespace Microsoft.ReverseProxy.Service.SessionAffinity
    </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="Namespace Microsoft.ReverseProxy.RuntimeModel
+    <meta name="title" content="Namespace Microsoft.ReverseProxy.Service.SessionAffinity
    ">
     <meta name="generator" content="docfx 2.52.0.0">
     
@@ -68,45 +68,28 @@
         </div>
         <div class="article row grid-right">
           <div class="col-md-10">
-            <article class="content wrap" id="_content" data-uid="Microsoft.ReverseProxy.RuntimeModel">
+            <article class="content wrap" id="_content" data-uid="Microsoft.ReverseProxy.Service.SessionAffinity">
   
-  <h1 id="Microsoft_ReverseProxy_RuntimeModel" data-uid="Microsoft.ReverseProxy.RuntimeModel" class="text-break">Namespace Microsoft.ReverseProxy.RuntimeModel
+  <h1 id="Microsoft_ReverseProxy_Service_SessionAffinity" data-uid="Microsoft.ReverseProxy.Service.SessionAffinity" class="text-break">Namespace Microsoft.ReverseProxy.Service.SessionAffinity
   </h1>
   <div class="markdown level0 summary"></div>
   <div class="markdown level0 conceptual"></div>
   <div class="markdown level0 remarks"></div>
-    <h3 id="classes">Classes
-  </h3>
-      <h4><a class="xref" href="Microsoft.ReverseProxy.RuntimeModel.BackendConfig.html">BackendConfig</a></h4>
-      <section><p>Immutable representation of the portions of a backend
-that only change in reaction to configuration changes
-(e.g. health check options).</p>
-</section>
-      <h4><a class="xref" href="Microsoft.ReverseProxy.RuntimeModel.DestinationConfig.html">DestinationConfig</a></h4>
-      <section><p>Immutable representation of the portions of a destination
-that only change in reaction to configuration changes
-(e.g. address).</p>
-</section>
-      <h4><a class="xref" href="Microsoft.ReverseProxy.RuntimeModel.DestinationDynamicState.html">DestinationDynamicState</a></h4>
-      <section></section>
-      <h4><a class="xref" href="Microsoft.ReverseProxy.RuntimeModel.DestinationInfo.html">DestinationInfo</a></h4>
-      <section><p>Representation of a backend's destination for use at runtime.</p>
-</section>
     <h3 id="structs">Structs
   </h3>
-      <h4><a class="xref" href="Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.html">BackendConfig.BackendHealthCheckOptions</a></h4>
-      <section><p>Active health probing options for a backend.</p>
+      <h4><a class="xref" href="Microsoft.ReverseProxy.Service.SessionAffinity.AffinityResult.html">AffinityResult</a></h4>
+      <section><p>Affinity resolution result.</p>
 </section>
-      <h4><a class="xref" href="Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendLoadBalancingOptions.html">BackendConfig.BackendLoadBalancingOptions</a></h4>
-      <section></section>
-      <h4><a class="xref" href="Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.html">BackendConfig.BackendSessionAffinityOptions</a></h4>
-      <section></section>
-      <h4><a class="xref" href="Microsoft.ReverseProxy.RuntimeModel.DestinationInfo.Enumerator.html">DestinationInfo.Enumerator</a></h4>
-      <section></section>
+    <h3 id="interfaces">Interfaces
+  </h3>
+      <h4><a class="xref" href="Microsoft.ReverseProxy.Service.SessionAffinity.ISessionAffinityProvider.html">ISessionAffinityProvider</a></h4>
+      <section><p>Provides session affinity for load-balanced backends.</p>
+</section>
     <h3 id="enums">Enums
   </h3>
-      <h4><a class="xref" href="Microsoft.ReverseProxy.RuntimeModel.DestinationHealth.html">DestinationHealth</a></h4>
-      <section></section>
+      <h4><a class="xref" href="Microsoft.ReverseProxy.Service.SessionAffinity.AffinityStatus.html">AffinityStatus</a></h4>
+      <section><p>Affinity resolution status.</p>
+</section>
 </article>
           </div>
           

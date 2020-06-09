@@ -115,6 +115,57 @@
   </h3>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_AspNetCore_Builder_ProxyMiddlewareAppBuilderExtensions_UseAffinitizedDestinationLookup_Microsoft_AspNetCore_Builder_IApplicationBuilder_.md&amp;value=---%0Auid%3A%20Microsoft.AspNetCore.Builder.ProxyMiddlewareAppBuilderExtensions.UseAffinitizedDestinationLookup(Microsoft.AspNetCore.Builder.IApplicationBuilder)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Middleware/ProxyMiddlewareAppBuilderExtensions.cs/#L27">View Source</a>
+  </span>
+  <a id="Microsoft_AspNetCore_Builder_ProxyMiddlewareAppBuilderExtensions_UseAffinitizedDestinationLookup_" data-uid="Microsoft.AspNetCore.Builder.ProxyMiddlewareAppBuilderExtensions.UseAffinitizedDestinationLookup*"></a>
+  <h4 id="Microsoft_AspNetCore_Builder_ProxyMiddlewareAppBuilderExtensions_UseAffinitizedDestinationLookup_Microsoft_AspNetCore_Builder_IApplicationBuilder_" data-uid="Microsoft.AspNetCore.Builder.ProxyMiddlewareAppBuilderExtensions.UseAffinitizedDestinationLookup(Microsoft.AspNetCore.Builder.IApplicationBuilder)">UseAffinitizedDestinationLookup(IApplicationBuilder)</h4>
+  <div class="markdown level1 summary"><p>Checks if a request has an established affinity relationship and if the associated destination is available.
+This should be placed before load balancing and other destination selection components.
+Requests without an affinity relationship will be a processed normally and have the affinity relationship
+established by a later component. See <a class="xref" href="Microsoft.AspNetCore.Builder.ProxyMiddlewareAppBuilderExtensions.html#Microsoft_AspNetCore_Builder_ProxyMiddlewareAppBuilderExtensions_UseRequestAffinitizer_Microsoft_AspNetCore_Builder_IApplicationBuilder_">UseRequestAffinitizer(IApplicationBuilder)</a>.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IApplicationBuilder UseAffinitizedDestinationLookup(this IApplicationBuilder builder)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.builder.iapplicationbuilder">IApplicationBuilder</a></td>
+        <td><span class="parametername">builder</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.builder.iapplicationbuilder">IApplicationBuilder</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
     <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_AspNetCore_Builder_ProxyMiddlewareAppBuilderExtensions_UseProxyLoadBalancing_Microsoft_AspNetCore_Builder_IApplicationBuilder_.md&amp;value=---%0Auid%3A%20Microsoft.AspNetCore.Builder.ProxyMiddlewareAppBuilderExtensions.UseProxyLoadBalancing(Microsoft.AspNetCore.Builder.IApplicationBuilder)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
@@ -128,6 +179,56 @@
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public static IApplicationBuilder UseProxyLoadBalancing(this IApplicationBuilder builder)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.builder.iapplicationbuilder">IApplicationBuilder</a></td>
+        <td><span class="parametername">builder</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.builder.iapplicationbuilder">IApplicationBuilder</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_AspNetCore_Builder_ProxyMiddlewareAppBuilderExtensions_UseRequestAffinitizer_Microsoft_AspNetCore_Builder_IApplicationBuilder_.md&amp;value=---%0Auid%3A%20Microsoft.AspNetCore.Builder.ProxyMiddlewareAppBuilderExtensions.UseRequestAffinitizer(Microsoft.AspNetCore.Builder.IApplicationBuilder)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Middleware/ProxyMiddlewareAppBuilderExtensions.cs/#L37">View Source</a>
+  </span>
+  <a id="Microsoft_AspNetCore_Builder_ProxyMiddlewareAppBuilderExtensions_UseRequestAffinitizer_" data-uid="Microsoft.AspNetCore.Builder.ProxyMiddlewareAppBuilderExtensions.UseRequestAffinitizer*"></a>
+  <h4 id="Microsoft_AspNetCore_Builder_ProxyMiddlewareAppBuilderExtensions_UseRequestAffinitizer_Microsoft_AspNetCore_Builder_IApplicationBuilder_" data-uid="Microsoft.AspNetCore.Builder.ProxyMiddlewareAppBuilderExtensions.UseRequestAffinitizer(Microsoft.AspNetCore.Builder.IApplicationBuilder)">UseRequestAffinitizer(IApplicationBuilder)</h4>
+  <div class="markdown level1 summary"><p>Establishes the affinity relationship to the selected destination.
+If there are multiple affinitized destinations found for the request, it randomly picks one of them.
+This should be placed after load balancing and other destination selection processes.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IApplicationBuilder UseRequestAffinitizer(this IApplicationBuilder builder)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
