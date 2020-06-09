@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Routing.Patterns;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.ConfigModel;
+using Microsoft.ReverseProxy.Service.Config;
 using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Service
@@ -42,6 +43,13 @@ namespace Microsoft.ReverseProxy.Service
             "HEAD", "OPTIONS", "GET", "PUT", "POST", "PATCH", "DELETE", "TRACE",
         };
 
+        private readonly ITransformBuilder _transformBuilder;
+
+        public RouteValidator(ITransformBuilder transformBuilder)
+        {
+            _transformBuilder = transformBuilder ?? throw new ArgumentNullException(nameof(transformBuilder));
+        }
+
         // Note this performs all validation steps without short circuiting in order to report all possible errors.
         public bool ValidateRoute(ParsedRoute route, IConfigErrorReporter errorReporter)
         {
@@ -64,6 +72,7 @@ namespace Microsoft.ReverseProxy.Service
             success &= ValidateHost(route.Host, route.RouteId, errorReporter);
             success &= ValidatePath(route.Path, route.RouteId, errorReporter);
             success &= ValidateMethods(route.Methods, route.RouteId, errorReporter);
+            success &= _transformBuilder.Validate(route.Transforms, route.RouteId, errorReporter);
 
             return success;
         }

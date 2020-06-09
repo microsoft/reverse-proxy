@@ -36,6 +36,9 @@ namespace Microsoft.ReverseProxy.Abstractions
         /// </summary>
         public IDictionary<string, string> Metadata { get; set; }
 
+        /// <summary>
+        /// Parameters used to transform the request and response. See <see cref="ITransformBuilder"/>.
+        /// </summary>
         public IList<IDictionary<string, string>> Transforms { get; set; }
 
         /// <inheritdoc/>

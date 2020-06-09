@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.ReverseProxy.ConfigModel;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Config;
@@ -23,7 +22,7 @@ namespace Microsoft.ReverseProxy.Service
 
         public RuntimeRouteBuilder(ITransformBuilder transformBuilder)
         {
-            _transformBuilder = transformBuilder;
+            _transformBuilder = transformBuilder ?? throw new ArgumentNullException(nameof(transformBuilder));
         }
 
         public void SetProxyPipeline(RequestDelegate pipeline)
