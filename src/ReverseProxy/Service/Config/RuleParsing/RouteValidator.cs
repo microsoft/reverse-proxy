@@ -55,6 +55,12 @@ namespace Microsoft.ReverseProxy.Service
                 success = false;
             }
 
+            if (string.IsNullOrEmpty(route.Host) && string.IsNullOrEmpty(route.Path))
+            {
+                errorReporter.ReportError(ConfigErrors.ParsedRouteRuleHasNoMatchers, route.RouteId, $"Route requires {nameof(route.Host)} or {nameof(route.Path)} specified. Set the Path to `/{{**catchall}}` to match all requests.");
+                success = false;
+            }
+
             success &= ValidateHost(route.Host, route.RouteId, errorReporter);
             success &= ValidatePath(route.Path, route.RouteId, errorReporter);
             success &= ValidateMethods(route.Methods, route.RouteId, errorReporter);
@@ -64,11 +70,10 @@ namespace Microsoft.ReverseProxy.Service
 
         private static bool ValidateHost(string host, string routeId, IConfigErrorReporter errorReporter)
         {
-            // TODO: Why is Host required? I'd only expect Host OR Path to be required, with Path being the more common usage.
+            // Host is optional when Path is specified
             if (string.IsNullOrEmpty(host))
             {
-                errorReporter.ReportError(ConfigErrors.ParsedRouteRuleMissingHostMatcher, routeId, $"Route '{routeId}' is missing required field 'Host'.");
-                return false;
+                return true;
             }
 
             if (!_hostNameRegex.IsMatch(host))
@@ -82,7 +87,7 @@ namespace Microsoft.ReverseProxy.Service
 
         private static bool ValidatePath(string path, string routeId, IConfigErrorReporter errorReporter)
         {
-            // Path is optional
+            // Path is optional when Host is specified
             if (string.IsNullOrEmpty(path))
             {
                 return true;
