@@ -135,8 +135,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var destinationPrefix = "https://localhost:123/a/b/";
             var transforms = new Transforms(new[]
             {
-                new PathStringTransform(PathStringTransform.TransformMode.Prepend, transformPathBase: false, "/prependPath"),
-                new PathStringTransform(PathStringTransform.TransformMode.Prepend, transformPathBase: true, "/prependPathBase"),
+                new PathStringTransform(PathStringTransform.PathTransformMode.Prepend, "/prependPath"),
             },
             copyRequestHeaders: true,
             new Dictionary<string, RequestHeaderTransform>(StringComparer.OrdinalIgnoreCase)
@@ -154,7 +153,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             {
                 { "trailerTransform", new ResponseHeaderValueTransform("value", append: false, always: true) }
             });
-            var targetUri = "https://localhost:123/prependPathBase/a/b/prependPath/api/test?a=b&c=d";
+            var targetUri = "https://localhost:123/a/b/prependPath/api/test?a=b&c=d";
             var sut = Create<HttpProxy>();
             var client = MockHttpHandler.CreateClient(
                 async (HttpRequestMessage request, CancellationToken cancellationToken) =>
@@ -235,8 +234,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var destinationPrefix = "https://localhost:123/a/b/";
             var transforms = new Transforms(new[]
             {
-                new PathStringTransform(PathStringTransform.TransformMode.Prepend, transformPathBase: false, "/prependPath"),
-                new PathStringTransform(PathStringTransform.TransformMode.Prepend, transformPathBase: true, "/prependPathBase"),
+                new PathStringTransform(PathStringTransform.PathTransformMode.Prepend, "/prependPath"),
             },
             copyRequestHeaders: false,
             new Dictionary<string, RequestHeaderTransform>(StringComparer.OrdinalIgnoreCase)
@@ -250,7 +248,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             },
             new Dictionary<string, ResponseHeaderTransform>(StringComparer.OrdinalIgnoreCase),
             new Dictionary<string, ResponseHeaderTransform>(StringComparer.OrdinalIgnoreCase));
-            var targetUri = "https://localhost:123/prependPathBase/a/b/prependPath/test?a=b&c=d";
+            var targetUri = "https://localhost:123/a/b/prependPath/test?a=b&c=d";
             var sut = Create<HttpProxy>();
             var client = MockHttpHandler.CreateClient(
                 async (HttpRequestMessage request, CancellationToken cancellationToken) =>

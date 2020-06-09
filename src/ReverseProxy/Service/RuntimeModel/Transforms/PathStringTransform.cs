@@ -8,59 +8,47 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
     public class PathStringTransform : RequestParametersTransform
     {
-        public PathStringTransform(TransformMode mode, bool transformPathBase, PathString value)
+        public PathStringTransform(PathTransformMode mode, PathString value)
         {
             Mode = mode;
-            TransformPathBase = transformPathBase;
             Value = value;
         }
 
         public PathString Value { get; }
 
-        public TransformMode Mode { get; }
-
-        public bool TransformPathBase { get; }
+        public PathTransformMode Mode { get; }
 
         public override void Apply(RequestParametersTransformContext context)
         {
-            var input = TransformPathBase ? context.PathBase : context.Path;
+            var input = context.Path;
             PathString result;
             switch (Mode)
             {
-                case TransformMode.Set:
+                case PathTransformMode.Set:
                     result = Value;
                     break;
-                case TransformMode.Prepend:
+                case PathTransformMode.Prepend:
                     result = Value + input;
                     break;
-                case TransformMode.Append:
+                case PathTransformMode.Append:
                     result = input + Value;
                     break;
-                case TransformMode.RemovePrefix:
+                case PathTransformMode.RemovePrefix:
                     input.StartsWithSegments(Value, out result);
                     break;
-                case TransformMode.RemoveEnd: // TODO:
                 default:
                     throw new NotImplementedException(Mode.ToString());
             }
 
-            if (TransformPathBase)
-            {
-                context.PathBase = result;
-            }
-            else
-            {
-                context.Path = result;
-            }
+            context.Path = result;
         }
 
-        public enum TransformMode
+        public enum PathTransformMode
         {
             Set,
             Prepend,
             Append,
             RemovePrefix,
-            RemoveEnd,
         }
     }
 }

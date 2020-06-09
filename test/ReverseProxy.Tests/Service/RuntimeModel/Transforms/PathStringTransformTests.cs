@@ -16,7 +16,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         [Fact]
         public void Set_Path_Success()
         {
-            var transform = new PathStringTransform(PathStringTransform.TransformMode.Set, transformPathBase: false, "/value");
+            var transform = new PathStringTransform(PathStringTransform.PathTransformMode.Set, "/value");
             var context = new RequestParametersTransformContext() { Path = "/foo" };
             transform.Apply(context);
             Assert.Equal("/value", context.Path);
