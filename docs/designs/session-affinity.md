@@ -41,6 +41,16 @@ Session affinity mechanism is implemented by the services (mentioned above) and 
 ### Services and middleware registration
 Session affinity services are registered in the DI container via `AddSessionAffinityProvider()` method which is automatically called by `AddReverseProxy()`. The middleware `UseAffinitizedDestinationLookup()` and `UseRequestAffinitizer()` are included by default in the paramterless MapReverseProxy method. If you are customizing the proxy pipeline, place the first middleware **before** adding `LoadBalancingMiddleware` and the second **after** load balancing.
 
+Example:
+```C#
+endpoints.MapReverseProxy(proxyPipeline =>
+{
+    proxyPipeline.UseAffinitizedDestinationLookup();
+    proxyPipeline.UseProxyLoadBalancing();
+    proxyPipeline.UseRequestAffinitizer();
+});
+```
+
 ### Backend configuration
 Session affinity is configured per backend according to the following configuration scheme.
 ```JSON
