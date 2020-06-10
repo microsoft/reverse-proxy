@@ -6,7 +6,7 @@ Session affinity is a mechanism to bind (affinitize) a causally related request 
 ## Affinity Key
 Request to destination affinity is established via the affinity key identifying the target destination. That key can be stored on different request parts depending on the given session affinity implementation, but each request cannot have more than one such key. The exact key semantics is implementation dependent, in example the both of built-in `CookieSessionAffinityProvider` and `CustomHeaderAffinityProvider` are currently use `DestinationId` as the affinity key.
 
-The current design doesn't require for key to uniquely identify the single affinitized destination, it's allowed to establish affinity to a destination group. In such case, the exact destination to handle the given request will be determined by the load balancer.
+The current design doesn't require a key to uniquely identify the single affinitized destination. It's allowed to establish affinity to a destination group. In this case, the exact destination to handle the given request will be determined by the load balancer.
 
 ## Establishing a new affinity or resolution of the existed one
 Once a request arrives and gets routed to a backend with enabled session affinity, the proxy automatically decides whether a new affinity should be established or an existing one needs to be resolved based on the presence and validity of an affinity key on the request as follows:
