@@ -39,7 +39,7 @@ Session affinity mechanism is implemented by the services (mentioned above) and 
 
 ## Configuration
 ### Services and middleware registration
-Session affinity by services are registered in the DI container via `AddSessionAffinityProvider()` method which is automatically called by `AddReverseProxy()`. Middlewares are via `UseAffinitizedDestinationLookup()` and `UseRequestAffinitizer()` where the first method must be called **before** adding `LoadBalancingMiddleware` and the second must be called **after**.
+Session affinity services are registered in the DI container via `AddSessionAffinityProvider()` method which is automatically called by `AddReverseProxy()`. The middleware `UseAffinitizedDestinationLookup()` and `UseRequestAffinitizer()` are included by default in the paramterless MapReverseProxy method. If you are customizing the proxy pipeline, place the first middleware **before** adding `LoadBalancingMiddleware` and the second **after** load balancing.
 
 ### Backend configuration
 Session affinity is configured per backend according to the following configuration scheme.
