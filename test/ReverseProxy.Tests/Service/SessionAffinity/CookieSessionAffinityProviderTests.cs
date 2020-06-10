@@ -55,6 +55,15 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
         }
 
         [Fact]
+        public void Ctor_ProviderOptionsIsNull_Throw()
+        {
+            Assert.Throws<ArgumentNullException>(() => new CookieSessionAffinityProvider(
+                null,
+                AffinityTestHelper.GetDataProtector().Object,
+                AffinityTestHelper.GetLogger<CookieSessionAffinityProvider>().Object));
+        }
+
+        [Fact]
         public void AffinitizedRequest_AffinityKeyIsNotExtracted_SetKeyOnResponse()
         {
             var provider = new CookieSessionAffinityProvider(

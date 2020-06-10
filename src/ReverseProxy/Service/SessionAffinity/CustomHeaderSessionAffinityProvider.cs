@@ -5,6 +5,7 @@ using System;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract;
 using Microsoft.ReverseProxy.RuntimeModel;
@@ -13,14 +14,16 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
 {
     internal class CustomHeaderSessionAffinityProvider : BaseSessionAffinityProvider<string>
     {
-        public static readonly string DefaultCustomHeaderName = "X-Microsoft-Proxy-Affinity";
-        private const string CustomHeaderNameKey = "CustomHeaderName";
+        private readonly CustomHeaderSessionAffinityProviderOptions _providerOptions;
 
         public CustomHeaderSessionAffinityProvider(
+            IOptions<CustomHeaderSessionAffinityProviderOptions> providerOptions,
             IDataProtectionProvider dataProtectionProvider,
             ILogger<CustomHeaderSessionAffinityProvider> logger)
             : base(dataProtectionProvider, logger)
-        {}
+        {
+            _providerOptions = providerOptions?.Value ?? throw new ArgumentNullException(nameof(providerOptions));
+        }
 
         public override string Mode => SessionAffinityConstants.Modes.CustomHeader;
 
@@ -31,8 +34,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
 
         protected override (string Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, in BackendConfig.BackendSessionAffinityOptions options)
         {
-            var customHeaderName = options.Settings != null && options.Settings.TryGetValue(CustomHeaderNameKey, out var nameInSettings) ? nameInSettings : DefaultCustomHeaderName;
-            var keyHeaderValues = context.Request.Headers[customHeaderName];
+            var keyHeaderValues = context.Request.Headers[_providerOptions.CustomHeaderName];
 
             if (StringValues.IsNullOrEmpty(keyHeaderValues))
             {
@@ -43,7 +45,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
             if (keyHeaderValues.Count > 1)
             {
                 // Multiple values is an ambiguous case which is considered a key extraction failure
-                Log.RequestAffinityHeaderHasMultipleValues(Logger, customHeaderName, keyHeaderValues.Count);
+                Log.RequestAffinityHeaderHasMultipleValues(Logger, _providerOptions.CustomHeaderName, keyHeaderValues.Count);
                 return (Key: null, ExtractedSuccessfully: false);
             }
 
@@ -52,8 +54,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
 
         protected override void SetAffinityKey(HttpContext context, in BackendConfig.BackendSessionAffinityOptions options, string unencryptedKey)
         {
-            var customHeaderName = GetSettingValue(CustomHeaderNameKey, options);
-            context.Response.Headers.Append(customHeaderName, Protect(unencryptedKey));
+            context.Response.Headers.Append(_providerOptions.CustomHeaderName, Protect(unencryptedKey));
         }
 
         private static class Log
