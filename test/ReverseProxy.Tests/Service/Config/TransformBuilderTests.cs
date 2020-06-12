@@ -201,8 +201,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             Assert.Empty(errorReporter.Errors);
 
             var results = transformBuilder.Build(transforms);
-            Assert.Equal(1, results.RequestHeaderTransforms.Count);
-            Assert.IsType<RequestHeaderValueTransform>(results.RequestHeaderTransforms["heaDername"]);
+            Assert.IsType<RequestHeaderValueTransform>(results.RequestHeaderTransforms["heaDerName"]);
             // TODO: How to check Append/Set and the value?
         }
 

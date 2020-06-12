@@ -91,7 +91,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 1: Create outgoing HttpRequestMessage
             var upgradeFeature = context.Features.Get<IHttpUpgradeFeature>();
-            var isUpgrade = upgradeFeature != null && upgradeFeature.IsUpgradableRequest;
+            var isUpgrade = upgradeFeature?.IsUpgradableRequest ?? false;
             // Default to HTTP/1.1 for proxying upgradable requests. This is already the default as of .NET Core 3.1
             // Otherwise request HTTP/2 and let HttpClient fallback to HTTP/1.1 if it cannot establish HTTP/2 with the target.
             // This is done without extra round-trips thanks to ALPN. We can detect a downgrade after calling HttpClient.SendAsync
@@ -351,7 +351,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 var url = UriHelper.BuildAbsolute(destinationScheme, destinationHost, destinationPathBase, request.Path, request.QueryString);
                 Log.Proxying(_logger, url);
                 var uri = new Uri(url, UriKind.Absolute);
-                return new HttpRequestMessage(HttpUtilities.GetHttpMethod(context.Request.Method), uri);
+                return new HttpRequestMessage(HttpUtilities.GetHttpMethod(context.Request.Method), uri) { Version = httpVersion };
             }
 
             var transformContext = new RequestParametersTransformContext()

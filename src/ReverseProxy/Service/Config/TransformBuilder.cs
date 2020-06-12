@@ -28,6 +28,16 @@ namespace Microsoft.ReverseProxy.Service.Config
         /// <inheritdoc/>
         public bool Validate(IList<IDictionary<string, string>> rawTransforms, string routeId, IConfigErrorReporter errorReporter)
         {
+            if (routeId is null)
+            {
+                throw new ArgumentNullException(nameof(routeId));
+            }
+
+            if (errorReporter is null)
+            {
+                throw new ArgumentNullException(nameof(errorReporter));
+            }
+
             var success = true;
             if (rawTransforms == null || rawTransforms.Count == 0)
             {
@@ -184,9 +194,9 @@ namespace Microsoft.ReverseProxy.Service.Config
             bool? useOriginalHost = null;
             bool? forwardersSet = null;
             var requestTransforms = new List<RequestParametersTransform>();
-            var requestHeaderTransforms = new Dictionary<string, RequestHeaderTransform>();
-            var responseHeaderTransforms = new Dictionary<string, ResponseHeaderTransform>();
-            var responseTrailerTransforms = new Dictionary<string, ResponseHeaderTransform>();
+            var requestHeaderTransforms = new Dictionary<string, RequestHeaderTransform>(StringComparer.OrdinalIgnoreCase);
+            var responseHeaderTransforms = new Dictionary<string, ResponseHeaderTransform>(StringComparer.OrdinalIgnoreCase);
+            var responseTrailerTransforms = new Dictionary<string, ResponseHeaderTransform>(StringComparer.OrdinalIgnoreCase);
 
             if (rawTransforms?.Count > 0)
             {
