@@ -1,0 +1,186 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Session Affinity </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Session Affinity ">
+    <meta name="generator" content="docfx 2.52.0.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+<h1 id="session-affinity">Session Affinity</h1>
+
+<p>Introduced: preview2</p>
+<h2 id="concept">Concept</h2>
+<p>Session affinity is a mechanism to bind (affinitize) a causally related request sequence to the destination handled the first request when the load is balanced among several destinations. It is useful in scenarios where the most requests in a sequence work with the same data and the cost of data access differs for different nodes (destinations) handling requests. The most common example is a transient caching (e.g. in-memory) where the first request fetches data from a slower persistent storage into a fast local cache and the others work only with the cached data thus increasing throughput.</p>
+<h2 id="configuration">Configuration</h2>
+<h3 id="services-and-middleware-registration">Services and middleware registration</h3>
+<p>Session affinity services are registered in the DI container via <code>AddSessionAffinityProvider()</code> method which is automatically called by <code>AddReverseProxy()</code>. The middleware <code>UseAffinitizedDestinationLookup()</code> and <code>UseRequestAffinitizer()</code> are included by default in the paramterless MapReverseProxy method. If you are customizing the proxy pipeline, place the first middleware <strong>before</strong> adding <code>LoadBalancingMiddleware</code> and the second <strong>after</strong> load balancing.</p>
+<p>Example:</p>
+<pre><code class="lang-C#">endpoints.MapReverseProxy(proxyPipeline =&gt;
+{
+    proxyPipeline.UseAffinitizedDestinationLookup();
+    proxyPipeline.UseProxyLoadBalancing();
+    proxyPipeline.UseRequestAffinitizer();
+});
+</code></pre>
+<h3 id="backend-configuration">Backend configuration</h3>
+<p>Session affinity is configured per backend according to the following configuration scheme.</p>
+<pre><code class="lang-JSON">&quot;ReverseProxy&quot;: {
+    &quot;Backends&quot;: {
+        &quot;&lt;backend-name&gt;&quot;: {
+            &quot;SessionAffinity&quot;: {
+                &quot;Enabled&quot;: &quot;(true|false)&quot;, // defaults to 'false'
+                &quot;Mode&quot;: &quot;(Cookie|CustomHeader)&quot;, // defaults to 'Cookie'
+                &quot;AffinityFailurePolicy&quot;: &quot;(Redistribute|Return503)&quot;, // defaults to 'Redistribute'
+                &quot;Settings&quot; : {
+                    &quot;CustomHeaderName&quot;: &quot;&lt;custom-header-name&gt;&quot; // defaults to 'X-Microsoft-Proxy-Affinity`
+                }
+            }
+        }
+    }
+}
+</code></pre>
+<h3 id="provider-specific-options">Provider-specific options</h3>
+<p>There is currently one provider-specific option type available.</p>
+<ul>
+<li><code>CookieSessionAffinityProviderOptions</code> exposes <code>CookieBuilder</code> to set default cookie properties which will be used by <code>CookieSessionAffinityProvider</code> for creating new affinity cookies. The properties can be changed via the standard Option API as in the following example:</li>
+</ul>
+<pre><code class="lang-C#">services.Configure&lt;CookieSessionAffinityProviderOptions&gt;(o =&gt; o.Cookie.Name = &quot;My-Affinity-Key&quot;);
+</code></pre>
+<h2 id="affinity-key">Affinity Key</h2>
+<p>Request to destination affinity is established via the affinity key identifying the target destination. That key can be stored on different request parts depending on the given session affinity implementation, but each request cannot have more than one such key. The exact key semantics is implementation dependent, in example the both of built-in <code>CookieSessionAffinityProvider</code> and <code>CustomHeaderAffinityProvider</code> are currently use <code>DestinationId</code> as the affinity key.</p>
+<p>The current design doesn't require a key to uniquely identify the single affinitized destination. It's allowed to establish affinity to a destination group. In this case, the exact destination to handle the given request will be determined by the load balancer.</p>
+<h2 id="establishing-a-new-affinity-or-resolution-of-the-existed-one">Establishing a new affinity or resolution of the existed one</h2>
+<p>Once a request arrives and gets routed to a backend with session affinity enabled, the proxy automatically decides whether a new affinity should be established or an existing one needs to be resolved based on the presence and validity of an affinity key on the request as follows:</p>
+<ol>
+<li><p><strong>Request doesn't contain a key</strong>. Resolution is skipped and a new affinity will be establish to the destination chosen by the load balancer</p>
+</li>
+<li><p><strong>Affinity key is found on the request and valid</strong>. The affinity mechanism tries to find all healthy destinations matching to the key, and if it finds some it passes the request down the pipeline. If multiple matching destinations are found the load balancer is invoked to choose the single target destination. If only one matching destination is found the load balancer no-ops.</p>
+</li>
+<li><p><strong>Affinity key is invalid or no healthy affinitized destinations found</strong>. It's treated as a failure to be handled by a failure policy explained below</p>
+</li>
+</ol>
+<p>If a new affinity was established for the request, the affinity key gets attached to a response where exact key representation and location depends on the implementation. Currently, there are two built-in providers storing the key on a cookie or custom header. Once the response gets delivered to the client, it's the client responsibility to attach the key to all following requests in the same session. Further, when the next request carrying the key arrives to the proxy, it resolves the existing affinity, but affinity key does not get again attached to the response. Thus, only the first response carries the affinity key.</p>
+<p>There are two built-in affinity modes differing only in how the affinity key is stored on a request. The default mode is <code>Cookie</code>.</p>
+<ol>
+<li><p><code>Cookie</code> - stores the key as a cookie. It expects the request's key to be delivered as a cookie with configured name and sets the same cookie with <code>Set-Cookie</code> header on the first response in an affinitized sequence. This mode is implemented by <code>CookieSessionAffinityProvider</code>. Cookie's options (e.g. name) can be configured via <code>CookieSessionAffinityProviderOptions</code>. The default name is <code>.Microsoft.ReverseProxy.Affinity</code></p>
+</li>
+<li><p><code>CustomHeader</code> - stores the key on a header. It expects the request's key to be delivered in a customer header with configured name and sets the same header on the first response in an affinitized sequence. This mode is implemented by <code>CustomHeaderSessionAffinityProvider</code>. The header name can be set by the setting <code>CustomHeaderName</code> in <code>SessionAffinityOptions.Settings</code> as shown in the example below. The default name is <code>X-Microsoft-Proxy-Affinity</code>.</p>
+</li>
+</ol>
+<h2 id="affinity-failure-policy">Affinity failure policy</h2>
+<p>If the affinity key cannot be decoded or no healthy destination found it's considered as a failure and an affinity failure policy is called to handle it. The policy has the full access to <code>HttpContext</code> and can send response to the client by itself. It returns a boolean value indicating whether the request processing can proceed down the pipeline or must be terminated.</p>
+<p>There are two built-in failure policies.  The default is <code>Redistribute</code>.</p>
+<ol>
+<li><p><code>Redistribute</code> - tries to establish a new affinity to one of available healthy destinations by skipping the affinity lookup step and passing all healthy destination to the load balancer the same way it is done for a request without any affinity. Request processing continues. This is implemented by <code>RedistributeAffinityFailurePolicy</code>.</p>
+</li>
+<li><p><code>Return503Error</code> - sends a <code>503</code> response back to the client and request processing is terminated. This is implemented by <code>Return503ErrorAffinityFailurePolicy</code></p>
+</li>
+</ol>
+<h2 id="request-pipeline">Request pipeline</h2>
+<p>The session affinity mechanisms are implemented by the services (mentioned above) and the two following middleware:</p>
+<ol>
+<li><p><code>AffinitizedDestinationLookupMiddleware</code> - coordinates the request's affinity resolution process. First, it calls a provider implementing the mode specified for the given backend on <code>BackendConfig.SessionAffinity.Mode</code> property. Then, it checks the affinity resolution status returned by the provider, and calls a failure handling policy set on <code>BackendConfig.SessionAffinity.AffinityFailurePolicy</code> in case of failures. It must be added to the pipeline <strong>before</strong> the load balancer.</p>
+</li>
+<li><p><code>AffinitizeRequestMiddleware</code> - sets the key on the response if a new affinity has been established for the request. Otherwise, if the request follows an existing affinity, it does nothing. It must be added to the pipeline <strong>after</strong> the load balancer.</p>
+</li>
+</ol>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/microsoft/reverse-proxy/blob/master/docs/docfx/articles/session-affinity.md/#L1" class="contribution-link">Improve this Doc</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

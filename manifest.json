@@ -976,12 +976,24 @@
       "version": ""
     },
     {
+      "type": "Conceptual",
+      "source_relative_path": "articles/session-affinity.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/session-affinity.html",
+          "hash": "5Z1R3RE/zj8sIF3RFLB+zg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
       "type": "Toc",
       "source_relative_path": "articles/toc.yml",
       "output": {
         ".html": {
           "relative_path": "articles/toc.html",
-          "hash": "v6sXpxj4i28JFZBH+zYvkg=="
+          "hash": "jwtjS8TXS4fISQKx9UEkZQ=="
         }
       },
       "is_incremental": false,
@@ -1038,7 +1050,7 @@
         "ConceptualDocumentProcessor": {
           "can_incremental": false,
           "incrementalPhase": "build",
-          "total_file_count": 6,
+          "total_file_count": 7,
           "skipped_file_count": 0
         },
         "ManagedReferenceDocumentProcessor": {
