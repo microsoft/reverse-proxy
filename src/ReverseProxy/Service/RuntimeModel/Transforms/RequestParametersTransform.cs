@@ -11,7 +11,6 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         /// <summary>
         /// Transforms any of the available fields before building the outgoing request.
         /// </summary>
-        /// <param name="context"></param>
         public abstract void Apply(RequestParametersTransformContext context);
     }
 }

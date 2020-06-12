@@ -507,7 +507,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                         routeId: proxyTelemetryContext.RouteId,
                         destinationId: proxyTelemetryContext.DestinationId));
 
-                ////this.logger.LogInformation($"   Waiting for downstream <-- Proxy <-- upstream body proxying");
                 var upstreamResponseStream = await upstreamResponseContent.ReadAsStreamAsync();
                 await streamCopier.CopyAsync(upstreamResponseStream, destination, cancellation);
             }
@@ -549,7 +548,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 }
                 if (!StringValues.IsNullOrEmpty(headerValue))
                 {
-                    ////this.logger.LogInformation($"   Copying downstream <-- Proxy <-- upstream response header {header.Key}: {string.Join(",", header.Value)}");
                     destination.Append(headerName, headerValue);
                 }
             }
@@ -566,7 +564,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                     headerValue = transform.Apply(context, response, headerValue);
                     if (!StringValues.IsNullOrEmpty(headerValue))
                     {
-                        ////this.logger.LogInformation($"   Copying downstream <-- Proxy <-- upstream response header {header.Key}: {string.Join(",", header.Value)}");
                         destination.Append(headerName, headerValue);
                     }
                 }

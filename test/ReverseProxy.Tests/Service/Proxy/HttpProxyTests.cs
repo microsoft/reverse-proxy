@@ -45,6 +45,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             httpContext.Request.Method = "POST";
             httpContext.Request.Scheme = "http";
             httpContext.Request.Host = new HostString("example.com:3456");
+            httpContext.Request.Path = "/path/base/dropped";
             httpContext.Request.Path = "/api/test";
             httpContext.Request.QueryString = new QueryString("?a=b&c=d");
             httpContext.Request.Headers.Add(":authority", "example.com:3456");
@@ -113,13 +114,14 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         }
 
         [Fact]
-        public async Task ProxyAsync_NormalRequestWithParamterTransforms_Works()
+        public async Task ProxyAsync_NormalRequestWithTransforms_Works()
         {
             // Arrange
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "POST";
             httpContext.Request.Scheme = "http";
             httpContext.Request.Host = new HostString("example.com:3456");
+            httpContext.Request.Path = "/path/base/dropped";
             httpContext.Request.Path = "/api/test";
             httpContext.Request.QueryString = new QueryString("?a=b&c=d");
             httpContext.Request.Headers.Add(":authority", "example.com:3456");
@@ -136,13 +138,13 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var transforms = new Transforms(copyRequestHeaders: true,
             requestTransforms: new[]
             {
-                new PathStringTransform(PathStringTransform.PathTransformMode.Prefix, "/prependPath"),
+                new PathStringTransform(PathStringTransform.PathTransformMode.Prefix, "/prefix"),
             },
             requestHeaderTransforms: new Dictionary<string, RequestHeaderTransform>(StringComparer.OrdinalIgnoreCase)
             {
                 { "transformHeader", new RequestHeaderValueTransform("value", append: false) },
                 { "x-ms-request-test", new RequestHeaderValueTransform("transformValue", append: true) },
-                { HeaderNames.Host, new RequestHeaderValueTransform(string.Empty, append: false) }
+                { HeaderNames.Host, new RequestHeaderValueTransform(string.Empty, append: false) } // Default, remove Host
             },
             responseHeaderTransforms: new Dictionary<string, ResponseHeaderTransform>(StringComparer.OrdinalIgnoreCase)
             {
@@ -153,7 +155,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             {
                 { "trailerTransform", new ResponseHeaderValueTransform("value", append: false, always: true) }
             });
-            var targetUri = "https://localhost:123/a/b/prependPath/api/test?a=b&c=d";
+            var targetUri = "https://localhost:123/a/b/prefix/api/test?a=b&c=d";
             var sut = Create<HttpProxy>();
             var client = MockHttpHandler.CreateClient(
                 async (HttpRequestMessage request, CancellationToken cancellationToken) =>
@@ -233,22 +235,20 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
             var destinationPrefix = "https://localhost:123/a/b/";
             var transforms = new Transforms(copyRequestHeaders: false,
-            requestTransforms: new[]
-            {
-                new PathStringTransform(PathStringTransform.PathTransformMode.Prefix, "/prependPath"),
-            },
-            requestHeaderTransforms: new Dictionary<string, RequestHeaderTransform>(StringComparer.OrdinalIgnoreCase)
-            {
-                { "transformHeader", new RequestHeaderValueTransform("value", append: false) },
-                { "x-ms-request-test", new RequestHeaderValueTransform("transformValue", append: true) },
-                { "x-forwarded-for", new RequestHeaderXForwardedForTransform(append: true) },
-                { "x-forwarded-host", new RequestHeaderXForwardedHostTransform(append: true) },
-                { "x-forwarded-proto", new RequestHeaderXForwardedProtoTransform(append: true) },
-                { "x-forwarded-pathbase", new RequestHeaderXForwardedPathBaseTransform(append: true) },
-            },
-            responseHeaderTransforms: new Dictionary<string, ResponseHeaderTransform>(StringComparer.OrdinalIgnoreCase),
-            responseTrailerTransforms: new Dictionary<string, ResponseHeaderTransform>(StringComparer.OrdinalIgnoreCase));
-            var targetUri = "https://localhost:123/a/b/prependPath/test?a=b&c=d";
+                requestTransforms: Array.Empty<RequestParametersTransform>(),
+                requestHeaderTransforms: new Dictionary<string, RequestHeaderTransform>(StringComparer.OrdinalIgnoreCase)
+                {
+                    { "transformHeader", new RequestHeaderValueTransform("value", append: false) },
+                    { "x-ms-request-test", new RequestHeaderValueTransform("transformValue", append: true) },
+                    // Defaults
+                    { "x-forwarded-for", new RequestHeaderXForwardedForTransform(append: true) },
+                    { "x-forwarded-host", new RequestHeaderXForwardedHostTransform(append: true) },
+                    { "x-forwarded-proto", new RequestHeaderXForwardedProtoTransform(append: true) },
+                    { "x-forwarded-pathbase", new RequestHeaderXForwardedPathBaseTransform(append: true) },
+                },
+                responseHeaderTransforms: new Dictionary<string, ResponseHeaderTransform>(StringComparer.OrdinalIgnoreCase),
+                responseTrailerTransforms: new Dictionary<string, ResponseHeaderTransform>(StringComparer.OrdinalIgnoreCase));
+            var targetUri = "https://localhost:123/a/b/test?a=b&c=d";
             var sut = Create<HttpProxy>();
             var client = MockHttpHandler.CreateClient(
                 async (HttpRequestMessage request, CancellationToken cancellationToken) =>
@@ -261,7 +261,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     Assert.Equal(new[] { "value" }, request.Headers.GetValues("transformHeader"));
                     Assert.Equal(new[] { "request", "transformValue" }, request.Headers.GetValues("x-ms-request-test"));
                     Assert.Null(request.Headers.Host);
-                    Assert.False(request.Headers.TryGetValues(":authority", out var value));
+                    Assert.False(request.Headers.TryGetValues(":authority", out var _));
                     Assert.Equal("127.0.0.1", request.Headers.GetValues("x-forwarded-for").Single());
                     Assert.Equal("example.com:3456", request.Headers.GetValues("x-forwarded-host").Single());
                     Assert.Equal("http", request.Headers.GetValues("x-forwarded-proto").Single());
@@ -316,13 +316,29 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             httpContext.Request.Method = "GET";
             httpContext.Request.Scheme = "http";
             httpContext.Request.Host = new HostString("example.com:3456");
+            httpContext.Request.PathBase = "/pathbase";
             httpContext.Request.Path = "/api/test";
             httpContext.Request.QueryString = new QueryString("?a=b&c=d");
             httpContext.Request.Headers.Add(":authority", "example.com:3456");
             httpContext.Request.Headers.Add("x-forwarded-for", "::1");
             httpContext.Request.Headers.Add("x-forwarded-proto", "https");
             httpContext.Request.Headers.Add("x-forwarded-host", "some.other.host:4567");
+            httpContext.Request.Headers.Add("x-forwarded-pathbase", "/other");
             httpContext.Connection.RemoteIpAddress = IPAddress.Loopback;
+
+            var transforms = new Transforms(copyRequestHeaders: false,
+                requestTransforms: Array.Empty<RequestParametersTransform>(),
+                requestHeaderTransforms: new Dictionary<string, RequestHeaderTransform>(StringComparer.OrdinalIgnoreCase)
+                {
+                    // Defaults
+                    { HeaderNames.Host, new RequestHeaderValueTransform(string.Empty, append: false) }, // Default, remove Host
+                    { "x-forwarded-for", new RequestHeaderXForwardedForTransform(append: true) },
+                    { "x-forwarded-host", new RequestHeaderXForwardedHostTransform(append: true) },
+                    { "x-forwarded-proto", new RequestHeaderXForwardedProtoTransform(append: true) },
+                    { "x-forwarded-pathbase", new RequestHeaderXForwardedPathBaseTransform(append: true) },
+                },
+                responseHeaderTransforms: new Dictionary<string, ResponseHeaderTransform>(StringComparer.OrdinalIgnoreCase),
+                responseTrailerTransforms: new Dictionary<string, ResponseHeaderTransform>(StringComparer.OrdinalIgnoreCase));
 
             var proxyResponseStream = new MemoryStream();
             httpContext.Response.Body = proxyResponseStream;
@@ -338,10 +354,11 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     Assert.Equal(new Version(2, 0), request.Version);
                     Assert.Equal(HttpMethod.Get, request.Method);
                     Assert.Equal(targetUri, request.RequestUri.AbsoluteUri);
-                    Assert.Equal(new[] { "::1" }, request.Headers.GetValues("x-forwarded-for"));
-                    Assert.Equal(new[] { "https" }, request.Headers.GetValues("x-forwarded-proto"));
-                    Assert.Equal(new[] { "some.other.host:4567" }, request.Headers.GetValues("x-forwarded-host"));
-                    Assert.Equal("example.com:3456", request.Headers.Host);
+                    Assert.Equal(new[] { "::1", "127.0.0.1" }, request.Headers.GetValues("x-forwarded-for"));
+                    Assert.Equal(new[] { "https", "http" }, request.Headers.GetValues("x-forwarded-proto"));
+                    Assert.Equal(new[] { "some.other.host:4567", "example.com:3456" }, request.Headers.GetValues("x-forwarded-host"));
+                    Assert.Equal(new[] { "/other", "/pathbase" }, request.Headers.GetValues("x-forwarded-pathbase"));
+                    Assert.Null(request.Headers.Host);
                     Assert.False(request.Headers.TryGetValues(":authority", out var value));
 
                     // The proxy throws if the request body is not read.
@@ -359,7 +376,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 destinationId: "d1");
 
             // Act
-            await sut.ProxyAsync(httpContext, destinationPrefix, Transforms.Empty, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+            await sut.ProxyAsync(httpContext, destinationPrefix, transforms, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
 
             // Assert
             Assert.Equal(234, httpContext.Response.StatusCode);

@@ -11,15 +11,14 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
     /// </summary>
     internal class PathStringTransform : RequestParametersTransform
     {
+        private readonly PathTransformMode _mode;
+        private readonly PathString _value;
+
         public PathStringTransform(PathTransformMode mode, PathString value)
         {
-            Mode = mode;
-            Value = value;
+            _mode = mode;
+            _value = value;
         }
-
-        public PathString Value { get; }
-
-        public PathTransformMode Mode { get; }
 
         public override void Apply(RequestParametersTransformContext context)
         {
@@ -28,24 +27,20 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                 throw new ArgumentNullException(nameof(context));
             }
 
-            var input = context.Path;
-            PathString result;
-            switch (Mode)
+            switch (_mode)
             {
                 case PathTransformMode.Set:
-                    result = Value;
+                    context.Path = _value;
                     break;
                 case PathTransformMode.Prefix:
-                    result = Value + input;
+                    context.Path = _value + context.Path;
                     break;
                 case PathTransformMode.RemovePrefix:
-                    result = input.StartsWithSegments(Value, out var remainder) ? remainder : input;
+                    context.Path = context.Path.StartsWithSegments(_value, out var remainder) ? remainder : context.Path;
                     break;
                 default:
-                    throw new NotImplementedException(Mode.ToString());
+                    throw new NotImplementedException(_mode.ToString());
             }
-
-            context.Path = result;
         }
 
         public enum PathTransformMode

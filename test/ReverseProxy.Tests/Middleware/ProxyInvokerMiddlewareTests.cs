@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,15 +8,15 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Patterns;
 using Microsoft.ReverseProxy.Abstractions.Telemetry;
-using Microsoft.ReverseProxy.Telemetry;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Management;
 using Microsoft.ReverseProxy.Service.Proxy;
 using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
+using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
+using Microsoft.ReverseProxy.Telemetry;
 using Moq;
 using Tests.Common;
 using Xunit;
-using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 
 namespace Microsoft.ReverseProxy.Middleware.Tests
 {
