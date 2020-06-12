@@ -7,7 +7,10 @@ using Microsoft.Extensions.Primitives;
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
-    public class RequestHeaderClientCertTransform : RequestHeaderTransform
+    /// <summary>
+    /// Base64 encodes the client certificate (if any) and sets it as the header value.
+    /// </summary>
+    internal class RequestHeaderClientCertTransform : RequestHeaderTransform
     {
         public override StringValues Apply(HttpContext context, StringValues values)
         {

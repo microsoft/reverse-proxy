@@ -12,15 +12,20 @@ using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 
 namespace Microsoft.ReverseProxy.Service.Config
 {
+    /// <inheritdoc/>
     public class TransformBuilder : ITransformBuilder
     {
         private readonly TemplateBinderFactory _binderFactory;
 
+        /// <summary>
+        /// Creates a new <see cref="TransformBuilder"/>
+        /// </summary>
         public TransformBuilder(TemplateBinderFactory binderFactory)
         {
-            _binderFactory = binderFactory;
+            _binderFactory = binderFactory ?? throw new ArgumentNullException(nameof(binderFactory));
         }
 
+        /// <inheritdoc/>
         public bool Validate(IList<IDictionary<string, string>> rawTransforms, string routeId, IConfigErrorReporter errorReporter)
         {
             var success = true;
@@ -172,6 +177,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             return success;
         }
 
+        /// <inheritdoc/>
         public Transforms Build(IList<IDictionary<string, string>> rawTransforms)
         {
             bool? copyRequestHeaders = null;
@@ -184,7 +190,6 @@ namespace Microsoft.ReverseProxy.Service.Config
 
             if (rawTransforms?.Count > 0)
             {
-
                 foreach (var rawTransform in rawTransforms)
                 {
                     if (rawTransform.TryGetValue("PathSet", out var pathSet))

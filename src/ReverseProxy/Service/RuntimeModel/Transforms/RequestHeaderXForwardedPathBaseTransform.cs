@@ -6,7 +6,10 @@ using Microsoft.Extensions.Primitives;
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
-    public class RequestHeaderXForwardedPathBaseTransform : RequestHeaderTransform
+    /// <summary>
+    /// Sets or appends the X-Forwarded-PathBase header with the request's original PathBase.
+    /// </summary>
+    internal class RequestHeaderXForwardedPathBaseTransform : RequestHeaderTransform
     {
         // or Set
         private readonly bool _append;

@@ -9,7 +9,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
     /// <summary>
     /// Generates a new request path by plugging matched route parameters into the given pattern.
     /// </summary>
-    public class PathRouteValuesTransform : RequestParametersTransform
+    internal class PathRouteValuesTransform : RequestParametersTransform
     {
         private readonly TemplateBinder _binder;
 

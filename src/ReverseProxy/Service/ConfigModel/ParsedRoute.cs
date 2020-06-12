@@ -109,11 +109,10 @@ namespace Microsoft.ReverseProxy.ConfigModel
 
             if (Transforms != null)
             {
-                // TODO: Doesn't handle list reordering. Is that significant?
                 hash ^= Transforms.Select(transform =>
                     transform.Select(item => HashCode.Combine(item.Key.GetHashCode(), item.Value.GetHashCode()))
-                        .Aggregate((total, nextCode) => total ^ nextCode))
-                    .Aggregate((total, nextCode) => total ^ nextCode);
+                        .Aggregate((total, nextCode) => total ^ nextCode)) // Unordered Dictionary
+                    .Aggregate(seed: 397, (total, nextCode) => total * 31 ^ nextCode); // Ordered List
             }
 
             return hash;

@@ -6,7 +6,10 @@ using Microsoft.Extensions.Primitives;
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
-    public class RequestHeaderXForwardedProtoTransform : RequestHeaderTransform
+    /// <summary>
+    /// Sets or appends the X-Forwarded-Proto header with the request's original url scheme.
+    /// </summary>
+    internal class RequestHeaderXForwardedProtoTransform : RequestHeaderTransform
     {
         // or Set
         private readonly bool _append;

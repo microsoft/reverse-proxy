@@ -6,7 +6,10 @@ using Microsoft.AspNetCore.Http;
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
-    public class PathStringTransform : RequestParametersTransform
+    /// <summary>
+    /// Modifies the proxy request Path with the given value.
+    /// </summary>
+    internal class PathStringTransform : RequestParametersTransform
     {
         public PathStringTransform(PathTransformMode mode, PathString value)
         {

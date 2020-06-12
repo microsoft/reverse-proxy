@@ -7,7 +7,10 @@ using Microsoft.Extensions.Primitives;
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
-    public class RequestHeaderValueTransform : RequestHeaderTransform
+    /// <summary>
+    /// Sets or appends simple request header values.
+    /// </summary>
+    internal class RequestHeaderValueTransform : RequestHeaderTransform
     {
         private readonly string _value;
         private readonly bool _append;

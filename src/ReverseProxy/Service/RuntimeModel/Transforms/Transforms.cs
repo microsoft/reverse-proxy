@@ -6,6 +6,9 @@ using System.Collections.Generic;
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
+    /// <summary>
+    /// Transforms for a given route.
+    /// </summary>
     public class Transforms
     {
         // For tests
@@ -16,6 +19,9 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             responseHeaderTransforms: new Dictionary<string, ResponseHeaderTransform>(),
             responseTrailerTransforms: new Dictionary<string, ResponseHeaderTransform>());
 
+        /// <summary>
+        /// Creates a new <see cref="Transforms"/> instance.
+        /// </summary>
         public Transforms(bool? copyRequestHeaders, IReadOnlyList<RequestParametersTransform> requestTransforms,
             IReadOnlyDictionary<string, RequestHeaderTransform> requestHeaderTransforms,
             IReadOnlyDictionary<string, ResponseHeaderTransform> responseHeaderTransforms,
@@ -28,14 +34,29 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             ResponseTrailerTransforms = responseTrailerTransforms ?? throw new ArgumentNullException(nameof(responseTrailerTransforms));
         }
 
+        /// <summary>
+        /// Indicates if all request headers should be proxied in absence of other transforms.
+        /// </summary>
         public bool? CopyRequestHeaders { get; }
 
+        /// <summary>
+        /// Request parameter transforms.
+        /// </summary>
         public IReadOnlyList<RequestParametersTransform> RequestTransforms { get; }
 
+        /// <summary>
+        /// Request header transforms.
+        /// </summary>
         public IReadOnlyDictionary<string, RequestHeaderTransform> RequestHeaderTransforms { get; }
 
+        /// <summary>
+        /// Response header transforms.
+        /// </summary>
         public IReadOnlyDictionary<string, ResponseHeaderTransform> ResponseHeaderTransforms { get; }
 
+        /// <summary>
+        /// Response trailer transforms.
+        /// </summary>
         public IReadOnlyDictionary<string, ResponseHeaderTransform> ResponseTrailerTransforms { get; }
     }
 }

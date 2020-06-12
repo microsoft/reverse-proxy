@@ -88,16 +88,25 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             Contracts.CheckValue(transforms, nameof(transforms));
             Contracts.CheckValue(httpClientFactory, nameof(httpClientFactory));
 
-            var request = CreateRequestMessage(context, destinationPrefix, transforms.RequestTransforms);
-
+            // :::::::::::::::::::::::::::::::::::::::::::::
+            // :: Step 1: Create outgoing HttpRequestMessage
             var upgradeFeature = context.Features.Get<IHttpUpgradeFeature>();
-            if (upgradeFeature == null || !upgradeFeature.IsUpgradableRequest)
+            var isUpgrade = upgradeFeature != null && upgradeFeature.IsUpgradableRequest;
+            // Default to HTTP/1.1 for proxying upgradable requests. This is already the default as of .NET Core 3.1
+            // Otherwise request HTTP/2 and let HttpClient fallback to HTTP/1.1 if it cannot establish HTTP/2 with the target.
+            // This is done without extra round-trips thanks to ALPN. We can detect a downgrade after calling HttpClient.SendAsync
+            // (see Step 3 below). TBD how this will change when HTTP/3 is supported.
+            var version = isUpgrade ? ProtocolHelper.Http11Version : ProtocolHelper.Http2Version;
+
+            var request = CreateRequestMessage(context, destinationPrefix, version, transforms.RequestTransforms);
+
+            if (isUpgrade)
             {
-                return NormalProxyAsync(context, request, transforms, httpClientFactory.CreateNormalClient(), proxyTelemetryContext, shortCancellation, longCancellation);
+                return UpgradableProxyAsync(context, upgradeFeature, request, transforms, httpClientFactory.CreateUpgradableClient(), proxyTelemetryContext, shortCancellation, longCancellation);
             }
             else
             {
-                return UpgradableProxyAsync(context, upgradeFeature, request, transforms, httpClientFactory.CreateUpgradableClient(), proxyTelemetryContext, shortCancellation, longCancellation);
+                return NormalProxyAsync(context, request, transforms, httpClientFactory.CreateNormalClient(), proxyTelemetryContext, shortCancellation, longCancellation);
             }
         }
 
@@ -146,20 +155,13 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             }
 
             // :::::::::::::::::::::::::::::::::::::::::::::
-            // :: Step 1: Create outgoing HttpRequestMessage
-            // We request HTTP/2, but HttpClient will fallback to HTTP/1.1 if it cannot establish HTTP/2 with the target.
-            // This is done without extra round-trips thanks to ALPN. We can detect a downgrade after calling HttpClient.SendAsync
-            // (see Step 3 below). TBD how this will change when HTTP/3 is supported.
-            upstreamRequest.Version = ProtocolHelper.Http2Version;
-
-            // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 2: Setup copy of request body (background) Downstream --► Proxy --► Upstream
             // Note that we must do this before step (3) because step (3) may also add headers to the HttpContent that we set up here.
             var bodyToUpstreamContent = SetupCopyBodyUpstream(context.Request.Body, upstreamRequest, in proxyTelemetryContext, isStreamingRequest, longCancellation);
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 3: Copy request headers Downstream --► Proxy --► Upstream
-            CopyHeadersToUpstream(context, upstreamRequest, transforms?.CopyRequestHeaders, transforms?.RequestHeaderTransforms);
+            CopyHeadersToUpstream(context, upstreamRequest, transforms.CopyRequestHeaders, transforms.RequestHeaderTransforms);
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 4: Send the outgoing request using HttpClient
@@ -191,7 +193,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 6: Copy response headers Downstream ◄-- Proxy ◄-- Upstream
-            CopyHeadersToDownstream(upstreamResponse, context, transforms?.ResponseHeaderTransforms);
+            CopyHeadersToDownstream(upstreamResponse, context, transforms.ResponseHeaderTransforms);
 
             // NOTE: it may *seem* wise to call `context.Response.StartAsync()` at this point
             // since it looks like we are ready to send back response headers
@@ -211,7 +213,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 8: Copy response trailer headers and finish response Downstream ◄-- Proxy ◄-- Upstream
-            CopyTrailingHeadersToDownstream(upstreamResponse, context, transforms?.ResponseTrailerTransforms);
+            CopyTrailingHeadersToDownstream(upstreamResponse, context, transforms.ResponseTrailerTransforms);
 
             if (isStreamingRequest)
             {
@@ -269,13 +271,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             Contracts.CheckValue(httpClient, nameof(httpClient));
 
             // :::::::::::::::::::::::::::::::::::::::::::::
-            // :: Step 1: Create outgoing HttpRequestMessage
-            // Default to HTTP/1.1 for proxying upgradable requests. This is already the default as of .NET Core 3.1
-            upstreamRequest.Version = ProtocolHelper.Http11Version;
-
-            // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 2: Copy request headers Downstream --► Proxy --► Upstream
-            CopyHeadersToUpstream(context, upstreamRequest, transforms?.CopyRequestHeaders, transforms?.RequestHeaderTransforms);
+            CopyHeadersToUpstream(context, upstreamRequest, transforms.CopyRequestHeaders, transforms.RequestHeaderTransforms);
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 3: Send the outgoing request using HttpMessageInvoker
@@ -289,7 +286,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 5: Copy response headers Downstream ◄-- Proxy ◄-- Upstream
-            CopyHeadersToDownstream(upstreamResponse, context, transforms?.ResponseHeaderTransforms);
+            CopyHeadersToDownstream(upstreamResponse, context, transforms.ResponseHeaderTransforms);
 
             if (!upgraded)
             {
@@ -334,7 +331,9 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             await Task.WhenAll(upstreamTask, downstreamTask);
         }
 
-        private HttpRequestMessage CreateRequestMessage(HttpContext context, string destinationAddress,
+        private HttpRequestMessage CreateRequestMessage(HttpContext context,
+            string destinationAddress,
+            Version httpVersion,
             IReadOnlyList<RequestParametersTransform> transforms)
         {
             // "http://a".Length = 8
@@ -358,6 +357,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             var transformContext = new RequestParametersTransformContext()
             {
                 HttpContext = context,
+                Version = httpVersion,
                 Method = request.Method,
                 Path = request.Path,
                 Query = request.QueryString,
@@ -370,7 +370,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             var targetUrl = UriHelper.BuildAbsolute(destinationScheme, destinationHost, destinationPathBase, transformContext.Path, transformContext.Query);
             Log.Proxying(_logger, targetUrl);
             var targetUri = new Uri(targetUrl, UriKind.Absolute);
-            return new HttpRequestMessage(HttpUtilities.GetHttpMethod(transformContext.Method), targetUri);
+            return new HttpRequestMessage(HttpUtilities.GetHttpMethod(transformContext.Method), targetUri) { Version = transformContext.Version };
         }
 
         private StreamCopyHttpContent SetupCopyBodyUpstream(Stream source, HttpRequestMessage upstreamRequest, in ProxyTelemetryContext proxyTelemetryContext, bool isStreamingRequest, CancellationToken cancellation)

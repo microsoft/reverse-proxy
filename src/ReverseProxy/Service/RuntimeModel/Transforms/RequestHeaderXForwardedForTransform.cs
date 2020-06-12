@@ -6,7 +6,10 @@ using Microsoft.Extensions.Primitives;
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
-    public class RequestHeaderXForwardedForTransform : RequestHeaderTransform
+    /// <summary>
+    /// Sets or appends the X-Forwarded-For header with the previous clients's IP address.
+    /// </summary>
+    internal class RequestHeaderXForwardedForTransform : RequestHeaderTransform
     {
         // or Set
         private readonly bool _append;
