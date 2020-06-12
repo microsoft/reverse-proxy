@@ -29,6 +29,9 @@ Session affinity is configured per backend according to the following configurat
                 "Enabled": "(true|false)", // defaults to 'false'
                 "Mode": "(Cookie|CustomHeader)", // defaults to 'Cookie'
                 "AffinityFailurePolicy": "(Redistribute|Return503)", // defaults to 'Redistribute'
+                "Settings" : {
+                    "CustomHeaderName": "<custom-header-name>" // defaults to 'X-Microsoft-Proxy-Affinity`
+                }
             }
         }
     }
@@ -36,15 +39,10 @@ Session affinity is configured per backend according to the following configurat
 ```
 
 ### Provider-specific options
-There is currently two provider-specific option types available.
+There is currently one provider-specific option type available.
 - `CookieSessionAffinityProviderOptions` exposes `CookieBuilder` to set default cookie properties which will be used by `CookieSessionAffinityProvider` for creating new affinity cookies. The properties can be changed via the standard Option API as in the following example:
 ```C#
 services.Configure<CookieSessionAffinityProviderOptions>(o => o.Cookie.Name = "My-Affinity-Key");
-```
-
-- `CustomHeaderSessionAffinityProviderOptions` exposes `CustomHeaderName` property to set the name of a custom affinity header. The properties can be changed via the standard Option API as in the following example:
-```C#
-services.Configure<CustomHeaderSessionAffinityProviderOptions>(o => o.CustomHeaderName = "X-My-Affinity");
 ```
 
 ## Affinity Key
