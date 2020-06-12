@@ -11,6 +11,11 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
     {
         public override StringValues Apply(HttpContext context, StringValues values)
         {
+            if (context is null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
+
             var clientCert = context.Connection.ClientCertificate;
             if (clientCert == null)
             {

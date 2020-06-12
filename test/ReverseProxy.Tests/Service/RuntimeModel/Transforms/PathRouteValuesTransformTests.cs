@@ -11,9 +11,9 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
     public class PathRouteValuesTransformTests
     {
         [Theory]
-        [InlineData("/1/2/3/4/5", "/{a}/{b}/{c}", "/6/7/8")]
-        [InlineData("/1/2/3/4/5", "/{a}/{b}/{c}/{d}", "/6/7/8")]
-        public void Set_PathPattern_Success(string initialValue,  string transformValue, string expected)
+        [InlineData("/{a}/{b}/{c}", "/6/7/8")]
+        [InlineData("/{a}/foo/{b}/{c}/{d}", "/6/foo/7/8")]
+        public void Set_PathPattern_ReplacesPathWithRouteValues(string transformValue, string expected)
         {
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddOptions();
@@ -29,7 +29,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             };
             var context = new RequestParametersTransformContext()
             {
-                Path = initialValue,
+                Path = "/",
                 HttpContext = httpContext
             };
             var transform = new PathRouteValuesTransform(transformValue, services.GetRequiredService<TemplateBinderFactory>());

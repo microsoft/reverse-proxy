@@ -30,6 +30,11 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 
         public override void Apply(RequestParametersTransformContext context)
         {
+            if (context is null)
+            {
+                throw new System.ArgumentNullException(nameof(context));
+            }
+
             context.Path = _binder.BindValues(context.HttpContext.Request.RouteValues);
         }
     }

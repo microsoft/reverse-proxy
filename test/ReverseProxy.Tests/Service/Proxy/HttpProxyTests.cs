@@ -98,7 +98,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 destinationId: "d1");
 
             // Act
-            await sut.ProxyAsync(httpContext, destinationPrefix, transforms: null, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+            await sut.ProxyAsync(httpContext, destinationPrefix, Transforms.Empty, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
 
             // Assert
             Assert.Equal(234, httpContext.Response.StatusCode);
@@ -133,23 +133,23 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             httpContext.Response.Body = proxyResponseStream;
 
             var destinationPrefix = "https://localhost:123/a/b/";
-            var transforms = new Transforms(new[]
+            var transforms = new Transforms(copyRequestHeaders: true,
+            requestTransforms: new[]
             {
                 new PathStringTransform(PathStringTransform.PathTransformMode.Prefix, "/prependPath"),
             },
-            copyRequestHeaders: true,
-            new Dictionary<string, RequestHeaderTransform>(StringComparer.OrdinalIgnoreCase)
+            requestHeaderTransforms: new Dictionary<string, RequestHeaderTransform>(StringComparer.OrdinalIgnoreCase)
             {
                 { "transformHeader", new RequestHeaderValueTransform("value", append: false) },
                 { "x-ms-request-test", new RequestHeaderValueTransform("transformValue", append: true) },
-                { HeaderNames.Host, new RequestHeaderValueTransform(null, append: false) }
+                { HeaderNames.Host, new RequestHeaderValueTransform(string.Empty, append: false) }
             },
-            new Dictionary<string, ResponseHeaderTransform>(StringComparer.OrdinalIgnoreCase)
+            responseHeaderTransforms: new Dictionary<string, ResponseHeaderTransform>(StringComparer.OrdinalIgnoreCase)
             {
                 { "transformHeader", new ResponseHeaderValueTransform("value", append: false, always: true) },
                 { "x-ms-response-test", new ResponseHeaderValueTransform("value", append: true, always: false) }
             },
-            new Dictionary<string, ResponseHeaderTransform>(StringComparer.OrdinalIgnoreCase)
+            responseTrailerTransforms: new Dictionary<string, ResponseHeaderTransform>(StringComparer.OrdinalIgnoreCase)
             {
                 { "trailerTransform", new ResponseHeaderValueTransform("value", append: false, always: true) }
             });
@@ -232,12 +232,12 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             httpContext.Response.Body = proxyResponseStream;
 
             var destinationPrefix = "https://localhost:123/a/b/";
-            var transforms = new Transforms(new[]
+            var transforms = new Transforms(copyRequestHeaders: false,
+            requestTransforms: new[]
             {
                 new PathStringTransform(PathStringTransform.PathTransformMode.Prefix, "/prependPath"),
             },
-            copyRequestHeaders: false,
-            new Dictionary<string, RequestHeaderTransform>(StringComparer.OrdinalIgnoreCase)
+            requestHeaderTransforms: new Dictionary<string, RequestHeaderTransform>(StringComparer.OrdinalIgnoreCase)
             {
                 { "transformHeader", new RequestHeaderValueTransform("value", append: false) },
                 { "x-ms-request-test", new RequestHeaderValueTransform("transformValue", append: true) },
@@ -246,8 +246,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 { "x-forwarded-proto", new RequestHeaderXForwardedProtoTransform(append: true) },
                 { "x-forwarded-pathbase", new RequestHeaderXForwardedPathBaseTransform(append: true) },
             },
-            new Dictionary<string, ResponseHeaderTransform>(StringComparer.OrdinalIgnoreCase),
-            new Dictionary<string, ResponseHeaderTransform>(StringComparer.OrdinalIgnoreCase));
+            responseHeaderTransforms: new Dictionary<string, ResponseHeaderTransform>(StringComparer.OrdinalIgnoreCase),
+            responseTrailerTransforms: new Dictionary<string, ResponseHeaderTransform>(StringComparer.OrdinalIgnoreCase));
             var targetUri = "https://localhost:123/a/b/prependPath/test?a=b&c=d";
             var sut = Create<HttpProxy>();
             var client = MockHttpHandler.CreateClient(
@@ -359,7 +359,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 destinationId: "d1");
 
             // Act
-            await sut.ProxyAsync(httpContext, destinationPrefix, transforms: null, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+            await sut.ProxyAsync(httpContext, destinationPrefix, Transforms.Empty, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
 
             // Assert
             Assert.Equal(234, httpContext.Response.StatusCode);
@@ -424,7 +424,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 destinationId: "d1");
 
             // Act
-            await sut.ProxyAsync(httpContext, destinationPrefix, transforms: null, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+            await sut.ProxyAsync(httpContext, destinationPrefix, Transforms.Empty, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
 
             // Assert
             Assert.Equal(StatusCodes.Status101SwitchingProtocols, httpContext.Response.StatusCode);
@@ -493,7 +493,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 destinationId: "d1");
 
             // Act
-            await sut.ProxyAsync(httpContext, destinationPrefix, transforms: null, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+            await sut.ProxyAsync(httpContext, destinationPrefix, Transforms.Empty, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
 
             // Assert
             Assert.Equal(234, httpContext.Response.StatusCode);

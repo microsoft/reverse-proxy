@@ -18,6 +18,11 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 
         public override StringValues Apply(HttpContext context, StringValues values)
         {
+            if (context is null)
+            {
+                throw new System.ArgumentNullException(nameof(context));
+            }
+
             var pathBase = context.Request.PathBase;
             if (!pathBase.HasValue)
             {

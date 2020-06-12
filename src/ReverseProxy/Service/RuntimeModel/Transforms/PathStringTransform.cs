@@ -20,6 +20,11 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 
         public override void Apply(RequestParametersTransformContext context)
         {
+            if (context is null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
+
             var input = context.Path;
             PathString result;
             switch (Mode)

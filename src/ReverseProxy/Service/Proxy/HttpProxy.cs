@@ -88,7 +88,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             Contracts.CheckValue(transforms, nameof(transforms));
             Contracts.CheckValue(httpClientFactory, nameof(httpClientFactory));
 
-            var request = CreateRequestMessage(context, destinationPrefix, transforms?.RequestTransforms);
+            var request = CreateRequestMessage(context, destinationPrefix, transforms.RequestTransforms);
 
             var upgradeFeature = context.Features.Get<IHttpUpgradeFeature>();
             if (upgradeFeature == null || !upgradeFeature.IsUpgradableRequest)
@@ -347,7 +347,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             UriHelper.FromAbsolute(destinationAddress, out var destinationScheme, out var destinationHost, out var destinationPathBase, out _, out _); // Query and Fragment are not supported here.
 
             var request = context.Request;
-            if (transforms == null || transforms.Count == 0)
+            if (transforms.Count == 0)
             {
                 var url = UriHelper.BuildAbsolute(destinationScheme, destinationHost, destinationPathBase, request.Path, request.QueryString);
                 Log.Proxying(_logger, url);
@@ -429,7 +429,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                         continue;
                     }
 
-                    if (transforms != null && transforms.TryGetValue(headerName, out var transform))
+                    if (transforms.TryGetValue(headerName, out var transform))
                     {
                         (transformsRun ??= new HashSet<string>(StringComparer.OrdinalIgnoreCase)).Add(headerName);
                         value = transform.Apply(context, value);
@@ -444,18 +444,15 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             }
 
             // Run any transforms that weren't run yet.
-            if (transforms != null)
+            foreach (var (headerName, transform) in transforms)
             {
-                foreach (var (headerName, transform) in transforms)
+                if (!(transformsRun?.Contains(headerName) ?? false))
                 {
-                    if (!(transformsRun?.Contains(headerName) ?? false))
+                    var headerValue = context.Request.Headers[headerName];
+                    headerValue = transform.Apply(context, headerValue);
+                    if (!StringValues.IsNullOrEmpty(headerValue))
                     {
-                        var headerValue = context.Request.Headers[headerName];
-                        headerValue = transform.Apply(context, headerValue);
-                        if (!StringValues.IsNullOrEmpty(headerValue))
-                        {
-                            AddHeader(destination, headerName, headerValue);
-                        }
+                        AddHeader(destination, headerName, headerValue);
                     }
                 }
             }
@@ -545,7 +542,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 }
                 var headerValue = new StringValues(header.Value.ToArray());
 
-                if (transforms != null && transforms.TryGetValue(headerName, out var transform))
+                if (transforms.TryGetValue(headerName, out var transform))
                 {
                     (transformsRun ??= new HashSet<string>(StringComparer.OrdinalIgnoreCase)).Add(headerName);
                     headerValue = transform.Apply(context, response, headerValue);
@@ -560,20 +557,17 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 
         private static void RunRemainingResponseTransforms(HttpResponseMessage response, HttpContext context, IHeaderDictionary destination, IReadOnlyDictionary<string, ResponseHeaderTransform> transforms, HashSet<string> transformsRun)
         {
-            if (transforms != null)
+            // Run any transforms that weren't run yet.
+            foreach (var (headerName, transform) in transforms) // TODO: What about multiple transforms per header? Last wins?
             {
-                // Run any transforms that weren't run yet.
-                foreach (var (headerName, transform) in transforms) // TODO: What about multiple transforms per header? Last wins?
+                if (!(transformsRun?.Contains(headerName) ?? false))
                 {
-                    if (!(transformsRun?.Contains(headerName) ?? false))
+                    var headerValue = StringValues.Empty;
+                    headerValue = transform.Apply(context, response, headerValue);
+                    if (!StringValues.IsNullOrEmpty(headerValue))
                     {
-                        var headerValue = StringValues.Empty;
-                        headerValue = transform.Apply(context, response, headerValue);
-                        if (!StringValues.IsNullOrEmpty(headerValue))
-                        {
-                            ////this.logger.LogInformation($"   Copying downstream <-- Proxy <-- upstream response header {header.Key}: {string.Join(",", header.Value)}");
-                            destination.Append(headerName, headerValue);
-                        }
+                        ////this.logger.LogInformation($"   Copying downstream <-- Proxy <-- upstream response header {header.Key}: {string.Join(",", header.Value)}");
+                        destination.Append(headerName, headerValue);
                     }
                 }
             }

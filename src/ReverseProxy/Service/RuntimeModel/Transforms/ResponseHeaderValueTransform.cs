@@ -15,7 +15,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 
         public ResponseHeaderValueTransform(string value, bool append, bool always)
         {
-            _value = value;
+            _value = value ?? throw new System.ArgumentNullException(nameof(value));
             _append = append;
             _always = always;
         }
@@ -23,6 +23,16 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         // Assumes the response status code has been set on the HttpContext already.
         public override StringValues Apply(HttpContext context, HttpResponseMessage response, StringValues values)
         {
+            if (context is null)
+            {
+                throw new System.ArgumentNullException(nameof(context));
+            }
+
+            if (response is null)
+            {
+                throw new System.ArgumentNullException(nameof(response));
+            }
+
             var result = values;
             if (_always || Success(context))
             {
