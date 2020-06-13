@@ -13,6 +13,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         // Using ";" to represent multi-line headers
         [InlineData("", "", false, "")]
         [InlineData("", "", true, "")]
+        [InlineData("", "::1", false, "::1")]
         [InlineData("", "127.0.0.1", false, "127.0.0.1")]
         [InlineData("", "127.0.0.1", true, "127.0.0.1")]
         [InlineData("existing,Header", "", false, "")]
