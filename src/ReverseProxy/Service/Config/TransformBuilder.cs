@@ -12,7 +12,9 @@ using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 
 namespace Microsoft.ReverseProxy.Service.Config
 {
-    /// <inheritdoc/>
+    /// <summary>
+    /// Validates and builds request and response transforms for a given route.
+    /// </summary>
     public class TransformBuilder : ITransformBuilder
     {
         private readonly TemplateBinderFactory _binderFactory;
@@ -95,9 +97,9 @@ namespace Microsoft.ReverseProxy.Service.Config
                     if (rawTransform.TryGetValue("When", out var whenValue))
                     {
                         success &= TryCheckTooManyParameters(rawTransform, routeId, expected: 3, errorReporter);
-                        if (!string.Equals("Always", whenValue, StringComparison.OrdinalIgnoreCase) && !string.Equals("OnSuccess", whenValue, StringComparison.OrdinalIgnoreCase))
+                        if (!string.Equals("Always", whenValue, StringComparison.OrdinalIgnoreCase) && !string.Equals("Success", whenValue, StringComparison.OrdinalIgnoreCase))
                         {
-                            errorReporter.ReportError(ConfigErrors.TransformInvalid, routeId, $"Unexpected value for ResponseHeader:When: {whenValue}. Expected 'Always' or 'OnSuccess'");
+                            errorReporter.ReportError(ConfigErrors.TransformInvalid, routeId, $"Unexpected value for ResponseHeader:When: {whenValue}. Expected 'Always' or 'Success'");
                             success = false;
                         }
                     }
@@ -117,9 +119,9 @@ namespace Microsoft.ReverseProxy.Service.Config
                     if (rawTransform.TryGetValue("When", out var whenValue))
                     {
                         success &= TryCheckTooManyParameters(rawTransform, routeId, expected: 3, errorReporter);
-                        if (!string.Equals("Always", whenValue, StringComparison.OrdinalIgnoreCase) && !string.Equals("OnSuccess", whenValue, StringComparison.OrdinalIgnoreCase))
+                        if (!string.Equals("Always", whenValue, StringComparison.OrdinalIgnoreCase) && !string.Equals("Success", whenValue, StringComparison.OrdinalIgnoreCase))
                         {
-                            errorReporter.ReportError(ConfigErrors.TransformInvalid, routeId, $"Unexpected value for ResponseTrailer:When: {whenValue}. Expected 'Always' or 'OnSuccess'");
+                            errorReporter.ReportError(ConfigErrors.TransformInvalid, routeId, $"Unexpected value for ResponseTrailer:When: {whenValue}. Expected 'Always' or 'Success'");
                             success = false;
                         }
                     }
