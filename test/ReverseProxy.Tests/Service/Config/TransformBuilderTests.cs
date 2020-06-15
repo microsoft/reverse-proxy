@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Net.Http.Headers;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
+using Microsoft.ReverseProxy.Utilities;
 using Tests.Common;
 using Xunit;
 
@@ -100,6 +101,38 @@ namespace Microsoft.ReverseProxy.Service.Config
             Assert.Empty(results.ResponseTrailerTransforms);
             Assert.Empty(results.RequestTransforms);
             Assert.Empty(results.RequestHeaderTransforms);
+        }
+
+        [Fact]
+        public void DefaultsCanBeOverridenByForwarded()
+        {
+            var transformBuilder = CreateTransformBuilder();
+            var errorReporter = new TestConfigErrorReporter();
+            var transforms = new List<IDictionary<string, string>>()
+            {
+                new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    {  "RequestHeaderOriginalHost", "true" }
+                },
+                new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    {  "Forwarded", "proto" }
+                },
+            };
+
+            var valid = transformBuilder.Validate(transforms, "routeId", errorReporter);
+            Assert.True(valid);
+            Assert.Empty(errorReporter.Errors);
+
+            var results = transformBuilder.Build(transforms);
+            Assert.NotNull(results);
+            Assert.Null(results.CopyRequestHeaders);
+            Assert.Empty(results.ResponseHeaderTransforms);
+            Assert.Empty(results.ResponseTrailerTransforms);
+            Assert.Empty(results.RequestTransforms);
+
+            Assert.Equal(1, results.RequestHeaderTransforms.Count);
+            Assert.IsType<RequestHeaderForwardedTransform>(results.RequestHeaderTransforms["Forwarded"]);
         }
 
         [Theory]
@@ -211,6 +244,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             serviceCollection.AddOptions();
             serviceCollection.AddRouting();
             serviceCollection.AddSingleton<ITransformBuilder, TransformBuilder>();
+            serviceCollection.AddSingleton<IRandomFactory, RandomFactory>();
             using var services = serviceCollection.BuildServiceProvider();
             return services.GetRequiredService<ITransformBuilder>();
         }
