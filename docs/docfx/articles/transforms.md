@@ -224,11 +224,59 @@ Append specifies if each header should append to or replace an existing header o
 
 The {Prefix}For header value is taken from `HttpContext.Connection.RemoteIpAddress` representing the prior caller's IP address. The port is not included. IPv6 addresses do not include the bounding `[]` brackets.
 
-The {Prefix}Proto header value is taken from `HttpContext.Request.Scheme` indicating if the caller used HTTP or HTTPS.
+The {Prefix}Proto header value is taken from `HttpContext.Request.Scheme` indicating if the prior caller used HTTP or HTTPS.
 
 The {Prefix}Host header value is taken from the incoming request's Host header. This is independent of RequestHeaderOriginalHost specified above. Unicode/IDN hosts are punycode encoded.
 
 The {Prefix}PathBase header value is taken from `HttpContext.Request.PathBase`. The PathBase property is not used when generating the proxy request so the destination server will need the original value to correctly generate links and directs. The value is in the percent encoded Uri format.
+
+#### Forwarded
+
+| Key | Value | Default | Required |
+|-----|-------|---------|----------|
+| Forwarded | A comma separated list containing any of these values: for,by,proto,host | (none) | yes |
+| ForFormat | Random/RandomAndPort/Unknown/UnknownAndPort/Ip/IpAndPort | Random | no |
+| ByFormat | Random/RandomAndPort/Unknown/UnknownAndPort/Ip/IpAndPort | Random | no |
+| Append | true/false | true | no |
+
+```JSON
+{
+  "Forwarded": "by,for,host,proto",
+  "ByFormat": "Random",
+  "ForFormat": "IpAndPort"
+},
+```
+Example:
+```
+Forwarded: proto=https;host="localhost:5001";for="[::1]:20173";by=_YQuN68tm6
+```
+
+The `Forwarded` header is defined by [RFC 7239](https://tools.ietf.org/html/rfc7239). It consolidates many of the same functions as the unofficial X-Forwarded headers, flowing information to the destination server that would otherwise be obscured by using a proxy.
+
+Enabling this transform will disable the default X-Forwarded transforms as they carry similar information in another format. The X-Forwarded transforms can still be explicitly enabled.
+
+Append: This specifies if the transform should append to or replace an existing Forwarded header. A request traversing multiple proxies may accumulate a list of such headers and the destination server will need to evaluate the list to determine the original value.
+
+Proto: This value is taken from `HttpContext.Request.Scheme` indicating if the prior caller used HTTP or HTTPS.
+
+Host: This value is taken from the incoming request's Host header. This is independent of RequestHeaderOriginalHost specified above. Unicode/IDN hosts are punycode encoded.
+
+For: This value identifies the prior caller. IP addresses are taken from `HttpContext.Connection.RemoteIpAddress`. See ByFormat and ForFormat below for details.
+
+By: This value identifies where the proxy received the request. IP addresses are taken from `HttpContext.Connection.LocalIpAddress`. See ByFormat and ForFormat below for details.
+
+ByFormat and ForFormat:
+
+The RFC allows a [variety of formats](https://tools.ietf.org/html/rfc7239#section-6) for the By and For fields. It requires that the default format uses an obfuscated identifier identified here as Random.
+
+| Format | Description | Example |
+|--------|-------------|---------|
+| Random | An obfuscated identifier that is generated randomly per request. This allows for diagnostic tracing scenarios while limiting the flow of uniquely identifying information for privacy reasons. | `by=_YQuN68tm6` |
+| RandomAndPort | The Random identifier plus the port. | `by="_YQuN68tm6:80"` |
+| Unknown | This can be used when the identity of the preceding entity is not known, but the proxy server still wants to signal that the request was forwarded. | `by=unknown` |
+| UnknownAndPort | The Unknown identifier plus the port if available. | `by="unknown:80"` |
+| Ip | An IPv4 address or an IPv6 address including brackets. | `by="[::1]"` |
+| IpAndPort | The IP address plus the port. | `by="[::1]:80"` |
 
 #### ClientCert
 

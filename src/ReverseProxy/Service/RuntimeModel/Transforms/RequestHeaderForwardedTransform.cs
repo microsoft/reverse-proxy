@@ -146,7 +146,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                     goto case NodeFormat.Unknown;
                 case NodeFormat.Unknown:
                 case NodeFormat.UnknownAndPort:
-                    builder.Append("Unknown");
+                    builder.Append("unknown");
                     break;
                 case NodeFormat.Random:
                 case NodeFormat.RandomAndPort:

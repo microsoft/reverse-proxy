@@ -54,11 +54,11 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 
         [Theory]
         // Using "|" to represent multi-line headers
-        [InlineData("", "", 2, "ip", false, "for=Unknown")] // Missing IP falls back to Unknown
-        [InlineData("", "", 0, "ipandport", true, "for=Unknown")] // Missing port excluded
-        [InlineData("", "", 2, "ipandport", true, "for=\"Unknown:2\"")]
-        [InlineData("", "::1", 2, "unknown", false, "for=Unknown")]
-        [InlineData("", "::1", 2, "unknownandport", true, "for=\"Unknown:2\"")]
+        [InlineData("", "", 2, "ip", false, "for=unknown")] // Missing IP falls back to Unknown
+        [InlineData("", "", 0, "ipandport", true, "for=unknown")] // Missing port excluded
+        [InlineData("", "", 2, "ipandport", true, "for=\"unknown:2\"")]
+        [InlineData("", "::1", 2, "unknown", false, "for=unknown")]
+        [InlineData("", "::1", 2, "unknownandport", true, "for=\"unknown:2\"")]
         [InlineData("", "::1", 2, "ip", false, "for=\"[::1]\"")]
         [InlineData("", "::1", 0, "ipandport", true, "for=\"[::1]\"")]
         [InlineData("", "::1", 2, "ipandport", true, "for=\"[::1]:2\"")]
@@ -85,11 +85,11 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 
         [Theory]
         // Using "|" to represent multi-line headers
-        [InlineData("", "", 2, "ip", false, "by=Unknown")] // Missing IP falls back to Unknown
-        [InlineData("", "", 0, "ipandport", true, "by=Unknown")] // Missing port excluded
-        [InlineData("", "", 2, "ipandport", true, "by=\"Unknown:2\"")]
-        [InlineData("", "::1", 2, "unknown", false, "by=Unknown")]
-        [InlineData("", "::1", 2, "unknownandport", true, "by=\"Unknown:2\"")]
+        [InlineData("", "", 2, "ip", false, "by=unknown")] // Missing IP falls back to Unknown
+        [InlineData("", "", 0, "ipandport", true, "by=unknown")] // Missing port excluded
+        [InlineData("", "", 2, "ipandport", true, "by=\"unknown:2\"")]
+        [InlineData("", "::1", 2, "unknown", false, "by=unknown")]
+        [InlineData("", "::1", 2, "unknownandport", true, "by=\"unknown:2\"")]
         [InlineData("", "::1", 2, "ip", false, "by=\"[::1]\"")]
         [InlineData("", "::1", 0, "ipandport", true, "by=\"[::1]\"")]
         [InlineData("", "::1", 2, "ipandport", true, "by=\"[::1]:2\"")]
