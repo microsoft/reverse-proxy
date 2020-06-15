@@ -7,7 +7,7 @@ title: Getting Started with YARP
 
 YARP is designed as a library that provides the core proxy functionality which you can then customize by adding or replacing modules. YARP is currently provided as a NuGet package and code snippets. We plan on providing a project template and pre-built exe in the future. 
 
-YARP supports ASP.NET Core 3.1 and 5.0.0 Preview 4 or later. You can download the .NET 5 Preview 4 SDK from https://dotnet.microsoft.com/download/dotnet/5.0.
+YARP supports ASP.NET Core 3.1 and 5.0.0 Preview 4 or later. You can download the .NET 5 Preview 4 SDK from https://dotnet.microsoft.com/download/dotnet/5.0. It requires Visual Studio 2019 (v16.6) or newer.
 
 ### Create a new project
 
@@ -27,7 +27,7 @@ Open the Project and make sure it includes the appropriate target framework:
  
  ```
 <PropertyGroup>
-  <TargetFramework>netcoreapp5.0</TargetFramework>
+  <TargetFramework>net5.0</TargetFramework>
 </PropertyGroup> 
 ```
 
