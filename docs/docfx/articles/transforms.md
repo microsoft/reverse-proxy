@@ -11,7 +11,25 @@ The following transforms are enabled by default for all routes. They can be conf
 - X-Forwarded-For - Appends the client's IP address to the X-Forwarded-For header. See [X-Forwarded](#x-forwarded) below.
 - X-Forwarded-Proto - Appends the request's original scheme (http/https) to the X-Forwarded-Proto header. See [X-Forwarded](#x-forwarded) below.
 - X-Forwarded-Host - Appends the request's original Host to the X-Forwarded-Host header. See [X-Forwarded](#x-forwarded) below.
-- X-Forwarded-PathBase - Appends the request's original PathBase to the X-Forwarded-Proto header. See [X-Forwarded](#x-forwarded) below.
+- X-Forwarded-PathBase - Appends the request's original PathBase, if any, to the X-Forwarded-Proto header. See [X-Forwarded](#x-forwarded) below.
+
+For example the following incoming request to `http://IncomingHost:5000/path`:
+```
+GET /path HTTP/1.1
+Host: IncomingHost:5000
+Accept: */*
+header1: foo
+```
+would be transformed and proxied to the destination server `https://DestinationHost:6000/` as follows using these defaults:
+```
+GET /path HTTP/1.1
+Host: DestinationHost:6000
+Accept: */*
+header1: foo
+X-Forwarded-For: 5.5.5.5
+X-Forwarded-Proto: http
+X-Forwarded-Host: IncomingHost:5000
+```
 
 ## Configuration
 Transforms are defined on [ProxyRoute.Transforms](xref:Microsoft.ReverseProxy.Abstractions.ProxyRoute.Transforms) and can be bound from the `Routes` sections of the config file. As with other route properties, these can be modified and reloaded without restarting the proxy. A transform is configured using one or more key-value string pairs.
@@ -78,7 +96,7 @@ Transforms fall into a few categories: request parameters, request headers, resp
 
 ### Request Parameters
 
-Request parameters include the request path, query, version, and method. In code these are represented by the [RequestParametersTransformContext](xref:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestParametersTransformContext) object and processed by implementations of the abstract class [RequestParametersTransform](xref:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestParametersTransform).
+Request parameters include the request path, query, HTTP version, and method. In code these are represented by the [RequestParametersTransformContext](xref:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestParametersTransformContext) object and processed by implementations of the abstract class [RequestParametersTransform](xref:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestParametersTransform).
 
 Notes:
 - The proxy request scheme (http/https), authority, and path base, are taken from the destination server address (`https://localhost:10001/Path/Base` in the example above) and cannot be modified by transforms.
@@ -93,11 +111,14 @@ The following are built in transforms identified by their primary config key. Th
 |-----|-------|----------|
 | PathPrefix | A path starting with a '/' | yes |
 
+Config:
 ```JSON
 { "PathPrefix": "/prefix" }
 ```
+Example:<br/>
+`/request/path` becomes `/prefix/request/path`
 
-This will prefix the request path with the given value. E.g. it will modify the proxy request path from `/request/path` to `/prefix/request/path`.
+This will prefix the request path with the given value.
 
 #### PathRemovePrefix
 
@@ -105,11 +126,15 @@ This will prefix the request path with the given value. E.g. it will modify the 
 |-----|-------|----------|
 | PathRemovePrefix | A path starting with a '/' | yes |
 
+Config:
 ```JSON
 { "PathRemovePrefix": "/prefix" }
 ```
+Example:<br/>
+`/prefix/request/path` becomes `/request/path`<br/>
+`/prefix2/request/path` is not modified<br/>
 
-This will remove the matching prefix from the request path. E.g. it will modify the proxy request path from `/prefix/request/path` to `/request/path`. Matches are made on path segment boundaries (`/`). If the prefix does not match then no changes are made.
+This will remove the matching prefix from the request path. Matches are made on path segment boundaries (`/`). If the prefix does not match then no changes are made.
 
 #### PathSet
 
@@ -117,12 +142,14 @@ This will remove the matching prefix from the request path. E.g. it will modify 
 |-----|-------|----------|
 | PathSet | A path starting with a '/' | yes |
 
+Config:
 ```JSON
 { "PathSet": "/newpath" }
 ```
+Example:<br/>
+`/request/path` becomes `/newpath`
 
-This will set the request path with the given value. E.g. it will modify the proxy request path from `/request/path` to `/newpath`.
-
+This will set the request path with the given value.
 
 #### PathPattern
 
@@ -130,6 +157,7 @@ This will set the request path with the given value. E.g. it will modify the pro
 |-----|-------|----------|
 | PathPattern | A path template starting with a '/' | yes |
 
+Config:
 ```JSON
 { "PathPattern": "/my/{plugin}/api/{remainder}" }
 ```
@@ -147,7 +175,6 @@ Example:
 | PathPattern | `/my/{plugin}/api/{remainder}` |
 | Result | `/my/v1/api/more/stuff` |
 
-
 ### Request Headers
 
 All incoming request headers are copied to the proxy request by default with the exception of the Host header (see [Defaults](#defaults)). [X-Forwarded](#x-forwarded) headers are also added by default. These behaviors can be configured using the following transforms. Additional request headers can be specified, or request headers can be excluded by setting them to an empty value.
@@ -162,6 +189,7 @@ Only one transform per header name is supported.
 |-----|-------|---------|----------|
 | RequestHeadersCopy | true/false | true | yes |
 
+Config:
 ```JSON
 { "RequestHeadersCopy": "false" }
 ```
@@ -174,6 +202,7 @@ This sets if all incoming request headers are copied to the proxy request. This 
 |-----|-------|---------|----------|
 | RequestHeaderOriginalHost | true/false | false | yes |
 
+Config:
 ```JSON
 { "RequestHeaderOriginalHost": "false" }
 ```
@@ -187,11 +216,16 @@ This specifies if the incoming request Host header should be copied to the proxy
 | RequestHeader | The header name | yes |
 | Set/Append | The header value | yes |
 
+Config:
 ```JSON
 {
   "RequestHeader": "MyHeader",
   "Set": "MyValue",
 }
+```
+Example:
+```
+MyHeader: MyValue
 ```
 
 This sets or appends the value for the named header. Set replaces any existing header. Set a header to empty to remove it (e.g. `"Set": ""`). Append adds an additional header with the given value.
@@ -204,12 +238,24 @@ This sets or appends the value for the named header. Set replaces any existing h
 | Prefix | The header name prefix | "X-Forwarded-" | no |
 | Append | true/false | true | no |
 
+Config:
 ```JSON
 {
   "X-Forwarded": "for,proto,host,PathBase",
   "Prefix": "X-Forwarded-",
   "Append": "true"
 }
+```
+Example:
+```
+X-Forwarded-For: 5.5.5.5
+X-Forwarded-Proto: https
+X-Forwarded-Host: IncomingHost:5000
+X-Forwarded-PathBase: /path/base
+```
+Disable default headers:
+```
+{ "X-Forwarded": "" }
 ```
 
 X-Forwarded-* headers are a common way to forward information to the destination server that may otherwise be obscured by the use of a proxy. The destination server likely needs this information for security checks and to properly generate absolute URIs for links and redirects. There is no standard that defines these headers and implementations vary, check your destination server for support. 
@@ -239,6 +285,7 @@ The {Prefix}PathBase header value is taken from `HttpContext.Request.PathBase`. 
 | ByFormat | Random/RandomAndPort/Unknown/UnknownAndPort/Ip/IpAndPort | Random | no |
 | Append | true/false | true | no |
 
+Config:
 ```JSON
 {
   "Forwarded": "by,for,host,proto",
@@ -284,8 +331,13 @@ The RFC allows a [variety of formats](https://tools.ietf.org/html/rfc7239#sectio
 |-----|-------|----------|
 | ClientCert | The header name | yes |
 
+Config:
 ```JSON
 { "ClientCert": "X-Client-Cert" }
+```
+Example:
+```
+X-Client-Cert: SSdtIGEgY2VydGlmaWNhdGU...
 ```
 
 This transform causes the client certificate taken from `HttpContext.Connection.ClientCertificate` to be Base64 encoded and set as the value for the given header name. This is needed because client certificates from incoming connections are not used when making connections to the destination server. The destination server may need that certificate to authenticate the client. There is no standard that defines this header and implementations vary, check your destination server for support.
@@ -304,12 +356,17 @@ In code these are implemented as derivations of the abstract class [ResponseHead
 | Set/Append | The header value | (none) | yes |
 | When | Success/Always | Success | no |
 
+Config:
 ```JSON
 {
   "ResponseHeader": "HeaderName",
   "Append": "value",
   "When": "Success"
 }
+```
+Example:
+```
+HeaderName: value
 ```
 
 This sets or appends the value for the named header. Set replaces any existing header. Set a header to empty to remove it (e.g. `"Set": ""`). Append adds an additional header with the given value.
@@ -324,12 +381,17 @@ This sets or appends the value for the named header. Set replaces any existing h
 | Set/Append | The header value | (none) | yes |
 | When | Success/Always | Success | no |
 
+Config:
 ```JSON
 {
   "ResponseTrailer": "HeaderName",
   "Append": "value",
   "When": "Success"
 }
+```
+Example:
+```
+HeaderName: value
 ```
 
 Response trailers are headers sent at the end of the response body. Support for trailers is uncommon in HTTP/1.1 implementations but is becoming common in HTTP/2 implementations. Check your client and server for support.
