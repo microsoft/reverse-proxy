@@ -114,12 +114,12 @@ namespace Microsoft.ReverseProxy.Service
                 errorReporter.ReportError(ConfigErrors.ConfigBuilderBackendNoProviderFoundForSessionAffinityMode, id, $"No matching {nameof(ISessionAffinityProvider)} found for the session affinity mode {affinityMode} set on the backend {backend.Id}.");
             }
 
-            if (string.IsNullOrEmpty(backend.SessionAffinity.AffinityFailurePolicy))
+            if (string.IsNullOrEmpty(backend.SessionAffinity.FailurePolicy))
             {
-                backend.SessionAffinity.AffinityFailurePolicy = SessionAffinityConstants.AffinityFailurePolicies.Redistribute;
+                backend.SessionAffinity.FailurePolicy = SessionAffinityConstants.AffinityFailurePolicies.Redistribute;
             }
 
-            var affinityFailurePolicy = backend.SessionAffinity.AffinityFailurePolicy;
+            var affinityFailurePolicy = backend.SessionAffinity.FailurePolicy;
             if (!_affinityFailurePolicies.ContainsKey(affinityFailurePolicy))
             {
                 errorReporter.ReportError(ConfigErrors.ConfigBuilderBackendNoAffinityFailurePolicyFoundForSpecifiedName, id, $"No matching {nameof(IAffinityFailurePolicy)} found for the affinity failure policy name {affinityFailurePolicy} set on the backend {backend.Id}.");

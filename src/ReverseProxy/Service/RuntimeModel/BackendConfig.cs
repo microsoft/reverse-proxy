@@ -96,10 +96,10 @@ namespace Microsoft.ReverseProxy.RuntimeModel
 
         public readonly struct BackendSessionAffinityOptions
         {
-            public BackendSessionAffinityOptions(bool enabled, string mode, string affinityFailurePolicy, IReadOnlyDictionary<string, string> settings)
+            public BackendSessionAffinityOptions(bool enabled, string mode, string failurePolicy, IReadOnlyDictionary<string, string> settings)
             {
                 Mode = mode;
-                AffinityFailurePolicy = affinityFailurePolicy;
+                FailurePolicy = failurePolicy;
                 Settings = settings;
                 Enabled = enabled;
             }
@@ -108,7 +108,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
 
             public string Mode { get; }
 
-            public string AffinityFailurePolicy { get; }
+            public string FailurePolicy { get; }
 
             public IReadOnlyDictionary<string, string> Settings { get;  }
         }

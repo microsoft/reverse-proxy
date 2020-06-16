@@ -24,7 +24,7 @@ namespace Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract
         /// <summary>
         /// Strategy handling missing destination for an affinitized request.
         /// </summary>
-        public string AffinityFailurePolicy { get; set; }
+        public string FailurePolicy { get; set; }
 
         /// <summary>
         /// Key-value pair collection holding extra settings specific to different affinity modes.
@@ -37,7 +37,7 @@ namespace Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract
             {
                 Enabled = Enabled,
                 Mode = Mode,
-                AffinityFailurePolicy = AffinityFailurePolicy,
+                FailurePolicy = FailurePolicy,
                 Settings = Settings?.DeepClone(StringComparer.Ordinal)
             };
         }

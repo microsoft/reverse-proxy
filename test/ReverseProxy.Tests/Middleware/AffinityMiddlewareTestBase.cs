@@ -69,7 +69,7 @@ namespace Microsoft.ReverseProxy.Middleware
             {
                 var policy = new Mock<IAffinityFailurePolicy>(MockBehavior.Strict);
                 policy.SetupGet(p => p.Name).Returns(name);
-                policy.Setup(p => p.Handle(It.IsAny<HttpContext>(), It.Is<BackendConfig.BackendSessionAffinityOptions>(o => o.AffinityFailurePolicy == name), expectedStatus))
+                policy.Setup(p => p.Handle(It.IsAny<HttpContext>(), It.Is<BackendConfig.BackendSessionAffinityOptions>(o => o.FailurePolicy == name), expectedStatus))
                     .ReturnsAsync(handled)
                     .Callback(() => callback(policy.Object));
                 result.Add(policy);
