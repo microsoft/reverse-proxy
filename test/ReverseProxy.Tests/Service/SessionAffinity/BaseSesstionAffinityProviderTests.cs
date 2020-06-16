@@ -67,7 +67,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
         public void FindAffinitizedDestination_AffinityDisabledOnBackend_ReturnsAffinityDisabled()
         {
             var provider = new ProviderStub(GetDataProtector().Object, AffinityTestHelper.GetLogger<BaseSessionAffinityProvider<string>>().Object);
-            var options = new BackendConfig.BackendSessionAffinityOptions(false, _defaultOptions.Mode, _defaultOptions.AffinityFailurePolicy, _defaultOptions.Settings);
+            var options = new BackendConfig.BackendSessionAffinityOptions(false, _defaultOptions.Mode, _defaultOptions.FailurePolicy, _defaultOptions.Settings);
             Assert.Throws<InvalidOperationException>(() => provider.FindAffinitizedDestinations(new DefaultHttpContext(), new[] { new DestinationInfo("1") }, "backend-1", options));
         }
 

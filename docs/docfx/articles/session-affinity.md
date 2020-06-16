@@ -28,7 +28,7 @@ Session affinity is configured per backend according to the following configurat
             "SessionAffinity": {
                 "Enabled": "(true|false)", // defaults to 'false'
                 "Mode": "(Cookie|CustomHeader)", // defaults to 'Cookie'
-                "AffinityFailurePolicy": "(Redistribute|Return503)", // defaults to 'Redistribute'
+                "FailurePolicy": "(Redistribute|Return503)", // defaults to 'Redistribute'
                 "Settings" : {
                     "CustomHeaderName": "<custom-header-name>" // defaults to 'X-Microsoft-Proxy-Affinity`
                 }
@@ -75,6 +75,6 @@ There are two built-in failure policies.  The default is `Redistribute`.
 
 ## Request pipeline
 The session affinity mechanisms are implemented by the services (mentioned above) and the two following middleware:
-1. `AffinitizedDestinationLookupMiddleware` - coordinates the request's affinity resolution process. First, it calls a provider implementing the mode specified for the given backend on `BackendConfig.SessionAffinity.Mode` property. Then, it checks the affinity resolution status returned by the provider, and calls a failure handling policy set on `BackendConfig.SessionAffinity.AffinityFailurePolicy` in case of failures. It must be added to the pipeline **before** the load balancer.
+1. `AffinitizedDestinationLookupMiddleware` - coordinates the request's affinity resolution process. First, it calls a provider implementing the mode specified for the given backend on `BackendConfig.SessionAffinity.Mode` property. Then, it checks the affinity resolution status returned by the provider, and calls a failure handling policy set on `BackendConfig.SessionAffinity.FailurePolicy` in case of failures. It must be added to the pipeline **before** the load balancer.
 
 2. `AffinitizeRequestMiddleware` - sets the key on the response if a new affinity has been established for the request. Otherwise, if the request follows an existing affinity, it does nothing. It must be added to the pipeline **after** the load balancer.

@@ -98,7 +98,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                                 new BackendConfig.BackendSessionAffinityOptions(
                                     enabled: configBackend.SessionAffinity?.Enabled ?? false,
                                     mode: configBackend.SessionAffinity?.Mode,
-                                    affinityFailurePolicy: configBackend.SessionAffinity?.AffinityFailurePolicy,
+                                    failurePolicy: configBackend.SessionAffinity?.FailurePolicy,
                                     settings: configBackend.SessionAffinity?.Settings as IReadOnlyDictionary<string, string>));
 
                         var currentBackendConfig = backend.Config.Value;

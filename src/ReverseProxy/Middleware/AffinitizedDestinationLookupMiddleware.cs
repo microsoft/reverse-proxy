@@ -77,7 +77,7 @@ namespace Microsoft.ReverseProxy.Middleware
                 case AffinityStatus.DestinationNotFound:
                     var keepProcessing = await _operationLogger.ExecuteAsync("ReverseProxy.HandleAffinityFailure", () =>
                     {
-                        var failurePolicy = _affinityFailurePolicies.GetRequiredServiceById(options.AffinityFailurePolicy);
+                        var failurePolicy = _affinityFailurePolicies.GetRequiredServiceById(options.FailurePolicy);
                         return failurePolicy.Handle(context, options, affinityResult.Status);
                     });
 
@@ -89,7 +89,7 @@ namespace Microsoft.ReverseProxy.Middleware
                         return;
                     }
 
-                    Log.AffinityResolutionFailureWasHandledProcessingWillBeContinued(_logger, backend.BackendId, options.AffinityFailurePolicy);
+                    Log.AffinityResolutionFailureWasHandledProcessingWillBeContinued(_logger, backend.BackendId, options.FailurePolicy);
 
                     break;
                 default:
