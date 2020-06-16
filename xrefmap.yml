@@ -376,19 +376,6 @@ references:
   commentId: T:Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions
   fullName: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions
   nameWithType: SessionAffinityOptions
-- uid: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.AffinityFailurePolicy
-  name: AffinityFailurePolicy
-  href: api/Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.html#Microsoft_ReverseProxy_Abstractions_BackendDiscovery_Contract_SessionAffinityOptions_AffinityFailurePolicy
-  commentId: P:Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.AffinityFailurePolicy
-  fullName: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.AffinityFailurePolicy
-  nameWithType: SessionAffinityOptions.AffinityFailurePolicy
-- uid: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.AffinityFailurePolicy*
-  name: AffinityFailurePolicy
-  href: api/Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.html#Microsoft_ReverseProxy_Abstractions_BackendDiscovery_Contract_SessionAffinityOptions_AffinityFailurePolicy_
-  commentId: Overload:Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.AffinityFailurePolicy
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.AffinityFailurePolicy
-  nameWithType: SessionAffinityOptions.AffinityFailurePolicy
 - uid: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.Enabled
   name: Enabled
   href: api/Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.html#Microsoft_ReverseProxy_Abstractions_BackendDiscovery_Contract_SessionAffinityOptions_Enabled
@@ -402,6 +389,19 @@ references:
   isSpec: "True"
   fullName: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.Enabled
   nameWithType: SessionAffinityOptions.Enabled
+- uid: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.FailurePolicy
+  name: FailurePolicy
+  href: api/Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.html#Microsoft_ReverseProxy_Abstractions_BackendDiscovery_Contract_SessionAffinityOptions_FailurePolicy
+  commentId: P:Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.FailurePolicy
+  fullName: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.FailurePolicy
+  nameWithType: SessionAffinityOptions.FailurePolicy
+- uid: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.FailurePolicy*
+  name: FailurePolicy
+  href: api/Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.html#Microsoft_ReverseProxy_Abstractions_BackendDiscovery_Contract_SessionAffinityOptions_FailurePolicy_
+  commentId: Overload:Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.FailurePolicy
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.FailurePolicy
+  nameWithType: SessionAffinityOptions.FailurePolicy
 - uid: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.Mode
   name: Mode
   href: api/Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.html#Microsoft_ReverseProxy_Abstractions_BackendDiscovery_Contract_SessionAffinityOptions_Mode
@@ -1357,19 +1357,6 @@ references:
   isSpec: "True"
   fullName: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.BackendSessionAffinityOptions
   nameWithType: BackendConfig.BackendSessionAffinityOptions.BackendSessionAffinityOptions
-- uid: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.AffinityFailurePolicy
-  name: AffinityFailurePolicy
-  href: api/Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.html#Microsoft_ReverseProxy_RuntimeModel_BackendConfig_BackendSessionAffinityOptions_AffinityFailurePolicy
-  commentId: P:Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.AffinityFailurePolicy
-  fullName: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.AffinityFailurePolicy
-  nameWithType: BackendConfig.BackendSessionAffinityOptions.AffinityFailurePolicy
-- uid: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.AffinityFailurePolicy*
-  name: AffinityFailurePolicy
-  href: api/Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.html#Microsoft_ReverseProxy_RuntimeModel_BackendConfig_BackendSessionAffinityOptions_AffinityFailurePolicy_
-  commentId: Overload:Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.AffinityFailurePolicy
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.AffinityFailurePolicy
-  nameWithType: BackendConfig.BackendSessionAffinityOptions.AffinityFailurePolicy
 - uid: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.Enabled
   name: Enabled
   href: api/Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.html#Microsoft_ReverseProxy_RuntimeModel_BackendConfig_BackendSessionAffinityOptions_Enabled
@@ -1383,6 +1370,19 @@ references:
   isSpec: "True"
   fullName: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.Enabled
   nameWithType: BackendConfig.BackendSessionAffinityOptions.Enabled
+- uid: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.FailurePolicy
+  name: FailurePolicy
+  href: api/Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.html#Microsoft_ReverseProxy_RuntimeModel_BackendConfig_BackendSessionAffinityOptions_FailurePolicy
+  commentId: P:Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.FailurePolicy
+  fullName: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.FailurePolicy
+  nameWithType: BackendConfig.BackendSessionAffinityOptions.FailurePolicy
+- uid: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.FailurePolicy*
+  name: FailurePolicy
+  href: api/Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.html#Microsoft_ReverseProxy_RuntimeModel_BackendConfig_BackendSessionAffinityOptions_FailurePolicy_
+  commentId: Overload:Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.FailurePolicy
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.FailurePolicy
+  nameWithType: BackendConfig.BackendSessionAffinityOptions.FailurePolicy
 - uid: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.Mode
   name: Mode
   href: api/Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.html#Microsoft_ReverseProxy_RuntimeModel_BackendConfig_BackendSessionAffinityOptions_Mode

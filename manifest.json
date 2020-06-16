@@ -129,7 +129,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.html",
-          "hash": "jBxxvGHupI+UaiGDM0d3WA=="
+          "hash": "Pp0q8t9Y4F9QICGWiG57ww=="
         }
       },
       "is_incremental": false,
@@ -477,7 +477,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.html",
-          "hash": "Ric9qVC0jamw48bbJlzMPQ=="
+          "hash": "J6PQLs/BehUGZH91kxsV7g=="
         }
       },
       "is_incremental": false,
@@ -981,7 +981,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/session-affinity.html",
-          "hash": "5Z1R3RE/zj8sIF3RFLB+zg=="
+          "hash": "a5Y6ghz/c3v8glGmkTX3KA=="
         }
       },
       "is_incremental": false,

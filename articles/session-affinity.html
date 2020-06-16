@@ -91,7 +91,7 @@
             &quot;SessionAffinity&quot;: {
                 &quot;Enabled&quot;: &quot;(true|false)&quot;, // defaults to 'false'
                 &quot;Mode&quot;: &quot;(Cookie|CustomHeader)&quot;, // defaults to 'Cookie'
-                &quot;AffinityFailurePolicy&quot;: &quot;(Redistribute|Return503)&quot;, // defaults to 'Redistribute'
+                &quot;FailurePolicy&quot;: &quot;(Redistribute|Return503)&quot;, // defaults to 'Redistribute'
                 &quot;Settings&quot; : {
                     &quot;CustomHeaderName&quot;: &quot;&lt;custom-header-name&gt;&quot; // defaults to 'X-Microsoft-Proxy-Affinity`
                 }
@@ -140,7 +140,7 @@
 <h2 id="request-pipeline">Request pipeline</h2>
 <p>The session affinity mechanisms are implemented by the services (mentioned above) and the two following middleware:</p>
 <ol>
-<li><p><code>AffinitizedDestinationLookupMiddleware</code> - coordinates the request's affinity resolution process. First, it calls a provider implementing the mode specified for the given backend on <code>BackendConfig.SessionAffinity.Mode</code> property. Then, it checks the affinity resolution status returned by the provider, and calls a failure handling policy set on <code>BackendConfig.SessionAffinity.AffinityFailurePolicy</code> in case of failures. It must be added to the pipeline <strong>before</strong> the load balancer.</p>
+<li><p><code>AffinitizedDestinationLookupMiddleware</code> - coordinates the request's affinity resolution process. First, it calls a provider implementing the mode specified for the given backend on <code>BackendConfig.SessionAffinity.Mode</code> property. Then, it checks the affinity resolution status returned by the provider, and calls a failure handling policy set on <code>BackendConfig.SessionAffinity.FailurePolicy</code> in case of failures. It must be added to the pipeline <strong>before</strong> the load balancer.</p>
 </li>
 <li><p><code>AffinitizeRequestMiddleware</code> - sets the key on the response if a new affinity has been established for the request. Otherwise, if the request follows an existing affinity, it does nothing. It must be added to the pipeline <strong>after</strong> the load balancer.</p>
 </li>
