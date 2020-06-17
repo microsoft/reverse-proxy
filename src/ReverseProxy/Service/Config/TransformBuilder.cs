@@ -17,7 +17,7 @@ namespace Microsoft.ReverseProxy.Service.Config
     /// <summary>
     /// Validates and builds request and response transforms for a given route.
     /// </summary>
-    public class TransformBuilder : ITransformBuilder
+    internal class TransformBuilder : ITransformBuilder
     {
         private readonly TemplateBinderFactory _binderFactory;
         private readonly IRandomFactory _randomFactory;

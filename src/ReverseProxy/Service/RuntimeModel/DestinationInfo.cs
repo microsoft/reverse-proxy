@@ -44,7 +44,9 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         /// <summary>
         /// Keeps track of the total number of concurrent requests on this endpoint.
         /// </summary>
-        public AtomicCounter ConcurrencyCounter { get; } = new AtomicCounter();
+        public int ConcurrentRequestCount => ConcurrencyCounter.Value;
+
+        internal AtomicCounter ConcurrencyCounter { get; } = new AtomicCounter();
 
         DestinationInfo IReadOnlyList<DestinationInfo>.this[int index]
             => index == 0 ? this : throw new IndexOutOfRangeException();
