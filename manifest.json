@@ -537,7 +537,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.RuntimeModel.DestinationInfo.Enumerator.html",
-          "hash": "qX99afDvztuCoWPtf48aMg=="
+          "hash": "CKaLwzMJ6+PYMbbIa09NXA=="
         }
       },
       "is_incremental": false,
@@ -549,7 +549,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.RuntimeModel.DestinationInfo.html",
-          "hash": "V3+Pb5Aoun90qPYb21g4kQ=="
+          "hash": "L1FiZeY5wPdZIZIx6gzvkA=="
         }
       },
       "is_incremental": false,
@@ -581,23 +581,11 @@
     },
     {
       "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.ReverseProxy.Service.Config.TransformBuilder.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.ReverseProxy.Service.Config.TransformBuilder.html",
-          "hash": "N0lQwK6OMCMfgYOGdNFgZA=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
       "source_relative_path": "api/Microsoft.ReverseProxy.Service.Config.yml",
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Service.Config.html",
-          "hash": "PqkyPPDipoePuD9GRhLx1g=="
+          "hash": "QnhxAWuKqW5SiCPswwGBkA=="
         }
       },
       "is_incremental": false,
@@ -929,42 +917,6 @@
     },
     {
       "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.ReverseProxy.Utilities.AtomicCounter.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.ReverseProxy.Utilities.AtomicCounter.html",
-          "hash": "CjYcobpNH+tXTZVhnbR6Ow=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.ReverseProxy.Utilities.IRandomFactory.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.ReverseProxy.Utilities.IRandomFactory.html",
-          "hash": "VhudUwXgG/2cUdTAT94l7g=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.ReverseProxy.Utilities.IRecurrentActivityManager.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.ReverseProxy.Utilities.IRecurrentActivityManager.html",
-          "hash": "Rgw7cUAtcHsM73wvAbwv6A=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
       "source_relative_path": "api/Microsoft.ReverseProxy.Utilities.MonotonicTimer.yml",
       "output": {
         ".html": {
@@ -989,35 +941,11 @@
     },
     {
       "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.ReverseProxy.Utilities.RandomFactory.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.ReverseProxy.Utilities.RandomFactory.html",
-          "hash": "qE7jwjqvzXSpYcNuSAwktw=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.ReverseProxy.Utilities.RecurrentActivityManager.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.ReverseProxy.Utilities.RecurrentActivityManager.html",
-          "hash": "RA0u4J3GCpTzD5ghyB2x1A=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
       "source_relative_path": "api/Microsoft.ReverseProxy.Utilities.yml",
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Utilities.html",
-          "hash": "ZQiRT0+qs+2mes3YYZuNIA=="
+          "hash": "wesIVc9164MYHkInWJPnHw=="
         }
       },
       "is_incremental": false,
@@ -1041,7 +969,7 @@
       "output": {
         ".html": {
           "relative_path": "api/toc.html",
-          "hash": "wDJPARWZQ934EwDPjB9bpA=="
+          "hash": "JMfLuDTshF/lw8SroQEoAA=="
         }
       },
       "is_incremental": false,
@@ -1176,7 +1104,7 @@
         "ManagedReferenceDocumentProcessor": {
           "can_incremental": false,
           "incrementalPhase": "build",
-          "total_file_count": 85,
+          "total_file_count": 79,
           "skipped_file_count": 0
         },
         "TocDocumentProcessor": {
