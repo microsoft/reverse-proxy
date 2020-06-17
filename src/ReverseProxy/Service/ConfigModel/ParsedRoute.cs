@@ -1,8 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 
 namespace Microsoft.ReverseProxy.ConfigModel
 {
@@ -58,28 +59,63 @@ namespace Microsoft.ReverseProxy.ConfigModel
         /// </summary>
         public IDictionary<string, string> Metadata { get; set; }
 
-        internal string GetMatcherSummary()
+        /// <summary>
+        /// Parameters used to transform the request and response. See <see cref="ITransformBuilder"/>.
+        /// </summary>
+        public IList<IDictionary<string, string>> Transforms { get; set; }
+
+        // Used to diff for config changes
+        internal int GetConfigHash()
         {
-            var builder = new StringBuilder();
+            var hash = 0;
 
-            if (!string.IsNullOrEmpty(Host))
+            if (!string.IsNullOrEmpty(RouteId))
             {
-                builder.AppendFormat("Host({0});", Host);
-            }
-
-            if (!string.IsNullOrEmpty(Path))
-            {
-                builder.AppendFormat("Path({0});", Path);
+                hash ^= RouteId.GetHashCode();
             }
 
             if (Methods != null && Methods.Count > 0)
             {
-                builder.Append("Methods(");
-                builder.AppendJoin(',', Methods);
-                builder.Append(");");
+                // Assumes un-ordered
+                hash ^= Methods.Select(item => item.GetHashCode())
+                    .Aggregate((total, nextCode) => total ^ nextCode);
             }
 
-            return builder.ToString();
+            if (!string.IsNullOrEmpty(Host))
+            {
+                hash ^= Host.GetHashCode();
+            }
+
+            if (!string.IsNullOrEmpty(Path))
+            {
+                hash ^= Path.GetHashCode();
+            }
+
+            if (Priority.HasValue)
+            {
+                hash ^= Priority.GetHashCode();
+            }
+
+            if (!string.IsNullOrEmpty(BackendId))
+            {
+                hash ^= BackendId.GetHashCode();
+            }
+
+            if (Metadata != null)
+            {
+                hash ^= Metadata.Select(item => HashCode.Combine(item.Key.GetHashCode(), item.Value.GetHashCode()))
+                    .Aggregate((total, nextCode) => total ^ nextCode);
+            }
+
+            if (Transforms != null)
+            {
+                hash ^= Transforms.Select(transform =>
+                    transform.Select(item => HashCode.Combine(item.Key.GetHashCode(), item.Value.GetHashCode()))
+                        .Aggregate((total, nextCode) => total ^ nextCode)) // Unordered Dictionary
+                    .Aggregate(seed: 397, (total, nextCode) => total * 31 ^ nextCode); // Ordered List
+            }
+
+            return hash;
         }
     }
 }

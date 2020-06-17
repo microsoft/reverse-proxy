@@ -71,11 +71,6 @@ namespace Microsoft.ReverseProxy.Middleware
                 throw new InvalidOperationException($"Chosen destination has no configs set: '{destination.DestinationId}'");
             }
 
-            // TODO: support StripPrefix and other url transformations
-            var targetUrl = BuildOutgoingUrl(context, destinationConfig.Address);
-            Log.Proxying(_logger, targetUrl);
-            var targetUri = new Uri(targetUrl, UriKind.Absolute);
-
             using (var shortCts = CancellationTokenSource.CreateLinkedTokenSource(context.RequestAborted))
             {
                 // TODO: Configurable timeout, measure from request start, make it unit-testable
@@ -98,7 +93,7 @@ namespace Microsoft.ReverseProxy.Middleware
 
                     await _operationLogger.ExecuteAsync(
                         "ReverseProxy.Proxy",
-                        () => _httpProxy.ProxyAsync(context, targetUri, backend.ProxyHttpClientFactory, proxyTelemetryContext, shortCancellation: shortCts.Token, longCancellation: longCancellation));
+                        () => _httpProxy.ProxyAsync(context, destinationConfig.Address, routeConfig.Transforms, backend.ProxyHttpClientFactory, proxyTelemetryContext, shortCancellation: shortCts.Token, longCancellation: longCancellation));
                 }
                 finally
                 {
@@ -106,40 +101,6 @@ namespace Microsoft.ReverseProxy.Middleware
                     backend.ConcurrencyCounter.Decrement();
                 }
             }
-        }
-
-        private string BuildOutgoingUrl(HttpContext context, string destinationAddress)
-        {
-            // "http://a".Length = 8
-            if (destinationAddress == null || destinationAddress.Length < 8)
-            {
-                throw new ArgumentException(nameof(destinationAddress));
-            }
-
-            var stripSlash = destinationAddress.EndsWith('/');
-
-            // NOTE: This takes inspiration from Microsoft.AspNetCore.Http.Extensions.UriHelper.BuildAbsolute()
-            var request = context.Request;
-            var combinedPath = (request.PathBase.HasValue || request.Path.HasValue) ? (request.PathBase + request.Path).ToString() : "/";
-            var encodedQuery = request.QueryString.ToString();
-
-            // PERF: Calculate string length to allocate correct buffer size for StringBuilder.
-            var length = destinationAddress.Length + combinedPath.Length + encodedQuery.Length + (stripSlash ? -1 : 0);
-
-            var builder = new StringBuilder(length);
-            if (stripSlash)
-            {
-                builder.Append(destinationAddress, 0, destinationAddress.Length - 1);
-            }
-            else
-            {
-                builder.Append(destinationAddress);
-            }
-
-            builder.Append(combinedPath);
-            builder.Append(encodedQuery);
-
-            return builder.ToString();
         }
 
         private static class Log
@@ -154,11 +115,6 @@ namespace Microsoft.ReverseProxy.Middleware
                 EventIds.MultipleDestinationsAvailable,
                 "More than one destination available for backend `{backendId}`, load balancing may not be configured correctly. Choosing randomly.");
 
-            private static readonly Action<ILogger, string, Exception> _proxying = LoggerMessage.Define<string>(
-                LogLevel.Information,
-                EventIds.Proxying,
-                "Proxying to {targetUrl}");
-
             public static void NoAvailableDestinations(ILogger logger, string backendId)
             {
                 _noAvailableDestinations(logger, backendId, null);
@@ -167,11 +123,6 @@ namespace Microsoft.ReverseProxy.Middleware
             public static void MultipleDestinationsAvailable(ILogger logger, string backendId)
             {
                 _multipleDestinationsAvailable(logger, backendId, null);
-            }
-
-            public static void Proxying(ILogger logger, string targetUrl)
-            {
-                _proxying(logger, targetUrl, null);
             }
         }
     }

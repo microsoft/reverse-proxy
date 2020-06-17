@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Microsoft.ReverseProxy.ConfigModel;
+using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.RuntimeModel
@@ -21,24 +22,26 @@ namespace Microsoft.ReverseProxy.RuntimeModel
     {
         public RouteConfig(
             RouteInfo route,
-            string matcherSummary,
+            int configHash,
             int? priority,
             BackendInfo backendOrNull,
-            IReadOnlyList<AspNetCore.Http.Endpoint> aspNetCoreEndpoints)
+            IReadOnlyList<AspNetCore.Http.Endpoint> aspNetCoreEndpoints,
+            Transforms transforms)
         {
             Contracts.CheckValue(route, nameof(route));
             Contracts.CheckValue(aspNetCoreEndpoints, nameof(aspNetCoreEndpoints));
 
             Route = route;
-            MatcherSummary = matcherSummary;
+            ConfigHash = configHash;
             Priority = priority;
             BackendOrNull = backendOrNull;
             Endpoints = aspNetCoreEndpoints;
+            Transforms = transforms;
         }
 
         public RouteInfo Route { get; }
 
-        internal string MatcherSummary{ get; }
+        internal int ConfigHash { get; }
 
         public int? Priority { get; }
 
@@ -46,11 +49,12 @@ namespace Microsoft.ReverseProxy.RuntimeModel
 
         public IReadOnlyList<AspNetCore.Http.Endpoint> Endpoints { get; }
 
+        public Transforms Transforms { get; }
+
         public bool HasConfigChanged(ParsedRoute newConfig, BackendInfo backendOrNull)
         {
-            return Priority != newConfig.Priority
-                || BackendOrNull != backendOrNull
-                || !MatcherSummary.Equals(newConfig.GetMatcherSummary());
+            return BackendOrNull != backendOrNull
+                || !ConfigHash.Equals(newConfig.GetConfigHash());
         }
     }
 }

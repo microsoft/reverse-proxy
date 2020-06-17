@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.ReverseProxy.ConfigModel;
 using Microsoft.ReverseProxy.RuntimeModel;
+using Microsoft.ReverseProxy.Service.Config;
 using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Service
@@ -16,7 +17,13 @@ namespace Microsoft.ReverseProxy.Service
     /// </summary>
     internal class RuntimeRouteBuilder : IRuntimeRouteBuilder
     {
+        private readonly ITransformBuilder _transformBuilder;
         private RequestDelegate _pipeline;
+
+        public RuntimeRouteBuilder(ITransformBuilder transformBuilder)
+        {
+            _transformBuilder = transformBuilder ?? throw new ArgumentNullException(nameof(transformBuilder));
+        }
 
         public void SetProxyPipeline(RequestDelegate pipeline)
         {
@@ -29,6 +36,8 @@ namespace Microsoft.ReverseProxy.Service
             Contracts.CheckValue(source, nameof(source));
             Contracts.CheckValue(runtimeRoute, nameof(runtimeRoute));
 
+            var transforms = _transformBuilder.Build(source.Transforms);
+
             // NOTE: `new RouteConfig(...)` needs a reference to the list of ASP .NET Core endpoints,
             // but the ASP .NET Core endpoints cannot be created without a `RouteConfig` metadata item.
             // We solve this chicken-egg problem by creating an (empty) list first
@@ -37,11 +46,12 @@ namespace Microsoft.ReverseProxy.Service
             // and changes to the underlying list *are* reflected on the read-only view.
             var aspNetCoreEndpoints = new List<Endpoint>(1);
             var newRouteConfig = new RouteConfig(
-                route: runtimeRoute,
-                matcherSummary: source.GetMatcherSummary(),
-                priority: source.Priority,
-                backendOrNull: backendOrNull,
-                aspNetCoreEndpoints: aspNetCoreEndpoints.AsReadOnly());
+                runtimeRoute,
+                source.GetConfigHash(),
+                source.Priority,
+                backendOrNull,
+                aspNetCoreEndpoints.AsReadOnly(),
+                transforms);
 
             // TODO: Handle arbitrary AST's properly
             // Catch-all pattern when no path was specified

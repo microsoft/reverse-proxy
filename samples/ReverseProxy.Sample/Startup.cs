@@ -39,8 +39,6 @@ namespace Microsoft.ReverseProxy.Sample
         /// </summary>
         public void Configure(IApplicationBuilder app)
         {
-            app.UseHttpsRedirection();
-
             app.UseRouting();
             app.UseAuthorization();
             app.UseEndpoints(endpoints =>

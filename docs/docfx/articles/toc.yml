@@ -4,3 +4,5 @@
   href: runtimes.md
 - name: Session Affinity
   href: session-affinity.md
+- name: Transforms
+  href: transforms.md

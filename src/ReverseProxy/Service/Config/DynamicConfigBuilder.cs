@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Options;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract;
 using Microsoft.ReverseProxy.ConfigModel;
@@ -37,6 +36,7 @@ namespace Microsoft.ReverseProxy.Service
             Contracts.CheckValue(parsedRouteValidator, nameof(parsedRouteValidator));
             Contracts.CheckValue(sessionAffinityProviders, nameof(sessionAffinityProviders));
             Contracts.CheckValue(affinityFailurePolicies, nameof(affinityFailurePolicies));
+
             _filters = filters;
             _backendsRepo = backendsRepo;
             _routesRepo = routesRepo;
@@ -166,6 +166,7 @@ namespace Microsoft.ReverseProxy.Service
                     Priority = route.Priority,
                     BackendId = route.BackendId,
                     Metadata = route.Metadata,
+                    Transforms = route.Transforms,
                 };
 
                 if (!_parsedRouteValidator.ValidateRoute(parsedRoute, errorReporter))

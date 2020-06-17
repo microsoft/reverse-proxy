@@ -10,6 +10,7 @@ using Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract;
 using Microsoft.ReverseProxy.Abstractions.Telemetry;
 using Microsoft.ReverseProxy.Abstractions.Time;
 using Microsoft.ReverseProxy.Service;
+using Microsoft.ReverseProxy.Service.Config;
 using Microsoft.ReverseProxy.Service.Management;
 using Microsoft.ReverseProxy.Service.Metrics;
 using Microsoft.ReverseProxy.Service.Proxy;
@@ -74,6 +75,7 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
 
         public static IReverseProxyBuilder AddProxy(this IReverseProxyBuilder builder)
         {
+            builder.Services.TryAddSingleton<ITransformBuilder, TransformBuilder>();
             builder.Services.TryAddSingleton<IProxyHttpClientFactoryFactory, ProxyHttpClientFactoryFactory>();
             builder.Services.TryAddSingleton<ILoadBalancer, LoadBalancer>();
             builder.Services.TryAddSingleton<IRandomFactory, RandomFactory>();

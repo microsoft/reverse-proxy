@@ -41,7 +41,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             // Assert
             Assert.Same(backend, config.BackendOrNull);
             Assert.Equal(12, config.Priority);
-            Assert.Equal(parsedRoute.GetMatcherSummary(), config.MatcherSummary);
+            Assert.Equal(parsedRoute.GetConfigHash(), config.ConfigHash);
             Assert.Single(config.Endpoints);
             var routeEndpoint = config.Endpoints[0] as AspNetCore.Routing.RouteEndpoint;
             Assert.Equal("route1", routeEndpoint.DisplayName);
@@ -74,7 +74,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             // Assert
             Assert.Same(backend, config.BackendOrNull);
             Assert.Equal(12, config.Priority);
-            Assert.Equal(parsedRoute.GetMatcherSummary(), config.MatcherSummary);
+            Assert.Equal(parsedRoute.GetConfigHash(), config.ConfigHash);
             Assert.Single(config.Endpoints);
             var routeEndpoint = config.Endpoints[0] as AspNetCore.Routing.RouteEndpoint;
             Assert.Equal("route1", routeEndpoint.DisplayName);
@@ -107,7 +107,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             // Assert
             Assert.Same(backend, config.BackendOrNull);
             Assert.Equal(12, config.Priority);
-            Assert.Equal(parsedRoute.GetMatcherSummary(), config.MatcherSummary);
+            Assert.Equal(parsedRoute.GetConfigHash(), config.ConfigHash);
             Assert.Single(config.Endpoints);
             var routeEndpoint = config.Endpoints[0] as AspNetCore.Routing.RouteEndpoint;
             Assert.Equal("route1", routeEndpoint.DisplayName);
@@ -140,7 +140,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             // Assert
             Assert.Same(backend, config.BackendOrNull);
             Assert.Equal(12, config.Priority);
-            Assert.Equal(parsedRoute.GetMatcherSummary(), config.MatcherSummary);
+            Assert.Equal(parsedRoute.GetConfigHash(), config.ConfigHash);
             Assert.Single(config.Endpoints);
             var routeEndpoint = config.Endpoints[0] as AspNetCore.Routing.RouteEndpoint;
             Assert.Equal("route1", routeEndpoint.DisplayName);
@@ -170,7 +170,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             // Assert
             Assert.Same(backend, config.BackendOrNull);
             Assert.Equal(12, config.Priority);
-            Assert.Empty(config.MatcherSummary);
+            Assert.NotEqual(0, config.ConfigHash);
             Assert.Single(config.Endpoints);
             var routeEndpoint = config.Endpoints[0] as AspNetCore.Routing.RouteEndpoint;
             Assert.Equal("route1", routeEndpoint.DisplayName);

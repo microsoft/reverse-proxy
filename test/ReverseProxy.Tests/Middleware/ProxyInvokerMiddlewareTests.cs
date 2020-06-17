@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,11 +8,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Patterns;
 using Microsoft.ReverseProxy.Abstractions.Telemetry;
-using Microsoft.ReverseProxy.Telemetry;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Management;
 using Microsoft.ReverseProxy.Service.Proxy;
 using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
+using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
+using Microsoft.ReverseProxy.Telemetry;
 using Moq;
 using Tests.Common;
 using Xunit;
@@ -63,10 +63,11 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             var aspNetCoreEndpoints = new List<Endpoint>();
             var routeConfig = new RouteConfig(
                 route: new RouteInfo("route1"),
-                matcherSummary: null,
+                configHash: 0,
                 priority: null,
                 backendOrNull: backend1,
-                aspNetCoreEndpoints: aspNetCoreEndpoints.AsReadOnly());
+                aspNetCoreEndpoints: aspNetCoreEndpoints.AsReadOnly(),
+                transforms: null);
             var aspNetCoreEndpoint = CreateAspNetCoreEndpoint(routeConfig);
             aspNetCoreEndpoints.Add(aspNetCoreEndpoint);
             httpContext.SetEndpoint(aspNetCoreEndpoint);
@@ -76,7 +77,8 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             Mock<IHttpProxy>()
                 .Setup(h => h.ProxyAsync(
                     httpContext,
-                    It.Is<Uri>(uri => uri == new Uri("https://localhost:123/a/b/api/test?a=b&c=d")),
+                    It.Is<string>(uri => uri == "https://localhost:123/a/b/"),
+                    It.IsAny<Transforms>(),
                     proxyHttpClientFactoryMock.Object,
                     It.Is<ProxyTelemetryContext>(ctx => ctx.BackendId == "backend1" && ctx.RouteId == "route1" && ctx.DestinationId == "destination1"),
                     It.IsAny<CancellationToken>(),
