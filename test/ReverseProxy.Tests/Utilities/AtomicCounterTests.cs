@@ -50,53 +50,5 @@ namespace Microsoft.ReverseProxy.Utilities.Tests
             // Assert
             Assert.Equal(-Iterations, counter.Value);
         }
-
-        [Fact]
-        public void IncrementCapped_ThreadSafety()
-        {
-            // Arrange
-            const int Iterations = 100_000;
-            const int Max = 80_000;
-
-            var counter = new AtomicCounter();
-            var numCapped = 0;
-
-            // Act
-            Parallel.For(0, Iterations, i =>
-            {
-                if (!counter.IncrementCapped(Max))
-                {
-                    Interlocked.Increment(ref numCapped);
-                }
-            });
-
-            // Assert
-            Assert.Equal(Max, counter.Value);
-            Assert.Equal(Iterations - Max, numCapped);
-        }
-
-        [Fact]
-        public void DecrementCapped_ThreadSafety()
-        {
-            // Arrange
-            const int Iterations = 100_000;
-            const int Min = -80_000;
-
-            var counter = new AtomicCounter();
-            var numCapped = 0;
-
-            // Act
-            Parallel.For(0, Iterations, i =>
-            {
-                if (!counter.DecrementCapped(Min))
-                {
-                    Interlocked.Increment(ref numCapped);
-                }
-            });
-
-            // Assert
-            Assert.Equal(Min, counter.Value);
-            Assert.Equal(Min + Iterations, numCapped);
-        }
     }
 }
