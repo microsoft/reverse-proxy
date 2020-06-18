@@ -31,7 +31,7 @@ namespace Microsoft.ReverseProxy.Service
         }
 
         /// <inheritdoc/>
-        public RouteConfig Build(ParsedRoute source, BackendInfo backendOrNull, RouteInfo runtimeRoute)
+        public RouteConfig Build(ParsedRoute source, ClusterInfo clusterOrNull, RouteInfo runtimeRoute)
         {
             Contracts.CheckValue(source, nameof(source));
             Contracts.CheckValue(runtimeRoute, nameof(runtimeRoute));
@@ -49,7 +49,7 @@ namespace Microsoft.ReverseProxy.Service
                 runtimeRoute,
                 source.GetConfigHash(),
                 source.Priority,
-                backendOrNull,
+                clusterOrNull,
                 aspNetCoreEndpoints.AsReadOnly(),
                 transforms);
 

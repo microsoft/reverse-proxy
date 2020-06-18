@@ -6,7 +6,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Telemetry
     /// <summary>
     /// Provides contextual information for an ongoing operation.
     /// Operation contexts support nesting, and the current context
-    /// can be obtained from <see cref="IOperationLogger.Context"/>.
+    /// can be obtained from <see cref="IOperationLogger{TCategoryName}.Context"/>.
     /// </summary>
     public interface IOperationContext
     {

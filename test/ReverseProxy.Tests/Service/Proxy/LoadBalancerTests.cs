@@ -27,7 +27,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         {
             var loadBalancer = Create<LoadBalancer>();
             var destinations = new DestinationInfo[0];
-            var options = new BackendConfig.BackendLoadBalancingOptions((LoadBalancingMode)(-1));
+            var options = new ClusterConfig.ClusterLoadBalancingOptions((LoadBalancingMode)(-1));
 
             var result = loadBalancer.PickDestination(destinations, in options);
 
@@ -42,7 +42,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             {
                 new DestinationInfo("d1"),
             };
-            var options = new BackendConfig.BackendLoadBalancingOptions((LoadBalancingMode)(-1));
+            var options = new ClusterConfig.ClusterLoadBalancingOptions((LoadBalancingMode)(-1));
 
             var result = loadBalancer.PickDestination(destinations, in options);
 
@@ -58,7 +58,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 new DestinationInfo("d1"),
                 new DestinationInfo("d2"),
             };
-            var options = new BackendConfig.BackendLoadBalancingOptions((LoadBalancingMode)(-1));
+            var options = new ClusterConfig.ClusterLoadBalancingOptions((LoadBalancingMode)(-1));
 
             Action action = () => loadBalancer.PickDestination(destinations, in options);
 
@@ -76,7 +76,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 new DestinationInfo("d1"),
                 new DestinationInfo("d2"),
             };
-            var options = new BackendConfig.BackendLoadBalancingOptions(LoadBalancingMode.First);
+            var options = new ClusterConfig.ClusterLoadBalancingOptions(LoadBalancingMode.First);
 
             var result = loadBalancer.PickDestination(destinations, in options);
 
@@ -93,7 +93,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 new DestinationInfo("d2"),
             };
             RandomInstance.Sequence = new[] { 1 };
-            var options = new BackendConfig.BackendLoadBalancingOptions(LoadBalancingMode.Random);
+            var options = new ClusterConfig.ClusterLoadBalancingOptions(LoadBalancingMode.Random);
 
             var result = loadBalancer.PickDestination(destinations, in options);
 
@@ -111,7 +111,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             };
             destinations[0].ConcurrencyCounter.Increment();
             RandomInstance.Sequence = new[] { 1, 0 };
-            var options = new BackendConfig.BackendLoadBalancingOptions(LoadBalancingMode.PowerOfTwoChoices);
+            var options = new ClusterConfig.ClusterLoadBalancingOptions(LoadBalancingMode.PowerOfTwoChoices);
 
             var result = loadBalancer.PickDestination(destinations, in options);
 
@@ -128,7 +128,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 new DestinationInfo("d2"),
             };
             destinations[0].ConcurrencyCounter.Increment();
-            var options = new BackendConfig.BackendLoadBalancingOptions(LoadBalancingMode.LeastRequests);
+            var options = new ClusterConfig.ClusterLoadBalancingOptions(LoadBalancingMode.LeastRequests);
 
             var result = loadBalancer.PickDestination(destinations, in options);
 
@@ -145,7 +145,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 new DestinationInfo("d2"),
             };
             destinations[0].ConcurrencyCounter.Increment();
-            var options = new BackendConfig.BackendLoadBalancingOptions(LoadBalancingMode.RoundRobin);
+            var options = new ClusterConfig.ClusterLoadBalancingOptions(LoadBalancingMode.RoundRobin);
 
             var result0 = loadBalancer.PickDestination(destinations, in options);
             var result1 = loadBalancer.PickDestination(destinations, in options);

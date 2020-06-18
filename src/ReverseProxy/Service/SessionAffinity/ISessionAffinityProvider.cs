@@ -9,7 +9,7 @@ using Microsoft.ReverseProxy.RuntimeModel;
 namespace Microsoft.ReverseProxy.Service.SessionAffinity
 {
     /// <summary>
-    /// Provides session affinity for load-balanced backends.
+    /// Provides session affinity for load-balanced clusters.
     /// </summary>
     public interface ISessionAffinityProvider
     {
@@ -23,10 +23,10 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
         /// </summary>
         /// <param name="context">Current request's context.</param>
         /// <param name="destinations"><see cref="DestinationInfo"/>s available for the request.</param>
-        /// <param name="backendId">Target backend ID.</param>
+        /// <param name="clusterId">Target cluster ID.</param>
         /// <param name="options">Affinity options.</param>
         /// <returns><see cref="AffinityResult"/> carrying the found affinitized destinations if any and the <see cref="AffinityStatus"/>.</returns>
-        public AffinityResult FindAffinitizedDestinations(HttpContext context, IReadOnlyList<DestinationInfo> destinations, string backendId, in BackendConfig.BackendSessionAffinityOptions options);
+        public AffinityResult FindAffinitizedDestinations(HttpContext context, IReadOnlyList<DestinationInfo> destinations, string clusterId, in ClusterConfig.ClusterSessionAffinityOptions options);
 
         /// <summary>
         /// Affinitize the current request to the given <see cref="DestinationInfo"/> by setting the affinity key extracted from <see cref="DestinationInfo"/>.
@@ -34,6 +34,6 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
         /// <param name="context">Current request's context.</param>
         /// <param name="options">Affinity options.</param>
         /// <param name="destination"><see cref="DestinationInfo"/> to which request is to be affinitized.</param>
-        public void AffinitizeRequest(HttpContext context, in BackendConfig.BackendSessionAffinityOptions options, DestinationInfo destination);
+        public void AffinitizeRequest(HttpContext context, in ClusterConfig.ClusterSessionAffinityOptions options, DestinationInfo destination);
     }
 }

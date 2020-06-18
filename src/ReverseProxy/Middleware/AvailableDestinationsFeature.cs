@@ -12,7 +12,7 @@ namespace Microsoft.ReverseProxy.Middleware
     public class AvailableDestinationsFeature : IAvailableDestinationsFeature
     {
         /// <summary>
-        /// Backend destinations that can handle the current request.
+        /// Cluster destinations that can handle the current request.
         /// </summary>
         public IReadOnlyList<DestinationInfo> Destinations { get; set; }
     }

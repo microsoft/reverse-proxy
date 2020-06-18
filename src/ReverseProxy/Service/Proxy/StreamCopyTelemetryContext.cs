@@ -8,18 +8,18 @@ namespace Microsoft.ReverseProxy.Service.Proxy
     {
         public StreamCopyTelemetryContext(
             string direction,
-            string backendId,
+            string clusterId,
             string routeId,
             string destinationId)
         {
             Direction = direction;
-            BackendId = backendId;
+            ClusterId = clusterId;
             RouteId = routeId;
             DestinationId = destinationId;
         }
 
         public string Direction { get; }
-        public string BackendId { get; }
+        public string ClusterId { get; }
         public string RouteId { get; }
         public string DestinationId { get; }
     }

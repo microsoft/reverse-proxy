@@ -19,12 +19,12 @@ endpoints.MapReverseProxy(proxyPipeline =>
 });
 ```
 
-### Backend configuration
-Session affinity is configured per backend according to the following configuration scheme.
+### Cluster configuration
+Session affinity is configured per cluster according to the following configuration scheme.
 ```JSON
 "ReverseProxy": {
-    "Backends": {
-        "<backend-name>": {
+    "Clusters": {
+        "<cluster-name>": {
             "SessionAffinity": {
                 "Enabled": "(true|false)", // defaults to 'false'
                 "Mode": "(Cookie|CustomHeader)", // defaults to 'Cookie'
@@ -51,7 +51,7 @@ Request to destination affinity is established via the affinity key identifying 
 The current design doesn't require a key to uniquely identify the single affinitized destination. It's allowed to establish affinity to a destination group. In this case, the exact destination to handle the given request will be determined by the load balancer.
 
 ## Establishing a new affinity or resolution of the existed one
-Once a request arrives and gets routed to a backend with session affinity enabled, the proxy automatically decides whether a new affinity should be established or an existing one needs to be resolved based on the presence and validity of an affinity key on the request as follows:
+Once a request arrives and gets routed to a cluster with session affinity enabled, the proxy automatically decides whether a new affinity should be established or an existing one needs to be resolved based on the presence and validity of an affinity key on the request as follows:
 1. **Request doesn't contain a key**. Resolution is skipped and a new affinity will be establish to the destination chosen by the load balancer
 
 2. **Affinity key is found on the request and valid**. The affinity mechanism tries to find all healthy destinations matching to the key, and if it finds some it passes the request down the pipeline. If multiple matching destinations are found the load balancer is invoked to choose the single target destination. If only one matching destination is found the load balancer no-ops.
@@ -75,6 +75,6 @@ There are two built-in failure policies.  The default is `Redistribute`.
 
 ## Request pipeline
 The session affinity mechanisms are implemented by the services (mentioned above) and the two following middleware:
-1. `AffinitizedDestinationLookupMiddleware` - coordinates the request's affinity resolution process. First, it calls a provider implementing the mode specified for the given backend on `BackendConfig.SessionAffinity.Mode` property. Then, it checks the affinity resolution status returned by the provider, and calls a failure handling policy set on `BackendConfig.SessionAffinity.FailurePolicy` in case of failures. It must be added to the pipeline **before** the load balancer.
+1. `AffinitizedDestinationLookupMiddleware` - coordinates the request's affinity resolution process. First, it calls a provider implementing the mode specified for the given cluster on `ClusterConfig.SessionAffinity.Mode` property. Then, it checks the affinity resolution status returned by the provider, and calls a failure handling policy set on `ClusterConfig.SessionAffinity.FailurePolicy` in case of failures. It must be added to the pipeline **before** the load balancer.
 
 2. `AffinitizeRequestMiddleware` - sets the key on the response if a new affinity has been established for the request. Otherwise, if the request follows an existing affinity, it does nothing. It must be added to the pipeline **after** the load balancer.

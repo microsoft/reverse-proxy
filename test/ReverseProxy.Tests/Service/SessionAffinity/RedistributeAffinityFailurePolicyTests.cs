@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract;
+using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Service.SessionAffinity

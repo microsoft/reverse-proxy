@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract;
+using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Microsoft.ReverseProxy.Abstractions.Telemetry;
 using Microsoft.ReverseProxy.Abstractions.Time;
 using Microsoft.ReverseProxy.Service;
@@ -39,7 +39,7 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
 
         public static IReverseProxyBuilder AddInMemoryRepos(this IReverseProxyBuilder builder)
         {
-            builder.Services.TryAddSingleton<IBackendsRepo, InMemoryBackendsRepo>();
+            builder.Services.TryAddSingleton<IClustersRepo, InMemoryClustersRepo>();
             builder.Services.TryAddSingleton<IRoutesRepo, InMemoryRoutesRepo>();
 
             return builder;
@@ -56,7 +56,7 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
         public static IReverseProxyBuilder AddRuntimeStateManagers(this IReverseProxyBuilder builder)
         {
             builder.Services.TryAddSingleton<IDestinationManagerFactory, DestinationManagerFactory>();
-            builder.Services.TryAddSingleton<IBackendManager, BackendManager>();
+            builder.Services.TryAddSingleton<IClusterManager, ClusterManager>();
             builder.Services.TryAddSingleton<IRouteManager, RouteManager>();
             return builder;
         }

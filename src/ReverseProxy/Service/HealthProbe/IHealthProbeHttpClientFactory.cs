@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.Net.Http;
@@ -6,8 +6,8 @@ using System.Net.Http;
 namespace Microsoft.ReverseProxy.Service.HealthProbe
 {
     /// <summary>
-    /// Factory for creating http client instance. This factory let us able to inject http client into backendProber class.
-    /// So that backendProber would be unit testable.
+    /// Factory for creating http client instance. This factory let us able to inject http client into clusterProber class.
+    /// So that clusterProber would be unit testable.
     /// </summary>
     internal interface IHealthProbeHttpClientFactory
     {

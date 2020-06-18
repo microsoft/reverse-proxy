@@ -6,7 +6,7 @@ using Microsoft.ReverseProxy.RuntimeModel;
 namespace Microsoft.ReverseProxy.Service.Management
 {
     /// <summary>
-    /// Manages the runtime state of destinations in a backend.
+    /// Manages the runtime state of destinations in a cluster.
     /// </summary>
     internal interface IDestinationManager : IItemManager<DestinationInfo>
     {

@@ -4,7 +4,7 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract;
+using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Microsoft.ReverseProxy.RuntimeModel;
 
 namespace Microsoft.ReverseProxy.Service.SessionAffinity
@@ -13,7 +13,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
     {
         public string Name => SessionAffinityConstants.AffinityFailurePolicies.Redistribute;
 
-        public Task<bool> Handle(HttpContext context, BackendConfig.BackendSessionAffinityOptions options, AffinityStatus affinityStatus)
+        public Task<bool> Handle(HttpContext context, ClusterConfig.ClusterSessionAffinityOptions options, AffinityStatus affinityStatus)
         {
             if (affinityStatus == AffinityStatus.OK
                 || affinityStatus == AffinityStatus.AffinityKeyNotSet)

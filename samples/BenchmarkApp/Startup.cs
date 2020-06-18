@@ -21,29 +21,29 @@ namespace BenchmarkApp
         public void ConfigureServices(IServiceCollection services)
         {
             var urls = _configuration["urls"];
-            var backendUrls = _configuration["backendUrls"];
+            var clusterUrls = _configuration["clusterUrls"];
 
             if (string.IsNullOrWhiteSpace(urls))
             {
                 throw new ArgumentException("--urls is required");
             }
 
-            if (string.IsNullOrWhiteSpace(backendUrls))
+            if (string.IsNullOrWhiteSpace(clusterUrls))
             {
-                throw new ArgumentException("--backendUrls is required");
+                throw new ArgumentException("--clusterUrls is required");
             }
 
             var configDictionary = new Dictionary<string, string>
             {
                 { "Routes:0:RouteId", "route" },
-                { "Routes:0:BackendId", "backend" },
+                { "Routes:0:ClusterId", "cluster" },
                 { "Routes:0:Match:Host", new Uri(urls.Split(';', 1)[0]).Host },
             };
 
-            var backendCount = 0;
-            foreach (var backendUrl in backendUrls.Split(';'))
+            var clusterCount = 0;
+            foreach (var clusterUrl in clusterUrls.Split(';'))
             {
-                configDictionary.Add($"Backends:backend:Destinations:destination{backendCount++}:Address", backendUrl);
+                configDictionary.Add($"Clusters:cluster:Destinations:destination{clusterCount++}:Address", clusterUrl);
             }
 
             var proxyConfig = new ConfigurationBuilder().AddInMemoryCollection(configDictionary).Build();

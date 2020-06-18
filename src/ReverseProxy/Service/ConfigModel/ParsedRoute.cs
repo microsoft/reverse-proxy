@@ -49,10 +49,10 @@ namespace Microsoft.ReverseProxy.ConfigModel
         public int? Priority { get; set; }
 
         /// <summary>
-        /// Gets or sets the backend that requests matching this route
+        /// Gets or sets the cluster that requests matching this route
         /// should be proxied to.
         /// </summary>
-        public string BackendId { get; set; }
+        public string ClusterId { get; set; }
 
         /// <summary>
         /// Arbitrary key-value pairs that further describe this route.
@@ -96,9 +96,9 @@ namespace Microsoft.ReverseProxy.ConfigModel
                 hash ^= Priority.GetHashCode();
             }
 
-            if (!string.IsNullOrEmpty(BackendId))
+            if (!string.IsNullOrEmpty(ClusterId))
             {
-                hash ^= BackendId.GetHashCode();
+                hash ^= ClusterId.GetHashCode();
             }
 
             if (Metadata != null)

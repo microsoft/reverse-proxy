@@ -41,19 +41,19 @@ namespace Microsoft.ReverseProxy.Middleware
 
         public Task Invoke(HttpContext context)
         {
-            var backend = context.GetRequiredBackend();
+            var cluster = context.GetRequiredCluster();
 
-            var options = backend.Config.Value?.SessionAffinityOptions ?? default;
+            var options = cluster.Config.Value?.SessionAffinityOptions ?? default;
 
             if (!options.Enabled)
             {
                 return _next(context);
             }
 
-            return InvokeInternal(context, options, backend);
+            return InvokeInternal(context, options, cluster);
         }
 
-        private async Task InvokeInternal(HttpContext context, BackendConfig.BackendSessionAffinityOptions options, BackendInfo backend)
+        private async Task InvokeInternal(HttpContext context, ClusterConfig.ClusterSessionAffinityOptions options, ClusterInfo cluster)
         {
             var destinationsFeature = context.GetRequiredDestinationFeature();
             var destinations = destinationsFeature.Destinations;
@@ -63,7 +63,7 @@ namespace Microsoft.ReverseProxy.Middleware
                     () =>
                     {
                         var currentProvider = _sessionAffinityProviders.GetRequiredServiceById(options.Mode);
-                        return currentProvider.FindAffinitizedDestinations(context, destinations, backend.BackendId, options);
+                        return currentProvider.FindAffinitizedDestinations(context, destinations, cluster.ClusterId, options);
                     });
             switch (affinityResult.Status)
             {
@@ -85,11 +85,11 @@ namespace Microsoft.ReverseProxy.Middleware
                     {
                         // Policy reported the failure is unrecoverable and took the full responsibility for its handling,
                         // so we simply stop processing.
-                        Log.AffinityResolutionFailedForBackend(_logger, backend.BackendId);
+                        Log.AffinityResolutionFailedForCluster(_logger, cluster.ClusterId);
                         return;
                     }
 
-                    Log.AffinityResolutionFailureWasHandledProcessingWillBeContinued(_logger, backend.BackendId, options.FailurePolicy);
+                    Log.AffinityResolutionFailureWasHandledProcessingWillBeContinued(_logger, cluster.ClusterId, options.FailurePolicy);
 
                     break;
                 default:
@@ -101,24 +101,24 @@ namespace Microsoft.ReverseProxy.Middleware
 
         private static class Log
         {
-            private static readonly Action<ILogger, string, Exception> _affinityResolutioFailedForBackend = LoggerMessage.Define<string>(
+            private static readonly Action<ILogger, string, Exception> _affinityResolutioFailedForCluster = LoggerMessage.Define<string>(
                 LogLevel.Warning,
-                EventIds.AffinityResolutionFailedForBackend,
-                "Affinity resolution failed for backend `{backendId}`.");
+                EventIds.AffinityResolutionFailedForCluster,
+                "Affinity resolution failed for cluster `{clusterId}`.");
 
             private static readonly Action<ILogger, string, string, Exception> _affinityResolutionFailureWasHandledProcessingWillBeContinued = LoggerMessage.Define<string, string>(
                 LogLevel.Debug,
                 EventIds.AffinityResolutionFailureWasHandledProcessingWillBeContinued,
-                "Affinity resolution failure for backend `{backendId}` was handled successfully by the policy `{policyName}`. Request processing will be continued.");
+                "Affinity resolution failure for cluster `{clusterId}` was handled successfully by the policy `{policyName}`. Request processing will be continued.");
 
-            public static void AffinityResolutionFailedForBackend(ILogger logger, string backendId)
+            public static void AffinityResolutionFailedForCluster(ILogger logger, string clusterId)
             {
-                _affinityResolutioFailedForBackend(logger, backendId, null);
+                _affinityResolutioFailedForCluster(logger, clusterId, null);
             }
 
-            public static void AffinityResolutionFailureWasHandledProcessingWillBeContinued(ILogger logger, string backendId, string policyName)
+            public static void AffinityResolutionFailureWasHandledProcessingWillBeContinued(ILogger logger, string clusterId, string policyName)
             {
-                _affinityResolutionFailureWasHandledProcessingWillBeContinued(logger, backendId, policyName, null);
+                _affinityResolutionFailureWasHandledProcessingWillBeContinued(logger, clusterId, policyName, null);
             }
         }
     }

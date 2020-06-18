@@ -24,7 +24,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
             RouteInfo route,
             int configHash,
             int? priority,
-            BackendInfo backendOrNull,
+            ClusterInfo cluster,
             IReadOnlyList<AspNetCore.Http.Endpoint> aspNetCoreEndpoints,
             Transforms transforms)
         {
@@ -34,7 +34,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
             Route = route;
             ConfigHash = configHash;
             Priority = priority;
-            BackendOrNull = backendOrNull;
+            Cluster = cluster;
             Endpoints = aspNetCoreEndpoints;
             Transforms = transforms;
         }
@@ -45,15 +45,16 @@ namespace Microsoft.ReverseProxy.RuntimeModel
 
         public int? Priority { get; }
 
-        public BackendInfo BackendOrNull { get; }
+        // May not be populated if the cluster config is missing.
+        public ClusterInfo Cluster { get; }
 
         public IReadOnlyList<AspNetCore.Http.Endpoint> Endpoints { get; }
 
         public Transforms Transforms { get; }
 
-        public bool HasConfigChanged(ParsedRoute newConfig, BackendInfo backendOrNull)
+        public bool HasConfigChanged(ParsedRoute newConfig, ClusterInfo cluster)
         {
-            return BackendOrNull != backendOrNull
+            return Cluster != cluster
                 || !ConfigHash.Equals(newConfig.GetConfigHash());
         }
     }

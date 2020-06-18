@@ -25,7 +25,7 @@ comes from the ability to apply primitives (see `SignalExtensions`)
 to produce derived signals from existing signals.
 
 Reverse Proxy leverages signals to optimize performance on hot paths
-by precomputing necessary routing information such as the set of healthy endpoints in a backend.
+by precomputing necessary routing information such as the set of healthy endpoints in a cluster.
 This is done by writing a LINQ-query over other signals to create a new signal
 which is kept up to date automagically. In the hot path, it suffices to read the current value
 of the derived signal, which will always have a materialized immutable result.
@@ -36,7 +36,7 @@ is shown below. Double arrows denote data flows implemented with signals:
 ```
 ┌───────────────┐
 │               │
-│  BackendInfo  │
+│  ClusterInfo  │
 │               ├── DynamicState ◄═══════════════════════════════════════╗
 │               │            ▲  ▲                                        ║
 │               │            ║  ║                                        ║
@@ -53,11 +53,11 @@ is shown below. Double arrows denote data flows implemented with signals:
                                               └──────────────────┘
 ```
 
-`BackendInfo.DynamicState`, which is a `IReadableSignal<BackendDynamicState>`,
-reacts to updates from `BackendInfo.Config`, `BackendInfo.EndpointsManager`, and
+`ClusterInfo.DynamicState`, which is a `IReadableSignal<ClusterDynamicState>`,
+reacts to updates from `ClusterInfo.Config`, `ClusterInfo.EndpointsManager`, and
 [`EndpointInfo.DynamicState` from each of the tracked associated endpoints].
 
-During routing, `BackendInfo.DynamicState.Value` can be accessed efficiently
+During routing, `ClusterInfo.DynamicState.Value` can be accessed efficiently
 since the result was precomputed and only in reaction to changes.
 
 ## Examples

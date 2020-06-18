@@ -10,7 +10,7 @@ using Microsoft.ReverseProxy.Utilities;
 namespace Microsoft.ReverseProxy.RuntimeModel
 {
     /// <summary>
-    /// Representation of a backend's destination for use at runtime.
+    /// Representation of a cluster's destination for use at runtime.
     /// </summary>
     /// <remarks>
     /// Note that while this class is immutable, specific members such as

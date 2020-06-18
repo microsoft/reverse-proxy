@@ -9,7 +9,7 @@ namespace Microsoft.ReverseProxy.Configuration
 {
     internal class ProxyConfigOptions
     {
-        public IDictionary<string, Backend> Backends { get; } = new Dictionary<string, Backend>(StringComparer.Ordinal);
+        public IDictionary<string, Cluster> Clusters { get; } = new Dictionary<string, Cluster>(StringComparer.Ordinal);
         public IList<ProxyRoute> Routes { get; } = new List<ProxyRoute>();
     }
 }

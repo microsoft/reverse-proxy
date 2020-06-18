@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract;
+using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Microsoft.ReverseProxy.ConfigModel;
 using Microsoft.ReverseProxy.Service.SessionAffinity;
 using Microsoft.ReverseProxy.Utilities;
@@ -16,7 +16,7 @@ namespace Microsoft.ReverseProxy.Service
     internal class DynamicConfigBuilder : IDynamicConfigBuilder
     {
         private readonly IEnumerable<IProxyConfigFilter> _filters;
-        private readonly IBackendsRepo _backendsRepo;
+        private readonly IClustersRepo _clustersRepo;
         private readonly IRoutesRepo _routesRepo;
         private readonly IRouteValidator _parsedRouteValidator;
         private readonly IDictionary<string, ISessionAffinityProvider> _sessionAffinityProviders;
@@ -24,21 +24,21 @@ namespace Microsoft.ReverseProxy.Service
 
         public DynamicConfigBuilder(
             IEnumerable<IProxyConfigFilter> filters,
-            IBackendsRepo backendsRepo,
+            IClustersRepo clustersRepo,
             IRoutesRepo routesRepo,
             IRouteValidator parsedRouteValidator,
             IEnumerable<ISessionAffinityProvider> sessionAffinityProviders,
             IEnumerable<IAffinityFailurePolicy> affinityFailurePolicies)
         {
             Contracts.CheckValue(filters, nameof(filters));
-            Contracts.CheckValue(backendsRepo, nameof(backendsRepo));
+            Contracts.CheckValue(clustersRepo, nameof(clustersRepo));
             Contracts.CheckValue(routesRepo, nameof(routesRepo));
             Contracts.CheckValue(parsedRouteValidator, nameof(parsedRouteValidator));
             Contracts.CheckValue(sessionAffinityProviders, nameof(sessionAffinityProviders));
             Contracts.CheckValue(affinityFailurePolicies, nameof(affinityFailurePolicies));
 
             _filters = filters;
-            _backendsRepo = backendsRepo;
+            _clustersRepo = clustersRepo;
             _routesRepo = routesRepo;
             _parsedRouteValidator = parsedRouteValidator;
             _sessionAffinityProviders = sessionAffinityProviders.ToProviderDictionary();
@@ -49,80 +49,80 @@ namespace Microsoft.ReverseProxy.Service
         {
             Contracts.CheckValue(errorReporter, nameof(errorReporter));
 
-            var backends = await GetBackendsAsync(errorReporter, cancellation);
+            var clusters = await GetClustersAsync(errorReporter, cancellation);
             var routes = await GetRoutesAsync(errorReporter, cancellation);
 
             var config = new DynamicConfigRoot
             {
-                Backends = backends,
+                Clusters = clusters,
                 Routes = routes,
             };
 
             return Result.Success(config);
         }
 
-        public async Task<IDictionary<string, Backend>> GetBackendsAsync(IConfigErrorReporter errorReporter, CancellationToken cancellation)
+        public async Task<IDictionary<string, Cluster>> GetClustersAsync(IConfigErrorReporter errorReporter, CancellationToken cancellation)
         {
-            var backends = await _backendsRepo.GetBackendsAsync(cancellation) ?? new Dictionary<string, Backend>(StringComparer.Ordinal);
-            var configuredBackends = new Dictionary<string, Backend>(StringComparer.Ordinal);
-            // The IBackendsRepo provides a fresh snapshot that we need to reconfigure each time.
-            foreach (var (id, backend) in backends)
+            var clusters = await _clustersRepo.GetClustersAsync(cancellation) ?? new Dictionary<string, Cluster>(StringComparer.Ordinal);
+            var configuredClusters = new Dictionary<string, Cluster>(StringComparer.Ordinal);
+            // The IClustersRepo provides a fresh snapshot that we need to reconfigure each time.
+            foreach (var (id, cluster) in clusters)
             {
                 try
                 {
-                    if (id != backend.Id)
+                    if (id != cluster.Id)
                     {
-                        errorReporter.ReportError(ConfigErrors.ConfigBuilderBackendIdMismatch, id,
-                            $"The backend Id '{backend.Id}' and its lookup key '{id}' do not match.");
+                        errorReporter.ReportError(ConfigErrors.ConfigBuilderClusterIdMismatch, id,
+                            $"The cluster Id '{cluster.Id}' and its lookup key '{id}' do not match.");
                         continue;
                     }
 
                     foreach (var filter in _filters)
                     {
-                        await filter.ConfigureBackendAsync(backend, cancellation);
+                        await filter.ConfigureClusterAsync(cluster, cancellation);
                     }
 
-                    ValidateSessionAffinity(errorReporter, id, backend);
+                    ValidateSessionAffinity(errorReporter, id, cluster);
 
-                    configuredBackends[id] = backend;
+                    configuredClusters[id] = cluster;
                 }
                 catch (Exception ex)
                 {
-                    errorReporter.ReportError(ConfigErrors.ConfigBuilderBackendException, id, "An exception was thrown from the configuration callbacks.", ex);
+                    errorReporter.ReportError(ConfigErrors.ConfigBuilderClusterException, id, "An exception was thrown from the configuration callbacks.", ex);
                 }
             }
 
-            return configuredBackends;
+            return configuredClusters;
         }
 
-        private void ValidateSessionAffinity(IConfigErrorReporter errorReporter, string id, Backend backend)
+        private void ValidateSessionAffinity(IConfigErrorReporter errorReporter, string id, Cluster cluster)
         {
-            if (backend.SessionAffinity == null || !backend.SessionAffinity.Enabled)
+            if (cluster.SessionAffinity == null || !cluster.SessionAffinity.Enabled)
             {
                 // Session affinity is disabled
                 return;
             }
 
-            if (string.IsNullOrEmpty(backend.SessionAffinity.Mode))
+            if (string.IsNullOrEmpty(cluster.SessionAffinity.Mode))
             {
-                backend.SessionAffinity.Mode = SessionAffinityConstants.Modes.Cookie;
+                cluster.SessionAffinity.Mode = SessionAffinityConstants.Modes.Cookie;
             }
 
-            var affinityMode = backend.SessionAffinity.Mode;
+            var affinityMode = cluster.SessionAffinity.Mode;
             if (!_sessionAffinityProviders.ContainsKey(affinityMode))
             {
-                errorReporter.ReportError(ConfigErrors.ConfigBuilderBackendNoProviderFoundForSessionAffinityMode, id, $"No matching {nameof(ISessionAffinityProvider)} found for the session affinity mode {affinityMode} set on the backend {backend.Id}.");
+                errorReporter.ReportError(ConfigErrors.ConfigBuilderClusterNoProviderFoundForSessionAffinityMode, id, $"No matching {nameof(ISessionAffinityProvider)} found for the session affinity mode {affinityMode} set on the cluster {cluster.Id}.");
             }
 
-            if (string.IsNullOrEmpty(backend.SessionAffinity.FailurePolicy))
+            if (string.IsNullOrEmpty(cluster.SessionAffinity.FailurePolicy))
             {
-                backend.SessionAffinity.FailurePolicy = SessionAffinityConstants.AffinityFailurePolicies.Redistribute;
+                cluster.SessionAffinity.FailurePolicy = SessionAffinityConstants.AffinityFailurePolicies.Redistribute;
             }
 
-            var affinityFailurePolicy = backend.SessionAffinity.FailurePolicy;
+            var affinityFailurePolicy = cluster.SessionAffinity.FailurePolicy;
             if (!_affinityFailurePolicies.ContainsKey(affinityFailurePolicy))
             {
-                errorReporter.ReportError(ConfigErrors.ConfigBuilderBackendNoAffinityFailurePolicyFoundForSpecifiedName, id, $"No matching {nameof(IAffinityFailurePolicy)} found for the affinity failure policy name {affinityFailurePolicy} set on the backend {backend.Id}.");
+                errorReporter.ReportError(ConfigErrors.ConfigBuilderClusterNoAffinityFailurePolicyFoundForSpecifiedName, id, $"No matching {nameof(IAffinityFailurePolicy)} found for the affinity failure policy name {affinityFailurePolicy} set on the cluster {cluster.Id}.");
             }
         }
 
@@ -154,7 +154,7 @@ namespace Microsoft.ReverseProxy.Service
                 }
                 catch (Exception ex)
                 {
-                    errorReporter.ReportError(ConfigErrors.ConfigBuilderBackendException, route.RouteId, "An exception was thrown from the configuration callbacks.", ex);
+                    errorReporter.ReportError(ConfigErrors.ConfigBuilderClusterException, route.RouteId, "An exception was thrown from the configuration callbacks.", ex);
                     continue;
                 }
 
@@ -164,7 +164,7 @@ namespace Microsoft.ReverseProxy.Service
                     Host = route.Match.Host,
                     Path = route.Match.Path,
                     Priority = route.Priority,
-                    BackendId = route.BackendId,
+                    ClusterId = route.ClusterId,
                     Metadata = route.Metadata,
                     Transforms = route.Transforms,
                 };

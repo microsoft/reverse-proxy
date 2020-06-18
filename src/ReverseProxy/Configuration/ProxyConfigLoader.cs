@@ -25,7 +25,7 @@ namespace Microsoft.ReverseProxy.Configuration
     internal class ProxyConfigLoader : IHostedService, IDisposable
     {
         private readonly ILogger<ProxyConfigLoader> _logger;
-        private readonly IBackendsRepo _backendsRepo;
+        private readonly IClustersRepo _clustersRepo;
         private readonly IRoutesRepo _routesRepo;
         private readonly IReverseProxyConfigManager _proxyManager;
         private readonly IOptionsMonitor<ProxyConfigOptions> _proxyConfig;
@@ -34,19 +34,19 @@ namespace Microsoft.ReverseProxy.Configuration
 
         public ProxyConfigLoader(
             ILogger<ProxyConfigLoader> logger,
-            IBackendsRepo backendsRepo,
+            IClustersRepo clustersRepo,
             IRoutesRepo routesRepo,
             IReverseProxyConfigManager proxyManager,
             IOptionsMonitor<ProxyConfigOptions> proxyConfig)
         {
             Contracts.CheckValue(logger, nameof(logger));
-            Contracts.CheckValue(backendsRepo, nameof(backendsRepo));
+            Contracts.CheckValue(clustersRepo, nameof(clustersRepo));
             Contracts.CheckValue(routesRepo, nameof(routesRepo));
             Contracts.CheckValue(proxyManager, nameof(proxyManager));
             Contracts.CheckValue(proxyConfig, nameof(proxyConfig));
 
             _logger = logger;
-            _backendsRepo = backendsRepo;
+            _clustersRepo = clustersRepo;
             _routesRepo = routesRepo;
             _proxyManager = proxyManager;
             _proxyConfig = proxyConfig;
@@ -83,7 +83,7 @@ namespace Microsoft.ReverseProxy.Configuration
             Log.ApplyProxyConfig(_logger);
             try
             {
-                await _backendsRepo.SetBackendsAsync(config.Backends, CancellationToken.None);
+                await _clustersRepo.SetClustersAsync(config.Clusters, CancellationToken.None);
                 await _routesRepo.SetRoutesAsync(config.Routes, CancellationToken.None);
 
                 var errorReporter = new LoggerConfigErrorReporter(_logger);

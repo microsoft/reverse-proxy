@@ -9,9 +9,9 @@ namespace Microsoft.ReverseProxy.Middleware
 {
     internal static class HttpContextFeaturesExtensions
     {
-        public static BackendInfo GetRequiredBackend(this HttpContext context)
+        public static ClusterInfo GetRequiredCluster(this HttpContext context)
         {
-            return context.Features.Get<BackendInfo>() ?? throw new InvalidOperationException("Backend unspecified.");
+            return context.Features.Get<ClusterInfo>() ?? throw new InvalidOperationException("Cluster unspecified.");
         }
 
         public static IAvailableDestinationsFeature GetRequiredDestinationFeature(this HttpContext context)

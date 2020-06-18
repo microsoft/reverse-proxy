@@ -9,7 +9,7 @@ namespace Microsoft.ReverseProxy.Abstractions
 {
     /// <summary>
     /// Describes a route that matches incoming requests based on a the <see cref="Match"/> criteria
-    /// and proxies matching requests to the backend identified by its <see cref="BackendId"/>.
+    /// and proxies matching requests to the cluster identified by its <see cref="ClusterId"/>.
     /// </summary>
     public sealed class ProxyRoute : IDeepCloneable<ProxyRoute>
     {
@@ -26,10 +26,10 @@ namespace Microsoft.ReverseProxy.Abstractions
         public int? Priority { get; set; }
 
         /// <summary>
-        /// Gets or sets the backend that requests matching this route
+        /// Gets or sets the cluster that requests matching this route
         /// should be proxied to.
         /// </summary>
-        public string BackendId { get; set; }
+        public string ClusterId { get; set; }
 
         /// <summary>
         /// Arbitrary key-value pairs that further describe this route.
@@ -49,7 +49,7 @@ namespace Microsoft.ReverseProxy.Abstractions
                 RouteId = RouteId,
                 Match = Match.DeepClone(),
                 Priority = Priority,
-                BackendId = BackendId,
+                ClusterId = ClusterId,
                 Metadata = Metadata?.DeepClone(StringComparer.Ordinal),
                 Transforms = Transforms?.Select(d => new Dictionary<string, string>(d, StringComparer.OrdinalIgnoreCase)).ToList<IDictionary<string, string>>(),
             };

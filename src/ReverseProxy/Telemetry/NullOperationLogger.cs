@@ -8,7 +8,7 @@ using Microsoft.ReverseProxy.Abstractions.Telemetry;
 namespace Microsoft.ReverseProxy.Telemetry
 {
     /// <summary>
-    /// Implementation of <see cref="IOperationLogger"/>
+    /// Implementation of <see cref="IOperationLogger{TCategoryName}"/>
     /// which doesn't log anything.
     /// </summary>
     public class NullOperationLogger<TCategoryName> : IOperationLogger<TCategoryName>

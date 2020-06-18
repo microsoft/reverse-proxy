@@ -24,7 +24,7 @@ namespace Microsoft.ReverseProxy.Service.Management
         private readonly ILogger<ReverseProxyConfigManager> _logger;
         private readonly IDynamicConfigBuilder _configBuilder;
         private readonly IRuntimeRouteBuilder _routeEndpointBuilder;
-        private readonly IBackendManager _backendManager;
+        private readonly IClusterManager _clusterManager;
         private readonly IRouteManager _routeManager;
         private readonly IProxyDynamicEndpointDataSource _dynamicEndpointDataSource;
 
@@ -32,21 +32,21 @@ namespace Microsoft.ReverseProxy.Service.Management
             ILogger<ReverseProxyConfigManager> logger,
             IDynamicConfigBuilder configBuilder,
             IRuntimeRouteBuilder routeEndpointBuilder,
-            IBackendManager backendManager,
+            IClusterManager clusterManager,
             IRouteManager routeManager,
             IProxyDynamicEndpointDataSource dynamicEndpointDataSource)
         {
             Contracts.CheckValue(logger, nameof(logger));
             Contracts.CheckValue(configBuilder, nameof(configBuilder));
             Contracts.CheckValue(routeEndpointBuilder, nameof(routeEndpointBuilder));
-            Contracts.CheckValue(backendManager, nameof(backendManager));
+            Contracts.CheckValue(clusterManager, nameof(clusterManager));
             Contracts.CheckValue(routeManager, nameof(routeManager));
             Contracts.CheckValue(dynamicEndpointDataSource, nameof(dynamicEndpointDataSource));
 
             _logger = logger;
             _configBuilder = configBuilder;
             _routeEndpointBuilder = routeEndpointBuilder;
-            _backendManager = backendManager;
+            _clusterManager = clusterManager;
             _routeManager = routeManager;
             _dynamicEndpointDataSource = dynamicEndpointDataSource;
         }
@@ -66,76 +66,76 @@ namespace Microsoft.ReverseProxy.Service.Management
             }
 
             var config = configResult.Value;
-            UpdateRuntimeBackends(config);
+            UpdateRuntimeClusters(config);
             UpdateRuntimeRoutes(config);
 
             return true;
         }
 
-        private void UpdateRuntimeBackends(DynamicConfigRoot config)
+        private void UpdateRuntimeClusters(DynamicConfigRoot config)
         {
-            var desiredBackends = new HashSet<string>(StringComparer.Ordinal);
-            foreach (var configBackendPair in config.Backends)
+            var desiredClusters = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var configClusterPair in config.Clusters)
             {
-                var configBackend = configBackendPair.Value;
-                desiredBackends.Add(configBackendPair.Key);
+                var configCluster = configClusterPair.Value;
+                desiredClusters.Add(configClusterPair.Key);
 
-                _backendManager.GetOrCreateItem(
-                    itemId: configBackendPair.Key,
-                    setupAction: backend =>
+                _clusterManager.GetOrCreateItem(
+                    itemId: configClusterPair.Key,
+                    setupAction: cluster =>
                     {
-                        UpdateRuntimeDestinations(configBackend.Destinations, backend.DestinationManager);
+                        UpdateRuntimeDestinations(configCluster.Destinations, cluster.DestinationManager);
 
-                        var newConfig = new BackendConfig(
-                                new BackendConfig.BackendHealthCheckOptions(
-                                    enabled: configBackend.HealthCheckOptions?.Enabled ?? false,
-                                    interval: configBackend.HealthCheckOptions?.Interval ?? TimeSpan.FromSeconds(0),
-                                    timeout: configBackend.HealthCheckOptions?.Timeout ?? TimeSpan.FromSeconds(0),
-                                    port: configBackend.HealthCheckOptions?.Port ?? 0,
-                                    path: configBackend.HealthCheckOptions?.Path ?? string.Empty),
-                                new BackendConfig.BackendLoadBalancingOptions(
-                                    mode: configBackend.LoadBalancing?.Mode ?? default),
-                                new BackendConfig.BackendSessionAffinityOptions(
-                                    enabled: configBackend.SessionAffinity?.Enabled ?? false,
-                                    mode: configBackend.SessionAffinity?.Mode,
-                                    failurePolicy: configBackend.SessionAffinity?.FailurePolicy,
-                                    settings: configBackend.SessionAffinity?.Settings as IReadOnlyDictionary<string, string>));
+                        var newConfig = new ClusterConfig(
+                                new ClusterConfig.ClusterHealthCheckOptions(
+                                    enabled: configCluster.HealthCheckOptions?.Enabled ?? false,
+                                    interval: configCluster.HealthCheckOptions?.Interval ?? TimeSpan.FromSeconds(0),
+                                    timeout: configCluster.HealthCheckOptions?.Timeout ?? TimeSpan.FromSeconds(0),
+                                    port: configCluster.HealthCheckOptions?.Port ?? 0,
+                                    path: configCluster.HealthCheckOptions?.Path ?? string.Empty),
+                                new ClusterConfig.ClusterLoadBalancingOptions(
+                                    mode: configCluster.LoadBalancing?.Mode ?? default),
+                                new ClusterConfig.ClusterSessionAffinityOptions(
+                                    enabled: configCluster.SessionAffinity?.Enabled ?? false,
+                                    mode: configCluster.SessionAffinity?.Mode,
+                                    failurePolicy: configCluster.SessionAffinity?.FailurePolicy,
+                                    settings: configCluster.SessionAffinity?.Settings as IReadOnlyDictionary<string, string>));
 
-                        var currentBackendConfig = backend.Config.Value;
-                        if (currentBackendConfig == null ||
-                            currentBackendConfig.HealthCheckOptions.Enabled != newConfig.HealthCheckOptions.Enabled ||
-                            currentBackendConfig.HealthCheckOptions.Interval != newConfig.HealthCheckOptions.Interval ||
-                            currentBackendConfig.HealthCheckOptions.Timeout != newConfig.HealthCheckOptions.Timeout ||
-                            currentBackendConfig.HealthCheckOptions.Port != newConfig.HealthCheckOptions.Port ||
-                            currentBackendConfig.HealthCheckOptions.Path != newConfig.HealthCheckOptions.Path)
+                        var currentClusterConfig = cluster.Config.Value;
+                        if (currentClusterConfig == null ||
+                            currentClusterConfig.HealthCheckOptions.Enabled != newConfig.HealthCheckOptions.Enabled ||
+                            currentClusterConfig.HealthCheckOptions.Interval != newConfig.HealthCheckOptions.Interval ||
+                            currentClusterConfig.HealthCheckOptions.Timeout != newConfig.HealthCheckOptions.Timeout ||
+                            currentClusterConfig.HealthCheckOptions.Port != newConfig.HealthCheckOptions.Port ||
+                            currentClusterConfig.HealthCheckOptions.Path != newConfig.HealthCheckOptions.Path)
                         {
-                            if (currentBackendConfig == null)
+                            if (currentClusterConfig == null)
                             {
-                                Log.BackendAdded(_logger, configBackendPair.Key);
+                                Log.ClusterAdded(_logger, configClusterPair.Key);
                             }
                             else
                             {
-                                Log.BackendChanged(_logger, configBackendPair.Key);
+                                Log.ClusterChanged(_logger, configClusterPair.Key);
                             }
 
-                            // Config changed, so update runtime backend
-                            backend.Config.Value = newConfig;
+                            // Config changed, so update runtime cluster
+                            cluster.Config.Value = newConfig;
                         }
                     });
             }
 
-            foreach (var existingBackend in _backendManager.GetItems())
+            foreach (var existingCluster in _clusterManager.GetItems())
             {
-                if (!desiredBackends.Contains(existingBackend.BackendId))
+                if (!desiredClusters.Contains(existingCluster.ClusterId))
                 {
                     // NOTE 1: This is safe to do within the `foreach` loop
-                    // because `IBackendManager.GetItems` returns a copy of the list of backends.
+                    // because `IClusterManager.GetItems` returns a copy of the list of clusters.
                     //
-                    // NOTE 2: Removing the backend from `IBackendManager` is safe and existing
+                    // NOTE 2: Removing the cluster from `IClusterManager` is safe and existing
                     // ASP .NET Core endpoints will continue to work with their existing behavior (until those endpoints are updated)
-                    // and the Garbage Collector won't destroy this backend object while it's referenced elsewhere.
-                    Log.BackendRemoved(_logger, existingBackend.BackendId);
-                    _backendManager.TryRemoveItem(existingBackend.BackendId);
+                    // and the Garbage Collector won't destroy this cluster object while it's referenced elsewhere.
+                    Log.ClusterRemoved(_logger, existingCluster.ClusterId);
+                    _clusterManager.TryRemoveItem(existingCluster.ClusterId);
                 }
             }
         }
@@ -173,8 +173,8 @@ namespace Microsoft.ReverseProxy.Service.Management
                     // because `IDestinationManager.GetItems` returns a copy of the list of destinations.
                     //
                     // NOTE 2: Removing the endpoint from `IEndpointManager` is safe and existing
-                    // backends will continue to work with their existing behavior (until those backends are updated)
-                    // and the Garbage Collector won't destroy this backend object while it's referenced elsewhere.
+                    // clusters will continue to work with their existing behavior (until those clusters are updated)
+                    // and the Garbage Collector won't destroy this cluster object while it's referenced elsewhere.
                     Log.DestinationRemoved(_logger, existingDestination.DestinationId);
                     destinationManager.TryRemoveItem(existingDestination.DestinationId);
                 }
@@ -192,8 +192,8 @@ namespace Microsoft.ReverseProxy.Service.Management
 
                 // Note that this can be null, and that is fine. The resulting route may match
                 // but would then fail to route, which is exactly what we were instructed to do in this case
-                // since no valid backend was specified.
-                var backendOrNull = _backendManager.TryGetItem(configRoute.BackendId);
+                // since no valid cluster was specified.
+                var clusterOrNull = _clusterManager.TryGetItem(configRoute.ClusterId);
 
                 _routeManager.GetOrCreateItem(
                     itemId: configRoute.RouteId,
@@ -201,7 +201,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                     {
                         var currentRouteConfig = route.Config.Value;
                         if (currentRouteConfig == null ||
-                            currentRouteConfig.HasConfigChanged(configRoute, backendOrNull))
+                            currentRouteConfig.HasConfigChanged(configRoute, clusterOrNull))
                         {
                             // Config changed, so update runtime route
                             changed = true;
@@ -214,7 +214,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                                 Log.RouteChanged(_logger, configRoute.RouteId);
                             }
 
-                            var newConfig = _routeEndpointBuilder.Build(configRoute, backendOrNull, route);
+                            var newConfig = _routeEndpointBuilder.Build(configRoute, clusterOrNull, route);
                             route.Config.Value = newConfig;
                         }
                     });
@@ -255,20 +255,20 @@ namespace Microsoft.ReverseProxy.Service.Management
 
         private static class Log
         {
-            private static readonly Action<ILogger, string, Exception> _backendAdded = LoggerMessage.Define<string>(
+            private static readonly Action<ILogger, string, Exception> _clusterAdded = LoggerMessage.Define<string>(
                   LogLevel.Debug,
-                  EventIds.BackendAdded,
-                  "Backend `{backendId}` has been added.");
+                  EventIds.ClusterAdded,
+                  "Cluster `{clusterId}` has been added.");
 
-            private static readonly Action<ILogger, string, Exception> _backendChanged = LoggerMessage.Define<string>(
+            private static readonly Action<ILogger, string, Exception> _clusterChanged = LoggerMessage.Define<string>(
                 LogLevel.Debug,
-                EventIds.BackendChanged,
-                "Backend `{backendId}` has changed.");
+                EventIds.ClusterChanged,
+                "Cluster `{clusterId}` has changed.");
 
-            private static readonly Action<ILogger, string, Exception> _backendRemoved = LoggerMessage.Define<string>(
+            private static readonly Action<ILogger, string, Exception> _clusterRemoved = LoggerMessage.Define<string>(
                 LogLevel.Debug,
-                EventIds.BackendRemoved,
-                "Backend `{backendId}` has been removed.");
+                EventIds.ClusterRemoved,
+                "Cluster `{clusterId}` has been removed.");
 
             private static readonly Action<ILogger, string, Exception> _destinationAdded = LoggerMessage.Define<string>(
                 LogLevel.Debug,
@@ -300,19 +300,19 @@ namespace Microsoft.ReverseProxy.Service.Management
                 EventIds.RouteRemoved,
                 "Route `{routeId}` has been removed.");
 
-            public static void BackendAdded(ILogger logger, string backendId)
+            public static void ClusterAdded(ILogger logger, string clusterId)
             {
-                _backendAdded(logger, backendId, null);
+                _clusterAdded(logger, clusterId, null);
             }
 
-            public static void BackendChanged(ILogger logger, string backendId)
+            public static void ClusterChanged(ILogger logger, string clusterId)
             {
-                _backendChanged(logger, backendId, null);
+                _clusterChanged(logger, clusterId, null);
             }
 
-            public static void BackendRemoved(ILogger logger, string backendId)
+            public static void ClusterRemoved(ILogger logger, string clusterId)
             {
-                _backendRemoved(logger, backendId, null);
+                _clusterRemoved(logger, clusterId, null);
             }
 
             public static void DestinationAdded(ILogger logger, string destinationId)

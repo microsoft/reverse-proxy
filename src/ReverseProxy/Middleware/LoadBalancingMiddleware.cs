@@ -35,12 +35,12 @@ namespace Microsoft.ReverseProxy.Middleware
 
         public Task Invoke(HttpContext context)
         { 
-            var backend = context.GetRequiredBackend();
+            var cluster = context.GetRequiredCluster();
             var destinationsFeature = context.GetRequiredDestinationFeature();
             var destinations = destinationsFeature.Destinations;
 
-            var loadBalancingOptions = backend.Config.Value?.LoadBalancingOptions
-                ?? new BackendConfig.BackendLoadBalancingOptions(default);
+            var loadBalancingOptions = cluster.Config.Value?.LoadBalancingOptions
+                ?? new ClusterConfig.ClusterLoadBalancingOptions(default);
 
             var destination = _operationLogger.Execute(
                 "ReverseProxy.PickDestination",
@@ -48,7 +48,7 @@ namespace Microsoft.ReverseProxy.Middleware
 
             if (destination == null)
             {
-                Log.NoAvailableDestinations(_logger, backend.BackendId);
+                Log.NoAvailableDestinations(_logger, cluster.ClusterId);
                 context.Response.StatusCode = 503;
                 return Task.CompletedTask;
             }
@@ -63,11 +63,11 @@ namespace Microsoft.ReverseProxy.Middleware
             private static readonly Action<ILogger, string, Exception> _noAvailableDestinations = LoggerMessage.Define<string>(
                 LogLevel.Warning,
                 EventIds.NoAvailableDestinations,
-                "No available destinations after load balancing for backend `{backendId}`.");
+                "No available destinations after load balancing for cluster `{clusterId}`.");
 
-            public static void NoAvailableDestinations(ILogger logger, string backendId)
+            public static void NoAvailableDestinations(ILogger logger, string clusterId)
             {
-                _noAvailableDestinations(logger, backendId, null);
+                _noAvailableDestinations(logger, clusterId, null);
             }
         }
     }

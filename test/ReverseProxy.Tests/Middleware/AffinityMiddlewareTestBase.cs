@@ -17,21 +17,21 @@ namespace Microsoft.ReverseProxy.Middleware
     {
         protected const string AffinitizedDestinationName = "dest-B";
         protected readonly IReadOnlyList<DestinationInfo> Destinations = new[] { new DestinationInfo("dest-A"), new DestinationInfo(AffinitizedDestinationName), new DestinationInfo("dest-C") };
-        protected readonly BackendConfig BackendConfig = new BackendConfig(default, default, new BackendConfig.BackendSessionAffinityOptions(true, "Mode-B", "Policy-1", null));
+        protected readonly ClusterConfig ClusterConfig = new ClusterConfig(default, default, new ClusterConfig.ClusterSessionAffinityOptions(true, "Mode-B", "Policy-1", null));
 
-        internal BackendInfo GetBackend()
+        internal ClusterInfo GetCluster()
         {
             var destinationManager = new Mock<IDestinationManager>();
             destinationManager.SetupGet(m => m.Items).Returns(SignalFactory.Default.CreateSignal(Destinations));
-            var backend = new BackendInfo("backend-1", destinationManager.Object, new Mock<IProxyHttpClientFactory>().Object);
-            backend.Config.Value = BackendConfig;
-            return backend;
+            var cluster = new ClusterInfo("cluster-1", destinationManager.Object, new Mock<IProxyHttpClientFactory>().Object);
+            cluster.Config.Value = ClusterConfig;
+            return cluster;
         }
 
         internal IReadOnlyList<Mock<ISessionAffinityProvider>> RegisterAffinityProviders(
             bool lookupMiddlewareTest,
             IReadOnlyList<DestinationInfo> expectedDestinations,
-            string expectedBackend,
+            string expectedCluster,
             params (string Mode, AffinityStatus? Status, DestinationInfo[] Destinations, Action<ISessionAffinityProvider> Callback)[] prototypes)
         {
             var result = new List<Mock<ISessionAffinityProvider>>();
@@ -44,8 +44,8 @@ namespace Microsoft.ReverseProxy.Middleware
                     provider.Setup(p => p.FindAffinitizedDestinations(
                         It.IsAny<HttpContext>(),
                         expectedDestinations,
-                        expectedBackend,
-                        BackendConfig.SessionAffinityOptions))
+                        expectedCluster,
+                        ClusterConfig.SessionAffinityOptions))
                     .Returns(new AffinityResult(destinations, status.Value))
                     .Callback(() => callback(provider.Object));
                 }
@@ -53,7 +53,7 @@ namespace Microsoft.ReverseProxy.Middleware
                 {
                     provider.Setup(p => p.AffinitizeRequest(
                         It.IsAny<HttpContext>(),
-                        BackendConfig.SessionAffinityOptions,
+                        ClusterConfig.SessionAffinityOptions,
                         expectedDestinations[0]))
                     .Callback(() => callback(provider.Object));
                 }
@@ -69,7 +69,7 @@ namespace Microsoft.ReverseProxy.Middleware
             {
                 var policy = new Mock<IAffinityFailurePolicy>(MockBehavior.Strict);
                 policy.SetupGet(p => p.Name).Returns(name);
-                policy.Setup(p => p.Handle(It.IsAny<HttpContext>(), It.Is<BackendConfig.BackendSessionAffinityOptions>(o => o.FailurePolicy == name), expectedStatus))
+                policy.Setup(p => p.Handle(It.IsAny<HttpContext>(), It.Is<ClusterConfig.ClusterSessionAffinityOptions>(o => o.FailurePolicy == name), expectedStatus))
                     .ReturnsAsync(handled)
                     .Callback(() => callback(policy.Object));
                 result.Add(policy);

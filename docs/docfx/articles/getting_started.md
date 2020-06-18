@@ -84,13 +84,13 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 
 The configuration for YARP is defined in the appsettings.json file. It defines a set of:
 
-Routes - which map incoming requests to the backend clusters based on aspects of the request such as host name, path, method, request headers etc. Specifying a Host is the only required field. Routes are ordered, so the "app1" route needs to be defined first since "route2" will act as a catchall for all paths that have not already been matched. 
+Routes - which map incoming requests to the clusters based on aspects of the request such as host name, path, method, request headers etc. A route must specify at least a host or path. Routes are ordered, so the "app1" route needs to be defined first since "route2" will act as a catchall for all paths that have not already been matched. 
 
-Backends - which are the clusters of destination servers that requests can be routed to and load balanced across.
+Clusters - which are the groups of destination servers that requests can be routed to and load balanced across.
 
 Address is the URI prefix that will have the original request path and query appended to it.
 
-You can find out more about the available configuration options by looking at [ProxyRoute](xref:Microsoft.ReverseProxy.Abstractions.ProxyRoute) and [Backend](xref:Microsoft.ReverseProxy.Abstractions.Backend).
+You can find out more about the available configuration options by looking at [ProxyRoute](xref:Microsoft.ReverseProxy.Abstractions.ProxyRoute) and [Cluster](xref:Microsoft.ReverseProxy.Abstractions.Cluster).
  
  ```
  {
@@ -106,7 +106,7 @@ You can find out more about the available configuration options by looking at [P
     "Routes": [
       {
         "RouteId": "app1",
-        "BackendId": "backend1",
+        "ClusterId": "cluster1",
         "Match": {
           "Methods": [ "GET", "POST" ],
           "Host": "localhost",
@@ -115,29 +115,29 @@ You can find out more about the available configuration options by looking at [P
       },
       {
         "RouteId": "route2",
-        "BackendId": "backend2",
+        "ClusterId": "cluster2",
         "Match": {
           "Host": "localhost"
         }
       }
     ],
-    "Backends": {
-      "backend1": {
+    "Clusters": {
+      "cluster1": {
         "LoadBalancing": {
           "Mode": "Random"
         },
         "Destinations": {
-          "backend1_destination1": {
+          "cluster1_destination1": {
             "Address": "https://example.com/"
           },
-          "backend1_destination2": {
+          "cluster1_destination2": {
             "Address": "http://example.com/"
           }
         }
       },
-      "backend2": {
+      "cluster2": {
         "Destinations": {
-          "backend2_destination1": {
+          "cluster2_destination1": {
             "Address": "https://example.com:10001/"
           }
         }

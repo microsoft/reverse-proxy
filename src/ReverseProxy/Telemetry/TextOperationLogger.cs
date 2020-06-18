@@ -10,7 +10,7 @@ using Microsoft.ReverseProxy.Utilities;
 namespace Microsoft.ReverseProxy.Telemetry
 {
     /// <summary>
-    /// Default implementation of <see cref="IOperationLogger"/>
+    /// Default implementation of <see cref="IOperationLogger{TCategoryName}"/>
     /// which logs activity start / end events as Information messages.
     /// </summary>
     public class TextOperationLogger<TCategoryName> : IOperationLogger<TCategoryName>
@@ -18,7 +18,7 @@ namespace Microsoft.ReverseProxy.Telemetry
         private readonly ILogger<TCategoryName> _logger;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TextOperationLogger"/> class.
+        /// Initializes a new instance of the <see cref="TextOperationLogger{TCategoryName}"/> class.
         /// </summary>
         /// <param name="logger">Logger where text messages will be logger.</param>
         public TextOperationLogger(ILogger<TCategoryName> logger)

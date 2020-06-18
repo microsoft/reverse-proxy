@@ -28,7 +28,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
                     Path = "/",
                 },
                 Priority = 2,
-                BackendId = "backend1",
+                ClusterId = "cluster1",
                 Metadata = new Dictionary<string, string>
                 {
                     { "key", "value" },
@@ -47,7 +47,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
             Assert.Equal(sut.Match.Host, clone.Match.Host);
             Assert.Equal(sut.Match.Path, clone.Match.Path);
             Assert.Equal(sut.Priority, clone.Priority);
-            Assert.Equal(sut.BackendId, clone.BackendId);
+            Assert.Equal(sut.ClusterId, clone.ClusterId);
             Assert.NotNull(clone.Metadata);
             Assert.NotSame(sut.Metadata, clone.Metadata);
             Assert.Equal("value", clone.Metadata["key"]);
@@ -69,7 +69,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
             Assert.Null(clone.Match.Host);
             Assert.Null(clone.Match.Path);
             Assert.Null(clone.Priority);
-            Assert.Null(clone.BackendId);
+            Assert.Null(clone.ClusterId);
             Assert.Null(clone.Metadata);
         }
     }
