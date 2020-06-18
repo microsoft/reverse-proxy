@@ -104,7 +104,7 @@ X-Forwarded-Host: IncomingHost:5000
     &quot;Routes&quot;: [
       {
         &quot;RouteId&quot;: &quot;route1&quot;,
-        &quot;BackendId&quot;: &quot;backend1&quot;,
+        &quot;ClusterId&quot;: &quot;cluster1&quot;,
         &quot;Match&quot;: {
           &quot;Host&quot;: &quot;localhost&quot;
         },
@@ -131,7 +131,7 @@ X-Forwarded-Host: IncomingHost:5000
       },
       {
         &quot;RouteId&quot;: &quot;route2&quot;,
-        &quot;BackendId&quot;: &quot;backend1&quot;,
+        &quot;ClusterId&quot;: &quot;cluster1&quot;,
         &quot;Match&quot;: {
           &quot;Path&quot;: &quot;/api/{plugin}/stuff/{*remainder}&quot;
         },
@@ -140,10 +140,10 @@ X-Forwarded-Host: IncomingHost:5000
         ]
       }
     ],
-    &quot;Backends&quot;: {
-      &quot;backend1&quot;: {
+    &quot;Clusters&quot;: {
+      &quot;cluster1&quot;: {
         &quot;Destinations&quot;: {
-          &quot;backend1/destination1&quot;: {
+          &quot;cluster1/destination1&quot;: {
             &quot;Address&quot;: &quot;https://localhost:10001/Path/Base&quot;
           }
         }

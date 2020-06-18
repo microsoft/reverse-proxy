@@ -77,20 +77,20 @@
   <div class="markdown level0 remarks"></div>
     <h3 id="classes">Classes
   </h3>
-      <h4><a class="xref" href="Microsoft.ReverseProxy.Abstractions.Backend.html">Backend</a></h4>
-      <section><p>A backend is a group of equivalent endpoints and associated policies.
-A route maps requests to a backend, and Reverse Proxy handles that request
-by proxying to any endpoint within the matching backend,
-honoring load balancing and partitioning policies when applicable.</p>
-</section>
-      <h4><a class="xref" href="Microsoft.ReverseProxy.Abstractions.BackendPartitioningOptions.html">BackendPartitioningOptions</a></h4>
-      <section><p>Backend partitioning configures which endpoints in a backend are eligible to process each request.</p>
-</section>
       <h4><a class="xref" href="Microsoft.ReverseProxy.Abstractions.CircuitBreakerOptions.html">CircuitBreakerOptions</a></h4>
       <section><p>Circuit breaker options.</p>
 </section>
+      <h4><a class="xref" href="Microsoft.ReverseProxy.Abstractions.Cluster.html">Cluster</a></h4>
+      <section><p>A cluster is a group of equivalent endpoints and associated policies.
+A route maps requests to a cluster, and Reverse Proxy handles that request
+by proxying to any endpoint within the matching cluster,
+honoring load balancing and partitioning policies when applicable.</p>
+</section>
+      <h4><a class="xref" href="Microsoft.ReverseProxy.Abstractions.ClusterPartitioningOptions.html">ClusterPartitioningOptions</a></h4>
+      <section><p>Cluster partitioning configures which endpoints in a cluster are eligible to process each request.</p>
+</section>
       <h4><a class="xref" href="Microsoft.ReverseProxy.Abstractions.Destination.html">Destination</a></h4>
-      <section><p>Describes a destination of a backend.</p>
+      <section><p>Describes a destination of a cluster.</p>
 </section>
       <h4><a class="xref" href="Microsoft.ReverseProxy.Abstractions.HealthCheckOptions.html">HealthCheckOptions</a></h4>
       <section><p>Active health check options.</p>
@@ -103,15 +103,15 @@ honoring load balancing and partitioning policies when applicable.</p>
 </section>
       <h4><a class="xref" href="Microsoft.ReverseProxy.Abstractions.ProxyRoute.html">ProxyRoute</a></h4>
       <section><p>Describes a route that matches incoming requests based on a the <a class="xref" href="Microsoft.ReverseProxy.Abstractions.ProxyRoute.html#Microsoft_ReverseProxy_Abstractions_ProxyRoute_Match">Match</a> criteria
-and proxies matching requests to the backend identified by its <a class="xref" href="Microsoft.ReverseProxy.Abstractions.ProxyRoute.html#Microsoft_ReverseProxy_Abstractions_ProxyRoute_BackendId">BackendId</a>.</p>
+and proxies matching requests to the cluster identified by its <a class="xref" href="Microsoft.ReverseProxy.Abstractions.ProxyRoute.html#Microsoft_ReverseProxy_Abstractions_ProxyRoute_ClusterId">ClusterId</a>.</p>
 </section>
       <h4><a class="xref" href="Microsoft.ReverseProxy.Abstractions.QuotaOptions.html">QuotaOptions</a></h4>
       <section><p>Quota / throttling options.</p>
 </section>
     <h3 id="interfaces">Interfaces
   </h3>
-      <h4><a class="xref" href="Microsoft.ReverseProxy.Abstractions.IBackendsRepo.html">IBackendsRepo</a></h4>
-      <section><p>Manages the set of backends. Changes only become effective when
+      <h4><a class="xref" href="Microsoft.ReverseProxy.Abstractions.IClustersRepo.html">IClustersRepo</a></h4>
+      <section><p>Manages the set of clusters. Changes only become effective when
 <a class="xref" href="Microsoft.ReverseProxy.Abstractions.IReverseProxyConfigManager.html#Microsoft_ReverseProxy_Abstractions_IReverseProxyConfigManager_ApplyConfigurationsAsync_Microsoft_ReverseProxy_Abstractions_IConfigErrorReporter_System_Threading_CancellationToken_">ApplyConfigurationsAsync(IConfigErrorReporter, CancellationToken)</a> is called.</p>
 </section>
       <h4><a class="xref" href="Microsoft.ReverseProxy.Abstractions.IConfigErrorReporter.html">IConfigErrorReporter</a></h4>

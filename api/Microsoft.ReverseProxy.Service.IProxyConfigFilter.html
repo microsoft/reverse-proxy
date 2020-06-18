@@ -86,19 +86,19 @@
   </h3>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Service_IProxyConfigFilter_ConfigureBackendAsync_Microsoft_ReverseProxy_Abstractions_Backend_System_Threading_CancellationToken_.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Service.IProxyConfigFilter.ConfigureBackendAsync(Microsoft.ReverseProxy.Abstractions.Backend%2CSystem.Threading.CancellationToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Service_IProxyConfigFilter_ConfigureClusterAsync_Microsoft_ReverseProxy_Abstractions_Cluster_System_Threading_CancellationToken_.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Service.IProxyConfigFilter.ConfigureClusterAsync(Microsoft.ReverseProxy.Abstractions.Cluster%2CSystem.Threading.CancellationToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
     <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/Config/IProxyConfigFilter.cs/#L20">View Source</a>
   </span>
-  <a id="Microsoft_ReverseProxy_Service_IProxyConfigFilter_ConfigureBackendAsync_" data-uid="Microsoft.ReverseProxy.Service.IProxyConfigFilter.ConfigureBackendAsync*"></a>
-  <h4 id="Microsoft_ReverseProxy_Service_IProxyConfigFilter_ConfigureBackendAsync_Microsoft_ReverseProxy_Abstractions_Backend_System_Threading_CancellationToken_" data-uid="Microsoft.ReverseProxy.Service.IProxyConfigFilter.ConfigureBackendAsync(Microsoft.ReverseProxy.Abstractions.Backend,System.Threading.CancellationToken)">ConfigureBackendAsync(Backend, CancellationToken)</h4>
-  <div class="markdown level1 summary"><p>Allows modification of a Backend configuration.</p>
+  <a id="Microsoft_ReverseProxy_Service_IProxyConfigFilter_ConfigureClusterAsync_" data-uid="Microsoft.ReverseProxy.Service.IProxyConfigFilter.ConfigureClusterAsync*"></a>
+  <h4 id="Microsoft_ReverseProxy_Service_IProxyConfigFilter_ConfigureClusterAsync_Microsoft_ReverseProxy_Abstractions_Cluster_System_Threading_CancellationToken_" data-uid="Microsoft.ReverseProxy.Service.IProxyConfigFilter.ConfigureClusterAsync(Microsoft.ReverseProxy.Abstractions.Cluster,System.Threading.CancellationToken)">ConfigureClusterAsync(Cluster, CancellationToken)</h4>
+  <div class="markdown level1 summary"><p>Allows modification of a Cluster configuration.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">Task ConfigureBackendAsync(Backend backend, CancellationToken cancel)</code></pre>
+    <pre><code class="lang-csharp hljs">Task ConfigureClusterAsync(Cluster cluster, CancellationToken cancel)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -111,9 +111,9 @@
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="Microsoft.ReverseProxy.Abstractions.Backend.html">Backend</a></td>
-        <td><span class="parametername">backend</span></td>
-        <td><p>The Backend instance to configure.</p>
+        <td><a class="xref" href="Microsoft.ReverseProxy.Abstractions.Cluster.html">Cluster</a></td>
+        <td><span class="parametername">cluster</span></td>
+        <td><p>The Cluster instance to configure.</p>
 </td>
       </tr>
       <tr>

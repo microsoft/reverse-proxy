@@ -73,7 +73,7 @@
   
   <h1 id="Microsoft_ReverseProxy_Service_SessionAffinity_ISessionAffinityProvider" data-uid="Microsoft.ReverseProxy.Service.SessionAffinity.ISessionAffinityProvider" class="text-break">Interface ISessionAffinityProvider
   </h1>
-  <div class="markdown level0 summary"><p>Provides session affinity for load-balanced backends.</p>
+  <div class="markdown level0 summary"><p>Provides session affinity for load-balanced clusters.</p>
 </div>
   <div class="markdown level0 conceptual"></div>
   <h6><strong>Namespace</strong>: <a class="xref" href="Microsoft.ReverseProxy.Service.SessionAffinity.html">Microsoft.ReverseProxy.Service.SessionAffinity</a></h6>
@@ -119,19 +119,19 @@
   </h3>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Service_SessionAffinity_ISessionAffinityProvider_AffinitizeRequest_Microsoft_AspNetCore_Http_HttpContext_Microsoft_ReverseProxy_RuntimeModel_BackendConfig_BackendSessionAffinityOptions__Microsoft_ReverseProxy_RuntimeModel_DestinationInfo_.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Service.SessionAffinity.ISessionAffinityProvider.AffinitizeRequest(Microsoft.AspNetCore.Http.HttpContext%2CMicrosoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions%40%2CMicrosoft.ReverseProxy.RuntimeModel.DestinationInfo)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Service_SessionAffinity_ISessionAffinityProvider_AffinitizeRequest_Microsoft_AspNetCore_Http_HttpContext_Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_ClusterSessionAffinityOptions__Microsoft_ReverseProxy_RuntimeModel_DestinationInfo_.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Service.SessionAffinity.ISessionAffinityProvider.AffinitizeRequest(Microsoft.AspNetCore.Http.HttpContext%2CMicrosoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions%40%2CMicrosoft.ReverseProxy.RuntimeModel.DestinationInfo)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
     <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/SessionAffinity/ISessionAffinityProvider.cs/#L37">View Source</a>
   </span>
   <a id="Microsoft_ReverseProxy_Service_SessionAffinity_ISessionAffinityProvider_AffinitizeRequest_" data-uid="Microsoft.ReverseProxy.Service.SessionAffinity.ISessionAffinityProvider.AffinitizeRequest*"></a>
-  <h4 id="Microsoft_ReverseProxy_Service_SessionAffinity_ISessionAffinityProvider_AffinitizeRequest_Microsoft_AspNetCore_Http_HttpContext_Microsoft_ReverseProxy_RuntimeModel_BackendConfig_BackendSessionAffinityOptions__Microsoft_ReverseProxy_RuntimeModel_DestinationInfo_" data-uid="Microsoft.ReverseProxy.Service.SessionAffinity.ISessionAffinityProvider.AffinitizeRequest(Microsoft.AspNetCore.Http.HttpContext,Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions@,Microsoft.ReverseProxy.RuntimeModel.DestinationInfo)">AffinitizeRequest(HttpContext, BackendConfig.BackendSessionAffinityOptions, DestinationInfo)</h4>
+  <h4 id="Microsoft_ReverseProxy_Service_SessionAffinity_ISessionAffinityProvider_AffinitizeRequest_Microsoft_AspNetCore_Http_HttpContext_Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_ClusterSessionAffinityOptions__Microsoft_ReverseProxy_RuntimeModel_DestinationInfo_" data-uid="Microsoft.ReverseProxy.Service.SessionAffinity.ISessionAffinityProvider.AffinitizeRequest(Microsoft.AspNetCore.Http.HttpContext,Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions@,Microsoft.ReverseProxy.RuntimeModel.DestinationInfo)">AffinitizeRequest(HttpContext, ClusterConfig.ClusterSessionAffinityOptions, DestinationInfo)</h4>
   <div class="markdown level1 summary"><p>Affinitize the current request to the given <a class="xref" href="Microsoft.ReverseProxy.RuntimeModel.DestinationInfo.html">DestinationInfo</a> by setting the affinity key extracted from <a class="xref" href="Microsoft.ReverseProxy.RuntimeModel.DestinationInfo.html">DestinationInfo</a>.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">void AffinitizeRequest(HttpContext context, in BackendConfig.BackendSessionAffinityOptions options, DestinationInfo destination)</code></pre>
+    <pre><code class="lang-csharp hljs">void AffinitizeRequest(HttpContext context, in ClusterConfig.ClusterSessionAffinityOptions options, DestinationInfo destination)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -150,7 +150,7 @@
 </td>
       </tr>
       <tr>
-        <td><a class="xref" href="Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.html">BackendConfig.BackendSessionAffinityOptions</a></td>
+        <td><a class="xref" href="Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions.html">ClusterConfig.ClusterSessionAffinityOptions</a></td>
         <td><span class="parametername">options</span></td>
         <td><p>Affinity options.</p>
 </td>
@@ -165,19 +165,19 @@
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Service_SessionAffinity_ISessionAffinityProvider_FindAffinitizedDestinations_Microsoft_AspNetCore_Http_HttpContext_System_Collections_Generic_IReadOnlyList_Microsoft_ReverseProxy_RuntimeModel_DestinationInfo__System_String_Microsoft_ReverseProxy_RuntimeModel_BackendConfig_BackendSessionAffinityOptions__.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Service.SessionAffinity.ISessionAffinityProvider.FindAffinitizedDestinations(Microsoft.AspNetCore.Http.HttpContext%2CSystem.Collections.Generic.IReadOnlyList%7BMicrosoft.ReverseProxy.RuntimeModel.DestinationInfo%7D%2CSystem.String%2CMicrosoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions%40)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Service_SessionAffinity_ISessionAffinityProvider_FindAffinitizedDestinations_Microsoft_AspNetCore_Http_HttpContext_System_Collections_Generic_IReadOnlyList_Microsoft_ReverseProxy_RuntimeModel_DestinationInfo__System_String_Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_ClusterSessionAffinityOptions__.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Service.SessionAffinity.ISessionAffinityProvider.FindAffinitizedDestinations(Microsoft.AspNetCore.Http.HttpContext%2CSystem.Collections.Generic.IReadOnlyList%7BMicrosoft.ReverseProxy.RuntimeModel.DestinationInfo%7D%2CSystem.String%2CMicrosoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions%40)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
     <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/SessionAffinity/ISessionAffinityProvider.cs/#L29">View Source</a>
   </span>
   <a id="Microsoft_ReverseProxy_Service_SessionAffinity_ISessionAffinityProvider_FindAffinitizedDestinations_" data-uid="Microsoft.ReverseProxy.Service.SessionAffinity.ISessionAffinityProvider.FindAffinitizedDestinations*"></a>
-  <h4 id="Microsoft_ReverseProxy_Service_SessionAffinity_ISessionAffinityProvider_FindAffinitizedDestinations_Microsoft_AspNetCore_Http_HttpContext_System_Collections_Generic_IReadOnlyList_Microsoft_ReverseProxy_RuntimeModel_DestinationInfo__System_String_Microsoft_ReverseProxy_RuntimeModel_BackendConfig_BackendSessionAffinityOptions__" data-uid="Microsoft.ReverseProxy.Service.SessionAffinity.ISessionAffinityProvider.FindAffinitizedDestinations(Microsoft.AspNetCore.Http.HttpContext,System.Collections.Generic.IReadOnlyList{Microsoft.ReverseProxy.RuntimeModel.DestinationInfo},System.String,Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions@)">FindAffinitizedDestinations(HttpContext, IReadOnlyList&lt;DestinationInfo&gt;, String, BackendConfig.BackendSessionAffinityOptions)</h4>
+  <h4 id="Microsoft_ReverseProxy_Service_SessionAffinity_ISessionAffinityProvider_FindAffinitizedDestinations_Microsoft_AspNetCore_Http_HttpContext_System_Collections_Generic_IReadOnlyList_Microsoft_ReverseProxy_RuntimeModel_DestinationInfo__System_String_Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_ClusterSessionAffinityOptions__" data-uid="Microsoft.ReverseProxy.Service.SessionAffinity.ISessionAffinityProvider.FindAffinitizedDestinations(Microsoft.AspNetCore.Http.HttpContext,System.Collections.Generic.IReadOnlyList{Microsoft.ReverseProxy.RuntimeModel.DestinationInfo},System.String,Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions@)">FindAffinitizedDestinations(HttpContext, IReadOnlyList&lt;DestinationInfo&gt;, String, ClusterConfig.ClusterSessionAffinityOptions)</h4>
   <div class="markdown level1 summary"><p>Finds <a class="xref" href="Microsoft.ReverseProxy.RuntimeModel.DestinationInfo.html">DestinationInfo</a> to which the current request is affinitized by the affinity key.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">AffinityResult FindAffinitizedDestinations(HttpContext context, IReadOnlyList&lt;DestinationInfo&gt; destinations, string backendId, in BackendConfig.BackendSessionAffinityOptions options)</code></pre>
+    <pre><code class="lang-csharp hljs">AffinityResult FindAffinitizedDestinations(HttpContext context, IReadOnlyList&lt;DestinationInfo&gt; destinations, string clusterId, in ClusterConfig.ClusterSessionAffinityOptions options)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -203,12 +203,12 @@
       </tr>
       <tr>
         <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.string">String</a></td>
-        <td><span class="parametername">backendId</span></td>
-        <td><p>Target backend ID.</p>
+        <td><span class="parametername">clusterId</span></td>
+        <td><p>Target cluster ID.</p>
 </td>
       </tr>
       <tr>
-        <td><a class="xref" href="Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.html">BackendConfig.BackendSessionAffinityOptions</a></td>
+        <td><a class="xref" href="Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions.html">ClusterConfig.ClusterSessionAffinityOptions</a></td>
         <td><span class="parametername">options</span></td>
         <td><p>Affinity options.</p>
 </td>

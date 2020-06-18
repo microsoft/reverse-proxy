@@ -83,11 +83,11 @@
     proxyPipeline.UseRequestAffinitizer();
 });
 </code></pre>
-<h3 id="backend-configuration">Backend configuration</h3>
-<p>Session affinity is configured per backend according to the following configuration scheme.</p>
+<h3 id="cluster-configuration">Cluster configuration</h3>
+<p>Session affinity is configured per cluster according to the following configuration scheme.</p>
 <pre><code class="lang-JSON">&quot;ReverseProxy&quot;: {
-    &quot;Backends&quot;: {
-        &quot;&lt;backend-name&gt;&quot;: {
+    &quot;Clusters&quot;: {
+        &quot;&lt;cluster-name&gt;&quot;: {
             &quot;SessionAffinity&quot;: {
                 &quot;Enabled&quot;: &quot;(true|false)&quot;, // defaults to 'false'
                 &quot;Mode&quot;: &quot;(Cookie|CustomHeader)&quot;, // defaults to 'Cookie'
@@ -111,7 +111,7 @@
 <p>Request to destination affinity is established via the affinity key identifying the target destination. That key can be stored on different request parts depending on the given session affinity implementation, but each request cannot have more than one such key. The exact key semantics is implementation dependent, in example the both of built-in <code>CookieSessionAffinityProvider</code> and <code>CustomHeaderAffinityProvider</code> are currently use <code>DestinationId</code> as the affinity key.</p>
 <p>The current design doesn't require a key to uniquely identify the single affinitized destination. It's allowed to establish affinity to a destination group. In this case, the exact destination to handle the given request will be determined by the load balancer.</p>
 <h2 id="establishing-a-new-affinity-or-resolution-of-the-existed-one">Establishing a new affinity or resolution of the existed one</h2>
-<p>Once a request arrives and gets routed to a backend with session affinity enabled, the proxy automatically decides whether a new affinity should be established or an existing one needs to be resolved based on the presence and validity of an affinity key on the request as follows:</p>
+<p>Once a request arrives and gets routed to a cluster with session affinity enabled, the proxy automatically decides whether a new affinity should be established or an existing one needs to be resolved based on the presence and validity of an affinity key on the request as follows:</p>
 <ol>
 <li><p><strong>Request doesn't contain a key</strong>. Resolution is skipped and a new affinity will be establish to the destination chosen by the load balancer</p>
 </li>
@@ -140,7 +140,7 @@
 <h2 id="request-pipeline">Request pipeline</h2>
 <p>The session affinity mechanisms are implemented by the services (mentioned above) and the two following middleware:</p>
 <ol>
-<li><p><code>AffinitizedDestinationLookupMiddleware</code> - coordinates the request's affinity resolution process. First, it calls a provider implementing the mode specified for the given backend on <code>BackendConfig.SessionAffinity.Mode</code> property. Then, it checks the affinity resolution status returned by the provider, and calls a failure handling policy set on <code>BackendConfig.SessionAffinity.FailurePolicy</code> in case of failures. It must be added to the pipeline <strong>before</strong> the load balancer.</p>
+<li><p><code>AffinitizedDestinationLookupMiddleware</code> - coordinates the request's affinity resolution process. First, it calls a provider implementing the mode specified for the given cluster on <code>ClusterConfig.SessionAffinity.Mode</code> property. Then, it checks the affinity resolution status returned by the provider, and calls a failure handling policy set on <code>ClusterConfig.SessionAffinity.FailurePolicy</code> in case of failures. It must be added to the pipeline <strong>before</strong> the load balancer.</p>
 </li>
 <li><p><code>AffinitizeRequestMiddleware</code> - sets the key on the response if a new affinity has been established for the request. Otherwise, if the request follows an existing affinity, it does nothing. It must be added to the pipeline <strong>after</strong> the load balancer.</p>
 </li>

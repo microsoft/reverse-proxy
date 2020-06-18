@@ -5,10 +5,10 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Class SessionAffinityConstants.AffinityFailurePolicies
+    <title>Class ClusterPartitioningOptions
    </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="Class SessionAffinityConstants.AffinityFailurePolicies
+    <meta name="title" content="Class ClusterPartitioningOptions
    ">
     <meta name="generator" content="docfx 2.52.0.0">
     
@@ -68,17 +68,18 @@
         </div>
         <div class="article row grid-right">
           <div class="col-md-10">
-            <article class="content wrap" id="_content" data-uid="Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies">
+            <article class="content wrap" id="_content" data-uid="Microsoft.ReverseProxy.Abstractions.ClusterPartitioningOptions">
   
   
-  <h1 id="Microsoft_ReverseProxy_Abstractions_BackendDiscovery_Contract_SessionAffinityConstants_AffinityFailurePolicies" data-uid="Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies" class="text-break">Class SessionAffinityConstants.AffinityFailurePolicies
+  <h1 id="Microsoft_ReverseProxy_Abstractions_ClusterPartitioningOptions" data-uid="Microsoft.ReverseProxy.Abstractions.ClusterPartitioningOptions" class="text-break">Class ClusterPartitioningOptions
   </h1>
-  <div class="markdown level0 summary"></div>
+  <div class="markdown level0 summary"><p>Cluster partitioning configures which endpoints in a cluster are eligible to process each request.</p>
+</div>
   <div class="markdown level0 conceptual"></div>
   <div class="inheritance">
     <h5>Inheritance</h5>
     <div class="level0"><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object">Object</a></div>
-    <div class="level1"><span class="xref">SessionAffinityConstants.AffinityFailurePolicies</span></div>
+    <div class="level1"><span class="xref">ClusterPartitioningOptions</span></div>
   </div>
   <div class="inheritedMembers">
     <h5>Inherited Members</h5>
@@ -104,28 +105,60 @@
       <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.tostring#System_Object_ToString">Object.ToString()</a>
     </div>
   </div>
-  <h6><strong>Namespace</strong>: <a class="xref" href="Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.html">Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract</a></h6>
+  <h6><strong>Namespace</strong>: <a class="xref" href="Microsoft.ReverseProxy.Abstractions.html">Microsoft.ReverseProxy.Abstractions</a></h6>
   <h6><strong>Assembly</strong>: Microsoft.ReverseProxy.dll</h6>
-  <h5 id="Microsoft_ReverseProxy_Abstractions_BackendDiscovery_Contract_SessionAffinityConstants_AffinityFailurePolicies_syntax">Syntax</h5>
+  <h5 id="Microsoft_ReverseProxy_Abstractions_ClusterPartitioningOptions_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static class AffinityFailurePolicies</code></pre>
+    <pre><code class="lang-csharp hljs">public sealed class ClusterPartitioningOptions</code></pre>
   </div>
   <h3 id="properties">Properties
   </h3>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Abstractions_BackendDiscovery_Contract_SessionAffinityConstants_AffinityFailurePolicies_Redistribute.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies.Redistribute%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Abstractions_ClusterPartitioningOptions_PartitionCount.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Abstractions.ClusterPartitioningOptions.PartitionCount%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Abstractions/BackendDiscovery/Contract/SessionAffinityConstants.cs/#L20">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Abstractions/ClusterDiscovery/Contract/ClusterPartitioningOptions.cs/#L14">View Source</a>
   </span>
-  <a id="Microsoft_ReverseProxy_Abstractions_BackendDiscovery_Contract_SessionAffinityConstants_AffinityFailurePolicies_Redistribute_" data-uid="Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies.Redistribute*"></a>
-  <h4 id="Microsoft_ReverseProxy_Abstractions_BackendDiscovery_Contract_SessionAffinityConstants_AffinityFailurePolicies_Redistribute" data-uid="Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies.Redistribute">Redistribute</h4>
-  <div class="markdown level1 summary"></div>
+  <a id="Microsoft_ReverseProxy_Abstractions_ClusterPartitioningOptions_PartitionCount_" data-uid="Microsoft.ReverseProxy.Abstractions.ClusterPartitioningOptions.PartitionCount*"></a>
+  <h4 id="Microsoft_ReverseProxy_Abstractions_ClusterPartitioningOptions_PartitionCount" data-uid="Microsoft.ReverseProxy.Abstractions.ClusterPartitioningOptions.PartitionCount">PartitionCount</h4>
+  <div class="markdown level1 summary"><p>Number of partitions.</p>
+</div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static string Redistribute { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">public int PartitionCount { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.int32">Int32</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Abstractions_ClusterPartitioningOptions_PartitioningAlgorithm.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Abstractions.ClusterPartitioningOptions.PartitioningAlgorithm%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Abstractions/ClusterDiscovery/Contract/ClusterPartitioningOptions.cs/#L25">View Source</a>
+  </span>
+  <a id="Microsoft_ReverseProxy_Abstractions_ClusterPartitioningOptions_PartitioningAlgorithm_" data-uid="Microsoft.ReverseProxy.Abstractions.ClusterPartitioningOptions.PartitioningAlgorithm*"></a>
+  <h4 id="Microsoft_ReverseProxy_Abstractions_ClusterPartitioningOptions_PartitioningAlgorithm" data-uid="Microsoft.ReverseProxy.Abstractions.ClusterPartitioningOptions.PartitioningAlgorithm">PartitioningAlgorithm</h4>
+  <div class="markdown level1 summary"><p>E.g. &quot;SHA256&quot;.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string PartitioningAlgorithm { get; set; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -144,18 +177,20 @@
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Abstractions_BackendDiscovery_Contract_SessionAffinityConstants_AffinityFailurePolicies_Return503Error.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies.Return503Error%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Abstractions_ClusterPartitioningOptions_PartitionKeyExtractor.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Abstractions.ClusterPartitioningOptions.PartitionKeyExtractor%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Abstractions/BackendDiscovery/Contract/SessionAffinityConstants.cs/#L22">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Abstractions/ClusterDiscovery/Contract/ClusterPartitioningOptions.cs/#L20">View Source</a>
   </span>
-  <a id="Microsoft_ReverseProxy_Abstractions_BackendDiscovery_Contract_SessionAffinityConstants_AffinityFailurePolicies_Return503Error_" data-uid="Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies.Return503Error*"></a>
-  <h4 id="Microsoft_ReverseProxy_Abstractions_BackendDiscovery_Contract_SessionAffinityConstants_AffinityFailurePolicies_Return503Error" data-uid="Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies.Return503Error">Return503Error</h4>
-  <div class="markdown level1 summary"></div>
+  <a id="Microsoft_ReverseProxy_Abstractions_ClusterPartitioningOptions_PartitionKeyExtractor_" data-uid="Microsoft.ReverseProxy.Abstractions.ClusterPartitioningOptions.PartitionKeyExtractor*"></a>
+  <h4 id="Microsoft_ReverseProxy_Abstractions_ClusterPartitioningOptions_PartitionKeyExtractor" data-uid="Microsoft.ReverseProxy.Abstractions.ClusterPartitioningOptions.PartitionKeyExtractor">PartitionKeyExtractor</h4>
+  <div class="markdown level1 summary"><p>Describes how to compute the partitioning key from an incoming request.
+E.g. <code>Header('x-ms-organization-id')</code>.</p>
+</div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static string Return503Error { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">public string PartitionKeyExtractor { get; set; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -180,10 +215,10 @@
               <div class="contribution">
                 <ul class="nav">
                   <li>
-                    <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Abstractions_BackendDiscovery_Contract_SessionAffinityConstants_AffinityFailurePolicies.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Abstractions_ClusterPartitioningOptions.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Abstractions.ClusterPartitioningOptions%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
                   </li>
                   <li>
-                    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Abstractions/BackendDiscovery/Contract/SessionAffinityConstants.cs/#L18" class="contribution-link">View Source</a>
+                    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Abstractions/ClusterDiscovery/Contract/ClusterPartitioningOptions.cs/#L9" class="contribution-link">View Source</a>
                   </li>
                 </ul>
               </div>

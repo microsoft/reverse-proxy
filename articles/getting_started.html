@@ -124,10 +124,10 @@ public void ConfigureServices(IServiceCollection services)
 </code></pre>
 <h3 id="configuration">Configuration</h3>
 <p>The configuration for YARP is defined in the appsettings.json file. It defines a set of:</p>
-<p>Routes - which map incoming requests to the backend clusters based on aspects of the request such as host name, path, method, request headers etc. Specifying a Host is the only required field. Routes are ordered, so the &quot;app1&quot; route needs to be defined first since &quot;route2&quot; will act as a catchall for all paths that have not already been matched.</p>
-<p>Backends - which are the clusters of destination servers that requests can be routed to and load balanced across.</p>
+<p>Routes - which map incoming requests to the clusters based on aspects of the request such as host name, path, method, request headers etc. A route must specify at least a host or path, but the path can be a <a href="https://docs.microsoft.com/en-us/aspnet/core/fundamentals/routing?view=aspnetcore-3.1">catch-all route</a>. Routes are ordered, so the &quot;app1&quot; route needs to be defined first since &quot;route2&quot; will act as a catchall for all paths that have not already been matched.</p>
+<p>Clusters - which are the groups of destination servers that requests can be routed to and load balanced across.</p>
 <p>Address is the URI prefix that will have the original request path and query appended to it.</p>
-<p>You can find out more about the available configuration options by looking at <a class="xref" href="../api/Microsoft.ReverseProxy.Abstractions.ProxyRoute.html">ProxyRoute</a> and <a class="xref" href="../api/Microsoft.ReverseProxy.Abstractions.Backend.html">Backend</a>.</p>
+<p>You can find out more about the available configuration options by looking at <a class="xref" href="../api/Microsoft.ReverseProxy.Abstractions.ProxyRoute.html">ProxyRoute</a> and <a class="xref" href="../api/Microsoft.ReverseProxy.Abstractions.Cluster.html">Cluster</a>.</p>
 <pre><code>{
  &quot;Logging&quot;: {
    &quot;LogLevel&quot;: {
@@ -141,7 +141,7 @@ public void ConfigureServices(IServiceCollection services)
    &quot;Routes&quot;: [
      {
        &quot;RouteId&quot;: &quot;app1&quot;,
-       &quot;BackendId&quot;: &quot;backend1&quot;,
+       &quot;ClusterId&quot;: &quot;cluster1&quot;,
        &quot;Match&quot;: {
          &quot;Methods&quot;: [ &quot;GET&quot;, &quot;POST&quot; ],
          &quot;Host&quot;: &quot;localhost&quot;,
@@ -150,29 +150,29 @@ public void ConfigureServices(IServiceCollection services)
      },
      {
        &quot;RouteId&quot;: &quot;route2&quot;,
-       &quot;BackendId&quot;: &quot;backend2&quot;,
+       &quot;ClusterId&quot;: &quot;cluster2&quot;,
        &quot;Match&quot;: {
          &quot;Host&quot;: &quot;localhost&quot;
        }
      }
    ],
-   &quot;Backends&quot;: {
-     &quot;backend1&quot;: {
+   &quot;Clusters&quot;: {
+     &quot;cluster1&quot;: {
        &quot;LoadBalancing&quot;: {
          &quot;Mode&quot;: &quot;Random&quot;
        },
        &quot;Destinations&quot;: {
-         &quot;backend1_destination1&quot;: {
+         &quot;cluster1_destination1&quot;: {
            &quot;Address&quot;: &quot;https://example.com/&quot;
          },
-         &quot;backend1_destination2&quot;: {
+         &quot;cluster1_destination2&quot;: {
            &quot;Address&quot;: &quot;http://example.com/&quot;
          }
        }
      },
-     &quot;backend2&quot;: {
+     &quot;cluster2&quot;: {
        &quot;Destinations&quot;: {
-         &quot;backend2_destination1&quot;: {
+         &quot;cluster2_destination1&quot;: {
            &quot;Address&quot;: &quot;https://example.com:10001/&quot;
          }
        }

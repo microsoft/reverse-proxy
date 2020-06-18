@@ -5,10 +5,10 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Interface IBackendsRepo
+    <title>Interface IClustersRepo
    </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="Interface IBackendsRepo
+    <meta name="title" content="Interface IClustersRepo
    ">
     <meta name="generator" content="docfx 2.52.0.0">
     
@@ -68,38 +68,38 @@
         </div>
         <div class="article row grid-right">
           <div class="col-md-10">
-            <article class="content wrap" id="_content" data-uid="Microsoft.ReverseProxy.Abstractions.IBackendsRepo">
+            <article class="content wrap" id="_content" data-uid="Microsoft.ReverseProxy.Abstractions.IClustersRepo">
   
   
-  <h1 id="Microsoft_ReverseProxy_Abstractions_IBackendsRepo" data-uid="Microsoft.ReverseProxy.Abstractions.IBackendsRepo" class="text-break">Interface IBackendsRepo
+  <h1 id="Microsoft_ReverseProxy_Abstractions_IClustersRepo" data-uid="Microsoft.ReverseProxy.Abstractions.IClustersRepo" class="text-break">Interface IClustersRepo
   </h1>
-  <div class="markdown level0 summary"><p>Manages the set of backends. Changes only become effective when
+  <div class="markdown level0 summary"><p>Manages the set of clusters. Changes only become effective when
 <a class="xref" href="Microsoft.ReverseProxy.Abstractions.IReverseProxyConfigManager.html#Microsoft_ReverseProxy_Abstractions_IReverseProxyConfigManager_ApplyConfigurationsAsync_Microsoft_ReverseProxy_Abstractions_IConfigErrorReporter_System_Threading_CancellationToken_">ApplyConfigurationsAsync(IConfigErrorReporter, CancellationToken)</a> is called.</p>
 </div>
   <div class="markdown level0 conceptual"></div>
   <h6><strong>Namespace</strong>: <a class="xref" href="Microsoft.ReverseProxy.Abstractions.html">Microsoft.ReverseProxy.Abstractions</a></h6>
   <h6><strong>Assembly</strong>: Microsoft.ReverseProxy.dll</h6>
-  <h5 id="Microsoft_ReverseProxy_Abstractions_IBackendsRepo_syntax">Syntax</h5>
+  <h5 id="Microsoft_ReverseProxy_Abstractions_IClustersRepo_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public interface IBackendsRepo</code></pre>
+    <pre><code class="lang-csharp hljs">public interface IClustersRepo</code></pre>
   </div>
   <h3 id="methods">Methods
   </h3>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Abstractions_IBackendsRepo_GetBackendsAsync_System_Threading_CancellationToken_.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Abstractions.IBackendsRepo.GetBackendsAsync(System.Threading.CancellationToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Abstractions_IClustersRepo_GetClustersAsync_System_Threading_CancellationToken_.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Abstractions.IClustersRepo.GetClustersAsync(System.Threading.CancellationToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Abstractions/BackendDiscovery/IBackendsRepo.cs/#L19">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Abstractions/ClusterDiscovery/IClustersRepo.cs/#L19">View Source</a>
   </span>
-  <a id="Microsoft_ReverseProxy_Abstractions_IBackendsRepo_GetBackendsAsync_" data-uid="Microsoft.ReverseProxy.Abstractions.IBackendsRepo.GetBackendsAsync*"></a>
-  <h4 id="Microsoft_ReverseProxy_Abstractions_IBackendsRepo_GetBackendsAsync_System_Threading_CancellationToken_" data-uid="Microsoft.ReverseProxy.Abstractions.IBackendsRepo.GetBackendsAsync(System.Threading.CancellationToken)">GetBackendsAsync(CancellationToken)</h4>
-  <div class="markdown level1 summary"><p>Gets the current set of backends.</p>
+  <a id="Microsoft_ReverseProxy_Abstractions_IClustersRepo_GetClustersAsync_" data-uid="Microsoft.ReverseProxy.Abstractions.IClustersRepo.GetClustersAsync*"></a>
+  <h4 id="Microsoft_ReverseProxy_Abstractions_IClustersRepo_GetClustersAsync_System_Threading_CancellationToken_" data-uid="Microsoft.ReverseProxy.Abstractions.IClustersRepo.GetClustersAsync(System.Threading.CancellationToken)">GetClustersAsync(CancellationToken)</h4>
+  <div class="markdown level1 summary"><p>Gets the current set of clusters.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">Task&lt;IDictionary&lt;string, Backend&gt;&gt; GetBackendsAsync(CancellationToken cancellation)</code></pre>
+    <pre><code class="lang-csharp hljs">Task&lt;IDictionary&lt;string, Cluster&gt;&gt; GetClustersAsync(CancellationToken cancellation)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -128,26 +128,26 @@
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="https://docs.microsoft.com/dotnet/api/system.collections.generic.idictionary-2">IDictionary</a>&lt;<a class="xref" href="https://docs.microsoft.com/dotnet/api/system.string">String</a>, <a class="xref" href="Microsoft.ReverseProxy.Abstractions.Backend.html">Backend</a>&gt;&gt;</td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="https://docs.microsoft.com/dotnet/api/system.collections.generic.idictionary-2">IDictionary</a>&lt;<a class="xref" href="https://docs.microsoft.com/dotnet/api/system.string">String</a>, <a class="xref" href="Microsoft.ReverseProxy.Abstractions.Cluster.html">Cluster</a>&gt;&gt;</td>
         <td></td>
       </tr>
     </tbody>
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Abstractions_IBackendsRepo_SetBackendsAsync_System_Collections_Generic_IDictionary_System_String_Microsoft_ReverseProxy_Abstractions_Backend__System_Threading_CancellationToken_.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Abstractions.IBackendsRepo.SetBackendsAsync(System.Collections.Generic.IDictionary%7BSystem.String%2CMicrosoft.ReverseProxy.Abstractions.Backend%7D%2CSystem.Threading.CancellationToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Abstractions_IClustersRepo_SetClustersAsync_System_Collections_Generic_IDictionary_System_String_Microsoft_ReverseProxy_Abstractions_Cluster__System_Threading_CancellationToken_.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Abstractions.IClustersRepo.SetClustersAsync(System.Collections.Generic.IDictionary%7BSystem.String%2CMicrosoft.ReverseProxy.Abstractions.Cluster%7D%2CSystem.Threading.CancellationToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Abstractions/BackendDiscovery/IBackendsRepo.cs/#L24">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Abstractions/ClusterDiscovery/IClustersRepo.cs/#L24">View Source</a>
   </span>
-  <a id="Microsoft_ReverseProxy_Abstractions_IBackendsRepo_SetBackendsAsync_" data-uid="Microsoft.ReverseProxy.Abstractions.IBackendsRepo.SetBackendsAsync*"></a>
-  <h4 id="Microsoft_ReverseProxy_Abstractions_IBackendsRepo_SetBackendsAsync_System_Collections_Generic_IDictionary_System_String_Microsoft_ReverseProxy_Abstractions_Backend__System_Threading_CancellationToken_" data-uid="Microsoft.ReverseProxy.Abstractions.IBackendsRepo.SetBackendsAsync(System.Collections.Generic.IDictionary{System.String,Microsoft.ReverseProxy.Abstractions.Backend},System.Threading.CancellationToken)">SetBackendsAsync(IDictionary&lt;String, Backend&gt;, CancellationToken)</h4>
-  <div class="markdown level1 summary"><p>Sets the current set of backends.</p>
+  <a id="Microsoft_ReverseProxy_Abstractions_IClustersRepo_SetClustersAsync_" data-uid="Microsoft.ReverseProxy.Abstractions.IClustersRepo.SetClustersAsync*"></a>
+  <h4 id="Microsoft_ReverseProxy_Abstractions_IClustersRepo_SetClustersAsync_System_Collections_Generic_IDictionary_System_String_Microsoft_ReverseProxy_Abstractions_Cluster__System_Threading_CancellationToken_" data-uid="Microsoft.ReverseProxy.Abstractions.IClustersRepo.SetClustersAsync(System.Collections.Generic.IDictionary{System.String,Microsoft.ReverseProxy.Abstractions.Cluster},System.Threading.CancellationToken)">SetClustersAsync(IDictionary&lt;String, Cluster&gt;, CancellationToken)</h4>
+  <div class="markdown level1 summary"><p>Sets the current set of clusters.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">Task SetBackendsAsync(IDictionary&lt;string, Backend&gt; backends, CancellationToken cancellation)</code></pre>
+    <pre><code class="lang-csharp hljs">Task SetClustersAsync(IDictionary&lt;string, Cluster&gt; clusters, CancellationToken cancellation)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -160,8 +160,8 @@
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.collections.generic.idictionary-2">IDictionary</a>&lt;<a class="xref" href="https://docs.microsoft.com/dotnet/api/system.string">String</a>, <a class="xref" href="Microsoft.ReverseProxy.Abstractions.Backend.html">Backend</a>&gt;</td>
-        <td><span class="parametername">backends</span></td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.collections.generic.idictionary-2">IDictionary</a>&lt;<a class="xref" href="https://docs.microsoft.com/dotnet/api/system.string">String</a>, <a class="xref" href="Microsoft.ReverseProxy.Abstractions.Cluster.html">Cluster</a>&gt;</td>
+        <td><span class="parametername">clusters</span></td>
         <td></td>
       </tr>
       <tr>
@@ -194,10 +194,10 @@
               <div class="contribution">
                 <ul class="nav">
                   <li>
-                    <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Abstractions_IBackendsRepo.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Abstractions.IBackendsRepo%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Abstractions_IClustersRepo.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Abstractions.IClustersRepo%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
                   </li>
                   <li>
-                    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Abstractions/BackendDiscovery/IBackendsRepo.cs/#L14" class="contribution-link">View Source</a>
+                    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Abstractions/ClusterDiscovery/IClustersRepo.cs/#L14" class="contribution-link">View Source</a>
                   </li>
                 </ul>
               </div>

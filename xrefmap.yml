@@ -146,333 +146,6 @@ references:
   commentId: N:Microsoft.ReverseProxy.Abstractions
   fullName: Microsoft.ReverseProxy.Abstractions
   nameWithType: Microsoft.ReverseProxy.Abstractions
-- uid: Microsoft.ReverseProxy.Abstractions.Backend
-  name: Backend
-  href: api/Microsoft.ReverseProxy.Abstractions.Backend.html
-  commentId: T:Microsoft.ReverseProxy.Abstractions.Backend
-  fullName: Microsoft.ReverseProxy.Abstractions.Backend
-  nameWithType: Backend
-- uid: Microsoft.ReverseProxy.Abstractions.Backend.CircuitBreakerOptions
-  name: CircuitBreakerOptions
-  href: api/Microsoft.ReverseProxy.Abstractions.Backend.html#Microsoft_ReverseProxy_Abstractions_Backend_CircuitBreakerOptions
-  commentId: P:Microsoft.ReverseProxy.Abstractions.Backend.CircuitBreakerOptions
-  fullName: Microsoft.ReverseProxy.Abstractions.Backend.CircuitBreakerOptions
-  nameWithType: Backend.CircuitBreakerOptions
-- uid: Microsoft.ReverseProxy.Abstractions.Backend.CircuitBreakerOptions*
-  name: CircuitBreakerOptions
-  href: api/Microsoft.ReverseProxy.Abstractions.Backend.html#Microsoft_ReverseProxy_Abstractions_Backend_CircuitBreakerOptions_
-  commentId: Overload:Microsoft.ReverseProxy.Abstractions.Backend.CircuitBreakerOptions
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Abstractions.Backend.CircuitBreakerOptions
-  nameWithType: Backend.CircuitBreakerOptions
-- uid: Microsoft.ReverseProxy.Abstractions.Backend.Destinations
-  name: Destinations
-  href: api/Microsoft.ReverseProxy.Abstractions.Backend.html#Microsoft_ReverseProxy_Abstractions_Backend_Destinations
-  commentId: P:Microsoft.ReverseProxy.Abstractions.Backend.Destinations
-  fullName: Microsoft.ReverseProxy.Abstractions.Backend.Destinations
-  nameWithType: Backend.Destinations
-- uid: Microsoft.ReverseProxy.Abstractions.Backend.Destinations*
-  name: Destinations
-  href: api/Microsoft.ReverseProxy.Abstractions.Backend.html#Microsoft_ReverseProxy_Abstractions_Backend_Destinations_
-  commentId: Overload:Microsoft.ReverseProxy.Abstractions.Backend.Destinations
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Abstractions.Backend.Destinations
-  nameWithType: Backend.Destinations
-- uid: Microsoft.ReverseProxy.Abstractions.Backend.HealthCheckOptions
-  name: HealthCheckOptions
-  href: api/Microsoft.ReverseProxy.Abstractions.Backend.html#Microsoft_ReverseProxy_Abstractions_Backend_HealthCheckOptions
-  commentId: P:Microsoft.ReverseProxy.Abstractions.Backend.HealthCheckOptions
-  fullName: Microsoft.ReverseProxy.Abstractions.Backend.HealthCheckOptions
-  nameWithType: Backend.HealthCheckOptions
-- uid: Microsoft.ReverseProxy.Abstractions.Backend.HealthCheckOptions*
-  name: HealthCheckOptions
-  href: api/Microsoft.ReverseProxy.Abstractions.Backend.html#Microsoft_ReverseProxy_Abstractions_Backend_HealthCheckOptions_
-  commentId: Overload:Microsoft.ReverseProxy.Abstractions.Backend.HealthCheckOptions
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Abstractions.Backend.HealthCheckOptions
-  nameWithType: Backend.HealthCheckOptions
-- uid: Microsoft.ReverseProxy.Abstractions.Backend.Id
-  name: Id
-  href: api/Microsoft.ReverseProxy.Abstractions.Backend.html#Microsoft_ReverseProxy_Abstractions_Backend_Id
-  commentId: P:Microsoft.ReverseProxy.Abstractions.Backend.Id
-  fullName: Microsoft.ReverseProxy.Abstractions.Backend.Id
-  nameWithType: Backend.Id
-- uid: Microsoft.ReverseProxy.Abstractions.Backend.Id*
-  name: Id
-  href: api/Microsoft.ReverseProxy.Abstractions.Backend.html#Microsoft_ReverseProxy_Abstractions_Backend_Id_
-  commentId: Overload:Microsoft.ReverseProxy.Abstractions.Backend.Id
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Abstractions.Backend.Id
-  nameWithType: Backend.Id
-- uid: Microsoft.ReverseProxy.Abstractions.Backend.LoadBalancing
-  name: LoadBalancing
-  href: api/Microsoft.ReverseProxy.Abstractions.Backend.html#Microsoft_ReverseProxy_Abstractions_Backend_LoadBalancing
-  commentId: P:Microsoft.ReverseProxy.Abstractions.Backend.LoadBalancing
-  fullName: Microsoft.ReverseProxy.Abstractions.Backend.LoadBalancing
-  nameWithType: Backend.LoadBalancing
-- uid: Microsoft.ReverseProxy.Abstractions.Backend.LoadBalancing*
-  name: LoadBalancing
-  href: api/Microsoft.ReverseProxy.Abstractions.Backend.html#Microsoft_ReverseProxy_Abstractions_Backend_LoadBalancing_
-  commentId: Overload:Microsoft.ReverseProxy.Abstractions.Backend.LoadBalancing
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Abstractions.Backend.LoadBalancing
-  nameWithType: Backend.LoadBalancing
-- uid: Microsoft.ReverseProxy.Abstractions.Backend.Metadata
-  name: Metadata
-  href: api/Microsoft.ReverseProxy.Abstractions.Backend.html#Microsoft_ReverseProxy_Abstractions_Backend_Metadata
-  commentId: P:Microsoft.ReverseProxy.Abstractions.Backend.Metadata
-  fullName: Microsoft.ReverseProxy.Abstractions.Backend.Metadata
-  nameWithType: Backend.Metadata
-- uid: Microsoft.ReverseProxy.Abstractions.Backend.Metadata*
-  name: Metadata
-  href: api/Microsoft.ReverseProxy.Abstractions.Backend.html#Microsoft_ReverseProxy_Abstractions_Backend_Metadata_
-  commentId: Overload:Microsoft.ReverseProxy.Abstractions.Backend.Metadata
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Abstractions.Backend.Metadata
-  nameWithType: Backend.Metadata
-- uid: Microsoft.ReverseProxy.Abstractions.Backend.PartitioningOptions
-  name: PartitioningOptions
-  href: api/Microsoft.ReverseProxy.Abstractions.Backend.html#Microsoft_ReverseProxy_Abstractions_Backend_PartitioningOptions
-  commentId: P:Microsoft.ReverseProxy.Abstractions.Backend.PartitioningOptions
-  fullName: Microsoft.ReverseProxy.Abstractions.Backend.PartitioningOptions
-  nameWithType: Backend.PartitioningOptions
-- uid: Microsoft.ReverseProxy.Abstractions.Backend.PartitioningOptions*
-  name: PartitioningOptions
-  href: api/Microsoft.ReverseProxy.Abstractions.Backend.html#Microsoft_ReverseProxy_Abstractions_Backend_PartitioningOptions_
-  commentId: Overload:Microsoft.ReverseProxy.Abstractions.Backend.PartitioningOptions
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Abstractions.Backend.PartitioningOptions
-  nameWithType: Backend.PartitioningOptions
-- uid: Microsoft.ReverseProxy.Abstractions.Backend.QuotaOptions
-  name: QuotaOptions
-  href: api/Microsoft.ReverseProxy.Abstractions.Backend.html#Microsoft_ReverseProxy_Abstractions_Backend_QuotaOptions
-  commentId: P:Microsoft.ReverseProxy.Abstractions.Backend.QuotaOptions
-  fullName: Microsoft.ReverseProxy.Abstractions.Backend.QuotaOptions
-  nameWithType: Backend.QuotaOptions
-- uid: Microsoft.ReverseProxy.Abstractions.Backend.QuotaOptions*
-  name: QuotaOptions
-  href: api/Microsoft.ReverseProxy.Abstractions.Backend.html#Microsoft_ReverseProxy_Abstractions_Backend_QuotaOptions_
-  commentId: Overload:Microsoft.ReverseProxy.Abstractions.Backend.QuotaOptions
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Abstractions.Backend.QuotaOptions
-  nameWithType: Backend.QuotaOptions
-- uid: Microsoft.ReverseProxy.Abstractions.Backend.SessionAffinity
-  name: SessionAffinity
-  href: api/Microsoft.ReverseProxy.Abstractions.Backend.html#Microsoft_ReverseProxy_Abstractions_Backend_SessionAffinity
-  commentId: P:Microsoft.ReverseProxy.Abstractions.Backend.SessionAffinity
-  fullName: Microsoft.ReverseProxy.Abstractions.Backend.SessionAffinity
-  nameWithType: Backend.SessionAffinity
-- uid: Microsoft.ReverseProxy.Abstractions.Backend.SessionAffinity*
-  name: SessionAffinity
-  href: api/Microsoft.ReverseProxy.Abstractions.Backend.html#Microsoft_ReverseProxy_Abstractions_Backend_SessionAffinity_
-  commentId: Overload:Microsoft.ReverseProxy.Abstractions.Backend.SessionAffinity
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Abstractions.Backend.SessionAffinity
-  nameWithType: Backend.SessionAffinity
-- uid: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract
-  name: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract
-  href: api/Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.html
-  commentId: N:Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract
-  fullName: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract
-  nameWithType: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract
-- uid: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.CookieSessionAffinityProviderOptions
-  name: CookieSessionAffinityProviderOptions
-  href: api/Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.CookieSessionAffinityProviderOptions.html
-  commentId: T:Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.CookieSessionAffinityProviderOptions
-  fullName: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.CookieSessionAffinityProviderOptions
-  nameWithType: CookieSessionAffinityProviderOptions
-- uid: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.CookieSessionAffinityProviderOptions.Cookie
-  name: Cookie
-  href: api/Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.CookieSessionAffinityProviderOptions.html#Microsoft_ReverseProxy_Abstractions_BackendDiscovery_Contract_CookieSessionAffinityProviderOptions_Cookie
-  commentId: P:Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.CookieSessionAffinityProviderOptions.Cookie
-  fullName: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.CookieSessionAffinityProviderOptions.Cookie
-  nameWithType: CookieSessionAffinityProviderOptions.Cookie
-- uid: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.CookieSessionAffinityProviderOptions.Cookie*
-  name: Cookie
-  href: api/Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.CookieSessionAffinityProviderOptions.html#Microsoft_ReverseProxy_Abstractions_BackendDiscovery_Contract_CookieSessionAffinityProviderOptions_Cookie_
-  commentId: Overload:Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.CookieSessionAffinityProviderOptions.Cookie
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.CookieSessionAffinityProviderOptions.Cookie
-  nameWithType: CookieSessionAffinityProviderOptions.Cookie
-- uid: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.CookieSessionAffinityProviderOptions.DefaultCookieName
-  name: DefaultCookieName
-  href: api/Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.CookieSessionAffinityProviderOptions.html#Microsoft_ReverseProxy_Abstractions_BackendDiscovery_Contract_CookieSessionAffinityProviderOptions_DefaultCookieName
-  commentId: F:Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.CookieSessionAffinityProviderOptions.DefaultCookieName
-  fullName: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.CookieSessionAffinityProviderOptions.DefaultCookieName
-  nameWithType: CookieSessionAffinityProviderOptions.DefaultCookieName
-- uid: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants
-  name: SessionAffinityConstants
-  href: api/Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.html
-  commentId: T:Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants
-  fullName: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants
-  nameWithType: SessionAffinityConstants
-- uid: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies
-  name: SessionAffinityConstants.AffinityFailurePolicies
-  href: api/Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies.html
-  commentId: T:Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies
-  fullName: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies
-  nameWithType: SessionAffinityConstants.AffinityFailurePolicies
-- uid: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies.Redistribute
-  name: Redistribute
-  href: api/Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies.html#Microsoft_ReverseProxy_Abstractions_BackendDiscovery_Contract_SessionAffinityConstants_AffinityFailurePolicies_Redistribute
-  commentId: P:Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies.Redistribute
-  fullName: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies.Redistribute
-  nameWithType: SessionAffinityConstants.AffinityFailurePolicies.Redistribute
-- uid: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies.Redistribute*
-  name: Redistribute
-  href: api/Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies.html#Microsoft_ReverseProxy_Abstractions_BackendDiscovery_Contract_SessionAffinityConstants_AffinityFailurePolicies_Redistribute_
-  commentId: Overload:Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies.Redistribute
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies.Redistribute
-  nameWithType: SessionAffinityConstants.AffinityFailurePolicies.Redistribute
-- uid: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies.Return503Error
-  name: Return503Error
-  href: api/Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies.html#Microsoft_ReverseProxy_Abstractions_BackendDiscovery_Contract_SessionAffinityConstants_AffinityFailurePolicies_Return503Error
-  commentId: P:Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies.Return503Error
-  fullName: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies.Return503Error
-  nameWithType: SessionAffinityConstants.AffinityFailurePolicies.Return503Error
-- uid: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies.Return503Error*
-  name: Return503Error
-  href: api/Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies.html#Microsoft_ReverseProxy_Abstractions_BackendDiscovery_Contract_SessionAffinityConstants_AffinityFailurePolicies_Return503Error_
-  commentId: Overload:Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies.Return503Error
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies.Return503Error
-  nameWithType: SessionAffinityConstants.AffinityFailurePolicies.Return503Error
-- uid: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.Modes
-  name: SessionAffinityConstants.Modes
-  href: api/Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.Modes.html
-  commentId: T:Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.Modes
-  fullName: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.Modes
-  nameWithType: SessionAffinityConstants.Modes
-- uid: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.Modes.Cookie
-  name: Cookie
-  href: api/Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.Modes.html#Microsoft_ReverseProxy_Abstractions_BackendDiscovery_Contract_SessionAffinityConstants_Modes_Cookie
-  commentId: P:Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.Modes.Cookie
-  fullName: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.Modes.Cookie
-  nameWithType: SessionAffinityConstants.Modes.Cookie
-- uid: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.Modes.Cookie*
-  name: Cookie
-  href: api/Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.Modes.html#Microsoft_ReverseProxy_Abstractions_BackendDiscovery_Contract_SessionAffinityConstants_Modes_Cookie_
-  commentId: Overload:Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.Modes.Cookie
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.Modes.Cookie
-  nameWithType: SessionAffinityConstants.Modes.Cookie
-- uid: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.Modes.CustomHeader
-  name: CustomHeader
-  href: api/Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.Modes.html#Microsoft_ReverseProxy_Abstractions_BackendDiscovery_Contract_SessionAffinityConstants_Modes_CustomHeader
-  commentId: P:Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.Modes.CustomHeader
-  fullName: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.Modes.CustomHeader
-  nameWithType: SessionAffinityConstants.Modes.CustomHeader
-- uid: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.Modes.CustomHeader*
-  name: CustomHeader
-  href: api/Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.Modes.html#Microsoft_ReverseProxy_Abstractions_BackendDiscovery_Contract_SessionAffinityConstants_Modes_CustomHeader_
-  commentId: Overload:Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.Modes.CustomHeader
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityConstants.Modes.CustomHeader
-  nameWithType: SessionAffinityConstants.Modes.CustomHeader
-- uid: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions
-  name: SessionAffinityOptions
-  href: api/Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.html
-  commentId: T:Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions
-  fullName: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions
-  nameWithType: SessionAffinityOptions
-- uid: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.Enabled
-  name: Enabled
-  href: api/Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.html#Microsoft_ReverseProxy_Abstractions_BackendDiscovery_Contract_SessionAffinityOptions_Enabled
-  commentId: P:Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.Enabled
-  fullName: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.Enabled
-  nameWithType: SessionAffinityOptions.Enabled
-- uid: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.Enabled*
-  name: Enabled
-  href: api/Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.html#Microsoft_ReverseProxy_Abstractions_BackendDiscovery_Contract_SessionAffinityOptions_Enabled_
-  commentId: Overload:Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.Enabled
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.Enabled
-  nameWithType: SessionAffinityOptions.Enabled
-- uid: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.FailurePolicy
-  name: FailurePolicy
-  href: api/Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.html#Microsoft_ReverseProxy_Abstractions_BackendDiscovery_Contract_SessionAffinityOptions_FailurePolicy
-  commentId: P:Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.FailurePolicy
-  fullName: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.FailurePolicy
-  nameWithType: SessionAffinityOptions.FailurePolicy
-- uid: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.FailurePolicy*
-  name: FailurePolicy
-  href: api/Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.html#Microsoft_ReverseProxy_Abstractions_BackendDiscovery_Contract_SessionAffinityOptions_FailurePolicy_
-  commentId: Overload:Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.FailurePolicy
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.FailurePolicy
-  nameWithType: SessionAffinityOptions.FailurePolicy
-- uid: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.Mode
-  name: Mode
-  href: api/Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.html#Microsoft_ReverseProxy_Abstractions_BackendDiscovery_Contract_SessionAffinityOptions_Mode
-  commentId: P:Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.Mode
-  fullName: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.Mode
-  nameWithType: SessionAffinityOptions.Mode
-- uid: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.Mode*
-  name: Mode
-  href: api/Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.html#Microsoft_ReverseProxy_Abstractions_BackendDiscovery_Contract_SessionAffinityOptions_Mode_
-  commentId: Overload:Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.Mode
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.Mode
-  nameWithType: SessionAffinityOptions.Mode
-- uid: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.Settings
-  name: Settings
-  href: api/Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.html#Microsoft_ReverseProxy_Abstractions_BackendDiscovery_Contract_SessionAffinityOptions_Settings
-  commentId: P:Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.Settings
-  fullName: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.Settings
-  nameWithType: SessionAffinityOptions.Settings
-- uid: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.Settings*
-  name: Settings
-  href: api/Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.html#Microsoft_ReverseProxy_Abstractions_BackendDiscovery_Contract_SessionAffinityOptions_Settings_
-  commentId: Overload:Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.Settings
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Abstractions.BackendDiscovery.Contract.SessionAffinityOptions.Settings
-  nameWithType: SessionAffinityOptions.Settings
-- uid: Microsoft.ReverseProxy.Abstractions.BackendPartitioningOptions
-  name: BackendPartitioningOptions
-  href: api/Microsoft.ReverseProxy.Abstractions.BackendPartitioningOptions.html
-  commentId: T:Microsoft.ReverseProxy.Abstractions.BackendPartitioningOptions
-  fullName: Microsoft.ReverseProxy.Abstractions.BackendPartitioningOptions
-  nameWithType: BackendPartitioningOptions
-- uid: Microsoft.ReverseProxy.Abstractions.BackendPartitioningOptions.PartitionCount
-  name: PartitionCount
-  href: api/Microsoft.ReverseProxy.Abstractions.BackendPartitioningOptions.html#Microsoft_ReverseProxy_Abstractions_BackendPartitioningOptions_PartitionCount
-  commentId: P:Microsoft.ReverseProxy.Abstractions.BackendPartitioningOptions.PartitionCount
-  fullName: Microsoft.ReverseProxy.Abstractions.BackendPartitioningOptions.PartitionCount
-  nameWithType: BackendPartitioningOptions.PartitionCount
-- uid: Microsoft.ReverseProxy.Abstractions.BackendPartitioningOptions.PartitionCount*
-  name: PartitionCount
-  href: api/Microsoft.ReverseProxy.Abstractions.BackendPartitioningOptions.html#Microsoft_ReverseProxy_Abstractions_BackendPartitioningOptions_PartitionCount_
-  commentId: Overload:Microsoft.ReverseProxy.Abstractions.BackendPartitioningOptions.PartitionCount
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Abstractions.BackendPartitioningOptions.PartitionCount
-  nameWithType: BackendPartitioningOptions.PartitionCount
-- uid: Microsoft.ReverseProxy.Abstractions.BackendPartitioningOptions.PartitioningAlgorithm
-  name: PartitioningAlgorithm
-  href: api/Microsoft.ReverseProxy.Abstractions.BackendPartitioningOptions.html#Microsoft_ReverseProxy_Abstractions_BackendPartitioningOptions_PartitioningAlgorithm
-  commentId: P:Microsoft.ReverseProxy.Abstractions.BackendPartitioningOptions.PartitioningAlgorithm
-  fullName: Microsoft.ReverseProxy.Abstractions.BackendPartitioningOptions.PartitioningAlgorithm
-  nameWithType: BackendPartitioningOptions.PartitioningAlgorithm
-- uid: Microsoft.ReverseProxy.Abstractions.BackendPartitioningOptions.PartitioningAlgorithm*
-  name: PartitioningAlgorithm
-  href: api/Microsoft.ReverseProxy.Abstractions.BackendPartitioningOptions.html#Microsoft_ReverseProxy_Abstractions_BackendPartitioningOptions_PartitioningAlgorithm_
-  commentId: Overload:Microsoft.ReverseProxy.Abstractions.BackendPartitioningOptions.PartitioningAlgorithm
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Abstractions.BackendPartitioningOptions.PartitioningAlgorithm
-  nameWithType: BackendPartitioningOptions.PartitioningAlgorithm
-- uid: Microsoft.ReverseProxy.Abstractions.BackendPartitioningOptions.PartitionKeyExtractor
-  name: PartitionKeyExtractor
-  href: api/Microsoft.ReverseProxy.Abstractions.BackendPartitioningOptions.html#Microsoft_ReverseProxy_Abstractions_BackendPartitioningOptions_PartitionKeyExtractor
-  commentId: P:Microsoft.ReverseProxy.Abstractions.BackendPartitioningOptions.PartitionKeyExtractor
-  fullName: Microsoft.ReverseProxy.Abstractions.BackendPartitioningOptions.PartitionKeyExtractor
-  nameWithType: BackendPartitioningOptions.PartitionKeyExtractor
-- uid: Microsoft.ReverseProxy.Abstractions.BackendPartitioningOptions.PartitionKeyExtractor*
-  name: PartitionKeyExtractor
-  href: api/Microsoft.ReverseProxy.Abstractions.BackendPartitioningOptions.html#Microsoft_ReverseProxy_Abstractions_BackendPartitioningOptions_PartitionKeyExtractor_
-  commentId: Overload:Microsoft.ReverseProxy.Abstractions.BackendPartitioningOptions.PartitionKeyExtractor
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Abstractions.BackendPartitioningOptions.PartitionKeyExtractor
-  nameWithType: BackendPartitioningOptions.PartitionKeyExtractor
 - uid: Microsoft.ReverseProxy.Abstractions.CircuitBreakerOptions
   name: CircuitBreakerOptions
   href: api/Microsoft.ReverseProxy.Abstractions.CircuitBreakerOptions.html
@@ -505,6 +178,333 @@ references:
   isSpec: "True"
   fullName: Microsoft.ReverseProxy.Abstractions.CircuitBreakerOptions.MaxConcurrentRetries
   nameWithType: CircuitBreakerOptions.MaxConcurrentRetries
+- uid: Microsoft.ReverseProxy.Abstractions.Cluster
+  name: Cluster
+  href: api/Microsoft.ReverseProxy.Abstractions.Cluster.html
+  commentId: T:Microsoft.ReverseProxy.Abstractions.Cluster
+  fullName: Microsoft.ReverseProxy.Abstractions.Cluster
+  nameWithType: Cluster
+- uid: Microsoft.ReverseProxy.Abstractions.Cluster.CircuitBreakerOptions
+  name: CircuitBreakerOptions
+  href: api/Microsoft.ReverseProxy.Abstractions.Cluster.html#Microsoft_ReverseProxy_Abstractions_Cluster_CircuitBreakerOptions
+  commentId: P:Microsoft.ReverseProxy.Abstractions.Cluster.CircuitBreakerOptions
+  fullName: Microsoft.ReverseProxy.Abstractions.Cluster.CircuitBreakerOptions
+  nameWithType: Cluster.CircuitBreakerOptions
+- uid: Microsoft.ReverseProxy.Abstractions.Cluster.CircuitBreakerOptions*
+  name: CircuitBreakerOptions
+  href: api/Microsoft.ReverseProxy.Abstractions.Cluster.html#Microsoft_ReverseProxy_Abstractions_Cluster_CircuitBreakerOptions_
+  commentId: Overload:Microsoft.ReverseProxy.Abstractions.Cluster.CircuitBreakerOptions
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Abstractions.Cluster.CircuitBreakerOptions
+  nameWithType: Cluster.CircuitBreakerOptions
+- uid: Microsoft.ReverseProxy.Abstractions.Cluster.Destinations
+  name: Destinations
+  href: api/Microsoft.ReverseProxy.Abstractions.Cluster.html#Microsoft_ReverseProxy_Abstractions_Cluster_Destinations
+  commentId: P:Microsoft.ReverseProxy.Abstractions.Cluster.Destinations
+  fullName: Microsoft.ReverseProxy.Abstractions.Cluster.Destinations
+  nameWithType: Cluster.Destinations
+- uid: Microsoft.ReverseProxy.Abstractions.Cluster.Destinations*
+  name: Destinations
+  href: api/Microsoft.ReverseProxy.Abstractions.Cluster.html#Microsoft_ReverseProxy_Abstractions_Cluster_Destinations_
+  commentId: Overload:Microsoft.ReverseProxy.Abstractions.Cluster.Destinations
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Abstractions.Cluster.Destinations
+  nameWithType: Cluster.Destinations
+- uid: Microsoft.ReverseProxy.Abstractions.Cluster.HealthCheckOptions
+  name: HealthCheckOptions
+  href: api/Microsoft.ReverseProxy.Abstractions.Cluster.html#Microsoft_ReverseProxy_Abstractions_Cluster_HealthCheckOptions
+  commentId: P:Microsoft.ReverseProxy.Abstractions.Cluster.HealthCheckOptions
+  fullName: Microsoft.ReverseProxy.Abstractions.Cluster.HealthCheckOptions
+  nameWithType: Cluster.HealthCheckOptions
+- uid: Microsoft.ReverseProxy.Abstractions.Cluster.HealthCheckOptions*
+  name: HealthCheckOptions
+  href: api/Microsoft.ReverseProxy.Abstractions.Cluster.html#Microsoft_ReverseProxy_Abstractions_Cluster_HealthCheckOptions_
+  commentId: Overload:Microsoft.ReverseProxy.Abstractions.Cluster.HealthCheckOptions
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Abstractions.Cluster.HealthCheckOptions
+  nameWithType: Cluster.HealthCheckOptions
+- uid: Microsoft.ReverseProxy.Abstractions.Cluster.Id
+  name: Id
+  href: api/Microsoft.ReverseProxy.Abstractions.Cluster.html#Microsoft_ReverseProxy_Abstractions_Cluster_Id
+  commentId: P:Microsoft.ReverseProxy.Abstractions.Cluster.Id
+  fullName: Microsoft.ReverseProxy.Abstractions.Cluster.Id
+  nameWithType: Cluster.Id
+- uid: Microsoft.ReverseProxy.Abstractions.Cluster.Id*
+  name: Id
+  href: api/Microsoft.ReverseProxy.Abstractions.Cluster.html#Microsoft_ReverseProxy_Abstractions_Cluster_Id_
+  commentId: Overload:Microsoft.ReverseProxy.Abstractions.Cluster.Id
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Abstractions.Cluster.Id
+  nameWithType: Cluster.Id
+- uid: Microsoft.ReverseProxy.Abstractions.Cluster.LoadBalancing
+  name: LoadBalancing
+  href: api/Microsoft.ReverseProxy.Abstractions.Cluster.html#Microsoft_ReverseProxy_Abstractions_Cluster_LoadBalancing
+  commentId: P:Microsoft.ReverseProxy.Abstractions.Cluster.LoadBalancing
+  fullName: Microsoft.ReverseProxy.Abstractions.Cluster.LoadBalancing
+  nameWithType: Cluster.LoadBalancing
+- uid: Microsoft.ReverseProxy.Abstractions.Cluster.LoadBalancing*
+  name: LoadBalancing
+  href: api/Microsoft.ReverseProxy.Abstractions.Cluster.html#Microsoft_ReverseProxy_Abstractions_Cluster_LoadBalancing_
+  commentId: Overload:Microsoft.ReverseProxy.Abstractions.Cluster.LoadBalancing
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Abstractions.Cluster.LoadBalancing
+  nameWithType: Cluster.LoadBalancing
+- uid: Microsoft.ReverseProxy.Abstractions.Cluster.Metadata
+  name: Metadata
+  href: api/Microsoft.ReverseProxy.Abstractions.Cluster.html#Microsoft_ReverseProxy_Abstractions_Cluster_Metadata
+  commentId: P:Microsoft.ReverseProxy.Abstractions.Cluster.Metadata
+  fullName: Microsoft.ReverseProxy.Abstractions.Cluster.Metadata
+  nameWithType: Cluster.Metadata
+- uid: Microsoft.ReverseProxy.Abstractions.Cluster.Metadata*
+  name: Metadata
+  href: api/Microsoft.ReverseProxy.Abstractions.Cluster.html#Microsoft_ReverseProxy_Abstractions_Cluster_Metadata_
+  commentId: Overload:Microsoft.ReverseProxy.Abstractions.Cluster.Metadata
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Abstractions.Cluster.Metadata
+  nameWithType: Cluster.Metadata
+- uid: Microsoft.ReverseProxy.Abstractions.Cluster.PartitioningOptions
+  name: PartitioningOptions
+  href: api/Microsoft.ReverseProxy.Abstractions.Cluster.html#Microsoft_ReverseProxy_Abstractions_Cluster_PartitioningOptions
+  commentId: P:Microsoft.ReverseProxy.Abstractions.Cluster.PartitioningOptions
+  fullName: Microsoft.ReverseProxy.Abstractions.Cluster.PartitioningOptions
+  nameWithType: Cluster.PartitioningOptions
+- uid: Microsoft.ReverseProxy.Abstractions.Cluster.PartitioningOptions*
+  name: PartitioningOptions
+  href: api/Microsoft.ReverseProxy.Abstractions.Cluster.html#Microsoft_ReverseProxy_Abstractions_Cluster_PartitioningOptions_
+  commentId: Overload:Microsoft.ReverseProxy.Abstractions.Cluster.PartitioningOptions
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Abstractions.Cluster.PartitioningOptions
+  nameWithType: Cluster.PartitioningOptions
+- uid: Microsoft.ReverseProxy.Abstractions.Cluster.QuotaOptions
+  name: QuotaOptions
+  href: api/Microsoft.ReverseProxy.Abstractions.Cluster.html#Microsoft_ReverseProxy_Abstractions_Cluster_QuotaOptions
+  commentId: P:Microsoft.ReverseProxy.Abstractions.Cluster.QuotaOptions
+  fullName: Microsoft.ReverseProxy.Abstractions.Cluster.QuotaOptions
+  nameWithType: Cluster.QuotaOptions
+- uid: Microsoft.ReverseProxy.Abstractions.Cluster.QuotaOptions*
+  name: QuotaOptions
+  href: api/Microsoft.ReverseProxy.Abstractions.Cluster.html#Microsoft_ReverseProxy_Abstractions_Cluster_QuotaOptions_
+  commentId: Overload:Microsoft.ReverseProxy.Abstractions.Cluster.QuotaOptions
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Abstractions.Cluster.QuotaOptions
+  nameWithType: Cluster.QuotaOptions
+- uid: Microsoft.ReverseProxy.Abstractions.Cluster.SessionAffinity
+  name: SessionAffinity
+  href: api/Microsoft.ReverseProxy.Abstractions.Cluster.html#Microsoft_ReverseProxy_Abstractions_Cluster_SessionAffinity
+  commentId: P:Microsoft.ReverseProxy.Abstractions.Cluster.SessionAffinity
+  fullName: Microsoft.ReverseProxy.Abstractions.Cluster.SessionAffinity
+  nameWithType: Cluster.SessionAffinity
+- uid: Microsoft.ReverseProxy.Abstractions.Cluster.SessionAffinity*
+  name: SessionAffinity
+  href: api/Microsoft.ReverseProxy.Abstractions.Cluster.html#Microsoft_ReverseProxy_Abstractions_Cluster_SessionAffinity_
+  commentId: Overload:Microsoft.ReverseProxy.Abstractions.Cluster.SessionAffinity
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Abstractions.Cluster.SessionAffinity
+  nameWithType: Cluster.SessionAffinity
+- uid: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract
+  name: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract
+  href: api/Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.html
+  commentId: N:Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract
+  fullName: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract
+  nameWithType: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract
+- uid: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.CookieSessionAffinityProviderOptions
+  name: CookieSessionAffinityProviderOptions
+  href: api/Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.CookieSessionAffinityProviderOptions.html
+  commentId: T:Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.CookieSessionAffinityProviderOptions
+  fullName: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.CookieSessionAffinityProviderOptions
+  nameWithType: CookieSessionAffinityProviderOptions
+- uid: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.CookieSessionAffinityProviderOptions.Cookie
+  name: Cookie
+  href: api/Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.CookieSessionAffinityProviderOptions.html#Microsoft_ReverseProxy_Abstractions_ClusterDiscovery_Contract_CookieSessionAffinityProviderOptions_Cookie
+  commentId: P:Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.CookieSessionAffinityProviderOptions.Cookie
+  fullName: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.CookieSessionAffinityProviderOptions.Cookie
+  nameWithType: CookieSessionAffinityProviderOptions.Cookie
+- uid: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.CookieSessionAffinityProviderOptions.Cookie*
+  name: Cookie
+  href: api/Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.CookieSessionAffinityProviderOptions.html#Microsoft_ReverseProxy_Abstractions_ClusterDiscovery_Contract_CookieSessionAffinityProviderOptions_Cookie_
+  commentId: Overload:Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.CookieSessionAffinityProviderOptions.Cookie
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.CookieSessionAffinityProviderOptions.Cookie
+  nameWithType: CookieSessionAffinityProviderOptions.Cookie
+- uid: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.CookieSessionAffinityProviderOptions.DefaultCookieName
+  name: DefaultCookieName
+  href: api/Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.CookieSessionAffinityProviderOptions.html#Microsoft_ReverseProxy_Abstractions_ClusterDiscovery_Contract_CookieSessionAffinityProviderOptions_DefaultCookieName
+  commentId: F:Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.CookieSessionAffinityProviderOptions.DefaultCookieName
+  fullName: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.CookieSessionAffinityProviderOptions.DefaultCookieName
+  nameWithType: CookieSessionAffinityProviderOptions.DefaultCookieName
+- uid: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityConstants
+  name: SessionAffinityConstants
+  href: api/Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityConstants.html
+  commentId: T:Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityConstants
+  fullName: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityConstants
+  nameWithType: SessionAffinityConstants
+- uid: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies
+  name: SessionAffinityConstants.AffinityFailurePolicies
+  href: api/Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies.html
+  commentId: T:Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies
+  fullName: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies
+  nameWithType: SessionAffinityConstants.AffinityFailurePolicies
+- uid: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies.Redistribute
+  name: Redistribute
+  href: api/Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies.html#Microsoft_ReverseProxy_Abstractions_ClusterDiscovery_Contract_SessionAffinityConstants_AffinityFailurePolicies_Redistribute
+  commentId: P:Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies.Redistribute
+  fullName: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies.Redistribute
+  nameWithType: SessionAffinityConstants.AffinityFailurePolicies.Redistribute
+- uid: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies.Redistribute*
+  name: Redistribute
+  href: api/Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies.html#Microsoft_ReverseProxy_Abstractions_ClusterDiscovery_Contract_SessionAffinityConstants_AffinityFailurePolicies_Redistribute_
+  commentId: Overload:Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies.Redistribute
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies.Redistribute
+  nameWithType: SessionAffinityConstants.AffinityFailurePolicies.Redistribute
+- uid: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies.Return503Error
+  name: Return503Error
+  href: api/Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies.html#Microsoft_ReverseProxy_Abstractions_ClusterDiscovery_Contract_SessionAffinityConstants_AffinityFailurePolicies_Return503Error
+  commentId: P:Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies.Return503Error
+  fullName: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies.Return503Error
+  nameWithType: SessionAffinityConstants.AffinityFailurePolicies.Return503Error
+- uid: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies.Return503Error*
+  name: Return503Error
+  href: api/Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies.html#Microsoft_ReverseProxy_Abstractions_ClusterDiscovery_Contract_SessionAffinityConstants_AffinityFailurePolicies_Return503Error_
+  commentId: Overload:Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies.Return503Error
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityConstants.AffinityFailurePolicies.Return503Error
+  nameWithType: SessionAffinityConstants.AffinityFailurePolicies.Return503Error
+- uid: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityConstants.Modes
+  name: SessionAffinityConstants.Modes
+  href: api/Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityConstants.Modes.html
+  commentId: T:Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityConstants.Modes
+  fullName: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityConstants.Modes
+  nameWithType: SessionAffinityConstants.Modes
+- uid: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityConstants.Modes.Cookie
+  name: Cookie
+  href: api/Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityConstants.Modes.html#Microsoft_ReverseProxy_Abstractions_ClusterDiscovery_Contract_SessionAffinityConstants_Modes_Cookie
+  commentId: P:Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityConstants.Modes.Cookie
+  fullName: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityConstants.Modes.Cookie
+  nameWithType: SessionAffinityConstants.Modes.Cookie
+- uid: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityConstants.Modes.Cookie*
+  name: Cookie
+  href: api/Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityConstants.Modes.html#Microsoft_ReverseProxy_Abstractions_ClusterDiscovery_Contract_SessionAffinityConstants_Modes_Cookie_
+  commentId: Overload:Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityConstants.Modes.Cookie
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityConstants.Modes.Cookie
+  nameWithType: SessionAffinityConstants.Modes.Cookie
+- uid: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityConstants.Modes.CustomHeader
+  name: CustomHeader
+  href: api/Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityConstants.Modes.html#Microsoft_ReverseProxy_Abstractions_ClusterDiscovery_Contract_SessionAffinityConstants_Modes_CustomHeader
+  commentId: P:Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityConstants.Modes.CustomHeader
+  fullName: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityConstants.Modes.CustomHeader
+  nameWithType: SessionAffinityConstants.Modes.CustomHeader
+- uid: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityConstants.Modes.CustomHeader*
+  name: CustomHeader
+  href: api/Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityConstants.Modes.html#Microsoft_ReverseProxy_Abstractions_ClusterDiscovery_Contract_SessionAffinityConstants_Modes_CustomHeader_
+  commentId: Overload:Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityConstants.Modes.CustomHeader
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityConstants.Modes.CustomHeader
+  nameWithType: SessionAffinityConstants.Modes.CustomHeader
+- uid: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityOptions
+  name: SessionAffinityOptions
+  href: api/Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityOptions.html
+  commentId: T:Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityOptions
+  fullName: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityOptions
+  nameWithType: SessionAffinityOptions
+- uid: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityOptions.Enabled
+  name: Enabled
+  href: api/Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityOptions.html#Microsoft_ReverseProxy_Abstractions_ClusterDiscovery_Contract_SessionAffinityOptions_Enabled
+  commentId: P:Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityOptions.Enabled
+  fullName: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityOptions.Enabled
+  nameWithType: SessionAffinityOptions.Enabled
+- uid: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityOptions.Enabled*
+  name: Enabled
+  href: api/Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityOptions.html#Microsoft_ReverseProxy_Abstractions_ClusterDiscovery_Contract_SessionAffinityOptions_Enabled_
+  commentId: Overload:Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityOptions.Enabled
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityOptions.Enabled
+  nameWithType: SessionAffinityOptions.Enabled
+- uid: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityOptions.FailurePolicy
+  name: FailurePolicy
+  href: api/Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityOptions.html#Microsoft_ReverseProxy_Abstractions_ClusterDiscovery_Contract_SessionAffinityOptions_FailurePolicy
+  commentId: P:Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityOptions.FailurePolicy
+  fullName: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityOptions.FailurePolicy
+  nameWithType: SessionAffinityOptions.FailurePolicy
+- uid: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityOptions.FailurePolicy*
+  name: FailurePolicy
+  href: api/Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityOptions.html#Microsoft_ReverseProxy_Abstractions_ClusterDiscovery_Contract_SessionAffinityOptions_FailurePolicy_
+  commentId: Overload:Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityOptions.FailurePolicy
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityOptions.FailurePolicy
+  nameWithType: SessionAffinityOptions.FailurePolicy
+- uid: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityOptions.Mode
+  name: Mode
+  href: api/Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityOptions.html#Microsoft_ReverseProxy_Abstractions_ClusterDiscovery_Contract_SessionAffinityOptions_Mode
+  commentId: P:Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityOptions.Mode
+  fullName: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityOptions.Mode
+  nameWithType: SessionAffinityOptions.Mode
+- uid: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityOptions.Mode*
+  name: Mode
+  href: api/Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityOptions.html#Microsoft_ReverseProxy_Abstractions_ClusterDiscovery_Contract_SessionAffinityOptions_Mode_
+  commentId: Overload:Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityOptions.Mode
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityOptions.Mode
+  nameWithType: SessionAffinityOptions.Mode
+- uid: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityOptions.Settings
+  name: Settings
+  href: api/Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityOptions.html#Microsoft_ReverseProxy_Abstractions_ClusterDiscovery_Contract_SessionAffinityOptions_Settings
+  commentId: P:Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityOptions.Settings
+  fullName: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityOptions.Settings
+  nameWithType: SessionAffinityOptions.Settings
+- uid: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityOptions.Settings*
+  name: Settings
+  href: api/Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityOptions.html#Microsoft_ReverseProxy_Abstractions_ClusterDiscovery_Contract_SessionAffinityOptions_Settings_
+  commentId: Overload:Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityOptions.Settings
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.SessionAffinityOptions.Settings
+  nameWithType: SessionAffinityOptions.Settings
+- uid: Microsoft.ReverseProxy.Abstractions.ClusterPartitioningOptions
+  name: ClusterPartitioningOptions
+  href: api/Microsoft.ReverseProxy.Abstractions.ClusterPartitioningOptions.html
+  commentId: T:Microsoft.ReverseProxy.Abstractions.ClusterPartitioningOptions
+  fullName: Microsoft.ReverseProxy.Abstractions.ClusterPartitioningOptions
+  nameWithType: ClusterPartitioningOptions
+- uid: Microsoft.ReverseProxy.Abstractions.ClusterPartitioningOptions.PartitionCount
+  name: PartitionCount
+  href: api/Microsoft.ReverseProxy.Abstractions.ClusterPartitioningOptions.html#Microsoft_ReverseProxy_Abstractions_ClusterPartitioningOptions_PartitionCount
+  commentId: P:Microsoft.ReverseProxy.Abstractions.ClusterPartitioningOptions.PartitionCount
+  fullName: Microsoft.ReverseProxy.Abstractions.ClusterPartitioningOptions.PartitionCount
+  nameWithType: ClusterPartitioningOptions.PartitionCount
+- uid: Microsoft.ReverseProxy.Abstractions.ClusterPartitioningOptions.PartitionCount*
+  name: PartitionCount
+  href: api/Microsoft.ReverseProxy.Abstractions.ClusterPartitioningOptions.html#Microsoft_ReverseProxy_Abstractions_ClusterPartitioningOptions_PartitionCount_
+  commentId: Overload:Microsoft.ReverseProxy.Abstractions.ClusterPartitioningOptions.PartitionCount
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Abstractions.ClusterPartitioningOptions.PartitionCount
+  nameWithType: ClusterPartitioningOptions.PartitionCount
+- uid: Microsoft.ReverseProxy.Abstractions.ClusterPartitioningOptions.PartitioningAlgorithm
+  name: PartitioningAlgorithm
+  href: api/Microsoft.ReverseProxy.Abstractions.ClusterPartitioningOptions.html#Microsoft_ReverseProxy_Abstractions_ClusterPartitioningOptions_PartitioningAlgorithm
+  commentId: P:Microsoft.ReverseProxy.Abstractions.ClusterPartitioningOptions.PartitioningAlgorithm
+  fullName: Microsoft.ReverseProxy.Abstractions.ClusterPartitioningOptions.PartitioningAlgorithm
+  nameWithType: ClusterPartitioningOptions.PartitioningAlgorithm
+- uid: Microsoft.ReverseProxy.Abstractions.ClusterPartitioningOptions.PartitioningAlgorithm*
+  name: PartitioningAlgorithm
+  href: api/Microsoft.ReverseProxy.Abstractions.ClusterPartitioningOptions.html#Microsoft_ReverseProxy_Abstractions_ClusterPartitioningOptions_PartitioningAlgorithm_
+  commentId: Overload:Microsoft.ReverseProxy.Abstractions.ClusterPartitioningOptions.PartitioningAlgorithm
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Abstractions.ClusterPartitioningOptions.PartitioningAlgorithm
+  nameWithType: ClusterPartitioningOptions.PartitioningAlgorithm
+- uid: Microsoft.ReverseProxy.Abstractions.ClusterPartitioningOptions.PartitionKeyExtractor
+  name: PartitionKeyExtractor
+  href: api/Microsoft.ReverseProxy.Abstractions.ClusterPartitioningOptions.html#Microsoft_ReverseProxy_Abstractions_ClusterPartitioningOptions_PartitionKeyExtractor
+  commentId: P:Microsoft.ReverseProxy.Abstractions.ClusterPartitioningOptions.PartitionKeyExtractor
+  fullName: Microsoft.ReverseProxy.Abstractions.ClusterPartitioningOptions.PartitionKeyExtractor
+  nameWithType: ClusterPartitioningOptions.PartitionKeyExtractor
+- uid: Microsoft.ReverseProxy.Abstractions.ClusterPartitioningOptions.PartitionKeyExtractor*
+  name: PartitionKeyExtractor
+  href: api/Microsoft.ReverseProxy.Abstractions.ClusterPartitioningOptions.html#Microsoft_ReverseProxy_Abstractions_ClusterPartitioningOptions_PartitionKeyExtractor_
+  commentId: Overload:Microsoft.ReverseProxy.Abstractions.ClusterPartitioningOptions.PartitionKeyExtractor
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Abstractions.ClusterPartitioningOptions.PartitionKeyExtractor
+  nameWithType: ClusterPartitioningOptions.PartitionKeyExtractor
 - uid: Microsoft.ReverseProxy.Abstractions.Destination
   name: Destination
   href: api/Microsoft.ReverseProxy.Abstractions.Destination.html
@@ -608,41 +608,41 @@ references:
   isSpec: "True"
   fullName: Microsoft.ReverseProxy.Abstractions.HealthCheckOptions.Timeout
   nameWithType: HealthCheckOptions.Timeout
-- uid: Microsoft.ReverseProxy.Abstractions.IBackendsRepo
-  name: IBackendsRepo
-  href: api/Microsoft.ReverseProxy.Abstractions.IBackendsRepo.html
-  commentId: T:Microsoft.ReverseProxy.Abstractions.IBackendsRepo
-  fullName: Microsoft.ReverseProxy.Abstractions.IBackendsRepo
-  nameWithType: IBackendsRepo
-- uid: Microsoft.ReverseProxy.Abstractions.IBackendsRepo.GetBackendsAsync(System.Threading.CancellationToken)
-  name: GetBackendsAsync(CancellationToken)
-  href: api/Microsoft.ReverseProxy.Abstractions.IBackendsRepo.html#Microsoft_ReverseProxy_Abstractions_IBackendsRepo_GetBackendsAsync_System_Threading_CancellationToken_
-  commentId: M:Microsoft.ReverseProxy.Abstractions.IBackendsRepo.GetBackendsAsync(System.Threading.CancellationToken)
-  fullName: Microsoft.ReverseProxy.Abstractions.IBackendsRepo.GetBackendsAsync(System.Threading.CancellationToken)
-  nameWithType: IBackendsRepo.GetBackendsAsync(CancellationToken)
-- uid: Microsoft.ReverseProxy.Abstractions.IBackendsRepo.GetBackendsAsync*
-  name: GetBackendsAsync
-  href: api/Microsoft.ReverseProxy.Abstractions.IBackendsRepo.html#Microsoft_ReverseProxy_Abstractions_IBackendsRepo_GetBackendsAsync_
-  commentId: Overload:Microsoft.ReverseProxy.Abstractions.IBackendsRepo.GetBackendsAsync
+- uid: Microsoft.ReverseProxy.Abstractions.IClustersRepo
+  name: IClustersRepo
+  href: api/Microsoft.ReverseProxy.Abstractions.IClustersRepo.html
+  commentId: T:Microsoft.ReverseProxy.Abstractions.IClustersRepo
+  fullName: Microsoft.ReverseProxy.Abstractions.IClustersRepo
+  nameWithType: IClustersRepo
+- uid: Microsoft.ReverseProxy.Abstractions.IClustersRepo.GetClustersAsync(System.Threading.CancellationToken)
+  name: GetClustersAsync(CancellationToken)
+  href: api/Microsoft.ReverseProxy.Abstractions.IClustersRepo.html#Microsoft_ReverseProxy_Abstractions_IClustersRepo_GetClustersAsync_System_Threading_CancellationToken_
+  commentId: M:Microsoft.ReverseProxy.Abstractions.IClustersRepo.GetClustersAsync(System.Threading.CancellationToken)
+  fullName: Microsoft.ReverseProxy.Abstractions.IClustersRepo.GetClustersAsync(System.Threading.CancellationToken)
+  nameWithType: IClustersRepo.GetClustersAsync(CancellationToken)
+- uid: Microsoft.ReverseProxy.Abstractions.IClustersRepo.GetClustersAsync*
+  name: GetClustersAsync
+  href: api/Microsoft.ReverseProxy.Abstractions.IClustersRepo.html#Microsoft_ReverseProxy_Abstractions_IClustersRepo_GetClustersAsync_
+  commentId: Overload:Microsoft.ReverseProxy.Abstractions.IClustersRepo.GetClustersAsync
   isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Abstractions.IBackendsRepo.GetBackendsAsync
-  nameWithType: IBackendsRepo.GetBackendsAsync
-- uid: Microsoft.ReverseProxy.Abstractions.IBackendsRepo.SetBackendsAsync(System.Collections.Generic.IDictionary{System.String,Microsoft.ReverseProxy.Abstractions.Backend},System.Threading.CancellationToken)
-  name: SetBackendsAsync(IDictionary<String, Backend>, CancellationToken)
-  href: api/Microsoft.ReverseProxy.Abstractions.IBackendsRepo.html#Microsoft_ReverseProxy_Abstractions_IBackendsRepo_SetBackendsAsync_System_Collections_Generic_IDictionary_System_String_Microsoft_ReverseProxy_Abstractions_Backend__System_Threading_CancellationToken_
-  commentId: M:Microsoft.ReverseProxy.Abstractions.IBackendsRepo.SetBackendsAsync(System.Collections.Generic.IDictionary{System.String,Microsoft.ReverseProxy.Abstractions.Backend},System.Threading.CancellationToken)
-  name.vb: SetBackendsAsync(IDictionary(Of String, Backend), CancellationToken)
-  fullName: Microsoft.ReverseProxy.Abstractions.IBackendsRepo.SetBackendsAsync(System.Collections.Generic.IDictionary<System.String, Microsoft.ReverseProxy.Abstractions.Backend>, System.Threading.CancellationToken)
-  fullName.vb: Microsoft.ReverseProxy.Abstractions.IBackendsRepo.SetBackendsAsync(System.Collections.Generic.IDictionary(Of System.String, Microsoft.ReverseProxy.Abstractions.Backend), System.Threading.CancellationToken)
-  nameWithType: IBackendsRepo.SetBackendsAsync(IDictionary<String, Backend>, CancellationToken)
-  nameWithType.vb: IBackendsRepo.SetBackendsAsync(IDictionary(Of String, Backend), CancellationToken)
-- uid: Microsoft.ReverseProxy.Abstractions.IBackendsRepo.SetBackendsAsync*
-  name: SetBackendsAsync
-  href: api/Microsoft.ReverseProxy.Abstractions.IBackendsRepo.html#Microsoft_ReverseProxy_Abstractions_IBackendsRepo_SetBackendsAsync_
-  commentId: Overload:Microsoft.ReverseProxy.Abstractions.IBackendsRepo.SetBackendsAsync
+  fullName: Microsoft.ReverseProxy.Abstractions.IClustersRepo.GetClustersAsync
+  nameWithType: IClustersRepo.GetClustersAsync
+- uid: Microsoft.ReverseProxy.Abstractions.IClustersRepo.SetClustersAsync(System.Collections.Generic.IDictionary{System.String,Microsoft.ReverseProxy.Abstractions.Cluster},System.Threading.CancellationToken)
+  name: SetClustersAsync(IDictionary<String, Cluster>, CancellationToken)
+  href: api/Microsoft.ReverseProxy.Abstractions.IClustersRepo.html#Microsoft_ReverseProxy_Abstractions_IClustersRepo_SetClustersAsync_System_Collections_Generic_IDictionary_System_String_Microsoft_ReverseProxy_Abstractions_Cluster__System_Threading_CancellationToken_
+  commentId: M:Microsoft.ReverseProxy.Abstractions.IClustersRepo.SetClustersAsync(System.Collections.Generic.IDictionary{System.String,Microsoft.ReverseProxy.Abstractions.Cluster},System.Threading.CancellationToken)
+  name.vb: SetClustersAsync(IDictionary(Of String, Cluster), CancellationToken)
+  fullName: Microsoft.ReverseProxy.Abstractions.IClustersRepo.SetClustersAsync(System.Collections.Generic.IDictionary<System.String, Microsoft.ReverseProxy.Abstractions.Cluster>, System.Threading.CancellationToken)
+  fullName.vb: Microsoft.ReverseProxy.Abstractions.IClustersRepo.SetClustersAsync(System.Collections.Generic.IDictionary(Of System.String, Microsoft.ReverseProxy.Abstractions.Cluster), System.Threading.CancellationToken)
+  nameWithType: IClustersRepo.SetClustersAsync(IDictionary<String, Cluster>, CancellationToken)
+  nameWithType.vb: IClustersRepo.SetClustersAsync(IDictionary(Of String, Cluster), CancellationToken)
+- uid: Microsoft.ReverseProxy.Abstractions.IClustersRepo.SetClustersAsync*
+  name: SetClustersAsync
+  href: api/Microsoft.ReverseProxy.Abstractions.IClustersRepo.html#Microsoft_ReverseProxy_Abstractions_IClustersRepo_SetClustersAsync_
+  commentId: Overload:Microsoft.ReverseProxy.Abstractions.IClustersRepo.SetClustersAsync
   isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Abstractions.IBackendsRepo.SetBackendsAsync
-  nameWithType: IBackendsRepo.SetBackendsAsync
+  fullName: Microsoft.ReverseProxy.Abstractions.IClustersRepo.SetClustersAsync
+  nameWithType: IClustersRepo.SetClustersAsync
 - uid: Microsoft.ReverseProxy.Abstractions.IConfigErrorReporter
   name: IConfigErrorReporter
   href: api/Microsoft.ReverseProxy.Abstractions.IConfigErrorReporter.html
@@ -828,19 +828,19 @@ references:
   commentId: T:Microsoft.ReverseProxy.Abstractions.ProxyRoute
   fullName: Microsoft.ReverseProxy.Abstractions.ProxyRoute
   nameWithType: ProxyRoute
-- uid: Microsoft.ReverseProxy.Abstractions.ProxyRoute.BackendId
-  name: BackendId
-  href: api/Microsoft.ReverseProxy.Abstractions.ProxyRoute.html#Microsoft_ReverseProxy_Abstractions_ProxyRoute_BackendId
-  commentId: P:Microsoft.ReverseProxy.Abstractions.ProxyRoute.BackendId
-  fullName: Microsoft.ReverseProxy.Abstractions.ProxyRoute.BackendId
-  nameWithType: ProxyRoute.BackendId
-- uid: Microsoft.ReverseProxy.Abstractions.ProxyRoute.BackendId*
-  name: BackendId
-  href: api/Microsoft.ReverseProxy.Abstractions.ProxyRoute.html#Microsoft_ReverseProxy_Abstractions_ProxyRoute_BackendId_
-  commentId: Overload:Microsoft.ReverseProxy.Abstractions.ProxyRoute.BackendId
+- uid: Microsoft.ReverseProxy.Abstractions.ProxyRoute.ClusterId
+  name: ClusterId
+  href: api/Microsoft.ReverseProxy.Abstractions.ProxyRoute.html#Microsoft_ReverseProxy_Abstractions_ProxyRoute_ClusterId
+  commentId: P:Microsoft.ReverseProxy.Abstractions.ProxyRoute.ClusterId
+  fullName: Microsoft.ReverseProxy.Abstractions.ProxyRoute.ClusterId
+  nameWithType: ProxyRoute.ClusterId
+- uid: Microsoft.ReverseProxy.Abstractions.ProxyRoute.ClusterId*
+  name: ClusterId
+  href: api/Microsoft.ReverseProxy.Abstractions.ProxyRoute.html#Microsoft_ReverseProxy_Abstractions_ProxyRoute_ClusterId_
+  commentId: Overload:Microsoft.ReverseProxy.Abstractions.ProxyRoute.ClusterId
   isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Abstractions.ProxyRoute.BackendId
-  nameWithType: ProxyRoute.BackendId
+  fullName: Microsoft.ReverseProxy.Abstractions.ProxyRoute.ClusterId
+  nameWithType: ProxyRoute.ClusterId
 - uid: Microsoft.ReverseProxy.Abstractions.ProxyRoute.Match
   name: Match
   href: api/Microsoft.ReverseProxy.Abstractions.ProxyRoute.html#Microsoft_ReverseProxy_Abstractions_ProxyRoute_Match
@@ -1213,254 +1213,254 @@ references:
   commentId: N:Microsoft.ReverseProxy.RuntimeModel
   fullName: Microsoft.ReverseProxy.RuntimeModel
   nameWithType: Microsoft.ReverseProxy.RuntimeModel
-- uid: Microsoft.ReverseProxy.RuntimeModel.BackendConfig
-  name: BackendConfig
-  href: api/Microsoft.ReverseProxy.RuntimeModel.BackendConfig.html
-  commentId: T:Microsoft.ReverseProxy.RuntimeModel.BackendConfig
-  fullName: Microsoft.ReverseProxy.RuntimeModel.BackendConfig
-  nameWithType: BackendConfig
-- uid: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.#ctor(Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions,Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendLoadBalancingOptions,Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions)
-  name: BackendConfig(BackendConfig.BackendHealthCheckOptions, BackendConfig.BackendLoadBalancingOptions, BackendConfig.BackendSessionAffinityOptions)
-  href: api/Microsoft.ReverseProxy.RuntimeModel.BackendConfig.html#Microsoft_ReverseProxy_RuntimeModel_BackendConfig__ctor_Microsoft_ReverseProxy_RuntimeModel_BackendConfig_BackendHealthCheckOptions_Microsoft_ReverseProxy_RuntimeModel_BackendConfig_BackendLoadBalancingOptions_Microsoft_ReverseProxy_RuntimeModel_BackendConfig_BackendSessionAffinityOptions_
-  commentId: M:Microsoft.ReverseProxy.RuntimeModel.BackendConfig.#ctor(Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions,Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendLoadBalancingOptions,Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions)
-  fullName: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendConfig(Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions, Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendLoadBalancingOptions, Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions)
-  nameWithType: BackendConfig.BackendConfig(BackendConfig.BackendHealthCheckOptions, BackendConfig.BackendLoadBalancingOptions, BackendConfig.BackendSessionAffinityOptions)
-- uid: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.#ctor*
-  name: BackendConfig
-  href: api/Microsoft.ReverseProxy.RuntimeModel.BackendConfig.html#Microsoft_ReverseProxy_RuntimeModel_BackendConfig__ctor_
-  commentId: Overload:Microsoft.ReverseProxy.RuntimeModel.BackendConfig.#ctor
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig
+  name: ClusterConfig
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.html
+  commentId: T:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig
+  nameWithType: ClusterConfig
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.#ctor(Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions,Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterLoadBalancingOptions,Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions)
+  name: ClusterConfig(ClusterConfig.ClusterHealthCheckOptions, ClusterConfig.ClusterLoadBalancingOptions, ClusterConfig.ClusterSessionAffinityOptions)
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.html#Microsoft_ReverseProxy_RuntimeModel_ClusterConfig__ctor_Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_ClusterHealthCheckOptions_Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_ClusterLoadBalancingOptions_Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_ClusterSessionAffinityOptions_
+  commentId: M:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.#ctor(Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions,Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterLoadBalancingOptions,Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions)
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterConfig(Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions, Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterLoadBalancingOptions, Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions)
+  nameWithType: ClusterConfig.ClusterConfig(ClusterConfig.ClusterHealthCheckOptions, ClusterConfig.ClusterLoadBalancingOptions, ClusterConfig.ClusterSessionAffinityOptions)
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.#ctor*
+  name: ClusterConfig
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.html#Microsoft_ReverseProxy_RuntimeModel_ClusterConfig__ctor_
+  commentId: Overload:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.#ctor
   isSpec: "True"
-  fullName: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendConfig
-  nameWithType: BackendConfig.BackendConfig
-- uid: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions
-  name: BackendConfig.BackendHealthCheckOptions
-  href: api/Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.html
-  commentId: T:Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions
-  fullName: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions
-  nameWithType: BackendConfig.BackendHealthCheckOptions
-- uid: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.#ctor(System.Boolean,System.TimeSpan,System.TimeSpan,System.Int32,System.String)
-  name: BackendHealthCheckOptions(Boolean, TimeSpan, TimeSpan, Int32, String)
-  href: api/Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.html#Microsoft_ReverseProxy_RuntimeModel_BackendConfig_BackendHealthCheckOptions__ctor_System_Boolean_System_TimeSpan_System_TimeSpan_System_Int32_System_String_
-  commentId: M:Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.#ctor(System.Boolean,System.TimeSpan,System.TimeSpan,System.Int32,System.String)
-  fullName: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.BackendHealthCheckOptions(System.Boolean, System.TimeSpan, System.TimeSpan, System.Int32, System.String)
-  nameWithType: BackendConfig.BackendHealthCheckOptions.BackendHealthCheckOptions(Boolean, TimeSpan, TimeSpan, Int32, String)
-- uid: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.#ctor*
-  name: BackendHealthCheckOptions
-  href: api/Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.html#Microsoft_ReverseProxy_RuntimeModel_BackendConfig_BackendHealthCheckOptions__ctor_
-  commentId: Overload:Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.#ctor
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterConfig
+  nameWithType: ClusterConfig.ClusterConfig
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions
+  name: ClusterConfig.ClusterHealthCheckOptions
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.html
+  commentId: T:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions
+  nameWithType: ClusterConfig.ClusterHealthCheckOptions
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.#ctor(System.Boolean,System.TimeSpan,System.TimeSpan,System.Int32,System.String)
+  name: ClusterHealthCheckOptions(Boolean, TimeSpan, TimeSpan, Int32, String)
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.html#Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_ClusterHealthCheckOptions__ctor_System_Boolean_System_TimeSpan_System_TimeSpan_System_Int32_System_String_
+  commentId: M:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.#ctor(System.Boolean,System.TimeSpan,System.TimeSpan,System.Int32,System.String)
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.ClusterHealthCheckOptions(System.Boolean, System.TimeSpan, System.TimeSpan, System.Int32, System.String)
+  nameWithType: ClusterConfig.ClusterHealthCheckOptions.ClusterHealthCheckOptions(Boolean, TimeSpan, TimeSpan, Int32, String)
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.#ctor*
+  name: ClusterHealthCheckOptions
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.html#Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_ClusterHealthCheckOptions__ctor_
+  commentId: Overload:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.#ctor
   isSpec: "True"
-  fullName: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.BackendHealthCheckOptions
-  nameWithType: BackendConfig.BackendHealthCheckOptions.BackendHealthCheckOptions
-- uid: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.Enabled
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.ClusterHealthCheckOptions
+  nameWithType: ClusterConfig.ClusterHealthCheckOptions.ClusterHealthCheckOptions
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.Enabled
   name: Enabled
-  href: api/Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.html#Microsoft_ReverseProxy_RuntimeModel_BackendConfig_BackendHealthCheckOptions_Enabled
-  commentId: P:Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.Enabled
-  fullName: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.Enabled
-  nameWithType: BackendConfig.BackendHealthCheckOptions.Enabled
-- uid: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.Enabled*
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.html#Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_ClusterHealthCheckOptions_Enabled
+  commentId: P:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.Enabled
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.Enabled
+  nameWithType: ClusterConfig.ClusterHealthCheckOptions.Enabled
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.Enabled*
   name: Enabled
-  href: api/Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.html#Microsoft_ReverseProxy_RuntimeModel_BackendConfig_BackendHealthCheckOptions_Enabled_
-  commentId: Overload:Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.Enabled
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.html#Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_ClusterHealthCheckOptions_Enabled_
+  commentId: Overload:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.Enabled
   isSpec: "True"
-  fullName: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.Enabled
-  nameWithType: BackendConfig.BackendHealthCheckOptions.Enabled
-- uid: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.Interval
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.Enabled
+  nameWithType: ClusterConfig.ClusterHealthCheckOptions.Enabled
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.Interval
   name: Interval
-  href: api/Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.html#Microsoft_ReverseProxy_RuntimeModel_BackendConfig_BackendHealthCheckOptions_Interval
-  commentId: P:Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.Interval
-  fullName: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.Interval
-  nameWithType: BackendConfig.BackendHealthCheckOptions.Interval
-- uid: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.Interval*
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.html#Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_ClusterHealthCheckOptions_Interval
+  commentId: P:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.Interval
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.Interval
+  nameWithType: ClusterConfig.ClusterHealthCheckOptions.Interval
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.Interval*
   name: Interval
-  href: api/Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.html#Microsoft_ReverseProxy_RuntimeModel_BackendConfig_BackendHealthCheckOptions_Interval_
-  commentId: Overload:Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.Interval
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.html#Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_ClusterHealthCheckOptions_Interval_
+  commentId: Overload:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.Interval
   isSpec: "True"
-  fullName: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.Interval
-  nameWithType: BackendConfig.BackendHealthCheckOptions.Interval
-- uid: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.Path
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.Interval
+  nameWithType: ClusterConfig.ClusterHealthCheckOptions.Interval
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.Path
   name: Path
-  href: api/Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.html#Microsoft_ReverseProxy_RuntimeModel_BackendConfig_BackendHealthCheckOptions_Path
-  commentId: P:Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.Path
-  fullName: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.Path
-  nameWithType: BackendConfig.BackendHealthCheckOptions.Path
-- uid: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.Path*
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.html#Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_ClusterHealthCheckOptions_Path
+  commentId: P:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.Path
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.Path
+  nameWithType: ClusterConfig.ClusterHealthCheckOptions.Path
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.Path*
   name: Path
-  href: api/Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.html#Microsoft_ReverseProxy_RuntimeModel_BackendConfig_BackendHealthCheckOptions_Path_
-  commentId: Overload:Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.Path
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.html#Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_ClusterHealthCheckOptions_Path_
+  commentId: Overload:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.Path
   isSpec: "True"
-  fullName: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.Path
-  nameWithType: BackendConfig.BackendHealthCheckOptions.Path
-- uid: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.Port
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.Path
+  nameWithType: ClusterConfig.ClusterHealthCheckOptions.Path
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.Port
   name: Port
-  href: api/Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.html#Microsoft_ReverseProxy_RuntimeModel_BackendConfig_BackendHealthCheckOptions_Port
-  commentId: P:Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.Port
-  fullName: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.Port
-  nameWithType: BackendConfig.BackendHealthCheckOptions.Port
-- uid: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.Port*
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.html#Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_ClusterHealthCheckOptions_Port
+  commentId: P:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.Port
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.Port
+  nameWithType: ClusterConfig.ClusterHealthCheckOptions.Port
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.Port*
   name: Port
-  href: api/Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.html#Microsoft_ReverseProxy_RuntimeModel_BackendConfig_BackendHealthCheckOptions_Port_
-  commentId: Overload:Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.Port
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.html#Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_ClusterHealthCheckOptions_Port_
+  commentId: Overload:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.Port
   isSpec: "True"
-  fullName: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.Port
-  nameWithType: BackendConfig.BackendHealthCheckOptions.Port
-- uid: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.Timeout
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.Port
+  nameWithType: ClusterConfig.ClusterHealthCheckOptions.Port
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.Timeout
   name: Timeout
-  href: api/Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.html#Microsoft_ReverseProxy_RuntimeModel_BackendConfig_BackendHealthCheckOptions_Timeout
-  commentId: P:Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.Timeout
-  fullName: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.Timeout
-  nameWithType: BackendConfig.BackendHealthCheckOptions.Timeout
-- uid: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.Timeout*
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.html#Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_ClusterHealthCheckOptions_Timeout
+  commentId: P:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.Timeout
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.Timeout
+  nameWithType: ClusterConfig.ClusterHealthCheckOptions.Timeout
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.Timeout*
   name: Timeout
-  href: api/Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.html#Microsoft_ReverseProxy_RuntimeModel_BackendConfig_BackendHealthCheckOptions_Timeout_
-  commentId: Overload:Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.Timeout
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.html#Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_ClusterHealthCheckOptions_Timeout_
+  commentId: Overload:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.Timeout
   isSpec: "True"
-  fullName: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendHealthCheckOptions.Timeout
-  nameWithType: BackendConfig.BackendHealthCheckOptions.Timeout
-- uid: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendLoadBalancingOptions
-  name: BackendConfig.BackendLoadBalancingOptions
-  href: api/Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendLoadBalancingOptions.html
-  commentId: T:Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendLoadBalancingOptions
-  fullName: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendLoadBalancingOptions
-  nameWithType: BackendConfig.BackendLoadBalancingOptions
-- uid: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendLoadBalancingOptions.#ctor(Microsoft.ReverseProxy.Abstractions.LoadBalancingMode)
-  name: BackendLoadBalancingOptions(LoadBalancingMode)
-  href: api/Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendLoadBalancingOptions.html#Microsoft_ReverseProxy_RuntimeModel_BackendConfig_BackendLoadBalancingOptions__ctor_Microsoft_ReverseProxy_Abstractions_LoadBalancingMode_
-  commentId: M:Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendLoadBalancingOptions.#ctor(Microsoft.ReverseProxy.Abstractions.LoadBalancingMode)
-  fullName: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendLoadBalancingOptions.BackendLoadBalancingOptions(Microsoft.ReverseProxy.Abstractions.LoadBalancingMode)
-  nameWithType: BackendConfig.BackendLoadBalancingOptions.BackendLoadBalancingOptions(LoadBalancingMode)
-- uid: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendLoadBalancingOptions.#ctor*
-  name: BackendLoadBalancingOptions
-  href: api/Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendLoadBalancingOptions.html#Microsoft_ReverseProxy_RuntimeModel_BackendConfig_BackendLoadBalancingOptions__ctor_
-  commentId: Overload:Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendLoadBalancingOptions.#ctor
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterHealthCheckOptions.Timeout
+  nameWithType: ClusterConfig.ClusterHealthCheckOptions.Timeout
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterLoadBalancingOptions
+  name: ClusterConfig.ClusterLoadBalancingOptions
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterLoadBalancingOptions.html
+  commentId: T:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterLoadBalancingOptions
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterLoadBalancingOptions
+  nameWithType: ClusterConfig.ClusterLoadBalancingOptions
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterLoadBalancingOptions.#ctor(Microsoft.ReverseProxy.Abstractions.LoadBalancingMode)
+  name: ClusterLoadBalancingOptions(LoadBalancingMode)
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterLoadBalancingOptions.html#Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_ClusterLoadBalancingOptions__ctor_Microsoft_ReverseProxy_Abstractions_LoadBalancingMode_
+  commentId: M:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterLoadBalancingOptions.#ctor(Microsoft.ReverseProxy.Abstractions.LoadBalancingMode)
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterLoadBalancingOptions.ClusterLoadBalancingOptions(Microsoft.ReverseProxy.Abstractions.LoadBalancingMode)
+  nameWithType: ClusterConfig.ClusterLoadBalancingOptions.ClusterLoadBalancingOptions(LoadBalancingMode)
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterLoadBalancingOptions.#ctor*
+  name: ClusterLoadBalancingOptions
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterLoadBalancingOptions.html#Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_ClusterLoadBalancingOptions__ctor_
+  commentId: Overload:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterLoadBalancingOptions.#ctor
   isSpec: "True"
-  fullName: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendLoadBalancingOptions.BackendLoadBalancingOptions
-  nameWithType: BackendConfig.BackendLoadBalancingOptions.BackendLoadBalancingOptions
-- uid: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendLoadBalancingOptions.Mode
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterLoadBalancingOptions.ClusterLoadBalancingOptions
+  nameWithType: ClusterConfig.ClusterLoadBalancingOptions.ClusterLoadBalancingOptions
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterLoadBalancingOptions.Mode
   name: Mode
-  href: api/Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendLoadBalancingOptions.html#Microsoft_ReverseProxy_RuntimeModel_BackendConfig_BackendLoadBalancingOptions_Mode
-  commentId: P:Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendLoadBalancingOptions.Mode
-  fullName: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendLoadBalancingOptions.Mode
-  nameWithType: BackendConfig.BackendLoadBalancingOptions.Mode
-- uid: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendLoadBalancingOptions.Mode*
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterLoadBalancingOptions.html#Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_ClusterLoadBalancingOptions_Mode
+  commentId: P:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterLoadBalancingOptions.Mode
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterLoadBalancingOptions.Mode
+  nameWithType: ClusterConfig.ClusterLoadBalancingOptions.Mode
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterLoadBalancingOptions.Mode*
   name: Mode
-  href: api/Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendLoadBalancingOptions.html#Microsoft_ReverseProxy_RuntimeModel_BackendConfig_BackendLoadBalancingOptions_Mode_
-  commentId: Overload:Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendLoadBalancingOptions.Mode
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterLoadBalancingOptions.html#Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_ClusterLoadBalancingOptions_Mode_
+  commentId: Overload:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterLoadBalancingOptions.Mode
   isSpec: "True"
-  fullName: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendLoadBalancingOptions.Mode
-  nameWithType: BackendConfig.BackendLoadBalancingOptions.Mode
-- uid: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions
-  name: BackendConfig.BackendSessionAffinityOptions
-  href: api/Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.html
-  commentId: T:Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions
-  fullName: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions
-  nameWithType: BackendConfig.BackendSessionAffinityOptions
-- uid: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.#ctor(System.Boolean,System.String,System.String,System.Collections.Generic.IReadOnlyDictionary{System.String,System.String})
-  name: BackendSessionAffinityOptions(Boolean, String, String, IReadOnlyDictionary<String, String>)
-  href: api/Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.html#Microsoft_ReverseProxy_RuntimeModel_BackendConfig_BackendSessionAffinityOptions__ctor_System_Boolean_System_String_System_String_System_Collections_Generic_IReadOnlyDictionary_System_String_System_String__
-  commentId: M:Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.#ctor(System.Boolean,System.String,System.String,System.Collections.Generic.IReadOnlyDictionary{System.String,System.String})
-  name.vb: BackendSessionAffinityOptions(Boolean, String, String, IReadOnlyDictionary(Of String, String))
-  fullName: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.BackendSessionAffinityOptions(System.Boolean, System.String, System.String, System.Collections.Generic.IReadOnlyDictionary<System.String, System.String>)
-  fullName.vb: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.BackendSessionAffinityOptions(System.Boolean, System.String, System.String, System.Collections.Generic.IReadOnlyDictionary(Of System.String, System.String))
-  nameWithType: BackendConfig.BackendSessionAffinityOptions.BackendSessionAffinityOptions(Boolean, String, String, IReadOnlyDictionary<String, String>)
-  nameWithType.vb: BackendConfig.BackendSessionAffinityOptions.BackendSessionAffinityOptions(Boolean, String, String, IReadOnlyDictionary(Of String, String))
-- uid: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.#ctor*
-  name: BackendSessionAffinityOptions
-  href: api/Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.html#Microsoft_ReverseProxy_RuntimeModel_BackendConfig_BackendSessionAffinityOptions__ctor_
-  commentId: Overload:Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.#ctor
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterLoadBalancingOptions.Mode
+  nameWithType: ClusterConfig.ClusterLoadBalancingOptions.Mode
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions
+  name: ClusterConfig.ClusterSessionAffinityOptions
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions.html
+  commentId: T:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions
+  nameWithType: ClusterConfig.ClusterSessionAffinityOptions
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions.#ctor(System.Boolean,System.String,System.String,System.Collections.Generic.IReadOnlyDictionary{System.String,System.String})
+  name: ClusterSessionAffinityOptions(Boolean, String, String, IReadOnlyDictionary<String, String>)
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions.html#Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_ClusterSessionAffinityOptions__ctor_System_Boolean_System_String_System_String_System_Collections_Generic_IReadOnlyDictionary_System_String_System_String__
+  commentId: M:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions.#ctor(System.Boolean,System.String,System.String,System.Collections.Generic.IReadOnlyDictionary{System.String,System.String})
+  name.vb: ClusterSessionAffinityOptions(Boolean, String, String, IReadOnlyDictionary(Of String, String))
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions.ClusterSessionAffinityOptions(System.Boolean, System.String, System.String, System.Collections.Generic.IReadOnlyDictionary<System.String, System.String>)
+  fullName.vb: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions.ClusterSessionAffinityOptions(System.Boolean, System.String, System.String, System.Collections.Generic.IReadOnlyDictionary(Of System.String, System.String))
+  nameWithType: ClusterConfig.ClusterSessionAffinityOptions.ClusterSessionAffinityOptions(Boolean, String, String, IReadOnlyDictionary<String, String>)
+  nameWithType.vb: ClusterConfig.ClusterSessionAffinityOptions.ClusterSessionAffinityOptions(Boolean, String, String, IReadOnlyDictionary(Of String, String))
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions.#ctor*
+  name: ClusterSessionAffinityOptions
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions.html#Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_ClusterSessionAffinityOptions__ctor_
+  commentId: Overload:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions.#ctor
   isSpec: "True"
-  fullName: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.BackendSessionAffinityOptions
-  nameWithType: BackendConfig.BackendSessionAffinityOptions.BackendSessionAffinityOptions
-- uid: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.Enabled
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions.ClusterSessionAffinityOptions
+  nameWithType: ClusterConfig.ClusterSessionAffinityOptions.ClusterSessionAffinityOptions
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions.Enabled
   name: Enabled
-  href: api/Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.html#Microsoft_ReverseProxy_RuntimeModel_BackendConfig_BackendSessionAffinityOptions_Enabled
-  commentId: P:Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.Enabled
-  fullName: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.Enabled
-  nameWithType: BackendConfig.BackendSessionAffinityOptions.Enabled
-- uid: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.Enabled*
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions.html#Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_ClusterSessionAffinityOptions_Enabled
+  commentId: P:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions.Enabled
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions.Enabled
+  nameWithType: ClusterConfig.ClusterSessionAffinityOptions.Enabled
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions.Enabled*
   name: Enabled
-  href: api/Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.html#Microsoft_ReverseProxy_RuntimeModel_BackendConfig_BackendSessionAffinityOptions_Enabled_
-  commentId: Overload:Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.Enabled
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions.html#Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_ClusterSessionAffinityOptions_Enabled_
+  commentId: Overload:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions.Enabled
   isSpec: "True"
-  fullName: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.Enabled
-  nameWithType: BackendConfig.BackendSessionAffinityOptions.Enabled
-- uid: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.FailurePolicy
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions.Enabled
+  nameWithType: ClusterConfig.ClusterSessionAffinityOptions.Enabled
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions.FailurePolicy
   name: FailurePolicy
-  href: api/Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.html#Microsoft_ReverseProxy_RuntimeModel_BackendConfig_BackendSessionAffinityOptions_FailurePolicy
-  commentId: P:Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.FailurePolicy
-  fullName: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.FailurePolicy
-  nameWithType: BackendConfig.BackendSessionAffinityOptions.FailurePolicy
-- uid: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.FailurePolicy*
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions.html#Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_ClusterSessionAffinityOptions_FailurePolicy
+  commentId: P:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions.FailurePolicy
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions.FailurePolicy
+  nameWithType: ClusterConfig.ClusterSessionAffinityOptions.FailurePolicy
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions.FailurePolicy*
   name: FailurePolicy
-  href: api/Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.html#Microsoft_ReverseProxy_RuntimeModel_BackendConfig_BackendSessionAffinityOptions_FailurePolicy_
-  commentId: Overload:Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.FailurePolicy
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions.html#Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_ClusterSessionAffinityOptions_FailurePolicy_
+  commentId: Overload:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions.FailurePolicy
   isSpec: "True"
-  fullName: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.FailurePolicy
-  nameWithType: BackendConfig.BackendSessionAffinityOptions.FailurePolicy
-- uid: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.Mode
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions.FailurePolicy
+  nameWithType: ClusterConfig.ClusterSessionAffinityOptions.FailurePolicy
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions.Mode
   name: Mode
-  href: api/Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.html#Microsoft_ReverseProxy_RuntimeModel_BackendConfig_BackendSessionAffinityOptions_Mode
-  commentId: P:Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.Mode
-  fullName: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.Mode
-  nameWithType: BackendConfig.BackendSessionAffinityOptions.Mode
-- uid: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.Mode*
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions.html#Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_ClusterSessionAffinityOptions_Mode
+  commentId: P:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions.Mode
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions.Mode
+  nameWithType: ClusterConfig.ClusterSessionAffinityOptions.Mode
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions.Mode*
   name: Mode
-  href: api/Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.html#Microsoft_ReverseProxy_RuntimeModel_BackendConfig_BackendSessionAffinityOptions_Mode_
-  commentId: Overload:Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.Mode
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions.html#Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_ClusterSessionAffinityOptions_Mode_
+  commentId: Overload:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions.Mode
   isSpec: "True"
-  fullName: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.Mode
-  nameWithType: BackendConfig.BackendSessionAffinityOptions.Mode
-- uid: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.Settings
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions.Mode
+  nameWithType: ClusterConfig.ClusterSessionAffinityOptions.Mode
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions.Settings
   name: Settings
-  href: api/Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.html#Microsoft_ReverseProxy_RuntimeModel_BackendConfig_BackendSessionAffinityOptions_Settings
-  commentId: P:Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.Settings
-  fullName: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.Settings
-  nameWithType: BackendConfig.BackendSessionAffinityOptions.Settings
-- uid: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.Settings*
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions.html#Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_ClusterSessionAffinityOptions_Settings
+  commentId: P:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions.Settings
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions.Settings
+  nameWithType: ClusterConfig.ClusterSessionAffinityOptions.Settings
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions.Settings*
   name: Settings
-  href: api/Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.html#Microsoft_ReverseProxy_RuntimeModel_BackendConfig_BackendSessionAffinityOptions_Settings_
-  commentId: Overload:Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.Settings
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions.html#Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_ClusterSessionAffinityOptions_Settings_
+  commentId: Overload:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions.Settings
   isSpec: "True"
-  fullName: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions.Settings
-  nameWithType: BackendConfig.BackendSessionAffinityOptions.Settings
-- uid: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.HealthCheckOptions
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions.Settings
+  nameWithType: ClusterConfig.ClusterSessionAffinityOptions.Settings
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.HealthCheckOptions
   name: HealthCheckOptions
-  href: api/Microsoft.ReverseProxy.RuntimeModel.BackendConfig.html#Microsoft_ReverseProxy_RuntimeModel_BackendConfig_HealthCheckOptions
-  commentId: P:Microsoft.ReverseProxy.RuntimeModel.BackendConfig.HealthCheckOptions
-  fullName: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.HealthCheckOptions
-  nameWithType: BackendConfig.HealthCheckOptions
-- uid: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.HealthCheckOptions*
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.html#Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_HealthCheckOptions
+  commentId: P:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.HealthCheckOptions
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.HealthCheckOptions
+  nameWithType: ClusterConfig.HealthCheckOptions
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.HealthCheckOptions*
   name: HealthCheckOptions
-  href: api/Microsoft.ReverseProxy.RuntimeModel.BackendConfig.html#Microsoft_ReverseProxy_RuntimeModel_BackendConfig_HealthCheckOptions_
-  commentId: Overload:Microsoft.ReverseProxy.RuntimeModel.BackendConfig.HealthCheckOptions
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.html#Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_HealthCheckOptions_
+  commentId: Overload:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.HealthCheckOptions
   isSpec: "True"
-  fullName: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.HealthCheckOptions
-  nameWithType: BackendConfig.HealthCheckOptions
-- uid: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.LoadBalancingOptions
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.HealthCheckOptions
+  nameWithType: ClusterConfig.HealthCheckOptions
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.LoadBalancingOptions
   name: LoadBalancingOptions
-  href: api/Microsoft.ReverseProxy.RuntimeModel.BackendConfig.html#Microsoft_ReverseProxy_RuntimeModel_BackendConfig_LoadBalancingOptions
-  commentId: P:Microsoft.ReverseProxy.RuntimeModel.BackendConfig.LoadBalancingOptions
-  fullName: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.LoadBalancingOptions
-  nameWithType: BackendConfig.LoadBalancingOptions
-- uid: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.LoadBalancingOptions*
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.html#Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_LoadBalancingOptions
+  commentId: P:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.LoadBalancingOptions
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.LoadBalancingOptions
+  nameWithType: ClusterConfig.LoadBalancingOptions
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.LoadBalancingOptions*
   name: LoadBalancingOptions
-  href: api/Microsoft.ReverseProxy.RuntimeModel.BackendConfig.html#Microsoft_ReverseProxy_RuntimeModel_BackendConfig_LoadBalancingOptions_
-  commentId: Overload:Microsoft.ReverseProxy.RuntimeModel.BackendConfig.LoadBalancingOptions
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.html#Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_LoadBalancingOptions_
+  commentId: Overload:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.LoadBalancingOptions
   isSpec: "True"
-  fullName: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.LoadBalancingOptions
-  nameWithType: BackendConfig.LoadBalancingOptions
-- uid: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.SessionAffinityOptions
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.LoadBalancingOptions
+  nameWithType: ClusterConfig.LoadBalancingOptions
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.SessionAffinityOptions
   name: SessionAffinityOptions
-  href: api/Microsoft.ReverseProxy.RuntimeModel.BackendConfig.html#Microsoft_ReverseProxy_RuntimeModel_BackendConfig_SessionAffinityOptions
-  commentId: P:Microsoft.ReverseProxy.RuntimeModel.BackendConfig.SessionAffinityOptions
-  fullName: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.SessionAffinityOptions
-  nameWithType: BackendConfig.SessionAffinityOptions
-- uid: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.SessionAffinityOptions*
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.html#Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_SessionAffinityOptions
+  commentId: P:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.SessionAffinityOptions
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.SessionAffinityOptions
+  nameWithType: ClusterConfig.SessionAffinityOptions
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.SessionAffinityOptions*
   name: SessionAffinityOptions
-  href: api/Microsoft.ReverseProxy.RuntimeModel.BackendConfig.html#Microsoft_ReverseProxy_RuntimeModel_BackendConfig_SessionAffinityOptions_
-  commentId: Overload:Microsoft.ReverseProxy.RuntimeModel.BackendConfig.SessionAffinityOptions
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.html#Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_SessionAffinityOptions_
+  commentId: Overload:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.SessionAffinityOptions
   isSpec: "True"
-  fullName: Microsoft.ReverseProxy.RuntimeModel.BackendConfig.SessionAffinityOptions
-  nameWithType: BackendConfig.SessionAffinityOptions
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.SessionAffinityOptions
+  nameWithType: ClusterConfig.SessionAffinityOptions
 - uid: Microsoft.ReverseProxy.RuntimeModel.DestinationConfig
   name: DestinationConfig
   href: api/Microsoft.ReverseProxy.RuntimeModel.DestinationConfig.html
@@ -1837,19 +1837,19 @@ references:
   commentId: T:Microsoft.ReverseProxy.Service.IProxyConfigFilter
   fullName: Microsoft.ReverseProxy.Service.IProxyConfigFilter
   nameWithType: IProxyConfigFilter
-- uid: Microsoft.ReverseProxy.Service.IProxyConfigFilter.ConfigureBackendAsync(Microsoft.ReverseProxy.Abstractions.Backend,System.Threading.CancellationToken)
-  name: ConfigureBackendAsync(Backend, CancellationToken)
-  href: api/Microsoft.ReverseProxy.Service.IProxyConfigFilter.html#Microsoft_ReverseProxy_Service_IProxyConfigFilter_ConfigureBackendAsync_Microsoft_ReverseProxy_Abstractions_Backend_System_Threading_CancellationToken_
-  commentId: M:Microsoft.ReverseProxy.Service.IProxyConfigFilter.ConfigureBackendAsync(Microsoft.ReverseProxy.Abstractions.Backend,System.Threading.CancellationToken)
-  fullName: Microsoft.ReverseProxy.Service.IProxyConfigFilter.ConfigureBackendAsync(Microsoft.ReverseProxy.Abstractions.Backend, System.Threading.CancellationToken)
-  nameWithType: IProxyConfigFilter.ConfigureBackendAsync(Backend, CancellationToken)
-- uid: Microsoft.ReverseProxy.Service.IProxyConfigFilter.ConfigureBackendAsync*
-  name: ConfigureBackendAsync
-  href: api/Microsoft.ReverseProxy.Service.IProxyConfigFilter.html#Microsoft_ReverseProxy_Service_IProxyConfigFilter_ConfigureBackendAsync_
-  commentId: Overload:Microsoft.ReverseProxy.Service.IProxyConfigFilter.ConfigureBackendAsync
+- uid: Microsoft.ReverseProxy.Service.IProxyConfigFilter.ConfigureClusterAsync(Microsoft.ReverseProxy.Abstractions.Cluster,System.Threading.CancellationToken)
+  name: ConfigureClusterAsync(Cluster, CancellationToken)
+  href: api/Microsoft.ReverseProxy.Service.IProxyConfigFilter.html#Microsoft_ReverseProxy_Service_IProxyConfigFilter_ConfigureClusterAsync_Microsoft_ReverseProxy_Abstractions_Cluster_System_Threading_CancellationToken_
+  commentId: M:Microsoft.ReverseProxy.Service.IProxyConfigFilter.ConfigureClusterAsync(Microsoft.ReverseProxy.Abstractions.Cluster,System.Threading.CancellationToken)
+  fullName: Microsoft.ReverseProxy.Service.IProxyConfigFilter.ConfigureClusterAsync(Microsoft.ReverseProxy.Abstractions.Cluster, System.Threading.CancellationToken)
+  nameWithType: IProxyConfigFilter.ConfigureClusterAsync(Cluster, CancellationToken)
+- uid: Microsoft.ReverseProxy.Service.IProxyConfigFilter.ConfigureClusterAsync*
+  name: ConfigureClusterAsync
+  href: api/Microsoft.ReverseProxy.Service.IProxyConfigFilter.html#Microsoft_ReverseProxy_Service_IProxyConfigFilter_ConfigureClusterAsync_
+  commentId: Overload:Microsoft.ReverseProxy.Service.IProxyConfigFilter.ConfigureClusterAsync
   isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Service.IProxyConfigFilter.ConfigureBackendAsync
-  nameWithType: IProxyConfigFilter.ConfigureBackendAsync
+  fullName: Microsoft.ReverseProxy.Service.IProxyConfigFilter.ConfigureClusterAsync
+  nameWithType: IProxyConfigFilter.ConfigureClusterAsync
 - uid: Microsoft.ReverseProxy.Service.IProxyConfigFilter.ConfigureRouteAsync(Microsoft.ReverseProxy.Abstractions.ProxyRoute,System.Threading.CancellationToken)
   name: ConfigureRouteAsync(ProxyRoute, CancellationToken)
   href: api/Microsoft.ReverseProxy.Service.IProxyConfigFilter.html#Microsoft_ReverseProxy_Service_IProxyConfigFilter_ConfigureRouteAsync_Microsoft_ReverseProxy_Abstractions_ProxyRoute_System_Threading_CancellationToken_
@@ -2174,15 +2174,15 @@ references:
   commentId: T:Microsoft.ReverseProxy.Service.SessionAffinity.ISessionAffinityProvider
   fullName: Microsoft.ReverseProxy.Service.SessionAffinity.ISessionAffinityProvider
   nameWithType: ISessionAffinityProvider
-- uid: Microsoft.ReverseProxy.Service.SessionAffinity.ISessionAffinityProvider.AffinitizeRequest(Microsoft.AspNetCore.Http.HttpContext,Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions@,Microsoft.ReverseProxy.RuntimeModel.DestinationInfo)
-  name: AffinitizeRequest(HttpContext, BackendConfig.BackendSessionAffinityOptions, DestinationInfo)
-  href: api/Microsoft.ReverseProxy.Service.SessionAffinity.ISessionAffinityProvider.html#Microsoft_ReverseProxy_Service_SessionAffinity_ISessionAffinityProvider_AffinitizeRequest_Microsoft_AspNetCore_Http_HttpContext_Microsoft_ReverseProxy_RuntimeModel_BackendConfig_BackendSessionAffinityOptions__Microsoft_ReverseProxy_RuntimeModel_DestinationInfo_
-  commentId: M:Microsoft.ReverseProxy.Service.SessionAffinity.ISessionAffinityProvider.AffinitizeRequest(Microsoft.AspNetCore.Http.HttpContext,Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions@,Microsoft.ReverseProxy.RuntimeModel.DestinationInfo)
-  name.vb: AffinitizeRequest(HttpContext, ByRef BackendConfig.BackendSessionAffinityOptions, DestinationInfo)
-  fullName: Microsoft.ReverseProxy.Service.SessionAffinity.ISessionAffinityProvider.AffinitizeRequest(Microsoft.AspNetCore.Http.HttpContext, Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions, Microsoft.ReverseProxy.RuntimeModel.DestinationInfo)
-  fullName.vb: Microsoft.ReverseProxy.Service.SessionAffinity.ISessionAffinityProvider.AffinitizeRequest(Microsoft.AspNetCore.Http.HttpContext, ByRef Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions, Microsoft.ReverseProxy.RuntimeModel.DestinationInfo)
-  nameWithType: ISessionAffinityProvider.AffinitizeRequest(HttpContext, BackendConfig.BackendSessionAffinityOptions, DestinationInfo)
-  nameWithType.vb: ISessionAffinityProvider.AffinitizeRequest(HttpContext, ByRef BackendConfig.BackendSessionAffinityOptions, DestinationInfo)
+- uid: Microsoft.ReverseProxy.Service.SessionAffinity.ISessionAffinityProvider.AffinitizeRequest(Microsoft.AspNetCore.Http.HttpContext,Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions@,Microsoft.ReverseProxy.RuntimeModel.DestinationInfo)
+  name: AffinitizeRequest(HttpContext, ClusterConfig.ClusterSessionAffinityOptions, DestinationInfo)
+  href: api/Microsoft.ReverseProxy.Service.SessionAffinity.ISessionAffinityProvider.html#Microsoft_ReverseProxy_Service_SessionAffinity_ISessionAffinityProvider_AffinitizeRequest_Microsoft_AspNetCore_Http_HttpContext_Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_ClusterSessionAffinityOptions__Microsoft_ReverseProxy_RuntimeModel_DestinationInfo_
+  commentId: M:Microsoft.ReverseProxy.Service.SessionAffinity.ISessionAffinityProvider.AffinitizeRequest(Microsoft.AspNetCore.Http.HttpContext,Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions@,Microsoft.ReverseProxy.RuntimeModel.DestinationInfo)
+  name.vb: AffinitizeRequest(HttpContext, ByRef ClusterConfig.ClusterSessionAffinityOptions, DestinationInfo)
+  fullName: Microsoft.ReverseProxy.Service.SessionAffinity.ISessionAffinityProvider.AffinitizeRequest(Microsoft.AspNetCore.Http.HttpContext, Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions, Microsoft.ReverseProxy.RuntimeModel.DestinationInfo)
+  fullName.vb: Microsoft.ReverseProxy.Service.SessionAffinity.ISessionAffinityProvider.AffinitizeRequest(Microsoft.AspNetCore.Http.HttpContext, ByRef Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions, Microsoft.ReverseProxy.RuntimeModel.DestinationInfo)
+  nameWithType: ISessionAffinityProvider.AffinitizeRequest(HttpContext, ClusterConfig.ClusterSessionAffinityOptions, DestinationInfo)
+  nameWithType.vb: ISessionAffinityProvider.AffinitizeRequest(HttpContext, ByRef ClusterConfig.ClusterSessionAffinityOptions, DestinationInfo)
 - uid: Microsoft.ReverseProxy.Service.SessionAffinity.ISessionAffinityProvider.AffinitizeRequest*
   name: AffinitizeRequest
   href: api/Microsoft.ReverseProxy.Service.SessionAffinity.ISessionAffinityProvider.html#Microsoft_ReverseProxy_Service_SessionAffinity_ISessionAffinityProvider_AffinitizeRequest_
@@ -2190,15 +2190,15 @@ references:
   isSpec: "True"
   fullName: Microsoft.ReverseProxy.Service.SessionAffinity.ISessionAffinityProvider.AffinitizeRequest
   nameWithType: ISessionAffinityProvider.AffinitizeRequest
-- uid: Microsoft.ReverseProxy.Service.SessionAffinity.ISessionAffinityProvider.FindAffinitizedDestinations(Microsoft.AspNetCore.Http.HttpContext,System.Collections.Generic.IReadOnlyList{Microsoft.ReverseProxy.RuntimeModel.DestinationInfo},System.String,Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions@)
-  name: FindAffinitizedDestinations(HttpContext, IReadOnlyList<DestinationInfo>, String, BackendConfig.BackendSessionAffinityOptions)
-  href: api/Microsoft.ReverseProxy.Service.SessionAffinity.ISessionAffinityProvider.html#Microsoft_ReverseProxy_Service_SessionAffinity_ISessionAffinityProvider_FindAffinitizedDestinations_Microsoft_AspNetCore_Http_HttpContext_System_Collections_Generic_IReadOnlyList_Microsoft_ReverseProxy_RuntimeModel_DestinationInfo__System_String_Microsoft_ReverseProxy_RuntimeModel_BackendConfig_BackendSessionAffinityOptions__
-  commentId: M:Microsoft.ReverseProxy.Service.SessionAffinity.ISessionAffinityProvider.FindAffinitizedDestinations(Microsoft.AspNetCore.Http.HttpContext,System.Collections.Generic.IReadOnlyList{Microsoft.ReverseProxy.RuntimeModel.DestinationInfo},System.String,Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions@)
-  name.vb: FindAffinitizedDestinations(HttpContext, IReadOnlyList(Of DestinationInfo), String, ByRef BackendConfig.BackendSessionAffinityOptions)
-  fullName: Microsoft.ReverseProxy.Service.SessionAffinity.ISessionAffinityProvider.FindAffinitizedDestinations(Microsoft.AspNetCore.Http.HttpContext, System.Collections.Generic.IReadOnlyList<Microsoft.ReverseProxy.RuntimeModel.DestinationInfo>, System.String, Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions)
-  fullName.vb: Microsoft.ReverseProxy.Service.SessionAffinity.ISessionAffinityProvider.FindAffinitizedDestinations(Microsoft.AspNetCore.Http.HttpContext, System.Collections.Generic.IReadOnlyList(Of Microsoft.ReverseProxy.RuntimeModel.DestinationInfo), System.String, ByRef Microsoft.ReverseProxy.RuntimeModel.BackendConfig.BackendSessionAffinityOptions)
-  nameWithType: ISessionAffinityProvider.FindAffinitizedDestinations(HttpContext, IReadOnlyList<DestinationInfo>, String, BackendConfig.BackendSessionAffinityOptions)
-  nameWithType.vb: ISessionAffinityProvider.FindAffinitizedDestinations(HttpContext, IReadOnlyList(Of DestinationInfo), String, ByRef BackendConfig.BackendSessionAffinityOptions)
+- uid: Microsoft.ReverseProxy.Service.SessionAffinity.ISessionAffinityProvider.FindAffinitizedDestinations(Microsoft.AspNetCore.Http.HttpContext,System.Collections.Generic.IReadOnlyList{Microsoft.ReverseProxy.RuntimeModel.DestinationInfo},System.String,Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions@)
+  name: FindAffinitizedDestinations(HttpContext, IReadOnlyList<DestinationInfo>, String, ClusterConfig.ClusterSessionAffinityOptions)
+  href: api/Microsoft.ReverseProxy.Service.SessionAffinity.ISessionAffinityProvider.html#Microsoft_ReverseProxy_Service_SessionAffinity_ISessionAffinityProvider_FindAffinitizedDestinations_Microsoft_AspNetCore_Http_HttpContext_System_Collections_Generic_IReadOnlyList_Microsoft_ReverseProxy_RuntimeModel_DestinationInfo__System_String_Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_ClusterSessionAffinityOptions__
+  commentId: M:Microsoft.ReverseProxy.Service.SessionAffinity.ISessionAffinityProvider.FindAffinitizedDestinations(Microsoft.AspNetCore.Http.HttpContext,System.Collections.Generic.IReadOnlyList{Microsoft.ReverseProxy.RuntimeModel.DestinationInfo},System.String,Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions@)
+  name.vb: FindAffinitizedDestinations(HttpContext, IReadOnlyList(Of DestinationInfo), String, ByRef ClusterConfig.ClusterSessionAffinityOptions)
+  fullName: Microsoft.ReverseProxy.Service.SessionAffinity.ISessionAffinityProvider.FindAffinitizedDestinations(Microsoft.AspNetCore.Http.HttpContext, System.Collections.Generic.IReadOnlyList<Microsoft.ReverseProxy.RuntimeModel.DestinationInfo>, System.String, Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions)
+  fullName.vb: Microsoft.ReverseProxy.Service.SessionAffinity.ISessionAffinityProvider.FindAffinitizedDestinations(Microsoft.AspNetCore.Http.HttpContext, System.Collections.Generic.IReadOnlyList(Of Microsoft.ReverseProxy.RuntimeModel.DestinationInfo), System.String, ByRef Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterSessionAffinityOptions)
+  nameWithType: ISessionAffinityProvider.FindAffinitizedDestinations(HttpContext, IReadOnlyList<DestinationInfo>, String, ClusterConfig.ClusterSessionAffinityOptions)
+  nameWithType.vb: ISessionAffinityProvider.FindAffinitizedDestinations(HttpContext, IReadOnlyList(Of DestinationInfo), String, ByRef ClusterConfig.ClusterSessionAffinityOptions)
 - uid: Microsoft.ReverseProxy.Service.SessionAffinity.ISessionAffinityProvider.FindAffinitizedDestinations*
   name: FindAffinitizedDestinations
   href: api/Microsoft.ReverseProxy.Service.SessionAffinity.ISessionAffinityProvider.html#Microsoft_ReverseProxy_Service_SessionAffinity_ISessionAffinityProvider_FindAffinitizedDestinations_
