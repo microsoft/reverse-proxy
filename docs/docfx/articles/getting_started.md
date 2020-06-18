@@ -84,7 +84,7 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 
 The configuration for YARP is defined in the appsettings.json file. It defines a set of:
 
-Routes - which map incoming requests to the clusters based on aspects of the request such as host name, path, method, request headers etc. A route must specify at least a host or path. Routes are ordered, so the "app1" route needs to be defined first since "route2" will act as a catchall for all paths that have not already been matched. 
+Routes - which map incoming requests to the clusters based on aspects of the request such as host name, path, method, request headers etc. A route must specify at least a host or path, but the path can be a [catch-all route](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/routing?view=aspnetcore-3.1). Routes are ordered, so the "app1" route needs to be defined first since "route2" will act as a catchall for all paths that have not already been matched. 
 
 Clusters - which are the groups of destination servers that requests can be routed to and load balanced across.
 
