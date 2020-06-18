@@ -314,7 +314,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 _metrics,
                 new StreamCopyTelemetryContext(
                     direction: "upstream",
-                    backendId: proxyTelemetryContext.BackendId,
+                    clusterId: proxyTelemetryContext.ClusterId,
                     routeId: proxyTelemetryContext.RouteId,
                     destinationId: proxyTelemetryContext.DestinationId));
             var upstreamTask = upstreamCopier.CopyAsync(downstreamStream, upstreamStream, longCancellation);
@@ -323,7 +323,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 _metrics,
                 new StreamCopyTelemetryContext(
                     direction: "downstream",
-                    backendId: proxyTelemetryContext.BackendId,
+                    clusterId: proxyTelemetryContext.ClusterId,
                     routeId: proxyTelemetryContext.RouteId,
                     destinationId: proxyTelemetryContext.DestinationId));
             var downstreamTask = downstreamCopier.CopyAsync(upstreamStream, downstreamStream, longCancellation);
@@ -394,7 +394,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                     _metrics,
                     new StreamCopyTelemetryContext(
                         direction: "upstream",
-                        backendId: proxyTelemetryContext.BackendId,
+                        clusterId: proxyTelemetryContext.ClusterId,
                         routeId: proxyTelemetryContext.RouteId,
                         destinationId: proxyTelemetryContext.DestinationId));
                 contentToUpstream = new StreamCopyHttpContent(
@@ -503,7 +503,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                     _metrics,
                     new StreamCopyTelemetryContext(
                         direction: "downstream",
-                        backendId: proxyTelemetryContext.BackendId,
+                        clusterId: proxyTelemetryContext.ClusterId,
                         routeId: proxyTelemetryContext.RouteId,
                         destinationId: proxyTelemetryContext.DestinationId));
 

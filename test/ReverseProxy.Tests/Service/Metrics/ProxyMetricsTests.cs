@@ -32,7 +32,7 @@ namespace Microsoft.ReverseProxy.Service.Metrics.Tests
             metrics.StreamCopyBytes(123, "upstream", "be1", "rt1", "d1", "prot");
 
             // Assert
-            Assert.Contains("StreamCopyBytes=123;direction=upstream;backendId=be1;routeId=rt1;destinationId=d1;protocol=prot", _metricCreator.MetricsLogged);
+            Assert.Contains("StreamCopyBytes=123;direction=upstream;clusterId=be1;routeId=rt1;destinationId=d1;protocol=prot", _metricCreator.MetricsLogged);
         }
 
         [Fact]
@@ -45,7 +45,7 @@ namespace Microsoft.ReverseProxy.Service.Metrics.Tests
             metrics.StreamCopyIops(123, "upstream", "be1", "rt1", "d1", "prot");
 
             // Assert
-            Assert.Contains("StreamCopyIops=123;direction=upstream;backendId=be1;routeId=rt1;destinationId=d1;protocol=prot", _metricCreator.MetricsLogged);
+            Assert.Contains("StreamCopyIops=123;direction=upstream;clusterId=be1;routeId=rt1;destinationId=d1;protocol=prot", _metricCreator.MetricsLogged);
         }
     }
 }

@@ -18,6 +18,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         // TODO: How to ensure retries pick a different destination when available?
         DestinationInfo PickDestination(
             IReadOnlyList<DestinationInfo> availableDestinations,
-            in BackendConfig.BackendLoadBalancingOptions loadBalancingOptions);
+            in ClusterConfig.ClusterLoadBalancingOptions loadBalancingOptions);
     }
 }

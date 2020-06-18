@@ -32,30 +32,30 @@ namespace Microsoft.ReverseProxy.Middleware
             var routeConfig = endpoint.Metadata.GetMetadata<RouteConfig>()
                 ?? throw new InvalidOperationException($"Routing Endpoint is missing {typeof(RouteConfig).FullName} metadata.");
 
-            var backend = routeConfig.BackendOrNull;
-            if (backend == null)
+            var cluster = routeConfig.Cluster;
+            if (cluster == null)
             {
-                Log.NoBackendFound(_logger, routeConfig.Route.RouteId);
+                Log.NoClusterFound(_logger, routeConfig.Route.RouteId);
                 context.Response.StatusCode = 503;
                 return Task.CompletedTask;
             }
 
-            var dynamicState = backend.DynamicState.Value;
+            var dynamicState = cluster.DynamicState.Value;
             if (dynamicState == null)
             {
-                Log.BackendDataNotAvailable(_logger, routeConfig.Route.RouteId, backend.BackendId);
+                Log.ClusterDataNotAvailable(_logger, routeConfig.Route.RouteId, cluster.ClusterId);
                 context.Response.StatusCode = 503;
                 return Task.CompletedTask;
             }
 
             if (dynamicState.HealthyDestinations.Count == 0)
             {
-                Log.NoHealthyDestinations(_logger, routeConfig.Route.RouteId, backend.BackendId);
+                Log.NoHealthyDestinations(_logger, routeConfig.Route.RouteId, cluster.ClusterId);
                 context.Response.StatusCode = 503;
                 return Task.CompletedTask;
             }
 
-            context.Features.Set(backend);
+            context.Features.Set(cluster);
             context.Features.Set<IAvailableDestinationsFeature>(new AvailableDestinationsFeature() { Destinations = dynamicState.HealthyDestinations });
 
             return _next(context);
@@ -63,36 +63,36 @@ namespace Microsoft.ReverseProxy.Middleware
 
         private static class Log
         {
-            private static readonly Action<ILogger, string, Exception> _noBackendFound = LoggerMessage.Define<string>(
+            private static readonly Action<ILogger, string, Exception> _noClusterFound = LoggerMessage.Define<string>(
                 LogLevel.Information,
-                EventIds.NoBackendFound,
-                "Route `{routeId}` has no backend information.");
+                EventIds.NoClusterFound,
+                "Route `{routeId}` has no cluster information.");
 
-            private static readonly Action<ILogger, string, string, Exception> _backendDataNotAvailable = LoggerMessage.Define<string, string>(
+            private static readonly Action<ILogger, string, string, Exception> _clusterDataNotAvailable = LoggerMessage.Define<string, string>(
                 LogLevel.Information,
-                EventIds.BackendDataNotAvailable,
-                "Route `{routeId}` has no up to date information on its backend '{backendId}'. " +
-                "Perhaps the backend hasn't been probed yet? " +
-                "This can happen when a new backend is added but isn't ready to serve traffic yet.");
+                EventIds.ClusterDataNotAvailable,
+                "Route `{routeId}` has no up to date information on its cluster '{clusterId}'. " +
+                "Perhaps the cluster hasn't been probed yet? " +
+                "This can happen when a new cluster is added but isn't ready to serve traffic yet.");
 
             private static readonly Action<ILogger, string, string, Exception> _noHealthyDestinations = LoggerMessage.Define<string, string>(
                 LogLevel.Information,
                 EventIds.NoHealthyDestinations,
-                "Route `{routeId}` has no available healthy destinations for Backend `{backendId}`.");
+                "Route `{routeId}` has no available healthy destinations for Cluster `{clusterId}`.");
 
-            public static void NoBackendFound(ILogger logger, string routeId)
+            public static void NoClusterFound(ILogger logger, string routeId)
             {
-                _noBackendFound(logger, routeId, null);
+                _noClusterFound(logger, routeId, null);
             }
 
-            public static void BackendDataNotAvailable(ILogger logger, string routeId, string backendId)
+            public static void ClusterDataNotAvailable(ILogger logger, string routeId, string clusterId)
             {
-                _backendDataNotAvailable(logger, routeId, backendId, null);
+                _clusterDataNotAvailable(logger, routeId, clusterId, null);
             }
 
-            public static void NoHealthyDestinations(ILogger logger, string routeId, string backendId)
+            public static void NoHealthyDestinations(ILogger logger, string routeId, string clusterId)
             {
-                _noHealthyDestinations(logger, routeId, backendId, null);
+                _noHealthyDestinations(logger, routeId, clusterId, null);
             }
         }
     }

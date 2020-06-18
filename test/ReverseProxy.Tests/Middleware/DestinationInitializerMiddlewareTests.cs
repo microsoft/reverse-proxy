@@ -33,11 +33,11 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
         public async Task Invoke_SetsFeatures()
         {
             var proxyHttpClientFactoryMock = new Mock<IProxyHttpClientFactory>();
-            var backend1 = new BackendInfo(
-                backendId: "backend1",
+            var cluster1 = new ClusterInfo(
+                clusterId: "cluster1",
                 destinationManager: new DestinationManager(),
                 proxyHttpClientFactory: proxyHttpClientFactoryMock.Object);
-            var destination1 = backend1.DestinationManager.GetOrCreateItem(
+            var destination1 = cluster1.DestinationManager.GetOrCreateItem(
                 "destination1",
                 destination =>
                 {
@@ -50,7 +50,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 new RouteInfo("route1"),
                 configHash: 0,
                 priority: null,
-                backend1,
+                cluster1,
                 aspNetCoreEndpoints.AsReadOnly(),
                 transforms: null);
             var aspNetCoreEndpoint = CreateAspNetCoreEndpoint(routeConfig);
@@ -68,8 +68,8 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             Assert.Equal(1, feature.Destinations.Count);
             Assert.Same(destination1, feature.Destinations[0]);
 
-            var backend = httpContext.Features.Get<BackendInfo>();
-            Assert.Same(backend1, backend);
+            var cluster = httpContext.Features.Get<ClusterInfo>();
+            Assert.Same(cluster1, cluster);
 
             Assert.Equal(200, httpContext.Response.StatusCode);
         }
@@ -78,15 +78,15 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
         public async Task Invoke_NoHealthyEndpoints_503()
         {
             var proxyHttpClientFactoryMock = new Mock<IProxyHttpClientFactory>();
-            var backend1 = new BackendInfo(
-                backendId: "backend1",
+            var cluster1 = new ClusterInfo(
+                clusterId: "cluster1",
                 destinationManager: new DestinationManager(),
                 proxyHttpClientFactory: proxyHttpClientFactoryMock.Object);
-            backend1.Config.Value = new BackendConfig(
-                new BackendConfig.BackendHealthCheckOptions(enabled: true, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan, 0, ""),
-                new BackendConfig.BackendLoadBalancingOptions(),
-                new BackendConfig.BackendSessionAffinityOptions());
-            var destination1 = backend1.DestinationManager.GetOrCreateItem(
+            cluster1.Config.Value = new ClusterConfig(
+                new ClusterConfig.ClusterHealthCheckOptions(enabled: true, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan, 0, ""),
+                new ClusterConfig.ClusterLoadBalancingOptions(),
+                new ClusterConfig.ClusterSessionAffinityOptions());
+            var destination1 = cluster1.DestinationManager.GetOrCreateItem(
                 "destination1",
                 destination =>
                 {
@@ -99,7 +99,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 route: new RouteInfo("route1"),
                 configHash: 0,
                 priority: null,
-                backendOrNull: backend1,
+                cluster: cluster1,
                 aspNetCoreEndpoints: aspNetCoreEndpoints.AsReadOnly(),
                 transforms: null);
             var aspNetCoreEndpoint = CreateAspNetCoreEndpoint(routeConfig);
@@ -114,8 +114,8 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             var feature = httpContext.Features.Get<IAvailableDestinationsFeature>();
             Assert.Null(feature);
 
-            var backend = httpContext.Features.Get<BackendInfo>();
-            Assert.Null(backend);
+            var cluster = httpContext.Features.Get<ClusterInfo>();
+            Assert.Null(cluster);
 
             Assert.Equal(503, httpContext.Response.StatusCode);
         }

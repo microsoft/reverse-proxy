@@ -15,86 +15,86 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
         private static readonly int _maxProberNumber = 100;
 
         private readonly ILogger<HealthProbeWorker> _logger;
-        private readonly IBackendManager _backendManager;
-        private readonly IBackendProberFactory _backendProberFactory;
+        private readonly IClusterManager _clusterManager;
+        private readonly IClusterProberFactory _clusterProberFactory;
         private readonly AsyncSemaphore _semaphore = new AsyncSemaphore(_maxProberNumber);
-        private readonly Dictionary<string, IBackendProber> _activeProbers = new Dictionary<string, IBackendProber>(StringComparer.Ordinal);
+        private readonly Dictionary<string, IClusterProber> _activeProbers = new Dictionary<string, IClusterProber>(StringComparer.Ordinal);
 
-        public HealthProbeWorker(ILogger<HealthProbeWorker> logger, IBackendManager backendManager, IBackendProberFactory backendProberFactory)
+        public HealthProbeWorker(ILogger<HealthProbeWorker> logger, IClusterManager clusterManager, IClusterProberFactory clusterProberFactory)
         {
             Contracts.CheckValue(logger, nameof(logger));
-            Contracts.CheckValue(backendManager, nameof(backendManager));
-            Contracts.CheckValue(backendProberFactory, nameof(backendProberFactory));
+            Contracts.CheckValue(clusterManager, nameof(clusterManager));
+            Contracts.CheckValue(clusterProberFactory, nameof(clusterProberFactory));
 
             _logger = logger;
-            _backendManager = backendManager;
-            _backendProberFactory = backendProberFactory;
+            _clusterManager = clusterManager;
+            _clusterProberFactory = clusterProberFactory;
         }
 
-        public async Task UpdateTrackedBackends()
+        public async Task UpdateTrackedClusters()
         {
-            // TODO: (future) It's silly to go through all backends just to see which ones changed, if any.
+            // TODO: (future) It's silly to go through all clusters just to see which ones changed, if any.
             // We should use Signals instead.
 
-            // Step 1: Get the backend table.
+            // Step 1: Get the cluster table.
             var proberAdded = 0;
-            var backends = _backendManager.GetItems();
-            var backendIdList = new HashSet<string>();
+            var clusters = _clusterManager.GetItems();
+            var clusterIdList = new HashSet<string>();
 
-            // Step 2: Start background tasks to probe each backend at their configured intervals. The number of concurrent probes are controlled by semaphore.
+            // Step 2: Start background tasks to probe each cluster at their configured intervals. The number of concurrent probes are controlled by semaphore.
             var stopTasks = new List<Task>();
-            foreach (var backend in backends)
+            foreach (var cluster in clusters)
             {
-                backendIdList.Add(backend.BackendId);
-                var backendConfig = backend.Config.Value;
+                clusterIdList.Add(cluster.ClusterId);
+                var clusterConfig = cluster.Config.Value;
                 var createNewProber = false;
 
-                // Step 3A: Check whether this backend already has a prober.
-                if (_activeProbers.TryGetValue(backend.BackendId, out var activeProber))
+                // Step 3A: Check whether this cluster already has a prober.
+                if (_activeProbers.TryGetValue(cluster.ClusterId, out var activeProber))
                 {
-                    // Step 3B: Check if the config of backend has changed.
-                    if (backendConfig == null ||
-                        !backendConfig.HealthCheckOptions.Enabled ||
-                        activeProber.Config != backendConfig)
+                    // Step 3B: Check if the config of cluster has changed.
+                    if (clusterConfig == null ||
+                        !clusterConfig.HealthCheckOptions.Enabled ||
+                        activeProber.Config != clusterConfig)
                     {
                         // Current prober is not using latest config, stop and remove the outdated prober.
-                        Log.HealthCheckStopping(_logger, backend.BackendId);
+                        Log.HealthCheckStopping(_logger, cluster.ClusterId);
                         stopTasks.Add(activeProber.StopAsync());
-                        _activeProbers.Remove(backend.BackendId);
+                        _activeProbers.Remove(cluster.ClusterId);
 
                         // And create a new prober if needed
-                        createNewProber = backendConfig?.HealthCheckOptions.Enabled ?? false;
+                        createNewProber = clusterConfig?.HealthCheckOptions.Enabled ?? false;
                     }
                 }
                 else
                 {
-                    // Step 3C: New backend we aren't probing yet, set up a new prober.
-                    createNewProber = backendConfig?.HealthCheckOptions.Enabled ?? false;
+                    // Step 3C: New cluster we aren't probing yet, set up a new prober.
+                    createNewProber = clusterConfig?.HealthCheckOptions.Enabled ?? false;
                 }
 
                 if (!createNewProber)
                 {
-                    var reason = backendConfig == null ? "no backend configuration" : $"{nameof(backendConfig.HealthCheckOptions)}.{nameof(backendConfig.HealthCheckOptions.Enabled)} = false";
-                    Log.HealthCheckDisabled(_logger, backend.BackendId, reason);
+                    var reason = clusterConfig == null ? "no cluster configuration" : $"{nameof(clusterConfig.HealthCheckOptions)}.{nameof(clusterConfig.HealthCheckOptions.Enabled)} = false";
+                    Log.HealthCheckDisabled(_logger, cluster.ClusterId, reason);
                 }
 
                 // Step 4: New prober need to been created, start the new registered prober.
                 if (createNewProber)
                 {
-                    // Start probing health for all endpoints(replica) in this backend(service).
-                    var newProber = _backendProberFactory.CreateBackendProber(backend.BackendId, backendConfig, backend.DestinationManager);
-                    _activeProbers.Add(backend.BackendId, newProber);
+                    // Start probing health for all endpoints(replica) in this cluster(service).
+                    var newProber = _clusterProberFactory.CreateClusterProber(cluster.ClusterId, clusterConfig, cluster.DestinationManager);
+                    _activeProbers.Add(cluster.ClusterId, newProber);
                     proberAdded++;
-                    Log.ProberCreated(_logger, backend.BackendId);
+                    Log.ProberCreated(_logger, cluster.ClusterId);
                     newProber.Start(_semaphore);
                 }
             }
 
-            // Step 5: Stop and remove probes for backends that no longer exist.
+            // Step 5: Stop and remove probes for clusters that no longer exist.
             var probersToRemove = new List<string>();
             foreach (var kvp in _activeProbers)
             {
-                if (!backendIdList.Contains(kvp.Key))
+                if (!clusterIdList.Contains(kvp.Key))
                 {
                     // Gracefully shut down the probe.
                     Log.HealthCheckStopping(_logger, kvp.Key);
@@ -103,7 +103,7 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
                 }
             }
 
-            // remove the probes for backends that were removed.
+            // remove the probes for clusters that were removed.
             probersToRemove.ForEach(p => _activeProbers.Remove(p));
             await Task.WhenAll(stopTasks);
             Log.ProberUpdated(_logger, proberAdded, probersToRemove.Count, _activeProbers.Count);
@@ -112,7 +112,7 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
         public async Task StopAsync()
         {
             // Graceful shutdown of all probes.
-            // Stop and remove probes for backends that no longer exist
+            // Stop and remove probes for clusters that no longer exist
             var stopTasks = new List<Task>();
             foreach (var kvp in _activeProbers)
             {
@@ -128,17 +128,17 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
             private static readonly Action<ILogger, string, Exception> _healthCheckStopping = LoggerMessage.Define<string>(
                 LogLevel.Information,
                 EventIds.HealthCheckStopping,
-                "Health check work stopping prober for '{backendId}'.");
+                "Health check work stopping prober for '{clusterId}'.");
 
             private static readonly Action<ILogger, string, string, Exception> _healthCheckDisabled = LoggerMessage.Define<string, string>(
                 LogLevel.Information,
                 EventIds.HealthCheckDisabled,
-                "Health check prober for backend '{backendId}' is disabled because {reason}.");
+                "Health check prober for cluster '{clusterId}' is disabled because {reason}.");
 
             private static readonly Action<ILogger, string, Exception> _proberCreated = LoggerMessage.Define<string>(
                 LogLevel.Information,
                 EventIds.ProberCreated,
-                "Prober for backend '{backendId}' has created.");
+                "Prober for cluster '{clusterId}' has created.");
 
             private static readonly Action<ILogger, int, int, int, Exception> _proberUpdated = LoggerMessage.Define<int, int, int>(
                 LogLevel.Information,
@@ -152,19 +152,19 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
                 EventIds.HealthCheckGracefulShutdown,
                 "Health check has gracefully shut down.");
 
-            public static void HealthCheckStopping(ILogger logger, string backendId)
+            public static void HealthCheckStopping(ILogger logger, string clusterId)
             {
-                _healthCheckStopping(logger, backendId, null);
+                _healthCheckStopping(logger, clusterId, null);
             }
 
-            public static void HealthCheckDisabled(ILogger logger, string backendId, string reason)
+            public static void HealthCheckDisabled(ILogger logger, string clusterId, string reason)
             {
-                _healthCheckDisabled(logger, backendId, reason, null);
+                _healthCheckDisabled(logger, clusterId, reason, null);
             }
 
-            public static void ProberCreated(ILogger logger, string backendId)
+            public static void ProberCreated(ILogger logger, string clusterId)
             {
-                _proberCreated(logger, backendId, null);
+                _proberCreated(logger, clusterId, null);
             }
 
             public static void ProberUpdated(ILogger logger, int addedProbers, int removedProbers, int activeProbers)

@@ -37,8 +37,8 @@ namespace Microsoft.ReverseProxy.Middleware
 
         public Task Invoke(HttpContext context)
         {
-            var backend = context.GetRequiredBackend();
-            var options = backend.Config.Value?.SessionAffinityOptions ?? default;
+            var cluster = context.GetRequiredCluster();
+            var options = cluster.Config.Value?.SessionAffinityOptions ?? default;
 
             if (options.Enabled)
             {
@@ -49,14 +49,14 @@ namespace Microsoft.ReverseProxy.Middleware
                 {
                     // Only log the warning about missing destinations here, but allow the request to proceed further.
                     // The final check for selected destination is to be done at the pipeline end.
-                    Log.NoDestinationOnBackendToEstablishRequestAffinity(_logger, backend.BackendId);
+                    Log.NoDestinationOnClusterToEstablishRequestAffinity(_logger, cluster.ClusterId);
                 }
                 else
                 {
                     var chosenDestination = candidateDestinations[0];
                     if (candidateDestinations.Count > 1)
                     {
-                        Log.MultipleDestinationsOnBackendToEstablishRequestAffinity(_logger, backend.BackendId);
+                        Log.MultipleDestinationsOnClusterToEstablishRequestAffinity(_logger, cluster.ClusterId);
                         // It's assumed that all of them match to the request's affinity key.
                         chosenDestination = candidateDestinations[_random.Next(candidateDestinations.Count)];
                         destinationsFeature.Destinations = chosenDestination;
@@ -69,7 +69,7 @@ namespace Microsoft.ReverseProxy.Middleware
             return _next(context);
         }
 
-        private void AffinitizeRequest(HttpContext context, BackendConfig.BackendSessionAffinityOptions options, DestinationInfo destination)
+        private void AffinitizeRequest(HttpContext context, ClusterConfig.ClusterSessionAffinityOptions options, DestinationInfo destination)
         {
             var currentProvider = _sessionAffinityProviders.GetRequiredServiceById(options.Mode);
             currentProvider.AffinitizeRequest(context, options, destination);
@@ -77,24 +77,24 @@ namespace Microsoft.ReverseProxy.Middleware
 
         private static class Log
         {
-            private static readonly Action<ILogger, string, Exception> _multipleDestinationsOnBackendToEstablishRequestAffinity = LoggerMessage.Define<string>(
+            private static readonly Action<ILogger, string, Exception> _multipleDestinationsOnClusterToEstablishRequestAffinity = LoggerMessage.Define<string>(
                 LogLevel.Warning,
-                EventIds.MultipleDestinationsOnBackendToEstablishRequestAffinity,
-                "The request still has multiple destinations on the backend `{backendId}` to choose from when establishing affinity, load balancing may not be properly configured. A random destination will be used.");
+                EventIds.MultipleDestinationsOnClusterToEstablishRequestAffinity,
+                "The request still has multiple destinations on the cluster `{clusterId}` to choose from when establishing affinity, load balancing may not be properly configured. A random destination will be used.");
 
-            private static readonly Action<ILogger, string, Exception> _noDestinationOnBackendToEstablishRequestAffinity = LoggerMessage.Define<string>(
+            private static readonly Action<ILogger, string, Exception> _noDestinationOnClusterToEstablishRequestAffinity = LoggerMessage.Define<string>(
                 LogLevel.Warning,
-                EventIds.NoDestinationOnBackendToEstablishRequestAffinity,
-                "The request doesn't have any destinations on the backend `{backendId}` to choose from when establishing affinity, load balancing may not be properly configured.");
+                EventIds.NoDestinationOnClusterToEstablishRequestAffinity,
+                "The request doesn't have any destinations on the cluster `{clusterId}` to choose from when establishing affinity, load balancing may not be properly configured.");
 
-            public static void MultipleDestinationsOnBackendToEstablishRequestAffinity(ILogger logger, string backendId)
+            public static void MultipleDestinationsOnClusterToEstablishRequestAffinity(ILogger logger, string clusterId)
             {
-                _multipleDestinationsOnBackendToEstablishRequestAffinity(logger, backendId, null);
+                _multipleDestinationsOnClusterToEstablishRequestAffinity(logger, clusterId, null);
             }
 
-            public static void NoDestinationOnBackendToEstablishRequestAffinity(ILogger logger, string backendId)
+            public static void NoDestinationOnClusterToEstablishRequestAffinity(ILogger logger, string clusterId)
             {
-                _noDestinationOnBackendToEstablishRequestAffinity(logger, backendId, null);
+                _noDestinationOnClusterToEstablishRequestAffinity(logger, clusterId, null);
             }
         }
     }

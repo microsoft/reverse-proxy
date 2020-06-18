@@ -13,7 +13,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
     /// <remarks>
     /// This is somewhat similarly to `System.Net.Http.IHttpClientFactory`,
     /// except that this factory class is meant for direct use,
-    /// which Proxy requires in order to keep separate pools for each backend.
+    /// which Proxy requires in order to keep separate pools for each cluster.
     /// </remarks>
     internal interface IProxyHttpClientFactory : IDisposable
     {

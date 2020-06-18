@@ -20,13 +20,13 @@ namespace Microsoft.ReverseProxy.Middleware
         [Fact]
         public async Task Invoke_SingleDestinationChosen_InvokeAffinitizeRequest()
         {
-            var backend = GetBackend();
+            var cluster = GetCluster();
             var invokedMode = string.Empty;
             const string expectedMode = "Mode-B";
             var providers = RegisterAffinityProviders(
                 false,
                 Destinations[1],
-                backend.BackendId,
+                cluster.ClusterId,
                 ("Mode-A", (AffinityStatus?)null, (DestinationInfo[])null, (Action<ISessionAffinityProvider>)(p => throw new InvalidOperationException($"Provider {p.Mode} call is not expected."))),
                 (expectedMode, (AffinityStatus?)null, (DestinationInfo[])null, (Action<ISessionAffinityProvider>)(p => invokedMode = p.Mode)));
             var nextInvoked = false;
@@ -38,7 +38,7 @@ namespace Microsoft.ReverseProxy.Middleware
                 GetOperationLogger(),
                 new Mock<ILogger<AffinitizeRequestMiddleware>>().Object);
             var context = new DefaultHttpContext();
-            context.Features.Set(backend);
+            context.Features.Set(cluster);
             var destinationFeature = GetDestinationsFeature(Destinations[1]);
             context.Features.Set(destinationFeature);
 
@@ -55,7 +55,7 @@ namespace Microsoft.ReverseProxy.Middleware
         [Fact]
         public async Task Invoke_MultipleCandidateDestinations_ChooseOneAndInvokeAffinitizeRequest()
         {
-            var backend = GetBackend();
+            var cluster = GetCluster();
             var invokedMode = string.Empty;
             const string expectedMode = "Mode-B";
             var providers = new[] {
@@ -72,7 +72,7 @@ namespace Microsoft.ReverseProxy.Middleware
                 GetOperationLogger(),
                 logger.Object);
             var context = new DefaultHttpContext();
-            context.Features.Set(backend);
+            context.Features.Set(cluster);
             var destinationFeature = GetDestinationsFeature(Destinations);
             context.Features.Set(destinationFeature);
 
@@ -84,7 +84,7 @@ namespace Microsoft.ReverseProxy.Middleware
             providers[0].VerifyNoOtherCalls();
             providers[1].VerifyAll();
             logger.Verify(
-                l => l.Log(LogLevel.Warning, EventIds.MultipleDestinationsOnBackendToEstablishRequestAffinity, It.IsAny<It.IsAnyType>(), null, (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
+                l => l.Log(LogLevel.Warning, EventIds.MultipleDestinationsOnClusterToEstablishRequestAffinity, It.IsAny<It.IsAnyType>(), null, (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
                 Times.Once);
             Assert.Equal(1, destinationFeature.Destinations.Count);
             var chosen = destinationFeature.Destinations[0];
@@ -95,7 +95,7 @@ namespace Microsoft.ReverseProxy.Middleware
         [Fact]
         public async Task Invoke_NoDestinationChosen_LogWarningAndCallNext()
         {
-            var backend = GetBackend();
+            var cluster = GetCluster();
             var nextInvoked = false;
             var logger = AffinityTestHelper.GetLogger<AffinitizeRequestMiddleware>();
             var middleware = new AffinitizeRequestMiddleware(c => {
@@ -106,7 +106,7 @@ namespace Microsoft.ReverseProxy.Middleware
                 GetOperationLogger(),
                 logger.Object);
             var context = new DefaultHttpContext();
-            context.Features.Set(backend);
+            context.Features.Set(cluster);
             var destinationFeature = GetDestinationsFeature(new DestinationInfo[0]);
             context.Features.Set(destinationFeature);
 
@@ -114,7 +114,7 @@ namespace Microsoft.ReverseProxy.Middleware
 
             Assert.True(nextInvoked);
             logger.Verify(
-                l => l.Log(LogLevel.Warning, EventIds.NoDestinationOnBackendToEstablishRequestAffinity, It.IsAny<It.IsAnyType>(), null, (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
+                l => l.Log(LogLevel.Warning, EventIds.NoDestinationOnClusterToEstablishRequestAffinity, It.IsAny<It.IsAnyType>(), null, (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
                 Times.Once);
             Assert.Equal(0, destinationFeature.Destinations.Count);
         }
@@ -130,7 +130,7 @@ namespace Microsoft.ReverseProxy.Middleware
         {
             var provider = new Mock<ISessionAffinityProvider>(MockBehavior.Strict);
             provider.SetupGet(p => p.Mode).Returns(mode);
-            provider.Setup(p => p.AffinitizeRequest(It.IsAny<HttpContext>(), BackendConfig.SessionAffinityOptions, It.Is<DestinationInfo>(d => destinations.Contains(d))))
+            provider.Setup(p => p.AffinitizeRequest(It.IsAny<HttpContext>(), ClusterConfig.SessionAffinityOptions, It.Is<DestinationInfo>(d => destinations.Contains(d))))
                 .Callback(() => callback(provider.Object));
             return provider;
         }

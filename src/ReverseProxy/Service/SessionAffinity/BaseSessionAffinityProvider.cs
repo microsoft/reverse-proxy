@@ -25,11 +25,11 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
 
         public abstract string Mode { get; }
 
-        public virtual void AffinitizeRequest(HttpContext context, in BackendConfig.BackendSessionAffinityOptions options, DestinationInfo destination)
+        public virtual void AffinitizeRequest(HttpContext context, in ClusterConfig.ClusterSessionAffinityOptions options, DestinationInfo destination)
         {
             if (!options.Enabled)
             {
-                throw new InvalidOperationException($"Session affinity is disabled for backend.");
+                throw new InvalidOperationException($"Session affinity is disabled for cluster.");
             }
 
             // Affinity key is set on the response only if it's a new affinity.
@@ -40,11 +40,11 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
             }
         }
 
-        public virtual AffinityResult FindAffinitizedDestinations(HttpContext context, IReadOnlyList<DestinationInfo> destinations, string backendId, in BackendConfig.BackendSessionAffinityOptions options)
+        public virtual AffinityResult FindAffinitizedDestinations(HttpContext context, IReadOnlyList<DestinationInfo> destinations, string clusterId, in ClusterConfig.ClusterSessionAffinityOptions options)
         {
             if (!options.Enabled)
             {
-                throw new InvalidOperationException($"Session affinity is disabled for backend {backendId}.");
+                throw new InvalidOperationException($"Session affinity is disabled for cluster {clusterId}.");
             }
 
             var requestAffinityKey = GetRequestAffinityKey(context, options);
@@ -68,11 +68,11 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
                         break;
                     }
                 }
-                Log.DestinationMatchingToAffinityKeyNotFound(Logger, backendId);
+                Log.DestinationMatchingToAffinityKeyNotFound(Logger, clusterId);
             }
             else
             {
-                Log.AffinityCannotBeEstablishedBecauseNoDestinationsFound(Logger, backendId);
+                Log.AffinityCannotBeEstablishedBecauseNoDestinationsFound(Logger, clusterId);
             }
 
             // Empty destination list passed to this method is handled the same way as if no matching destinations are found.
@@ -85,7 +85,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
             return new AffinityResult(matchingDestinations, AffinityStatus.OK);
         }
 
-        protected virtual string GetSettingValue(string key, BackendConfig.BackendSessionAffinityOptions options)
+        protected virtual string GetSettingValue(string key, ClusterConfig.ClusterSessionAffinityOptions options)
         {
             if (options.Settings == null || !options.Settings.TryGetValue(key, out var value))
             {
@@ -97,9 +97,9 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
 
         protected abstract T GetDestinationAffinityKey(DestinationInfo destination);
 
-        protected abstract (T Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, in BackendConfig.BackendSessionAffinityOptions options);
+        protected abstract (T Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, in ClusterConfig.ClusterSessionAffinityOptions options);
 
-        protected abstract void SetAffinityKey(HttpContext context, in BackendConfig.BackendSessionAffinityOptions options, T unencryptedKey);
+        protected abstract void SetAffinityKey(HttpContext context, in ClusterConfig.ClusterSessionAffinityOptions options, T unencryptedKey);
 
         protected string Protect(string unencryptedKey)
         {
@@ -155,8 +155,8 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
         {
             private static readonly Action<ILogger, string, Exception> _affinityCannotBeEstablishedBecauseNoDestinationsFound = LoggerMessage.Define<string>(
                 LogLevel.Warning,
-                EventIds.AffinityCannotBeEstablishedBecauseNoDestinationsFoundOnBackend,
-                "The request affinity cannot be established because no destinations are found on backend `{backendId}`.");
+                EventIds.AffinityCannotBeEstablishedBecauseNoDestinationsFoundOnCluster,
+                "The request affinity cannot be established because no destinations are found on cluster `{clusterId}`.");
 
             private static readonly Action<ILogger, Exception> _requestAffinityKeyDecryptionFailed = LoggerMessage.Define(
                 LogLevel.Error,
@@ -166,11 +166,11 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
             private static readonly Action<ILogger, string, Exception> _destinationMatchingToAffinityKeyNotFound = LoggerMessage.Define<string>(
                 LogLevel.Warning,
                 EventIds.DestinationMatchingToAffinityKeyNotFound,
-                "Destination matching to the request affinity key is not found on backend `{backnedId}`. Configured failure policy will be applied.");
+                "Destination matching to the request affinity key is not found on cluster `{backnedId}`. Configured failure policy will be applied.");
 
-            public static void AffinityCannotBeEstablishedBecauseNoDestinationsFound(ILogger logger, string backendId)
+            public static void AffinityCannotBeEstablishedBecauseNoDestinationsFound(ILogger logger, string clusterId)
             {
-                _affinityCannotBeEstablishedBecauseNoDestinationsFound(logger, backendId, null);
+                _affinityCannotBeEstablishedBecauseNoDestinationsFound(logger, clusterId, null);
             }
 
             public static void RequestAffinityKeyDecryptionFailed(ILogger logger, Exception ex)
@@ -178,9 +178,9 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
                 _requestAffinityKeyDecryptionFailed(logger, ex);
             }
 
-            public static void DestinationMatchingToAffinityKeyNotFound(ILogger logger, string backendId)
+            public static void DestinationMatchingToAffinityKeyNotFound(ILogger logger, string clusterId)
             {
-                _destinationMatchingToAffinityKeyNotFound(logger, backendId, null);
+                _destinationMatchingToAffinityKeyNotFound(logger, clusterId, null);
             }
         }
     }

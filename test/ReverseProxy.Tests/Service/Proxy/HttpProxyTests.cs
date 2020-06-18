@@ -94,7 +94,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             factoryMock.Setup(f => f.CreateNormalClient()).Returns(client);
 
             var proxyTelemetryContext = new ProxyTelemetryContext(
-                backendId: "be1",
+                clusterId: "be1",
                 routeId: "rt1",
                 destinationId: "d1");
 
@@ -192,7 +192,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             factoryMock.Setup(f => f.CreateNormalClient()).Returns(client);
 
             var proxyTelemetryContext = new ProxyTelemetryContext(
-                backendId: "be1",
+                clusterId: "be1",
                 routeId: "rt1",
                 destinationId: "d1");
 
@@ -289,7 +289,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             factoryMock.Setup(f => f.CreateNormalClient()).Returns(client);
 
             var proxyTelemetryContext = new ProxyTelemetryContext(
-                backendId: "be1",
+                clusterId: "be1",
                 routeId: "rt1",
                 destinationId: "d1");
 
@@ -371,7 +371,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             factoryMock.Setup(f => f.CreateNormalClient()).Returns(client);
 
             var proxyTelemetryContext = new ProxyTelemetryContext(
-                backendId: "be1",
+                clusterId: "be1",
                 routeId: "rt1",
                 destinationId: "d1");
 
@@ -436,7 +436,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             factoryMock.Setup(f => f.CreateUpgradableClient()).Returns(client);
 
             var proxyTelemetryContext = new ProxyTelemetryContext(
-                backendId: "be1",
+                clusterId: "be1",
                 routeId: "rt1",
                 destinationId: "d1");
 
@@ -505,7 +505,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             factoryMock.Setup(f => f.CreateUpgradableClient()).Returns(client);
 
             var proxyTelemetryContext = new ProxyTelemetryContext(
-                backendId: "be1",
+                clusterId: "be1",
                 routeId: "rt1",
                 destinationId: "d1");
 

@@ -22,13 +22,13 @@ namespace Microsoft.ReverseProxy.Service
         /// <param name="source">
         /// Parsed proxy route, this is the source of settings that are used to create the new runtime objects.
         /// </param>
-        /// <param name="backendOrNull">Backend that this route maps to.</param>
+        /// <param name="cluster">Cluster that this route maps to.</param>
         /// <param name="runtimeRoute">
         /// Representation of the route during runtime,
         /// whose <see cref="RouteInfo.Config"/> property is updated with a new objected computed from
-        /// <paramref name="source"/> and <paramref name="backendOrNull"/>.
+        /// <paramref name="source"/> and <paramref name="cluster"/>.
         /// </param>
-        RouteConfig Build(ParsedRoute source, BackendInfo backendOrNull, RouteInfo runtimeRoute);
+        RouteConfig Build(ParsedRoute source, ClusterInfo cluster, RouteInfo runtimeRoute);
 
         /// <summary>
         /// Sets the middleware pipeline to use when building routes.

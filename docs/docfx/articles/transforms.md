@@ -41,7 +41,7 @@ Here is an example of common transforms:
     "Routes": [
       {
         "RouteId": "route1",
-        "BackendId": "backend1",
+        "ClusterId": "cluster1",
         "Match": {
           "Host": "localhost"
         },
@@ -68,7 +68,7 @@ Here is an example of common transforms:
       },
       {
         "RouteId": "route2",
-        "BackendId": "backend1",
+        "ClusterId": "cluster1",
         "Match": {
           "Path": "/api/{plugin}/stuff/{*remainder}"
         },
@@ -77,10 +77,10 @@ Here is an example of common transforms:
         ]
       }
     ],
-    "Backends": {
-      "backend1": {
+    "Clusters": {
+      "cluster1": {
         "Destinations": {
-          "backend1/destination1": {
+          "cluster1/destination1": {
             "Address": "https://localhost:10001/Path/Base"
           }
         }

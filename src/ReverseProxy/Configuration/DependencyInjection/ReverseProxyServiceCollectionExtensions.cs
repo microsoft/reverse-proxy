@@ -46,11 +46,11 @@ namespace Microsoft.Extensions.DependencyInjection
             builder.Services.Configure<ProxyConfigOptions>(config);
             builder.Services.AddOptions().PostConfigure<ProxyConfigOptions>(options =>
             {
-                foreach (var (id, backend) in options.Backends)
+                foreach (var (id, cluster) in options.Clusters)
                 {
                     // The Object style config binding puts the id as the key in the dictionary, but later we want it on the
-                    // backend object as well.
-                    backend.Id = id;
+                    // cluster object as well.
+                    cluster.Id = id;
                 }
             });
             builder.Services.AddHostedService<ProxyConfigLoader>();

@@ -40,7 +40,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
                 Host = host,
                 Path = path,
                 Methods = methods?.Split(","),
-                BackendId = "be1",
+                ClusterId = "be1",
             };
 
             // Act
@@ -76,7 +76,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var route = new ParsedRoute
             {
                 RouteId = "route1",
-                BackendId = "be1",
+                ClusterId = "be1",
             };
 
             // Act
@@ -106,7 +106,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             {
                 RouteId = "route1",
                 Host = host,
-                BackendId = "be1",
+                ClusterId = "be1",
             };
 
             // Act
@@ -129,7 +129,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             {
                 RouteId = "route1",
                 Path = path,
-                BackendId = "be1",
+                ClusterId = "be1",
             };
 
             // Act
@@ -151,7 +151,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             {
                 RouteId = "route1",
                 Methods = methods.Split(","),
-                BackendId = "be1",
+                ClusterId = "be1",
             };
 
             // Act

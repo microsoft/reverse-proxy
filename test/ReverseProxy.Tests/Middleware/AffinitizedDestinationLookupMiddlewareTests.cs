@@ -21,14 +21,14 @@ namespace Microsoft.ReverseProxy.Middleware
         [InlineData(AffinityStatus.OK, AffinitizedDestinationName)]
         public async Task Invoke_SuccessfulFlow_CallNext(AffinityStatus status, string foundDestinationId)
         {
-            var backend = GetBackend();
+            var cluster = GetCluster();
             var foundDestinations = foundDestinationId != null ? Destinations.Where(d => d.DestinationId == foundDestinationId).ToArray() : null;
             var invokedMode = string.Empty;
             const string expectedMode = "Mode-B";
             var providers = RegisterAffinityProviders(
                 true,
                 Destinations,
-                backend.BackendId,
+                cluster.ClusterId,
                 ("Mode-A", AffinityStatus.DestinationNotFound, (RuntimeModel.DestinationInfo[])null, (Action<ISessionAffinityProvider>)(p => throw new InvalidOperationException($"Provider {p.Mode} call is not expected."))),
                 (expectedMode, status, foundDestinations, p => invokedMode = p.Mode));
             var nextInvoked = false;
@@ -40,7 +40,7 @@ namespace Microsoft.ReverseProxy.Middleware
                 GetOperationLogger(false),
                 new Mock<ILogger<AffinitizedDestinationLookupMiddleware>>().Object);
             var context = new DefaultHttpContext();
-            context.Features.Set(backend);
+            context.Features.Set(cluster);
             var destinationFeature = GetDestinationsFeature(Destinations);
             context.Features.Set(destinationFeature);
 
@@ -70,8 +70,8 @@ namespace Microsoft.ReverseProxy.Middleware
         [InlineData(AffinityStatus.AffinityKeyExtractionFailed, false)]
         public async Task Invoke_ErrorFlow_CallFailurePolicy(AffinityStatus affinityStatus, bool keepProcessing)
         {
-            var backend = GetBackend();
-            var providers = RegisterAffinityProviders(true, Destinations, backend.BackendId, ("Mode-B", affinityStatus, null, _ => { }));
+            var cluster = GetCluster();
+            var providers = RegisterAffinityProviders(true, Destinations, cluster.ClusterId, ("Mode-B", affinityStatus, null, _ => { }));
             var invokedPolicy = string.Empty;
             const string expectedPolicy = "Policy-1";
             var failurePolicies = RegisterFailurePolicies(
@@ -88,7 +88,7 @@ namespace Microsoft.ReverseProxy.Middleware
                 GetOperationLogger(true),
                 logger.Object);
             var context = new DefaultHttpContext();
-            context.Features.Set(backend);
+            context.Features.Set(cluster);
             var destinationFeature = GetDestinationsFeature(Destinations);
             context.Features.Set(destinationFeature);
 
@@ -102,7 +102,7 @@ namespace Microsoft.ReverseProxy.Middleware
             if (!keepProcessing)
             {
                 logger.Verify(
-                    l => l.Log(LogLevel.Warning, EventIds.AffinityResolutionFailedForBackend, It.IsAny<It.IsAnyType>(), null, (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
+                    l => l.Log(LogLevel.Warning, EventIds.AffinityResolutionFailedForCluster, It.IsAny<It.IsAnyType>(), null, (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
                     Times.Once);
             }
         }

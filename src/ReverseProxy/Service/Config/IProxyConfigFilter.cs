@@ -13,11 +13,11 @@ namespace Microsoft.ReverseProxy.Service
     public interface IProxyConfigFilter
     {
         /// <summary>
-        /// Allows modification of a Backend configuration.
+        /// Allows modification of a Cluster configuration.
         /// </summary>
-        /// <param name="id">The id for the backend.</param>
-        /// <param name="backend">The Backend instance to configure.</param>
-        Task ConfigureBackendAsync(Backend backend, CancellationToken cancel);
+        /// <param name="id">The id for the cluster.</param>
+        /// <param name="cluster">The Cluster instance to configure.</param>
+        Task ConfigureClusterAsync(Cluster cluster, CancellationToken cancel);
 
         /// <summary>
         /// Allows modification of a route configuration.

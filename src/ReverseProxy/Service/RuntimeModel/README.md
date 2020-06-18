@@ -17,19 +17,19 @@ and each thread can operate safely with up-to-date yet consistent information
 
 ## Class naming conventions
 
-* Classes named `*Info` (`RouteInfo`, `BackendInfo`, `EndpointInfo`)
-  represent the 3 primary abstractions in Reverse Proxy (Routes, Backends and Destinations);
+* Classes named `*Info` (`RouteInfo`, `ClusterInfo`, `EndpointInfo`)
+  represent the 3 primary abstractions in Reverse Proxy (Routes, Clusters and Destinations);
 
-* Classes named `*Config` (`RouteConfig`, `BackendConfig`, `EndpointConfig`)
+* Classes named `*Config` (`RouteConfig`, `ClusterConfig`, `EndpointConfig`)
   represent portions of the 3 abstractions that only change in reaction to 
   Reverse Proxy config changes.
-  For example, when the health check interval for a backend is updated,
-  a new instance of `BackendConfig` is created with the new values,
-  and the corresponding `AtomicHolder` in `BackendInfo` is updated to point at the new instance;
+  For example, when the health check interval for a cluster is updated,
+  a new instance of `ClusterConfig` is created with the new values,
+  and the corresponding `AtomicHolder` in `ClusterInfo` is updated to point at the new instance;
 
-* Classes named `*DynamicState` (`BackendDynamicState`, `EndpointDynamicState`)
+* Classes named `*DynamicState` (`ClusterDynamicState`, `EndpointDynamicState`)
   represent portions of the 3 abstractions that change in reaction to
   Reverse Proxy's runtime state.
-  For example, when new destinations are discovered for a backend,
-  a new instance of `BackendDynamicState` is created with the new values,
-  and the corresponding `AtomicHolder` in `BackendInfo` is updated to point at the new instance;
+  For example, when new destinations are discovered for a cluster,
+  a new instance of `ClusterDynamicState` is created with the new values,
+  and the corresponding `AtomicHolder` in `ClusterInfo` is updated to point at the new instance;

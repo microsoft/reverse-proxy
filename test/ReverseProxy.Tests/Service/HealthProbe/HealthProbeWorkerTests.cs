@@ -19,9 +19,9 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
     {
         // The prober class is used by the healthProbe class, here we would mock the prober since we only care about the behavior of healthProbe class.
         // And we also want to customize the behavior of prober so we could have the full control of the unit test.
-        private readonly Mock<IBackendProber> _backendProber;
-        private readonly IBackendManager _backendManager;
-        private readonly BackendConfig _backendConfig;
+        private readonly Mock<IClusterProber> _clusterProber;
+        private readonly IClusterManager _clusterManager;
+        private readonly ClusterConfig _clusterConfig;
 
         public HealthProbeWorkerTests()
         {
@@ -32,10 +32,10 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
                 .Setup(f => f.CreateFactory())
                 .Returns(new Mock<IProxyHttpClientFactory>().Object);
 
-            // Set up backends. We are going to fake multiple service for us to probe.
-            _backendManager = Provide<IBackendManager, BackendManager>();
-            _backendConfig = new BackendConfig(
-                healthCheckOptions: new BackendConfig.BackendHealthCheckOptions(
+            // Set up clusters. We are going to fake multiple service for us to probe.
+            _clusterManager = Provide<IClusterManager, ClusterManager>();
+            _clusterConfig = new ClusterConfig(
+                healthCheckOptions: new ClusterConfig.ClusterHealthCheckOptions(
                     enabled: true,
                     interval: TimeSpan.FromSeconds(1),
                     timeout: TimeSpan.FromSeconds(1),
@@ -45,19 +45,19 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
                 sessionAffinityOptions: default);
 
             // Set up prober. We do not want to let prober really perform any actions.
-            // The behavior of prober should be tested in its own unit test, see "BackendProberTests.cs".
-            _backendProber = new Mock<IBackendProber>();
-            _backendProber.Setup(p => p.Start(It.IsAny<AsyncSemaphore>()));
-            _backendProber.Setup(p => p.StopAsync());
-            _backendProber.Setup(p => p.BackendId).Returns("service0");
-            _backendProber.Setup(p => p.Config).Returns(_backendConfig);
-            Mock<IBackendProberFactory>()
+            // The behavior of prober should be tested in its own unit test, see "ClusterProberTests.cs".
+            _clusterProber = new Mock<IClusterProber>();
+            _clusterProber.Setup(p => p.Start(It.IsAny<AsyncSemaphore>()));
+            _clusterProber.Setup(p => p.StopAsync());
+            _clusterProber.Setup(p => p.ClusterId).Returns("service0");
+            _clusterProber.Setup(p => p.Config).Returns(_clusterConfig);
+            Mock<IClusterProberFactory>()
                 .Setup(
-                    r => r.CreateBackendProber(
+                    r => r.CreateClusterProber(
                         It.IsAny<string>(),
-                        It.IsAny<BackendConfig>(),
+                        It.IsAny<ClusterConfig>(),
                         It.IsAny<IDestinationManager>()))
-                .Returns(_backendProber.Object);
+                .Returns(_clusterProber.Object);
         }
 
         [Fact]
@@ -67,17 +67,17 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
         }
 
         [Fact]
-        public async Task UpdateTrackedBackends_NoBackends_ShouldNotStartProber()
+        public async Task UpdateTrackedClusters_NoClusters_ShouldNotStartProber()
         {
             var health = Create<HealthProbeWorker>();
-            await health.UpdateTrackedBackends();
+            await health.UpdateTrackedClusters();
 
             // There is no service, no prober should be created or started.
-            _backendProber.Verify(p => p.Start(It.IsAny<AsyncSemaphore>()), Times.Never());
+            _clusterProber.Verify(p => p.Start(It.IsAny<AsyncSemaphore>()), Times.Never());
         }
 
         [Fact]
-        public async Task UpdateTrackedBackends_HasBackends_ShouldStartProber()
+        public async Task UpdateTrackedClusters_HasClusters_ShouldStartProber()
         {
             // Set up destinations for probing, pretend that we have three replica.
             var destinationmanger = DestinationManagerGenerator(3);
@@ -85,21 +85,21 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
                 .Setup(e => e.CreateDestinationManager())
                 .Returns(destinationmanger);
 
-            // Set up backends for probing, pretend that we have three services, each services have three replica.
-            _backendManager.GetOrCreateItem("service0", item => { item.Config.Value = _backendConfig; });
-            _backendManager.GetOrCreateItem("service1", item => { item.Config.Value = _backendConfig; });
-            _backendManager.GetOrCreateItem("service2", item => { item.Config.Value = _backendConfig; });
+            // Set up clusters for probing, pretend that we have three services, each services have three replica.
+            _clusterManager.GetOrCreateItem("service0", item => { item.Config.Value = _clusterConfig; });
+            _clusterManager.GetOrCreateItem("service1", item => { item.Config.Value = _clusterConfig; });
+            _clusterManager.GetOrCreateItem("service2", item => { item.Config.Value = _clusterConfig; });
 
             // Start probing.
             var health = Create<HealthProbeWorker>();
-            await health.UpdateTrackedBackends();
+            await health.UpdateTrackedClusters();
 
             // There is three services, three prober should be created and started.
-            _backendProber.Verify(p => p.Start(It.IsAny<AsyncSemaphore>()), Times.Exactly(3));
+            _clusterProber.Verify(p => p.Start(It.IsAny<AsyncSemaphore>()), Times.Exactly(3));
         }
 
         [Fact]
-        public async Task UpdateTrackedBackends_ProbeNotEnabled_ShouldNotStartProber()
+        public async Task UpdateTrackedClusters_ProbeNotEnabled_ShouldNotStartProber()
         {
             // Set up destinations for probing, pretend that we have three replica.
             var destinationmanger = DestinationManagerGenerator(3);
@@ -107,13 +107,13 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
                 .Setup(e => e.CreateDestinationManager())
                 .Returns(destinationmanger);
 
-            // Set up backends for probing, pretend that we have three services, each services have three replica.
-            _backendManager.GetOrCreateItem(
+            // Set up clusters for probing, pretend that we have three services, each services have three replica.
+            _clusterManager.GetOrCreateItem(
                 "service0",
                 item =>
                 {
-                    item.Config.Value = new BackendConfig(
-                        healthCheckOptions: new BackendConfig.BackendHealthCheckOptions(
+                    item.Config.Value = new ClusterConfig(
+                        healthCheckOptions: new ClusterConfig.ClusterHealthCheckOptions(
                             enabled: false,
                             interval: TimeSpan.FromSeconds(5),
                             timeout: TimeSpan.FromSeconds(20),
@@ -125,14 +125,14 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
 
             // Start probing.
             var health = Create<HealthProbeWorker>();
-            await health.UpdateTrackedBackends();
+            await health.UpdateTrackedClusters();
 
-            // Probing is disabled for this backend, no prober should be created or started.
-            _backendProber.Verify(p => p.Start(It.IsAny<AsyncSemaphore>()), Times.Never());
+            // Probing is disabled for this cluster, no prober should be created or started.
+            _clusterProber.Verify(p => p.Start(It.IsAny<AsyncSemaphore>()), Times.Never());
         }
 
         [Fact]
-        public async Task UpdateTrackedBackends_BackendWithNoConfig_ShouldNotStartProber()
+        public async Task UpdateTrackedClusters_ClusterWithNoConfig_ShouldNotStartProber()
         {
             // Set up destinations for probing, pretend that we have one replica.
             var destinationmanger = DestinationManagerGenerator(1);
@@ -140,20 +140,20 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
                 .Setup(e => e.CreateDestinationManager())
                 .Returns(destinationmanger);
 
-            // Set up backends for probing, pretend that we have one services, each services have one replica.
+            // Set up clusters for probing, pretend that we have one services, each services have one replica.
             // Note we did not provide config for this service.
-            _backendManager.GetOrCreateItem("service0", item => { });
+            _clusterManager.GetOrCreateItem("service0", item => { });
 
             // Start probing.
             var health = Create<HealthProbeWorker>();
-            await health.UpdateTrackedBackends();
+            await health.UpdateTrackedClusters();
 
             // There is one service but it does not have config, no prober should be created and started.
-            _backendProber.Verify(p => p.Start(It.IsAny<AsyncSemaphore>()), Times.Never());
+            _clusterProber.Verify(p => p.Start(It.IsAny<AsyncSemaphore>()), Times.Never());
         }
 
         [Fact]
-        public async Task UpdateTrackedBackends_BackendDidNotChange_StartsProberOnlyOnce()
+        public async Task UpdateTrackedClusters_ClusterDidNotChange_StartsProberOnlyOnce()
         {
             // Set up destinations for probing, pretend that we have three replica.
             var destinationmanger = DestinationManagerGenerator(1);
@@ -161,22 +161,22 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
                 .Setup(e => e.CreateDestinationManager())
                 .Returns(destinationmanger);
 
-            // Set up backends for probing, pretend that we have one services, each services have one replica.
-            _backendManager.GetOrCreateItem("service0", item => { item.Config.Value = _backendConfig; });
+            // Set up clusters for probing, pretend that we have one services, each services have one replica.
+            _clusterManager.GetOrCreateItem("service0", item => { item.Config.Value = _clusterConfig; });
 
             var health = Create<HealthProbeWorker>();
 
             // Do probing double times
-            await health.UpdateTrackedBackends();
-            await health.UpdateTrackedBackends();
+            await health.UpdateTrackedClusters();
+            await health.UpdateTrackedClusters();
 
             // There is one service and service does not changed, prober should be only created and started once
             // no matter how many time probing is conducted.
-            _backendProber.Verify(p => p.Start(It.IsAny<AsyncSemaphore>()), Times.Once);
+            _clusterProber.Verify(p => p.Start(It.IsAny<AsyncSemaphore>()), Times.Once);
         }
 
         [Fact]
-        public async Task UpdateTrackedBackends_BackendConfigChange_RecreatesProber()
+        public async Task UpdateTrackedClusters_ClusterConfigChange_RecreatesProber()
         {
             // Set up destinations for probing, pretend that we have three replica.
             var destinationmanger = DestinationManagerGenerator(3);
@@ -184,15 +184,15 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
                 .Setup(e => e.CreateDestinationManager())
                 .Returns(destinationmanger);
 
-            // Set up backends for probing, pretend that we have one services, each services have three replica.
-            _backendManager.GetOrCreateItem("service0", item => { item.Config.Value = _backendConfig; });
+            // Set up clusters for probing, pretend that we have one services, each services have three replica.
+            _clusterManager.GetOrCreateItem("service0", item => { item.Config.Value = _clusterConfig; });
 
             var health = Create<HealthProbeWorker>();
-            await health.UpdateTrackedBackends();
+            await health.UpdateTrackedClusters();
 
-            // After the probing has already started, let's update the backend config for the service.
-            _backendManager.GetItems()[0].Config.Value = new BackendConfig(
-                healthCheckOptions: new BackendConfig.BackendHealthCheckOptions(
+            // After the probing has already started, let's update the cluster config for the service.
+            _clusterManager.GetItems()[0].Config.Value = new ClusterConfig(
+                healthCheckOptions: new ClusterConfig.ClusterHealthCheckOptions(
                     enabled: true,
                     interval: TimeSpan.FromSeconds(1),
                     timeout: TimeSpan.FromSeconds(1),
@@ -200,16 +200,16 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
                     path: "/newexample"),
                 loadBalancingOptions: default,
                 sessionAffinityOptions: default);
-            await health.UpdateTrackedBackends();
+            await health.UpdateTrackedClusters();
 
             // After the config is updated, the program should discover this change, create a new prober,
             // stop and remove the previous prober. So two creation and one stop in total.
-            _backendProber.Verify(p => p.Start(It.IsAny<AsyncSemaphore>()), Times.Exactly(2));
-            _backendProber.Verify(p => p.StopAsync(), Times.Once);
+            _clusterProber.Verify(p => p.Start(It.IsAny<AsyncSemaphore>()), Times.Exactly(2));
+            _clusterProber.Verify(p => p.StopAsync(), Times.Once);
         }
 
         [Fact]
-        public async Task UpdateTrackedBackends_BackendConfigDisabledProbing_StopsProber()
+        public async Task UpdateTrackedClusters_ClusterConfigDisabledProbing_StopsProber()
         {
             // Set up destinations for probing, pretend that we have three replica.
             var destinationmanger = DestinationManagerGenerator(3);
@@ -217,15 +217,15 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
                 .Setup(e => e.CreateDestinationManager())
                 .Returns(destinationmanger);
 
-            // Set up backends for probing, pretend that we have one services, each services have three replica.
-            _backendManager.GetOrCreateItem("service0", item => { item.Config.Value = _backendConfig; });
+            // Set up clusters for probing, pretend that we have one services, each services have three replica.
+            _clusterManager.GetOrCreateItem("service0", item => { item.Config.Value = _clusterConfig; });
 
             var health = Create<HealthProbeWorker>();
-            await health.UpdateTrackedBackends();
+            await health.UpdateTrackedClusters();
 
-            // After the probing has already started, let's update the backend config for the service.
-            _backendManager.GetItems()[0].Config.Value = new BackendConfig(
-                healthCheckOptions: new BackendConfig.BackendHealthCheckOptions(
+            // After the probing has already started, let's update the cluster config for the service.
+            _clusterManager.GetItems()[0].Config.Value = new ClusterConfig(
+                healthCheckOptions: new ClusterConfig.ClusterHealthCheckOptions(
                     enabled: false,
                     interval: TimeSpan.FromSeconds(1),
                     timeout: TimeSpan.FromSeconds(1),
@@ -233,16 +233,16 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
                     path: "/newexample"),
                 loadBalancingOptions: default,
                 sessionAffinityOptions: default);
-            await health.UpdateTrackedBackends();
+            await health.UpdateTrackedClusters();
 
             // After the config is updated, the program should discover this change,
             // stop and remove the previous prober. So one creation and one stop in total.
-            _backendProber.Verify(p => p.Start(It.IsAny<AsyncSemaphore>()), Times.Once);
-            _backendProber.Verify(p => p.StopAsync(), Times.Once);
+            _clusterProber.Verify(p => p.Start(It.IsAny<AsyncSemaphore>()), Times.Once);
+            _clusterProber.Verify(p => p.StopAsync(), Times.Once);
         }
 
         [Fact]
-        public async Task UpdateTrackedBackends_RemovedBackend_StopsProber()
+        public async Task UpdateTrackedClusters_RemovedCluster_StopsProber()
         {
             // Set up destinations for probing, pretend that we have three replica.
             var destinationmanger = DestinationManagerGenerator(3);
@@ -250,21 +250,21 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
                 .Setup(e => e.CreateDestinationManager())
                 .Returns(destinationmanger);
 
-            // Set up backends for probing, pretend that we have one services, each services have three replica.
-            _backendManager.GetOrCreateItem("service0", item => { item.Config.Value = _backendConfig; });
+            // Set up clusters for probing, pretend that we have one services, each services have three replica.
+            _clusterManager.GetOrCreateItem("service0", item => { item.Config.Value = _clusterConfig; });
 
             // Start probing.
             var health = Create<HealthProbeWorker>();
-            await health.UpdateTrackedBackends();
+            await health.UpdateTrackedClusters();
 
-            // After the probing has already started, let's remove the backend.
-            _backendManager.TryRemoveItem("service0");
-            await health.UpdateTrackedBackends();
+            // After the probing has already started, let's remove the cluster.
+            _clusterManager.TryRemoveItem("service0");
+            await health.UpdateTrackedClusters();
 
-            // After the backend is removed, the program should discover this removal,
+            // After the cluster is removed, the program should discover this removal,
             // stop and remove the prober for the removed service. So one creation and one stop in total.
-            _backendProber.Verify(p => p.Start(It.IsAny<AsyncSemaphore>()), Times.Once);
-            _backendProber.Verify(p => p.StopAsync(), Times.Once);
+            _clusterProber.Verify(p => p.Start(It.IsAny<AsyncSemaphore>()), Times.Once);
+            _clusterProber.Verify(p => p.StopAsync(), Times.Once);
         }
 
         [Fact]
@@ -276,19 +276,19 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
                 .Setup(e => e.CreateDestinationManager())
                 .Returns(destinationmanger);
 
-            // Set up backends for probing, pretend that we have three services, each services have three replica.
-            _backendManager.GetOrCreateItem("service0", item => { item.Config.Value = _backendConfig; });
-            _backendManager.GetOrCreateItem("service1", item => { item.Config.Value = _backendConfig; });
-            _backendManager.GetOrCreateItem("service2", item => { item.Config.Value = _backendConfig; });
+            // Set up clusters for probing, pretend that we have three services, each services have three replica.
+            _clusterManager.GetOrCreateItem("service0", item => { item.Config.Value = _clusterConfig; });
+            _clusterManager.GetOrCreateItem("service1", item => { item.Config.Value = _clusterConfig; });
+            _clusterManager.GetOrCreateItem("service2", item => { item.Config.Value = _clusterConfig; });
 
             // Start probing.
             var health = Create<HealthProbeWorker>();
-            await health.UpdateTrackedBackends();
+            await health.UpdateTrackedClusters();
 
             // Stop probing. We should expect three start and three stop.
             await health.StopAsync();
-            _backendProber.Verify(p => p.Start(It.IsAny<AsyncSemaphore>()), Times.Exactly(3));
-            _backendProber.Verify(p => p.StopAsync(), Times.Exactly(3));
+            _clusterProber.Verify(p => p.Start(It.IsAny<AsyncSemaphore>()), Times.Exactly(3));
+            _clusterProber.Verify(p => p.StopAsync(), Times.Exactly(3));
         }
 
         private static DestinationManager DestinationManagerGenerator(int num)

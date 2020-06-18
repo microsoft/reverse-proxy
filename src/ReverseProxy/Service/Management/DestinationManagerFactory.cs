@@ -6,7 +6,7 @@ namespace Microsoft.ReverseProxy.Service.Management
     /// <summary>
     /// Default implementation of <see cref="IDestinationManagerFactory"/>
     /// which creates instances of <see cref="DestinationManager"/>
-    /// to manage destinations of a backend at runtime.
+    /// to manage destinations of a cluster at runtime.
     /// </summary>
     internal class DestinationManagerFactory : IDestinationManagerFactory
     {

@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.Threading.Tasks;
@@ -8,16 +8,16 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
 {
     /// <summary>
     /// Interface for the active health probe background worker,
-    /// which verifies health of backend endpoints by attempting communication
+    /// which verifies health of cluster endpoints by attempting communication
     /// with them.
     /// </summary>
     internal interface IHealthProbeWorker
     {
         /// <summary>
-        /// Starts issuing active health probes for all the backends configured in
-        /// <see cref="IBackendManager"/>.
+        /// Starts issuing active health probes for all the clusters configured in
+        /// <see cref="IClusterManager"/>.
         /// </summary>
-        Task UpdateTrackedBackends();
+        Task UpdateTrackedClusters();
 
         /// <summary>
         /// Gracefully terminates all active health probing activity.

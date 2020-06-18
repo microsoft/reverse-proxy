@@ -17,7 +17,7 @@ namespace Tests.Common
 
         /// <summary>
         /// Identifier of the element in the configuration that this error applies to.
-        /// Can represent a backend, endpoint or route.
+        /// Can represent a cluster, endpoint or route.
         /// </summary>
         public string ElementId { get; set; }
 

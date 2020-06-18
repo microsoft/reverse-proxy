@@ -19,7 +19,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
         private const string InvalidKeyNull = "!invalid key - null!";
         private const string InvalidKeyThrow = "!invalid key - throw!";
         private const string KeyName = "StubAffinityKey";
-        private readonly BackendConfig.BackendSessionAffinityOptions _defaultOptions = new BackendConfig.BackendSessionAffinityOptions(true, "Stub", "Return503", new Dictionary<string, string> { { "AffinityKeyName", KeyName } });
+        private readonly ClusterConfig.ClusterSessionAffinityOptions _defaultOptions = new ClusterConfig.ClusterSessionAffinityOptions(true, "Stub", "Return503", new Dictionary<string, string> { { "AffinityKeyName", KeyName } });
 
         [Theory]
         [MemberData(nameof(FindAffinitizedDestinationsCases))]
@@ -36,7 +36,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
             var dataProtector = GetDataProtector();
             var logger = AffinityTestHelper.GetLogger<BaseSessionAffinityProvider<string>>();
             var provider = new ProviderStub(dataProtector.Object, logger.Object);
-            var affinityResult = provider.FindAffinitizedDestinations(context, allDestinations, "backend-1", _defaultOptions);
+            var affinityResult = provider.FindAffinitizedDestinations(context, allDestinations, "cluster-1", _defaultOptions);
 
             if(unprotectCalled)
             {
@@ -64,11 +64,11 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
         }
 
         [Fact]
-        public void FindAffinitizedDestination_AffinityDisabledOnBackend_ReturnsAffinityDisabled()
+        public void FindAffinitizedDestination_AffinityDisabledOnCluster_ReturnsAffinityDisabled()
         {
             var provider = new ProviderStub(GetDataProtector().Object, AffinityTestHelper.GetLogger<BaseSessionAffinityProvider<string>>().Object);
-            var options = new BackendConfig.BackendSessionAffinityOptions(false, _defaultOptions.Mode, _defaultOptions.FailurePolicy, _defaultOptions.Settings);
-            Assert.Throws<InvalidOperationException>(() => provider.FindAffinitizedDestinations(new DefaultHttpContext(), new[] { new DestinationInfo("1") }, "backend-1", options));
+            var options = new ClusterConfig.ClusterSessionAffinityOptions(false, _defaultOptions.Mode, _defaultOptions.FailurePolicy, _defaultOptions.Settings);
+            Assert.Throws<InvalidOperationException>(() => provider.FindAffinitizedDestinations(new DefaultHttpContext(), new[] { new DestinationInfo("1") }, "cluster-1", options));
         }
 
         [Fact]
@@ -108,7 +108,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
         {
             var provider = new ProviderStub(GetDataProtector().Object, AffinityTestHelper.GetLogger<BaseSessionAffinityProvider<string>>().Object);
             var options = GetOptionsWithUnknownSetting();
-            Assert.Throws<ArgumentException>(() => provider.FindAffinitizedDestinations(new DefaultHttpContext(), new[] { new DestinationInfo("dest-A") }, "backend-1", options));
+            Assert.Throws<ArgumentException>(() => provider.FindAffinitizedDestinations(new DefaultHttpContext(), new[] { new DestinationInfo("dest-A") }, "cluster-1", options));
         }
 
         [Fact]
@@ -134,15 +134,15 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
             yield return new object[] { GetHttpContext(new[] { ("SomeKey", "SomeValue") }), destinations, AffinityStatus.AffinityKeyNotSet, null, null, false, null, null };
             yield return new object[] { GetHttpContext(new[] { (KeyName, "dest-B") }), destinations, AffinityStatus.OK, destinations[1], Encoding.UTF8.GetBytes("dest-B"), true, null, null };
             yield return new object[] { GetHttpContext(new[] { (KeyName, "dest-Z") }), destinations, AffinityStatus.DestinationNotFound, null, Encoding.UTF8.GetBytes("dest-Z"), true, LogLevel.Warning, EventIds.DestinationMatchingToAffinityKeyNotFound };
-            yield return new object[] { GetHttpContext(new[] { (KeyName, "dest-B") }), new DestinationInfo[0], AffinityStatus.DestinationNotFound, null, Encoding.UTF8.GetBytes("dest-B"), true, LogLevel.Warning, EventIds.AffinityCannotBeEstablishedBecauseNoDestinationsFoundOnBackend };
+            yield return new object[] { GetHttpContext(new[] { (KeyName, "dest-B") }), new DestinationInfo[0], AffinityStatus.DestinationNotFound, null, Encoding.UTF8.GetBytes("dest-B"), true, LogLevel.Warning, EventIds.AffinityCannotBeEstablishedBecauseNoDestinationsFoundOnCluster };
             yield return new object[] { GetHttpContext(new[] { (KeyName, "/////") }, false), destinations, AffinityStatus.AffinityKeyExtractionFailed, null, Encoding.UTF8.GetBytes(InvalidKeyNull), false, LogLevel.Error, EventIds.RequestAffinityKeyDecryptionFailed };
             yield return new object[] { GetHttpContext(new[] { (KeyName, InvalidKeyNull) }), destinations, AffinityStatus.AffinityKeyExtractionFailed, null, Encoding.UTF8.GetBytes(InvalidKeyNull), true, LogLevel.Error, EventIds.RequestAffinityKeyDecryptionFailed };
             yield return new object[] { GetHttpContext(new[] { (KeyName, InvalidKeyThrow) }), destinations, AffinityStatus.AffinityKeyExtractionFailed, null, Encoding.UTF8.GetBytes(InvalidKeyThrow), true, LogLevel.Error, EventIds.RequestAffinityKeyDecryptionFailed };
         }
 
-        private static BackendConfig.BackendSessionAffinityOptions GetOptionsWithUnknownSetting()
+        private static ClusterConfig.ClusterSessionAffinityOptions GetOptionsWithUnknownSetting()
         {
-            return new BackendConfig.BackendSessionAffinityOptions(true, "Stub", "Return503", new Dictionary<string, string> { { "Unknown", "ZZZ" } });
+            return new ClusterConfig.ClusterSessionAffinityOptions(true, "Stub", "Return503", new Dictionary<string, string> { { "Unknown", "ZZZ" } });
         }
 
         private static HttpContext GetHttpContext((string Key, string Value)[] items, bool encodeToBase64 = true)
@@ -189,7 +189,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
                 return destination.DestinationId;
             }
 
-            protected override (string Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, in BackendConfig.BackendSessionAffinityOptions options)
+            protected override (string Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, in ClusterConfig.ClusterSessionAffinityOptions options)
             {
                 Assert.Equal(Mode, options.Mode);
                 var keyName = GetSettingValue(KeyNameSetting, options);
@@ -199,7 +199,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
                 return Unprotect((string)encryptedKey);
             }
 
-            protected override void SetAffinityKey(HttpContext context, in BackendConfig.BackendSessionAffinityOptions options, string unencryptedKey)
+            protected override void SetAffinityKey(HttpContext context, in ClusterConfig.ClusterSessionAffinityOptions options, string unencryptedKey)
             {
                 var keyName = GetSettingValue(KeyNameSetting, options);
                 var encryptedKey = Protect(unencryptedKey);

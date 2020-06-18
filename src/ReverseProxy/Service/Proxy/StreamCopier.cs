@@ -70,14 +70,14 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 _metrics.StreamCopyBytes(
                     value: totalBytes,
                     direction: _context.Direction,
-                    backendId: _context.BackendId,
+                    clusterId: _context.ClusterId,
                     routeId: _context.RouteId,
                     destinationId: _context.DestinationId,
                     protocol: string.Empty);
                 _metrics.StreamCopyIops(
                     value: iops,
                     direction: _context.Direction,
-                    backendId: _context.BackendId,
+                    clusterId: _context.ClusterId,
                     routeId: _context.RouteId,
                     destinationId: _context.DestinationId,
                     protocol: string.Empty);

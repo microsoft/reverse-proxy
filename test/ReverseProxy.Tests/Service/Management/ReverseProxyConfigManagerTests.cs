@@ -15,7 +15,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
 {
     public class ReverseProxyConfigManagerTests : TestAutoMockBase
     {
-        private readonly IBackendManager _backendManager;
+        private readonly IClusterManager _clusterManager;
         private readonly IRouteManager _routeManager;
 
         public ReverseProxyConfigManagerTests()
@@ -28,7 +28,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             // The following classes simply store information and using the actual implementations
             // is easier than replicating functionality with mocks.
             Provide<IDestinationManagerFactory, DestinationManagerFactory>();
-            _backendManager = Provide<IBackendManager, BackendManager>();
+            _clusterManager = Provide<IClusterManager, ClusterManager>();
             _routeManager = Provide<IRouteManager, RouteManager>();
             Provide<IRuntimeRouteBuilder, RuntimeRouteBuilder>();
         }
@@ -40,12 +40,12 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
         }
 
         [Fact]
-        public async Task ApplyConfigurationsAsync_OneBackendOneDestinationOneRoute_Works()
+        public async Task ApplyConfigurationsAsync_OneClusterOneDestinationOneRoute_Works()
         {
             // Arrange
             const string TestAddress = "https://localhost:123/";
 
-            var backend = new Backend
+            var cluster = new Cluster
             {
                 Destinations = {
                     { "d1", new Destination { Address = TestAddress } }
@@ -54,12 +54,12 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             var route = new ParsedRoute
             {
                 RouteId = "route1",
-                BackendId = "backend1",
+                ClusterId = "cluster1",
             };
 
             var dynamicConfigRoot = new DynamicConfigRoot
             {
-                Backends = new Dictionary<string, Backend> { { "backend1", backend }  },
+                Clusters = new Dictionary<string, Cluster> { { "cluster1", cluster }  },
                 Routes = new[] { route },
             };
             Mock<IDynamicConfigBuilder>()
@@ -75,13 +75,13 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             // Assert
             Assert.True(result);
 
-            var actualBackends = _backendManager.GetItems();
-            Assert.Single(actualBackends);
-            Assert.Equal("backend1", actualBackends[0].BackendId);
-            Assert.NotNull(actualBackends[0].DestinationManager);
-            Assert.NotNull(actualBackends[0].Config.Value);
+            var actualClusters = _clusterManager.GetItems();
+            Assert.Single(actualClusters);
+            Assert.Equal("cluster1", actualClusters[0].ClusterId);
+            Assert.NotNull(actualClusters[0].DestinationManager);
+            Assert.NotNull(actualClusters[0].Config.Value);
 
-            var actualDestinations = actualBackends[0].DestinationManager.GetItems();
+            var actualDestinations = actualClusters[0].DestinationManager.GetItems();
             Assert.Single(actualDestinations);
             Assert.Equal("d1", actualDestinations[0].DestinationId);
             Assert.NotNull(actualDestinations[0].Config.Value);
@@ -91,7 +91,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             Assert.Single(actualRoutes);
             Assert.Equal("route1", actualRoutes[0].RouteId);
             Assert.NotNull(actualRoutes[0].Config.Value);
-            Assert.Same(actualBackends[0], actualRoutes[0].Config.Value.BackendOrNull);
+            Assert.Same(actualClusters[0], actualRoutes[0].Config.Value.Cluster);
         }
     }
 }

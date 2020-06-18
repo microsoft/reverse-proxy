@@ -44,7 +44,7 @@ namespace Microsoft.ReverseProxy.Middleware
         {
             Contracts.CheckValue(context, nameof(context));
 
-            var backend = context.Features.Get<BackendInfo>() ?? throw new InvalidOperationException("Backend unspecified.");
+            var cluster = context.Features.Get<ClusterInfo>() ?? throw new InvalidOperationException("Cluster unspecified.");
             var destinations = context.Features.Get<IAvailableDestinationsFeature>()?.Destinations
                 ?? throw new InvalidOperationException("The IAvailableDestinationsFeature Destinations collection was not set.");
             var routeConfig = context.GetEndpoint()?.Metadata.GetMetadata<RouteConfig>()
@@ -52,7 +52,7 @@ namespace Microsoft.ReverseProxy.Middleware
 
             if (destinations.Count == 0)
             {
-                Log.NoAvailableDestinations(_logger, backend.BackendId);
+                Log.NoAvailableDestinations(_logger, cluster.ClusterId);
                 context.Response.StatusCode = 503;
                 return;
             }
@@ -61,7 +61,7 @@ namespace Microsoft.ReverseProxy.Middleware
             if (destinations.Count > 1)
             {
                 var random = _randomFactory.CreateRandomInstance();
-                Log.MultipleDestinationsAvailable(_logger, backend.BackendId);
+                Log.MultipleDestinationsAvailable(_logger, cluster.ClusterId);
                 destination = destinations[random.Next(destinations.Count)];
             }
 
@@ -80,25 +80,25 @@ namespace Microsoft.ReverseProxy.Middleware
                 try
                 {
                     // TODO: Apply caps
-                    backend.ConcurrencyCounter.Increment();
+                    cluster.ConcurrencyCounter.Increment();
                     destination.ConcurrencyCounter.Increment();
 
                     // TODO: Duplex channels should not have a timeout (?), but must react to Proxy force-shutdown signals.
                     var longCancellation = context.RequestAborted;
 
                     var proxyTelemetryContext = new ProxyTelemetryContext(
-                        backendId: backend.BackendId,
+                        clusterId: cluster.ClusterId,
                         routeId: routeConfig.Route.RouteId,
                         destinationId: destination.DestinationId);
 
                     await _operationLogger.ExecuteAsync(
                         "ReverseProxy.Proxy",
-                        () => _httpProxy.ProxyAsync(context, destinationConfig.Address, routeConfig.Transforms, backend.ProxyHttpClientFactory, proxyTelemetryContext, shortCancellation: shortCts.Token, longCancellation: longCancellation));
+                        () => _httpProxy.ProxyAsync(context, destinationConfig.Address, routeConfig.Transforms, cluster.ProxyHttpClientFactory, proxyTelemetryContext, shortCancellation: shortCts.Token, longCancellation: longCancellation));
                 }
                 finally
                 {
                     destination.ConcurrencyCounter.Decrement();
-                    backend.ConcurrencyCounter.Decrement();
+                    cluster.ConcurrencyCounter.Decrement();
                 }
             }
         }
@@ -108,21 +108,21 @@ namespace Microsoft.ReverseProxy.Middleware
             private static readonly Action<ILogger, string, Exception> _noAvailableDestinations = LoggerMessage.Define<string>(
                 LogLevel.Warning,
                 EventIds.NoAvailableDestinations,
-                "No available destinations after load balancing for backend `{backendId}`.");
+                "No available destinations after load balancing for cluster `{clusterId}`.");
 
             private static readonly Action<ILogger, string, Exception> _multipleDestinationsAvailable = LoggerMessage.Define<string>(
                 LogLevel.Warning,
                 EventIds.MultipleDestinationsAvailable,
-                "More than one destination available for backend `{backendId}`, load balancing may not be configured correctly. Choosing randomly.");
+                "More than one destination available for cluster `{clusterId}`, load balancing may not be configured correctly. Choosing randomly.");
 
-            public static void NoAvailableDestinations(ILogger logger, string backendId)
+            public static void NoAvailableDestinations(ILogger logger, string clusterId)
             {
-                _noAvailableDestinations(logger, backendId, null);
+                _noAvailableDestinations(logger, clusterId, null);
             }
 
-            public static void MultipleDestinationsAvailable(ILogger logger, string backendId)
+            public static void MultipleDestinationsAvailable(ILogger logger, string clusterId)
             {
-                _multipleDestinationsAvailable(logger, backendId, null);
+                _multipleDestinationsAvailable(logger, clusterId, null);
             }
         }
     }

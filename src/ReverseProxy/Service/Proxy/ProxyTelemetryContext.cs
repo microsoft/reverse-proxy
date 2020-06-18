@@ -7,16 +7,16 @@ namespace Microsoft.ReverseProxy.Service.Proxy
     internal readonly struct ProxyTelemetryContext
     {
         public ProxyTelemetryContext(
-            string backendId,
+            string clusterId,
             string routeId,
             string destinationId)
         {
-            BackendId = backendId;
+            ClusterId = clusterId;
             RouteId = routeId;
             DestinationId = destinationId;
         }
 
-        public string BackendId { get; }
+        public string ClusterId { get; }
         public string RouteId { get; }
         public string DestinationId { get; }
     }
