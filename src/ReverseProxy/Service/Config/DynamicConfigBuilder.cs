@@ -45,10 +45,8 @@ namespace Microsoft.ReverseProxy.Service
             _affinityFailurePolicies = affinityFailurePolicies.ToPolicyDictionary();
         }
 
-        public async Task<Result<DynamicConfigRoot>> BuildConfigAsync(IConfigErrorReporter errorReporter, CancellationToken cancellation)
+        public async Task<DynamicConfigRoot> BuildConfigAsync(IConfigErrorReporter errorReporter, CancellationToken cancellation)
         {
-            Contracts.CheckValue(errorReporter, nameof(errorReporter));
-
             var clusters = await GetClustersAsync(errorReporter, cancellation);
             var routes = await GetRoutesAsync(errorReporter, cancellation);
 
@@ -58,7 +56,7 @@ namespace Microsoft.ReverseProxy.Service
                 Routes = routes,
             };
 
-            return Result.Success(config);
+            return config;
         }
 
         public async Task<IDictionary<string, Cluster>> GetClustersAsync(IConfigErrorReporter errorReporter, CancellationToken cancellation)

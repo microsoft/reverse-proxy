@@ -42,22 +42,13 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
         /// </summary>
         public ClusterProber(string clusterId, ClusterConfig config, IDestinationManager destinationManager, IMonotonicTimer timer, ILogger<ClusterProber> logger, IOperationLogger<ClusterProber> operationLogger, HttpClient httpClient, IRandomFactory randomFactory)
         {
-            Contracts.CheckValue(clusterId, nameof(clusterId));
-            Contracts.CheckValue(config, nameof(config));
-            Contracts.CheckValue(destinationManager, nameof(destinationManager));
-            Contracts.CheckValue(timer, nameof(timer));
-            Contracts.CheckValue(logger, nameof(logger));
-            Contracts.CheckValue(operationLogger, nameof(operationLogger));
-            Contracts.CheckValue(httpClient, nameof(httpClient));
-            Contracts.CheckValue(randomFactory, nameof(randomFactory));
-
-            ClusterId = clusterId;
-            Config = config;
-            _destinationManager = destinationManager;
-            _timer = timer;
-            _logger = logger;
-            _operationLogger = operationLogger;
-            _randomFactory = randomFactory;
+            ClusterId = clusterId ?? throw new ArgumentNullException(nameof(clusterId));
+            Config = config ?? throw new ArgumentNullException(nameof(config));
+            _destinationManager = destinationManager ?? throw new ArgumentNullException(nameof(destinationManager));
+            _timer = timer ?? throw new ArgumentNullException(nameof(timer));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _operationLogger = operationLogger ?? throw new ArgumentNullException(nameof(operationLogger));
+            _randomFactory = randomFactory ?? throw new ArgumentNullException(nameof(randomFactory));
 
             _healthControllerUrl = new Uri(Config.HealthCheckOptions.Path, UriKind.Relative);
             _healthCheckInterval = Config.HealthCheckOptions.Interval;
@@ -72,10 +63,10 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
         public ClusterConfig Config { get; }
 
         /// <inheritdoc/>
-        public void Start(AsyncSemaphore semaphore)
+        public void Start(SemaphoreSlim semaphore)
         {
             // Start background work, wake up for every interval(set in cluster config).
-            _backgroundPollingLoopTask = TaskScheduler.Current.Run(() => ProbeDestinationsAsync(semaphore, _cts.Token));
+            _backgroundPollingLoopTask = Task.Run(() => ProbeDestinationsAsync(semaphore, _cts.Token));
         }
 
         /// <inheritdoc/>
@@ -95,7 +86,7 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
         /// <summary>
         /// Async methods that conduct http request to query the health state from the health controller of every destination.
         /// </summary>
-        private async Task ProbeDestinationsAsync(AsyncSemaphore semaphore, CancellationToken cancellationToken)
+        private async Task ProbeDestinationsAsync(SemaphoreSlim semaphore, CancellationToken cancellationToken)
         {
             // Always continue probing until receives cancellation token.
             try
@@ -149,7 +140,7 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
         /// <summary>
         /// A probe attempt to one destination.
         /// </summary>
-        private async Task ProbeDestinationAsync(DestinationInfo destination, AsyncSemaphore semaphore, CancellationToken cancellationToken)
+        private async Task ProbeDestinationAsync(DestinationInfo destination, SemaphoreSlim semaphore, CancellationToken cancellationToken)
         {
             // Conduct a dither for every endpoint probe to optimize concurrency.
             var randomDither = _randomFactory.CreateRandomInstance();
