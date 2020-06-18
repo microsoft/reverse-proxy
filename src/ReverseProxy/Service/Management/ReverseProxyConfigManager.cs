@@ -193,7 +193,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                 // Note that this can be null, and that is fine. The resulting route may match
                 // but would then fail to route, which is exactly what we were instructed to do in this case
                 // since no valid cluster was specified.
-                var clusterOrNull = _clusterManager.TryGetItem(configRoute.ClusterId);
+                var cluster = _clusterManager.TryGetItem(configRoute.ClusterId);
 
                 _routeManager.GetOrCreateItem(
                     itemId: configRoute.RouteId,
@@ -201,7 +201,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                     {
                         var currentRouteConfig = route.Config.Value;
                         if (currentRouteConfig == null ||
-                            currentRouteConfig.HasConfigChanged(configRoute, clusterOrNull))
+                            currentRouteConfig.HasConfigChanged(configRoute, cluster))
                         {
                             // Config changed, so update runtime route
                             changed = true;
@@ -214,7 +214,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                                 Log.RouteChanged(_logger, configRoute.RouteId);
                             }
 
-                            var newConfig = _routeEndpointBuilder.Build(configRoute, clusterOrNull, route);
+                            var newConfig = _routeEndpointBuilder.Build(configRoute, cluster, route);
                             route.Config.Value = newConfig;
                         }
                     });

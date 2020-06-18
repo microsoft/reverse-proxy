@@ -101,7 +101,7 @@ namespace Microsoft.ReverseProxy.Middleware
 
         private static class Log
         {
-            private static readonly Action<ILogger, string, Exception> _affinityResolutioFailedForCluster = LoggerMessage.Define<string>(
+            private static readonly Action<ILogger, string, Exception> _affinityResolutionFailedForCluster = LoggerMessage.Define<string>(
                 LogLevel.Warning,
                 EventIds.AffinityResolutionFailedForCluster,
                 "Affinity resolution failed for cluster `{clusterId}`.");
@@ -113,7 +113,7 @@ namespace Microsoft.ReverseProxy.Middleware
 
             public static void AffinityResolutionFailedForCluster(ILogger logger, string clusterId)
             {
-                _affinityResolutioFailedForCluster(logger, clusterId, null);
+                _affinityResolutionFailedForCluster(logger, clusterId, null);
             }
 
             public static void AffinityResolutionFailureWasHandledProcessingWillBeContinued(ILogger logger, string clusterId, string policyName)
