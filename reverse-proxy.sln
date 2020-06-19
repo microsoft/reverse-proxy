@@ -32,7 +32,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "docfx", "docs\docfx\docfx.c
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BenchmarkApp", "samples\BenchmarkApp\BenchmarkApp.csproj", "{F663FD56-C01D-4FA7-96A4-B1217ED95E3C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ReverseProxy.ServiceFabricIntegration", "src\Integrations\ServiceFabricIntegration\Microsoft.ReverseProxy.ServiceFabricIntegration.csproj", "{EFAF6DD3-9D9B-488E-BD5B-B4623CB7BE52}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ReverseProxy.ServiceFabricIntegration", "src\Integrations\ServiceFabric\Microsoft.ReverseProxy.ServiceFabricIntegration.csproj", "{EFAF6DD3-9D9B-488E-BD5B-B4623CB7BE52}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Integrations", "Integrations", "{193C08FE-BE7D-4564-AA77-A680C0114A95}"
 EndProject
