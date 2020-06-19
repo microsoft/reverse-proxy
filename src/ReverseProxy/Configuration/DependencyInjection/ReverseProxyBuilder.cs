@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
 {
@@ -17,8 +17,7 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
         /// <param name="services">Services collection.</param>
         public ReverseProxyBuilder(IServiceCollection services)
         {
-            Contracts.CheckValue(services, nameof(services));
-            Services = services;
+            Services = services ?? throw new ArgumentNullException(nameof(services));
         }
 
         /// <summary>

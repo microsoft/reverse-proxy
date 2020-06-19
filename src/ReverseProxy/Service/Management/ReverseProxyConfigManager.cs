@@ -52,24 +52,17 @@ namespace Microsoft.ReverseProxy.Service.Management
         }
 
         /// <inheritdoc/>
-        public async Task<bool> ApplyConfigurationsAsync(IConfigErrorReporter configErrorReporter, CancellationToken cancellation)
+        public async Task ApplyConfigurationsAsync(IConfigErrorReporter configErrorReporter, CancellationToken cancellation)
         {
             if (configErrorReporter == null)
             {
                 throw new ArgumentNullException(nameof(configErrorReporter));
             }
 
-            var configResult = await _configBuilder.BuildConfigAsync(configErrorReporter, cancellation);
-            if (!configResult.IsSuccess)
-            {
-                return false;
-            }
+            var config = await _configBuilder.BuildConfigAsync(configErrorReporter, cancellation);
 
-            var config = configResult.Value;
             UpdateRuntimeClusters(config);
             UpdateRuntimeRoutes(config);
-
-            return true;
         }
 
         private void UpdateRuntimeClusters(DynamicConfigRoot config)

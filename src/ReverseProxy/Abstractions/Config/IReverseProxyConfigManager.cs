@@ -15,6 +15,6 @@ namespace Microsoft.ReverseProxy.Abstractions
         /// <summary>
         /// Applies latest configurations obtained from <see cref="IDynamicConfigBuilder"/>.
         /// </summary>
-        Task<bool> ApplyConfigurationsAsync(IConfigErrorReporter configErrorReporter, CancellationToken cancellation);
+        Task ApplyConfigurationsAsync(IConfigErrorReporter configErrorReporter, CancellationToken cancellation);
     }
 }

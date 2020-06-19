@@ -8,7 +8,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Configuration
 {
@@ -29,6 +28,7 @@ namespace Microsoft.ReverseProxy.Configuration
         private readonly IRoutesRepo _routesRepo;
         private readonly IReverseProxyConfigManager _proxyManager;
         private readonly IOptionsMonitor<ProxyConfigOptions> _proxyConfig;
+        private readonly LoggerConfigErrorReporter _errorReporter;
         private bool _disposed;
         private IDisposable _subscription;
 
@@ -39,17 +39,12 @@ namespace Microsoft.ReverseProxy.Configuration
             IReverseProxyConfigManager proxyManager,
             IOptionsMonitor<ProxyConfigOptions> proxyConfig)
         {
-            Contracts.CheckValue(logger, nameof(logger));
-            Contracts.CheckValue(clustersRepo, nameof(clustersRepo));
-            Contracts.CheckValue(routesRepo, nameof(routesRepo));
-            Contracts.CheckValue(proxyManager, nameof(proxyManager));
-            Contracts.CheckValue(proxyConfig, nameof(proxyConfig));
-
-            _logger = logger;
-            _clustersRepo = clustersRepo;
-            _routesRepo = routesRepo;
-            _proxyManager = proxyManager;
-            _proxyConfig = proxyConfig;
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _clustersRepo = clustersRepo ?? throw new ArgumentNullException(nameof(clustersRepo));
+            _routesRepo = routesRepo ?? throw new ArgumentNullException(nameof(routesRepo));
+            _proxyManager = proxyManager ?? throw new ArgumentNullException(nameof(proxyManager));
+            _proxyConfig = proxyConfig ?? throw new ArgumentNullException(nameof(proxyConfig));
+            _errorReporter = new LoggerConfigErrorReporter(_logger);
         }
 
         public void Dispose()
@@ -69,7 +64,6 @@ namespace Microsoft.ReverseProxy.Configuration
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            _subscription?.Dispose();
             return Task.CompletedTask;
         }
 
@@ -86,8 +80,7 @@ namespace Microsoft.ReverseProxy.Configuration
                 await _clustersRepo.SetClustersAsync(config.Clusters, CancellationToken.None);
                 await _routesRepo.SetRoutesAsync(config.Routes, CancellationToken.None);
 
-                var errorReporter = new LoggerConfigErrorReporter(_logger);
-                await _proxyManager.ApplyConfigurationsAsync(errorReporter, CancellationToken.None);
+                await _proxyManager.ApplyConfigurationsAsync(_errorReporter, CancellationToken.None);
             }
             catch (Exception ex)
             {
