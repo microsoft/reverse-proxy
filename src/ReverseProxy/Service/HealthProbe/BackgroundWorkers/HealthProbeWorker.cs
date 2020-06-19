@@ -23,13 +23,9 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
 
         public HealthProbeWorker(ILogger<HealthProbeWorker> logger, IClusterManager clusterManager, IClusterProberFactory clusterProberFactory)
         {
-            Contracts.CheckValue(logger, nameof(logger));
-            Contracts.CheckValue(clusterManager, nameof(clusterManager));
-            Contracts.CheckValue(clusterProberFactory, nameof(clusterProberFactory));
-
-            _logger = logger;
-            _clusterManager = clusterManager;
-            _clusterProberFactory = clusterProberFactory;
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _clusterManager = clusterManager ?? throw new ArgumentNullException(nameof(clusterManager));
+            _clusterProberFactory = clusterProberFactory ?? throw new ArgumentNullException(nameof(clusterProberFactory));
         }
 
         public async Task UpdateTrackedClusters()
