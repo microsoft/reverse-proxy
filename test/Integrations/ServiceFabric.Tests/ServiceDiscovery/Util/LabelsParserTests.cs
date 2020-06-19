@@ -12,7 +12,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
 {
     public class LabelsParserTests
     {
-        private static readonly Uri TestServiceName = new Uri("fabric:/App1/Svc1");
+        private static readonly Uri _testServiceName = new Uri("fabric:/App1/Svc1");
 
         [Fact]
         public void BuildCluster_CompleteLabels_Works()
@@ -38,10 +38,10 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
             };
 
             // Act
-            var cluster = LabelsParser.BuildCluster(TestServiceName, labels);
+            var cluster = LabelsParser.BuildCluster(_testServiceName, labels);
 
             // Assert
-            Cluster expectedCluster = new Cluster
+            var expectedCluster = new Cluster
             {
                 Id = "MyCoolClusterId",
                 CircuitBreakerOptions = new CircuitBreakerOptions
@@ -60,7 +60,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                     PartitionKeyExtractor = "Header('x-ms-organization-id')",
                     PartitioningAlgorithm = "SHA256",
                 },
-                LoadBalancingOptions = new LoadBalancingOptions(),
+                LoadBalancing = new LoadBalancingOptions(),
                 HealthCheckOptions = new HealthCheckOptions
                 {
                     Enabled = true,
@@ -68,10 +68,6 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                     Timeout = TimeSpan.FromSeconds(5),
                     Port = 8787,
                     Path = "/api/health",
-                },
-                TlsOptions = new ClusterTlsOptions
-                {
-                    ValidationMode = ClusterTlsCertificateValidationMode.IntraCommAllowList,
                 },
                 Metadata = new Dictionary<string, string>
                 {
@@ -91,10 +87,10 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
             };
 
             // Act
-            var cluster = LabelsParser.BuildCluster(TestServiceName, labels);
+            var cluster = LabelsParser.BuildCluster(_testServiceName, labels);
 
             // Assert
-            Cluster expectedCluster = new Cluster
+            var expectedCluster = new Cluster
             {
                 Id = "MyCoolClusterId",
                 CircuitBreakerOptions = new CircuitBreakerOptions
@@ -113,7 +109,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                     PartitionKeyExtractor = LabelsParser.DefaultPartitionKeyExtractor,
                     PartitioningAlgorithm = LabelsParser.DefaultPartitioningAlgorithm,
                 },
-                LoadBalancingOptions = new LoadBalancingOptions(),
+                LoadBalancing = new LoadBalancingOptions(),
                 HealthCheckOptions = new HealthCheckOptions
                 {
                     Enabled = false,
@@ -121,10 +117,6 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                     Timeout = TimeSpan.Zero,
                     Port = null,
                     Path = null,
-                },
-                TlsOptions = new ClusterTlsOptions
-                {
-                    ValidationMode = ClusterTlsCertificateValidationMode.IntraCommAllowList,
                 },
                 Metadata = new Dictionary<string, string>(),
             };
@@ -148,7 +140,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
             };
 
             // Act
-            var cluster = LabelsParser.BuildCluster(TestServiceName, labels);
+            var cluster = LabelsParser.BuildCluster(_testServiceName, labels);
 
             // Assert
             cluster.HealthCheckOptions.Enabled.Should().Be(expected);
@@ -167,10 +159,10 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
             };
 
             // Act
-            Action action = () => LabelsParser.BuildCluster(TestServiceName, labels);
+            Action action = () => LabelsParser.BuildCluster(_testServiceName, labels);
 
             // Assert
-            action.Should().Throw<IslandGatewayConfigException>();
+            action.Should().Throw<ConfigException>();
         }
 
         [Theory]
@@ -190,7 +182,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
             };
 
             // Act
-            var cluster = LabelsParser.BuildCluster(TestServiceName, labels);
+            var cluster = LabelsParser.BuildCluster(_testServiceName, labels);
 
             // Assert
             cluster.HealthCheckOptions.Port.Should().Be(expected);
@@ -209,10 +201,10 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
             };
 
             // Act
-            Action action = () => LabelsParser.BuildCluster(TestServiceName, labels);
+            Action action = () => LabelsParser.BuildCluster(_testServiceName, labels);
 
             // Assert
-            action.Should().Throw<IslandGatewayConfigException>();
+            action.Should().Throw<ConfigException>();
         }
 
         [Fact]
@@ -229,10 +221,10 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
             };
 
             // Act
-            var cluster = LabelsParser.BuildCluster(TestServiceName, labels);
+            var cluster = LabelsParser.BuildCluster(_testServiceName, labels);
 
             // Assert
-            cluster.Id.Should().Be(TestServiceName.ToString());
+            cluster.Id.Should().Be(_testServiceName.ToString());
         }
 
         [Theory]
@@ -254,10 +246,10 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
             };
 
             // Act
-            Func<Cluster> func = () => LabelsParser.BuildCluster(TestServiceName, labels);
+            Func<Cluster> func = () => LabelsParser.BuildCluster(_testServiceName, labels);
 
             // Assert
-            func.Should().Throw<IslandGatewayConfigException>().WithMessage($"Could not convert label {key}='{invalidValue}' *");
+            func.Should().Throw<ConfigException>().WithMessage($"Could not convert label {key}='{invalidValue}' *");
         }
 
         [Fact]
@@ -267,23 +259,24 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
             var labels = new Dictionary<string, string>()
             {
                 { "IslandGateway.Backend.BackendId", "MyCoolClusterId" },
-                { "IslandGateway.Routes.MyRoute.Rule", "Host('example.com')" },
-                { "IslandGateway.Routes.MyRoute.Transformations", "StripPrefix('/a')" },
+                { "IslandGateway.Routes.MyRoute.Host", "example.com" },
                 { "IslandGateway.Routes.MyRoute.Priority", "2" },
                 { "IslandGateway.Routes.MyRoute.Metadata.Foo", "Bar" },
             };
 
             // Act
-            var routes = LabelsParser.BuildRoutes(TestServiceName, labels);
+            var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
             // Assert
-            List<GatewayRoute> expectedRoutes = new List<GatewayRoute>
+            var expectedRoutes = new List<ProxyRoute>
             {
-                new GatewayRoute
+                new ProxyRoute
                 {
                     RouteId = "MyCoolClusterId:MyRoute",
-                    Rule = "Host('example.com')",
-                    Transformations = "StripPrefix('/a')",
+                    Match =
+                    {
+                        Host = "example.com",
+                    },
                     Priority = 2,
                     ClusterId = "MyCoolClusterId",
                     Metadata = new Dictionary<string, string>
@@ -302,20 +295,22 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
             var labels = new Dictionary<string, string>()
             {
                 { "IslandGateway.Backend.BackendId", "MyCoolClusterId" },
-                { "IslandGateway.Routes.MyRoute.Rule", "Host('example.com')" },
+                { "IslandGateway.Routes.MyRoute.Host", "example.com" },
             };
 
             // Act
-            var routes = LabelsParser.BuildRoutes(TestServiceName, labels);
+            var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
             // Assert
-            List<GatewayRoute> expectedRoutes = new List<GatewayRoute>
+            var expectedRoutes = new List<ProxyRoute>
             {
-                new GatewayRoute
+                new ProxyRoute
                 {
                     RouteId = "MyCoolClusterId:MyRoute",
-                    Rule = "Host('example.com')",
-                    Transformations = null,
+                    Match =
+                    {
+                        Host = "example.com",
+                    },
                     Priority = LabelsParser.DefaultRoutePriority,
                     ClusterId = "MyCoolClusterId",
                     Metadata = new Dictionary<string, string>(),
@@ -334,19 +329,22 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
             var labels = new Dictionary<string, string>()
             {
                 { "IslandGateway.Backend.BackendId", "MyCoolClusterId" },
-                { "IslandGateway.Routes.MyRoute.Rule", "Host('this invalid thing" },
+                { "IslandGateway.Routes.MyRoute.Host", "'this invalid thing" },
             };
 
             // Act
-            var routes = LabelsParser.BuildRoutes(TestServiceName, labels);
+            var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
             // Assert
-            List<GatewayRoute> expectedRoutes = new List<GatewayRoute>
+            var expectedRoutes = new List<ProxyRoute>
             {
-                new GatewayRoute
+                new ProxyRoute
                 {
                     RouteId = "MyCoolClusterId:MyRoute",
-                    Rule = "Host('this invalid thing",
+                    Match =
+                    {
+                        Host = "'this invalid thing",
+                    },
                     Priority = LabelsParser.DefaultRoutePriority,
                     ClusterId = "MyCoolClusterId",
                     Metadata = new Dictionary<string, string>(),
@@ -363,7 +361,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
             // Arrange
             var labels = new Dictionary<string, string>()
             {
-                { "IslandGateway.Routes.MyRoute.Rule", "Host('example.com')" },
+                { "IslandGateway.Routes.MyRoute.Host", "example.com" },
                 { "IslandGateway.Routes.MyRoute.Priority", "2" },
             };
 
@@ -373,17 +371,20 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
             }
 
             // Act
-            var routes = LabelsParser.BuildRoutes(TestServiceName, labels);
+            var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
             // Assert
-            List<GatewayRoute> expectedRoutes = new List<GatewayRoute>
+            var expectedRoutes = new List<ProxyRoute>
             {
-                new GatewayRoute
+                new ProxyRoute
                 {
-                    RouteId = $"{Uri.EscapeDataString(TestServiceName.ToString())}:MyRoute",
-                    Rule = "Host('example.com')",
+                    RouteId = $"{Uri.EscapeDataString(_testServiceName.ToString())}:MyRoute",
+                    Match =
+                    {
+                        Host = "example.com",
+                    },
                     Priority = 2,
-                    ClusterId = TestServiceName.ToString(),
+                    ClusterId = _testServiceName.ToString(),
                     Metadata = new Dictionary<string, string>(),
                 },
             };
@@ -391,7 +392,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
         }
 
         [Fact]
-        public void BuildRoutes_MissingRule_Throws()
+        public void BuildRoutes_MissingHost_Throws()
         {
             // Arrange
             var labels = new Dictionary<string, string>()
@@ -402,10 +403,10 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
             };
 
             // Act
-            Func<List<GatewayRoute>> func = () => LabelsParser.BuildRoutes(TestServiceName, labels);
+            Func<List<ProxyRoute>> func = () => LabelsParser.BuildRoutes(_testServiceName, labels);
 
             // Assert
-            func.Should().Throw<IslandGatewayConfigException>().WithMessage("Missing IslandGateway.Routes.MyRoute.Rule.");
+            func.Should().Throw<ConfigException>().WithMessage("Missing 'IslandGateway.Routes.MyRoute.Host'.");
         }
 
         [Fact]
@@ -415,16 +416,16 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
             var labels = new Dictionary<string, string>()
             {
                 { "IslandGateway.Backend.BackendId", "MyCoolClusterId" },
-                { "IslandGateway.Routes.MyRoute.Rule", "Host('example1.com') && Path('v2/{**rest}')" },
+                { "IslandGateway.Routes.MyRoute.Host", "example.com" },
                 { "IslandGateway.Routes.MyRoute.Priority", "this is no number" },
             };
 
             // Act
-            Func<List<GatewayRoute>> func = () => LabelsParser.BuildRoutes(TestServiceName, labels);
+            Func<List<ProxyRoute>> func = () => LabelsParser.BuildRoutes(_testServiceName, labels);
 
             // Assert
             func.Should()
-                .Throw<IslandGatewayConfigException>()
+                .Throw<ConfigException>()
                 .WithMessage("Could not convert label IslandGateway.Routes.MyRoute.Priority='this is no number' *");
         }
 
@@ -440,20 +441,23 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
             var labels = new Dictionary<string, string>()
             {
                 { "IslandGateway.Backend.BackendId", "MyCoolClusterId" },
-                { $"IslandGateway.Routes.{routeName}.Rule", "Host('example.com')" },
+                { $"IslandGateway.Routes.{routeName}.Host", "example.com" },
                 { $"IslandGateway.Routes.{routeName}.Priority", "2" },
             };
 
             // Act
-            var routes = LabelsParser.BuildRoutes(TestServiceName, labels);
+            var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
             // Assert
-            List<GatewayRoute> expectedRoutes = new List<GatewayRoute>
+            var expectedRoutes = new List<ProxyRoute>
             {
-                new GatewayRoute
+                new ProxyRoute
                 {
                     RouteId = $"MyCoolClusterId:{routeName}",
-                    Rule = "Host('example.com')",
+                    Match =
+                    {
+                        Host = "example.com",
+                    },
                     Priority = 2,
                     ClusterId = "MyCoolClusterId",
                     Metadata = new Dictionary<string, string>(),
@@ -464,32 +468,32 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
 
         [Theory]
         [InlineData("IslandGateway.Routes..Priority", "that was an empty route name")]
-        [InlineData("IslandGateway.Routes..Rule", "that was an empty route name")]
-        [InlineData("IslandGateway.Routes.  .Rule", "that was an empty route name")]
+        [InlineData("IslandGateway.Routes..Host", "that was an empty route name")]
+        [InlineData("IslandGateway.Routes.  .Host", "that was an empty route name")]
         [InlineData("IslandGateway.Routes..", "that was an empty route name")]
         [InlineData("IslandGateway.Routes...", "that was an empty route name")]
-        [InlineData("IslandGateway.Routes.FunnyChars!.Rule", "some value")]
+        [InlineData("IslandGateway.Routes.FunnyChars!.Host", "some value")]
         [InlineData("IslandGateway.Routes.'FunnyChars'.Priority", "some value")]
         [InlineData("IslandGateway.Routes.FunnyChárs.Metadata", "some value")]
-        [InlineData("IslandGateway.Routes.Funny+Chars.Rule", "some value")]
+        [InlineData("IslandGateway.Routes.Funny+Chars.Host", "some value")]
         public void BuildRoutes_InvalidRouteName_Throws(string invalidKey, string value)
         {
             // Arrange
             var labels = new Dictionary<string, string>()
             {
                 { "IslandGateway.Backend.BackendId", "MyCoolClusterId" },
-                { "IslandGateway.Routes.MyRoute.Rule", "Host('example.com')" },
+                { "IslandGateway.Routes.MyRoute.Host", "example.com" },
                 { "IslandGateway.Routes.MyRoute.Priority", "2" },
                 { "IslandGateway.Routes.MyRoute.Metadata.Foo", "Bar" },
             };
             labels[invalidKey] = value;
 
             // Act
-            Func<List<GatewayRoute>> func = () => LabelsParser.BuildRoutes(TestServiceName, labels);
+            Func<List<ProxyRoute>> func = () => LabelsParser.BuildRoutes(_testServiceName, labels);
 
             // Assert
             func.Should()
-                .Throw<IslandGatewayConfigException>()
+                .Throw<ConfigException>()
                 .WithMessage($"Invalid route name '*', should only contain alphanumerical characters, underscores or hyphens.");
         }
 
@@ -508,22 +512,25 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
             var labels = new Dictionary<string, string>()
             {
                 { "IslandGateway.Backend.BackendId", "MyCoolClusterId" },
-                { "IslandGateway.Routes.MyRoute.Rule", "Host('example.com')" },
+                { "IslandGateway.Routes.MyRoute.Host", "example.com" },
                 { "IslandGateway.Routes.MyRoute.Priority", "2" },
                 { "IslandGateway.Routes.MyRoute.Metadata.Foo", "Bar" },
             };
             labels[invalidKey] = value;
 
             // Act
-            var routes = LabelsParser.BuildRoutes(TestServiceName, labels);
+            var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
             // Assert
-            List<GatewayRoute> expectedRoutes = new List<GatewayRoute>
+            var expectedRoutes = new List<ProxyRoute>
             {
-                new GatewayRoute
+                new ProxyRoute
                 {
                     RouteId = "MyCoolClusterId:MyRoute",
-                    Rule = "Host('example.com')",
+                    Match =
+                    {
+                        Host = "example.com",
+                    },
                     Priority = 2,
                     ClusterId = "MyCoolClusterId",
                     Metadata = new Dictionary<string, string>
@@ -542,41 +549,52 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
             var labels = new Dictionary<string, string>()
             {
                 { "IslandGateway.Backend.BackendId", "MyCoolClusterId" },
-                { "IslandGateway.Routes.MyRoute.Rule", "Host('example1.com') && Path('v2/{**rest}')" },
+                { "IslandGateway.Routes.MyRoute.Host", "example.com" },
+                { "IslandGateway.Routes.MyRoute.Path", "v2/{**rest}" },
                 { "IslandGateway.Routes.MyRoute.Priority", "1" },
                 { "IslandGateway.Routes.MyRoute.Metadata.Foo", "Bar" },
-                { "IslandGateway.Routes.CoolRoute.Rule", "Host('example2.com')" },
+                { "IslandGateway.Routes.CoolRoute.Host", "example.net" },
                 { "IslandGateway.Routes.CoolRoute.Priority", "2" },
-                { "IslandGateway.Routes.EvenCoolerRoute.Rule", "Host('example3.com')" },
+                { "IslandGateway.Routes.EvenCoolerRoute.Host", "example.org" },
                 { "IslandGateway.Routes.EvenCoolerRoute.Priority", "3" },
             };
 
             // Act
-            var routes = LabelsParser.BuildRoutes(TestServiceName, labels);
+            var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
             // Assert
-            List<GatewayRoute> expectedRoutes = new List<GatewayRoute>
+            var expectedRoutes = new List<ProxyRoute>
             {
-                new GatewayRoute
+                new ProxyRoute
                 {
                     RouteId = "MyCoolClusterId:MyRoute",
-                    Rule = "Host('example1.com') && Path('v2/{**rest}')",
+                    Match =
+                    {
+                        Host = "example.com",
+                        Path = "v2/{**rest}",
+                    },
                     Priority = 1,
                     ClusterId = "MyCoolClusterId",
                     Metadata = new Dictionary<string, string> { { "Foo", "Bar" } },
                 },
-                new GatewayRoute
+                new ProxyRoute
                 {
                     RouteId = "MyCoolClusterId:CoolRoute",
-                    Rule = "Host('example2.com')",
+                    Match =
+                    {
+                        Host = "example.net",
+                    },
                     Priority = 2,
                     ClusterId = "MyCoolClusterId",
                     Metadata = new Dictionary<string, string>(),
                 },
-                new GatewayRoute
+                new ProxyRoute
                 {
                     RouteId = "MyCoolClusterId:EvenCoolerRoute",
-                    Rule = "Host('example3.com')",
+                    Match =
+                    {
+                        Host = "example.org",
+                    },
                     Priority = 3,
                     ClusterId = "MyCoolClusterId",
                     Metadata = new Dictionary<string, string>(),

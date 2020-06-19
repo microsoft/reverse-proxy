@@ -42,7 +42,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
         }
         internal static ReplicaWrapper FakeReplica(Uri serviceName, int id)
         {
-            string address = $"https://127.0.0.1/{serviceName.Authority}/{id}";
+            var address = $"https://127.0.0.1/{serviceName.Authority}/{id}";
             return new ReplicaWrapper
             {
                 Id = id,
@@ -70,7 +70,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                 { "IslandGateway.Backend.Healthcheck.Port", "8787" },
                 { "IslandGateway.Backend.Healthcheck.Path", "/api/health" },
                 { "IslandGateway.Metadata.Foo", "Bar" },
-                { "IslandGateway.Routes.MyRoute.Rule", "Host('example.com)" },
+                { "IslandGateway.Routes.MyRoute.Host", "example.com" },
                 { "IslandGateway.Routes.MyRoute.Priority", "2" },
             };
         }
@@ -84,8 +84,8 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
         /// </remarks>
         internal static KeyValuePair<string, Destination> BuildDestinationFromReplica(ReplicaWrapper replica, string healthListenerName = null)
         {
-            ServiceEndpointCollection.TryParseEndpointsString(replica.ReplicaAddress, out ServiceEndpointCollection endpoints);
-            endpoints.TryGetFirstEndpointAddress(out string address);
+            ServiceEndpointCollection.TryParseEndpointsString(replica.ReplicaAddress, out var endpoints);
+            endpoints.TryGetFirstEndpointAddress(out var address);
 
             string healthAddressUri = null;
             if (healthListenerName != null)

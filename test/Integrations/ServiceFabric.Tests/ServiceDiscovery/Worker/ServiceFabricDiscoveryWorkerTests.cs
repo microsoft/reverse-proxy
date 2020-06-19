@@ -28,106 +28,104 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
             - Try different ListenerNames in the labels
             - Check that serviceFabricCaller failures don't complete crash
         */
-        private static readonly Uri TestServiceName = new Uri("fabric:/App1/Svc1");
+        private static readonly Uri _testServiceName = new Uri("fabric:/App1/Svc1");
 
-        private ServiceFabricServiceDiscoveryOptions scenarioOptions;
-
-        // Scenario record
-        private List<HealthReport> healthReports = new List<HealthReport>();
-        private IList<ProxyRoute> routesRepo = new List<ProxyRoute>();
-        private IDictionary<string, Cluster> clustersRepo = new Dictionary<string, Cluster>(StringComparer.Ordinal);
+        private readonly List<HealthReport> _healthReports = new List<HealthReport>();
+        private ServiceFabricServiceDiscoveryOptions _scenarioOptions;
+        private IList<ProxyRoute> _routesRepo = new List<ProxyRoute>();
+        private IDictionary<string, Cluster> _clustersRepo = new Dictionary<string, Cluster>(StringComparer.Ordinal);
 
         public ServiceFabricDiscoveryWorkerTests(ITestOutputHelper testOutputHelper)
         {
-            this.Provide<ILogger<ServiceFabricDiscoveryWorker>>(new XunitLogger<ServiceFabricDiscoveryWorker>(testOutputHelper));
+            Provide<ILogger<ServiceFabricDiscoveryWorker>>(new XunitLogger<ServiceFabricDiscoveryWorker>(testOutputHelper));
 
             // Fake health report client
-            this.Mock<IServiceFabricCaller>()
+            Mock<IServiceFabricCaller>()
                 .Setup(
                     m => m.ReportHealth(It.IsAny<HealthReport>(), It.IsAny<HealthReportSendOptions>())) // TODO: should also check for send options
-                    .Callback((HealthReport report, HealthReportSendOptions sendOptions) => this.healthReports.Add(report));
+                    .Callback((HealthReport report, HealthReportSendOptions sendOptions) => _healthReports.Add(report));
 
             // Fake backends repo
-            this.Mock<IClustersRepo>()
+            Mock<IClustersRepo>()
                 .Setup(
                     m => m.SetClustersAsync(It.IsAny<IDictionary<string, Cluster>>(), It.IsAny<CancellationToken>()))
-                .Callback((IDictionary<string, Cluster> clustersDict, CancellationToken token) => this.clustersRepo = clustersDict);
+                .Callback((IDictionary<string, Cluster> clustersDict, CancellationToken token) => _clustersRepo = clustersDict);
 
             // Fake routes repo
-            this.Mock<IRoutesRepo>()
+            Mock<IRoutesRepo>()
                 .Setup(
                     m => m.SetRoutesAsync(It.IsAny<IList<ProxyRoute>>(), It.IsAny<CancellationToken>()))
-                .Callback((IList<ProxyRoute> routesList, CancellationToken token) => this.routesRepo = routesList);
+                .Callback((IList<ProxyRoute> routesList, CancellationToken token) => _routesRepo = routesList);
         }
 
         [Fact]
         public async void ExecuteAsync_NoAppsDiscovered_NoClusters()
         {
             // Setup
-            this.scenarioOptions = new ServiceFabricServiceDiscoveryOptions { ReportReplicasHealth = true };
-            this.Mock_AppsResponse();
+            _scenarioOptions = new ServiceFabricServiceDiscoveryOptions { ReportReplicasHealth = true };
+            Mock_AppsResponse();
 
             // Act
-            await this.RunScenarioAsync();
+            await RunScenarioAsync();
 
             // Assert
-            this.clustersRepo.Should().BeEmpty();
-            this.routesRepo.Should().BeEmpty();
-            this.healthReports.Should().BeEmpty();
+            _clustersRepo.Should().BeEmpty();
+            _routesRepo.Should().BeEmpty();
+            _healthReports.Should().BeEmpty();
         }
 
         [Fact]
         public async void ExecuteAsync_NoExtensions_NoClusters()
         {
             // Setup
-            this.scenarioOptions = new ServiceFabricServiceDiscoveryOptions { ReportReplicasHealth = true };
+            _scenarioOptions = new ServiceFabricServiceDiscoveryOptions { ReportReplicasHealth = true };
             ApplicationWrapper application;
-            this.Mock_AppsResponse(application = this.CreateApp_1Service_SingletonPartition_1Replica("MyCoolApp", "MyAwesomeService", out ServiceWrapper service, out ReplicaWrapper replica));
-            this.Mock_ServiceLabels(application, service, new Dictionary<string, string>());
+            Mock_AppsResponse(application = CreateApp_1Service_SingletonPartition_1Replica("MyCoolApp", "MyAwesomeService", out var service, out _));
+            Mock_ServiceLabels(application, service, new Dictionary<string, string>());
 
             // Act
-            await this.RunScenarioAsync();
+            await RunScenarioAsync();
 
             // Assert
-            this.clustersRepo.Should().BeEmpty();
-            this.routesRepo.Should().BeEmpty();
-            this.healthReports.Should().BeEmpty();
+            _clustersRepo.Should().BeEmpty();
+            _routesRepo.Should().BeEmpty();
+            _healthReports.Should().BeEmpty();
         }
 
         [Fact]
         public async void ExecuteAsync_GatewayNotEnabled_NoClusters()
         {
             // Setup
-            this.scenarioOptions = new ServiceFabricServiceDiscoveryOptions { ReportReplicasHealth = true };
+            _scenarioOptions = new ServiceFabricServiceDiscoveryOptions { ReportReplicasHealth = true };
             ApplicationWrapper application;
-            this.Mock_AppsResponse(application = this.CreateApp_1Service_SingletonPartition_1Replica("MyCoolApp", "MyAwesomeService", out ServiceWrapper service, out ReplicaWrapper replica));
-            this.Mock_ServiceLabels(application, service, new Dictionary<string, string>() { { "IslandGateway.Enable", "false" } });
+            Mock_AppsResponse(application = CreateApp_1Service_SingletonPartition_1Replica("MyCoolApp", "MyAwesomeService", out var service, out _));
+            Mock_ServiceLabels(application, service, new Dictionary<string, string>() { { "IslandGateway.Enable", "false" } });
 
             // Act
-            await this.RunScenarioAsync();
+            await RunScenarioAsync();
 
             // Assert
-            this.clustersRepo.Should().BeEmpty();
-            this.routesRepo.Should().BeEmpty();
-            this.healthReports.Should().BeEmpty();
+            _clustersRepo.Should().BeEmpty();
+            _routesRepo.Should().BeEmpty();
+            _healthReports.Should().BeEmpty();
         }
 
         [Fact]
         public async void ExecuteAsync_SingleServiceWithGatewayEnabled_OneClusterFound()
         {
             // Setup
-            this.scenarioOptions = new ServiceFabricServiceDiscoveryOptions { ReportReplicasHealth = true };
+            _scenarioOptions = new ServiceFabricServiceDiscoveryOptions { ReportReplicasHealth = true };
             const string TestClusterId = "MyService123";
             var labels = SFTestHelpers.DummyLabels(TestClusterId);
             ApplicationWrapper application, anotherApplication;
-            this.Mock_AppsResponse(
-                application = this.CreateApp_1StatelessService_2Partition_2ReplicasEach("MyApp", "MYService", out ServiceWrapper service, out List<ReplicaWrapper> replicas),
-                anotherApplication = this.CreateApp_1StatelessService_2Partition_2ReplicasEach("AnotherApp", "AnotherService", out ServiceWrapper anotherService, out List<ReplicaWrapper> otherReplicas));
-            this.Mock_ServiceLabels(application, service, labels);
-            this.Mock_ServiceLabels(anotherApplication, anotherService, new Dictionary<string, string>());
+            Mock_AppsResponse(
+                application = CreateApp_1StatelessService_2Partition_2ReplicasEach("MyApp", "MYService", out var service, out var replicas),
+                anotherApplication = CreateApp_1StatelessService_2Partition_2ReplicasEach("AnotherApp", "AnotherService", out var anotherService, out var otherReplicas));
+            Mock_ServiceLabels(application, service, labels);
+            Mock_ServiceLabels(anotherApplication, anotherService, new Dictionary<string, string>());
 
             // Act
-            await this.RunScenarioAsync();
+            await RunScenarioAsync();
 
             // Assert
             var expectedClusters = new Dictionary<string, Cluster>
@@ -135,30 +133,30 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                 {
                     TestClusterId,
                     ClusterWithDestinations(
-                        LabelsParser.BuildCluster(TestServiceName, labels),
+                        LabelsParser.BuildCluster(_testServiceName, labels),
                         SFTestHelpers.BuildDestinationFromReplica(replicas[0]),
                         SFTestHelpers.BuildDestinationFromReplica(replicas[1]),
                         SFTestHelpers.BuildDestinationFromReplica(replicas[2]),
                         SFTestHelpers.BuildDestinationFromReplica(replicas[3]))
                 },
             };
-            var expectedRoutes = LabelsParser.BuildRoutes(TestServiceName, labels);
+            var expectedRoutes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
-            this.clustersRepo.Should().BeEquivalentTo(expectedClusters);
-            this.routesRepo.Should().BeEquivalentTo(expectedRoutes);
-            this.AssertServiceHealthReported(service, HealthState.Ok);
+            _clustersRepo.Should().BeEquivalentTo(expectedClusters);
+            _routesRepo.Should().BeEquivalentTo(expectedRoutes);
+            AssertServiceHealthReported(service, HealthState.Ok);
             foreach (var replica in replicas)
             {
-                this.AssertStatelessServiceInstanceHealthReported(replica, HealthState.Ok);
+                AssertStatelessServiceInstanceHealthReported(replica, HealthState.Ok);
             }
-            this.healthReports.Should().HaveCount(5);
+            _healthReports.Should().HaveCount(5);
         }
 
         [Fact]
         public async void ExecuteAsync_MultipleServicesWithGatewayEnabled_MultipleClustersFound()
         {
             // Setup
-            this.scenarioOptions = new ServiceFabricServiceDiscoveryOptions { ReportReplicasHealth = true };
+            _scenarioOptions = new ServiceFabricServiceDiscoveryOptions { ReportReplicasHealth = true };
             const string TestClusterIdApp1Sv1 = "MyService123";
             const string TestClusterIdApp1Sv2 = "MyService234";
             const string TestClusterIdApp2Sv3 = "MyService345";
@@ -166,16 +164,16 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
             var labels2 = SFTestHelpers.DummyLabels(TestClusterIdApp1Sv2);
             var labels3 = SFTestHelpers.DummyLabels(TestClusterIdApp2Sv3);
             ApplicationWrapper application1, application2;
-            this.Mock_AppsResponse(
-                application1 = this.CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MYService", out ServiceWrapper service1, out ReplicaWrapper replica1),
-                application2 = this.CreateApp_2StatelessService_SingletonPartition_1Replica("MyApp2", "MyService2", "MyService3", out ServiceWrapper service2, out ServiceWrapper service3, out ReplicaWrapper replica2, out ReplicaWrapper replica3));
+            Mock_AppsResponse(
+                application1 = CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MYService", out var service1, out var replica1),
+                application2 = CreateApp_2StatelessService_SingletonPartition_1Replica("MyApp2", "MyService2", "MyService3", out var service2, out var service3, out var replica2, out var replica3));
 
-            this.Mock_ServiceLabels(application1, service1, labels1);
-            this.Mock_ServiceLabels(application2, service2, labels2);
-            this.Mock_ServiceLabels(application2, service3, labels3);
+            Mock_ServiceLabels(application1, service1, labels1);
+            Mock_ServiceLabels(application2, service2, labels2);
+            Mock_ServiceLabels(application2, service3, labels3);
 
             // Act
-            await this.RunScenarioAsync();
+            await RunScenarioAsync();
 
             // Assert
             var expectedClusters = new Dictionary<string, Cluster>
@@ -183,57 +181,57 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                 {
                     TestClusterIdApp1Sv1,
                     ClusterWithDestinations(
-                        LabelsParser.BuildCluster(TestServiceName, labels1),
+                        LabelsParser.BuildCluster(_testServiceName, labels1),
                         SFTestHelpers.BuildDestinationFromReplica(replica1))
                 },
                 {
                     TestClusterIdApp1Sv2,
                     ClusterWithDestinations(
-                        LabelsParser.BuildCluster(TestServiceName, labels2),
+                        LabelsParser.BuildCluster(_testServiceName, labels2),
                         SFTestHelpers.BuildDestinationFromReplica(replica2))
                 },
                 {
                     TestClusterIdApp2Sv3,
                     ClusterWithDestinations(
-                        LabelsParser.BuildCluster(TestServiceName, labels3),
+                        LabelsParser.BuildCluster(_testServiceName, labels3),
                         SFTestHelpers.BuildDestinationFromReplica(replica3))
                 },
             };
             var expectedRoutes = new List<ProxyRoute>();
-            expectedRoutes.AddRange(LabelsParser.BuildRoutes(TestServiceName, labels1));
-            expectedRoutes.AddRange(LabelsParser.BuildRoutes(TestServiceName, labels2));
-            expectedRoutes.AddRange(LabelsParser.BuildRoutes(TestServiceName, labels3));
+            expectedRoutes.AddRange(LabelsParser.BuildRoutes(_testServiceName, labels1));
+            expectedRoutes.AddRange(LabelsParser.BuildRoutes(_testServiceName, labels2));
+            expectedRoutes.AddRange(LabelsParser.BuildRoutes(_testServiceName, labels3));
 
-            this.clustersRepo.Should().BeEquivalentTo(expectedClusters);
-            this.routesRepo.Should().BeEquivalentTo(expectedRoutes);
-            this.AssertServiceHealthReported(service1, HealthState.Ok);
-            this.AssertServiceHealthReported(service2, HealthState.Ok);
-            this.AssertServiceHealthReported(service3, HealthState.Ok);
-            this.AssertStatelessServiceInstanceHealthReported(replica1, HealthState.Ok);
-            this.AssertStatelessServiceInstanceHealthReported(replica2, HealthState.Ok);
-            this.AssertStatelessServiceInstanceHealthReported(replica3, HealthState.Ok);
-            this.healthReports.Should().HaveCount(6);
+            _clustersRepo.Should().BeEquivalentTo(expectedClusters);
+            _routesRepo.Should().BeEquivalentTo(expectedRoutes);
+            AssertServiceHealthReported(service1, HealthState.Ok);
+            AssertServiceHealthReported(service2, HealthState.Ok);
+            AssertServiceHealthReported(service3, HealthState.Ok);
+            AssertStatelessServiceInstanceHealthReported(replica1, HealthState.Ok);
+            AssertStatelessServiceInstanceHealthReported(replica2, HealthState.Ok);
+            AssertStatelessServiceInstanceHealthReported(replica3, HealthState.Ok);
+            _healthReports.Should().HaveCount(6);
         }
 
         [Fact]
         public async void ExecuteAsync_OneServiceWithGatewayEnabledAndOneNotEnabled_OnlyTheOneEnabledFound()
         {
             // Setup
-            this.scenarioOptions = new ServiceFabricServiceDiscoveryOptions { ReportReplicasHealth = true };
+            _scenarioOptions = new ServiceFabricServiceDiscoveryOptions { ReportReplicasHealth = true };
             const string TestClusterIdApp1Sv1 = "MyService123";
             const string TestClusterIdApp2Sv2 = "MyService234";
             var gatewayEnabledLabels = SFTestHelpers.DummyLabels(TestClusterIdApp1Sv1);
             var gatewayNotEnabledLabels = SFTestHelpers.DummyLabels(TestClusterIdApp2Sv2, false);
             ApplicationWrapper application1, application2;
-            this.Mock_AppsResponse(
-                application1 = this.CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MyService1", out ServiceWrapper service1, out ReplicaWrapper replica1),
-                application2 = this.CreateApp_1Service_SingletonPartition_1Replica("MyApp2", "MyService2", out ServiceWrapper service2, out ReplicaWrapper replica2));
+            Mock_AppsResponse(
+                application1 = CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MyService1", out var service1, out var replica1),
+                application2 = CreateApp_1Service_SingletonPartition_1Replica("MyApp2", "MyService2", out var service2, out var replica2));
 
-            this.Mock_ServiceLabels(application1, service1, gatewayEnabledLabels);
-            this.Mock_ServiceLabels(application2, service2, gatewayNotEnabledLabels);
+            Mock_ServiceLabels(application1, service1, gatewayEnabledLabels);
+            Mock_ServiceLabels(application2, service2, gatewayNotEnabledLabels);
 
             // Act
-            await this.RunScenarioAsync();
+            await RunScenarioAsync();
 
             // Assert
             var expectedClusters = new Dictionary<string, Cluster>
@@ -241,42 +239,42 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                 {
                     TestClusterIdApp1Sv1,
                     ClusterWithDestinations(
-                        LabelsParser.BuildCluster(TestServiceName, gatewayEnabledLabels),
+                        LabelsParser.BuildCluster(_testServiceName, gatewayEnabledLabels),
                         SFTestHelpers.BuildDestinationFromReplica(replica1))
                 },
             };
             var expectedRoutes = new List<ProxyRoute>();
-            expectedRoutes.AddRange(LabelsParser.BuildRoutes(TestServiceName, gatewayEnabledLabels));
+            expectedRoutes.AddRange(LabelsParser.BuildRoutes(_testServiceName, gatewayEnabledLabels));
 
-            this.clustersRepo.Should().BeEquivalentTo(expectedClusters);
-            this.routesRepo.Should().BeEquivalentTo(expectedRoutes);
-            this.AssertServiceHealthReported(service1, HealthState.Ok);
-            this.AssertStatelessServiceInstanceHealthReported(replica1, HealthState.Ok);
-            this.healthReports.Should().HaveCount(2);
+            _clustersRepo.Should().BeEquivalentTo(expectedClusters);
+            _routesRepo.Should().BeEquivalentTo(expectedRoutes);
+            AssertServiceHealthReported(service1, HealthState.Ok);
+            AssertStatelessServiceInstanceHealthReported(replica1, HealthState.Ok);
+            _healthReports.Should().HaveCount(2);
         }
 
         [Fact]
         public async void ExecuteAsync_GetLabelsFails_NoClustersAndBadHealthReported()
         {
             // Setup
-            this.scenarioOptions = new ServiceFabricServiceDiscoveryOptions { ReportReplicasHealth = true };
+            _scenarioOptions = new ServiceFabricServiceDiscoveryOptions { ReportReplicasHealth = true };
             ApplicationWrapper application;
-            this.Mock_AppsResponse(
-                application = this.CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MYService", out ServiceWrapper service, out ReplicaWrapper replica1));
+            Mock_AppsResponse(
+                application = CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MYService", out var service, out var replica1));
 
-            this.Mock_ServiceLabelsException(application, service, new IslandGatewayConfigException("foo"));
+            Mock_ServiceLabelsException(application, service, new ConfigException("foo"));
 
             // Act
-            await this.RunScenarioAsync();
+            await RunScenarioAsync();
 
             // Assert
             var expectedClusters = new List<Cluster>();
             var expectedRoutes = new List<ProxyRoute>();
 
-            this.clustersRepo.Should().BeEquivalentTo(expectedClusters);
-            this.routesRepo.Should().BeEquivalentTo(expectedRoutes);
-            this.AssertServiceHealthReported(service, HealthState.Warning, (description) => description.Contains("foo"));
-            this.healthReports.Should().HaveCount(1);
+            _clustersRepo.Should().BeEquivalentTo(expectedClusters);
+            _routesRepo.Should().BeEquivalentTo(expectedRoutes);
+            AssertServiceHealthReported(service, HealthState.Warning, (description) => description.Contains("foo"));
+            _healthReports.Should().HaveCount(1);
         }
 
         [Theory]
@@ -285,41 +283,41 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
         public async void ExecuteAsync_InvalidLabelsForCluster_NoClustersAndBadHealthReported(string keyToOverride, string value)
         {
             // Setup
-            this.scenarioOptions = new ServiceFabricServiceDiscoveryOptions { ReportReplicasHealth = true };
+            _scenarioOptions = new ServiceFabricServiceDiscoveryOptions { ReportReplicasHealth = true };
             var labels = SFTestHelpers.DummyLabels("SomeClusterId");
             labels[keyToOverride] = value;
             ApplicationWrapper application;
-            this.Mock_AppsResponse(
-                application = this.CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MyService", out ServiceWrapper service, out ReplicaWrapper replica));
+            Mock_AppsResponse(
+                application = CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MyService", out var service, out var replica));
 
-            this.Mock_ServiceLabels(application, service, labels);
+            Mock_ServiceLabels(application, service, labels);
 
             // Act
-            await this.RunScenarioAsync();
+            await RunScenarioAsync();
 
             // Assert
             var expectedClusters = new List<Cluster>();
             var expectedRoutes = new List<ProxyRoute>();
 
-            this.clustersRepo.Should().BeEquivalentTo(expectedClusters);
-            this.routesRepo.Should().BeEquivalentTo(expectedRoutes);
-            this.AssertServiceHealthReported(service, HealthState.Warning, (description) =>
+            _clustersRepo.Should().BeEquivalentTo(expectedClusters);
+            _routesRepo.Should().BeEquivalentTo(expectedRoutes);
+            AssertServiceHealthReported(service, HealthState.Warning, (description) =>
                 description.Contains(keyToOverride)); // Check that the invalid key is mentioned in the description
-            this.healthReports.Should().HaveCount(1);
+            _healthReports.Should().HaveCount(1);
         }
 
         [Theory]
-        [InlineData("IslandGateway.Routes.MyRoute.Rule", null, true)] // Rule is mandatory
+        [InlineData("IslandGateway.Routes.MyRoute.Host", null, true)] // Host is mandatory
         [InlineData("IslandGateway.Routes.MyRoute.Priority", "not a number")]
         public async void ExecuteAsync_InvalidLabelsForRoutes_NoRoutesAndBadHealthReported(string keyToOverride, string value = null, bool remove = false)
         {
             // Setup
-            this.scenarioOptions = new ServiceFabricServiceDiscoveryOptions { ReportReplicasHealth = true };
+            _scenarioOptions = new ServiceFabricServiceDiscoveryOptions { ReportReplicasHealth = true };
             var labels = new Dictionary<string, string>()
             {
                 { "IslandGateway.Enable", "true" },
                 { "IslandGateway.Backend.BackendId", "SomeClusterId" },
-                { "IslandGateway.Routes.MyRoute.Rule", "Host('example.com)" },
+                { "IslandGateway.Routes.MyRoute.Host", "example.com" },
                 { "IslandGateway.Routes.MyRoute.Priority", "2" },
             };
             if (remove)
@@ -331,13 +329,13 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                 labels[keyToOverride] = value;
             }
             ApplicationWrapper application;
-            this.Mock_AppsResponse(
-                application = this.CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MyService", out ServiceWrapper service, out ReplicaWrapper replica));
+            Mock_AppsResponse(
+                application = CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MyService", out var service, out var replica));
 
-            this.Mock_ServiceLabels(application, service, labels);
+            Mock_ServiceLabels(application, service, labels);
 
             // Act
-            await this.RunScenarioAsync();
+            await RunScenarioAsync();
 
             // Assert
             var expectedClusters = new Dictionary<string, Cluster>
@@ -345,137 +343,137 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                 {
                     "SomeClusterId",
                     ClusterWithDestinations(
-                        LabelsParser.BuildCluster(TestServiceName, labels),
+                        LabelsParser.BuildCluster(_testServiceName, labels),
                         SFTestHelpers.BuildDestinationFromReplica(replica))
                 },
             };
             var expectedRoutes = new List<ProxyRoute>();
 
-            this.clustersRepo.Should().BeEquivalentTo(expectedClusters);
-            this.routesRepo.Should().BeEquivalentTo(expectedRoutes);
-            this.AssertServiceHealthReported(service, HealthState.Warning, (description) =>
+            _clustersRepo.Should().BeEquivalentTo(expectedClusters);
+            _routesRepo.Should().BeEquivalentTo(expectedRoutes);
+            AssertServiceHealthReported(service, HealthState.Warning, (description) =>
                 description.Contains(keyToOverride)); // Check that the invalid key is mentioned in the description
-            this.healthReports.Should().HaveCount(2);
+            _healthReports.Should().HaveCount(2);
         }
 
         [Fact]
         public async void ExecuteAsync_InvalidListenerNameForStatefulService_NoEndpointsAndBadHealthReported()
         {
             // Setup
-            this.scenarioOptions = new ServiceFabricServiceDiscoveryOptions { ReportReplicasHealth = true };
+            _scenarioOptions = new ServiceFabricServiceDiscoveryOptions { ReportReplicasHealth = true };
             const string TestClusterId = "MyService123";
             var labels = SFTestHelpers.DummyLabels(TestClusterId);
             labels["IslandGateway.Backend.ServiceFabric.ListenerName"] = "UnexistingListener";
             ApplicationWrapper application;
-            this.Mock_AppsResponse(
-                application = this.CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MyService", out ServiceWrapper service, out ReplicaWrapper replica, serviceKind: ServiceKind.Stateful));
+            Mock_AppsResponse(
+                application = CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MyService", out var service, out var replica, serviceKind: ServiceKind.Stateful));
 
-            this.Mock_ServiceLabels(application, service, labels);
+            Mock_ServiceLabels(application, service, labels);
 
             // Act
-            await this.RunScenarioAsync();
+            await RunScenarioAsync();
 
             // Assert
             var expectedClusters = new Dictionary<string, Cluster>
             {
-                { TestClusterId, LabelsParser.BuildCluster(TestServiceName, labels) },
+                { TestClusterId, LabelsParser.BuildCluster(_testServiceName, labels) },
             };
-            var expectedRoutes = LabelsParser.BuildRoutes(TestServiceName, labels);
+            var expectedRoutes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
-            this.clustersRepo.Should().BeEquivalentTo(expectedClusters);
-            this.routesRepo.Should().BeEquivalentTo(expectedRoutes);
-            this.AssertServiceHealthReported(service, HealthState.Ok);
-            this.AssertStatefulServiceReplicaHealthReported(replica, HealthState.Warning, (description) =>
+            _clustersRepo.Should().BeEquivalentTo(expectedClusters);
+            _routesRepo.Should().BeEquivalentTo(expectedRoutes);
+            AssertServiceHealthReported(service, HealthState.Ok);
+            AssertStatefulServiceReplicaHealthReported(replica, HealthState.Warning, (description) =>
                 description.StartsWith("Could not build endpoint for Island Gateway") &&
                 description.Contains("UnexistingListener"));
-            this.healthReports.Should().HaveCount(2);
+            _healthReports.Should().HaveCount(2);
         }
 
         [Fact]
         public async void ExecuteAsync_InvalidListenerNameForStatelessService_NoEndpointsAndBadHealthReported()
         {
             // Setup
-            this.scenarioOptions = new ServiceFabricServiceDiscoveryOptions { ReportReplicasHealth = true };
+            _scenarioOptions = new ServiceFabricServiceDiscoveryOptions { ReportReplicasHealth = true };
             const string TestClusterId = "MyService123";
             var labels = SFTestHelpers.DummyLabels(TestClusterId);
             labels["IslandGateway.Backend.ServiceFabric.ListenerName"] = "UnexistingListener";
             ApplicationWrapper application;
-            this.Mock_AppsResponse(
-                application = this.CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MyService", out ServiceWrapper service, out ReplicaWrapper replica, serviceKind: ServiceKind.Stateless));
+            Mock_AppsResponse(
+                application = CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MyService", out var service, out var replica, serviceKind: ServiceKind.Stateless));
 
-            this.Mock_ServiceLabels(application, service, labels);
+            Mock_ServiceLabels(application, service, labels);
 
             // Act
-            await this.RunScenarioAsync();
+            await RunScenarioAsync();
 
             // Assert
             var expectedClusters = new Dictionary<string, Cluster>
             {
-                { TestClusterId, LabelsParser.BuildCluster(TestServiceName, labels) },
+                { TestClusterId, LabelsParser.BuildCluster(_testServiceName, labels) },
             };
-            var expectedRoutes = LabelsParser.BuildRoutes(TestServiceName, labels);
+            var expectedRoutes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
-            this.clustersRepo.Should().BeEquivalentTo(expectedClusters);
-            this.routesRepo.Should().BeEquivalentTo(expectedRoutes);
-            this.AssertServiceHealthReported(service, HealthState.Ok);
-            this.AssertStatelessServiceInstanceHealthReported(replica, HealthState.Warning, (description) =>
+            _clustersRepo.Should().BeEquivalentTo(expectedClusters);
+            _routesRepo.Should().BeEquivalentTo(expectedRoutes);
+            AssertServiceHealthReported(service, HealthState.Ok);
+            AssertStatelessServiceInstanceHealthReported(replica, HealthState.Warning, (description) =>
                 description.StartsWith("Could not build endpoint for Island Gateway") &&
                 description.Contains("UnexistingListener"));
-            this.healthReports.Should().HaveCount(2);
+            _healthReports.Should().HaveCount(2);
         }
 
         [Fact]
         public async void ExecuteAsync_NotHttpsSchemeForStatelessService_NoEndpointsAndBadHealthReported()
         {
             // Setup
-            this.scenarioOptions = new ServiceFabricServiceDiscoveryOptions { ReportReplicasHealth = true };
+            _scenarioOptions = new ServiceFabricServiceDiscoveryOptions { ReportReplicasHealth = true };
             const string TestClusterId = "MyService123";
             const string ServiceName = "fabric:/MyApp/MyService";
             var labels = SFTestHelpers.DummyLabels(TestClusterId);
             labels["IslandGateway.Backend.ServiceFabric.ListenerName"] = "ExampleTeamEndpoint";
             ApplicationWrapper application;
-            this.Mock_AppsResponse(
-                application = this.CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MyService", out ServiceWrapper service, out ReplicaWrapper replica, serviceKind: ServiceKind.Stateless));
-            string nonHttpAddress = $"http://127.0.0.1/{ServiceName}/0";
+            Mock_AppsResponse(
+                application = CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MyService", out var service, out var replica, serviceKind: ServiceKind.Stateless));
+            var nonHttpAddress = $"http://127.0.0.1/{ServiceName}/0";
             replica.ReplicaAddress = $"{{'Endpoints': {{'ExampleTeamEndpoint': '{nonHttpAddress}' }} }}".Replace("'", "\"");
-            this.Mock_ServiceLabels(application, service, labels);
+            Mock_ServiceLabels(application, service, labels);
 
             // Act
-            await this.RunScenarioAsync();
+            await RunScenarioAsync();
 
             // Assert
             var expectedClusters = new Dictionary<string, Cluster>
             {
-                { TestClusterId, LabelsParser.BuildCluster(TestServiceName, labels) },
+                { TestClusterId, LabelsParser.BuildCluster(_testServiceName, labels) },
             };
-            var expectedRoutes = LabelsParser.BuildRoutes(TestServiceName, labels);
+            var expectedRoutes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
-            this.clustersRepo.Should().BeEquivalentTo(expectedClusters);
-            this.routesRepo.Should().BeEquivalentTo(expectedRoutes);
-            this.AssertServiceHealthReported(service, HealthState.Ok);
-            this.AssertStatelessServiceInstanceHealthReported(replica, HealthState.Warning, (description) =>
+            _clustersRepo.Should().BeEquivalentTo(expectedClusters);
+            _routesRepo.Should().BeEquivalentTo(expectedRoutes);
+            AssertServiceHealthReported(service, HealthState.Ok);
+            AssertStatelessServiceInstanceHealthReported(replica, HealthState.Warning, (description) =>
                 description.StartsWith("Could not build endpoint for Island Gateway") &&
                 description.Contains("ExampleTeamEndpoint"));
-            this.healthReports.Should().HaveCount(2);
+            _healthReports.Should().HaveCount(2);
         }
 
         [Fact]
         public async void ExecuteAsync_ValidListenerNameForStatelessService_Work()
         {
             // Setup
-            this.scenarioOptions = new ServiceFabricServiceDiscoveryOptions { ReportReplicasHealth = true };
+            _scenarioOptions = new ServiceFabricServiceDiscoveryOptions { ReportReplicasHealth = true };
             const string TestClusterId = "MyService123";
             var labels = SFTestHelpers.DummyLabels(TestClusterId);
             labels["IslandGateway.Backend.ServiceFabric.ListenerName"] = "ExampleTeamEndpoint";
             labels["IslandGateway.Backend.Healthcheck.ServiceFabric.ListenerName"] = "ExampleTeamHealthEndpoint";
             ApplicationWrapper application;
-            this.Mock_AppsResponse(
-                application = this.CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MyService", out ServiceWrapper service, out ReplicaWrapper replica, serviceKind: ServiceKind.Stateless));
-            replica.ReplicaAddress = this.MockReplicaAdressWithListenerName("MyApp", "MyService", new string[] { "ExampleTeamEndpoint", "ExampleTeamHealthEndpoint" });
-            this.Mock_ServiceLabels(application, service, labels);
+            Mock_AppsResponse(
+                application = CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MyService", out var service, out var replica, serviceKind: ServiceKind.Stateless));
+            replica.ReplicaAddress = MockReplicaAdressWithListenerName("MyApp", "MyService", new string[] { "ExampleTeamEndpoint", "ExampleTeamHealthEndpoint" });
+            Mock_ServiceLabels(application, service, labels);
 
             // Act
-            await this.RunScenarioAsync();
+            await RunScenarioAsync();
 
             // Assert
             var expectedClusters = new Dictionary<string, Cluster>
@@ -483,35 +481,35 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                 {
                     TestClusterId,
                     ClusterWithDestinations(
-                        LabelsParser.BuildCluster(TestServiceName, labels),
+                        LabelsParser.BuildCluster(_testServiceName, labels),
                         SFTestHelpers.BuildDestinationFromReplica(replica, "ExampleTeamHealthEndpoint"))
                 },
             };
-            var expectedRoutes = LabelsParser.BuildRoutes(TestServiceName, labels);
+            var expectedRoutes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
-            this.clustersRepo.Should().BeEquivalentTo(expectedClusters);
-            this.routesRepo.Should().BeEquivalentTo(expectedRoutes);
-            this.AssertServiceHealthReported(service, HealthState.Ok);
-            this.AssertStatelessServiceInstanceHealthReported(replica, HealthState.Ok, (description) =>
+            _clustersRepo.Should().BeEquivalentTo(expectedClusters);
+            _routesRepo.Should().BeEquivalentTo(expectedRoutes);
+            AssertServiceHealthReported(service, HealthState.Ok);
+            AssertStatelessServiceInstanceHealthReported(replica, HealthState.Ok, (description) =>
                 description.StartsWith("Successfully built"));
-            this.healthReports.Should().HaveCount(2);
+            _healthReports.Should().HaveCount(2);
         }
 
         [Fact]
         public async void ExecuteAsync_SomeUnhealthyReplicas_OnlyHealthyReplicasAreUsed()
         {
             // Setup
-            this.scenarioOptions = new ServiceFabricServiceDiscoveryOptions { ReportReplicasHealth = true };
+            _scenarioOptions = new ServiceFabricServiceDiscoveryOptions { ReportReplicasHealth = true };
             const string TestClusterId = "MyService123";
             var labels = SFTestHelpers.DummyLabels(TestClusterId);
             ApplicationWrapper application;
-            this.Mock_AppsResponse(
-                application = this.CreateApp_1StatelessService_2Partition_2ReplicasEach(
+            Mock_AppsResponse(
+                application = CreateApp_1StatelessService_2Partition_2ReplicasEach(
                     "MyApp",
                     "MYService",
-                    out ServiceWrapper service,
-                    out List<ReplicaWrapper> replicas));
-            this.Mock_ServiceLabels(application, service, labels);
+                    out var service,
+                    out var replicas));
+            Mock_ServiceLabels(application, service, labels);
 
             replicas[0].ReplicaStatus = ServiceReplicaStatus.Ready; // Should be used despite Warning health state
             replicas[0].HealthState = HealthState.Warning;
@@ -526,7 +524,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
             replicas[3].HealthState = HealthState.Ok;
 
             // Act
-            await this.RunScenarioAsync();
+            await RunScenarioAsync();
 
             // Assert
             var expectedClusters = new Dictionary<string, Cluster>
@@ -534,37 +532,37 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                 {
                     TestClusterId,
                     ClusterWithDestinations(
-                        LabelsParser.BuildCluster(TestServiceName, labels),
+                        LabelsParser.BuildCluster(_testServiceName, labels),
                         SFTestHelpers.BuildDestinationFromReplica(replicas[0]),
                         SFTestHelpers.BuildDestinationFromReplica(replicas[1]),
                         SFTestHelpers.BuildDestinationFromReplica(replicas[2]))
                 },
             };
-            var expectedRoutes = LabelsParser.BuildRoutes(TestServiceName, labels);
+            var expectedRoutes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
-            this.clustersRepo.Should().BeEquivalentTo(expectedClusters);
-            this.routesRepo.Should().BeEquivalentTo(expectedRoutes);
-            this.AssertServiceHealthReported(service, HealthState.Ok);
-            this.AssertStatelessServiceInstanceHealthReported(replicas[0], HealthState.Ok);
-            this.AssertStatelessServiceInstanceHealthReported(replicas[1], HealthState.Ok);
-            this.AssertStatelessServiceInstanceHealthReported(replicas[2], HealthState.Ok);
-            this.healthReports.Should().HaveCount(4); // 1 service + 3 replicas = 4 health reports
+            _clustersRepo.Should().BeEquivalentTo(expectedClusters);
+            _routesRepo.Should().BeEquivalentTo(expectedRoutes);
+            AssertServiceHealthReported(service, HealthState.Ok);
+            AssertStatelessServiceInstanceHealthReported(replicas[0], HealthState.Ok);
+            AssertStatelessServiceInstanceHealthReported(replicas[1], HealthState.Ok);
+            AssertStatelessServiceInstanceHealthReported(replicas[2], HealthState.Ok);
+            _healthReports.Should().HaveCount(4); // 1 service + 3 replicas = 4 health reports
         }
 
         [Fact]
         public async void ExecuteAsync_ReplicaHealthReportDisabled_ReplicasHealthIsNotReported()
         {
             // Setup
-            this.scenarioOptions = new ServiceFabricServiceDiscoveryOptions { ReportReplicasHealth = false };
+            _scenarioOptions = new ServiceFabricServiceDiscoveryOptions { ReportReplicasHealth = false };
             const string TestClusterId = "MyService123";
             var labels = SFTestHelpers.DummyLabels(TestClusterId);
             ApplicationWrapper application;
-            this.Mock_AppsResponse(
-                application = this.CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MYService", out ServiceWrapper service, out ReplicaWrapper replica));
-            this.Mock_ServiceLabels(application, service, labels);
+            Mock_AppsResponse(
+                application = CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MYService", out var service, out var replica));
+            Mock_ServiceLabels(application, service, labels);
 
             // Act
-            await this.RunScenarioAsync();
+            await RunScenarioAsync();
 
             // Assert
             var expectedClusters = new Dictionary<string, Cluster>
@@ -572,15 +570,15 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                 {
                     TestClusterId,
                     ClusterWithDestinations(
-                        LabelsParser.BuildCluster(TestServiceName, labels),
+                        LabelsParser.BuildCluster(_testServiceName, labels),
                         SFTestHelpers.BuildDestinationFromReplica(replica))
                 },
             };
-            var expectedRoutes = LabelsParser.BuildRoutes(TestServiceName, labels);
-            this.clustersRepo.Should().BeEquivalentTo(expectedClusters);
-            this.routesRepo.Should().BeEquivalentTo(expectedRoutes);
-            this.AssertServiceHealthReported(service, HealthState.Ok);
-            this.healthReports.Should().HaveCount(1);
+            var expectedRoutes = LabelsParser.BuildRoutes(_testServiceName, labels);
+            _clustersRepo.Should().BeEquivalentTo(expectedClusters);
+            _routesRepo.Should().BeEquivalentTo(expectedRoutes);
+            AssertServiceHealthReported(service, HealthState.Ok);
+            _healthReports.Should().HaveCount(1);
         }
 
         [Theory]
@@ -595,18 +593,18 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
         public async void ExecuteAsync_StatefulService_SelectReplicaWork(string selectionMode, ReplicaRole? replicaRole)
         {
             // Setup
-            this.scenarioOptions = new ServiceFabricServiceDiscoveryOptions { ReportReplicasHealth = true };
+            _scenarioOptions = new ServiceFabricServiceDiscoveryOptions { ReportReplicasHealth = true };
             const string TestClusterId = "MyService123";
             var labels = SFTestHelpers.DummyLabels(TestClusterId);
             labels["IslandGateway.Backend.ServiceFabric.StatefulReplicaSelectionMode"] = selectionMode;
             ApplicationWrapper application;
-            this.Mock_AppsResponse(application = this.CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MYService", out ServiceWrapper service, out ReplicaWrapper replica, serviceKind: ServiceKind.Stateful));
-            this.Mock_ServiceLabels(application, service, labels);
+            Mock_AppsResponse(application = CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MYService", out var service, out var replica, serviceKind: ServiceKind.Stateful));
+            Mock_ServiceLabels(application, service, labels);
             replica.ServiceKind = ServiceKind.Stateful;
             replica.Role = replicaRole;
 
             // Act
-            await this.RunScenarioAsync();
+            await RunScenarioAsync();
 
             // Assert
             var expectedClusters = new Dictionary<string, Cluster>
@@ -614,13 +612,13 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                 {
                     TestClusterId,
                     ClusterWithDestinations(
-                        LabelsParser.BuildCluster(TestServiceName, labels),
+                        LabelsParser.BuildCluster(_testServiceName, labels),
                         SFTestHelpers.BuildDestinationFromReplica(replica))
                 },
             };
 
-            this.clustersRepo.Should().BeEquivalentTo(expectedClusters);
-            this.healthReports.Should().HaveCount(2);
+            _clustersRepo.Should().BeEquivalentTo(expectedClusters);
+            _healthReports.Should().HaveCount(2);
         }
 
         [Theory]
@@ -635,27 +633,27 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
         public async void ExecuteAsync_StatefulService_SkipReplicaWork(string selectionMode, ReplicaRole? replicaRole)
         {
             // Setup
-            this.scenarioOptions = new ServiceFabricServiceDiscoveryOptions { ReportReplicasHealth = true };
+            _scenarioOptions = new ServiceFabricServiceDiscoveryOptions { ReportReplicasHealth = true };
             const string TestClusterId = "MyService123";
             var labels = SFTestHelpers.DummyLabels(TestClusterId);
             labels["IslandGateway.Backend.ServiceFabric.StatefulReplicaSelectionMode"] = selectionMode;
             ApplicationWrapper application;
-            this.Mock_AppsResponse(application = this.CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MYService", out ServiceWrapper service, out ReplicaWrapper replica, serviceKind: ServiceKind.Stateful));
-            this.Mock_ServiceLabels(application, service, labels);
+            Mock_AppsResponse(application = CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MYService", out var service, out var replica, serviceKind: ServiceKind.Stateful));
+            Mock_ServiceLabels(application, service, labels);
             replica.ServiceKind = ServiceKind.Stateful;
             replica.Role = replicaRole;
 
             // Act
-            await this.RunScenarioAsync();
+            await RunScenarioAsync();
 
             // Assert
             var expectedClusters = new Dictionary<string, Cluster>
             {
-                { TestClusterId, LabelsParser.BuildCluster(TestServiceName, labels) },
+                { TestClusterId, LabelsParser.BuildCluster(_testServiceName, labels) },
             };
 
-            this.clustersRepo.Should().BeEquivalentTo(expectedClusters);
-            this.healthReports.Should().HaveCount(1);
+            _clustersRepo.Should().BeEquivalentTo(expectedClusters);
+            _healthReports.Should().HaveCount(1);
         }
 
         private static Cluster ClusterWithDestinations(Cluster cluster, params KeyValuePair<string, Destination>[] destinations)
@@ -670,18 +668,18 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
 
         private async Task RunScenarioAsync()
         {
-            if (this.scenarioOptions == null)
+            if (_scenarioOptions == null)
             {
                 Assert.True(false, "The scenario options for the test are not set.");
             }
-            var worker = this.Create<ServiceFabricDiscoveryWorker>();
-            await worker.ExecuteAsync(this.scenarioOptions, CancellationToken.None);
+            var worker = Create<ServiceFabricDiscoveryWorker>();
+            await worker.ExecuteAsync(_scenarioOptions, CancellationToken.None);
         }
 
         // Assertion helpers
         private void AssertServiceHealthReported(ServiceWrapper service, HealthState expectedHealthState, Func<string, bool> descriptionCheck = null)
         {
-            this.AssertHealthReported(
+            AssertHealthReported(
                 expectedHealthState: expectedHealthState,
                 descriptionCheck: descriptionCheck,
                 extraChecks: report => (report as ServiceHealthReport) != null && (report as ServiceHealthReport).ServiceName == service.ServiceName,
@@ -690,7 +688,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
         private void AssertStatelessServiceInstanceHealthReported(ReplicaWrapper replica, HealthState expectedHealthState, Func<string, bool> descriptionCheck = null)
         {
             // TODO: test helpers don't return the fake partition ID so we can't verify replica.PartitioinId is the correct one. Pending to refactor the fixture helpers.
-            this.AssertHealthReported(
+            AssertHealthReported(
                 expectedHealthState: expectedHealthState,
                 descriptionCheck: descriptionCheck,
                 extraChecks: report => (report as StatelessServiceInstanceHealthReport) != null && (report as StatelessServiceInstanceHealthReport).InstanceId == replica.Id,
@@ -699,7 +697,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
         private void AssertStatefulServiceReplicaHealthReported(ReplicaWrapper replica, HealthState expectedHealthState, Func<string, bool> descriptionCheck = null)
         {
             // TODO: test helpers don't return the fake partition ID so we can't verify replica.PartitioinId is the correct one. Pending to refactor the fixture helpers.
-            this.AssertHealthReported(
+            AssertHealthReported(
                 expectedHealthState: expectedHealthState,
                 descriptionCheck: descriptionCheck,
                 extraChecks: report => (report as StatefulServiceReplicaHealthReport) != null && (report as StatefulServiceReplicaHealthReport).ReplicaId == replica.Id,
@@ -711,8 +709,8 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
             Func<HealthReport, bool> extraChecks,
             string because)
         {
-            TimeSpan expectedHealthReportTimeToLive = this.scenarioOptions.DiscoveryPeriod.Multiply(3);
-            this.healthReports.Should().Contain(
+            var expectedHealthReportTimeToLive = _scenarioOptions.DiscoveryPeriod.Multiply(3);
+            _healthReports.Should().Contain(
                 report =>
                     report.HealthInformation.SourceId == ServiceFabricDiscoveryWorker.HealthReportSourceId &&
                     report.HealthInformation.Property == ServiceFabricDiscoveryWorker.HealthReportProperty &&
@@ -732,10 +730,9 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
             out ReplicaWrapper replica,
             ServiceKind serviceKind = ServiceKind.Stateless)
         {
-            List<ReplicaWrapper> replicas;
-            service = this.CreateService(appTypeName, serviceTypeName, 1, 1, out replicas, serviceKind);
+            service = CreateService(appTypeName, serviceTypeName, 1, 1, out var replicas, serviceKind);
             replica = replicas[0];
-            this.Mock_ServicesResponse(new Uri($"fabric:/{appTypeName}"), service);
+            Mock_ServicesResponse(new Uri($"fabric:/{appTypeName}"), service);
             return SFTestHelpers.FakeApp(appTypeName, appTypeName);
         }
         private ApplicationWrapper CreateApp_1StatelessService_2Partition_2ReplicasEach(
@@ -744,8 +741,8 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
             out ServiceWrapper service,
             out List<ReplicaWrapper> replicas)
         {
-            service = this.CreateService(appTypeName, serviceTypeName, 2, 2, out replicas);
-            this.Mock_ServicesResponse(new Uri($"fabric:/{appTypeName}"), service);
+            service = CreateService(appTypeName, serviceTypeName, 2, 2, out replicas);
+            Mock_ServicesResponse(new Uri($"fabric:/{appTypeName}"), service);
             return SFTestHelpers.FakeApp(appTypeName, appTypeName);
         }
         private ApplicationWrapper CreateApp_2StatelessService_SingletonPartition_1Replica(
@@ -757,12 +754,11 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
             out ReplicaWrapper service1replica,
             out ReplicaWrapper service2replica)
         {
-            List<ReplicaWrapper> replicas1, replicas2;
-            service1 = this.CreateService(appTypeName, serviceTypeName1, 1, 1, out replicas1);
-            service2 = this.CreateService(appTypeName, serviceTypeName2, 1, 1, out replicas2);
+            service1 = CreateService(appTypeName, serviceTypeName1, 1, 1, out var replicas1);
+            service2 = CreateService(appTypeName, serviceTypeName2, 1, 1, out var replicas2);
             service1replica = replicas1[0];
             service2replica = replicas2[0];
-            this.Mock_ServicesResponse(new Uri($"fabric:/{appTypeName}"), service1, service2);
+            Mock_ServicesResponse(new Uri($"fabric:/{appTypeName}"), service1, service2);
             return SFTestHelpers.FakeApp(appTypeName, appTypeName);
         }
         private ServiceWrapper CreateService(string appName, string serviceName, int numPartitions, int numReplicasPerPartition, out List<ReplicaWrapper> replicas, ServiceKind serviceKind = ServiceKind.Stateless)
@@ -772,50 +768,50 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
             replicas = new List<ReplicaWrapper>();
 
             var partitions = new List<Guid>();
-            for (int i = 0; i < numPartitions; i++)
+            for (var i = 0; i < numPartitions; i++)
             {
                 var partitionReplicas = Enumerable.Range(i * numReplicasPerPartition, numReplicasPerPartition).Select(replicaId => SFTestHelpers.FakeReplica(svcName, replicaId)).ToList();
                 replicas.AddRange(partitionReplicas);
                 var partition = SFTestHelpers.FakePartition();
                 partitions.Add(partition);
-                this.Mock_ReplicasResponse(partition, partitionReplicas.ToArray());
+                Mock_ReplicasResponse(partition, partitionReplicas.ToArray());
             }
-            this.Mock_PartitionsResponse(svcName, partitions.ToArray());
+            Mock_PartitionsResponse(svcName, partitions.ToArray());
             return service;
         }
         private void Mock_AppsResponse(params ApplicationWrapper[] apps)
         {
-            this.Mock<IServiceFabricCaller>()
+            Mock<IServiceFabricCaller>()
                 .Setup(m => m.GetApplicationListAsync(It.IsAny<CancellationToken>()))
                 .ReturnsAsync(apps.ToList());
         }
         private void Mock_ServicesResponse(Uri applicationName, params ServiceWrapper[] services)
         {
-            this.Mock<IServiceFabricCaller>()
+            Mock<IServiceFabricCaller>()
                 .Setup(m => m.GetServiceListAsync(applicationName, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(services.ToList());
         }
         private void Mock_PartitionsResponse(Uri serviceName, params Guid[] partitionIds)
         {
-            this.Mock<IServiceFabricCaller>()
+            Mock<IServiceFabricCaller>()
                 .Setup(m => m.GetPartitionListAsync(serviceName, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(partitionIds.ToList());
         }
         private void Mock_ReplicasResponse(Guid partitionId, params ReplicaWrapper[] replicas)
         {
-            this.Mock<IServiceFabricCaller>()
+            Mock<IServiceFabricCaller>()
                 .Setup(m => m.GetReplicaListAsync(partitionId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(replicas.ToList());
         }
         private void Mock_ServiceLabels(ApplicationWrapper application, ServiceWrapper service, Dictionary<string, string> labels)
         {
-            this.Mock<IServiceFabricExtensionConfigProvider>()
+            Mock<IServiceFabricExtensionConfigProvider>()
                 .Setup(m => m.GetExtensionLabelsAsync(application, service, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(labels);
         }
         private void Mock_ServiceLabelsException(ApplicationWrapper application, ServiceWrapper service, Exception ex)
         {
-            this.Mock<IServiceFabricExtensionConfigProvider>()
+            Mock<IServiceFabricExtensionConfigProvider>()
                 .Setup(m => m.GetExtensionLabelsAsync(application, service, It.IsAny<CancellationToken>()))
                 .ThrowsAsync(ex);
         }
@@ -823,7 +819,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
         private string MockReplicaAdressWithListenerName(string appName, string serviceName, string[] listenerNameList)
         {
             var serviceNameUri = new Uri($"fabric:/{appName}/{serviceName}");
-            string address = $"https://127.0.0.1/{serviceNameUri.Authority}/0";
+            var address = $"https://127.0.0.1/{serviceNameUri.Authority}/0";
 
             var endpoints = new Dictionary<string, string>();
             foreach (var lisernerName in listenerNameList)
@@ -831,9 +827,8 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                 endpoints.Add(lisernerName, address);
             }
 
-            string replicaAddress = JsonSerializer.Serialize(
-                new
-                {
+            var replicaAddress = JsonSerializer.Serialize(
+                new {
                     Endpoints = endpoints,
                 });
 

@@ -21,13 +21,13 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
         private const string ServiceManifestName = "ThisCoolTestManifest";
         private const string ServiceTypeName = "WebServiceType";
         private const string ServiceFabricName = "fabric:/App1/SvcName";
-        private string rawServiceManifest = "<xml></xml>";
-        private Dictionary<string, string> namingServiceProperties = new Dictionary<string, string>();
-        private Dictionary<string, string> appParams = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, string> _appParams = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        private string _rawServiceManifest = "<xml></xml>";
+        private Dictionary<string, string> _namingServiceProperties = new Dictionary<string, string>();
 
         public ServiceFabricExtensionConfigProviderTests()
         {
-            this.Mock<IServiceFabricCaller>()
+            Mock<IServiceFabricCaller>()
                 .Setup(
                     m => m.GetServiceManifestName(
                         ApplicationTypeName,
@@ -36,28 +36,28 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                         It.IsAny<CancellationToken>()))
                 .ReturnsAsync(() => ServiceManifestName);
 
-            this.Mock<IServiceFabricCaller>()
+            Mock<IServiceFabricCaller>()
                 .Setup(
                     m => m.GetServiceManifestAsync(
                         ApplicationTypeName,
                         ApplicationTypeVersion,
                         ServiceManifestName,
                         It.IsAny<CancellationToken>()))
-                .ReturnsAsync(() => this.rawServiceManifest);
+                .ReturnsAsync(() => _rawServiceManifest);
 
-            this.Mock<IServiceFabricCaller>()
+            Mock<IServiceFabricCaller>()
                 .Setup(
                     m => m.EnumeratePropertiesAsync(
                         It.Is<Uri>(name => name.ToString() == ServiceFabricName),
                         It.IsAny<CancellationToken>()))
-                .ReturnsAsync(() => this.namingServiceProperties);
+                .ReturnsAsync(() => _namingServiceProperties);
         }
 
         [Fact]
         public async void GetExtensionLabels_UnexistingServiceTypeName_NoLabels()
         {
             // Arrange
-            this.rawServiceManifest =
+            _rawServiceManifest =
                 $@"<ServiceManifest xmlns='{ServiceFabricExtensionConfigProvider.XNSServiceManifest}'>
                   <ServiceTypes>
                     <StatelessServiceType ServiceTypeName='AnotherService'>
@@ -66,7 +66,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                 </ServiceManifest>";
 
             // Act
-            var labels = await this.RunScenarioAsync();
+            var labels = await RunScenarioAsync();
 
             // TODO: consider throwing if the servicetypename does not exist
             // Assert
@@ -77,7 +77,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
         public async void GetExtensionLabels_NoExtensions_NoLabels()
         {
             // Arrange
-            this.rawServiceManifest =
+            _rawServiceManifest =
                 $@"<ServiceManifest xmlns='{ServiceFabricExtensionConfigProvider.XNSServiceManifest}'>
                   <ServiceTypes>
                     <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
@@ -86,7 +86,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                 </ServiceManifest>";
 
             // Act
-            var labels = await this.RunScenarioAsync();
+            var labels = await RunScenarioAsync();
 
             // Assert
             labels.Should().Equal(new Dictionary<string, string>());
@@ -96,7 +96,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
         public async void GetExtensionLabels_NoLabelsInExtensions_NoLabels()
         {
             // Arrange
-            this.rawServiceManifest =
+            _rawServiceManifest =
                 $@"<ServiceManifest xmlns='{ServiceFabricExtensionConfigProvider.XNSServiceManifest}'>
                 <ServiceTypes>
                     <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
@@ -117,7 +117,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                 ";
 
             // Act
-            var labels = await this.RunScenarioAsync();
+            var labels = await RunScenarioAsync();
 
             // Assert
             labels.Should().Equal(new Dictionary<string, string>());
@@ -127,7 +127,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
         public async void GetExtensionLabels_NoIslandGatewayExtensions_NoLabels()
         {
             // Arrange
-            this.rawServiceManifest =
+            _rawServiceManifest =
                 $@"<ServiceManifest xmlns='{ServiceFabricExtensionConfigProvider.XNSServiceManifest}'>
                 <ServiceTypes>
                     <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
@@ -144,7 +144,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                 ";
 
             // Act
-            var labels = await this.RunScenarioAsync();
+            var labels = await RunScenarioAsync();
 
             // Assert
             labels.Should().Equal(new Dictionary<string, string>());
@@ -154,7 +154,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
         public async void GetExtensionLabels_LabelsInManifestExtensions_GatheredCorrectly()
         {
             // Arrange
-            this.rawServiceManifest =
+            _rawServiceManifest =
                 $@"<ServiceManifest xmlns='{ServiceFabricExtensionConfigProvider.XNSServiceManifest}'>
                 <ServiceTypes>
                     <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
@@ -172,7 +172,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                 ";
 
             // Act
-            var labels = await this.RunScenarioAsync();
+            var labels = await RunScenarioAsync();
 
             // Assert
             labels.Should().Equal(
@@ -187,7 +187,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
         public async void GetExtensionLabels_AppParamReplacements_Replaces()
         {
             // Arrange
-            this.rawServiceManifest =
+            _rawServiceManifest =
                 $@"<ServiceManifest xmlns='{ServiceFabricExtensionConfigProvider.XNSServiceManifest}'>
                   <ServiceTypes>
                     <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
@@ -203,10 +203,10 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                   </ServiceTypes>
                 </ServiceManifest>";
 
-            this.appParams["someAppParam"] = "replaced successfully!";
+            _appParams["someAppParam"] = "replaced successfully!";
 
             // Act
-            var labels = await this.RunScenarioAsync();
+            var labels = await RunScenarioAsync();
 
             // Assert
             labels.Should().Equal(
@@ -221,7 +221,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
         public async void GetExtensionLabels_AppParamReplacements_MissingAppParams_ReplacesWithEmpty()
         {
             // Arrange
-            this.rawServiceManifest =
+            _rawServiceManifest =
                 $@"<ServiceManifest xmlns='{ServiceFabricExtensionConfigProvider.XNSServiceManifest}'>
                   <ServiceTypes>
                     <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
@@ -238,7 +238,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                 </ServiceManifest>";
 
             // Act
-            var labels = await this.RunScenarioAsync();
+            var labels = await RunScenarioAsync();
 
             // Assert
             labels.Should().Equal(
@@ -253,7 +253,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
         public async void GetExtensionLabels_MultipleExtensions_OnlyIslandGatewayLabelsAreGathered()
         {
             // Arrange
-            this.rawServiceManifest =
+            _rawServiceManifest =
                 $@"<ServiceManifest xmlns='{ServiceFabricExtensionConfigProvider.XNSServiceManifest}'>
                 <ServiceTypes>
                     <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
@@ -266,7 +266,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                             <Extension Name='IslandGateway'>
                             <Labels xmlns='{ServiceFabricExtensionConfigProvider.XNSIslandGateway}'>
                                 <Label Key='IslandGateway.Enable'>true</Label>
-                                <Label Key='IslandGateway.routes.route1.rule'>Host('example.com')</Label>
+                                <Label Key='IslandGateway.routes.route1.Host'>example.com</Label>
                             </Labels>
                             </Extension>
                         </Extensions>
@@ -276,14 +276,14 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                 ";
 
             // Act
-            var labels = await this.RunScenarioAsync();
+            var labels = await RunScenarioAsync();
 
             // Assert
             labels.Should().Equal(
                 new Dictionary<string, string>
                 {
                     { "IslandGateway.Enable", "true" },
-                    { "IslandGateway.routes.route1.rule", "Host('example.com')" },
+                    { "IslandGateway.routes.route1.Host", "example.com" },
                 });
         }
 
@@ -291,7 +291,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
         public async void GetExtensionLabels_OverridesEnabled_NewLabelsFromPropertiesGatheredCorrectly()
         {
             // Arrange
-            this.rawServiceManifest =
+            _rawServiceManifest =
                 $@"<ServiceManifest xmlns='{ServiceFabricExtensionConfigProvider.XNSServiceManifest}'>
                 <ServiceTypes>
                     <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
@@ -306,22 +306,22 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                 </ServiceTypes>
                 </ServiceManifest>
                 ";
-            this.namingServiceProperties =
+            _namingServiceProperties =
                 new Dictionary<string, string>
                 {
                     { "IslandGateway.Enable", "true" },
-                    { "IslandGateway.routes.route1.rule", "Host('example.com')" },
+                    { "IslandGateway.routes.route1.Host", "example.com" },
                 };
 
             // Act
-            var labels = await this.RunScenarioAsync();
+            var labels = await RunScenarioAsync();
 
             // Assert
             labels.Should().Equal(
                 new Dictionary<string, string>
                 {
                     { "IslandGateway.Enable", "true" },
-                    { "IslandGateway.routes.route1.rule", "Host('example.com')" },
+                    { "IslandGateway.routes.route1.Host", "example.com" },
                     { "IslandGateway.EnableDynamicOverrides", "true" },
                 });
         }
@@ -330,7 +330,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
         public async void GetExtensionLabels_OverridesEnabledValueCaseInsensitive_OverridesAreEnabled()
         {
             // Arrange
-            this.rawServiceManifest =
+            _rawServiceManifest =
                 $@"<ServiceManifest xmlns='{ServiceFabricExtensionConfigProvider.XNSServiceManifest}'>
                 <ServiceTypes>
                     <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
@@ -345,22 +345,22 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                 </ServiceTypes>
                 </ServiceManifest>
                 ";
-            this.namingServiceProperties =
+            _namingServiceProperties =
                 new Dictionary<string, string>
                 {
                     { "IslandGateway.Enable", "true" },
-                    { "IslandGateway.routes.route1.rule", "Host('example.com')" },
+                    { "IslandGateway.routes.route1.Host", "example.com" },
                 };
 
             // Act
-            var labels = await this.RunScenarioAsync();
+            var labels = await RunScenarioAsync();
 
             // Assert
             labels.Should().Equal(
                 new Dictionary<string, string>
                 {
                     { "IslandGateway.Enable", "true" },
-                    { "IslandGateway.routes.route1.rule", "Host('example.com')" },
+                    { "IslandGateway.routes.route1.Host", "example.com" },
                     { "IslandGateway.EnableDynamicOverrides", "True" },
                 });
         }
@@ -369,7 +369,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
         public async void GetExtensionLabels_OverridesEnabled_OnlyIslandGatewayNamespacePropertiesGathered()
         {
             // Arrange
-            this.rawServiceManifest =
+            _rawServiceManifest =
                 $@"<ServiceManifest xmlns='{ServiceFabricExtensionConfigProvider.XNSServiceManifest}'>
                 <ServiceTypes>
                     <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
@@ -384,7 +384,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                 </ServiceTypes>
                 </ServiceManifest>
                 ";
-            this.namingServiceProperties =
+            _namingServiceProperties =
                 new Dictionary<string, string>
                 {
                     { "IslandGateway.Enable", "true" },
@@ -393,7 +393,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                 };
 
             // Act
-            var labels = await this.RunScenarioAsync();
+            var labels = await RunScenarioAsync();
 
             // Assert
             labels.Should().Equal(
@@ -408,7 +408,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
         public async void GetExtensionLabels_OverridesEnabled_PropertiesOverrideManifestCorrectly()
         {
             // Arrange
-            this.rawServiceManifest =
+            _rawServiceManifest =
                 $@"<ServiceManifest xmlns='{ServiceFabricExtensionConfigProvider.XNSServiceManifest}'>
                 <ServiceTypes>
                     <StatefulService ServiceTypeName='{ServiceTypeName}'>
@@ -417,7 +417,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                              <Labels xmlns='{ServiceFabricExtensionConfigProvider.XNSIslandGateway}'>
                                 <Label Key='IslandGateway.Enable'>true</Label>
                                 <Label Key='IslandGateway.EnableDynamicOverrides'>true</Label>
-                                <Label Key='IslandGateway.routes.route1.rule'>Host('example.com')</Label>
+                                <Label Key='IslandGateway.routes.route1.Host'>example.com</Label>
                              </Labels>
                              </Extension>
                         </Extensions>
@@ -425,21 +425,21 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                 </ServiceTypes>
                 </ServiceManifest>
                 ";
-            this.namingServiceProperties =
+            _namingServiceProperties =
                 new Dictionary<string, string>
                 {
                     { "IslandGateway.Enable", "false" },
                 };
 
             // Act
-            var labels = await this.RunScenarioAsync();
+            var labels = await RunScenarioAsync();
 
             // Assert
             labels.Should().Equal(
                 new Dictionary<string, string>
                 {
                     { "IslandGateway.Enable", "false" },
-                    { "IslandGateway.routes.route1.rule", "Host('example.com')" },
+                    { "IslandGateway.routes.route1.Host", "example.com" },
                     { "IslandGateway.EnableDynamicOverrides", "true" },
                 });
         }
@@ -448,7 +448,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
         public async void GetExtensionLabels_OverridesEnabled_LabelKeysAreCaseSensitive()
         {
             // Arrange
-            this.rawServiceManifest =
+            _rawServiceManifest =
                 $@"<ServiceManifest xmlns='{ServiceFabricExtensionConfigProvider.XNSServiceManifest}'>
                 <ServiceTypes>
                     <StatefulService ServiceTypeName='{ServiceTypeName}'>
@@ -457,7 +457,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                              <Labels xmlns='{ServiceFabricExtensionConfigProvider.XNSIslandGateway}'>
                                 <Label Key='IslandGateway.Enable'>true</Label>
                                 <Label Key='IslandGateway.EnableDynamicOverrides'>true</Label>
-                                <Label Key='IslandGateway.routes.route1.rule'>Host('example.com')</Label>
+                                <Label Key='IslandGateway.routes.route1.Host'>example.com</Label>
                              </Labels>
                              </Extension>
                         </Extensions>
@@ -465,23 +465,23 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                 </ServiceTypes>
                 </ServiceManifest>
                 ";
-            this.namingServiceProperties =
+            _namingServiceProperties =
                 new Dictionary<string, string>
                 {
-                    { "IslandGateway.Routes.route1.RULE", "Host('another.example.com')" },
+                    { "IslandGateway.Routes.route1.HOST", "another.example.com" },
                 };
 
             // Act
-            var labels = await this.RunScenarioAsync();
+            var labels = await RunScenarioAsync();
 
             // Assert
             labels.Should().Equal(
                 new Dictionary<string, string>
                 {
                     { "IslandGateway.Enable", "true" },
-                    { "IslandGateway.routes.route1.rule", "Host('example.com')" },
+                    { "IslandGateway.routes.route1.Host", "example.com" },
                     { "IslandGateway.EnableDynamicOverrides", "true" },
-                    { "IslandGateway.Routes.route1.RULE", "Host('another.example.com')" },
+                    { "IslandGateway.Routes.route1.HOST", "another.example.com" },
                 });
         }
 
@@ -489,7 +489,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
         public async void GetExtensionLabels_OverridesDisabiled_PropertiesNotQueried()
         {
             // Arrange
-            this.rawServiceManifest =
+            _rawServiceManifest =
                 $@"<ServiceManifest xmlns='{ServiceFabricExtensionConfigProvider.XNSServiceManifest}'>
                 <ServiceTypes>
                     <StatefulService ServiceTypeName='{ServiceTypeName}'>
@@ -498,7 +498,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                              <Labels xmlns='{ServiceFabricExtensionConfigProvider.XNSIslandGateway}'>
                                 <Label Key='IslandGateway.Enable'>true</Label>
                                 <Label Key='IslandGateway.EnableDynamicOverrides'>false</Label>
-                                <Label Key='IslandGateway.routes.route1.rule'>Host('example.com')</Label>
+                                <Label Key='IslandGateway.routes.route1.host'>example.com</Label>
                              </Labels>
                              </Extension>
                         </Extensions>
@@ -506,32 +506,32 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                 </ServiceTypes>
                 </ServiceManifest>
                 ";
-            this.namingServiceProperties =
+            _namingServiceProperties =
                 new Dictionary<string, string>
                 {
                     { "IslandGateway.Enable", "false" },
                 };
 
             // Act
-            var labels = await this.RunScenarioAsync();
+            var labels = await RunScenarioAsync();
 
             // Assert
             labels.Should().Equal(
                 new Dictionary<string, string>
                 {
                     { "IslandGateway.Enable", "true" },
-                    { "IslandGateway.routes.route1.rule", "Host('example.com')" },
+                    { "IslandGateway.routes.route1.host", "example.com" },
                     { "IslandGateway.EnableDynamicOverrides", "false" },
                 });
 
-            this.Mock<IServiceFabricCaller>().Verify(m => m.EnumeratePropertiesAsync(It.IsAny<Uri>(), It.IsAny<CancellationToken>()), Times.Never());
+            Mock<IServiceFabricCaller>().Verify(m => m.EnumeratePropertiesAsync(It.IsAny<Uri>(), It.IsAny<CancellationToken>()), Times.Never());
         }
 
         [Fact]
         public async void GetExtensionLabels_CaseDifferingLabelKeys_LabelKeysAreCaseSensitive()
         {
             // Arrange
-            this.rawServiceManifest =
+            _rawServiceManifest =
                 $@"<ServiceManifest xmlns='{ServiceFabricExtensionConfigProvider.XNSServiceManifest}'>
                 <ServiceTypes>
                     <StatefulService ServiceTypeName='{ServiceTypeName}'>
@@ -540,8 +540,8 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                              <Labels xmlns='{ServiceFabricExtensionConfigProvider.XNSIslandGateway}'>
                                 <Label Key='IslandGateway.Enable'>true</Label>
                                 <Label Key='IslandGateway.EnableDynamicOverrides'>true</Label>
-                                <Label Key='IslandGateway.routes.ROUTE1.rule'>Host('example.com')</Label>
-                                <Label Key='IslandGateway.routes.route1.rule'>Host('another.example.com')</Label>
+                                <Label Key='IslandGateway.routes.ROUTE1.Host'>example.com</Label>
+                                <Label Key='IslandGateway.routes.route1.host'>another.example.com</Label>
                              </Labels>
                              </Extension>
                         </Extensions>
@@ -549,23 +549,23 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                 </ServiceTypes>
                 </ServiceManifest>
                 ";
-            this.namingServiceProperties =
+            _namingServiceProperties =
                 new Dictionary<string, string>
                 {
-                    { "IslandGateway.routes.Route1.RULE", "Host('bla.foo')" },
+                    { "IslandGateway.routes.Route1.HOST", "bla.foo" },
                 };
 
             // Act
-            var labels = await this.RunScenarioAsync();
+            var labels = await RunScenarioAsync();
 
             // Assert
             labels.Should().Equal(
                 new Dictionary<string, string>
                 {
                     { "IslandGateway.Enable", "true" },
-                    { "IslandGateway.routes.ROUTE1.rule", "Host('example.com')" },
-                    { "IslandGateway.routes.route1.rule", "Host('another.example.com')" },
-                    { "IslandGateway.routes.Route1.RULE", "Host('bla.foo')" },
+                    { "IslandGateway.routes.ROUTE1.Host", "example.com" },
+                    { "IslandGateway.routes.route1.host", "another.example.com" },
+                    { "IslandGateway.routes.Route1.HOST", "bla.foo" },
                     { "IslandGateway.EnableDynamicOverrides", "true" },
                 });
         }
@@ -574,7 +574,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
         public async void GetExtensionLabels_OverridesNotExplicitlyDisabiled_PropertiesNotQueriedByDefault()
         {
             // Arrange
-            this.rawServiceManifest =
+            _rawServiceManifest =
                 $@"<ServiceManifest xmlns='{ServiceFabricExtensionConfigProvider.XNSServiceManifest}'>
                 <ServiceTypes>
                     <StatefulService ServiceTypeName='{ServiceTypeName}'>
@@ -582,7 +582,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                              <Extension Name='IslandGateway'>
                              <Labels xmlns='{ServiceFabricExtensionConfigProvider.XNSIslandGateway}'>
                                 <Label Key='IslandGateway.Enable'>true</Label>
-                                <Label Key='IslandGateway.routes.route1.rule'>Host('example.com')</Label>
+                                <Label Key='IslandGateway.routes.route1.host'>example.com</Label>
                              </Labels>
                              </Extension>
                         </Extensions>
@@ -590,44 +590,44 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                 </ServiceTypes>
                 </ServiceManifest>
                 ";
-            this.namingServiceProperties =
+            _namingServiceProperties =
                 new Dictionary<string, string>
                 {
                     { "IslandGateway.Enable", "false" },
                 };
 
             // Act
-            var labels = await this.RunScenarioAsync();
+            var labels = await RunScenarioAsync();
 
             // Assert
             labels.Should().Equal(
                 new Dictionary<string, string>
                 {
                     { "IslandGateway.Enable", "true" },
-                    { "IslandGateway.routes.route1.rule", "Host('example.com')" },
+                    { "IslandGateway.routes.route1.host", "example.com" },
                 });
 
-            this.Mock<IServiceFabricCaller>().Verify(m => m.EnumeratePropertiesAsync(It.IsAny<Uri>(), It.IsAny<CancellationToken>()), Times.Never());
+            Mock<IServiceFabricCaller>().Verify(m => m.EnumeratePropertiesAsync(It.IsAny<Uri>(), It.IsAny<CancellationToken>()), Times.Never());
         }
 
         [Fact]
         public async void GetExtensionLabels_InvalidManifestXml_Throws()
         {
             // Arrange
-            this.rawServiceManifest = $@"<this is no xml my man";
+            _rawServiceManifest = $@"<this is no xml my man";
 
             // Act
-            Func<Task> func = () => this.RunScenarioAsync();
+            Func<Task> func = () => RunScenarioAsync();
 
             // Assert
-            await func.Should().ThrowAsync<IslandGatewayConfigException>();
+            await func.Should().ThrowAsync<ConfigException>();
         }
 
         [Fact]
         public async void GetExtensionLabels_DuplicatedLabelKeysInManifest_ShouldThrowException()
         {
             // Arrange
-            this.rawServiceManifest =
+            _rawServiceManifest =
                 $@"<ServiceManifest xmlns='{ServiceFabricExtensionConfigProvider.XNSServiceManifest}'>
                 <ServiceTypes>
                     <StatefulService ServiceTypeName='{ServiceTypeName}'>
@@ -635,8 +635,8 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                              <Extension Name='IslandGateway'>
                              <Labels xmlns='{ServiceFabricExtensionConfigProvider.XNSIslandGateway}'>
                                 <Label Key='IslandGateway.Enable'>true</Label>
-                                <Label Key='IslandGateway.routes.route1.rule'>Host('example.com')</Label>
-                                <Label Key='IslandGateway.routes.route1.rule'>Host('example.com')</Label>
+                                <Label Key='IslandGateway.routes.route1.host'>example.com</Label>
+                                <Label Key='IslandGateway.routes.route1.host'>example.com</Label>
                              </Labels>
                              </Extension>
                         </Extensions>
@@ -646,10 +646,10 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                 ";
 
             // Act
-            Func<Task> func = () => this.RunScenarioAsync();
+            Func<Task> func = () => RunScenarioAsync();
 
             // Assert
-            await func.Should().ThrowAsync<IslandGatewayConfigException>();
+            await func.Should().ThrowAsync<ConfigException>();
         }
 
         [Fact]
@@ -657,7 +657,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
         {
             // Arrange
             var longBadString = new string('*', 1024 * 1024);
-            this.rawServiceManifest =
+            _rawServiceManifest =
             $@"<ServiceManifest xmlns='{ServiceFabricExtensionConfigProvider.XNSServiceManifest}'>
             <ServiceTypes>
                 <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
@@ -674,17 +674,17 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
             ";
 
             // Act
-            Func<Task> func = () => this.RunScenarioAsync();
+            Func<Task> func = () => RunScenarioAsync();
 
             // Assert
-            await func.Should().ThrowAsync<IslandGatewayConfigException>();
+            await func.Should().ThrowAsync<ConfigException>();
         }
 
         [Fact]
         public async void GetExtensionLabels_WithDTD_ShouldThrowException()
         {
             // Arrange
-            this.rawServiceManifest =
+            _rawServiceManifest =
                 $@"
                 <!DOCTYPE xxe [
                     <!ENTITY  chybeta  ""Melicious DTD value here."">
@@ -705,15 +705,15 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                 ";
 
             // Act
-            Func<Task> func = () => this.RunScenarioAsync();
+            Func<Task> func = () => RunScenarioAsync();
 
             // Assert
-            await func.Should().ThrowAsync<IslandGatewayConfigException>();
+            await func.Should().ThrowAsync<ConfigException>();
         }
 
         private async Task<Dictionary<string, string>> RunScenarioAsync()
         {
-            var configProvider = this.Create<ServiceFabricExtensionConfigProvider>();
+            var configProvider = Create<ServiceFabricExtensionConfigProvider>();
 
             return await configProvider.GetExtensionLabelsAsync(
                 application: new ApplicationWrapper
@@ -721,7 +721,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                     ApplicationName = new Uri(ApplicationName),
                     ApplicationTypeName = ApplicationTypeName,
                     ApplicationTypeVersion = ApplicationTypeVersion,
-                    ApplicationParameters = this.appParams,
+                    ApplicationParameters = _appParams,
                 },
                 service: new ServiceWrapper
                 {

@@ -209,16 +209,12 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
                 return true;
             }
 
-            switch (statefulReplicaSelectionMode)
+            return statefulReplicaSelectionMode switch
             {
-                case StatefulReplicaSelectionMode.Primary:
-                    return replica.Role == ReplicaRole.Primary;
-                case StatefulReplicaSelectionMode.ActiveSecondary:
-                    return replica.Role == ReplicaRole.ActiveSecondary;
-                case StatefulReplicaSelectionMode.All:
-                default:
-                    return true;
-            }
+                StatefulReplicaSelectionMode.Primary => replica.Role == ReplicaRole.Primary,
+                StatefulReplicaSelectionMode.ActiveSecondary => replica.Role == ReplicaRole.ActiveSecondary,
+                _ => true,
+            };
         }
 
         /// <summary>

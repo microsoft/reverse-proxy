@@ -16,6 +16,8 @@
   <ItemGroup>
     <InternalsVisibleTo Include="DynamicProxyGenAssembly2" Key="$(MoqPublicKey)" />
     <InternalsVisibleTo Include="Microsoft.ReverseProxy.Tests" />
+    <InternalsVisibleTo Include="Microsoft.ReverseProxy.Tests.Common" />
+    
 
     <!-- TODO: Remove once architectural debt is paid. -->
     <InternalsVisibleTo Include="Microsoft.ReverseProxy.ServiceFabricIntegration" />

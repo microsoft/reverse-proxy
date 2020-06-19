@@ -21,7 +21,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
             var allowedScheme = "https";
             var endpointAddress = "https://localhost:123/valid";
 
-            string endpoints = $@"{{
+            var endpoints = $@"{{
                 'Endpoints': {{
                     'DifferentServiceEndpoint1': 'https://localhost:123/query',
                     'DifferentServiceEndpoint2': 'https://loopback:123/query',
@@ -35,10 +35,10 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                 listenerNames: new[] { listenerName },
                 allowedSchemePredicate: (scheme) => scheme == allowedScheme,
                 emptyStringMatchesAnyListener: emptyStringMatchesAnyListener);
-            ServiceEndpointCollection.TryParseEndpointsString(endpoints, out ServiceEndpointCollection serviceEndpointCollection);
+            ServiceEndpointCollection.TryParseEndpointsString(endpoints, out var serviceEndpointCollection);
 
             // Act + Assert
-            FabricServiceEndpointSelector.TryGetEndpoint(fabricServiceEndpoint, serviceEndpointCollection, out Uri endpointUri)
+            FabricServiceEndpointSelector.TryGetEndpoint(fabricServiceEndpoint, serviceEndpointCollection, out var endpointUri)
                 .Should().BeTrue("There should be a matching endpoint");
             endpointUri.ToString().Should().BeEquivalentTo(endpointAddress);
         }
@@ -51,7 +51,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
             var emptyStringMatchesAnyListener = true;
             var allowedScheme = "https";
 
-            string endpoints = $@"{{
+            var endpoints = $@"{{
                 'Endpoints': {{
                     'SelectedServiceEndpoint': 'https://localhost:123/selected',
                     'notSelected1': 'https://loopback:123/query',
@@ -63,10 +63,10 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                 listenerNames: new[] { string.Empty },
                 allowedSchemePredicate: (scheme) => scheme == allowedScheme,
                 emptyStringMatchesAnyListener: emptyStringMatchesAnyListener);
-            ServiceEndpointCollection.TryParseEndpointsString(endpoints, out ServiceEndpointCollection serviceEndpointCollection);
+            ServiceEndpointCollection.TryParseEndpointsString(endpoints, out var serviceEndpointCollection);
 
             // Act + Assert
-            FabricServiceEndpointSelector.TryGetEndpoint(fabricServiceEndpoint, serviceEndpointCollection, out Uri endpointUri)
+            FabricServiceEndpointSelector.TryGetEndpoint(fabricServiceEndpoint, serviceEndpointCollection, out var endpointUri)
                 .Should().BeTrue("There should be a matching endpoint");
             endpointUri.ToString().Should().BeEquivalentTo("https://localhost:123/selected");
         }
@@ -81,7 +81,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
             var allowedScheme = "https";
             var endpointAddress = "https://localhost:123/valid";
 
-            string endpoints = $@"{{
+            var endpoints = $@"{{
                 'Endpoints': {{
                     'DifferentServiceEndpoint1': 'https://localhost:123/query',
                     'DifferentServiceEndpoint2': 'https://loopback:123/query',
@@ -95,10 +95,10 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                 listenerNames: new[] { listenerName },
                 allowedSchemePredicate: (scheme) => scheme == allowedScheme,
                 emptyStringMatchesAnyListener: emptyStringMatchesAnyListener);
-            ServiceEndpointCollection.TryParseEndpointsString(endpoints, out ServiceEndpointCollection serviceEndpointCollection);
+            ServiceEndpointCollection.TryParseEndpointsString(endpoints, out var serviceEndpointCollection);
 
             // Act + Assert
-            FabricServiceEndpointSelector.TryGetEndpoint(fabricServiceEndpoint, serviceEndpointCollection, out Uri endpointUri)
+            FabricServiceEndpointSelector.TryGetEndpoint(fabricServiceEndpoint, serviceEndpointCollection, out var endpointUri)
                 .Should().BeTrue("There should be a matching endpoint");
             endpointUri.ToString().Should().BeEquivalentTo(endpointAddress);
         }
@@ -112,7 +112,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
             var listenerName = "ServiceEndpoint";
             var allowedScheme = "https";
 
-            string endpoints = $@"{{
+            var endpoints = $@"{{
                 'Endpoints': {{
                     'DifferentServiceEndpoint1': 'https://localhost:123/query',
                     'DifferentServiceEndpoint2': 'https://loopback:123/query',
@@ -125,10 +125,10 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                 listenerNames: new[] { listenerName },
                 allowedSchemePredicate: (scheme) => scheme == allowedScheme,
                 emptyStringMatchesAnyListener: emptyStringMatchesAnyListener);
-            ServiceEndpointCollection.TryParseEndpointsString(endpoints, out ServiceEndpointCollection serviceEndpointCollection);
+            ServiceEndpointCollection.TryParseEndpointsString(endpoints, out var serviceEndpointCollection);
 
             // Act + Assert
-            FabricServiceEndpointSelector.TryGetEndpoint(fabricServiceEndpoint, serviceEndpointCollection, out Uri endpointUri)
+            FabricServiceEndpointSelector.TryGetEndpoint(fabricServiceEndpoint, serviceEndpointCollection, out var endpointUri)
                 .Should().BeFalse("No matching named endpoint.");
             endpointUri.Should().BeNull();
         }
@@ -143,7 +143,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
             var allowedScheme = "http";
             var endpointAddress = "https://localhost:123/valid";
 
-            string endpoints = $@"{{
+            var endpoints = $@"{{
                 'Endpoints': {{
                     'DifferentServiceEndpoint1': 'https://localhost:123/query',
                     'DifferentServiceEndpoint2': 'https://loopback:123/query',
@@ -157,10 +157,10 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                 listenerNames: new[] { listenerName },
                 allowedSchemePredicate: (scheme) => scheme == allowedScheme,
                 emptyStringMatchesAnyListener: emptyStringMatchesAnyListener);
-            ServiceEndpointCollection.TryParseEndpointsString(endpoints, out ServiceEndpointCollection serviceEndpointCollection);
+            ServiceEndpointCollection.TryParseEndpointsString(endpoints, out var serviceEndpointCollection);
 
             // Act + Assert
-            FabricServiceEndpointSelector.TryGetEndpoint(fabricServiceEndpoint, serviceEndpointCollection, out Uri endpointUri)
+            FabricServiceEndpointSelector.TryGetEndpoint(fabricServiceEndpoint, serviceEndpointCollection, out var endpointUri)
                 .Should().BeFalse("No matching endpoint with specified scheme.");
             endpointUri.Should().BeNull();
         }
@@ -175,7 +175,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
             var allowedScheme = "https";
             var endpointAddress = "https://localhost:123/valid";
 
-            string endpoints = $@"{{
+            var endpoints = $@"{{
                 'Endpoints': {{
                     'DifferentServiceEndpoint1': '/malformed',
                     'DifferentServiceEndpoint2': '/malformed',
@@ -189,10 +189,10 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                 listenerNames: new[] { listenerName },
                 allowedSchemePredicate: (scheme) => scheme == allowedScheme,
                 emptyStringMatchesAnyListener: emptyStringMatchesAnyListener);
-            ServiceEndpointCollection.TryParseEndpointsString(endpoints, out ServiceEndpointCollection serviceEndpointCollection);
+            ServiceEndpointCollection.TryParseEndpointsString(endpoints, out var serviceEndpointCollection);
 
             // Act + Assert
-            FabricServiceEndpointSelector.TryGetEndpoint(fabricServiceEndpoint, serviceEndpointCollection, out Uri endpointUri)
+            FabricServiceEndpointSelector.TryGetEndpoint(fabricServiceEndpoint, serviceEndpointCollection, out var endpointUri)
                 .Should().BeTrue("There should be a matching endpoint");
             endpointUri.ToString().Should().BeEquivalentTo(endpointAddress);
         }
@@ -207,7 +207,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
             var allowedScheme = "https";
             var endpointAddress = "https://localhost:123/valid";
 
-            string endpoints = $@"{{
+            var endpoints = $@"{{
                 'Endpoints': {{
                     'DifferentServiceEndpoint1': '/malformed',
                     'DifferentServiceEndpoint2': '/malformed',
@@ -221,10 +221,10 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                 listenerNames: new[] { listenerName },
                 allowedSchemePredicate: (scheme) => scheme == allowedScheme,
                 emptyStringMatchesAnyListener: emptyStringMatchesAnyListener);
-            ServiceEndpointCollection.TryParseEndpointsString(endpoints, out ServiceEndpointCollection serviceEndpointCollection);
+            ServiceEndpointCollection.TryParseEndpointsString(endpoints, out var serviceEndpointCollection);
 
             // Act + Assert
-            FabricServiceEndpointSelector.TryGetEndpoint(fabricServiceEndpoint, serviceEndpointCollection, out Uri endpointUri)
+            FabricServiceEndpointSelector.TryGetEndpoint(fabricServiceEndpoint, serviceEndpointCollection, out var endpointUri)
                 .Should().BeTrue("There should be a matching endpoint");
             endpointUri.ToString().Should().BeEquivalentTo(endpointAddress);
         }
@@ -239,7 +239,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
             var allowedScheme = "https";
             var endpointAddress = "https://localhost:123/valid";
 
-            string endpoints = $@"{{
+            var endpoints = $@"{{
                 'Endpoints': {{
                     'DifferentServiceEndpoint1': '/malformed',
                     'ServiceEndpointSecure': 'http://localhost/invalidScheme',
@@ -251,10 +251,10 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                 listenerNames: listenerNames,
                 allowedSchemePredicate: (scheme) => scheme == allowedScheme,
                 emptyStringMatchesAnyListener: emptyStringMatchesAnyListener);
-            ServiceEndpointCollection.TryParseEndpointsString(endpoints, out ServiceEndpointCollection serviceEndpointCollection);
+            ServiceEndpointCollection.TryParseEndpointsString(endpoints, out var serviceEndpointCollection);
 
             // Act + Assert
-            FabricServiceEndpointSelector.TryGetEndpoint(fabricServiceEndpoint, serviceEndpointCollection, out Uri endpointUri)
+            FabricServiceEndpointSelector.TryGetEndpoint(fabricServiceEndpoint, serviceEndpointCollection, out var endpointUri)
                 .Should().BeTrue("There should be a matching endpoint");
             endpointUri.ToString().Should().BeEquivalentTo(endpointAddress);
         }
@@ -268,7 +268,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
             var listenerName = "ServiceEndpointSecure";
             var allowedScheme = "https";
 
-            string endpoints = $@"{{
+            var endpoints = $@"{{
                 'Endpoints': {{
                     'DifferentServiceEndpoint1': '/malformed',
                     '{listenerName}': 'http://localhost/invalidScheme',
@@ -279,10 +279,10 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                 listenerNames: new[] { listenerName },
                 allowedSchemePredicate: (scheme) => scheme == allowedScheme,
                 emptyStringMatchesAnyListener: emptyStringMatchesAnyListener);
-            ServiceEndpointCollection.TryParseEndpointsString(endpoints, out ServiceEndpointCollection serviceEndpointCollection);
+            ServiceEndpointCollection.TryParseEndpointsString(endpoints, out var serviceEndpointCollection);
 
             // Act + Assert
-            FabricServiceEndpointSelector.TryGetEndpoint(fabricServiceEndpoint, serviceEndpointCollection, out Uri endpointUri)
+            FabricServiceEndpointSelector.TryGetEndpoint(fabricServiceEndpoint, serviceEndpointCollection, out var endpointUri)
                 .Should().BeFalse("There should be no matching endpoint because of scheme mismatch.");
             endpointUri.Should().BeNull();
         }
@@ -297,7 +297,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
             var allowedScheme = "https";
             var endpointAddress = "/alsoMalformed";
 
-            string endpoints = $@"{{
+            var endpoints = $@"{{
                 'Endpoints': {{
                     'DifferentServiceEndpoint1': '/malformed',
                     'DifferentServiceEndpoint2': '/malformed',
@@ -311,10 +311,10 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                 listenerNames: new[] { listenerName },
                 allowedSchemePredicate: (scheme) => scheme == allowedScheme,
                 emptyStringMatchesAnyListener: emptyStringMatchesAnyListener);
-            ServiceEndpointCollection.TryParseEndpointsString(endpoints, out ServiceEndpointCollection serviceEndpointCollection);
+            ServiceEndpointCollection.TryParseEndpointsString(endpoints, out var serviceEndpointCollection);
 
             // Act + Assert
-            FabricServiceEndpointSelector.TryGetEndpoint(fabricServiceEndpoint, serviceEndpointCollection, out Uri endpointUri)
+            FabricServiceEndpointSelector.TryGetEndpoint(fabricServiceEndpoint, serviceEndpointCollection, out var endpointUri)
                 .Should().BeFalse("There should be no matching endpoint");
             endpointUri.Should().BeNull();
         }
@@ -329,7 +329,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
             var allowedScheme = "https";
             var endpointAddress = "/alsoMalformed";
 
-            string endpoints = $@"{{
+            var endpoints = $@"{{
                 'Endpoints': {{
                     'DifferentServiceEndpoint1': '/malformed',
                     'DifferentServiceEndpoint2': '/malformed',
@@ -343,10 +343,10 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Tests
                 listenerNames: new[] { listenerName },
                 allowedSchemePredicate: (scheme) => scheme == allowedScheme,
                 emptyStringMatchesAnyListener: emptyStringMatchesAnyListener);
-            ServiceEndpointCollection.TryParseEndpointsString(endpoints, out ServiceEndpointCollection serviceEndpointCollection);
+            ServiceEndpointCollection.TryParseEndpointsString(endpoints, out var serviceEndpointCollection);
 
             // Act + Assert
-            FabricServiceEndpointSelector.TryGetEndpoint(fabricServiceEndpoint, serviceEndpointCollection, out Uri endpointUri)
+            FabricServiceEndpointSelector.TryGetEndpoint(fabricServiceEndpoint, serviceEndpointCollection, out var endpointUri)
                 .Should().BeFalse("There should be no matching endpoint");
             endpointUri.Should().BeNull();
         }

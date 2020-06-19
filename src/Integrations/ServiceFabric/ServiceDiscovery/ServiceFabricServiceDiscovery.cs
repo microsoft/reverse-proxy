@@ -17,7 +17,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
     {
         private readonly ILogger<ServiceFabricServiceDiscovery> _logger;
         private readonly IMonotonicTimer _timer;
-        private readonly IReverseProxyConfigManager _gatewayManager;
+        private readonly IReverseProxyConfigManager _proxyManager;
         private readonly IServiceFabricDiscoveryWorker _serviceFabricDiscoveryWorker;
         private Task _serviceFabricDiscoveryTask;
         private CancellationTokenSource _cts;
@@ -29,17 +29,17 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
         public ServiceFabricServiceDiscovery(
             ILogger<ServiceFabricServiceDiscovery> logger,
             IMonotonicTimer timer,
-            IReverseProxyConfigManager gatewayManager,
+            IReverseProxyConfigManager proxyManager,
             IServiceFabricDiscoveryWorker serviceFabricDiscoveryWorker)
         {
             Contracts.CheckValue(logger, nameof(logger));
             Contracts.CheckValue(timer, nameof(timer));
-            Contracts.CheckValue(gatewayManager, nameof(gatewayManager));
+            Contracts.CheckValue(proxyManager, nameof(proxyManager));
             Contracts.CheckValue(serviceFabricDiscoveryWorker, nameof(serviceFabricDiscoveryWorker));
 
             _logger = logger;
             _timer = timer;
-            _gatewayManager = gatewayManager;
+            _proxyManager = proxyManager;
             _serviceFabricDiscoveryWorker = serviceFabricDiscoveryWorker;
         }
 
@@ -104,7 +104,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
                 {
                     cancellation.ThrowIfCancellationRequested();
                     await _serviceFabricDiscoveryWorker.ExecuteAsync(_options, cancellation);
-                    await _gatewayManager.ApplyConfigurationsAsync(errorReporter, cancellation);
+                    await _proxyManager.ApplyConfigurationsAsync(errorReporter, cancellation);
                     await _timer.Delay(_options.DiscoveryPeriod, cancellation);
                 }
                 catch (OperationCanceledException) when (cancellation.IsCancellationRequested)
