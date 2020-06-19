@@ -9,12 +9,12 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Microsoft.ReverseProxy.Utilities
+namespace Tests.Common
 {
     /// <summary>
     /// Extensions for the <see cref="Task"/> class.
     /// </summary>
-    internal static class TaskExtensions
+    public static class TaskExtensions
     {
         /// <summary>
         /// Runs an action on the current scheduler instead of the default scheduler.
