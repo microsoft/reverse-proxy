@@ -27,7 +27,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
         internal static readonly string DefaultPartitioningAlgorithm = "SHA256";
         internal static readonly int? DefaultRoutePriority = null;
 
-        private static readonly Regex AllowedRouteNamesRegex = new Regex("^[a-zA-Z0-9_-]+$");
+        private static readonly Regex _allowedRouteNamesRegex = new Regex("^[a-zA-Z0-9_-]+$");
 
         internal static TValue GetLabel<TValue>(Dictionary<string, string> labels, string key, TValue defaultValue)
         {
@@ -68,7 +68,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
                         continue;
                     }
                     var routeName = suffix.Substring(0, routeNameLength);
-                    if (!AllowedRouteNamesRegex.IsMatch(routeName))
+                    if (!_allowedRouteNamesRegex.IsMatch(routeName))
                     {
                         throw new ConfigException($"Invalid route name '{routeName}', should only contain alphanumerical characters, underscores or hyphens.");
                     }
@@ -96,7 +96,6 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
                 }
                 labels.TryGetValue($"{thisRoutePrefix}.Path", out var path);
 
-                labels.TryGetValue($"{thisRoutePrefix}.Transformations", out var transformations);
                 var route = new ProxyRoute
                 {
                     RouteId = $"{Uri.EscapeDataString(backendId)}:{Uri.EscapeDataString(routeName)}",

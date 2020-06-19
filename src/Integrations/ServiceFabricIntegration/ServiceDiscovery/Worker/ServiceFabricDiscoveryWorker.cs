@@ -25,7 +25,6 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
         public static readonly string HealthReportProperty = "IslandGatewayConfig";
 
         private readonly ILogger<ServiceFabricDiscoveryWorker> _logger;
-        private readonly IOperationLogger<ServiceFabricDiscoveryWorker> _operationLogger;
         private readonly IServiceFabricExtensionConfigProvider _serviceFabricExtensionConfigProvider;
         private readonly IServiceFabricCaller _serviceFabricCaller;
         private readonly IClustersRepo _clustersRepo;
@@ -36,21 +35,18 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
         /// </summary>
         public ServiceFabricDiscoveryWorker(
             ILogger<ServiceFabricDiscoveryWorker> logger,
-            IOperationLogger<ServiceFabricDiscoveryWorker> operationLogger,
             IServiceFabricCaller serviceFabricCaller,
             IServiceFabricExtensionConfigProvider serviceFabricExtensionConfigProvider,
             IClustersRepo clustersRepo,
             IRoutesRepo routesRepo)
         {
             Contracts.CheckValue(logger, nameof(logger));
-            Contracts.CheckValue(operationLogger, nameof(operationLogger));
             Contracts.CheckValue(serviceFabricCaller, nameof(serviceFabricCaller));
             Contracts.CheckValue(serviceFabricExtensionConfigProvider, nameof(serviceFabricExtensionConfigProvider));
             Contracts.CheckValue(clustersRepo, nameof(clustersRepo));
             Contracts.CheckValue(routesRepo, nameof(routesRepo));
 
             _logger = logger;
-            _operationLogger = operationLogger;
             _serviceFabricCaller = serviceFabricCaller;
             _serviceFabricExtensionConfigProvider = serviceFabricExtensionConfigProvider;
             _clustersRepo = clustersRepo;
@@ -350,7 +346,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
                     TimeToLive = HealthReportTimeToLive(options),
                     RemoveWhenExpired = true,
                 });
-            var sendOptions = new HealthReportSendOptions { Immediate = (state != HealthState.Ok) ? true : false }; // Report immediately if unhealthy
+            var sendOptions = new HealthReportSendOptions { Immediate = state != HealthState.Ok }; // Report immediately if unhealthy
             try
             {
                 _serviceFabricCaller.ReportHealth(healthReport, sendOptions);
@@ -404,7 +400,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
                     return;
             }
 
-            var sendOptions = new HealthReportSendOptions { Immediate = (state != HealthState.Ok) ? true : false }; // Report immediately if unhealthy
+            var sendOptions = new HealthReportSendOptions { Immediate = state != HealthState.Ok }; // Report immediately if unhealthy
             try
             {
                 _serviceFabricCaller.ReportHealth(healthReport, sendOptions);

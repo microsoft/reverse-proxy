@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Configuration.DependencyInjection;
 
 namespace Microsoft.ReverseProxy.ServiceFabricIntegration

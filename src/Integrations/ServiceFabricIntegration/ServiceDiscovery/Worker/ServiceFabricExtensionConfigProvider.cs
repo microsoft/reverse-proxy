@@ -22,10 +22,8 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
         internal static readonly XNamespace XNSIslandGateway = "http://schemas.microsoft.com/2015/03/fabact-no-schema";
         internal static readonly XName XNameLabel = XNSIslandGateway + "Label";
         internal static readonly XName XNameLabels = XNSIslandGateway + "Labels";
-        private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(60);
 
         private readonly ILogger<ServiceFabricExtensionConfigProvider> _logger;
-        private readonly IOperationLogger<ServiceFabricExtensionConfigProvider> _operationLogger;
         private readonly IServiceFabricCaller _serviceFabricCaller;
 
         /// <summary>
@@ -33,15 +31,12 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
         /// </summary>
         public ServiceFabricExtensionConfigProvider(
             ILogger<ServiceFabricExtensionConfigProvider> logger,
-            IOperationLogger<ServiceFabricExtensionConfigProvider> operationLogger,
             IServiceFabricCaller serviceFabricCaller)
         {
             Contracts.CheckValue(logger, nameof(logger));
-            Contracts.CheckValue(operationLogger, nameof(operationLogger));
             Contracts.CheckValue(serviceFabricCaller, nameof(serviceFabricCaller));
 
             _logger = logger;
-            _operationLogger = operationLogger;
             _serviceFabricCaller = serviceFabricCaller;
         }
 

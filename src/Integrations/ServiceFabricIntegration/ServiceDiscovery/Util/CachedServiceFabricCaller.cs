@@ -17,9 +17,8 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
     internal sealed class CachedServiceFabricCaller : IServiceFabricCaller
     {
         public static readonly TimeSpan CacheExpirationOffset = TimeSpan.FromMinutes(30);
-        private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(60);
+        private static readonly TimeSpan _defaultTimeout = TimeSpan.FromSeconds(60);
 
-        private readonly ILogger _logger;
         private readonly IOperationLogger<CachedServiceFabricCaller> _operationLogger;
         private readonly IMonotonicTimer _timer;
         private readonly IQueryClientWrapper _queryClientWrapper;
@@ -36,7 +35,6 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
         private readonly Cache<IDictionary<string, string>> _propertiesCache;
 
         public CachedServiceFabricCaller(
-            ILogger<CachedServiceFabricCaller> logger,
             IOperationLogger<CachedServiceFabricCaller> operationLogger,
             IMonotonicTimer timer,
             IQueryClientWrapper queryClientWrapper,
@@ -44,7 +42,6 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
             IPropertyManagementClientWrapper propertyManagementClientWrapper,
             IHealthClientWrapper healthClientWrapper)
         {
-            Contracts.CheckValue(logger, nameof(logger));
             Contracts.CheckValue(operationLogger, nameof(operationLogger));
             Contracts.CheckValue(timer, nameof(timer));
             Contracts.CheckValue(queryClientWrapper, nameof(queryClientWrapper));
@@ -52,7 +49,6 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
             Contracts.CheckValue(propertyManagementClientWrapper, nameof(propertyManagementClientWrapper));
             Contracts.CheckValue(healthClientWrapper, nameof(healthClientWrapper));
 
-            _logger = logger;
             _operationLogger = operationLogger;
             _timer = timer;
             _queryClientWrapper = queryClientWrapper;
@@ -73,7 +69,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
         {
             return await TryWithCacheFallbackAsync(
                 operationName: "IslandGateway.ServiceFabric.GetApplicationList",
-                func: () => _queryClientWrapper.GetApplicationListAsync(timeout: DefaultTimeout, cancellationToken: cancellation),
+                func: () => _queryClientWrapper.GetApplicationListAsync(timeout: _defaultTimeout, cancellationToken: cancellation),
                 cache: _applicationListCache,
                 key: string.Empty,
                 cancellation);
@@ -82,7 +78,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
         {
             return await TryWithCacheFallbackAsync(
                 operationName: "IslandGateway.ServiceFabric.GetServiceList",
-                func: () => _queryClientWrapper.GetServiceListAsync(applicationName: applicationName, timeout: DefaultTimeout, cancellation),
+                func: () => _queryClientWrapper.GetServiceListAsync(applicationName: applicationName, timeout: _defaultTimeout, cancellation),
                 cache: _serviceListCache,
                 key: applicationName.ToString(),
                 cancellation);
@@ -92,7 +88,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
         {
             return await TryWithCacheFallbackAsync(
                 operationName: "IslandGateway.ServiceFabric.GetPartitionList",
-                func: () => _queryClientWrapper.GetPartitionListAsync(serviceName: serviceName, timeout: DefaultTimeout, cancellation),
+                func: () => _queryClientWrapper.GetPartitionListAsync(serviceName: serviceName, timeout: _defaultTimeout, cancellation),
                 cache: _partitionListCache,
                 key: serviceName.ToString(),
                 cancellation);
@@ -102,7 +98,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
         {
             return await TryWithCacheFallbackAsync(
                 operationName: "IslandGateway.ServiceFabric.GetReplicaList",
-                func: () => _queryClientWrapper.GetReplicaListAsync(partitionId: partition, timeout: DefaultTimeout, cancellation),
+                func: () => _queryClientWrapper.GetReplicaListAsync(partitionId: partition, timeout: _defaultTimeout, cancellation),
                 cache: _replicaListCache,
                 key: partition.ToString(),
                 cancellation);
@@ -116,7 +112,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
                     applicationTypeName: applicationTypeName,
                     applicationTypeVersion: applicationTypeVersion,
                     serviceManifestName: serviceManifestName,
-                    timeout: DefaultTimeout,
+                    timeout: _defaultTimeout,
                     cancellation),
                 cache: _serviceManifestCache,
                 key: $"{Uri.EscapeDataString(applicationTypeName)}:{Uri.EscapeDataString(applicationTypeVersion)}:{Uri.EscapeDataString(serviceManifestName)}",
@@ -131,7 +127,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
                     applicationTypeName: applicationTypeName,
                     applicationTypeVersion: applicationTypeVersion,
                     serviceTypeNameFilter: serviceTypeNameFilter,
-                    timeout: DefaultTimeout,
+                    timeout: _defaultTimeout,
                     cancellationToken: cancellation),
                 cache: _serviceManifestNameCache,
                 key: $"{Uri.EscapeDataString(applicationTypeName)}:{Uri.EscapeDataString(applicationTypeVersion)}:{Uri.EscapeDataString(serviceTypeNameFilter)}",
@@ -144,7 +140,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
                 operationName: "IslandGateway.ServiceFabric.EnumerateProperties",
                 func: () => _propertyManagementClientWrapper.EnumeratePropertiesAsync(
                     parentName: parentName,
-                    timeout: DefaultTimeout,
+                    timeout: _defaultTimeout,
                     cancellationToken: cancellation),
                 cache: _propertiesCache,
                 key: parentName.ToString(),

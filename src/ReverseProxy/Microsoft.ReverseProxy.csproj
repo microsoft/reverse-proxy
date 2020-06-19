@@ -25,4 +25,8 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Abstractions\Discovery\" />
+  </ItemGroup>
+
 </Project>
