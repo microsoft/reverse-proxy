@@ -3,25 +3,19 @@
   <PropertyGroup>
     <TargetFrameworks>net5.0;netcoreapp3.1</TargetFrameworks>
     <OutputType>Library</OutputType>
-    <RootNamespace>Microsoft.ReverseProxy</RootNamespace>
+    <RootNamespace>Microsoft.ReverseProxy.ServiceFabricIntegration</RootNamespace>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Content Include="validSelfSignedClientEkuCertificate.cer">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Autofac" Version="4.9.4" />
     <PackageReference Include="Autofac.Extras.Moq" Version="4.3.0" />
     <PackageReference Include="coverlet.collector" Version="1.0.1" />
+    <PackageReference Include="FluentAssertions" Version="5.10.3" />
     <PackageReference Include="Moq" Version="4.13.1" /> 
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\ReverseProxy\Microsoft.ReverseProxy.csproj" />
-    <ProjectReference Include="..\ReverseProxy.Tests.Common\Microsoft.ReverseProxy.Tests.Common.csproj" />
+    <ProjectReference Include="..\..\..\src\Integrations\ServiceFabric\Microsoft.ReverseProxy.ServiceFabricIntegration.csproj" />
   </ItemGroup>
 
 </Project>
