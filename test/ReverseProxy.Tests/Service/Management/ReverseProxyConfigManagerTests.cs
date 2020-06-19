@@ -64,16 +64,15 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             };
             Mock<IDynamicConfigBuilder>()
                 .Setup(d => d.BuildConfigAsync(It.IsAny<IConfigErrorReporter>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(Result.Success(dynamicConfigRoot));
+                .ReturnsAsync(dynamicConfigRoot);
 
             var errorReporter = new TestConfigErrorReporter();
             var proxyManager = Create<ReverseProxyConfigManager>();
 
             // Act
-            var result = await proxyManager.ApplyConfigurationsAsync(errorReporter, CancellationToken.None);
+            await proxyManager.ApplyConfigurationsAsync(errorReporter, CancellationToken.None);
 
             // Assert
-            Assert.True(result);
 
             var actualClusters = _clusterManager.GetItems();
             Assert.Single(actualClusters);

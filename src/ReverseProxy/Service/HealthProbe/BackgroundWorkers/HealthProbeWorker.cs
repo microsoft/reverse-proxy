@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.ReverseProxy.Service.Management;
@@ -17,18 +18,14 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
         private readonly ILogger<HealthProbeWorker> _logger;
         private readonly IClusterManager _clusterManager;
         private readonly IClusterProberFactory _clusterProberFactory;
-        private readonly AsyncSemaphore _semaphore = new AsyncSemaphore(_maxProberNumber);
+        private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(_maxProberNumber);
         private readonly Dictionary<string, IClusterProber> _activeProbers = new Dictionary<string, IClusterProber>(StringComparer.Ordinal);
 
         public HealthProbeWorker(ILogger<HealthProbeWorker> logger, IClusterManager clusterManager, IClusterProberFactory clusterProberFactory)
         {
-            Contracts.CheckValue(logger, nameof(logger));
-            Contracts.CheckValue(clusterManager, nameof(clusterManager));
-            Contracts.CheckValue(clusterProberFactory, nameof(clusterProberFactory));
-
-            _logger = logger;
-            _clusterManager = clusterManager;
-            _clusterProberFactory = clusterProberFactory;
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _clusterManager = clusterManager ?? throw new ArgumentNullException(nameof(clusterManager));
+            _clusterProberFactory = clusterProberFactory ?? throw new ArgumentNullException(nameof(clusterProberFactory));
         }
 
         public async Task UpdateTrackedClusters()

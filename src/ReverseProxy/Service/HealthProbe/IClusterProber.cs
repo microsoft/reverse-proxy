@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.ReverseProxy.RuntimeModel;
-using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Service.HealthProbe
 {
@@ -26,7 +26,7 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
         /// <summary>
         /// Start the probing for all endpoints.
         /// </summary>
-        void Start(AsyncSemaphore semaphore);
+        void Start(SemaphoreSlim semaphore);
 
         /// <summary>
         /// Gracefully stops the probing for all endpoints.

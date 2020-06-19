@@ -30,25 +30,16 @@ namespace Microsoft.ReverseProxy.Service
             IEnumerable<ISessionAffinityProvider> sessionAffinityProviders,
             IEnumerable<IAffinityFailurePolicy> affinityFailurePolicies)
         {
-            Contracts.CheckValue(filters, nameof(filters));
-            Contracts.CheckValue(clustersRepo, nameof(clustersRepo));
-            Contracts.CheckValue(routesRepo, nameof(routesRepo));
-            Contracts.CheckValue(parsedRouteValidator, nameof(parsedRouteValidator));
-            Contracts.CheckValue(sessionAffinityProviders, nameof(sessionAffinityProviders));
-            Contracts.CheckValue(affinityFailurePolicies, nameof(affinityFailurePolicies));
-
-            _filters = filters;
-            _clustersRepo = clustersRepo;
-            _routesRepo = routesRepo;
-            _parsedRouteValidator = parsedRouteValidator;
-            _sessionAffinityProviders = sessionAffinityProviders.ToProviderDictionary();
-            _affinityFailurePolicies = affinityFailurePolicies.ToPolicyDictionary();
+            _filters = filters ?? throw new ArgumentNullException(nameof(filters));
+            _clustersRepo = clustersRepo ?? throw new ArgumentNullException(nameof(clustersRepo));
+            _routesRepo = routesRepo ?? throw new ArgumentNullException(nameof(routesRepo));
+            _parsedRouteValidator = parsedRouteValidator ?? throw new ArgumentNullException(nameof(parsedRouteValidator));
+            _sessionAffinityProviders = sessionAffinityProviders?.ToProviderDictionary() ?? throw new ArgumentNullException(nameof(sessionAffinityProviders));
+            _affinityFailurePolicies = affinityFailurePolicies?.ToPolicyDictionary() ?? throw new ArgumentNullException(nameof(affinityFailurePolicies));
         }
 
-        public async Task<Result<DynamicConfigRoot>> BuildConfigAsync(IConfigErrorReporter errorReporter, CancellationToken cancellation)
+        public async Task<DynamicConfigRoot> BuildConfigAsync(IConfigErrorReporter errorReporter, CancellationToken cancellation)
         {
-            Contracts.CheckValue(errorReporter, nameof(errorReporter));
-
             var clusters = await GetClustersAsync(errorReporter, cancellation);
             var routes = await GetRoutesAsync(errorReporter, cancellation);
 
@@ -58,7 +49,7 @@ namespace Microsoft.ReverseProxy.Service
                 Routes = routes,
             };
 
-            return Result.Success(config);
+            return config;
         }
 
         public async Task<IDictionary<string, Cluster>> GetClustersAsync(IConfigErrorReporter errorReporter, CancellationToken cancellation)
@@ -158,7 +149,8 @@ namespace Microsoft.ReverseProxy.Service
                     continue;
                 }
 
-                var parsedRoute = new ParsedRoute {
+                var parsedRoute = new ParsedRoute
+                {
                     RouteId = route.RouteId,
                     Methods = route.Match.Methods,
                     Host = route.Match.Host,

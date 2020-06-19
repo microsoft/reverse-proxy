@@ -31,7 +31,7 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
 
         private readonly string _clusterId;
         private readonly ClusterConfig _clusterConfig;
-        private readonly AsyncSemaphore _semaphore;
+        private readonly SemaphoreSlim _semaphore;
         private readonly HttpClient _badClient;
         private readonly HttpClient _goodClient;
         private readonly VirtualMonotonicTimer _timer;
@@ -55,7 +55,7 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
                 loadBalancingOptions: default,
                 sessionAffinityOptions: default);
             _timer = new VirtualMonotonicTimer();
-            _semaphore = new AsyncSemaphore(10);
+            _semaphore = new SemaphoreSlim(10);
             _fakeRandom = new Mock<Random>();
             _fakeRandom.Setup(p => p.Next(It.IsAny<int>())).Returns(0);
             _randomFactory = new Mock<IRandomFactory>();
