@@ -24,9 +24,9 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
         internal static readonly XName XNameLabels = XNSIslandGateway + "Labels";
         private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(60);
 
-        private readonly ILogger<ServiceFabricExtensionConfigProvider> logger;
-        private readonly IOperationLogger<ServiceFabricExtensionConfigProvider> operationLogger;
-        private readonly IServiceFabricCaller serviceFabricCaller;
+        private readonly ILogger<ServiceFabricExtensionConfigProvider> _logger;
+        private readonly IOperationLogger<ServiceFabricExtensionConfigProvider> _operationLogger;
+        private readonly IServiceFabricCaller _serviceFabricCaller;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ServiceFabricExtensionConfigProvider"/> class.
@@ -40,9 +40,9 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
             Contracts.CheckValue(operationLogger, nameof(operationLogger));
             Contracts.CheckValue(serviceFabricCaller, nameof(serviceFabricCaller));
 
-            this.logger = logger;
-            this.operationLogger = operationLogger;
-            this.serviceFabricCaller = serviceFabricCaller;
+            _logger = logger;
+            _operationLogger = operationLogger;
+            _serviceFabricCaller = serviceFabricCaller;
         }
 
         /// <inheritdoc/>
@@ -58,7 +58,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
             string serviceManifestName;
             try
             {
-                serviceManifestName = await this.serviceFabricCaller.GetServiceManifestName(application.ApplicationTypeName, application.ApplicationTypeVersion, service.ServiceTypeName, cancellationToken);
+                serviceManifestName = await _serviceFabricCaller.GetServiceManifestName(application.ApplicationTypeName, application.ApplicationTypeVersion, service.ServiceTypeName, cancellationToken);
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
@@ -77,7 +77,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
             string rawServiceManifest;
             try
             {
-                rawServiceManifest = await this.serviceFabricCaller.GetServiceManifestAsync(application.ApplicationTypeName, application.ApplicationTypeVersion, serviceManifestName, cancellationToken);
+                rawServiceManifest = await _serviceFabricCaller.GetServiceManifestAsync(application.ApplicationTypeName, application.ApplicationTypeVersion, serviceManifestName, cancellationToken);
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
@@ -96,9 +96,9 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
             // TODO: gathering labels from multiple servicetypes within the same service would result in multiple
             // calls to the SF client and multiple XML parses. We should consider creating an instance of this class
             // per application type to reuse that data. Since this is uncommon, for now we follow the na�ve implementation.
-            Dictionary<string, string> result = await this.ExtractLabelsAsync(rawServiceManifest, service.ServiceTypeName, cancellationToken);
+            var result = await ExtractLabelsAsync(rawServiceManifest, service.ServiceTypeName, cancellationToken);
 
-            this.ApplyAppParamReplacements(result, application, service);
+            ApplyAppParamReplacements(result, application, service);
 
             if (result.GetValueOrDefault("IslandGateway.EnableDynamicOverrides", null)?.ToLower() == "true")
             {
@@ -106,7 +106,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
                 IDictionary<string, string> properties;
                 try
                 {
-                    properties = await this.serviceFabricCaller.EnumeratePropertiesAsync(service.ServiceName, cancellationToken);
+                    properties = await _serviceFabricCaller.EnumeratePropertiesAsync(service.ServiceName, cancellationToken);
                 }
                 catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
                 {
@@ -125,7 +125,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
 
         private static void OverrideLabels(ref Dictionary<string, string> labels, IDictionary<string, string> overrides)
         {
-            foreach (KeyValuePair<string, string> entry in overrides)
+            foreach (var entry in overrides)
             {
                 if (entry.Key.StartsWith("IslandGateway.", StringComparison.Ordinal))
                 {
@@ -167,17 +167,17 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
             var replacements = new List<KeyValuePair<string, string>>();
             foreach (var label in labels)
             {
-                string value = label.Value;
+                var value = label.Value;
                 if (value.Length > 2 && value[0] == '[' && value[value.Length - 1] == ']')
                 {
-                    string appParamName = value.Substring(1, value.Length - 2);
+                    var appParamName = value.Substring(1, value.Length - 2);
                     string appParamValue;
                     if (app.ApplicationParameters == null || !app.ApplicationParameters.TryGetValue(appParamName, out appParamValue))
                     {
                         // TODO: This should trigger a Warning or Error health report on the faulty service.
                         // This is not critical because if the absence of the setting leads to invalid configs, we *do* already report error
                         // (for example, if a route's rule were missing).
-                        this.logger.LogInformation($"Application does not specify parameter referenced in a Service Manifest extension label. ApplicationName='{app.ApplicationName}', ApplicationtypeName='{app.ApplicationTypeName}', ApplicationTypeVersion='{app.ApplicationTypeVersion}', ServiceName='{service.ServiceName}', Label='{label.Key}', AppParamName='{appParamName}'.");
+                        _logger.LogInformation($"Application does not specify parameter referenced in a Service Manifest extension label. ApplicationName='{app.ApplicationName}', ApplicationtypeName='{app.ApplicationTypeName}', ApplicationTypeVersion='{app.ApplicationTypeVersion}', ServiceName='{service.ServiceName}', Label='{label.Key}', AppParamName='{appParamName}'.");
                         appParamValue = string.Empty;
                     }
 

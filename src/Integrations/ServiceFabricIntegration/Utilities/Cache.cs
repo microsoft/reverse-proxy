@@ -7,13 +7,13 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.ReverseProxy.Abstractions.Time;
 
-namespace Microsoft.ReverseProxy.Utilities
+namespace Microsoft.ReverseProxy.ServiceFabricIntegration.Utilities
 {
     public class Cache<T>
     {
-        private readonly TimeSpan expirationTimeOffset;
-        private readonly IMonotonicTimer timer;
-        private Dictionary<string, Expirable> _cache = new Dictionary<string, Expirable>(StringComparer.Ordinal);
+        private readonly TimeSpan _expirationTimeOffset;
+        private readonly IMonotonicTimer _timer;
+        private readonly Dictionary<string, Expirable> _cache = new Dictionary<string, Expirable>(StringComparer.Ordinal);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Cache{T}"/> class.
@@ -22,8 +22,8 @@ namespace Microsoft.ReverseProxy.Utilities
         /// <param name="expirationTimeOffset">The time it takes for cache values to expire.</param>
         public Cache(IMonotonicTimer timer, TimeSpan expirationTimeOffset)
         {
-            this.timer = timer ?? throw new ArgumentNullException(nameof(timer));
-            this.expirationTimeOffset = expirationTimeOffset;
+            _timer = timer ?? throw new ArgumentNullException(nameof(timer));
+            _expirationTimeOffset = expirationTimeOffset;
         }
 
         /// <summary>
@@ -31,7 +31,7 @@ namespace Microsoft.ReverseProxy.Utilities
         /// </summary>
         public T Get(string key)
         {
-            bool present = this.TryGetValue(key, out T value);
+            var present = TryGetValue(key, out var value);
             if (!present)
             {
                 throw new KeyNotFoundException($"Key {key} is not present.");
@@ -44,14 +44,14 @@ namespace Microsoft.ReverseProxy.Utilities
         /// </summary>
         public bool TryGetValue(string key, out T value)
         {
-            bool present = this._cache.TryGetValue(key, out Expirable expirable);
-            if (!present || expirable.Expired(this.timer))
+            var present = _cache.TryGetValue(key, out var expirable);
+            if (!present || expirable.Expired(_timer))
             {
                 value = default;
                 if (present)
                 {
                     // Take the oportunity to update internal state
-                    this._cache.Remove(key);
+                    _cache.Remove(key);
                 }
                 return false;
             }
@@ -64,9 +64,9 @@ namespace Microsoft.ReverseProxy.Utilities
         /// </summary>
         public void Set(string key, T value)
         {
-            this._cache[key] = new Expirable(
+            _cache[key] = new Expirable(
                 value: value,
-                expirationTime: this.timer.CurrentTime.Add(this.expirationTimeOffset));
+                expirationTime: _timer.CurrentTime.Add(_expirationTimeOffset));
         }
 
         /// <summary>
@@ -74,14 +74,14 @@ namespace Microsoft.ReverseProxy.Utilities
         /// </summary>
         public void Cleanup()
         {
-            var toRemove = this._cache
-                .Where(pair => pair.Value.Expired(this.timer))
+            var toRemove = _cache
+                .Where(pair => pair.Value.Expired(_timer))
                 .Select(pair => pair.Key)
                 .ToList();
 
             foreach (var key in toRemove)
             {
-                this._cache.Remove(key);
+                _cache.Remove(key);
             }
         }
 
@@ -89,12 +89,12 @@ namespace Microsoft.ReverseProxy.Utilities
         {
             internal Expirable(T value, TimeSpan expirationTime)
             {
-                this.Value = value;
-                this.ExpirationTime = expirationTime;
+                Value = value;
+                ExpirationTime = expirationTime;
             }
             internal T Value { get; }
             internal TimeSpan ExpirationTime { get; }
-            internal bool Expired(IMonotonicTimer timer) => this.ExpirationTime < timer.CurrentTime;
+            internal bool Expired(IMonotonicTimer timer) => ExpirationTime < timer.CurrentTime;
         }
     }
 }

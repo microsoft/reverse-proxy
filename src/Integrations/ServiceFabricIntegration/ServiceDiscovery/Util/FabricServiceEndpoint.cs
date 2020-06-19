@@ -31,17 +31,17 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
         {
             Contracts.Check(listenerNames == null || listenerNames.Count() > 0, nameof(listenerNames));
 
-            this.ListenerNames = listenerNames ?? new[] { string.Empty };
+            ListenerNames = listenerNames ?? new[] { string.Empty };
 
-            this.AllowedSchemePredicate = allowedSchemePredicate ?? (_ => true);
+            AllowedSchemePredicate = allowedSchemePredicate ?? (_ => true);
 
-            this.EmptyStringMatchesAnyListener = emptyStringMatchesAnyListener ?? false;
+            EmptyStringMatchesAnyListener = emptyStringMatchesAnyListener ?? false;
         }
 
         /// <summary>
         /// Gets the name of the first endpoint that will used, if available on the partition.
         /// </summary>
-        public string ListenerName => this.ListenerNames.First();
+        public string ListenerName => ListenerNames.First();
 
         /// <summary>
         /// Gets the list of named endpoints that will be tried, in order of preference.

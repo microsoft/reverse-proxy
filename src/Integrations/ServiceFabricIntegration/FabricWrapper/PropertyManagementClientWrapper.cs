@@ -17,14 +17,14 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
     internal class PropertyManagementClientWrapper : IPropertyManagementClientWrapper
     {
         // Represents the property management client used to perform management of names and properties.
-        private readonly FabricClient.PropertyManagementClient propertyManagementClient;
+        private readonly FabricClient.PropertyManagementClient _propertyManagementClient;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PropertyManagementClientWrapper"/> class.
         /// </summary>
         public PropertyManagementClientWrapper()
         {
-            this.propertyManagementClient = new FabricClient().PropertyManager;
+            _propertyManagementClient = new FabricClient().PropertyManager;
         }
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
         public async Task<string> GetPropertyAsync(Uri parentName, string propertyName, TimeSpan timeout, CancellationToken cancellationToken)
         {
             var result = await ExceptionsHelper.TranslateCancellations(
-                () => this.propertyManagementClient.GetPropertyAsync(parentName, propertyName, timeout, cancellationToken),
+                () => _propertyManagementClient.GetPropertyAsync(parentName, propertyName, timeout, cancellationToken),
                 cancellationToken);
 
             if (result != null)
@@ -56,7 +56,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
             PropertyEnumerationResult previousResult = null;
 
             // Set up the counter that record the time lapse.
-            Stopwatch stopWatch = Stopwatch.StartNew();
+            var stopWatch = Stopwatch.StartNew();
             do
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -68,14 +68,14 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
                 }
 
                 previousResult = await ExceptionsHelper.TranslateCancellations(
-                    () => this.propertyManagementClient.EnumeratePropertiesAsync(
+                    () => _propertyManagementClient.EnumeratePropertiesAsync(
                         name: parentName,
                         includeValues: true,
                         previousResult: previousResult,
                         timeout: remaining,
                         cancellationToken: cancellationToken),
                     cancellationToken);
-                foreach (NamedProperty p in previousResult)
+                foreach (var p in previousResult)
                 {
                     if (!namedProperties.TryAdd(p.Metadata.PropertyName, p.GetValue<string>()))
                     {

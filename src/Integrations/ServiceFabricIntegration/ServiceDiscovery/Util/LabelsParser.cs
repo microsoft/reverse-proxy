@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text.RegularExpressions;
 using Microsoft.ReverseProxy.Abstractions;
+using Microsoft.ReverseProxy.ServiceFabricIntegration.Utilities;
 
 namespace Microsoft.ReverseProxy.ServiceFabricIntegration
 {
@@ -30,7 +31,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
 
         internal static TValue GetLabel<TValue>(Dictionary<string, string> labels, string key, TValue defaultValue)
         {
-            if (!labels.TryGetValue(key, out string value))
+            if (!labels.TryGetValue(key, out var value))
             {
                 return defaultValue;
             }
@@ -50,7 +51,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
         // TODO: optimize this method
         internal static List<ProxyRoute> BuildRoutes(Uri serviceName, Dictionary<string, string> labels)
         {
-            string backendId = GetClusterId(serviceName, labels);
+            var backendId = GetClusterId(serviceName, labels);
 
             // Look for route IDs
             const string RoutesLabelsPrefix = "IslandGateway.Routes.";
@@ -59,8 +60,8 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
             {
                 if (kvp.Key.Length > RoutesLabelsPrefix.Length && kvp.Key.StartsWith(RoutesLabelsPrefix, StringComparison.Ordinal))
                 {
-                    string suffix = kvp.Key.Substring(RoutesLabelsPrefix.Length);
-                    int routeNameLength = suffix.IndexOf('.');
+                    var suffix = kvp.Key.Substring(RoutesLabelsPrefix.Length);
+                    var routeNameLength = suffix.IndexOf('.');
                     if (routeNameLength == -1)
                     {
                         // No route name encoded, the key is not valid. Throwing would suggest we actually check for all invalid keys, so just ignore.
@@ -79,7 +80,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
             var routes = new List<ProxyRoute>();
             foreach (var routeName in routesNames)
             {
-                string thisRoutePrefix = $"{RoutesLabelsPrefix}{routeName}";
+                var thisRoutePrefix = $"{RoutesLabelsPrefix}{routeName}";
                 var metadata = new Dictionary<string, string>();
                 foreach (var kvp in labels)
                 {
@@ -89,17 +90,21 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
                     }
                 }
 
-                if (!labels.TryGetValue($"{thisRoutePrefix}.Rule", out string rule))
+                if (!labels.TryGetValue($"{thisRoutePrefix}.Host", out var host))
                 {
-                    throw new ConfigException($"Missing {thisRoutePrefix}.Rule.");
+                    throw new ConfigException($"Missing '{thisRoutePrefix}.Host'.");
                 }
+                labels.TryGetValue($"{thisRoutePrefix}.Path", out var path);
 
-                labels.TryGetValue($"{thisRoutePrefix}.Transformations", out string transformations);
+                labels.TryGetValue($"{thisRoutePrefix}.Transformations", out var transformations);
                 var route = new ProxyRoute
                 {
                     RouteId = $"{Uri.EscapeDataString(backendId)}:{Uri.EscapeDataString(routeName)}",
-                    Rule = rule,
-                    Transformations = transformations,
+                    Match =
+                    {
+                         Host = host,
+                         Path = path,
+                    },
                     Priority = GetLabel(labels, $"{thisRoutePrefix}.Priority", DefaultRoutePriority),
                     ClusterId = backendId,
                     Metadata = metadata,
@@ -113,7 +118,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
         {
             var clusterMetadata = new Dictionary<string, string>();
             const string BackendMetadataKeyPrefix = "IslandGateway.Backend.Metadata.";
-            foreach (KeyValuePair<string, string> item in labels)
+            foreach (var item in labels)
             {
                 if (item.Key.StartsWith(BackendMetadataKeyPrefix, StringComparison.Ordinal))
                 {
@@ -121,7 +126,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
                 }
             }
 
-            string clusterId = GetClusterId(serviceName, labels);
+            var clusterId = GetClusterId(serviceName, labels);
 
             var cluster = new Cluster
             {
@@ -142,7 +147,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
                     PartitionKeyExtractor = GetLabel(labels, "IslandGateway.Backend.Partitioning.KeyExtractor", DefaultPartitionKeyExtractor),
                     PartitioningAlgorithm = GetLabel(labels, "IslandGateway.Backend.Partitioning.Algorithm", DefaultPartitioningAlgorithm),
                 },
-                LoadBalancingOptions = new LoadBalancingOptions(), // TODO
+                LoadBalancing = new LoadBalancingOptions(), // TODO
                 HealthCheckOptions = new HealthCheckOptions
                 {
                     Enabled = GetLabel(labels, "IslandGateway.Backend.Healthcheck.Enabled", false),
@@ -151,11 +156,6 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
                     Port = GetLabel<int?>(labels, "IslandGateway.Backend.Healthcheck.Port", null),
                     Path = GetLabel<string>(labels, "IslandGateway.Backend.Healthcheck.Path", null),
                 },
-                TlsOptions = new ClusterTlsOptions
-                {
-                    // TODO: Make this configurable, perhaps not per backend but globally.
-                    ValidationMode = ClusterTlsCertificateValidationMode.IntraCommAllowList,
-                },
                 Metadata = clusterMetadata,
             };
             return cluster;
@@ -163,7 +163,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
 
         private static string GetClusterId(Uri serviceName, Dictionary<string, string> labels)
         {
-            if (!labels.TryGetValue("IslandGateway.Backend.BackendId", out string backendId) ||
+            if (!labels.TryGetValue("IslandGateway.Backend.BackendId", out var backendId) ||
                 string.IsNullOrEmpty(backendId))
             {
                 backendId = serviceName.ToString();

@@ -22,8 +22,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.ServiceFabric" Version="6.4.638" />
-    <PackageReference Include="Microsoft.ServiceFabric.Services" Version="3.3.638" />
+    <PackageReference Include="Microsoft.ServiceFabric" Version="7.1.417" />
+    <PackageReference Include="Microsoft.ServiceFabric.Services" Version="4.1.417" />
   </ItemGroup>
 
   <ItemGroup>

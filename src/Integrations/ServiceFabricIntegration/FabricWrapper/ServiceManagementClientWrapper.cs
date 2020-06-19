@@ -15,7 +15,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
     internal class ServiceManagementClientWrapper : IServiceManagementClientWrapper
     {
         // Represents the enabling of the services to be managed.
-        private readonly FabricClient.ServiceManagementClient serviceManagementClient;
+        private readonly FabricClient.ServiceManagementClient _serviceManagementClient;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ServiceManagementClientWrapper"/> class.
@@ -23,7 +23,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
         /// </summary>
         public ServiceManagementClientWrapper()
         {
-            this.serviceManagementClient = new FabricClient().ServiceManager;
+            _serviceManagementClient = new FabricClient().ServiceManager;
         }
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
         public async Task<string> GetServiceManifestAsync(string applicationTypeName, string applicationTypeVersion, string serviceManifestName, TimeSpan timeout, CancellationToken cancellationToken)
         {
             return await ExceptionsHelper.TranslateCancellations(
-                () => this.serviceManagementClient.GetServiceManifestAsync(applicationTypeName, applicationTypeVersion, serviceManifestName, timeout, cancellationToken),
+                () => _serviceManagementClient.GetServiceManifestAsync(applicationTypeName, applicationTypeVersion, serviceManifestName, timeout, cancellationToken),
                 cancellationToken);
         }
     }

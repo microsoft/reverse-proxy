@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -29,7 +29,7 @@ namespace Microsoft.ReverseProxy.Abstractions
         /// <summary>
         /// Port number.
         /// </summary>
-        public int Port { get; set; }
+        public int? Port { get; set; }
 
         /// <summary>
         /// Http path.

@@ -17,6 +17,12 @@ namespace Microsoft.ReverseProxy.Abstractions
         public string Address { get; set; }
 
         /// <summary>
+        /// Optionally, a different address to use for health probes against this endpoint. E.g. <c>https://127.0.0.1:234/</c>.
+        /// If not specified, <see cref="Address" /> is used for both proxying and health probes.
+        /// </summary>
+        public string HealthAddress { get; set; }
+
+        /// <summary>
         /// Arbitrary key-value pairs that further describe this destination.
         /// </summary>
         public IDictionary<string, string> Metadata { get; set; }
@@ -27,6 +33,7 @@ namespace Microsoft.ReverseProxy.Abstractions
             return new Destination
             {
                 Address = Address,
+                HealthAddress = HealthAddress,
                 Metadata = Metadata?.DeepClone(StringComparer.Ordinal),
             };
         }

@@ -9,8 +9,8 @@ using System.Fabric.Query;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using IslandGateway.CoreServicesBorrowed.CoreFramework;
 using Microsoft.Extensions.Logging;
+using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.ServiceFabricIntegration
 {
@@ -20,8 +20,8 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
     /// </summary>
     internal class QueryClientWrapper : IQueryClientWrapper
     {
-        private readonly ILogger<QueryClientWrapper> logger;
-        private readonly FabricClient.QueryClient queryClient;
+        private readonly ILogger<QueryClientWrapper> _logger;
+        private readonly FabricClient.QueryClient _queryClient;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="QueryClientWrapper"/> class.
@@ -29,9 +29,9 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
         public QueryClientWrapper(ILogger<QueryClientWrapper> logger)
         {
             Contracts.CheckValue(logger, nameof(logger));
-            this.logger = logger;
+            _logger = logger;
 
-            this.queryClient = new FabricClient().QueryManager;
+            _queryClient = new FabricClient().QueryManager;
         }
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
         /// </summary>
         public async Task<IEnumerable<ApplicationWrapper>> GetApplicationListAsync(TimeSpan timeout, CancellationToken cancellationToken)
         {
-            return await this.GetApplicationListAsync(null, timeout, cancellationToken);
+            return await GetApplicationListAsync(null, timeout, cancellationToken);
         }
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
             ApplicationList previousResult = null;
 
             // Set up the counter that record the time lapse.
-            Stopwatch stopWatch = Stopwatch.StartNew();
+            var stopWatch = Stopwatch.StartNew();
             do
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -65,7 +65,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
                 }
 
                 previousResult = await ExceptionsHelper.TranslateCancellations(
-                    () => this.queryClient.GetApplicationListAsync(
+                    () => _queryClient.GetApplicationListAsync(
                         applicationNameFilter: applicationNameFilter,
                         continuationToken: previousResult?.ContinuationToken,
                         timeout: remaining,
@@ -98,7 +98,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
                 {
                     if (!result.TryAdd(param.Name, param.Value))
                     {
-                        this.logger.LogInformation($"Duplicate app parameter '{param.Name}' for application '{app.ApplicationName}'");
+                        _logger.LogInformation($"Duplicate app parameter '{param.Name}' for application '{app.ApplicationName}'");
                     }
                 }
 
@@ -116,7 +116,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
             ServiceList previousResult = null;
 
             // Set up the counter that record the time lapse.
-            Stopwatch stopWatch = Stopwatch.StartNew();
+            var stopWatch = Stopwatch.StartNew();
             do
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -128,7 +128,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
                 }
 
                 previousResult = await ExceptionsHelper.TranslateCancellations(
-                    () => this.queryClient.GetServiceListAsync(
+                    () => _queryClient.GetServiceListAsync(
                         applicationName: applicationName,
                         serviceNameFilter: null,
                         continuationToken: previousResult?.ContinuationToken,
@@ -136,7 +136,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
                         cancellationToken: cancellationToken),
                     cancellationToken);
 
-                foreach (Service service in previousResult)
+                foreach (var service in previousResult)
                 {
                     serviceList.Add(
                         new ServiceWrapper
@@ -159,8 +159,8 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
         /// </summary>
         public async Task<string> GetServiceManifestName(string applicationTypeName, string applicationTypeVersion, string serviceTypeName, TimeSpan timeout, CancellationToken cancellationToken)
         {
-            ServiceTypeList serviceTypes = await ExceptionsHelper.TranslateCancellations(
-                () => this.queryClient.GetServiceTypeListAsync(
+            var serviceTypes = await ExceptionsHelper.TranslateCancellations(
+                () => _queryClient.GetServiceTypeListAsync(
                     applicationTypeName: applicationTypeName,
                     applicationTypeVersion: applicationTypeVersion,
                     serviceTypeNameFilter: serviceTypeName,
@@ -184,7 +184,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
             ServicePartitionList previousResult = null;
 
             // Set up the counter that record the time lapse.
-            Stopwatch stopWatch = Stopwatch.StartNew();
+            var stopWatch = Stopwatch.StartNew();
             do
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -196,7 +196,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
                 }
 
                 previousResult = await ExceptionsHelper.TranslateCancellations(
-                    () => this.queryClient.GetPartitionListAsync(
+                    () => _queryClient.GetPartitionListAsync(
                         serviceName: serviceName,
                         partitionIdFilter: null,
                         continuationToken: previousResult?.ContinuationToken,
@@ -204,7 +204,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
                         cancellationToken: cancellationToken),
                     cancellationToken);
 
-                foreach (Partition partition in previousResult)
+                foreach (var partition in previousResult)
                 {
                     partitionList.Add(partition.PartitionInformation.Id);
                 }
@@ -220,7 +220,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
             ServiceReplicaList previousResult = null;
 
             // Set up the counter that record the time lapse.
-            Stopwatch stopWatch = Stopwatch.StartNew();
+            var stopWatch = Stopwatch.StartNew();
             do
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -232,14 +232,14 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
                 }
 
                 previousResult = await ExceptionsHelper.TranslateCancellations(
-                    () => this.queryClient.GetReplicaListAsync(
+                    () => _queryClient.GetReplicaListAsync(
                         partitionId: partitionId,
                         continuationToken: previousResult?.ContinuationToken,
                         timeout: remaining,
                         cancellationToken: cancellationToken),
                     cancellationToken);
 
-                foreach (Replica replica in previousResult)
+                foreach (var replica in previousResult)
                 {
                     replicaList.Add(
                         new ReplicaWrapper

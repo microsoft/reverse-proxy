@@ -77,7 +77,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
                     // Pick named listener endpoint
                     if (endpoints.TryGetEndpointAddress(listenerName: listenerName, endpointAddress: out endpointAddress))
                     {
-                        if (!Uri.TryCreate(endpointAddress, UriKind.Absolute, out Uri endpointUri_))
+                        if (!Uri.TryCreate(endpointAddress, UriKind.Absolute, out var endpointUri_))
                         {
                             continue;
                         }

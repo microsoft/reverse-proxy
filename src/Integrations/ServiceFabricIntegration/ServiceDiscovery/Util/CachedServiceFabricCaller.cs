@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.ReverseProxy.Abstractions.Telemetry;
 using Microsoft.ReverseProxy.Abstractions.Time;
+using Microsoft.ReverseProxy.ServiceFabricIntegration.Utilities;
 using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.ServiceFabricIntegration
@@ -17,21 +18,22 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
     {
         public static readonly TimeSpan CacheExpirationOffset = TimeSpan.FromMinutes(30);
         private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(60);
-        private readonly ILogger logger;
-        private readonly IOperationLogger<CachedServiceFabricCaller> operationLogger;
-        private readonly IMonotonicTimer timer;
-        private readonly IQueryClientWrapper queryClientWrapper;
-        private readonly IServiceManagementClientWrapper serviceManagementClientWrapper;
-        private readonly IPropertyManagementClientWrapper propertyManagementClientWrapper;
-        private readonly IHealthClientWrapper healthClientWrapper;
 
-        private readonly Cache<IEnumerable<ApplicationWrapper>> applicationListCache;
-        private readonly Cache<IEnumerable<ServiceWrapper>> serviceListCache;
-        private readonly Cache<IEnumerable<Guid>> partitionListCache;
-        private readonly Cache<IEnumerable<ReplicaWrapper>> replicaListCache;
-        private readonly Cache<string> serviceManifestCache;
-        private readonly Cache<string> serviceManifestNameCache;
-        private readonly Cache<IDictionary<string, string>> propertiesCache;
+        private readonly ILogger _logger;
+        private readonly IOperationLogger<CachedServiceFabricCaller> _operationLogger;
+        private readonly IMonotonicTimer _timer;
+        private readonly IQueryClientWrapper _queryClientWrapper;
+        private readonly IServiceManagementClientWrapper _serviceManagementClientWrapper;
+        private readonly IPropertyManagementClientWrapper _propertyManagementClientWrapper;
+        private readonly IHealthClientWrapper _healthClientWrapper;
+
+        private readonly Cache<IEnumerable<ApplicationWrapper>> _applicationListCache;
+        private readonly Cache<IEnumerable<ServiceWrapper>> _serviceListCache;
+        private readonly Cache<IEnumerable<Guid>> _partitionListCache;
+        private readonly Cache<IEnumerable<ReplicaWrapper>> _replicaListCache;
+        private readonly Cache<string> _serviceManifestCache;
+        private readonly Cache<string> _serviceManifestNameCache;
+        private readonly Cache<IDictionary<string, string>> _propertiesCache;
 
         public CachedServiceFabricCaller(
             ILogger<CachedServiceFabricCaller> logger,
@@ -50,112 +52,112 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
             Contracts.CheckValue(propertyManagementClientWrapper, nameof(propertyManagementClientWrapper));
             Contracts.CheckValue(healthClientWrapper, nameof(healthClientWrapper));
 
-            this.logger = logger;
-            this.operationLogger = operationLogger;
-            this.timer = timer;
-            this.queryClientWrapper = queryClientWrapper;
-            this.serviceManagementClientWrapper = serviceManagementClientWrapper;
-            this.propertyManagementClientWrapper = propertyManagementClientWrapper;
-            this.healthClientWrapper = healthClientWrapper;
+            _logger = logger;
+            _operationLogger = operationLogger;
+            _timer = timer;
+            _queryClientWrapper = queryClientWrapper;
+            _serviceManagementClientWrapper = serviceManagementClientWrapper;
+            _propertyManagementClientWrapper = propertyManagementClientWrapper;
+            _healthClientWrapper = healthClientWrapper;
 
-            this.applicationListCache = new Cache<IEnumerable<ApplicationWrapper>>(this.timer, CacheExpirationOffset);
-            this.serviceListCache = new Cache<IEnumerable<ServiceWrapper>>(this.timer, CacheExpirationOffset);
-            this.partitionListCache = new Cache<IEnumerable<Guid>>(this.timer, CacheExpirationOffset);
-            this.replicaListCache = new Cache<IEnumerable<ReplicaWrapper>>(this.timer, CacheExpirationOffset);
-            this.serviceManifestCache = new Cache<string>(this.timer, CacheExpirationOffset);
-            this.serviceManifestNameCache = new Cache<string>(this.timer, CacheExpirationOffset);
-            this.propertiesCache = new Cache<IDictionary<string, string>>(this.timer, CacheExpirationOffset);
+            _applicationListCache = new Cache<IEnumerable<ApplicationWrapper>>(_timer, CacheExpirationOffset);
+            _serviceListCache = new Cache<IEnumerable<ServiceWrapper>>(_timer, CacheExpirationOffset);
+            _partitionListCache = new Cache<IEnumerable<Guid>>(_timer, CacheExpirationOffset);
+            _replicaListCache = new Cache<IEnumerable<ReplicaWrapper>>(_timer, CacheExpirationOffset);
+            _serviceManifestCache = new Cache<string>(_timer, CacheExpirationOffset);
+            _serviceManifestNameCache = new Cache<string>(_timer, CacheExpirationOffset);
+            _propertiesCache = new Cache<IDictionary<string, string>>(_timer, CacheExpirationOffset);
         }
 
         public async Task<IEnumerable<ApplicationWrapper>> GetApplicationListAsync(CancellationToken cancellation)
         {
-            return await this.TryWithCacheFallbackAsync(
+            return await TryWithCacheFallbackAsync(
                 operationName: "IslandGateway.ServiceFabric.GetApplicationList",
-                func: () => this.queryClientWrapper.GetApplicationListAsync(timeout: DefaultTimeout, cancellationToken: cancellation),
-                cache: this.applicationListCache,
+                func: () => _queryClientWrapper.GetApplicationListAsync(timeout: DefaultTimeout, cancellationToken: cancellation),
+                cache: _applicationListCache,
                 key: string.Empty,
                 cancellation);
         }
         public async Task<IEnumerable<ServiceWrapper>> GetServiceListAsync(Uri applicationName, CancellationToken cancellation)
         {
-            return await this.TryWithCacheFallbackAsync(
+            return await TryWithCacheFallbackAsync(
                 operationName: "IslandGateway.ServiceFabric.GetServiceList",
-                func: () => this.queryClientWrapper.GetServiceListAsync(applicationName: applicationName, timeout: DefaultTimeout, cancellation),
-                cache: this.serviceListCache,
+                func: () => _queryClientWrapper.GetServiceListAsync(applicationName: applicationName, timeout: DefaultTimeout, cancellation),
+                cache: _serviceListCache,
                 key: applicationName.ToString(),
                 cancellation);
         }
 
         public async Task<IEnumerable<Guid>> GetPartitionListAsync(Uri serviceName, CancellationToken cancellation)
         {
-            return await this.TryWithCacheFallbackAsync(
+            return await TryWithCacheFallbackAsync(
                 operationName: "IslandGateway.ServiceFabric.GetPartitionList",
-                func: () => this.queryClientWrapper.GetPartitionListAsync(serviceName: serviceName, timeout: DefaultTimeout, cancellation),
-                cache: this.partitionListCache,
+                func: () => _queryClientWrapper.GetPartitionListAsync(serviceName: serviceName, timeout: DefaultTimeout, cancellation),
+                cache: _partitionListCache,
                 key: serviceName.ToString(),
                 cancellation);
         }
 
         public async Task<IEnumerable<ReplicaWrapper>> GetReplicaListAsync(Guid partition, CancellationToken cancellation)
         {
-            return await this.TryWithCacheFallbackAsync(
+            return await TryWithCacheFallbackAsync(
                 operationName: "IslandGateway.ServiceFabric.GetReplicaList",
-                func: () => this.queryClientWrapper.GetReplicaListAsync(partitionId: partition, timeout: DefaultTimeout, cancellation),
-                cache: this.replicaListCache,
+                func: () => _queryClientWrapper.GetReplicaListAsync(partitionId: partition, timeout: DefaultTimeout, cancellation),
+                cache: _replicaListCache,
                 key: partition.ToString(),
                 cancellation);
         }
 
         public async Task<string> GetServiceManifestAsync(string applicationTypeName, string applicationTypeVersion, string serviceManifestName, CancellationToken cancellation)
         {
-            return await this.TryWithCacheFallbackAsync(
+            return await TryWithCacheFallbackAsync(
                 operationName: "IslandGateway.ServiceFabric.GetServiceManifest",
-                func: () => this.serviceManagementClientWrapper.GetServiceManifestAsync(
+                func: () => _serviceManagementClientWrapper.GetServiceManifestAsync(
                     applicationTypeName: applicationTypeName,
                     applicationTypeVersion: applicationTypeVersion,
                     serviceManifestName: serviceManifestName,
                     timeout: DefaultTimeout,
                     cancellation),
-                cache: this.serviceManifestCache,
+                cache: _serviceManifestCache,
                 key: $"{Uri.EscapeDataString(applicationTypeName)}:{Uri.EscapeDataString(applicationTypeVersion)}:{Uri.EscapeDataString(serviceManifestName)}",
                 cancellation);
         }
 
         public async Task<string> GetServiceManifestName(string applicationTypeName, string applicationTypeVersion, string serviceTypeNameFilter, CancellationToken cancellation)
         {
-            return await this.TryWithCacheFallbackAsync(
+            return await TryWithCacheFallbackAsync(
                 operationName: "IslandGateway.ServiceFabric.GetServiceManifestName",
-                func: () => this.queryClientWrapper.GetServiceManifestName(
+                func: () => _queryClientWrapper.GetServiceManifestName(
                     applicationTypeName: applicationTypeName,
                     applicationTypeVersion: applicationTypeVersion,
                     serviceTypeNameFilter: serviceTypeNameFilter,
                     timeout: DefaultTimeout,
                     cancellationToken: cancellation),
-                cache: this.serviceManifestNameCache,
+                cache: _serviceManifestNameCache,
                 key: $"{Uri.EscapeDataString(applicationTypeName)}:{Uri.EscapeDataString(applicationTypeVersion)}:{Uri.EscapeDataString(serviceTypeNameFilter)}",
                 cancellation);
         }
 
         public async Task<IDictionary<string, string>> EnumeratePropertiesAsync(Uri parentName, CancellationToken cancellation)
         {
-            return await this.TryWithCacheFallbackAsync(
+            return await TryWithCacheFallbackAsync(
                 operationName: "IslandGateway.ServiceFabric.EnumerateProperties",
-                func: () => this.propertyManagementClientWrapper.EnumeratePropertiesAsync(
+                func: () => _propertyManagementClientWrapper.EnumeratePropertiesAsync(
                     parentName: parentName,
                     timeout: DefaultTimeout,
                     cancellationToken: cancellation),
-                cache: this.propertiesCache,
+                cache: _propertiesCache,
                 key: parentName.ToString(),
                 cancellation);
         }
 
         public void ReportHealth(HealthReport healthReport, HealthReportSendOptions sendOptions)
         {
-            this.operationLogger.Execute(
+            _operationLogger.Execute(
                 "IslandGateway.ServiceFabric.ReportHealth",
                 () =>
                 {
-                    var operationContext = this.operationLogger.Context;
+                    var operationContext = _operationLogger.Context;
                     operationContext.SetProperty("kind", healthReport.Kind.ToString());
                     operationContext.SetProperty("healthState", healthReport.HealthInformation.HealthState.ToString());
                     switch (healthReport)
@@ -168,28 +170,28 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
                             break;
                     }
 
-                    this.healthClientWrapper.ReportHealth(healthReport, sendOptions);
+                    _healthClientWrapper.ReportHealth(healthReport, sendOptions);
                 });
         }
 
         private async Task<T> TryWithCacheFallbackAsync<T>(string operationName, Func<Task<T>> func, Cache<T> cache, string key, CancellationToken cancellation)
         {
-            return await this.operationLogger.ExecuteAsync(
+            return await _operationLogger.ExecuteAsync(
                 operationName + ".Cache",
                 async () =>
                 {
-                    var operationContext = this.operationLogger.Context;
+                    var operationContext = _operationLogger.Context;
                     operationContext.SetProperty("key", key);
 
                     // TODO: trigger async cache cleanup before SF call
-                    string outcome = "UnhandledException";
+                    var outcome = "UnhandledException";
                     try
                     {
-                        var value = await this.operationLogger.ExecuteAsync(
+                        var value = await _operationLogger.ExecuteAsync(
                             operationName,
                             () =>
                             {
-                                var innerOperationContext = this.operationLogger.Context;
+                                var innerOperationContext = _operationLogger.Context;
                                 innerOperationContext.SetProperty("key", key);
 
                                 return func();
@@ -205,7 +207,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
                     }
                     catch (Exception ex) when (!ex.IsFatal())
                     {
-                        if (cache.TryGetValue(key, out T value))
+                        if (cache.TryGetValue(key, out var value))
                         {
                             outcome = "CacheFallback";
                             return value;

@@ -9,17 +9,17 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
     /// <inheritdoc/>
     internal class HealthClientWrapper : IHealthClientWrapper
     {
-        private readonly FabricClient.HealthClient healthClient;
+        private readonly FabricClient.HealthClient _healthClient;
 
         public HealthClientWrapper()
         {
-            this.healthClient = new FabricClient().HealthManager;
+            _healthClient = new FabricClient().HealthManager;
         }
 
         /// <inheritdoc/>
         public void ReportHealth(HealthReport healthReport, HealthReportSendOptions sendOptions)
         {
-            this.healthClient.ReportHealth(healthReport, sendOptions);
+            _healthClient.ReportHealth(healthReport, sendOptions);
         }
     }
 }

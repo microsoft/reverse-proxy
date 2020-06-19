@@ -23,12 +23,13 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
     {
         public static readonly string HealthReportSourceId = "IslandGateway";
         public static readonly string HealthReportProperty = "IslandGatewayConfig";
-        private readonly ILogger<ServiceFabricDiscoveryWorker> logger;
-        private readonly IOperationLogger<ServiceFabricDiscoveryWorker> operationLogger;
-        private readonly IServiceFabricExtensionConfigProvider serviceFabricExtensionConfigProvider;
-        private readonly IServiceFabricCaller serviceFabricCaller;
-        private readonly IClustersRepo clustersRepo;
-        private readonly IRoutesRepo routesRepo;
+
+        private readonly ILogger<ServiceFabricDiscoveryWorker> _logger;
+        private readonly IOperationLogger<ServiceFabricDiscoveryWorker> _operationLogger;
+        private readonly IServiceFabricExtensionConfigProvider _serviceFabricExtensionConfigProvider;
+        private readonly IServiceFabricCaller _serviceFabricCaller;
+        private readonly IClustersRepo _clustersRepo;
+        private readonly IRoutesRepo _routesRepo;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ServiceFabricDiscoveryWorker"/> class.
@@ -48,12 +49,12 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
             Contracts.CheckValue(clustersRepo, nameof(clustersRepo));
             Contracts.CheckValue(routesRepo, nameof(routesRepo));
 
-            this.logger = logger;
-            this.operationLogger = operationLogger;
-            this.serviceFabricCaller = serviceFabricCaller;
-            this.serviceFabricExtensionConfigProvider = serviceFabricExtensionConfigProvider;
-            this.clustersRepo = clustersRepo;
-            this.routesRepo = routesRepo;
+            _logger = logger;
+            _operationLogger = operationLogger;
+            _serviceFabricCaller = serviceFabricCaller;
+            _serviceFabricExtensionConfigProvider = serviceFabricExtensionConfigProvider;
+            _clustersRepo = clustersRepo;
+            _routesRepo = routesRepo;
         }
 
         /// <inheritdoc/>
@@ -67,7 +68,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
 
             try
             {
-                applications = await this.serviceFabricCaller.GetApplicationListAsync(cancellation);
+                applications = await _serviceFabricCaller.GetApplicationListAsync(cancellation);
             }
             catch (OperationCanceledException) when (cancellation.IsCancellationRequested)
             {
@@ -76,17 +77,17 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
             catch (Exception ex) when (!ex.IsFatal())
             {
                 // The serviceFabricCaller does their best effort to use LKG information, nothing we can do at this point
-                this.logger.LogError(ex, "Could not get applications list from Service Fabric, continuing with zero applications.");
+                _logger.LogError(ex, "Could not get applications list from Service Fabric, continuing with zero applications.");
                 applications = Enumerable.Empty<ApplicationWrapper>();
             }
 
-            foreach (ApplicationWrapper application in applications)
+            foreach (var application in applications)
             {
                 IEnumerable<ServiceWrapper> services;
 
                 try
                 {
-                    services = await this.serviceFabricCaller.GetServiceListAsync(application.ApplicationName, cancellation);
+                    services = await _serviceFabricCaller.GetServiceListAsync(application.ApplicationName, cancellation);
                 }
                 catch (OperationCanceledException) when (cancellation.IsCancellationRequested)
                 {
@@ -94,15 +95,15 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
                 }
                 catch (Exception ex) when (!ex.IsFatal())
                 {
-                    this.logger.LogError(ex, $"Could not get service list for application {application.ApplicationName}, skipping application.");
+                    _logger.LogError(ex, $"Could not get service list for application {application.ApplicationName}, skipping application.");
                     continue;
                 }
 
-                foreach (ServiceWrapper service in services)
+                foreach (var service in services)
                 {
                     try
                     {
-                        var serviceExtensionLabels = await this.serviceFabricExtensionConfigProvider.GetExtensionLabelsAsync(application, service, cancellation);
+                        var serviceExtensionLabels = await _serviceFabricExtensionConfigProvider.GetExtensionLabelsAsync(application, service, cancellation);
 
                         // If this service wants to use Island Gateway
                         if (serviceExtensionLabels.GetValueOrDefault("IslandGateway.Enable", null) != "true")
@@ -112,7 +113,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
                         }
 
                         var cluster = LabelsParser.BuildCluster(service.ServiceName, serviceExtensionLabels);
-                        await this.DiscoverDestinationsAsync(cluster, options, service, serviceExtensionLabels, cancellation);
+                        await DiscoverDestinationsAsync(cluster, options, service, serviceExtensionLabels, cancellation);
                         if (!discoveredBackends.TryAdd(cluster.Id, cluster))
                         {
                             throw new ConfigException($"Duplicated cluster id '{cluster.Id}'. Skipping repeated definition, service '{service.ServiceName}'");
@@ -121,35 +122,35 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
                         var routes = LabelsParser.BuildRoutes(service.ServiceName, serviceExtensionLabels);
                         discoveredRoutes.AddRange(routes);
 
-                        this.ReportServiceHealth(options, service.ServiceName, HealthState.Ok, $"Successfully built cluster '{cluster.Id}' with {routes.Count} routes.");
+                        ReportServiceHealth(options, service.ServiceName, HealthState.Ok, $"Successfully built cluster '{cluster.Id}' with {routes.Count} routes.");
                     }
                     catch (ConfigException ex)
                     {
                         // The user's problem
-                        this.logger.LogInformation($"Config error found when trying to load service '{service.ServiceName}', skipping. Error: {ex}.");
+                        _logger.LogInformation($"Config error found when trying to load service '{service.ServiceName}', skipping. Error: {ex}.");
 
                         // TODO: emit Error health report once we are able to detect config issues *during* (as opposed to *after*) a target service upgrade.
                         // Proactive Error health report would trigger a rollback of the target service as desired. However, an Error report after rhe fact
                         // will NOT cause a rollback and will prevent the target service from performing subsequent monitored upgrades to mitigate, making things worse.
-                        this.ReportServiceHealth(options, service.ServiceName, HealthState.Warning, $"Could not load service to Island Gateway: {ex.Message}.");
+                        ReportServiceHealth(options, service.ServiceName, HealthState.Warning, $"Could not load service to Island Gateway: {ex.Message}.");
                     }
                     catch (Exception ex) when (!ex.IsFatal())
                     {
                         // Not user's problem
-                        this.logger.LogError(ex, $"Unexpected error when trying to load service '{service.ServiceName}, skipping'.");
+                        _logger.LogError(ex, $"Unexpected error when trying to load service '{service.ServiceName}, skipping'.");
                     }
                 }
             }
 
             // TODO : keep track of seen backends and RemoveEndpointsAsync when not seen again
-            this.logger.LogInformation($"Discovered {discoveredBackends.Count} backends, {discoveredRoutes.Count} routes.");
-            await this.clustersRepo.SetClustersAsync(discoveredBackends, cancellation);
-            await this.routesRepo.SetRoutesAsync(discoveredRoutes, cancellation);
+            _logger.LogInformation($"Discovered {discoveredBackends.Count} backends, {discoveredRoutes.Count} routes.");
+            await _clustersRepo.SetClustersAsync(discoveredBackends, cancellation);
+            await _routesRepo.SetRoutesAsync(discoveredRoutes, cancellation);
         }
 
         private static Destination BuildDestination(ReplicaWrapper replica, string listenerName, string healthListenerName)
         {
-            if (!ServiceEndpointCollection.TryParseEndpointsString(replica.ReplicaAddress, out ServiceEndpointCollection serviceEndpointCollection))
+            if (!ServiceEndpointCollection.TryParseEndpointsString(replica.ReplicaAddress, out var serviceEndpointCollection))
             {
                 throw new ConfigException($"Could not parse endpoints for replica {replica.Id}.");
             }
@@ -159,7 +160,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
                 listenerNames: new[] { listenerName },
                 allowedSchemePredicate: HttpsSchemeSelector,
                 emptyStringMatchesAnyListener: true);
-            if (!FabricServiceEndpointSelector.TryGetEndpoint(serviceEndpoint, serviceEndpointCollection, out Uri endpointUri))
+            if (!FabricServiceEndpointSelector.TryGetEndpoint(serviceEndpoint, serviceEndpointCollection, out var endpointUri))
             {
                 throw new ConfigException($"No acceptable endpoints found for replica '{replica.Id}'. Search criteria: listenerName='{listenerName}', emptyStringMatchesAnyListener=true.");
             }
@@ -239,35 +240,35 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
             IEnumerable<Guid> partitions;
             try
             {
-                partitions = await this.serviceFabricCaller.GetPartitionListAsync(service.ServiceName, cancellation);
+                partitions = await _serviceFabricCaller.GetPartitionListAsync(service.ServiceName, cancellation);
             }
             catch (Exception ex) when (!ex.IsFatal())
             {
-                this.logger.LogError(ex, $"Could not get partition list for service {service.ServiceName}, skipping endpoints.");
+                _logger.LogError(ex, $"Could not get partition list for service {service.ServiceName}, skipping endpoints.");
                 return;
             }
 
-            string listenerName = serviceExtensionLabels.GetValueOrDefault("IslandGateway.Backend.ServiceFabric.ListenerName", string.Empty);
-            string healthListenerName = serviceExtensionLabels.GetValueOrDefault("IslandGateway.Backend.Healthcheck.ServiceFabric.ListenerName", string.Empty);
-            StatefulReplicaSelectionMode statefulReplicaSelectionMode = this.ParseStatefulReplicaSelectionMode(serviceExtensionLabels);
-            foreach (Guid partition in partitions)
+            var listenerName = serviceExtensionLabels.GetValueOrDefault("IslandGateway.Backend.ServiceFabric.ListenerName", string.Empty);
+            var healthListenerName = serviceExtensionLabels.GetValueOrDefault("IslandGateway.Backend.Healthcheck.ServiceFabric.ListenerName", string.Empty);
+            var statefulReplicaSelectionMode = ParseStatefulReplicaSelectionMode(serviceExtensionLabels);
+            foreach (var partition in partitions)
             {
                 IEnumerable<ReplicaWrapper> replicas;
                 try
                 {
-                    replicas = await this.serviceFabricCaller.GetReplicaListAsync(partition, cancellation);
+                    replicas = await _serviceFabricCaller.GetReplicaListAsync(partition, cancellation);
                 }
                 catch (Exception ex) when (!ex.IsFatal())
                 {
-                    this.logger.LogError(ex, $"Could not get replica list for partition {partition} of service {service.ServiceName}, skipping partition.");
+                    _logger.LogError(ex, $"Could not get replica list for partition {partition} of service {service.ServiceName}, skipping partition.");
                     continue;
                 }
 
-                foreach (ReplicaWrapper replica in replicas)
+                foreach (var replica in replicas)
                 {
                     if (!IsHealthyReplica(replica))
                     {
-                        this.logger.LogInformation($"Skipping unhealthy replica '{replica.Id}' from partition '{partition}', service '{service.ServiceName}': ReplicaStatus={replica.ReplicaStatus}, HealthState={replica.HealthState}.");
+                        _logger.LogInformation($"Skipping unhealthy replica '{replica.Id}' from partition '{partition}', service '{service.ServiceName}': ReplicaStatus={replica.ReplicaStatus}, HealthState={replica.HealthState}.");
                         continue;
                     }
 
@@ -275,7 +276,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
                     if (!IsReplicaEligible(replica, statefulReplicaSelectionMode))
                     {
                         // Skip this endpoint.
-                        this.logger.LogInformation($"Skipping ineligible endpoint '{replica.Id}' of service '{service.ServiceName}'. {nameof(statefulReplicaSelectionMode)}: {statefulReplicaSelectionMode}.");
+                        _logger.LogInformation($"Skipping ineligible endpoint '{replica.Id}' of service '{service.ServiceName}'. {nameof(statefulReplicaSelectionMode)}: {statefulReplicaSelectionMode}.");
                         continue;
                     }
 
@@ -283,7 +284,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
                     {
                         var destination = BuildDestination(replica, listenerName, healthListenerName);
 
-                        this.ReportReplicaHealth(options, service, partition, replica, HealthState.Ok, $"Successfully built the endpoint from listener '{listenerName}'.");
+                        ReportReplicaHealth(options, service, partition, replica, HealthState.Ok, $"Successfully built the endpoint from listener '{listenerName}'.");
                         if (!cluster.Destinations.TryAdd(replica.Id.ToString(), destination))
                         {
                             throw new ConfigException($"Duplicated endpoint id '{replica.Id}'. Skipping repeated definition, service '{service.ServiceName}', backend id '{cluster.Id}'");
@@ -292,17 +293,17 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
                     catch (ConfigException ex)
                     {
                         // The user's problem
-                        this.logger.LogInformation($"Config error found when trying to build endpoint for replica '{replica.Id}' of service '{service.ServiceName}', skipping. Error: {ex}.");
+                        _logger.LogInformation($"Config error found when trying to build endpoint for replica '{replica.Id}' of service '{service.ServiceName}', skipping. Error: {ex}.");
 
                         // TODO: emit Error health report once we are able to detect config issues *during* (as opposed to *after*) a target service upgrade.
                         // Proactive Error health report would trigger a rollback of the target service as desired. However, an Error report after rhe fact
                         // will NOT cause a rollback and will prevent the target service from performing subsequent monitored upgrades to mitigate, making things worse.
-                        this.ReportReplicaHealth(options, service, partition, replica, HealthState.Warning, $"Could not build endpoint for Island Gateway: {ex.Message}");
+                        ReportReplicaHealth(options, service, partition, replica, HealthState.Warning, $"Could not build endpoint for Island Gateway: {ex.Message}");
                     }
                     catch (Exception ex) when (!ex.IsFatal())
                     {
                         // Not the user's problem
-                        this.logger.LogError(ex, $"Could not build endpoint for replica {replica.Id} of service {service.ServiceName}.");
+                        _logger.LogError(ex, $"Could not build endpoint for replica {replica.Id} of service {service.ServiceName}.");
                     }
                 }
             }
@@ -327,7 +328,7 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
                 return StatefulReplicaSelectionMode.All;
             }
 
-            this.logger.LogWarning($"Invalid replica selection mode: {statefulReplicaSelectionMode}, fallback to selection mode: All.");
+            _logger.LogWarning($"Invalid replica selection mode: {statefulReplicaSelectionMode}, fallback to selection mode: All.");
             return StatefulReplicaSelectionMode.All;
         }
 
@@ -352,11 +353,11 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
             var sendOptions = new HealthReportSendOptions { Immediate = (state != HealthState.Ok) ? true : false }; // Report immediately if unhealthy
             try
             {
-                this.serviceFabricCaller.ReportHealth(healthReport, sendOptions);
+                _serviceFabricCaller.ReportHealth(healthReport, sendOptions);
             }
             catch (Exception ex) when (!ex.IsFatal())
             {
-                this.logger.LogError(ex, $"Failed to report health '{state}' for service '{serviceName}'.");
+                _logger.LogError(ex, $"Failed to report health '{state}' for service '{serviceName}'.");
             }
         }
 
@@ -399,18 +400,18 @@ namespace Microsoft.ReverseProxy.ServiceFabricIntegration
                         healthInformation: healthInformation);
                     break;
                 default:
-                    this.logger.LogError($"Failed to report health '{state}' for replica {replica.Id}: unexpected ServiceKind '{service.ServiceKind}'.");
+                    _logger.LogError($"Failed to report health '{state}' for replica {replica.Id}: unexpected ServiceKind '{service.ServiceKind}'.");
                     return;
             }
 
             var sendOptions = new HealthReportSendOptions { Immediate = (state != HealthState.Ok) ? true : false }; // Report immediately if unhealthy
             try
             {
-                this.serviceFabricCaller.ReportHealth(healthReport, sendOptions);
+                _serviceFabricCaller.ReportHealth(healthReport, sendOptions);
             }
             catch (Exception ex) when (!ex.IsFatal())
             {
-                this.logger.LogError($"Failed to report health '{state}' for replica {replica.Id}.");
+                _logger.LogError($"Failed to report health '{state}' for replica {replica.Id}.");
             }
         }
     }
