@@ -39,10 +39,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 
         public HttpProxy(ILogger<HttpProxy> logger, ProxyMetrics metrics)
         {
-            Contracts.CheckValue(logger, nameof(logger));
-            Contracts.CheckValue(metrics, nameof(metrics));
-            _logger = logger;
-            _metrics = metrics;
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _metrics = metrics ?? throw new ArgumentNullException(nameof(metrics));
         }
 
         /// <summary>
@@ -83,10 +81,10 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             CancellationToken shortCancellation,
             CancellationToken longCancellation)
         {
-            Contracts.CheckValue(context, nameof(context));
-            Contracts.CheckValue(destinationPrefix, nameof(destinationPrefix));
-            Contracts.CheckValue(transforms, nameof(transforms));
-            Contracts.CheckValue(httpClientFactory, nameof(httpClientFactory));
+            _ = context ?? throw new ArgumentNullException(nameof(context));
+            _ = destinationPrefix ?? throw new ArgumentNullException(nameof(destinationPrefix));
+            _ = transforms ?? throw new ArgumentNullException(nameof(transforms));
+            _ = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 1: Create outgoing HttpRequestMessage
@@ -138,9 +136,9 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             CancellationToken shortCancellation,
             CancellationToken longCancellation)
         {
-            Contracts.CheckValue(context, nameof(context));
-            Contracts.CheckValue(upstreamRequest, nameof(upstreamRequest));
-            Contracts.CheckValue(httpClient, nameof(httpClient));
+            _ = context ?? throw new ArgumentNullException(nameof(context));
+            _ = upstreamRequest ?? throw new ArgumentNullException(nameof(upstreamRequest));
+            _ = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 0: Disable ASP .NET Core limits for streaming requests
@@ -265,10 +263,10 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             CancellationToken shortCancellation,
             CancellationToken longCancellation)
         {
-            Contracts.CheckValue(context, nameof(context));
-            Contracts.CheckValue(upgradeFeature, nameof(upgradeFeature));
-            Contracts.CheckValue(upstreamRequest, nameof(upstreamRequest));
-            Contracts.CheckValue(httpClient, nameof(httpClient));
+            _ = context ?? throw new ArgumentNullException(nameof(context));
+            _ = upgradeFeature ?? throw new ArgumentNullException(nameof(upgradeFeature));
+            _ = upstreamRequest ?? throw new ArgumentNullException(nameof(upstreamRequest));
+            _ = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 2: Copy request headers Downstream --► Proxy --► Upstream

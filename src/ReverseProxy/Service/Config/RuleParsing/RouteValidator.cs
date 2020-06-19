@@ -53,8 +53,8 @@ namespace Microsoft.ReverseProxy.Service
         // Note this performs all validation steps without short circuiting in order to report all possible errors.
         public bool ValidateRoute(ParsedRoute route, IConfigErrorReporter errorReporter)
         {
-            Contracts.CheckValue(route, nameof(route));
-            Contracts.CheckValue(errorReporter, nameof(errorReporter));
+            _ = route ?? throw new ArgumentNullException(nameof(route));
+            _ = errorReporter ?? throw new ArgumentNullException(nameof(errorReporter));
 
             var success = true;
             if (string.IsNullOrEmpty(route.RouteId))

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using Microsoft.ReverseProxy.ConfigModel;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
@@ -28,14 +29,12 @@ namespace Microsoft.ReverseProxy.RuntimeModel
             IReadOnlyList<AspNetCore.Http.Endpoint> aspNetCoreEndpoints,
             Transforms transforms)
         {
-            Contracts.CheckValue(route, nameof(route));
-            Contracts.CheckValue(aspNetCoreEndpoints, nameof(aspNetCoreEndpoints));
+            Route = route ?? throw new ArgumentNullException(nameof(route));
+            Endpoints = aspNetCoreEndpoints ?? throw new ArgumentNullException(nameof(aspNetCoreEndpoints));
 
-            Route = route;
             ConfigHash = configHash;
             Priority = priority;
             Cluster = cluster;
-            Endpoints = aspNetCoreEndpoints;
             Transforms = transforms;
         }
 

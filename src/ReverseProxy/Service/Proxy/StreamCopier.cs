@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Buffers;
 using System.IO;
 using System.Threading;
@@ -23,8 +24,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 
         public StreamCopier(ProxyMetrics metrics, in StreamCopyTelemetryContext context)
         {
-            Contracts.CheckValue(metrics, nameof(metrics));
-            _metrics = metrics;
+            _metrics = metrics ?? throw new ArgumentNullException(nameof(metrics));
             _context = context;
         }
 
@@ -35,8 +35,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         /// </remarks>
         public async Task CopyAsync(Stream source, Stream destination, CancellationToken cancellation)
         {
-            Contracts.CheckValue(source, nameof(source));
-            Contracts.CheckValue(destination, nameof(destination));
+            _ = source ?? throw new ArgumentNullException(nameof(source));
+            _ = destination ?? throw new ArgumentNullException(nameof(destination));
 
             // TODO: Consider System.IO.Pipelines for better perf (e.g. reads during writes)
             var buffer = ArrayPool<byte>.Shared.Rent(DefaultBufferSize);

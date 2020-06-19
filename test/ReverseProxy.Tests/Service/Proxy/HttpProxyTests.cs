@@ -568,11 +568,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         {
             public DuplexStream(MemoryStream readStream, MemoryStream writeStream)
             {
-                Contracts.CheckValue(readStream, nameof(readStream));
-                Contracts.CheckValue(writeStream, nameof(writeStream));
-
-                ReadStream = readStream;
-                WriteStream = writeStream;
+                ReadStream = readStream ?? throw new ArgumentNullException(nameof(readStream));
+                WriteStream = writeStream ?? throw new ArgumentNullException(nameof(writeStream));
             }
 
             public MemoryStream ReadStream { get; }
@@ -625,8 +622,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
             public RawStreamContent(Stream stream)
             {
-                Contracts.CheckValue(stream, nameof(stream));
-                this.stream = stream;
+                this.stream = stream ?? throw new ArgumentNullException(nameof(stream));
             }
 
             protected override Task<Stream> CreateContentReadStreamAsync()
