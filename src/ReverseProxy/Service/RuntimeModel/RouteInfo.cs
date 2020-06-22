@@ -1,8 +1,9 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Microsoft.ReverseProxy.Utilities;
 using Microsoft.ReverseProxy.Signals;
+using System;
 
 namespace Microsoft.ReverseProxy.RuntimeModel
 {
@@ -19,7 +20,10 @@ namespace Microsoft.ReverseProxy.RuntimeModel
     {
         public RouteInfo(string routeId)
         {
-            Contracts.CheckNonEmpty(routeId, nameof(routeId));
+            if (string.IsNullOrEmpty(routeId))
+            {
+                throw new ArgumentNullException(nameof(routeId));
+            }
             RouteId = routeId;
         }
 

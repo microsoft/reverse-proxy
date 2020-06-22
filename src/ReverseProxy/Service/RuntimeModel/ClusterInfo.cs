@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.ReverseProxy.Service.Management;
@@ -24,13 +25,9 @@ namespace Microsoft.ReverseProxy.RuntimeModel
     {
         public ClusterInfo(string clusterId, IDestinationManager destinationManager, IProxyHttpClientFactory proxyHttpClientFactory)
         {
-            Contracts.CheckNonEmpty(clusterId, nameof(clusterId));
-            Contracts.CheckValue(destinationManager, nameof(destinationManager));
-            Contracts.CheckValue(proxyHttpClientFactory, nameof(proxyHttpClientFactory));
-
-            ClusterId = clusterId;
-            DestinationManager = destinationManager;
-            ProxyHttpClientFactory = proxyHttpClientFactory;
+            ClusterId = clusterId ?? throw new ArgumentNullException(nameof(clusterId));
+            DestinationManager = destinationManager ?? throw new ArgumentNullException(nameof(destinationManager));
+            ProxyHttpClientFactory = proxyHttpClientFactory ?? throw new ArgumentNullException(nameof(proxyHttpClientFactory));
 
             DynamicState = CreateDynamicStateQuery();
         }

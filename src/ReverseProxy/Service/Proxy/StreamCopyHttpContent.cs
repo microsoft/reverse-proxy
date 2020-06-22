@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -45,11 +45,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 
         public StreamCopyHttpContent(Stream source, IStreamCopier streamCopier, bool autoFlushHttpClientOutgoingStream, CancellationToken cancellation)
         {
-            Contracts.CheckValue(source, nameof(source));
-            Contracts.CheckValue(streamCopier, nameof(streamCopier));
-
-            _source = source;
-            _streamCopier = streamCopier;
+            _source = source ?? throw new ArgumentNullException(nameof(source));
+            _streamCopier = streamCopier ?? throw new ArgumentNullException(nameof(streamCopier));
             _autoFlushHttpClientOutgoingStream = autoFlushHttpClientOutgoingStream;
             _cancellation = cancellation;
         }

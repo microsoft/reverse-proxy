@@ -14,7 +14,7 @@ namespace Microsoft.ReverseProxy.Service.Metrics
 
         public ProxyMetrics(IMetricCreator metricCreator)
         {
-            Contracts.CheckValue(metricCreator, nameof(metricCreator));
+            _ = metricCreator ?? throw new ArgumentNullException(nameof(metricCreator));
 
             _streamCopyBytes = metricCreator.Create("StreamCopyBytes", "direction", "clusterId", "routeId", "destinationId", "protocol");
             _streamCopyIops = metricCreator.Create("StreamCopyIops", "direction", "clusterId", "routeId", "destinationId", "protocol");

@@ -42,7 +42,7 @@ namespace Microsoft.ReverseProxy.Middleware
         /// <inheritdoc/>
         public async Task Invoke(HttpContext context)
         {
-            Contracts.CheckValue(context, nameof(context));
+            _ = context ?? throw new ArgumentNullException(nameof(context));
 
             var cluster = context.Features.Get<ClusterInfo>() ?? throw new InvalidOperationException("Cluster unspecified.");
             var destinations = context.Features.Get<IAvailableDestinationsFeature>()?.Destinations

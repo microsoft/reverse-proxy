@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using Microsoft.Extensions.Logging;
 using Microsoft.ReverseProxy.Abstractions.Telemetry;
 using Microsoft.ReverseProxy.Abstractions.Time;
@@ -32,17 +33,11 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
             IHealthProbeHttpClientFactory httpClientFactory,
             IRandomFactory randomFactory)
         {
-            Contracts.CheckValue(timer, nameof(timer));
-            Contracts.CheckValue(logger, nameof(logger));
-            Contracts.CheckValue(operationLogger, nameof(operationLogger));
-            Contracts.CheckValue(httpClientFactory, nameof(httpClientFactory));
-            Contracts.CheckValue(randomFactory, nameof(randomFactory));
-
-            _timer = timer;
-            _logger = logger;
-            _httpClientFactory = httpClientFactory;
-            _randomFactory = randomFactory;
-            _operationLogger = operationLogger;
+            _timer = timer ?? throw new ArgumentNullException(nameof(timer));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+            _randomFactory = randomFactory ?? throw new ArgumentNullException(nameof(randomFactory));
+            _operationLogger = operationLogger ?? throw new ArgumentNullException(nameof(operationLogger));
         }
 
         /// <inheritdoc/>

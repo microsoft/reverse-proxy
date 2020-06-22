@@ -31,7 +31,7 @@ namespace Microsoft.ReverseProxy.Utilities
         /// </summary>
         public static bool IsFatal(this Exception exception)
         {
-            Contracts.CheckValue(exception, nameof(exception));
+            _ = exception ?? throw new ArgumentNullException(nameof(exception));
 
             while (exception != null)
             {

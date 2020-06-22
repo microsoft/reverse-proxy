@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -22,7 +22,7 @@ namespace Microsoft.ReverseProxy.Service.Management
         /// <inheritdoc/>
         public T TryGetItem(string itemId)
         {
-            Contracts.CheckNonEmpty(itemId, nameof(itemId));
+            _ = itemId ?? throw new ArgumentNullException(nameof(itemId));
 
             lock (_lockObject)
             {
@@ -34,8 +34,8 @@ namespace Microsoft.ReverseProxy.Service.Management
         /// <inheritdoc/>
         public T GetOrCreateItem(string itemId, Action<T> setupAction)
         {
-            Contracts.CheckNonEmpty(itemId, nameof(itemId));
-            Contracts.CheckValue(setupAction, nameof(setupAction));
+            _ = itemId ?? throw new ArgumentNullException(nameof(itemId));
+            _ = setupAction ?? throw new ArgumentNullException(nameof(setupAction));
 
             lock (_lockObject)
             {
@@ -69,7 +69,7 @@ namespace Microsoft.ReverseProxy.Service.Management
         /// <inheritdoc/>
         public bool TryRemoveItem(string itemId)
         {
-            Contracts.CheckNonEmpty(itemId, nameof(itemId));
+            _ = itemId ?? throw new ArgumentNullException(nameof(itemId));
 
             lock (_lockObject)
             {
