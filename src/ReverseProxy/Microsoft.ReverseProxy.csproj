@@ -20,7 +20,7 @@
     
 
     <!-- TODO: Remove once architectural debt is paid. -->
-    <InternalsVisibleTo Include="Microsoft.ReverseProxy.ServiceFabricIntegration" />
+    <InternalsVisibleTo Include="Microsoft.ReverseProxy.ServiceFabric" />
   </ItemGroup>
 
   <ItemGroup>

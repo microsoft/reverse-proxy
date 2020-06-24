@@ -30,15 +30,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{BC344A50-8
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "docfx", "docs\docfx\docfx.csproj", "{7F6D4710-07D1-49D0-8EAE-675A3A9B50E3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BenchmarkApp", "samples\BenchmarkApp\BenchmarkApp.csproj", "{F663FD56-C01D-4FA7-96A4-B1217ED95E3C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BenchmarkApp", "samples\BenchmarkApp\BenchmarkApp.csproj", "{F663FD56-C01D-4FA7-96A4-B1217ED95E3C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ReverseProxy.ServiceFabricIntegration", "src\Integrations\ServiceFabric\Microsoft.ReverseProxy.ServiceFabricIntegration.csproj", "{EFAF6DD3-9D9B-488E-BD5B-B4623CB7BE52}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ReverseProxy.ServiceFabric", "src\ReverseProxy.ServiceFabric\Microsoft.ReverseProxy.ServiceFabric.csproj", "{EFAF6DD3-9D9B-488E-BD5B-B4623CB7BE52}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Integrations", "Integrations", "{193C08FE-BE7D-4564-AA77-A680C0114A95}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Integrations", "Integrations", "{C3FFE6EE-5BC3-48D0-96F0-D92A76A0659F}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ReverseProxy.ServiceFabricIntegration.Tests", "test\Integrations\ServiceFabric.Tests\Microsoft.ReverseProxy.ServiceFabricIntegration.Tests.csproj", "{AA4C6660-F834-490D-A74F-FCC1C4D6EA51}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ReverseProxy.ServiceFabric.Tests", "test\ReverseProxy.ServiceFabric.Tests\Microsoft.ReverseProxy.ServiceFabric.Tests.csproj", "{AA4C6660-F834-490D-A74F-FCC1C4D6EA51}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ReverseProxy.Tests.Common", "test\ReverseProxy.Tests.Common\Microsoft.ReverseProxy.Tests.Common.csproj", "{2B4A6A3F-2267-4848-A2C5-8F9319FA4F43}"
 EndProject
@@ -142,10 +138,8 @@ Global
 		{11D098B2-7116-4F37-817A-E496B8F15C76} = {149C61A2-D9F8-49B9-9F9B-3C953FEF53AA}
 		{7F6D4710-07D1-49D0-8EAE-675A3A9B50E3} = {BC344A50-8F81-4762-9F4B-12714693144B}
 		{F663FD56-C01D-4FA7-96A4-B1217ED95E3C} = {149C61A2-D9F8-49B9-9F9B-3C953FEF53AA}
-		{EFAF6DD3-9D9B-488E-BD5B-B4623CB7BE52} = {193C08FE-BE7D-4564-AA77-A680C0114A95}
-		{193C08FE-BE7D-4564-AA77-A680C0114A95} = {6CBE18D4-64E9-492B-BB02-58CD57126C10}
-		{C3FFE6EE-5BC3-48D0-96F0-D92A76A0659F} = {0631147E-34BB-456D-B214-5B202C516D5C}
-		{AA4C6660-F834-490D-A74F-FCC1C4D6EA51} = {C3FFE6EE-5BC3-48D0-96F0-D92A76A0659F}
+		{EFAF6DD3-9D9B-488E-BD5B-B4623CB7BE52} = {6CBE18D4-64E9-492B-BB02-58CD57126C10}
+		{AA4C6660-F834-490D-A74F-FCC1C4D6EA51} = {0631147E-34BB-456D-B214-5B202C516D5C}
 		{2B4A6A3F-2267-4848-A2C5-8F9319FA4F43} = {0631147E-34BB-456D-B214-5B202C516D5C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution

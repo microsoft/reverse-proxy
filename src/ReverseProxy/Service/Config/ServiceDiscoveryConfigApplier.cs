@@ -37,12 +37,9 @@ namespace IslandGateway.Core.Service
             IEnumerable<IServiceDiscovery> serviceDiscoveries,
             IOptionsMonitor<ServiceDiscoveryConfig> gatewayConfig)
         {
-            Contracts.CheckValue(logger, nameof(logger));
-            Contracts.CheckValue(serviceDiscoveries, nameof(serviceDiscoveries));
-            Contracts.CheckValue(gatewayConfig, nameof(gatewayConfig));
-
-            _logger = logger;
-            _serviceDiscoveries = serviceDiscoveries;
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _serviceDiscoveries = serviceDiscoveries ?? throw new ArgumentNullException(nameof(serviceDiscoveries));
+            _ = gatewayConfig ?? throw new ArgumentNullException(nameof(gatewayConfig));
 
             _subscription = gatewayConfig.OnChange((newConfig, name) => Apply(newConfig));
             Apply(gatewayConfig.CurrentValue);
