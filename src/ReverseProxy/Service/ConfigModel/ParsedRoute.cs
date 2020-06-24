@@ -55,6 +55,14 @@ namespace Microsoft.ReverseProxy.ConfigModel
         public string ClusterId { get; set; }
 
         /// <summary>
+        /// The name of the AuthorizationPolicy to apply to this route.
+        /// If not set then only the FallbackPolicy will apply.
+        /// Set to "Default" to enable authorization with the applications default policy.
+        /// Set to "Anonymous" to disable all authorization checks for this route.
+        /// </summary>
+        public string Authorization { get; set; }
+
+        /// <summary>
         /// Arbitrary key-value pairs that further describe this route.
         /// </summary>
         public IDictionary<string, string> Metadata { get; set; }
@@ -99,6 +107,11 @@ namespace Microsoft.ReverseProxy.ConfigModel
             if (!string.IsNullOrEmpty(ClusterId))
             {
                 hash ^= ClusterId.GetHashCode();
+            }
+
+            if (!string.IsNullOrEmpty(Authorization))
+            {
+                hash ^= Authorization.GetHashCode();
             }
 
             if (Metadata != null)

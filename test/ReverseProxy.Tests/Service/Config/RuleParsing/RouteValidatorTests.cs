@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Options;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.ConfigModel;
 using Microsoft.ReverseProxy.Service.Config;
@@ -40,7 +42,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
                 Host = host,
                 Path = path,
                 Methods = methods?.Split(","),
-                ClusterId = "be1",
+                ClusterId = "cluster1",
             };
 
             // Act
@@ -76,7 +78,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var route = new ParsedRoute
             {
                 RouteId = "route1",
-                ClusterId = "be1",
+                ClusterId = "cluster1",
             };
 
             // Act
@@ -106,7 +108,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             {
                 RouteId = "route1",
                 Host = host,
-                ClusterId = "be1",
+                ClusterId = "cluster1",
             };
 
             // Act
@@ -129,7 +131,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             {
                 RouteId = "route1",
                 Path = path,
-                ClusterId = "be1",
+                ClusterId = "cluster1",
             };
 
             // Act
@@ -151,7 +153,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             {
                 RouteId = "route1",
                 Methods = methods.Split(","),
-                ClusterId = "be1",
+                ClusterId = "cluster1",
             };
 
             // Act
@@ -160,6 +162,63 @@ namespace Microsoft.ReverseProxy.Service.Tests
             // Assert
             Assert.False(result.IsSuccess);
             Assert.Contains(result.ErrorReporter.Errors, err => err.ErrorCode == ConfigErrors.ParsedRouteRuleInvalidMatcher && err.Message.Contains("verb"));
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData("defaulT")]
+        [InlineData("anonyMous")]
+        public void Accepts_ReservedAuthorization(string policy)
+        {
+            var route = new ParsedRoute
+            {
+                RouteId = "route1",
+                Authorization = policy,
+                Host = "localhost",
+                ClusterId = "cluster1",
+            };
+
+            var result = RunScenario(route);
+
+            Assert.True(result.IsSuccess);
+            Assert.Empty(result.ErrorReporter.Errors);
+        }
+
+        [Fact]
+        public void Accepts_CustomAuthorization()
+        {
+            var authzOptions = new AuthorizationOptions();
+            authzOptions.AddPolicy("custom", builder => builder.RequireAuthenticatedUser());
+            Provide<IAuthorizationPolicyProvider>(new DefaultAuthorizationPolicyProvider(Options.Create(authzOptions)));
+            var route = new ParsedRoute
+            {
+                RouteId = "route1",
+                Authorization = "custom",
+                Host = "localhost",
+                ClusterId = "cluster1",
+            };
+
+            var result = RunScenario(route);
+
+            Assert.True(result.IsSuccess);
+            Assert.Empty(result.ErrorReporter.Errors);
+        }
+
+        [Fact]
+        public void Rejects_UnknownAuthorization()
+        {
+            var route = new ParsedRoute
+            {
+                RouteId = "route1",
+                Authorization = "unknown",
+                ClusterId = "cluster1",
+            };
+
+            var result = RunScenario(route);
+
+            Assert.False(result.IsSuccess);
+            Assert.Contains(result.ErrorReporter.Errors, err => err.ErrorCode == ConfigErrors.ParsedRouteRuleInvalidAuthorization && err.Message.Contains("Authorization policy 'unknown' not found"));
         }
 
         private (bool IsSuccess, TestConfigErrorReporter ErrorReporter) RunScenario(ParsedRoute parsedRoute)

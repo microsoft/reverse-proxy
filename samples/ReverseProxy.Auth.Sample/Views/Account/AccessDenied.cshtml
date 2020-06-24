@@ -1,0 +1,13 @@
+@{
+    ViewData["Title"] = "Access Denied";
+}
+
+<header>
+    <h1 class="text-danger">@ViewData["Title"]</h1>
+    <p class="text-danger">You do not have access to this route.</p>
+</header>
+
+
+<form action="/Account/Logout" method="post">
+    <input type="submit" value="Logout">
+</form>

@@ -29,6 +29,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
                 },
                 Priority = 2,
                 ClusterId = "cluster1",
+                Authorization = "policy1",
                 Metadata = new Dictionary<string, string>
                 {
                     { "key", "value" },
@@ -48,6 +49,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
             Assert.Equal(sut.Match.Path, clone.Match.Path);
             Assert.Equal(sut.Priority, clone.Priority);
             Assert.Equal(sut.ClusterId, clone.ClusterId);
+            Assert.Equal(sut.Authorization, clone.Authorization);
             Assert.NotNull(clone.Metadata);
             Assert.NotSame(sut.Metadata, clone.Metadata);
             Assert.Equal("value", clone.Metadata["key"]);
@@ -70,6 +72,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
             Assert.Null(clone.Match.Path);
             Assert.Null(clone.Priority);
             Assert.Null(clone.ClusterId);
+            Assert.Null(clone.Authorization);
             Assert.Null(clone.Metadata);
         }
     }

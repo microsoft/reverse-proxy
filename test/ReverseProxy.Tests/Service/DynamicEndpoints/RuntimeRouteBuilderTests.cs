@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.ReverseProxy.ConfigModel;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Management;
@@ -200,6 +201,92 @@ namespace Microsoft.ReverseProxy.Service.Tests
 
             // Assert
             Assert.Throws<AspNetCore.Routing.Patterns.RoutePatternException>(action);
+        }
+
+        [Fact]
+        public void BuildEndpoints_DefaultAuth_Works()
+        {
+            var builder = Create<RuntimeRouteBuilder>();
+            var parsedRoute = new ParsedRoute
+            {
+                RouteId = "route1",
+                Authorization = "defaulT",
+                Priority = 12,
+            };
+            var cluster = new ClusterInfo("cluster1", new DestinationManager(), new Mock<IProxyHttpClientFactory>().Object);
+            var routeInfo = new RouteInfo("route1");
+
+            var config = builder.Build(parsedRoute, cluster, routeInfo);
+
+            // Assert
+            Assert.Single(config.Endpoints);
+            var routeEndpoint = config.Endpoints[0] as AspNetCore.Routing.RouteEndpoint;
+            var attribute = Assert.IsType<AuthorizeAttribute>(routeEndpoint.Metadata.GetMetadata<IAuthorizeData>());
+            Assert.Null(attribute.Policy);
+        }
+
+        [Fact]
+        public void BuildEndpoints_AnonymousAuth_Works()
+        {
+            var builder = Create<RuntimeRouteBuilder>();
+            var parsedRoute = new ParsedRoute
+            {
+                RouteId = "route1",
+                Authorization = "AnonymouS",
+                Priority = 12,
+            };
+            var cluster = new ClusterInfo("cluster1", new DestinationManager(), new Mock<IProxyHttpClientFactory>().Object);
+            var routeInfo = new RouteInfo("route1");
+
+            var config = builder.Build(parsedRoute, cluster, routeInfo);
+
+            // Assert
+            Assert.Single(config.Endpoints);
+            var routeEndpoint = config.Endpoints[0] as AspNetCore.Routing.RouteEndpoint;
+            Assert.IsType<AllowAnonymousAttribute>(routeEndpoint.Metadata.GetMetadata<IAllowAnonymous>());
+        }
+
+        [Fact]
+        public void BuildEndpoints_CustomAuth_Works()
+        {
+            var builder = Create<RuntimeRouteBuilder>();
+            var parsedRoute = new ParsedRoute
+            {
+                RouteId = "route1",
+                Authorization = "custom",
+                Priority = 12,
+            };
+            var cluster = new ClusterInfo("cluster1", new DestinationManager(), new Mock<IProxyHttpClientFactory>().Object);
+            var routeInfo = new RouteInfo("route1");
+
+            var config = builder.Build(parsedRoute, cluster, routeInfo);
+
+            // Assert
+            Assert.Single(config.Endpoints);
+            var routeEndpoint = config.Endpoints[0] as AspNetCore.Routing.RouteEndpoint;
+            var attribute = Assert.IsType<AuthorizeAttribute>(routeEndpoint.Metadata.GetMetadata<IAuthorizeData>());
+            Assert.Equal("custom", attribute.Policy);
+        }
+
+        [Fact]
+        public void BuildEndpoints_NoAuth_Works()
+        {
+            var builder = Create<RuntimeRouteBuilder>();
+            var parsedRoute = new ParsedRoute
+            {
+                RouteId = "route1",
+                Priority = 12,
+            };
+            var cluster = new ClusterInfo("cluster1", new DestinationManager(), new Mock<IProxyHttpClientFactory>().Object);
+            var routeInfo = new RouteInfo("route1");
+
+            var config = builder.Build(parsedRoute, cluster, routeInfo);
+
+            // Assert
+            Assert.Single(config.Endpoints);
+            var routeEndpoint = config.Endpoints[0] as AspNetCore.Routing.RouteEndpoint;
+            Assert.Null(routeEndpoint.Metadata.GetMetadata<IAuthorizeData>());
+            Assert.Null(routeEndpoint.Metadata.GetMetadata<IAllowAnonymous>());
         }
     }
 }
