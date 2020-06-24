@@ -13,7 +13,7 @@ using System.Text;
 namespace Microsoft.ReverseProxy.Utilities
 {
     // SSL3/TLS protocol frames definitions.
-    internal enum TlsContentType : byte
+    public enum TlsContentType : byte
     {
         ChangeCipherSpec = 20,
         Alert = 21,
@@ -21,7 +21,7 @@ namespace Microsoft.ReverseProxy.Utilities
         AppData = 23
     }
 
-    internal enum TlsHandshakeType : byte
+    public enum TlsHandshakeType : byte
     {
         HelloRequest = 0,
         ClientHello = 1,
@@ -40,13 +40,13 @@ namespace Microsoft.ReverseProxy.Utilities
         MessageHash = 254
     }
 
-    internal enum TlsAlertLevel : byte
+    public enum TlsAlertLevel : byte
     {
         Warning = 1,
         Fatal = 2,
     }
 
-    internal enum TlsAlertDescription : byte
+    public enum TlsAlertDescription : byte
     {
         CloseNotify = 0, // warning
         UnexpectedMessage = 10, // error
@@ -74,7 +74,7 @@ namespace Microsoft.ReverseProxy.Utilities
         UnsupportedExt = 110, // error
     }
 
-    internal enum ExtensionType : ushort
+    public enum ExtensionType : ushort
     {
         ServerName = 0,
         MaximumFagmentLength = 1,
@@ -86,7 +86,7 @@ namespace Microsoft.ReverseProxy.Utilities
         SupportedVersions = 43
     }
 
-    internal struct TlsFrameHeader
+    public struct TlsFrameHeader
     {
         public TlsContentType Type;
         public SslProtocols Version;
@@ -95,7 +95,7 @@ namespace Microsoft.ReverseProxy.Utilities
         public override string ToString() => $"{Version}:{Type}[{Length}]";
     }
 
-    internal class TlsFrameHelper
+    public class TlsFrameHelper
     {
         public const int HeaderSize = 5;
 
@@ -167,8 +167,8 @@ namespace Microsoft.ReverseProxy.Utilities
         private const int ProtocolVersionTlsMajorValue = 3;
 
         // Per spec "AllowUnassigned flag MUST be set". See comment above DecodeString() for more details.
-        private static readonly IdnMapping s_idnMapping = new IdnMapping() { AllowUnassigned = true };
-        private static readonly Encoding s_encoding = Encoding.GetEncoding("utf-8", new EncoderExceptionFallback(), new DecoderExceptionFallback());
+        private static readonly IdnMapping IdnMapping = new IdnMapping() { AllowUnassigned = true };
+        private static readonly Encoding Utf8Encoding = Encoding.GetEncoding("utf-8", new EncoderExceptionFallback(), new DecoderExceptionFallback());
 
         public static bool TryGetFrameHeader(ReadOnlySpan<byte> frame, ref TlsFrameHeader header)
         {
@@ -739,7 +739,7 @@ namespace Microsoft.ReverseProxy.Utilities
             string idnEncodedString;
             try
             {
-                idnEncodedString = s_encoding.GetString(bytes);
+                idnEncodedString = Utf8Encoding.GetString(bytes);
             }
             catch (DecoderFallbackException)
             {
@@ -748,7 +748,7 @@ namespace Microsoft.ReverseProxy.Utilities
 
             try
             {
-                return s_idnMapping.GetUnicode(idnEncodedString);
+                return IdnMapping.GetUnicode(idnEncodedString);
             }
             catch (ArgumentException)
             {
