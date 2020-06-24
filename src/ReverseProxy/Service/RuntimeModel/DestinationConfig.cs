@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.RuntimeModel
@@ -19,7 +20,10 @@ namespace Microsoft.ReverseProxy.RuntimeModel
     {
         public DestinationConfig(string address)
         {
-            Contracts.CheckNonEmpty(address, nameof(address));
+            if (string.IsNullOrEmpty(address))
+            {
+                throw new ArgumentNullException(nameof(address));
+            }
             Address = address;
         }
 

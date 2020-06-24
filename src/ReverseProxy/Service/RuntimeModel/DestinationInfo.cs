@@ -23,7 +23,10 @@ namespace Microsoft.ReverseProxy.RuntimeModel
     {
         public DestinationInfo(string destinationId)
         {
-            Contracts.CheckNonEmpty(destinationId, nameof(destinationId));
+            if (string.IsNullOrEmpty(destinationId))
+            {
+                throw new ArgumentNullException(nameof(destinationId));
+            }
             DestinationId = destinationId;
         }
 

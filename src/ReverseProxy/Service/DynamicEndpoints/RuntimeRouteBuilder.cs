@@ -33,8 +33,8 @@ namespace Microsoft.ReverseProxy.Service
         /// <inheritdoc/>
         public RouteConfig Build(ParsedRoute source, ClusterInfo cluster, RouteInfo runtimeRoute)
         {
-            Contracts.CheckValue(source, nameof(source));
-            Contracts.CheckValue(runtimeRoute, nameof(runtimeRoute));
+            _ = source ?? throw new ArgumentNullException(nameof(source));
+            _ = runtimeRoute ?? throw new ArgumentNullException(nameof(runtimeRoute));
 
             var transforms = _transformBuilder.Build(source.Transforms);
 

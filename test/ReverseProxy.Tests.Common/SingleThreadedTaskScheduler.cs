@@ -48,7 +48,10 @@ namespace Tests.Common
         {
             lock (_lockObject)
             {
-                Contracts.Check(_schedulerIsRunning == false, "Synchronous execution is not supported if already being executed.");
+                if (_schedulerIsRunning)
+                {
+                    throw new ArgumentException("Synchronous execution is not supported if already being executed.");
+                }
 
                 var flag = false;
                 _suspendScheduler = true;
@@ -64,7 +67,10 @@ namespace Tests.Common
 
                 ExecuteTasksUntil(() => flag);
 
-                Contracts.Check(flag == true, "Task did not execute synchronously. Check for any non-single threaded work.");
+                if (!flag)
+                {
+                    throw new ArgumentException("Task did not execute synchronously. Check for any non-single threaded work.");
+                }
             }
         }
 
@@ -100,7 +106,10 @@ namespace Tests.Common
         /// </remarks>
         private void ExecuteTasksUntil(Func<bool> predicate)
         {
-            Contracts.Check(Monitor.IsEntered(_lockObject), "Must hold lock when scheduling.");
+            if (!Monitor.IsEntered(_lockObject))
+            {
+                throw new ArgumentException("Must hold lock when scheduling.");
+            }
 
             // Prevent reentrancy. Reentrancy can lead to stack overflow and difficulty when debugging.
             if (_schedulerIsRunning || _suspendScheduler)

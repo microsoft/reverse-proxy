@@ -49,11 +49,11 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _operationLogger = operationLogger ?? throw new ArgumentNullException(nameof(operationLogger));
             _randomFactory = randomFactory ?? throw new ArgumentNullException(nameof(randomFactory));
+            _clusterProbeHttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
 
             _healthControllerUrl = new Uri(Config.HealthCheckOptions.Path, UriKind.Relative);
             _healthCheckInterval = Config.HealthCheckOptions.Interval;
 
-            _clusterProbeHttpClient = httpClient;
         }
 
         /// <inheritdoc/>

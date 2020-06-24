@@ -71,7 +71,8 @@ namespace Tests.Common
         public void Provide<TService>(TService instance)
             where TService : class
         {
-            Contracts.CheckValue(instance, nameof(instance));
+            _ = instance ?? throw new ArgumentNullException(nameof(instance));
+
             AutoMock.Provide(instance);
         }
 

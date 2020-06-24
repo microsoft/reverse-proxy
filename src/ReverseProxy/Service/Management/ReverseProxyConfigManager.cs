@@ -36,19 +36,12 @@ namespace Microsoft.ReverseProxy.Service.Management
             IRouteManager routeManager,
             IProxyDynamicEndpointDataSource dynamicEndpointDataSource)
         {
-            Contracts.CheckValue(logger, nameof(logger));
-            Contracts.CheckValue(configBuilder, nameof(configBuilder));
-            Contracts.CheckValue(routeEndpointBuilder, nameof(routeEndpointBuilder));
-            Contracts.CheckValue(clusterManager, nameof(clusterManager));
-            Contracts.CheckValue(routeManager, nameof(routeManager));
-            Contracts.CheckValue(dynamicEndpointDataSource, nameof(dynamicEndpointDataSource));
-
-            _logger = logger;
-            _configBuilder = configBuilder;
-            _routeEndpointBuilder = routeEndpointBuilder;
-            _clusterManager = clusterManager;
-            _routeManager = routeManager;
-            _dynamicEndpointDataSource = dynamicEndpointDataSource;
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _configBuilder = configBuilder ?? throw new ArgumentNullException(nameof(configBuilder));
+            _routeEndpointBuilder = routeEndpointBuilder ?? throw new ArgumentNullException(nameof(routeEndpointBuilder));
+            _clusterManager = clusterManager ?? throw new ArgumentNullException(nameof(clusterManager));
+            _routeManager = routeManager ?? throw new ArgumentNullException(nameof(routeManager));
+            _dynamicEndpointDataSource = dynamicEndpointDataSource ?? throw new ArgumentNullException(nameof(dynamicEndpointDataSource));
         }
 
         /// <inheritdoc/>
