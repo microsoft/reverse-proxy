@@ -13,7 +13,7 @@ using System.Text;
 namespace Microsoft.ReverseProxy.Utilities
 {
     // SSL3/TLS protocol frames definitions.
-    public enum TlsContentType : byte
+    internal enum TlsContentType : byte
     {
         ChangeCipherSpec = 20,
         Alert = 21,
@@ -21,7 +21,7 @@ namespace Microsoft.ReverseProxy.Utilities
         AppData = 23
     }
 
-    public enum TlsHandshakeType : byte
+    internal enum TlsHandshakeType : byte
     {
         HelloRequest = 0,
         ClientHello = 1,
@@ -40,13 +40,13 @@ namespace Microsoft.ReverseProxy.Utilities
         MessageHash = 254
     }
 
-    public enum TlsAlertLevel : byte
+    internal enum TlsAlertLevel : byte
     {
         Warning = 1,
         Fatal = 2,
     }
 
-    public enum TlsAlertDescription : byte
+    internal enum TlsAlertDescription : byte
     {
         CloseNotify = 0, // warning
         UnexpectedMessage = 10, // error
@@ -74,7 +74,7 @@ namespace Microsoft.ReverseProxy.Utilities
         UnsupportedExt = 110, // error
     }
 
-    public enum ExtensionType : ushort
+    internal enum ExtensionType : ushort
     {
         ServerName = 0,
         MaximumFagmentLength = 1,
@@ -86,7 +86,7 @@ namespace Microsoft.ReverseProxy.Utilities
         SupportedVersions = 43
     }
 
-    public struct TlsFrameHeader
+    internal struct TlsFrameHeader
     {
         public TlsContentType Type;
         public SslProtocols Version;
@@ -95,7 +95,7 @@ namespace Microsoft.ReverseProxy.Utilities
         public override string ToString() => $"{Version}:{Type}[{Length}]";
     }
 
-    public class TlsFrameHelper
+    internal class TlsFrameHelper
     {
         public const int HeaderSize = 5;
 
