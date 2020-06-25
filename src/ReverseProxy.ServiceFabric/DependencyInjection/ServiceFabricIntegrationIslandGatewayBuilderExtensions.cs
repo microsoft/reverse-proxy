@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Configuration.DependencyInjection;
 
@@ -18,14 +18,14 @@ namespace Microsoft.ReverseProxy.ServiceFabric
         /// </summary>
         public static IReverseProxyBuilder AddServiceFabricServiceDiscovery(this IReverseProxyBuilder builder)
         {
-            builder.Services.AddSingleton<IQueryClientWrapper, QueryClientWrapper>();
-            builder.Services.AddSingleton<IPropertyManagementClientWrapper, PropertyManagementClientWrapper>();
-            builder.Services.AddSingleton<IServiceManagementClientWrapper, ServiceManagementClientWrapper>();
-            builder.Services.AddSingleton<IHealthClientWrapper, HealthClientWrapper>();
-            builder.Services.AddSingleton<IServiceFabricCaller, CachedServiceFabricCaller>();
-            builder.Services.AddSingleton<IServiceFabricExtensionConfigProvider, ServiceFabricExtensionConfigProvider>();
-            builder.Services.AddSingleton<IServiceFabricDiscoveryWorker, ServiceFabricDiscoveryWorker>();
-            builder.Services.AddSingleton<IServiceDiscovery, ServiceFabricServiceDiscovery>();
+            builder.Services.TryAddSingleton<IQueryClientWrapper, QueryClientWrapper>();
+            builder.Services.TryAddSingleton<IPropertyManagementClientWrapper, PropertyManagementClientWrapper>();
+            builder.Services.TryAddSingleton<IServiceManagementClientWrapper, ServiceManagementClientWrapper>();
+            builder.Services.TryAddSingleton<IHealthClientWrapper, HealthClientWrapper>();
+            builder.Services.TryAddSingleton<IServiceFabricCaller, CachedServiceFabricCaller>();
+            builder.Services.TryAddSingleton<IServiceFabricExtensionConfigProvider, ServiceFabricExtensionConfigProvider>();
+            builder.Services.TryAddSingleton<IServiceFabricDiscoveryWorker, ServiceFabricDiscoveryWorker>();
+            builder.Services.TryAddSingleton<IServiceDiscovery, ServiceFabricServiceDiscovery>();
 
             return builder;
         }
