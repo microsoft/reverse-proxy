@@ -5,7 +5,7 @@ title: Supported Runtimes
 
 # YARP Supported Runtimes
 
-YARP supports ASP.NET Core 3.1 and 5.0.0 Preview 4 or later. You can download the .NET 5 Preview 4 SDK from https://dotnet.microsoft.com/download/dotnet/5.0.
+YARP 1.0.0 Preview 2 supports ASP.NET Core 3.1 and 5.0.0 Preview 6 or later. You can download the .NET 5 Preview SDK from https://dotnet.microsoft.com/download/dotnet/5.0.
 
 YARP will be taking advantage of 5.0.0 features and optimizations as they become available. This does mean that some features may not be available if you're running on 3.1.
 
