@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 
 namespace Microsoft.ReverseProxy.Auth.Sample
 {
@@ -30,8 +29,7 @@ namespace Microsoft.ReverseProxy.Auth.Sample
         /// </summary>
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
-            services.AddMvc();
+            services.AddRazorPages();
 
             services.AddReverseProxy()
                 .LoadFromConfig(_configuration.GetSection("ReverseProxy"));
