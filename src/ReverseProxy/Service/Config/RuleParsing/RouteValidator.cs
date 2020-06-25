@@ -77,7 +77,7 @@ namespace Microsoft.ReverseProxy.Service
             success &= ValidatePath(route.Path, route.RouteId, errorReporter);
             success &= ValidateMethods(route.Methods, route.RouteId, errorReporter);
             success &= _transformBuilder.Validate(route.Transforms, route.RouteId, errorReporter);
-            success &= ValidateAuthorization(route.Authorization, route.RouteId, errorReporter);
+            success &= ValidateAuthorizationPolicy(route.AuthorizationPolicy, route.RouteId, errorReporter);
 
             return success;
         }
@@ -147,15 +147,15 @@ namespace Microsoft.ReverseProxy.Service
             return true;
         }
 
-        private bool ValidateAuthorization(string authorization, string routeId, IConfigErrorReporter errorReporter)
+        private bool ValidateAuthorizationPolicy(string authorizationPolicyName, string routeId, IConfigErrorReporter errorReporter)
         {
-            if (string.IsNullOrEmpty(authorization))
+            if (string.IsNullOrEmpty(authorizationPolicyName))
             {
                 return true;
             }
 
-            if (string.Equals(AuthorizationContants.Default, authorization, StringComparison.OrdinalIgnoreCase)
-                || string.Equals(AuthorizationContants.Anonymous, authorization, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(AuthorizationConstants.Default, authorizationPolicyName, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(AuthorizationConstants.Anonymous, authorizationPolicyName, StringComparison.OrdinalIgnoreCase))
             {
                 return true;
             }
@@ -164,16 +164,16 @@ namespace Microsoft.ReverseProxy.Service
             {
                 // The default implementation is sync.
                 // https://github.com/dotnet/aspnetcore/blob/5155e11120cf7ee2e07383225057f66512f00fde/src/Security/Authorization/Core/src/DefaultAuthorizationPolicyProvider.cs#L73
-                var policy = _authorizationPolicyProvider.GetPolicyAsync(authorization).GetAwaiter().GetResult();
+                var policy = _authorizationPolicyProvider.GetPolicyAsync(authorizationPolicyName).GetAwaiter().GetResult();
                 if (policy == null)
                 {
-                    errorReporter.ReportError(ConfigErrors.ParsedRouteRuleInvalidAuthorization, routeId, $"Authorization policy '{authorization}' not found.");
+                    errorReporter.ReportError(ConfigErrors.ParsedRouteRuleInvalidAuthorizationPolicy, routeId, $"Authorization policy '{authorizationPolicyName}' not found.");
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                errorReporter.ReportError(ConfigErrors.ParsedRouteRuleInvalidAuthorization, routeId, $"Unable to retrieve the authorization policy '{authorization}'", ex);
+                errorReporter.ReportError(ConfigErrors.ParsedRouteRuleInvalidAuthorizationPolicy, routeId, $"Unable to retrieve the authorization policy '{authorizationPolicyName}'", ex);
                 return false;
             }
 

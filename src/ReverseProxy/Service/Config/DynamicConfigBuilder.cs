@@ -157,7 +157,7 @@ namespace Microsoft.ReverseProxy.Service
                     Path = route.Match.Path,
                     Priority = route.Priority,
                     ClusterId = route.ClusterId,
-                    Authorization = route.Authorization,
+                    AuthorizationPolicy = route.AuthorizationPolicy,
                     Metadata = route.Metadata,
                     Transforms = route.Transforms,
                 };

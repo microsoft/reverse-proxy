@@ -79,17 +79,17 @@ namespace Microsoft.ReverseProxy.Service
                 endpointBuilder.Metadata.Add(new AspNetCore.Routing.HttpMethodMetadata(source.Methods));
             }
 
-            if (string.Equals(AuthorizationContants.Default, source.Authorization, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(AuthorizationConstants.Default, source.AuthorizationPolicy, StringComparison.OrdinalIgnoreCase))
             {
                 endpointBuilder.Metadata.Add(DefaultAuthorization);
             }
-            else if (string.Equals(AuthorizationContants.Anonymous, source.Authorization, StringComparison.OrdinalIgnoreCase))
+            else if (string.Equals(AuthorizationConstants.Anonymous, source.AuthorizationPolicy, StringComparison.OrdinalIgnoreCase))
             {
                 endpointBuilder.Metadata.Add(AnonymousAuthorization);
             }
-            else if (!string.IsNullOrEmpty(source.Authorization))
+            else if (!string.IsNullOrEmpty(source.AuthorizationPolicy))
             {
-                endpointBuilder.Metadata.Add(new AuthorizeAttribute(source.Authorization));
+                endpointBuilder.Metadata.Add(new AuthorizeAttribute(source.AuthorizationPolicy));
             }
 
             var endpoint = endpointBuilder.Build();

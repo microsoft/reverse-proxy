@@ -9,7 +9,7 @@ The reverse proxy can be used to authenticate and authorize requests before they
 No authentication or authorization is performed on requests unless enabled in the route or application configuration.
 
 ## Configuration
-Authorization policies can be specified per route via [ProxyRoute.Authorization](xref:Microsoft.ReverseProxy.Abstractions.ProxyRoute.Authorization) and can be bound from the `Routes` sections of the config file. As with other route properties, this can be modified and reloaded without restarting the proxy.
+Authorization policies can be specified per route via [ProxyRoute.AuthorizationPolicy](xref:Microsoft.ReverseProxy.Abstractions.ProxyRoute.AuthorizationPolicy) and can be bound from the `Routes` sections of the config file. As with other route properties, this can be modified and reloaded without restarting the proxy. Policy names are case insensitive.
 
 Example:
 ```JSON
@@ -19,7 +19,7 @@ Example:
       {
         "RouteId": "route1",
         "ClusterId": "cluster1",
-        "Authorization": "customPolicy",
+        "AuthorizationPolicy": "customPolicy",
         "Match": {
           "Host": "localhost"
         },

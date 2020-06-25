@@ -37,7 +37,7 @@ namespace Microsoft.ReverseProxy.Abstractions
         /// Set to "Default" to enable authorization with the applications default policy.
         /// Set to "Anonymous" to disable all authorization checks for this route.
         /// </summary>
-        public string Authorization { get; set; }
+        public string AuthorizationPolicy { get; set; }
 
         /// <summary>
         /// Arbitrary key-value pairs that further describe this route.
@@ -58,7 +58,7 @@ namespace Microsoft.ReverseProxy.Abstractions
                 Match = Match.DeepClone(),
                 Priority = Priority,
                 ClusterId = ClusterId,
-                Authorization = Authorization,
+                AuthorizationPolicy = AuthorizationPolicy,
                 Metadata = Metadata?.DeepClone(StringComparer.Ordinal),
                 Transforms = Transforms?.Select(d => new Dictionary<string, string>(d, StringComparer.OrdinalIgnoreCase)).ToList<IDictionary<string, string>>(),
             };

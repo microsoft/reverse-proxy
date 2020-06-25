@@ -210,7 +210,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var parsedRoute = new ParsedRoute
             {
                 RouteId = "route1",
-                Authorization = "defaulT",
+                AuthorizationPolicy = "defaulT",
                 Priority = 12,
             };
             var cluster = new ClusterInfo("cluster1", new DestinationManager(), new Mock<IProxyHttpClientFactory>().Object);
@@ -232,7 +232,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var parsedRoute = new ParsedRoute
             {
                 RouteId = "route1",
-                Authorization = "AnonymouS",
+                AuthorizationPolicy = "AnonymouS",
                 Priority = 12,
             };
             var cluster = new ClusterInfo("cluster1", new DestinationManager(), new Mock<IProxyHttpClientFactory>().Object);
@@ -253,7 +253,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var parsedRoute = new ParsedRoute
             {
                 RouteId = "route1",
-                Authorization = "custom",
+                AuthorizationPolicy = "custom",
                 Priority = 12,
             };
             var cluster = new ClusterInfo("cluster1", new DestinationManager(), new Mock<IProxyHttpClientFactory>().Object);

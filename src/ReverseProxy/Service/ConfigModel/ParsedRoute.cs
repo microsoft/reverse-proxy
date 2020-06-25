@@ -60,7 +60,7 @@ namespace Microsoft.ReverseProxy.ConfigModel
         /// Set to "Default" to enable authorization with the applications default policy.
         /// Set to "Anonymous" to disable all authorization checks for this route.
         /// </summary>
-        public string Authorization { get; set; }
+        public string AuthorizationPolicy { get; set; }
 
         /// <summary>
         /// Arbitrary key-value pairs that further describe this route.
@@ -109,9 +109,9 @@ namespace Microsoft.ReverseProxy.ConfigModel
                 hash ^= ClusterId.GetHashCode();
             }
 
-            if (!string.IsNullOrEmpty(Authorization))
+            if (!string.IsNullOrEmpty(AuthorizationPolicy))
             {
-                hash ^= Authorization.GetHashCode();
+                hash ^= AuthorizationPolicy.GetHashCode();
             }
 
             if (Metadata != null)

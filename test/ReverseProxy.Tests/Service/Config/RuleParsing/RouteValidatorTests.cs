@@ -169,12 +169,12 @@ namespace Microsoft.ReverseProxy.Service.Tests
         [InlineData("")]
         [InlineData("defaulT")]
         [InlineData("anonyMous")]
-        public void Accepts_ReservedAuthorization(string policy)
+        public void Accepts_ReservedAuthorizationPolicy(string policy)
         {
             var route = new ParsedRoute
             {
                 RouteId = "route1",
-                Authorization = policy,
+                AuthorizationPolicy = policy,
                 Host = "localhost",
                 ClusterId = "cluster1",
             };
@@ -186,7 +186,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
         }
 
         [Fact]
-        public void Accepts_CustomAuthorization()
+        public void Accepts_CustomAuthorizationPolicy()
         {
             var authzOptions = new AuthorizationOptions();
             authzOptions.AddPolicy("custom", builder => builder.RequireAuthenticatedUser());
@@ -194,7 +194,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var route = new ParsedRoute
             {
                 RouteId = "route1",
-                Authorization = "custom",
+                AuthorizationPolicy = "custom",
                 Host = "localhost",
                 ClusterId = "cluster1",
             };
@@ -206,19 +206,19 @@ namespace Microsoft.ReverseProxy.Service.Tests
         }
 
         [Fact]
-        public void Rejects_UnknownAuthorization()
+        public void Rejects_UnknownAuthorizationPolicy()
         {
             var route = new ParsedRoute
             {
                 RouteId = "route1",
-                Authorization = "unknown",
+                AuthorizationPolicy = "unknown",
                 ClusterId = "cluster1",
             };
 
             var result = RunScenario(route);
 
             Assert.False(result.IsSuccess);
-            Assert.Contains(result.ErrorReporter.Errors, err => err.ErrorCode == ConfigErrors.ParsedRouteRuleInvalidAuthorization && err.Message.Contains("Authorization policy 'unknown' not found"));
+            Assert.Contains(result.ErrorReporter.Errors, err => err.ErrorCode == ConfigErrors.ParsedRouteRuleInvalidAuthorizationPolicy && err.Message.Contains("Authorization policy 'unknown' not found"));
         }
 
         private (bool IsSuccess, TestConfigErrorReporter ErrorReporter) RunScenario(ParsedRoute parsedRoute)
