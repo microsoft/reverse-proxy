@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Routing.Patterns;
 using Microsoft.ReverseProxy.Abstractions;
@@ -55,7 +56,7 @@ namespace Microsoft.ReverseProxy.Service
         }
 
         // Note this performs all validation steps without short circuiting in order to report all possible errors.
-        public bool ValidateRoute(ParsedRoute route, IConfigErrorReporter errorReporter)
+        public async Task<bool> ValidateRouteAsync(ParsedRoute route, IConfigErrorReporter errorReporter)
         {
             _ = route ?? throw new ArgumentNullException(nameof(route));
             _ = errorReporter ?? throw new ArgumentNullException(nameof(errorReporter));
@@ -77,7 +78,7 @@ namespace Microsoft.ReverseProxy.Service
             success &= ValidatePath(route.Path, route.RouteId, errorReporter);
             success &= ValidateMethods(route.Methods, route.RouteId, errorReporter);
             success &= _transformBuilder.Validate(route.Transforms, route.RouteId, errorReporter);
-            success &= ValidateAuthorizationPolicy(route.AuthorizationPolicy, route.RouteId, errorReporter);
+            success &= await ValidateAuthorizationPolicyAsync(route.AuthorizationPolicy, route.RouteId, errorReporter);
 
             return success;
         }
@@ -147,7 +148,7 @@ namespace Microsoft.ReverseProxy.Service
             return true;
         }
 
-        private bool ValidateAuthorizationPolicy(string authorizationPolicyName, string routeId, IConfigErrorReporter errorReporter)
+        private async Task<bool> ValidateAuthorizationPolicyAsync(string authorizationPolicyName, string routeId, IConfigErrorReporter errorReporter)
         {
             if (string.IsNullOrEmpty(authorizationPolicyName))
             {
@@ -162,9 +163,7 @@ namespace Microsoft.ReverseProxy.Service
 
             try
             {
-                // The default implementation is sync.
-                // https://github.com/dotnet/aspnetcore/blob/5155e11120cf7ee2e07383225057f66512f00fde/src/Security/Authorization/Core/src/DefaultAuthorizationPolicyProvider.cs#L73
-                var policy = _authorizationPolicyProvider.GetPolicyAsync(authorizationPolicyName).GetAwaiter().GetResult();
+                var policy = await _authorizationPolicyProvider.GetPolicyAsync(authorizationPolicyName);
                 if (policy == null)
                 {
                     errorReporter.ReportError(ConfigErrors.ParsedRouteRuleInvalidAuthorizationPolicy, routeId, $"Authorization policy '{authorizationPolicyName}' not found.");

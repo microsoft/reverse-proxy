@@ -162,7 +162,7 @@ namespace Microsoft.ReverseProxy.Service
                     Transforms = route.Transforms,
                 };
 
-                if (!_parsedRouteValidator.ValidateRoute(parsedRoute, errorReporter))
+                if (!await _parsedRouteValidator.ValidateRouteAsync(parsedRoute, errorReporter))
                 {
                     // parsedRouteValidator already reported error message
                     continue;
