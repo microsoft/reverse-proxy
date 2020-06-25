@@ -169,7 +169,6 @@ namespace Microsoft.ReverseProxy.Service.Tests
         [InlineData(null)]
         [InlineData("")]
         [InlineData("defaulT")]
-        [InlineData("anonyMous")]
         public async Task Accepts_ReservedAuthorizationPolicy(string policy)
         {
             var route = new ParsedRoute

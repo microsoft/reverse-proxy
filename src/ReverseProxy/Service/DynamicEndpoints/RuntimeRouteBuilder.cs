@@ -19,7 +19,6 @@ namespace Microsoft.ReverseProxy.Service
     internal class RuntimeRouteBuilder : IRuntimeRouteBuilder
     {
         private static readonly IAuthorizeData DefaultAuthorization = new AuthorizeAttribute();
-        private static readonly IAllowAnonymous AnonymousAuthorization = new AllowAnonymousAttribute();
 
         private readonly ITransformBuilder _transformBuilder;
         private RequestDelegate _pipeline;
@@ -82,10 +81,6 @@ namespace Microsoft.ReverseProxy.Service
             if (string.Equals(AuthorizationConstants.Default, source.AuthorizationPolicy, StringComparison.OrdinalIgnoreCase))
             {
                 endpointBuilder.Metadata.Add(DefaultAuthorization);
-            }
-            else if (string.Equals(AuthorizationConstants.Anonymous, source.AuthorizationPolicy, StringComparison.OrdinalIgnoreCase))
-            {
-                endpointBuilder.Metadata.Add(AnonymousAuthorization);
             }
             else if (!string.IsNullOrEmpty(source.AuthorizationPolicy))
             {

@@ -155,8 +155,7 @@ namespace Microsoft.ReverseProxy.Service
                 return true;
             }
 
-            if (string.Equals(AuthorizationConstants.Default, authorizationPolicyName, StringComparison.OrdinalIgnoreCase)
-                || string.Equals(AuthorizationConstants.Anonymous, authorizationPolicyName, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(AuthorizationConstants.Default, authorizationPolicyName, StringComparison.OrdinalIgnoreCase))
             {
                 return true;
             }

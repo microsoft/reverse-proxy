@@ -226,27 +226,6 @@ namespace Microsoft.ReverseProxy.Service.Tests
         }
 
         [Fact]
-        public void BuildEndpoints_AnonymousAuth_Works()
-        {
-            var builder = Create<RuntimeRouteBuilder>();
-            var parsedRoute = new ParsedRoute
-            {
-                RouteId = "route1",
-                AuthorizationPolicy = "AnonymouS",
-                Priority = 12,
-            };
-            var cluster = new ClusterInfo("cluster1", new DestinationManager(), new Mock<IProxyHttpClientFactory>().Object);
-            var routeInfo = new RouteInfo("route1");
-
-            var config = builder.Build(parsedRoute, cluster, routeInfo);
-
-            // Assert
-            Assert.Single(config.Endpoints);
-            var routeEndpoint = config.Endpoints[0] as AspNetCore.Routing.RouteEndpoint;
-            Assert.IsType<AllowAnonymousAttribute>(routeEndpoint.Metadata.GetMetadata<IAllowAnonymous>());
-        }
-
-        [Fact]
         public void BuildEndpoints_CustomAuth_Works()
         {
             var builder = Create<RuntimeRouteBuilder>();

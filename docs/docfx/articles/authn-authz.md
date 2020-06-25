@@ -71,17 +71,9 @@ public void Configure(IApplicationBuilder app)
 
 See the [Authentication](https://docs.microsoft.com/en-us/aspnet/core/security/authentication/) docs for setting up your preferred kind of authentication.
 
-### Special values:
-
-There are two special values that can be specified in a route's authorization parameter: `default` and `anonymous`.
-
-#### Default
+### DefaultPolicy
 
 Specifying the value `default` in a route's authorization parameter means that route will use the policy defined in [AuthorizationOptions.DefaultPolicy](https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.authorization.authorizationoptions.defaultpolicy?#Microsoft_AspNetCore_Authorization_AuthorizationOptions_DefaultPolicy). That policy is pre-configured to require authenticated users.
-
-#### Anonymous
-
-Specifying the value `anonymous` in a route's authorization parameter means that route will not require authorization regardless of any other configuration in the application such as the FallbackPolicy.
 
 ### FallbackPolicy
 
