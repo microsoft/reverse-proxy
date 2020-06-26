@@ -285,7 +285,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Abstractions.ProxyRoute.html",
-          "hash": "tMacr338mbQvtmLfYlQaPQ=="
+          "hash": "Lf6DpjOPXRf/Bq38Cohk2A=="
         }
       },
       "is_incremental": false,
@@ -977,6 +977,18 @@
     },
     {
       "type": "Conceptual",
+      "source_relative_path": "articles/authn-authz.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/authn-authz.html",
+          "hash": "IgI6VlG+YIZkODh1VOmr4A=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
       "source_relative_path": "articles/getting_started.md",
       "output": {
         ".html": {
@@ -1029,7 +1041,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/toc.html",
-          "hash": "kiDvHfyIQw53c7KvlHyGCw=="
+          "hash": "5fmjYlDP+miYCEqxrSgPeQ=="
         }
       },
       "is_incremental": false,
@@ -1098,7 +1110,7 @@
         "ConceptualDocumentProcessor": {
           "can_incremental": false,
           "incrementalPhase": "build",
-          "total_file_count": 8,
+          "total_file_count": 9,
           "skipped_file_count": 0
         },
         "ManagedReferenceDocumentProcessor": {

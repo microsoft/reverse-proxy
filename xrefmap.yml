@@ -828,6 +828,19 @@ references:
   commentId: T:Microsoft.ReverseProxy.Abstractions.ProxyRoute
   fullName: Microsoft.ReverseProxy.Abstractions.ProxyRoute
   nameWithType: ProxyRoute
+- uid: Microsoft.ReverseProxy.Abstractions.ProxyRoute.AuthorizationPolicy
+  name: AuthorizationPolicy
+  href: api/Microsoft.ReverseProxy.Abstractions.ProxyRoute.html#Microsoft_ReverseProxy_Abstractions_ProxyRoute_AuthorizationPolicy
+  commentId: P:Microsoft.ReverseProxy.Abstractions.ProxyRoute.AuthorizationPolicy
+  fullName: Microsoft.ReverseProxy.Abstractions.ProxyRoute.AuthorizationPolicy
+  nameWithType: ProxyRoute.AuthorizationPolicy
+- uid: Microsoft.ReverseProxy.Abstractions.ProxyRoute.AuthorizationPolicy*
+  name: AuthorizationPolicy
+  href: api/Microsoft.ReverseProxy.Abstractions.ProxyRoute.html#Microsoft_ReverseProxy_Abstractions_ProxyRoute_AuthorizationPolicy_
+  commentId: Overload:Microsoft.ReverseProxy.Abstractions.ProxyRoute.AuthorizationPolicy
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Abstractions.ProxyRoute.AuthorizationPolicy
+  nameWithType: ProxyRoute.AuthorizationPolicy
 - uid: Microsoft.ReverseProxy.Abstractions.ProxyRoute.ClusterId
   name: ClusterId
   href: api/Microsoft.ReverseProxy.Abstractions.ProxyRoute.html#Microsoft_ReverseProxy_Abstractions_ProxyRoute_ClusterId
