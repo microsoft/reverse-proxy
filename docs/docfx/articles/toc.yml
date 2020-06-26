@@ -2,6 +2,8 @@
   href: getting_started.md
 - name: Supported Runtimes
   href: runtimes.md
+  name: Authentication and Authorization
+  href: authn-authz.md
 - name: Session Affinity
   href: session-affinity.md
 - name: Transforms

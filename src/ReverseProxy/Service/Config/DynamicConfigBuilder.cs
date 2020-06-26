@@ -157,11 +157,12 @@ namespace Microsoft.ReverseProxy.Service
                     Path = route.Match.Path,
                     Priority = route.Priority,
                     ClusterId = route.ClusterId,
+                    AuthorizationPolicy = route.AuthorizationPolicy,
                     Metadata = route.Metadata,
                     Transforms = route.Transforms,
                 };
 
-                if (!_parsedRouteValidator.ValidateRoute(parsedRoute, errorReporter))
+                if (!await _parsedRouteValidator.ValidateRouteAsync(parsedRoute, errorReporter))
                 {
                     // parsedRouteValidator already reported error message
                     continue;

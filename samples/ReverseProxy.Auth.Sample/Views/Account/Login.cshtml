@@ -1,0 +1,12 @@
+@{
+    ViewData["Title"] = "Login";
+}
+
+<h2>Login</h2>
+
+<form action="Login" method="post">
+    <input hidden name="returnurl" type="text" value="@ViewData["ReturnUrl"]" /><br />
+    <input name="Name" type="text" value="My Name" /><br />
+    <input name="Claim" type="text" value="My Claim" /><br />
+    <input type="submit">
+</form>

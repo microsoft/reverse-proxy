@@ -22,6 +22,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
         {
             var servicesBuilder = new ServiceCollection();
             servicesBuilder.AddOptions();
+            servicesBuilder.AddAuthorization();
             var proxyBuilder = servicesBuilder.AddReverseProxy();
             configProxy?.Invoke(proxyBuilder);
             servicesBuilder.AddSingleton(clusters);

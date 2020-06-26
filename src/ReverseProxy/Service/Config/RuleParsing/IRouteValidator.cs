@@ -1,6 +1,7 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Threading.Tasks;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.ConfigModel;
 
@@ -14,6 +15,6 @@ namespace Microsoft.ReverseProxy.Service
         /// <summary>
         /// Validates a route and reports any errors to <paramref name="errorReporter"/>.
         /// </summary>
-        bool ValidateRoute(ParsedRoute route, IConfigErrorReporter errorReporter);
+        Task<bool> ValidateRouteAsync(ParsedRoute route, IConfigErrorReporter errorReporter);
     }
 }

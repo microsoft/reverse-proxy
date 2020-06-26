@@ -4,8 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Routing.Patterns;
 using Microsoft.ReverseProxy.Abstractions;
+using Microsoft.ReverseProxy.Abstractions.RouteDiscovery.Contract;
 using Microsoft.ReverseProxy.ConfigModel;
 using Microsoft.ReverseProxy.Service.Config;
 using Microsoft.ReverseProxy.Utilities;
@@ -44,14 +47,16 @@ namespace Microsoft.ReverseProxy.Service
         };
 
         private readonly ITransformBuilder _transformBuilder;
+        private readonly IAuthorizationPolicyProvider _authorizationPolicyProvider;
 
-        public RouteValidator(ITransformBuilder transformBuilder)
+        public RouteValidator(ITransformBuilder transformBuilder, IAuthorizationPolicyProvider authorizationPolicyProvider)
         {
             _transformBuilder = transformBuilder ?? throw new ArgumentNullException(nameof(transformBuilder));
+            _authorizationPolicyProvider = authorizationPolicyProvider ?? throw new ArgumentNullException(nameof(authorizationPolicyProvider));
         }
 
         // Note this performs all validation steps without short circuiting in order to report all possible errors.
-        public bool ValidateRoute(ParsedRoute route, IConfigErrorReporter errorReporter)
+        public async Task<bool> ValidateRouteAsync(ParsedRoute route, IConfigErrorReporter errorReporter)
         {
             _ = route ?? throw new ArgumentNullException(nameof(route));
             _ = errorReporter ?? throw new ArgumentNullException(nameof(errorReporter));
@@ -73,6 +78,7 @@ namespace Microsoft.ReverseProxy.Service
             success &= ValidatePath(route.Path, route.RouteId, errorReporter);
             success &= ValidateMethods(route.Methods, route.RouteId, errorReporter);
             success &= _transformBuilder.Validate(route.Transforms, route.RouteId, errorReporter);
+            success &= await ValidateAuthorizationPolicyAsync(route.AuthorizationPolicy, route.RouteId, errorReporter);
 
             return success;
         }
@@ -108,7 +114,7 @@ namespace Microsoft.ReverseProxy.Service
             }
             catch (RoutePatternException ex)
             {
-                errorReporter.ReportError(ConfigErrors.ParsedRouteRuleInvalidMatcher, routeId, $"Invalid path pattern '{path}': {ex.Message}");
+                errorReporter.ReportError(ConfigErrors.ParsedRouteRuleInvalidMatcher, routeId, $"Invalid path pattern '{path}'", ex);
                 return false;
             }
 
@@ -137,6 +143,36 @@ namespace Microsoft.ReverseProxy.Service
                     errorReporter.ReportError(ConfigErrors.ParsedRouteRuleInvalidMatcher, routeId, $"Unsupported verb '{method}'");
                     return false;
                 }
+            }
+
+            return true;
+        }
+
+        private async Task<bool> ValidateAuthorizationPolicyAsync(string authorizationPolicyName, string routeId, IConfigErrorReporter errorReporter)
+        {
+            if (string.IsNullOrEmpty(authorizationPolicyName))
+            {
+                return true;
+            }
+
+            if (string.Equals(AuthorizationConstants.Default, authorizationPolicyName, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            try
+            {
+                var policy = await _authorizationPolicyProvider.GetPolicyAsync(authorizationPolicyName);
+                if (policy == null)
+                {
+                    errorReporter.ReportError(ConfigErrors.ParsedRouteRuleInvalidAuthorizationPolicy, routeId, $"Authorization policy '{authorizationPolicyName}' not found.");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                errorReporter.ReportError(ConfigErrors.ParsedRouteRuleInvalidAuthorizationPolicy, routeId, $"Unable to retrieve the authorization policy '{authorizationPolicyName}'", ex);
+                return false;
             }
 
             return true;

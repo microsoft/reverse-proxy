@@ -4,11 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.ReverseProxy.Abstractions.RouteDiscovery.Contract;
 using Microsoft.ReverseProxy.ConfigModel;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Config;
-using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Service
 {
@@ -17,6 +18,8 @@ namespace Microsoft.ReverseProxy.Service
     /// </summary>
     internal class RuntimeRouteBuilder : IRuntimeRouteBuilder
     {
+        private static readonly IAuthorizeData DefaultAuthorization = new AuthorizeAttribute();
+
         private readonly ITransformBuilder _transformBuilder;
         private RequestDelegate _pipeline;
 
@@ -73,6 +76,15 @@ namespace Microsoft.ReverseProxy.Service
             if (source.Methods != null && source.Methods.Count > 0)
             {
                 endpointBuilder.Metadata.Add(new AspNetCore.Routing.HttpMethodMetadata(source.Methods));
+            }
+
+            if (string.Equals(AuthorizationConstants.Default, source.AuthorizationPolicy, StringComparison.OrdinalIgnoreCase))
+            {
+                endpointBuilder.Metadata.Add(DefaultAuthorization);
+            }
+            else if (!string.IsNullOrEmpty(source.AuthorizationPolicy))
+            {
+                endpointBuilder.Metadata.Add(new AuthorizeAttribute(source.AuthorizationPolicy));
             }
 
             var endpoint = endpointBuilder.Build();
