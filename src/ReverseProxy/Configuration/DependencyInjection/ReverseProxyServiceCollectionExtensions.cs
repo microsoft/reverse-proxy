@@ -34,6 +34,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddBackgroundWorkers();
 
             services.AddDataProtection();
+            services.AddAuthorization();
 
             return builder;
         }
