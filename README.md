@@ -33,7 +33,9 @@ If you're having trouble building the project, or developing in Visual Studio, p
 
 # Getting started
 
-Take a look at the [sample apps](samples/), for some examples of how to use YARP. We'll be publishing more [docs](https://microsoft.github.io/reverse-proxy/) and tutorials as the project develops!
+- Try our [previews](https://github.com/microsoft/reverse-proxy/releases).
+- Check out our [docs](https://microsoft.github.io/reverse-proxy/) and tutorials, we'll be publishing more as the project develops!
+- Try our latest [daily build](/docs/DailyBuilds.md).
 
 # Roadmap
 
