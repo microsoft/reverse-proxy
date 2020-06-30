@@ -12,7 +12,8 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
     {
         [Theory]
         [InlineData("/{a}/{b}/{c}", "/6/7/8")]
-        [InlineData("/{a}/foo/{b}/{c}/{d}", "/6/foo/7/8")]
+        [InlineData("/{a}/foo/{b}/{c}/{d}", "/6/foo/7/8")] // Unknown value (d) dropped
+        [InlineData("/{a}/foo/{b}", "/6/foo/7")] // Extra values (c) dropped
         public void Set_PathPattern_ReplacesPathWithRouteValues(string transformValue, string expected)
         {
             var serviceCollection = new ServiceCollection();
