@@ -59,6 +59,10 @@ namespace Microsoft.ReverseProxy.Service.Config
                     TryCheckTooManyParameters(errors.Add, rawTransform, expected: 1);
                     // TODO: Validate the pattern format. Does it build?
                 }
+                else if (rawTransform.TryGetValue("QueryStringAppend", out var queryStringAppend))
+                {
+                    success &= TryCheckTooManyParameters(rawTransform, routeId, expected: 1, errorReporter);
+                }
                 else if (rawTransform.TryGetValue("RequestHeadersCopy", out var copyHeaders))
                 {
                     TryCheckTooManyParameters(errors.Add, rawTransform, expected: 1);
@@ -256,6 +260,11 @@ namespace Microsoft.ReverseProxy.Service.Config
                         CheckTooManyParameters(rawTransform, expected: 1);
                         var path = MakePathString(pathPattern);
                         requestTransforms.Add(new PathRouteValuesTransform(path.Value, _binderFactory));
+                    }
+                    else if (rawTransform.TryGetValue("QueryStringAppend", out var queryStringAppend))
+                    {
+                        CheckTooManyParameters(rawTransform, expected: 1);
+                        requestTransforms.Add(new QueryStringTransform(QueryStringTransformMode.Append, new QueryString(queryStringAppend)));
                     }
                     else if (rawTransform.TryGetValue("RequestHeadersCopy", out var copyHeaders))
                     {
