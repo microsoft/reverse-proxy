@@ -8,7 +8,7 @@ using System.Linq;
 using System.Security.Authentication;
 using Xunit;
 
-namespace Microsoft.ReverseProxy.Utilities
+namespace Microsoft.ReverseProxy.Utilities.Tls
 {
     public class TlsFrameHelperTests
     {
