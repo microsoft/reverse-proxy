@@ -33,8 +33,8 @@ If you're having trouble building the project, or developing in Visual Studio, p
 
 # Getting started
 
+- See our [Getting Started](https://microsoft.github.io/reverse-proxy/articles/getting_started.html) docs.
 - Try our [previews](https://github.com/microsoft/reverse-proxy/releases).
-- Check out our [docs](https://microsoft.github.io/reverse-proxy/) and tutorials, we'll be publishing more as the project develops!
 - Try our latest [daily build](/docs/DailyBuilds.md).
 
 # Roadmap
