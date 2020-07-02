@@ -158,6 +158,7 @@ namespace Microsoft.ReverseProxy.Service
                     Priority = route.Priority,
                     ClusterId = route.ClusterId,
                     AuthorizationPolicy = route.AuthorizationPolicy,
+                    CorsPolicy = route.CorsPolicy,
                     Metadata = route.Metadata,
                     Transforms = route.Transforms,
                 };

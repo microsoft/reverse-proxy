@@ -40,6 +40,14 @@ namespace Microsoft.ReverseProxy.Abstractions
         public string AuthorizationPolicy { get; set; }
 
         /// <summary>
+        /// The name of the CorsPolicy to apply to this route.
+        /// If not set then the route won't be matched for cors preflight request.
+        /// Set to "Default" to enable cors with the default policy.
+        /// Set to "Disable" to disable cors checks for this route.
+        /// </summary>
+        public string CorsPolicy { get; set; }
+
+        /// <summary>
         /// Arbitrary key-value pairs that further describe this route.
         /// </summary>
         public IDictionary<string, string> Metadata { get; set; }
@@ -59,6 +67,7 @@ namespace Microsoft.ReverseProxy.Abstractions
                 Priority = Priority,
                 ClusterId = ClusterId,
                 AuthorizationPolicy = AuthorizationPolicy,
+                CorsPolicy = CorsPolicy,
                 Metadata = Metadata?.DeepClone(StringComparer.Ordinal),
                 Transforms = Transforms?.Select(d => new Dictionary<string, string>(d, StringComparer.OrdinalIgnoreCase)).ToList<IDictionary<string, string>>(),
             };
