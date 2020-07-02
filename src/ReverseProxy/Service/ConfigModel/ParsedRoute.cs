@@ -78,7 +78,7 @@ namespace Microsoft.ReverseProxy.ConfigModel
         /// Set to "Default" to enable cors with the default policy.
         /// Set to "Disable" to disable cors checks for this route.
         /// </summary>
-        public string CorsPolicy { get; internal set; }
+        public string CorsPolicy { get; set; }
 
         // Used to diff for config changes
         internal int GetConfigHash()
