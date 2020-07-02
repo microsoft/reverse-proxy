@@ -74,9 +74,9 @@ namespace Microsoft.ReverseProxy.ConfigModel
 
         /// <summary>
         /// The name of the CorsPolicy to apply to this route.
-        /// If not set then the route won't be matched for cors preflight request.
+        /// If not set then the route won't be automatically matched for cors preflight requests.
         /// Set to "Default" to enable cors with the default policy.
-        /// Set to "Disable" to disable cors checks for this route.
+        /// Set to "Disable" to refuses cors requests for this route.
         /// </summary>
         public string CorsPolicy { get; set; }
 

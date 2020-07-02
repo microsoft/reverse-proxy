@@ -43,7 +43,6 @@ namespace Microsoft.ReverseProxy.Service
             DnsLabelRegexPattern +
             @"$";
         private static readonly Regex _hostNameRegex = new Regex(HostNameRegexPattern);
-        private static readonly HttpContext _dummyHttpContext = new DefaultHttpContext();
 
         private static readonly HashSet<string> _validMethods = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
@@ -204,7 +203,8 @@ namespace Microsoft.ReverseProxy.Service
 
             try
             {
-                var policy = await _corsPolicyProvider.GetPolicyAsync(_dummyHttpContext, corsPolicyName);
+                var dummyHttpContext = new DefaultHttpContext();
+                var policy = await _corsPolicyProvider.GetPolicyAsync(dummyHttpContext, corsPolicyName);
                 if (policy == null)
                 {
                     errorReporter.ReportError(ConfigErrors.ParsedRouteRuleInvalidCorsPolicy, routeId, $"Cors policy '{corsPolicyName}' not found.");
