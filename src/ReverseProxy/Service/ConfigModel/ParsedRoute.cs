@@ -58,7 +58,6 @@ namespace Microsoft.ReverseProxy.ConfigModel
         /// The name of the AuthorizationPolicy to apply to this route.
         /// If not set then only the FallbackPolicy will apply.
         /// Set to "Default" to enable authorization with the applications default policy.
-        /// Set to "Anonymous" to disable all authorization checks for this route.
         /// </summary>
         public string AuthorizationPolicy { get; set; }
 
