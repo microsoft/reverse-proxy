@@ -276,7 +276,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var result = await RunScenarioAsync(route);
 
             Assert.False(result.IsSuccess);
-            Assert.Contains(result.ErrorReporter.Errors, err => err.ErrorCode == ConfigErrors.ParsedRouteRuleInvalidAuthorizationPolicy && err.Message.Contains("Cors policy 'unknown' not found"));
+            Assert.Contains(result.ErrorReporter.Errors, err => err.ErrorCode == ConfigErrors.ParsedRouteRuleInvalidCorsPolicy && err.Message.Contains("Cors policy 'unknown' not found"));
         }
 
         private async Task<(bool IsSuccess, TestConfigErrorReporter ErrorReporter)> RunScenarioAsync(ParsedRoute parsedRoute)
