@@ -74,8 +74,8 @@ public void Configure(IApplicationBuilder app)
 
 ### DefaultPolicy
 
-Specifying the value `default` in a route's CORS parameter means that route will use the policy defined in [CorsOptions.DefaultPolicy](https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.cors.infrastructure.corsoptions.defaultpolicyname).
+Specifying the value `default` in a route's `CorsPolicy` parameter means that route will use the policy defined in [CorsOptions.DefaultPolicy](https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.cors.infrastructure.corsoptions.defaultpolicyname).
 
 ### Disable CORS
 
-Specifying the value `disable` in a route's CORS parameter means the CORS middleware will refuse the CORS requests.
+Specifying the value `disable` in a route's `CorsPolicy` parameter means the CORS middleware will refuse the CORS requests.
