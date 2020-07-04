@@ -7,13 +7,13 @@ using Microsoft.AspNetCore.WebUtilities;
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
-    internal class QueryStringTransform : RequestParametersTransform
+    internal class QueryStringParameterTransform : RequestParametersTransform
     {
         private readonly QueryStringTransformMode _mode;
         private readonly string _key;
         private readonly string _value;
 
-        public QueryStringTransform(QueryStringTransformMode mode, string key, string value)
+        public QueryStringParameterTransform(QueryStringTransformMode mode, string key, string value)
         {
             _mode = mode;
             _key = key;

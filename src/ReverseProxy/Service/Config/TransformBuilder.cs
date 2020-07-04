@@ -59,9 +59,14 @@ namespace Microsoft.ReverseProxy.Service.Config
                     TryCheckTooManyParameters(errors.Add, rawTransform, expected: 1);
                     // TODO: Validate the pattern format. Does it build?
                 }
-                else if (rawTransform.TryGetValue("QueryStringAppend", out var queryStringAppend))
+                else if (rawTransform.TryGetValue("QueryStringParameter", out var queryStringParameter))
                 {
-                    success &= TryCheckTooManyParameters(rawTransform, routeId, expected: 1, errorReporter);
+                    success &= TryCheckTooManyParameters(rawTransform, routeId, expected: 2, errorReporter);
+                    if (!rawTransform.TryGetValue("Set", out var _) && !rawTransform.TryGetValue("Append", out var _))
+                    {
+                        errorReporter.ReportError(ConfigErrors.TransformInvalid, routeId, $"Unexpected parameters for RequestHeader: {string.Join(';', rawTransform.Keys)}. Expected 'Set' or 'Append'");
+                        success = false;
+                    }
                 }
                 else if (rawTransform.TryGetValue("RequestHeadersCopy", out var copyHeaders))
                 {
@@ -261,10 +266,17 @@ namespace Microsoft.ReverseProxy.Service.Config
                         var path = MakePathString(pathPattern);
                         requestTransforms.Add(new PathRouteValuesTransform(path.Value, _binderFactory));
                     }
-                    else if (rawTransform.TryGetValue("QueryStringAppend", out var queryStringAppend))
+                    else if (rawTransform.TryGetValue("QueryStringParameter", out var queryStringParameter))
                     {
-                        CheckTooManyParameters(rawTransform, expected: 1);
-                        requestTransforms.Add(new QueryStringTransform(QueryStringTransformMode.Append, new QueryString(queryStringAppend)));
+                        CheckTooManyParameters(rawTransform, expected: 2);
+                        if (rawTransform.TryGetValue("Append", out var appendValue))
+                        {
+                            requestTransforms.Add(new QueryStringParameterTransform(QueryStringTransformMode.Append, queryStringParameter, appendValue));
+                        }
+                        else
+                        {
+                            throw new NotSupportedException(string.Join(",", rawTransform.Keys));
+                        }
                     }
                     else if (rawTransform.TryGetValue("RequestHeadersCopy", out var copyHeaders))
                     {
