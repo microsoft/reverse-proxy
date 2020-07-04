@@ -45,7 +45,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.html",
-          "hash": "RtyRUmXsPahlai9JjUPvwQ=="
+          "hash": "LseX6NsqNW+W5HWjMh38qQ=="
         }
       },
       "is_incremental": false,
@@ -285,7 +285,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Abstractions.ProxyRoute.html",
-          "hash": "u/XkRtyC8uF5HDr2aQwHJQ=="
+          "hash": "Z7l64isE3QRNAE6hlQcZGQ=="
         }
       },
       "is_incremental": false,
@@ -989,6 +989,18 @@
     },
     {
       "type": "Conceptual",
+      "source_relative_path": "articles/cors.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/cors.html",
+          "hash": "bKgS9ApyepD+/ogqfiAQnw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
       "source_relative_path": "articles/getting_started.md",
       "output": {
         ".html": {
@@ -1041,7 +1053,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/toc.html",
-          "hash": "5fmjYlDP+miYCEqxrSgPeQ=="
+          "hash": "itLbJtQ0a1/lqsuiacQ5FQ=="
         }
       },
       "is_incremental": false,
@@ -1110,7 +1122,7 @@
         "ConceptualDocumentProcessor": {
           "can_incremental": false,
           "incrementalPhase": "build",
-          "total_file_count": 9,
+          "total_file_count": 10,
           "skipped_file_count": 0
         },
         "ManagedReferenceDocumentProcessor": {

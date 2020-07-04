@@ -854,6 +854,19 @@ references:
   isSpec: "True"
   fullName: Microsoft.ReverseProxy.Abstractions.ProxyRoute.ClusterId
   nameWithType: ProxyRoute.ClusterId
+- uid: Microsoft.ReverseProxy.Abstractions.ProxyRoute.CorsPolicy
+  name: CorsPolicy
+  href: api/Microsoft.ReverseProxy.Abstractions.ProxyRoute.html#Microsoft_ReverseProxy_Abstractions_ProxyRoute_CorsPolicy
+  commentId: P:Microsoft.ReverseProxy.Abstractions.ProxyRoute.CorsPolicy
+  fullName: Microsoft.ReverseProxy.Abstractions.ProxyRoute.CorsPolicy
+  nameWithType: ProxyRoute.CorsPolicy
+- uid: Microsoft.ReverseProxy.Abstractions.ProxyRoute.CorsPolicy*
+  name: CorsPolicy
+  href: api/Microsoft.ReverseProxy.Abstractions.ProxyRoute.html#Microsoft_ReverseProxy_Abstractions_ProxyRoute_CorsPolicy_
+  commentId: Overload:Microsoft.ReverseProxy.Abstractions.ProxyRoute.CorsPolicy
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Abstractions.ProxyRoute.CorsPolicy
+  nameWithType: ProxyRoute.CorsPolicy
 - uid: Microsoft.ReverseProxy.Abstractions.ProxyRoute.Match
   name: Match
   href: api/Microsoft.ReverseProxy.Abstractions.ProxyRoute.html#Microsoft_ReverseProxy_Abstractions_ProxyRoute_Match
