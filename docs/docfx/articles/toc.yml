@@ -4,6 +4,8 @@
   href: runtimes.md
   name: Authentication and Authorization
   href: authn-authz.md
+  name: Cross-Origin Requests (CORS)
+  href: cors.md
 - name: Session Affinity
   href: session-affinity.md
 - name: Transforms

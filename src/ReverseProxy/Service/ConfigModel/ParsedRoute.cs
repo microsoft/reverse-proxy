@@ -71,6 +71,14 @@ namespace Microsoft.ReverseProxy.ConfigModel
         /// </summary>
         public IList<IDictionary<string, string>> Transforms { get; set; }
 
+        /// <summary>
+        /// The name of the CorsPolicy to apply to this route.
+        /// If not set then the route won't be automatically matched for cors preflight requests.
+        /// Set to "Default" to enable cors with the default policy.
+        /// Set to "Disable" to refuses cors requests for this route.
+        /// </summary>
+        public string CorsPolicy { get; set; }
+
         // Used to diff for config changes
         internal int GetConfigHash()
         {
@@ -111,6 +119,11 @@ namespace Microsoft.ReverseProxy.ConfigModel
             if (!string.IsNullOrEmpty(AuthorizationPolicy))
             {
                 hash ^= AuthorizationPolicy.GetHashCode();
+            }
+
+            if (!string.IsNullOrEmpty(CorsPolicy))
+            {
+                hash ^= CorsPolicy.GetHashCode();
             }
 
             if (Metadata != null)

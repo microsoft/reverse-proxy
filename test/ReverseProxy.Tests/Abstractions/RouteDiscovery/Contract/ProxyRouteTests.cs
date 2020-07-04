@@ -30,6 +30,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
                 Priority = 2,
                 ClusterId = "cluster1",
                 AuthorizationPolicy = "policy1",
+                CorsPolicy = "policy2",
                 Metadata = new Dictionary<string, string>
                 {
                     { "key", "value" },
@@ -50,6 +51,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
             Assert.Equal(sut.Priority, clone.Priority);
             Assert.Equal(sut.ClusterId, clone.ClusterId);
             Assert.Equal(sut.AuthorizationPolicy, clone.AuthorizationPolicy);
+            Assert.Equal(sut.CorsPolicy, clone.CorsPolicy);
             Assert.NotNull(clone.Metadata);
             Assert.NotSame(sut.Metadata, clone.Metadata);
             Assert.Equal("value", clone.Metadata["key"]);
@@ -73,6 +75,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
             Assert.Null(clone.Priority);
             Assert.Null(clone.ClusterId);
             Assert.Null(clone.AuthorizationPolicy);
+            Assert.Null(clone.CorsPolicy);
             Assert.Null(clone.Metadata);
         }
     }

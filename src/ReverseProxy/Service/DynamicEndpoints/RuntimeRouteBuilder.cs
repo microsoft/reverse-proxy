@@ -5,11 +5,14 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.ReverseProxy.Abstractions.RouteDiscovery.Contract;
 using Microsoft.ReverseProxy.ConfigModel;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Config;
+using CorsConstants = Microsoft.ReverseProxy.Abstractions.RouteDiscovery.Contract.CorsConstants;
 
 namespace Microsoft.ReverseProxy.Service
 {
@@ -19,6 +22,8 @@ namespace Microsoft.ReverseProxy.Service
     internal class RuntimeRouteBuilder : IRuntimeRouteBuilder
     {
         private static readonly IAuthorizeData DefaultAuthorization = new AuthorizeAttribute();
+        private static readonly IEnableCorsAttribute DefaultCors = new EnableCorsAttribute();
+        private static readonly IDisableCorsAttribute DisableCors = new DisableCorsAttribute();
 
         private readonly ITransformBuilder _transformBuilder;
         private RequestDelegate _pipeline;
@@ -73,9 +78,30 @@ namespace Microsoft.ReverseProxy.Service
                 endpointBuilder.Metadata.Add(new AspNetCore.Routing.HostAttribute(source.Host));
             }
 
+            bool acceptCorsPreflight;
+            if (string.Equals(CorsConstants.Default, source.CorsPolicy, StringComparison.OrdinalIgnoreCase))
+            {
+                endpointBuilder.Metadata.Add(DefaultCors);
+                acceptCorsPreflight = true;
+            }
+            else if (string.Equals(CorsConstants.Disable, source.CorsPolicy, StringComparison.OrdinalIgnoreCase))
+            {
+                endpointBuilder.Metadata.Add(DisableCors);
+                acceptCorsPreflight = true;
+            }
+            else if (!string.IsNullOrEmpty(source.CorsPolicy))
+            {
+                endpointBuilder.Metadata.Add(new EnableCorsAttribute(source.CorsPolicy));
+                acceptCorsPreflight = true;
+            }
+            else
+            {
+                acceptCorsPreflight = false;
+            }
+
             if (source.Methods != null && source.Methods.Count > 0)
             {
-                endpointBuilder.Metadata.Add(new AspNetCore.Routing.HttpMethodMetadata(source.Methods));
+                endpointBuilder.Metadata.Add(new AspNetCore.Routing.HttpMethodMetadata(source.Methods, acceptCorsPreflight));
             }
 
             if (string.Equals(AuthorizationConstants.Default, source.AuthorizationPolicy, StringComparison.OrdinalIgnoreCase))

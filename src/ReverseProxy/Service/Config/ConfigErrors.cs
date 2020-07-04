@@ -19,6 +19,7 @@ namespace Microsoft.ReverseProxy.Service
         internal const string ParsedRouteRuleHasNoMatchers = "ParsedRoute_RuleHasNoMatchers";
         internal const string ParsedRouteRuleInvalidMatcher = "ParsedRoute_RuleInvalidMatcher";
         internal const string ParsedRouteRuleInvalidAuthorizationPolicy = "ParsedRoute_RuleInvalidAuthorizationPolicy";
+        internal const string ParsedRouteRuleInvalidCorsPolicy = "ParsedRoute_RuleInvalidCorsPolicy";
         internal const string TransformInvalid = "Transform_Invalid";
 
         internal const string ConfigBuilderClusterIdMismatch = "ConfigBuilder_ClusterIdMismatch";

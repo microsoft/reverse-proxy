@@ -35,6 +35,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.AddDataProtection();
             services.AddAuthorization();
+            services.AddCors();
 
             return builder;
         }

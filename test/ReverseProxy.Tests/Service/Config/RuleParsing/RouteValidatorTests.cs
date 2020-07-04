@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.Extensions.Options;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.ConfigModel;
@@ -219,6 +220,63 @@ namespace Microsoft.ReverseProxy.Service.Tests
 
             Assert.False(result.IsSuccess);
             Assert.Contains(result.ErrorReporter.Errors, err => err.ErrorCode == ConfigErrors.ParsedRouteRuleInvalidAuthorizationPolicy && err.Message.Contains("Authorization policy 'unknown' not found"));
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData("defaulT")]
+        [InlineData("disAble")]
+        public async Task Accepts_ReservedCorsPolicy(string policy)
+        {
+            var route = new ParsedRoute
+            {
+                RouteId = "route1",
+                CorsPolicy = policy,
+                Host = "localhost",
+                ClusterId = "cluster1",
+            };
+
+            var result = await RunScenarioAsync(route);
+
+            Assert.True(result.IsSuccess);
+            Assert.Empty(result.ErrorReporter.Errors);
+        }
+
+        [Fact]
+        public async Task Accepts_CustomCorsPolicy()
+        {
+            var corsOptions = new CorsOptions();
+            corsOptions.AddPolicy("custom", new CorsPolicy());
+            Provide<ICorsPolicyProvider>(new DefaultCorsPolicyProvider(Options.Create(corsOptions)));
+            var route = new ParsedRoute
+            {
+                RouteId = "route1",
+                CorsPolicy = "custom",
+                Host = "localhost",
+                ClusterId = "cluster1",
+            };
+
+            var result = await RunScenarioAsync(route);
+
+            Assert.True(result.IsSuccess);
+            Assert.Empty(result.ErrorReporter.Errors);
+        }
+
+        [Fact]
+        public async Task Rejects_UnknownCorsPolicy()
+        {
+            var route = new ParsedRoute
+            {
+                RouteId = "route1",
+                CorsPolicy = "unknown",
+                ClusterId = "cluster1",
+            };
+
+            var result = await RunScenarioAsync(route);
+
+            Assert.False(result.IsSuccess);
+            Assert.Contains(result.ErrorReporter.Errors, err => err.ErrorCode == ConfigErrors.ParsedRouteRuleInvalidCorsPolicy && err.Message.Contains("Cors policy 'unknown' not found"));
         }
 
         private async Task<(bool IsSuccess, TestConfigErrorReporter ErrorReporter)> RunScenarioAsync(ParsedRoute parsedRoute)

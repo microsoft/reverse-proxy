@@ -6,12 +6,15 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors.Infrastructure;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing.Patterns;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Abstractions.RouteDiscovery.Contract;
 using Microsoft.ReverseProxy.ConfigModel;
 using Microsoft.ReverseProxy.Service.Config;
 using Microsoft.ReverseProxy.Utilities;
+using CorsConstants = Microsoft.ReverseProxy.Abstractions.RouteDiscovery.Contract.CorsConstants;
 
 namespace Microsoft.ReverseProxy.Service
 {
@@ -48,11 +51,13 @@ namespace Microsoft.ReverseProxy.Service
 
         private readonly ITransformBuilder _transformBuilder;
         private readonly IAuthorizationPolicyProvider _authorizationPolicyProvider;
+        private readonly ICorsPolicyProvider _corsPolicyProvider;
 
-        public RouteValidator(ITransformBuilder transformBuilder, IAuthorizationPolicyProvider authorizationPolicyProvider)
+        public RouteValidator(ITransformBuilder transformBuilder, IAuthorizationPolicyProvider authorizationPolicyProvider, ICorsPolicyProvider corsPolicyProvider)
         {
             _transformBuilder = transformBuilder ?? throw new ArgumentNullException(nameof(transformBuilder));
             _authorizationPolicyProvider = authorizationPolicyProvider ?? throw new ArgumentNullException(nameof(authorizationPolicyProvider));
+            _corsPolicyProvider = corsPolicyProvider ?? throw new ArgumentNullException(nameof(corsPolicyProvider));
         }
 
         // Note this performs all validation steps without short circuiting in order to report all possible errors.
@@ -79,6 +84,7 @@ namespace Microsoft.ReverseProxy.Service
             success &= ValidateMethods(route.Methods, route.RouteId, errorReporter);
             success &= _transformBuilder.Validate(route.Transforms, route.RouteId, errorReporter);
             success &= await ValidateAuthorizationPolicyAsync(route.AuthorizationPolicy, route.RouteId, errorReporter);
+            success &= await ValidateCorsPolicyAsync(route.CorsPolicy, route.RouteId, errorReporter);
 
             return success;
         }
@@ -172,6 +178,42 @@ namespace Microsoft.ReverseProxy.Service
             catch (Exception ex)
             {
                 errorReporter.ReportError(ConfigErrors.ParsedRouteRuleInvalidAuthorizationPolicy, routeId, $"Unable to retrieve the authorization policy '{authorizationPolicyName}'", ex);
+                return false;
+            }
+
+            return true;
+        }
+
+        private async Task<bool> ValidateCorsPolicyAsync(string corsPolicyName, string routeId, IConfigErrorReporter errorReporter)
+        {
+            if (string.IsNullOrEmpty(corsPolicyName))
+            {
+                return true;
+            }
+
+            if (string.Equals(CorsConstants.Default, corsPolicyName, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            if (string.Equals(CorsConstants.Disable, corsPolicyName, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            try
+            {
+                var dummyHttpContext = new DefaultHttpContext();
+                var policy = await _corsPolicyProvider.GetPolicyAsync(dummyHttpContext, corsPolicyName);
+                if (policy == null)
+                {
+                    errorReporter.ReportError(ConfigErrors.ParsedRouteRuleInvalidCorsPolicy, routeId, $"Cors policy '{corsPolicyName}' not found.");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                errorReporter.ReportError(ConfigErrors.ParsedRouteRuleInvalidCorsPolicy, routeId, $"Unable to retrieve the cors policy '{corsPolicyName}'", ex);
                 return false;
             }
 
