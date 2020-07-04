@@ -271,7 +271,7 @@ namespace Microsoft.ReverseProxy.Service.Config
                         CheckTooManyParameters(rawTransform, expected: 2);
                         if (rawTransform.TryGetValue("Append", out var appendValue))
                         {
-                            requestTransforms.Add(new QueryStringParameterTransform(QueryStringTransformMode.Append, queryStringParameter, appendValue));
+                            requestTransforms.Add(new QueryStringParameterTransform(QueryStringTransformMode.Append, queryStringParameter, appendValue, _binderFactory));
                         }
                         else
                         {
