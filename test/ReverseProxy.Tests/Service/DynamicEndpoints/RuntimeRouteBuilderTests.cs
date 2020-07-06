@@ -31,7 +31,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var parsedRoute = new ParsedRoute
             {
                 RouteId = "route1",
-                Host = "example.com",
+                Hosts = new[] { "example.com" },
                 Path = "/a",
                 Priority = 12,
             };
@@ -65,7 +65,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var parsedRoute = new ParsedRoute
             {
                 RouteId = "route1",
-                Host = "example.com",
+                Hosts = new[] { "example.com" },
                 Priority = 12,
             };
             var cluster = new ClusterInfo("cluster1", new DestinationManager(), new Mock<IProxyHttpClientFactory>().Object);
@@ -98,7 +98,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var parsedRoute = new ParsedRoute
             {
                 RouteId = "route1",
-                Host = "*.example.com",
+                Hosts = new[] { "*.example.com" },
                 Priority = 12,
             };
             var cluster = new ClusterInfo("cluster1", new DestinationManager(), new Mock<IProxyHttpClientFactory>().Object);

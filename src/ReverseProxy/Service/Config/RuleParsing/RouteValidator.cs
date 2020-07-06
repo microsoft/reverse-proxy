@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -73,13 +74,13 @@ namespace Microsoft.ReverseProxy.Service
                 success = false;
             }
 
-            if (string.IsNullOrEmpty(route.Host) && string.IsNullOrEmpty(route.Path))
+            if ((route.Hosts == null || route.Hosts.Count == 0 || route.Hosts.Any(host => string.IsNullOrEmpty(host))) && string.IsNullOrEmpty(route.Path))
             {
-                errorReporter.ReportError(ConfigErrors.ParsedRouteRuleHasNoMatchers, route.RouteId, $"Route requires {nameof(route.Host)} or {nameof(route.Path)} specified. Set the Path to `/{{**catchall}}` to match all requests.");
+                errorReporter.ReportError(ConfigErrors.ParsedRouteRuleHasNoMatchers, route.RouteId, $"Route requires {nameof(route.Hosts)} or {nameof(route.Path)} specified. Set the Path to `/{{**catchall}}` to match all requests.");
                 success = false;
             }
 
-            success &= ValidateHost(route.Host, route.RouteId, errorReporter);
+            success &= ValidateHost(route.Hosts, route.RouteId, errorReporter);
             success &= ValidatePath(route.Path, route.RouteId, errorReporter);
             success &= ValidateMethods(route.Methods, route.RouteId, errorReporter);
             success &= _transformBuilder.Validate(route.Transforms, route.RouteId, errorReporter);
@@ -89,18 +90,21 @@ namespace Microsoft.ReverseProxy.Service
             return success;
         }
 
-        private static bool ValidateHost(string host, string routeId, IConfigErrorReporter errorReporter)
+        private static bool ValidateHost(IReadOnlyList<string> hosts, string routeId, IConfigErrorReporter errorReporter)
         {
             // Host is optional when Path is specified
-            if (string.IsNullOrEmpty(host))
+            if (hosts == null || hosts.Count == 0)
             {
                 return true;
             }
 
-            if (!_hostNameRegex.IsMatch(host))
+            for (var i = 0; i < hosts.Count; i++)
             {
-                errorReporter.ReportError(ConfigErrors.ParsedRouteRuleInvalidMatcher, routeId, $"Invalid host name '{host}'");
-                return false;
+                if (string.IsNullOrEmpty(hosts[i]) || !_hostNameRegex.IsMatch(hosts[i]))
+                {
+                    errorReporter.ReportError(ConfigErrors.ParsedRouteRuleInvalidMatcher, routeId, $"Invalid host name '{hosts[i]}'");
+                    return false;
+                }
             }
 
             return true;

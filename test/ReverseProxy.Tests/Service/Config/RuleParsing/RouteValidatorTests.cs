@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -32,6 +33,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
         [InlineData("example.com", null, "get")]
         [InlineData("example.com", null, "gEt,put")]
         [InlineData("example.com", null, "gEt,put,POST,traCE,PATCH,DELETE,Head")]
+        [InlineData("example.com,example2.com", null, "get")]
         [InlineData("*.example.com", null, null)]
         [InlineData("a-b.example.com", null, null)]
         [InlineData("a-b.b-c.example.com", null, null)]
@@ -41,7 +43,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var route = new ParsedRoute
             {
                 RouteId = "route1",
-                Host = host,
+                Hosts = host?.Split(",") ?? Array.Empty<string>(),
                 Path = path,
                 Methods = methods?.Split(","),
                 ClusterId = "cluster1",
@@ -73,14 +75,18 @@ namespace Microsoft.ReverseProxy.Service.Tests
             Assert.Contains(errorReporter.Errors, err => err.ErrorCode == ConfigErrors.ParsedRouteMissingId);
         }
 
-        [Fact]
-        public async Task Rejects_MissingHostAndPath()
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData("example.com,")]
+        public async Task Rejects_MissingHostAndPath(string host)
         {
             // Arrange
             var route = new ParsedRoute
             {
                 RouteId = "route1",
                 ClusterId = "cluster1",
+                Hosts = host?.Split(",")
             };
 
             // Act
@@ -103,13 +109,14 @@ namespace Microsoft.ReverseProxy.Service.Tests
         [InlineData("a.-example.com")]
         [InlineData("a.example-.com")]
         [InlineData("a.-example-.com")]
+        [InlineData("example.com,example-.com")]
         public async Task Rejects_InvalidHost(string host)
         {
             // Arrange
             var route = new ParsedRoute
             {
                 RouteId = "route1",
-                Host = host,
+                Hosts = host.Split(","),
                 ClusterId = "cluster1",
             };
 
@@ -176,7 +183,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             {
                 RouteId = "route1",
                 AuthorizationPolicy = policy,
-                Host = "localhost",
+                Hosts = new[] { "localhost" },
                 ClusterId = "cluster1",
             };
 
@@ -196,7 +203,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             {
                 RouteId = "route1",
                 AuthorizationPolicy = "custom",
-                Host = "localhost",
+                Hosts = new[] { "localhost" },
                 ClusterId = "cluster1",
             };
 
@@ -233,7 +240,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             {
                 RouteId = "route1",
                 CorsPolicy = policy,
-                Host = "localhost",
+                Hosts = new[] { "localhost" },
                 ClusterId = "cluster1",
             };
 
@@ -253,7 +260,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             {
                 RouteId = "route1",
                 CorsPolicy = "custom",
-                Host = "localhost",
+                Hosts = new[] { "localhost" },
                 ClusterId = "cluster1",
             };
 
