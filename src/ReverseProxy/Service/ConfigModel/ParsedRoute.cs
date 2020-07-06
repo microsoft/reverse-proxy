@@ -23,7 +23,7 @@ namespace Microsoft.ReverseProxy.ConfigModel
         /// <summary>
         /// Only match requests with the given Host header.
         /// </summary>
-        public string Host { get; set; }
+        public IReadOnlyList<string> Hosts { get; set; }
 
         /// <summary>
         /// Only match requests with the given Path pattern.
@@ -96,9 +96,11 @@ namespace Microsoft.ReverseProxy.ConfigModel
                     .Aggregate((total, nextCode) => total ^ nextCode);
             }
 
-            if (!string.IsNullOrEmpty(Host))
+            if (Hosts != null && Hosts.Count > 0)
             {
-                hash ^= Host.GetHashCode();
+                // Assumes un-ordered
+                hash ^= Hosts.Select(item => item.GetHashCode())
+                    .Aggregate((total, nextCode) => total ^ nextCode);
             }
 
             if (!string.IsNullOrEmpty(Path))

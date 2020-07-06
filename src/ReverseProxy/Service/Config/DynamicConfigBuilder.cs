@@ -153,7 +153,7 @@ namespace Microsoft.ReverseProxy.Service
                 {
                     RouteId = route.RouteId,
                     Methods = route.Match.Methods,
-                    Host = route.Match.Host,
+                    Hosts = route.Match.Hosts,
                     Path = route.Match.Path,
                     Priority = route.Priority,
                     ClusterId = route.ClusterId,

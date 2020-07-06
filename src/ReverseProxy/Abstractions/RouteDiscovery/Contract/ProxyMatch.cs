@@ -19,7 +19,7 @@ namespace Microsoft.ReverseProxy.Abstractions
         /// <summary>
         /// Only match requests with the given Host header.
         /// </summary>
-        public string Host { get; set; }
+        public IReadOnlyList<string> Hosts { get; set; }
 
         /// <summary>
         /// Only match requests with the given Path pattern.
@@ -43,7 +43,7 @@ namespace Microsoft.ReverseProxy.Abstractions
             return new ProxyMatch()
             {
                 Methods = Methods?.ToArray(),
-                Host = Host,
+                Hosts = Hosts?.ToArray(),
                 Path = Path,
                 // Headers = Headers.DeepClone(); // TODO:
             };

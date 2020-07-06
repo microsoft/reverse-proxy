@@ -24,7 +24,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
                 Match =
                 {
                     Methods = new[] { "GET", "POST" },
-                    Host = "example.com",
+                    Hosts = new[] { "example.com" },
                     Path = "/",
                 },
                 Priority = 2,
@@ -46,7 +46,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
             Assert.NotSame(sut.Match, clone.Match);
             Assert.NotSame(sut.Match.Methods, clone.Match.Methods);
             Assert.Equal(sut.Match.Methods, clone.Match.Methods);
-            Assert.Equal(sut.Match.Host, clone.Match.Host);
+            Assert.Equal(sut.Match.Hosts, clone.Match.Hosts);
             Assert.Equal(sut.Match.Path, clone.Match.Path);
             Assert.Equal(sut.Priority, clone.Priority);
             Assert.Equal(sut.ClusterId, clone.ClusterId);
@@ -70,7 +70,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
             Assert.NotSame(sut, clone);
             Assert.Null(clone.RouteId);
             Assert.Null(clone.Match.Methods);
-            Assert.Null(clone.Match.Host);
+            Assert.Null(clone.Match.Hosts);
             Assert.Null(clone.Match.Path);
             Assert.Null(clone.Priority);
             Assert.Null(clone.ClusterId);

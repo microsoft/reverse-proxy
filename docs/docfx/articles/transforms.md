@@ -43,7 +43,7 @@ Here is an example of common transforms:
         "RouteId": "route1",
         "ClusterId": "cluster1",
         "Match": {
-          "Host": "localhost"
+          "Hosts": [ "localhost" ]
         },
         "Transforms": [
           { "PathPrefix": "/apis" },

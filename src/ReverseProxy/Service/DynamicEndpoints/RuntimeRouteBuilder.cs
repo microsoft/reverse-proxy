@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
@@ -73,9 +74,9 @@ namespace Microsoft.ReverseProxy.Service
             endpointBuilder.DisplayName = source.RouteId;
             endpointBuilder.Metadata.Add(newRouteConfig);
 
-            if (!string.IsNullOrEmpty(source.Host))
+            if (source.Hosts != null && source.Hosts.Count != 0)
             {
-                endpointBuilder.Metadata.Add(new AspNetCore.Routing.HostAttribute(source.Host));
+                endpointBuilder.Metadata.Add(new AspNetCore.Routing.HostAttribute(source.Hosts.ToArray()));
             }
 
             bool acceptCorsPreflight;

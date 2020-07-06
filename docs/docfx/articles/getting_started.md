@@ -106,7 +106,7 @@ You can find out more about the available configuration options by looking at [P
         "ClusterId": "cluster1",
         "Match": {
           "Methods": [ "GET", "POST" ],
-          "Host": "localhost",
+          "Hosts": [ "localhost" ],
           "Path": "/app1/"
         }
       },
@@ -114,7 +114,7 @@ You can find out more about the available configuration options by looking at [P
         "RouteId": "route2",
         "ClusterId": "cluster2",
         "Match": {
-          "Host": "localhost"
+          "Hosts": [ "localhost" ]
         }
       }
     ],
