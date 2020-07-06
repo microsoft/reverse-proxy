@@ -783,19 +783,19 @@ references:
   commentId: T:Microsoft.ReverseProxy.Abstractions.ProxyMatch
   fullName: Microsoft.ReverseProxy.Abstractions.ProxyMatch
   nameWithType: ProxyMatch
-- uid: Microsoft.ReverseProxy.Abstractions.ProxyMatch.Host
-  name: Host
-  href: api/Microsoft.ReverseProxy.Abstractions.ProxyMatch.html#Microsoft_ReverseProxy_Abstractions_ProxyMatch_Host
-  commentId: P:Microsoft.ReverseProxy.Abstractions.ProxyMatch.Host
-  fullName: Microsoft.ReverseProxy.Abstractions.ProxyMatch.Host
-  nameWithType: ProxyMatch.Host
-- uid: Microsoft.ReverseProxy.Abstractions.ProxyMatch.Host*
-  name: Host
-  href: api/Microsoft.ReverseProxy.Abstractions.ProxyMatch.html#Microsoft_ReverseProxy_Abstractions_ProxyMatch_Host_
-  commentId: Overload:Microsoft.ReverseProxy.Abstractions.ProxyMatch.Host
+- uid: Microsoft.ReverseProxy.Abstractions.ProxyMatch.Hosts
+  name: Hosts
+  href: api/Microsoft.ReverseProxy.Abstractions.ProxyMatch.html#Microsoft_ReverseProxy_Abstractions_ProxyMatch_Hosts
+  commentId: P:Microsoft.ReverseProxy.Abstractions.ProxyMatch.Hosts
+  fullName: Microsoft.ReverseProxy.Abstractions.ProxyMatch.Hosts
+  nameWithType: ProxyMatch.Hosts
+- uid: Microsoft.ReverseProxy.Abstractions.ProxyMatch.Hosts*
+  name: Hosts
+  href: api/Microsoft.ReverseProxy.Abstractions.ProxyMatch.html#Microsoft_ReverseProxy_Abstractions_ProxyMatch_Hosts_
+  commentId: Overload:Microsoft.ReverseProxy.Abstractions.ProxyMatch.Hosts
   isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Abstractions.ProxyMatch.Host
-  nameWithType: ProxyMatch.Host
+  fullName: Microsoft.ReverseProxy.Abstractions.ProxyMatch.Hosts
+  nameWithType: ProxyMatch.Hosts
 - uid: Microsoft.ReverseProxy.Abstractions.ProxyMatch.Methods
   name: Methods
   href: api/Microsoft.ReverseProxy.Abstractions.ProxyMatch.html#Microsoft_ReverseProxy_Abstractions_ProxyMatch_Methods

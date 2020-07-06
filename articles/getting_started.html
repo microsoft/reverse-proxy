@@ -141,7 +141,7 @@ public void ConfigureServices(IServiceCollection services)
        &quot;ClusterId&quot;: &quot;cluster1&quot;,
        &quot;Match&quot;: {
          &quot;Methods&quot;: [ &quot;GET&quot;, &quot;POST&quot; ],
-         &quot;Host&quot;: &quot;localhost&quot;,
+         &quot;Hosts&quot;: [ &quot;localhost&quot; ],
          &quot;Path&quot;: &quot;/app1/&quot;
        }
      },
@@ -149,7 +149,7 @@ public void ConfigureServices(IServiceCollection services)
        &quot;RouteId&quot;: &quot;route2&quot;,
        &quot;ClusterId&quot;: &quot;cluster2&quot;,
        &quot;Match&quot;: {
-         &quot;Host&quot;: &quot;localhost&quot;
+         &quot;Hosts&quot;: [ &quot;localhost&quot; ]
        }
      }
    ],

@@ -115,19 +115,19 @@
   </h3>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Abstractions_ProxyMatch_Host.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Abstractions.ProxyMatch.Host%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Abstractions_ProxyMatch_Hosts.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Abstractions.ProxyMatch.Hosts%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
     <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Abstractions/RouteDiscovery/Contract/ProxyMatch.cs/#L22">View Source</a>
   </span>
-  <a id="Microsoft_ReverseProxy_Abstractions_ProxyMatch_Host_" data-uid="Microsoft.ReverseProxy.Abstractions.ProxyMatch.Host*"></a>
-  <h4 id="Microsoft_ReverseProxy_Abstractions_ProxyMatch_Host" data-uid="Microsoft.ReverseProxy.Abstractions.ProxyMatch.Host">Host</h4>
+  <a id="Microsoft_ReverseProxy_Abstractions_ProxyMatch_Hosts_" data-uid="Microsoft.ReverseProxy.Abstractions.ProxyMatch.Hosts*"></a>
+  <h4 id="Microsoft_ReverseProxy_Abstractions_ProxyMatch_Hosts" data-uid="Microsoft.ReverseProxy.Abstractions.ProxyMatch.Hosts">Hosts</h4>
   <div class="markdown level1 summary"><p>Only match requests with the given Host header.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public string Host { get; set; }</code></pre>
+    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;string&gt; Hosts { get; set; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -139,7 +139,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.string">String</a></td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist-1">IReadOnlyList</a>&lt;<a class="xref" href="https://docs.microsoft.com/dotnet/api/system.string">String</a>&gt;</td>
         <td></td>
       </tr>
     </tbody>
