@@ -28,7 +28,6 @@ namespace Microsoft.ReverseProxy.Configuration
         private readonly IRoutesRepo _routesRepo;
         private readonly IReverseProxyConfigManager _proxyManager;
         private readonly IOptionsMonitor<ProxyConfigOptions> _proxyConfig;
-        private readonly LoggerConfigErrorReporter _errorReporter;
         private bool _disposed;
         private IDisposable _subscription;
 
@@ -44,7 +43,6 @@ namespace Microsoft.ReverseProxy.Configuration
             _routesRepo = routesRepo ?? throw new ArgumentNullException(nameof(routesRepo));
             _proxyManager = proxyManager ?? throw new ArgumentNullException(nameof(proxyManager));
             _proxyConfig = proxyConfig ?? throw new ArgumentNullException(nameof(proxyConfig));
-            _errorReporter = new LoggerConfigErrorReporter(_logger);
         }
 
         public void Dispose()
@@ -80,7 +78,7 @@ namespace Microsoft.ReverseProxy.Configuration
                 await _clustersRepo.SetClustersAsync(config.Clusters, CancellationToken.None);
                 await _routesRepo.SetRoutesAsync(config.Routes, CancellationToken.None);
 
-                await _proxyManager.ApplyConfigurationsAsync(_errorReporter, CancellationToken.None);
+                await _proxyManager.ApplyConfigurationsAsync(CancellationToken.None);
             }
             catch (Exception ex)
             {
@@ -88,38 +86,12 @@ namespace Microsoft.ReverseProxy.Configuration
             }
         }
 
-        private class LoggerConfigErrorReporter : IConfigErrorReporter
-        {
-            private readonly ILogger _logger;
-
-            public LoggerConfigErrorReporter(ILogger logger)
-            {
-                _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            }
-
-            public void ReportError(string code, string itemId, string message)
-            {
-                Log.ConfigError(_logger, code, itemId, message);
-            }
-
-            public void ReportError(string code, string itemId, string message, Exception ex)
-            {
-                Log.ConfigError(_logger, ex, code, itemId, message);
-            }
-        }
-
-
         private static class Log
         {
             private static readonly Action<ILogger, string, Exception> _applyProxyConfigFailed = LoggerMessage.Define<string>(
                 LogLevel.Error,
                 EventIds.ApplyProxyConfigFailed,
                 "Failed to apply new configs: {errorMessage}");
-
-            private static readonly Action<ILogger, string, string, string, Exception> _configError = LoggerMessage.Define<string, string, string>(
-                LogLevel.Warning,
-                EventIds.ConfigError,
-                "Config error: '{code}', '{itemId}', '{message}'.");
 
             private static readonly Action<ILogger, Exception> _applyProxyConfig = LoggerMessage.Define(
                 LogLevel.Information,
@@ -129,16 +101,6 @@ namespace Microsoft.ReverseProxy.Configuration
             public static void ApplyProxyConfigFailed(ILogger logger, string errorMessage, Exception exception)
             {
                 _applyProxyConfigFailed(logger, errorMessage, exception);
-            }
-
-            public static void ConfigError(ILogger logger, string code, string itemId, string message)
-            {
-                _configError(logger, code, itemId, message, null);
-            }
-
-            public static void ConfigError(ILogger logger, Exception ex, string code, string itemId, string message)
-            {
-                _configError(logger, code, itemId, message, ex);
             }
 
             public static void ApplyProxyConfig(ILogger logger)

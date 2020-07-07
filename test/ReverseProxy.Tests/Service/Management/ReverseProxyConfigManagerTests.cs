@@ -63,14 +63,13 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
                 Routes = new[] { route },
             };
             Mock<IDynamicConfigBuilder>()
-                .Setup(d => d.BuildConfigAsync(It.IsAny<IConfigErrorReporter>(), It.IsAny<CancellationToken>()))
+                .Setup(d => d.BuildConfigAsync(It.IsAny<CancellationToken>()))
                 .ReturnsAsync(dynamicConfigRoot);
 
-            var errorReporter = new TestConfigErrorReporter();
             var proxyManager = Create<ReverseProxyConfigManager>();
 
             // Act
-            await proxyManager.ApplyConfigurationsAsync(errorReporter, CancellationToken.None);
+            await proxyManager.ApplyConfigurationsAsync(CancellationToken.None);
 
             // Assert
 
