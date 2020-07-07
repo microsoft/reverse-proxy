@@ -10,15 +10,13 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
     {
         private readonly QueryStringTransformMode _mode;
         private readonly string _key;
-        private readonly RouteTemplate _template;
-        private readonly TemplateBinderFactory _binderFactory;
+        private readonly string _routeValueKey;
 
-        public QueryStringParameterTransform(QueryStringTransformMode mode, string key, string value, TemplateBinderFactory binderFactory)
+        public QueryStringParameterTransform(QueryStringTransformMode mode, string key, string routeValueKey)
         {
             _mode = mode;
             _key = key;
-            _binderFactory = binderFactory ?? throw new ArgumentNullException(nameof(binderFactory));
-            _template = TemplateParser.Parse(value);
+            _routeValueKey = routeValueKey;
         }
 
         public override void Apply(RequestParametersTransformContext context)
@@ -29,13 +27,12 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             }
 
             var routeValues = context.HttpContext.Request.RouteValues;
-            var binder = _binderFactory.Create(_template, defaults: routeValues);
-            var value = binder.BindValues(acceptedValues: routeValues);
+            var value = routeValues.ContainsKey(_routeValueKey) ? routeValues[_routeValueKey] : null;
 
             switch (_mode)
             {
                 case QueryStringTransformMode.Append:
-                    context.Query = context.Query.Add(_key, value);
+                    context.Query = context.Query.Add(_key, value?.ToString());
                     break;
                 default:
                     throw new NotImplementedException(_mode.ToString());

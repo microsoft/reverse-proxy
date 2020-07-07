@@ -269,9 +269,9 @@ namespace Microsoft.ReverseProxy.Service.Config
                     else if (rawTransform.TryGetValue("QueryStringParameter", out var queryStringParameter))
                     {
                         CheckTooManyParameters(rawTransform, expected: 2);
-                        if (rawTransform.TryGetValue("Append", out var appendValue))
+                        if (rawTransform.TryGetValue("Append", out var routeValueKey))
                         {
-                            requestTransforms.Add(new QueryStringParameterTransform(QueryStringTransformMode.Append, queryStringParameter, appendValue, _binderFactory));
+                            requestTransforms.Add(new QueryStringParameterTransform(QueryStringTransformMode.Append, queryStringParameter, routeValueKey));
                         }
                         else
                         {
