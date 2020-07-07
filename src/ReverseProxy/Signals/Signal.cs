@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -14,7 +14,7 @@ namespace Microsoft.ReverseProxy.Signals
     /// or <see cref="GetSnapshot"/>, the value can be used without worries of concurrent changes.
     /// </summary>
     /// <typeparam name="T">Type of the stored value.</typeparam>
-    public class Signal<T> : IReadableSignal<T>, IWritableSignal<T>
+    internal class Signal<T> : IReadableSignal<T>, IWritableSignal<T>
     {
         private Snapshot _snapshot;
 

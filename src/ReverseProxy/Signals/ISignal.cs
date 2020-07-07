@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 namespace Microsoft.ReverseProxy.Signals
@@ -8,7 +8,7 @@ namespace Microsoft.ReverseProxy.Signals
     /// <see cref="Context"/> indicating to which context the signal belongs.
     /// Signals from different contexts cannot be mixed due to thread safety concerns.
     /// </summary>
-    public interface ISignal
+    internal interface ISignal
     {
         /// <summary>
         /// Context of the signal. Writes to signals within the same context

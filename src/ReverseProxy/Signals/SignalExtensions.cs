@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -9,7 +9,7 @@ namespace Microsoft.ReverseProxy.Signals
     /// <summary>
     /// Extension methods for <see cref="IReadableSignal{T}"/>.
     /// </summary>
-    public static class SignalExtensions
+    internal static class SignalExtensions
     {
         /// <summary>
         /// Projects the <paramref name="source"/> signal into a new signal
