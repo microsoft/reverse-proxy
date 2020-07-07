@@ -35,11 +35,11 @@ namespace Microsoft.ReverseProxy.Middleware
 
         public Task Invoke(HttpContext context)
         { 
-            var cluster = context.GetRequiredCluster();
+            var clusterConfig = context.GetRequiredClusterConfig();
             var destinationsFeature = context.GetRequiredDestinationFeature();
             var destinations = destinationsFeature.Destinations;
 
-            var loadBalancingOptions = cluster.Config.Value?.LoadBalancingOptions
+            var loadBalancingOptions = clusterConfig?.LoadBalancingOptions
                 ?? new ClusterConfig.ClusterLoadBalancingOptions(default);
 
             var destination = _operationLogger.Execute(
@@ -48,6 +48,7 @@ namespace Microsoft.ReverseProxy.Middleware
 
             if (destination == null)
             {
+                var cluster = context.GetRequiredCluster();
                 Log.NoAvailableDestinations(_logger, cluster.ClusterId);
                 context.Response.StatusCode = 503;
                 return Task.CompletedTask;

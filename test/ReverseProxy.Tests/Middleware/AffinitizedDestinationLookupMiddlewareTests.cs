@@ -41,6 +41,7 @@ namespace Microsoft.ReverseProxy.Middleware
                 new Mock<ILogger<AffinitizedDestinationLookupMiddleware>>().Object);
             var context = new DefaultHttpContext();
             context.Features.Set(cluster);
+            context.Features.Set(cluster.Config.Value);
             var destinationFeature = GetDestinationsFeature(Destinations);
             context.Features.Set(destinationFeature);
 
@@ -89,6 +90,7 @@ namespace Microsoft.ReverseProxy.Middleware
                 logger.Object);
             var context = new DefaultHttpContext();
             context.Features.Set(cluster);
+            context.Features.Set(cluster.Config.Value);
             var destinationFeature = GetDestinationsFeature(Destinations);
             context.Features.Set(destinationFeature);
 

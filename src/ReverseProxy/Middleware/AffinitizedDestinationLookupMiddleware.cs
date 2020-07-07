@@ -41,14 +41,16 @@ namespace Microsoft.ReverseProxy.Middleware
 
         public Task Invoke(HttpContext context)
         {
-            var cluster = context.GetRequiredCluster();
+            var clusterConfig = context.GetRequiredClusterConfig();
 
-            var options = cluster.Config.Value?.SessionAffinityOptions ?? default;
+            var options = clusterConfig?.SessionAffinityOptions ?? default;
 
             if (!options.Enabled)
             {
                 return _next(context);
             }
+
+            var cluster = context.GetRequiredCluster();
 
             return InvokeInternal(context, options, cluster);
         }

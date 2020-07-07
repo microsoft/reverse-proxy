@@ -14,6 +14,11 @@ namespace Microsoft.ReverseProxy.Middleware
             return context.Features.Get<ClusterInfo>() ?? throw new InvalidOperationException("Cluster unspecified.");
         }
 
+        public static ClusterConfig GetRequiredClusterConfig(this HttpContext context)
+        {
+            return context.Features.Get<ClusterConfig>() ?? throw new InvalidOperationException("Cluster config unspecified.");
+        }
+
         public static IAvailableDestinationsFeature GetRequiredDestinationFeature(this HttpContext context)
         {
             var destinationsFeature = context.Features.Get<IAvailableDestinationsFeature>();

@@ -74,6 +74,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             httpContext.Features.Set<IAvailableDestinationsFeature>(
                 new AvailableDestinationsFeature() { Destinations = new List<DestinationInfo>() { destination1, destination2 }.AsReadOnly() });
             httpContext.Features.Set(cluster1);
+            httpContext.Features.Set(cluster1.Config.Value);
 
             var sut = Create<LoadBalancingMiddleware>();
 
@@ -96,6 +97,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 clusterId: "cluster1",
                 destinationManager: new DestinationManager(),
                 proxyHttpClientFactory: proxyHttpClientFactoryMock.Object);
+            cluster1.Config.Value = new ClusterConfig(default, new ClusterConfig.ClusterLoadBalancingOptions(LoadBalancingMode.RoundRobin), default);
             var destination1 = cluster1.DestinationManager.GetOrCreateItem(
                 "destination1",
                 destination =>
@@ -131,6 +133,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             httpContext.Features.Set<IAvailableDestinationsFeature>(
                 new AvailableDestinationsFeature() { Destinations = new List<DestinationInfo>() { destination1, destination2 }.AsReadOnly() });
             httpContext.Features.Set(cluster1);
+            httpContext.Features.Set(cluster1.Config.Value);
 
             var sut = Create<LoadBalancingMiddleware>();
 
