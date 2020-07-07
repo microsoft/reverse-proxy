@@ -1,10 +1,8 @@
- // Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing.Template;
-using Microsoft.AspNetCore.WebUtilities;
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
@@ -33,18 +31,15 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             var routeValues = context.HttpContext.Request.RouteValues;
             var binder = _binderFactory.Create(_template, defaults: routeValues);
             var value = binder.BindValues(acceptedValues: routeValues);
-            var parsedQueryString = QueryHelpers.ParseQuery(context.Query.Value);
 
             switch (_mode)
             {
                 case QueryStringTransformMode.Append:
-                    parsedQueryString.Add(_key, value);
+                    context.Query = context.Query.Add(_key, value);
                     break;
                 default:
                     throw new NotImplementedException(_mode.ToString());
             }
-
-            context.Query = QueryString.Create(parsedQueryString);
         }
     }
 
