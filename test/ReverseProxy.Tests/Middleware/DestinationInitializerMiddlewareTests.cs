@@ -41,8 +41,8 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 "destination1",
                 destination =>
                 {
-                    destination.Config.Value = new DestinationConfig("https://localhost:123/a/b/");
-                    destination.DynamicState.Value = new DestinationDynamicState(DestinationHealth.Healthy);
+                    destination.ConfigSignal.Value = new DestinationConfig("https://localhost:123/a/b/");
+                    destination.DynamicStateSignal.Value = new DestinationDynamicState(DestinationHealth.Healthy);
                 });
 
             var aspNetCoreEndpoints = new List<Endpoint>();
@@ -90,8 +90,8 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 "destination1",
                 destination =>
                 {
-                    destination.Config.Value = new DestinationConfig("https://localhost:123/a/b/");
-                    destination.DynamicState.Value = new DestinationDynamicState(DestinationHealth.Unhealthy);
+                    destination.ConfigSignal.Value = new DestinationConfig("https://localhost:123/a/b/");
+                    destination.DynamicStateSignal.Value = new DestinationDynamicState(DestinationHealth.Unhealthy);
                 });
 
             var aspNetCoreEndpoints = new List<Endpoint>();

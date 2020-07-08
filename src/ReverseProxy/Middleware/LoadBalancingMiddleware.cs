@@ -5,7 +5,6 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.ReverseProxy.Abstractions.Telemetry;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Proxy;
 
@@ -17,19 +16,16 @@ namespace Microsoft.ReverseProxy.Middleware
     internal class LoadBalancingMiddleware
     {
         private readonly ILogger _logger;
-        private readonly IOperationLogger<LoadBalancingMiddleware> _operationLogger;
         private readonly ILoadBalancer _loadBalancer;
         private readonly RequestDelegate _next;
 
         public LoadBalancingMiddleware(
             RequestDelegate next,
             ILogger<LoadBalancingMiddleware> logger,
-            IOperationLogger<LoadBalancingMiddleware> operationLogger,
             ILoadBalancer loadBalancer)
         {
             _next = next ?? throw new ArgumentNullException(nameof(next));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _operationLogger = operationLogger ?? throw new ArgumentNullException(nameof(operationLogger));
             _loadBalancer = loadBalancer ?? throw new ArgumentNullException(nameof(loadBalancer));
         }
 
@@ -40,9 +36,7 @@ namespace Microsoft.ReverseProxy.Middleware
 
             var loadBalancingOptions = reverseProxy.ClusterConfig.LoadBalancingOptions;
 
-            var destination = _operationLogger.Execute(
-                "ReverseProxy.PickDestination",
-                () => _loadBalancer.PickDestination(destinations, in loadBalancingOptions));
+            var destination = _loadBalancer.PickDestination(destinations, in loadBalancingOptions);
 
             if (destination == null)
             {

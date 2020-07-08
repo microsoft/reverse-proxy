@@ -64,7 +64,7 @@ namespace Microsoft.ReverseProxy.Middleware
                 destination = destinations[random.Next(destinations.Count)];
             }
 
-            var destinationConfig = destination.Config.Value;
+            var destinationConfig = destination.Config;
             if (destinationConfig == null)
             {
                 throw new InvalidOperationException($"Chosen destination has no configs set: '{destination.DestinationId}'");

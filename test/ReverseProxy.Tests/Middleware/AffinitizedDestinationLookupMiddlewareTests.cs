@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.ReverseProxy.Abstractions.Telemetry;
 using Microsoft.ReverseProxy.Service.SessionAffinity;
 using Microsoft.ReverseProxy.Signals;
 using Moq;
@@ -37,7 +36,6 @@ namespace Microsoft.ReverseProxy.Middleware
                     return Task.CompletedTask;
                 },
                 providers.Select(p => p.Object), new IAffinityFailurePolicy[0],
-                GetOperationLogger(false),
                 new Mock<ILogger<AffinitizedDestinationLookupMiddleware>>().Object);
             var context = new DefaultHttpContext();
             context.Features.Set(cluster);
@@ -85,7 +83,6 @@ namespace Microsoft.ReverseProxy.Middleware
                     return Task.CompletedTask;
                 },
                 providers.Select(p => p.Object), failurePolicies.Select(p => p.Object),
-                GetOperationLogger(true),
                 logger.Object);
             var context = new DefaultHttpContext();
             var destinationFeature = GetDestinationsFeature(Destinations, cluster.Config.Value);
@@ -105,17 +102,6 @@ namespace Microsoft.ReverseProxy.Middleware
                     l => l.Log(LogLevel.Warning, EventIds.AffinityResolutionFailedForCluster, It.IsAny<It.IsAnyType>(), null, (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
                     Times.Once);
             }
-        }
-
-        private IOperationLogger<AffinitizedDestinationLookupMiddleware> GetOperationLogger(bool callFailurePolicy)
-        {
-            var result = new Mock<IOperationLogger<AffinitizedDestinationLookupMiddleware>>(MockBehavior.Strict);
-            result.Setup(l => l.Execute(It.IsAny<string>(), It.IsAny<Func<AffinityResult>>())).Returns((string name, Func<AffinityResult> callback) => callback());
-            if (callFailurePolicy)
-            {
-                result.Setup(l => l.ExecuteAsync(It.IsAny<string>(), It.IsAny<Func<Task<bool>>>())).Returns(async (string name, Func<Task<bool>> callback) => await callback());
-            }
-            return result.Object;
         }
     }
 }

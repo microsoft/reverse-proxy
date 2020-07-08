@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 namespace Microsoft.ReverseProxy.Signals
@@ -7,7 +7,7 @@ namespace Microsoft.ReverseProxy.Signals
     /// Class used to create instances of <see cref="Signal{T}"/>
     /// within the same <see cref="SignalContext"/>.
     /// </summary>
-    public sealed class SignalFactory
+    internal sealed class SignalFactory
     {
         private readonly SignalContext _context;
 
