@@ -4,11 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Abstractions.Telemetry;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.SessionAffinity;
 
@@ -22,19 +19,16 @@ namespace Microsoft.ReverseProxy.Middleware
         private readonly RequestDelegate _next;
         private readonly IDictionary<string, ISessionAffinityProvider> _sessionAffinityProviders;
         private readonly IDictionary<string, IAffinityFailurePolicy> _affinityFailurePolicies;
-        private readonly IOperationLogger<AffinitizedDestinationLookupMiddleware> _operationLogger;
         private readonly ILogger _logger;
 
         public AffinitizedDestinationLookupMiddleware(
             RequestDelegate next,
             IEnumerable<ISessionAffinityProvider> sessionAffinityProviders,
             IEnumerable<IAffinityFailurePolicy> affinityFailurePolicies,
-            IOperationLogger<AffinitizedDestinationLookupMiddleware> operationLogger,
             ILogger<AffinitizedDestinationLookupMiddleware> logger)
         {
             _next = next ?? throw new ArgumentNullException(nameof(next));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _operationLogger = operationLogger ?? throw new ArgumentNullException(nameof(logger));
             _sessionAffinityProviders = sessionAffinityProviders.ToProviderDictionary();
             _affinityFailurePolicies = affinityFailurePolicies?.ToPolicyDictionary() ?? throw new ArgumentNullException(nameof(affinityFailurePolicies));
         }
@@ -58,13 +52,9 @@ namespace Microsoft.ReverseProxy.Middleware
             var destinationsFeature = context.GetRequiredDestinationFeature();
             var destinations = destinationsFeature.Destinations;
 
-            var affinityResult = _operationLogger.Execute(
-                    "ReverseProxy.FindAffinitizedDestinations",
-                    () =>
-                    {
-                        var currentProvider = _sessionAffinityProviders.GetRequiredServiceById(options.Mode);
-                        return currentProvider.FindAffinitizedDestinations(context, destinations, cluster.ClusterId, options);
-                    });
+            var currentProvider = _sessionAffinityProviders.GetRequiredServiceById(options.Mode);
+            var affinityResult = currentProvider.FindAffinitizedDestinations(context, destinations, cluster.ClusterId, options);
+
             switch (affinityResult.Status)
             {
                 case AffinityStatus.OK:
@@ -75,11 +65,9 @@ namespace Microsoft.ReverseProxy.Middleware
                     break;
                 case AffinityStatus.AffinityKeyExtractionFailed:
                 case AffinityStatus.DestinationNotFound:
-                    var keepProcessing = await _operationLogger.ExecuteAsync("ReverseProxy.HandleAffinityFailure", () =>
-                    {
-                        var failurePolicy = _affinityFailurePolicies.GetRequiredServiceById(options.FailurePolicy);
-                        return failurePolicy.Handle(context, options, affinityResult.Status);
-                    });
+
+                    var failurePolicy = _affinityFailurePolicies.GetRequiredServiceById(options.FailurePolicy);
+                    var keepProcessing = await failurePolicy.Handle(context, options, affinityResult.Status);
 
                     if (!keepProcessing)
                     {
