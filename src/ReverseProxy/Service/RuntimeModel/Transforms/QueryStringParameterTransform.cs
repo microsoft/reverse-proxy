@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using Microsoft.AspNetCore.Routing.Template;
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
@@ -27,15 +26,16 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             }
 
             var routeValues = context.HttpContext.Request.RouteValues;
-            var value = routeValues.ContainsKey(_routeValueKey) ? routeValues[_routeValueKey] : null;
-
-            switch (_mode)
+            if (routeValues.TryGetValue(_routeValueKey, out object value))
             {
-                case QueryStringTransformMode.Append:
-                    context.Query = context.Query.Add(_key, value?.ToString());
-                    break;
-                default:
-                    throw new NotImplementedException(_mode.ToString());
+                switch (_mode)
+                {
+                    case QueryStringTransformMode.Append:
+                        context.Query = context.Query.Add(_key, value.ToString());
+                        break;
+                    default:
+                        throw new NotImplementedException(_mode.ToString());
+                }
             }
         }
     }
