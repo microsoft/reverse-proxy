@@ -39,8 +39,7 @@ namespace Microsoft.ReverseProxy.Middleware
                 new Mock<ILogger<AffinitizeRequestMiddleware>>().Object);
             var context = new DefaultHttpContext();
             context.Features.Set(cluster);
-            context.Features.Set(cluster.Config.Value);
-            var destinationFeature = GetDestinationsFeature(Destinations[1]);
+            var destinationFeature = GetDestinationsFeature(Destinations[1], cluster.Config.Value);
             context.Features.Set(destinationFeature);
 
             await middleware.Invoke(context);
@@ -50,7 +49,7 @@ namespace Microsoft.ReverseProxy.Middleware
             providers[0].VerifyGet(p => p.Mode, Times.Once);
             providers[0].VerifyNoOtherCalls();
             providers[1].VerifyAll();
-            Assert.Same(destinationFeature.Destinations, Destinations[1]);
+            Assert.Same(destinationFeature.AvailableDestinations, Destinations[1]);
         }
 
         [Fact]
@@ -74,8 +73,7 @@ namespace Microsoft.ReverseProxy.Middleware
                 logger.Object);
             var context = new DefaultHttpContext();
             context.Features.Set(cluster);
-            context.Features.Set(cluster.Config.Value);
-            var destinationFeature = GetDestinationsFeature(Destinations);
+            var destinationFeature = GetDestinationsFeature(Destinations, cluster.Config.Value);
             context.Features.Set(destinationFeature);
 
             await middleware.Invoke(context);
@@ -88,8 +86,8 @@ namespace Microsoft.ReverseProxy.Middleware
             logger.Verify(
                 l => l.Log(LogLevel.Warning, EventIds.MultipleDestinationsOnClusterToEstablishRequestAffinity, It.IsAny<It.IsAnyType>(), null, (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
                 Times.Once);
-            Assert.Equal(1, destinationFeature.Destinations.Count);
-            var chosen = destinationFeature.Destinations[0];
+            Assert.Equal(1, destinationFeature.AvailableDestinations.Count);
+            var chosen = destinationFeature.AvailableDestinations[0];
             var sameDestinationCount = Destinations.Count(d => chosen == d);
             Assert.Equal(1, sameDestinationCount);
         }
@@ -109,8 +107,7 @@ namespace Microsoft.ReverseProxy.Middleware
                 logger.Object);
             var context = new DefaultHttpContext();
             context.Features.Set(cluster);
-            context.Features.Set(cluster.Config.Value);
-            var destinationFeature = GetDestinationsFeature(new DestinationInfo[0]);
+            var destinationFeature = GetDestinationsFeature(new DestinationInfo[0], cluster.Config.Value);
             context.Features.Set(destinationFeature);
 
             await middleware.Invoke(context);
@@ -119,7 +116,7 @@ namespace Microsoft.ReverseProxy.Middleware
             logger.Verify(
                 l => l.Log(LogLevel.Warning, EventIds.NoDestinationOnClusterToEstablishRequestAffinity, It.IsAny<It.IsAnyType>(), null, (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
                 Times.Once);
-            Assert.Equal(0, destinationFeature.Destinations.Count);
+            Assert.Equal(0, destinationFeature.AvailableDestinations.Count);
         }
 
         private IOperationLogger<AffinitizeRequestMiddleware> GetOperationLogger()

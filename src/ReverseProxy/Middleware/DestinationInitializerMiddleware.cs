@@ -56,8 +56,11 @@ namespace Microsoft.ReverseProxy.Middleware
             }
 
             context.Features.Set(cluster);
-            context.Features.Set(cluster.Config.Value);
-            context.Features.Set<IAvailableDestinationsFeature>(new AvailableDestinationsFeature() { Destinations = dynamicState.HealthyDestinations });
+            context.Features.Set<IReverseProxyFeature>(new ReverseProxyFeature
+            {
+                ClusterConfig = cluster.Config.Value,
+                AvailableDestinations = dynamicState.HealthyDestinations
+            });
 
             return _next(context);
         }

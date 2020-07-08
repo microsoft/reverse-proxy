@@ -41,9 +41,9 @@ namespace Microsoft.ReverseProxy.Middleware
 
         public Task Invoke(HttpContext context)
         {
-            var clusterConfig = context.GetRequiredClusterConfig();
+            var reverseProxy = context.GetReverseProxyFeature();
 
-            var options = clusterConfig?.SessionAffinityOptions ?? default;
+            var options = reverseProxy.ClusterConfig.SessionAffinityOptions;
 
             if (!options.Enabled)
             {
@@ -51,26 +51,25 @@ namespace Microsoft.ReverseProxy.Middleware
             }
 
             var cluster = context.GetRequiredCluster();
-
-            return InvokeInternal(context, options, cluster);
+            return InvokeInternal(context, options, cluster.ClusterId);
         }
 
-        private async Task InvokeInternal(HttpContext context, ClusterConfig.ClusterSessionAffinityOptions options, ClusterInfo cluster)
+        private async Task InvokeInternal(HttpContext context, ClusterConfig.ClusterSessionAffinityOptions options, string clusterId)
         {
-            var destinationsFeature = context.GetRequiredDestinationFeature();
-            var destinations = destinationsFeature.Destinations;
+            var destinationsFeature = context.GetReverseProxyFeature();
+            var destinations = destinationsFeature.AvailableDestinations;
 
             var affinityResult = _operationLogger.Execute(
                     "ReverseProxy.FindAffinitizedDestinations",
                     () =>
                     {
                         var currentProvider = _sessionAffinityProviders.GetRequiredServiceById(options.Mode);
-                        return currentProvider.FindAffinitizedDestinations(context, destinations, cluster.ClusterId, options);
+                        return currentProvider.FindAffinitizedDestinations(context, destinations, clusterId, options);
                     });
             switch (affinityResult.Status)
             {
                 case AffinityStatus.OK:
-                    destinationsFeature.Destinations = affinityResult.Destinations;
+                    destinationsFeature.AvailableDestinations = affinityResult.Destinations;
                     break;
                 case AffinityStatus.AffinityKeyNotSet:
                     // Nothing to do so just continue processing
@@ -87,11 +86,11 @@ namespace Microsoft.ReverseProxy.Middleware
                     {
                         // Policy reported the failure is unrecoverable and took the full responsibility for its handling,
                         // so we simply stop processing.
-                        Log.AffinityResolutionFailedForCluster(_logger, cluster.ClusterId);
+                        Log.AffinityResolutionFailedForCluster(_logger, clusterId);
                         return;
                     }
 
-                    Log.AffinityResolutionFailureWasHandledProcessingWillBeContinued(_logger, cluster.ClusterId, options.FailurePolicy);
+                    Log.AffinityResolutionFailureWasHandledProcessingWillBeContinued(_logger, clusterId, options.FailurePolicy);
 
                     break;
                 default:

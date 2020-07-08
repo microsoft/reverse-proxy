@@ -71,20 +71,23 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             httpContext.SetEndpoint(aspNetCoreEndpoint);
             Provide<ILoadBalancer, LoadBalancer>();
 
-            httpContext.Features.Set<IAvailableDestinationsFeature>(
-                new AvailableDestinationsFeature() { Destinations = new List<DestinationInfo>() { destination1, destination2 }.AsReadOnly() });
+            httpContext.Features.Set<IReverseProxyFeature>(
+                new ReverseProxyFeature()
+                {
+                    AvailableDestinations = new List<DestinationInfo>() { destination1, destination2 }.AsReadOnly(),
+                    ClusterConfig = cluster1.Config.Value
+                });
             httpContext.Features.Set(cluster1);
-            httpContext.Features.Set(cluster1.Config.Value);
 
             var sut = Create<LoadBalancingMiddleware>();
 
             await sut.Invoke(httpContext);
 
-            var feature = httpContext.Features.Get<IAvailableDestinationsFeature>();
+            var feature = httpContext.Features.Get<IReverseProxyFeature>();
             Assert.NotNull(feature);
-            Assert.NotNull(feature.Destinations);
-            Assert.Equal(1, feature.Destinations.Count);
-            Assert.Same(destination1, feature.Destinations[0]);
+            Assert.NotNull(feature.AvailableDestinations);
+            Assert.Equal(1, feature.AvailableDestinations.Count);
+            Assert.Same(destination1, feature.AvailableDestinations[0]);
 
             Assert.Equal(200, httpContext.Response.StatusCode);
         }
@@ -130,19 +133,22 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 .Setup(l => l.PickDestination(It.IsAny<IReadOnlyList<DestinationInfo>>(), It.IsAny<ClusterConfig.ClusterLoadBalancingOptions>()))
                 .Returns((DestinationInfo)null);
 
-            httpContext.Features.Set<IAvailableDestinationsFeature>(
-                new AvailableDestinationsFeature() { Destinations = new List<DestinationInfo>() { destination1, destination2 }.AsReadOnly() });
+            httpContext.Features.Set<IReverseProxyFeature>(
+                new ReverseProxyFeature()
+                {
+                    AvailableDestinations = new List<DestinationInfo>() { destination1, destination2 }.AsReadOnly(),
+                    ClusterConfig = cluster1.Config.Value
+                });
             httpContext.Features.Set(cluster1);
-            httpContext.Features.Set(cluster1.Config.Value);
 
             var sut = Create<LoadBalancingMiddleware>();
 
             await sut.Invoke(httpContext);
 
-            var feature = httpContext.Features.Get<IAvailableDestinationsFeature>();
+            var feature = httpContext.Features.Get<IReverseProxyFeature>();
             Assert.NotNull(feature);
-            Assert.NotNull(feature.Destinations);
-            Assert.Equal(2, feature.Destinations.Count); // Unmodified
+            Assert.NotNull(feature.AvailableDestinations);
+            Assert.Equal(2, feature.AvailableDestinations.Count); // Unmodified
 
             Assert.Equal(503, httpContext.Response.StatusCode);
         }

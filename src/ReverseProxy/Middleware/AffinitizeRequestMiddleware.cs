@@ -37,13 +37,13 @@ namespace Microsoft.ReverseProxy.Middleware
 
         public Task Invoke(HttpContext context)
         {
-            var clusterConfig = context.GetRequiredClusterConfig();
-            var options = clusterConfig?.SessionAffinityOptions ?? default;
+            var reverseProxy = context.GetReverseProxyFeature();
+            var options = reverseProxy.ClusterConfig.SessionAffinityOptions;
 
             if (options.Enabled)
             {
-                var destinationsFeature = context.GetRequiredDestinationFeature();
-                var candidateDestinations = destinationsFeature.Destinations;
+                var destinationsFeature = context.GetReverseProxyFeature();
+                var candidateDestinations = destinationsFeature.AvailableDestinations;
 
                 if (candidateDestinations.Count == 0)
                 {
@@ -61,7 +61,7 @@ namespace Microsoft.ReverseProxy.Middleware
                         Log.MultipleDestinationsOnClusterToEstablishRequestAffinity(_logger, cluster.ClusterId);
                         // It's assumed that all of them match to the request's affinity key.
                         chosenDestination = candidateDestinations[_random.Next(candidateDestinations.Count)];
-                        destinationsFeature.Destinations = chosenDestination;
+                        destinationsFeature.AvailableDestinations = chosenDestination;
                     }
 
                     _operationLogger.Execute("ReverseProxy.AffinitizeRequest", () => AffinitizeRequest(context, options, chosenDestination));

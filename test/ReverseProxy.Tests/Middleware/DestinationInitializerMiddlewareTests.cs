@@ -62,11 +62,11 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
 
             await sut.Invoke(httpContext);
 
-            var feature = httpContext.Features.Get<IAvailableDestinationsFeature>();
+            var feature = httpContext.Features.Get<IReverseProxyFeature>();
             Assert.NotNull(feature);
-            Assert.NotNull(feature.Destinations);
-            Assert.Equal(1, feature.Destinations.Count);
-            Assert.Same(destination1, feature.Destinations[0]);
+            Assert.NotNull(feature.AvailableDestinations);
+            Assert.Equal(1, feature.AvailableDestinations.Count);
+            Assert.Same(destination1, feature.AvailableDestinations[0]);
 
             var cluster = httpContext.Features.Get<ClusterInfo>();
             Assert.Same(cluster1, cluster);
@@ -111,7 +111,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
 
             await sut.Invoke(httpContext);
 
-            var feature = httpContext.Features.Get<IAvailableDestinationsFeature>();
+            var feature = httpContext.Features.Get<IReverseProxyFeature>();
             Assert.Null(feature);
 
             var cluster = httpContext.Features.Get<ClusterInfo>();

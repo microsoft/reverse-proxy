@@ -41,8 +41,7 @@ namespace Microsoft.ReverseProxy.Middleware
                 new Mock<ILogger<AffinitizedDestinationLookupMiddleware>>().Object);
             var context = new DefaultHttpContext();
             context.Features.Set(cluster);
-            context.Features.Set(cluster.Config.Value);
-            var destinationFeature = GetDestinationsFeature(Destinations);
+            var destinationFeature = GetDestinationsFeature(Destinations, cluster.Config.Value);
             context.Features.Set(destinationFeature);
 
             await middleware.Invoke(context);
@@ -55,12 +54,12 @@ namespace Microsoft.ReverseProxy.Middleware
 
             if (foundDestinationId != null)
             {
-                Assert.Equal(1, destinationFeature.Destinations.Count);
-                Assert.Equal(foundDestinationId, destinationFeature.Destinations[0].DestinationId);
+                Assert.Equal(1, destinationFeature.AvailableDestinations.Count);
+                Assert.Equal(foundDestinationId, destinationFeature.AvailableDestinations[0].DestinationId);
             }
             else
             {
-                Assert.Same(Destinations, destinationFeature.Destinations);
+                Assert.Same(Destinations, destinationFeature.AvailableDestinations);
             }
         }
 
@@ -89,9 +88,8 @@ namespace Microsoft.ReverseProxy.Middleware
                 GetOperationLogger(true),
                 logger.Object);
             var context = new DefaultHttpContext();
+            var destinationFeature = GetDestinationsFeature(Destinations, cluster.Config.Value);
             context.Features.Set(cluster);
-            context.Features.Set(cluster.Config.Value);
-            var destinationFeature = GetDestinationsFeature(Destinations);
             context.Features.Set(destinationFeature);
 
             await middleware.Invoke(context);

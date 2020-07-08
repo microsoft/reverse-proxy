@@ -52,10 +52,10 @@ namespace Microsoft.ReverseProxy.Sample
                         var someCriteria = false; // MeetsCriteria(context);
                         if (someCriteria)
                         {
-                            var availableDestinationsFeature = context.Features.Get<IAvailableDestinationsFeature>();
-                            var destination = availableDestinationsFeature.Destinations[0]; // PickDestination(availableDestinationsFeature.Destinations);
+                            var availableDestinationsFeature = context.Features.Get<IReverseProxyFeature>();
+                            var destination = availableDestinationsFeature.AvailableDestinations[0]; // PickDestination(availableDestinationsFeature.Destinations);
                             // Load balancing will no-op if we've already reduced the list of available destinations to 1.
-                            availableDestinationsFeature.Destinations = new[] { destination };
+                            availableDestinationsFeature.AvailableDestinations = new[] { destination };
                         }
 
                         return next();

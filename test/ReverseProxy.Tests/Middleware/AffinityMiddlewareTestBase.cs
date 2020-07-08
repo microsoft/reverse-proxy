@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Management;
 using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
+using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 using Microsoft.ReverseProxy.Service.SessionAffinity;
 using Microsoft.ReverseProxy.Signals;
 using Moq;
@@ -77,10 +78,11 @@ namespace Microsoft.ReverseProxy.Middleware
             return result.AsReadOnly();
         }
 
-        internal IAvailableDestinationsFeature GetDestinationsFeature(IReadOnlyList<DestinationInfo> destinations)
+        internal IReverseProxyFeature GetDestinationsFeature(IReadOnlyList<DestinationInfo> destinations, ClusterConfig clusterConfig)
         {
-            var result = new Mock<IAvailableDestinationsFeature>(MockBehavior.Strict);
-            result.SetupProperty(p => p.Destinations, destinations);
+            var result = new Mock<IReverseProxyFeature>(MockBehavior.Strict);
+            result.SetupProperty(p => p.AvailableDestinations, destinations);
+            result.SetupProperty(p => p.ClusterConfig, clusterConfig);
             return result.Object;
         }
     }
