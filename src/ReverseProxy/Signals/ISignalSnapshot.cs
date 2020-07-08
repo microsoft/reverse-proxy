@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -9,7 +9,7 @@ namespace Microsoft.ReverseProxy.Signals
     /// Snapshot of a <see cref="Signal{T}"/> allowing to subscribe to state changes.
     /// </summary>
     /// <typeparam name="T">Type of the stored value.</typeparam>
-    public interface ISignalSnapshot<out T>
+    internal interface ISignalSnapshot<out T>
     {
         /// <summary>
         /// Gets the value when the snapshot was taken.

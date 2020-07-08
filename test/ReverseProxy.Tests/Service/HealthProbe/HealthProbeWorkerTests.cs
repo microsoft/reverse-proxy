@@ -297,7 +297,7 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
             var destinationmanger = new DestinationManager();
             for (var i = 0; i < num; i++)
             {
-                destinationmanger.GetOrCreateItem("destination" + i.ToString(), item => { item.Config.Value = new DestinationConfig("url"); });
+                destinationmanger.GetOrCreateItem("destination" + i.ToString(), item => { item.ConfigSignal.Value = new DestinationConfig("url"); });
             }
 
             return destinationmanger;

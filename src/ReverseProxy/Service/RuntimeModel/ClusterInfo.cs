@@ -67,9 +67,9 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         {
             var endpointsAndStateChanges =
                 DestinationManager.Items
-                    .SelectMany(endpoints =>
-                        endpoints
-                            .Select(endpoint => endpoint.DynamicState)
+                    .SelectMany(destinations =>
+                        destinations
+                            .Select(destination => destination.DynamicStateSignal)
                             .AnyChange())
                     .DropValue();
 
@@ -80,7 +80,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
                     {
                         var allDestinations = DestinationManager.Items.Value ?? new List<DestinationInfo>().AsReadOnly();
                         var healthyEndpoints = (Config.Value?.HealthCheckOptions.Enabled ?? false)
-                            ? allDestinations.Where(endpoint => endpoint.DynamicState.Value?.Health == DestinationHealth.Healthy).ToList().AsReadOnly()
+                            ? allDestinations.Where(endpoint => endpoint.DynamicState?.Health == DestinationHealth.Healthy).ToList().AsReadOnly()
                             : allDestinations;
                         return new ClusterDynamicState(
                             allDestinations: allDestinations,

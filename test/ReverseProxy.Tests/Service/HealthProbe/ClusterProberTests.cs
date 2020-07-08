@@ -124,7 +124,7 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
                 });
             }
 
-            Assert.Equal(DestinationHealth.Healthy, destinations.GetItems()[0].DynamicState.Value.Health);
+            Assert.Equal(DestinationHealth.Healthy, destinations.GetItems()[0].DynamicState.Health);
         }
 
         [Fact(Skip = ClusterProberTests.SkipUnitTestSwitcher)]
@@ -147,7 +147,7 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
                 });
             }
 
-            Assert.Equal(DestinationHealth.Unhealthy, destinations.GetItems()[0].DynamicState.Value.Health);
+            Assert.Equal(DestinationHealth.Unhealthy, destinations.GetItems()[0].DynamicState.Health);
         }
 
         [Fact]
@@ -190,7 +190,7 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
                 });
             }
 
-            Assert.Equal(DestinationHealth.Unhealthy, destinations.GetItems()[0].DynamicState.Value.Health);
+            Assert.Equal(DestinationHealth.Unhealthy, destinations.GetItems()[0].DynamicState.Health);
         }
 
         [Fact(Skip = ClusterProberTests.SkipUnitTestSwitcher)]
@@ -221,7 +221,7 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
                 });
             }
 
-            Assert.Equal(DestinationHealth.Unhealthy, destinations.GetItems()[0].DynamicState.Value.Health);
+            Assert.Equal(DestinationHealth.Unhealthy, destinations.GetItems()[0].DynamicState.Health);
         }
 
         [Fact(Skip = ClusterProberTests.SkipUnitTestSwitcher)]
@@ -252,7 +252,7 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
                 });
             }
 
-            Assert.Equal(DestinationHealth.Unhealthy, destinations.GetItems()[0].DynamicState.Value.Health);
+            Assert.Equal(DestinationHealth.Unhealthy, destinations.GetItems()[0].DynamicState.Health);
         }
 
         private DestinationManager DestinationManagerGenerator(int num)
@@ -260,7 +260,7 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
             var destinationManger = new DestinationManager();
             for (var i = 0; i < num; i++)
             {
-                destinationManger.GetOrCreateItem("destination" + i.ToString(), item => { item.Config.Value = new DestinationConfig("https://localhost:123/a/b/api/test"); });
+                destinationManger.GetOrCreateItem("destination" + i.ToString(), item => { item.ConfigSignal.Value = new DestinationConfig("https://localhost:123/a/b/api/test"); });
             }
 
             return destinationManger;

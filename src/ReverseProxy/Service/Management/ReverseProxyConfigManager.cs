@@ -136,9 +136,10 @@ namespace Microsoft.ReverseProxy.Service.Management
                     itemId: configDestination.Key,
                     setupAction: destination =>
                     {
-                        if (destination.Config.Value?.Address != configDestination.Value.Address)
+                        var destinationConfig = destination.ConfigSignal.Value;
+                        if (destinationConfig?.Address != configDestination.Value.Address)
                         {
-                            if (destination.Config.Value == null)
+                            if (destinationConfig == null)
                             {
                                 Log.DestinationAdded(_logger, configDestination.Key);
                             }
@@ -146,7 +147,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                             {
                                 Log.DestinationChanged(_logger, configDestination.Key);
                             }
-                            destination.Config.Value = new DestinationConfig(configDestination.Value.Address);
+                            destination.ConfigSignal.Value = new DestinationConfig(configDestination.Value.Address);
                         }
                     });
             }

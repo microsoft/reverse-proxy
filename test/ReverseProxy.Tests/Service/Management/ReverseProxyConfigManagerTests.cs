@@ -83,8 +83,8 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             var actualDestinations = actualClusters[0].DestinationManager.GetItems();
             Assert.Single(actualDestinations);
             Assert.Equal("d1", actualDestinations[0].DestinationId);
-            Assert.NotNull(actualDestinations[0].Config.Value);
-            Assert.Equal(TestAddress, actualDestinations[0].Config.Value.Address);
+            Assert.NotNull(actualDestinations[0].Config);
+            Assert.Equal(TestAddress, actualDestinations[0].Config.Address);
 
             var actualRoutes = _routeManager.GetItems();
             Assert.Single(actualRoutes);

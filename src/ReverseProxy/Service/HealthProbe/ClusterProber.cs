@@ -160,7 +160,7 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
                     timeoutCts.CancelAfter(_httpTimeoutInterval, _timer);
                     var response = await _operationLogger.ExecuteAsync(
                             "ReverseProxy.Service.HealthProbe",
-                            () => _clusterProbeHttpClient.GetAsync(new Uri(new Uri(destination.Config.Value.Address, UriKind.Absolute), _healthControllerUrl), timeoutCts.Token));
+                            () => _clusterProbeHttpClient.GetAsync(new Uri(new Uri(destination.Config.Address, UriKind.Absolute), _healthControllerUrl), timeoutCts.Token));
 
                     // Collect response status.
                     outcome = response.IsSuccessStatusCode ? HealthProbeOutcome.Success : HealthProbeOutcome.HttpFailure;
@@ -198,7 +198,7 @@ namespace Microsoft.ReverseProxy.Service.HealthProbe
                 {
                     // Update the health state base on the response.
                     var healthState = outcome == HealthProbeOutcome.Success ? DestinationHealth.Healthy : DestinationHealth.Unhealthy;
-                    destination.DynamicState.Value = new DestinationDynamicState(healthState);
+                    destination.DynamicStateSignal.Value = new DestinationDynamicState(healthState);
                     Log.ProberResult(_logger, destination.DestinationId, outcome, logDetail);
                 }
 

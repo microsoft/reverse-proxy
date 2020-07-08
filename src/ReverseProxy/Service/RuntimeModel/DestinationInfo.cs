@@ -36,13 +36,23 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         /// Encapsulates parts of an endpoint that can change atomically
         /// in reaction to config changes.
         /// </summary>
-        public Signal<DestinationConfig> Config { get; } = SignalFactory.Default.CreateSignal<DestinationConfig>();
+        internal Signal<DestinationConfig> ConfigSignal { get; } = SignalFactory.Default.CreateSignal<DestinationConfig>();
+
+        /// <summary>
+        /// A snapshot of the current configuration
+        /// </summary>
+        public DestinationConfig Config => ConfigSignal.Value;
 
         /// <summary>
         /// Encapsulates parts of an destination that can change atomically
         /// in reaction to runtime state changes (e.g. endpoint health states).
         /// </summary>
-        public Signal<DestinationDynamicState> DynamicState { get; } = SignalFactory.Default.CreateSignal<DestinationDynamicState>();
+        internal Signal<DestinationDynamicState> DynamicStateSignal { get; } = SignalFactory.Default.CreateSignal<DestinationDynamicState>();
+
+        /// <summary>
+        /// A snapshot of the current health state.
+        /// </summary>
+        public DestinationDynamicState DynamicState => DynamicStateSignal.Value;
 
         /// <summary>
         /// Keeps track of the total number of concurrent requests on this endpoint.

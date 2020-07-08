@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -15,7 +15,7 @@ namespace Microsoft.ReverseProxy.Signals
     /// This implementation ensures that writes to signals are sequentialized
     /// and processed in a single thread.
     /// </remarks>
-    public sealed class SignalContext
+    internal sealed class SignalContext
     {
         private readonly Queue<Action> _workQueue = new Queue<Action>();
         private bool _isExecuting;
