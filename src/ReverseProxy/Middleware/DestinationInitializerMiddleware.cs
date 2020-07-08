@@ -33,7 +33,6 @@ namespace Microsoft.ReverseProxy.Middleware
                 ?? throw new InvalidOperationException($"Routing Endpoint is missing {typeof(RouteConfig).FullName} metadata.");
 
             var cluster = routeConfig.Cluster;
-
             if (cluster == null)
             {
                 Log.NoClusterFound(_logger, routeConfig.Route.RouteId);
