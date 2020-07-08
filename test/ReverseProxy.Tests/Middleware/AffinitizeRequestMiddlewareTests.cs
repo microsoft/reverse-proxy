@@ -7,7 +7,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.ReverseProxy.Abstractions.Telemetry;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.SessionAffinity;
 using Moq;
@@ -35,7 +34,6 @@ namespace Microsoft.ReverseProxy.Middleware
                     return Task.CompletedTask;
                 },
                 providers.Select(p => p.Object),
-                GetOperationLogger(),
                 new Mock<ILogger<AffinitizeRequestMiddleware>>().Object);
             var context = new DefaultHttpContext();
             context.Features.Set(cluster);
@@ -69,7 +67,6 @@ namespace Microsoft.ReverseProxy.Middleware
                 return Task.CompletedTask;
             },
                 providers.Select(p => p.Object),
-                GetOperationLogger(),
                 logger.Object);
             var context = new DefaultHttpContext();
             context.Features.Set(cluster);
@@ -103,7 +100,6 @@ namespace Microsoft.ReverseProxy.Middleware
                     return Task.CompletedTask;
                 },
                 new ISessionAffinityProvider[0],
-                GetOperationLogger(),
                 logger.Object);
             var context = new DefaultHttpContext();
             context.Features.Set(cluster);
@@ -117,13 +113,6 @@ namespace Microsoft.ReverseProxy.Middleware
                 l => l.Log(LogLevel.Warning, EventIds.NoDestinationOnClusterToEstablishRequestAffinity, It.IsAny<It.IsAnyType>(), null, (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
                 Times.Once);
             Assert.Equal(0, destinationFeature.Destinations.Count);
-        }
-
-        private IOperationLogger<AffinitizeRequestMiddleware> GetOperationLogger()
-        {
-            var result = new Mock<IOperationLogger<AffinitizeRequestMiddleware>>(MockBehavior.Strict);
-            result.Setup(l => l.Execute(It.IsAny<string>(), It.IsAny<Action>())).Callback((string name, Action callback) => callback());
-            return result.Object;
         }
 
         private Mock<ISessionAffinityProvider> GetProviderForRandomDestination(string mode, IReadOnlyList<DestinationInfo> destinations, Action<ISessionAffinityProvider> callback)

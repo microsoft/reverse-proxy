@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.ReverseProxy.Abstractions.Telemetry;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.SessionAffinity;
 
@@ -20,19 +19,16 @@ namespace Microsoft.ReverseProxy.Middleware
         private readonly Random _random = new Random();
         private readonly RequestDelegate _next;
         private readonly IDictionary<string, ISessionAffinityProvider> _sessionAffinityProviders;
-        private readonly IOperationLogger<AffinitizeRequestMiddleware> _operationLogger;
         private readonly ILogger _logger;
 
         public AffinitizeRequestMiddleware(
             RequestDelegate next,
             IEnumerable<ISessionAffinityProvider> sessionAffinityProviders,
-            IOperationLogger<AffinitizeRequestMiddleware> operationLogger,
             ILogger<AffinitizeRequestMiddleware> logger)
         {
             _next = next ?? throw new ArgumentNullException(nameof(next));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _sessionAffinityProviders = sessionAffinityProviders.ToProviderDictionary();
-            _operationLogger = operationLogger ?? throw new ArgumentNullException(nameof(operationLogger));
         }
 
         public Task Invoke(HttpContext context)
@@ -62,7 +58,7 @@ namespace Microsoft.ReverseProxy.Middleware
                         destinationsFeature.Destinations = chosenDestination;
                     }
 
-                    _operationLogger.Execute("ReverseProxy.AffinitizeRequest", () => AffinitizeRequest(context, options, chosenDestination));
+                    AffinitizeRequest(context, options, chosenDestination);
                 }
             }
 
