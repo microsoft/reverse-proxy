@@ -33,18 +33,22 @@ namespace Microsoft.ReverseProxy.Middleware
                 ?? throw new InvalidOperationException($"Routing Endpoint is missing {typeof(RouteConfig).FullName} metadata.");
 
             var cluster = routeConfig.Cluster;
+
             if (cluster == null)
             {
                 Log.NoClusterFound(_logger, routeConfig.Route.RouteId);
-                context.Response.StatusCode = 503;
+                context.Response.StatusCode = StatusCodes.Status500InternalServerError;
                 return Task.CompletedTask;
             }
+
+            var clusterConfig = cluster.Config.Value
+                ?? throw new InvalidOperationException($"Cluster Config unspecified.");
 
             var dynamicState = cluster.DynamicState.Value;
             if (dynamicState == null)
             {
                 Log.ClusterDataNotAvailable(_logger, routeConfig.Route.RouteId, cluster.ClusterId);
-                context.Response.StatusCode = 503;
+                context.Response.StatusCode = StatusCodes.Status500InternalServerError;
                 return Task.CompletedTask;
             }
 
@@ -58,7 +62,7 @@ namespace Microsoft.ReverseProxy.Middleware
             context.Features.Set(cluster);
             context.Features.Set<IReverseProxyFeature>(new ReverseProxyFeature
             {
-                ClusterConfig = cluster.Config.Value,
+                ClusterConfig = clusterConfig,
                 AvailableDestinations = dynamicState.HealthyDestinations
             });
 
