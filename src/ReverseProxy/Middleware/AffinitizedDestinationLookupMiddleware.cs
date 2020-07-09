@@ -45,12 +45,11 @@ namespace Microsoft.ReverseProxy.Middleware
             }
 
             var cluster = context.GetRequiredCluster();
-            return InvokeInternal(context, options, cluster.ClusterId);
+            return InvokeInternal(context, proxyFeature, options, cluster.ClusterId);
         }
 
-        private async Task InvokeInternal(HttpContext context, ClusterConfig.ClusterSessionAffinityOptions options, string clusterId)
+        private async Task InvokeInternal(HttpContext context, IReverseProxyFeature proxyFeature, ClusterConfig.ClusterSessionAffinityOptions options, string clusterId)
         {
-            var proxyFeature = context.GetRequiredProxyFeature();
             var destinations = proxyFeature.AvailableDestinations;
 
             var currentProvider = _sessionAffinityProviders.GetRequiredServiceById(options.Mode);
