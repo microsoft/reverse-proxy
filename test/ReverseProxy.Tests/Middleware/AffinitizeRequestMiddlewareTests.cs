@@ -54,6 +54,7 @@ namespace Microsoft.ReverseProxy.Middleware
         public async Task Invoke_MultipleCandidateDestinations_ChooseOneAndInvokeAffinitizeRequest()
         {
             var cluster = GetCluster();
+            var endpoint = GetEndpoint(cluster);
             var invokedMode = string.Empty;
             const string expectedMode = "Mode-B";
             var providers = new[] {
@@ -69,7 +70,7 @@ namespace Microsoft.ReverseProxy.Middleware
                 providers.Select(p => p.Object),
                 logger.Object);
             var context = new DefaultHttpContext();
-            context.Features.Set(cluster);
+            context.SetEndpoint(endpoint);
             var destinationFeature = GetDestinationsFeature(Destinations, cluster.Config.Value);
             context.Features.Set(destinationFeature);
 
@@ -93,6 +94,7 @@ namespace Microsoft.ReverseProxy.Middleware
         public async Task Invoke_NoDestinationChosen_LogWarningAndCallNext()
         {
             var cluster = GetCluster();
+            var endpoint = GetEndpoint(cluster);
             var nextInvoked = false;
             var logger = AffinityTestHelper.GetLogger<AffinitizeRequestMiddleware>();
             var middleware = new AffinitizeRequestMiddleware(c => {
@@ -102,7 +104,7 @@ namespace Microsoft.ReverseProxy.Middleware
                 new ISessionAffinityProvider[0],
                 logger.Object);
             var context = new DefaultHttpContext();
-            context.Features.Set(cluster);
+            context.SetEndpoint(endpoint);
             var destinationFeature = GetDestinationsFeature(new DestinationInfo[0], cluster.Config.Value);
             context.Features.Set(destinationFeature);
 

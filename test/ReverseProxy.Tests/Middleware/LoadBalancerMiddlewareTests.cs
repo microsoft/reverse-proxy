@@ -74,7 +74,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             httpContext.Features.Set<IReverseProxyFeature>(
                 new ReverseProxyFeature()
                 {
-                    AvailableDestinations = new List<DestinationInfo>() { destination1, destination2 }.AsReadOnly(),
+                    AvailableDestinations = new List<DestinationInfo>() { destination1, destination2 },
                     ClusterConfig = cluster1.Config.Value
                 });
             httpContext.Features.Set(cluster1);

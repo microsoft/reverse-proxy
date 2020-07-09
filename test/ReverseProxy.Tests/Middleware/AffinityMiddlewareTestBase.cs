@@ -85,5 +85,20 @@ namespace Microsoft.ReverseProxy.Middleware
             result.SetupProperty(p => p.ClusterConfig, clusterConfig);
             return result.Object;
         }
+
+        internal Endpoint GetEndpoint(ClusterInfo cluster)
+        {
+            var transforms = new Transforms(false,
+                Array.Empty<RequestParametersTransform>(),
+                new Dictionary<string, RequestHeaderTransform>(),
+                new Dictionary<string, ResponseHeaderTransform>(),
+                new Dictionary<string, ResponseHeaderTransform>());
+
+            var endpoints = new List<Endpoint>(1);
+            var routeConfig = new RouteConfig(new RouteInfo("route-1"), 47, null, cluster, endpoints.AsReadOnly(), transforms);
+            var endpoint = new Endpoint(default, new EndpointMetadataCollection(routeConfig), string.Empty);
+            endpoints.Add(endpoint);
+            return endpoint;
+        }
     }
 }

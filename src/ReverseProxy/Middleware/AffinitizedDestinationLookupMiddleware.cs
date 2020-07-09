@@ -35,9 +35,9 @@ namespace Microsoft.ReverseProxy.Middleware
 
         public Task Invoke(HttpContext context)
         {
-            var reverseProxy = context.GetReverseProxyFeature();
+            var proxyFeature = context.GetRequiredProxyFeature();
 
-            var options = reverseProxy.ClusterConfig.SessionAffinityOptions;
+            var options = proxyFeature.ClusterConfig.SessionAffinityOptions;
 
             if (!options.Enabled)
             {
@@ -50,8 +50,8 @@ namespace Microsoft.ReverseProxy.Middleware
 
         private async Task InvokeInternal(HttpContext context, ClusterConfig.ClusterSessionAffinityOptions options, string clusterId)
         {
-            var destinationsFeature = context.GetReverseProxyFeature();
-            var destinations = destinationsFeature.AvailableDestinations;
+            var proxyFeature = context.GetRequiredProxyFeature();
+            var destinations = proxyFeature.AvailableDestinations;
 
             var currentProvider = _sessionAffinityProviders.GetRequiredServiceById(options.Mode);
             var affinityResult = currentProvider.FindAffinitizedDestinations(context, destinations, clusterId, options);
@@ -59,7 +59,7 @@ namespace Microsoft.ReverseProxy.Middleware
             switch (affinityResult.Status)
             {
                 case AffinityStatus.OK:
-                    destinationsFeature.AvailableDestinations = affinityResult.Destinations;
+                    proxyFeature.AvailableDestinations = affinityResult.Destinations;
                     break;
                 case AffinityStatus.AffinityKeyNotSet:
                     // Nothing to do so just continue processing

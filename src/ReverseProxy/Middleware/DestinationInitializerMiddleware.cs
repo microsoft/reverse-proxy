@@ -26,11 +26,7 @@ namespace Microsoft.ReverseProxy.Middleware
 
         public Task Invoke(HttpContext context)
         {
-            var endpoint = context.GetEndpoint()
-                ?? throw new InvalidOperationException($"Routing Endpoint wasn't set for the current request.");
-
-            var routeConfig = endpoint.Metadata.GetMetadata<RouteConfig>()
-                ?? throw new InvalidOperationException($"Routing Endpoint is missing {typeof(RouteConfig).FullName} metadata.");
+            var routeConfig = context.GetRequiredRouteConfig();
 
             var cluster = routeConfig.Cluster;
             if (cluster == null)
@@ -58,7 +54,6 @@ namespace Microsoft.ReverseProxy.Middleware
                 return Task.CompletedTask;
             }
 
-            context.Features.Set(cluster);
             context.Features.Set<IReverseProxyFeature>(new ReverseProxyFeature
             {
                 ClusterConfig = clusterConfig,

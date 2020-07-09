@@ -11,7 +11,9 @@ namespace Microsoft.ReverseProxy.Middleware
     {
         public static ClusterInfo GetRequiredCluster(this HttpContext context)
         {
-            return context.Features.Get<ClusterInfo>() ?? throw new InvalidOperationException("Cluster unspecified.");
+            var routeConfig = context.GetRequiredRouteConfig();
+            var cluster = routeConfig.Cluster ?? throw new InvalidOperationException("Cluster unspecified.");
+            return cluster;
         }
 
         public static RouteConfig GetRequiredRouteConfig(this HttpContext context)
@@ -25,7 +27,7 @@ namespace Microsoft.ReverseProxy.Middleware
             return routeConfig;
         }
 
-        public static IReverseProxyFeature GetReverseProxyFeature(this HttpContext context)
+        public static IReverseProxyFeature GetRequiredProxyFeature(this HttpContext context)
         {
             return context.Features.Get<IReverseProxyFeature>() ?? throw new InvalidOperationException("ReverseProxyFeature unspecified.");
         }

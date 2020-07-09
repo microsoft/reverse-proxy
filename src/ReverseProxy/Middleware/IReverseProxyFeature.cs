@@ -8,7 +8,7 @@ using Microsoft.ReverseProxy.RuntimeModel;
 namespace Microsoft.ReverseProxy.Middleware
 {
     /// <summary>
-    /// Store current Cluster, ClusterConfig and Tracks proxy cluster destinations that are available to handle the current request.
+    /// Store current ClusterConfig and Tracks proxy cluster destinations that are available to handle the current request.
     /// </summary>
     public interface IReverseProxyFeature
     {

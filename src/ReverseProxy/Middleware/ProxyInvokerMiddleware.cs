@@ -43,7 +43,7 @@ namespace Microsoft.ReverseProxy.Middleware
         {
             _ = context ?? throw new ArgumentNullException(nameof(context));
 
-            var destinations = context.GetReverseProxyFeature().AvailableDestinations
+            var destinations = context.GetRequiredProxyFeature().AvailableDestinations
                 ?? throw new InvalidOperationException($"The {nameof(IReverseProxyFeature)} Destinations collection was not set.");
 
             var routeConfig = context.GetRequiredRouteConfig();

@@ -31,10 +31,10 @@ namespace Microsoft.ReverseProxy.Middleware
 
         public Task Invoke(HttpContext context)
         { 
-            var reverseProxy = context.GetReverseProxyFeature();
-            var destinations = reverseProxy.AvailableDestinations;
+            var proxyFeature = context.GetRequiredProxyFeature();
+            var destinations = proxyFeature.AvailableDestinations;
 
-            var loadBalancingOptions = reverseProxy.ClusterConfig.LoadBalancingOptions;
+            var loadBalancingOptions = proxyFeature.ClusterConfig.LoadBalancingOptions;
 
             var destination = _loadBalancer.PickDestination(destinations, in loadBalancingOptions);
 
@@ -46,7 +46,7 @@ namespace Microsoft.ReverseProxy.Middleware
                 return Task.CompletedTask;
             }
 
-            reverseProxy.AvailableDestinations = destination;
+            proxyFeature.AvailableDestinations = destination;
 
             return _next(context);
         }

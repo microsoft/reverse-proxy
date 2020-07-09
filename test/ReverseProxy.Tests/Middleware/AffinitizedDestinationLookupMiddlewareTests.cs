@@ -21,6 +21,7 @@ namespace Microsoft.ReverseProxy.Middleware
         public async Task Invoke_SuccessfulFlow_CallNext(AffinityStatus status, string foundDestinationId)
         {
             var cluster = GetCluster();
+            var endpoint = GetEndpoint(cluster);
             var foundDestinations = foundDestinationId != null ? Destinations.Where(d => d.DestinationId == foundDestinationId).ToArray() : null;
             var invokedMode = string.Empty;
             const string expectedMode = "Mode-B";
@@ -38,7 +39,7 @@ namespace Microsoft.ReverseProxy.Middleware
                 providers.Select(p => p.Object), new IAffinityFailurePolicy[0],
                 new Mock<ILogger<AffinitizedDestinationLookupMiddleware>>().Object);
             var context = new DefaultHttpContext();
-            context.Features.Set(cluster);
+            context.SetEndpoint(endpoint);
             var destinationFeature = GetDestinationsFeature(Destinations, cluster.Config.Value);
             context.Features.Set(destinationFeature);
 
@@ -69,6 +70,7 @@ namespace Microsoft.ReverseProxy.Middleware
         public async Task Invoke_ErrorFlow_CallFailurePolicy(AffinityStatus affinityStatus, bool keepProcessing)
         {
             var cluster = GetCluster();
+            var endpoint = GetEndpoint(cluster);
             var providers = RegisterAffinityProviders(true, Destinations, cluster.ClusterId, ("Mode-B", affinityStatus, null, _ => { }));
             var invokedPolicy = string.Empty;
             const string expectedPolicy = "Policy-1";
@@ -86,7 +88,8 @@ namespace Microsoft.ReverseProxy.Middleware
                 logger.Object);
             var context = new DefaultHttpContext();
             var destinationFeature = GetDestinationsFeature(Destinations, cluster.Config.Value);
-            context.Features.Set(cluster);
+
+            context.SetEndpoint(endpoint);
             context.Features.Set(destinationFeature);
 
             await middleware.Invoke(context);
