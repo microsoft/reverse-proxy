@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Microsoft.ReverseProxy.ConfigModel;
@@ -19,6 +20,7 @@ namespace Microsoft.ReverseProxy.Service
         private readonly IClustersRepo _clustersRepo;
         private readonly IRoutesRepo _routesRepo;
         private readonly IRouteValidator _parsedRouteValidator;
+        private readonly ILogger<DynamicConfigBuilder> _logger;
         private readonly IDictionary<string, ISessionAffinityProvider> _sessionAffinityProviders;
         private readonly IDictionary<string, IAffinityFailurePolicy> _affinityFailurePolicies;
 
@@ -28,20 +30,22 @@ namespace Microsoft.ReverseProxy.Service
             IRoutesRepo routesRepo,
             IRouteValidator parsedRouteValidator,
             IEnumerable<ISessionAffinityProvider> sessionAffinityProviders,
-            IEnumerable<IAffinityFailurePolicy> affinityFailurePolicies)
+            IEnumerable<IAffinityFailurePolicy> affinityFailurePolicies,
+            ILogger<DynamicConfigBuilder> logger)
         {
             _filters = filters ?? throw new ArgumentNullException(nameof(filters));
             _clustersRepo = clustersRepo ?? throw new ArgumentNullException(nameof(clustersRepo));
             _routesRepo = routesRepo ?? throw new ArgumentNullException(nameof(routesRepo));
             _parsedRouteValidator = parsedRouteValidator ?? throw new ArgumentNullException(nameof(parsedRouteValidator));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _sessionAffinityProviders = sessionAffinityProviders?.ToProviderDictionary() ?? throw new ArgumentNullException(nameof(sessionAffinityProviders));
             _affinityFailurePolicies = affinityFailurePolicies?.ToPolicyDictionary() ?? throw new ArgumentNullException(nameof(affinityFailurePolicies));
         }
 
-        public async Task<DynamicConfigRoot> BuildConfigAsync(IConfigErrorReporter errorReporter, CancellationToken cancellation)
+        public async Task<DynamicConfigRoot> BuildConfigAsync(CancellationToken cancellation)
         {
-            var clusters = await GetClustersAsync(errorReporter, cancellation);
-            var routes = await GetRoutesAsync(errorReporter, cancellation);
+            var clusters = await GetClustersAsync(cancellation);
+            var routes = await GetRoutesAsync(cancellation);
 
             var config = new DynamicConfigRoot
             {
@@ -52,7 +56,7 @@ namespace Microsoft.ReverseProxy.Service
             return config;
         }
 
-        public async Task<IDictionary<string, Cluster>> GetClustersAsync(IConfigErrorReporter errorReporter, CancellationToken cancellation)
+        public async Task<IDictionary<string, Cluster>> GetClustersAsync(CancellationToken cancellation)
         {
             var clusters = await _clustersRepo.GetClustersAsync(cancellation) ?? new Dictionary<string, Cluster>(StringComparer.Ordinal);
             var configuredClusters = new Dictionary<string, Cluster>(StringComparer.Ordinal);
@@ -63,8 +67,7 @@ namespace Microsoft.ReverseProxy.Service
                 {
                     if (id != cluster.Id)
                     {
-                        errorReporter.ReportError(ConfigErrors.ConfigBuilderClusterIdMismatch, id,
-                            $"The cluster Id '{cluster.Id}' and its lookup key '{id}' do not match.");
+                        Log.ClusterIdMismatch(_logger, cluster.Id, id);
                         continue;
                     }
 
@@ -73,20 +76,20 @@ namespace Microsoft.ReverseProxy.Service
                         await filter.ConfigureClusterAsync(cluster, cancellation);
                     }
 
-                    ValidateSessionAffinity(errorReporter, id, cluster);
+                    ValidateSessionAffinity(cluster);
 
                     configuredClusters[id] = cluster;
                 }
                 catch (Exception ex)
                 {
-                    errorReporter.ReportError(ConfigErrors.ConfigBuilderClusterException, id, "An exception was thrown from the configuration callbacks.", ex);
+                    Log.ClusterConfigException(_logger, id, ex);
                 }
             }
 
             return configuredClusters;
         }
 
-        private void ValidateSessionAffinity(IConfigErrorReporter errorReporter, string id, Cluster cluster)
+        private void ValidateSessionAffinity(Cluster cluster)
         {
             if (cluster.SessionAffinity == null || !cluster.SessionAffinity.Enabled)
             {
@@ -102,7 +105,7 @@ namespace Microsoft.ReverseProxy.Service
             var affinityMode = cluster.SessionAffinity.Mode;
             if (!_sessionAffinityProviders.ContainsKey(affinityMode))
             {
-                errorReporter.ReportError(ConfigErrors.ConfigBuilderClusterNoProviderFoundForSessionAffinityMode, id, $"No matching {nameof(ISessionAffinityProvider)} found for the session affinity mode {affinityMode} set on the cluster {cluster.Id}.");
+                Log.NoSessionAffinityProviderFound(_logger, affinityMode, cluster.Id);
             }
 
             if (string.IsNullOrEmpty(cluster.SessionAffinity.FailurePolicy))
@@ -113,11 +116,11 @@ namespace Microsoft.ReverseProxy.Service
             var affinityFailurePolicy = cluster.SessionAffinity.FailurePolicy;
             if (!_affinityFailurePolicies.ContainsKey(affinityFailurePolicy))
             {
-                errorReporter.ReportError(ConfigErrors.ConfigBuilderClusterNoAffinityFailurePolicyFoundForSpecifiedName, id, $"No matching {nameof(IAffinityFailurePolicy)} found for the affinity failure policy name {affinityFailurePolicy} set on the cluster {cluster.Id}.");
+                Log.NoAffinityFailurePolicyFound(_logger, affinityFailurePolicy, cluster.Id);
             }
         }
 
-        private async Task<IList<ParsedRoute>> GetRoutesAsync(IConfigErrorReporter errorReporter, CancellationToken cancellation)
+        private async Task<IList<ParsedRoute>> GetRoutesAsync(CancellationToken cancellation)
         {
             var routes = await _routesRepo.GetRoutesAsync(cancellation);
 
@@ -132,7 +135,7 @@ namespace Microsoft.ReverseProxy.Service
             {
                 if (seenRouteIds.Contains(route.RouteId))
                 {
-                    errorReporter.ReportError(ConfigErrors.RouteDuplicateId, route.RouteId, $"Duplicate route '{route.RouteId}'.");
+                    Log.DuplicateRouteId(_logger, route.RouteId);
                     continue;
                 }
 
@@ -145,7 +148,7 @@ namespace Microsoft.ReverseProxy.Service
                 }
                 catch (Exception ex)
                 {
-                    errorReporter.ReportError(ConfigErrors.ConfigBuilderClusterException, route.RouteId, "An exception was thrown from the configuration callbacks.", ex);
+                    Log.RouteConfigException(_logger, route.RouteId, ex);
                     continue;
                 }
 
@@ -163,7 +166,7 @@ namespace Microsoft.ReverseProxy.Service
                     Transforms = route.Transforms,
                 };
 
-                if (!await _parsedRouteValidator.ValidateRouteAsync(parsedRoute, errorReporter))
+                if (!await _parsedRouteValidator.ValidateRouteAsync(parsedRoute))
                 {
                     // parsedRouteValidator already reported error message
                     continue;
@@ -173,6 +176,69 @@ namespace Microsoft.ReverseProxy.Service
             }
 
             return sortedRoutes.Values;
+        }
+
+        private static class Log
+        {
+            private static readonly Action<ILogger, string, string, Exception> _clusterIdMismatch = LoggerMessage.Define<string, string>(
+                LogLevel.Error,
+                EventIds.ClusterIdMismatch,
+                "The cluster Id '{clusterId}' and its lookup key '{id}' do not match.");
+
+            private static readonly Action<ILogger, string, Exception> _clusterConfigException = LoggerMessage.Define<string>(
+                LogLevel.Error,
+                EventIds.ClusterConfigException,
+                "An exception was thrown from the configuration callbacks for cluster `{clusterId}`.");
+
+            private static readonly Action<ILogger, string, string, Exception> _noSessionAffinityProviderFound = LoggerMessage.Define<string, string>(
+               LogLevel.Error,
+               EventIds.NoSessionAffinityProviderFound,
+               "No matching ISessionAffinityProvider found for the session affinity mode `{affinityMode}` set on the cluster `{clusterId}`.");
+
+            private static readonly Action<ILogger, string, string, Exception> _noAffinityFailurePolicyFound = LoggerMessage.Define<string, string>(
+                LogLevel.Error,
+                EventIds.NoAffinityFailurePolicyFound,
+                "No matching IAffinityFailurePolicy found for the affinity failure policy name {affinityFailurePolicy} set on the cluster {clusterId}.");
+
+            private static readonly Action<ILogger, string, Exception> _routeConfigException = LoggerMessage.Define<string>(
+                LogLevel.Error,
+                EventIds.RouteConfigException,
+                "An exception was thrown from the configuration callbacks for route `{routeId}`.");
+
+            private static readonly Action<ILogger, string, Exception> _duplicateRouteId = LoggerMessage.Define<string>(
+                LogLevel.Error,
+                EventIds.DuplicateRouteId,
+                "Duplicate route '{RouteId}'.");
+
+            public static void ClusterIdMismatch(ILogger logger, string clusterId, string lookupId)
+            {
+                _clusterIdMismatch(logger, clusterId, lookupId, null);
+            }
+
+            public static void ClusterConfigException(ILogger logger, string clusterId, Exception exception)
+            {
+                _clusterConfigException(logger, clusterId, exception);
+            }
+
+            public static void NoSessionAffinityProviderFound(ILogger logger, string affinityMode, string clusterId)
+            {
+                _noSessionAffinityProviderFound(logger, affinityMode, clusterId, null);
+            }
+
+            public static void NoAffinityFailurePolicyFound(ILogger logger, string affinityFailurePolicy, string clusterId)
+            {
+                _noAffinityFailurePolicyFound(logger, affinityFailurePolicy, clusterId, null);
+            }
+
+            public static void RouteConfigException(ILogger logger, string routeId, Exception exception)
+            {
+                _routeConfigException(logger, routeId, exception);
+            }
+
+            public static void DuplicateRouteId(ILogger logger, string routeId)
+            {
+                _duplicateRouteId(logger, routeId, null);
+            }
         }
     }
 }

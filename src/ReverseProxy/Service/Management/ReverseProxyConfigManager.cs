@@ -45,14 +45,9 @@ namespace Microsoft.ReverseProxy.Service.Management
         }
 
         /// <inheritdoc/>
-        public async Task ApplyConfigurationsAsync(IConfigErrorReporter configErrorReporter, CancellationToken cancellation)
+        public async Task ApplyConfigurationsAsync(CancellationToken cancellation)
         {
-            if (configErrorReporter == null)
-            {
-                throw new ArgumentNullException(nameof(configErrorReporter));
-            }
-
-            var config = await _configBuilder.BuildConfigAsync(configErrorReporter, cancellation);
+            var config = await _configBuilder.BuildConfigAsync(cancellation);
 
             UpdateRuntimeClusters(config);
             UpdateRuntimeRoutes(config);
