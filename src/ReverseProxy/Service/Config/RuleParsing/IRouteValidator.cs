@@ -15,6 +15,6 @@ namespace Microsoft.ReverseProxy.Service
         /// <summary>
         /// Validates a route and reports any errors to <paramref name="errorReporter"/>.
         /// </summary>
-        Task<bool> ValidateRouteAsync(ParsedRoute route, IConfigErrorReporter errorReporter);
+        Task<bool> ValidateRouteAsync(ParsedRoute route);
     }
 }

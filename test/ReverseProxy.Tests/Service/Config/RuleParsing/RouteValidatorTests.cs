@@ -6,8 +6,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors.Infrastructure;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.ReverseProxy.Abstractions;
+using Microsoft.ReverseProxy.Common;
 using Microsoft.ReverseProxy.ConfigModel;
 using Microsoft.ReverseProxy.Service.Config;
 using Moq;
@@ -54,7 +55,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
 
             // Assert
             Assert.True(result.IsSuccess);
-            Assert.Empty(result.ErrorReporter.Errors);
+            Assert.Empty(result.Logger.Errors);
         }
 
         [Theory]
@@ -63,16 +64,14 @@ namespace Microsoft.ReverseProxy.Service.Tests
         public async Task Rejects_MissingRouteId(string routeId)
         {
             // Arrange
-            var errorReporter = new TestConfigErrorReporter();
             var parsedRoute = new ParsedRoute { RouteId = routeId };
-            var validator = Create<RouteValidator>();
 
             // Act
-            var isSuccess = await validator.ValidateRouteAsync(parsedRoute, errorReporter);
+            var result = await RunScenarioAsync(parsedRoute);
 
             // Assert
-            Assert.False(isSuccess);
-            Assert.Contains(errorReporter.Errors, err => err.ErrorCode == ConfigErrors.ParsedRouteMissingId);
+            Assert.False(result.IsSuccess);
+            Assert.Contains(result.Logger.Errors, err => err.eventId == EventIds.MissingRouteId);
         }
 
         [Theory]
@@ -94,7 +93,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
 
             // Assert
             Assert.False(result.IsSuccess);
-            Assert.Contains(result.ErrorReporter.Errors, err => err.ErrorCode == ConfigErrors.ParsedRouteRuleHasNoMatchers);
+            Assert.Contains(result.Logger.Errors, err => err.eventId == EventIds.MissingRouteMatchers);
         }
 
         [Theory]
@@ -125,7 +124,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
 
             // Assert
             Assert.False(result.IsSuccess);
-            Assert.Contains(result.ErrorReporter.Errors, err => err.ErrorCode == ConfigErrors.ParsedRouteRuleInvalidMatcher && err.Message.Contains("Invalid host name"));
+            Assert.Contains(result.Logger.Errors, err => err.eventId == EventIds.InvalidRouteHost);
         }
 
         [Theory]
@@ -148,13 +147,12 @@ namespace Microsoft.ReverseProxy.Service.Tests
 
             // Assert
             Assert.False(result.IsSuccess);
-            Assert.Contains(result.ErrorReporter.Errors, err => err.ErrorCode == ConfigErrors.ParsedRouteRuleInvalidMatcher && err.Message.Contains("Invalid path pattern"));
+            Assert.Contains(result.Logger.Errors, err => err.eventId == EventIds.InvalidRoutePath);
         }
 
         [Theory]
         [InlineData("")]
         [InlineData("gett")]
-        [InlineData("get,post,get")]
         public async Task Rejects_InvalidMethod(string methods)
         {
             // Arrange
@@ -170,7 +168,28 @@ namespace Microsoft.ReverseProxy.Service.Tests
 
             // Assert
             Assert.False(result.IsSuccess);
-            Assert.Contains(result.ErrorReporter.Errors, err => err.ErrorCode == ConfigErrors.ParsedRouteRuleInvalidMatcher && err.Message.Contains("verb"));
+            Assert.Contains(result.Logger.Errors, err => err.eventId == EventIds.UnsupportedHttpMethod);
+        }
+
+        [Theory]
+        [InlineData("get,GET")]
+        [InlineData("get,post,get")]
+        public async Task Rejects_DuplicateMethod(string methods)
+        {
+            // Arrange
+            var route = new ParsedRoute
+            {
+                RouteId = "route1",
+                Methods = methods.Split(","),
+                ClusterId = "cluster1",
+            };
+
+            // Act
+            var result = await RunScenarioAsync(route);
+
+            // Assert
+            Assert.False(result.IsSuccess);
+            Assert.Contains(result.Logger.Errors, err => err.eventId == EventIds.DuplicateHttpMethod);
         }
 
         [Theory]
@@ -190,7 +209,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var result = await RunScenarioAsync(route);
 
             Assert.True(result.IsSuccess);
-            Assert.Empty(result.ErrorReporter.Errors);
+            Assert.Empty(result.Logger.Errors);
         }
 
         [Fact]
@@ -210,7 +229,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var result = await RunScenarioAsync(route);
 
             Assert.True(result.IsSuccess);
-            Assert.Empty(result.ErrorReporter.Errors);
+            Assert.Empty(result.Logger.Errors);
         }
 
         [Fact]
@@ -226,7 +245,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var result = await RunScenarioAsync(route);
 
             Assert.False(result.IsSuccess);
-            Assert.Contains(result.ErrorReporter.Errors, err => err.ErrorCode == ConfigErrors.ParsedRouteRuleInvalidAuthorizationPolicy && err.Message.Contains("Authorization policy 'unknown' not found"));
+            Assert.Contains(result.Logger.Errors, err => err.eventId == EventIds.AuthorizationPolicyNotFound);
         }
 
         [Theory]
@@ -247,7 +266,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var result = await RunScenarioAsync(route);
 
             Assert.True(result.IsSuccess);
-            Assert.Empty(result.ErrorReporter.Errors);
+            Assert.Empty(result.Logger.Errors);
         }
 
         [Fact]
@@ -267,7 +286,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var result = await RunScenarioAsync(route);
 
             Assert.True(result.IsSuccess);
-            Assert.Empty(result.ErrorReporter.Errors);
+            Assert.Empty(result.Logger.Errors);
         }
 
         [Fact]
@@ -283,18 +302,21 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var result = await RunScenarioAsync(route);
 
             Assert.False(result.IsSuccess);
-            Assert.Contains(result.ErrorReporter.Errors, err => err.ErrorCode == ConfigErrors.ParsedRouteRuleInvalidCorsPolicy && err.Message.Contains("Cors policy 'unknown' not found"));
+            Assert.Contains(result.Logger.Errors, err => err.eventId == EventIds.CorsPolicyNotFound);
         }
 
-        private async Task<(bool IsSuccess, TestConfigErrorReporter ErrorReporter)> RunScenarioAsync(ParsedRoute parsedRoute)
+        private async Task<(bool IsSuccess, TestLogger Logger)> RunScenarioAsync(ParsedRoute parsedRoute)
         {
-            var errorReporter = new TestConfigErrorReporter();
-
             Mock<ITransformBuilder>().Setup(builder
-                => builder.Validate(It.IsAny<IList<IDictionary<string, string>>>(), It.IsAny<string>(), It.IsAny<IConfigErrorReporter>())).Returns(true);
+                => builder.Validate(It.IsAny<IList<IDictionary<string, string>>>(), It.IsAny<string>())).Returns(true);
+
+            var loggerFactory = new TestLoggerFactory();
+            var logger = loggerFactory.CreateLogger<RouteValidator>();
+            Provide(logger);
+
             var validator = Create<RouteValidator>();
-            var isSuccess = await validator.ValidateRouteAsync(parsedRoute, errorReporter);
-            return (isSuccess, errorReporter);
+            var isSuccess = await validator.ValidateRouteAsync(parsedRoute);
+            return (isSuccess, loggerFactory.Logger);
         }
     }
 }

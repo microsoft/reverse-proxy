@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 
 namespace Microsoft.ReverseProxy.Service.Config
@@ -17,7 +16,7 @@ namespace Microsoft.ReverseProxy.Service.Config
         /// so all errors can be reported.
         /// </summary>
         /// <returns>True if all transforms are valid, otherwise false.</returns>
-        bool Validate(IList<IDictionary<string, string>> transforms, string routeId, IConfigErrorReporter errorReporter);
+        bool Validate(IList<IDictionary<string, string>> transforms, string routeId);
 
         /// <summary>
         /// Builds the given transforms into executable rules.

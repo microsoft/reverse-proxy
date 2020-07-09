@@ -9,7 +9,6 @@ namespace Microsoft.ReverseProxy
     {
         public static readonly EventId ApplyProxyConfig = new EventId(1, "ApplyProxyConfig");
         public static readonly EventId ApplyProxyConfigFailed = new EventId(2, "ApplyProxyConfigFailed");
-        public static readonly EventId ConfigError = new EventId(3, "ConfigError");
         public static readonly EventId NoClusterFound = new EventId(4, "NoClusterFound");
         public static readonly EventId ClusterDataNotAvailable = new EventId(5, "ClusterDataNotAvailable");
         public static readonly EventId NoHealthyDestinations = new EventId(6, "NoHealthyDestinations");
@@ -48,5 +47,23 @@ namespace Microsoft.ReverseProxy
         public static readonly EventId DestinationMatchingToAffinityKeyNotFound = new EventId(39, "DestinationMatchingToAffinityKeyNotFound");
         public static readonly EventId RequestAffinityHeaderHasMultipleValues = new EventId(40, "RequestAffinityHeaderHasMultipleValues");
         public static readonly EventId AffinityResolutionFailureWasHandledProcessingWillBeContinued = new EventId(41, "AffinityResolutionFailureWasHandledProcessingWillBeContinued");
+        public static readonly EventId InvalidTransform = new EventId(42, "InvalidTransform");
+        public static readonly EventId TooManyTransformParameters = new EventId(43, "TooManyTransformParameters");
+        public static readonly EventId ClusterIdMismatch = new EventId(44, "ClusterIdMismatch");
+        public static readonly EventId ClusterConfigException = new EventId(45, "ClusterConfigException");
+        public static readonly EventId NoSessionAffinityProviderFound = new EventId(46, "NoSessionAffinityProviderFound");
+        public static readonly EventId NoAffinityFailurePolicyFound = new EventId(47, "NoAffinityFailurePolicyFound");
+        public static readonly EventId RouteConfigException = new EventId(48, "RouteConfigException");
+        public static readonly EventId DuplicateRouteId = new EventId(49, "DuplicateRouteId");
+        public static readonly EventId MissingRouteId = new EventId(50, "MissingRouteId");
+        public static readonly EventId MissingRouteMatchers = new EventId(51, "MissingRouteMatchers");
+        public static readonly EventId InvalidRouteHost = new EventId(52, "InvalidRouteHost");
+        public static readonly EventId InvalidRoutePath = new EventId(53, "InvalidRoutePath");
+        public static readonly EventId DuplicateHttpMethod = new EventId(54, "DuplicateHttpMethod");
+        public static readonly EventId UnsupportedHttpMethod = new EventId(55, "UnsupportedHttpMethod");
+        public static readonly EventId AuthorizationPolicyNotFound = new EventId(56, "AuthorizationPolicyNotFound");
+        public static readonly EventId FailedRetrieveAuthorizationPolicy = new EventId(57, "FailedRetrieveAuthorizationPolicy");
+        public static readonly EventId CorsPolicyNotFound = new EventId(58, "CorsPolicyNotFound");
+        public static readonly EventId FailedRetrieveCorsPolicy = new EventId(59, "FailedRetrieveCorsPolicy");
     }
 }
