@@ -9,7 +9,7 @@ namespace Microsoft.ReverseProxy
     {
         public static readonly EventId ApplyProxyConfig = new EventId(1, "ApplyProxyConfig");
         public static readonly EventId ApplyProxyConfigFailed = new EventId(2, "ApplyProxyConfigFailed");
-        public static readonly EventId ConfigError = new EventId(3, "ConfigError");
+        public static readonly EventId ClusterConfigNotAvailable = new EventId(3, "ClusterConfigNotAvailable");
         public static readonly EventId NoClusterFound = new EventId(4, "NoClusterFound");
         public static readonly EventId ClusterDataNotAvailable = new EventId(5, "ClusterDataNotAvailable");
         public static readonly EventId NoHealthyDestinations = new EventId(6, "NoHealthyDestinations");
