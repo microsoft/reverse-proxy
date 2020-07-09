@@ -643,43 +643,18 @@ references:
   isSpec: "True"
   fullName: Microsoft.ReverseProxy.Abstractions.IClustersRepo.SetClustersAsync
   nameWithType: IClustersRepo.SetClustersAsync
-- uid: Microsoft.ReverseProxy.Abstractions.IConfigErrorReporter
-  name: IConfigErrorReporter
-  href: api/Microsoft.ReverseProxy.Abstractions.IConfigErrorReporter.html
-  commentId: T:Microsoft.ReverseProxy.Abstractions.IConfigErrorReporter
-  fullName: Microsoft.ReverseProxy.Abstractions.IConfigErrorReporter
-  nameWithType: IConfigErrorReporter
-- uid: Microsoft.ReverseProxy.Abstractions.IConfigErrorReporter.ReportError(System.String,System.String,System.String)
-  name: ReportError(String, String, String)
-  href: api/Microsoft.ReverseProxy.Abstractions.IConfigErrorReporter.html#Microsoft_ReverseProxy_Abstractions_IConfigErrorReporter_ReportError_System_String_System_String_System_String_
-  commentId: M:Microsoft.ReverseProxy.Abstractions.IConfigErrorReporter.ReportError(System.String,System.String,System.String)
-  fullName: Microsoft.ReverseProxy.Abstractions.IConfigErrorReporter.ReportError(System.String, System.String, System.String)
-  nameWithType: IConfigErrorReporter.ReportError(String, String, String)
-- uid: Microsoft.ReverseProxy.Abstractions.IConfigErrorReporter.ReportError(System.String,System.String,System.String,System.Exception)
-  name: ReportError(String, String, String, Exception)
-  href: api/Microsoft.ReverseProxy.Abstractions.IConfigErrorReporter.html#Microsoft_ReverseProxy_Abstractions_IConfigErrorReporter_ReportError_System_String_System_String_System_String_System_Exception_
-  commentId: M:Microsoft.ReverseProxy.Abstractions.IConfigErrorReporter.ReportError(System.String,System.String,System.String,System.Exception)
-  fullName: Microsoft.ReverseProxy.Abstractions.IConfigErrorReporter.ReportError(System.String, System.String, System.String, System.Exception)
-  nameWithType: IConfigErrorReporter.ReportError(String, String, String, Exception)
-- uid: Microsoft.ReverseProxy.Abstractions.IConfigErrorReporter.ReportError*
-  name: ReportError
-  href: api/Microsoft.ReverseProxy.Abstractions.IConfigErrorReporter.html#Microsoft_ReverseProxy_Abstractions_IConfigErrorReporter_ReportError_
-  commentId: Overload:Microsoft.ReverseProxy.Abstractions.IConfigErrorReporter.ReportError
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Abstractions.IConfigErrorReporter.ReportError
-  nameWithType: IConfigErrorReporter.ReportError
 - uid: Microsoft.ReverseProxy.Abstractions.IReverseProxyConfigManager
   name: IReverseProxyConfigManager
   href: api/Microsoft.ReverseProxy.Abstractions.IReverseProxyConfigManager.html
   commentId: T:Microsoft.ReverseProxy.Abstractions.IReverseProxyConfigManager
   fullName: Microsoft.ReverseProxy.Abstractions.IReverseProxyConfigManager
   nameWithType: IReverseProxyConfigManager
-- uid: Microsoft.ReverseProxy.Abstractions.IReverseProxyConfigManager.ApplyConfigurationsAsync(Microsoft.ReverseProxy.Abstractions.IConfigErrorReporter,System.Threading.CancellationToken)
-  name: ApplyConfigurationsAsync(IConfigErrorReporter, CancellationToken)
-  href: api/Microsoft.ReverseProxy.Abstractions.IReverseProxyConfigManager.html#Microsoft_ReverseProxy_Abstractions_IReverseProxyConfigManager_ApplyConfigurationsAsync_Microsoft_ReverseProxy_Abstractions_IConfigErrorReporter_System_Threading_CancellationToken_
-  commentId: M:Microsoft.ReverseProxy.Abstractions.IReverseProxyConfigManager.ApplyConfigurationsAsync(Microsoft.ReverseProxy.Abstractions.IConfigErrorReporter,System.Threading.CancellationToken)
-  fullName: Microsoft.ReverseProxy.Abstractions.IReverseProxyConfigManager.ApplyConfigurationsAsync(Microsoft.ReverseProxy.Abstractions.IConfigErrorReporter, System.Threading.CancellationToken)
-  nameWithType: IReverseProxyConfigManager.ApplyConfigurationsAsync(IConfigErrorReporter, CancellationToken)
+- uid: Microsoft.ReverseProxy.Abstractions.IReverseProxyConfigManager.ApplyConfigurationsAsync(System.Threading.CancellationToken)
+  name: ApplyConfigurationsAsync(CancellationToken)
+  href: api/Microsoft.ReverseProxy.Abstractions.IReverseProxyConfigManager.html#Microsoft_ReverseProxy_Abstractions_IReverseProxyConfigManager_ApplyConfigurationsAsync_System_Threading_CancellationToken_
+  commentId: M:Microsoft.ReverseProxy.Abstractions.IReverseProxyConfigManager.ApplyConfigurationsAsync(System.Threading.CancellationToken)
+  fullName: Microsoft.ReverseProxy.Abstractions.IReverseProxyConfigManager.ApplyConfigurationsAsync(System.Threading.CancellationToken)
+  nameWithType: IReverseProxyConfigManager.ApplyConfigurationsAsync(CancellationToken)
 - uid: Microsoft.ReverseProxy.Abstractions.IReverseProxyConfigManager.ApplyConfigurationsAsync*
   name: ApplyConfigurationsAsync
   href: api/Microsoft.ReverseProxy.Abstractions.IReverseProxyConfigManager.html#Microsoft_ReverseProxy_Abstractions_IReverseProxyConfigManager_ApplyConfigurationsAsync_
@@ -1841,15 +1816,15 @@ references:
   isSpec: "True"
   fullName: Microsoft.ReverseProxy.Service.Config.ITransformBuilder.Build
   nameWithType: ITransformBuilder.Build
-- uid: Microsoft.ReverseProxy.Service.Config.ITransformBuilder.Validate(System.Collections.Generic.IList{System.Collections.Generic.IDictionary{System.String,System.String}},System.String,Microsoft.ReverseProxy.Abstractions.IConfigErrorReporter)
-  name: Validate(IList<IDictionary<String, String>>, String, IConfigErrorReporter)
-  href: api/Microsoft.ReverseProxy.Service.Config.ITransformBuilder.html#Microsoft_ReverseProxy_Service_Config_ITransformBuilder_Validate_System_Collections_Generic_IList_System_Collections_Generic_IDictionary_System_String_System_String___System_String_Microsoft_ReverseProxy_Abstractions_IConfigErrorReporter_
-  commentId: M:Microsoft.ReverseProxy.Service.Config.ITransformBuilder.Validate(System.Collections.Generic.IList{System.Collections.Generic.IDictionary{System.String,System.String}},System.String,Microsoft.ReverseProxy.Abstractions.IConfigErrorReporter)
-  name.vb: Validate(IList(Of IDictionary(Of String, String)), String, IConfigErrorReporter)
-  fullName: Microsoft.ReverseProxy.Service.Config.ITransformBuilder.Validate(System.Collections.Generic.IList<System.Collections.Generic.IDictionary<System.String, System.String>>, System.String, Microsoft.ReverseProxy.Abstractions.IConfigErrorReporter)
-  fullName.vb: Microsoft.ReverseProxy.Service.Config.ITransformBuilder.Validate(System.Collections.Generic.IList(Of System.Collections.Generic.IDictionary(Of System.String, System.String)), System.String, Microsoft.ReverseProxy.Abstractions.IConfigErrorReporter)
-  nameWithType: ITransformBuilder.Validate(IList<IDictionary<String, String>>, String, IConfigErrorReporter)
-  nameWithType.vb: ITransformBuilder.Validate(IList(Of IDictionary(Of String, String)), String, IConfigErrorReporter)
+- uid: Microsoft.ReverseProxy.Service.Config.ITransformBuilder.Validate(System.Collections.Generic.IList{System.Collections.Generic.IDictionary{System.String,System.String}},System.String)
+  name: Validate(IList<IDictionary<String, String>>, String)
+  href: api/Microsoft.ReverseProxy.Service.Config.ITransformBuilder.html#Microsoft_ReverseProxy_Service_Config_ITransformBuilder_Validate_System_Collections_Generic_IList_System_Collections_Generic_IDictionary_System_String_System_String___System_String_
+  commentId: M:Microsoft.ReverseProxy.Service.Config.ITransformBuilder.Validate(System.Collections.Generic.IList{System.Collections.Generic.IDictionary{System.String,System.String}},System.String)
+  name.vb: Validate(IList(Of IDictionary(Of String, String)), String)
+  fullName: Microsoft.ReverseProxy.Service.Config.ITransformBuilder.Validate(System.Collections.Generic.IList<System.Collections.Generic.IDictionary<System.String, System.String>>, System.String)
+  fullName.vb: Microsoft.ReverseProxy.Service.Config.ITransformBuilder.Validate(System.Collections.Generic.IList(Of System.Collections.Generic.IDictionary(Of System.String, System.String)), System.String)
+  nameWithType: ITransformBuilder.Validate(IList<IDictionary<String, String>>, String)
+  nameWithType.vb: ITransformBuilder.Validate(IList(Of IDictionary(Of String, String)), String)
 - uid: Microsoft.ReverseProxy.Service.Config.ITransformBuilder.Validate*
   name: Validate
   href: api/Microsoft.ReverseProxy.Service.Config.ITransformBuilder.html#Microsoft_ReverseProxy_Service_Config_ITransformBuilder_Validate_

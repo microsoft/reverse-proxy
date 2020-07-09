@@ -201,19 +201,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Abstractions.IClustersRepo.html",
-          "hash": "ra8QMFfaWZAAqbhhhYFEUg=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.ReverseProxy.Abstractions.IConfigErrorReporter.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.ReverseProxy.Abstractions.IConfigErrorReporter.html",
-          "hash": "j2x61ikljfJIQXmOhX7LAg=="
+          "hash": "4kuJG726GK8V9t3Cc3YxcQ=="
         }
       },
       "is_incremental": false,
@@ -225,7 +213,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Abstractions.IReverseProxyConfigManager.html",
-          "hash": "TLWxYpMA2UxWx4mIYRh2qQ=="
+          "hash": "KMzgZgfT9fvnwC76aBA4Pw=="
         }
       },
       "is_incremental": false,
@@ -237,7 +225,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Abstractions.IRoutesRepo.html",
-          "hash": "VORg1jXOVnzdSdbZTRq87g=="
+          "hash": "TpMID1PLi8kBb0NAIxgm6w=="
         }
       },
       "is_incremental": false,
@@ -381,7 +369,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Abstractions.html",
-          "hash": "u5lmjMYUSatqZ60sHrwMTA=="
+          "hash": "wUCpNeErf7gy/u8cMd/KDA=="
         }
       },
       "is_incremental": false,
@@ -573,7 +561,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Service.Config.ITransformBuilder.html",
-          "hash": "fzTu9aYZPmBS/gD1Ktm5mQ=="
+          "hash": "FfTbMixkjrtIOtvJ+8AY+w=="
         }
       },
       "is_incremental": false,
@@ -849,7 +837,7 @@
       "output": {
         ".html": {
           "relative_path": "api/toc.html",
-          "hash": "obDqRpTL1rQbL+h65QSeOg=="
+          "hash": "OmZiyiAyJko+2VSHBiDruQ=="
         }
       },
       "is_incremental": false,
@@ -1008,7 +996,7 @@
         "ManagedReferenceDocumentProcessor": {
           "can_incremental": false,
           "incrementalPhase": "build",
-          "total_file_count": 69,
+          "total_file_count": 68,
           "skipped_file_count": 0
         },
         "TocDocumentProcessor": {
