@@ -55,7 +55,7 @@ namespace Microsoft.ReverseProxy.Sample
                             var availableDestinationsFeature = context.Features.Get<IAvailableDestinationsFeature>();
                             var destination = availableDestinationsFeature.Destinations[0]; // PickDestination(availableDestinationsFeature.Destinations);
                             // Load balancing will no-op if we've already reduced the list of available destinations to 1.
-                            availableDestinationsFeature.Destinations = new[] { destination };
+                            availableDestinationsFeature.Destinations = destination;
                         }
 
                         return next();
