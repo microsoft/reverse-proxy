@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Common;
 using Microsoft.ReverseProxy.Configuration.DependencyInjection;
@@ -18,11 +19,6 @@ namespace Microsoft.ReverseProxy.Service.Tests
     public class DynamicConfigBuilderTests
     {
         private const string TestAddress = "https://localhost:123/";
-
-        private IDynamicConfigBuilder CreateConfigBuilder(IClustersRepo clusters, IRoutesRepo routes, Action<IReverseProxyBuilder> configProxy = null)
-        {
-            return CreateConfigBuilder(clusters, routes, null, configProxy);
-        }
 
         private IDynamicConfigBuilder CreateConfigBuilder(IClustersRepo clusters, IRoutesRepo routes, ILoggerFactory loggerFactory, Action<IReverseProxyBuilder> configProxy = null)
         {
@@ -94,7 +90,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
         [Fact]
         public void Constructor_Works()
         {
-            CreateConfigBuilder(new TestClustersRepo(), new TestRoutesRepo());
+            CreateConfigBuilder(new TestClustersRepo(), new TestRoutesRepo(), NullLoggerFactory.Instance);
         }
 
         [Fact]
@@ -166,7 +162,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
         public async Task BuildConfigAsync_RouteValidationError_SkipsRoute()
         {
             var route1 = new ProxyRoute { RouteId = "route1", Match = { Hosts = new[] { "invalid host name" } }, Priority = 1, ClusterId = "cluster1" };
-            var configBuilder = CreateConfigBuilder(new TestClustersRepo(), new TestRoutesRepo(new[] { route1 }));
+            var configBuilder = CreateConfigBuilder(new TestClustersRepo(), new TestRoutesRepo(new[] { route1 }), NullLoggerFactory.Instance);
 
             var result = await configBuilder.BuildConfigAsync(CancellationToken.None);
 
@@ -298,7 +294,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
 
             var result = await configBuilder.BuildConfigAsync(CancellationToken.None);
 
-            Assert.NotEmpty(factory.Logger.Errors);
+            Assert.Empty(factory.Logger.Errors);
             Assert.NotNull(result);
             Assert.Empty(result.Clusters);
             Assert.Single(result.Routes);

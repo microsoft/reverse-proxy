@@ -153,7 +153,6 @@ namespace Microsoft.ReverseProxy.Service.Tests
         [Theory]
         [InlineData("")]
         [InlineData("gett")]
-        [InlineData("get,post,get")]
         public async Task Rejects_InvalidMethod(string methods)
         {
             // Arrange
@@ -170,6 +169,27 @@ namespace Microsoft.ReverseProxy.Service.Tests
             // Assert
             Assert.False(result.IsSuccess);
             Assert.Contains(result.Logger.Errors, err => err.eventId == EventIds.UnsupportedHttpMethod);
+        }
+
+        [Theory]
+        [InlineData("get,GET")]
+        [InlineData("get,post,get")]
+        public async Task Rejects_DuplicateMethod(string methods)
+        {
+            // Arrange
+            var route = new ParsedRoute
+            {
+                RouteId = "route1",
+                Methods = methods.Split(","),
+                ClusterId = "cluster1",
+            };
+
+            // Act
+            var result = await RunScenarioAsync(route);
+
+            // Assert
+            Assert.False(result.IsSuccess);
+            Assert.Contains(result.Logger.Errors, err => err.eventId == EventIds.DuplicateHttpMethod);
         }
 
         [Theory]
