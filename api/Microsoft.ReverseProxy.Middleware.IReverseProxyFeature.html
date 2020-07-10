@@ -5,10 +5,10 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Interface IAvailableDestinationsFeature
+    <title>Interface IReverseProxyFeature
    </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="Interface IAvailableDestinationsFeature
+    <meta name="title" content="Interface IReverseProxyFeature
    ">
     <meta name="generator" content="docfx 2.52.0.0">
     
@@ -68,37 +68,37 @@
         </div>
         <div class="article row grid-right">
           <div class="col-md-10">
-            <article class="content wrap" id="_content" data-uid="Microsoft.ReverseProxy.Middleware.IAvailableDestinationsFeature">
+            <article class="content wrap" id="_content" data-uid="Microsoft.ReverseProxy.Middleware.IReverseProxyFeature">
   
   
-  <h1 id="Microsoft_ReverseProxy_Middleware_IAvailableDestinationsFeature" data-uid="Microsoft.ReverseProxy.Middleware.IAvailableDestinationsFeature" class="text-break">Interface IAvailableDestinationsFeature
+  <h1 id="Microsoft_ReverseProxy_Middleware_IReverseProxyFeature" data-uid="Microsoft.ReverseProxy.Middleware.IReverseProxyFeature" class="text-break">Interface IReverseProxyFeature
   </h1>
-  <div class="markdown level0 summary"><p>Tracks proxy cluster destinations that are available to handle the current request.</p>
+  <div class="markdown level0 summary"><p>Store current ClusterConfig and Tracks proxy cluster destinations that are available to handle the current request.</p>
 </div>
   <div class="markdown level0 conceptual"></div>
   <h6><strong>Namespace</strong>: <a class="xref" href="Microsoft.ReverseProxy.Middleware.html">Microsoft.ReverseProxy.Middleware</a></h6>
   <h6><strong>Assembly</strong>: Microsoft.ReverseProxy.dll</h6>
-  <h5 id="Microsoft_ReverseProxy_Middleware_IAvailableDestinationsFeature_syntax">Syntax</h5>
+  <h5 id="Microsoft_ReverseProxy_Middleware_IReverseProxyFeature_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public interface IAvailableDestinationsFeature</code></pre>
+    <pre><code class="lang-csharp hljs">public interface IReverseProxyFeature</code></pre>
   </div>
   <h3 id="properties">Properties
   </h3>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Middleware_IAvailableDestinationsFeature_Destinations.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Middleware.IAvailableDestinationsFeature.Destinations%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Middleware_IReverseProxyFeature_AvailableDestinations.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Middleware.IReverseProxyFeature.AvailableDestinations%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Middleware/IAvailableDestinationsFeature.cs/#L17">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Middleware/IReverseProxyFeature.cs/#L23">View Source</a>
   </span>
-  <a id="Microsoft_ReverseProxy_Middleware_IAvailableDestinationsFeature_Destinations_" data-uid="Microsoft.ReverseProxy.Middleware.IAvailableDestinationsFeature.Destinations*"></a>
-  <h4 id="Microsoft_ReverseProxy_Middleware_IAvailableDestinationsFeature_Destinations" data-uid="Microsoft.ReverseProxy.Middleware.IAvailableDestinationsFeature.Destinations">Destinations</h4>
+  <a id="Microsoft_ReverseProxy_Middleware_IReverseProxyFeature_AvailableDestinations_" data-uid="Microsoft.ReverseProxy.Middleware.IReverseProxyFeature.AvailableDestinations*"></a>
+  <h4 id="Microsoft_ReverseProxy_Middleware_IReverseProxyFeature_AvailableDestinations" data-uid="Microsoft.ReverseProxy.Middleware.IReverseProxyFeature.AvailableDestinations">AvailableDestinations</h4>
   <div class="markdown level1 summary"><p>Cluster destinations that can handle the current request.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">IReadOnlyList&lt;DestinationInfo&gt; Destinations { get; set; }</code></pre>
+    <pre><code class="lang-csharp hljs">IReadOnlyList&lt;DestinationInfo&gt; AvailableDestinations { get; set; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -115,6 +115,37 @@
       </tr>
     </tbody>
   </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Middleware_IReverseProxyFeature_ClusterConfig.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Middleware.IReverseProxyFeature.ClusterConfig%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Middleware/IReverseProxyFeature.cs/#L18">View Source</a>
+  </span>
+  <a id="Microsoft_ReverseProxy_Middleware_IReverseProxyFeature_ClusterConfig_" data-uid="Microsoft.ReverseProxy.Middleware.IReverseProxyFeature.ClusterConfig*"></a>
+  <h4 id="Microsoft_ReverseProxy_Middleware_IReverseProxyFeature_ClusterConfig" data-uid="Microsoft.ReverseProxy.Middleware.IReverseProxyFeature.ClusterConfig">ClusterConfig</h4>
+  <div class="markdown level1 summary"><p>Cluster config for the the current request.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">ClusterConfig ClusterConfig { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.html">ClusterConfig</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
 </article>
           </div>
           
@@ -123,10 +154,10 @@
               <div class="contribution">
                 <ul class="nav">
                   <li>
-                    <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Middleware_IAvailableDestinationsFeature.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Middleware.IAvailableDestinationsFeature%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Middleware_IReverseProxyFeature.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Middleware.IReverseProxyFeature%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
                   </li>
                   <li>
-                    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Middleware/IAvailableDestinationsFeature.cs/#L12" class="contribution-link">View Source</a>
+                    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Middleware/IReverseProxyFeature.cs/#L13" class="contribution-link">View Source</a>
                   </li>
                 </ul>
               </div>
