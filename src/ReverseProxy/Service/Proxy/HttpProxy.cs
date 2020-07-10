@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -20,7 +19,6 @@ using Microsoft.Extensions.Primitives;
 using Microsoft.ReverseProxy.Service.Metrics;
 using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
-using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Service.Proxy
 {
@@ -170,7 +168,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             if (isIncomingHttp2 && upstreamResponse.Version.Major != 2)
             {
                 // TODO: Do something on connection downgrade...
-                Log.HttpDowngradeDeteced(_logger);
+                Log.HttpDowngradeDetected(_logger);
             }
 
             // Assert that, if we are proxying content upstream, it must have started by now
@@ -604,9 +602,9 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 
         private static class Log
         {
-            private static readonly Action<ILogger, Exception> _httpDowngradeDeteced = LoggerMessage.Define(
+            private static readonly Action<ILogger, Exception> _httpDowngradeDetected = LoggerMessage.Define(
                 LogLevel.Information,
-                EventIds.HttpDowngradeDeteced,
+                EventIds.HttpDowngradeDetected,
                 "Health check has gracefully shut down.");
 
             private static readonly Action<ILogger, string, Exception> _proxying = LoggerMessage.Define<string>(
@@ -614,9 +612,9 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 EventIds.Proxying,
                 "Proxying to {targetUrl}");
 
-            public static void HttpDowngradeDeteced(ILogger logger)
+            public static void HttpDowngradeDetected(ILogger logger)
             {
-                _httpDowngradeDeteced(logger, null);
+                _httpDowngradeDetected(logger, null);
             }
 
             public static void Proxying(ILogger logger, string targetUrl)

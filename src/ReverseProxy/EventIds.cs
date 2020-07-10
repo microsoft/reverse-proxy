@@ -36,7 +36,7 @@ namespace Microsoft.ReverseProxy
         public static readonly EventId RouteAdded = new EventId(27, "RouteAdded");
         public static readonly EventId RouteChanged = new EventId(28, "RouteChanged");
         public static readonly EventId RouteRemoved = new EventId(29, "RouteRemoved");
-        public static readonly EventId HttpDowngradeDeteced = new EventId(30, "HttpDowngradeDeteced");
+        public static readonly EventId HttpDowngradeDetected = new EventId(30, "HttpDowngradeDetected");
         public static readonly EventId OperationStarted = new EventId(31, "OperationStarted");
         public static readonly EventId OperationEnded = new EventId(32, "OperationEnded");
         public static readonly EventId OperationFailed = new EventId(33, "OperationFailed");
