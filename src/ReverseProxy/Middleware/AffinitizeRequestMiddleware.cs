@@ -33,16 +33,16 @@ namespace Microsoft.ReverseProxy.Middleware
 
         public Task Invoke(HttpContext context)
         {
-            var cluster = context.GetRequiredCluster();
-            var options = cluster.Config.Value?.SessionAffinityOptions ?? default;
+            var proxyFeature = context.GetRequiredProxyFeature();
+            var options = proxyFeature.ClusterConfig.SessionAffinityOptions;
 
             if (options.Enabled)
             {
-                var destinationsFeature = context.GetRequiredDestinationFeature();
-                var candidateDestinations = destinationsFeature.Destinations;
+                var candidateDestinations = proxyFeature.AvailableDestinations;
 
                 if (candidateDestinations.Count == 0)
                 {
+                    var cluster = context.GetRequiredCluster();
                     // Only log the warning about missing destinations here, but allow the request to proceed further.
                     // The final check for selected destination is to be done at the pipeline end.
                     Log.NoDestinationOnClusterToEstablishRequestAffinity(_logger, cluster.ClusterId);
@@ -52,10 +52,11 @@ namespace Microsoft.ReverseProxy.Middleware
                     var chosenDestination = candidateDestinations[0];
                     if (candidateDestinations.Count > 1)
                     {
+                        var cluster = context.GetRequiredCluster();
                         Log.MultipleDestinationsOnClusterToEstablishRequestAffinity(_logger, cluster.ClusterId);
                         // It's assumed that all of them match to the request's affinity key.
                         chosenDestination = candidateDestinations[_random.Next(candidateDestinations.Count)];
-                        destinationsFeature.Destinations = chosenDestination;
+                        proxyFeature.AvailableDestinations = chosenDestination;
                     }
 
                     AffinitizeRequest(context, options, chosenDestination);

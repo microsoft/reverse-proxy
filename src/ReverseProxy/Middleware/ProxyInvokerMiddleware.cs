@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.ReverseProxy.Abstractions.Telemetry;
-using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Proxy;
 using Microsoft.ReverseProxy.Utilities;
 
@@ -44,11 +43,11 @@ namespace Microsoft.ReverseProxy.Middleware
         {
             _ = context ?? throw new ArgumentNullException(nameof(context));
 
-            var cluster = context.Features.Get<ClusterInfo>() ?? throw new InvalidOperationException("Cluster unspecified.");
-            var destinations = context.Features.Get<IAvailableDestinationsFeature>()?.Destinations
-                ?? throw new InvalidOperationException("The IAvailableDestinationsFeature Destinations collection was not set.");
-            var routeConfig = context.GetEndpoint()?.Metadata.GetMetadata<RouteConfig>()
-                ?? throw new InvalidOperationException("RouteConfig unspecified.");
+            var destinations = context.GetRequiredProxyFeature().AvailableDestinations
+                ?? throw new InvalidOperationException($"The {nameof(IReverseProxyFeature)} Destinations collection was not set.");
+
+            var routeConfig = context.GetRequiredRouteConfig();
+            var cluster = routeConfig.Cluster;
 
             if (destinations.Count == 0)
             {

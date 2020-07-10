@@ -31,23 +31,22 @@ namespace Microsoft.ReverseProxy.Middleware
 
         public Task Invoke(HttpContext context)
         { 
-            var cluster = context.GetRequiredCluster();
-            var destinationsFeature = context.GetRequiredDestinationFeature();
-            var destinations = destinationsFeature.Destinations;
+            var proxyFeature = context.GetRequiredProxyFeature();
+            var destinations = proxyFeature.AvailableDestinations;
 
-            var loadBalancingOptions = cluster.Config.Value?.LoadBalancingOptions
-                ?? new ClusterConfig.ClusterLoadBalancingOptions(default);
+            var loadBalancingOptions = proxyFeature.ClusterConfig.LoadBalancingOptions;
 
             var destination = _loadBalancer.PickDestination(destinations, in loadBalancingOptions);
 
             if (destination == null)
             {
+                var cluster = context.GetRequiredCluster();
                 Log.NoAvailableDestinations(_logger, cluster.ClusterId);
                 context.Response.StatusCode = 503;
                 return Task.CompletedTask;
             }
 
-            destinationsFeature.Destinations = destination;
+            proxyFeature.AvailableDestinations = destination;
 
             return _next(context);
         }

@@ -11,17 +11,25 @@ namespace Microsoft.ReverseProxy.Middleware
     {
         public static ClusterInfo GetRequiredCluster(this HttpContext context)
         {
-            return context.Features.Get<ClusterInfo>() ?? throw new InvalidOperationException("Cluster unspecified.");
+            var routeConfig = context.GetRequiredRouteConfig();
+            var cluster = routeConfig.Cluster ?? throw new InvalidOperationException("Cluster unspecified.");
+            return cluster;
         }
 
-        public static IAvailableDestinationsFeature GetRequiredDestinationFeature(this HttpContext context)
+        public static RouteConfig GetRequiredRouteConfig(this HttpContext context)
         {
-            var destinationsFeature = context.Features.Get<IAvailableDestinationsFeature>();
-            if (destinationsFeature?.Destinations == null)
-            {
-                throw new InvalidOperationException("The IAvailableDestinationsFeature Destinations collection was not set.");
-            }
-            return destinationsFeature;
+            var endpoint = context.GetEndpoint()
+               ?? throw new InvalidOperationException($"Routing Endpoint wasn't set for the current request.");
+
+            var routeConfig = endpoint.Metadata.GetMetadata<RouteConfig>()
+                ?? throw new InvalidOperationException($"Routing Endpoint is missing {typeof(RouteConfig).FullName} metadata.");
+
+            return routeConfig;
+        }
+
+        public static IReverseProxyFeature GetRequiredProxyFeature(this HttpContext context)
+        {
+            return context.Features.Get<IReverseProxyFeature>() ?? throw new InvalidOperationException("ReverseProxyFeature unspecified.");
         }
     }
 }

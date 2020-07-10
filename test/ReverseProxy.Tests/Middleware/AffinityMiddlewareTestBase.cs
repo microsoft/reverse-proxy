@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Management;
 using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
+using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 using Microsoft.ReverseProxy.Service.SessionAffinity;
 using Microsoft.ReverseProxy.Signals;
 using Moq;
@@ -77,11 +78,27 @@ namespace Microsoft.ReverseProxy.Middleware
             return result.AsReadOnly();
         }
 
-        internal IAvailableDestinationsFeature GetDestinationsFeature(IReadOnlyList<DestinationInfo> destinations)
+        internal IReverseProxyFeature GetDestinationsFeature(IReadOnlyList<DestinationInfo> destinations, ClusterConfig clusterConfig)
         {
-            var result = new Mock<IAvailableDestinationsFeature>(MockBehavior.Strict);
-            result.SetupProperty(p => p.Destinations, destinations);
+            var result = new Mock<IReverseProxyFeature>(MockBehavior.Strict);
+            result.SetupProperty(p => p.AvailableDestinations, destinations);
+            result.SetupProperty(p => p.ClusterConfig, clusterConfig);
             return result.Object;
+        }
+
+        internal Endpoint GetEndpoint(ClusterInfo cluster)
+        {
+            var transforms = new Transforms(false,
+                Array.Empty<RequestParametersTransform>(),
+                new Dictionary<string, RequestHeaderTransform>(),
+                new Dictionary<string, ResponseHeaderTransform>(),
+                new Dictionary<string, ResponseHeaderTransform>());
+
+            var endpoints = new List<Endpoint>(1);
+            var routeConfig = new RouteConfig(new RouteInfo("route-1"), 47, null, cluster, endpoints.AsReadOnly(), transforms);
+            var endpoint = new Endpoint(default, new EndpointMetadataCollection(routeConfig), string.Empty);
+            endpoints.Add(endpoint);
+            return endpoint;
         }
     }
 }
