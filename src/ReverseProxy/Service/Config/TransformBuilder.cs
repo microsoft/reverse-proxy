@@ -61,10 +61,10 @@ namespace Microsoft.ReverseProxy.Service.Config
                 }
                 else if (rawTransform.TryGetValue("QueryStringParameter", out var queryStringParameter))
                 {
-                    success &= TryCheckTooManyParameters(rawTransform, routeId, expected: 2, errorReporter);
+                    success &= TryCheckTooManyParameters(rawTransform, routeId, expected: 2);
                     if (!rawTransform.TryGetValue("Set", out var _) && !rawTransform.TryGetValue("Append", out var _))
                     {
-                        errorReporter.ReportError(ConfigErrors.TransformInvalid, routeId, $"Unexpected parameters for QueryStringParameter: {string.Join(';', rawTransform.Keys)}. Expected 'Set' or 'Append'");
+                        Log.InvalidTransform(_logger, routeId, $"Unexpected parameters for QueryStringParameter: {string.Join(';', rawTransform.Keys)}. Expected 'Set' or 'Append'");
                         success = false;
                     }
                 }
@@ -271,15 +271,15 @@ namespace Microsoft.ReverseProxy.Service.Config
                         CheckTooManyParameters(rawTransform, expected: 2);
                         if (rawTransform.TryGetValue("Append", out var routeValueKeyAppend))
                         {
-                            requestTransforms.Add(new QueryStringParameterTransform(QueryStringTransformMode.Append, queryStringParameter, routeValueKeyAppend));
+                            requestTransforms.Add(new QueryStringFromRouteTransform(QueryStringTransformMode.Append, queryStringParameter, routeValueKeyAppend));
                         }
                         else if (rawTransform.TryGetValue("Set", out var routeValueKeySet))
                         {
-                            requestTransforms.Add(new QueryStringParameterTransform(QueryStringTransformMode.Set, queryStringParameter, routeValueKeySet));
+                            requestTransforms.Add(new QueryStringFromRouteTransform(QueryStringTransformMode.Set, queryStringParameter, routeValueKeySet));
                         }
                         else
                         {
-                            throw new NotSupportedException(string.Join(",", rawTransform.Keys));
+                            throw new NotSupportedException(string.Join(";", rawTransform.Keys));
                         }
                     }
                     else if (rawTransform.TryGetValue("RequestHeadersCopy", out var copyHeaders))

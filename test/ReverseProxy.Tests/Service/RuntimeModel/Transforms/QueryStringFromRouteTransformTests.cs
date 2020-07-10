@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
-    public class QueryStringParameterTransformTests
+    public class QueryStringFromRouteTransformTests
     {
         [Theory]
         [InlineData("/{a}/{b}/{c}", "a", "?z=6")]
@@ -28,7 +28,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                 Path = path,
                 HttpContext = httpContext
             };
-            var transform = new QueryStringParameterTransform(QueryStringTransformMode.Append, "z", routeValueKey);
+            var transform = new QueryStringFromRouteTransform(QueryStringTransformMode.Append, "z", routeValueKey);
             transform.Apply(context);
             Assert.Equal(expected, context.Query.Value);
         }
@@ -50,7 +50,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                 Query = new QueryString("?z=1"),
                 HttpContext = httpContext
             };
-            var transform = new QueryStringParameterTransform(QueryStringTransformMode.Append, "z", "a");
+            var transform = new QueryStringFromRouteTransform(QueryStringTransformMode.Append, "z", "a");
             transform.Apply(context);
             Assert.Equal("?z=1&z=6", context.Query.Value);
         }
@@ -72,7 +72,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                 Query = new QueryString("?z=1"),
                 HttpContext = httpContext
             };
-            var transform = new QueryStringParameterTransform(QueryStringTransformMode.Set, "z", "a");
+            var transform = new QueryStringFromRouteTransform(QueryStringTransformMode.Set, "z", "a");
             transform.Apply(context);
             Assert.Equal("?z=6", context.Query.Value);
         }
@@ -93,7 +93,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                 Path = path,
                 HttpContext = httpContext
             };
-            var transform = new QueryStringParameterTransform(QueryStringTransformMode.Set, "z", "a");
+            var transform = new QueryStringFromRouteTransform(QueryStringTransformMode.Set, "z", "a");
             transform.Apply(context);
             Assert.Equal("?z=6", context.Query.Value);
         }

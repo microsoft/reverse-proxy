@@ -9,13 +9,13 @@ using Microsoft.AspNetCore.WebUtilities;
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
-    internal class QueryStringParameterTransform : RequestParametersTransform
+    internal class QueryStringFromRouteTransform : RequestParametersTransform
     {
         private readonly QueryStringTransformMode _mode;
         private readonly string _key;
         private readonly string _routeValueKey;
 
-        public QueryStringParameterTransform(QueryStringTransformMode mode, string key, string routeValueKey)
+        public QueryStringFromRouteTransform(QueryStringTransformMode mode, string key, string routeValueKey)
         {
             _mode = mode;
             _key = key;
@@ -53,8 +53,10 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 
 #if NETCOREAPP3_1
             var queryBuilder = new QueryBuilder(queryStringParameters.Select(pair => new System.Collections.Generic.KeyValuePair<string, string>(pair.Key, pair.Value.ToString())));
-#else
+#elif NETCOREAPP5_0
             var queryBuilder = new QueryBuilder(queryStringParameters);
+#else
+#error A target framework was added to the project and needs to be added to this condition.
 #endif
             return queryBuilder.ToQueryString();
         }
