@@ -3,7 +3,6 @@
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing.Template;
-using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
@@ -17,11 +16,6 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         public void Append_AddsQueryStringParameterWithRouteValue(string pattern, string routeValueKey, string expected)
         {
             const string path = "/6/7/8";
-
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddOptions();
-            serviceCollection.AddRouting();
-            using var services = serviceCollection.BuildServiceProvider();
 
             var routeValues = new AspNetCore.Routing.RouteValueDictionary();
             var templateMatcher = new TemplateMatcher(TemplateParser.Parse(pattern), new AspNetCore.Routing.RouteValueDictionary());
@@ -44,11 +38,6 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         {
             const string path = "/6/7/8";
 
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddOptions();
-            serviceCollection.AddRouting();
-            using var services = serviceCollection.BuildServiceProvider();
-
             var routeValues = new AspNetCore.Routing.RouteValueDictionary();
             var templateMatcher = new TemplateMatcher(TemplateParser.Parse("/{a}/{b}/{c}"), new AspNetCore.Routing.RouteValueDictionary());
             templateMatcher.TryMatch(path, routeValues);
@@ -64,6 +53,28 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             var transform = new QueryStringParameterTransform(QueryStringTransformMode.Append, "z", "a");
             transform.Apply(context);
             Assert.Equal("?z=1&z=6", context.Query.Value);
+        }
+
+        [Fact]
+        public void Set_OverwritesExistingQueryStringParameter()
+        {
+            const string path = "/6/7/8";
+
+            var routeValues = new AspNetCore.Routing.RouteValueDictionary();
+            var templateMatcher = new TemplateMatcher(TemplateParser.Parse("/{a}/{b}/{c}"), new AspNetCore.Routing.RouteValueDictionary());
+            templateMatcher.TryMatch(path, routeValues);
+
+            var httpContext = new DefaultHttpContext();
+            httpContext.Request.RouteValues = routeValues;
+            var context = new RequestParametersTransformContext()
+            {
+                Path = path,
+                Query = new QueryString("?z=1"),
+                HttpContext = httpContext
+            };
+            var transform = new QueryStringParameterTransform(QueryStringTransformMode.Set, "z", "a");
+            transform.Apply(context);
+            Assert.Equal("?z=6", context.Query.Value);
         }
     }
 }

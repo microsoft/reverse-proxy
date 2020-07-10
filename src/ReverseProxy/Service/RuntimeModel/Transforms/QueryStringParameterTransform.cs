@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
+using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
@@ -33,6 +35,14 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                     case QueryStringTransformMode.Append:
                         context.Query = context.Query.Add(_key, value.ToString());
                         break;
+                    case QueryStringTransformMode.Set:
+                    #if NET50
+                        var queryStringParameters = QueryHelpers.ParseNullableQuery(context.Query.Value);
+                        queryStringParameters[_key] = value.ToString();
+                        var queryBuilder = new QueryBuilder(queryStringParameters);
+                        context.Query = queryBuilder.ToQueryString();
+                    #endif
+                        break;
                     default:
                         throw new NotImplementedException(_mode.ToString());
                 }
@@ -43,5 +53,6 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
     public enum QueryStringTransformMode
     {
         Append,
+        Set
     }
 }
