@@ -64,7 +64,7 @@ namespace Microsoft.ReverseProxy.Service.Config
                     success &= TryCheckTooManyParameters(rawTransform, routeId, expected: 2, errorReporter);
                     if (!rawTransform.TryGetValue("Set", out var _) && !rawTransform.TryGetValue("Append", out var _))
                     {
-                        errorReporter.ReportError(ConfigErrors.TransformInvalid, routeId, $"Unexpected parameters for RequestHeader: {string.Join(';', rawTransform.Keys)}. Expected 'Set' or 'Append'");
+                        errorReporter.ReportError(ConfigErrors.TransformInvalid, routeId, $"Unexpected parameters for QueryStringParameter: {string.Join(';', rawTransform.Keys)}. Expected 'Set' or 'Append'");
                         success = false;
                     }
                 }
@@ -269,9 +269,13 @@ namespace Microsoft.ReverseProxy.Service.Config
                     else if (rawTransform.TryGetValue("QueryStringParameter", out var queryStringParameter))
                     {
                         CheckTooManyParameters(rawTransform, expected: 2);
-                        if (rawTransform.TryGetValue("Append", out var routeValueKey))
+                        if (rawTransform.TryGetValue("Append", out var routeValueKeyAppend))
                         {
-                            requestTransforms.Add(new QueryStringParameterTransform(QueryStringTransformMode.Append, queryStringParameter, routeValueKey));
+                            requestTransforms.Add(new QueryStringParameterTransform(QueryStringTransformMode.Append, queryStringParameter, routeValueKeyAppend));
+                        }
+                        else if (rawTransform.TryGetValue("Set", out var routeValueKeySet))
+                        {
+                            requestTransforms.Add(new QueryStringParameterTransform(QueryStringTransformMode.Set, queryStringParameter, routeValueKeySet));
                         }
                         else
                         {
