@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Linq;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.WebUtilities;
 
@@ -28,7 +30,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             }
 
             var routeValues = context.HttpContext.Request.RouteValues;
-            if (routeValues.TryGetValue(_routeValueKey, out object value))
+            if (routeValues.TryGetValue(_routeValueKey, out var value))
             {
                 switch (_mode)
                 {
@@ -36,17 +38,25 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                         context.Query = context.Query.Add(_key, value.ToString());
                         break;
                     case QueryStringTransformMode.Set:
-                    #if NET50
-                        var queryStringParameters = QueryHelpers.ParseNullableQuery(context.Query.Value);
-                        queryStringParameters[_key] = value.ToString();
-                        var queryBuilder = new QueryBuilder(queryStringParameters);
-                        context.Query = queryBuilder.ToQueryString();
-                    #endif
+                        context.Query = SetQueryStringParameter(context.Query, _key, value);
                         break;
                     default:
                         throw new NotImplementedException(_mode.ToString());
                 }
             }
+        }
+
+        private static QueryString SetQueryStringParameter(QueryString input, string key, object value)
+        {
+            var queryStringParameters = QueryHelpers.ParseQuery(input.Value);
+            queryStringParameters[key] = value.ToString();
+
+#if NETCOREAPP3_1
+            var queryBuilder = new QueryBuilder(queryStringParameters.Select(pair => new System.Collections.Generic.KeyValuePair<string, string>(pair.Key, pair.Value.ToString())));
+#else
+            var queryBuilder = new QueryBuilder(queryStringParameters);
+#endif
+            return queryBuilder.ToQueryString();
         }
     }
 

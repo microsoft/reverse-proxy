@@ -76,5 +76,26 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             transform.Apply(context);
             Assert.Equal("?z=6", context.Query.Value);
         }
+
+        [Fact]
+        public void Set_AddsNewQueryStringParameter()
+        {
+            const string path = "/6/7/8";
+
+            var routeValues = new AspNetCore.Routing.RouteValueDictionary();
+            var templateMatcher = new TemplateMatcher(TemplateParser.Parse("/{a}/{b}/{c}"), new AspNetCore.Routing.RouteValueDictionary());
+            templateMatcher.TryMatch(path, routeValues);
+
+            var httpContext = new DefaultHttpContext();
+            httpContext.Request.RouteValues = routeValues;
+            var context = new RequestParametersTransformContext()
+            {
+                Path = path,
+                HttpContext = httpContext
+            };
+            var transform = new QueryStringParameterTransform(QueryStringTransformMode.Set, "z", "a");
+            transform.Apply(context);
+            Assert.Equal("?z=6", context.Query.Value);
+        }
     }
 }
