@@ -73,7 +73,11 @@ Here is an example of common transforms:
           "Path": "/api/{plugin}/stuff/{*remainder}"
         },
         "Transforms": [
-          { "PathPattern": "/foo/{plugin}/bar/{remainder}" }
+          { "PathPattern": "/foo/{plugin}/bar/{remainder}" },
+          {
+            "QueryStringParameter": "q",
+            "Append": "plugin"
+          }
         ]
       }
     ],
@@ -175,6 +179,34 @@ Example:
 | PathPattern | `/my/{plugin}/api/{remainder}` |
 | Result | `/my/v1/api/more/stuff` |
 
+#### QueryStringParameter
+| Key | Value | Required |
+| QueryStringParameter | Name of a query string parameter | yes |
+| Set/Append | Key of route value | yes |
+| Remove | No value | yes |
+
+Config:
+```JSON
+{
+  "QueryStringParameter": "foo",
+  "Append": "remainder"
+}
+```
+
+This will add a query string parameter with the name `foo` and sets it to the value of the associated route value.
+
+Example:
+
+| Step | Value |
+|------|-------|
+| Route definition | `/api/{plugin}/stuff/{*remainder}` |
+| Request path | `/api/v1/stuff/more/stuff` |
+| Plugin value | `v1` |
+| Remainder value | `more/stuff` |
+| QueryStringParameter | `foo` |
+| Append | `remainder` |
+| Result | `/api/v1/stuff/more/stuff?foo=more/stuff` |
+
 ### Request Headers
 
 All incoming request headers are copied to the proxy request by default with the exception of the Host header (see [Defaults](#defaults)). [X-Forwarded](#x-forwarded) headers are also added by default. These behaviors can be configured using the following transforms. Additional request headers can be specified, or request headers can be excluded by setting them to an empty value.
@@ -258,7 +290,7 @@ Disable default headers:
 { "X-Forwarded": "" }
 ```
 
-X-Forwarded-* headers are a common way to forward information to the destination server that may otherwise be obscured by the use of a proxy. The destination server likely needs this information for security checks and to properly generate absolute URIs for links and redirects. There is no standard that defines these headers and implementations vary, check your destination server for support. 
+X-Forwarded-* headers are a common way to forward information to the destination server that may otherwise be obscured by the use of a proxy. The destination server likely needs this information for security checks and to properly generate absolute URIs for links and redirects. There is no standard that defines these headers and implementations vary, check your destination server for support.
 
 This transform is enabled by default even if not specified in the route config.
 
