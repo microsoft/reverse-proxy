@@ -62,7 +62,7 @@ namespace Microsoft.ReverseProxy.Service.Config
                 else if (rawTransform.TryGetValue("QueryStringParameter", out var queryStringParameter))
                 {
                     success &= TryCheckTooManyParameters(rawTransform, routeId, expected: 2);
-                    if (!rawTransform.TryGetValue("Set", out var _) && !rawTransform.TryGetValue("Append", out var _))
+                    if (!rawTransform.TryGetValue("Set", out var _) && !rawTransform.TryGetValue("Append", out var _) && !rawTransform.TryGetValue("Remove", out var _))
                     {
                         Log.InvalidTransform(_logger, routeId, $"Unexpected parameters for QueryStringParameter: {string.Join(';', rawTransform.Keys)}. Expected 'Set' or 'Append'");
                         success = false;
@@ -276,6 +276,10 @@ namespace Microsoft.ReverseProxy.Service.Config
                         else if (rawTransform.TryGetValue("Set", out var routeValueKeySet))
                         {
                             requestTransforms.Add(new QueryStringFromRouteTransform(QueryStringTransformMode.Set, queryStringParameter, routeValueKeySet));
+                        }
+                        else if (rawTransform.TryGetValue("Remove", out var _))
+                        {
+                            requestTransforms.Add(new QueryStringRemoveTransform(queryStringParameter));
                         }
                         else
                         {
