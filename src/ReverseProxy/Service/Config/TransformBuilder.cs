@@ -273,11 +273,8 @@ namespace Microsoft.ReverseProxy.Service.Config
                     else if (rawTransform.TryGetValue("PathPattern", out var pathPattern))
                     {
                         CheckTooManyParameters(rawTransform, expected: 1);
-                        if (!string.IsNullOrEmpty(pathPattern) && !pathPattern.StartsWith("/", StringComparison.Ordinal))
-                        {
-                            pathPattern = "/" + pathPattern;
-                        }
-                        requestTransforms.Add(new PathRouteValuesTransform(pathPattern, _binderFactory));
+                        var path = MakePathString(pathPattern);
+                        requestTransforms.Add(new PathRouteValuesTransform(path, _binderFactory));
                     }
                     else if (rawTransform.TryGetValue("RequestHeadersCopy", out var copyHeaders))
                     {
@@ -309,10 +306,10 @@ namespace Microsoft.ReverseProxy.Service.Config
                     else if (rawTransform.TryGetValue("ResponseHeader", out var responseHeaderName))
                     {
                         var always = false;
-                        if (rawTransform.TryGetValue("When", out var whenValue) && string.Equals("always", whenValue, StringComparison.OrdinalIgnoreCase))
+                        if (rawTransform.TryGetValue("When", out var whenValue))
                         {
                             CheckTooManyParameters(rawTransform, expected: 3);
-                            always = true;
+                            always = string.Equals("always", whenValue, StringComparison.OrdinalIgnoreCase);
                         }
                         else
                         {
