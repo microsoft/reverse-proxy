@@ -90,11 +90,11 @@ namespace Microsoft.ReverseProxy.Service.Config
         }
 
         [Fact]
-        public void DontCopyRequestHeaders()
+        public void SuppressRequestHeaders()
         {
             var proxyRoute = CreateProxyRoute();
 
-            proxyRoute.DontCopyRequestHeaders();
+            proxyRoute.SuppressRequestHeaders();
 
             var transform = BuildTransform(proxyRoute);
 
