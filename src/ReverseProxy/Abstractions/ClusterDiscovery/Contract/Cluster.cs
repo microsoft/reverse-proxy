@@ -53,7 +53,7 @@ namespace Microsoft.ReverseProxy.Abstractions
         /// <summary>
         /// The set of destinations associated with this cluster.
         /// </summary>
-        public IDictionary<string, Destination> Destinations { get; private set; } = new Dictionary<string, Destination>(StringComparer.Ordinal);
+        public IDictionary<string, Destination> Destinations { get; private set; } = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// Arbitrary key-value pairs that further describe this cluster.
@@ -72,8 +72,8 @@ namespace Microsoft.ReverseProxy.Abstractions
                 LoadBalancing = LoadBalancing?.DeepClone(),
                 SessionAffinity = SessionAffinity?.DeepClone(),
                 HealthCheckOptions = HealthCheckOptions?.DeepClone(),
-                Destinations = Destinations.DeepClone(StringComparer.Ordinal),
-                Metadata = Metadata?.DeepClone(StringComparer.Ordinal),
+                Destinations = Destinations.DeepClone(StringComparer.OrdinalIgnoreCase),
+                Metadata = Metadata?.DeepClone(StringComparer.OrdinalIgnoreCase),
             };
         }
     }

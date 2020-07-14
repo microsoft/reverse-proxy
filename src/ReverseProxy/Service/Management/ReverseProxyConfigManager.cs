@@ -55,7 +55,7 @@ namespace Microsoft.ReverseProxy.Service.Management
 
         private void UpdateRuntimeClusters(DynamicConfigRoot config)
         {
-            var desiredClusters = new HashSet<string>(StringComparer.Ordinal);
+            var desiredClusters = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (var configClusterPair in config.Clusters)
             {
                 var configCluster = configClusterPair.Value;
@@ -123,7 +123,7 @@ namespace Microsoft.ReverseProxy.Service.Management
 
         private void UpdateRuntimeDestinations(IDictionary<string, Destination> configDestinations, IDestinationManager destinationManager)
         {
-            var desiredDestinations = new HashSet<string>(StringComparer.Ordinal);
+            var desiredDestinations = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (var configDestination in configDestinations)
             {
                 desiredDestinations.Add(configDestination.Key);
@@ -165,7 +165,7 @@ namespace Microsoft.ReverseProxy.Service.Management
 
         private void UpdateRuntimeRoutes(DynamicConfigRoot config)
         {
-            var desiredRoutes = new HashSet<string>(StringComparer.Ordinal);
+            var desiredRoutes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             var changed = false;
 
             foreach (var configRoute in config.Routes)

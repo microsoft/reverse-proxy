@@ -31,7 +31,7 @@ namespace Microsoft.ReverseProxy.Service
         {
             lock (_syncRoot)
             {
-                return _items?.DeepClone(StringComparer.Ordinal);
+                return _items?.DeepClone(StringComparer.OrdinalIgnoreCase);
             }
         }
 
@@ -39,7 +39,7 @@ namespace Microsoft.ReverseProxy.Service
         {
             lock (_syncRoot)
             {
-                _items = items?.DeepClone(StringComparer.Ordinal);
+                _items = items?.DeepClone(StringComparer.OrdinalIgnoreCase);
             }
         }
     }

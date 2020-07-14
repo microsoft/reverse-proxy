@@ -58,8 +58,8 @@ namespace Microsoft.ReverseProxy.Service
 
         public async Task<IDictionary<string, Cluster>> GetClustersAsync(CancellationToken cancellation)
         {
-            var clusters = await _clustersRepo.GetClustersAsync(cancellation) ?? new Dictionary<string, Cluster>(StringComparer.Ordinal);
-            var configuredClusters = new Dictionary<string, Cluster>(StringComparer.Ordinal);
+            var clusters = await _clustersRepo.GetClustersAsync(cancellation) ?? new Dictionary<string, Cluster>(StringComparer.OrdinalIgnoreCase);
+            var configuredClusters = new Dictionary<string, Cluster>(StringComparer.OrdinalIgnoreCase);
             // The IClustersRepo provides a fresh snapshot that we need to reconfigure each time.
             foreach (var (id, cluster) in clusters)
             {

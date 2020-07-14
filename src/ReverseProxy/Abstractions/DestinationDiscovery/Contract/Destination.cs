@@ -27,7 +27,7 @@ namespace Microsoft.ReverseProxy.Abstractions
             return new Destination
             {
                 Address = Address,
-                Metadata = Metadata?.DeepClone(StringComparer.Ordinal),
+                Metadata = Metadata?.DeepClone(StringComparer.OrdinalIgnoreCase),
             };
         }
     }

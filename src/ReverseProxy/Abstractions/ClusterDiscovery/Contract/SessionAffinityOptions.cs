@@ -38,7 +38,7 @@ namespace Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract
                 Enabled = Enabled,
                 Mode = Mode,
                 FailurePolicy = FailurePolicy,
-                Settings = Settings?.DeepClone(StringComparer.Ordinal)
+                Settings = Settings?.DeepClone(StringComparer.OrdinalIgnoreCase)
             };
         }
     }

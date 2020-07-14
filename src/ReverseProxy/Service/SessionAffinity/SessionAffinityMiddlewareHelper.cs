@@ -15,7 +15,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
                 throw new ArgumentNullException(nameof(services));
             }
 
-            var result = new Dictionary<string, T>(StringComparer.Ordinal);
+            var result = new Dictionary<string, T>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var service in services)
             {
