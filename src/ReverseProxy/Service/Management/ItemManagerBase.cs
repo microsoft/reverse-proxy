@@ -13,7 +13,7 @@ namespace Microsoft.ReverseProxy.Service.Management
         where T : class
     {
         private readonly object _lockObject = new object();
-        private readonly Dictionary<string, T> _items = new Dictionary<string, T>(StringComparer.Ordinal);
+        private readonly Dictionary<string, T> _items = new Dictionary<string, T>(StringComparer.OrdinalIgnoreCase);
         private readonly Signal<IReadOnlyList<T>> _signal = SignalFactory.Default.CreateSignal<IReadOnlyList<T>>(new List<T>().AsReadOnly());
 
         /// <inheritdoc/>

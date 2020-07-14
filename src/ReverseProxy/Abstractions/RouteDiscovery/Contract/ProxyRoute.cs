@@ -67,7 +67,7 @@ namespace Microsoft.ReverseProxy.Abstractions
                 ClusterId = ClusterId,
                 AuthorizationPolicy = AuthorizationPolicy,
                 CorsPolicy = CorsPolicy,
-                Metadata = Metadata?.DeepClone(StringComparer.Ordinal),
+                Metadata = Metadata?.DeepClone(StringComparer.OrdinalIgnoreCase),
                 Transforms = Transforms?.Select(d => new Dictionary<string, string>(d, StringComparer.OrdinalIgnoreCase)).ToList<IDictionary<string, string>>(),
             };
         }

@@ -47,7 +47,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
         }
 
         [Fact]
-        public void TryGetItem_CaseSensitive_ReturnsCorrectItem()
+        public void TryGetItem_CaseInsensitive_ReturnsSameItem()
         {
             // Arrange
             var manager = new TestItemManager();
@@ -62,15 +62,15 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             // Assert
             Assert.NotNull(item1);
             Assert.NotNull(item2);
-            Assert.NotSame(item2, item1);
 
             Assert.NotNull(actual1);
-            Assert.Same(item1, actual1);
-
             Assert.NotNull(actual2);
-            Assert.Same(item2, actual2);
+            Assert.NotNull(actual3);
 
-            Assert.Null(actual3);
+            Assert.Same(item1, item2);
+            Assert.Same(item2, actual1);
+            Assert.Same(actual1, actual2);
+            Assert.Same(actual2, actual3);
         }
 
         [Fact]
