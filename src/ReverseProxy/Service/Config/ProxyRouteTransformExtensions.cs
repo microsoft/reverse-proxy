@@ -111,5 +111,48 @@ namespace Microsoft.ReverseProxy.Service
                 ["ClientCert"] = headerName
             });
         }
+
+        public static void AddForwardedTransform(this ProxyRoute proxyRoute, bool useFor, bool useBy, bool useHost, bool useProto, bool append, string forFormat, string byFormat)
+        {
+            var headers = new List<string>();
+
+            if (useFor)
+            {
+                headers.Add("For");
+            }
+
+            if (useBy)
+            {
+                headers.Add("By");
+            }
+
+            if (useHost)
+            {
+                headers.Add("Host");
+            }
+
+            if (useProto)
+            {
+                headers.Add("Proto");
+            }
+
+            var transform = new Dictionary<string, string>
+            {
+                ["Forwarded"] = string.Join(',', headers),
+                ["Append"] = append.ToString()
+            };
+
+            if (useFor)
+            {
+                transform.Add("ForFormat", forFormat);
+            }
+
+            if (useBy)
+            {
+                transform.Add("ByFormat", byFormat);
+            }
+            
+            proxyRoute.Transforms.Add(transform);
+        }
     }
 }

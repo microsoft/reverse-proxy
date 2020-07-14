@@ -208,6 +208,84 @@ namespace Microsoft.ReverseProxy.Service.Config
             return transform;
         }
 
+        [Theory]
+        [MemberData(nameof(AllForwardedCombinations))]
+        public void AddForwardedTransform(bool useFor, bool useBy, bool useHost, bool useProto, bool append, string forFormat, string byFormat)
+        {
+            var proxyRoute = CreateProxyRoute();
+
+            proxyRoute.AddForwardedTransform(useFor, useBy, useHost, useProto, append, forFormat, byFormat);
+
+            var transform = BuildTransform(proxyRoute);
+
+            if (useBy || useFor || useHost || useProto)
+            {
+                var requestTransform = transform.RequestHeaderTransforms["Forwarded"];
+                var requestHeaderForwardedTransform = Assert.IsType<RequestHeaderForwardedTransform>(requestTransform);
+                Assert.Equal(append, requestHeaderForwardedTransform.Append);
+                Assert.Equal(useHost, requestHeaderForwardedTransform.HostEnabled);
+                Assert.Equal(useProto, requestHeaderForwardedTransform.ProtoEnabled);
+
+                if (useBy)
+                {
+                    Assert.Equal(byFormat, requestHeaderForwardedTransform.ByFormat.ToString());
+                }
+                else
+                {
+                    Assert.Equal("None", requestHeaderForwardedTransform.ByFormat.ToString());
+                }
+
+                if (useFor)
+                {
+                    Assert.Equal(forFormat, requestHeaderForwardedTransform.ForFormat.ToString());
+                }
+                else
+                {
+                    Assert.Equal("None", requestHeaderForwardedTransform.ForFormat.ToString());
+                }
+            }
+        }
+
+        public static IEnumerable<object[]> AllForwardedCombinations => GenerateCombinations();
+
+        private static IEnumerable<object[]> GenerateCombinations()
+        {
+            var boolCollection = new object[] { true, false };
+            var formatCollection = Enum.GetNames(typeof(RequestHeaderForwardedTransform.NodeFormat));
+
+            for (var x0 = 0; x0 < boolCollection.Length; x0++)
+            {
+                for (var x1 = 0; x1 < boolCollection.Length; x1++)
+                {
+                    for (var x2 = 0; x2 < boolCollection.Length; x2++)
+                    {
+                        for (var x3 = 0; x3 < boolCollection.Length; x3++)
+                        {
+                            for (var x4 = 0; x4 < boolCollection.Length; x4++)
+                            {
+                                for (var x5 = 0; x5 < formatCollection.Length; x5++)
+                                {
+                                    for (var x6 = 0; x6 < formatCollection.Length; x6++)
+                                    {
+                                        yield return new object[]
+                                        {
+                                            boolCollection[x0],
+                                            boolCollection[x1],
+                                            boolCollection[x2],
+                                            boolCollection[x3],
+                                            boolCollection[x4],
+                                            formatCollection[x5],
+                                            formatCollection[x6],
+                                        };
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         private static ProxyRoute CreateProxyRoute()
         {
             return new ProxyRoute
