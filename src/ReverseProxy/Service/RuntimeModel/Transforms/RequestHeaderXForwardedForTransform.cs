@@ -11,13 +11,12 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
     /// </summary>
     internal class RequestHeaderXForwardedForTransform : RequestHeaderTransform
     {
-        // or Set
-        private readonly bool _append;
-
         public RequestHeaderXForwardedForTransform(bool append)
         {
-            _append = append;
+            Append = append;
         }
+
+        internal bool Append { get; }
 
         public override StringValues Apply(HttpContext context, StringValues values)
         {
@@ -29,10 +28,10 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             var remoteIp = context.Connection.RemoteIpAddress?.ToString();
             if (remoteIp == null)
             {
-                return _append ? values : StringValues.Empty;
+                return Append ? values : StringValues.Empty;
             }
 
-            return _append ? StringValues.Concat(values, remoteIp) : new StringValues(remoteIp);
+            return Append ? StringValues.Concat(values, remoteIp) : new StringValues(remoteIp);
         }
     }
 }

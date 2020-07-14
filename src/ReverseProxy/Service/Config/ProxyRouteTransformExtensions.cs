@@ -70,7 +70,7 @@ namespace Microsoft.ReverseProxy.Service
             });
         }
 
-        public static void AddRequestHeaderTransform(this ProxyRoute proxyRoute, string headerName, string value, bool append)
+        public static void AddRequestHeaderTransform(this ProxyRoute proxyRoute, string headerName, string value, bool append = true)
         {
             var type = append ? "Append" : "Set";
             proxyRoute.Transforms.Add(new Dictionary<string, string>
@@ -80,7 +80,7 @@ namespace Microsoft.ReverseProxy.Service
             });
         }
 
-        public static void AddResponseHeaderTransform(this ProxyRoute proxyRoute, string headerName, string value, bool append, bool always)
+        public static void AddResponseHeaderTransform(this ProxyRoute proxyRoute, string headerName, string value, bool append = true, bool always = true)
         {
             var type = append ? "Append" : "Set";
             var when = always ? "always" : "-";
@@ -92,7 +92,7 @@ namespace Microsoft.ReverseProxy.Service
             });
         }
 
-        public static void AddResponseTrailerTransform(this ProxyRoute proxyRoute, string headerName, string value, bool append, bool always)
+        public static void AddResponseTrailerTransform(this ProxyRoute proxyRoute, string headerName, string value, bool append=true, bool always = true)
         {
             var type = append ? "Append" : "Set";
             var when = always ? "always" : "-";
@@ -112,7 +112,39 @@ namespace Microsoft.ReverseProxy.Service
             });
         }
 
-        public static void AddForwardedTransform(this ProxyRoute proxyRoute, bool useFor, bool useBy, bool useHost, bool useProto, bool append, string forFormat, string byFormat)
+        public static void AddXForwardedTransform(this ProxyRoute proxyRoute, string headerPrefix = "X-Forwarded", bool useFor = true, bool useHost = true, bool useProto = true, bool usePathBase = true, bool append = true)
+        {
+            var headers = new List<string>();
+
+            if (useFor)
+            {
+                headers.Add("For");
+            }
+
+            if (usePathBase)
+            {
+                headers.Add("PathBase");
+            }
+
+            if (useHost)
+            {
+                headers.Add("Host");
+            }
+
+            if (useProto)
+            {
+                headers.Add("Proto");
+            }
+
+            proxyRoute.Transforms.Add(new Dictionary<string, string>
+            {
+                ["X-Forwarded"] = string.Join(',', headers),
+                ["Append"] = append.ToString(),
+                ["Prefix"] = headerPrefix
+            });
+        }
+
+        public static void AddForwardedTransform(this ProxyRoute proxyRoute, bool useFor = true, bool useHost = true, bool useProto = true, bool useBy = true, bool append = true, string forFormat="None", string byFormat = "None")
         {
             var headers = new List<string>();
 
@@ -151,7 +183,7 @@ namespace Microsoft.ReverseProxy.Service
             {
                 transform.Add("ByFormat", byFormat);
             }
-            
+
             proxyRoute.Transforms.Add(transform);
         }
     }

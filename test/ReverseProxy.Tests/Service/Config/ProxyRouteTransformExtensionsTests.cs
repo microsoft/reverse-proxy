@@ -200,21 +200,13 @@ namespace Microsoft.ReverseProxy.Service.Config
             Assert.IsType<RequestHeaderClientCertTransform>(requestTransform);
         }
 
-        private static Transforms BuildTransform(ProxyRoute proxyRoute)
-        {
-            var builder = new TransformBuilder(NullTemplateBinderFactory.Instance, new TestRandomFactory(), NullLogger<TransformBuilder>.Instance);
-
-            var transform = builder.Build(proxyRoute.Transforms);
-            return transform;
-        }
-
         [Theory]
         [MemberData(nameof(AllForwardedCombinations))]
-        public void AddForwardedTransform(bool useFor, bool useBy, bool useHost, bool useProto, bool append, string forFormat, string byFormat)
+        public void AddForwardedTransform(bool useFor, bool useHost, bool useProto, bool useBy, bool append, string forFormat, string byFormat)
         {
             var proxyRoute = CreateProxyRoute();
 
-            proxyRoute.AddForwardedTransform(useFor, useBy, useHost, useProto, append, forFormat, byFormat);
+            proxyRoute.AddForwardedTransform(useFor, useHost, useProto, useBy, append, forFormat, byFormat);
 
             var transform = BuildTransform(proxyRoute);
 
@@ -246,9 +238,9 @@ namespace Microsoft.ReverseProxy.Service.Config
             }
         }
 
-        public static IEnumerable<object[]> AllForwardedCombinations => GenerateCombinations();
+        public static IEnumerable<object[]> AllForwardedCombinations => GenerateForwardedCombinations();
 
-        private static IEnumerable<object[]> GenerateCombinations()
+        private static IEnumerable<object[]> GenerateForwardedCombinations()
         {
             var boolCollection = new object[] { true, false };
             var formatCollection = Enum.GetNames(typeof(RequestHeaderForwardedTransform.NodeFormat));
@@ -284,6 +276,100 @@ namespace Microsoft.ReverseProxy.Service.Config
                     }
                 }
             }
+        }
+
+        [Theory]
+        [MemberData(nameof(AllXForwardedCombinations))]
+        public void AddXForwardedTransform(bool useFor, bool useHost, bool useProto, bool usePathBase, bool append)
+        {
+            var proxyRoute = CreateProxyRoute();
+
+            proxyRoute.AddXForwardedTransform("prefix-", useFor, useHost, useProto, usePathBase, append);
+
+            var transform = BuildTransform(proxyRoute);
+
+            if (useFor)
+            {
+                var requestTransform = transform.RequestHeaderTransforms["prefix-For"];
+                var requestHeaderXForwardedForTransform = Assert.IsType<RequestHeaderXForwardedForTransform>(requestTransform);
+                Assert.Equal(append, requestHeaderXForwardedForTransform.Append);
+            }
+            else
+            {
+                Assert.False(transform.RequestHeaderTransforms.TryGetValue("prefix-For", out _));
+            }
+
+            if (useHost)
+            {
+                var requestTransform = transform.RequestHeaderTransforms["prefix-Host"];
+                var requestHeaderXForwardedHostTransform = Assert.IsType<RequestHeaderXForwardedHostTransform>(requestTransform);
+                Assert.Equal(append, requestHeaderXForwardedHostTransform.Append);
+            }
+            else
+            {
+                Assert.False(transform.RequestHeaderTransforms.TryGetValue("prefix-Host", out _));
+            }
+
+            if (useProto)
+            {
+                var requestTransform = transform.RequestHeaderTransforms["prefix-Proto"];
+                var requestHeaderXForwardedProtoTransform = Assert.IsType<RequestHeaderXForwardedProtoTransform>(requestTransform);
+                Assert.Equal(append, requestHeaderXForwardedProtoTransform.Append);
+            }
+            else
+            {
+                Assert.False(transform.RequestHeaderTransforms.TryGetValue("prefix-Proto", out _));
+            }
+
+            if (usePathBase)
+            {
+                var requestTransform = transform.RequestHeaderTransforms["prefix-PathBase"];
+                var requestHeaderXForwardedPathBaseTransform = Assert.IsType<RequestHeaderXForwardedPathBaseTransform>(requestTransform);
+                Assert.Equal(append, requestHeaderXForwardedPathBaseTransform.Append);
+            }
+            else
+            {
+                Assert.False(transform.RequestHeaderTransforms.TryGetValue("prefix-PathBase", out _));
+            }
+        }
+
+        public static IEnumerable<object[]> AllXForwardedCombinations => GenerateXForwarderCombinations();
+
+        private static IEnumerable<object[]> GenerateXForwarderCombinations()
+        {
+            var boolCollection = new object[] { true, false };
+
+            for (var x0 = 0; x0 < boolCollection.Length; x0++)
+            {
+                for (var x1 = 0; x1 < boolCollection.Length; x1++)
+                {
+                    for (var x2 = 0; x2 < boolCollection.Length; x2++)
+                    {
+                        for (var x3 = 0; x3 < boolCollection.Length; x3++)
+                        {
+                            for (var x4 = 0; x4 < boolCollection.Length; x4++)
+                            {
+                                yield return new object[]
+                                {
+                                    boolCollection[x0],
+                                    boolCollection[x1],
+                                    boolCollection[x2],
+                                    boolCollection[x3],
+                                    boolCollection[x4],
+                                };
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private static Transforms BuildTransform(ProxyRoute proxyRoute)
+        {
+            var builder = new TransformBuilder(NullTemplateBinderFactory.Instance, new TestRandomFactory(), NullLogger<TransformBuilder>.Instance);
+
+            var transform = builder.Build(proxyRoute.Transforms);
+            return transform;
         }
 
         private static ProxyRoute CreateProxyRoute()
