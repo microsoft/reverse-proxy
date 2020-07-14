@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net5.0;netcoreapp3.1</TargetFrameworks>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Microsoft.ReverseProxy</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="validSelfSignedClientEkuCertificate.cer">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="1.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\ReverseProxy\Microsoft.ReverseProxy.csproj" />
+  </ItemGroup>
+
+</Project>
