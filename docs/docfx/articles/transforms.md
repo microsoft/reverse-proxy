@@ -179,17 +179,17 @@ Example:
 | PathPattern | `/my/{plugin}/api/{remainder}` |
 | Result | `/my/v1/api/more/stuff` |
 
-#### QueryStringParameter
+#### QueryParameter
 | Key | Value | Required |
-| QueryStringParameter | Name of a query string parameter | yes |
-| Set/Append | Key of route value | yes |
-| Remove | No value | yes |
+| QueryParameter | Name of a query string parameter | yes |
+| Set/Append | Static value | yes |
+| Set/AppendRouteValue | Key of a route value | yes |
 
 Config:
 ```JSON
 {
-  "QueryStringParameter": "foo",
-  "Append": "remainder"
+  "QueryParameter": "foo",
+  "AppendRouteValue": "remainder"
 }
 ```
 
@@ -203,8 +203,8 @@ Example:
 | Request path | `/api/v1/stuff/more/stuff` |
 | Plugin value | `v1` |
 | Remainder value | `more/stuff` |
-| QueryStringParameter | `foo` |
-| Append | `remainder` |
+| QueryParameter | `foo` |
+| AppendRouteValue | `remainder` |
 | Result | `/api/v1/stuff/more/stuff?foo=more/stuff` |
 
 ### Request Headers

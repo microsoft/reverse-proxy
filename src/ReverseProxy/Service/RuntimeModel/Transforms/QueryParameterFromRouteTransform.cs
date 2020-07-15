@@ -9,13 +9,13 @@ using Microsoft.AspNetCore.WebUtilities;
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
-    internal class QueryStringFromRouteTransform : RequestParametersTransform
+    internal class QueryParameterRouteTransform : RequestParametersTransform
     {
         private readonly QueryStringTransformMode _mode;
         private readonly string _key;
         private readonly string _routeValueKey;
 
-        public QueryStringFromRouteTransform(QueryStringTransformMode mode, string key, string routeValueKey)
+        public QueryParameterRouteTransform(QueryStringTransformMode mode, string key, string routeValueKey)
         {
             _mode = mode;
             _key = key;
@@ -38,7 +38,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                         context.Query = context.Query.Add(_key, value.ToString());
                         break;
                     case QueryStringTransformMode.Set:
-                        context.Query = SetQueryStringParameter(context.Query, _key, value);
+                        context.Query = SetQueryParameter(context.Query, _key, value);
                         break;
                     default:
                         throw new NotImplementedException(_mode.ToString());
@@ -46,7 +46,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             }
         }
 
-        private static QueryString SetQueryStringParameter(QueryString input, string key, object value)
+        private static QueryString SetQueryParameter(QueryString input, string key, object value)
         {
             var queryStringParameters = QueryHelpers.ParseQuery(input.Value);
             queryStringParameters[key] = value.ToString();

@@ -59,12 +59,12 @@ namespace Microsoft.ReverseProxy.Service.Config
                     TryCheckTooManyParameters(errors.Add, rawTransform, expected: 1);
                     // TODO: Validate the pattern format. Does it build?
                 }
-                else if (rawTransform.TryGetValue("QueryStringParameter", out var queryStringParameter))
+                else if (rawTransform.TryGetValue("QueryParameter", out var queryParameter))
                 {
                     success &= TryCheckTooManyParameters(rawTransform, routeId, expected: 2);
-                    if (!rawTransform.TryGetValue("Set", out var _) && !rawTransform.TryGetValue("Append", out var _) && !rawTransform.TryGetValue("Remove", out var _))
+                    if (!rawTransform.TryGetValue("AppendRouteValue", out var _) && !rawTransform.TryGetValue("SetRouteValue", out var _))
                     {
-                        Log.InvalidTransform(_logger, routeId, $"Unexpected parameters for QueryStringParameter: {string.Join(';', rawTransform.Keys)}. Expected 'Set' or 'Append'");
+                        Log.InvalidTransform(_logger, routeId, $"Unexpected parameters for QueryParameter: {string.Join(';', rawTransform.Keys)}. Expected 'SetRouteValue' or 'AppendRouteValue'");
                         success = false;
                     }
                 }
@@ -266,20 +266,20 @@ namespace Microsoft.ReverseProxy.Service.Config
                         var path = MakePathString(pathPattern);
                         requestTransforms.Add(new PathRouteValuesTransform(path.Value, _binderFactory));
                     }
-                    else if (rawTransform.TryGetValue("QueryStringParameter", out var queryStringParameter))
+                    else if (rawTransform.TryGetValue("QueryParameter", out var queryParameter))
                     {
                         CheckTooManyParameters(rawTransform, expected: 2);
-                        if (rawTransform.TryGetValue("Append", out var routeValueKeyAppend))
+                        if (rawTransform.TryGetValue("AppendRouteValue", out var routeValueKeyAppend))
                         {
-                            requestTransforms.Add(new QueryStringFromRouteTransform(QueryStringTransformMode.Append, queryStringParameter, routeValueKeyAppend));
+                            requestTransforms.Add(new QueryParameterRouteTransform(QueryStringTransformMode.Append, queryParameter, routeValueKeyAppend));
                         }
-                        else if (rawTransform.TryGetValue("Set", out var routeValueKeySet))
+                        else if (rawTransform.TryGetValue("SetRouteValue", out var routeValueKeySet))
                         {
-                            requestTransforms.Add(new QueryStringFromRouteTransform(QueryStringTransformMode.Set, queryStringParameter, routeValueKeySet));
+                            requestTransforms.Add(new QueryParameterRouteTransform(QueryStringTransformMode.Set, queryParameter, routeValueKeySet));
                         }
                         else if (rawTransform.TryGetValue("Remove", out var _))
                         {
-                            requestTransforms.Add(new QueryStringRemoveTransform(queryStringParameter));
+                            requestTransforms.Add(new QueryStringRemoveTransform(queryParameter));
                         }
                         else
                         {
