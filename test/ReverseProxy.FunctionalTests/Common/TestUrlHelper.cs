@@ -1,10 +1,10 @@
-﻿namespace Microsoft.ReverseProxy
+namespace Microsoft.ReverseProxy
 {
     public static class TestUrlHelper
     {
-        public static string GetTestUrl(ServerType serverType)
+        public static string GetTestUrl()
         {
-            return TestUriHelper.BuildTestUri(serverType).ToString();
+            return TestUriHelper.BuildTestUri().ToString();
         }
     }
 }

@@ -25,18 +25,21 @@ namespace Microsoft.ReverseProxy
         [InlineData(WebSocketMessageType.Text)]
         public async Task WebSocketTest(WebSocketMessageType messageType)
         {
-            var destinationHost = CreateWebSocketHost();
-            await destinationHost.StartAsync();
-            var destinationHostUrl = Helpers.GetAddress(destinationHost);
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
 
-            var proxyHost = CreateReverseProxyHost(destinationHostUrl);
-            await proxyHost.StartAsync();
-            var proxyHostUrl = Helpers.GetAddress(proxyHost);
+            using var destinationHost = CreateWebSocketHost();
+            await destinationHost.StartAsync(cts.Token);
+            var destinationHostUrl = destinationHost.GetAddress();
 
-            var client = new ClientWebSocket();
+            using var proxyHost = CreateReverseProxyHost(destinationHostUrl);
+            await proxyHost.StartAsync(cts.Token);
+            var proxyHostUrl = proxyHost.GetAddress();
+
+
+            using var client = new ClientWebSocket();
             var webSocketsTarget = proxyHostUrl.Replace("https://", "wss://").Replace("http://", "ws://");
             var targetUri = new Uri(new Uri(webSocketsTarget, UriKind.Absolute), "/websockets");
-            await client.ConnectAsync(targetUri, CancellationToken.None);
+            await client.ConnectAsync(targetUri, cts.Token);
 
             var buffer = new byte[1024];
             var textToSend = $"Hello World!";
@@ -44,27 +47,36 @@ namespace Microsoft.ReverseProxy
             await client.SendAsync(new ArraySegment<byte>(buffer, 0, numBytes),
                 messageType,
                 endOfMessage: true,
-                CancellationToken.None);
+                cts.Token);
 
-            var message = await client.ReceiveAsync(buffer, CancellationToken.None);
+            var message = await client.ReceiveAsync(buffer, cts.Token);
 
             Assert.Equal(messageType, message.MessageType);
             Assert.True(message.EndOfMessage);
 
             var text = Encoding.UTF8.GetString(buffer.AsSpan(0, message.Count));
             Assert.Equal(textToSend, text);
+
+            await client.CloseAsync(WebSocketCloseStatus.NormalClosure, "Bye", cts.Token);
+            Assert.Equal(WebSocketCloseStatus.NormalClosure, client.CloseStatus);
+            Assert.Equal("Bye", client.CloseStatusDescription);
+
+            await destinationHost.StopAsync(cts.Token);
+            await proxyHost.StopAsync(cts.Token);
         }
 
         [Fact]
         public async Task RawUpgradeTest()
         {
-            var destinationHost = CreateWebSocketHost();
-            await destinationHost.StartAsync();
-            var destinationHostUrl = Helpers.GetAddress(destinationHost);
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
 
-            var proxyHost = CreateReverseProxyHost(destinationHostUrl);
-            await proxyHost.StartAsync();
-            var proxyHostUrl = Helpers.GetAddress(proxyHost);
+            using var destinationHost = CreateWebSocketHost();
+            await destinationHost.StartAsync(cts.Token);
+            var destinationHostUrl = destinationHost.GetAddress();
+
+            using var proxyHost = CreateReverseProxyHost(destinationHostUrl);
+            await proxyHost.StartAsync(cts.Token);
+            var proxyHostUrl = proxyHost.GetAddress();
 
             using var handler = new HttpClientHandler
             {
@@ -76,32 +88,35 @@ namespace Microsoft.ReverseProxy
             using var client = new HttpMessageInvoker(handler);
             var webSocketsTarget = proxyHostUrl.Replace("https://", "wss://").Replace("http://", "ws://");
             var targetUri = new Uri(new Uri(webSocketsTarget, UriKind.Absolute), "rawupgrade");
-            var request = new HttpRequestMessage(HttpMethod.Get, targetUri);
+            using var request = new HttpRequestMessage(HttpMethod.Get, targetUri);
             request.Headers.TryAddWithoutValidation("Connection", "upgrade");
             request.Version = new Version(1, 1);
 
-            var response = await client.SendAsync(request, CancellationToken.None);
+            var response = await client.SendAsync(request, cts.Token);
 
             Assert.Equal(HttpStatusCode.SwitchingProtocols, response.StatusCode);
 
-            var rawStream = await response.Content.ReadAsStreamAsync();
+#if NETCOREAPP3_1
+            using var rawStream = await response.Content.ReadAsStreamAsync();
+#elif NETCOREAPP5_0
+            using var rawStream = await response.Content.ReadAsStreamAsync(cts.Token);
+#else
+#error A target framework was added to the project and needs to be added to this condition.
+#endif
 
             var buffer = new byte[1];
             for (var i = 0; i <= 255; i++)
             {
                 buffer[0] = (byte)i;
-                await rawStream.WriteAsync(buffer, 0, 1, CancellationToken.None);
-                var read = await rawStream.ReadAsync(buffer, CancellationToken.None);
-                if (i == 255)
-                {
-                    Assert.Equal(1, read);
-                }
-                else
-                {
-                    Assert.Equal(1, read);
-                    Assert.Equal(i, buffer[0]);
-                }
+                await rawStream.WriteAsync(buffer, 0, 1, cts.Token);
+                var read = await rawStream.ReadAsync(buffer, cts.Token);
+
+                Assert.Equal(1, read);
+                Assert.Equal(i, buffer[0]);
             }
+
+            await destinationHost.StopAsync(cts.Token);
+            await proxyHost.StopAsync(cts.Token);
         }
 
         private IHost CreateReverseProxyHost(string destinationHostUrl)
@@ -142,12 +157,6 @@ namespace Microsoft.ReverseProxy
             }, app =>
             {
                 app.UseRouting();
-                app.Use((context, next) =>
-                {
-                    var endpoint = context.GetEndpoint();
-
-                    return next();
-                });
                 app.UseEndpoints(builder =>
                 {
                     builder.MapReverseProxy();
@@ -171,30 +180,29 @@ namespace Microsoft.ReverseProxy
                 });
             });
 
-            static async Task WebSocket(HttpContext httpcontext)
+            static async Task WebSocket(HttpContext httpContext)
             {
-                if (!httpcontext.WebSockets.IsWebSocketRequest)
+                if (!httpContext.WebSockets.IsWebSocketRequest)
                 {
-                    httpcontext.Response.StatusCode = StatusCodes.Status400BadRequest;
+                    httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
                 }
 
-                using (var webSocket = await httpcontext.WebSockets.AcceptWebSocketAsync())
-                {
-                    var buffer = new byte[1024];
-                    while (true)
-                    {
-                        var message = await webSocket.ReceiveAsync(buffer, httpcontext.RequestAborted);
-                        if (message.MessageType == WebSocketMessageType.Close)
-                        {
-                            await webSocket.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, "Bye", httpcontext.RequestAborted);
-                            return;
-                        }
+                using var webSocket = await httpContext.WebSockets.AcceptWebSocketAsync();
 
-                        await webSocket.SendAsync(new ArraySegment<byte>(buffer, 0, message.Count),
-                            message.MessageType,
-                            message.EndOfMessage,
-                            httpcontext.RequestAborted);
+                var buffer = new byte[1024];
+                while (true)
+                {
+                    var message = await webSocket.ReceiveAsync(buffer, httpContext.RequestAborted);
+                    if (message.MessageType == WebSocketMessageType.Close)
+                    {
+                        await webSocket.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, message.CloseStatusDescription, httpContext.RequestAborted);
+                        return;
                     }
+
+                    await webSocket.SendAsync(new ArraySegment<byte>(buffer, 0, message.Count),
+                        message.MessageType,
+                        message.EndOfMessage,
+                        httpContext.RequestAborted);
                 }
             }
 
@@ -212,13 +220,7 @@ namespace Microsoft.ReverseProxy
                 int read;
                 while ((read = await stream.ReadAsync(buffer, httpContext.RequestAborted)) != 0)
                 {
-                    await stream.WriteAsync(buffer, 0, read);
-
-                    if (buffer[0] == 255)
-                    {
-                        // Goodbye
-                        break;
-                    }
+                    await stream.WriteAsync(buffer, 0, read, httpContext.RequestAborted);
                 }
             }
         }
@@ -231,7 +233,7 @@ namespace Microsoft.ReverseProxy
                    webHostBuilder
                    .ConfigureServices(configureServices)
                    .UseKestrel()
-                   .UseUrls(TestUrlHelper.GetTestUrl(ServerType.Kestrel))
+                   .UseUrls(TestUrlHelper.GetTestUrl())
                    .Configure(configureApp);
                }).Build();
         }
