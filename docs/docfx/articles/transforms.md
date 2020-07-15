@@ -207,6 +207,27 @@ Example:
 | AppendRouteValue | `remainder` |
 | Result | `/api/v1/stuff/more/stuff?foo=more/stuff` |
 
+#### RemoveQueryParameter
+| Key | Value | Required |
+| RemoveQueryParameter | Name of a query string parameter | yes |
+
+Config:
+```JSON
+{
+  "RemoveQueryParameter": "foo"
+}
+```
+
+This will remove a query string parameter with the name `foo` if present on the request.
+
+Example:
+
+| Step | Value |
+|------|-------|
+| Request path | `/api/v1/stuff/more/stuff?foo=yetMoreStuff` |
+| RemoveQueryParameter | `foo` |
+| Result | `/api/v1/stuff/more/stuff` |
+
 ### Request Headers
 
 All incoming request headers are copied to the proxy request by default with the exception of the Host header (see [Defaults](#defaults)). [X-Forwarded](#x-forwarded) headers are also added by default. These behaviors can be configured using the following transforms. Additional request headers can be specified, or request headers can be excluded by setting them to an empty value.

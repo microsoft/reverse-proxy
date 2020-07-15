@@ -68,6 +68,10 @@ namespace Microsoft.ReverseProxy.Service.Config
                         success = false;
                     }
                 }
+                else if (rawTransform.TryGetValue("RemoveQueryParameter", out var removeQueryParameter))
+                {
+                    success &= TryCheckTooManyParameters(rawTransform, routeId, expected: 1);
+                }
                 else if (rawTransform.TryGetValue("RequestHeadersCopy", out var copyHeaders))
                 {
                     TryCheckTooManyParameters(errors.Add, rawTransform, expected: 1);
@@ -277,14 +281,15 @@ namespace Microsoft.ReverseProxy.Service.Config
                         {
                             requestTransforms.Add(new QueryParameterRouteTransform(QueryStringTransformMode.Set, queryParameter, routeValueKeySet));
                         }
-                        else if (rawTransform.TryGetValue("Remove", out var _))
-                        {
-                            requestTransforms.Add(new QueryStringRemoveTransform(queryParameter));
-                        }
                         else
                         {
                             throw new NotSupportedException(string.Join(";", rawTransform.Keys));
                         }
+                    }
+                    else if (rawTransform.TryGetValue("RemoveQueryParameter", out var removeQueryParameter))
+                    {
+                        CheckTooManyParameters(rawTransform, expected: 1);
+                        requestTransforms.Add(new RemoveQueryParameterTransform(removeQueryParameter));
                     }
                     else if (rawTransform.TryGetValue("RequestHeadersCopy", out var copyHeaders))
                     {

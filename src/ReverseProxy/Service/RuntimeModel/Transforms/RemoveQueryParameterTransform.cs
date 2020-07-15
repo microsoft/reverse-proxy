@@ -9,11 +9,11 @@ using Microsoft.AspNetCore.WebUtilities;
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
-    internal class QueryStringRemoveTransform : RequestParametersTransform
+    internal class RemoveQueryParameterTransform : RequestParametersTransform
     {
         private readonly string _key;
 
-        public QueryStringRemoveTransform(string key)
+        public RemoveQueryParameterTransform(string key)
         {
             _key = key;
         }
