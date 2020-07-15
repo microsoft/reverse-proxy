@@ -1,70 +1,27 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Linq;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
-using Microsoft.AspNetCore.WebUtilities;
-
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
-    internal class QueryParameterRouteTransform : RequestParametersTransform
+    internal class QueryParameterRouteTransform : QueryParameterTransform
     {
-        private readonly QueryStringTransformMode _mode;
-        private readonly string _key;
         private readonly string _routeValueKey;
 
         public QueryParameterRouteTransform(QueryStringTransformMode mode, string key, string routeValueKey)
+            : base(mode, key)
         {
-            _mode = mode;
-            _key = key;
             _routeValueKey = routeValueKey;
         }
 
-        public override void Apply(RequestParametersTransformContext context)
+        protected override string GetValue(RequestParametersTransformContext context)
         {
-            if (context == null)
-            {
-                throw new System.ArgumentNullException(nameof(context));
-            }
-
             var routeValues = context.HttpContext.Request.RouteValues;
-            if (routeValues.TryGetValue(_routeValueKey, out var value))
+            if (!routeValues.TryGetValue(_routeValueKey, out var value))
             {
-                switch (_mode)
-                {
-                    case QueryStringTransformMode.Append:
-                        context.Query = context.Query.Add(_key, value.ToString());
-                        break;
-                    case QueryStringTransformMode.Set:
-                        context.Query = SetQueryParameter(context.Query, _key, value);
-                        break;
-                    default:
-                        throw new NotImplementedException(_mode.ToString());
-                }
+                return null;
             }
+
+            return value.ToString();
         }
-
-        private static QueryString SetQueryParameter(QueryString input, string key, object value)
-        {
-            var queryStringParameters = QueryHelpers.ParseQuery(input.Value);
-            queryStringParameters[key] = value.ToString();
-
-#if NETCOREAPP3_1
-            var queryBuilder = new QueryBuilder(queryStringParameters.Select(pair => new System.Collections.Generic.KeyValuePair<string, string>(pair.Key, pair.Value.ToString())));
-#elif NETCOREAPP5_0
-            var queryBuilder = new QueryBuilder(queryStringParameters);
-#else
-#error A target framework was added to the project and needs to be added to this condition.
-#endif
-            return queryBuilder.ToQueryString();
-        }
-    }
-
-    public enum QueryStringTransformMode
-    {
-        Append,
-        Set
     }
 }
