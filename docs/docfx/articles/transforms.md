@@ -179,17 +179,40 @@ Example:
 | PathPattern | `/my/{plugin}/api/{remainder}` |
 | Result | `/my/v1/api/more/stuff` |
 
-#### QueryParameter
+#### QueryValueParameter
 | Key | Value | Required |
-| QueryParameter | Name of a query string parameter | yes |
+| QueryValueParameter | Name of a query string parameter | yes |
 | Set/Append | Static value | yes |
-| Set/AppendRouteValue | Key of a route value | yes |
 
 Config:
 ```JSON
 {
-  "QueryParameter": "foo",
-  "AppendRouteValue": "remainder"
+  "QueryValueParameter": "foo",
+  "Append": "bar"
+}
+```
+
+This will add a query string parameter with the name `foo` and sets it to the static value `bar`.
+
+Example:
+
+| Step | Value |
+|------|-------|
+| Request path | `/api/v1/stuff/more/stuff` |
+| QueryValueParameter | `foo` |
+| Append | `remainder` |
+| Result | `/api/v1/stuff/more/stuff?foo=remainder` |
+
+#### QueryRouteParameter
+| Key | Value | Required |
+| QueryRouteParameter | Name of a query string parameter | yes |
+| Set/Append | Key of route value | yes |
+
+Config:
+```JSON
+{
+  "QueryRouteParameter": "foo",
+  "Append": "remainder"
 }
 ```
 
@@ -203,8 +226,8 @@ Example:
 | Request path | `/api/v1/stuff/more/stuff` |
 | Plugin value | `v1` |
 | Remainder value | `more/stuff` |
-| QueryParameter | `foo` |
-| AppendRouteValue | `remainder` |
+| QueryRouteParameter | `foo` |
+| Append | `remainder` |
 | Result | `/api/v1/stuff/more/stuff?foo=more/stuff` |
 
 #### RemoveQueryParameter
