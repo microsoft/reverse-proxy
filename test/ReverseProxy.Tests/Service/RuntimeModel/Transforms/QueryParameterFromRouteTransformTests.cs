@@ -13,7 +13,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         [InlineData("/{a}/{b}/{c}", "a", "?z=6")]
         [InlineData("/{a}/{b}/{c}", "c", "?z=8")]
         [InlineData("/{a}/{*remainder}", "remainder", "?z=7%2F8")]
-        public void Append_AddsQueryStringParameterWithRouteValue(string pattern, string routeValueKey, string expected)
+        public void Append_AddsQueryParameterWithRouteValue(string pattern, string routeValueKey, string expected)
         {
             const string path = "/6/7/8";
 
@@ -34,7 +34,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         }
 
         [Fact]
-        public void Append_IgnoresExistingQueryStringParameter()
+        public void Append_IgnoresExistingQueryParameter()
         {
             const string path = "/6/7/8";
 
@@ -56,7 +56,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         }
 
         [Fact]
-        public void Set_OverwritesExistingQueryStringParameter()
+        public void Set_OverwritesExistingQueryParameter()
         {
             const string path = "/6/7/8";
 
@@ -78,7 +78,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         }
 
         [Fact]
-        public void Set_AddsNewQueryStringParameter()
+        public void Set_AddsNewQueryParameter()
         {
             const string path = "/6/7/8";
 
