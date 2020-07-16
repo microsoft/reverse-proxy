@@ -34,6 +34,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BenchmarkApp", "samples\Ben
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReverseProxy.Auth.Sample", "samples\ReverseProxy.Auth.Sample\ReverseProxy.Auth.Sample.csproj", "{354F2755-A090-4735-A657-726FB6DA92CD}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ReverseProxy.FunctionalTests", "test\ReverseProxy.FunctionalTests\Microsoft.ReverseProxy.FunctionalTests.csproj", "{31089146-71DA-45C2-ACA6-EA1E2C916FD0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -106,6 +108,14 @@ Global
 		{354F2755-A090-4735-A657-726FB6DA92CD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{354F2755-A090-4735-A657-726FB6DA92CD}.Release|x64.ActiveCfg = Release|Any CPU
 		{354F2755-A090-4735-A657-726FB6DA92CD}.Release|x64.Build.0 = Release|Any CPU
+		{31089146-71DA-45C2-ACA6-EA1E2C916FD0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{31089146-71DA-45C2-ACA6-EA1E2C916FD0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{31089146-71DA-45C2-ACA6-EA1E2C916FD0}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{31089146-71DA-45C2-ACA6-EA1E2C916FD0}.Debug|x64.Build.0 = Debug|Any CPU
+		{31089146-71DA-45C2-ACA6-EA1E2C916FD0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{31089146-71DA-45C2-ACA6-EA1E2C916FD0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{31089146-71DA-45C2-ACA6-EA1E2C916FD0}.Release|x64.ActiveCfg = Release|Any CPU
+		{31089146-71DA-45C2-ACA6-EA1E2C916FD0}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -119,6 +129,7 @@ Global
 		{7F6D4710-07D1-49D0-8EAE-675A3A9B50E3} = {BC344A50-8F81-4762-9F4B-12714693144B}
 		{F663FD56-C01D-4FA7-96A4-B1217ED95E3C} = {149C61A2-D9F8-49B9-9F9B-3C953FEF53AA}
 		{354F2755-A090-4735-A657-726FB6DA92CD} = {149C61A2-D9F8-49B9-9F9B-3C953FEF53AA}
+		{31089146-71DA-45C2-ACA6-EA1E2C916FD0} = {0631147E-34BB-456D-B214-5B202C516D5C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {31F6924A-E427-4830-96E9-B47CEB7BFE78}
