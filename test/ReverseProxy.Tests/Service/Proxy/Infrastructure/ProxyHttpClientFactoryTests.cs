@@ -16,30 +16,14 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         }
 
         [Fact]
-        public void CreateNormalClient_Works()
+        public void CreateClient_Works()
         {
             // Arrange
             var factory = new ProxyHttpClientFactory();
 
             // Act
-            var actual1 = factory.CreateNormalClient();
-            var actual2 = factory.CreateNormalClient();
-
-            // Assert
-            Assert.NotNull(actual1);
-            Assert.NotNull(actual2);
-            Assert.NotSame(actual2, actual1);
-        }
-
-        [Fact]
-        public void CreateUpgradableClient_Works()
-        {
-            // Arrange
-            var factory = new ProxyHttpClientFactory();
-
-            // Act
-            var actual1 = factory.CreateUpgradableClient();
-            var actual2 = factory.CreateUpgradableClient();
+            var actual1 = factory.CreateClient();
+            var actual2 = factory.CreateClient();
 
             // Assert
             Assert.NotNull(actual1);
