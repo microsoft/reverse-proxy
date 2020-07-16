@@ -35,7 +35,6 @@ namespace Microsoft.ReverseProxy
             await proxyHost.StartAsync(cts.Token);
             var proxyHostUrl = proxyHost.GetAddress();
 
-
             using var client = new ClientWebSocket();
             var webSocketsTarget = proxyHostUrl.Replace("https://", "wss://").Replace("http://", "ws://");
             var targetUri = new Uri(new Uri(webSocketsTarget, UriKind.Absolute), "/websockets");
@@ -86,8 +85,7 @@ namespace Microsoft.ReverseProxy
                 UseProxy = false
             };
             using var client = new HttpMessageInvoker(handler);
-            var webSocketsTarget = proxyHostUrl.Replace("https://", "wss://").Replace("http://", "ws://");
-            var targetUri = new Uri(new Uri(webSocketsTarget, UriKind.Absolute), "rawupgrade");
+            var targetUri = new Uri(new Uri(proxyHostUrl, UriKind.Absolute), "rawupgrade");
             using var request = new HttpRequestMessage(HttpMethod.Get, targetUri);
             request.Headers.TryAddWithoutValidation("Connection", "upgrade");
             request.Version = new Version(1, 1);
@@ -115,6 +113,7 @@ namespace Microsoft.ReverseProxy
                 Assert.Equal(i, buffer[0]);
             }
 
+            rawStream.Dispose();
             await destinationHost.StopAsync(cts.Token);
             await proxyHost.StopAsync(cts.Token);
         }
