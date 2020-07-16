@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Patterns;
@@ -19,82 +17,70 @@ namespace Microsoft.ReverseProxy.Service.Config
     public class ProxyRouteTransformExtensionsTests
     {
         [Fact]
-        public void AddPathSetTransform()
+        public void AddTransformPathSet()
         {
             var proxyRoute = CreateProxyRoute();
 
-            proxyRoute.AddPathSetTransform(new PathString("/path"));
+            proxyRoute.AddTransformPathSet(new PathString("/path#"));
 
             var transform = BuildTransform(proxyRoute);
 
             var requestTransform = Assert.Single(transform.RequestTransforms);
             var pathStringTransform = Assert.IsType<PathStringTransform>(requestTransform);
             Assert.Equal(PathStringTransform.PathTransformMode.Set, pathStringTransform.Mode);
-            Assert.Equal(new PathString("/path"), pathStringTransform.Value);
+            Assert.Equal(new PathString("/path#"), pathStringTransform.Value);
         }
 
         [Fact]
-        public void AddPathRemovePrefixTransform()
+        public void AddTransformPathRemovePrefix()
         {
             var proxyRoute = CreateProxyRoute();
 
-            proxyRoute.AddPathRemovePrefixTransform(new PathString("/path"));
+            proxyRoute.AddTransformPathRemovePrefix(new PathString("/path#"));
 
             var transform = BuildTransform(proxyRoute);
 
             var requestTransform = Assert.Single(transform.RequestTransforms);
             var pathStringTransform = Assert.IsType<PathStringTransform>(requestTransform);
             Assert.Equal(PathStringTransform.PathTransformMode.RemovePrefix, pathStringTransform.Mode);
-            Assert.Equal(new PathString("/path"), pathStringTransform.Value);
+            Assert.Equal(new PathString("/path#"), pathStringTransform.Value);
         }
 
         [Fact]
-        public void AddPathPrefixTransform()
+        public void AddTransformPathPrefix()
         {
             var proxyRoute = CreateProxyRoute();
 
-            proxyRoute.AddPathPrefixTransform(new PathString("/path"));
+            proxyRoute.AddTransformPathPrefix(new PathString("/path#"));
 
             var transform = BuildTransform(proxyRoute);
 
             var requestTransform = Assert.Single(transform.RequestTransforms);
             var pathStringTransform = Assert.IsType<PathStringTransform>(requestTransform);
             Assert.Equal(PathStringTransform.PathTransformMode.Prefix, pathStringTransform.Mode);
-            Assert.Equal(new PathString("/path"), pathStringTransform.Value);
+            Assert.Equal(new PathString("/path#"), pathStringTransform.Value);
         }
 
         [Fact]
-        public void AddPathRouteValuesTransform()
+        public void AddTransformPathRouteValues()
         {
             var proxyRoute = CreateProxyRoute();
 
-            proxyRoute.AddPathRouteValuesTransform(new PathString("/path"));
+            proxyRoute.AddTransformPathRouteValues(new PathString("/path#"));
 
             var transform = BuildTransform(proxyRoute);
 
             var requestTransform = Assert.Single(transform.RequestTransforms);
             var pathRouteValuesTransform = Assert.IsType<PathRouteValuesTransform>(requestTransform);
-            Assert.Equal("/path", pathRouteValuesTransform.Template.TemplateText);
+            Assert.Equal("/path#", pathRouteValuesTransform.Template.TemplateText);
         }
 
         [Fact]
-        public void CopyRequestHeaders()
+        public void AddTransformSuppressRequestHeaders()
         {
             var proxyRoute = CreateProxyRoute();
 
-            proxyRoute.CopyRequestHeaders();
-
-            var transform = BuildTransform(proxyRoute);
-
-            Assert.True(transform.CopyRequestHeaders);
-        }
-
-        [Fact]
-        public void SuppressRequestHeaders()
-        {
-            var proxyRoute = CreateProxyRoute();
-
-            proxyRoute.SuppressRequestHeaders();
+            proxyRoute.AddTransformSuppressRequestHeaders();
 
             var transform = BuildTransform(proxyRoute);
 
@@ -102,40 +88,25 @@ namespace Microsoft.ReverseProxy.Service.Config
         }
 
         [Fact]
-        public void AddRequestHeaderOriginalHost()
+        public void AddTransformUseOriginalHostHeader()
         {
             var proxyRoute = CreateProxyRoute();
 
-            proxyRoute.AddRequestHeaderOriginalHost();
+            proxyRoute.AddTransformUseOriginalHostHeader();
 
             var transform = BuildTransform(proxyRoute);
 
             Assert.Empty(transform.RequestHeaderTransforms.Where(x => x.Key == HeaderNames.Host));
         }
 
-        [Fact]
-        public void SuppressRequestHeaderOriginalHost()
-        {
-            var proxyRoute = CreateProxyRoute();
-
-            proxyRoute.SuppressRequestHeaderOriginalHost();
-
-            var transform = BuildTransform(proxyRoute);
-
-            var requestTransform = transform.RequestHeaderTransforms[HeaderNames.Host];
-            var requestHeaderValueTransform = Assert.IsType<RequestHeaderValueTransform>(requestTransform);
-            Assert.Equal(string.Empty, requestHeaderValueTransform.Value);
-            Assert.False(requestHeaderValueTransform.Append);
-        }
-
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public void AddRequestHeaderTransform(bool append)
+        public void AddTransformRequestHeader(bool append)
         {
             var proxyRoute = CreateProxyRoute();
 
-            proxyRoute.AddRequestHeaderTransform("name", "value", append);
+            proxyRoute.AddTransformRequestHeader("name", "value", append);
 
             var transform = BuildTransform(proxyRoute);
 
@@ -150,11 +121,11 @@ namespace Microsoft.ReverseProxy.Service.Config
         [InlineData(false, true)]
         [InlineData(true, false)]
         [InlineData(true, true)]
-        public void AddResponseHeaderTransform(bool append, bool always)
+        public void AddTransformResponseHeader(bool append, bool always)
         {
             var proxyRoute = CreateProxyRoute();
 
-            proxyRoute.AddResponseHeaderTransform("name", "value", append, always);
+            proxyRoute.AddTransformResponseHeader("name", "value", append, always);
 
             var transform = BuildTransform(proxyRoute);
 
@@ -171,11 +142,11 @@ namespace Microsoft.ReverseProxy.Service.Config
         [InlineData(false, true)]
         [InlineData(true, false)]
         [InlineData(true, true)]
-        public void AddResponseTrailerTransform(bool append, bool always)
+        public void AddTransformResponseTrailer(bool append, bool always)
         {
             var proxyRoute = CreateProxyRoute();
 
-            proxyRoute.AddResponseTrailerTransform("name", "value", append, always);
+            proxyRoute.AddTransformResponseTrailer("name", "value", append, always);
 
             var transform = BuildTransform(proxyRoute);
 
@@ -188,11 +159,11 @@ namespace Microsoft.ReverseProxy.Service.Config
         }
 
         [Fact]
-        public void AddClientCertTransform()
+        public void AddTransformClientCert()
         {
             var proxyRoute = CreateProxyRoute();
 
-            proxyRoute.AddClientCertTransform("name");
+            proxyRoute.AddTransformClientCert("name");
 
             var transform = BuildTransform(proxyRoute);
 
@@ -202,11 +173,11 @@ namespace Microsoft.ReverseProxy.Service.Config
 
         [Theory]
         [MemberData(nameof(AllForwardedCombinations))]
-        public void AddForwardedTransform(bool useFor, bool useHost, bool useProto, bool useBy, bool append, string forFormat, string byFormat)
+        public void AddTransformForwarded(bool useFor, bool useHost, bool useProto, bool useBy, bool append, string forFormat, string byFormat)
         {
             var proxyRoute = CreateProxyRoute();
 
-            proxyRoute.AddForwardedTransform(useFor, useHost, useProto, useBy, append, forFormat, byFormat);
+            proxyRoute.AddTransformForwarded(useFor, useHost, useProto, useBy, append, forFormat, byFormat);
 
             var transform = BuildTransform(proxyRoute);
 
@@ -280,11 +251,11 @@ namespace Microsoft.ReverseProxy.Service.Config
 
         [Theory]
         [MemberData(nameof(AllXForwardedCombinations))]
-        public void AddXForwardedTransform(bool useFor, bool useHost, bool useProto, bool usePathBase, bool append)
+        public void AddTransformXForwarded(bool useFor, bool useHost, bool useProto, bool usePathBase, bool append)
         {
             var proxyRoute = CreateProxyRoute();
 
-            proxyRoute.AddXForwardedTransform("prefix-", useFor, useHost, useProto, usePathBase, append);
+            proxyRoute.AddTransformXForwarded("prefix-", useFor, useHost, useProto, usePathBase, append);
 
             var transform = BuildTransform(proxyRoute);
 
