@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Server.Kestrel.Core.Features;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
+using Microsoft.Net.Http.Headers;
 using Microsoft.ReverseProxy.Service.Metrics;
 using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
@@ -87,8 +88,10 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 1: Create outgoing HttpRequestMessage
             var upgradeFeature = context.Features.Get<IHttpUpgradeFeature>();
-            var isUpgrade = upgradeFeature?.IsUpgradableRequest ?? false;
-            // Default to HTTP/1.1 for proxying upgradable requests. This is already the default as of .NET Core 3.1
+            var isUpgrade = (upgradeFeature?.IsUpgradableRequest ?? false)
+                // Mitigate https://github.com/microsoft/reverse-proxy/issues/255, IIS considers all requests upgradeable.
+                && string.Equals("WebSocket", context.Request.Headers[HeaderNames.Upgrade], StringComparison.OrdinalIgnoreCase);
+            // Default to HTTP/1.1 for proxying upgradeable requests. This is already the default as of .NET Core 3.1
             // Otherwise request HTTP/2 and let HttpClient fallback to HTTP/1.1 if it cannot establish HTTP/2 with the target.
             // This is done without extra round-trips thanks to ALPN. We can detect a downgrade after calling HttpClient.SendAsync
             // (see Step 3 below). TBD how this will change when HTTP/3 is supported.
