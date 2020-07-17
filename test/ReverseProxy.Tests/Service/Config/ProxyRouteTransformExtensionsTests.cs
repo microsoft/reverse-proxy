@@ -28,7 +28,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             var requestTransform = Assert.Single(transform.RequestTransforms);
             var pathStringTransform = Assert.IsType<PathStringTransform>(requestTransform);
             Assert.Equal(PathStringTransform.PathTransformMode.Set, pathStringTransform.Mode);
-            Assert.Equal("/path#", pathStringTransform.Value);
+            Assert.Equal("/path%23", pathStringTransform.Value);
         }
 
         [Fact]
@@ -43,7 +43,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             var requestTransform = Assert.Single(transform.RequestTransforms);
             var pathStringTransform = Assert.IsType<PathStringTransform>(requestTransform);
             Assert.Equal(PathStringTransform.PathTransformMode.RemovePrefix, pathStringTransform.Mode);
-            Assert.Equal("/path#", pathStringTransform.Value);
+            Assert.Equal("/path%23", pathStringTransform.Value);
         }
 
         [Fact]
@@ -58,7 +58,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             var requestTransform = Assert.Single(transform.RequestTransforms);
             var pathStringTransform = Assert.IsType<PathStringTransform>(requestTransform);
             Assert.Equal(PathStringTransform.PathTransformMode.Prefix, pathStringTransform.Mode);
-            Assert.Equal("/path#", pathStringTransform.Value);
+            Assert.Equal("/path%23", pathStringTransform.Value);
         }
 
         [Fact]
@@ -72,7 +72,7 @@ namespace Microsoft.ReverseProxy.Service.Config
 
             var requestTransform = Assert.Single(transform.RequestTransforms);
             var pathRouteValuesTransform = Assert.IsType<PathRouteValuesTransform>(requestTransform);
-            Assert.Equal("/path#", pathRouteValuesTransform.Template.TemplateText);
+            Assert.Equal("/path%23", pathRouteValuesTransform.Template.TemplateText);
         }
 
         [Fact]
