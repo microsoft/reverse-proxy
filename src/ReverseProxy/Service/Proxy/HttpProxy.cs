@@ -98,11 +98,11 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 
             if (isUpgrade)
             {
-                return UpgradableProxyAsync(context, upgradeFeature, request, transforms, httpClientFactory.CreateUpgradableClient(), proxyTelemetryContext, shortCancellation, longCancellation);
+                return UpgradableProxyAsync(context, upgradeFeature, request, transforms, httpClientFactory.CreateClient(), proxyTelemetryContext, shortCancellation, longCancellation);
             }
             else
             {
-                return NormalProxyAsync(context, request, transforms, httpClientFactory.CreateNormalClient(), proxyTelemetryContext, shortCancellation, longCancellation);
+                return NormalProxyAsync(context, request, transforms, httpClientFactory.CreateClient(), proxyTelemetryContext, shortCancellation, longCancellation);
             }
         }
 

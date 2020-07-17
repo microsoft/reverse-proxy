@@ -91,7 +91,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     return response;
                 });
             var factoryMock = new Mock<IProxyHttpClientFactory>();
-            factoryMock.Setup(f => f.CreateNormalClient()).Returns(client);
+            factoryMock.Setup(f => f.CreateClient()).Returns(client);
 
             var proxyTelemetryContext = new ProxyTelemetryContext(
                 clusterId: "be1",
@@ -189,7 +189,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     return response;
                 });
             var factoryMock = new Mock<IProxyHttpClientFactory>();
-            factoryMock.Setup(f => f.CreateNormalClient()).Returns(client);
+            factoryMock.Setup(f => f.CreateClient()).Returns(client);
 
             var proxyTelemetryContext = new ProxyTelemetryContext(
                 clusterId: "be1",
@@ -286,7 +286,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     return response;
                 });
             var factoryMock = new Mock<IProxyHttpClientFactory>();
-            factoryMock.Setup(f => f.CreateNormalClient()).Returns(client);
+            factoryMock.Setup(f => f.CreateClient()).Returns(client);
 
             var proxyTelemetryContext = new ProxyTelemetryContext(
                 clusterId: "be1",
@@ -368,7 +368,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     return response;
                 });
             var factoryMock = new Mock<IProxyHttpClientFactory>();
-            factoryMock.Setup(f => f.CreateNormalClient()).Returns(client);
+            factoryMock.Setup(f => f.CreateClient()).Returns(client);
 
             var proxyTelemetryContext = new ProxyTelemetryContext(
                 clusterId: "be1",
@@ -433,7 +433,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     return response;
                 });
             var factoryMock = new Mock<IProxyHttpClientFactory>();
-            factoryMock.Setup(f => f.CreateUpgradableClient()).Returns(client);
+            factoryMock.Setup(f => f.CreateClient()).Returns(client);
 
             var proxyTelemetryContext = new ProxyTelemetryContext(
                 clusterId: "be1",
@@ -502,7 +502,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     return response;
                 });
             var factoryMock = new Mock<IProxyHttpClientFactory>();
-            factoryMock.Setup(f => f.CreateUpgradableClient()).Returns(client);
+            factoryMock.Setup(f => f.CreateClient()).Returns(client);
 
             var proxyTelemetryContext = new ProxyTelemetryContext(
                 clusterId: "be1",
