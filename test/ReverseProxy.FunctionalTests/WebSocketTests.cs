@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.WebSockets;
@@ -27,7 +28,7 @@ namespace Microsoft.ReverseProxy
         {
             using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
 
-            using var destinationHost = CreateWebSocketHost();
+            using var destinationHost = CreateDestinationHost();
             await destinationHost.StartAsync(cts.Token);
             var destinationHostUrl = destinationHost.GetAddress();
 
@@ -37,7 +38,7 @@ namespace Microsoft.ReverseProxy
 
             using var client = new ClientWebSocket();
             var webSocketsTarget = proxyHostUrl.Replace("https://", "wss://").Replace("http://", "ws://");
-            var targetUri = new Uri(new Uri(webSocketsTarget, UriKind.Absolute), "/websockets");
+            var targetUri = new Uri(new Uri(webSocketsTarget, UriKind.Absolute), "websockets");
             await client.ConnectAsync(targetUri, cts.Token);
 
             var buffer = new byte[1024];
@@ -69,7 +70,7 @@ namespace Microsoft.ReverseProxy
         {
             using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
 
-            using var destinationHost = CreateWebSocketHost();
+            using var destinationHost = CreateDestinationHost();
             await destinationHost.StartAsync(cts.Token);
             var destinationHostUrl = destinationHost.GetAddress();
 
@@ -87,6 +88,10 @@ namespace Microsoft.ReverseProxy
             using var client = new HttpMessageInvoker(handler);
             var targetUri = new Uri(new Uri(proxyHostUrl, UriKind.Absolute), "rawupgrade");
             using var request = new HttpRequestMessage(HttpMethod.Get, targetUri);
+
+            // TODO: https://github.com/microsoft/reverse-proxy/issues/255 Until this is fixed the "Upgrade: WebSocket" header is required.
+            request.Headers.TryAddWithoutValidation("Upgrade", "WebSocket");
+
             request.Headers.TryAddWithoutValidation("Connection", "upgrade");
             request.Version = new Version(1, 1);
 
@@ -118,7 +123,49 @@ namespace Microsoft.ReverseProxy
             await proxyHost.StopAsync(cts.Token);
         }
 
-        private IHost CreateReverseProxyHost(string destinationHostUrl)
+        [Fact]
+        // https://github.com/microsoft/reverse-proxy/issues/255 IIS claims all requests are upgradeable.
+        public async Task FalseUpgradeTest()
+        {
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+
+            using var destinationHost = CreateDestinationHost();
+            await destinationHost.StartAsync(cts.Token);
+            var destinationHostUrl = destinationHost.GetAddress();
+
+            using var proxyHost = CreateReverseProxyHost(destinationHostUrl, forceUpgradable: true);
+            await proxyHost.StartAsync(cts.Token);
+            var proxyHostUrl = proxyHost.GetAddress();
+
+            using var handler = new HttpClientHandler
+            {
+                AllowAutoRedirect = false,
+                AutomaticDecompression = DecompressionMethods.None,
+                UseCookies = false,
+                UseProxy = false
+            };
+            using var client = new HttpMessageInvoker(handler);
+            var targetUri = new Uri(new Uri(proxyHostUrl, UriKind.Absolute), "post");
+            using var request = new HttpRequestMessage(HttpMethod.Post, targetUri);
+            request.Content = new StringContent("Hello World");
+            request.Version = new Version(1, 1);
+
+            var response = await client.SendAsync(request, cts.Token);
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+#if NETCOREAPP3_1
+            Assert.Equal("Hello World", await response.Content.ReadAsStringAsync());
+#elif NETCOREAPP5_0
+            Assert.Equal("Hello World", await response.Content.ReadAsStringAsync(cts.Token));
+#else
+#error A target framework was added to the project and needs to be added to this condition.
+#endif
+
+            await destinationHost.StopAsync(cts.Token);
+            await proxyHost.StopAsync(cts.Token);
+        }
+
+        private IHost CreateReverseProxyHost(string destinationHostUrl, bool forceUpgradable = false)
         {
             return CreateHost(services =>
             {
@@ -155,6 +202,15 @@ namespace Microsoft.ReverseProxy
                 services.AddHostedService<ProxyConfigLoader>();
             }, app =>
             {
+                // Mimic the IIS issue https://github.com/microsoft/reverse-proxy/issues/255
+                app.Use((context, next) =>
+                {
+                    if (forceUpgradable && !(context.Features.Get<IHttpUpgradeFeature>()?.IsUpgradableRequest == true))
+                    {
+                        context.Features.Set<IHttpUpgradeFeature>(new AlwaysUpgradeFeature());
+                    }
+                    return next();
+                });
                 app.UseRouting();
                 app.UseEndpoints(builder =>
                 {
@@ -163,7 +219,7 @@ namespace Microsoft.ReverseProxy
             });
         }
 
-        private IHost CreateWebSocketHost()
+        private IHost CreateDestinationHost()
         {
             return CreateHost(services =>
             {
@@ -176,6 +232,7 @@ namespace Microsoft.ReverseProxy
                 {
                     builder.Map("/websockets", WebSocket);
                     builder.Map("/rawupgrade", RawUpgrade);
+                    builder.Map("/post", Post);
                 });
             });
 
@@ -222,6 +279,12 @@ namespace Microsoft.ReverseProxy
                     await stream.WriteAsync(buffer, 0, read, httpContext.RequestAborted);
                 }
             }
+
+            static async Task Post(HttpContext httpContext)
+            {
+                var body = await new StreamReader(httpContext.Request.Body).ReadToEndAsync();
+                await httpContext.Response.WriteAsync(body);
+            }
         }
 
         private IHost CreateHost(Action<IServiceCollection> configureServices, Action<IApplicationBuilder> configureApp)
@@ -235,6 +298,16 @@ namespace Microsoft.ReverseProxy
                    .UseUrls(TestUrlHelper.GetTestUrl())
                    .Configure(configureApp);
                }).Build();
+        }
+
+        private class AlwaysUpgradeFeature : IHttpUpgradeFeature
+        {
+            public bool IsUpgradableRequest => true;
+
+            public Task<Stream> UpgradeAsync()
+            {
+                throw new InvalidOperationException("This wasn't supposed to get called.");
+            }
         }
     }
 }

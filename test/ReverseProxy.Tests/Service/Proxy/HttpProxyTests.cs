@@ -397,6 +397,9 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             httpContext.Request.Headers.Add("x-ms-request-test", "request");
             httpContext.Connection.RemoteIpAddress = IPAddress.Loopback;
 
+            // TODO: https://github.com/microsoft/reverse-proxy/issues/255
+            httpContext.Request.Headers.Add("Upgrade", "WebSocket");
+
             var downstreamStream = new DuplexStream(
                 readStream: StringToStream("request content"),
                 writeStream: new MemoryStream());
@@ -471,6 +474,9 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             httpContext.Request.QueryString = new QueryString("?a=b&c=d");
             httpContext.Request.Headers.Add(":host", "example.com");
             httpContext.Request.Headers.Add("x-ms-request-test", "request");
+
+            // TODO: https://github.com/microsoft/reverse-proxy/issues/255
+            httpContext.Request.Headers.Add("Upgrade", "WebSocket");
 
             var proxyResponseStream = new MemoryStream();
             httpContext.Response.Body = proxyResponseStream;
