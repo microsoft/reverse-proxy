@@ -381,6 +381,12 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             bool? hasBody;
             var contentLength = request.Headers.ContentLength;
             var method = request.Method;
+            // https://tools.ietf.org/html/rfc7231#section-4.3.8
+            // A client MUST NOT send a message body in a TRACE request.
+            if (HttpMethods.IsTrace(method))
+            {
+                hasBody = false;
+            }
             // https://tools.ietf.org/html/rfc7230#section-3.3.3
             // All HTTP/1.1 requests should have Transfer-Encoding or Content-Length.
             // Http.Sys/IIS will even add a Transfer-Encoding header to HTTP/2 requests with bodies for back-compat.
@@ -388,7 +394,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             // https://tools.ietf.org/html/rfc1945#section-7.2.2
             //
             // Transfer-Encoding overrides Content-Length per spec
-            if (request.Headers.TryGetValue(HeaderNames.TransferEncoding, out var transferEncoding)
+            else if (request.Headers.TryGetValue(HeaderNames.TransferEncoding, out var transferEncoding)
                 && transferEncoding.Count == 1
                 && string.Equals("chunked", transferEncoding.ToString(), StringComparison.OrdinalIgnoreCase))
             {
@@ -398,8 +404,11 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             {
                 hasBody = contentLength > 0;
             }
-            // Kestrel HTTP/2: There are no required headers for there to be a request body so we need to sniff other fields.
-            //
+            // Kestrel HTTP/2: There are no required headers that indicate if there is a request body so we need to sniff other fields.
+            else if (!ProtocolHelper.IsHttp2(request.Protocol))
+            {
+                hasBody = false;
+            }
             // https://tools.ietf.org/html/rfc7231#section-5.1.1
             // A client MUST NOT generate a 100-continue expectation in a request that does not include a message body.
             else if (request.Headers.TryGetValue(HeaderNames.Expect, out var expect)
@@ -411,12 +420,10 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             // https://tools.ietf.org/html/rfc7231#section-4.3.1
             // A payload within a GET/HEAD/DELETE/CONNECT request message has no defined semantics; sending a payload body on a
             // GET/HEAD/DELETE/CONNECT request might cause some existing implementations to reject the request.
-            // A client MUST NOT send a message body in a TRACE request.
             else if (HttpMethods.IsGet(method)
                 || HttpMethods.IsHead(method)
                 || HttpMethods.IsDelete(method)
-                || HttpMethods.IsConnect(method)
-                || HttpMethods.IsTrace(method))
+                || HttpMethods.IsConnect(method))
             {
                 hasBody = false;
             }
