@@ -364,8 +364,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     Assert.Null(request.Headers.Host);
                     Assert.False(request.Headers.TryGetValues(":authority", out var value));
 
-                    // The proxy throws if the request body is not read.
-                    await (request.Content?.CopyToAsync(Stream.Null) ?? Task.CompletedTask);
+                    Assert.Null(request.Content);
 
                     var response = new HttpResponseMessage((HttpStatusCode)234);
                     return response;
