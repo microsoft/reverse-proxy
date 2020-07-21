@@ -273,7 +273,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Abstractions.ProxyRoute.html",
-          "hash": "Z7l64isE3QRNAE6hlQcZGQ=="
+          "hash": "5qjaa9GpGisF3m/7SNpT0w=="
         }
       },
       "is_incremental": false,
@@ -593,6 +593,18 @@
     },
     {
       "type": "ManagedReference",
+      "source_relative_path": "api/Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.html",
+          "hash": "uxvHgXzaEdE7iTl7Yqnexg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
       "source_relative_path": "api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderTransform.yml",
       "output": {
         ".html": {
@@ -717,7 +729,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Service.html",
-          "hash": "5f+8spBZx9+4vBF8sSzt7A=="
+          "hash": "AsRlCLPGbJJj1DUxrYHj/g=="
         }
       },
       "is_incremental": false,
@@ -837,7 +849,7 @@
       "output": {
         ".html": {
           "relative_path": "api/toc.html",
-          "hash": "IGKeZhC3zoekGgIv80J2fQ=="
+          "hash": "5YzvN17gpl3zyFSJqjKiIg=="
         }
       },
       "is_incremental": false,
@@ -996,7 +1008,7 @@
         "ManagedReferenceDocumentProcessor": {
           "can_incremental": false,
           "incrementalPhase": "build",
-          "total_file_count": 68,
+          "total_file_count": 69,
           "skipped_file_count": 0
         },
         "TocDocumentProcessor": {

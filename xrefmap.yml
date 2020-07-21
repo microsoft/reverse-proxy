@@ -1890,6 +1890,168 @@ references:
   isSpec: "True"
   fullName: Microsoft.ReverseProxy.Service.IProxyConfigFilter.ConfigureRouteAsync
   nameWithType: IProxyConfigFilter.ConfigureRouteAsync
+- uid: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions
+  name: ProxyRouteTransformExtensions
+  href: api/Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.html
+  commentId: T:Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions
+  fullName: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions
+  nameWithType: ProxyRouteTransformExtensions
+- uid: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformClientCert(Microsoft.ReverseProxy.Abstractions.ProxyRoute,System.String)
+  name: AddTransformClientCert(ProxyRoute, String)
+  href: api/Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.html#Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformClientCert_Microsoft_ReverseProxy_Abstractions_ProxyRoute_System_String_
+  commentId: M:Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformClientCert(Microsoft.ReverseProxy.Abstractions.ProxyRoute,System.String)
+  fullName: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformClientCert(Microsoft.ReverseProxy.Abstractions.ProxyRoute, System.String)
+  nameWithType: ProxyRouteTransformExtensions.AddTransformClientCert(ProxyRoute, String)
+- uid: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformClientCert*
+  name: AddTransformClientCert
+  href: api/Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.html#Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformClientCert_
+  commentId: Overload:Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformClientCert
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformClientCert
+  nameWithType: ProxyRouteTransformExtensions.AddTransformClientCert
+- uid: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformForwarded(Microsoft.ReverseProxy.Abstractions.ProxyRoute,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.String,System.String)
+  name: AddTransformForwarded(ProxyRoute, Boolean, Boolean, Boolean, Boolean, Boolean, String, String)
+  href: api/Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.html#Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformForwarded_Microsoft_ReverseProxy_Abstractions_ProxyRoute_System_Boolean_System_Boolean_System_Boolean_System_Boolean_System_Boolean_System_String_System_String_
+  commentId: M:Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformForwarded(Microsoft.ReverseProxy.Abstractions.ProxyRoute,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.String,System.String)
+  fullName: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformForwarded(Microsoft.ReverseProxy.Abstractions.ProxyRoute, System.Boolean, System.Boolean, System.Boolean, System.Boolean, System.Boolean, System.String, System.String)
+  nameWithType: ProxyRouteTransformExtensions.AddTransformForwarded(ProxyRoute, Boolean, Boolean, Boolean, Boolean, Boolean, String, String)
+- uid: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformForwarded*
+  name: AddTransformForwarded
+  href: api/Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.html#Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformForwarded_
+  commentId: Overload:Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformForwarded
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformForwarded
+  nameWithType: ProxyRouteTransformExtensions.AddTransformForwarded
+- uid: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformPathPrefix(Microsoft.ReverseProxy.Abstractions.ProxyRoute,Microsoft.AspNetCore.Http.PathString)
+  name: AddTransformPathPrefix(ProxyRoute, PathString)
+  href: api/Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.html#Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformPathPrefix_Microsoft_ReverseProxy_Abstractions_ProxyRoute_Microsoft_AspNetCore_Http_PathString_
+  commentId: M:Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformPathPrefix(Microsoft.ReverseProxy.Abstractions.ProxyRoute,Microsoft.AspNetCore.Http.PathString)
+  fullName: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformPathPrefix(Microsoft.ReverseProxy.Abstractions.ProxyRoute, Microsoft.AspNetCore.Http.PathString)
+  nameWithType: ProxyRouteTransformExtensions.AddTransformPathPrefix(ProxyRoute, PathString)
+- uid: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformPathPrefix*
+  name: AddTransformPathPrefix
+  href: api/Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.html#Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformPathPrefix_
+  commentId: Overload:Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformPathPrefix
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformPathPrefix
+  nameWithType: ProxyRouteTransformExtensions.AddTransformPathPrefix
+- uid: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformPathRemovePrefix(Microsoft.ReverseProxy.Abstractions.ProxyRoute,Microsoft.AspNetCore.Http.PathString)
+  name: AddTransformPathRemovePrefix(ProxyRoute, PathString)
+  href: api/Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.html#Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformPathRemovePrefix_Microsoft_ReverseProxy_Abstractions_ProxyRoute_Microsoft_AspNetCore_Http_PathString_
+  commentId: M:Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformPathRemovePrefix(Microsoft.ReverseProxy.Abstractions.ProxyRoute,Microsoft.AspNetCore.Http.PathString)
+  fullName: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformPathRemovePrefix(Microsoft.ReverseProxy.Abstractions.ProxyRoute, Microsoft.AspNetCore.Http.PathString)
+  nameWithType: ProxyRouteTransformExtensions.AddTransformPathRemovePrefix(ProxyRoute, PathString)
+- uid: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformPathRemovePrefix*
+  name: AddTransformPathRemovePrefix
+  href: api/Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.html#Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformPathRemovePrefix_
+  commentId: Overload:Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformPathRemovePrefix
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformPathRemovePrefix
+  nameWithType: ProxyRouteTransformExtensions.AddTransformPathRemovePrefix
+- uid: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformPathRouteValues(Microsoft.ReverseProxy.Abstractions.ProxyRoute,Microsoft.AspNetCore.Http.PathString)
+  name: AddTransformPathRouteValues(ProxyRoute, PathString)
+  href: api/Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.html#Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformPathRouteValues_Microsoft_ReverseProxy_Abstractions_ProxyRoute_Microsoft_AspNetCore_Http_PathString_
+  commentId: M:Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformPathRouteValues(Microsoft.ReverseProxy.Abstractions.ProxyRoute,Microsoft.AspNetCore.Http.PathString)
+  fullName: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformPathRouteValues(Microsoft.ReverseProxy.Abstractions.ProxyRoute, Microsoft.AspNetCore.Http.PathString)
+  nameWithType: ProxyRouteTransformExtensions.AddTransformPathRouteValues(ProxyRoute, PathString)
+- uid: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformPathRouteValues*
+  name: AddTransformPathRouteValues
+  href: api/Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.html#Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformPathRouteValues_
+  commentId: Overload:Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformPathRouteValues
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformPathRouteValues
+  nameWithType: ProxyRouteTransformExtensions.AddTransformPathRouteValues
+- uid: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformPathSet(Microsoft.ReverseProxy.Abstractions.ProxyRoute,Microsoft.AspNetCore.Http.PathString)
+  name: AddTransformPathSet(ProxyRoute, PathString)
+  href: api/Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.html#Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformPathSet_Microsoft_ReverseProxy_Abstractions_ProxyRoute_Microsoft_AspNetCore_Http_PathString_
+  commentId: M:Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformPathSet(Microsoft.ReverseProxy.Abstractions.ProxyRoute,Microsoft.AspNetCore.Http.PathString)
+  fullName: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformPathSet(Microsoft.ReverseProxy.Abstractions.ProxyRoute, Microsoft.AspNetCore.Http.PathString)
+  nameWithType: ProxyRouteTransformExtensions.AddTransformPathSet(ProxyRoute, PathString)
+- uid: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformPathSet*
+  name: AddTransformPathSet
+  href: api/Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.html#Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformPathSet_
+  commentId: Overload:Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformPathSet
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformPathSet
+  nameWithType: ProxyRouteTransformExtensions.AddTransformPathSet
+- uid: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformRequestHeader(Microsoft.ReverseProxy.Abstractions.ProxyRoute,System.String,System.String,System.Boolean)
+  name: AddTransformRequestHeader(ProxyRoute, String, String, Boolean)
+  href: api/Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.html#Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformRequestHeader_Microsoft_ReverseProxy_Abstractions_ProxyRoute_System_String_System_String_System_Boolean_
+  commentId: M:Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformRequestHeader(Microsoft.ReverseProxy.Abstractions.ProxyRoute,System.String,System.String,System.Boolean)
+  fullName: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformRequestHeader(Microsoft.ReverseProxy.Abstractions.ProxyRoute, System.String, System.String, System.Boolean)
+  nameWithType: ProxyRouteTransformExtensions.AddTransformRequestHeader(ProxyRoute, String, String, Boolean)
+- uid: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformRequestHeader*
+  name: AddTransformRequestHeader
+  href: api/Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.html#Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformRequestHeader_
+  commentId: Overload:Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformRequestHeader
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformRequestHeader
+  nameWithType: ProxyRouteTransformExtensions.AddTransformRequestHeader
+- uid: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformResponseHeader(Microsoft.ReverseProxy.Abstractions.ProxyRoute,System.String,System.String,System.Boolean,System.Boolean)
+  name: AddTransformResponseHeader(ProxyRoute, String, String, Boolean, Boolean)
+  href: api/Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.html#Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformResponseHeader_Microsoft_ReverseProxy_Abstractions_ProxyRoute_System_String_System_String_System_Boolean_System_Boolean_
+  commentId: M:Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformResponseHeader(Microsoft.ReverseProxy.Abstractions.ProxyRoute,System.String,System.String,System.Boolean,System.Boolean)
+  fullName: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformResponseHeader(Microsoft.ReverseProxy.Abstractions.ProxyRoute, System.String, System.String, System.Boolean, System.Boolean)
+  nameWithType: ProxyRouteTransformExtensions.AddTransformResponseHeader(ProxyRoute, String, String, Boolean, Boolean)
+- uid: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformResponseHeader*
+  name: AddTransformResponseHeader
+  href: api/Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.html#Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformResponseHeader_
+  commentId: Overload:Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformResponseHeader
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformResponseHeader
+  nameWithType: ProxyRouteTransformExtensions.AddTransformResponseHeader
+- uid: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformResponseTrailer(Microsoft.ReverseProxy.Abstractions.ProxyRoute,System.String,System.String,System.Boolean,System.Boolean)
+  name: AddTransformResponseTrailer(ProxyRoute, String, String, Boolean, Boolean)
+  href: api/Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.html#Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformResponseTrailer_Microsoft_ReverseProxy_Abstractions_ProxyRoute_System_String_System_String_System_Boolean_System_Boolean_
+  commentId: M:Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformResponseTrailer(Microsoft.ReverseProxy.Abstractions.ProxyRoute,System.String,System.String,System.Boolean,System.Boolean)
+  fullName: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformResponseTrailer(Microsoft.ReverseProxy.Abstractions.ProxyRoute, System.String, System.String, System.Boolean, System.Boolean)
+  nameWithType: ProxyRouteTransformExtensions.AddTransformResponseTrailer(ProxyRoute, String, String, Boolean, Boolean)
+- uid: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformResponseTrailer*
+  name: AddTransformResponseTrailer
+  href: api/Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.html#Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformResponseTrailer_
+  commentId: Overload:Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformResponseTrailer
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformResponseTrailer
+  nameWithType: ProxyRouteTransformExtensions.AddTransformResponseTrailer
+- uid: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformSuppressRequestHeaders(Microsoft.ReverseProxy.Abstractions.ProxyRoute)
+  name: AddTransformSuppressRequestHeaders(ProxyRoute)
+  href: api/Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.html#Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformSuppressRequestHeaders_Microsoft_ReverseProxy_Abstractions_ProxyRoute_
+  commentId: M:Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformSuppressRequestHeaders(Microsoft.ReverseProxy.Abstractions.ProxyRoute)
+  fullName: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformSuppressRequestHeaders(Microsoft.ReverseProxy.Abstractions.ProxyRoute)
+  nameWithType: ProxyRouteTransformExtensions.AddTransformSuppressRequestHeaders(ProxyRoute)
+- uid: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformSuppressRequestHeaders*
+  name: AddTransformSuppressRequestHeaders
+  href: api/Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.html#Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformSuppressRequestHeaders_
+  commentId: Overload:Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformSuppressRequestHeaders
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformSuppressRequestHeaders
+  nameWithType: ProxyRouteTransformExtensions.AddTransformSuppressRequestHeaders
+- uid: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformUseOriginalHostHeader(Microsoft.ReverseProxy.Abstractions.ProxyRoute)
+  name: AddTransformUseOriginalHostHeader(ProxyRoute)
+  href: api/Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.html#Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformUseOriginalHostHeader_Microsoft_ReverseProxy_Abstractions_ProxyRoute_
+  commentId: M:Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformUseOriginalHostHeader(Microsoft.ReverseProxy.Abstractions.ProxyRoute)
+  fullName: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformUseOriginalHostHeader(Microsoft.ReverseProxy.Abstractions.ProxyRoute)
+  nameWithType: ProxyRouteTransformExtensions.AddTransformUseOriginalHostHeader(ProxyRoute)
+- uid: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformUseOriginalHostHeader*
+  name: AddTransformUseOriginalHostHeader
+  href: api/Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.html#Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformUseOriginalHostHeader_
+  commentId: Overload:Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformUseOriginalHostHeader
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformUseOriginalHostHeader
+  nameWithType: ProxyRouteTransformExtensions.AddTransformUseOriginalHostHeader
+- uid: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformXForwarded(Microsoft.ReverseProxy.Abstractions.ProxyRoute,System.String,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Boolean)
+  name: AddTransformXForwarded(ProxyRoute, String, Boolean, Boolean, Boolean, Boolean, Boolean)
+  href: api/Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.html#Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformXForwarded_Microsoft_ReverseProxy_Abstractions_ProxyRoute_System_String_System_Boolean_System_Boolean_System_Boolean_System_Boolean_System_Boolean_
+  commentId: M:Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformXForwarded(Microsoft.ReverseProxy.Abstractions.ProxyRoute,System.String,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Boolean)
+  fullName: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformXForwarded(Microsoft.ReverseProxy.Abstractions.ProxyRoute, System.String, System.Boolean, System.Boolean, System.Boolean, System.Boolean, System.Boolean)
+  nameWithType: ProxyRouteTransformExtensions.AddTransformXForwarded(ProxyRoute, String, Boolean, Boolean, Boolean, Boolean, Boolean)
+- uid: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformXForwarded*
+  name: AddTransformXForwarded
+  href: api/Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.html#Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformXForwarded_
+  commentId: Overload:Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformXForwarded
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformXForwarded
+  nameWithType: ProxyRouteTransformExtensions.AddTransformXForwarded
 - uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
   name: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
   href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.html
