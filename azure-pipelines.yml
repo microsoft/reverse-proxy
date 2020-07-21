@@ -118,7 +118,6 @@ stages:
             --configuration $(_BuildConfig)
             --prepareMachine
             $(_OfficialBuildArgs)
-            /p:DotNetPublishUsingPipelines=$(_PublishUsingPipelines)
           displayName: Build
         - task: PublishBuildArtifacts@1
           displayName: Upload TestResults
