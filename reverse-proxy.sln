@@ -34,6 +34,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BenchmarkApp", "samples\Ben
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReverseProxy.Auth.Sample", "samples\ReverseProxy.Auth.Sample\ReverseProxy.Auth.Sample.csproj", "{354F2755-A090-4735-A657-726FB6DA92CD}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReverseProxy.Events.Sample", "samples\ReverseProxy.Events.Sample\ReverseProxy.Events.Sample.csproj", "{E49C279B-ADFF-48C8-B089-9554F7925F8C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -106,6 +108,14 @@ Global
 		{354F2755-A090-4735-A657-726FB6DA92CD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{354F2755-A090-4735-A657-726FB6DA92CD}.Release|x64.ActiveCfg = Release|Any CPU
 		{354F2755-A090-4735-A657-726FB6DA92CD}.Release|x64.Build.0 = Release|Any CPU
+		{E49C279B-ADFF-48C8-B089-9554F7925F8C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E49C279B-ADFF-48C8-B089-9554F7925F8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E49C279B-ADFF-48C8-B089-9554F7925F8C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E49C279B-ADFF-48C8-B089-9554F7925F8C}.Debug|x64.Build.0 = Debug|Any CPU
+		{E49C279B-ADFF-48C8-B089-9554F7925F8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E49C279B-ADFF-48C8-B089-9554F7925F8C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E49C279B-ADFF-48C8-B089-9554F7925F8C}.Release|x64.ActiveCfg = Release|Any CPU
+		{E49C279B-ADFF-48C8-B089-9554F7925F8C}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
