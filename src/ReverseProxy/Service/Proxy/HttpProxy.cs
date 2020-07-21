@@ -156,7 +156,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 2: Setup copy of request body (background) Downstream --► Proxy --► Upstream
             // Note that we must do this before step (3) because step (3) may also add headers to the HttpContent that we set up here.
-            var bodyToUpstreamContent = SetupCopyBodyUpstream(context.Request.Body, upstreamRequest, in proxyTelemetryContext, isStreamingRequest, longCancellation);
+            var bodyToUpstreamContent = SetupCopyBodyUpstream(context.Request, upstreamRequest, in proxyTelemetryContext, isStreamingRequest, longCancellation);
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 3: Copy request headers Downstream --► Proxy --► Upstream
@@ -372,11 +372,65 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             return new HttpRequestMessage(HttpUtilities.GetHttpMethod(transformContext.Method), targetUri) { Version = transformContext.Version };
         }
 
-        private StreamCopyHttpContent SetupCopyBodyUpstream(Stream source, HttpRequestMessage upstreamRequest, in ProxyTelemetryContext proxyTelemetryContext, bool isStreamingRequest, CancellationToken cancellation)
+        private StreamCopyHttpContent SetupCopyBodyUpstream(HttpRequest request, HttpRequestMessage upstreamRequest, in ProxyTelemetryContext proxyTelemetryContext, bool isStreamingRequest, CancellationToken cancellation)
         {
+            // If we generate an HttpContent without a Content-Length then for HTTP/1.1 HttpClient will add a Transfer-Encoding: chunked header
+            // even if it's a GET request. Some servers reject requests containing a Transfer-Encoding header if they're not expecting a body.
+            // Try to be as specific as possible about the client's intent to send a body. The one thing we don't want to do is to start
+            // reading the body early because that has side-effects like 100-continue.
+            var hasBody = true;
+            var contentLength = request.Headers.ContentLength;
+            var method = request.Method;
+            // https://tools.ietf.org/html/rfc7231#section-4.3.8
+            // A client MUST NOT send a message body in a TRACE request.
+            if (HttpMethods.IsTrace(method))
+            {
+                hasBody = false;
+            }
+            // https://tools.ietf.org/html/rfc7230#section-3.3.3
+            // All HTTP/1.1 requests should have Transfer-Encoding or Content-Length.
+            // Http.Sys/IIS will even add a Transfer-Encoding header to HTTP/2 requests with bodies for back-compat.
+            // HTTP/1.0 Connection: close bodies are only allowed on responses, not requests.
+            // https://tools.ietf.org/html/rfc1945#section-7.2.2
+            //
+            // Transfer-Encoding overrides Content-Length per spec
+            else if (request.Headers.TryGetValue(HeaderNames.TransferEncoding, out var transferEncoding)
+                && transferEncoding.Count == 1
+                && string.Equals("chunked", transferEncoding.ToString(), StringComparison.OrdinalIgnoreCase))
+            {
+                hasBody = true;
+            }
+            else if (contentLength.HasValue)
+            {
+                hasBody = contentLength > 0;
+            }
+            // Kestrel HTTP/2: There are no required headers that indicate if there is a request body so we need to sniff other fields.
+            else if (!ProtocolHelper.IsHttp2OrGreater(request.Protocol))
+            {
+                hasBody = false;
+            }
+            // https://tools.ietf.org/html/rfc7231#section-5.1.1
+            // A client MUST NOT generate a 100-continue expectation in a request that does not include a message body.
+            else if (request.Headers.TryGetValue(HeaderNames.Expect, out var expect)
+                && expect.Count == 1
+                && string.Equals("100-continue", expect.ToString(), StringComparison.OrdinalIgnoreCase))
+            {
+                hasBody = true;
+            }
+            // https://tools.ietf.org/html/rfc7231#section-4.3.1
+            // A payload within a GET/HEAD/DELETE/CONNECT request message has no defined semantics; sending a payload body on a
+            // GET/HEAD/DELETE/CONNECT request might cause some existing implementations to reject the request.
+            else if (HttpMethods.IsGet(method)
+                || HttpMethods.IsHead(method)
+                || HttpMethods.IsDelete(method)
+                || HttpMethods.IsConnect(method))
+            {
+                hasBody = false;
+            }
+            // else hasBody defaults to true
+
             StreamCopyHttpContent contentToUpstream = null;
-            // TODO: the request body is never null.
-            if (source != null)
+            if (hasBody)
             {
                 ////this.logger.LogInformation($"   Setting up downstream --> Proxy --> upstream body proxying");
 
@@ -397,7 +451,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                         routeId: proxyTelemetryContext.RouteId,
                         destinationId: proxyTelemetryContext.DestinationId));
                 contentToUpstream = new StreamCopyHttpContent(
-                    source: source,
+                    source: request.Body,
                     streamCopier: streamCopier,
                     autoFlushHttpClientOutgoingStream: isStreamingRequest,
                     cancellation: cancellation);

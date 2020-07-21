@@ -51,6 +51,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             httpContext.Request.Headers.Add(":authority", "example.com:3456");
             httpContext.Request.Headers.Add("x-ms-request-test", "request");
             httpContext.Request.Headers.Add("Content-Language", "requestLanguage");
+            httpContext.Request.Headers.Add("Content-Length", "1");
             httpContext.Request.Body = StringToStream("request content");
             httpContext.Connection.RemoteIpAddress = IPAddress.Loopback;
 
@@ -119,6 +120,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             // Arrange
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "POST";
+            httpContext.Request.Protocol = "http/2";
             httpContext.Request.Scheme = "http";
             httpContext.Request.Host = new HostString("example.com:3456");
             httpContext.Request.Path = "/path/base/dropped";
@@ -227,6 +229,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             httpContext.Request.Headers.Add(":authority", "example.com:3456");
             httpContext.Request.Headers.Add("x-ms-request-test", "request");
             httpContext.Request.Headers.Add("Content-Language", "requestLanguage");
+            httpContext.Request.Headers.Add("Transfer-Encoding", "chunked");
             httpContext.Request.Body = StringToStream("request content");
             httpContext.Connection.RemoteIpAddress = IPAddress.Loopback;
 
@@ -361,8 +364,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     Assert.Null(request.Headers.Host);
                     Assert.False(request.Headers.TryGetValues(":authority", out var value));
 
-                    // The proxy throws if the request body is not read.
-                    await request.Content.CopyToAsync(Stream.Null);
+                    Assert.Null(request.Content);
 
                     var response = new HttpResponseMessage((HttpStatusCode)234);
                     return response;
@@ -528,6 +530,115 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             proxyResponseStream.Position = 0;
             var proxyResponseText = StreamToString(proxyResponseStream);
             Assert.Equal("response content", proxyResponseText);
+        }
+
+        [Theory]
+        [InlineData("TRACE", "HTTP/1.1", "")]
+        [InlineData("TRACE", "HTTP/2", "")]
+        [InlineData("TRACE", "HTTP/1.1", "Content-Length:10")]
+        [InlineData("TRACE", "HTTP/1.1", "Transfer-Encoding:chunked")]
+        [InlineData("TRACE", "HTTP/1.1", "Expect:100-continue")]
+        [InlineData("GET", "HTTP/1.1", "")]
+        [InlineData("GET", "HTTP/2", "")]
+        [InlineData("GET", "HTTP/1.1", "Content-Length:0")]
+        [InlineData("HEAD", "HTTP/1.1", "")]
+        [InlineData("POST", "HTTP/1.1", "")]
+        [InlineData("POST", "HTTP/1.1", "Content-Length:0")]
+        [InlineData("POST", "HTTP/2", "Content-Length:0")]
+        [InlineData("PATCH", "HTTP/1.1", "")]
+        [InlineData("DELETE", "HTTP/1.1", "")]
+        [InlineData("Delete", "HTTP/1.1", "expect:100-continue")]
+        [InlineData("Unknown", "HTTP/1.1", "")]
+        // [InlineData("CONNECT", "HTTP/1.1", "")] Blocked in HttpUtilities.GetHttpMethod
+        public async Task ProxyAsync_RequetsWithoutBodies_NoHttpContent(string method, string protocol, string headers)
+        {
+            var httpContext = new DefaultHttpContext();
+            httpContext.Request.Method = method;
+            httpContext.Request.Protocol = protocol;
+            foreach (var header in headers.Split(';', StringSplitOptions.RemoveEmptyEntries))
+            {
+                var parts = header.Split(':');
+                var key = parts[0];
+                var value = parts[1];
+                httpContext.Request.Headers[key] = value;
+            }
+
+            var destinationPrefix = "https://localhost/";
+            var sut = Create<HttpProxy>();
+            var client = MockHttpHandler.CreateClient(
+                (HttpRequestMessage request, CancellationToken cancellationToken) =>
+                {
+                    Assert.Equal(new Version(2, 0), request.Version);
+                    Assert.Equal(method, request.Method.Method, StringComparer.OrdinalIgnoreCase);
+
+                    Assert.Null(request.Content);
+
+                    var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
+                    return Task.FromResult(response);
+                });
+            var factoryMock = new Mock<IProxyHttpClientFactory>();
+            factoryMock.Setup(f => f.CreateClient()).Returns(client);
+
+            var proxyTelemetryContext = new ProxyTelemetryContext(
+                clusterId: "be1",
+                routeId: "rt1",
+                destinationId: "d1");
+
+            await sut.ProxyAsync(httpContext, destinationPrefix, Transforms.Empty, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+
+            Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
+        }
+
+        [Theory]
+        [InlineData("POST", "HTTP/2", "")]
+        [InlineData("PATCH", "HTTP/2", "")]
+        [InlineData("UNKNOWN", "HTTP/2", "")]
+        [InlineData("UNKNOWN", "HTTP/1.1", "Content-Length:10")]
+        [InlineData("UNKNOWN", "HTTP/1.1", "transfer-encoding:Chunked")]
+        [InlineData("GET", "HTTP/1.1", "Content-Length:10")]
+        [InlineData("GET", "HTTP/2", "Content-Length:10")]
+        [InlineData("HEAD", "HTTP/1.1", "transfer-encoding:Chunked")]
+        [InlineData("HEAD", "HTTP/2", "transfer-encoding:Chunked")]
+        [InlineData("Delete", "HTTP/2", "expect:100-continue")]
+        public async Task ProxyAsync_RequetsWithBodies_HasHttpContent(string method, string protocol, string headers)
+        {
+            var httpContext = new DefaultHttpContext();
+            httpContext.Request.Method = method;
+            httpContext.Request.Protocol = protocol;
+            foreach (var header in headers.Split(';', StringSplitOptions.RemoveEmptyEntries))
+            {
+                var parts = header.Split(':');
+                var key = parts[0];
+                var value = parts[1];
+                httpContext.Request.Headers[key] = value;
+            }
+
+            var destinationPrefix = "https://localhost/";
+            var sut = Create<HttpProxy>();
+            var client = MockHttpHandler.CreateClient(
+                async (HttpRequestMessage request, CancellationToken cancellationToken) =>
+                {
+                    Assert.Equal(new Version(2, 0), request.Version);
+                    Assert.Equal(method, request.Method.Method, StringComparer.OrdinalIgnoreCase);
+
+                    Assert.NotNull(request.Content);
+
+                    // Must consume the body
+                    await request.Content.CopyToAsync(Stream.Null);
+
+                    return new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
+                });
+            var factoryMock = new Mock<IProxyHttpClientFactory>();
+            factoryMock.Setup(f => f.CreateClient()).Returns(client);
+
+            var proxyTelemetryContext = new ProxyTelemetryContext(
+                clusterId: "be1",
+                routeId: "rt1",
+                destinationId: "d1");
+
+            await sut.ProxyAsync(httpContext, destinationPrefix, Transforms.Empty, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+
+            Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
         }
 
         private static MemoryStream StringToStream(string text)
