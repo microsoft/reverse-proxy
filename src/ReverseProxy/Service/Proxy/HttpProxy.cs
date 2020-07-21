@@ -378,7 +378,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             // even if it's a GET request. Some servers reject requests containing a Transfer-Encoding header if they're not expecting a body.
             // Try to be as specific as possible about the client's intent to send a body. The one thing we don't want to do is to start
             // reading the body early because that has side-effects like 100-continue.
-            bool? hasBody;
+            var hasBody = true;
             var contentLength = request.Headers.ContentLength;
             var method = request.Method;
             // https://tools.ietf.org/html/rfc7231#section-4.3.8
@@ -405,7 +405,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 hasBody = contentLength > 0;
             }
             // Kestrel HTTP/2: There are no required headers that indicate if there is a request body so we need to sniff other fields.
-            else if (!ProtocolHelper.IsHttp2(request.Protocol))
+            else if (!ProtocolHelper.IsHttp2OrGreater(request.Protocol))
             {
                 hasBody = false;
             }
@@ -427,14 +427,10 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             {
                 hasBody = false;
             }
-            else
-            {
-                hasBody = true;
-            }
+            // else hasBody defaults to true
 
             StreamCopyHttpContent contentToUpstream = null;
-            // TODO: the request body is never null.
-            if (hasBody.Value)
+            if (hasBody)
             {
                 ////this.logger.LogInformation($"   Setting up downstream --> Proxy --> upstream body proxying");
 
