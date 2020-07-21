@@ -28,7 +28,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             var requestTransform = Assert.Single(transform.RequestTransforms);
             var pathStringTransform = Assert.IsType<PathStringTransform>(requestTransform);
             Assert.Equal(PathStringTransform.PathTransformMode.Set, pathStringTransform.Mode);
-            Assert.Equal("/path%23", pathStringTransform.Value);
+            Assert.Equal("/path#", pathStringTransform.Value.Value);
         }
 
         [Fact]
@@ -43,7 +43,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             var requestTransform = Assert.Single(transform.RequestTransforms);
             var pathStringTransform = Assert.IsType<PathStringTransform>(requestTransform);
             Assert.Equal(PathStringTransform.PathTransformMode.RemovePrefix, pathStringTransform.Mode);
-            Assert.Equal("/path%23", pathStringTransform.Value);
+            Assert.Equal("/path#", pathStringTransform.Value.Value);
         }
 
         [Fact]
@@ -58,7 +58,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             var requestTransform = Assert.Single(transform.RequestTransforms);
             var pathStringTransform = Assert.IsType<PathStringTransform>(requestTransform);
             Assert.Equal(PathStringTransform.PathTransformMode.Prefix, pathStringTransform.Mode);
-            Assert.Equal("/path%23", pathStringTransform.Value);
+            Assert.Equal("/path#", pathStringTransform.Value.Value);
         }
 
         [Fact]
@@ -172,7 +172,18 @@ namespace Microsoft.ReverseProxy.Service.Config
         }
 
         [Theory]
-        [MemberData(nameof(AllForwardedCombinations))]
+        [InlineData(true, true, true, true, true, "Random", "Random")]
+        [InlineData(true, true, true, true, false, "Random", "Random")]
+        [InlineData(false, false, false, false, true, "Random", "Random")]
+        [InlineData(false, false, false, false, false, "Random", "Random")]
+        [InlineData(false, false, true, true, true, "Random", "Random")]
+        [InlineData(false, false, true, true, false, "Random", "Random")]
+        [InlineData(false, false, true, true, false, "None", "None")]
+        [InlineData(false, false, true, true, false, "RandomAndPort", "RandomAndPort")]
+        [InlineData(false, false, true, true, false, "Unknown", "Unknown")]
+        [InlineData(false, false, true, true, false, "UnknownAndPort", "UnknownAndPort")]
+        [InlineData(false, false, true, true, false, "Ip", "Ip")]
+        [InlineData(false, false, true, true, false, "IpAndPort", "IpAndPort")]
         public void AddTransformForwarded(bool useFor, bool useHost, bool useProto, bool useBy, bool append, string forFormat, string byFormat)
         {
             var proxyRoute = CreateProxyRoute();
@@ -209,48 +220,13 @@ namespace Microsoft.ReverseProxy.Service.Config
             }
         }
 
-        public static IEnumerable<object[]> AllForwardedCombinations => GenerateForwardedCombinations();
-
-        private static IEnumerable<object[]> GenerateForwardedCombinations()
-        {
-            var boolCollection = new object[] { true, false };
-            var formatCollection = Enum.GetNames(typeof(RequestHeaderForwardedTransform.NodeFormat));
-
-            for (var x0 = 0; x0 < boolCollection.Length; x0++)
-            {
-                for (var x1 = 0; x1 < boolCollection.Length; x1++)
-                {
-                    for (var x2 = 0; x2 < boolCollection.Length; x2++)
-                    {
-                        for (var x3 = 0; x3 < boolCollection.Length; x3++)
-                        {
-                            for (var x4 = 0; x4 < boolCollection.Length; x4++)
-                            {
-                                for (var x5 = 0; x5 < formatCollection.Length; x5++)
-                                {
-                                    for (var x6 = 0; x6 < formatCollection.Length; x6++)
-                                    {
-                                        yield return new object[]
-                                        {
-                                            boolCollection[x0],
-                                            boolCollection[x1],
-                                            boolCollection[x2],
-                                            boolCollection[x3],
-                                            boolCollection[x4],
-                                            formatCollection[x5],
-                                            formatCollection[x6],
-                                        };
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
         [Theory]
-        [MemberData(nameof(AllXForwardedCombinations))]
+        [InlineData(false, false, false, false, false)]
+        [InlineData(false, false, false, false, true)]
+        [InlineData(true, true, true, true, false)]
+        [InlineData(true, true, true, true, true)]
+        [InlineData(true, true, false, false, true)]
+        [InlineData(true, true, false, false, false)]
         public void AddTransformXForwarded(bool useFor, bool useHost, bool useProto, bool usePathBase, bool append)
         {
             var proxyRoute = CreateProxyRoute();
@@ -304,36 +280,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             }
         }
 
-        public static IEnumerable<object[]> AllXForwardedCombinations => GenerateXForwarderCombinations();
 
-        private static IEnumerable<object[]> GenerateXForwarderCombinations()
-        {
-            var boolCollection = new object[] { true, false };
-
-            for (var x0 = 0; x0 < boolCollection.Length; x0++)
-            {
-                for (var x1 = 0; x1 < boolCollection.Length; x1++)
-                {
-                    for (var x2 = 0; x2 < boolCollection.Length; x2++)
-                    {
-                        for (var x3 = 0; x3 < boolCollection.Length; x3++)
-                        {
-                            for (var x4 = 0; x4 < boolCollection.Length; x4++)
-                            {
-                                yield return new object[]
-                                {
-                                    boolCollection[x0],
-                                    boolCollection[x1],
-                                    boolCollection[x2],
-                                    boolCollection[x3],
-                                    boolCollection[x4],
-                                };
-                            }
-                        }
-                    }
-                }
-            }
-        }
 
         private static Transforms BuildTransform(ProxyRoute proxyRoute)
         {

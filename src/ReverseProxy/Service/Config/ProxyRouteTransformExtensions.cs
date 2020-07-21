@@ -67,7 +67,7 @@ namespace Microsoft.ReverseProxy.Service
         public static void AddTransformResponseHeader(this ProxyRoute proxyRoute, string headerName, string value, bool append = true, bool always = true)
         {
             var type = append ? "Append" : "Set";
-            var when = always ? "always" : "-";
+            var when = always ? "always" : "success";
             proxyRoute.Transforms.Add(new Dictionary<string, string>
             {
                 ["ResponseHeader"] = headerName,
@@ -79,7 +79,7 @@ namespace Microsoft.ReverseProxy.Service
         public static void AddTransformResponseTrailer(this ProxyRoute proxyRoute, string headerName, string value, bool append = true, bool always = true)
         {
             var type = append ? "Append" : "Set";
-            var when = always ? "always" : "-";
+            var when = always ? "always" : "success";
             proxyRoute.Transforms.Add(new Dictionary<string, string>
             {
                 ["ResponseTrailer"] = headerName,
