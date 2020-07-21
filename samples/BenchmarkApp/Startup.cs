@@ -38,6 +38,7 @@ namespace BenchmarkApp
                 { "Routes:0:RouteId", "route" },
                 { "Routes:0:ClusterId", "cluster" },
                 { "Routes:0:Match:Host", new Uri(urls.Split(';', 1)[0]).Host },
+                { "Routes:0:Match:Path", "/{**catchall}" }
             };
 
             var clusterCount = 0;
