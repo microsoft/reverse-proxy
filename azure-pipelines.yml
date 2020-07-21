@@ -117,7 +117,7 @@ stages:
         - script: eng/common/cibuild.sh
             --configuration $(_BuildConfig)
             --prepareMachine
-            $(_OfficialBuildArgs)
+            $(_InternalRuntimeDownloadArgs)
           displayName: Build
         - task: PublishBuildArtifacts@1
           displayName: Upload TestResults
