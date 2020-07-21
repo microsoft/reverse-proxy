@@ -12,14 +12,15 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
     /// </summary>
     internal class RequestHeaderValueTransform : RequestHeaderTransform
     {
-        private readonly string _value;
-        private readonly bool _append;
-
         public RequestHeaderValueTransform(string value, bool append)
         {
-            _value = value ?? throw new ArgumentNullException(nameof(value));
-            _append = append;
+            Value = value ?? throw new ArgumentNullException(nameof(value));
+            Append = append;
         }
+
+        internal string Value { get; }
+
+        internal bool Append { get; }
 
         public override StringValues Apply(HttpContext context, StringValues values)
         {
@@ -28,13 +29,13 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                 throw new System.ArgumentNullException(nameof(context));
             }
 
-            if (_append)
+            if (Append)
             {
-                return StringValues.Concat(values, _value);
+                return StringValues.Concat(values, Value);
             }
 
             // Set
-            return _value;
+            return Value;
         }
     }
 }

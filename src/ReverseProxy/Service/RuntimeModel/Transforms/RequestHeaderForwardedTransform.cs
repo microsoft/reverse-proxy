@@ -19,21 +19,26 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         private static readonly string ObfChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-";
 
         private readonly IRandomFactory _randomFactory;
-        private readonly NodeFormat _forFormat;
-        private readonly NodeFormat _byFormat;
-        private readonly bool _hostEnabled;
-        private readonly bool _protoEnabled;
-        private readonly bool _append;
 
         public RequestHeaderForwardedTransform(IRandomFactory randomFactory, NodeFormat forFormat, NodeFormat byFormat, bool host, bool proto, bool append)
         {
             _randomFactory = randomFactory;
-            _forFormat = forFormat;
-            _byFormat = byFormat;
-            _hostEnabled = host;
-            _protoEnabled = proto;
-            _append = append;
+            ForFormat = forFormat;
+            ByFormat = byFormat;
+            HostEnabled = host;
+            ProtoEnabled = proto;
+            Append = append;
         }
+
+        internal NodeFormat ForFormat { get; }
+
+        internal NodeFormat ByFormat { get; }
+
+        internal bool HostEnabled { get; }
+
+        internal bool ProtoEnabled { get; }
+
+        internal bool Append { get; }
 
         public override StringValues Apply(HttpContext context, StringValues values)
         {
@@ -49,7 +54,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             AppendBy(context, builder);
             var value = builder.ToString();
 
-            if (_append)
+            if (Append)
             {
                 return StringValues.Concat(values, value);
             }
@@ -60,7 +65,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 
         private void AppendProto(HttpContext context, StringBuilder builder)
         {
-            if (_protoEnabled)
+            if (ProtoEnabled)
             {
                 // Always first doesn't need to check for ';'
                 builder.Append("proto=");
@@ -70,7 +75,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 
         private void AppendHost(HttpContext context, StringBuilder builder)
         {
-            if (_hostEnabled)
+            if (HostEnabled)
             {
                 if (builder.Length > 0)
                 {
@@ -85,27 +90,27 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 
         private void AppendFor(HttpContext context, StringBuilder builder)
         {
-            if (_forFormat > NodeFormat.None)
+            if (ForFormat > NodeFormat.None)
             {
                 if (builder.Length > 0)
                 {
                     builder.Append(';');
                 }
                 builder.Append("for=");
-                AppendNode(context.Connection.RemoteIpAddress, context.Connection.RemotePort, _forFormat, builder);
+                AppendNode(context.Connection.RemoteIpAddress, context.Connection.RemotePort, ForFormat, builder);
             }
         }
 
         private void AppendBy(HttpContext context, StringBuilder builder)
         {
-            if (_byFormat > NodeFormat.None)
+            if (ByFormat > NodeFormat.None)
             {
                 if (builder.Length > 0)
                 {
                     builder.Append(';');
                 }
                 builder.Append("by=");
-                AppendNode(context.Connection.LocalIpAddress, context.Connection.LocalPort, _byFormat, builder);
+                AppendNode(context.Connection.LocalIpAddress, context.Connection.LocalPort, ByFormat, builder);
             }
         }
 
