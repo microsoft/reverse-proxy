@@ -274,7 +274,7 @@ namespace Microsoft.ReverseProxy.Service.Config
                     {
                         CheckTooManyParameters(rawTransform, expected: 1);
                         var path = MakePathString(pathPattern);
-                        requestTransforms.Add(new PathRouteValuesTransform(path, _binderFactory));
+                        requestTransforms.Add(new PathRouteValuesTransform(path.Value, _binderFactory));
                     }
                     else if (rawTransform.TryGetValue("RequestHeadersCopy", out var copyHeaders))
                     {

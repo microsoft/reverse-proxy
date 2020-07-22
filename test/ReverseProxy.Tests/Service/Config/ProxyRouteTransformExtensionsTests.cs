@@ -72,7 +72,7 @@ namespace Microsoft.ReverseProxy.Service.Config
 
             var requestTransform = Assert.Single(transform.RequestTransforms);
             var pathRouteValuesTransform = Assert.IsType<PathRouteValuesTransform>(requestTransform);
-            Assert.Equal("/path%23", pathRouteValuesTransform.Template.TemplateText);
+            Assert.Equal("/path#", pathRouteValuesTransform.Template.TemplateText);
         }
 
         [Fact]
