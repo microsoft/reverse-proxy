@@ -11,7 +11,7 @@ YARP will be taking advantage of 5.0 features and optimizations as they become a
 
 ## Related 5.0 Runtime Improvements
 
-These are related improvements in .NET or ASP.NET Core 5.0.0 that YARP is able to take advantage of. We expect to add more as they become available.
+These are related improvements in .NET or ASP.NET Core 5.0 that YARP is able to take advantage of. We expect to add more as they become available.
 - Kestrel [reloadable config](https://github.com/dotnet/aspnetcore/issues/19376).
 - Kestrel HTTP/2 performance improvements.
   - [HPACK static compression](https://github.com/dotnet/aspnetcore/pull/20058)
