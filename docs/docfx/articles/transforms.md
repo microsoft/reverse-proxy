@@ -229,14 +229,14 @@ Example:
 | Append | `remainder` |
 | Result | `?foo=more/stuff` |
 
-#### RemoveQueryParameter
+#### QueryRemoveParameter
 | Key | Value | Required |
-| RemoveQueryParameter | Name of a query string parameter | yes |
+| QueryRemoveParameter | Name of a query string parameter | yes |
 
 Config:
 ```JSON
 {
-  "RemoveQueryParameter": "foo"
+  "QueryRemoveParameter": "foo"
 }
 ```
 
@@ -246,9 +246,9 @@ Example:
 
 | Step | Value |
 |------|-------|
-| Request path | `/api/v1/stuff/more/stuff?foo=yetMoreStuff` |
-| RemoveQueryParameter | `foo` |
-| Result | `/api/v1/stuff/more/stuff` |
+| Request path | `?a=b&foo=c` |
+| QueryRemoveParameter | `foo` |
+| Result | `?a=b` |
 
 ### Request Headers
 
