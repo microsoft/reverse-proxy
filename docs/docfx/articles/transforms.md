@@ -206,7 +206,7 @@ Example:
 #### QueryRouteParameter
 | Key | Value | Required |
 | QueryRouteParameter | Name of a query string parameter | yes |
-| Set/Append | Key of route value | yes |
+| Set/Append | The name of a route value | yes |
 
 Config:
 ```JSON
