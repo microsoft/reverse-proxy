@@ -198,10 +198,10 @@ Example:
 
 | Step | Value |
 |------|-------|
-| Request path | `/api/v1/stuff/more/stuff` |
+| Query | `?a=b` |
 | QueryValueParameter | `foo` |
 | Append | `remainder` |
-| Result | `/api/v1/stuff/more/stuff?foo=remainder` |
+| Result | `?a=b&foo=remainder` |
 
 #### QueryRouteParameter
 | Key | Value | Required |
