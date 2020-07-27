@@ -222,13 +222,12 @@ Example:
 
 | Step | Value |
 |------|-------|
-| Route definition | `/api/{plugin}/stuff/{*remainder}` |
-| Request path | `/api/v1/stuff/more/stuff` |
-| Plugin value | `v1` |
+| Route definition | `/api/{*remainder}` |
+| Request path | `/api/more/stuff` |
 | Remainder value | `more/stuff` |
 | QueryRouteParameter | `foo` |
 | Append | `remainder` |
-| Result | `/api/v1/stuff/more/stuff?foo=more/stuff` |
+| Result | `?foo=more/stuff` |
 
 #### RemoveQueryParameter
 | Key | Value | Required |
