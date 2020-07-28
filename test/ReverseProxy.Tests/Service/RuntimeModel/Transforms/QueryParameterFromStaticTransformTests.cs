@@ -14,39 +14,42 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             var httpContext = new DefaultHttpContext();
             var context = new RequestParametersTransformContext()
             {
+                Query = new QueryTransformContext(httpContext.Request),
                 HttpContext = httpContext
             };
             var transform = new QueryParameterFromStaticTransform(QueryStringTransformMode.Append, "z", "foo");
             transform.Apply(context);
-            Assert.Equal("?z=foo", context.Query.Value);
+            Assert.Equal("?z=foo", context.Query.QueryString.Value);
         }
 
         [Fact]
         public void Append_IgnoresExistingQueryStringParameter()
         {
             var httpContext = new DefaultHttpContext();
+            httpContext.Request.QueryString = new QueryString("?z=1");
             var context = new RequestParametersTransformContext()
             {
-                Query = new QueryString("?z=1"),
+                Query = new QueryTransformContext(httpContext.Request),
                 HttpContext = httpContext
             };
             var transform = new QueryParameterFromStaticTransform(QueryStringTransformMode.Append, "z", "foo");
             transform.Apply(context);
-            Assert.Equal("?z=1&z=foo", context.Query.Value);
+            Assert.Equal("?z=1&z=foo", context.Query.QueryString.Value);
         }
 
         [Fact]
         public void Set_OverwritesExistingQueryStringParameter()
         {
             var httpContext = new DefaultHttpContext();
+            httpContext.Request.QueryString = new QueryString("?z=1");
             var context = new RequestParametersTransformContext()
             {
-                Query = new QueryString("?z=1"),
+                Query = new QueryTransformContext(httpContext.Request),
                 HttpContext = httpContext
             };
             var transform = new QueryParameterFromStaticTransform(QueryStringTransformMode.Set, "z", "foo");
             transform.Apply(context);
-            Assert.Equal("?z=foo", context.Query.Value);
+            Assert.Equal("?z=foo", context.Query.QueryString.Value);
         }
 
         [Fact]
@@ -55,11 +58,12 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             var httpContext = new DefaultHttpContext();
             var context = new RequestParametersTransformContext()
             {
+                Query = new QueryTransformContext(httpContext.Request),
                 HttpContext = httpContext
             };
             var transform = new QueryParameterFromStaticTransform(QueryStringTransformMode.Set, "z", "foo");
             transform.Apply(context);
-            Assert.Equal("?z=foo", context.Query.Value);
+            Assert.Equal("?z=foo", context.Query.QueryString.Value);
         }
     }
 }

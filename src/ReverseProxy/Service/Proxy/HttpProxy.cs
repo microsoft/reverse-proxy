@@ -358,14 +358,14 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 Version = httpVersion,
                 Method = request.Method,
                 Path = request.Path,
-                Query = request.QueryString,
+                Query = new QueryTransformContext(request),
             };
             foreach (var transform in transforms)
             {
                 transform.Apply(transformContext);
             }
 
-            var targetUrl = UriHelper.BuildAbsolute(destinationScheme, destinationHost, destinationPathBase, transformContext.Path, transformContext.Query);
+            var targetUrl = UriHelper.BuildAbsolute(destinationScheme, destinationHost, destinationPathBase, transformContext.Path, transformContext.Query.QueryString);
             Log.Proxying(_logger, targetUrl);
             var targetUri = new Uri(targetUrl, UriKind.Absolute);
             return new HttpRequestMessage(HttpUtilities.GetHttpMethod(transformContext.Method), targetUri) { Version = transformContext.Version };

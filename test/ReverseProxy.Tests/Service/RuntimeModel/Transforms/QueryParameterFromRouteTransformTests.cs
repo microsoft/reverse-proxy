@@ -26,11 +26,12 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             var context = new RequestParametersTransformContext()
             {
                 Path = path,
+                Query = new QueryTransformContext(httpContext.Request),
                 HttpContext = httpContext
             };
             var transform = new QueryParameterRouteTransform(QueryStringTransformMode.Append, "z", routeValueKey);
             transform.Apply(context);
-            Assert.Equal(expected, context.Query.Value);
+            Assert.Equal(expected, context.Query.QueryString.Value);
         }
 
         [Fact]
@@ -44,15 +45,16 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 
             var httpContext = new DefaultHttpContext();
             httpContext.Request.RouteValues = routeValues;
+            httpContext.Request.QueryString = new QueryString("?z=1");
             var context = new RequestParametersTransformContext()
             {
                 Path = path,
-                Query = new QueryString("?z=1"),
+                Query = new QueryTransformContext(httpContext.Request),
                 HttpContext = httpContext
             };
             var transform = new QueryParameterRouteTransform(QueryStringTransformMode.Append, "z", "a");
             transform.Apply(context);
-            Assert.Equal("?z=1&z=6", context.Query.Value);
+            Assert.Equal("?z=1&z=6", context.Query.QueryString.Value);
         }
 
         [Fact]
@@ -66,15 +68,16 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 
             var httpContext = new DefaultHttpContext();
             httpContext.Request.RouteValues = routeValues;
+            httpContext.Request.QueryString = new QueryString("?z=1");
             var context = new RequestParametersTransformContext()
             {
                 Path = path,
-                Query = new QueryString("?z=1"),
+                Query = new QueryTransformContext(httpContext.Request),
                 HttpContext = httpContext
             };
             var transform = new QueryParameterRouteTransform(QueryStringTransformMode.Set, "z", "a");
             transform.Apply(context);
-            Assert.Equal("?z=6", context.Query.Value);
+            Assert.Equal("?z=6", context.Query.QueryString.Value);
         }
 
         [Fact]
@@ -91,11 +94,12 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             var context = new RequestParametersTransformContext()
             {
                 Path = path,
+                Query = new QueryTransformContext(httpContext.Request),
                 HttpContext = httpContext
             };
             var transform = new QueryParameterRouteTransform(QueryStringTransformMode.Set, "z", "a");
             transform.Apply(context);
-            Assert.Equal("?z=6", context.Query.Value);
+            Assert.Equal("?z=6", context.Query.QueryString.Value);
         }
     }
 }

@@ -37,6 +37,6 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         /// <summary>
         /// The query used for the proxy request.
         /// </summary>
-        public QueryString Query { get; set; }
+        public QueryTransformContext Query { get; set; }
     }
 }
