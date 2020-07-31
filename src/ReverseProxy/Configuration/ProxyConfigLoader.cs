@@ -24,8 +24,6 @@ namespace Microsoft.ReverseProxy.Configuration
     internal class ProxyConfigLoader : IHostedService, IDisposable
     {
         private readonly ILogger<ProxyConfigLoader> _logger;
-        private readonly IClustersRepo _clustersRepo;
-        private readonly IRoutesRepo _routesRepo;
         private readonly IReverseProxyConfigManager _proxyManager;
         private readonly IOptionsMonitor<ProxyConfigOptions> _proxyConfig;
         private bool _disposed;
@@ -33,14 +31,10 @@ namespace Microsoft.ReverseProxy.Configuration
 
         public ProxyConfigLoader(
             ILogger<ProxyConfigLoader> logger,
-            IClustersRepo clustersRepo,
-            IRoutesRepo routesRepo,
             IReverseProxyConfigManager proxyManager,
             IOptionsMonitor<ProxyConfigOptions> proxyConfig)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _clustersRepo = clustersRepo ?? throw new ArgumentNullException(nameof(clustersRepo));
-            _routesRepo = routesRepo ?? throw new ArgumentNullException(nameof(routesRepo));
             _proxyManager = proxyManager ?? throw new ArgumentNullException(nameof(proxyManager));
             _proxyConfig = proxyConfig ?? throw new ArgumentNullException(nameof(proxyConfig));
         }
@@ -75,10 +69,7 @@ namespace Microsoft.ReverseProxy.Configuration
             Log.ApplyProxyConfig(_logger);
             try
             {
-                await _clustersRepo.SetClustersAsync(config.Clusters, CancellationToken.None);
-                await _routesRepo.SetRoutesAsync(config.Routes, CancellationToken.None);
-
-                await _proxyManager.ApplyConfigurationsAsync(CancellationToken.None);
+                await _proxyManager.ApplyConfigurationsAsync(config.Routes, config.Clusters, CancellationToken.None);
             }
             catch (Exception ex)
             {

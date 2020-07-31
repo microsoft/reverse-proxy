@@ -24,7 +24,6 @@ namespace Microsoft.Extensions.DependencyInjection
             builder
                 .AddTelemetryShims()
                 .AddMetrics()
-                .AddInMemoryRepos()
                 .AddConfigBuilder()
                 .AddRuntimeStateManagers()
                 .AddConfigManager()

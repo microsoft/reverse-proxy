@@ -37,14 +37,6 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
             return builder;
         }
 
-        public static IReverseProxyBuilder AddInMemoryRepos(this IReverseProxyBuilder builder)
-        {
-            builder.Services.TryAddSingleton<IClustersRepo, InMemoryClustersRepo>();
-            builder.Services.TryAddSingleton<IRoutesRepo, InMemoryRoutesRepo>();
-
-            return builder;
-        }
-
         public static IReverseProxyBuilder AddConfigBuilder(this IReverseProxyBuilder builder)
         {
             builder.Services.TryAddSingleton<IDynamicConfigBuilder, DynamicConfigBuilder>();

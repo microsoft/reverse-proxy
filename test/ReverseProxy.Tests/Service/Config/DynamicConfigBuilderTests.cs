@@ -19,15 +19,15 @@ namespace Microsoft.ReverseProxy.Service.Tests
     public class DynamicConfigBuilderTests
     {
         private const string TestAddress = "https://localhost:123/";
+        private readonly IList<ProxyRoute> EmptyRoutes = new List<ProxyRoute>();
+        private readonly IDictionary<string, Cluster> EmptyClusters = new Dictionary<string, Cluster>();
 
-        private IDynamicConfigBuilder CreateConfigBuilder(IClustersRepo clusters, IRoutesRepo routes, ILoggerFactory loggerFactory, Action<IReverseProxyBuilder> configProxy = null)
+        private IDynamicConfigBuilder CreateConfigBuilder(ILoggerFactory loggerFactory, Action<IReverseProxyBuilder> configProxy = null)
         {
             var servicesBuilder = new ServiceCollection();
             servicesBuilder.AddOptions();
             var proxyBuilder = servicesBuilder.AddReverseProxy();
             configProxy?.Invoke(proxyBuilder);
-            servicesBuilder.AddSingleton(clusters);
-            servicesBuilder.AddSingleton(routes);
             servicesBuilder.AddSingleton<TestService>();
             servicesBuilder.AddDataProtection();
             servicesBuilder.AddSingleton(loggerFactory);
@@ -37,42 +37,14 @@ namespace Microsoft.ReverseProxy.Service.Tests
             return services.GetRequiredService<IDynamicConfigBuilder>();
         }
 
-        private class TestClustersRepo : IClustersRepo
-        {
-            public TestClustersRepo() { }
-
-            public TestClustersRepo(IDictionary<string, Cluster> clusters) { Clusters = clusters; }
-
-            public IDictionary<string, Cluster> Clusters { get; set; }
-
-            public Task<IDictionary<string, Cluster>> GetClustersAsync(CancellationToken cancellation) => Task.FromResult(Clusters);
-
-            public Task SetClustersAsync(IDictionary<string, Cluster> clusters, CancellationToken cancellation) =>
-                throw new NotImplementedException();
-        }
-
-        private class TestRoutesRepo : IRoutesRepo
-        {
-            public TestRoutesRepo() { }
-
-            public TestRoutesRepo(IList<ProxyRoute> routes) { Routes = routes; }
-
-            public IList<ProxyRoute> Routes { get; set; }
-
-            public Task<IList<ProxyRoute>> GetRoutesAsync(CancellationToken cancellation) => Task.FromResult(Routes);
-
-            public Task SetRoutesAsync(IList<ProxyRoute> routes, CancellationToken cancellation) =>
-                throw new NotImplementedException();
-        }
-
         private class TestService
         {
             public int CallCount { get; set; }
         }
 
-        private TestClustersRepo CreateOneCluster()
+        private Dictionary<string, Cluster> CreateOneCluster()
         {
-            return new TestClustersRepo(new Dictionary<string, Cluster>
+            return new Dictionary<string, Cluster>
             {
                 {
                     "cluster1", new Cluster
@@ -84,36 +56,31 @@ namespace Microsoft.ReverseProxy.Service.Tests
                         }
                     }
                 }
-            });
+            };
         }
 
         [Fact]
         public void Constructor_Works()
         {
-            CreateConfigBuilder(new TestClustersRepo(), new TestRoutesRepo(), NullLoggerFactory.Instance);
+            CreateConfigBuilder(NullLoggerFactory.Instance);
         }
 
         [Fact]
-        public async Task BuildConfigAsync_NullInput_Works()
+        public async Task BuildConfigAsync_NullInput_Throws()
         {
             var factory = new TestLoggerFactory();
-            var configBuilder = CreateConfigBuilder(new TestClustersRepo(), new TestRoutesRepo(), factory);
+            var configBuilder = CreateConfigBuilder(factory);
 
-            var result = await configBuilder.BuildConfigAsync(CancellationToken.None);
-
-
-            Assert.Empty(factory.Logger.Errors);
-            Assert.NotNull(result);
-            Assert.Empty(result.Clusters);
-            Assert.Empty(result.Routes);
+            await Assert.ThrowsAsync<ArgumentNullException>(() => configBuilder.BuildConfigAsync(null, EmptyClusters, CancellationToken.None));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => configBuilder.BuildConfigAsync(EmptyRoutes, null, CancellationToken.None));
         }
 
         [Fact]
         public async Task BuildConfigAsync_EmptyInput_Works()
         {
             var factory = new TestLoggerFactory();
-            var configBuilder = CreateConfigBuilder(new TestClustersRepo(new Dictionary<string, Cluster>()), new TestRoutesRepo(new List<ProxyRoute>()), factory);
-            var result = await configBuilder.BuildConfigAsync(CancellationToken.None);
+            var configBuilder = CreateConfigBuilder(factory);
+            var result = await configBuilder.BuildConfigAsync(EmptyRoutes, EmptyClusters, CancellationToken.None);
 
             Assert.Empty(factory.Logger.Errors);
             Assert.NotNull(result);
@@ -125,9 +92,9 @@ namespace Microsoft.ReverseProxy.Service.Tests
         public async Task BuildConfigAsync_OneCluster_Works()
         {
             var factory = new TestLoggerFactory();
-            var configBuilder = CreateConfigBuilder(CreateOneCluster(), new TestRoutesRepo(), factory);
+            var configBuilder = CreateConfigBuilder(factory);
 
-            var result = await configBuilder.BuildConfigAsync(CancellationToken.None);
+            var result = await configBuilder.BuildConfigAsync(EmptyRoutes, CreateOneCluster(), CancellationToken.None);
 
             // Assert
             Assert.Empty(factory.Logger.Errors);
@@ -147,9 +114,9 @@ namespace Microsoft.ReverseProxy.Service.Tests
         {
             var route1 = new ProxyRoute { RouteId = "route1", Match = { Hosts = new[] { "example.com" } }, Priority = 1, ClusterId = "cluster1" };
             var factory = new TestLoggerFactory();
-            var configBuilder = CreateConfigBuilder(new TestClustersRepo(), new TestRoutesRepo(new[] { route1 }), factory);
+            var configBuilder = CreateConfigBuilder(factory);
 
-            var result = await configBuilder.BuildConfigAsync(CancellationToken.None);
+            var result = await configBuilder.BuildConfigAsync(new[] { route1 }, EmptyClusters,  CancellationToken.None);
 
             Assert.Empty(factory.Logger.Errors);
             Assert.NotNull(result);
@@ -162,9 +129,9 @@ namespace Microsoft.ReverseProxy.Service.Tests
         public async Task BuildConfigAsync_RouteValidationError_SkipsRoute()
         {
             var route1 = new ProxyRoute { RouteId = "route1", Match = { Hosts = new[] { "invalid host name" } }, Priority = 1, ClusterId = "cluster1" };
-            var configBuilder = CreateConfigBuilder(new TestClustersRepo(), new TestRoutesRepo(new[] { route1 }), NullLoggerFactory.Instance);
+            var configBuilder = CreateConfigBuilder(NullLoggerFactory.Instance);
 
-            var result = await configBuilder.BuildConfigAsync(CancellationToken.None);
+            var result = await configBuilder.BuildConfigAsync(new[] { route1 }, EmptyClusters, CancellationToken.None);
 
             Assert.NotNull(result);
             Assert.Empty(result.Clusters);
@@ -176,13 +143,13 @@ namespace Microsoft.ReverseProxy.Service.Tests
         {
             var route1 = new ProxyRoute { RouteId = "route1", Match = { Hosts = new[] { "invalid host name" } }, Priority = 1, ClusterId = "cluster1" };
             var factory = new TestLoggerFactory();
-            var configBuilder = CreateConfigBuilder(new TestClustersRepo(), new TestRoutesRepo(new[] { route1 }), factory,
+            var configBuilder = CreateConfigBuilder(factory,
                 proxyBuilder =>
                 {
                     proxyBuilder.AddProxyConfigFilter<FixRouteHostFilter>();
                 });
 
-            var result = await configBuilder.BuildConfigAsync(CancellationToken.None);
+            var result = await configBuilder.BuildConfigAsync(new[] { route1 }, EmptyClusters, CancellationToken.None);
 
             Assert.Empty(factory.Logger.Errors);
             Assert.NotNull(result);
@@ -227,13 +194,13 @@ namespace Microsoft.ReverseProxy.Service.Tests
         public async Task BuildConfigAsync_ConfigFilterConfiguresCluster_Works()
         {
             var factory = new TestLoggerFactory();
-            var configBuilder = CreateConfigBuilder(CreateOneCluster(), new TestRoutesRepo(), factory,
+            var configBuilder = CreateConfigBuilder(factory,
                 proxyBuilder =>
                 {
                     proxyBuilder.AddProxyConfigFilter<ClusterAndRouteFilter>();
                 });
 
-            var result = await configBuilder.BuildConfigAsync(CancellationToken.None);
+            var result = await configBuilder.BuildConfigAsync(EmptyRoutes, CreateOneCluster(), CancellationToken.None);
 
             Assert.Empty(factory.Logger.Errors);
             Assert.NotNull(result);
@@ -265,14 +232,14 @@ namespace Microsoft.ReverseProxy.Service.Tests
         public async Task BuildConfigAsync_ConfigFilterClusterActionThrows_ClusterSkipped()
         {
             var factory = new TestLoggerFactory();
-            var configBuilder = CreateConfigBuilder(CreateOneCluster(), new TestRoutesRepo(), factory,
+            var configBuilder = CreateConfigBuilder(factory,
                 proxyBuilder =>
                 {
                     proxyBuilder.AddProxyConfigFilter<ClusterAndRouteThrows>();
                     proxyBuilder.AddProxyConfigFilter<ClusterAndRouteThrows>();
                 });
 
-            var result = await configBuilder.BuildConfigAsync(CancellationToken.None);
+            var result = await configBuilder.BuildConfigAsync(EmptyRoutes, CreateOneCluster(), CancellationToken.None);
 
             // Assert
             Assert.NotNull(result);
@@ -286,20 +253,20 @@ namespace Microsoft.ReverseProxy.Service.Tests
         {
             var route1 = new ProxyRoute { RouteId = "route1", Match = { Hosts = new[] { "example.com" } }, Priority = 1, ClusterId = "cluster1" };
             var factory = new TestLoggerFactory();
-            var configBuilder = CreateConfigBuilder(new TestClustersRepo(), new TestRoutesRepo(new[] { route1 }), factory,
+            var configBuilder = CreateConfigBuilder(factory,
                 proxyBuilder =>
                 {
                     proxyBuilder.AddProxyConfigFilter<ClusterAndRouteFilter>();
                 });
 
-            var result = await configBuilder.BuildConfigAsync(CancellationToken.None);
+            var result = await configBuilder.BuildConfigAsync(new[] { route1 }, EmptyClusters, CancellationToken.None);
 
             Assert.Empty(factory.Logger.Errors);
             Assert.NotNull(result);
             Assert.Empty(result.Clusters);
             Assert.Single(result.Routes);
             Assert.Same(route1.RouteId, result.Routes[0].RouteId);
-            Assert.Equal(12, route1.Priority);
+            Assert.Equal(12, result.Routes[0].Priority);
         }
 
         [Fact]
@@ -308,14 +275,14 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var route1 = new ProxyRoute { RouteId = "route1", Match = { Hosts = new[] { "example.com" } }, Priority = 1, ClusterId = "cluster1" };
             var route2 = new ProxyRoute { RouteId = "route2", Match = { Hosts = new[] { "example2.com" } }, Priority = 1, ClusterId = "cluster2" };
             var factory = new TestLoggerFactory();
-            var configBuilder = CreateConfigBuilder(new TestClustersRepo(), new TestRoutesRepo(new[] { route1, route2 }), factory,
+            var configBuilder = CreateConfigBuilder(factory,
                 proxyBuilder =>
                 {
                     proxyBuilder.AddProxyConfigFilter<ClusterAndRouteThrows>();
                     proxyBuilder.AddProxyConfigFilter<ClusterAndRouteThrows>();
                 });
 
-            var result = await configBuilder.BuildConfigAsync(CancellationToken.None);
+            var result = await configBuilder.BuildConfigAsync(new[] { route1, route2 }, EmptyClusters, CancellationToken.None);
 
             // Assert
             Assert.NotNull(result);

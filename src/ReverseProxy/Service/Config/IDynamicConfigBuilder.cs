@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.ReverseProxy.Abstractions;
@@ -16,6 +17,6 @@ namespace Microsoft.ReverseProxy.Service
         /// <summary>
         /// Creates a <see cref="DynamicConfigRoot"/> object representing the current desired proxy dynamic configurations.
         /// </summary>
-        Task<DynamicConfigRoot> BuildConfigAsync(CancellationToken cancellation);
+        Task<DynamicConfigRoot> BuildConfigAsync(IList<ProxyRoute> routes, IDictionary<string, Cluster> clusters, CancellationToken cancellation);
     }
 }

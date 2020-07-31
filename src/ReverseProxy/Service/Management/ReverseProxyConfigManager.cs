@@ -44,10 +44,9 @@ namespace Microsoft.ReverseProxy.Service.Management
             _dynamicEndpointDataSource = dynamicEndpointDataSource ?? throw new ArgumentNullException(nameof(dynamicEndpointDataSource));
         }
 
-        /// <inheritdoc/>
-        public async Task ApplyConfigurationsAsync(CancellationToken cancellation)
+        public async Task ApplyConfigurationsAsync(IList<ProxyRoute> routes, IDictionary<string, Cluster> clusters, CancellationToken cancellation)
         {
-            var config = await _configBuilder.BuildConfigAsync(cancellation);
+            var config = await _configBuilder.BuildConfigAsync(routes, clusters, cancellation);
 
             UpdateRuntimeClusters(config);
             UpdateRuntimeRoutes(config);

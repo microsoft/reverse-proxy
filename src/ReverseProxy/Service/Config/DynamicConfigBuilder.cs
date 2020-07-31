@@ -10,15 +10,12 @@ using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Microsoft.ReverseProxy.ConfigModel;
 using Microsoft.ReverseProxy.Service.SessionAffinity;
-using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Service
 {
     internal class DynamicConfigBuilder : IDynamicConfigBuilder
     {
         private readonly IEnumerable<IProxyConfigFilter> _filters;
-        private readonly IClustersRepo _clustersRepo;
-        private readonly IRoutesRepo _routesRepo;
         private readonly IRouteValidator _parsedRouteValidator;
         private readonly ILogger<DynamicConfigBuilder> _logger;
         private readonly IDictionary<string, ISessionAffinityProvider> _sessionAffinityProviders;
@@ -26,50 +23,51 @@ namespace Microsoft.ReverseProxy.Service
 
         public DynamicConfigBuilder(
             IEnumerable<IProxyConfigFilter> filters,
-            IClustersRepo clustersRepo,
-            IRoutesRepo routesRepo,
             IRouteValidator parsedRouteValidator,
             IEnumerable<ISessionAffinityProvider> sessionAffinityProviders,
             IEnumerable<IAffinityFailurePolicy> affinityFailurePolicies,
             ILogger<DynamicConfigBuilder> logger)
         {
             _filters = filters ?? throw new ArgumentNullException(nameof(filters));
-            _clustersRepo = clustersRepo ?? throw new ArgumentNullException(nameof(clustersRepo));
-            _routesRepo = routesRepo ?? throw new ArgumentNullException(nameof(routesRepo));
             _parsedRouteValidator = parsedRouteValidator ?? throw new ArgumentNullException(nameof(parsedRouteValidator));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _sessionAffinityProviders = sessionAffinityProviders?.ToProviderDictionary() ?? throw new ArgumentNullException(nameof(sessionAffinityProviders));
             _affinityFailurePolicies = affinityFailurePolicies?.ToPolicyDictionary() ?? throw new ArgumentNullException(nameof(affinityFailurePolicies));
         }
 
-        public async Task<DynamicConfigRoot> BuildConfigAsync(CancellationToken cancellation)
+        public async Task<DynamicConfigRoot> BuildConfigAsync(IList<ProxyRoute> routes, IDictionary<string, Cluster> clusters, CancellationToken cancellation)
         {
-            var clusters = await GetClustersAsync(cancellation);
-            var routes = await GetRoutesAsync(cancellation);
+            _ = routes ?? throw new ArgumentNullException(nameof(routes));
+            _ = clusters ?? throw new ArgumentNullException(nameof(clusters));
+
+            clusters = await GetClustersAsync(clusters, cancellation);
+            var parsedRoutes = await GetRoutesAsync(routes, cancellation);
 
             var config = new DynamicConfigRoot
             {
                 Clusters = clusters,
-                Routes = routes,
+                Routes = parsedRoutes,
             };
 
             return config;
         }
 
-        public async Task<IDictionary<string, Cluster>> GetClustersAsync(CancellationToken cancellation)
+        public async Task<IDictionary<string, Cluster>> GetClustersAsync(IDictionary<string, Cluster> clusters, CancellationToken cancellation)
         {
-            var clusters = await _clustersRepo.GetClustersAsync(cancellation) ?? new Dictionary<string, Cluster>(StringComparer.OrdinalIgnoreCase);
             var configuredClusters = new Dictionary<string, Cluster>(StringComparer.OrdinalIgnoreCase);
             // The IClustersRepo provides a fresh snapshot that we need to reconfigure each time.
-            foreach (var (id, cluster) in clusters)
+            foreach (var (id, c) in clusters)
             {
                 try
                 {
-                    if (id != cluster.Id)
+                    if (id != c.Id)
                     {
-                        Log.ClusterIdMismatch(_logger, cluster.Id, id);
+                        Log.ClusterIdMismatch(_logger, c.Id, id);
                         continue;
                     }
+
+                    // Don't modify the original
+                    var cluster = c.DeepClone();
 
                     foreach (var filter in _filters)
                     {
@@ -120,10 +118,8 @@ namespace Microsoft.ReverseProxy.Service
             }
         }
 
-        private async Task<IList<ParsedRoute>> GetRoutesAsync(CancellationToken cancellation)
+        private async Task<IList<ParsedRoute>> GetRoutesAsync(IList<ProxyRoute> routes, CancellationToken cancellation)
         {
-            var routes = await _routesRepo.GetRoutesAsync(cancellation);
-
             var seenRouteIds = new HashSet<string>();
             var sortedRoutes = new SortedList<(int, string), ParsedRoute>(routes?.Count ?? 0);
             if (routes == null)
@@ -131,13 +127,16 @@ namespace Microsoft.ReverseProxy.Service
                 return sortedRoutes.Values;
             }
 
-            foreach (var route in routes)
+            foreach (var r in routes)
             {
-                if (seenRouteIds.Contains(route.RouteId))
+                if (seenRouteIds.Contains(r.RouteId))
                 {
-                    Log.DuplicateRouteId(_logger, route.RouteId);
+                    Log.DuplicateRouteId(_logger, r.RouteId);
                     continue;
                 }
+
+                // Don't modify the original
+                var route = r.DeepClone();
 
                 try
                 {
