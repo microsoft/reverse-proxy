@@ -50,15 +50,15 @@ namespace Microsoft.ReverseProxy.Configuration
             // First time load
             if (_snapshot == null)
             {
-                CreateSnapshot(_optionsMonitor.CurrentValue);
-                _subscription = _optionsMonitor.OnChange((newConfig) => CreateSnapshot(newConfig));
+                UpdateSnapshot(_optionsMonitor.CurrentValue);
+                _subscription = _optionsMonitor.OnChange(UpdateSnapshot);
             }
             return _snapshot;
         }
 
-        private void CreateSnapshot(ConfigurationOptions options)
+        private void UpdateSnapshot(ConfigurationOptions options)
         {
-            Log.ApplyProxyConfig(_logger);
+            Log.LoadData(_logger);
             var oldToken = _changeToken;
             _changeToken = new CancellationTokenSource();
             _snapshot = new ConfigurationSnapshot()
@@ -70,34 +70,34 @@ namespace Microsoft.ReverseProxy.Configuration
 
             try
             {
-                oldToken?.Cancel();
+                oldToken?.Cancel(throwOnFirstException: false);
             }
             catch (Exception ex)
             {
-                Log.ApplyProxyConfigFailed(_logger, ex.Message, ex);
+                Log.ErrorSignalingChange(_logger, ex);
             }
         }
 
         private static class Log
         {
-            private static readonly Action<ILogger, string, Exception> _applyProxyConfigFailed = LoggerMessage.Define<string>(
+            private static readonly Action<ILogger, Exception> _errorSignalingChange = LoggerMessage.Define(
                 LogLevel.Error,
-                EventIds.ApplyProxyConfigFailed,
-                "Failed to apply new configs: {errorMessage}");
+                EventIds.ErrorSignalingChange,
+                "An exception was thrown from the change notification.");
 
-            private static readonly Action<ILogger, Exception> _applyProxyConfig = LoggerMessage.Define(
+            private static readonly Action<ILogger, Exception> _loadData = LoggerMessage.Define(
                 LogLevel.Information,
-                EventIds.ApplyProxyConfig,
-                "Applying proxy configs");
+                EventIds.LoadData,
+                "Loading proxy data from config.");
 
-            public static void ApplyProxyConfigFailed(ILogger logger, string errorMessage, Exception exception)
+            public static void ErrorSignalingChange(ILogger logger, Exception exception)
             {
-                _applyProxyConfigFailed(logger, errorMessage, exception);
+                _errorSignalingChange(logger, exception);
             }
 
-            public static void ApplyProxyConfig(ILogger logger)
+            public static void LoadData(ILogger logger)
             {
-                _applyProxyConfig(logger, null);
+                _loadData(logger, null);
             }
         }
     }

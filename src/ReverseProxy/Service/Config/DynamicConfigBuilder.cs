@@ -41,12 +41,12 @@ namespace Microsoft.ReverseProxy.Service
             _ = clusters ?? throw new ArgumentNullException(nameof(clusters));
 
             var configuredClusters = await GetClustersAsync(clusters, cancellation);
-            var parsedRoutes = await GetRoutesAsync(routes, cancellation);
+            var configuredRoutes = await GetRoutesAsync(routes, cancellation);
 
             var config = new DynamicConfigRoot
             {
                 Clusters = configuredClusters,
-                Routes = parsedRoutes,
+                Routes = configuredRoutes,
             };
 
             return config;

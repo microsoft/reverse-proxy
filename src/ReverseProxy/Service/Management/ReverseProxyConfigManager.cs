@@ -16,7 +16,7 @@ using Microsoft.ReverseProxy.RuntimeModel;
 namespace Microsoft.ReverseProxy.Service.Management
 {
     /// <summary>
-    /// Default implementation of <see cref="IReverseProxyConfigManager"/>
+    /// Default implementation of <see cref="IProxyConfigManager"/>
     /// which provides a method to apply Proxy configuration changes
     /// by leveraging <see cref="IDynamicConfigBuilder"/>.
     /// Also an Implementation of <see cref="EndpointDataSource"/> that supports being dynamically updated
@@ -25,7 +25,7 @@ namespace Microsoft.ReverseProxy.Service.Management
     /// <remarks>
     /// This takes inspiration from <a href="https://github.com/aspnet/AspNetCore/blob/master/src/Mvc/Mvc.Core/src/Routing/ActionEndpointDataSourceBase.cs"/>.
     /// </remarks>
-    internal class ReverseProxyConfigManager : EndpointDataSource, IReverseProxyConfigManager, IDisposable
+    internal class ReverseProxyConfigManager : EndpointDataSource, IProxyConfigManager, IDisposable
     {
         private readonly object _syncRoot = new object();
         private readonly ILogger<ReverseProxyConfigManager> _logger;

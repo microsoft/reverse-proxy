@@ -53,7 +53,7 @@ namespace Microsoft.AspNetCore.Builder
             var routeBuilder = endpoints.ServiceProvider.GetRequiredService<IRuntimeRouteBuilder>();
             routeBuilder.SetProxyPipeline(app);
 
-            var configManager = endpoints.ServiceProvider.GetRequiredService<IReverseProxyConfigManager>();
+            var configManager = endpoints.ServiceProvider.GetRequiredService<IProxyConfigManager>();
             configManager.Load();
             endpoints.DataSources.Add(configManager.DataSource);
         }

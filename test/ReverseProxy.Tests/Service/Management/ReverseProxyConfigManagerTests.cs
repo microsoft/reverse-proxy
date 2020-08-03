@@ -30,14 +30,14 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
         public void Constructor_Works()
         {
             var services = CreateServices(new List<ProxyRoute>(), new List<Cluster>());
-            _ = services.GetRequiredService<IReverseProxyConfigManager>();
+            _ = services.GetRequiredService<IProxyConfigManager>();
         }
 
         [Fact]
         public void Endpoints_StartsEmpty()
         {
             var services = CreateServices(new List<ProxyRoute>(), new List<Cluster>());
-            var manager = services.GetRequiredService<IReverseProxyConfigManager>();
+            var manager = services.GetRequiredService<IProxyConfigManager>();
 
             var dataSource = manager.DataSource;
             Assert.NotNull(dataSource);
@@ -49,7 +49,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
         public void GetChangeToken_InitialValue()
         {
             var services = CreateServices(new List<ProxyRoute>(), new List<Cluster>());
-            var manager = services.GetRequiredService<IReverseProxyConfigManager>();
+            var manager = services.GetRequiredService<IProxyConfigManager>();
 
             var dataSource = manager.DataSource;
             Assert.NotNull(dataSource);
@@ -80,7 +80,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
 
             var services = CreateServices(new List<ProxyRoute>() { route }, new List<Cluster>() { cluster });
 
-            var manager = services.GetRequiredService<IReverseProxyConfigManager>();
+            var manager = services.GetRequiredService<IProxyConfigManager>();
             manager.Load();
 
             var dataSource = manager.DataSource;
@@ -114,7 +114,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
         {
             var services = CreateServices(new List<ProxyRoute>(), new List<Cluster>());
             var inMemoryConfig = (InMemoryConfigProvider)services.GetRequiredService<IProxyConfigProvider>();
-            var configManager = services.GetRequiredService<IReverseProxyConfigManager>();
+            var configManager = services.GetRequiredService<IProxyConfigManager>();
             configManager.Load();
             var dataSource = configManager.DataSource;
 
