@@ -6,11 +6,12 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Primitives;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.ConfigModel;
 using Microsoft.ReverseProxy.RuntimeModel;
-using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Service.Management
 {
@@ -18,38 +19,83 @@ namespace Microsoft.ReverseProxy.Service.Management
     /// Default implementation of <see cref="IReverseProxyConfigManager"/>
     /// which provides a method to apply Proxy configuration changes
     /// by leveraging <see cref="IDynamicConfigBuilder"/>.
+    /// Also an Implementation of <see cref="EndpointDataSource"/> that supports being dynamically updated
+    /// in a thread-safe manner while avoiding locks on the hot path.
     /// </summary>
-    internal class ReverseProxyConfigManager : IReverseProxyConfigManager
+    /// <remarks>
+    /// This takes inspiration from <a href="https://github.com/aspnet/AspNetCore/blob/master/src/Mvc/Mvc.Core/src/Routing/ActionEndpointDataSourceBase.cs"/>.
+    /// </remarks>
+    internal class ReverseProxyConfigManager : EndpointDataSource, IReverseProxyConfigManager, IDisposable
     {
+        private readonly object _syncRoot = new object();
         private readonly ILogger<ReverseProxyConfigManager> _logger;
+        private readonly IProxyConfigProvider _provider;
         private readonly IDynamicConfigBuilder _configBuilder;
         private readonly IRuntimeRouteBuilder _routeEndpointBuilder;
         private readonly IClusterManager _clusterManager;
         private readonly IRouteManager _routeManager;
-        private readonly IProxyDynamicEndpointDataSource _dynamicEndpointDataSource;
+        private IDisposable _changeSubscription;
+
+        private List<Endpoint> _endpoints = new List<Endpoint>(0);
+        private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+        private IChangeToken _changeToken;
 
         public ReverseProxyConfigManager(
             ILogger<ReverseProxyConfigManager> logger,
+            IProxyConfigProvider provider,
             IDynamicConfigBuilder configBuilder,
             IRuntimeRouteBuilder routeEndpointBuilder,
             IClusterManager clusterManager,
-            IRouteManager routeManager,
-            IProxyDynamicEndpointDataSource dynamicEndpointDataSource)
+            IRouteManager routeManager)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _provider = provider ?? throw new ArgumentNullException(nameof(provider));
             _configBuilder = configBuilder ?? throw new ArgumentNullException(nameof(configBuilder));
             _routeEndpointBuilder = routeEndpointBuilder ?? throw new ArgumentNullException(nameof(routeEndpointBuilder));
             _clusterManager = clusterManager ?? throw new ArgumentNullException(nameof(clusterManager));
             _routeManager = routeManager ?? throw new ArgumentNullException(nameof(routeManager));
-            _dynamicEndpointDataSource = dynamicEndpointDataSource ?? throw new ArgumentNullException(nameof(dynamicEndpointDataSource));
+            _changeToken = new CancellationChangeToken(_cancellationTokenSource.Token);
+        }
+        public EndpointDataSource DataSource => this;
+        /// <inheritdoc/>
+        public override IReadOnlyList<Endpoint> Endpoints => Volatile.Read(ref _endpoints);
+
+        /// <inheritdoc/>
+        public override IChangeToken GetChangeToken() => Volatile.Read(ref _changeToken);
+
+        public void Load()
+        {
+            // Trigger the first load immediately and throw if it fails
+            var config = _provider.GetConfig();
+            ApplyConfigAsync(config).GetAwaiter().GetResult();
         }
 
-        public async Task ApplyConfigurationsAsync(IList<ProxyRoute> routes, IDictionary<string, Cluster> clusters, CancellationToken cancellation)
+        private async Task ApplyConfigAsync(IProxyConfig config)
         {
-            var config = await _configBuilder.BuildConfigAsync(routes, clusters, cancellation);
+            var dynamicConfig = await _configBuilder.BuildConfigAsync(config.Routes, config.Clusters, default);
 
-            UpdateRuntimeClusters(config);
-            UpdateRuntimeRoutes(config);
+            UpdateRuntimeClusters(dynamicConfig);
+            UpdateRuntimeRoutes(dynamicConfig);
+
+            if (config.ChangeToken.ActiveChangeCallbacks)
+            {
+                _changeSubscription?.Dispose();
+                _changeSubscription = config.ChangeToken.RegisterChangeCallback(ReloadConfigAsync, this);
+            }
+        }
+
+        private static async void ReloadConfigAsync(object state)
+        {
+            var manager = (ReverseProxyConfigManager)state;
+            try
+            {
+                var newConfig = manager._provider.GetConfig();
+                await manager.ApplyConfigAsync(newConfig);
+            }
+            catch (Exception)
+            {
+                // TODO: Log
+            }
         }
 
         private void UpdateRuntimeClusters(DynamicConfigRoot config)
@@ -174,7 +220,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                 // Note that this can be null, and that is fine. The resulting route may match
                 // but would then fail to route, which is exactly what we were instructed to do in this case
                 // since no valid cluster was specified.
-                var cluster = _clusterManager.TryGetItem(configRoute.ClusterId);
+                var cluster = _clusterManager.TryGetItem(configRoute.ClusterId ?? string.Empty);
 
                 _routeManager.GetOrCreateItem(
                     itemId: configRoute.RouteId,
@@ -229,9 +275,43 @@ namespace Microsoft.ReverseProxy.Service.Management
                     }
                 }
 
-                // This is where the new routes take effect!
-                _dynamicEndpointDataSource.Update(endpoints);
+                UpdateEndpoints(endpoints);
             }
+        }
+
+        /// <summary>
+        /// Applies a new set of ASP .NET Core endpoints. Changes take effect immediately.
+        /// </summary>
+        /// <param name="endpoints">New endpoints to apply.</param>
+        private void UpdateEndpoints(List<Endpoint> endpoints)
+        {
+            if (endpoints == null)
+            {
+                throw new ArgumentNullException(nameof(endpoints));
+            }
+
+            lock (_syncRoot)
+            {
+                // These steps are done in a specific order to ensure callers always see a consistent state.
+
+                // Step 1 - capture old token
+                var oldCancellationTokenSource = _cancellationTokenSource;
+
+                // Step 2 - update endpoints
+                Volatile.Write(ref _endpoints, endpoints);
+
+                // Step 3 - create new change token
+                _cancellationTokenSource = new CancellationTokenSource();
+                Volatile.Write(ref _changeToken, new CancellationChangeToken(_cancellationTokenSource.Token));
+
+                // Step 4 - trigger old token
+                oldCancellationTokenSource?.Cancel();
+            }
+        }
+
+        public void Dispose()
+        {
+            _changeSubscription?.Dispose();
         }
 
         private static class Log

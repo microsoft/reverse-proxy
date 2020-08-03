@@ -15,6 +15,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Configuration;
+using Microsoft.ReverseProxy.Service;
 using Xunit;
 
 namespace Microsoft.ReverseProxy
@@ -171,35 +172,23 @@ namespace Microsoft.ReverseProxy
             {
                 services.AddRouting();
 
-                services.AddReverseProxy();
-                services.Configure<ProxyConfigOptions>(x =>
+                var proxyRoute = new ProxyRoute
                 {
-                    var proxyRoute = new ProxyRoute
+                    RouteId = "route1",
+                    ClusterId = "cluster1",
+                    Match = { Path = "/{**catchall}" }
+                };
+
+                var cluster = new Cluster
+                {
+                    Id = "cluster1",
+                    Destinations =
                     {
-                        RouteId = "route1",
-                        ClusterId = "cluster1"
-                    };
-                    proxyRoute.Match.Path = "/{**catchall}";
+                        { "cluster1",  new Destination() { Address = destinationHostUrl } }
+                    }
+                };
 
-                    x.Routes.Add(proxyRoute);
-
-
-                    var cluster = new Cluster
-                    {
-                        Id = "cluster1"
-                    };
-
-                    var destination = new Destination
-                    {
-                        Address = destinationHostUrl
-                    };
-
-                    cluster.Destinations.Add("cluster1", destination);
-
-                    x.Clusters.Add("cluster1", cluster);
-                });
-
-                services.AddHostedService<ProxyConfigLoader>();
+                services.AddReverseProxy().LoadFromMemory(new[] { proxyRoute }, new[] { cluster });
             }, app =>
             {
                 // Mimic the IIS issue https://github.com/microsoft/reverse-proxy/issues/255

@@ -35,37 +35,31 @@ namespace Microsoft.ReverseProxy.Service
             _affinityFailurePolicies = affinityFailurePolicies?.ToPolicyDictionary() ?? throw new ArgumentNullException(nameof(affinityFailurePolicies));
         }
 
-        public async Task<DynamicConfigRoot> BuildConfigAsync(IList<ProxyRoute> routes, IDictionary<string, Cluster> clusters, CancellationToken cancellation)
+        public async Task<DynamicConfigRoot> BuildConfigAsync(IReadOnlyList<ProxyRoute> routes, IReadOnlyList<Cluster> clusters, CancellationToken cancellation)
         {
             _ = routes ?? throw new ArgumentNullException(nameof(routes));
             _ = clusters ?? throw new ArgumentNullException(nameof(clusters));
 
-            clusters = await GetClustersAsync(clusters, cancellation);
+            var configuredClusters = await GetClustersAsync(clusters, cancellation);
             var parsedRoutes = await GetRoutesAsync(routes, cancellation);
 
             var config = new DynamicConfigRoot
             {
-                Clusters = clusters,
+                Clusters = configuredClusters,
                 Routes = parsedRoutes,
             };
 
             return config;
         }
 
-        public async Task<IDictionary<string, Cluster>> GetClustersAsync(IDictionary<string, Cluster> clusters, CancellationToken cancellation)
+        public async Task<IDictionary<string, Cluster>> GetClustersAsync(IReadOnlyList<Cluster> clusters, CancellationToken cancellation)
         {
             var configuredClusters = new Dictionary<string, Cluster>(StringComparer.OrdinalIgnoreCase);
             // The IClustersRepo provides a fresh snapshot that we need to reconfigure each time.
-            foreach (var (id, c) in clusters)
+            foreach (var c in clusters)
             {
                 try
                 {
-                    if (id != c.Id)
-                    {
-                        Log.ClusterIdMismatch(_logger, c.Id, id);
-                        continue;
-                    }
-
                     // Don't modify the original
                     var cluster = c.DeepClone();
 
@@ -76,11 +70,16 @@ namespace Microsoft.ReverseProxy.Service
 
                     ValidateSessionAffinity(cluster);
 
-                    configuredClusters[id] = cluster;
+                    if (configuredClusters.ContainsKey(cluster.Id))
+                    {
+                        // TODO: Error
+                    }
+
+                    configuredClusters[cluster.Id] = cluster;
                 }
                 catch (Exception ex)
                 {
-                    Log.ClusterConfigException(_logger, id, ex);
+                    Log.ClusterConfigException(_logger, c.Id, ex);
                 }
             }
 
@@ -118,7 +117,7 @@ namespace Microsoft.ReverseProxy.Service
             }
         }
 
-        private async Task<IList<ParsedRoute>> GetRoutesAsync(IList<ProxyRoute> routes, CancellationToken cancellation)
+        private async Task<IList<ParsedRoute>> GetRoutesAsync(IReadOnlyList<ProxyRoute> routes, CancellationToken cancellation)
         {
             var seenRouteIds = new HashSet<string>();
             var sortedRoutes = new SortedList<(int, string), ParsedRoute>(routes?.Count ?? 0);
@@ -179,11 +178,6 @@ namespace Microsoft.ReverseProxy.Service
 
         private static class Log
         {
-            private static readonly Action<ILogger, string, string, Exception> _clusterIdMismatch = LoggerMessage.Define<string, string>(
-                LogLevel.Error,
-                EventIds.ClusterIdMismatch,
-                "The cluster Id '{clusterId}' and its lookup key '{id}' do not match.");
-
             private static readonly Action<ILogger, string, Exception> _clusterConfigException = LoggerMessage.Define<string>(
                 LogLevel.Error,
                 EventIds.ClusterConfigException,
@@ -208,11 +202,6 @@ namespace Microsoft.ReverseProxy.Service
                 LogLevel.Error,
                 EventIds.DuplicateRouteId,
                 "Duplicate route '{RouteId}'.");
-
-            public static void ClusterIdMismatch(ILogger logger, string clusterId, string lookupId)
-            {
-                _clusterIdMismatch(logger, clusterId, lookupId, null);
-            }
 
             public static void ClusterConfigException(ILogger logger, string clusterId, Exception exception)
             {

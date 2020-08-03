@@ -1,79 +1,97 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
-using System.Threading;
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.ConfigModel;
-using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
-using Moq;
-using Tests.Common;
+using Microsoft.ReverseProxy.Configuration;
+using Microsoft.ReverseProxy.Utilities;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Service.Management.Tests
 {
-    public class ReverseProxyConfigManagerTests : TestAutoMockBase
+    public class ReverseProxyConfigManagerTests
     {
-        private readonly IClusterManager _clusterManager;
-        private readonly IRouteManager _routeManager;
-
-        public ReverseProxyConfigManagerTests()
+        private IServiceProvider CreateServices(List<ProxyRoute> routes, List<Cluster> clusters)
         {
-            var httpClientFactoryMock = new Mock<IProxyHttpClientFactory>(MockBehavior.Strict);
-            Mock<IProxyHttpClientFactoryFactory>()
-                .Setup(p => p.CreateFactory())
-                .Returns(httpClientFactoryMock.Object);
-
-            // The following classes simply store information and using the actual implementations
-            // is easier than replicating functionality with mocks.
-            Provide<IDestinationManagerFactory, DestinationManagerFactory>();
-            _clusterManager = Provide<IClusterManager, ClusterManager>();
-            _routeManager = Provide<IRouteManager, RouteManager>();
-            Provide<IRuntimeRouteBuilder, RuntimeRouteBuilder>();
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddLogging();
+            serviceCollection.AddRouting();
+            serviceCollection.AddReverseProxy().LoadFromMemory(routes, clusters);
+            var services = serviceCollection.BuildServiceProvider();
+            var routeBuilder = services.GetRequiredService<IRuntimeRouteBuilder>();
+            routeBuilder.SetProxyPipeline(context => Task.CompletedTask);
+            return services;
         }
 
         [Fact]
         public void Constructor_Works()
         {
-            Create<ReverseProxyConfigManager>();
+            var services = CreateServices(new List<ProxyRoute>(), new List<Cluster>());
+            _ = services.GetRequiredService<IReverseProxyConfigManager>();
         }
 
         [Fact]
-        public async Task ApplyConfigurationsAsync_OneClusterOneDestinationOneRoute_Works()
+        public void Endpoints_StartsEmpty()
         {
-            // Arrange
+            var services = CreateServices(new List<ProxyRoute>(), new List<Cluster>());
+            var manager = services.GetRequiredService<IReverseProxyConfigManager>();
+
+            var dataSource = manager.DataSource;
+            Assert.NotNull(dataSource);
+            var endpoints = dataSource.Endpoints;
+            Assert.Empty(endpoints);
+        }
+
+        [Fact]
+        public void GetChangeToken_InitialValue()
+        {
+            var services = CreateServices(new List<ProxyRoute>(), new List<Cluster>());
+            var manager = services.GetRequiredService<IReverseProxyConfigManager>();
+
+            var dataSource = manager.DataSource;
+            Assert.NotNull(dataSource);
+            var changeToken = dataSource.GetChangeToken();
+            Assert.NotNull(changeToken);
+            Assert.True(changeToken.ActiveChangeCallbacks);
+            Assert.False(changeToken.HasChanged);
+        }
+
+        [Fact]
+        public void BuildConfig_OneClusterOneDestinationOneRoute_Works()
+        {
             const string TestAddress = "https://localhost:123/";
 
             var cluster = new Cluster
             {
+                Id = "cluster1",
                 Destinations = {
                     { "d1", new Destination { Address = TestAddress } }
                 }
             };
-            var route = new ParsedRoute
+            var route = new ProxyRoute
             {
                 RouteId = "route1",
                 ClusterId = "cluster1",
+                Match = { Path = "/" }
             };
 
-            var dynamicConfigRoot = new DynamicConfigRoot
-            {
-                Clusters = new Dictionary<string, Cluster> { { "cluster1", cluster }  },
-                Routes = new[] { route },
-            };
-            Mock<IDynamicConfigBuilder>()
-                .Setup(d => d.BuildConfigAsync(It.IsAny<IList<ProxyRoute>>(), It.IsAny<IDictionary<string, Cluster>>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(dynamicConfigRoot);
+            var services = CreateServices(new List<ProxyRoute>() { route }, new List<Cluster>() { cluster });
 
-            var proxyManager = Create<ReverseProxyConfigManager>();
+            var manager = services.GetRequiredService<IReverseProxyConfigManager>();
+            manager.Load();
 
-            // Act
-            await proxyManager.ApplyConfigurationsAsync(null, null, CancellationToken.None);
+            var dataSource = manager.DataSource;
+            Assert.NotNull(dataSource);
+            var endpoints = dataSource.Endpoints;
+            Assert.Single(endpoints);
 
-            // Assert
-
-            var actualClusters = _clusterManager.GetItems();
+            var clusterManager = services.GetRequiredService<IClusterManager>();
+            var actualClusters = clusterManager.GetItems();
             Assert.Single(actualClusters);
             Assert.Equal("cluster1", actualClusters[0].ClusterId);
             Assert.NotNull(actualClusters[0].DestinationManager);
@@ -85,11 +103,56 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             Assert.NotNull(actualDestinations[0].Config);
             Assert.Equal(TestAddress, actualDestinations[0].Config.Address);
 
-            var actualRoutes = _routeManager.GetItems();
+            var routeManager = services.GetRequiredService<IRouteManager>();
+            var actualRoutes = routeManager.GetItems();
             Assert.Single(actualRoutes);
             Assert.Equal("route1", actualRoutes[0].RouteId);
             Assert.NotNull(actualRoutes[0].Config.Value);
             Assert.Same(actualClusters[0], actualRoutes[0].Config.Value.Cluster);
+        }
+
+        [Fact]
+        public async Task GetChangeToken_SignalsChange()
+        {
+            var services = CreateServices(new List<ProxyRoute>(), new List<Cluster>());
+            var inMemoryConfig = (InMemoryConfigProvider)services.GetRequiredService<IProxyConfigProvider>();
+            var configManager = services.GetRequiredService<IReverseProxyConfigManager>();
+            configManager.Load();
+            var dataSource = configManager.DataSource;
+
+            var signaled1 = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
+            var signaled2 = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
+            IReadOnlyList<AspNetCore.Http.Endpoint> readEndpoints1 = null;
+            IReadOnlyList<AspNetCore.Http.Endpoint> readEndpoints2 = null;
+
+            var changeToken1 = dataSource.GetChangeToken();
+            changeToken1.RegisterChangeCallback(
+                _ =>
+                {
+                    readEndpoints1 = dataSource.Endpoints;
+                    signaled1.SetResult(1);
+                }, null);
+
+            // updating should signal the current change token
+            Assert.False(signaled1.Task.IsCompleted);
+            inMemoryConfig.Update(new List<ProxyRoute>() { new ProxyRoute() { RouteId = "r1", Match = { Path = "/" } } }, new List<Cluster>());
+            await signaled1.Task.DefaultTimeout();
+
+            var changeToken2 = dataSource.GetChangeToken();
+            changeToken2.RegisterChangeCallback(
+                _ =>
+                {
+                    readEndpoints2 = dataSource.Endpoints;
+                    signaled2.SetResult(1);
+                }, null);
+
+            // updating again should only signal the new change token
+            Assert.False(signaled2.Task.IsCompleted);
+            inMemoryConfig.Update(new List<ProxyRoute>() { new ProxyRoute() { RouteId = "r2", Match = { Path = "/" } } }, new List<Cluster>());
+            await signaled2.Task.DefaultTimeout();
+
+            Assert.NotNull(readEndpoints1);
+            Assert.NotNull(readEndpoints2);
         }
     }
 }

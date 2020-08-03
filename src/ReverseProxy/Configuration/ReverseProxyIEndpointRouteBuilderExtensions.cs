@@ -4,6 +4,7 @@
 using System;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Middleware;
 using Microsoft.ReverseProxy.Service;
 
@@ -52,8 +53,9 @@ namespace Microsoft.AspNetCore.Builder
             var routeBuilder = endpoints.ServiceProvider.GetRequiredService<IRuntimeRouteBuilder>();
             routeBuilder.SetProxyPipeline(app);
 
-            var dataSource = (EndpointDataSource)endpoints.ServiceProvider.GetRequiredService<IProxyDynamicEndpointDataSource>();
-            endpoints.DataSources.Add(dataSource);
+            var configManager = endpoints.ServiceProvider.GetRequiredService<IReverseProxyConfigManager>();
+            configManager.Load();
+            endpoints.DataSources.Add(configManager.DataSource);
         }
     }
 }

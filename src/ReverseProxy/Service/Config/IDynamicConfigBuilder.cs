@@ -17,6 +17,6 @@ namespace Microsoft.ReverseProxy.Service
         /// <summary>
         /// Creates a <see cref="DynamicConfigRoot"/> object representing the current desired proxy dynamic configurations.
         /// </summary>
-        Task<DynamicConfigRoot> BuildConfigAsync(IList<ProxyRoute> routes, IDictionary<string, Cluster> clusters, CancellationToken cancellation);
+        Task<DynamicConfigRoot> BuildConfigAsync(IReadOnlyList<ProxyRoute> routes, IReadOnlyList<Cluster> clusters, CancellationToken cancellation);
     }
 }

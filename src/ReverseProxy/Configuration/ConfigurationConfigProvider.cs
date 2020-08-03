@@ -2,41 +2,37 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.ReverseProxy.Abstractions;
+using Microsoft.Extensions.Primitives;
+using Microsoft.ReverseProxy.Service;
 
 namespace Microsoft.ReverseProxy.Configuration
 {
-    // TODO: It's weird that this is an IHostedService.
-    // Could this be moved to MapReverseProxy?
-
     /// <summary>
-    /// Reacts to configuration changes for type <see cref="ProxyConfigRoot"/>
+    /// Reacts to configuration changes for type <see cref="ConfigurationOptions"/>
     /// via <see cref="IOptionsMonitor{TOptions}"/>, and applies configurations
     /// to the Reverse Proxy core.
     /// When configs are loaded from appsettings.json, this takes care of hot updates
     /// when appsettings.json is modified on disk.
     /// </summary>
-    internal class ProxyConfigLoader : IHostedService, IDisposable
+    internal class ConfigurationConfigProvider : IProxyConfigProvider, IDisposable
     {
-        private readonly ILogger<ProxyConfigLoader> _logger;
-        private readonly IReverseProxyConfigManager _proxyManager;
-        private readonly IOptionsMonitor<ProxyConfigOptions> _proxyConfig;
+        private readonly ILogger<ConfigurationConfigProvider> _logger;
+        private readonly IOptionsMonitor<ConfigurationOptions> _optionsMonitor;
+        private ConfigurationSnapshot _snapshot;
+        private CancellationTokenSource _changeToken;
         private bool _disposed;
         private IDisposable _subscription;
 
-        public ProxyConfigLoader(
-            ILogger<ProxyConfigLoader> logger,
-            IReverseProxyConfigManager proxyManager,
-            IOptionsMonitor<ProxyConfigOptions> proxyConfig)
+        public ConfigurationConfigProvider(
+            ILogger<ConfigurationConfigProvider> logger,
+            IOptionsMonitor<ConfigurationOptions> optionsMonitor)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _proxyManager = proxyManager ?? throw new ArgumentNullException(nameof(proxyManager));
-            _proxyConfig = proxyConfig ?? throw new ArgumentNullException(nameof(proxyConfig));
+            _optionsMonitor = optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
         }
 
         public void Dispose()
@@ -44,32 +40,37 @@ namespace Microsoft.ReverseProxy.Configuration
             if (!_disposed)
             {
                 _subscription?.Dispose();
+                _changeToken?.Dispose();
                 _disposed = true;
             }
         }
 
-        public Task StartAsync(CancellationToken cancellationToken)
+        public IProxyConfig GetConfig()
         {
-            _subscription = _proxyConfig.OnChange((newConfig, name) => _ = ApplyAsync(newConfig));
-            return ApplyAsync(_proxyConfig.CurrentValue);
-        }
-
-        public Task StopAsync(CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
-        }
-
-        private async Task ApplyAsync(ProxyConfigOptions config)
-        {
-            if (config == null)
+            // First time load
+            if (_snapshot == null)
             {
-                return;
+                CreateSnapshot(_optionsMonitor.CurrentValue);
+                _subscription = _optionsMonitor.OnChange((newConfig) => CreateSnapshot(newConfig));
             }
+            return _snapshot;
+        }
 
+        private void CreateSnapshot(ConfigurationOptions options)
+        {
             Log.ApplyProxyConfig(_logger);
+            var oldToken = _changeToken;
+            _changeToken = new CancellationTokenSource();
+            _snapshot = new ConfigurationSnapshot()
+            {
+                Routes = options.Routes,
+                Clusters = options.Clusters.Values.ToList(),
+                ChangeToken = new CancellationChangeToken(_changeToken.Token)
+            };
+
             try
             {
-                await _proxyManager.ApplyConfigurationsAsync(config.Routes, config.Clusters, CancellationToken.None);
+                oldToken?.Cancel();
             }
             catch (Exception ex)
             {

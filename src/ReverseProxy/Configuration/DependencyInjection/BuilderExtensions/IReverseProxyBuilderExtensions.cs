@@ -59,12 +59,6 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
             return builder;
         }
 
-        public static IReverseProxyBuilder AddDynamicEndpointDataSource(this IReverseProxyBuilder builder)
-        {
-            builder.Services.TryAddSingleton<IProxyDynamicEndpointDataSource, ProxyDynamicEndpointDataSource>();
-            return builder;
-        }
-
         public static IReverseProxyBuilder AddProxy(this IReverseProxyBuilder builder)
         {
             builder.Services.TryAddSingleton<ITransformBuilder, TransformBuilder>();

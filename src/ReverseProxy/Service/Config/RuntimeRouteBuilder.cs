@@ -68,7 +68,7 @@ namespace Microsoft.ReverseProxy.Service
 
             // TODO: Propagate route priority
             var endpointBuilder = new AspNetCore.Routing.RouteEndpointBuilder(
-                requestDelegate: _pipeline ?? Invoke,
+                requestDelegate: _pipeline,
                 routePattern: AspNetCore.Routing.Patterns.RoutePatternFactory.Parse(pathPattern),
                 order: 0);
             endpointBuilder.DisplayName = source.RouteId;
@@ -118,14 +118,6 @@ namespace Microsoft.ReverseProxy.Service
             aspNetCoreEndpoints.Add(endpoint);
 
             return newRouteConfig;
-        }
-
-        // This indirection is needed because on startup the routes are loaded from config and built before the
-        // proxy pipeline gets built.
-        private Task Invoke(HttpContext context)
-        {
-            var pipeline = _pipeline ?? throw new InvalidOperationException("The pipeline hasn't been provided yet.");
-            return pipeline(context);
         }
     }
 }

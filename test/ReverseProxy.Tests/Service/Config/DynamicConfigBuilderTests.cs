@@ -19,8 +19,8 @@ namespace Microsoft.ReverseProxy.Service.Tests
     public class DynamicConfigBuilderTests
     {
         private const string TestAddress = "https://localhost:123/";
-        private readonly IList<ProxyRoute> EmptyRoutes = new List<ProxyRoute>();
-        private readonly IDictionary<string, Cluster> EmptyClusters = new Dictionary<string, Cluster>();
+        private readonly IReadOnlyList<ProxyRoute> EmptyRoutes = new List<ProxyRoute>();
+        private readonly IReadOnlyList<Cluster> EmptyClusters = new List<Cluster>();
 
         private IDynamicConfigBuilder CreateConfigBuilder(ILoggerFactory loggerFactory, Action<IReverseProxyBuilder> configProxy = null)
         {
@@ -42,18 +42,16 @@ namespace Microsoft.ReverseProxy.Service.Tests
             public int CallCount { get; set; }
         }
 
-        private Dictionary<string, Cluster> CreateOneCluster()
+        private IReadOnlyList<Cluster> CreateOneCluster()
         {
-            return new Dictionary<string, Cluster>
+            return new List<Cluster>
             {
+                new Cluster
                 {
-                    "cluster1", new Cluster
+                    Id = "cluster1",
+                    Destinations =
                     {
-                        Id = "cluster1",
-                        Destinations =
-                        {
-                            { "d1", new Destination { Address = TestAddress } }
-                        }
+                        { "d1", new Destination { Address = TestAddress } }
                     }
                 }
             };

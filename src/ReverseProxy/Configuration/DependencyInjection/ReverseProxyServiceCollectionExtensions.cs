@@ -2,7 +2,9 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
+using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Configuration;
 using Microsoft.ReverseProxy.Configuration.DependencyInjection;
 using Microsoft.ReverseProxy.Service;
@@ -27,7 +29,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddConfigBuilder()
                 .AddRuntimeStateManagers()
                 .AddConfigManager()
-                .AddDynamicEndpointDataSource()
                 .AddSessionAffinityProvider()
                 .AddProxy()
                 .AddBackgroundWorkers();
@@ -44,8 +45,8 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         public static IReverseProxyBuilder LoadFromConfig(this IReverseProxyBuilder builder, IConfiguration config)
         {
-            builder.Services.Configure<ProxyConfigOptions>(config);
-            builder.Services.AddOptions().PostConfigure<ProxyConfigOptions>(options =>
+            builder.Services.Configure<ConfigurationOptions>(config);
+            builder.Services.AddOptions().PostConfigure<ConfigurationOptions>(options =>
             {
                 foreach (var (id, cluster) in options.Clusters)
                 {
@@ -54,8 +55,17 @@ namespace Microsoft.Extensions.DependencyInjection
                     cluster.Id = id;
                 }
             });
-            builder.Services.AddHostedService<ProxyConfigLoader>();
+            builder.Services.AddSingleton<IProxyConfigProvider, ConfigurationConfigProvider>();
 
+            return builder;
+        }
+
+        /// <summary>
+        /// Loads routes and endpoints from config.
+        /// </summary>
+        public static IReverseProxyBuilder LoadFromMemory(this IReverseProxyBuilder builder, IReadOnlyList<ProxyRoute> routes, IReadOnlyList<Cluster> clusters)
+        {
+            builder.Services.AddSingleton<IProxyConfigProvider>(new InMemoryConfigProvider(routes, clusters));
             return builder;
         }
 

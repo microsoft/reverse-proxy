@@ -2,32 +2,50 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Cors.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.ReverseProxy.ConfigModel;
 using Microsoft.ReverseProxy.RuntimeModel;
+using Microsoft.ReverseProxy.Service.Config;
 using Microsoft.ReverseProxy.Service.Management;
 using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
+using Microsoft.ReverseProxy.Utilities;
 using Moq;
 using Tests.Common;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Service.Tests
 {
-    public class RuntimeRouteBuilderTests : TestAutoMockBase
+    public class RuntimeRouteBuilderTests
     {
+        private IServiceProvider CreateServices()
+        {
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddSingleton<IRuntimeRouteBuilder, RuntimeRouteBuilder>();
+            serviceCollection.AddSingleton<ITransformBuilder, TransformBuilder>();
+            serviceCollection.AddSingleton<IRandomFactory, RandomFactory>();
+            serviceCollection.AddRouting();
+            serviceCollection.AddLogging();
+            return serviceCollection.BuildServiceProvider();
+        }
+
         [Fact]
         public void Constructor_Works()
         {
-            Create<RuntimeRouteBuilder>();
+            var services = CreateServices();
+            _ = services.GetRequiredService<IRuntimeRouteBuilder>();
         }
 
         [Fact]
         public void BuildEndpoints_HostAndPath_Works()
         {
-            // Arrange
-            var builder = Create<RuntimeRouteBuilder>();
+            var services = CreateServices();
+            var builder = services.GetRequiredService<IRuntimeRouteBuilder>();
+            builder.SetProxyPipeline(context => Task.CompletedTask);
+
             var parsedRoute = new ParsedRoute
             {
                 RouteId = "route1",
@@ -38,10 +56,8 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var cluster = new ClusterInfo("cluster1", new DestinationManager(), new Mock<IProxyHttpClientFactory>().Object);
             var routeInfo = new RouteInfo("route1");
 
-            // Act
             var config = builder.Build(parsedRoute, cluster, routeInfo);
 
-            // Assert
             Assert.Same(cluster, config.Cluster);
             Assert.Equal(12, config.Priority);
             Assert.Equal(parsedRoute.GetConfigHash(), config.ConfigHash);
@@ -60,8 +76,10 @@ namespace Microsoft.ReverseProxy.Service.Tests
         [Fact]
         public void BuildEndpoints_JustHost_Works()
         {
-            // Arrange
-            var builder = Create<RuntimeRouteBuilder>();
+            var services = CreateServices();
+            var builder = services.GetRequiredService<IRuntimeRouteBuilder>();
+            builder.SetProxyPipeline(context => Task.CompletedTask);
+
             var parsedRoute = new ParsedRoute
             {
                 RouteId = "route1",
@@ -71,10 +89,8 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var cluster = new ClusterInfo("cluster1", new DestinationManager(), new Mock<IProxyHttpClientFactory>().Object);
             var routeInfo = new RouteInfo("route1");
 
-            // Act
             var config = builder.Build(parsedRoute, cluster, routeInfo);
 
-            // Assert
             Assert.Same(cluster, config.Cluster);
             Assert.Equal(12, config.Priority);
             Assert.Equal(parsedRoute.GetConfigHash(), config.ConfigHash);
@@ -93,8 +109,10 @@ namespace Microsoft.ReverseProxy.Service.Tests
         [Fact]
         public void BuildEndpoints_JustHostWithWildcard_Works()
         {
-            // Arrange
-            var builder = Create<RuntimeRouteBuilder>();
+            var services = CreateServices();
+            var builder = services.GetRequiredService<IRuntimeRouteBuilder>();
+            builder.SetProxyPipeline(context => Task.CompletedTask);
+
             var parsedRoute = new ParsedRoute
             {
                 RouteId = "route1",
@@ -104,10 +122,8 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var cluster = new ClusterInfo("cluster1", new DestinationManager(), new Mock<IProxyHttpClientFactory>().Object);
             var routeInfo = new RouteInfo("route1");
 
-            // Act
             var config = builder.Build(parsedRoute, cluster, routeInfo);
 
-            // Assert
             Assert.Same(cluster, config.Cluster);
             Assert.Equal(12, config.Priority);
             Assert.Equal(parsedRoute.GetConfigHash(), config.ConfigHash);
@@ -126,8 +142,10 @@ namespace Microsoft.ReverseProxy.Service.Tests
         [Fact]
         public void BuildEndpoints_JustPath_Works()
         {
-            // Arrange
-            var builder = Create<RuntimeRouteBuilder>();
+            var services = CreateServices();
+            var builder = services.GetRequiredService<IRuntimeRouteBuilder>();
+            builder.SetProxyPipeline(context => Task.CompletedTask);
+
             var parsedRoute = new ParsedRoute
             {
                 RouteId = "route1",
@@ -137,10 +155,8 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var cluster = new ClusterInfo("cluster1", new DestinationManager(), new Mock<IProxyHttpClientFactory>().Object);
             var routeInfo = new RouteInfo("route1");
 
-            // Act
             var config = builder.Build(parsedRoute, cluster, routeInfo);
 
-            // Assert
             Assert.Same(cluster, config.Cluster);
             Assert.Equal(12, config.Priority);
             Assert.Equal(parsedRoute.GetConfigHash(), config.ConfigHash);
@@ -157,8 +173,10 @@ namespace Microsoft.ReverseProxy.Service.Tests
         [Fact]
         public void BuildEndpoints_NullMatchers_Works()
         {
-            // Arrange
-            var builder = Create<RuntimeRouteBuilder>();
+            var services = CreateServices();
+            var builder = services.GetRequiredService<IRuntimeRouteBuilder>();
+            builder.SetProxyPipeline(context => Task.CompletedTask);
+
             var parsedRoute = new ParsedRoute
             {
                 RouteId = "route1",
@@ -167,10 +185,8 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var cluster = new ClusterInfo("cluster1", new DestinationManager(), new Mock<IProxyHttpClientFactory>().Object);
             var routeInfo = new RouteInfo("route1");
 
-            // Act
             var config = builder.Build(parsedRoute, cluster, routeInfo);
 
-            // Assert
             Assert.Same(cluster, config.Cluster);
             Assert.Equal(12, config.Priority);
             Assert.NotEqual(0, config.ConfigHash);
@@ -187,8 +203,10 @@ namespace Microsoft.ReverseProxy.Service.Tests
         [Fact]
         public void BuildEndpoints_InvalidPath_BubblesOutException()
         {
-            // Arrange
-            var builder = Create<RuntimeRouteBuilder>();
+            var services = CreateServices();
+            var builder = services.GetRequiredService<IRuntimeRouteBuilder>();
+            builder.SetProxyPipeline(context => Task.CompletedTask);
+
             var parsedRoute = new ParsedRoute
             {
                 RouteId = "route1",
@@ -198,17 +216,18 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var cluster = new ClusterInfo("cluster1", new DestinationManager(), new Mock<IProxyHttpClientFactory>().Object);
             var routeInfo = new RouteInfo("route1");
 
-            // Act
             Action action = () => builder.Build(parsedRoute, cluster, routeInfo);
 
-            // Assert
             Assert.Throws<AspNetCore.Routing.Patterns.RoutePatternException>(action);
         }
 
         [Fact]
         public void BuildEndpoints_DefaultAuth_Works()
         {
-            var builder = Create<RuntimeRouteBuilder>();
+            var services = CreateServices();
+            var builder = services.GetRequiredService<IRuntimeRouteBuilder>();
+            builder.SetProxyPipeline(context => Task.CompletedTask);
+
             var parsedRoute = new ParsedRoute
             {
                 RouteId = "route1",
@@ -220,7 +239,6 @@ namespace Microsoft.ReverseProxy.Service.Tests
 
             var config = builder.Build(parsedRoute, cluster, routeInfo);
 
-            // Assert
             Assert.Single(config.Endpoints);
             var routeEndpoint = config.Endpoints[0] as AspNetCore.Routing.RouteEndpoint;
             var attribute = Assert.IsType<AuthorizeAttribute>(routeEndpoint.Metadata.GetMetadata<IAuthorizeData>());
@@ -230,7 +248,10 @@ namespace Microsoft.ReverseProxy.Service.Tests
         [Fact]
         public void BuildEndpoints_CustomAuth_Works()
         {
-            var builder = Create<RuntimeRouteBuilder>();
+            var services = CreateServices();
+            var builder = services.GetRequiredService<IRuntimeRouteBuilder>();
+            builder.SetProxyPipeline(context => Task.CompletedTask);
+
             var parsedRoute = new ParsedRoute
             {
                 RouteId = "route1",
@@ -242,7 +263,6 @@ namespace Microsoft.ReverseProxy.Service.Tests
 
             var config = builder.Build(parsedRoute, cluster, routeInfo);
 
-            // Assert
             Assert.Single(config.Endpoints);
             var routeEndpoint = config.Endpoints[0] as AspNetCore.Routing.RouteEndpoint;
             var attribute = Assert.IsType<AuthorizeAttribute>(routeEndpoint.Metadata.GetMetadata<IAuthorizeData>());
@@ -252,7 +272,10 @@ namespace Microsoft.ReverseProxy.Service.Tests
         [Fact]
         public void BuildEndpoints_NoAuth_Works()
         {
-            var builder = Create<RuntimeRouteBuilder>();
+            var services = CreateServices();
+            var builder = services.GetRequiredService<IRuntimeRouteBuilder>();
+            builder.SetProxyPipeline(context => Task.CompletedTask);
+
             var parsedRoute = new ParsedRoute
             {
                 RouteId = "route1",
@@ -263,7 +286,6 @@ namespace Microsoft.ReverseProxy.Service.Tests
 
             var config = builder.Build(parsedRoute, cluster, routeInfo);
 
-            // Assert
             Assert.Single(config.Endpoints);
             var routeEndpoint = config.Endpoints[0] as AspNetCore.Routing.RouteEndpoint;
             Assert.Null(routeEndpoint.Metadata.GetMetadata<IAuthorizeData>());
@@ -273,7 +295,10 @@ namespace Microsoft.ReverseProxy.Service.Tests
         [Fact]
         public void BuildEndpoints_DefaultCors_Works()
         {
-            var builder = Create<RuntimeRouteBuilder>();
+            var services = CreateServices();
+            var builder = services.GetRequiredService<IRuntimeRouteBuilder>();
+            builder.SetProxyPipeline(context => Task.CompletedTask);
+
             var parsedRoute = new ParsedRoute
             {
                 RouteId = "route1",
@@ -285,7 +310,6 @@ namespace Microsoft.ReverseProxy.Service.Tests
 
             var config = builder.Build(parsedRoute, cluster, routeInfo);
 
-            // Assert
             Assert.Single(config.Endpoints);
             var routeEndpoint = config.Endpoints[0] as AspNetCore.Routing.RouteEndpoint;
             var attribute = Assert.IsType<EnableCorsAttribute>(routeEndpoint.Metadata.GetMetadata<IEnableCorsAttribute>());
@@ -296,7 +320,10 @@ namespace Microsoft.ReverseProxy.Service.Tests
         [Fact]
         public void BuildEndpoints_CustomCors_Works()
         {
-            var builder = Create<RuntimeRouteBuilder>();
+            var services = CreateServices();
+            var builder = services.GetRequiredService<IRuntimeRouteBuilder>();
+            builder.SetProxyPipeline(context => Task.CompletedTask);
+
             var parsedRoute = new ParsedRoute
             {
                 RouteId = "route1",
@@ -308,7 +335,6 @@ namespace Microsoft.ReverseProxy.Service.Tests
 
             var config = builder.Build(parsedRoute, cluster, routeInfo);
 
-            // Assert
             Assert.Single(config.Endpoints);
             var routeEndpoint = config.Endpoints[0] as AspNetCore.Routing.RouteEndpoint;
             var attribute = Assert.IsType<EnableCorsAttribute>(routeEndpoint.Metadata.GetMetadata<IEnableCorsAttribute>());
@@ -319,7 +345,10 @@ namespace Microsoft.ReverseProxy.Service.Tests
         [Fact]
         public void BuildEndpoints_DisableCors_Works()
         {
-            var builder = Create<RuntimeRouteBuilder>();
+            var services = CreateServices();
+            var builder = services.GetRequiredService<IRuntimeRouteBuilder>();
+            builder.SetProxyPipeline(context => Task.CompletedTask);
+
             var parsedRoute = new ParsedRoute
             {
                 RouteId = "route1",
@@ -331,7 +360,6 @@ namespace Microsoft.ReverseProxy.Service.Tests
 
             var config = builder.Build(parsedRoute, cluster, routeInfo);
 
-            // Assert
             Assert.Single(config.Endpoints);
             var routeEndpoint = config.Endpoints[0] as AspNetCore.Routing.RouteEndpoint;
             Assert.IsType<DisableCorsAttribute>(routeEndpoint.Metadata.GetMetadata<IDisableCorsAttribute>());
@@ -341,7 +369,10 @@ namespace Microsoft.ReverseProxy.Service.Tests
         [Fact]
         public void BuildEndpoints_NoCors_Works()
         {
-            var builder = Create<RuntimeRouteBuilder>();
+            var services = CreateServices();
+            var builder = services.GetRequiredService<IRuntimeRouteBuilder>();
+            builder.SetProxyPipeline(context => Task.CompletedTask);
+
             var parsedRoute = new ParsedRoute
             {
                 RouteId = "route1",
@@ -352,7 +383,6 @@ namespace Microsoft.ReverseProxy.Service.Tests
 
             var config = builder.Build(parsedRoute, cluster, routeInfo);
 
-            // Assert
             Assert.Single(config.Endpoints);
             var routeEndpoint = config.Endpoints[0] as AspNetCore.Routing.RouteEndpoint;
             Assert.Null(routeEndpoint.Metadata.GetMetadata<IEnableCorsAttribute>());
