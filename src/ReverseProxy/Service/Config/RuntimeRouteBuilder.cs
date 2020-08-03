@@ -4,13 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Http;
+using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Abstractions.RouteDiscovery.Contract;
-using Microsoft.ReverseProxy.ConfigModel;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Config;
 using CorsConstants = Microsoft.ReverseProxy.Abstractions.RouteDiscovery.Contract.CorsConstants;
@@ -40,7 +39,7 @@ namespace Microsoft.ReverseProxy.Service
         }
 
         /// <inheritdoc/>
-        public RouteConfig Build(ParsedRoute source, ClusterInfo cluster, RouteInfo runtimeRoute)
+        public RouteConfig Build(ProxyRoute source, ClusterInfo cluster, RouteInfo runtimeRoute)
         {
             _ = source ?? throw new ArgumentNullException(nameof(source));
             _ = runtimeRoute ?? throw new ArgumentNullException(nameof(runtimeRoute));
@@ -64,7 +63,7 @@ namespace Microsoft.ReverseProxy.Service
 
             // TODO: Handle arbitrary AST's properly
             // Catch-all pattern when no path was specified
-            var pathPattern = string.IsNullOrEmpty(source.Path) ? "/{**catchall}" : source.Path;
+            var pathPattern = string.IsNullOrEmpty(source.Match.Path) ? "/{**catchall}" : source.Match.Path;
 
             // TODO: Propagate route priority
             var endpointBuilder = new AspNetCore.Routing.RouteEndpointBuilder(
@@ -74,9 +73,9 @@ namespace Microsoft.ReverseProxy.Service
             endpointBuilder.DisplayName = source.RouteId;
             endpointBuilder.Metadata.Add(newRouteConfig);
 
-            if (source.Hosts != null && source.Hosts.Count != 0)
+            if (source.Match.Hosts != null && source.Match.Hosts.Count != 0)
             {
-                endpointBuilder.Metadata.Add(new AspNetCore.Routing.HostAttribute(source.Hosts.ToArray()));
+                endpointBuilder.Metadata.Add(new AspNetCore.Routing.HostAttribute(source.Match.Hosts.ToArray()));
             }
 
             bool acceptCorsPreflight;
@@ -100,9 +99,9 @@ namespace Microsoft.ReverseProxy.Service
                 acceptCorsPreflight = false;
             }
 
-            if (source.Methods != null && source.Methods.Count > 0)
+            if (source.Match.Methods != null && source.Match.Methods.Count > 0)
             {
-                endpointBuilder.Metadata.Add(new AspNetCore.Routing.HttpMethodMetadata(source.Methods, acceptCorsPreflight));
+                endpointBuilder.Metadata.Add(new AspNetCore.Routing.HttpMethodMetadata(source.Match.Methods, acceptCorsPreflight));
             }
 
             if (string.Equals(AuthorizationConstants.Default, source.AuthorizationPolicy, StringComparison.OrdinalIgnoreCase))

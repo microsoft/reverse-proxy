@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.AspNetCore.Http;
-using Microsoft.ReverseProxy.ConfigModel;
+using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.RuntimeModel;
 
 namespace Microsoft.ReverseProxy.Service
@@ -28,7 +28,7 @@ namespace Microsoft.ReverseProxy.Service
         /// whose <see cref="RouteInfo.Config"/> property is updated with a new objected computed from
         /// <paramref name="source"/> and <paramref name="cluster"/>.
         /// </param>
-        RouteConfig Build(ParsedRoute source, ClusterInfo cluster, RouteInfo runtimeRoute);
+        RouteConfig Build(ProxyRoute source, ClusterInfo cluster, RouteInfo runtimeRoute);
 
         /// <summary>
         /// Sets the middleware pipeline to use when building routes.

@@ -66,7 +66,7 @@ namespace Microsoft.ReverseProxy.Service
         }
 
         // Note this performs all validation steps without short circuiting in order to report all possible errors.
-        public async Task<bool> ValidateRouteAsync(ParsedRoute route)
+        public async Task<bool> ValidateRouteAsync(ProxyRoute route)
         {
             _ = route ?? throw new ArgumentNullException(nameof(route));
 
@@ -77,15 +77,15 @@ namespace Microsoft.ReverseProxy.Service
                 success = false;
             }
 
-            if ((route.Hosts == null || route.Hosts.Count == 0 || route.Hosts.Any(host => string.IsNullOrEmpty(host))) && string.IsNullOrEmpty(route.Path))
+            if ((route.Match.Hosts == null || route.Match.Hosts.Count == 0 || route.Match.Hosts.Any(host => string.IsNullOrEmpty(host))) && string.IsNullOrEmpty(route.Match.Path))
             {
                 Log.MissingRouteMatchers(_logger, route.RouteId);
                 success = false;
             }
 
-            success &= ValidateHost(route.Hosts, route.RouteId);
-            success &= ValidatePath(route.Path, route.RouteId);
-            success &= ValidateMethods(route.Methods, route.RouteId);
+            success &= ValidateHost(route.Match.Hosts, route.RouteId);
+            success &= ValidatePath(route.Match.Path, route.RouteId);
+            success &= ValidateMethods(route.Match.Methods, route.RouteId);
             success &= _transformBuilder.Validate(route.Transforms, route.RouteId);
             success &= await ValidateAuthorizationPolicyAsync(route.AuthorizationPolicy, route.RouteId);
             success &= await ValidateCorsPolicyAsync(route.CorsPolicy, route.RouteId);

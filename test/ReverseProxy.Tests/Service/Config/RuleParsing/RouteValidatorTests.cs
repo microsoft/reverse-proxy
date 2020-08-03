@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Common;
 using Microsoft.ReverseProxy.ConfigModel;
 using Microsoft.ReverseProxy.Service.Config;
@@ -41,12 +42,15 @@ namespace Microsoft.ReverseProxy.Service.Tests
         public async Task Accepts_ValidRules(string host, string path, string methods)
         {
             // Arrange
-            var route = new ParsedRoute
+            var route = new ProxyRoute
             {
                 RouteId = "route1",
-                Hosts = host?.Split(",") ?? Array.Empty<string>(),
-                Path = path,
-                Methods = methods?.Split(","),
+                Match =
+                {
+                    Hosts = host?.Split(",") ?? Array.Empty<string>(),
+                    Path = path,
+                    Methods = methods?.Split(","),
+                },
                 ClusterId = "cluster1",
             };
 
@@ -64,7 +68,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
         public async Task Rejects_MissingRouteId(string routeId)
         {
             // Arrange
-            var parsedRoute = new ParsedRoute { RouteId = routeId };
+            var parsedRoute = new ProxyRoute { RouteId = routeId };
 
             // Act
             var result = await RunScenarioAsync(parsedRoute);
@@ -81,11 +85,14 @@ namespace Microsoft.ReverseProxy.Service.Tests
         public async Task Rejects_MissingHostAndPath(string host)
         {
             // Arrange
-            var route = new ParsedRoute
+            var route = new ProxyRoute
             {
                 RouteId = "route1",
                 ClusterId = "cluster1",
-                Hosts = host?.Split(",")
+                Match =
+                {
+                    Hosts = host?.Split(",")
+                },
             };
 
             // Act
@@ -112,10 +119,13 @@ namespace Microsoft.ReverseProxy.Service.Tests
         public async Task Rejects_InvalidHost(string host)
         {
             // Arrange
-            var route = new ParsedRoute
+            var route = new ProxyRoute
             {
                 RouteId = "route1",
-                Hosts = host.Split(","),
+                Match =
+                {
+                    Hosts = host.Split(","),
+                },
                 ClusterId = "cluster1",
             };
 
@@ -135,10 +145,13 @@ namespace Microsoft.ReverseProxy.Service.Tests
         public async Task Rejects_InvalidPath(string path)
         {
             // Arrange
-            var route = new ParsedRoute
+            var route = new ProxyRoute
             {
                 RouteId = "route1",
-                Path = path,
+                Match =
+                {
+                    Path = path,
+                },
                 ClusterId = "cluster1",
             };
 
@@ -156,10 +169,13 @@ namespace Microsoft.ReverseProxy.Service.Tests
         public async Task Rejects_InvalidMethod(string methods)
         {
             // Arrange
-            var route = new ParsedRoute
+            var route = new ProxyRoute
             {
                 RouteId = "route1",
-                Methods = methods.Split(","),
+                Match =
+                {
+                    Methods = methods.Split(","),
+                },
                 ClusterId = "cluster1",
             };
 
@@ -177,10 +193,13 @@ namespace Microsoft.ReverseProxy.Service.Tests
         public async Task Rejects_DuplicateMethod(string methods)
         {
             // Arrange
-            var route = new ParsedRoute
+            var route = new ProxyRoute
             {
                 RouteId = "route1",
-                Methods = methods.Split(","),
+                Match =
+                {
+                    Methods = methods.Split(","),
+                },
                 ClusterId = "cluster1",
             };
 
@@ -198,11 +217,14 @@ namespace Microsoft.ReverseProxy.Service.Tests
         [InlineData("defaulT")]
         public async Task Accepts_ReservedAuthorizationPolicy(string policy)
         {
-            var route = new ParsedRoute
+            var route = new ProxyRoute
             {
                 RouteId = "route1",
                 AuthorizationPolicy = policy,
-                Hosts = new[] { "localhost" },
+                Match =
+                {
+                    Hosts = new[] { "localhost" },
+                },
                 ClusterId = "cluster1",
             };
 
@@ -218,11 +240,14 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var authzOptions = new AuthorizationOptions();
             authzOptions.AddPolicy("custom", builder => builder.RequireAuthenticatedUser());
             Provide<IAuthorizationPolicyProvider>(new DefaultAuthorizationPolicyProvider(Options.Create(authzOptions)));
-            var route = new ParsedRoute
+            var route = new ProxyRoute
             {
                 RouteId = "route1",
                 AuthorizationPolicy = "custom",
-                Hosts = new[] { "localhost" },
+                Match =
+                {
+                    Hosts = new[] { "localhost" },
+                },
                 ClusterId = "cluster1",
             };
 
@@ -235,7 +260,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
         [Fact]
         public async Task Rejects_UnknownAuthorizationPolicy()
         {
-            var route = new ParsedRoute
+            var route = new ProxyRoute
             {
                 RouteId = "route1",
                 AuthorizationPolicy = "unknown",
@@ -255,11 +280,14 @@ namespace Microsoft.ReverseProxy.Service.Tests
         [InlineData("disAble")]
         public async Task Accepts_ReservedCorsPolicy(string policy)
         {
-            var route = new ParsedRoute
+            var route = new ProxyRoute
             {
                 RouteId = "route1",
                 CorsPolicy = policy,
-                Hosts = new[] { "localhost" },
+                Match =
+                {
+                    Hosts = new[] { "localhost" },
+                },
                 ClusterId = "cluster1",
             };
 
@@ -275,11 +303,14 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var corsOptions = new CorsOptions();
             corsOptions.AddPolicy("custom", new CorsPolicy());
             Provide<ICorsPolicyProvider>(new DefaultCorsPolicyProvider(Options.Create(corsOptions)));
-            var route = new ParsedRoute
+            var route = new ProxyRoute
             {
                 RouteId = "route1",
                 CorsPolicy = "custom",
-                Hosts = new[] { "localhost" },
+                Match =
+                {
+                    Hosts = new[] { "localhost" },
+                },
                 ClusterId = "cluster1",
             };
 
@@ -292,7 +323,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
         [Fact]
         public async Task Rejects_UnknownCorsPolicy()
         {
-            var route = new ParsedRoute
+            var route = new ProxyRoute
             {
                 RouteId = "route1",
                 CorsPolicy = "unknown",
@@ -305,7 +336,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             Assert.Contains(result.Logger.Errors, err => err.eventId == EventIds.CorsPolicyNotFound);
         }
 
-        private async Task<(bool IsSuccess, TestLogger Logger)> RunScenarioAsync(ParsedRoute parsedRoute)
+        private async Task<(bool IsSuccess, TestLogger Logger)> RunScenarioAsync(ProxyRoute parsedRoute)
         {
             Mock<ITransformBuilder>().Setup(builder
                 => builder.Validate(It.IsAny<IList<IDictionary<string, string>>>(), It.IsAny<string>())).Returns(true);

@@ -9,6 +9,6 @@ namespace Microsoft.ReverseProxy.ConfigModel
     internal class DynamicConfigRoot
     {
         public IDictionary<string, Cluster> Clusters { get; set; }
-        public IList<ParsedRoute> Routes { get; set; }
+        public IList<ProxyRoute> Routes { get; set; }
     }
 }

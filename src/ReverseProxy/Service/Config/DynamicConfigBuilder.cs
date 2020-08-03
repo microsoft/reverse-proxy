@@ -117,10 +117,10 @@ namespace Microsoft.ReverseProxy.Service
             }
         }
 
-        private async Task<IList<ParsedRoute>> GetRoutesAsync(IReadOnlyList<ProxyRoute> routes, CancellationToken cancellation)
+        private async Task<IList<ProxyRoute>> GetRoutesAsync(IReadOnlyList<ProxyRoute> routes, CancellationToken cancellation)
         {
             var seenRouteIds = new HashSet<string>();
-            var sortedRoutes = new SortedList<(int, string), ParsedRoute>(routes?.Count ?? 0);
+            var sortedRoutes = new SortedList<(int, string), ProxyRoute>(routes?.Count ?? 0);
             if (routes == null)
             {
                 return sortedRoutes.Values;
@@ -150,27 +150,13 @@ namespace Microsoft.ReverseProxy.Service
                     continue;
                 }
 
-                var parsedRoute = new ParsedRoute
-                {
-                    RouteId = route.RouteId,
-                    Methods = route.Match.Methods,
-                    Hosts = route.Match.Hosts,
-                    Path = route.Match.Path,
-                    Priority = route.Priority,
-                    ClusterId = route.ClusterId,
-                    AuthorizationPolicy = route.AuthorizationPolicy,
-                    CorsPolicy = route.CorsPolicy,
-                    Metadata = route.Metadata,
-                    Transforms = route.Transforms,
-                };
-
-                if (!await _parsedRouteValidator.ValidateRouteAsync(parsedRoute))
+                if (!await _parsedRouteValidator.ValidateRouteAsync(route))
                 {
                     // parsedRouteValidator already reported error message
                     continue;
                 }
 
-                sortedRoutes.Add((parsedRoute.Priority ?? 0, parsedRoute.RouteId), parsedRoute);
+                sortedRoutes.Add((route.Priority ?? 0, route.RouteId), route);
             }
 
             return sortedRoutes.Values;

@@ -155,7 +155,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             Assert.Single(result.Routes);
             var builtRoute = result.Routes[0];
             Assert.Same(route1.RouteId, builtRoute.RouteId);
-            var host = Assert.Single(builtRoute.Hosts);
+            var host = Assert.Single(builtRoute.Match.Hosts);
             Assert.Equal("example.com", host);
         }
 

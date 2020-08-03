@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.ConfigModel;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Config;
@@ -46,21 +47,24 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var builder = services.GetRequiredService<IRuntimeRouteBuilder>();
             builder.SetProxyPipeline(context => Task.CompletedTask);
 
-            var parsedRoute = new ParsedRoute
+            var route = new ProxyRoute
             {
                 RouteId = "route1",
-                Hosts = new[] { "example.com" },
-                Path = "/a",
+                Match =
+                {
+                    Hosts = new[] { "example.com" },
+                    Path = "/a",
+                },
                 Priority = 12,
             };
             var cluster = new ClusterInfo("cluster1", new DestinationManager(), new Mock<IProxyHttpClientFactory>().Object);
             var routeInfo = new RouteInfo("route1");
 
-            var config = builder.Build(parsedRoute, cluster, routeInfo);
+            var config = builder.Build(route, cluster, routeInfo);
 
             Assert.Same(cluster, config.Cluster);
             Assert.Equal(12, config.Priority);
-            Assert.Equal(parsedRoute.GetConfigHash(), config.ConfigHash);
+            Assert.Equal(route.GetConfigHash(), config.ConfigHash);
             Assert.Single(config.Endpoints);
             var routeEndpoint = config.Endpoints[0] as AspNetCore.Routing.RouteEndpoint;
             Assert.Equal("route1", routeEndpoint.DisplayName);
@@ -80,20 +84,23 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var builder = services.GetRequiredService<IRuntimeRouteBuilder>();
             builder.SetProxyPipeline(context => Task.CompletedTask);
 
-            var parsedRoute = new ParsedRoute
+            var route = new ProxyRoute
             {
                 RouteId = "route1",
-                Hosts = new[] { "example.com" },
+                Match =
+                {
+                    Hosts = new[] { "example.com" },
+                },
                 Priority = 12,
             };
             var cluster = new ClusterInfo("cluster1", new DestinationManager(), new Mock<IProxyHttpClientFactory>().Object);
             var routeInfo = new RouteInfo("route1");
 
-            var config = builder.Build(parsedRoute, cluster, routeInfo);
+            var config = builder.Build(route, cluster, routeInfo);
 
             Assert.Same(cluster, config.Cluster);
             Assert.Equal(12, config.Priority);
-            Assert.Equal(parsedRoute.GetConfigHash(), config.ConfigHash);
+            Assert.Equal(route.GetConfigHash(), config.ConfigHash);
             Assert.Single(config.Endpoints);
             var routeEndpoint = config.Endpoints[0] as AspNetCore.Routing.RouteEndpoint;
             Assert.Equal("route1", routeEndpoint.DisplayName);
@@ -113,20 +120,23 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var builder = services.GetRequiredService<IRuntimeRouteBuilder>();
             builder.SetProxyPipeline(context => Task.CompletedTask);
 
-            var parsedRoute = new ParsedRoute
+            var route = new ProxyRoute
             {
                 RouteId = "route1",
-                Hosts = new[] { "*.example.com" },
+                Match =
+                {
+                    Hosts = new[] { "*.example.com" },
+                },
                 Priority = 12,
             };
             var cluster = new ClusterInfo("cluster1", new DestinationManager(), new Mock<IProxyHttpClientFactory>().Object);
             var routeInfo = new RouteInfo("route1");
 
-            var config = builder.Build(parsedRoute, cluster, routeInfo);
+            var config = builder.Build(route, cluster, routeInfo);
 
             Assert.Same(cluster, config.Cluster);
             Assert.Equal(12, config.Priority);
-            Assert.Equal(parsedRoute.GetConfigHash(), config.ConfigHash);
+            Assert.Equal(route.GetConfigHash(), config.ConfigHash);
             Assert.Single(config.Endpoints);
             var routeEndpoint = config.Endpoints[0] as AspNetCore.Routing.RouteEndpoint;
             Assert.Equal("route1", routeEndpoint.DisplayName);
@@ -146,20 +156,23 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var builder = services.GetRequiredService<IRuntimeRouteBuilder>();
             builder.SetProxyPipeline(context => Task.CompletedTask);
 
-            var parsedRoute = new ParsedRoute
+            var route = new ProxyRoute
             {
                 RouteId = "route1",
-                Path = "/a",
+                Match =
+                {
+                    Path = "/a",
+                },
                 Priority = 12,
             };
             var cluster = new ClusterInfo("cluster1", new DestinationManager(), new Mock<IProxyHttpClientFactory>().Object);
             var routeInfo = new RouteInfo("route1");
 
-            var config = builder.Build(parsedRoute, cluster, routeInfo);
+            var config = builder.Build(route, cluster, routeInfo);
 
             Assert.Same(cluster, config.Cluster);
             Assert.Equal(12, config.Priority);
-            Assert.Equal(parsedRoute.GetConfigHash(), config.ConfigHash);
+            Assert.Equal(route.GetConfigHash(), config.ConfigHash);
             Assert.Single(config.Endpoints);
             var routeEndpoint = config.Endpoints[0] as AspNetCore.Routing.RouteEndpoint;
             Assert.Equal("route1", routeEndpoint.DisplayName);
@@ -177,7 +190,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var builder = services.GetRequiredService<IRuntimeRouteBuilder>();
             builder.SetProxyPipeline(context => Task.CompletedTask);
 
-            var parsedRoute = new ParsedRoute
+            var route = new ProxyRoute
             {
                 RouteId = "route1",
                 Priority = 12,
@@ -185,7 +198,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var cluster = new ClusterInfo("cluster1", new DestinationManager(), new Mock<IProxyHttpClientFactory>().Object);
             var routeInfo = new RouteInfo("route1");
 
-            var config = builder.Build(parsedRoute, cluster, routeInfo);
+            var config = builder.Build(route, cluster, routeInfo);
 
             Assert.Same(cluster, config.Cluster);
             Assert.Equal(12, config.Priority);
@@ -207,16 +220,19 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var builder = services.GetRequiredService<IRuntimeRouteBuilder>();
             builder.SetProxyPipeline(context => Task.CompletedTask);
 
-            var parsedRoute = new ParsedRoute
+            var route = new ProxyRoute
             {
                 RouteId = "route1",
-                Path = "/{invalid",
+                Match =
+                {
+                    Path = "/{invalid",
+                },
                 Priority = 12,
             };
             var cluster = new ClusterInfo("cluster1", new DestinationManager(), new Mock<IProxyHttpClientFactory>().Object);
             var routeInfo = new RouteInfo("route1");
 
-            Action action = () => builder.Build(parsedRoute, cluster, routeInfo);
+            Action action = () => builder.Build(route, cluster, routeInfo);
 
             Assert.Throws<AspNetCore.Routing.Patterns.RoutePatternException>(action);
         }
@@ -228,7 +244,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var builder = services.GetRequiredService<IRuntimeRouteBuilder>();
             builder.SetProxyPipeline(context => Task.CompletedTask);
 
-            var parsedRoute = new ParsedRoute
+            var route = new ProxyRoute
             {
                 RouteId = "route1",
                 AuthorizationPolicy = "defaulT",
@@ -237,7 +253,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var cluster = new ClusterInfo("cluster1", new DestinationManager(), new Mock<IProxyHttpClientFactory>().Object);
             var routeInfo = new RouteInfo("route1");
 
-            var config = builder.Build(parsedRoute, cluster, routeInfo);
+            var config = builder.Build(route, cluster, routeInfo);
 
             Assert.Single(config.Endpoints);
             var routeEndpoint = config.Endpoints[0] as AspNetCore.Routing.RouteEndpoint;
@@ -252,7 +268,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var builder = services.GetRequiredService<IRuntimeRouteBuilder>();
             builder.SetProxyPipeline(context => Task.CompletedTask);
 
-            var parsedRoute = new ParsedRoute
+            var route = new ProxyRoute
             {
                 RouteId = "route1",
                 AuthorizationPolicy = "custom",
@@ -261,7 +277,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var cluster = new ClusterInfo("cluster1", new DestinationManager(), new Mock<IProxyHttpClientFactory>().Object);
             var routeInfo = new RouteInfo("route1");
 
-            var config = builder.Build(parsedRoute, cluster, routeInfo);
+            var config = builder.Build(route, cluster, routeInfo);
 
             Assert.Single(config.Endpoints);
             var routeEndpoint = config.Endpoints[0] as AspNetCore.Routing.RouteEndpoint;
@@ -276,7 +292,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var builder = services.GetRequiredService<IRuntimeRouteBuilder>();
             builder.SetProxyPipeline(context => Task.CompletedTask);
 
-            var parsedRoute = new ParsedRoute
+            var route = new ProxyRoute
             {
                 RouteId = "route1",
                 Priority = 12,
@@ -284,7 +300,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var cluster = new ClusterInfo("cluster1", new DestinationManager(), new Mock<IProxyHttpClientFactory>().Object);
             var routeInfo = new RouteInfo("route1");
 
-            var config = builder.Build(parsedRoute, cluster, routeInfo);
+            var config = builder.Build(route, cluster, routeInfo);
 
             Assert.Single(config.Endpoints);
             var routeEndpoint = config.Endpoints[0] as AspNetCore.Routing.RouteEndpoint;
@@ -299,7 +315,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var builder = services.GetRequiredService<IRuntimeRouteBuilder>();
             builder.SetProxyPipeline(context => Task.CompletedTask);
 
-            var parsedRoute = new ParsedRoute
+            var route = new ProxyRoute
             {
                 RouteId = "route1",
                 CorsPolicy = "defaulT",
@@ -308,7 +324,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var cluster = new ClusterInfo("cluster1", new DestinationManager(), new Mock<IProxyHttpClientFactory>().Object);
             var routeInfo = new RouteInfo("route1");
 
-            var config = builder.Build(parsedRoute, cluster, routeInfo);
+            var config = builder.Build(route, cluster, routeInfo);
 
             Assert.Single(config.Endpoints);
             var routeEndpoint = config.Endpoints[0] as AspNetCore.Routing.RouteEndpoint;
@@ -324,7 +340,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var builder = services.GetRequiredService<IRuntimeRouteBuilder>();
             builder.SetProxyPipeline(context => Task.CompletedTask);
 
-            var parsedRoute = new ParsedRoute
+            var route = new ProxyRoute
             {
                 RouteId = "route1",
                 CorsPolicy = "custom",
@@ -333,7 +349,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var cluster = new ClusterInfo("cluster1", new DestinationManager(), new Mock<IProxyHttpClientFactory>().Object);
             var routeInfo = new RouteInfo("route1");
 
-            var config = builder.Build(parsedRoute, cluster, routeInfo);
+            var config = builder.Build(route, cluster, routeInfo);
 
             Assert.Single(config.Endpoints);
             var routeEndpoint = config.Endpoints[0] as AspNetCore.Routing.RouteEndpoint;
@@ -349,7 +365,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var builder = services.GetRequiredService<IRuntimeRouteBuilder>();
             builder.SetProxyPipeline(context => Task.CompletedTask);
 
-            var parsedRoute = new ParsedRoute
+            var route = new ProxyRoute
             {
                 RouteId = "route1",
                 CorsPolicy = "disAble",
@@ -358,7 +374,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var cluster = new ClusterInfo("cluster1", new DestinationManager(), new Mock<IProxyHttpClientFactory>().Object);
             var routeInfo = new RouteInfo("route1");
 
-            var config = builder.Build(parsedRoute, cluster, routeInfo);
+            var config = builder.Build(route, cluster, routeInfo);
 
             Assert.Single(config.Endpoints);
             var routeEndpoint = config.Endpoints[0] as AspNetCore.Routing.RouteEndpoint;
@@ -373,7 +389,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var builder = services.GetRequiredService<IRuntimeRouteBuilder>();
             builder.SetProxyPipeline(context => Task.CompletedTask);
 
-            var parsedRoute = new ParsedRoute
+            var route = new ProxyRoute
             {
                 RouteId = "route1",
                 Priority = 12,
@@ -381,7 +397,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var cluster = new ClusterInfo("cluster1", new DestinationManager(), new Mock<IProxyHttpClientFactory>().Object);
             var routeInfo = new RouteInfo("route1");
 
-            var config = builder.Build(parsedRoute, cluster, routeInfo);
+            var config = builder.Build(route, cluster, routeInfo);
 
             Assert.Single(config.Endpoints);
             var routeEndpoint = config.Endpoints[0] as AspNetCore.Routing.RouteEndpoint;

@@ -3,7 +3,6 @@
 
 using System.Threading.Tasks;
 using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.ConfigModel;
 
 namespace Microsoft.ReverseProxy.Service
 {
@@ -13,8 +12,8 @@ namespace Microsoft.ReverseProxy.Service
     internal interface IRouteValidator
     {
         /// <summary>
-        /// Validates a route and reports any errors to <paramref name="errorReporter"/>.
+        /// Validates a route, logs any issues, and returns true or false.
         /// </summary>
-        Task<bool> ValidateRouteAsync(ParsedRoute route);
+        Task<bool> ValidateRouteAsync(ProxyRoute route);
     }
 }
