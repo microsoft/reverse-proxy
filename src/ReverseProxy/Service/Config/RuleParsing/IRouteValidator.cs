@@ -9,7 +9,7 @@ namespace Microsoft.ReverseProxy.Service
     /// <summary>
     /// Provides a method to validate a route.
     /// </summary>
-    internal interface IRouteValidator
+    public interface IRouteValidator
     {
         /// <summary>
         /// Validates a route, logs any issues, and returns true or false.
