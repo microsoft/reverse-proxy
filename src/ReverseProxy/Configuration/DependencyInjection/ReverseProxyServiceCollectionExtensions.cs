@@ -2,9 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
-using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Configuration;
 using Microsoft.ReverseProxy.Configuration.DependencyInjection;
 using Microsoft.ReverseProxy.Service;
@@ -57,15 +55,6 @@ namespace Microsoft.Extensions.DependencyInjection
             });
             builder.Services.AddSingleton<IProxyConfigProvider, ConfigurationConfigProvider>();
 
-            return builder;
-        }
-
-        /// <summary>
-        /// Loads routes and endpoints from config.
-        /// </summary>
-        public static IReverseProxyBuilder LoadFromMemory(this IReverseProxyBuilder builder, IReadOnlyList<ProxyRoute> routes, IReadOnlyList<Cluster> clusters)
-        {
-            builder.Services.AddSingleton<IProxyConfigProvider>(new InMemoryConfigProvider(routes, clusters));
             return builder;
         }
 

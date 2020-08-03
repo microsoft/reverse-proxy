@@ -3,11 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.ConfigModel;
 using Microsoft.ReverseProxy.Configuration;
 using Microsoft.ReverseProxy.Utilities;
 using Xunit;

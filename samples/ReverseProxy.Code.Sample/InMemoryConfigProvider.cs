@@ -5,7 +5,20 @@ using System.Collections.Generic;
 using System.Threading;
 using Microsoft.Extensions.Primitives;
 using Microsoft.ReverseProxy.Abstractions;
+using Microsoft.ReverseProxy.Configuration;
 using Microsoft.ReverseProxy.Service;
+
+namespace Microsoft.Extensions.DependencyInjection
+{
+    public static class InMemoryConfigProviderExtensions
+    {
+        public static IReverseProxyBuilder LoadFromMemory(this IReverseProxyBuilder builder, IReadOnlyList<ProxyRoute> routes, IReadOnlyList<Cluster> clusters)
+        {
+            builder.Services.AddSingleton<IProxyConfigProvider>(new InMemoryConfigProvider(routes, clusters));
+            return builder;
+        }
+    }
+}
 
 namespace Microsoft.ReverseProxy.Configuration
 {
