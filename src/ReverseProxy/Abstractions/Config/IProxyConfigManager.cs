@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Routing;
 
 namespace Microsoft.ReverseProxy.Abstractions
@@ -13,7 +14,7 @@ namespace Microsoft.ReverseProxy.Abstractions
         /// <summary>
         /// Load the first data at startup. May throw.
         /// </summary>
-        void Load();
+        Task LoadAsync();
 
         /// <summary>
         /// Exposes endpoints for the route table.

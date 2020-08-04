@@ -52,7 +52,7 @@ namespace Microsoft.ReverseProxy.Service
             return config;
         }
 
-        public async Task<IDictionary<string, Cluster>> GetClustersAsync(IReadOnlyList<Cluster> clusters, CancellationToken cancellation)
+        private async Task<IDictionary<string, Cluster>> GetClustersAsync(IReadOnlyList<Cluster> clusters, CancellationToken cancellation)
         {
             var configuredClusters = new Dictionary<string, Cluster>(StringComparer.OrdinalIgnoreCase);
             // The IClustersRepo provides a fresh snapshot that we need to reconfigure each time.
@@ -60,6 +60,12 @@ namespace Microsoft.ReverseProxy.Service
             {
                 try
                 {
+                    if (configuredClusters.ContainsKey(c.Id))
+                    {
+                        Log.DuplicatClusterId(_logger, c.Id);
+                        continue;
+                    }
+
                     // Don't modify the original
                     var cluster = c.DeepClone();
 
@@ -69,11 +75,6 @@ namespace Microsoft.ReverseProxy.Service
                     }
 
                     ValidateSessionAffinity(cluster);
-
-                    if (configuredClusters.ContainsKey(cluster.Id))
-                    {
-                        // TODO: Error
-                    }
 
                     configuredClusters[cluster.Id] = cluster;
                 }
@@ -189,6 +190,11 @@ namespace Microsoft.ReverseProxy.Service
                 EventIds.DuplicateRouteId,
                 "Duplicate route '{RouteId}'.");
 
+            private static readonly Action<ILogger, string, Exception> _duplicateClusterId = LoggerMessage.Define<string>(
+                LogLevel.Error,
+                EventIds.DuplicateClusterId,
+                "Duplicate cluster '{ClusterId}'.");
+
             public static void ClusterConfigException(ILogger logger, string clusterId, Exception exception)
             {
                 _clusterConfigException(logger, clusterId, exception);
@@ -212,6 +218,11 @@ namespace Microsoft.ReverseProxy.Service
             public static void DuplicateRouteId(ILogger logger, string routeId)
             {
                 _duplicateRouteId(logger, routeId, null);
+            }
+
+            public static void DuplicatClusterId(ILogger logger, string clusterId)
+            {
+                _duplicateClusterId(logger, clusterId, null);
             }
         }
     }

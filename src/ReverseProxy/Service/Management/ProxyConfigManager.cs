@@ -25,10 +25,10 @@ namespace Microsoft.ReverseProxy.Service.Management
     /// <remarks>
     /// This takes inspiration from <a href="https://github.com/aspnet/AspNetCore/blob/master/src/Mvc/Mvc.Core/src/Routing/ActionEndpointDataSourceBase.cs"/>.
     /// </remarks>
-    internal class ReverseProxyConfigManager : EndpointDataSource, IProxyConfigManager, IDisposable
+    internal class ProxyConfigManager : EndpointDataSource, IProxyConfigManager, IDisposable
     {
         private readonly object _syncRoot = new object();
-        private readonly ILogger<ReverseProxyConfigManager> _logger;
+        private readonly ILogger<ProxyConfigManager> _logger;
         private readonly IProxyConfigProvider _provider;
         private readonly IDynamicConfigBuilder _configBuilder;
         private readonly IRuntimeRouteBuilder _routeEndpointBuilder;
@@ -40,8 +40,8 @@ namespace Microsoft.ReverseProxy.Service.Management
         private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private IChangeToken _changeToken;
 
-        public ReverseProxyConfigManager(
-            ILogger<ReverseProxyConfigManager> logger,
+        public ProxyConfigManager(
+            ILogger<ProxyConfigManager> logger,
             IProxyConfigProvider provider,
             IDynamicConfigBuilder configBuilder,
             IRuntimeRouteBuilder routeEndpointBuilder,
@@ -63,11 +63,11 @@ namespace Microsoft.ReverseProxy.Service.Management
         /// <inheritdoc/>
         public override IChangeToken GetChangeToken() => Volatile.Read(ref _changeToken);
 
-        public void Load()
+        public Task LoadAsync()
         {
             // Trigger the first load immediately and throw if it fails
             var config = _provider.GetConfig();
-            ApplyConfigAsync(config).GetAwaiter().GetResult();
+            return ApplyConfigAsync(config);
         }
 
         private async Task ApplyConfigAsync(IProxyConfig config)
@@ -86,15 +86,15 @@ namespace Microsoft.ReverseProxy.Service.Management
 
         private static async void ReloadConfigAsync(object state)
         {
-            var manager = (ReverseProxyConfigManager)state;
+            var manager = (ProxyConfigManager)state;
             try
             {
                 var newConfig = manager._provider.GetConfig();
                 await manager.ApplyConfigAsync(newConfig);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // TODO: Log
+                Log.ErrorReloadingConfig(manager._logger, ex);
             }
         }
 
@@ -361,6 +361,11 @@ namespace Microsoft.ReverseProxy.Service.Management
                 EventIds.RouteRemoved,
                 "Route `{routeId}` has been removed.");
 
+            private static readonly Action<ILogger, Exception> _errorReloadingConfig = LoggerMessage.Define(
+                LogLevel.Error,
+                EventIds.ErrorReloadingConfig,
+                "Failed to reload config.");
+
             public static void ClusterAdded(ILogger logger, string clusterId)
             {
                 _clusterAdded(logger, clusterId, null);
@@ -404,6 +409,11 @@ namespace Microsoft.ReverseProxy.Service.Management
             public static void RouteRemoved(ILogger logger, string routeId)
             {
                 _routeRemoved(logger, routeId, null);
+            }
+
+            public static void ErrorReloadingConfig(ILogger logger, Exception ex)
+            {
+                _errorReloadingConfig(logger, ex);
             }
         }
     }

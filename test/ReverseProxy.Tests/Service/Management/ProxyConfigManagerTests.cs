@@ -12,7 +12,7 @@ using Xunit;
 
 namespace Microsoft.ReverseProxy.Service.Management.Tests
 {
-    public class ReverseProxyConfigManagerTests
+    public class ProxyConfigManagerTests
     {
         private IServiceProvider CreateServices(List<ProxyRoute> routes, List<Cluster> clusters)
         {
@@ -60,7 +60,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
         }
 
         [Fact]
-        public void BuildConfig_OneClusterOneDestinationOneRoute_Works()
+        public async Task BuildConfig_OneClusterOneDestinationOneRoute_Works()
         {
             const string TestAddress = "https://localhost:123/";
 
@@ -81,7 +81,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             var services = CreateServices(new List<ProxyRoute>() { route }, new List<Cluster>() { cluster });
 
             var manager = services.GetRequiredService<IProxyConfigManager>();
-            manager.Load();
+            await manager.LoadAsync();
 
             var dataSource = manager.DataSource;
             Assert.NotNull(dataSource);
@@ -115,7 +115,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             var services = CreateServices(new List<ProxyRoute>(), new List<Cluster>());
             var inMemoryConfig = (InMemoryConfigProvider)services.GetRequiredService<IProxyConfigProvider>();
             var configManager = services.GetRequiredService<IProxyConfigManager>();
-            configManager.Load();
+            await configManager.LoadAsync();
             var dataSource = configManager.DataSource;
 
             var signaled1 = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);

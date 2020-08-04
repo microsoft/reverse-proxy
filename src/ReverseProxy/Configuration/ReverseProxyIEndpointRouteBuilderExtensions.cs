@@ -54,7 +54,7 @@ namespace Microsoft.AspNetCore.Builder
             routeBuilder.SetProxyPipeline(app);
 
             var configManager = endpoints.ServiceProvider.GetRequiredService<IProxyConfigManager>();
-            configManager.Load();
+            configManager.LoadAsync().GetAwaiter().GetResult();
             endpoints.DataSources.Add(configManager.DataSource);
         }
     }

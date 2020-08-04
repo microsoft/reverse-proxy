@@ -66,5 +66,7 @@ namespace Microsoft.ReverseProxy
         public static readonly EventId FailedRetrieveAuthorizationPolicy = new EventId(57, "FailedRetrieveAuthorizationPolicy");
         public static readonly EventId CorsPolicyNotFound = new EventId(58, "CorsPolicyNotFound");
         public static readonly EventId FailedRetrieveCorsPolicy = new EventId(59, "FailedRetrieveCorsPolicy");
+        public static readonly EventId DuplicateClusterId = new EventId(60, "DuplicateClusterId");
+        public static readonly EventId ErrorReloadingConfig = new EventId(61, "ErrorReloadingConfig");
     }
 }
