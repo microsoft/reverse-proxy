@@ -55,7 +55,7 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
 
         public static IReverseProxyBuilder AddConfigManager(this IReverseProxyBuilder builder)
         {
-            builder.Services.TryAddSingleton<IProxyConfigManager, ReverseProxyConfigManager>();
+            builder.Services.TryAddSingleton<IProxyConfigManager, ProxyConfigManager>();
             return builder;
         }
 

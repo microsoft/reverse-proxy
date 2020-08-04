@@ -14,11 +14,6 @@ namespace Microsoft.ReverseProxy.Abstractions
         /// <summary>
         /// Load the first data at startup. May throw.
         /// </summary>
-        Task LoadAsync();
-
-        /// <summary>
-        /// Exposes endpoints for the route table.
-        /// </summary>
-        EndpointDataSource DataSource { get; }
+        Task<EndpointDataSource> LoadAsync();
     }
 }

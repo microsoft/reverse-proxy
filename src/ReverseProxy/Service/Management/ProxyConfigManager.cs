@@ -56,18 +56,19 @@ namespace Microsoft.ReverseProxy.Service.Management
             _routeManager = routeManager ?? throw new ArgumentNullException(nameof(routeManager));
             _changeToken = new CancellationChangeToken(_cancellationTokenSource.Token);
         }
-        public EndpointDataSource DataSource => this;
+
         /// <inheritdoc/>
         public override IReadOnlyList<Endpoint> Endpoints => Volatile.Read(ref _endpoints);
 
         /// <inheritdoc/>
         public override IChangeToken GetChangeToken() => Volatile.Read(ref _changeToken);
 
-        public Task LoadAsync()
+        public async Task<EndpointDataSource> LoadAsync()
         {
-            // Trigger the first load immediately and throw if it fails
+            // Trigger the first load immediately and throw if it fails.
             var config = _provider.GetConfig();
-            return ApplyConfigAsync(config);
+            await ApplyConfigAsync(config);
+            return this;
         }
 
         private async Task ApplyConfigAsync(IProxyConfig config)

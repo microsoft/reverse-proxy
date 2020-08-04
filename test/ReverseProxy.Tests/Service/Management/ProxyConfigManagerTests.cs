@@ -34,24 +34,22 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
         }
 
         [Fact]
-        public void Endpoints_StartsEmpty()
+        public async Task Endpoints_StartsEmpty()
         {
             var services = CreateServices(new List<ProxyRoute>(), new List<Cluster>());
             var manager = services.GetRequiredService<IProxyConfigManager>();
-
-            var dataSource = manager.DataSource;
+            var dataSource = await manager.LoadAsync();
             Assert.NotNull(dataSource);
             var endpoints = dataSource.Endpoints;
             Assert.Empty(endpoints);
         }
 
         [Fact]
-        public void GetChangeToken_InitialValue()
+        public async Task GetChangeToken_InitialValue()
         {
             var services = CreateServices(new List<ProxyRoute>(), new List<Cluster>());
             var manager = services.GetRequiredService<IProxyConfigManager>();
-
-            var dataSource = manager.DataSource;
+            var dataSource = await manager.LoadAsync();
             Assert.NotNull(dataSource);
             var changeToken = dataSource.GetChangeToken();
             Assert.NotNull(changeToken);
@@ -81,9 +79,8 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             var services = CreateServices(new List<ProxyRoute>() { route }, new List<Cluster>() { cluster });
 
             var manager = services.GetRequiredService<IProxyConfigManager>();
-            await manager.LoadAsync();
+            var dataSource = await manager.LoadAsync();
 
-            var dataSource = manager.DataSource;
             Assert.NotNull(dataSource);
             var endpoints = dataSource.Endpoints;
             Assert.Single(endpoints);
@@ -115,8 +112,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             var services = CreateServices(new List<ProxyRoute>(), new List<Cluster>());
             var inMemoryConfig = (InMemoryConfigProvider)services.GetRequiredService<IProxyConfigProvider>();
             var configManager = services.GetRequiredService<IProxyConfigManager>();
-            await configManager.LoadAsync();
-            var dataSource = configManager.DataSource;
+            var dataSource = await configManager.LoadAsync();
 
             var signaled1 = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
             var signaled2 = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
