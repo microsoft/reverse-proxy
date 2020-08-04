@@ -57,45 +57,70 @@ namespace Microsoft.ReverseProxy.Service.Management
             _changeToken = new CancellationChangeToken(_cancellationTokenSource.Token);
         }
 
+        // EndpointDataSource
+
         /// <inheritdoc/>
         public override IReadOnlyList<Endpoint> Endpoints => Volatile.Read(ref _endpoints);
 
         /// <inheritdoc/>
         public override IChangeToken GetChangeToken() => Volatile.Read(ref _changeToken);
 
+        // IProxyConfigManager
+
+        /// <inheritdoc/>
         public async Task<EndpointDataSource> LoadAsync()
         {
             // Trigger the first load immediately and throw if it fails.
+            // We intend this to crash the app so we don't try listening for further changes.
             var config = _provider.GetConfig();
             await ApplyConfigAsync(config);
+
+            if (config.ChangeToken.ActiveChangeCallbacks)
+            {
+                _changeSubscription = config.ChangeToken.RegisterChangeCallback(ReloadConfigAsync, this);
+            }
+
             return this;
         }
 
+        // Throws for validation failures
         private async Task ApplyConfigAsync(IProxyConfig config)
         {
             var dynamicConfig = await _configBuilder.BuildConfigAsync(config.Routes, config.Clusters, default);
 
             UpdateRuntimeClusters(dynamicConfig);
             UpdateRuntimeRoutes(dynamicConfig);
-
-            if (config.ChangeToken.ActiveChangeCallbacks)
-            {
-                _changeSubscription?.Dispose();
-                _changeSubscription = config.ChangeToken.RegisterChangeCallback(ReloadConfigAsync, this);
-            }
         }
 
         private static async void ReloadConfigAsync(object state)
         {
             var manager = (ProxyConfigManager)state;
+
+            IProxyConfig newConfig;
             try
             {
-                var newConfig = manager._provider.GetConfig();
-                await manager.ApplyConfigAsync(newConfig);
+                newConfig = manager._provider.GetConfig();
             }
             catch (Exception ex)
             {
                 Log.ErrorReloadingConfig(manager._logger, ex);
+                // If we can't load the config then we can't listen for changes anymore.
+                return;
+            }
+
+            try
+            {
+                await manager.ApplyConfigAsync(newConfig);
+            }
+            catch (Exception ex)
+            {
+                Log.ErrorApplyingConfig(manager._logger, ex);
+            }
+
+            if (newConfig.ChangeToken.ActiveChangeCallbacks)
+            {
+                manager._changeSubscription?.Dispose();
+                manager._changeSubscription = newConfig.ChangeToken.RegisterChangeCallback(ReloadConfigAsync, manager);
             }
         }
 
@@ -365,7 +390,12 @@ namespace Microsoft.ReverseProxy.Service.Management
             private static readonly Action<ILogger, Exception> _errorReloadingConfig = LoggerMessage.Define(
                 LogLevel.Error,
                 EventIds.ErrorReloadingConfig,
-                "Failed to reload config.");
+                "Failed to reload config. Unable to listen for future changes.");
+
+            private static readonly Action<ILogger, Exception> _errorApplyingConfig = LoggerMessage.Define(
+                LogLevel.Error,
+                EventIds.ErrorApplyingConfig,
+                "Failed to apply the new config.");
 
             public static void ClusterAdded(ILogger logger, string clusterId)
             {
@@ -415,6 +445,11 @@ namespace Microsoft.ReverseProxy.Service.Management
             public static void ErrorReloadingConfig(ILogger logger, Exception ex)
             {
                 _errorReloadingConfig(logger, ex);
+            }
+
+            public static void ErrorApplyingConfig(ILogger logger, Exception ex)
+            {
+                _errorApplyingConfig(logger, ex);
             }
         }
     }

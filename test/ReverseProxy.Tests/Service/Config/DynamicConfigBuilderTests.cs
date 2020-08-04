@@ -124,16 +124,16 @@ namespace Microsoft.ReverseProxy.Service.Tests
         }
 
         [Fact]
-        public async Task BuildConfigAsync_RouteValidationError_SkipsRoute()
+        public async Task BuildConfigAsync_RouteValidationError_Throws()
         {
             var route1 = new ProxyRoute { RouteId = "route1", Match = { Hosts = new[] { "invalid host name" } }, Priority = 1, ClusterId = "cluster1" };
             var configBuilder = CreateConfigBuilder(NullLoggerFactory.Instance);
 
-            var result = await configBuilder.BuildConfigAsync(new[] { route1 }, EmptyClusters, CancellationToken.None);
+            var ex = await Assert.ThrowsAsync<AggregateException>(() => configBuilder.BuildConfigAsync(new[] { route1 }, EmptyClusters, CancellationToken.None));
 
-            Assert.NotNull(result);
-            Assert.Empty(result.Clusters);
-            Assert.Empty(result.Routes);
+            Assert.Single(ex.InnerExceptions);
+            var argex = Assert.IsType<ArgumentException>(ex.InnerExceptions.First());
+            Assert.StartsWith("Invalid host", argex.Message);
         }
 
         [Fact]
@@ -227,7 +227,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
         }
 
         [Fact]
-        public async Task BuildConfigAsync_ConfigFilterClusterActionThrows_ClusterSkipped()
+        public async Task BuildConfigAsync_ConfigFilterClusterActionThrows_Throws()
         {
             var factory = new TestLoggerFactory();
             var configBuilder = CreateConfigBuilder(factory,
@@ -237,13 +237,10 @@ namespace Microsoft.ReverseProxy.Service.Tests
                     proxyBuilder.AddProxyConfigFilter<ClusterAndRouteThrows>();
                 });
 
-            var result = await configBuilder.BuildConfigAsync(EmptyRoutes, CreateOneCluster(), CancellationToken.None);
+            var ex = await Assert.ThrowsAsync<AggregateException>(() => configBuilder.BuildConfigAsync(EmptyRoutes, CreateOneCluster(), CancellationToken.None));
 
-            // Assert
-            Assert.NotNull(result);
-            Assert.Empty(result.Clusters);
-            Assert.NotEmpty(factory.Logger.Errors);
-            Assert.IsType<NotFiniteNumberException>(factory.Logger.Errors.Single().exception);
+            Assert.Single(ex.InnerExceptions);
+            Assert.IsType<NotFiniteNumberException>(ex.InnerExceptions.First().InnerException);
         }
 
         [Fact]
@@ -272,23 +269,18 @@ namespace Microsoft.ReverseProxy.Service.Tests
         {
             var route1 = new ProxyRoute { RouteId = "route1", Match = { Hosts = new[] { "example.com" } }, Priority = 1, ClusterId = "cluster1" };
             var route2 = new ProxyRoute { RouteId = "route2", Match = { Hosts = new[] { "example2.com" } }, Priority = 1, ClusterId = "cluster2" };
-            var factory = new TestLoggerFactory();
-            var configBuilder = CreateConfigBuilder(factory,
+            var configBuilder = CreateConfigBuilder(NullLoggerFactory.Instance,
                 proxyBuilder =>
                 {
                     proxyBuilder.AddProxyConfigFilter<ClusterAndRouteThrows>();
                     proxyBuilder.AddProxyConfigFilter<ClusterAndRouteThrows>();
                 });
 
-            var result = await configBuilder.BuildConfigAsync(new[] { route1, route2 }, EmptyClusters, CancellationToken.None);
+            var ex = await Assert.ThrowsAsync<AggregateException>(() => configBuilder.BuildConfigAsync(new[] { route1, route2 }, EmptyClusters, CancellationToken.None));
 
-            // Assert
-            Assert.NotNull(result);
-            Assert.Empty(result.Clusters);
-            Assert.Empty(result.Routes);
-            Assert.Equal(2, factory.Logger.Errors.Count());
-            Assert.IsType<NotFiniteNumberException>(factory.Logger.Errors.First().exception);
-            Assert.IsType<NotFiniteNumberException>(factory.Logger.Errors.Skip(1).First().exception);
+            Assert.Equal(2, ex.InnerExceptions.Count);
+            Assert.IsType<NotFiniteNumberException>(ex.InnerExceptions.First().InnerException);
+            Assert.IsType<NotFiniteNumberException>(ex.InnerExceptions.Skip(1).First().InnerException);
         }
     }
 }

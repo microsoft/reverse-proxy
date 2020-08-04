@@ -40,7 +40,7 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
         public static IReverseProxyBuilder AddConfigBuilder(this IReverseProxyBuilder builder)
         {
             builder.Services.TryAddSingleton<IDynamicConfigBuilder, DynamicConfigBuilder>();
-            builder.Services.TryAddSingleton<IRouteValidator, RouteValidator>();
+            builder.Services.TryAddSingleton<IConfigValidator, ConfigValidator>();
             builder.Services.TryAddSingleton<IRuntimeRouteBuilder, RuntimeRouteBuilder>();
             return builder;
         }

@@ -3,36 +3,25 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Microsoft.ReverseProxy.ConfigModel;
-using Microsoft.ReverseProxy.Service.SessionAffinity;
 
 namespace Microsoft.ReverseProxy.Service
 {
     internal class DynamicConfigBuilder : IDynamicConfigBuilder
     {
         private readonly IEnumerable<IProxyConfigFilter> _filters;
-        private readonly IRouteValidator _parsedRouteValidator;
-        private readonly ILogger<DynamicConfigBuilder> _logger;
-        private readonly IDictionary<string, ISessionAffinityProvider> _sessionAffinityProviders;
-        private readonly IDictionary<string, IAffinityFailurePolicy> _affinityFailurePolicies;
+        private readonly IConfigValidator _configValidator;
 
         public DynamicConfigBuilder(
             IEnumerable<IProxyConfigFilter> filters,
-            IRouteValidator parsedRouteValidator,
-            IEnumerable<ISessionAffinityProvider> sessionAffinityProviders,
-            IEnumerable<IAffinityFailurePolicy> affinityFailurePolicies,
-            ILogger<DynamicConfigBuilder> logger)
+            IConfigValidator configValidator)
         {
             _filters = filters ?? throw new ArgumentNullException(nameof(filters));
-            _parsedRouteValidator = parsedRouteValidator ?? throw new ArgumentNullException(nameof(parsedRouteValidator));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _sessionAffinityProviders = sessionAffinityProviders?.ToProviderDictionary() ?? throw new ArgumentNullException(nameof(sessionAffinityProviders));
-            _affinityFailurePolicies = affinityFailurePolicies?.ToPolicyDictionary() ?? throw new ArgumentNullException(nameof(affinityFailurePolicies));
+            _configValidator = configValidator ?? throw new ArgumentNullException(nameof(configValidator));
         }
 
         public async Task<DynamicConfigRoot> BuildConfigAsync(IReadOnlyList<ProxyRoute> routes, IReadOnlyList<Cluster> clusters, CancellationToken cancellation)
@@ -40,8 +29,13 @@ namespace Microsoft.ReverseProxy.Service
             _ = routes ?? throw new ArgumentNullException(nameof(routes));
             _ = clusters ?? throw new ArgumentNullException(nameof(clusters));
 
-            var configuredClusters = await GetClustersAsync(clusters, cancellation);
-            var configuredRoutes = await GetRoutesAsync(routes, cancellation);
+            var (configuredRoutes, routeErrors) = await GetRoutesAsync(routes, cancellation);
+            var (configuredClusters, clusterErrors) = await GetClustersAsync(clusters, cancellation);
+
+            if (routeErrors.Count > 0 || clusterErrors.Count > 0)
+            {
+                throw new AggregateException("The proxy config is invalid.", routeErrors.Concat(clusterErrors));
+            }
 
             var config = new DynamicConfigRoot
             {
@@ -52,9 +46,10 @@ namespace Microsoft.ReverseProxy.Service
             return config;
         }
 
-        private async Task<IDictionary<string, Cluster>> GetClustersAsync(IReadOnlyList<Cluster> clusters, CancellationToken cancellation)
+        private async Task<(IDictionary<string, Cluster>, IList<Exception>)> GetClustersAsync(IReadOnlyList<Cluster> clusters, CancellationToken cancellation)
         {
             var configuredClusters = new Dictionary<string, Cluster>(StringComparer.OrdinalIgnoreCase);
+            var errors = new List<Exception>();
             // The IClustersRepo provides a fresh snapshot that we need to reconfigure each time.
             foreach (var c in clusters)
             {
@@ -62,7 +57,7 @@ namespace Microsoft.ReverseProxy.Service
                 {
                     if (configuredClusters.ContainsKey(c.Id))
                     {
-                        Log.DuplicatClusterId(_logger, c.Id);
+                        errors.Add(new ArgumentException($"Duplicate cluster '{c.Id}'."));
                         continue;
                     }
 
@@ -74,64 +69,39 @@ namespace Microsoft.ReverseProxy.Service
                         await filter.ConfigureClusterAsync(cluster, cancellation);
                     }
 
-                    ValidateSessionAffinity(cluster);
+                    var clusterErrors = await _configValidator.ValidateClusterAsync(cluster);
+                    if (clusterErrors.Count > 0)
+                    {
+                        errors.AddRange(clusterErrors);
+                        continue;
+                    }
 
                     configuredClusters[cluster.Id] = cluster;
                 }
                 catch (Exception ex)
                 {
-                    Log.ClusterConfigException(_logger, c.Id, ex);
+                    errors.Add(new ArgumentException($"An exception was thrown from the configuration callbacks for cluster `{c.Id}`.", ex));
                 }
             }
 
-            return configuredClusters;
+            return (configuredClusters, errors);
         }
 
-        private void ValidateSessionAffinity(Cluster cluster)
-        {
-            if (cluster.SessionAffinity == null || !cluster.SessionAffinity.Enabled)
-            {
-                // Session affinity is disabled
-                return;
-            }
-
-            if (string.IsNullOrEmpty(cluster.SessionAffinity.Mode))
-            {
-                cluster.SessionAffinity.Mode = SessionAffinityConstants.Modes.Cookie;
-            }
-
-            var affinityMode = cluster.SessionAffinity.Mode;
-            if (!_sessionAffinityProviders.ContainsKey(affinityMode))
-            {
-                Log.NoSessionAffinityProviderFound(_logger, affinityMode, cluster.Id);
-            }
-
-            if (string.IsNullOrEmpty(cluster.SessionAffinity.FailurePolicy))
-            {
-                cluster.SessionAffinity.FailurePolicy = SessionAffinityConstants.AffinityFailurePolicies.Redistribute;
-            }
-
-            var affinityFailurePolicy = cluster.SessionAffinity.FailurePolicy;
-            if (!_affinityFailurePolicies.ContainsKey(affinityFailurePolicy))
-            {
-                Log.NoAffinityFailurePolicyFound(_logger, affinityFailurePolicy, cluster.Id);
-            }
-        }
-
-        private async Task<IList<ProxyRoute>> GetRoutesAsync(IReadOnlyList<ProxyRoute> routes, CancellationToken cancellation)
+        private async Task<(IList<ProxyRoute>, IList<Exception>)> GetRoutesAsync(IReadOnlyList<ProxyRoute> routes, CancellationToken cancellation)
         {
             var seenRouteIds = new HashSet<string>();
             var sortedRoutes = new SortedList<(int, string), ProxyRoute>(routes?.Count ?? 0);
+            var errors = new List<Exception>();
             if (routes == null)
             {
-                return sortedRoutes.Values;
+                return (sortedRoutes.Values, errors);
             }
 
             foreach (var r in routes)
             {
                 if (seenRouteIds.Contains(r.RouteId))
                 {
-                    Log.DuplicateRouteId(_logger, r.RouteId);
+                    errors.Add(new ArgumentException($"Duplicate route {r.RouteId}"));
                     continue;
                 }
 
@@ -147,83 +117,26 @@ namespace Microsoft.ReverseProxy.Service
                 }
                 catch (Exception ex)
                 {
-                    Log.RouteConfigException(_logger, route.RouteId, ex);
+                    errors.Add(new Exception($"An exception was thrown from the configuration callbacks for route `{r.RouteId}`.", ex));
                     continue;
                 }
 
-                if (!await _parsedRouteValidator.ValidateRouteAsync(route))
+                var routeErrors = await _configValidator.ValidateRouteAsync(route);
+                if (routeErrors.Count > 0)
                 {
-                    // parsedRouteValidator already reported error message
+                    errors.AddRange(routeErrors);
                     continue;
                 }
 
                 sortedRoutes.Add((route.Priority ?? 0, route.RouteId), route);
             }
 
-            return sortedRoutes.Values;
-        }
-
-        private static class Log
-        {
-            private static readonly Action<ILogger, string, Exception> _clusterConfigException = LoggerMessage.Define<string>(
-                LogLevel.Error,
-                EventIds.ClusterConfigException,
-                "An exception was thrown from the configuration callbacks for cluster `{clusterId}`.");
-
-            private static readonly Action<ILogger, string, string, Exception> _noSessionAffinityProviderFound = LoggerMessage.Define<string, string>(
-               LogLevel.Error,
-               EventIds.NoSessionAffinityProviderFound,
-               "No matching ISessionAffinityProvider found for the session affinity mode `{affinityMode}` set on the cluster `{clusterId}`.");
-
-            private static readonly Action<ILogger, string, string, Exception> _noAffinityFailurePolicyFound = LoggerMessage.Define<string, string>(
-                LogLevel.Error,
-                EventIds.NoAffinityFailurePolicyFound,
-                "No matching IAffinityFailurePolicy found for the affinity failure policy name {affinityFailurePolicy} set on the cluster {clusterId}.");
-
-            private static readonly Action<ILogger, string, Exception> _routeConfigException = LoggerMessage.Define<string>(
-                LogLevel.Error,
-                EventIds.RouteConfigException,
-                "An exception was thrown from the configuration callbacks for route `{routeId}`.");
-
-            private static readonly Action<ILogger, string, Exception> _duplicateRouteId = LoggerMessage.Define<string>(
-                LogLevel.Error,
-                EventIds.DuplicateRouteId,
-                "Duplicate route '{RouteId}'.");
-
-            private static readonly Action<ILogger, string, Exception> _duplicateClusterId = LoggerMessage.Define<string>(
-                LogLevel.Error,
-                EventIds.DuplicateClusterId,
-                "Duplicate cluster '{ClusterId}'.");
-
-            public static void ClusterConfigException(ILogger logger, string clusterId, Exception exception)
+            if (errors.Count > 0)
             {
-                _clusterConfigException(logger, clusterId, exception);
+                return (null, errors);
             }
 
-            public static void NoSessionAffinityProviderFound(ILogger logger, string affinityMode, string clusterId)
-            {
-                _noSessionAffinityProviderFound(logger, affinityMode, clusterId, null);
-            }
-
-            public static void NoAffinityFailurePolicyFound(ILogger logger, string affinityFailurePolicy, string clusterId)
-            {
-                _noAffinityFailurePolicyFound(logger, affinityFailurePolicy, clusterId, null);
-            }
-
-            public static void RouteConfigException(ILogger logger, string routeId, Exception exception)
-            {
-                _routeConfigException(logger, routeId, exception);
-            }
-
-            public static void DuplicateRouteId(ILogger logger, string routeId)
-            {
-                _duplicateRouteId(logger, routeId, null);
-            }
-
-            public static void DuplicatClusterId(ILogger logger, string clusterId)
-            {
-                _duplicateClusterId(logger, clusterId, null);
-            }
+            return (sortedRoutes.Values, errors);
         }
     }
 }
