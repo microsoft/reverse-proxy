@@ -104,7 +104,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var result = await validator.ValidateRouteAsync(route);
 
             Assert.NotEmpty(result);
-            Assert.Contains(result, err => err.Message.Equals("Route `route1` requires Hosts or Path specified. Set the Path to `/{**catchall}` to match all requests."));
+            Assert.Contains(result, err => err.Message.Equals("Route 'route1' requires Hosts or Path specified. Set the Path to '/{**catchall}' to match all requests."));
         }
 
         [Theory]
@@ -164,7 +164,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var result = await validator.ValidateRouteAsync(route);
 
             Assert.NotEmpty(result);
-            Assert.Contains(result, err => err.Message.Equals($"Invalid path '{path}' for route `route1`."));
+            Assert.Contains(result, err => err.Message.Equals($"Invalid path '{path}' for route 'route1'."));
         }
 
         [Theory]
@@ -188,7 +188,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var result = await validator.ValidateRouteAsync(route);
 
             Assert.NotEmpty(result);
-            Assert.Contains(result, err => err.Message.Equals($"Unsupported Http method '{methods}' has been set for route `route1`."));
+            Assert.Contains(result, err => err.Message.Equals($"Unsupported Http method '{methods}' has been set for route 'route1'."));
         }
 
         [Theory]
@@ -284,7 +284,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var result = await validator.ValidateRouteAsync(route);
 
             Assert.NotEmpty(result);
-            Assert.Contains(result, err => err.Message.Equals("Authorization policy 'unknown' not found for route `route1`."));
+            Assert.Contains(result, err => err.Message.Equals("Authorization policy 'unknown' not found for route 'route1'."));
         }
 
         [Theory]
@@ -357,7 +357,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var result = await validator.ValidateRouteAsync(route);
 
             Assert.NotEmpty(result);
-            Assert.Contains(result, err => err.Message.Equals("CORS policy 'unknown' not found for route `route1`."));
+            Assert.Contains(result, err => err.Message.Equals("CORS policy 'unknown' not found for route 'route1'."));
         }
 
         [Fact]
@@ -415,7 +415,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var errors = await validator.ValidateClusterAsync(cluster);
 
             var ex = Assert.Single(errors);
-            Assert.Equal("No matching ISessionAffinityProvider found for the session affinity mode `Invalid` set on the cluster `cluster1`.", ex.Message);
+            Assert.Equal("No matching ISessionAffinityProvider found for the session affinity mode 'Invalid' set on the cluster 'cluster1'.", ex.Message);
         }
 
         [Fact]
@@ -437,7 +437,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var errors = await validator.ValidateClusterAsync(cluster);
 
             var ex = Assert.Single(errors);
-            Assert.Equal("No matching IAffinityFailurePolicy found for the affinity failure policy name `Invalid` set on the cluster `cluster1`.", ex.Message);
+            Assert.Equal("No matching IAffinityFailurePolicy found for the affinity failure policy name 'Invalid' set on the cluster 'cluster1'.", ex.Message);
         }
     }
 }

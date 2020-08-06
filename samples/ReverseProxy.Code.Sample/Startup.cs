@@ -38,7 +38,7 @@ namespace Microsoft.ReverseProxy.Sample
                     ClusterId = "cluster1",
                     Match =
                     {
-                        Path = "{**wildcard}"
+                        Path = "{**catch-all}"
                     }
                 }
             };

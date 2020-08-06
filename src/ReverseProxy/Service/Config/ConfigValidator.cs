@@ -83,7 +83,7 @@ namespace Microsoft.ReverseProxy.Service
 
             if ((route.Match.Hosts == null || route.Match.Hosts.Count == 0 || route.Match.Hosts.Any(host => string.IsNullOrEmpty(host))) && string.IsNullOrEmpty(route.Match.Path))
             {
-                errors.Add(new ArgumentException($"Route `{route.RouteId}` requires Hosts or Path specified. Set the Path to `/{{**catchall}}` to match all requests."));
+                errors.Add(new ArgumentException($"Route '{route.RouteId}' requires Hosts or Path specified. Set the Path to '/{{**catchall}}' to match all requests."));
             }
 
             ValidateHost(errors, route.Match.Hosts, route.RouteId);
@@ -120,11 +120,11 @@ namespace Microsoft.ReverseProxy.Service
                 return;
             }
 
-            for (var i = 0; i < hosts.Count; i++)
+            foreach (var host in hosts)
             {
-                if (string.IsNullOrEmpty(hosts[i]) || !_hostNameRegex.IsMatch(hosts[i]))
+                if (string.IsNullOrEmpty(host) || !_hostNameRegex.IsMatch(host))
                 {
-                    errors.Add(new ArgumentException($"Invalid host name '{hosts[i]}' for route `{routeId}`."));
+                    errors.Add(new ArgumentException($"Invalid host name '{host}' for route '{routeId}'."));
                 }
             }
         }
@@ -143,7 +143,7 @@ namespace Microsoft.ReverseProxy.Service
             }
             catch (RoutePatternException ex)
             {
-                errors.Add(new ArgumentException($"Invalid path '{path}' for route `{routeId}`.", ex));
+                errors.Add(new ArgumentException($"Invalid path '{path}' for route '{routeId}'.", ex));
             }
         }
 
@@ -160,13 +160,13 @@ namespace Microsoft.ReverseProxy.Service
             {
                 if (!seenMethods.Add(method))
                 {
-                    errors.Add(new ArgumentException($"Duplicate http method '{method}' for route `{routeId}`."));
+                    errors.Add(new ArgumentException($"Duplicate HTTP method '{method}' for route '{routeId}'."));
                     continue;
                 }
 
                 if (!_validMethods.Contains(method))
                 {
-                    errors.Add(new ArgumentException($"Unsupported Http method '{method}' has been set for route `{routeId}`."));
+                    errors.Add(new ArgumentException($"Unsupported HTTP method '{method}' has been set for route '{routeId}'."));
                 }
             }
         }
@@ -188,12 +188,12 @@ namespace Microsoft.ReverseProxy.Service
                 var policy = await _authorizationPolicyProvider.GetPolicyAsync(authorizationPolicyName);
                 if (policy == null)
                 {
-                    errors.Add(new ArgumentException($"Authorization policy '{authorizationPolicyName}' not found for route `{routeId}`."));
+                    errors.Add(new ArgumentException($"Authorization policy '{authorizationPolicyName}' not found for route '{routeId}'."));
                 }
             }
             catch (Exception ex)
             {
-                errors.Add(new ArgumentException($"Unable to retrieve the authorization policy '{authorizationPolicyName}' for route `{routeId}`.", ex));
+                errors.Add(new ArgumentException($"Unable to retrieve the authorization policy '{authorizationPolicyName}' for route '{routeId}'.", ex));
             }
         }
 
@@ -220,12 +220,12 @@ namespace Microsoft.ReverseProxy.Service
                 var policy = await _corsPolicyProvider.GetPolicyAsync(dummyHttpContext, corsPolicyName);
                 if (policy == null)
                 {
-                    errors.Add(new ArgumentException($"CORS policy '{corsPolicyName}' not found for route `{routeId}`."));
+                    errors.Add(new ArgumentException($"CORS policy '{corsPolicyName}' not found for route '{routeId}'."));
                 }
             }
             catch (Exception ex)
             {
-                errors.Add(new ArgumentException($"Unable to retrieve the CORS policy '{corsPolicyName}' for route `{routeId}`.", ex));
+                errors.Add(new ArgumentException($"Unable to retrieve the CORS policy '{corsPolicyName}' for route '{routeId}'.", ex));
             }
         }
 
@@ -245,7 +245,7 @@ namespace Microsoft.ReverseProxy.Service
             var affinityMode = cluster.SessionAffinity.Mode;
             if (!_sessionAffinityProviders.ContainsKey(affinityMode))
             {
-                errors.Add(new ArgumentException($"No matching ISessionAffinityProvider found for the session affinity mode `{affinityMode}` set on the cluster `{cluster.Id}`."));
+                errors.Add(new ArgumentException($"No matching {nameof(ISessionAffinityProvider)} found for the session affinity mode '{affinityMode}' set on the cluster '{cluster.Id}'."));
             }
 
             if (string.IsNullOrEmpty(cluster.SessionAffinity.FailurePolicy))
@@ -256,7 +256,7 @@ namespace Microsoft.ReverseProxy.Service
             var affinityFailurePolicy = cluster.SessionAffinity.FailurePolicy;
             if (!_affinityFailurePolicies.ContainsKey(affinityFailurePolicy))
             {
-                errors.Add(new ArgumentException($"No matching IAffinityFailurePolicy found for the affinity failure policy name `{affinityFailurePolicy}` set on the cluster `{cluster.Id}`."));
+                errors.Add(new ArgumentException($"No matching IAffinityFailurePolicy found for the affinity failure policy name '{affinityFailurePolicy}' set on the cluster '{cluster.Id}'."));
             }
         }
     }

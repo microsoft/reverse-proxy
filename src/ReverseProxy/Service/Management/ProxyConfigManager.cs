@@ -166,7 +166,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                 }
                 catch (Exception ex)
                 {
-                    errors.Add(new Exception($"An exception was thrown from the configuration callbacks for route `{r.RouteId}`.", ex));
+                    errors.Add(new Exception($"An exception was thrown from the configuration callbacks for route '{r.RouteId}'.", ex));
                     continue;
                 }
 
@@ -230,7 +230,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                 }
                 catch (Exception ex)
                 {
-                    errors.Add(new ArgumentException($"An exception was thrown from the configuration callbacks for cluster `{c.Id}`.", ex));
+                    errors.Add(new ArgumentException($"An exception was thrown from the configuration callbacks for cluster '{c.Id}'.", ex));
                 }
             }
 
@@ -462,47 +462,47 @@ namespace Microsoft.ReverseProxy.Service.Management
             private static readonly Action<ILogger, string, Exception> _clusterAdded = LoggerMessage.Define<string>(
                   LogLevel.Debug,
                   EventIds.ClusterAdded,
-                  "Cluster `{clusterId}` has been added.");
+                  "Cluster '{clusterId}' has been added.");
 
             private static readonly Action<ILogger, string, Exception> _clusterChanged = LoggerMessage.Define<string>(
                 LogLevel.Debug,
                 EventIds.ClusterChanged,
-                "Cluster `{clusterId}` has changed.");
+                "Cluster '{clusterId}' has changed.");
 
             private static readonly Action<ILogger, string, Exception> _clusterRemoved = LoggerMessage.Define<string>(
                 LogLevel.Debug,
                 EventIds.ClusterRemoved,
-                "Cluster `{clusterId}` has been removed.");
+                "Cluster '{clusterId}' has been removed.");
 
             private static readonly Action<ILogger, string, Exception> _destinationAdded = LoggerMessage.Define<string>(
                 LogLevel.Debug,
                 EventIds.DestinationAdded,
-                "Destination `{destinationId}` has been added.");
+                "Destination '{destinationId}' has been added.");
 
             private static readonly Action<ILogger, string, Exception> _destinationChanged = LoggerMessage.Define<string>(
                 LogLevel.Debug,
                 EventIds.DestinationChanged,
-                "Destination `{destinationId}` has changed.");
+                "Destination '{destinationId}' has changed.");
 
             private static readonly Action<ILogger, string, Exception> _destinationRemoved = LoggerMessage.Define<string>(
                 LogLevel.Debug,
                 EventIds.DestinationRemoved,
-                "Destination `{destinationId}` has been removed.");
+                "Destination '{destinationId}' has been removed.");
 
             private static readonly Action<ILogger, string, Exception> _routeAdded = LoggerMessage.Define<string>(
                 LogLevel.Debug,
                 EventIds.RouteAdded,
-                "Route `{routeId}` has been added.");
+                "Route '{routeId}' has been added.");
 
             private static readonly Action<ILogger, string, Exception> _routeChanged = LoggerMessage.Define<string>(
                 LogLevel.Debug,
                 EventIds.RouteChanged,
-                "Route `{routeId}` has changed.");
+                "Route '{routeId}' has changed.");
 
             private static readonly Action<ILogger, string, Exception> _routeRemoved = LoggerMessage.Define<string>(
                 LogLevel.Debug,
                 EventIds.RouteRemoved,
-                "Route `{routeId}` has been removed.");
+                "Route '{routeId}' has been removed.");
 
             private static readonly Action<ILogger, Exception> _errorReloadingConfig = LoggerMessage.Define(
                 LogLevel.Error,

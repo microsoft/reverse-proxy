@@ -32,10 +32,10 @@ namespace Microsoft.ReverseProxy.Sample
         public Task ConfigureRouteAsync(ProxyRoute route, CancellationToken cancel)
         {
             // Do not let config based routes take priority over code based routes.
-            // Lower numbers are higher priority.
-            if (route.Priority.HasValue && route.Priority.Value < 0)
+            // Lower numbers are higher priority. Code routes default to 0.
+            if (route.Priority.HasValue && route.Priority.Value < 1)
             {
-                route.Priority = 0;
+                route.Priority = 1;
             }
 
             return Task.CompletedTask;

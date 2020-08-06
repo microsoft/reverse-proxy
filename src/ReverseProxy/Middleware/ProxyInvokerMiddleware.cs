@@ -107,12 +107,12 @@ namespace Microsoft.ReverseProxy.Middleware
             private static readonly Action<ILogger, string, Exception> _noAvailableDestinations = LoggerMessage.Define<string>(
                 LogLevel.Warning,
                 EventIds.NoAvailableDestinations,
-                "No available destinations after load balancing for cluster `{clusterId}`.");
+                "No available destinations after load balancing for cluster '{clusterId}'.");
 
             private static readonly Action<ILogger, string, Exception> _multipleDestinationsAvailable = LoggerMessage.Define<string>(
                 LogLevel.Warning,
                 EventIds.MultipleDestinationsAvailable,
-                "More than one destination available for cluster `{clusterId}`, load balancing may not be configured correctly. Choosing randomly.");
+                "More than one destination available for cluster '{clusterId}', load balancing may not be configured correctly. Choosing randomly.");
 
             public static void NoAvailableDestinations(ILogger logger, string clusterId)
             {
