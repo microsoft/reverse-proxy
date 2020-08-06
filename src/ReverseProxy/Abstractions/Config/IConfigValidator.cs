@@ -9,7 +9,7 @@ using Microsoft.ReverseProxy.Abstractions;
 namespace Microsoft.ReverseProxy.Service
 {
     /// <summary>
-    /// Provides a method to validate routes and clusters.
+    /// Provides methods to validate routes and clusters.
     /// </summary>
     public interface IConfigValidator
     {

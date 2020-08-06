@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -10,7 +11,6 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.ConfigModel;
 using Microsoft.ReverseProxy.RuntimeModel;
 
 namespace Microsoft.ReverseProxy.Service.Management
@@ -30,10 +30,11 @@ namespace Microsoft.ReverseProxy.Service.Management
         private readonly object _syncRoot = new object();
         private readonly ILogger<ProxyConfigManager> _logger;
         private readonly IProxyConfigProvider _provider;
-        private readonly IDynamicConfigBuilder _configBuilder;
         private readonly IRuntimeRouteBuilder _routeEndpointBuilder;
         private readonly IClusterManager _clusterManager;
         private readonly IRouteManager _routeManager;
+        private readonly IEnumerable<IProxyConfigFilter> _filters;
+        private readonly IConfigValidator _configValidator;
         private IDisposable _changeSubscription;
 
         private List<Endpoint> _endpoints = new List<Endpoint>(0);
@@ -43,17 +44,20 @@ namespace Microsoft.ReverseProxy.Service.Management
         public ProxyConfigManager(
             ILogger<ProxyConfigManager> logger,
             IProxyConfigProvider provider,
-            IDynamicConfigBuilder configBuilder,
             IRuntimeRouteBuilder routeEndpointBuilder,
             IClusterManager clusterManager,
-            IRouteManager routeManager)
+            IRouteManager routeManager,
+            IEnumerable<IProxyConfigFilter> filters,
+            IConfigValidator configValidator)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _provider = provider ?? throw new ArgumentNullException(nameof(provider));
-            _configBuilder = configBuilder ?? throw new ArgumentNullException(nameof(configBuilder));
             _routeEndpointBuilder = routeEndpointBuilder ?? throw new ArgumentNullException(nameof(routeEndpointBuilder));
             _clusterManager = clusterManager ?? throw new ArgumentNullException(nameof(clusterManager));
             _routeManager = routeManager ?? throw new ArgumentNullException(nameof(routeManager));
+            _filters = filters ?? throw new ArgumentNullException(nameof(filters));
+            _configValidator = configValidator ?? throw new ArgumentNullException(nameof(configValidator));
+
             _changeToken = new CancellationChangeToken(_cancellationTokenSource.Token);
         }
 
@@ -81,15 +85,6 @@ namespace Microsoft.ReverseProxy.Service.Management
             }
 
             return this;
-        }
-
-        // Throws for validation failures
-        private async Task ApplyConfigAsync(IProxyConfig config)
-        {
-            var dynamicConfig = await _configBuilder.BuildConfigAsync(config.Routes, config.Clusters, default);
-
-            UpdateRuntimeClusters(dynamicConfig);
-            UpdateRuntimeRoutes(dynamicConfig);
         }
 
         private static async void ReloadConfigAsync(object state)
@@ -124,16 +119,138 @@ namespace Microsoft.ReverseProxy.Service.Management
             }
         }
 
-        private void UpdateRuntimeClusters(DynamicConfigRoot config)
+        // Throws for validation failures
+        private async Task ApplyConfigAsync(IProxyConfig config)
+        {
+            var (configuredRoutes, routeErrors) = await VerifyRoutesAsync(config.Routes, cancellation: default);
+            var (configuredClusters, clusterErrors) = await VerifyClustersAsync(config.Clusters, cancellation: default);
+
+            if (routeErrors.Count > 0 || clusterErrors.Count > 0)
+            {
+                throw new AggregateException("The proxy config is invalid.", routeErrors.Concat(clusterErrors));
+            }
+
+            // Update clusters first because routes need to reference them.
+            UpdateRuntimeClusters(configuredClusters);
+            UpdateRuntimeRoutes(configuredRoutes);
+        }
+
+        private async Task<(IList<ProxyRoute>, IList<Exception>)> VerifyRoutesAsync(IReadOnlyList<ProxyRoute> routes, CancellationToken cancellation)
+        {
+            if (routes == null)
+            {
+                return (Array.Empty<ProxyRoute>(), Array.Empty<Exception>());
+            }
+
+            var seenRouteIds = new HashSet<string>();
+            var sortedRoutes = new SortedList<(int, string), ProxyRoute>(routes?.Count ?? 0);
+            var errors = new List<Exception>();
+
+            foreach (var r in routes)
+            {
+                if (seenRouteIds.Contains(r.RouteId))
+                {
+                    errors.Add(new ArgumentException($"Duplicate route {r.RouteId}"));
+                    continue;
+                }
+
+                // Don't modify the original
+                var route = r.DeepClone();
+
+                try
+                {
+                    foreach (var filter in _filters)
+                    {
+                        await filter.ConfigureRouteAsync(route, cancellation);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    errors.Add(new Exception($"An exception was thrown from the configuration callbacks for route `{r.RouteId}`.", ex));
+                    continue;
+                }
+
+                var routeErrors = await _configValidator.ValidateRouteAsync(route);
+                if (routeErrors.Count > 0)
+                {
+                    errors.AddRange(routeErrors);
+                    continue;
+                }
+
+                sortedRoutes.Add((route.Priority ?? 0, route.RouteId), route);
+            }
+
+            if (errors.Count > 0)
+            {
+                return (null, errors);
+            }
+
+            return (sortedRoutes.Values, errors);
+        }
+
+        private async Task<(IList<Cluster>, IList<Exception>)> VerifyClustersAsync(IReadOnlyList<Cluster> clusters, CancellationToken cancellation)
+        {
+            if (clusters == null)
+            {
+                return (Array.Empty<Cluster>(), Array.Empty<Exception>());
+            }
+
+            var seenClusterIds = new HashSet<string>(clusters.Count, StringComparer.OrdinalIgnoreCase);
+            var configuredClusters = new List<Cluster>(clusters.Count);
+            var errors = new List<Exception>();
+            // The IProxyConfigProvider provides a fresh snapshot that we need to reconfigure each time.
+            foreach (var c in clusters)
+            {
+                try
+                {
+                    if (seenClusterIds.Contains(c.Id))
+                    {
+                        errors.Add(new ArgumentException($"Duplicate cluster '{c.Id}'."));
+                        continue;
+                    }
+
+                    seenClusterIds.Add(c.Id);
+
+                    // Don't modify the original
+                    var cluster = c.DeepClone();
+
+                    foreach (var filter in _filters)
+                    {
+                        await filter.ConfigureClusterAsync(cluster, cancellation);
+                    }
+
+                    var clusterErrors = await _configValidator.ValidateClusterAsync(cluster);
+                    if (clusterErrors.Count > 0)
+                    {
+                        errors.AddRange(clusterErrors);
+                        continue;
+                    }
+
+                    configuredClusters.Add(cluster);
+                }
+                catch (Exception ex)
+                {
+                    errors.Add(new ArgumentException($"An exception was thrown from the configuration callbacks for cluster `{c.Id}`.", ex));
+                }
+            }
+
+            if (errors.Count > 0)
+            {
+                return (null, errors);
+            }
+
+            return (configuredClusters, errors);
+        }
+
+        private void UpdateRuntimeClusters(IList<Cluster> clusters)
         {
             var desiredClusters = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            foreach (var configClusterPair in config.Clusters)
+            foreach (var configCluster in clusters)
             {
-                var configCluster = configClusterPair.Value;
-                desiredClusters.Add(configClusterPair.Key);
+                desiredClusters.Add(configCluster.Id);
 
                 _clusterManager.GetOrCreateItem(
-                    itemId: configClusterPair.Key,
+                    itemId: configCluster.Id,
                     setupAction: cluster =>
                     {
                         UpdateRuntimeDestinations(configCluster.Destinations, cluster.DestinationManager);
@@ -163,11 +280,11 @@ namespace Microsoft.ReverseProxy.Service.Management
                         {
                             if (currentClusterConfig == null)
                             {
-                                Log.ClusterAdded(_logger, configClusterPair.Key);
+                                Log.ClusterAdded(_logger, configCluster.Id);
                             }
                             else
                             {
-                                Log.ClusterChanged(_logger, configClusterPair.Key);
+                                Log.ClusterChanged(_logger, configCluster.Id);
                             }
 
                             // Config changed, so update runtime cluster
@@ -234,12 +351,12 @@ namespace Microsoft.ReverseProxy.Service.Management
             }
         }
 
-        private void UpdateRuntimeRoutes(DynamicConfigRoot config)
+        private void UpdateRuntimeRoutes(IList<ProxyRoute> routes)
         {
             var desiredRoutes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             var changed = false;
 
-            foreach (var configRoute in config.Routes)
+            foreach (var configRoute in routes)
             {
                 desiredRoutes.Add(configRoute.RouteId);
 
