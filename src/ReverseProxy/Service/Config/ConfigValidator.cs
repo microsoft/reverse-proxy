@@ -237,23 +237,25 @@ namespace Microsoft.ReverseProxy.Service
                 return;
             }
 
-            if (string.IsNullOrEmpty(cluster.SessionAffinity.Mode))
+            var affinityMode = cluster.SessionAffinity.Mode;
+            if (string.IsNullOrEmpty(affinityMode))
             {
-                cluster.SessionAffinity.Mode = SessionAffinityConstants.Modes.Cookie;
+                // The default.
+                affinityMode = SessionAffinityConstants.Modes.Cookie;
             }
 
-            var affinityMode = cluster.SessionAffinity.Mode;
             if (!_sessionAffinityProviders.ContainsKey(affinityMode))
             {
                 errors.Add(new ArgumentException($"No matching {nameof(ISessionAffinityProvider)} found for the session affinity mode '{affinityMode}' set on the cluster '{cluster.Id}'."));
             }
 
-            if (string.IsNullOrEmpty(cluster.SessionAffinity.FailurePolicy))
+            var affinityFailurePolicy = cluster.SessionAffinity.FailurePolicy;
+            if (string.IsNullOrEmpty(affinityFailurePolicy))
             {
-                cluster.SessionAffinity.FailurePolicy = SessionAffinityConstants.AffinityFailurePolicies.Redistribute;
+                // The default.
+                affinityFailurePolicy = SessionAffinityConstants.AffinityFailurePolicies.Redistribute;
             }
 
-            var affinityFailurePolicy = cluster.SessionAffinity.FailurePolicy;
             if (!_affinityFailurePolicies.ContainsKey(affinityFailurePolicy))
             {
                 errors.Add(new ArgumentException($"No matching IAffinityFailurePolicy found for the affinity failure policy name '{affinityFailurePolicy}' set on the cluster '{cluster.Id}'."));
