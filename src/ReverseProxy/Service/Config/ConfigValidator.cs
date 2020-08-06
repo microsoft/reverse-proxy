@@ -71,7 +71,7 @@ namespace Microsoft.ReverseProxy.Service
         }
 
         // Note this performs all validation steps without short circuiting in order to report all possible errors.
-        public async Task<IList<Exception>> ValidateRouteAsync(ProxyRoute route)
+        public async ValueTask<IList<Exception>> ValidateRouteAsync(ProxyRoute route)
         {
             _ = route ?? throw new ArgumentNullException(nameof(route));
             var errors = new List<Exception>();
@@ -97,7 +97,7 @@ namespace Microsoft.ReverseProxy.Service
         }
 
         // Note this performs all validation steps without short circuiting in order to report all possible errors.
-        public Task<IList<Exception>> ValidateClusterAsync(Cluster cluster)
+        public ValueTask<IList<Exception>> ValidateClusterAsync(Cluster cluster)
         {
             _ = cluster ?? throw new ArgumentNullException(nameof(cluster));
             var errors = new List<Exception>();
@@ -109,7 +109,7 @@ namespace Microsoft.ReverseProxy.Service
 
             ValidateSessionAffinity(errors, cluster);
 
-            return Task.FromResult<IList<Exception>>(errors);
+            return new ValueTask<IList<Exception>>(errors);
         }
 
         private void ValidateHost(IList<Exception> errors, IReadOnlyList<string> hosts, string routeId)
@@ -171,7 +171,7 @@ namespace Microsoft.ReverseProxy.Service
             }
         }
 
-        private async Task ValidateAuthorizationPolicyAsync(IList<Exception> errors, string authorizationPolicyName, string routeId)
+        private async ValueTask ValidateAuthorizationPolicyAsync(IList<Exception> errors, string authorizationPolicyName, string routeId)
         {
             if (string.IsNullOrEmpty(authorizationPolicyName))
             {
@@ -197,7 +197,7 @@ namespace Microsoft.ReverseProxy.Service
             }
         }
 
-        private async Task ValidateCorsPolicyAsync(IList<Exception> errors, string corsPolicyName, string routeId)
+        private async ValueTask ValidateCorsPolicyAsync(IList<Exception> errors, string corsPolicyName, string routeId)
         {
             if (string.IsNullOrEmpty(corsPolicyName))
             {

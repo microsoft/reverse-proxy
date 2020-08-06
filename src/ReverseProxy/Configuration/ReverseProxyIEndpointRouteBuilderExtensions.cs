@@ -54,6 +54,10 @@ namespace Microsoft.AspNetCore.Builder
             routeBuilder.SetProxyPipeline(app);
 
             var configManager = endpoints.ServiceProvider.GetRequiredService<IProxyConfigManager>();
+
+            // Config validation is async but startup is sync. We want this to block so that A) any validation errors can prevent
+            // the app from starting, and B) so that all the config is ready before the server starts accepting requests.
+            // Reloads will be async.
             var dataSource = configManager.LoadAsync().GetAwaiter().GetResult();
             endpoints.DataSources.Add(dataSource);
         }

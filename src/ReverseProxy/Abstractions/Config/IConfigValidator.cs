@@ -16,11 +16,11 @@ namespace Microsoft.ReverseProxy.Service
         /// <summary>
         /// Validates a route and returns all errors
         /// </summary>
-        Task<IList<Exception>> ValidateRouteAsync(ProxyRoute route);
+        ValueTask<IList<Exception>> ValidateRouteAsync(ProxyRoute route);
 
         /// <summary>
         /// Validates a cluster and returns all errors.
         /// </summary>
-        Task<IList<Exception>> ValidateClusterAsync(Cluster cluster);
+        ValueTask<IList<Exception>> ValidateClusterAsync(Cluster cluster);
     }
 }
