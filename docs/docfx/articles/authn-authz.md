@@ -47,7 +47,7 @@ public void ConfigureServices(IServiceCollection services)
     services.AddAuthorization(options =>
     {
         options.AddPolicy("customPolicy", policy =>
-            policy.Requirements.RequireAuthenticatedUser());
+            policy.RequireAuthenticatedUser());
     });
 }
 ```
