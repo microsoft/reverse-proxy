@@ -108,7 +108,7 @@
     services.AddAuthorization(options =&gt;
     {
         options.AddPolicy(&quot;customPolicy&quot;, policy =&gt;
-            policy.Requirements.RequireAuthenticatedUser());
+            policy.RequireAuthenticatedUser());
     });
 }
 </code></pre>
