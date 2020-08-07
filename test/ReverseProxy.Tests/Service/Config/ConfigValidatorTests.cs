@@ -188,7 +188,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var result = await validator.ValidateRouteAsync(route);
 
             Assert.NotEmpty(result);
-            Assert.Contains(result, err => err.Message.Equals($"Unsupported Http method '{methods}' has been set for route 'route1'."));
+            Assert.Contains(result, err => err.Message.Equals($"Unsupported HTTP method '{methods}' has been set for route 'route1'."));
         }
 
         [Theory]
@@ -212,7 +212,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var result = await validator.ValidateRouteAsync(route);
 
             Assert.NotEmpty(result);
-            Assert.Contains(result, err => err.Message.StartsWith("Duplicate http method"));
+            Assert.Contains(result, err => err.Message.StartsWith("Duplicate HTTP method"));
         }
 
         [Theory]

@@ -14,6 +14,6 @@ namespace Microsoft.ReverseProxy.Abstractions
         /// <summary>
         /// Load the first data at startup. May throw.
         /// </summary>
-        Task<EndpointDataSource> LoadAsync();
+        Task<EndpointDataSource> InitialLoadAsync();
     }
 }

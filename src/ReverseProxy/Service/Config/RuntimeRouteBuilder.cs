@@ -61,7 +61,6 @@ namespace Microsoft.ReverseProxy.Service
                 aspNetCoreEndpoints.AsReadOnly(),
                 transforms);
 
-            // TODO: Handle arbitrary AST's properly
             // Catch-all pattern when no path was specified
             var pathPattern = string.IsNullOrEmpty(source.Match.Path) ? "/{**catchall}" : source.Match.Path;
 

@@ -72,16 +72,23 @@ namespace Microsoft.ReverseProxy.Service.Management
         // IProxyConfigManager
 
         /// <inheritdoc/>
-        public async Task<EndpointDataSource> LoadAsync()
+        public async Task<EndpointDataSource> InitialLoadAsync()
         {
             // Trigger the first load immediately and throw if it fails.
             // We intend this to crash the app so we don't try listening for further changes.
-            var config = _provider.GetConfig();
-            await ApplyConfigAsync(config);
-
-            if (config.ChangeToken.ActiveChangeCallbacks)
+            try
             {
-                _changeSubscription = config.ChangeToken.RegisterChangeCallback(ReloadConfigAsync, this);
+                var config = _provider.GetConfig();
+                await ApplyConfigAsync(config);
+
+                if (config.ChangeToken.ActiveChangeCallbacks)
+                {
+                    _changeSubscription = config.ChangeToken.RegisterChangeCallback(ReloadConfigAsync, this);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("Unable to load or apply the proxy configuration.", ex);
             }
 
             return this;
@@ -90,6 +97,7 @@ namespace Microsoft.ReverseProxy.Service.Management
         private static async void ReloadConfigAsync(object state)
         {
             var manager = (ProxyConfigManager)state;
+            manager._changeSubscription?.Dispose();
 
             IProxyConfig newConfig;
             try
@@ -114,7 +122,6 @@ namespace Microsoft.ReverseProxy.Service.Management
 
             if (newConfig.ChangeToken.ActiveChangeCallbacks)
             {
-                manager._changeSubscription?.Dispose();
                 manager._changeSubscription = newConfig.ChangeToken.RegisterChangeCallback(ReloadConfigAsync, manager);
             }
         }
