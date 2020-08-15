@@ -6,7 +6,7 @@ Introduced: preview4
 Proxy configuration can be loaded programatically from the source of your choosing by implementing an [IProxyConfigProvider](xref:Microsoft.ReverseProxy.Abstractions.IProxyConfigProvider).
 
 ## Structure
-An [IProxyConfigProvider](xref:Microsoft.ReverseProxy.Abstractions.IProxyConfigProvider) has a single method `GetConfig()` that returns an [IProxyConfig](xref:Microsoft.ReverseProxy.Abstractions.IProxyConfig) instance. The IProxyConfig instance provides a list of the current routes and clusters, as well as an `IChangeToken` to notify the proxy when this information is out of date and should be reloaded by calling `GetConfig()` again.
+[IProxyConfigProvider](xref:Microsoft.ReverseProxy.Abstractions.IProxyConfigProvider) has a single method `GetConfig()` that returns an [IProxyConfig](xref:Microsoft.ReverseProxy.Abstractions.IProxyConfig) instance. The IProxyConfig has lists of the current routes and clusters, as well as an `IChangeToken` to notify the proxy when this information is out of date and should be reloaded by calling `GetConfig()` again.
 
 ### Routes
 The routes section is an ordered list of route matches and their associated configuration. A route requires at least the following fields:
@@ -39,14 +39,14 @@ If the `IChangeToken` supports `ActiveChangeCallbacks`, once the proxy has proce
 When the provider wants to provide new configuration to the proxy it should first load that configuration in the background, optionally validate it using the [IConfigValidator](xref:Microsoft.ReverseProxy.Service.IConfigValidator), and only then signal the `IChangeToken` from the prior `IProxyConfig` instance that new data is available. The proxy will call `GetConfig()` again to retrieve the new data.
 
 There are important differences when reloading configuration vs the first configuration load.
-- The new configuration will be diffed against the current one and only modified routes or clusters will be updated. The update will be applied atomically and will only affect new requests, not request current in progress.
+- The new configuration will be diffed against the current one and only modified routes or clusters will be updated. The update will be applied atomically and will only affect new requests, not request currently in progress.
 - Any errors in the reload process will be logged and the application to continue using the last known good configuration.
 - If `GetConfig()` throws the proxy will be unable to listen for future changes because `IChangeToken`s are single use.
 
 Once the new configuration has been validated and applied the proxy with register with the new `IChangeToken`. Note if there are multiple reloads signaled in close succession the proxy may skip some and load the next available configuration as soon as it's ready. Each `IProxyConfig` contains the full configuration state so nothing will be lost.
 
 ## Example
-The following is an example `IProxyConfigProvider` that has route and cluster manually loaded into it.
+The following is an example `IProxyConfigProvider` that has routes and clusters manually loaded into it.
 
 ```C#
 namespace Microsoft.Extensions.DependencyInjection
@@ -105,4 +105,37 @@ namespace Microsoft.ReverseProxy.Configuration
         }
     }
 }
+```
+
+And here's how it's called in Startup.cs:
+```C#
+        public void ConfigureServices(IServiceCollection services)
+        {
+            var routes = new[]
+            {
+                new ProxyRoute()
+                {
+                    RouteId = "route1",
+                    ClusterId = "cluster1",
+                    Match =
+                    {
+                        Path = "{**catch-all}"
+                    }
+                }
+            };
+            var clusters = new[]
+            {
+                new Cluster()
+                {
+                    Id = "cluster1",
+                    Destinations =
+                    {
+                        { "destination1", new Destination() { Address = "https://localhost:10000" } }
+                    }
+                }
+            };
+
+            services.AddReverseProxy()
+                .LoadFromMemory(routes, clusters);
+        }
 ```
