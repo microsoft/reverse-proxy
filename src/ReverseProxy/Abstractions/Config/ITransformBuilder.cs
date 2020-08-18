@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 
-namespace Microsoft.ReverseProxy.Service.Config
+namespace Microsoft.ReverseProxy.Service
 {
     /// <summary>
     /// Validates and builds request and response transforms for a given route.

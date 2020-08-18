@@ -83,7 +83,7 @@ namespace Microsoft.ReverseProxy.Service.Management
 
                 if (config.ChangeToken.ActiveChangeCallbacks)
                 {
-                    _changeSubscription = config.ChangeToken.RegisterChangeCallback(ReloadConfigAsync, this);
+                    _changeSubscription = config.ChangeToken.RegisterChangeCallback(ReloadConfig, this);
                 }
             }
             catch (Exception ex)
@@ -94,35 +94,40 @@ namespace Microsoft.ReverseProxy.Service.Management
             return this;
         }
 
-        private static async void ReloadConfigAsync(object state)
+        private static void ReloadConfig(object state)
         {
             var manager = (ProxyConfigManager)state;
-            manager._changeSubscription?.Dispose();
+            _ = manager.ReloadConfigAsync();
+        }
+
+        private async Task ReloadConfigAsync()
+        {
+            _changeSubscription?.Dispose();
 
             IProxyConfig newConfig;
             try
             {
-                newConfig = manager._provider.GetConfig();
+                newConfig = _provider.GetConfig();
             }
             catch (Exception ex)
             {
-                Log.ErrorReloadingConfig(manager._logger, ex);
+                Log.ErrorReloadingConfig(_logger, ex);
                 // If we can't load the config then we can't listen for changes anymore.
                 return;
             }
 
             try
             {
-                await manager.ApplyConfigAsync(newConfig);
+                await ApplyConfigAsync(newConfig);
             }
             catch (Exception ex)
             {
-                Log.ErrorApplyingConfig(manager._logger, ex);
+                Log.ErrorApplyingConfig(_logger, ex);
             }
 
             if (newConfig.ChangeToken.ActiveChangeCallbacks)
             {
-                manager._changeSubscription = newConfig.ChangeToken.RegisterChangeCallback(ReloadConfigAsync, manager);
+                _changeSubscription = newConfig.ChangeToken.RegisterChangeCallback(ReloadConfig, this);
             }
         }
 

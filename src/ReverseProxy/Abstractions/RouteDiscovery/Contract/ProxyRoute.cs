@@ -52,7 +52,7 @@ namespace Microsoft.ReverseProxy.Abstractions
         public IDictionary<string, string> Metadata { get; set; }
 
         /// <summary>
-        /// Parameters used to transform the request and response. See <see cref="Service.Config.ITransformBuilder"/>.
+        /// Parameters used to transform the request and response. See <see cref="Service.ITransformBuilder"/>.
         /// </summary>
         public IList<IDictionary<string, string>> Transforms { get; set; }
 

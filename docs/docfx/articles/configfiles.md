@@ -71,7 +71,7 @@ The routes section is an ordered list of route matches and their associated conf
 - ClusterId - Refers to the name of an entry in the clusters section.
 - Match containing either a Hosts array or a Path pattern string.
 
-[Authorization](authn-authz), [CORS](cors), and other route based policies can be configured on each route entry. For additional fields see [ProxyRoute](xref:Microsoft.ReverseProxy.Abstractions.ProxyRoute).
+[Authorization](authn-authz.md), [CORS](cors.md), and other route based policies can be configured on each route entry. For additional fields see [ProxyRoute](xref:Microsoft.ReverseProxy.Abstractions.ProxyRoute).
 
 The proxy will apply the given matching criteria and policies, and then pass off the request to the specified cluster.
 

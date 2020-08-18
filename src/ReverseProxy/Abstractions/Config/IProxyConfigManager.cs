@@ -4,7 +4,7 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Routing;
 
-namespace Microsoft.ReverseProxy.Abstractions
+namespace Microsoft.ReverseProxy.Service
 {
     /// <summary>
     /// High-level management of Reverse Proxy state.

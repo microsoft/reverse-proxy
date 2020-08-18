@@ -24,7 +24,7 @@ namespace Microsoft.ReverseProxy.Configuration
 {
     public class InMemoryConfigProvider : IProxyConfigProvider
     {
-        private InMemoryConfig _config;
+        private volatile InMemoryConfig _config;
 
         public InMemoryConfigProvider(IReadOnlyList<ProxyRoute> routes, IReadOnlyList<Cluster> clusters)
         {

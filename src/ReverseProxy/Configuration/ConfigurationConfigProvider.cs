@@ -20,6 +20,7 @@ namespace Microsoft.ReverseProxy.Configuration
     /// </summary>
     internal class ConfigurationConfigProvider : IProxyConfigProvider, IDisposable
     {
+        private readonly object _lockObject = new object();
         private readonly ILogger<ConfigurationConfigProvider> _logger;
         private readonly IOptionsMonitor<ConfigurationOptions> _optionsMonitor;
         private ConfigurationSnapshot _snapshot;
@@ -50,31 +51,35 @@ namespace Microsoft.ReverseProxy.Configuration
             // First time load
             if (_snapshot == null)
             {
-                UpdateSnapshot(_optionsMonitor.CurrentValue);
                 _subscription = _optionsMonitor.OnChange(UpdateSnapshot);
+                UpdateSnapshot(_optionsMonitor.CurrentValue);
             }
             return _snapshot;
         }
 
         private void UpdateSnapshot(ConfigurationOptions options)
         {
-            Log.LoadData(_logger);
-            var oldToken = _changeToken;
-            _changeToken = new CancellationTokenSource();
-            _snapshot = new ConfigurationSnapshot()
+            // Prevent overlapping updates, especially on startup.
+            lock (_lockObject)
             {
-                Routes = options.Routes,
-                Clusters = options.Clusters.Values.ToList(),
-                ChangeToken = new CancellationChangeToken(_changeToken.Token)
-            };
+                Log.LoadData(_logger);
+                var oldToken = _changeToken;
+                _changeToken = new CancellationTokenSource();
+                _snapshot = new ConfigurationSnapshot()
+                {
+                    Routes = options.Routes,
+                    Clusters = options.Clusters.Values.ToList(),
+                    ChangeToken = new CancellationChangeToken(_changeToken.Token)
+                };
 
-            try
-            {
-                oldToken?.Cancel(throwOnFirstException: false);
-            }
-            catch (Exception ex)
-            {
-                Log.ErrorSignalingChange(_logger, ex);
+                try
+                {
+                    oldToken?.Cancel(throwOnFirstException: false);
+                }
+                catch (Exception ex)
+                {
+                    Log.ErrorSignalingChange(_logger, ex);
+                }
             }
         }
 

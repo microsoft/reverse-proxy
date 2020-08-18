@@ -3,10 +3,10 @@
 Introduced: preview4
 
 ## Introduction
-Proxy configuration can be loaded programatically from the source of your choosing by implementing an [IProxyConfigProvider](xref:Microsoft.ReverseProxy.Abstractions.IProxyConfigProvider).
+Proxy configuration can be loaded programatically from the source of your choosing by implementing an [IProxyConfigProvider](xref:Microsoft.ReverseProxy.Service.IProxyConfigProvider).
 
 ## Structure
-[IProxyConfigProvider](xref:Microsoft.ReverseProxy.Abstractions.IProxyConfigProvider) has a single method `GetConfig()` that returns an [IProxyConfig](xref:Microsoft.ReverseProxy.Abstractions.IProxyConfig) instance. The IProxyConfig has lists of the current routes and clusters, as well as an `IChangeToken` to notify the proxy when this information is out of date and should be reloaded by calling `GetConfig()` again.
+[IProxyConfigProvider](xref:Microsoft.ReverseProxy.Service.IProxyConfigProvider) has a single method `GetConfig()` that returns an [IProxyConfig](xref:Microsoft.ReverseProxy.Service.IProxyConfig) instance. The IProxyConfig has lists of the current routes and clusters, as well as an `IChangeToken` to notify the proxy when this information is out of date and should be reloaded by calling `GetConfig()` again.
 
 ### Routes
 The routes section is an ordered list of route matches and their associated configuration. A route requires at least the following fields:
@@ -14,7 +14,7 @@ The routes section is an ordered list of route matches and their associated conf
 - ClusterId - Refers to the name of an entry in the clusters section.
 - Match containing either a Hosts array or a Path pattern string.
 
-[Authorization](authn-authz), [CORS](cors), and other route based policies can be configured on each route entry. For additional fields see [ProxyRoute](xref:Microsoft.ReverseProxy.Abstractions.ProxyRoute).
+[Authorization](authn-authz.md), [CORS](cors.md), and other route based policies can be configured on each route entry. For additional fields see [ProxyRoute](xref:Microsoft.ReverseProxy.Abstractions.ProxyRoute).
 
 The proxy will apply the given matching criteria and policies, and then pass off the request to the specified cluster.
 
@@ -65,7 +65,7 @@ namespace Microsoft.ReverseProxy.Configuration
 {
     public class InMemoryConfigProvider : IProxyConfigProvider
     {
-        private InMemoryConfig _config;
+        private volatile InMemoryConfig _config;
 
         public InMemoryConfigProvider(IReadOnlyList<ProxyRoute> routes, IReadOnlyList<Cluster> clusters)
         {
