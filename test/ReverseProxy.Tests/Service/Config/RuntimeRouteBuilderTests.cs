@@ -14,6 +14,7 @@ using Microsoft.ReverseProxy.Service.Management;
 using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
 using Microsoft.ReverseProxy.Utilities;
 using Moq;
+using Tests.Common;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Service.Tests
