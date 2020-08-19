@@ -284,7 +284,7 @@ namespace Microsoft.ReverseProxy.Service.Config
 
         private static Transforms BuildTransform(ProxyRoute proxyRoute)
         {
-            var builder = new TransformBuilder(NullTemplateBinderFactory.Instance, new TestRandomFactory(), NullLogger<TransformBuilder>.Instance);
+            var builder = new TransformBuilder(NullTemplateBinderFactory.Instance, new TestRandomFactory());
 
             var transform = builder.Build(proxyRoute.Transforms);
             return transform;

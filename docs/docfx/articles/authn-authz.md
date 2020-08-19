@@ -21,7 +21,7 @@ Example:
         "ClusterId": "cluster1",
         "AuthorizationPolicy": "customPolicy",
         "Match": {
-          "Hosts": "localhost"
+          "Hosts": [ "localhost" ]
         },
       }
     ],

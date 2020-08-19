@@ -6,10 +6,8 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Routing.Template;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
-using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 using Microsoft.ReverseProxy.Utilities;
 
@@ -22,117 +20,107 @@ namespace Microsoft.ReverseProxy.Service.Config
     {
         private readonly TemplateBinderFactory _binderFactory;
         private readonly IRandomFactory _randomFactory;
-        private readonly ILogger<TransformBuilder> _logger;
 
         /// <summary>
         /// Creates a new <see cref="TransformBuilder"/>
         /// </summary>
-        public TransformBuilder(TemplateBinderFactory binderFactory, IRandomFactory randomFactory, ILogger<TransformBuilder> logger)
+        public TransformBuilder(TemplateBinderFactory binderFactory, IRandomFactory randomFactory)
         {
             _binderFactory = binderFactory ?? throw new ArgumentNullException(nameof(binderFactory));
             _randomFactory = randomFactory ?? throw new ArgumentNullException(nameof(randomFactory));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         /// <inheritdoc/>
-        public bool Validate(IList<IDictionary<string, string>> rawTransforms, string routeId)
+        public IList<Exception> Validate(IList<IDictionary<string, string>> rawTransforms)
         {
-            _ = routeId ?? throw new ArgumentNullException(nameof(routeId));
+            var errors = new List<Exception>();
 
-            var success = true;
             if (rawTransforms == null || rawTransforms.Count == 0)
             {
-                return success;
+                return errors;
             }
 
             foreach (var rawTransform in rawTransforms)
             {
                 if (rawTransform.TryGetValue("PathSet", out var pathSet))
                 {
-                    success &= TryCheckTooManyParameters(rawTransform, routeId, expected: 1);
+                    TryCheckTooManyParameters(errors.Add, rawTransform, expected: 1);
                 }
                 else if (rawTransform.TryGetValue("PathPrefix", out var pathPrefix))
                 {
-                    success &= TryCheckTooManyParameters(rawTransform, routeId, expected: 1);
+                    TryCheckTooManyParameters(errors.Add, rawTransform, expected: 1);
                 }
                 else if (rawTransform.TryGetValue("PathRemovePrefix", out var pathRemovePrefix))
                 {
-                    success &= TryCheckTooManyParameters(rawTransform, routeId, expected: 1);
+                    TryCheckTooManyParameters(errors.Add, rawTransform, expected: 1);
                 }
                 else if (rawTransform.TryGetValue("PathPattern", out var pathPattern))
                 {
-                    success &= TryCheckTooManyParameters(rawTransform, routeId, expected: 1);
+                    TryCheckTooManyParameters(errors.Add, rawTransform, expected: 1);
                     // TODO: Validate the pattern format. Does it build?
                 }
                 else if (rawTransform.TryGetValue("RequestHeadersCopy", out var copyHeaders))
                 {
-                    success &= TryCheckTooManyParameters(rawTransform, routeId, expected: 1);
+                    TryCheckTooManyParameters(errors.Add, rawTransform, expected: 1);
                     if (!string.Equals("True", copyHeaders, StringComparison.OrdinalIgnoreCase) && !string.Equals("False", copyHeaders, StringComparison.OrdinalIgnoreCase))
                     {
-                        Log.InvalidTransform(_logger, routeId, $"Unexpected value for RequestHeaderCopy: {copyHeaders}. Expected 'true' or 'false'");
-                        success = false;
+                        errors.Add(new ArgumentException($"Unexpected value for RequestHeaderCopy: {copyHeaders}. Expected 'true' or 'false'"));
                     }
                 }
                 else if (rawTransform.TryGetValue("RequestHeaderOriginalHost", out var originalHost))
                 {
-                    success &= TryCheckTooManyParameters(rawTransform, routeId, expected: 1);
+                    TryCheckTooManyParameters(errors.Add, rawTransform, expected: 1);
                     if (!string.Equals("True", originalHost, StringComparison.OrdinalIgnoreCase) && !string.Equals("False", originalHost, StringComparison.OrdinalIgnoreCase))
                     {
-                        Log.InvalidTransform(_logger, routeId, $"Unexpected value for RequestHeaderOriginalHost: {originalHost}. Expected 'true' or 'false'");
-                        success = false;
+                        errors.Add(new ArgumentException($"Unexpected value for RequestHeaderOriginalHost: {originalHost}. Expected 'true' or 'false'"));
                     }
                 }
                 else if (rawTransform.TryGetValue("RequestHeader", out var headerName))
                 {
-                    success &= TryCheckTooManyParameters(rawTransform, routeId, expected: 2);
+                    TryCheckTooManyParameters(errors.Add, rawTransform, expected: 2);
                     if (!rawTransform.TryGetValue("Set", out var _) && !rawTransform.TryGetValue("Append", out var _))
                     {
-                        Log.InvalidTransform(_logger, routeId, $"Unexpected parameters for RequestHeader: {string.Join(';', rawTransform.Keys)}. Expected 'Set' or 'Append'");
-                        success = false;
+                        errors.Add(new ArgumentException($"Unexpected parameters for RequestHeader: {string.Join(';', rawTransform.Keys)}. Expected 'Set' or 'Append'"));
                     }
                 }
                 else if (rawTransform.TryGetValue("ResponseHeader", out var _))
                 {
                     if (rawTransform.TryGetValue("When", out var whenValue))
                     {
-                        success &= TryCheckTooManyParameters(rawTransform, routeId, expected: 3);
+                        TryCheckTooManyParameters(errors.Add, rawTransform, expected: 3);
                         if (!string.Equals("Always", whenValue, StringComparison.OrdinalIgnoreCase) && !string.Equals("Success", whenValue, StringComparison.OrdinalIgnoreCase))
                         {
-                            Log.InvalidTransform(_logger, routeId, $"Unexpected value for ResponseHeader:When: {whenValue}. Expected 'Always' or 'Success'");
-                            success = false;
+                            errors.Add(new ArgumentException($"Unexpected value for ResponseHeader:When: {whenValue}. Expected 'Always' or 'Success'"));
                         }
                     }
                     else
                     {
-                        success &= TryCheckTooManyParameters(rawTransform, routeId, expected: 2);
+                        TryCheckTooManyParameters(errors.Add, rawTransform, expected: 2);
                     }
 
                     if (!rawTransform.TryGetValue("Set", out var _) && !rawTransform.TryGetValue("Append", out var _))
                     {
-                        Log.InvalidTransform(_logger, routeId, $"Unexpected parameters for ResponseHeader: {string.Join(';', rawTransform.Keys)}. Expected 'Set' or 'Append'");
-                        success = false;
+                        errors.Add(new ArgumentException($"Unexpected parameters for ResponseHeader: {string.Join(';', rawTransform.Keys)}. Expected 'Set' or 'Append'"));
                     }
                 }
                 else if (rawTransform.TryGetValue("ResponseTrailer", out var _))
                 {
                     if (rawTransform.TryGetValue("When", out var whenValue))
                     {
-                        success &= TryCheckTooManyParameters(rawTransform, routeId, expected: 3);
+                        TryCheckTooManyParameters(errors.Add, rawTransform, expected: 3);
                         if (!string.Equals("Always", whenValue, StringComparison.OrdinalIgnoreCase) && !string.Equals("Success", whenValue, StringComparison.OrdinalIgnoreCase))
                         {
-                            Log.InvalidTransform(_logger, routeId, $"Unexpected value for ResponseTrailer:When: {whenValue}. Expected 'Always' or 'Success'");
-                            success = false;
+                            errors.Add(new ArgumentException($"Unexpected value for ResponseTrailer:When: {whenValue}. Expected 'Always' or 'Success'"));
                         }
                     }
                     else
                     {
-                        success &= TryCheckTooManyParameters(rawTransform, routeId, expected: 2);
+                        TryCheckTooManyParameters(errors.Add, rawTransform, expected: 2);
                     }
 
                     if (!rawTransform.TryGetValue("Set", out var _) && !rawTransform.TryGetValue("Append", out var _))
                     {
-                        Log.InvalidTransform(_logger, routeId, $"Unexpected parameters for ResponseTrailer: {string.Join(';', rawTransform.Keys)}. Expected 'Set' or 'Append'");
-                        success = false;
+                        errors.Add(new ArgumentException($"Unexpected parameters for ResponseTrailer: {string.Join(';', rawTransform.Keys)}. Expected 'Set' or 'Append'"));
                     }
                 }
                 else if (rawTransform.TryGetValue("X-Forwarded", out var xforwardedHeaders))
@@ -144,8 +132,7 @@ namespace Microsoft.ReverseProxy.Service.Config
                         expected++;
                         if (!string.Equals("True", appendValue, StringComparison.OrdinalIgnoreCase) && !string.Equals("False", appendValue, StringComparison.OrdinalIgnoreCase))
                         {
-                            Log.InvalidTransform(_logger, routeId, $"Unexpected value for X-Forwarded:Append: {appendValue}. Expected 'true' or 'false'");
-                            success = false;
+                            errors.Add(new ArgumentException($"Unexpected value for X-Forwarded:Append: {appendValue}. Expected 'true' or 'false'"));
                         }
                     }
 
@@ -154,7 +141,7 @@ namespace Microsoft.ReverseProxy.Service.Config
                         expected++;
                     }
 
-                    success &= TryCheckTooManyParameters(rawTransform, routeId, expected);
+                    TryCheckTooManyParameters(errors.Add, rawTransform, expected);
 
                     // for, host, proto, PathBase
                     var tokens = xforwardedHeaders.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
@@ -166,8 +153,7 @@ namespace Microsoft.ReverseProxy.Service.Config
                             && !string.Equals(token, "Proto", StringComparison.OrdinalIgnoreCase)
                             && !string.Equals(token, "PathBase", StringComparison.OrdinalIgnoreCase))
                         {
-                            Log.InvalidTransform(_logger, routeId, $"Unexpected value for X-Forwarded: {token}. Expected 'for', 'host', 'proto', or 'PathBase'");
-                            success = false;
+                            errors.Add(new ArgumentException($"Unexpected value for X-Forwarded: {token}. Expected 'for', 'host', 'proto', or 'PathBase'"));
                         }
                     }
                 }
@@ -180,8 +166,7 @@ namespace Microsoft.ReverseProxy.Service.Config
                         expected++;
                         if (!string.Equals("True", appendValue, StringComparison.OrdinalIgnoreCase) && !string.Equals("False", appendValue, StringComparison.OrdinalIgnoreCase))
                         {
-                            Log.InvalidTransform(_logger, routeId, $"Unexpected value for Forwarded:Append: {appendValue}. Expected 'true' or 'false'");
-                            success = false;
+                            errors.Add(new ArgumentException($"Unexpected value for Forwarded:Append: {appendValue}. Expected 'true' or 'false'"));
                         }
                     }
 
@@ -191,8 +176,7 @@ namespace Microsoft.ReverseProxy.Service.Config
                         expected++;
                         if (!Enum.TryParse<RequestHeaderForwardedTransform.NodeFormat>(forFormat, ignoreCase: true, out var _))
                         {
-                            Log.InvalidTransform(_logger, routeId, $"Unexpected value for Forwarded:ForFormat: {forFormat}. Expected: {enumValues}");
-                            success = false;
+                            errors.Add(new ArgumentException($"Unexpected value for Forwarded:ForFormat: {forFormat}. Expected: {enumValues}"));
                         }
                     }
 
@@ -201,12 +185,11 @@ namespace Microsoft.ReverseProxy.Service.Config
                         expected++;
                         if (!Enum.TryParse<RequestHeaderForwardedTransform.NodeFormat>(byFormat, ignoreCase: true, out var _))
                         {
-                            Log.InvalidTransform(_logger, routeId, $"Unexpected value for Forwarded:ByFormat: {byFormat}. Expected: {enumValues}");
-                            success = false;
+                            errors.Add(new ArgumentException($"Unexpected value for Forwarded:ByFormat: {byFormat}. Expected: {enumValues}"));
                         }
                     }
 
-                    success &= TryCheckTooManyParameters(rawTransform, routeId, expected);
+                    TryCheckTooManyParameters(errors.Add, rawTransform, expected);
 
                     // for, host, proto, by
                     var tokens = forwardedHeader.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
@@ -218,23 +201,21 @@ namespace Microsoft.ReverseProxy.Service.Config
                             && !string.Equals(token, "Proto", StringComparison.OrdinalIgnoreCase)
                             && !string.Equals(token, "For", StringComparison.OrdinalIgnoreCase))
                         {
-                            Log.InvalidTransform(_logger, routeId, $"Unexpected value for X-Forwarded: {token}. Expected 'for', 'host', 'proto', or 'by'");
-                            success = false;
+                            errors.Add(new ArgumentException($"Unexpected value for X-Forwarded: {token}. Expected 'for', 'host', 'proto', or 'by'"));
                         }
                     }
                 }
                 else if (rawTransform.TryGetValue("ClientCert", out var clientCertHeader))
                 {
-                    success &= TryCheckTooManyParameters(rawTransform, routeId, expected: 1);
+                    TryCheckTooManyParameters(errors.Add, rawTransform, expected: 1);
                 }
                 else
                 {
-                    Log.InvalidTransform(_logger, routeId, $"Unknown transform: {string.Join(';', rawTransform.Keys)}");
-                    success = false;
+                    errors.Add(new ArgumentException($"Unknown transform: {string.Join(';', rawTransform.Keys)}"));
                 }
             }
 
-            return success;
+            return errors;
         }
 
         /// <inheritdoc/>
@@ -300,7 +281,7 @@ namespace Microsoft.ReverseProxy.Service.Config
                         }
                         else
                         {
-                            throw new NotSupportedException(string.Join(';', rawTransform.Keys));
+                            throw new ArgumentException($"Unexpected parameters for RequestHeader: {string.Join(';', rawTransform.Keys)}. Expected 'Set' or 'Append'");
                         }
                     }
                     else if (rawTransform.TryGetValue("ResponseHeader", out var responseHeaderName))
@@ -326,7 +307,7 @@ namespace Microsoft.ReverseProxy.Service.Config
                         }
                         else
                         {
-                            throw new NotSupportedException(string.Join(';', rawTransform.Keys));
+                            throw new ArgumentException($"Unexpected parameters for ResponseHeader: {string.Join(';', rawTransform.Keys)}. Expected 'Set' or 'Append'");
                         }
                     }
                     else if (rawTransform.TryGetValue("ResponseTrailer", out var responseTrailerName))
@@ -352,7 +333,7 @@ namespace Microsoft.ReverseProxy.Service.Config
                         }
                         else
                         {
-                            throw new NotSupportedException(string.Join(';', rawTransform.Keys));
+                            throw new ArgumentException($"Unexpected parameters for ResponseTrailer: {string.Join(';', rawTransform.Keys)}. Expected 'Set' or 'Append'");
                         }
                     }
                     else if (rawTransform.TryGetValue("X-Forwarded", out var xforwardedHeaders))
@@ -399,7 +380,7 @@ namespace Microsoft.ReverseProxy.Service.Config
                             }
                             else
                             {
-                                throw new NotSupportedException(token);
+                                throw new ArgumentException($"Unexpected value for X-Forwarded: {token}. Expected 'for', 'host', 'proto', or 'PathBase'");
                             }
                         }
                     }
@@ -439,7 +420,7 @@ namespace Microsoft.ReverseProxy.Service.Config
                             }
                             else
                             {
-                                throw new NotSupportedException(token);
+                                throw new ArgumentException($"Unexpected value for X-Forwarded: {token}. Expected 'for', 'host', 'proto', or 'by'");
                             }
                         }
 
@@ -478,7 +459,7 @@ namespace Microsoft.ReverseProxy.Service.Config
                     }
                     else
                     {
-                        throw new NotSupportedException(string.Join(';', rawTransform.Keys));
+                        throw new ArgumentException($"Unknown transform: {string.Join(';', rawTransform.Keys)}");
                     }
                 }
             }
@@ -513,23 +494,17 @@ namespace Microsoft.ReverseProxy.Service.Config
             return new Transforms(copyRequestHeaders, requestTransforms, requestHeaderTransforms, responseHeaderTransforms, responseTrailerTransforms);
         }
 
-        private bool TryCheckTooManyParameters(IDictionary<string, string> rawTransform, string routeId, int expected)
+        private void TryCheckTooManyParameters(Action<Exception> onError, IDictionary<string, string> rawTransform, int expected)
         {
             if (rawTransform.Count > expected)
             {
-                Log.TooManyParameters(_logger, routeId, expected, rawTransform.Keys);
-                return false;
+                onError(new InvalidOperationException("The transform contains more parameters than expected: " + string.Join(';', rawTransform.Keys)));
             }
-
-            return true;
         }
 
         private void CheckTooManyParameters(IDictionary<string, string> rawTransform, int expected)
         {
-            if (rawTransform.Count > expected)
-            {
-                throw new InvalidOperationException("The transform contains more parameters than expected: " + string.Join(';', rawTransform.Keys));
-            }
+            TryCheckTooManyParameters(ex => throw ex, rawTransform, expected);
         }
 
         private PathString MakePathString(string path)
@@ -539,30 +514,6 @@ namespace Microsoft.ReverseProxy.Service.Config
                 path = "/" + path;
             }
             return new PathString(path);
-        }
-
-        private static class Log
-        {
-            private static readonly Action<ILogger, string, int, string, Exception> _tooManyParameters = LoggerMessage.Define<string, int, string>(
-                LogLevel.Error,
-                EventIds.TooManyTransformParameters,
-                "The transform for route ({routeId}) contains more parameters than the expected {expected}: {rawTransforms}.");
-
-            private static readonly Action<ILogger, string, string, Exception> _invalidTransform = LoggerMessage.Define<string, string>(
-                LogLevel.Error,
-                EventIds.InvalidTransform,
-                "Invalid transform for route ({routeId}) has been set. {errorMessage}.");
-
-            public static void TooManyParameters(ILogger logger, string routeId, int expected, ICollection<string> rawTransformKeys)
-            {
-                _tooManyParameters(logger, routeId, expected, string.Join(';', rawTransformKeys), null);
-            }
-
-
-            public static void InvalidTransform(ILogger logger, string routeId, string errorMessage)
-            {
-                _invalidTransform(logger, routeId, errorMessage, null);
-            }
         }
     }
 }

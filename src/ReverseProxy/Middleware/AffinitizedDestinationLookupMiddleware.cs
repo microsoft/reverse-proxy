@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.SessionAffinity;
 
@@ -52,7 +53,7 @@ namespace Microsoft.ReverseProxy.Middleware
         {
             var destinations = proxyFeature.AvailableDestinations;
 
-            var currentProvider = _sessionAffinityProviders.GetRequiredServiceById(options.Mode);
+            var currentProvider = _sessionAffinityProviders.GetRequiredServiceById(options.Mode, SessionAffinityConstants.Modes.Cookie);
             var affinityResult = currentProvider.FindAffinitizedDestinations(context, destinations, clusterId, options);
 
             switch (affinityResult.Status)
@@ -66,7 +67,7 @@ namespace Microsoft.ReverseProxy.Middleware
                 case AffinityStatus.AffinityKeyExtractionFailed:
                 case AffinityStatus.DestinationNotFound:
 
-                    var failurePolicy = _affinityFailurePolicies.GetRequiredServiceById(options.FailurePolicy);
+                    var failurePolicy = _affinityFailurePolicies.GetRequiredServiceById(options.FailurePolicy, SessionAffinityConstants.AffinityFailurePolicies.Redistribute);
                     var keepProcessing = await failurePolicy.Handle(context, options, affinityResult.Status);
 
                     if (!keepProcessing)
@@ -92,12 +93,12 @@ namespace Microsoft.ReverseProxy.Middleware
             private static readonly Action<ILogger, string, Exception> _affinityResolutionFailedForCluster = LoggerMessage.Define<string>(
                 LogLevel.Warning,
                 EventIds.AffinityResolutionFailedForCluster,
-                "Affinity resolution failed for cluster `{clusterId}`.");
+                "Affinity resolution failed for cluster '{clusterId}'.");
 
             private static readonly Action<ILogger, string, string, Exception> _affinityResolutionFailureWasHandledProcessingWillBeContinued = LoggerMessage.Define<string, string>(
                 LogLevel.Debug,
                 EventIds.AffinityResolutionFailureWasHandledProcessingWillBeContinued,
-                "Affinity resolution failure for cluster `{clusterId}` was handled successfully by the policy `{policyName}`. Request processing will be continued.");
+                "Affinity resolution failure for cluster '{clusterId}' was handled successfully by the policy '{policyName}'. Request processing will be continued.");
 
             public static void AffinityResolutionFailedForCluster(ILogger logger, string clusterId)
             {

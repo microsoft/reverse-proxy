@@ -37,18 +37,9 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
             return builder;
         }
 
-        public static IReverseProxyBuilder AddInMemoryRepos(this IReverseProxyBuilder builder)
-        {
-            builder.Services.TryAddSingleton<IClustersRepo, InMemoryClustersRepo>();
-            builder.Services.TryAddSingleton<IRoutesRepo, InMemoryRoutesRepo>();
-
-            return builder;
-        }
-
         public static IReverseProxyBuilder AddConfigBuilder(this IReverseProxyBuilder builder)
         {
-            builder.Services.TryAddSingleton<IDynamicConfigBuilder, DynamicConfigBuilder>();
-            builder.Services.TryAddSingleton<IRouteValidator, RouteValidator>();
+            builder.Services.TryAddSingleton<IConfigValidator, ConfigValidator>();
             builder.Services.TryAddSingleton<IRuntimeRouteBuilder, RuntimeRouteBuilder>();
             return builder;
         }
@@ -63,13 +54,7 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
 
         public static IReverseProxyBuilder AddConfigManager(this IReverseProxyBuilder builder)
         {
-            builder.Services.TryAddSingleton<IReverseProxyConfigManager, ReverseProxyConfigManager>();
-            return builder;
-        }
-
-        public static IReverseProxyBuilder AddDynamicEndpointDataSource(this IReverseProxyBuilder builder)
-        {
-            builder.Services.TryAddSingleton<IProxyDynamicEndpointDataSource, ProxyDynamicEndpointDataSource>();
+            builder.Services.TryAddSingleton<IProxyConfigManager, ProxyConfigManager>();
             return builder;
         }
 

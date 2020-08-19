@@ -56,7 +56,7 @@ namespace Microsoft.ReverseProxy.Middleware
             private static readonly Action<ILogger, string, Exception> _noAvailableDestinations = LoggerMessage.Define<string>(
                 LogLevel.Warning,
                 EventIds.NoAvailableDestinations,
-                "No available destinations after load balancing for cluster `{clusterId}`.");
+                "No available destinations after load balancing for cluster '{clusterId}'.");
 
             public static void NoAvailableDestinations(ILogger logger, string clusterId)
             {

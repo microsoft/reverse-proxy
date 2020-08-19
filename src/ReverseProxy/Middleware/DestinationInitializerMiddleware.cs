@@ -73,24 +73,24 @@ namespace Microsoft.ReverseProxy.Middleware
             private static readonly Action<ILogger, string, Exception> _noClusterFound = LoggerMessage.Define<string>(
                 LogLevel.Information,
                 EventIds.NoClusterFound,
-                "Route `{routeId}` has no cluster information.");
+                "Route '{routeId}' has no cluster information.");
 
             private static readonly Action<ILogger, string, string, Exception> _clusterDataNotAvailable = LoggerMessage.Define<string, string>(
                 LogLevel.Information,
                 EventIds.ClusterDataNotAvailable,
-                "Route `{routeId}` has no up to date information on its cluster '{clusterId}'. " +
+                "Route '{routeId}' has no up to date information on its cluster '{clusterId}'. " +
                 "Perhaps the cluster hasn't been probed yet? " +
                 "This can happen when a new cluster is added but isn't ready to serve traffic yet.");
 
             private static readonly Action<ILogger, string, string, Exception> _clusterConfigNotAvailable = LoggerMessage.Define<string, string>(
                 LogLevel.Information,
                 EventIds.ClusterConfigNotAvailable,
-                "Route `{routeId}` has no config on its cluster '{clusterId}'.");
+                "Route '{routeId}' has no config on its cluster '{clusterId}'.");
 
             private static readonly Action<ILogger, string, string, Exception> _noHealthyDestinations = LoggerMessage.Define<string, string>(
                 LogLevel.Information,
                 EventIds.NoHealthyDestinations,
-                "Route `{routeId}` has no available healthy destinations for Cluster `{clusterId}`.");
+                "Route '{routeId}' has no available healthy destinations for Cluster '{clusterId}'.");
 
             public static void NoClusterFound(ILogger logger, string routeId)
             {

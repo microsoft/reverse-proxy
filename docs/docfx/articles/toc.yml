@@ -2,6 +2,10 @@
   href: getting_started.md
 - name: Supported Runtimes
   href: runtimes.md
+- name: Configuration Files
+  href: configfiles.md
+- name: Configuration Providers
+  href: configproviders.md
 - name: Authentication and Authorization
   href: authn-authz.md
 - name: Cross-Origin Requests (CORS)

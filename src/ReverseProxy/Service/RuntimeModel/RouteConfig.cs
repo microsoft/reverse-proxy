@@ -3,9 +3,8 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.ReverseProxy.ConfigModel;
+using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
-using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.RuntimeModel
 {
@@ -51,7 +50,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
 
         public Transforms Transforms { get; }
 
-        public bool HasConfigChanged(ParsedRoute newConfig, ClusterInfo cluster)
+        public bool HasConfigChanged(ProxyRoute newConfig, ClusterInfo cluster)
         {
             return Cluster != cluster
                 || !ConfigHash.Equals(newConfig.GetConfigHash());
