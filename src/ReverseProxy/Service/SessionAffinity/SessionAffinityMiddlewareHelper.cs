@@ -15,7 +15,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
                 throw new ArgumentNullException(nameof(services));
             }
 
-            var result = new Dictionary<string, T>(StringComparer.Ordinal);
+            var result = new Dictionary<string, T>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var service in services)
             {
@@ -38,11 +38,17 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
             return ToDictionaryByUniqueId(affinityFailurePolicies, p => p.Name);
         }
 
-        public static T GetRequiredServiceById<T>(this IDictionary<string, T> services, string id)
+        public static T GetRequiredServiceById<T>(this IDictionary<string, T> services, string id, string defaultId)
         {
-            if (!services.TryGetValue(id, out var result))
+            var lookup = id;
+            if (string.IsNullOrEmpty(lookup))
             {
-                throw new ArgumentException(nameof(id), $"No {typeof(T)} was found for the id {id}.");
+                lookup = defaultId;
+            }
+
+            if (!services.TryGetValue(lookup, out var result))
+            {
+                throw new ArgumentException(nameof(id), $"No {typeof(T)} was found for the id {lookup}.");
             }
             return result;
         }

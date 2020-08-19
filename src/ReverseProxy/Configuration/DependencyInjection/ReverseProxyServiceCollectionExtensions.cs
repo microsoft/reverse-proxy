@@ -24,16 +24,16 @@ namespace Microsoft.Extensions.DependencyInjection
             builder
                 .AddTelemetryShims()
                 .AddMetrics()
-                .AddInMemoryRepos()
                 .AddConfigBuilder()
                 .AddRuntimeStateManagers()
                 .AddConfigManager()
-                .AddDynamicEndpointDataSource()
                 .AddSessionAffinityProvider()
                 .AddProxy()
                 .AddBackgroundWorkers();
 
             services.AddDataProtection();
+            services.AddAuthorization();
+            services.AddCors();
 
             return builder;
         }
@@ -43,8 +43,8 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         public static IReverseProxyBuilder LoadFromConfig(this IReverseProxyBuilder builder, IConfiguration config)
         {
-            builder.Services.Configure<ProxyConfigOptions>(config);
-            builder.Services.AddOptions().PostConfigure<ProxyConfigOptions>(options =>
+            builder.Services.Configure<ConfigurationOptions>(config);
+            builder.Services.AddOptions().PostConfigure<ConfigurationOptions>(options =>
             {
                 foreach (var (id, cluster) in options.Clusters)
                 {
@@ -53,7 +53,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     cluster.Id = id;
                 }
             });
-            builder.Services.AddHostedService<ProxyConfigLoader>();
+            builder.Services.AddSingleton<IProxyConfigProvider, ConfigurationConfigProvider>();
 
             return builder;
         }

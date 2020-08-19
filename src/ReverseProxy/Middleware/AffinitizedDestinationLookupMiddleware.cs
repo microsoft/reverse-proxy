@@ -4,11 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Abstractions.Telemetry;
+using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.SessionAffinity;
 
@@ -22,74 +20,65 @@ namespace Microsoft.ReverseProxy.Middleware
         private readonly RequestDelegate _next;
         private readonly IDictionary<string, ISessionAffinityProvider> _sessionAffinityProviders;
         private readonly IDictionary<string, IAffinityFailurePolicy> _affinityFailurePolicies;
-        private readonly IOperationLogger<AffinitizedDestinationLookupMiddleware> _operationLogger;
         private readonly ILogger _logger;
 
         public AffinitizedDestinationLookupMiddleware(
             RequestDelegate next,
             IEnumerable<ISessionAffinityProvider> sessionAffinityProviders,
             IEnumerable<IAffinityFailurePolicy> affinityFailurePolicies,
-            IOperationLogger<AffinitizedDestinationLookupMiddleware> operationLogger,
             ILogger<AffinitizedDestinationLookupMiddleware> logger)
         {
             _next = next ?? throw new ArgumentNullException(nameof(next));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _operationLogger = operationLogger ?? throw new ArgumentNullException(nameof(logger));
             _sessionAffinityProviders = sessionAffinityProviders.ToProviderDictionary();
             _affinityFailurePolicies = affinityFailurePolicies?.ToPolicyDictionary() ?? throw new ArgumentNullException(nameof(affinityFailurePolicies));
         }
 
         public Task Invoke(HttpContext context)
         {
-            var cluster = context.GetRequiredCluster();
+            var proxyFeature = context.GetRequiredProxyFeature();
 
-            var options = cluster.Config.Value?.SessionAffinityOptions ?? default;
+            var options = proxyFeature.ClusterConfig.SessionAffinityOptions;
 
             if (!options.Enabled)
             {
                 return _next(context);
             }
 
-            return InvokeInternal(context, options, cluster);
+            var cluster = context.GetRequiredCluster();
+            return InvokeInternal(context, proxyFeature, options, cluster.ClusterId);
         }
 
-        private async Task InvokeInternal(HttpContext context, ClusterConfig.ClusterSessionAffinityOptions options, ClusterInfo cluster)
+        private async Task InvokeInternal(HttpContext context, IReverseProxyFeature proxyFeature, ClusterConfig.ClusterSessionAffinityOptions options, string clusterId)
         {
-            var destinationsFeature = context.GetRequiredDestinationFeature();
-            var destinations = destinationsFeature.Destinations;
+            var destinations = proxyFeature.AvailableDestinations;
 
-            var affinityResult = _operationLogger.Execute(
-                    "ReverseProxy.FindAffinitizedDestinations",
-                    () =>
-                    {
-                        var currentProvider = _sessionAffinityProviders.GetRequiredServiceById(options.Mode);
-                        return currentProvider.FindAffinitizedDestinations(context, destinations, cluster.ClusterId, options);
-                    });
+            var currentProvider = _sessionAffinityProviders.GetRequiredServiceById(options.Mode, SessionAffinityConstants.Modes.Cookie);
+            var affinityResult = currentProvider.FindAffinitizedDestinations(context, destinations, clusterId, options);
+
             switch (affinityResult.Status)
             {
                 case AffinityStatus.OK:
-                    destinationsFeature.Destinations = affinityResult.Destinations;
+                    proxyFeature.AvailableDestinations = affinityResult.Destinations;
                     break;
                 case AffinityStatus.AffinityKeyNotSet:
                     // Nothing to do so just continue processing
                     break;
                 case AffinityStatus.AffinityKeyExtractionFailed:
                 case AffinityStatus.DestinationNotFound:
-                    var keepProcessing = await _operationLogger.ExecuteAsync("ReverseProxy.HandleAffinityFailure", () =>
-                    {
-                        var failurePolicy = _affinityFailurePolicies.GetRequiredServiceById(options.FailurePolicy);
-                        return failurePolicy.Handle(context, options, affinityResult.Status);
-                    });
+
+                    var failurePolicy = _affinityFailurePolicies.GetRequiredServiceById(options.FailurePolicy, SessionAffinityConstants.AffinityFailurePolicies.Redistribute);
+                    var keepProcessing = await failurePolicy.Handle(context, options, affinityResult.Status);
 
                     if (!keepProcessing)
                     {
                         // Policy reported the failure is unrecoverable and took the full responsibility for its handling,
                         // so we simply stop processing.
-                        Log.AffinityResolutionFailedForCluster(_logger, cluster.ClusterId);
+                        Log.AffinityResolutionFailedForCluster(_logger, clusterId);
                         return;
                     }
 
-                    Log.AffinityResolutionFailureWasHandledProcessingWillBeContinued(_logger, cluster.ClusterId, options.FailurePolicy);
+                    Log.AffinityResolutionFailureWasHandledProcessingWillBeContinued(_logger, clusterId, options.FailurePolicy);
 
                     break;
                 default:
@@ -104,12 +93,12 @@ namespace Microsoft.ReverseProxy.Middleware
             private static readonly Action<ILogger, string, Exception> _affinityResolutionFailedForCluster = LoggerMessage.Define<string>(
                 LogLevel.Warning,
                 EventIds.AffinityResolutionFailedForCluster,
-                "Affinity resolution failed for cluster `{clusterId}`.");
+                "Affinity resolution failed for cluster '{clusterId}'.");
 
             private static readonly Action<ILogger, string, string, Exception> _affinityResolutionFailureWasHandledProcessingWillBeContinued = LoggerMessage.Define<string, string>(
                 LogLevel.Debug,
                 EventIds.AffinityResolutionFailureWasHandledProcessingWillBeContinued,
-                "Affinity resolution failure for cluster `{clusterId}` was handled successfully by the policy `{policyName}`. Request processing will be continued.");
+                "Affinity resolution failure for cluster '{clusterId}' was handled successfully by the policy '{policyName}'. Request processing will be continued.");
 
             public static void AffinityResolutionFailedForCluster(ILogger logger, string clusterId)
             {

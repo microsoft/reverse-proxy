@@ -7,9 +7,9 @@ namespace Microsoft.ReverseProxy
 {
     internal static class EventIds
     {
-        public static readonly EventId ApplyProxyConfig = new EventId(1, "ApplyProxyConfig");
-        public static readonly EventId ApplyProxyConfigFailed = new EventId(2, "ApplyProxyConfigFailed");
-        public static readonly EventId ConfigError = new EventId(3, "ConfigError");
+        public static readonly EventId LoadData = new EventId(1, "ApplyProxyConfig");
+        public static readonly EventId ErrorSignalingChange = new EventId(2, "ApplyProxyConfigFailed");
+        public static readonly EventId ClusterConfigNotAvailable = new EventId(3, "ClusterConfigNotAvailable");
         public static readonly EventId NoClusterFound = new EventId(4, "NoClusterFound");
         public static readonly EventId ClusterDataNotAvailable = new EventId(5, "ClusterDataNotAvailable");
         public static readonly EventId NoHealthyDestinations = new EventId(6, "NoHealthyDestinations");
@@ -36,7 +36,7 @@ namespace Microsoft.ReverseProxy
         public static readonly EventId RouteAdded = new EventId(27, "RouteAdded");
         public static readonly EventId RouteChanged = new EventId(28, "RouteChanged");
         public static readonly EventId RouteRemoved = new EventId(29, "RouteRemoved");
-        public static readonly EventId HttpDowngradeDeteced = new EventId(30, "HttpDowngradeDeteced");
+        public static readonly EventId HttpDowngradeDetected = new EventId(30, "HttpDowngradeDetected");
         public static readonly EventId OperationStarted = new EventId(31, "OperationStarted");
         public static readonly EventId OperationEnded = new EventId(32, "OperationEnded");
         public static readonly EventId OperationFailed = new EventId(33, "OperationFailed");
@@ -48,5 +48,8 @@ namespace Microsoft.ReverseProxy
         public static readonly EventId DestinationMatchingToAffinityKeyNotFound = new EventId(39, "DestinationMatchingToAffinityKeyNotFound");
         public static readonly EventId RequestAffinityHeaderHasMultipleValues = new EventId(40, "RequestAffinityHeaderHasMultipleValues");
         public static readonly EventId AffinityResolutionFailureWasHandledProcessingWillBeContinued = new EventId(41, "AffinityResolutionFailureWasHandledProcessingWillBeContinued");
+        public static readonly EventId ClusterConfigException = new EventId(42, "ClusterConfigException");
+        public static readonly EventId ErrorReloadingConfig = new EventId(43, "ErrorReloadingConfig");
+        public static readonly EventId ErrorApplyingConfig = new EventId(44, "ErrorApplyingConfig");
     }
 }

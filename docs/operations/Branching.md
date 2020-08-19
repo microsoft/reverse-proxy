@@ -96,7 +96,7 @@ Target Branch: master
 Update Frequency: everyBuild
 Batchable: False
 Merge Policies:
-- Name: standard 
+- Name: Standard 
 ```
 
 Save and exit the editor and the subscription will be created.

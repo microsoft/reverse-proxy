@@ -11,13 +11,13 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
     /// </summary>
     internal class RequestHeaderXForwardedProtoTransform : RequestHeaderTransform
     {
-        // or Set
-        private readonly bool _append;
 
         public RequestHeaderXForwardedProtoTransform(bool append)
         {
-            _append = append;
+            Append = append;
         }
+
+        internal bool Append { get; }
 
         public override StringValues Apply(HttpContext context, StringValues values)
         {
@@ -27,7 +27,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             }
 
             var scheme = context.Request.Scheme;
-            return _append ? StringValues.Concat(values, scheme) : new StringValues(scheme);
+            return Append ? StringValues.Concat(values, scheme) : new StringValues(scheme);
         }
     }
 }

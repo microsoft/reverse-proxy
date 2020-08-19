@@ -16,19 +16,11 @@
   <ItemGroup>
     <InternalsVisibleTo Include="DynamicProxyGenAssembly2" Key="$(MoqPublicKey)" />
     <InternalsVisibleTo Include="Microsoft.ReverseProxy.Tests" />
-    <InternalsVisibleTo Include="Microsoft.ReverseProxy.Tests.Common" />
-    
-
-    <!-- TODO: Remove once architectural debt is paid. -->
-    <InternalsVisibleTo Include="Microsoft.ReverseProxy.ServiceFabric" />
+    <InternalsVisibleTo Include="Microsoft.ReverseProxy.FunctionalTests" />
   </ItemGroup>
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Abstractions\Discovery\" />
   </ItemGroup>
 
 </Project>

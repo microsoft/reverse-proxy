@@ -31,6 +31,17 @@ namespace Microsoft.ReverseProxy
 #endif
         }
 
+        public static bool IsHttp2OrGreater(string protocol)
+        {
+#if NETCOREAPP5_0
+            return Microsoft.AspNetCore.Http.HttpProtocol.IsHttp2(protocol) || Microsoft.AspNetCore.Http.HttpProtocol.IsHttp3(protocol);
+#elif NETCOREAPP3_1
+            return StringComparer.OrdinalIgnoreCase.Equals("HTTP/2", protocol) || StringComparer.OrdinalIgnoreCase.Equals("HTTP/3", protocol);
+#else
+#error A target framework was added to the project and needs to be added to this condition.
+#endif
+        }
+
         // NOTE: When https://github.com/dotnet/aspnetcore/issues/21265 is addressed,
         // this can be replaced with `MediaTypeHeaderValue.IsSubsetOf(...)`.
         /// <summary>

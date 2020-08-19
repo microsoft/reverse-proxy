@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.ReverseProxy.Abstractions.Telemetry;
 using Microsoft.ReverseProxy.Service.SessionAffinity;
 using Microsoft.ReverseProxy.Signals;
 using Moq;
@@ -22,6 +21,7 @@ namespace Microsoft.ReverseProxy.Middleware
         public async Task Invoke_SuccessfulFlow_CallNext(AffinityStatus status, string foundDestinationId)
         {
             var cluster = GetCluster();
+            var endpoint = GetEndpoint(cluster);
             var foundDestinations = foundDestinationId != null ? Destinations.Where(d => d.DestinationId == foundDestinationId).ToArray() : null;
             var invokedMode = string.Empty;
             const string expectedMode = "Mode-B";
@@ -37,11 +37,10 @@ namespace Microsoft.ReverseProxy.Middleware
                     return Task.CompletedTask;
                 },
                 providers.Select(p => p.Object), new IAffinityFailurePolicy[0],
-                GetOperationLogger(false),
                 new Mock<ILogger<AffinitizedDestinationLookupMiddleware>>().Object);
             var context = new DefaultHttpContext();
-            context.Features.Set(cluster);
-            var destinationFeature = GetDestinationsFeature(Destinations);
+            context.SetEndpoint(endpoint);
+            var destinationFeature = GetDestinationsFeature(Destinations, cluster.Config.Value);
             context.Features.Set(destinationFeature);
 
             await middleware.Invoke(context);
@@ -54,12 +53,12 @@ namespace Microsoft.ReverseProxy.Middleware
 
             if (foundDestinationId != null)
             {
-                Assert.Equal(1, destinationFeature.Destinations.Count);
-                Assert.Equal(foundDestinationId, destinationFeature.Destinations[0].DestinationId);
+                Assert.Equal(1, destinationFeature.AvailableDestinations.Count);
+                Assert.Equal(foundDestinationId, destinationFeature.AvailableDestinations[0].DestinationId);
             }
             else
             {
-                Assert.Same(Destinations, destinationFeature.Destinations);
+                Assert.Same(Destinations, destinationFeature.AvailableDestinations);
             }
         }
 
@@ -71,6 +70,7 @@ namespace Microsoft.ReverseProxy.Middleware
         public async Task Invoke_ErrorFlow_CallFailurePolicy(AffinityStatus affinityStatus, bool keepProcessing)
         {
             var cluster = GetCluster();
+            var endpoint = GetEndpoint(cluster);
             var providers = RegisterAffinityProviders(true, Destinations, cluster.ClusterId, ("Mode-B", affinityStatus, null, _ => { }));
             var invokedPolicy = string.Empty;
             const string expectedPolicy = "Policy-1";
@@ -85,11 +85,11 @@ namespace Microsoft.ReverseProxy.Middleware
                     return Task.CompletedTask;
                 },
                 providers.Select(p => p.Object), failurePolicies.Select(p => p.Object),
-                GetOperationLogger(true),
                 logger.Object);
             var context = new DefaultHttpContext();
-            context.Features.Set(cluster);
-            var destinationFeature = GetDestinationsFeature(Destinations);
+            var destinationFeature = GetDestinationsFeature(Destinations, cluster.Config.Value);
+
+            context.SetEndpoint(endpoint);
             context.Features.Set(destinationFeature);
 
             await middleware.Invoke(context);
@@ -105,17 +105,6 @@ namespace Microsoft.ReverseProxy.Middleware
                     l => l.Log(LogLevel.Warning, EventIds.AffinityResolutionFailedForCluster, It.IsAny<It.IsAnyType>(), null, (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
                     Times.Once);
             }
-        }
-
-        private IOperationLogger<AffinitizedDestinationLookupMiddleware> GetOperationLogger(bool callFailurePolicy)
-        {
-            var result = new Mock<IOperationLogger<AffinitizedDestinationLookupMiddleware>>(MockBehavior.Strict);
-            result.Setup(l => l.Execute(It.IsAny<string>(), It.IsAny<Func<AffinityResult>>())).Returns((string name, Func<AffinityResult> callback) => callback());
-            if (callFailurePolicy)
-            {
-                result.Setup(l => l.ExecuteAsync(It.IsAny<string>(), It.IsAny<Func<Task<bool>>>())).Returns(async (string name, Func<Task<bool>> callback) => await callback());
-            }
-            return result.Object;
         }
     }
 }

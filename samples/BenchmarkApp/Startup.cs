@@ -20,13 +20,7 @@ namespace BenchmarkApp
 
         public void ConfigureServices(IServiceCollection services)
         {
-            var urls = _configuration["urls"];
             var clusterUrls = _configuration["clusterUrls"];
-
-            if (string.IsNullOrWhiteSpace(urls))
-            {
-                throw new ArgumentException("--urls is required");
-            }
 
             if (string.IsNullOrWhiteSpace(clusterUrls))
             {
@@ -37,7 +31,7 @@ namespace BenchmarkApp
             {
                 { "Routes:0:RouteId", "route" },
                 { "Routes:0:ClusterId", "cluster" },
-                { "Routes:0:Match:Host", new Uri(urls.Split(';', 1)[0]).Host },
+                { "Routes:0:Match:Path", "/{**catchall}" },
             };
 
             var clusterCount = 0;

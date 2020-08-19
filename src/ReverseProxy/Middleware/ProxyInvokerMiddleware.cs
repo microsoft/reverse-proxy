@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.ReverseProxy.Abstractions.Telemetry;
-using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Proxy;
 using Microsoft.ReverseProxy.Utilities;
 
@@ -44,11 +43,11 @@ namespace Microsoft.ReverseProxy.Middleware
         {
             _ = context ?? throw new ArgumentNullException(nameof(context));
 
-            var cluster = context.Features.Get<ClusterInfo>() ?? throw new InvalidOperationException("Cluster unspecified.");
-            var destinations = context.Features.Get<IAvailableDestinationsFeature>()?.Destinations
-                ?? throw new InvalidOperationException("The IAvailableDestinationsFeature Destinations collection was not set.");
-            var routeConfig = context.GetEndpoint()?.Metadata.GetMetadata<RouteConfig>()
-                ?? throw new InvalidOperationException("RouteConfig unspecified.");
+            var destinations = context.GetRequiredProxyFeature().AvailableDestinations
+                ?? throw new InvalidOperationException($"The {nameof(IReverseProxyFeature)} Destinations collection was not set.");
+
+            var routeConfig = context.GetRequiredRouteConfig();
+            var cluster = routeConfig.Cluster;
 
             if (destinations.Count == 0)
             {
@@ -65,7 +64,7 @@ namespace Microsoft.ReverseProxy.Middleware
                 destination = destinations[random.Next(destinations.Count)];
             }
 
-            var destinationConfig = destination.Config.Value;
+            var destinationConfig = destination.Config;
             if (destinationConfig == null)
             {
                 throw new InvalidOperationException($"Chosen destination has no configs set: '{destination.DestinationId}'");
@@ -108,12 +107,12 @@ namespace Microsoft.ReverseProxy.Middleware
             private static readonly Action<ILogger, string, Exception> _noAvailableDestinations = LoggerMessage.Define<string>(
                 LogLevel.Warning,
                 EventIds.NoAvailableDestinations,
-                "No available destinations after load balancing for cluster `{clusterId}`.");
+                "No available destinations after load balancing for cluster '{clusterId}'.");
 
             private static readonly Action<ILogger, string, Exception> _multipleDestinationsAvailable = LoggerMessage.Define<string>(
                 LogLevel.Warning,
                 EventIds.MultipleDestinationsAvailable,
-                "More than one destination available for cluster `{clusterId}`, load balancing may not be configured correctly. Choosing randomly.");
+                "More than one destination available for cluster '{clusterId}', load balancing may not be configured correctly. Choosing randomly.");
 
             public static void NoAvailableDestinations(ILogger logger, string clusterId)
             {

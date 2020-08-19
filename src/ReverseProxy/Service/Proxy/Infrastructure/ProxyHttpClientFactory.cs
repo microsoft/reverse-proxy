@@ -4,7 +4,6 @@
 using System;
 using System.Net;
 using System.Net.Http;
-using System.Threading;
 
 namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
 {
@@ -14,14 +13,9 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
     internal class ProxyHttpClientFactory : IProxyHttpClientFactory
     {
         /// <summary>
-        /// Handler for normal (i.e. non-upgradable) http requests.
+        /// Handler for http requests.
         /// </summary>
-        private readonly HttpMessageHandler _normalHandler;
-
-        /// <summary>
-        /// Handler for upgradable http requests.
-        /// </summary>
-        private HttpMessageHandler _upgradableHandler;
+        private readonly HttpMessageHandler _handler;
 
         private bool _disposed;
 
@@ -30,7 +24,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
         /// </summary>
         public ProxyHttpClientFactory()
         {
-            _normalHandler = new SocketsHttpHandler
+            _handler = new SocketsHttpHandler
             {
                 UseProxy = false,
                 AllowAutoRedirect = false,
@@ -42,59 +36,15 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
             };
         }
 
-        private HttpMessageHandler UpgradableHandler
-        {
-            get
-            {
-                // NOTE: We don't use Lazy because its lock-free LazyThreadSafetyMode.PublicationOnly mode
-                // lacks proper handling of IDisposable values (suprious instances are not properly disposed).
-                var handler = Volatile.Read(ref _upgradableHandler);
-                if (handler == null)
-                {
-                    // Optimistically create a new instance hoping we will win a potential race below.
-                    // If we lose, we just dispose the spurious instance and take the one that won the race.
-                    handler = new SocketsHttpHandler
-                    {
-                        UseProxy = false,
-                        AllowAutoRedirect = false,
-                        AutomaticDecompression = DecompressionMethods.None,
-                        UseCookies = false,
-                        MaxConnectionsPerServer = int.MaxValue, // Proxy manages max connections
-                        PooledConnectionLifetime = TimeSpan.Zero, // Do not reuse connections
-                    };
-
-                    HttpMessageHandler existingHandler;
-                    if ((existingHandler = Interlocked.CompareExchange(ref _upgradableHandler, handler, null)) != null)
-                    {
-                        handler.Dispose();
-                        handler = existingHandler;
-                    }
-                }
-
-                return handler;
-            }
-        }
-
         /// <inheritdoc/>
-        public HttpMessageInvoker CreateNormalClient()
+        public HttpMessageInvoker CreateClient()
         {
             if (_disposed)
             {
                 throw new ObjectDisposedException(typeof(ProxyHttpClientFactory).FullName);
             }
 
-            return new HttpMessageInvoker(_normalHandler, disposeHandler: false);
-        }
-
-        /// <inheritdoc/>
-        public HttpMessageInvoker CreateUpgradableClient()
-        {
-            if (_disposed)
-            {
-                throw new ObjectDisposedException(typeof(ProxyHttpClientFactory).FullName);
-            }
-
-            return new HttpMessageInvoker(UpgradableHandler, disposeHandler: false);
+            return new HttpMessageInvoker(_handler, disposeHandler: false);
         }
 
         /// <inheritdoc/>
@@ -118,15 +68,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
                 {
                     // TODO: This has high potential to cause coding defects. See if we can do better,
                     // perhaps do something like `Microsoft.Extensions.Http.LifetimeTrackingHttpMessageHandler`.
-                    _normalHandler.Dispose();
-
-                    var currentUpgradableHandler = Volatile.Read(ref _upgradableHandler);
-                    if (currentUpgradableHandler != null)
-                    {
-                        if (Interlocked.CompareExchange(ref _upgradableHandler, null, currentUpgradableHandler) == currentUpgradableHandler)
-                        {
-                        }
-                    }
+                    _handler.Dispose();
                 }
 
                 _disposed = true;

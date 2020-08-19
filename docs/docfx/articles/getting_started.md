@@ -7,7 +7,7 @@ title: Getting Started with YARP
 
 YARP is designed as a library that provides the core proxy functionality which you can then customize by adding or replacing modules. YARP is currently provided as a NuGet package and code snippets. We plan on providing a project template and pre-built exe in the future. 
 
-YARP supports ASP.NET Core 3.1 and 5.0.0 Preview 4 or later. You can download the .NET 5 Preview 4 SDK from https://dotnet.microsoft.com/download/dotnet/5.0. It requires Visual Studio 2019 (v16.6) or newer.
+YARP 1.0.0 Preview 3 supports ASP.NET Core 3.1 and 5.0.0 Preview 7 or later. You can download the .NET 5 Preview SDK from https://dotnet.microsoft.com/download/dotnet/5.0. It requires Visual Studio 2019 (v16.6) or newer.
 
 ### Create a new project
 
@@ -17,7 +17,7 @@ Start by creating an "Empty" ASP.NET Core application using the command line:
 dotnet new web -n MyProxy 
 ```
 
-use `-f` to specify `netcoreapp3.1` or `netcoreapp5.0`.
+use `-f` to specify `netcoreapp3.1` or `net5.0`.
 
 Or create a new ASP.NET Core web application in Visual Studio, and choose "Empty" for the project template. 
 
@@ -35,7 +35,7 @@ And then add:
  
  ```
 <ItemGroup> 
-  <PackageReference Include="Microsoft.ReverseProxy" Version="1.0.0-preview.1.*" /> 
+  <PackageReference Include="Microsoft.ReverseProxy" Version="1.0.0-preview.3.*" />
 </ItemGroup> 
 ```
 
@@ -72,10 +72,7 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     app.UseRouting();
     app.UseEndpoints(endpoints => 
     {
-        endpoints.MapReverseProxy(proxyPipeline => 
-        { 
-            proxyPipeline.UseProxyLoadBalancing(); 
-        }); 
+        endpoints.MapReverseProxy(); 
     }); 
 } 
 ```
@@ -109,7 +106,7 @@ You can find out more about the available configuration options by looking at [P
         "ClusterId": "cluster1",
         "Match": {
           "Methods": [ "GET", "POST" ],
-          "Host": "localhost",
+          "Hosts": [ "localhost" ],
           "Path": "/app1/"
         }
       },
@@ -117,7 +114,7 @@ You can find out more about the available configuration options by looking at [P
         "RouteId": "route2",
         "ClusterId": "cluster2",
         "Match": {
-          "Host": "localhost"
+          "Hosts": [ "localhost" ]
         }
       }
     ],
@@ -138,7 +135,7 @@ You can find out more about the available configuration options by looking at [P
       "cluster2": {
         "Destinations": {
           "cluster2_destination1": {
-            "Address": "https://example.com:10001/"
+            "Address": "https://example.com/"
           }
         }
       }

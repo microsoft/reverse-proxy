@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 namespace Microsoft.ReverseProxy.Signals
@@ -9,7 +9,7 @@ namespace Microsoft.ReverseProxy.Signals
     /// <see cref="SignalContext"/>.
     /// </summary>
     /// <typeparam name="T">Type of the stored value.</typeparam>
-    public interface IReadableSignal<out T> : ISignal
+    internal interface IReadableSignal<out T> : ISignal
     {
         /// <summary>
         /// Gets the current value of this signal.

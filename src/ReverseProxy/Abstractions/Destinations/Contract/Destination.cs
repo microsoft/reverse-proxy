@@ -34,7 +34,7 @@ namespace Microsoft.ReverseProxy.Abstractions
             {
                 Address = Address,
                 HealthAddress = HealthAddress,
-                Metadata = Metadata?.DeepClone(StringComparer.Ordinal),
+                Metadata = Metadata?.DeepClone(StringComparer.OrdinalIgnoreCase),
             };
         }
     }

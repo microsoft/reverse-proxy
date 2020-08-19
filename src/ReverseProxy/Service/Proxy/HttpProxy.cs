@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -17,10 +16,10 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Server.Kestrel.Core.Features;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
+using Microsoft.Net.Http.Headers;
 using Microsoft.ReverseProxy.Service.Metrics;
 using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
-using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Service.Proxy
 {
@@ -89,8 +88,10 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 1: Create outgoing HttpRequestMessage
             var upgradeFeature = context.Features.Get<IHttpUpgradeFeature>();
-            var isUpgrade = upgradeFeature?.IsUpgradableRequest ?? false;
-            // Default to HTTP/1.1 for proxying upgradable requests. This is already the default as of .NET Core 3.1
+            var isUpgrade = (upgradeFeature?.IsUpgradableRequest ?? false)
+                // Mitigate https://github.com/microsoft/reverse-proxy/issues/255, IIS considers all requests upgradeable.
+                && string.Equals("WebSocket", context.Request.Headers[HeaderNames.Upgrade], StringComparison.OrdinalIgnoreCase);
+            // Default to HTTP/1.1 for proxying upgradeable requests. This is already the default as of .NET Core 3.1
             // Otherwise request HTTP/2 and let HttpClient fallback to HTTP/1.1 if it cannot establish HTTP/2 with the target.
             // This is done without extra round-trips thanks to ALPN. We can detect a downgrade after calling HttpClient.SendAsync
             // (see Step 3 below). TBD how this will change when HTTP/3 is supported.
@@ -100,11 +101,11 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 
             if (isUpgrade)
             {
-                return UpgradableProxyAsync(context, upgradeFeature, request, transforms, httpClientFactory.CreateUpgradableClient(), proxyTelemetryContext, shortCancellation, longCancellation);
+                return UpgradableProxyAsync(context, upgradeFeature, request, transforms, httpClientFactory.CreateClient(), proxyTelemetryContext, shortCancellation, longCancellation);
             }
             else
             {
-                return NormalProxyAsync(context, request, transforms, httpClientFactory.CreateNormalClient(), proxyTelemetryContext, shortCancellation, longCancellation);
+                return NormalProxyAsync(context, request, transforms, httpClientFactory.CreateClient(), proxyTelemetryContext, shortCancellation, longCancellation);
             }
         }
 
@@ -155,7 +156,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 2: Setup copy of request body (background) Downstream --► Proxy --► Upstream
             // Note that we must do this before step (3) because step (3) may also add headers to the HttpContent that we set up here.
-            var bodyToUpstreamContent = SetupCopyBodyUpstream(context.Request.Body, upstreamRequest, in proxyTelemetryContext, isStreamingRequest, longCancellation);
+            var bodyToUpstreamContent = SetupCopyBodyUpstream(context.Request, upstreamRequest, in proxyTelemetryContext, isStreamingRequest, longCancellation);
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 3: Copy request headers Downstream --► Proxy --► Upstream
@@ -170,7 +171,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             if (isIncomingHttp2 && upstreamResponse.Version.Major != 2)
             {
                 // TODO: Do something on connection downgrade...
-                Log.HttpDowngradeDeteced(_logger);
+                Log.HttpDowngradeDetected(_logger);
             }
 
             // Assert that, if we are proxying content upstream, it must have started by now
@@ -371,11 +372,65 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             return new HttpRequestMessage(HttpUtilities.GetHttpMethod(transformContext.Method), targetUri) { Version = transformContext.Version };
         }
 
-        private StreamCopyHttpContent SetupCopyBodyUpstream(Stream source, HttpRequestMessage upstreamRequest, in ProxyTelemetryContext proxyTelemetryContext, bool isStreamingRequest, CancellationToken cancellation)
+        private StreamCopyHttpContent SetupCopyBodyUpstream(HttpRequest request, HttpRequestMessage upstreamRequest, in ProxyTelemetryContext proxyTelemetryContext, bool isStreamingRequest, CancellationToken cancellation)
         {
+            // If we generate an HttpContent without a Content-Length then for HTTP/1.1 HttpClient will add a Transfer-Encoding: chunked header
+            // even if it's a GET request. Some servers reject requests containing a Transfer-Encoding header if they're not expecting a body.
+            // Try to be as specific as possible about the client's intent to send a body. The one thing we don't want to do is to start
+            // reading the body early because that has side-effects like 100-continue.
+            var hasBody = true;
+            var contentLength = request.Headers.ContentLength;
+            var method = request.Method;
+            // https://tools.ietf.org/html/rfc7231#section-4.3.8
+            // A client MUST NOT send a message body in a TRACE request.
+            if (HttpMethods.IsTrace(method))
+            {
+                hasBody = false;
+            }
+            // https://tools.ietf.org/html/rfc7230#section-3.3.3
+            // All HTTP/1.1 requests should have Transfer-Encoding or Content-Length.
+            // Http.Sys/IIS will even add a Transfer-Encoding header to HTTP/2 requests with bodies for back-compat.
+            // HTTP/1.0 Connection: close bodies are only allowed on responses, not requests.
+            // https://tools.ietf.org/html/rfc1945#section-7.2.2
+            //
+            // Transfer-Encoding overrides Content-Length per spec
+            else if (request.Headers.TryGetValue(HeaderNames.TransferEncoding, out var transferEncoding)
+                && transferEncoding.Count == 1
+                && string.Equals("chunked", transferEncoding.ToString(), StringComparison.OrdinalIgnoreCase))
+            {
+                hasBody = true;
+            }
+            else if (contentLength.HasValue)
+            {
+                hasBody = contentLength > 0;
+            }
+            // Kestrel HTTP/2: There are no required headers that indicate if there is a request body so we need to sniff other fields.
+            else if (!ProtocolHelper.IsHttp2OrGreater(request.Protocol))
+            {
+                hasBody = false;
+            }
+            // https://tools.ietf.org/html/rfc7231#section-5.1.1
+            // A client MUST NOT generate a 100-continue expectation in a request that does not include a message body.
+            else if (request.Headers.TryGetValue(HeaderNames.Expect, out var expect)
+                && expect.Count == 1
+                && string.Equals("100-continue", expect.ToString(), StringComparison.OrdinalIgnoreCase))
+            {
+                hasBody = true;
+            }
+            // https://tools.ietf.org/html/rfc7231#section-4.3.1
+            // A payload within a GET/HEAD/DELETE/CONNECT request message has no defined semantics; sending a payload body on a
+            // GET/HEAD/DELETE/CONNECT request might cause some existing implementations to reject the request.
+            else if (HttpMethods.IsGet(method)
+                || HttpMethods.IsHead(method)
+                || HttpMethods.IsDelete(method)
+                || HttpMethods.IsConnect(method))
+            {
+                hasBody = false;
+            }
+            // else hasBody defaults to true
+
             StreamCopyHttpContent contentToUpstream = null;
-            // TODO: the request body is never null.
-            if (source != null)
+            if (hasBody)
             {
                 ////this.logger.LogInformation($"   Setting up downstream --> Proxy --> upstream body proxying");
 
@@ -396,7 +451,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                         routeId: proxyTelemetryContext.RouteId,
                         destinationId: proxyTelemetryContext.DestinationId));
                 contentToUpstream = new StreamCopyHttpContent(
-                    source: source,
+                    source: request.Body,
                     streamCopier: streamCopier,
                     autoFlushHttpClientOutgoingStream: isStreamingRequest,
                     cancellation: cancellation);
@@ -604,9 +659,9 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 
         private static class Log
         {
-            private static readonly Action<ILogger, Exception> _httpDowngradeDeteced = LoggerMessage.Define(
+            private static readonly Action<ILogger, Exception> _httpDowngradeDetected = LoggerMessage.Define(
                 LogLevel.Information,
-                EventIds.HttpDowngradeDeteced,
+                EventIds.HttpDowngradeDetected,
                 "Health check has gracefully shut down.");
 
             private static readonly Action<ILogger, string, Exception> _proxying = LoggerMessage.Define<string>(
@@ -614,9 +669,9 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 EventIds.Proxying,
                 "Proxying to {targetUrl}");
 
-            public static void HttpDowngradeDeteced(ILogger logger)
+            public static void HttpDowngradeDetected(ILogger logger)
             {
-                _httpDowngradeDeteced(logger, null);
+                _httpDowngradeDetected(logger, null);
             }
 
             public static void Proxying(ILogger logger, string targetUrl)
