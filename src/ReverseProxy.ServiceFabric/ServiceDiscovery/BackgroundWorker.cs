@@ -4,55 +4,45 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.ReverseProxy.Abstractions;
+using Microsoft.Extensions.Options;
 using Microsoft.ReverseProxy.Abstractions.Time;
 using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.ServiceFabric
 {
     /// <inheritdoc/>
-    internal class ServiceFabricServiceDiscovery : IServiceDiscovery
+    internal class BackgroundWorker : IHostedService
     {
-        private readonly ILogger<ServiceFabricServiceDiscovery> _logger;
+        private readonly ILogger<BackgroundWorker> _logger;
         private readonly IMonotonicTimer _timer;
-        private readonly IReverseProxyConfigManager _proxyManager;
-        private readonly IServiceFabricDiscoveryWorker _serviceFabricDiscoveryWorker;
+        private readonly IDiscoverer _serviceFabricDiscoveryWorker;
+        private readonly ConfigProvider _configProvider;
+        private readonly IOptionsMonitor<ServiceFabricDiscoveryOptions> _optionsMonitor;
         private Task _serviceFabricDiscoveryTask;
         private CancellationTokenSource _cts;
-        private ServiceFabricServiceDiscoveryOptions _options = new ServiceFabricServiceDiscoveryOptions();
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ServiceFabricServiceDiscovery"/> class.
+        /// Initializes a new instance of the <see cref="BackgroundWorker"/> class.
         /// </summary>
-        public ServiceFabricServiceDiscovery(
-            ILogger<ServiceFabricServiceDiscovery> logger,
+        public BackgroundWorker(
+            ILogger<BackgroundWorker> logger,
             IMonotonicTimer timer,
-            IReverseProxyConfigManager proxyManager,
-            IServiceFabricDiscoveryWorker serviceFabricDiscoveryWorker)
+            IDiscoverer serviceFabricDiscoveryWorker,
+            ConfigProvider configProvider,
+            IOptionsMonitor<ServiceFabricDiscoveryOptions> optionsMonitor)
         {
 
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _timer = timer ?? throw new ArgumentNullException(nameof(timer));
-            _proxyManager = proxyManager ?? throw new ArgumentNullException(nameof(proxyManager));
             _serviceFabricDiscoveryWorker = serviceFabricDiscoveryWorker ?? throw new ArgumentNullException(nameof(serviceFabricDiscoveryWorker));
+            _configProvider = configProvider ?? throw new ArgumentNullException(nameof(configProvider));
+            _optionsMonitor = optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
         }
 
         /// <inheritdoc/>
-        public string Name { get; } = "servicefabric";
-
-        /// <inheritdoc/>
-        public Task SetConfigAsync(IConfigurationSection newConfig, CancellationToken _)
-        {
-            var newOptions = new ServiceFabricServiceDiscoveryOptions();
-            newConfig.Bind(newOptions);
-            _options = newOptions;
-            return Task.CompletedTask;
-        }
-
-        /// <inheritdoc/>
-        public void Start()
+        public Task StartAsync(CancellationToken cancellation)
         {
             _cts = new CancellationTokenSource();
             if (_serviceFabricDiscoveryTask != null)
@@ -64,6 +54,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                 _logger.LogInformation("Started service fabric discovery loop.");
                 _serviceFabricDiscoveryTask = ServiceFabricDiscoveryLoop(_cts.Token);
             }
+
+            return Task.CompletedTask;
         }
 
         /// <inheritdoc/>
@@ -93,15 +85,19 @@ namespace Microsoft.ReverseProxy.ServiceFabric
 
         private async Task ServiceFabricDiscoveryLoop(CancellationToken cancellation)
         {
-            var errorReporter = new LoggerConfigErrorReporter(_logger);
+            var first = true;
             while (true)
             {
                 try
                 {
                     cancellation.ThrowIfCancellationRequested();
-                    await _serviceFabricDiscoveryWorker.ExecuteAsync(_options, cancellation);
-                    await _proxyManager.ApplyConfigurationsAsync(errorReporter, cancellation);
-                    await _timer.Delay(_options.DiscoveryPeriod, cancellation);
+                    if (!first)
+                    {
+                        await _timer.Delay(_optionsMonitor.CurrentValue.DiscoveryPeriod, cancellation);
+                    }
+
+                    var result = await _serviceFabricDiscoveryWorker.DiscoverAsync(cancellation);
+                    _configProvider.UpdateSnapshot(result.Routes, result.Clusters);
                 }
                 catch (OperationCanceledException) when (cancellation.IsCancellationRequested)
                 {
@@ -109,30 +105,12 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                     _logger.LogInformation("Service Fabric discovery loop is ending gracefully");
                     return;
                 }
-                catch (Exception ex) when (!ex.IsFatal())
+                catch (Exception ex) // TODO: davidni: not fatal?
                 {
-                    _logger.LogError(ex, "Swallowing unhandled exception from service Fabric loop...");
+                    _logger.LogError(ex, "Swallowing unhandled exception from Service Fabric loop...");
                 }
-            }
-        }
 
-        private class LoggerConfigErrorReporter : IConfigErrorReporter
-        {
-            private readonly ILogger _logger;
-
-            public LoggerConfigErrorReporter(ILogger logger)
-            {
-                _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            }
-
-            public void ReportError(string code, string itemId, string message)
-            {
-                _logger.LogWarning($"Config error: {message}, {code}, {itemId}.");
-            }
-
-            public void ReportError(string code, string itemId, string message, Exception ex)
-            {
-                _logger.LogWarning($"Failed to apply new configs: {message}, {code}, {itemId}, {ex}.");
+                first = false;
             }
         }
     }

@@ -28,7 +28,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         {
             _timer = new VirtualMonotonicTimer();
             Provide<IMonotonicTimer>(_timer);
-            Provide<ILogger>(new XunitLogger<ServiceFabricDiscoveryWorker>(testOutputHelper));
+            Provide<ILogger>(new XunitLogger<Discoverer>(testOutputHelper));
             Provide<IOperationLogger<CachedServiceFabricCaller>>(new NullOperationLogger<CachedServiceFabricCaller>());
         }
 

@@ -10,26 +10,25 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
 using Microsoft.Extensions.Logging;
-using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.ServiceFabric
 {
     /// <inheritdoc/>
-    internal class ServiceFabricExtensionConfigProvider : IServiceFabricExtensionConfigProvider
+    internal class ServiceExtensionLabelsProvider : IServiceExtensionLabelsProvider
     {
         internal static readonly XNamespace XNSServiceManifest = "http://schemas.microsoft.com/2011/01/fabric";
         internal static readonly XNamespace XNSIslandGateway = "http://schemas.microsoft.com/2015/03/fabact-no-schema";
         internal static readonly XName XNameLabel = XNSIslandGateway + "Label";
         internal static readonly XName XNameLabels = XNSIslandGateway + "Labels";
 
-        private readonly ILogger<ServiceFabricExtensionConfigProvider> _logger;
+        private readonly ILogger<ServiceExtensionLabelsProvider> _logger;
         private readonly IServiceFabricCaller _serviceFabricCaller;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ServiceFabricExtensionConfigProvider"/> class.
+        /// Initializes a new instance of the <see cref="ServiceExtensionLabelsProvider"/> class.
         /// </summary>
-        public ServiceFabricExtensionConfigProvider(
-            ILogger<ServiceFabricExtensionConfigProvider> logger,
+        public ServiceExtensionLabelsProvider(
+            ILogger<ServiceExtensionLabelsProvider> logger,
             IServiceFabricCaller serviceFabricCaller)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -55,9 +54,9 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             {
                 throw;
             }
-            catch (Exception ex) when (!ex.IsFatal())
+            catch (Exception ex) // TODO: davidni: not fatal?
             {
-                throw new ServiceFabricIntegrationException($"Failed to get service manifest name for service type {service.ServiceTypeName} of application type {application.ApplicationTypeName} {application.ApplicationTypeVersion} from Service Fabric.");
+                throw new ServiceFabricIntegrationException($"Failed to get service manifest name for service type {service.ServiceTypeName} of application type {application.ApplicationTypeName} {application.ApplicationTypeVersion} from Service Fabric: {ex}.");
             }
 
             if (serviceManifestName == null)
@@ -74,9 +73,9 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             {
                 throw;
             }
-            catch (Exception ex) when (!ex.IsFatal())
+            catch (Exception ex) // TODO: davidni: not fatal?
             {
-                throw new ServiceFabricIntegrationException($"Failed to get service manifest {serviceManifestName} of service type {service.ServiceTypeName} of application type {application.ApplicationTypeName} {application.ApplicationTypeVersion} from Service Fabric.");
+                throw new ServiceFabricIntegrationException($"Failed to get service manifest {serviceManifestName} of service type {service.ServiceTypeName} of application type {application.ApplicationTypeName} {application.ApplicationTypeVersion} from Service Fabric: {ex}.");
             }
 
             if (rawServiceManifest == null)

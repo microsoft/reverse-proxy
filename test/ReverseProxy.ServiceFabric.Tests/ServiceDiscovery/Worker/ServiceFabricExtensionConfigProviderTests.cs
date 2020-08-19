@@ -58,7 +58,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         {
             // Arrange
             _rawServiceManifest =
-                $@"<ServiceManifest xmlns='{ServiceFabricExtensionConfigProvider.XNSServiceManifest}'>
+                $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
                   <ServiceTypes>
                     <StatelessServiceType ServiceTypeName='AnotherService'>
                     </StatelessServiceType>
@@ -78,7 +78,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         {
             // Arrange
             _rawServiceManifest =
-                $@"<ServiceManifest xmlns='{ServiceFabricExtensionConfigProvider.XNSServiceManifest}'>
+                $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
                   <ServiceTypes>
                     <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
                     </StatelessServiceType>
@@ -97,7 +97,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         {
             // Arrange
             _rawServiceManifest =
-                $@"<ServiceManifest xmlns='{ServiceFabricExtensionConfigProvider.XNSServiceManifest}'>
+                $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
                 <ServiceTypes>
                     <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
                         <Extensions>
@@ -106,7 +106,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     <StatelessServiceType ServiceTypeName='AnotherServiceType'>
                         <Extensions>
                             <Extension Name='IslandGateway'>
-                            <Labels xmlns='{ServiceFabricExtensionConfigProvider.XNSIslandGateway}'>
+                            <Labels xmlns='{ServiceExtensionLabelsProvider.XNSIslandGateway}'>
                                 <Label Key='IslandGateway.Enable'>true</Label>
                             </Labels>
                             </Extension>
@@ -128,12 +128,12 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         {
             // Arrange
             _rawServiceManifest =
-                $@"<ServiceManifest xmlns='{ServiceFabricExtensionConfigProvider.XNSServiceManifest}'>
+                $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
                 <ServiceTypes>
                     <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
                         <Extensions>
                             <Extension Name='AnotherExtension'>
-                            <Labels xmlns='{ServiceFabricExtensionConfigProvider.XNSIslandGateway}'>
+                            <Labels xmlns='{ServiceExtensionLabelsProvider.XNSIslandGateway}'>
                                 <Label Key='Bla'>foo</Label>
                             </Labels>
                             </Extension>
@@ -155,12 +155,12 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         {
             // Arrange
             _rawServiceManifest =
-                $@"<ServiceManifest xmlns='{ServiceFabricExtensionConfigProvider.XNSServiceManifest}'>
+                $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
                 <ServiceTypes>
                     <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
                         <Extensions>
                             <Extension Name='IslandGateway'>
-                            <Labels xmlns='{ServiceFabricExtensionConfigProvider.XNSIslandGateway}'>
+                            <Labels xmlns='{ServiceExtensionLabelsProvider.XNSIslandGateway}'>
                                 <Label Key='IslandGateway.Enable'>true</Label>
                                 <Label Key='IslandGateway.foo'>bar</Label>
                             </Labels>
@@ -188,12 +188,12 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         {
             // Arrange
             _rawServiceManifest =
-                $@"<ServiceManifest xmlns='{ServiceFabricExtensionConfigProvider.XNSServiceManifest}'>
+                $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
                   <ServiceTypes>
                     <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
                       <Extensions>
                         <Extension Name='IslandGateway'>
-                          <Labels xmlns='{ServiceFabricExtensionConfigProvider.XNSIslandGateway}'>
+                          <Labels xmlns='{ServiceExtensionLabelsProvider.XNSIslandGateway}'>
                             <Label Key='IslandGateway.Enable'>true</Label>
                             <Label Key='IslandGateway.foo'>[SomeAppParam]</Label>
                           </Labels>
@@ -222,12 +222,12 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         {
             // Arrange
             _rawServiceManifest =
-                $@"<ServiceManifest xmlns='{ServiceFabricExtensionConfigProvider.XNSServiceManifest}'>
+                $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
                   <ServiceTypes>
                     <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
                       <Extensions>
                         <Extension Name='IslandGateway'>
-                          <Labels xmlns='{ServiceFabricExtensionConfigProvider.XNSIslandGateway}'>
+                          <Labels xmlns='{ServiceExtensionLabelsProvider.XNSIslandGateway}'>
                             <Label Key='IslandGateway.Enable'>true</Label>
                             <Label Key='IslandGateway.foo'>[NonExistingAppParam]</Label>
                           </Labels>
@@ -254,7 +254,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         {
             // Arrange
             _rawServiceManifest =
-                $@"<ServiceManifest xmlns='{ServiceFabricExtensionConfigProvider.XNSServiceManifest}'>
+                $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
                 <ServiceTypes>
                     <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
                         <Extensions>
@@ -264,7 +264,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                             </Labels>
                             </Extension>
                             <Extension Name='IslandGateway'>
-                            <Labels xmlns='{ServiceFabricExtensionConfigProvider.XNSIslandGateway}'>
+                            <Labels xmlns='{ServiceExtensionLabelsProvider.XNSIslandGateway}'>
                                 <Label Key='IslandGateway.Enable'>true</Label>
                                 <Label Key='IslandGateway.routes.route1.Host'>example.com</Label>
                             </Labels>
@@ -292,12 +292,12 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         {
             // Arrange
             _rawServiceManifest =
-                $@"<ServiceManifest xmlns='{ServiceFabricExtensionConfigProvider.XNSServiceManifest}'>
+                $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
                 <ServiceTypes>
                     <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
                         <Extensions>
                             <Extension Name='IslandGateway'>
-                            <Labels xmlns='{ServiceFabricExtensionConfigProvider.XNSIslandGateway}'>
+                            <Labels xmlns='{ServiceExtensionLabelsProvider.XNSIslandGateway}'>
                                 <Label Key='IslandGateway.EnableDynamicOverrides'>true</Label>
                             </Labels>
                             </Extension>
@@ -331,12 +331,12 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         {
             // Arrange
             _rawServiceManifest =
-                $@"<ServiceManifest xmlns='{ServiceFabricExtensionConfigProvider.XNSServiceManifest}'>
+                $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
                 <ServiceTypes>
                     <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
                         <Extensions>
                             <Extension Name='IslandGateway'>
-                            <Labels xmlns='{ServiceFabricExtensionConfigProvider.XNSIslandGateway}'>
+                            <Labels xmlns='{ServiceExtensionLabelsProvider.XNSIslandGateway}'>
                                 <Label Key='IslandGateway.EnableDynamicOverrides'>True</Label>
                             </Labels>
                             </Extension>
@@ -370,12 +370,12 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         {
             // Arrange
             _rawServiceManifest =
-                $@"<ServiceManifest xmlns='{ServiceFabricExtensionConfigProvider.XNSServiceManifest}'>
+                $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
                 <ServiceTypes>
                     <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
                         <Extensions>
                             <Extension Name='IslandGateway'>
-                            <Labels xmlns='{ServiceFabricExtensionConfigProvider.XNSIslandGateway}'>
+                            <Labels xmlns='{ServiceExtensionLabelsProvider.XNSIslandGateway}'>
                                 <Label Key='IslandGateway.EnableDynamicOverrides'>true</Label>
                             </Labels>
                             </Extension>
@@ -409,12 +409,12 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         {
             // Arrange
             _rawServiceManifest =
-                $@"<ServiceManifest xmlns='{ServiceFabricExtensionConfigProvider.XNSServiceManifest}'>
+                $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
                 <ServiceTypes>
                     <StatefulService ServiceTypeName='{ServiceTypeName}'>
                         <Extensions>
                              <Extension Name='IslandGateway'>
-                             <Labels xmlns='{ServiceFabricExtensionConfigProvider.XNSIslandGateway}'>
+                             <Labels xmlns='{ServiceExtensionLabelsProvider.XNSIslandGateway}'>
                                 <Label Key='IslandGateway.Enable'>true</Label>
                                 <Label Key='IslandGateway.EnableDynamicOverrides'>true</Label>
                                 <Label Key='IslandGateway.routes.route1.Host'>example.com</Label>
@@ -449,12 +449,12 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         {
             // Arrange
             _rawServiceManifest =
-                $@"<ServiceManifest xmlns='{ServiceFabricExtensionConfigProvider.XNSServiceManifest}'>
+                $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
                 <ServiceTypes>
                     <StatefulService ServiceTypeName='{ServiceTypeName}'>
                         <Extensions>
                              <Extension Name='IslandGateway'>
-                             <Labels xmlns='{ServiceFabricExtensionConfigProvider.XNSIslandGateway}'>
+                             <Labels xmlns='{ServiceExtensionLabelsProvider.XNSIslandGateway}'>
                                 <Label Key='IslandGateway.Enable'>true</Label>
                                 <Label Key='IslandGateway.EnableDynamicOverrides'>true</Label>
                                 <Label Key='IslandGateway.routes.route1.Host'>example.com</Label>
@@ -490,12 +490,12 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         {
             // Arrange
             _rawServiceManifest =
-                $@"<ServiceManifest xmlns='{ServiceFabricExtensionConfigProvider.XNSServiceManifest}'>
+                $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
                 <ServiceTypes>
                     <StatefulService ServiceTypeName='{ServiceTypeName}'>
                         <Extensions>
                              <Extension Name='IslandGateway'>
-                             <Labels xmlns='{ServiceFabricExtensionConfigProvider.XNSIslandGateway}'>
+                             <Labels xmlns='{ServiceExtensionLabelsProvider.XNSIslandGateway}'>
                                 <Label Key='IslandGateway.Enable'>true</Label>
                                 <Label Key='IslandGateway.EnableDynamicOverrides'>false</Label>
                                 <Label Key='IslandGateway.routes.route1.host'>example.com</Label>
@@ -532,12 +532,12 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         {
             // Arrange
             _rawServiceManifest =
-                $@"<ServiceManifest xmlns='{ServiceFabricExtensionConfigProvider.XNSServiceManifest}'>
+                $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
                 <ServiceTypes>
                     <StatefulService ServiceTypeName='{ServiceTypeName}'>
                         <Extensions>
                              <Extension Name='IslandGateway'>
-                             <Labels xmlns='{ServiceFabricExtensionConfigProvider.XNSIslandGateway}'>
+                             <Labels xmlns='{ServiceExtensionLabelsProvider.XNSIslandGateway}'>
                                 <Label Key='IslandGateway.Enable'>true</Label>
                                 <Label Key='IslandGateway.EnableDynamicOverrides'>true</Label>
                                 <Label Key='IslandGateway.routes.ROUTE1.Host'>example.com</Label>
@@ -575,12 +575,12 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         {
             // Arrange
             _rawServiceManifest =
-                $@"<ServiceManifest xmlns='{ServiceFabricExtensionConfigProvider.XNSServiceManifest}'>
+                $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
                 <ServiceTypes>
                     <StatefulService ServiceTypeName='{ServiceTypeName}'>
                         <Extensions>
                              <Extension Name='IslandGateway'>
-                             <Labels xmlns='{ServiceFabricExtensionConfigProvider.XNSIslandGateway}'>
+                             <Labels xmlns='{ServiceExtensionLabelsProvider.XNSIslandGateway}'>
                                 <Label Key='IslandGateway.Enable'>true</Label>
                                 <Label Key='IslandGateway.routes.route1.host'>example.com</Label>
                              </Labels>
@@ -628,12 +628,12 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         {
             // Arrange
             _rawServiceManifest =
-                $@"<ServiceManifest xmlns='{ServiceFabricExtensionConfigProvider.XNSServiceManifest}'>
+                $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
                 <ServiceTypes>
                     <StatefulService ServiceTypeName='{ServiceTypeName}'>
                         <Extensions>
                              <Extension Name='IslandGateway'>
-                             <Labels xmlns='{ServiceFabricExtensionConfigProvider.XNSIslandGateway}'>
+                             <Labels xmlns='{ServiceExtensionLabelsProvider.XNSIslandGateway}'>
                                 <Label Key='IslandGateway.Enable'>true</Label>
                                 <Label Key='IslandGateway.routes.route1.host'>example.com</Label>
                                 <Label Key='IslandGateway.routes.route1.host'>example.com</Label>
@@ -658,12 +658,12 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             // Arrange
             var longBadString = new string('*', 1024 * 1024);
             _rawServiceManifest =
-            $@"<ServiceManifest xmlns='{ServiceFabricExtensionConfigProvider.XNSServiceManifest}'>
+            $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
             <ServiceTypes>
                 <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
                     <Extensions>
                         <Extension Name='IslandGateway'>
-                        <Labels xmlns='{ServiceFabricExtensionConfigProvider.XNSIslandGateway}'>
+                        <Labels xmlns='{ServiceExtensionLabelsProvider.XNSIslandGateway}'>
                              <Label Key='IslandGateway.foo'>'{longBadString}'</Label>
                           </Labels>
                         </Extension>
@@ -689,12 +689,12 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 <!DOCTYPE xxe [
                     <!ENTITY  chybeta  ""Melicious DTD value here."">
                 ]>
-                < ServiceManifest xmlns='{ServiceFabricExtensionConfigProvider.XNSServiceManifest}'>
+                < ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
                 <ServiceTypes>
                     <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
                         <Extensions>
                             <Extension Name='IslandGateway'>
-                            <Labels xmlns='{ServiceFabricExtensionConfigProvider.XNSIslandGateway}'>
+                            <Labels xmlns='{ServiceExtensionLabelsProvider.XNSIslandGateway}'>
                                 <Label Key='IslandGateway.foo'>bar</Label>
                             </Labels>
                             </Extension>
@@ -713,7 +713,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
 
         private async Task<Dictionary<string, string>> RunScenarioAsync()
         {
-            var configProvider = Create<ServiceFabricExtensionConfigProvider>();
+            var configProvider = Create<ServiceExtensionLabelsProvider>();
 
             return await configProvider.GetExtensionLabelsAsync(
                 application: new ApplicationWrapper

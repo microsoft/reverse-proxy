@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.ServiceFabric.Utilities;
@@ -90,9 +91,9 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                     }
                 }
 
-                if (!labels.TryGetValue($"{thisRoutePrefix}.Host", out var host))
+                if (!labels.TryGetValue($"{thisRoutePrefix}.Hosts", out var hosts))
                 {
-                    throw new ConfigException($"Missing '{thisRoutePrefix}.Host'.");
+                    throw new ConfigException($"Missing '{thisRoutePrefix}.Hosts'.");
                 }
                 labels.TryGetValue($"{thisRoutePrefix}.Path", out var path);
 
@@ -101,8 +102,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                     RouteId = $"{Uri.EscapeDataString(backendId)}:{Uri.EscapeDataString(routeName)}",
                     Match =
                     {
-                         Host = host,
-                         Path = path,
+                        Hosts = SplitHosts(hosts),
+                        Path = path,
                     },
                     Priority = GetLabel(labels, $"{thisRoutePrefix}.Priority", DefaultRoutePriority),
                     ClusterId = backendId,
@@ -169,6 +170,11 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             }
 
             return backendId;
+        }
+
+        private static IReadOnlyList<string> SplitHosts(string hosts)
+        {
+            return hosts.Split(',').Select(h => h.Trim()).Where(h => h.Length > 0).ToList();
         }
     }
 }

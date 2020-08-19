@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using Microsoft.ReverseProxy.Abstractions.Telemetry;
 using Microsoft.ReverseProxy.Abstractions.Time;
 using Microsoft.ReverseProxy.ServiceFabric.Utilities;
-using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.ServiceFabric
 {
@@ -193,7 +192,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                         outcome = "Canceled";
                         throw;
                     }
-                    catch (Exception ex) when (!ex.IsFatal())
+                    catch (Exception) // TODO: davidni: not fatal?
                     {
                         if (cache.TryGetValue(key, out var value))
                         {

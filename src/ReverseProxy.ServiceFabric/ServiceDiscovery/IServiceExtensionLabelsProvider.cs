@@ -31,7 +31,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
     /// for more information about properties.
     /// Refer to the Island Gateway documentation for further details about labels and their format.
     /// </remarks>
-    internal interface IServiceFabricExtensionConfigProvider
+    internal interface IServiceExtensionLabelsProvider
     {
         /// <summary>
         /// Gets the labels representing the current Island Gateway configuration for the specified service.

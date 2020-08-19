@@ -11,45 +11,43 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Utilities;
 using Microsoft.ServiceFabric.Services.Communication;
 
 namespace Microsoft.ReverseProxy.ServiceFabric
 {
     /// <inheritdoc/>
-    internal class ServiceFabricDiscoveryWorker : IServiceFabricDiscoveryWorker
+    internal class Discoverer : IDiscoverer
     {
         public static readonly string HealthReportSourceId = "IslandGateway";
         public static readonly string HealthReportProperty = "IslandGatewayConfig";
 
-        private readonly ILogger<ServiceFabricDiscoveryWorker> _logger;
-        private readonly IServiceFabricExtensionConfigProvider _serviceFabricExtensionConfigProvider;
+        private readonly ILogger<Discoverer> _logger;
         private readonly IServiceFabricCaller _serviceFabricCaller;
-        private readonly IClustersRepo _clustersRepo;
-        private readonly IRoutesRepo _routesRepo;
+        private readonly IServiceExtensionLabelsProvider _serviceFabricExtensionConfigProvider;
+        private readonly IOptionsMonitor<ServiceFabricDiscoveryOptions> _optionsMonitor;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ServiceFabricDiscoveryWorker"/> class.
+        /// Initializes a new instance of the <see cref="Discoverer"/> class.
         /// </summary>
-        public ServiceFabricDiscoveryWorker(
-            ILogger<ServiceFabricDiscoveryWorker> logger,
+        public Discoverer(
+            ILogger<Discoverer> logger,
             IServiceFabricCaller serviceFabricCaller,
-            IServiceFabricExtensionConfigProvider serviceFabricExtensionConfigProvider,
-            IClustersRepo clustersRepo,
-            IRoutesRepo routesRepo)
+            IServiceExtensionLabelsProvider serviceFabricExtensionConfigProvider,
+            IOptionsMonitor<ServiceFabricDiscoveryOptions> optionsMonitor)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _serviceFabricCaller = serviceFabricCaller ?? throw new ArgumentNullException(nameof(serviceFabricCaller));
             _serviceFabricExtensionConfigProvider = serviceFabricExtensionConfigProvider ?? throw new ArgumentNullException(nameof(serviceFabricExtensionConfigProvider));
-            _clustersRepo = clustersRepo ?? throw new ArgumentNullException(nameof(clustersRepo));
-            _routesRepo = routesRepo ?? throw new ArgumentNullException(nameof(routesRepo));
+            _optionsMonitor = optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
         }
 
         /// <inheritdoc/>
-        public async Task ExecuteAsync(ServiceFabricServiceDiscoveryOptions options, CancellationToken cancellation)
+        public async Task<(IReadOnlyList<ProxyRoute> Routes, IReadOnlyList<Cluster> Clusters)> DiscoverAsync(CancellationToken cancellation)
         {
-            _ = options ?? throw new ArgumentNullException(nameof(options));
+            // Take a snapshot of current options and use that consistently for this execution.
+            var options = _optionsMonitor.CurrentValue;
 
             var discoveredBackends = new Dictionary<string, Cluster>(StringComparer.Ordinal);
             var discoveredRoutes = new List<ProxyRoute>();
@@ -63,7 +61,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             {
                 throw;
             }
-            catch (Exception ex) when (!ex.IsFatal())
+            catch (Exception ex) // TODO: davidni: not fatal?
             {
                 // The serviceFabricCaller does their best effort to use LKG information, nothing we can do at this point
                 _logger.LogError(ex, "Could not get applications list from Service Fabric, continuing with zero applications.");
@@ -82,7 +80,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                 {
                     throw;
                 }
-                catch (Exception ex) when (!ex.IsFatal())
+                catch (Exception ex) // TODO: davidni: not fatal?
                 {
                     _logger.LogError(ex, $"Could not get service list for application {application.ApplicationName}, skipping application.");
                     continue;
@@ -115,7 +113,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                     }
                     catch (ConfigException ex)
                     {
-                        // The user's problem
+                        // User error
                         _logger.LogInformation($"Config error found when trying to load service '{service.ServiceName}', skipping. Error: {ex}.");
 
                         // TODO: emit Error health report once we are able to detect config issues *during* (as opposed to *after*) a target service upgrade.
@@ -123,7 +121,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                         // will NOT cause a rollback and will prevent the target service from performing subsequent monitored upgrades to mitigate, making things worse.
                         ReportServiceHealth(options, service.ServiceName, HealthState.Warning, $"Could not load service to Island Gateway: {ex.Message}.");
                     }
-                    catch (Exception ex) when (!ex.IsFatal())
+                    catch (Exception ex) // TODO: davidni: not fatal?
                     {
                         // Not user's problem
                         _logger.LogError(ex, $"Unexpected error when trying to load service '{service.ServiceName}, skipping'.");
@@ -131,10 +129,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                 }
             }
 
-            // TODO : keep track of seen backends and RemoveEndpointsAsync when not seen again
             _logger.LogInformation($"Discovered {discoveredBackends.Count} backends, {discoveredRoutes.Count} routes.");
-            await _clustersRepo.SetClustersAsync(discoveredBackends, cancellation);
-            await _routesRepo.SetRoutesAsync(discoveredRoutes, cancellation);
+            return (discoveredRoutes, discoveredBackends.Values.ToList());
         }
 
         private static Destination BuildDestination(ReplicaWrapper replica, string listenerName, string healthListenerName)
@@ -181,7 +177,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             return urlScheme == "https";
         }
 
-        private static TimeSpan HealthReportTimeToLive(ServiceFabricServiceDiscoveryOptions options) => options.DiscoveryPeriod.Multiply(3);
+        private static TimeSpan HealthReportTimeToLive(ServiceFabricDiscoveryOptions options) => options.DiscoveryPeriod.Multiply(3);
 
         private static bool IsHealthyReplica(ReplicaWrapper replica)
         {
@@ -217,7 +213,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
         /// <remarks>All non-fatal exceptions are caught and logged.</remarks>
         private async Task DiscoverDestinationsAsync(
             Cluster cluster,
-            ServiceFabricServiceDiscoveryOptions options,
+            ServiceFabricDiscoveryOptions options,
             ServiceWrapper service,
             Dictionary<string, string> serviceExtensionLabels,
             CancellationToken cancellation)
@@ -227,7 +223,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             {
                 partitions = await _serviceFabricCaller.GetPartitionListAsync(service.ServiceName, cancellation);
             }
-            catch (Exception ex) when (!ex.IsFatal())
+            catch (Exception ex) // TODO: davidni: not fatal?
             {
                 _logger.LogError(ex, $"Could not get partition list for service {service.ServiceName}, skipping endpoints.");
                 return;
@@ -243,7 +239,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                 {
                     replicas = await _serviceFabricCaller.GetReplicaListAsync(partition, cancellation);
                 }
-                catch (Exception ex) when (!ex.IsFatal())
+                catch (Exception ex) // TODO: davidni: not fatal?
                 {
                     _logger.LogError(ex, $"Could not get replica list for partition {partition} of service {service.ServiceName}, skipping partition.");
                     continue;
@@ -285,7 +281,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                         // will NOT cause a rollback and will prevent the target service from performing subsequent monitored upgrades to mitigate, making things worse.
                         ReportReplicaHealth(options, service, partition, replica, HealthState.Warning, $"Could not build endpoint for Island Gateway: {ex.Message}");
                     }
-                    catch (Exception ex) when (!ex.IsFatal())
+                    catch (Exception ex) // TODO: davidni: not fatal?
                     {
                         // Not the user's problem
                         _logger.LogError(ex, $"Could not build endpoint for replica {replica.Id} of service {service.ServiceName}.");
@@ -318,7 +314,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
         }
 
         private void ReportServiceHealth(
-            ServiceFabricServiceDiscoveryOptions options,
+            ServiceFabricDiscoveryOptions options,
             Uri serviceName,
             HealthState state,
             string description = null)
@@ -340,14 +336,14 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             {
                 _serviceFabricCaller.ReportHealth(healthReport, sendOptions);
             }
-            catch (Exception ex) when (!ex.IsFatal())
+            catch (Exception ex) // TODO: davidni: not fatal?
             {
                 _logger.LogError(ex, $"Failed to report health '{state}' for service '{serviceName}'.");
             }
         }
 
         private void ReportReplicaHealth(
-            ServiceFabricServiceDiscoveryOptions options,
+            ServiceFabricDiscoveryOptions options,
             ServiceWrapper service,
             Guid partitionId,
             ReplicaWrapper replica,
@@ -394,9 +390,9 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             {
                 _serviceFabricCaller.ReportHealth(healthReport, sendOptions);
             }
-            catch (Exception ex) when (!ex.IsFatal())
+            catch (Exception ex) // TODO: davidni: not fatal?
             {
-                _logger.LogError($"Failed to report health '{state}' for replica {replica.Id}.");
+                _logger.LogError($"Failed to report health '{state}' for replica {replica.Id}: {ex}.");
             }
         }
     }
