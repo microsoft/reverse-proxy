@@ -65,12 +65,12 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 { "IslandGateway.Backend.Partitioning.Count", "5" },
                 { "IslandGateway.Backend.Partitioning.KeyExtractor", "Header('x-ms-organization-id')" },
                 { "IslandGateway.Backend.Partitioning.Algorithm", "SHA256" },
-                { "IslandGateway.Backend.Healthcheck.Interval", "PT5S" },
-                { "IslandGateway.Backend.Healthcheck.Timeout", "PT5S" },
+                { "IslandGateway.Backend.Healthcheck.Interval", "5" },
+                { "IslandGateway.Backend.Healthcheck.Timeout", "5" },
                 { "IslandGateway.Backend.Healthcheck.Port", "8787" },
                 { "IslandGateway.Backend.Healthcheck.Path", "/api/health" },
                 { "IslandGateway.Metadata.Foo", "Bar" },
-                { "IslandGateway.Routes.MyRoute.Host", "example.com" },
+                { "IslandGateway.Routes.MyRoute.Hosts", "example.com" },
                 { "IslandGateway.Routes.MyRoute.Priority", "2" },
             };
         }

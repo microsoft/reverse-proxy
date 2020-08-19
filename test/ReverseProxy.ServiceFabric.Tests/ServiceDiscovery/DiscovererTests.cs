@@ -15,6 +15,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.ReverseProxy.Abstractions;
+using Microsoft.ReverseProxy.Service;
 using Moq;
 using Tests.Common;
 using Xunit;
@@ -47,6 +48,13 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             Mock<IOptionsMonitor<ServiceFabricDiscoveryOptions>>()
                 .SetupGet(o => o.CurrentValue)
                 .Returns(() => _scenarioOptions);
+
+            Mock<IConfigValidator>()
+                .Setup(v => v.ValidateClusterAsync(It.IsAny<Cluster>()))
+                .ReturnsAsync(() => new List<Exception>());
+            Mock<IConfigValidator>()
+                .Setup(v => v.ValidateRouteAsync(It.IsAny<ProxyRoute>()))
+                .ReturnsAsync(() => new List<Exception>());
         }
 
         [Fact]
@@ -252,7 +260,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
 
         [Theory]
         [InlineData("IslandGateway.Backend.Partitioning.Count", "not a number")]
-        [InlineData("IslandGateway.Backend.Healthcheck.Interval", "not an iso8601")]
+        [InlineData("IslandGateway.Backend.Healthcheck.Interval", "not a number")]
         public async void ExecuteAsync_InvalidLabelsForCluster_NoClustersAndBadHealthReported(string keyToOverride, string value)
         {
             // Setup
@@ -277,7 +285,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         }
 
         [Theory]
-        [InlineData("IslandGateway.Routes.MyRoute.Host", null, true)] // Host is mandatory
+        [InlineData("IslandGateway.Routes.MyRoute.Hosts", null, true)] // Hosts is mandatory
         [InlineData("IslandGateway.Routes.MyRoute.Priority", "not a number")]
         public async void ExecuteAsync_InvalidLabelsForRoutes_NoRoutesAndBadHealthReported(string keyToOverride, string value = null, bool remove = false)
         {
@@ -287,7 +295,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             {
                 { "IslandGateway.Enable", "true" },
                 { "IslandGateway.Backend.BackendId", "SomeClusterId" },
-                { "IslandGateway.Routes.MyRoute.Host", "example.com" },
+                { "IslandGateway.Routes.MyRoute.Hosts", "example.com" },
                 { "IslandGateway.Routes.MyRoute.Priority", "2" },
             };
             if (remove)

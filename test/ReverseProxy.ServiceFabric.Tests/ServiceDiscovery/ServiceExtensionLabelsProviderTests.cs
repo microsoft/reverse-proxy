@@ -266,7 +266,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                             <Extension Name='IslandGateway'>
                             <Labels xmlns='{ServiceExtensionLabelsProvider.XNSIslandGateway}'>
                                 <Label Key='IslandGateway.Enable'>true</Label>
-                                <Label Key='IslandGateway.routes.route1.Host'>example.com</Label>
+                                <Label Key='IslandGateway.routes.route1.Hosts'>example.com</Label>
                             </Labels>
                             </Extension>
                         </Extensions>
@@ -283,7 +283,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 new Dictionary<string, string>
                 {
                     { "IslandGateway.Enable", "true" },
-                    { "IslandGateway.routes.route1.Host", "example.com" },
+                    { "IslandGateway.routes.route1.Hosts", "example.com" },
                 });
         }
 
@@ -310,7 +310,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 new Dictionary<string, string>
                 {
                     { "IslandGateway.Enable", "true" },
-                    { "IslandGateway.routes.route1.Host", "example.com" },
+                    { "IslandGateway.routes.route1.Hosts", "example.com" },
                 };
 
             // Act
@@ -321,7 +321,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 new Dictionary<string, string>
                 {
                     { "IslandGateway.Enable", "true" },
-                    { "IslandGateway.routes.route1.Host", "example.com" },
+                    { "IslandGateway.routes.route1.Hosts", "example.com" },
                     { "IslandGateway.EnableDynamicOverrides", "true" },
                 });
         }
@@ -349,7 +349,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 new Dictionary<string, string>
                 {
                     { "IslandGateway.Enable", "true" },
-                    { "IslandGateway.routes.route1.Host", "example.com" },
+                    { "IslandGateway.routes.route1.Hosts", "example.com" },
                 };
 
             // Act
@@ -360,7 +360,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 new Dictionary<string, string>
                 {
                     { "IslandGateway.Enable", "true" },
-                    { "IslandGateway.routes.route1.Host", "example.com" },
+                    { "IslandGateway.routes.route1.Hosts", "example.com" },
                     { "IslandGateway.EnableDynamicOverrides", "True" },
                 });
         }
@@ -417,7 +417,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                              <Labels xmlns='{ServiceExtensionLabelsProvider.XNSIslandGateway}'>
                                 <Label Key='IslandGateway.Enable'>true</Label>
                                 <Label Key='IslandGateway.EnableDynamicOverrides'>true</Label>
-                                <Label Key='IslandGateway.routes.route1.Host'>example.com</Label>
+                                <Label Key='IslandGateway.routes.route1.Hosts'>example.com</Label>
                              </Labels>
                              </Extension>
                         </Extensions>
@@ -439,7 +439,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 new Dictionary<string, string>
                 {
                     { "IslandGateway.Enable", "false" },
-                    { "IslandGateway.routes.route1.Host", "example.com" },
+                    { "IslandGateway.routes.route1.Hosts", "example.com" },
                     { "IslandGateway.EnableDynamicOverrides", "true" },
                 });
         }
@@ -457,7 +457,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                              <Labels xmlns='{ServiceExtensionLabelsProvider.XNSIslandGateway}'>
                                 <Label Key='IslandGateway.Enable'>true</Label>
                                 <Label Key='IslandGateway.EnableDynamicOverrides'>true</Label>
-                                <Label Key='IslandGateway.routes.route1.Host'>example.com</Label>
+                                <Label Key='IslandGateway.routes.route1.Hosts'>example.com</Label>
                              </Labels>
                              </Extension>
                         </Extensions>
@@ -479,7 +479,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 new Dictionary<string, string>
                 {
                     { "IslandGateway.Enable", "true" },
-                    { "IslandGateway.routes.route1.Host", "example.com" },
+                    { "IslandGateway.routes.route1.Hosts", "example.com" },
                     { "IslandGateway.EnableDynamicOverrides", "true" },
                     { "IslandGateway.Routes.route1.HOST", "another.example.com" },
                 });
@@ -540,8 +540,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                              <Labels xmlns='{ServiceExtensionLabelsProvider.XNSIslandGateway}'>
                                 <Label Key='IslandGateway.Enable'>true</Label>
                                 <Label Key='IslandGateway.EnableDynamicOverrides'>true</Label>
-                                <Label Key='IslandGateway.routes.ROUTE1.Host'>example.com</Label>
-                                <Label Key='IslandGateway.routes.route1.host'>another.example.com</Label>
+                                <Label Key='IslandGateway.routes.ROUTE1.Hosts'>example.com</Label>
+                                <Label Key='IslandGateway.routes.route1.hosts'>another.example.com</Label>
                              </Labels>
                              </Extension>
                         </Extensions>
@@ -552,7 +552,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             _namingServiceProperties =
                 new Dictionary<string, string>
                 {
-                    { "IslandGateway.routes.Route1.HOST", "bla.foo" },
+                    { "IslandGateway.routes.Route1.HOSTS", "etc.example.com" },
                 };
 
             // Act
@@ -563,9 +563,9 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 new Dictionary<string, string>
                 {
                     { "IslandGateway.Enable", "true" },
-                    { "IslandGateway.routes.ROUTE1.Host", "example.com" },
-                    { "IslandGateway.routes.route1.host", "another.example.com" },
-                    { "IslandGateway.routes.Route1.HOST", "bla.foo" },
+                    { "IslandGateway.routes.ROUTE1.Hosts", "example.com" },
+                    { "IslandGateway.routes.route1.hosts", "another.example.com" },
+                    { "IslandGateway.routes.Route1.HOSTS", "etc.example.com" },
                     { "IslandGateway.EnableDynamicOverrides", "true" },
                 });
         }

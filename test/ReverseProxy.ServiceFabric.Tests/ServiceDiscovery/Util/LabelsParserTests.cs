@@ -30,8 +30,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 { "IslandGateway.Backend.Partitioning.KeyExtractor", "Header('x-ms-organization-id')" },
                 { "IslandGateway.Backend.Partitioning.Algorithm", "SHA256" },
                 { "IslandGateway.Backend.Healthcheck.Enabled", "true" },
-                { "IslandGateway.Backend.Healthcheck.Interval", "PT5S" },
-                { "IslandGateway.Backend.Healthcheck.Timeout", "PT5S" },
+                { "IslandGateway.Backend.Healthcheck.Interval", "5" },
+                { "IslandGateway.Backend.Healthcheck.Timeout", "5" },
                 { "IslandGateway.Backend.Healthcheck.Port", "8787" },
                 { "IslandGateway.Backend.Healthcheck.Path", "/api/health" },
                 { "IslandGateway.Backend.Metadata.Foo", "Bar" },
@@ -217,7 +217,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 { "IslandGateway.Backend.Partitioning.Count", "5" },
                 { "IslandGateway.Backend.Partitioning.KeyExtractor", "Header('x-ms-organization-id')" },
                 { "IslandGateway.Backend.Partitioning.Algorithm", "SHA256" },
-                { "IslandGateway.Backend.Healthcheck.Interval", "PT5S" },
+                { "IslandGateway.Backend.Healthcheck.Interval", "5" },
             };
 
             // Act
@@ -259,7 +259,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             var labels = new Dictionary<string, string>()
             {
                 { "IslandGateway.Backend.BackendId", "MyCoolClusterId" },
-                { "IslandGateway.Routes.MyRoute.Host", "example.com" },
+                { "IslandGateway.Routes.MyRoute.Hosts", "example.com" },
                 { "IslandGateway.Routes.MyRoute.Priority", "2" },
                 { "IslandGateway.Routes.MyRoute.Metadata.Foo", "Bar" },
             };
@@ -295,7 +295,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             var labels = new Dictionary<string, string>()
             {
                 { "IslandGateway.Backend.BackendId", "MyCoolClusterId" },
-                { "IslandGateway.Routes.MyRoute.Host", "example.com" },
+                { "IslandGateway.Routes.MyRoute.Hosts", "example.com" },
             };
 
             // Act
@@ -329,7 +329,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             var labels = new Dictionary<string, string>()
             {
                 { "IslandGateway.Backend.BackendId", "MyCoolClusterId" },
-                { "IslandGateway.Routes.MyRoute.Host", "'this invalid thing" },
+                { "IslandGateway.Routes.MyRoute.Hosts", "'this invalid thing" },
             };
 
             // Act
@@ -361,7 +361,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             // Arrange
             var labels = new Dictionary<string, string>()
             {
-                { "IslandGateway.Routes.MyRoute.Host", "example.com" },
+                { "IslandGateway.Routes.MyRoute.Hosts", "example.com" },
                 { "IslandGateway.Routes.MyRoute.Priority", "2" },
             };
 
@@ -406,7 +406,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             Func<List<ProxyRoute>> func = () => LabelsParser.BuildRoutes(_testServiceName, labels);
 
             // Assert
-            func.Should().Throw<ConfigException>().WithMessage("Missing 'IslandGateway.Routes.MyRoute.Host'.");
+            func.Should().Throw<ConfigException>().WithMessage("Missing 'IslandGateway.Routes.MyRoute.Hosts'.");
         }
 
         [Fact]
@@ -416,7 +416,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             var labels = new Dictionary<string, string>()
             {
                 { "IslandGateway.Backend.BackendId", "MyCoolClusterId" },
-                { "IslandGateway.Routes.MyRoute.Host", "example.com" },
+                { "IslandGateway.Routes.MyRoute.Hosts", "example.com" },
                 { "IslandGateway.Routes.MyRoute.Priority", "this is no number" },
             };
 
@@ -441,7 +441,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             var labels = new Dictionary<string, string>()
             {
                 { "IslandGateway.Backend.BackendId", "MyCoolClusterId" },
-                { $"IslandGateway.Routes.{routeName}.Host", "example.com" },
+                { $"IslandGateway.Routes.{routeName}.Hosts", "example.com" },
                 { $"IslandGateway.Routes.{routeName}.Priority", "2" },
             };
 
@@ -468,21 +468,21 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
 
         [Theory]
         [InlineData("IslandGateway.Routes..Priority", "that was an empty route name")]
-        [InlineData("IslandGateway.Routes..Host", "that was an empty route name")]
-        [InlineData("IslandGateway.Routes.  .Host", "that was an empty route name")]
+        [InlineData("IslandGateway.Routes..Hosts", "that was an empty route name")]
+        [InlineData("IslandGateway.Routes.  .Hosts", "that was an empty route name")]
         [InlineData("IslandGateway.Routes..", "that was an empty route name")]
         [InlineData("IslandGateway.Routes...", "that was an empty route name")]
-        [InlineData("IslandGateway.Routes.FunnyChars!.Host", "some value")]
+        [InlineData("IslandGateway.Routes.FunnyChars!.Hosts", "some value")]
         [InlineData("IslandGateway.Routes.'FunnyChars'.Priority", "some value")]
         [InlineData("IslandGateway.Routes.FunnyChárs.Metadata", "some value")]
-        [InlineData("IslandGateway.Routes.Funny+Chars.Host", "some value")]
+        [InlineData("IslandGateway.Routes.Funny+Chars.Hosts", "some value")]
         public void BuildRoutes_InvalidRouteName_Throws(string invalidKey, string value)
         {
             // Arrange
             var labels = new Dictionary<string, string>()
             {
                 { "IslandGateway.Backend.BackendId", "MyCoolClusterId" },
-                { "IslandGateway.Routes.MyRoute.Host", "example.com" },
+                { "IslandGateway.Routes.MyRoute.Hosts", "example.com" },
                 { "IslandGateway.Routes.MyRoute.Priority", "2" },
                 { "IslandGateway.Routes.MyRoute.Metadata.Foo", "Bar" },
             };
@@ -512,7 +512,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             var labels = new Dictionary<string, string>()
             {
                 { "IslandGateway.Backend.BackendId", "MyCoolClusterId" },
-                { "IslandGateway.Routes.MyRoute.Host", "example.com" },
+                { "IslandGateway.Routes.MyRoute.Hosts", "example.com" },
                 { "IslandGateway.Routes.MyRoute.Priority", "2" },
                 { "IslandGateway.Routes.MyRoute.Metadata.Foo", "Bar" },
             };
@@ -549,13 +549,13 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             var labels = new Dictionary<string, string>()
             {
                 { "IslandGateway.Backend.BackendId", "MyCoolClusterId" },
-                { "IslandGateway.Routes.MyRoute.Host", "example.com" },
+                { "IslandGateway.Routes.MyRoute.Hosts", "example.com" },
                 { "IslandGateway.Routes.MyRoute.Path", "v2/{**rest}" },
                 { "IslandGateway.Routes.MyRoute.Priority", "1" },
                 { "IslandGateway.Routes.MyRoute.Metadata.Foo", "Bar" },
-                { "IslandGateway.Routes.CoolRoute.Host", "example.net" },
+                { "IslandGateway.Routes.CoolRoute.Hosts", "example.net" },
                 { "IslandGateway.Routes.CoolRoute.Priority", "2" },
-                { "IslandGateway.Routes.EvenCoolerRoute.Host", "example.org" },
+                { "IslandGateway.Routes.EvenCoolerRoute.Hosts", "example.org" },
                 { "IslandGateway.Routes.EvenCoolerRoute.Priority", "3" },
             };
 
