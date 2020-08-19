@@ -13,7 +13,7 @@ using Xunit;
 
 namespace Microsoft.ReverseProxy.ServiceFabric.Tests
 {
-    public class ServiceFabricExtensionConfigProviderTests : TestAutoMockBase
+    public class ServiceExtensionLabelsProviderTests : TestAutoMockBase
     {
         private const string ApplicationName = "fabric:/App1";
         private const string ApplicationTypeName = "AppType1";
@@ -25,7 +25,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         private string _rawServiceManifest = "<xml></xml>";
         private Dictionary<string, string> _namingServiceProperties = new Dictionary<string, string>();
 
-        public ServiceFabricExtensionConfigProviderTests()
+        public ServiceExtensionLabelsProviderTests()
         {
             Mock<IServiceFabricCaller>()
                 .Setup(

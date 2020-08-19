@@ -16,6 +16,7 @@
   <ItemGroup>
     <InternalsVisibleTo Include="DynamicProxyGenAssembly2" Key="$(MoqPublicKey)" />
     <InternalsVisibleTo Include="Microsoft.ReverseProxy.Tests" />
+    <InternalsVisibleTo Include="Microsoft.ReverseProxy.Tests.Common" />
     <InternalsVisibleTo Include="Microsoft.ReverseProxy.FunctionalTests" />
   </ItemGroup>
 

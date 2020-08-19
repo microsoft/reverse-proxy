@@ -275,7 +275,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     RouteId = "MyCoolClusterId:MyRoute",
                     Match =
                     {
-                        Host = "example.com",
+                        Hosts = new[] { "example.com" },
                     },
                     Priority = 2,
                     ClusterId = "MyCoolClusterId",
@@ -309,7 +309,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     RouteId = "MyCoolClusterId:MyRoute",
                     Match =
                     {
-                        Host = "example.com",
+                        Hosts = new[] { "example.com" },
                     },
                     Priority = LabelsParser.DefaultRoutePriority,
                     ClusterId = "MyCoolClusterId",
@@ -343,7 +343,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     RouteId = "MyCoolClusterId:MyRoute",
                     Match =
                     {
-                        Host = "'this invalid thing",
+                        Hosts = new[] { "'this invalid thing" },
                     },
                     Priority = LabelsParser.DefaultRoutePriority,
                     ClusterId = "MyCoolClusterId",
@@ -381,7 +381,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     RouteId = $"{Uri.EscapeDataString(_testServiceName.ToString())}:MyRoute",
                     Match =
                     {
-                        Host = "example.com",
+                        Hosts = new[] { "example.com" },
                     },
                     Priority = 2,
                     ClusterId = _testServiceName.ToString(),
@@ -456,7 +456,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     RouteId = $"MyCoolClusterId:{routeName}",
                     Match =
                     {
-                        Host = "example.com",
+                        Hosts = new[] { "example.com" },
                     },
                     Priority = 2,
                     ClusterId = "MyCoolClusterId",
@@ -529,7 +529,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     RouteId = "MyCoolClusterId:MyRoute",
                     Match =
                     {
-                        Host = "example.com",
+                        Hosts = new[] { "example.com" },
                     },
                     Priority = 2,
                     ClusterId = "MyCoolClusterId",
@@ -570,7 +570,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     RouteId = "MyCoolClusterId:MyRoute",
                     Match =
                     {
-                        Host = "example.com",
+                        Hosts = new[] { "example.com" },
                         Path = "v2/{**rest}",
                     },
                     Priority = 1,
@@ -582,7 +582,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     RouteId = "MyCoolClusterId:CoolRoute",
                     Match =
                     {
-                        Host = "example.net",
+                        Hosts = new[] { "example.net" },
                     },
                     Priority = 2,
                     ClusterId = "MyCoolClusterId",
@@ -593,7 +593,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     RouteId = "MyCoolClusterId:EvenCoolerRoute",
                     Match =
                     {
-                        Host = "example.org",
+                        Hosts = new[] { "example.org" },
                     },
                     Priority = 3,
                     ClusterId = "MyCoolClusterId",

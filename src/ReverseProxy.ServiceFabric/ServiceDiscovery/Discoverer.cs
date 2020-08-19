@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.ReverseProxy.Abstractions;
+using Microsoft.ReverseProxy.Service;
 using Microsoft.ServiceFabric.Services.Communication;
 
 namespace Microsoft.ReverseProxy.ServiceFabric
@@ -26,6 +27,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
         private readonly ILogger<Discoverer> _logger;
         private readonly IServiceFabricCaller _serviceFabricCaller;
         private readonly IServiceExtensionLabelsProvider _serviceFabricExtensionConfigProvider;
+        private readonly IConfigValidator _configValidator;
         private readonly IOptionsMonitor<ServiceFabricDiscoveryOptions> _optionsMonitor;
 
         /// <summary>
@@ -35,11 +37,13 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             ILogger<Discoverer> logger,
             IServiceFabricCaller serviceFabricCaller,
             IServiceExtensionLabelsProvider serviceFabricExtensionConfigProvider,
+            IConfigValidator configValidator,
             IOptionsMonitor<ServiceFabricDiscoveryOptions> optionsMonitor)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _serviceFabricCaller = serviceFabricCaller ?? throw new ArgumentNullException(nameof(serviceFabricCaller));
             _serviceFabricExtensionConfigProvider = serviceFabricExtensionConfigProvider ?? throw new ArgumentNullException(nameof(serviceFabricExtensionConfigProvider));
+            _configValidator = configValidator ?? throw new ArgumentNullException(nameof(configValidator));
             _optionsMonitor = optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
         }
 
@@ -101,12 +105,32 @@ namespace Microsoft.ReverseProxy.ServiceFabric
 
                         var cluster = LabelsParser.BuildCluster(service.ServiceName, serviceExtensionLabels);
                         await DiscoverDestinationsAsync(cluster, options, service, serviceExtensionLabels, cancellation);
+                        var clusterValidationErrors = await _configValidator.ValidateClusterAsync(cluster);
+                        if (clusterValidationErrors.Count > 0)
+                        {
+                            throw new ConfigException($"Skipping cluster id '{cluster.Id} due to validation errors.", new AggregateException(clusterValidationErrors));
+                        }
+
                         if (!discoveredBackends.TryAdd(cluster.Id, cluster))
                         {
                             throw new ConfigException($"Duplicated cluster id '{cluster.Id}'. Skipping repeated definition, service '{service.ServiceName}'");
                         }
 
                         var routes = LabelsParser.BuildRoutes(service.ServiceName, serviceExtensionLabels);
+                        var routeValidationErrors = new List<Exception>();
+                        foreach (var route in routes)
+                        {
+                            routeValidationErrors.AddRange(await _configValidator.ValidateRouteAsync(route));
+                        }
+
+                        if (routeValidationErrors.Count > 0)
+                        {
+                            // Don't add ANY routes if even a single one is bad. Trying to add partial routes
+                            // could lead to unexpected results (e.g. a typo in the configuration of higher-priority route
+                            // could lead to a lower-priority route being selected for requests it should not be handling).
+                            throw new ConfigException($"Skipping ALL routes for cluster id '{cluster.Id} due to validation errors.", new AggregateException(routeValidationErrors));
+                        }
+
                         discoveredRoutes.AddRange(routes);
 
                         ReportServiceHealth(options, service.ServiceName, HealthState.Ok, $"Successfully built cluster '{cluster.Id}' with {routes.Count} routes.");

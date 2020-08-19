@@ -4,7 +4,6 @@
 using System;
 using Autofac.Core;
 using Autofac.Extras.Moq;
-using Microsoft.ReverseProxy.Utilities;
 using Moq;
 
 namespace Tests.Common

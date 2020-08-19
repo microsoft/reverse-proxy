@@ -151,8 +151,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                 HealthCheckOptions = new HealthCheckOptions
                 {
                     Enabled = GetLabel(labels, "IslandGateway.Backend.Healthcheck.Enabled", false),
-                    Interval = GetLabel<TimeSpanIso8601>(labels, "IslandGateway.Backend.Healthcheck.Interval", TimeSpan.Zero),
-                    Timeout = GetLabel<TimeSpanIso8601>(labels, "IslandGateway.Backend.Healthcheck.Timeout", TimeSpan.Zero),
+                    Interval = TimeSpan.FromSeconds(GetLabel<double>(labels, "IslandGateway.Backend.Healthcheck.Interval", 0)),
+                    Timeout = TimeSpan.FromSeconds(GetLabel<double>(labels, "IslandGateway.Backend.Healthcheck.Timeout", 0)),
                     Port = GetLabel<int?>(labels, "IslandGateway.Backend.Healthcheck.Port", null),
                     Path = GetLabel<string>(labels, "IslandGateway.Backend.Healthcheck.Path", null),
                 },
