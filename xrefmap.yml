@@ -92,6 +92,25 @@ references:
   commentId: N:Microsoft.Extensions.DependencyInjection
   fullName: Microsoft.Extensions.DependencyInjection
   nameWithType: Microsoft.Extensions.DependencyInjection
+- uid: Microsoft.Extensions.DependencyInjection.IReverseProxyBuilder
+  name: IReverseProxyBuilder
+  href: api/Microsoft.Extensions.DependencyInjection.IReverseProxyBuilder.html
+  commentId: T:Microsoft.Extensions.DependencyInjection.IReverseProxyBuilder
+  fullName: Microsoft.Extensions.DependencyInjection.IReverseProxyBuilder
+  nameWithType: IReverseProxyBuilder
+- uid: Microsoft.Extensions.DependencyInjection.IReverseProxyBuilder.Services
+  name: Services
+  href: api/Microsoft.Extensions.DependencyInjection.IReverseProxyBuilder.html#Microsoft_Extensions_DependencyInjection_IReverseProxyBuilder_Services
+  commentId: P:Microsoft.Extensions.DependencyInjection.IReverseProxyBuilder.Services
+  fullName: Microsoft.Extensions.DependencyInjection.IReverseProxyBuilder.Services
+  nameWithType: IReverseProxyBuilder.Services
+- uid: Microsoft.Extensions.DependencyInjection.IReverseProxyBuilder.Services*
+  name: Services
+  href: api/Microsoft.Extensions.DependencyInjection.IReverseProxyBuilder.html#Microsoft_Extensions_DependencyInjection_IReverseProxyBuilder_Services_
+  commentId: Overload:Microsoft.Extensions.DependencyInjection.IReverseProxyBuilder.Services
+  isSpec: "True"
+  fullName: Microsoft.Extensions.DependencyInjection.IReverseProxyBuilder.Services
+  nameWithType: IReverseProxyBuilder.Services
 - uid: Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions
   name: ReverseProxyServiceCollectionExtensions
   href: api/Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.html
@@ -105,13 +124,13 @@ references:
   isSpec: "True"
   fullName: Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.AddProxyConfigFilter
   nameWithType: ReverseProxyServiceCollectionExtensions.AddProxyConfigFilter
-- uid: Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.AddProxyConfigFilter``1(Microsoft.ReverseProxy.Configuration.DependencyInjection.IReverseProxyBuilder)
+- uid: Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.AddProxyConfigFilter``1(Microsoft.Extensions.DependencyInjection.IReverseProxyBuilder)
   name: AddProxyConfigFilter<TService>(IReverseProxyBuilder)
-  href: api/Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.html#Microsoft_Extensions_DependencyInjection_ReverseProxyServiceCollectionExtensions_AddProxyConfigFilter__1_Microsoft_ReverseProxy_Configuration_DependencyInjection_IReverseProxyBuilder_
-  commentId: M:Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.AddProxyConfigFilter``1(Microsoft.ReverseProxy.Configuration.DependencyInjection.IReverseProxyBuilder)
+  href: api/Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.html#Microsoft_Extensions_DependencyInjection_ReverseProxyServiceCollectionExtensions_AddProxyConfigFilter__1_Microsoft_Extensions_DependencyInjection_IReverseProxyBuilder_
+  commentId: M:Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.AddProxyConfigFilter``1(Microsoft.Extensions.DependencyInjection.IReverseProxyBuilder)
   name.vb: AddProxyConfigFilter(Of TService)(IReverseProxyBuilder)
-  fullName: Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.AddProxyConfigFilter<TService>(Microsoft.ReverseProxy.Configuration.DependencyInjection.IReverseProxyBuilder)
-  fullName.vb: Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.AddProxyConfigFilter(Of TService)(Microsoft.ReverseProxy.Configuration.DependencyInjection.IReverseProxyBuilder)
+  fullName: Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.AddProxyConfigFilter<TService>(Microsoft.Extensions.DependencyInjection.IReverseProxyBuilder)
+  fullName.vb: Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.AddProxyConfigFilter(Of TService)(Microsoft.Extensions.DependencyInjection.IReverseProxyBuilder)
   nameWithType: ReverseProxyServiceCollectionExtensions.AddProxyConfigFilter<TService>(IReverseProxyBuilder)
   nameWithType.vb: ReverseProxyServiceCollectionExtensions.AddProxyConfigFilter(Of TService)(IReverseProxyBuilder)
 - uid: Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.AddReverseProxy(Microsoft.Extensions.DependencyInjection.IServiceCollection)
@@ -127,11 +146,11 @@ references:
   isSpec: "True"
   fullName: Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.AddReverseProxy
   nameWithType: ReverseProxyServiceCollectionExtensions.AddReverseProxy
-- uid: Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.LoadFromConfig(Microsoft.ReverseProxy.Configuration.DependencyInjection.IReverseProxyBuilder,Microsoft.Extensions.Configuration.IConfiguration)
+- uid: Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.LoadFromConfig(Microsoft.Extensions.DependencyInjection.IReverseProxyBuilder,Microsoft.Extensions.Configuration.IConfiguration)
   name: LoadFromConfig(IReverseProxyBuilder, IConfiguration)
-  href: api/Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.html#Microsoft_Extensions_DependencyInjection_ReverseProxyServiceCollectionExtensions_LoadFromConfig_Microsoft_ReverseProxy_Configuration_DependencyInjection_IReverseProxyBuilder_Microsoft_Extensions_Configuration_IConfiguration_
-  commentId: M:Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.LoadFromConfig(Microsoft.ReverseProxy.Configuration.DependencyInjection.IReverseProxyBuilder,Microsoft.Extensions.Configuration.IConfiguration)
-  fullName: Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.LoadFromConfig(Microsoft.ReverseProxy.Configuration.DependencyInjection.IReverseProxyBuilder, Microsoft.Extensions.Configuration.IConfiguration)
+  href: api/Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.html#Microsoft_Extensions_DependencyInjection_ReverseProxyServiceCollectionExtensions_LoadFromConfig_Microsoft_Extensions_DependencyInjection_IReverseProxyBuilder_Microsoft_Extensions_Configuration_IConfiguration_
+  commentId: M:Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.LoadFromConfig(Microsoft.Extensions.DependencyInjection.IReverseProxyBuilder,Microsoft.Extensions.Configuration.IConfiguration)
+  fullName: Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.LoadFromConfig(Microsoft.Extensions.DependencyInjection.IReverseProxyBuilder, Microsoft.Extensions.Configuration.IConfiguration)
   nameWithType: ReverseProxyServiceCollectionExtensions.LoadFromConfig(IReverseProxyBuilder, IConfiguration)
 - uid: Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.LoadFromConfig*
   name: LoadFromConfig
@@ -608,95 +627,6 @@ references:
   isSpec: "True"
   fullName: Microsoft.ReverseProxy.Abstractions.HealthCheckOptions.Timeout
   nameWithType: HealthCheckOptions.Timeout
-- uid: Microsoft.ReverseProxy.Abstractions.IClustersRepo
-  name: IClustersRepo
-  href: api/Microsoft.ReverseProxy.Abstractions.IClustersRepo.html
-  commentId: T:Microsoft.ReverseProxy.Abstractions.IClustersRepo
-  fullName: Microsoft.ReverseProxy.Abstractions.IClustersRepo
-  nameWithType: IClustersRepo
-- uid: Microsoft.ReverseProxy.Abstractions.IClustersRepo.GetClustersAsync(System.Threading.CancellationToken)
-  name: GetClustersAsync(CancellationToken)
-  href: api/Microsoft.ReverseProxy.Abstractions.IClustersRepo.html#Microsoft_ReverseProxy_Abstractions_IClustersRepo_GetClustersAsync_System_Threading_CancellationToken_
-  commentId: M:Microsoft.ReverseProxy.Abstractions.IClustersRepo.GetClustersAsync(System.Threading.CancellationToken)
-  fullName: Microsoft.ReverseProxy.Abstractions.IClustersRepo.GetClustersAsync(System.Threading.CancellationToken)
-  nameWithType: IClustersRepo.GetClustersAsync(CancellationToken)
-- uid: Microsoft.ReverseProxy.Abstractions.IClustersRepo.GetClustersAsync*
-  name: GetClustersAsync
-  href: api/Microsoft.ReverseProxy.Abstractions.IClustersRepo.html#Microsoft_ReverseProxy_Abstractions_IClustersRepo_GetClustersAsync_
-  commentId: Overload:Microsoft.ReverseProxy.Abstractions.IClustersRepo.GetClustersAsync
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Abstractions.IClustersRepo.GetClustersAsync
-  nameWithType: IClustersRepo.GetClustersAsync
-- uid: Microsoft.ReverseProxy.Abstractions.IClustersRepo.SetClustersAsync(System.Collections.Generic.IDictionary{System.String,Microsoft.ReverseProxy.Abstractions.Cluster},System.Threading.CancellationToken)
-  name: SetClustersAsync(IDictionary<String, Cluster>, CancellationToken)
-  href: api/Microsoft.ReverseProxy.Abstractions.IClustersRepo.html#Microsoft_ReverseProxy_Abstractions_IClustersRepo_SetClustersAsync_System_Collections_Generic_IDictionary_System_String_Microsoft_ReverseProxy_Abstractions_Cluster__System_Threading_CancellationToken_
-  commentId: M:Microsoft.ReverseProxy.Abstractions.IClustersRepo.SetClustersAsync(System.Collections.Generic.IDictionary{System.String,Microsoft.ReverseProxy.Abstractions.Cluster},System.Threading.CancellationToken)
-  name.vb: SetClustersAsync(IDictionary(Of String, Cluster), CancellationToken)
-  fullName: Microsoft.ReverseProxy.Abstractions.IClustersRepo.SetClustersAsync(System.Collections.Generic.IDictionary<System.String, Microsoft.ReverseProxy.Abstractions.Cluster>, System.Threading.CancellationToken)
-  fullName.vb: Microsoft.ReverseProxy.Abstractions.IClustersRepo.SetClustersAsync(System.Collections.Generic.IDictionary(Of System.String, Microsoft.ReverseProxy.Abstractions.Cluster), System.Threading.CancellationToken)
-  nameWithType: IClustersRepo.SetClustersAsync(IDictionary<String, Cluster>, CancellationToken)
-  nameWithType.vb: IClustersRepo.SetClustersAsync(IDictionary(Of String, Cluster), CancellationToken)
-- uid: Microsoft.ReverseProxy.Abstractions.IClustersRepo.SetClustersAsync*
-  name: SetClustersAsync
-  href: api/Microsoft.ReverseProxy.Abstractions.IClustersRepo.html#Microsoft_ReverseProxy_Abstractions_IClustersRepo_SetClustersAsync_
-  commentId: Overload:Microsoft.ReverseProxy.Abstractions.IClustersRepo.SetClustersAsync
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Abstractions.IClustersRepo.SetClustersAsync
-  nameWithType: IClustersRepo.SetClustersAsync
-- uid: Microsoft.ReverseProxy.Abstractions.IReverseProxyConfigManager
-  name: IReverseProxyConfigManager
-  href: api/Microsoft.ReverseProxy.Abstractions.IReverseProxyConfigManager.html
-  commentId: T:Microsoft.ReverseProxy.Abstractions.IReverseProxyConfigManager
-  fullName: Microsoft.ReverseProxy.Abstractions.IReverseProxyConfigManager
-  nameWithType: IReverseProxyConfigManager
-- uid: Microsoft.ReverseProxy.Abstractions.IReverseProxyConfigManager.ApplyConfigurationsAsync(System.Threading.CancellationToken)
-  name: ApplyConfigurationsAsync(CancellationToken)
-  href: api/Microsoft.ReverseProxy.Abstractions.IReverseProxyConfigManager.html#Microsoft_ReverseProxy_Abstractions_IReverseProxyConfigManager_ApplyConfigurationsAsync_System_Threading_CancellationToken_
-  commentId: M:Microsoft.ReverseProxy.Abstractions.IReverseProxyConfigManager.ApplyConfigurationsAsync(System.Threading.CancellationToken)
-  fullName: Microsoft.ReverseProxy.Abstractions.IReverseProxyConfigManager.ApplyConfigurationsAsync(System.Threading.CancellationToken)
-  nameWithType: IReverseProxyConfigManager.ApplyConfigurationsAsync(CancellationToken)
-- uid: Microsoft.ReverseProxy.Abstractions.IReverseProxyConfigManager.ApplyConfigurationsAsync*
-  name: ApplyConfigurationsAsync
-  href: api/Microsoft.ReverseProxy.Abstractions.IReverseProxyConfigManager.html#Microsoft_ReverseProxy_Abstractions_IReverseProxyConfigManager_ApplyConfigurationsAsync_
-  commentId: Overload:Microsoft.ReverseProxy.Abstractions.IReverseProxyConfigManager.ApplyConfigurationsAsync
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Abstractions.IReverseProxyConfigManager.ApplyConfigurationsAsync
-  nameWithType: IReverseProxyConfigManager.ApplyConfigurationsAsync
-- uid: Microsoft.ReverseProxy.Abstractions.IRoutesRepo
-  name: IRoutesRepo
-  href: api/Microsoft.ReverseProxy.Abstractions.IRoutesRepo.html
-  commentId: T:Microsoft.ReverseProxy.Abstractions.IRoutesRepo
-  fullName: Microsoft.ReverseProxy.Abstractions.IRoutesRepo
-  nameWithType: IRoutesRepo
-- uid: Microsoft.ReverseProxy.Abstractions.IRoutesRepo.GetRoutesAsync(System.Threading.CancellationToken)
-  name: GetRoutesAsync(CancellationToken)
-  href: api/Microsoft.ReverseProxy.Abstractions.IRoutesRepo.html#Microsoft_ReverseProxy_Abstractions_IRoutesRepo_GetRoutesAsync_System_Threading_CancellationToken_
-  commentId: M:Microsoft.ReverseProxy.Abstractions.IRoutesRepo.GetRoutesAsync(System.Threading.CancellationToken)
-  fullName: Microsoft.ReverseProxy.Abstractions.IRoutesRepo.GetRoutesAsync(System.Threading.CancellationToken)
-  nameWithType: IRoutesRepo.GetRoutesAsync(CancellationToken)
-- uid: Microsoft.ReverseProxy.Abstractions.IRoutesRepo.GetRoutesAsync*
-  name: GetRoutesAsync
-  href: api/Microsoft.ReverseProxy.Abstractions.IRoutesRepo.html#Microsoft_ReverseProxy_Abstractions_IRoutesRepo_GetRoutesAsync_
-  commentId: Overload:Microsoft.ReverseProxy.Abstractions.IRoutesRepo.GetRoutesAsync
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Abstractions.IRoutesRepo.GetRoutesAsync
-  nameWithType: IRoutesRepo.GetRoutesAsync
-- uid: Microsoft.ReverseProxy.Abstractions.IRoutesRepo.SetRoutesAsync(System.Collections.Generic.IList{Microsoft.ReverseProxy.Abstractions.ProxyRoute},System.Threading.CancellationToken)
-  name: SetRoutesAsync(IList<ProxyRoute>, CancellationToken)
-  href: api/Microsoft.ReverseProxy.Abstractions.IRoutesRepo.html#Microsoft_ReverseProxy_Abstractions_IRoutesRepo_SetRoutesAsync_System_Collections_Generic_IList_Microsoft_ReverseProxy_Abstractions_ProxyRoute__System_Threading_CancellationToken_
-  commentId: M:Microsoft.ReverseProxy.Abstractions.IRoutesRepo.SetRoutesAsync(System.Collections.Generic.IList{Microsoft.ReverseProxy.Abstractions.ProxyRoute},System.Threading.CancellationToken)
-  name.vb: SetRoutesAsync(IList(Of ProxyRoute), CancellationToken)
-  fullName: Microsoft.ReverseProxy.Abstractions.IRoutesRepo.SetRoutesAsync(System.Collections.Generic.IList<Microsoft.ReverseProxy.Abstractions.ProxyRoute>, System.Threading.CancellationToken)
-  fullName.vb: Microsoft.ReverseProxy.Abstractions.IRoutesRepo.SetRoutesAsync(System.Collections.Generic.IList(Of Microsoft.ReverseProxy.Abstractions.ProxyRoute), System.Threading.CancellationToken)
-  nameWithType: IRoutesRepo.SetRoutesAsync(IList<ProxyRoute>, CancellationToken)
-  nameWithType.vb: IRoutesRepo.SetRoutesAsync(IList(Of ProxyRoute), CancellationToken)
-- uid: Microsoft.ReverseProxy.Abstractions.IRoutesRepo.SetRoutesAsync*
-  name: SetRoutesAsync
-  href: api/Microsoft.ReverseProxy.Abstractions.IRoutesRepo.html#Microsoft_ReverseProxy_Abstractions_IRoutesRepo_SetRoutesAsync_
-  commentId: Overload:Microsoft.ReverseProxy.Abstractions.IRoutesRepo.SetRoutesAsync
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Abstractions.IRoutesRepo.SetRoutesAsync
-  nameWithType: IRoutesRepo.SetRoutesAsync
 - uid: Microsoft.ReverseProxy.Abstractions.LoadBalancingMode
   name: LoadBalancingMode
   href: api/Microsoft.ReverseProxy.Abstractions.LoadBalancingMode.html
@@ -1139,31 +1069,6 @@ references:
   isSpec: "True"
   fullName: Microsoft.ReverseProxy.Abstractions.Time.IMonotonicTimer.DelayUntil
   nameWithType: IMonotonicTimer.DelayUntil
-- uid: Microsoft.ReverseProxy.Configuration.DependencyInjection
-  name: Microsoft.ReverseProxy.Configuration.DependencyInjection
-  href: api/Microsoft.ReverseProxy.Configuration.DependencyInjection.html
-  commentId: N:Microsoft.ReverseProxy.Configuration.DependencyInjection
-  fullName: Microsoft.ReverseProxy.Configuration.DependencyInjection
-  nameWithType: Microsoft.ReverseProxy.Configuration.DependencyInjection
-- uid: Microsoft.ReverseProxy.Configuration.DependencyInjection.IReverseProxyBuilder
-  name: IReverseProxyBuilder
-  href: api/Microsoft.ReverseProxy.Configuration.DependencyInjection.IReverseProxyBuilder.html
-  commentId: T:Microsoft.ReverseProxy.Configuration.DependencyInjection.IReverseProxyBuilder
-  fullName: Microsoft.ReverseProxy.Configuration.DependencyInjection.IReverseProxyBuilder
-  nameWithType: IReverseProxyBuilder
-- uid: Microsoft.ReverseProxy.Configuration.DependencyInjection.IReverseProxyBuilder.Services
-  name: Services
-  href: api/Microsoft.ReverseProxy.Configuration.DependencyInjection.IReverseProxyBuilder.html#Microsoft_ReverseProxy_Configuration_DependencyInjection_IReverseProxyBuilder_Services
-  commentId: P:Microsoft.ReverseProxy.Configuration.DependencyInjection.IReverseProxyBuilder.Services
-  fullName: Microsoft.ReverseProxy.Configuration.DependencyInjection.IReverseProxyBuilder.Services
-  nameWithType: IReverseProxyBuilder.Services
-- uid: Microsoft.ReverseProxy.Configuration.DependencyInjection.IReverseProxyBuilder.Services*
-  name: Services
-  href: api/Microsoft.ReverseProxy.Configuration.DependencyInjection.IReverseProxyBuilder.html#Microsoft_ReverseProxy_Configuration_DependencyInjection_IReverseProxyBuilder_Services_
-  commentId: Overload:Microsoft.ReverseProxy.Configuration.DependencyInjection.IReverseProxyBuilder.Services
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Configuration.DependencyInjection.IReverseProxyBuilder.Services
-  nameWithType: IReverseProxyBuilder.Services
 - uid: Microsoft.ReverseProxy.Middleware
   name: Microsoft.ReverseProxy.Middleware
   href: api/Microsoft.ReverseProxy.Middleware.html
@@ -1814,50 +1719,83 @@ references:
   commentId: N:Microsoft.ReverseProxy.Service
   fullName: Microsoft.ReverseProxy.Service
   nameWithType: Microsoft.ReverseProxy.Service
-- uid: Microsoft.ReverseProxy.Service.Config
-  name: Microsoft.ReverseProxy.Service.Config
-  href: api/Microsoft.ReverseProxy.Service.Config.html
-  commentId: N:Microsoft.ReverseProxy.Service.Config
-  fullName: Microsoft.ReverseProxy.Service.Config
-  nameWithType: Microsoft.ReverseProxy.Service.Config
-- uid: Microsoft.ReverseProxy.Service.Config.ITransformBuilder
-  name: ITransformBuilder
-  href: api/Microsoft.ReverseProxy.Service.Config.ITransformBuilder.html
-  commentId: T:Microsoft.ReverseProxy.Service.Config.ITransformBuilder
-  fullName: Microsoft.ReverseProxy.Service.Config.ITransformBuilder
-  nameWithType: ITransformBuilder
-- uid: Microsoft.ReverseProxy.Service.Config.ITransformBuilder.Build(System.Collections.Generic.IList{System.Collections.Generic.IDictionary{System.String,System.String}})
-  name: Build(IList<IDictionary<String, String>>)
-  href: api/Microsoft.ReverseProxy.Service.Config.ITransformBuilder.html#Microsoft_ReverseProxy_Service_Config_ITransformBuilder_Build_System_Collections_Generic_IList_System_Collections_Generic_IDictionary_System_String_System_String___
-  commentId: M:Microsoft.ReverseProxy.Service.Config.ITransformBuilder.Build(System.Collections.Generic.IList{System.Collections.Generic.IDictionary{System.String,System.String}})
-  name.vb: Build(IList(Of IDictionary(Of String, String)))
-  fullName: Microsoft.ReverseProxy.Service.Config.ITransformBuilder.Build(System.Collections.Generic.IList<System.Collections.Generic.IDictionary<System.String, System.String>>)
-  fullName.vb: Microsoft.ReverseProxy.Service.Config.ITransformBuilder.Build(System.Collections.Generic.IList(Of System.Collections.Generic.IDictionary(Of System.String, System.String)))
-  nameWithType: ITransformBuilder.Build(IList<IDictionary<String, String>>)
-  nameWithType.vb: ITransformBuilder.Build(IList(Of IDictionary(Of String, String)))
-- uid: Microsoft.ReverseProxy.Service.Config.ITransformBuilder.Build*
-  name: Build
-  href: api/Microsoft.ReverseProxy.Service.Config.ITransformBuilder.html#Microsoft_ReverseProxy_Service_Config_ITransformBuilder_Build_
-  commentId: Overload:Microsoft.ReverseProxy.Service.Config.ITransformBuilder.Build
+- uid: Microsoft.ReverseProxy.Service.IConfigValidator
+  name: IConfigValidator
+  href: api/Microsoft.ReverseProxy.Service.IConfigValidator.html
+  commentId: T:Microsoft.ReverseProxy.Service.IConfigValidator
+  fullName: Microsoft.ReverseProxy.Service.IConfigValidator
+  nameWithType: IConfigValidator
+- uid: Microsoft.ReverseProxy.Service.IConfigValidator.ValidateClusterAsync(Microsoft.ReverseProxy.Abstractions.Cluster)
+  name: ValidateClusterAsync(Cluster)
+  href: api/Microsoft.ReverseProxy.Service.IConfigValidator.html#Microsoft_ReverseProxy_Service_IConfigValidator_ValidateClusterAsync_Microsoft_ReverseProxy_Abstractions_Cluster_
+  commentId: M:Microsoft.ReverseProxy.Service.IConfigValidator.ValidateClusterAsync(Microsoft.ReverseProxy.Abstractions.Cluster)
+  fullName: Microsoft.ReverseProxy.Service.IConfigValidator.ValidateClusterAsync(Microsoft.ReverseProxy.Abstractions.Cluster)
+  nameWithType: IConfigValidator.ValidateClusterAsync(Cluster)
+- uid: Microsoft.ReverseProxy.Service.IConfigValidator.ValidateClusterAsync*
+  name: ValidateClusterAsync
+  href: api/Microsoft.ReverseProxy.Service.IConfigValidator.html#Microsoft_ReverseProxy_Service_IConfigValidator_ValidateClusterAsync_
+  commentId: Overload:Microsoft.ReverseProxy.Service.IConfigValidator.ValidateClusterAsync
   isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Service.Config.ITransformBuilder.Build
-  nameWithType: ITransformBuilder.Build
-- uid: Microsoft.ReverseProxy.Service.Config.ITransformBuilder.Validate(System.Collections.Generic.IList{System.Collections.Generic.IDictionary{System.String,System.String}},System.String)
-  name: Validate(IList<IDictionary<String, String>>, String)
-  href: api/Microsoft.ReverseProxy.Service.Config.ITransformBuilder.html#Microsoft_ReverseProxy_Service_Config_ITransformBuilder_Validate_System_Collections_Generic_IList_System_Collections_Generic_IDictionary_System_String_System_String___System_String_
-  commentId: M:Microsoft.ReverseProxy.Service.Config.ITransformBuilder.Validate(System.Collections.Generic.IList{System.Collections.Generic.IDictionary{System.String,System.String}},System.String)
-  name.vb: Validate(IList(Of IDictionary(Of String, String)), String)
-  fullName: Microsoft.ReverseProxy.Service.Config.ITransformBuilder.Validate(System.Collections.Generic.IList<System.Collections.Generic.IDictionary<System.String, System.String>>, System.String)
-  fullName.vb: Microsoft.ReverseProxy.Service.Config.ITransformBuilder.Validate(System.Collections.Generic.IList(Of System.Collections.Generic.IDictionary(Of System.String, System.String)), System.String)
-  nameWithType: ITransformBuilder.Validate(IList<IDictionary<String, String>>, String)
-  nameWithType.vb: ITransformBuilder.Validate(IList(Of IDictionary(Of String, String)), String)
-- uid: Microsoft.ReverseProxy.Service.Config.ITransformBuilder.Validate*
-  name: Validate
-  href: api/Microsoft.ReverseProxy.Service.Config.ITransformBuilder.html#Microsoft_ReverseProxy_Service_Config_ITransformBuilder_Validate_
-  commentId: Overload:Microsoft.ReverseProxy.Service.Config.ITransformBuilder.Validate
+  fullName: Microsoft.ReverseProxy.Service.IConfigValidator.ValidateClusterAsync
+  nameWithType: IConfigValidator.ValidateClusterAsync
+- uid: Microsoft.ReverseProxy.Service.IConfigValidator.ValidateRouteAsync(Microsoft.ReverseProxy.Abstractions.ProxyRoute)
+  name: ValidateRouteAsync(ProxyRoute)
+  href: api/Microsoft.ReverseProxy.Service.IConfigValidator.html#Microsoft_ReverseProxy_Service_IConfigValidator_ValidateRouteAsync_Microsoft_ReverseProxy_Abstractions_ProxyRoute_
+  commentId: M:Microsoft.ReverseProxy.Service.IConfigValidator.ValidateRouteAsync(Microsoft.ReverseProxy.Abstractions.ProxyRoute)
+  fullName: Microsoft.ReverseProxy.Service.IConfigValidator.ValidateRouteAsync(Microsoft.ReverseProxy.Abstractions.ProxyRoute)
+  nameWithType: IConfigValidator.ValidateRouteAsync(ProxyRoute)
+- uid: Microsoft.ReverseProxy.Service.IConfigValidator.ValidateRouteAsync*
+  name: ValidateRouteAsync
+  href: api/Microsoft.ReverseProxy.Service.IConfigValidator.html#Microsoft_ReverseProxy_Service_IConfigValidator_ValidateRouteAsync_
+  commentId: Overload:Microsoft.ReverseProxy.Service.IConfigValidator.ValidateRouteAsync
   isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Service.Config.ITransformBuilder.Validate
-  nameWithType: ITransformBuilder.Validate
+  fullName: Microsoft.ReverseProxy.Service.IConfigValidator.ValidateRouteAsync
+  nameWithType: IConfigValidator.ValidateRouteAsync
+- uid: Microsoft.ReverseProxy.Service.IProxyConfig
+  name: IProxyConfig
+  href: api/Microsoft.ReverseProxy.Service.IProxyConfig.html
+  commentId: T:Microsoft.ReverseProxy.Service.IProxyConfig
+  fullName: Microsoft.ReverseProxy.Service.IProxyConfig
+  nameWithType: IProxyConfig
+- uid: Microsoft.ReverseProxy.Service.IProxyConfig.ChangeToken
+  name: ChangeToken
+  href: api/Microsoft.ReverseProxy.Service.IProxyConfig.html#Microsoft_ReverseProxy_Service_IProxyConfig_ChangeToken
+  commentId: P:Microsoft.ReverseProxy.Service.IProxyConfig.ChangeToken
+  fullName: Microsoft.ReverseProxy.Service.IProxyConfig.ChangeToken
+  nameWithType: IProxyConfig.ChangeToken
+- uid: Microsoft.ReverseProxy.Service.IProxyConfig.ChangeToken*
+  name: ChangeToken
+  href: api/Microsoft.ReverseProxy.Service.IProxyConfig.html#Microsoft_ReverseProxy_Service_IProxyConfig_ChangeToken_
+  commentId: Overload:Microsoft.ReverseProxy.Service.IProxyConfig.ChangeToken
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.IProxyConfig.ChangeToken
+  nameWithType: IProxyConfig.ChangeToken
+- uid: Microsoft.ReverseProxy.Service.IProxyConfig.Clusters
+  name: Clusters
+  href: api/Microsoft.ReverseProxy.Service.IProxyConfig.html#Microsoft_ReverseProxy_Service_IProxyConfig_Clusters
+  commentId: P:Microsoft.ReverseProxy.Service.IProxyConfig.Clusters
+  fullName: Microsoft.ReverseProxy.Service.IProxyConfig.Clusters
+  nameWithType: IProxyConfig.Clusters
+- uid: Microsoft.ReverseProxy.Service.IProxyConfig.Clusters*
+  name: Clusters
+  href: api/Microsoft.ReverseProxy.Service.IProxyConfig.html#Microsoft_ReverseProxy_Service_IProxyConfig_Clusters_
+  commentId: Overload:Microsoft.ReverseProxy.Service.IProxyConfig.Clusters
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.IProxyConfig.Clusters
+  nameWithType: IProxyConfig.Clusters
+- uid: Microsoft.ReverseProxy.Service.IProxyConfig.Routes
+  name: Routes
+  href: api/Microsoft.ReverseProxy.Service.IProxyConfig.html#Microsoft_ReverseProxy_Service_IProxyConfig_Routes
+  commentId: P:Microsoft.ReverseProxy.Service.IProxyConfig.Routes
+  fullName: Microsoft.ReverseProxy.Service.IProxyConfig.Routes
+  nameWithType: IProxyConfig.Routes
+- uid: Microsoft.ReverseProxy.Service.IProxyConfig.Routes*
+  name: Routes
+  href: api/Microsoft.ReverseProxy.Service.IProxyConfig.html#Microsoft_ReverseProxy_Service_IProxyConfig_Routes_
+  commentId: Overload:Microsoft.ReverseProxy.Service.IProxyConfig.Routes
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.IProxyConfig.Routes
+  nameWithType: IProxyConfig.Routes
 - uid: Microsoft.ReverseProxy.Service.IProxyConfigFilter
   name: IProxyConfigFilter
   href: api/Microsoft.ReverseProxy.Service.IProxyConfigFilter.html
@@ -1890,6 +1828,63 @@ references:
   isSpec: "True"
   fullName: Microsoft.ReverseProxy.Service.IProxyConfigFilter.ConfigureRouteAsync
   nameWithType: IProxyConfigFilter.ConfigureRouteAsync
+- uid: Microsoft.ReverseProxy.Service.IProxyConfigProvider
+  name: IProxyConfigProvider
+  href: api/Microsoft.ReverseProxy.Service.IProxyConfigProvider.html
+  commentId: T:Microsoft.ReverseProxy.Service.IProxyConfigProvider
+  fullName: Microsoft.ReverseProxy.Service.IProxyConfigProvider
+  nameWithType: IProxyConfigProvider
+- uid: Microsoft.ReverseProxy.Service.IProxyConfigProvider.GetConfig
+  name: GetConfig()
+  href: api/Microsoft.ReverseProxy.Service.IProxyConfigProvider.html#Microsoft_ReverseProxy_Service_IProxyConfigProvider_GetConfig
+  commentId: M:Microsoft.ReverseProxy.Service.IProxyConfigProvider.GetConfig
+  fullName: Microsoft.ReverseProxy.Service.IProxyConfigProvider.GetConfig()
+  nameWithType: IProxyConfigProvider.GetConfig()
+- uid: Microsoft.ReverseProxy.Service.IProxyConfigProvider.GetConfig*
+  name: GetConfig
+  href: api/Microsoft.ReverseProxy.Service.IProxyConfigProvider.html#Microsoft_ReverseProxy_Service_IProxyConfigProvider_GetConfig_
+  commentId: Overload:Microsoft.ReverseProxy.Service.IProxyConfigProvider.GetConfig
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.IProxyConfigProvider.GetConfig
+  nameWithType: IProxyConfigProvider.GetConfig
+- uid: Microsoft.ReverseProxy.Service.ITransformBuilder
+  name: ITransformBuilder
+  href: api/Microsoft.ReverseProxy.Service.ITransformBuilder.html
+  commentId: T:Microsoft.ReverseProxy.Service.ITransformBuilder
+  fullName: Microsoft.ReverseProxy.Service.ITransformBuilder
+  nameWithType: ITransformBuilder
+- uid: Microsoft.ReverseProxy.Service.ITransformBuilder.Build(System.Collections.Generic.IList{System.Collections.Generic.IDictionary{System.String,System.String}})
+  name: Build(IList<IDictionary<String, String>>)
+  href: api/Microsoft.ReverseProxy.Service.ITransformBuilder.html#Microsoft_ReverseProxy_Service_ITransformBuilder_Build_System_Collections_Generic_IList_System_Collections_Generic_IDictionary_System_String_System_String___
+  commentId: M:Microsoft.ReverseProxy.Service.ITransformBuilder.Build(System.Collections.Generic.IList{System.Collections.Generic.IDictionary{System.String,System.String}})
+  name.vb: Build(IList(Of IDictionary(Of String, String)))
+  fullName: Microsoft.ReverseProxy.Service.ITransformBuilder.Build(System.Collections.Generic.IList<System.Collections.Generic.IDictionary<System.String, System.String>>)
+  fullName.vb: Microsoft.ReverseProxy.Service.ITransformBuilder.Build(System.Collections.Generic.IList(Of System.Collections.Generic.IDictionary(Of System.String, System.String)))
+  nameWithType: ITransformBuilder.Build(IList<IDictionary<String, String>>)
+  nameWithType.vb: ITransformBuilder.Build(IList(Of IDictionary(Of String, String)))
+- uid: Microsoft.ReverseProxy.Service.ITransformBuilder.Build*
+  name: Build
+  href: api/Microsoft.ReverseProxy.Service.ITransformBuilder.html#Microsoft_ReverseProxy_Service_ITransformBuilder_Build_
+  commentId: Overload:Microsoft.ReverseProxy.Service.ITransformBuilder.Build
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.ITransformBuilder.Build
+  nameWithType: ITransformBuilder.Build
+- uid: Microsoft.ReverseProxy.Service.ITransformBuilder.Validate(System.Collections.Generic.IList{System.Collections.Generic.IDictionary{System.String,System.String}})
+  name: Validate(IList<IDictionary<String, String>>)
+  href: api/Microsoft.ReverseProxy.Service.ITransformBuilder.html#Microsoft_ReverseProxy_Service_ITransformBuilder_Validate_System_Collections_Generic_IList_System_Collections_Generic_IDictionary_System_String_System_String___
+  commentId: M:Microsoft.ReverseProxy.Service.ITransformBuilder.Validate(System.Collections.Generic.IList{System.Collections.Generic.IDictionary{System.String,System.String}})
+  name.vb: Validate(IList(Of IDictionary(Of String, String)))
+  fullName: Microsoft.ReverseProxy.Service.ITransformBuilder.Validate(System.Collections.Generic.IList<System.Collections.Generic.IDictionary<System.String, System.String>>)
+  fullName.vb: Microsoft.ReverseProxy.Service.ITransformBuilder.Validate(System.Collections.Generic.IList(Of System.Collections.Generic.IDictionary(Of System.String, System.String)))
+  nameWithType: ITransformBuilder.Validate(IList<IDictionary<String, String>>)
+  nameWithType.vb: ITransformBuilder.Validate(IList(Of IDictionary(Of String, String)))
+- uid: Microsoft.ReverseProxy.Service.ITransformBuilder.Validate*
+  name: Validate
+  href: api/Microsoft.ReverseProxy.Service.ITransformBuilder.html#Microsoft_ReverseProxy_Service_ITransformBuilder_Validate_
+  commentId: Overload:Microsoft.ReverseProxy.Service.ITransformBuilder.Validate
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.ITransformBuilder.Validate
+  nameWithType: ITransformBuilder.Validate
 - uid: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions
   name: ProxyRouteTransformExtensions
   href: api/Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.html
