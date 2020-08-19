@@ -41,9 +41,9 @@ When the provider wants to provide new configuration to the proxy it should firs
 There are important differences when reloading configuration vs the first configuration load.
 - The new configuration will be diffed against the current one and only modified routes or clusters will be updated. The update will be applied atomically and will only affect new requests, not request currently in progress.
 - Any errors in the reload process will be logged and suppressed. The application will continue using the last known good configuration.
-- If `GetConfig()` throws the proxy will be unable to listen for future changes because `IChangeToken`s are single use.
+- If `GetConfig()` throws the proxy will be unable to listen for future changes because `IChangeToken`s are single-use.
 
-Once the new configuration has been validated and applied the proxy with register with the new `IChangeToken`. Note if there are multiple reloads signaled in close succession the proxy may skip some and load the next available configuration as soon as it's ready. Each `IProxyConfig` contains the full configuration state so nothing will be lost.
+Once the new configuration has been validated and applied, the proxy will register a callback with the new `IChangeToken`. Note if there are multiple reloads signaled in close succession, the proxy may skip some and load the next available configuration as soon as it's ready. Each `IProxyConfig` contains the full configuration state so nothing will be lost.
 
 ## Example
 The following is an example `IProxyConfigProvider` that has routes and clusters manually loaded into it.
