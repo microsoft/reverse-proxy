@@ -189,7 +189,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                     continue;
                 }
 
-                sortedRoutes.Add((route.Priority ?? 0, route.RouteId), route);
+                sortedRoutes.Add((route.Order ?? 0, route.RouteId), route);
             }
 
             if (errors.Count > 0)

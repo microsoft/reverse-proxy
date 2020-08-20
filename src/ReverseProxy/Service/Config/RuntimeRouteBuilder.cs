@@ -56,7 +56,7 @@ namespace Microsoft.ReverseProxy.Service
             var newRouteConfig = new RouteConfig(
                 runtimeRoute,
                 source.GetConfigHash(),
-                source.Priority,
+                source.Order,
                 cluster,
                 aspNetCoreEndpoints.AsReadOnly(),
                 transforms);
@@ -64,11 +64,11 @@ namespace Microsoft.ReverseProxy.Service
             // Catch-all pattern when no path was specified
             var pathPattern = string.IsNullOrEmpty(source.Match.Path) ? "/{**catchall}" : source.Match.Path;
 
-            // TODO: Propagate route priority
             var endpointBuilder = new AspNetCore.Routing.RouteEndpointBuilder(
                 requestDelegate: _pipeline,
                 routePattern: AspNetCore.Routing.Patterns.RoutePatternFactory.Parse(pathPattern),
-                order: 0);
+                order: source.Order.GetValueOrDefault());
+
             endpointBuilder.DisplayName = source.RouteId;
             endpointBuilder.Metadata.Add(newRouteConfig);
 

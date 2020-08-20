@@ -21,9 +21,9 @@ namespace Microsoft.ReverseProxy.Abstractions
         public ProxyMatch Match { get; private set; } = new ProxyMatch();
 
         /// <summary>
-        /// Optionally, a priority value for this route. Routes with lower numbers take precedence over higher numbers.
+        /// Optionally, an order value for this route. Routes with lower numbers take precedence over higher numbers.
         /// </summary>
-        public int? Priority { get; set; }
+        public int? Order { get; set; }
 
         /// <summary>
         /// Gets or sets the cluster that requests matching this route
@@ -63,7 +63,7 @@ namespace Microsoft.ReverseProxy.Abstractions
             {
                 RouteId = RouteId,
                 Match = Match.DeepClone(),
-                Priority = Priority,
+                Order = Order,
                 ClusterId = ClusterId,
                 AuthorizationPolicy = AuthorizationPolicy,
                 CorsPolicy = CorsPolicy,
@@ -101,9 +101,9 @@ namespace Microsoft.ReverseProxy.Abstractions
                 hash ^= Match.Path.GetHashCode();
             }
 
-            if (Priority.HasValue)
+            if (Order.HasValue)
             {
-                hash ^= Priority.GetHashCode();
+                hash ^= Order.GetHashCode();
             }
 
             if (!string.IsNullOrEmpty(ClusterId))

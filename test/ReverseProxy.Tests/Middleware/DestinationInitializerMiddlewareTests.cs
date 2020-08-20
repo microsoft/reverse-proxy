@@ -50,7 +50,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             var routeConfig = new RouteConfig(
                 new RouteInfo("route1"),
                 configHash: 0,
-                priority: null,
+                order: null,
                 cluster1,
                 aspNetCoreEndpoints.AsReadOnly(),
                 transforms: null);
@@ -97,7 +97,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             var routeConfig = new RouteConfig(
                 route: new RouteInfo("route1"),
                 configHash: 0,
-                priority: null,
+                order: null,
                 cluster: cluster1,
                 aspNetCoreEndpoints: aspNetCoreEndpoints.AsReadOnly(),
                 transforms: null);
