@@ -9,9 +9,9 @@ using Microsoft.ReverseProxy.Abstractions;
 namespace Microsoft.ReverseProxy.ServiceFabric
 {
     /// <summary>
-    /// Discovers Service Fabric services that want to use the Island Gateway and builds the needed abstractions for it.
+    /// Discovers Service Fabric services and builds the corresponding
+    /// <see cref="ProxyRoute"/> and <see cref="Cluster"/> instances that represent them.
     /// </summary>
-    /// <remarks>Implementations should take the Island Gateway's repos in the constructor.</remarks>
     internal interface IDiscoverer
     {
         /// <summary>

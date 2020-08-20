@@ -18,7 +18,7 @@ using Microsoft.ServiceFabric.Services.Communication;
 
 namespace Microsoft.ReverseProxy.ServiceFabric
 {
-    /// <inheritdoc/>
+    /// Default implementation of the <see cref="IDiscoverer"/> class.
     internal class Discoverer : IDiscoverer
     {
         public static readonly string HealthReportSourceId = "IslandGateway";

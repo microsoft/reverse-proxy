@@ -63,7 +63,7 @@ namespace Microsoft.ReverseProxy.Configuration
             lock (_lockObject)
             {
                 Log.LoadData(_logger);
-                var oldToken = _changeToken;
+                using var oldToken = _changeToken;
                 _changeToken = new CancellationTokenSource();
                 _snapshot = new ConfigurationSnapshot()
                 {
