@@ -56,22 +56,22 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         {
             return new Dictionary<string, string>()
             {
-                { "IslandGateway.Enable", enableGateway ? "true" : "false" },
-                { "IslandGateway.Backend.BackendId", backendId },
-                { "IslandGateway.Backend.CircuitBreaker.MaxConcurrentRequests", "42" },
-                { "IslandGateway.Backend.CircuitBreaker.MaxConcurrentRetries", "5" },
-                { "IslandGateway.Backend.Quota.Average", "1.2" },
-                { "IslandGateway.Backend.Quota.Burst", "2.3" },
-                { "IslandGateway.Backend.Partitioning.Count", "5" },
-                { "IslandGateway.Backend.Partitioning.KeyExtractor", "Header('x-ms-organization-id')" },
-                { "IslandGateway.Backend.Partitioning.Algorithm", "SHA256" },
-                { "IslandGateway.Backend.Healthcheck.Interval", "5" },
-                { "IslandGateway.Backend.Healthcheck.Timeout", "5" },
-                { "IslandGateway.Backend.Healthcheck.Port", "8787" },
-                { "IslandGateway.Backend.Healthcheck.Path", "/api/health" },
-                { "IslandGateway.Metadata.Foo", "Bar" },
-                { "IslandGateway.Routes.MyRoute.Hosts", "example.com" },
-                { "IslandGateway.Routes.MyRoute.Priority", "2" },
+                { "YARP.Enable", enableGateway ? "true" : "false" },
+                { "YARP.Backend.BackendId", backendId },
+                { "YARP.Backend.CircuitBreaker.MaxConcurrentRequests", "42" },
+                { "YARP.Backend.CircuitBreaker.MaxConcurrentRetries", "5" },
+                { "YARP.Backend.Quota.Average", "1.2" },
+                { "YARP.Backend.Quota.Burst", "2.3" },
+                { "YARP.Backend.Partitioning.Count", "5" },
+                { "YARP.Backend.Partitioning.KeyExtractor", "Header('x-ms-organization-id')" },
+                { "YARP.Backend.Partitioning.Algorithm", "SHA256" },
+                { "YARP.Backend.Healthcheck.Interval", "5" },
+                { "YARP.Backend.Healthcheck.Timeout", "5" },
+                { "YARP.Backend.Healthcheck.Port", "8787" },
+                { "YARP.Backend.Healthcheck.Path", "/api/health" },
+                { "YARP.Metadata.Foo", "Bar" },
+                { "YARP.Routes.MyRoute.Hosts", "example.com" },
+                { "YARP.Routes.MyRoute.Priority", "2" },
             };
         }
 

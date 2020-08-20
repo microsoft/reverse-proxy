@@ -98,7 +98,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             _scenarioOptions = new ServiceFabricDiscoveryOptions { ReportReplicasHealth = true };
             ApplicationWrapper application;
             Mock_AppsResponse(application = CreateApp_1Service_SingletonPartition_1Replica("MyCoolApp", "MyAwesomeService", out var service, out _));
-            Mock_ServiceLabels(application, service, new Dictionary<string, string>() { { "IslandGateway.Enable", "false" } });
+            Mock_ServiceLabels(application, service, new Dictionary<string, string>() { { "YARP.Enable", "false" } });
 
             // Act
             var (routes, clusters) = await RunScenarioAsync();
@@ -259,8 +259,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         }
 
         [Theory]
-        [InlineData("IslandGateway.Backend.Partitioning.Count", "not a number")]
-        [InlineData("IslandGateway.Backend.Healthcheck.Interval", "not a number")]
+        [InlineData("YARP.Backend.Partitioning.Count", "not a number")]
+        [InlineData("YARP.Backend.Healthcheck.Interval", "not a number")]
         public async void ExecuteAsync_InvalidLabelsForCluster_NoClustersAndBadHealthReported(string keyToOverride, string value)
         {
             // Setup
@@ -285,18 +285,18 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         }
 
         [Theory]
-        [InlineData("IslandGateway.Routes.MyRoute.Hosts", null, true)] // Hosts is mandatory
-        [InlineData("IslandGateway.Routes.MyRoute.Priority", "not a number")]
+        [InlineData("YARP.Routes.MyRoute.Hosts", null, true)] // Hosts is mandatory
+        [InlineData("YARP.Routes.MyRoute.Priority", "not a number")]
         public async void ExecuteAsync_InvalidLabelsForRoutes_NoRoutesAndBadHealthReported(string keyToOverride, string value = null, bool remove = false)
         {
             // Setup
             _scenarioOptions = new ServiceFabricDiscoveryOptions { ReportReplicasHealth = true };
             var labels = new Dictionary<string, string>()
             {
-                { "IslandGateway.Enable", "true" },
-                { "IslandGateway.Backend.BackendId", "SomeClusterId" },
-                { "IslandGateway.Routes.MyRoute.Hosts", "example.com" },
-                { "IslandGateway.Routes.MyRoute.Priority", "2" },
+                { "YARP.Enable", "true" },
+                { "YARP.Backend.BackendId", "SomeClusterId" },
+                { "YARP.Routes.MyRoute.Hosts", "example.com" },
+                { "YARP.Routes.MyRoute.Priority", "2" },
             };
             if (remove)
             {
@@ -338,7 +338,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             _scenarioOptions = new ServiceFabricDiscoveryOptions { ReportReplicasHealth = true };
             const string TestClusterId = "MyService123";
             var labels = SFTestHelpers.DummyLabels(TestClusterId);
-            labels["IslandGateway.Backend.ServiceFabric.ListenerName"] = "UnexistingListener";
+            labels["YARP.Backend.ServiceFabric.ListenerName"] = "UnexistingListener";
             ApplicationWrapper application;
             Mock_AppsResponse(
                 application = CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MyService", out var service, out var replica, serviceKind: ServiceKind.Stateful));
@@ -371,7 +371,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             _scenarioOptions = new ServiceFabricDiscoveryOptions { ReportReplicasHealth = true };
             const string TestClusterId = "MyService123";
             var labels = SFTestHelpers.DummyLabels(TestClusterId);
-            labels["IslandGateway.Backend.ServiceFabric.ListenerName"] = "UnexistingListener";
+            labels["YARP.Backend.ServiceFabric.ListenerName"] = "UnexistingListener";
             ApplicationWrapper application;
             Mock_AppsResponse(
                 application = CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MyService", out var service, out var replica, serviceKind: ServiceKind.Stateless));
@@ -405,7 +405,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             const string TestClusterId = "MyService123";
             const string ServiceName = "fabric:/MyApp/MyService";
             var labels = SFTestHelpers.DummyLabels(TestClusterId);
-            labels["IslandGateway.Backend.ServiceFabric.ListenerName"] = "ExampleTeamEndpoint";
+            labels["YARP.Backend.ServiceFabric.ListenerName"] = "ExampleTeamEndpoint";
             ApplicationWrapper application;
             Mock_AppsResponse(
                 application = CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MyService", out var service, out var replica, serviceKind: ServiceKind.Stateless));
@@ -439,8 +439,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             _scenarioOptions = new ServiceFabricDiscoveryOptions { ReportReplicasHealth = true };
             const string TestClusterId = "MyService123";
             var labels = SFTestHelpers.DummyLabels(TestClusterId);
-            labels["IslandGateway.Backend.ServiceFabric.ListenerName"] = "ExampleTeamEndpoint";
-            labels["IslandGateway.Backend.Healthcheck.ServiceFabric.ListenerName"] = "ExampleTeamHealthEndpoint";
+            labels["YARP.Backend.ServiceFabric.ListenerName"] = "ExampleTeamEndpoint";
+            labels["YARP.Backend.Healthcheck.ServiceFabric.ListenerName"] = "ExampleTeamHealthEndpoint";
             ApplicationWrapper application;
             Mock_AppsResponse(
                 application = CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MyService", out var service, out var replica, serviceKind: ServiceKind.Stateless));
@@ -562,7 +562,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             _scenarioOptions = new ServiceFabricDiscoveryOptions { ReportReplicasHealth = true };
             const string TestClusterId = "MyService123";
             var labels = SFTestHelpers.DummyLabels(TestClusterId);
-            labels["IslandGateway.Backend.ServiceFabric.StatefulReplicaSelectionMode"] = selectionMode;
+            labels["YARP.Backend.ServiceFabric.StatefulReplicaSelectionMode"] = selectionMode;
             ApplicationWrapper application;
             Mock_AppsResponse(application = CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MYService", out var service, out var replica, serviceKind: ServiceKind.Stateful));
             Mock_ServiceLabels(application, service, labels);
@@ -599,7 +599,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             _scenarioOptions = new ServiceFabricDiscoveryOptions { ReportReplicasHealth = true };
             const string TestClusterId = "MyService123";
             var labels = SFTestHelpers.DummyLabels(TestClusterId);
-            labels["IslandGateway.Backend.ServiceFabric.StatefulReplicaSelectionMode"] = selectionMode;
+            labels["YARP.Backend.ServiceFabric.StatefulReplicaSelectionMode"] = selectionMode;
             ApplicationWrapper application;
             Mock_AppsResponse(application = CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MYService", out var service, out var replica, serviceKind: ServiceKind.Stateful));
             Mock_ServiceLabels(application, service, labels);

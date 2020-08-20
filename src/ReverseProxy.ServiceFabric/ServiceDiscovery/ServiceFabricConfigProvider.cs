@@ -70,7 +70,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                     {
                         if (_snapshot == null)
                         {
-                            _logger.LogInformation($"Proceeding without initial Service Fabric discovery results due to ${nameof(_optionsMonitor.CurrentValue.AllowStartBeforeDiscovery)} = true.");
+                            _logger.LogInformation($"Proceeding without initial Service Fabric discovery results due to {nameof(_optionsMonitor.CurrentValue.AllowStartBeforeDiscovery)} = true.");
                             UpdateSnapshot(new List<ProxyRoute>(), new List<Cluster>());
                         }
                     }
@@ -79,7 +79,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                 {
                     // NOTE: The callstack up to this point is already synchronously blocking.
                     // There isn't much we can do to avoid this blocking wait on startup.
-                    _logger.LogInformation($"Waiting for initial Service Fabric discovery results due to ${nameof(_optionsMonitor.CurrentValue.AllowStartBeforeDiscovery)} = false.");
+                    _logger.LogInformation($"Waiting for initial Service Fabric discovery results due to {nameof(_optionsMonitor.CurrentValue.AllowStartBeforeDiscovery)} = false.");
                     _initalConfigLoadTcs.Task.Wait();
                 }
             }
@@ -98,34 +98,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                 await _backgroundTask;
                 _backgroundCts.Dispose();
             }
-        }
-
-        private void UpdateSnapshot(IReadOnlyList<ProxyRoute> routes, IReadOnlyList<Cluster> clusters)
-        {
-            // Prevent overlapping updates
-            lock (_lockObject)
-            {
-                Log.LoadData(_logger);
-                using var oldToken = _changeToken;
-                _changeToken = new CancellationTokenSource();
-                _snapshot = new ConfigurationSnapshot()
-                {
-                    Routes = routes,
-                    Clusters = clusters,
-                    ChangeToken = new CancellationChangeToken(_changeToken.Token)
-                };
-
-                try
-                {
-                    oldToken?.Cancel(throwOnFirstException: false);
-                }
-                catch (Exception ex)
-                {
-                    Log.ErrorSignalingChange(_logger, ex);
-                }
-            }
-
-            _initalConfigLoadTcs.TrySetResult(0);
         }
 
         private async Task ServiceFabricDiscoveryLoop()
@@ -160,8 +132,35 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             }
         }
 
+        private void UpdateSnapshot(IReadOnlyList<ProxyRoute> routes, IReadOnlyList<Cluster> clusters)
+        {
+            // Prevent overlapping updates
+            lock (_lockObject)
+            {
+                using var oldToken = _changeToken;
+                _changeToken = new CancellationTokenSource();
+                _snapshot = new ConfigurationSnapshot()
+                {
+                    Routes = routes,
+                    Clusters = clusters,
+                    ChangeToken = new CancellationChangeToken(_changeToken.Token)
+                };
+
+                try
+                {
+                    oldToken?.Cancel(throwOnFirstException: false);
+                }
+                catch (Exception ex)
+                {
+                    Log.ErrorSignalingChange(_logger, ex);
+                }
+            }
+
+            _initalConfigLoadTcs.TrySetResult(0);
+        }
+
         // TODO: Perhaps YARP should provide this type?
-        private class ConfigurationSnapshot : IProxyConfig
+        private sealed class ConfigurationSnapshot : IProxyConfig
         {
             public IReadOnlyList<ProxyRoute> Routes { get; internal set; }
 
@@ -177,19 +176,9 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                 EventIds.ErrorSignalingChange,
                 "An exception was thrown from the change notification.");
 
-            private static readonly Action<ILogger, Exception> _loadData = LoggerMessage.Define(
-                LogLevel.Information,
-                EventIds.LoadData,
-                "Loading proxy data from config.");
-
             public static void ErrorSignalingChange(ILogger logger, Exception exception)
             {
                 _errorSignalingChange(logger, exception);
-            }
-
-            public static void LoadData(ILogger logger)
-            {
-                _loadData(logger, null);
             }
         }
     }

@@ -121,7 +121,7 @@ namespace Microsoft.ReverseProxy.Abstractions
                 hash ^= CorsPolicy.GetHashCode();
             }
 
-            if (Metadata != null)
+            if (Metadata != null && Metadata.Count > 0)
             {
                 hash ^= Metadata.Select(item => HashCode.Combine(item.Key.GetHashCode(), item.Value.GetHashCode()))
                     .Aggregate((total, nextCode) => total ^ nextCode);

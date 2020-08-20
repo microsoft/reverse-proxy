@@ -55,7 +55,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             var backendId = GetClusterId(serviceName, labels);
 
             // Look for route IDs
-            const string RoutesLabelsPrefix = "IslandGateway.Routes.";
+            const string RoutesLabelsPrefix = "YARP.Routes.";
             var routesNames = new HashSet<string>();
             foreach (var kvp in labels)
             {
@@ -117,7 +117,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
         internal static Cluster BuildCluster(Uri serviceName, Dictionary<string, string> labels)
         {
             var clusterMetadata = new Dictionary<string, string>();
-            const string BackendMetadataKeyPrefix = "IslandGateway.Backend.Metadata.";
+            const string BackendMetadataKeyPrefix = "YARP.Backend.Metadata.";
             foreach (var item in labels)
             {
                 if (item.Key.StartsWith(BackendMetadataKeyPrefix, StringComparison.Ordinal))
@@ -133,28 +133,28 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                 Id = clusterId,
                 CircuitBreakerOptions = new CircuitBreakerOptions
                 {
-                    MaxConcurrentRequests = GetLabel(labels, "IslandGateway.Backend.CircuitBreaker.MaxConcurrentRequests", DefaultCircuitbreakerMaxConcurrentRequests),
-                    MaxConcurrentRetries = GetLabel(labels, "IslandGateway.Backend.CircuitBreaker.MaxConcurrentRetries", DefaultCircuitbreakerMaxConcurrentRequests),
+                    MaxConcurrentRequests = GetLabel(labels, "YARP.Backend.CircuitBreaker.MaxConcurrentRequests", DefaultCircuitbreakerMaxConcurrentRequests),
+                    MaxConcurrentRetries = GetLabel(labels, "YARP.Backend.CircuitBreaker.MaxConcurrentRetries", DefaultCircuitbreakerMaxConcurrentRequests),
                 },
                 QuotaOptions = new QuotaOptions
                 {
-                    Average = GetLabel(labels, "IslandGateway.Backend.Quota.Average", DefaultQuotaAverage),
-                    Burst = GetLabel(labels, "IslandGateway.Backend.Quota.Burst", DefaultQuotaBurst),
+                    Average = GetLabel(labels, "YARP.Backend.Quota.Average", DefaultQuotaAverage),
+                    Burst = GetLabel(labels, "YARP.Backend.Quota.Burst", DefaultQuotaBurst),
                 },
                 PartitioningOptions = new ClusterPartitioningOptions
                 {
-                    PartitionCount = GetLabel(labels, "IslandGateway.Backend.Partitioning.Count", DefaultPartitionCount),
-                    PartitionKeyExtractor = GetLabel(labels, "IslandGateway.Backend.Partitioning.KeyExtractor", DefaultPartitionKeyExtractor),
-                    PartitioningAlgorithm = GetLabel(labels, "IslandGateway.Backend.Partitioning.Algorithm", DefaultPartitioningAlgorithm),
+                    PartitionCount = GetLabel(labels, "YARP.Backend.Partitioning.Count", DefaultPartitionCount),
+                    PartitionKeyExtractor = GetLabel(labels, "YARP.Backend.Partitioning.KeyExtractor", DefaultPartitionKeyExtractor),
+                    PartitioningAlgorithm = GetLabel(labels, "YARP.Backend.Partitioning.Algorithm", DefaultPartitioningAlgorithm),
                 },
                 LoadBalancing = new LoadBalancingOptions(), // TODO
                 HealthCheckOptions = new HealthCheckOptions
                 {
-                    Enabled = GetLabel(labels, "IslandGateway.Backend.Healthcheck.Enabled", false),
-                    Interval = TimeSpan.FromSeconds(GetLabel<double>(labels, "IslandGateway.Backend.Healthcheck.Interval", 0)),
-                    Timeout = TimeSpan.FromSeconds(GetLabel<double>(labels, "IslandGateway.Backend.Healthcheck.Timeout", 0)),
-                    Port = GetLabel<int?>(labels, "IslandGateway.Backend.Healthcheck.Port", null),
-                    Path = GetLabel<string>(labels, "IslandGateway.Backend.Healthcheck.Path", null),
+                    Enabled = GetLabel(labels, "YARP.Backend.Healthcheck.Enabled", false),
+                    Interval = TimeSpan.FromSeconds(GetLabel<double>(labels, "YARP.Backend.Healthcheck.Interval", 0)),
+                    Timeout = TimeSpan.FromSeconds(GetLabel<double>(labels, "YARP.Backend.Healthcheck.Timeout", 0)),
+                    Port = GetLabel<int?>(labels, "YARP.Backend.Healthcheck.Port", null),
+                    Path = GetLabel<string>(labels, "YARP.Backend.Healthcheck.Path", null),
                 },
                 Metadata = clusterMetadata,
             };
@@ -163,7 +163,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
 
         private static string GetClusterId(Uri serviceName, Dictionary<string, string> labels)
         {
-            if (!labels.TryGetValue("IslandGateway.Backend.BackendId", out var backendId) ||
+            if (!labels.TryGetValue("YARP.Backend.BackendId", out var backendId) ||
                 string.IsNullOrEmpty(backendId))
             {
                 backendId = serviceName.ToString();

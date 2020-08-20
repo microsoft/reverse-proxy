@@ -28,7 +28,7 @@ namespace Microsoft.ReverseProxy.Telemetry
 
         /// <inheritdoc/>
         // TODO: Implement this.
-        public IOperationContext Context => null;
+        public IOperationContext Context => new NullOperationContext();
 
         /// <inheritdoc/>
         public void Execute(string operationName, Action action)

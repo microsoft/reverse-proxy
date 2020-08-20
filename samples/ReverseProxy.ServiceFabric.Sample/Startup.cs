@@ -32,10 +32,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Sample
             services.AddReverseProxy()
                 .AddServiceFabricDiscovery();
 
-            services.Configure<ServiceFabricDiscoveryOptions>(options =>
-            {
-                options.DiscoveryPeriod = TimeSpan.FromSeconds(10);
-            });
+            services.Configure<ServiceFabricDiscoveryOptions>(_configuration.GetSection("ServiceFabricDiscovery"));
         }
 
         /// <summary>
@@ -43,6 +40,12 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Sample
         /// </summary>
         public void Configure(IApplicationBuilder app)
         {
+            app.Use((context, next) =>
+            {
+                context.Response.Headers.Add("x-yarp-sf", Environment.MachineName);
+                return next();
+            });
+
             app.UseRouting();
             app.UseAuthorization();
             app.UseEndpoints(endpoints =>

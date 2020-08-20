@@ -17,9 +17,9 @@ namespace Microsoft.ReverseProxy.ServiceFabric
     internal class ServiceExtensionLabelsProvider : IServiceExtensionLabelsProvider
     {
         internal static readonly XNamespace XNSServiceManifest = "http://schemas.microsoft.com/2011/01/fabric";
-        internal static readonly XNamespace XNSIslandGateway = "http://schemas.microsoft.com/2015/03/fabact-no-schema";
-        internal static readonly XName XNameLabel = XNSIslandGateway + "Label";
-        internal static readonly XName XNameLabels = XNSIslandGateway + "Labels";
+        internal static readonly XNamespace XNSFabricNoSchema = "http://schemas.microsoft.com/2015/03/fabact-no-schema";
+        internal static readonly XName XNameLabel = XNSFabricNoSchema + "Label";
+        internal static readonly XName XNameLabels = XNSFabricNoSchema + "Labels";
 
         private readonly ILogger<ServiceExtensionLabelsProvider> _logger;
         private readonly IServiceFabricCaller _serviceFabricCaller;
@@ -90,7 +90,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
 
             ApplyAppParamReplacements(result, application, service);
 
-            if (result.GetValueOrDefault("IslandGateway.EnableDynamicOverrides", null)?.ToLower() == "true")
+            if (result.GetValueOrDefault("YARP.EnableDynamicOverrides", null)?.ToLower() == "true")
             {
                 // Override with properties
                 IDictionary<string, string> properties;
@@ -117,7 +117,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
         {
             foreach (var entry in overrides)
             {
-                if (entry.Key.StartsWith("IslandGateway.", StringComparison.Ordinal))
+                if (entry.Key.StartsWith("YARP.", StringComparison.Ordinal))
                 {
                     labels[entry.Key] = entry.Value;
                 }
@@ -209,7 +209,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                     .Elements(XNSServiceManifest + "ServiceTypes")
                     .Elements().Where(s => (string)s.Attribute("ServiceTypeName") == targetServiceTypeName)
                     .Elements(XNSServiceManifest + "Extensions")
-                    .Elements(XNSServiceManifest + "Extension").Where(s => (string)s.Attribute("Name") == "IslandGateway")
+                    .Elements(XNSServiceManifest + "Extension").Where(s => (string)s.Attribute("Name") == "YARP")
                     .Elements(XNameLabels)
                     .Elements(XNameLabel);
 

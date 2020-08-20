@@ -21,8 +21,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric
     /// Default implementation of the <see cref="IDiscoverer"/> class.
     internal class Discoverer : IDiscoverer
     {
-        public static readonly string HealthReportSourceId = "IslandGateway";
-        public static readonly string HealthReportProperty = "IslandGatewayConfig";
+        public static readonly string HealthReportSourceId = "YARP";
+        public static readonly string HealthReportProperty = "DynamicConfig";
 
         private readonly ILogger<Discoverer> _logger;
         private readonly IServiceFabricCaller _serviceFabricCaller;
@@ -97,7 +97,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                         var serviceExtensionLabels = await _serviceFabricExtensionConfigProvider.GetExtensionLabelsAsync(application, service, cancellation);
 
                         // If this service wants to use Island Gateway
-                        if (serviceExtensionLabels.GetValueOrDefault("IslandGateway.Enable", null) != "true")
+                        if (serviceExtensionLabels.GetValueOrDefault("YARP.Enable", null) != "true")
                         {
                             // Skip this service
                             continue;
@@ -157,7 +157,36 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             return (discoveredRoutes, discoveredBackends.Values.ToList());
         }
 
-        private static Destination BuildDestination(ReplicaWrapper replica, string listenerName, string healthListenerName)
+        private static TimeSpan HealthReportTimeToLive(ServiceFabricDiscoveryOptions options) => options.DiscoveryPeriod.Multiply(3);
+
+        private static bool IsHealthyReplica(ReplicaWrapper replica)
+        {
+            // TODO: Should we only consider replicas that Service Fabric reports as healthy (`replica.HealthState != HealthState.Error`)?
+            // That is precisely what Traefik does, see: https://github.com/containous/traefik-extra-service-fabric/blob/a5c54b8d5409be7aa21b06d55cf186ee4cc25a13/servicefabric.go#L219
+            // It seems misguided in our case, however, since we have an active health probing model
+            // that can determine endpoint health more reliably. In particular because Service Fabric "Error" states does not necessarily mean
+            // that the replica is unavailable, rather only that something in the cluster issued an "Error" report against it.
+            // Skipping the replica here because we *suspect* it might be unavailable could lead to snowball cascading failures.
+            return replica.ReplicaStatus == ServiceReplicaStatus.Ready;
+        }
+
+        private static bool IsReplicaEligible(ReplicaWrapper replica, StatefulReplicaSelectionMode statefulReplicaSelectionMode)
+        {
+            if (replica.ServiceKind != ServiceKind.Stateful)
+            {
+                // Stateless service replicas are always eligible
+                return true;
+            }
+
+            return statefulReplicaSelectionMode switch
+            {
+                StatefulReplicaSelectionMode.Primary => replica.Role == ReplicaRole.Primary,
+                StatefulReplicaSelectionMode.ActiveSecondary => replica.Role == ReplicaRole.ActiveSecondary,
+                _ => true,
+            };
+        }
+
+        private Destination BuildDestination(ReplicaWrapper replica, string listenerName, string healthListenerName)
         {
             if (!ServiceEndpointCollection.TryParseEndpointsString(replica.ReplicaAddress, out var serviceEndpointCollection))
             {
@@ -196,38 +225,14 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             };
         }
 
-        private static bool HttpsSchemeSelector(string urlScheme)
+        private bool HttpsSchemeSelector(string urlScheme)
         {
-            return urlScheme == "https";
-        }
-
-        private static TimeSpan HealthReportTimeToLive(ServiceFabricDiscoveryOptions options) => options.DiscoveryPeriod.Multiply(3);
-
-        private static bool IsHealthyReplica(ReplicaWrapper replica)
-        {
-            // TODO: Should we only consider replicas that Service Fabric reports as healthy (`replica.HealthState != HealthState.Error`)?
-            // That is precisely what Traefik does, see: https://github.com/containous/traefik-extra-service-fabric/blob/a5c54b8d5409be7aa21b06d55cf186ee4cc25a13/servicefabric.go#L219
-            // It seems misguided in our case, however, since we have an active health probing model
-            // that can determine endpoint health more reliably. In particular because Service Fabric "Error" states does not necessarily mean
-            // that the replica is unavailable, rather only that something in the cluster issued an "Error" report against it.
-            // Skipping the replica here because we *suspect* it might be unavailable could lead to snowball cascading failures.
-            return replica.ReplicaStatus == ServiceReplicaStatus.Ready;
-        }
-
-        private static bool IsReplicaEligible(ReplicaWrapper replica, StatefulReplicaSelectionMode statefulReplicaSelectionMode)
-        {
-            if (replica.ServiceKind != ServiceKind.Stateful)
+            if (_optionsMonitor.CurrentValue.DiscoverInsecureHttpDestinations)
             {
-                // Stateless service replicas are always eligible
-                return true;
+                return urlScheme == "https" || urlScheme == "http";
             }
 
-            return statefulReplicaSelectionMode switch
-            {
-                StatefulReplicaSelectionMode.Primary => replica.Role == ReplicaRole.Primary,
-                StatefulReplicaSelectionMode.ActiveSecondary => replica.Role == ReplicaRole.ActiveSecondary,
-                _ => true,
-            };
+            return urlScheme == "https";
         }
 
         /// <summary>
@@ -253,8 +258,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                 return;
             }
 
-            var listenerName = serviceExtensionLabels.GetValueOrDefault("IslandGateway.Backend.ServiceFabric.ListenerName", string.Empty);
-            var healthListenerName = serviceExtensionLabels.GetValueOrDefault("IslandGateway.Backend.Healthcheck.ServiceFabric.ListenerName", string.Empty);
+            var listenerName = serviceExtensionLabels.GetValueOrDefault("YARP.Backend.ServiceFabric.ListenerName", string.Empty);
+            var healthListenerName = serviceExtensionLabels.GetValueOrDefault("YARP.Backend.Healthcheck.ServiceFabric.ListenerName", string.Empty);
             var statefulReplicaSelectionMode = ParseStatefulReplicaSelectionMode(serviceExtensionLabels);
             foreach (var partition in partitions)
             {
@@ -317,7 +322,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
         private StatefulReplicaSelectionMode ParseStatefulReplicaSelectionMode(Dictionary<string, string> serviceExtensionLabels)
         {
             // Parse the value for StatefulReplicaSelectionMode: case insensitive, and trim the white space.
-            var statefulReplicaSelectionMode = serviceExtensionLabels.GetValueOrDefault("IslandGateway.Backend.ServiceFabric.StatefulReplicaSelectionMode", StatefulReplicaSelectionLabel.All).Trim();
+            var statefulReplicaSelectionMode = serviceExtensionLabels.GetValueOrDefault("YARP.Backend.ServiceFabric.StatefulReplicaSelectionMode", StatefulReplicaSelectionLabel.All).Trim();
             if (string.Equals(statefulReplicaSelectionMode, StatefulReplicaSelectionLabel.PrimaryOnly, StringComparison.OrdinalIgnoreCase))
             {
                 return StatefulReplicaSelectionMode.Primary;
@@ -355,7 +360,11 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                     TimeToLive = HealthReportTimeToLive(options),
                     RemoveWhenExpired = true,
                 });
-            var sendOptions = new HealthReportSendOptions { Immediate = state != HealthState.Ok }; // Report immediately if unhealthy
+            var sendOptions = new HealthReportSendOptions
+            {
+                // Report immediately if unhealthy or if explicitly requested
+                Immediate = options.AlwaysSendImmediateHealthReports ? true : state != HealthState.Ok
+            };
             try
             {
                 _serviceFabricCaller.ReportHealth(healthReport, sendOptions);

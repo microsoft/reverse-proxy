@@ -12,15 +12,15 @@ namespace Microsoft.ReverseProxy.ServiceFabric
     /// It looks for the labels in the ServiceManifest.xml and overrides in the service's properties.
     /// </summary>
     /// <remarks>
-    /// The key-value labels to configure the Island Gateway are first read from the IslandGateway extension
+    /// The key-value labels to configure the Island Gateway are first read from the YARP extension
     /// in the "Extensions" section of a service in the ServiceManifest.xml. Example:
     /// <![CDATA[
     /// <StatelessServiceType ServiceTypeName="ExampleServiceTypeName">
     ///   <Extensions>
-    ///     <Extension Name="IslandGateway">
+    ///     <Extension Name="YARP">
     ///       <Labels xmlns="http://schemas.microsoft.com/2015/03/fabact-no-schema">
-    ///         <Label Key="IslandGateway.Enable">true</Label>
-    ///         <Label Key="IslandGateway.Backend.BackendId">exampleId</Label>
+    ///         <Label Key="YARP.Enable">true</Label>
+    ///         <Label Key="YARP.Backend.BackendId">exampleId</Label>
     ///       </Labels>
     ///     </Extension>
     ///   </Extensions>

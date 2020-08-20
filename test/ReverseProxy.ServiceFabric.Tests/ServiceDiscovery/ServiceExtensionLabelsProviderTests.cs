@@ -105,9 +105,9 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     </StatelessServiceType>
                     <StatelessServiceType ServiceTypeName='AnotherServiceType'>
                         <Extensions>
-                            <Extension Name='IslandGateway'>
-                            <Labels xmlns='{ServiceExtensionLabelsProvider.XNSIslandGateway}'>
-                                <Label Key='IslandGateway.Enable'>true</Label>
+                            <Extension Name='YARP'>
+                            <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
+                                <Label Key='YARP.Enable'>true</Label>
                             </Labels>
                             </Extension>
                         </Extensions>
@@ -133,7 +133,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
                         <Extensions>
                             <Extension Name='AnotherExtension'>
-                            <Labels xmlns='{ServiceExtensionLabelsProvider.XNSIslandGateway}'>
+                            <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
                                 <Label Key='Bla'>foo</Label>
                             </Labels>
                             </Extension>
@@ -159,10 +159,10 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 <ServiceTypes>
                     <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
                         <Extensions>
-                            <Extension Name='IslandGateway'>
-                            <Labels xmlns='{ServiceExtensionLabelsProvider.XNSIslandGateway}'>
-                                <Label Key='IslandGateway.Enable'>true</Label>
-                                <Label Key='IslandGateway.foo'>bar</Label>
+                            <Extension Name='YARP'>
+                            <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
+                                <Label Key='YARP.Enable'>true</Label>
+                                <Label Key='YARP.foo'>bar</Label>
                             </Labels>
                             </Extension>
                         </Extensions>
@@ -178,8 +178,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             labels.Should().Equal(
                 new Dictionary<string, string>
                 {
-                    { "IslandGateway.Enable", "true" },
-                    { "IslandGateway.foo", "bar" },
+                    { "YARP.Enable", "true" },
+                    { "YARP.foo", "bar" },
                 });
         }
 
@@ -192,10 +192,10 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                   <ServiceTypes>
                     <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
                       <Extensions>
-                        <Extension Name='IslandGateway'>
-                          <Labels xmlns='{ServiceExtensionLabelsProvider.XNSIslandGateway}'>
-                            <Label Key='IslandGateway.Enable'>true</Label>
-                            <Label Key='IslandGateway.foo'>[SomeAppParam]</Label>
+                        <Extension Name='YARP'>
+                          <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
+                            <Label Key='YARP.Enable'>true</Label>
+                            <Label Key='YARP.foo'>[SomeAppParam]</Label>
                           </Labels>
                         </Extension>
                       </Extensions>
@@ -212,8 +212,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             labels.Should().Equal(
                 new Dictionary<string, string>
                 {
-                    { "IslandGateway.Enable", "true" },
-                    { "IslandGateway.foo", "replaced successfully!" },
+                    { "YARP.Enable", "true" },
+                    { "YARP.foo", "replaced successfully!" },
                 });
         }
 
@@ -226,10 +226,10 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                   <ServiceTypes>
                     <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
                       <Extensions>
-                        <Extension Name='IslandGateway'>
-                          <Labels xmlns='{ServiceExtensionLabelsProvider.XNSIslandGateway}'>
-                            <Label Key='IslandGateway.Enable'>true</Label>
-                            <Label Key='IslandGateway.foo'>[NonExistingAppParam]</Label>
+                        <Extension Name='YARP'>
+                          <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
+                            <Label Key='YARP.Enable'>true</Label>
+                            <Label Key='YARP.foo'>[NonExistingAppParam]</Label>
                           </Labels>
                         </Extension>
                       </Extensions>
@@ -244,8 +244,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             labels.Should().Equal(
                 new Dictionary<string, string>
                 {
-                    { "IslandGateway.Enable", "true" },
-                    { "IslandGateway.foo", string.Empty },
+                    { "YARP.Enable", "true" },
+                    { "YARP.foo", string.Empty },
                 });
         }
 
@@ -263,10 +263,10 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                                 <Label Key='NotThisONe'>I said not this one</Label>
                             </Labels>
                             </Extension>
-                            <Extension Name='IslandGateway'>
-                            <Labels xmlns='{ServiceExtensionLabelsProvider.XNSIslandGateway}'>
-                                <Label Key='IslandGateway.Enable'>true</Label>
-                                <Label Key='IslandGateway.routes.route1.Hosts'>example.com</Label>
+                            <Extension Name='YARP'>
+                            <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
+                                <Label Key='YARP.Enable'>true</Label>
+                                <Label Key='YARP.routes.route1.Hosts'>example.com</Label>
                             </Labels>
                             </Extension>
                         </Extensions>
@@ -282,8 +282,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             labels.Should().Equal(
                 new Dictionary<string, string>
                 {
-                    { "IslandGateway.Enable", "true" },
-                    { "IslandGateway.routes.route1.Hosts", "example.com" },
+                    { "YARP.Enable", "true" },
+                    { "YARP.routes.route1.Hosts", "example.com" },
                 });
         }
 
@@ -296,9 +296,9 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 <ServiceTypes>
                     <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
                         <Extensions>
-                            <Extension Name='IslandGateway'>
-                            <Labels xmlns='{ServiceExtensionLabelsProvider.XNSIslandGateway}'>
-                                <Label Key='IslandGateway.EnableDynamicOverrides'>true</Label>
+                            <Extension Name='YARP'>
+                            <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
+                                <Label Key='YARP.EnableDynamicOverrides'>true</Label>
                             </Labels>
                             </Extension>
                         </Extensions>
@@ -309,8 +309,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             _namingServiceProperties =
                 new Dictionary<string, string>
                 {
-                    { "IslandGateway.Enable", "true" },
-                    { "IslandGateway.routes.route1.Hosts", "example.com" },
+                    { "YARP.Enable", "true" },
+                    { "YARP.routes.route1.Hosts", "example.com" },
                 };
 
             // Act
@@ -320,9 +320,9 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             labels.Should().Equal(
                 new Dictionary<string, string>
                 {
-                    { "IslandGateway.Enable", "true" },
-                    { "IslandGateway.routes.route1.Hosts", "example.com" },
-                    { "IslandGateway.EnableDynamicOverrides", "true" },
+                    { "YARP.Enable", "true" },
+                    { "YARP.routes.route1.Hosts", "example.com" },
+                    { "YARP.EnableDynamicOverrides", "true" },
                 });
         }
 
@@ -335,9 +335,9 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 <ServiceTypes>
                     <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
                         <Extensions>
-                            <Extension Name='IslandGateway'>
-                            <Labels xmlns='{ServiceExtensionLabelsProvider.XNSIslandGateway}'>
-                                <Label Key='IslandGateway.EnableDynamicOverrides'>True</Label>
+                            <Extension Name='YARP'>
+                            <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
+                                <Label Key='YARP.EnableDynamicOverrides'>True</Label>
                             </Labels>
                             </Extension>
                         </Extensions>
@@ -348,8 +348,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             _namingServiceProperties =
                 new Dictionary<string, string>
                 {
-                    { "IslandGateway.Enable", "true" },
-                    { "IslandGateway.routes.route1.Hosts", "example.com" },
+                    { "YARP.Enable", "true" },
+                    { "YARP.routes.route1.Hosts", "example.com" },
                 };
 
             // Act
@@ -359,9 +359,9 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             labels.Should().Equal(
                 new Dictionary<string, string>
                 {
-                    { "IslandGateway.Enable", "true" },
-                    { "IslandGateway.routes.route1.Hosts", "example.com" },
-                    { "IslandGateway.EnableDynamicOverrides", "True" },
+                    { "YARP.Enable", "true" },
+                    { "YARP.routes.route1.Hosts", "example.com" },
+                    { "YARP.EnableDynamicOverrides", "True" },
                 });
         }
 
@@ -374,9 +374,9 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 <ServiceTypes>
                     <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
                         <Extensions>
-                            <Extension Name='IslandGateway'>
-                            <Labels xmlns='{ServiceExtensionLabelsProvider.XNSIslandGateway}'>
-                                <Label Key='IslandGateway.EnableDynamicOverrides'>true</Label>
+                            <Extension Name='YARP'>
+                            <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
+                                <Label Key='YARP.EnableDynamicOverrides'>true</Label>
                             </Labels>
                             </Extension>
                         </Extensions>
@@ -387,7 +387,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             _namingServiceProperties =
                 new Dictionary<string, string>
                 {
-                    { "IslandGateway.Enable", "true" },
+                    { "YARP.Enable", "true" },
                     { "ISLANDGATEWAy.enable", "false" },
                     { "WhatIsThisNamespace.value", "42" },
                 };
@@ -399,8 +399,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             labels.Should().Equal(
                 new Dictionary<string, string>
                 {
-                    { "IslandGateway.Enable", "true" },
-                    { "IslandGateway.EnableDynamicOverrides", "true" },
+                    { "YARP.Enable", "true" },
+                    { "YARP.EnableDynamicOverrides", "true" },
                 });
         }
 
@@ -413,11 +413,11 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 <ServiceTypes>
                     <StatefulService ServiceTypeName='{ServiceTypeName}'>
                         <Extensions>
-                             <Extension Name='IslandGateway'>
-                             <Labels xmlns='{ServiceExtensionLabelsProvider.XNSIslandGateway}'>
-                                <Label Key='IslandGateway.Enable'>true</Label>
-                                <Label Key='IslandGateway.EnableDynamicOverrides'>true</Label>
-                                <Label Key='IslandGateway.routes.route1.Hosts'>example.com</Label>
+                             <Extension Name='YARP'>
+                             <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
+                                <Label Key='YARP.Enable'>true</Label>
+                                <Label Key='YARP.EnableDynamicOverrides'>true</Label>
+                                <Label Key='YARP.routes.route1.Hosts'>example.com</Label>
                              </Labels>
                              </Extension>
                         </Extensions>
@@ -428,7 +428,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             _namingServiceProperties =
                 new Dictionary<string, string>
                 {
-                    { "IslandGateway.Enable", "false" },
+                    { "YARP.Enable", "false" },
                 };
 
             // Act
@@ -438,9 +438,9 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             labels.Should().Equal(
                 new Dictionary<string, string>
                 {
-                    { "IslandGateway.Enable", "false" },
-                    { "IslandGateway.routes.route1.Hosts", "example.com" },
-                    { "IslandGateway.EnableDynamicOverrides", "true" },
+                    { "YARP.Enable", "false" },
+                    { "YARP.routes.route1.Hosts", "example.com" },
+                    { "YARP.EnableDynamicOverrides", "true" },
                 });
         }
 
@@ -453,11 +453,11 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 <ServiceTypes>
                     <StatefulService ServiceTypeName='{ServiceTypeName}'>
                         <Extensions>
-                             <Extension Name='IslandGateway'>
-                             <Labels xmlns='{ServiceExtensionLabelsProvider.XNSIslandGateway}'>
-                                <Label Key='IslandGateway.Enable'>true</Label>
-                                <Label Key='IslandGateway.EnableDynamicOverrides'>true</Label>
-                                <Label Key='IslandGateway.routes.route1.Hosts'>example.com</Label>
+                             <Extension Name='YARP'>
+                             <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
+                                <Label Key='YARP.Enable'>true</Label>
+                                <Label Key='YARP.EnableDynamicOverrides'>true</Label>
+                                <Label Key='YARP.routes.route1.Hosts'>example.com</Label>
                              </Labels>
                              </Extension>
                         </Extensions>
@@ -468,7 +468,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             _namingServiceProperties =
                 new Dictionary<string, string>
                 {
-                    { "IslandGateway.Routes.route1.HOST", "another.example.com" },
+                    { "YARP.Routes.route1.HOST", "another.example.com" },
                 };
 
             // Act
@@ -478,10 +478,10 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             labels.Should().Equal(
                 new Dictionary<string, string>
                 {
-                    { "IslandGateway.Enable", "true" },
-                    { "IslandGateway.routes.route1.Hosts", "example.com" },
-                    { "IslandGateway.EnableDynamicOverrides", "true" },
-                    { "IslandGateway.Routes.route1.HOST", "another.example.com" },
+                    { "YARP.Enable", "true" },
+                    { "YARP.routes.route1.Hosts", "example.com" },
+                    { "YARP.EnableDynamicOverrides", "true" },
+                    { "YARP.Routes.route1.HOST", "another.example.com" },
                 });
         }
 
@@ -494,11 +494,11 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 <ServiceTypes>
                     <StatefulService ServiceTypeName='{ServiceTypeName}'>
                         <Extensions>
-                             <Extension Name='IslandGateway'>
-                             <Labels xmlns='{ServiceExtensionLabelsProvider.XNSIslandGateway}'>
-                                <Label Key='IslandGateway.Enable'>true</Label>
-                                <Label Key='IslandGateway.EnableDynamicOverrides'>false</Label>
-                                <Label Key='IslandGateway.routes.route1.host'>example.com</Label>
+                             <Extension Name='YARP'>
+                             <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
+                                <Label Key='YARP.Enable'>true</Label>
+                                <Label Key='YARP.EnableDynamicOverrides'>false</Label>
+                                <Label Key='YARP.routes.route1.host'>example.com</Label>
                              </Labels>
                              </Extension>
                         </Extensions>
@@ -509,7 +509,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             _namingServiceProperties =
                 new Dictionary<string, string>
                 {
-                    { "IslandGateway.Enable", "false" },
+                    { "YARP.Enable", "false" },
                 };
 
             // Act
@@ -519,9 +519,9 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             labels.Should().Equal(
                 new Dictionary<string, string>
                 {
-                    { "IslandGateway.Enable", "true" },
-                    { "IslandGateway.routes.route1.host", "example.com" },
-                    { "IslandGateway.EnableDynamicOverrides", "false" },
+                    { "YARP.Enable", "true" },
+                    { "YARP.routes.route1.host", "example.com" },
+                    { "YARP.EnableDynamicOverrides", "false" },
                 });
 
             Mock<IServiceFabricCaller>().Verify(m => m.EnumeratePropertiesAsync(It.IsAny<Uri>(), It.IsAny<CancellationToken>()), Times.Never());
@@ -536,12 +536,12 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 <ServiceTypes>
                     <StatefulService ServiceTypeName='{ServiceTypeName}'>
                         <Extensions>
-                             <Extension Name='IslandGateway'>
-                             <Labels xmlns='{ServiceExtensionLabelsProvider.XNSIslandGateway}'>
-                                <Label Key='IslandGateway.Enable'>true</Label>
-                                <Label Key='IslandGateway.EnableDynamicOverrides'>true</Label>
-                                <Label Key='IslandGateway.routes.ROUTE1.Hosts'>example.com</Label>
-                                <Label Key='IslandGateway.routes.route1.hosts'>another.example.com</Label>
+                             <Extension Name='YARP'>
+                             <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
+                                <Label Key='YARP.Enable'>true</Label>
+                                <Label Key='YARP.EnableDynamicOverrides'>true</Label>
+                                <Label Key='YARP.routes.ROUTE1.Hosts'>example.com</Label>
+                                <Label Key='YARP.routes.route1.hosts'>another.example.com</Label>
                              </Labels>
                              </Extension>
                         </Extensions>
@@ -552,7 +552,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             _namingServiceProperties =
                 new Dictionary<string, string>
                 {
-                    { "IslandGateway.routes.Route1.HOSTS", "etc.example.com" },
+                    { "YARP.routes.Route1.HOSTS", "etc.example.com" },
                 };
 
             // Act
@@ -562,11 +562,11 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             labels.Should().Equal(
                 new Dictionary<string, string>
                 {
-                    { "IslandGateway.Enable", "true" },
-                    { "IslandGateway.routes.ROUTE1.Hosts", "example.com" },
-                    { "IslandGateway.routes.route1.hosts", "another.example.com" },
-                    { "IslandGateway.routes.Route1.HOSTS", "etc.example.com" },
-                    { "IslandGateway.EnableDynamicOverrides", "true" },
+                    { "YARP.Enable", "true" },
+                    { "YARP.routes.ROUTE1.Hosts", "example.com" },
+                    { "YARP.routes.route1.hosts", "another.example.com" },
+                    { "YARP.routes.Route1.HOSTS", "etc.example.com" },
+                    { "YARP.EnableDynamicOverrides", "true" },
                 });
         }
 
@@ -579,10 +579,10 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 <ServiceTypes>
                     <StatefulService ServiceTypeName='{ServiceTypeName}'>
                         <Extensions>
-                             <Extension Name='IslandGateway'>
-                             <Labels xmlns='{ServiceExtensionLabelsProvider.XNSIslandGateway}'>
-                                <Label Key='IslandGateway.Enable'>true</Label>
-                                <Label Key='IslandGateway.routes.route1.host'>example.com</Label>
+                             <Extension Name='YARP'>
+                             <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
+                                <Label Key='YARP.Enable'>true</Label>
+                                <Label Key='YARP.routes.route1.host'>example.com</Label>
                              </Labels>
                              </Extension>
                         </Extensions>
@@ -593,7 +593,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             _namingServiceProperties =
                 new Dictionary<string, string>
                 {
-                    { "IslandGateway.Enable", "false" },
+                    { "YARP.Enable", "false" },
                 };
 
             // Act
@@ -603,8 +603,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             labels.Should().Equal(
                 new Dictionary<string, string>
                 {
-                    { "IslandGateway.Enable", "true" },
-                    { "IslandGateway.routes.route1.host", "example.com" },
+                    { "YARP.Enable", "true" },
+                    { "YARP.routes.route1.host", "example.com" },
                 });
 
             Mock<IServiceFabricCaller>().Verify(m => m.EnumeratePropertiesAsync(It.IsAny<Uri>(), It.IsAny<CancellationToken>()), Times.Never());
@@ -632,11 +632,11 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 <ServiceTypes>
                     <StatefulService ServiceTypeName='{ServiceTypeName}'>
                         <Extensions>
-                             <Extension Name='IslandGateway'>
-                             <Labels xmlns='{ServiceExtensionLabelsProvider.XNSIslandGateway}'>
-                                <Label Key='IslandGateway.Enable'>true</Label>
-                                <Label Key='IslandGateway.routes.route1.host'>example.com</Label>
-                                <Label Key='IslandGateway.routes.route1.host'>example.com</Label>
+                             <Extension Name='YARP'>
+                             <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
+                                <Label Key='YARP.Enable'>true</Label>
+                                <Label Key='YARP.routes.route1.host'>example.com</Label>
+                                <Label Key='YARP.routes.route1.host'>example.com</Label>
                              </Labels>
                              </Extension>
                         </Extensions>
@@ -662,9 +662,9 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             <ServiceTypes>
                 <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
                     <Extensions>
-                        <Extension Name='IslandGateway'>
-                        <Labels xmlns='{ServiceExtensionLabelsProvider.XNSIslandGateway}'>
-                             <Label Key='IslandGateway.foo'>'{longBadString}'</Label>
+                        <Extension Name='YARP'>
+                        <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
+                             <Label Key='YARP.foo'>'{longBadString}'</Label>
                           </Labels>
                         </Extension>
                     </Extensions>
@@ -693,9 +693,9 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 <ServiceTypes>
                     <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
                         <Extensions>
-                            <Extension Name='IslandGateway'>
-                            <Labels xmlns='{ServiceExtensionLabelsProvider.XNSIslandGateway}'>
-                                <Label Key='IslandGateway.foo'>bar</Label>
+                            <Extension Name='YARP'>
+                            <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
+                                <Label Key='YARP.foo'>bar</Label>
                             </Labels>
                             </Extension>
                         </Extensions>
