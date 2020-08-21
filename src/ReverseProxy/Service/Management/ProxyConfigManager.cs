@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.RuntimeModel;
+using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
 
 namespace Microsoft.ReverseProxy.Service.Management
 {
@@ -35,6 +36,7 @@ namespace Microsoft.ReverseProxy.Service.Management
         private readonly IRouteManager _routeManager;
         private readonly IEnumerable<IProxyConfigFilter> _filters;
         private readonly IConfigValidator _configValidator;
+        private readonly IProxyHttpClientFactory _httpClientFactory;
         private IDisposable _changeSubscription;
 
         private List<Endpoint> _endpoints = new List<Endpoint>(0);
@@ -48,7 +50,8 @@ namespace Microsoft.ReverseProxy.Service.Management
             IClusterManager clusterManager,
             IRouteManager routeManager,
             IEnumerable<IProxyConfigFilter> filters,
-            IConfigValidator configValidator)
+            IConfigValidator configValidator,
+            IProxyHttpClientFactory httpClientFactory)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _provider = provider ?? throw new ArgumentNullException(nameof(provider));
@@ -57,6 +60,7 @@ namespace Microsoft.ReverseProxy.Service.Management
             _routeManager = routeManager ?? throw new ArgumentNullException(nameof(routeManager));
             _filters = filters ?? throw new ArgumentNullException(nameof(filters));
             _configValidator = configValidator ?? throw new ArgumentNullException(nameof(configValidator));
+            _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
 
             _changeToken = new CancellationChangeToken(_cancellationTokenSource.Token);
         }
@@ -280,7 +284,8 @@ namespace Microsoft.ReverseProxy.Service.Management
                                     enabled: configCluster.SessionAffinity?.Enabled ?? false,
                                     mode: configCluster.SessionAffinity?.Mode,
                                     failurePolicy: configCluster.SessionAffinity?.FailurePolicy,
-                                    settings: configCluster.SessionAffinity?.Settings as IReadOnlyDictionary<string, string>));
+                                    settings: configCluster.SessionAffinity?.Settings as IReadOnlyDictionary<string, string>),
+                                _httpClientFactory.CreateClient());
 
                         var currentClusterConfig = cluster.Config.Value;
                         if (currentClusterConfig == null ||

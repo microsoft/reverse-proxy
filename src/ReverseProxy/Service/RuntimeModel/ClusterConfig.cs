@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Utilities;
 
@@ -23,11 +24,13 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         public ClusterConfig(
             ClusterHealthCheckOptions healthCheckOptions,
             ClusterLoadBalancingOptions loadBalancingOptions,
-            ClusterSessionAffinityOptions sessionAffinityOptions)
+            ClusterSessionAffinityOptions sessionAffinityOptions,
+            HttpMessageInvoker httpClient)
         {
             HealthCheckOptions = healthCheckOptions;
             LoadBalancingOptions = loadBalancingOptions;
             SessionAffinityOptions = sessionAffinityOptions;
+            HttpClient = httpClient;
         }
 
         public ClusterHealthCheckOptions HealthCheckOptions { get; }
@@ -35,6 +38,11 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         public ClusterLoadBalancingOptions LoadBalancingOptions { get; }
 
         public ClusterSessionAffinityOptions SessionAffinityOptions { get; }
+
+        /// <summary>
+        /// An <see cref="HttpMessageInvoker"/> that used for proxying requests to an upstream server.
+        /// </summary>
+        public HttpMessageInvoker HttpClient { get; }
 
         /// <summary>
         /// Active health probing options for a cluster.

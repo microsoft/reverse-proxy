@@ -16,6 +16,7 @@ using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
 using Moq;
 using Tests.Common;
 using Xunit;
+using System.Net.Http;
 
 namespace Microsoft.ReverseProxy.Middleware.Tests
 {
@@ -36,12 +37,11 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
         [Fact]
         public async Task Invoke_Works()
         {
-            var proxyHttpClientFactoryMock = new Mock<IProxyHttpClientFactory>();
+            var httpClientMock = new Mock<HttpMessageInvoker>();;
             var cluster1 = new ClusterInfo(
                 clusterId: "cluster1",
-                destinationManager: new DestinationManager(),
-                proxyHttpClientFactory: proxyHttpClientFactoryMock.Object);
-            cluster1.Config.Value = new ClusterConfig(default, new ClusterConfig.ClusterLoadBalancingOptions(LoadBalancingMode.RoundRobin), default);
+                destinationManager: new DestinationManager());
+            cluster1.Config.Value = new ClusterConfig(default, new ClusterConfig.ClusterLoadBalancingOptions(LoadBalancingMode.RoundRobin), default, httpClientMock.Object);
             var destination1 = cluster1.DestinationManager.GetOrCreateItem(
                 "destination1",
                 destination =>
@@ -95,12 +95,11 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
         [Fact]
         public async Task Invoke_ServiceReturnsNoResults_503()
         {
-            var proxyHttpClientFactoryMock = new Mock<IProxyHttpClientFactory>();
+            var httpClientMock = new Mock<HttpMessageInvoker>();;
             var cluster1 = new ClusterInfo(
                 clusterId: "cluster1",
-                destinationManager: new DestinationManager(),
-                proxyHttpClientFactory: proxyHttpClientFactoryMock.Object);
-            cluster1.Config.Value = new ClusterConfig(default, new ClusterConfig.ClusterLoadBalancingOptions(LoadBalancingMode.RoundRobin), default);
+                destinationManager: new DestinationManager());
+            cluster1.Config.Value = new ClusterConfig(default, new ClusterConfig.ClusterLoadBalancingOptions(LoadBalancingMode.RoundRobin), default, httpClientMock.Object);
             var destination1 = cluster1.DestinationManager.GetOrCreateItem(
                 "destination1",
                 destination =>

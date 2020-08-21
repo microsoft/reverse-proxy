@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -44,11 +45,10 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             httpContext.Request.Path = "/api/test";
             httpContext.Request.QueryString = new QueryString("?a=b&c=d");
 
-            var proxyHttpClientFactoryMock = new Mock<IProxyHttpClientFactory>();
+            var httpClientMock = new Mock<HttpMessageInvoker>();
             var cluster1 = new ClusterInfo(
                 clusterId: "cluster1",
-                destinationManager: new DestinationManager(),
-                proxyHttpClientFactory: proxyHttpClientFactoryMock.Object);
+                destinationManager: new DestinationManager());
             var destination1 = cluster1.DestinationManager.GetOrCreateItem(
                 "destination1",
                 destination =>
@@ -79,7 +79,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                     httpContext,
                     It.Is<string>(uri => uri == "https://localhost:123/a/b/"),
                     It.IsAny<Transforms>(),
-                    proxyHttpClientFactoryMock.Object,
+                    httpClientMock.Object,
                     It.Is<ProxyTelemetryContext>(ctx => ctx.ClusterId == "cluster1" && ctx.RouteId == "route1" && ctx.DestinationId == "destination1"),
                     It.IsAny<CancellationToken>(),
                     It.IsAny<CancellationToken>()))
