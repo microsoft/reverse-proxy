@@ -798,19 +798,19 @@ references:
   isSpec: "True"
   fullName: Microsoft.ReverseProxy.Abstractions.ProxyRoute.Metadata
   nameWithType: ProxyRoute.Metadata
-- uid: Microsoft.ReverseProxy.Abstractions.ProxyRoute.Priority
-  name: Priority
-  href: api/Microsoft.ReverseProxy.Abstractions.ProxyRoute.html#Microsoft_ReverseProxy_Abstractions_ProxyRoute_Priority
-  commentId: P:Microsoft.ReverseProxy.Abstractions.ProxyRoute.Priority
-  fullName: Microsoft.ReverseProxy.Abstractions.ProxyRoute.Priority
-  nameWithType: ProxyRoute.Priority
-- uid: Microsoft.ReverseProxy.Abstractions.ProxyRoute.Priority*
-  name: Priority
-  href: api/Microsoft.ReverseProxy.Abstractions.ProxyRoute.html#Microsoft_ReverseProxy_Abstractions_ProxyRoute_Priority_
-  commentId: Overload:Microsoft.ReverseProxy.Abstractions.ProxyRoute.Priority
+- uid: Microsoft.ReverseProxy.Abstractions.ProxyRoute.Order
+  name: Order
+  href: api/Microsoft.ReverseProxy.Abstractions.ProxyRoute.html#Microsoft_ReverseProxy_Abstractions_ProxyRoute_Order
+  commentId: P:Microsoft.ReverseProxy.Abstractions.ProxyRoute.Order
+  fullName: Microsoft.ReverseProxy.Abstractions.ProxyRoute.Order
+  nameWithType: ProxyRoute.Order
+- uid: Microsoft.ReverseProxy.Abstractions.ProxyRoute.Order*
+  name: Order
+  href: api/Microsoft.ReverseProxy.Abstractions.ProxyRoute.html#Microsoft_ReverseProxy_Abstractions_ProxyRoute_Order_
+  commentId: Overload:Microsoft.ReverseProxy.Abstractions.ProxyRoute.Order
   isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Abstractions.ProxyRoute.Priority
-  nameWithType: ProxyRoute.Priority
+  fullName: Microsoft.ReverseProxy.Abstractions.ProxyRoute.Order
+  nameWithType: ProxyRoute.Order
 - uid: Microsoft.ReverseProxy.Abstractions.ProxyRoute.RouteId
   name: RouteId
   href: api/Microsoft.ReverseProxy.Abstractions.ProxyRoute.html#Microsoft_ReverseProxy_Abstractions_ProxyRoute_RouteId
