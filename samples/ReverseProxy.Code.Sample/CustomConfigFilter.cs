@@ -33,9 +33,9 @@ namespace Microsoft.ReverseProxy.Sample
         {
             // Do not let config based routes take priority over code based routes.
             // Lower numbers are higher priority. Code routes default to 0.
-            if (route.Priority.HasValue && route.Priority.Value < 1)
+            if (route.Order.HasValue && route.Order.Value < 1)
             {
-                route.Priority = 1;
+                route.Order = 1;
             }
 
             return Task.CompletedTask;

@@ -27,7 +27,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
                     Hosts = new[] { "example.com" },
                     Path = "/",
                 },
-                Priority = 2,
+                Order = 2,
                 ClusterId = "cluster1",
                 AuthorizationPolicy = "policy1",
                 CorsPolicy = "policy2",
@@ -48,7 +48,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
             Assert.Equal(sut.Match.Methods, clone.Match.Methods);
             Assert.Equal(sut.Match.Hosts, clone.Match.Hosts);
             Assert.Equal(sut.Match.Path, clone.Match.Path);
-            Assert.Equal(sut.Priority, clone.Priority);
+            Assert.Equal(sut.Order, clone.Order);
             Assert.Equal(sut.ClusterId, clone.ClusterId);
             Assert.Equal(sut.AuthorizationPolicy, clone.AuthorizationPolicy);
             Assert.Equal(sut.CorsPolicy, clone.CorsPolicy);
@@ -72,7 +72,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
             Assert.Null(clone.Match.Methods);
             Assert.Null(clone.Match.Hosts);
             Assert.Null(clone.Match.Path);
-            Assert.Null(clone.Priority);
+            Assert.Null(clone.Order);
             Assert.Null(clone.ClusterId);
             Assert.Null(clone.AuthorizationPolicy);
             Assert.Null(clone.CorsPolicy);

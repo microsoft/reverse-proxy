@@ -11,7 +11,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
     /// <summary>
     /// Immutable representation of the portions of a route
     /// that only change in reaction to configuration changes
-    /// (e.g. rule, priority, action, etc.).
+    /// (e.g. rule, order, action, etc.).
     /// </summary>
     /// <remarks>
     /// All members must remain immutable to avoid thread safety issues.
@@ -23,7 +23,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         public RouteConfig(
             RouteInfo route,
             int configHash,
-            int? priority,
+            int? order,
             ClusterInfo cluster,
             IReadOnlyList<AspNetCore.Http.Endpoint> aspNetCoreEndpoints,
             Transforms transforms)
@@ -32,7 +32,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
             Endpoints = aspNetCoreEndpoints ?? throw new ArgumentNullException(nameof(aspNetCoreEndpoints));
 
             ConfigHash = configHash;
-            Priority = priority;
+            Order = order;
             Cluster = cluster;
             Transforms = transforms;
         }
@@ -41,7 +41,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
 
         internal int ConfigHash { get; }
 
-        public int? Priority { get; }
+        public int? Order { get; }
 
         // May not be populated if the cluster config is missing.
         public ClusterInfo Cluster { get; }
