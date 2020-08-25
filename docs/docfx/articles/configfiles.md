@@ -48,7 +48,7 @@ Example:
         "RouteId": "route1",
         "ClusterId": "cluster1",
         "Match": {
-          "Hosts": [ "localhost" ]
+          "Path": "{**catch-all}"
         },
       }
     ],
@@ -56,7 +56,7 @@ Example:
       "cluster1": {
         "Destinations": {
           "cluster1/destination1": {
-            "Address": "https://localhost:10001/"
+            "Address": "https://example.com/"
           }
         }
       }
