@@ -8,6 +8,10 @@ First, identify the final build of the [`microsoft-reverse-proxy-official` Azure
 
 Once you've identified that build, click in to the build details.
 
+## Ensure there's a release branch created.
+
+See [Branching](Branching.md).
+
 ## Validate the Final Build
 
 At this point, you can perform any validation that makes sense. At a minimum, we should validate that the sample can run with the candidate packages. You can download the final build using the "Artifacts" which can be accessed under "Related" in the header:
@@ -17,6 +21,12 @@ At this point, you can perform any validation that makes sense. At a minimum, we
 The packages can be accessed from the `PackageArtifacts` artifact:
 
 ![image](https://user-images.githubusercontent.com/7574/81447168-fef2bc80-9130-11ea-8aa0-5a83d90efa0d.png)
+
+Place it in a local folder and add that folder as a nuget feed in Visual Studio.
+
+Walk through the [Getting Started](https://microsoft.github.io/reverse-proxy/articles/getting_started.html) instructions and update them in the release branch as needed.
+
+Also validate any major new scenarios this release and their associated docs.
 
 ## Release the build
 
@@ -78,3 +88,34 @@ In the event you overpublish (publish a package that wasn't intended to be relea
 ### Package was rejected
 
 NuGet.org has special criteria for all packages starting `Microsoft.`. If the package is rejected for not meeting one of those criteria, go to the [NuGet @ Microsoft](http://aka.ms/nuget) page for more information on required criteria and guidance for how to configure the package appropriately.
+
+## Tag the commit
+
+Create and push a git tag for the commit associated with the final build (not necessarily the HEAD of the current release branch). See prior tags for the preferred format.
+
+## Draft release notes
+
+Create a draft release at https://github.com/microsoft/reverse-proxy/releases using the new tag. See prior releases for the recommended content and format.
+
+## Publish the docs
+
+Reset the `release/docs` branch to the head of the current preview branch to publish the latest docs. See [docs](../docfx/readme.md).
+
+## Publish the release notes
+
+Publish the draft release notes. These should be referencing the latest docs, packages, etc..
+
+## Close the old milestone
+
+It should be empty now.
+
+## Announce on social media
+
+David Fowler has a lot of twitter followers interested in YARP. Tweet a link to the release notes and let him retweet it.
+
+## Complete any outstanding branching tasks.
+
+See [Branching](Branching.md).
+- Make sure the versions in master have been updated for the next milestone.
+- Update the runtime dependency flow with DARC
+- Update the SDK
