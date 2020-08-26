@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Patterns;
+using Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http;
 using Microsoft.ReverseProxy.Abstractions.Telemetry;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Management;
@@ -45,19 +46,20 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             httpContext.Request.Path = "/api/test";
             httpContext.Request.QueryString = new QueryString("?a=b&c=d");
 
-            var httpClientMock = new Mock<HttpMessageInvoker>();
+            var httpClient = new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object);
             var cluster1 = new ClusterInfo(
                 clusterId: "cluster1",
                 destinationManager: new DestinationManager());
+            var clusterConfig = new ClusterConfig(default, default, default, httpClient, default, new Dictionary<string, object>());
             var destination1 = cluster1.DestinationManager.GetOrCreateItem(
                 "destination1",
                 destination =>
                 {
-                    destination.ConfigSignal.Value = new DestinationConfig("https://localhost:123/a/b/");
+                    destination.ConfigSignal.Value = new DestinationConfig("https://localhost:123/a/b/", HttpVersion.Http2.ToString(), new Dictionary<string, object>());
                     destination.DynamicStateSignal.Value = new DestinationDynamicState(DestinationHealth.Healthy);
                 });
             httpContext.Features.Set<IReverseProxyFeature>(
-                new ReverseProxyFeature() { AvailableDestinations = new List<DestinationInfo>() { destination1 }.AsReadOnly() });
+                new ReverseProxyFeature() { AvailableDestinations = new List<DestinationInfo>() { destination1 }.AsReadOnly(), ClusterConfig = clusterConfig });
             httpContext.Features.Set(cluster1);
 
             var aspNetCoreEndpoints = new List<Endpoint>();
@@ -79,7 +81,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                     httpContext,
                     It.Is<string>(uri => uri == "https://localhost:123/a/b/"),
                     It.IsAny<Transforms>(),
-                    httpClientMock.Object,
+                    httpClient,
                     It.Is<ProxyTelemetryContext>(ctx => ctx.ClusterId == "cluster1" && ctx.RouteId == "route1" && ctx.DestinationId == "destination1"),
                     It.IsAny<CancellationToken>(),
                     It.IsAny<CancellationToken>()))

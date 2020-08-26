@@ -22,8 +22,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var factory = new ProxyHttpClientFactory();
 
             // Act
-            var actual1 = factory.CreateClient();
-            var actual2 = factory.CreateClient();
+            var actual1 = factory.CreateClient(new ProxyHttpClientContext(default, default, default, default, default, default));
+            var actual2 = factory.CreateClient(new ProxyHttpClientContext(default, default, default, default, default, default));
 
             // Assert
             Assert.NotNull(actual1);

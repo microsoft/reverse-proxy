@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Patterns;
+using Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Management;
 using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
@@ -33,16 +34,16 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
         [Fact]
         public async Task Invoke_SetsFeatures()
         {
-            var httpClientMock = new Mock<HttpMessageInvoker>();
+            var httpClient = new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object);
             var cluster1 = new ClusterInfo(
                 clusterId: "cluster1",
                 destinationManager: new DestinationManager());
-            cluster1.Config.Value = new ClusterConfig(default, default, default, httpClientMock.Object);
+            cluster1.Config.Value = new ClusterConfig(default, default, default, httpClient, default, new Dictionary<string, object>());
             var destination1 = cluster1.DestinationManager.GetOrCreateItem(
                 "destination1",
                 destination =>
                 {
-                    destination.ConfigSignal.Value = new DestinationConfig("https://localhost:123/a/b/");
+                    destination.ConfigSignal.Value = new DestinationConfig("https://localhost:123/a/b/", HttpVersion.Http2.ToString(), new Dictionary<string, object>());
                     destination.DynamicStateSignal.Value = new DestinationDynamicState(DestinationHealth.Healthy);
                 });
 
@@ -76,7 +77,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
         [Fact]
         public async Task Invoke_NoHealthyEndpoints_503()
         {
-            var httpClientMock = new Mock<HttpMessageInvoker>();
+            var httpClient = new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object);
             var cluster1 = new ClusterInfo(
                 clusterId: "cluster1",
                 destinationManager: new DestinationManager());
@@ -84,12 +85,13 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 new ClusterConfig.ClusterHealthCheckOptions(enabled: true, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan, 0, ""),
                 new ClusterConfig.ClusterLoadBalancingOptions(),
                 new ClusterConfig.ClusterSessionAffinityOptions(),
-                httpClientMock.Object);
+                httpClient, new ClusterConfig.ClusterProxyHttpClientOptions(),
+                new Dictionary<string, object>());
             var destination1 = cluster1.DestinationManager.GetOrCreateItem(
                 "destination1",
                 destination =>
                 {
-                    destination.ConfigSignal.Value = new DestinationConfig("https://localhost:123/a/b/");
+                    destination.ConfigSignal.Value = new DestinationConfig("https://localhost:123/a/b/", HttpVersion.Http2.ToString(), new Dictionary<string, object>());
                     destination.DynamicStateSignal.Value = new DestinationDynamicState(DestinationHealth.Unhealthy);
                 });
 

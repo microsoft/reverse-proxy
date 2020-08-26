@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using Microsoft.ReverseProxy.Service.Management;
 using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
@@ -77,7 +78,8 @@ namespace Microsoft.ReverseProxy.RuntimeModel.Tests
             Assert.NotNull(state1);
             Assert.Empty(state1.AllDestinations);
 
-            cluster.Config.Value = new ClusterConfig(healthCheckOptions: default, loadBalancingOptions: default, sessionAffinityOptions: default, httpClient: new Mock<HttpMessageInvoker>().Object);
+            cluster.Config.Value = new ClusterConfig(healthCheckOptions: default, loadBalancingOptions: default, sessionAffinityOptions: default,
+                httpClient: new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object), httpClientOptions: default, metadata: new Dictionary<string, object>());
             Assert.NotSame(state1, cluster.DynamicState.Value);
             Assert.Empty(cluster.DynamicState.Value.AllDestinations);
         }
@@ -148,7 +150,9 @@ namespace Microsoft.ReverseProxy.RuntimeModel.Tests
                     path: "/"),
                 loadBalancingOptions: default,
                 sessionAffinityOptions: default,
-                httpClient: new Mock<HttpMessageInvoker>().Object);
+                httpClient: new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object),
+                httpClientOptions: default,
+                metadata: new Dictionary<string, object>());
         }
     }
 }

@@ -37,11 +37,16 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
         }
 
         /// <inheritdoc/>
-        public HttpMessageInvoker CreateClient()
+        public HttpMessageInvoker CreateClient(ProxyHttpClientContext context)
         {
             if (_disposed)
             {
                 throw new ObjectDisposedException(typeof(ProxyHttpClientFactory).FullName);
+            }
+
+            if (CanReuseOldClient(context))
+            {
+                return context.OldClient;
             }
 
             return new HttpMessageInvoker(_handler, disposeHandler: false);
@@ -73,6 +78,27 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
 
                 _disposed = true;
             }
+        }
+
+        private bool CanReuseOldClient(ProxyHttpClientContext context)
+        {
+            if (context.OldClient == null || context.NewOptions != context.OldOptions)
+            {
+                return false;
+            }
+
+            if (!Equals(context.OldMetadata, context.NewMetadata) && context.OldMetadata.Count == context.NewMetadata.Count)
+            {
+                foreach(var oldPair in context.OldMetadata)
+                {
+                    if (!context.NewMetadata.TryGetValue(oldPair.Key, out var newValue) || !Equals(oldPair.Value, newValue))
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
         }
     }
 }

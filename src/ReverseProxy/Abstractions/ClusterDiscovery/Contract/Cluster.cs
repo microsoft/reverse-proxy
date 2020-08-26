@@ -51,6 +51,11 @@ namespace Microsoft.ReverseProxy.Abstractions
         public HealthCheckOptions HealthCheckOptions { get; set; }
 
         /// <summary>
+        /// Options of an HTTP client that is used to call this cluster.
+        /// </summary>
+        public ProxyHttpClientOptions HttpClientOptions { get; set; }
+
+        /// <summary>
         /// The set of destinations associated with this cluster.
         /// </summary>
         public IDictionary<string, Destination> Destinations { get; private set; } = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase);
@@ -72,6 +77,7 @@ namespace Microsoft.ReverseProxy.Abstractions
                 LoadBalancing = LoadBalancing?.DeepClone(),
                 SessionAffinity = SessionAffinity?.DeepClone(),
                 HealthCheckOptions = HealthCheckOptions?.DeepClone(),
+                HttpClientOptions = HttpClientOptions?.DeepClone(),
                 Destinations = Destinations.DeepClone(StringComparer.OrdinalIgnoreCase),
                 Metadata = Metadata?.DeepClone(StringComparer.OrdinalIgnoreCase),
             };

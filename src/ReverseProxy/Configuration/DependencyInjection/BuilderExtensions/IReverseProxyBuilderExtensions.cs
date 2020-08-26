@@ -3,6 +3,7 @@
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.ReverseProxy.Abstractions.Config;
 using Microsoft.ReverseProxy.Abstractions.Telemetry;
 using Microsoft.ReverseProxy.Abstractions.Time;
 using Microsoft.ReverseProxy.Service;
@@ -50,6 +51,8 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
 
         public static IReverseProxyBuilder AddConfigManager(this IReverseProxyBuilder builder)
         {
+            builder.Services.TryAddSingleton<ICertificateConfigLoader, CertificateConfigLoader>();
+            builder.Services.TryAddSingleton<IMetadataConverter, DefaultMetadataConverter>();
             builder.Services.TryAddSingleton<IProxyConfigManager, ProxyConfigManager>();
             return builder;
         }
