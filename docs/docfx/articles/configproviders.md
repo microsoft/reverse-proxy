@@ -49,6 +49,13 @@ Once the new configuration has been validated and applied, the proxy will regist
 The following is an example `IProxyConfigProvider` that has routes and clusters manually loaded into it.
 
 ```C#
+using System.Collections.Generic;
+using System.Threading;
+using Microsoft.Extensions.Primitives;
+using Microsoft.ReverseProxy.Abstractions;
+using Microsoft.ReverseProxy.Configuration;
+using Microsoft.ReverseProxy.Service;
+
 namespace Microsoft.Extensions.DependencyInjection
 {
     public static class InMemoryConfigProviderExtensions
@@ -109,33 +116,47 @@ namespace Microsoft.ReverseProxy.Configuration
 
 And here's how it's called in Startup.cs:
 ```C#
-        public void ConfigureServices(IServiceCollection services)
+public void ConfigureServices(IServiceCollection services)
+{
+    var routes = new[]
+    {
+        new ProxyRoute()
         {
-            var routes = new[]
+            RouteId = "route1",
+            ClusterId = "cluster1",
+            Match =
             {
-                new ProxyRoute()
-                {
-                    RouteId = "route1",
-                    ClusterId = "cluster1",
-                    Match =
-                    {
-                        Path = "{**catch-all}"
-                    }
-                }
-            };
-            var clusters = new[]
-            {
-                new Cluster()
-                {
-                    Id = "cluster1",
-                    Destinations =
-                    {
-                        { "destination1", new Destination() { Address = "https://localhost:10000" } }
-                    }
-                }
-            };
-
-            services.AddReverseProxy()
-                .LoadFromMemory(routes, clusters);
+                Path = "{**catch-all}"
+            }
         }
+    };
+    var clusters = new[]
+    {
+        new Cluster()
+        {
+            Id = "cluster1",
+            Destinations =
+            {
+                { "destination1", new Destination() { Address = "https://example.com" } }
+            }
+        }
+    };
+
+    services.AddReverseProxy()
+        .LoadFromMemory(routes, clusters);
+}
+
+public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+{
+    if (env.IsDevelopment())
+    {
+        app.UseDeveloperExceptionPage();
+    }
+
+    app.UseRouting();
+    app.UseEndpoints(endpoints =>
+    {
+        endpoints.MapReverseProxy();
+    });
+}
 ```
