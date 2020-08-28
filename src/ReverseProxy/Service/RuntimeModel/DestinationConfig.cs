@@ -19,7 +19,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
     /// </remarks>
     public sealed class DestinationConfig
     {
-        public DestinationConfig(string address, string protocolVersion, IReadOnlyDictionary<string, object> metadata)
+        public DestinationConfig(string address, string protocolVersion)
         {
             if (string.IsNullOrEmpty(address))
             {
@@ -32,17 +32,11 @@ namespace Microsoft.ReverseProxy.RuntimeModel
 
             Address = address;
             ProtocolVersion = protocolVersion;
-            Metadata = metadata ?? throw new ArgumentNullException(nameof(metadata));
         }
 
         // TODO: Make this a Uri.
         public string Address { get; }
 
         public string ProtocolVersion { get; }
-
-        /// <summary>
-        /// Arbitrary key-value pairs that further describe this destination.
-        /// </summary>
-        public IReadOnlyDictionary<string, object> Metadata { get; }
     }
 }

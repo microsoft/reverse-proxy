@@ -79,7 +79,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel.Tests
             Assert.Empty(state1.AllDestinations);
 
             cluster.Config.Value = new ClusterConfig(healthCheckOptions: default, loadBalancingOptions: default, sessionAffinityOptions: default,
-                httpClient: new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object), httpClientOptions: default, metadata: new Dictionary<string, object>());
+                httpClient: new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object), httpClientOptions: default, metadata: new Dictionary<string, string>());
             Assert.NotSame(state1, cluster.DynamicState.Value);
             Assert.Empty(cluster.DynamicState.Value.AllDestinations);
         }
@@ -152,7 +152,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel.Tests
                 sessionAffinityOptions: default,
                 httpClient: new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object),
                 httpClientOptions: default,
-                metadata: new Dictionary<string, object>());
+                metadata: new Dictionary<string, string>());
         }
     }
 }

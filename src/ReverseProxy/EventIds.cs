@@ -51,5 +51,7 @@ namespace Microsoft.ReverseProxy
         public static readonly EventId ClusterConfigException = new EventId(42, "ClusterConfigException");
         public static readonly EventId ErrorReloadingConfig = new EventId(43, "ErrorReloadingConfig");
         public static readonly EventId ErrorApplyingConfig = new EventId(44, "ErrorApplyingConfig");
+        public static readonly EventId ProxyClientCreated = new EventId(45, "ProxyClientCreated");
+        public static readonly EventId ProxyClientReused = new EventId(46, "ProxyClientReused");
     }
 }

@@ -38,12 +38,12 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             var cluster1 = new ClusterInfo(
                 clusterId: "cluster1",
                 destinationManager: new DestinationManager());
-            cluster1.Config.Value = new ClusterConfig(default, default, default, httpClient, default, new Dictionary<string, object>());
+            cluster1.Config.Value = new ClusterConfig(default, default, default, httpClient, default, new Dictionary<string, string>());
             var destination1 = cluster1.DestinationManager.GetOrCreateItem(
                 "destination1",
                 destination =>
                 {
-                    destination.ConfigSignal.Value = new DestinationConfig("https://localhost:123/a/b/", HttpVersion.Http2.ToString(), new Dictionary<string, object>());
+                    destination.ConfigSignal.Value = new DestinationConfig("https://localhost:123/a/b/", HttpVersion.Http2.ToString());
                     destination.DynamicStateSignal.Value = new DestinationDynamicState(DestinationHealth.Healthy);
                 });
 
@@ -86,12 +86,12 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 new ClusterConfig.ClusterLoadBalancingOptions(),
                 new ClusterConfig.ClusterSessionAffinityOptions(),
                 httpClient, new ClusterConfig.ClusterProxyHttpClientOptions(),
-                new Dictionary<string, object>());
+                new Dictionary<string, string>());
             var destination1 = cluster1.DestinationManager.GetOrCreateItem(
                 "destination1",
                 destination =>
                 {
-                    destination.ConfigSignal.Value = new DestinationConfig("https://localhost:123/a/b/", HttpVersion.Http2.ToString(), new Dictionary<string, object>());
+                    destination.ConfigSignal.Value = new DestinationConfig("https://localhost:123/a/b/", HttpVersion.Http2.ToString());
                     destination.DynamicStateSignal.Value = new DestinationDynamicState(DestinationHealth.Unhealthy);
                 });
 

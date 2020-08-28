@@ -42,19 +42,19 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             var cluster1 = new ClusterInfo(
                 clusterId: "cluster1",
                 destinationManager: new DestinationManager());
-            cluster1.Config.Value = new ClusterConfig(default, new ClusterConfig.ClusterLoadBalancingOptions(LoadBalancingMode.RoundRobin), default, httpClient, default, new Dictionary<string, object>());
+            cluster1.Config.Value = new ClusterConfig(default, new ClusterConfig.ClusterLoadBalancingOptions(LoadBalancingMode.RoundRobin), default, httpClient, default, new Dictionary<string, string>());
             var destination1 = cluster1.DestinationManager.GetOrCreateItem(
                 "destination1",
                 destination =>
                 {
-                    destination.ConfigSignal.Value = new DestinationConfig("https://localhost:123/a/b/", HttpVersion.Http2.ToString(), new Dictionary<string, object>());
+                    destination.ConfigSignal.Value = new DestinationConfig("https://localhost:123/a/b/", HttpVersion.Http2.ToString());
                     destination.DynamicStateSignal.Value = new DestinationDynamicState(DestinationHealth.Healthy);
                 });
             var destination2 = cluster1.DestinationManager.GetOrCreateItem(
                 "destination2",
                 destination =>
                 {
-                    destination.ConfigSignal.Value = new DestinationConfig("https://localhost:123/a/b/", HttpVersion.Http2.ToString(), new Dictionary<string, object>());
+                    destination.ConfigSignal.Value = new DestinationConfig("https://localhost:123/a/b/", HttpVersion.Http2.ToString());
                     destination.DynamicStateSignal.Value = new DestinationDynamicState(DestinationHealth.Healthy);
                 });
 
@@ -100,19 +100,19 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             var cluster1 = new ClusterInfo(
                 clusterId: "cluster1",
                 destinationManager: new DestinationManager());
-            cluster1.Config.Value = new ClusterConfig(default, new ClusterConfig.ClusterLoadBalancingOptions(LoadBalancingMode.RoundRobin), default, httpClient, default, new Dictionary<string, object>());
+            cluster1.Config.Value = new ClusterConfig(default, new ClusterConfig.ClusterLoadBalancingOptions(LoadBalancingMode.RoundRobin), default, httpClient, default, new Dictionary<string, string>());
             var destination1 = cluster1.DestinationManager.GetOrCreateItem(
                 "destination1",
                 destination =>
                 {
-                    destination.ConfigSignal.Value = new DestinationConfig("https://localhost:123/a/b/", HttpVersion.Http2.ToString(), new Dictionary<string, object>());
+                    destination.ConfigSignal.Value = new DestinationConfig("https://localhost:123/a/b/", HttpVersion.Http2.ToString());
                     destination.DynamicStateSignal.Value = new DestinationDynamicState(DestinationHealth.Healthy);
                 });
             var destination2 = cluster1.DestinationManager.GetOrCreateItem(
                 "destination2",
                 destination =>
                 {
-                    destination.ConfigSignal.Value = new DestinationConfig("https://localhost:123/a/b/", HttpVersion.Http2.ToString(), new Dictionary<string, object>());
+                    destination.ConfigSignal.Value = new DestinationConfig("https://localhost:123/a/b/", HttpVersion.Http2.ToString());
                     destination.DynamicStateSignal.Value = new DestinationDynamicState(DestinationHealth.Healthy);
                 });
 

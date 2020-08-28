@@ -6,12 +6,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.AspNetCore.Routing.Matching;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Configuration;
 using Microsoft.ReverseProxy.Utilities;
+using Moq;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Service.Management.Tests
@@ -24,6 +26,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             serviceCollection.AddLogging();
             serviceCollection.AddRouting();
             var proxyBuilder = serviceCollection.AddReverseProxy().LoadFromMemory(routes, clusters);
+            serviceCollection.TryAddSingleton(new Mock<IWebHostEnvironment>().Object);
             configureProxy?.Invoke(proxyBuilder);
             var services = serviceCollection.BuildServiceProvider();
             var routeBuilder = services.GetRequiredService<IRuntimeRouteBuilder>();

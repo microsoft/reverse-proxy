@@ -7,8 +7,8 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
-using Microsoft.Extensions.Hosting;
-using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Abstractions.Config;
 
 namespace Microsoft.ReverseProxy.Configuration
@@ -16,9 +16,9 @@ namespace Microsoft.ReverseProxy.Configuration
     /// <inheritdoc/>
     internal class CertificateConfigLoader : ICertificateConfigLoader
     {
-        private readonly IHostEnvironment _hostEnvironment;
+        private readonly IWebHostEnvironment _hostEnvironment;
 
-        public CertificateConfigLoader(IHostEnvironment hostEnvironment)
+        public CertificateConfigLoader(IWebHostEnvironment hostEnvironment)
         {
             _hostEnvironment = hostEnvironment ?? throw new ArgumentNullException(nameof(hostEnvironment));
         }

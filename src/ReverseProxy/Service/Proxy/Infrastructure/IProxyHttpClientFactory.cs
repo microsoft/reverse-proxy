@@ -15,7 +15,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
     /// except that this factory class is meant for direct use,
     /// which Proxy requires in order to keep separate pools for each cluster.
     /// </remarks>
-    public interface IProxyHttpClientFactory : IDisposable
+    public interface IProxyHttpClientFactory
     {
         /// <summary>
         /// Creates and configures an <see cref="HttpMessageInvoker"/> instance

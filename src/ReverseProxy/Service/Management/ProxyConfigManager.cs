@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Security;
+using System.Security.Authentication;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -38,7 +40,7 @@ namespace Microsoft.ReverseProxy.Service.Management
         private readonly IEnumerable<IProxyConfigFilter> _filters;
         private readonly IConfigValidator _configValidator;
         private readonly IProxyHttpClientFactory _httpClientFactory;
-        private readonly IMetadataConverter _metadataConverter;
+        private readonly ICertificateConfigLoader _certificateConfigLoader;
         private IDisposable _changeSubscription;
 
         private List<Endpoint> _endpoints = new List<Endpoint>(0);
@@ -54,7 +56,7 @@ namespace Microsoft.ReverseProxy.Service.Management
             IEnumerable<IProxyConfigFilter> filters,
             IConfigValidator configValidator,
             IProxyHttpClientFactory httpClientFactory,
-            IMetadataConverter metadataConverter)
+            ICertificateConfigLoader certificateConfigLoader)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _provider = provider ?? throw new ArgumentNullException(nameof(provider));
@@ -64,7 +66,7 @@ namespace Microsoft.ReverseProxy.Service.Management
             _filters = filters ?? throw new ArgumentNullException(nameof(filters));
             _configValidator = configValidator ?? throw new ArgumentNullException(nameof(configValidator));
             _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
-            _metadataConverter = metadataConverter ?? throw new ArgumentNullException(nameof(metadataConverter));
+            _certificateConfigLoader = certificateConfigLoader ?? throw new ArgumentNullException(nameof(certificateConfigLoader));
 
             _changeToken = new CancellationChangeToken(_cancellationTokenSource.Token);
         }
@@ -277,16 +279,7 @@ namespace Microsoft.ReverseProxy.Service.Management
 
                         var currentClusterConfig = currentCluster.Config.Value;
                         var newHttpClientOptions = newCluster.HttpClientOptions;
-                        var newClusterHttpClientOptions = new ClusterConfig.ClusterProxyHttpClientOptions(
-                            newHttpClientOptions?.SslApplicationProtocols,
-                            newHttpClientOptions?.RevocationMode,
-                            newHttpClientOptions?.CipherSuitesPolicy,
-                            newHttpClientOptions?.SslProtocols,
-                            newHttpClientOptions?.EncryptionPolicy,
-                            newHttpClientOptions?.MaxConnectionsPerServer,
-                            newHttpClientOptions?.EnableMultipleHttp2Connections);
-
-                        var newMetadata = _metadataConverter.Convert(newCluster);
+                        var newClusterHttpClientOptions = ConvertProxyHttpClientOptions(newCluster.Id, newHttpClientOptions);
 
                         var httpClient = _httpClientFactory.CreateClient(new ProxyHttpClientContext(
                             currentCluster.ClusterId,
@@ -294,7 +287,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                             currentClusterConfig?.Metadata,
                             currentClusterConfig?.HttpClient,
                             newClusterHttpClientOptions,
-                            newMetadata));
+                            (IReadOnlyDictionary<string, string>)newCluster.Metadata));
 
                         var newClusterConfig = new ClusterConfig(
                                 new ClusterConfig.ClusterHealthCheckOptions(
@@ -312,7 +305,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                                     settings: newCluster.SessionAffinity?.Settings as IReadOnlyDictionary<string, string>),
                                 httpClient,
                                 newClusterHttpClientOptions,
-                                newMetadata);
+                                (IReadOnlyDictionary<string, string>)newCluster.Metadata);
 
                         if (currentClusterConfig == null ||
                             currentClusterConfig.HealthCheckOptions.Enabled != newClusterConfig.HealthCheckOptions.Enabled ||
@@ -373,8 +366,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                             {
                                 Log.DestinationChanged(_logger, newDestination.Key);
                             }
-                            var newMetadata = _metadataConverter.Convert(newDestination.Value);
-                            destination.ConfigSignal.Value = new DestinationConfig(newDestination.Value.Address, newDestination.Value.ProtocolVersion ?? Destination.DefaultProtocolVersion, newMetadata);
+                            destination.ConfigSignal.Value = new DestinationConfig(newDestination.Value.Address, newDestination.Value.ProtocolVersion ?? Destination.DefaultProtocolVersion);
                         }
                     });
             }
@@ -494,6 +486,39 @@ namespace Microsoft.ReverseProxy.Service.Management
                 // Step 4 - trigger old token
                 oldCancellationTokenSource?.Cancel();
             }
+        }
+
+        private ClusterConfig.ClusterProxyHttpClientOptions ConvertProxyHttpClientOptions(string clusterId, ProxyHttpClientOptions httpClientOptions)
+        {
+            if (httpClientOptions == null)
+            {
+                return new ClusterConfig.ClusterProxyHttpClientOptions();
+            }
+
+            var sslApplicationProtocols = httpClientOptions.SslApplicationProtocols != null && httpClientOptions.SslApplicationProtocols.Count > 0
+                ? httpClientOptions.SslApplicationProtocols.Select(p => new SslApplicationProtocol(p)).ToList().AsReadOnly()
+                : null;
+            var cipherSuitesPolicy = httpClientOptions.CipherSuitesPolicy != null ? new CipherSuitesPolicy(httpClientOptions.CipherSuitesPolicy) : null;
+
+            SslProtocols? sslProtocols = null;
+            if (httpClientOptions.SslProtocols != null && httpClientOptions.SslProtocols.Count > 0)
+            {
+                foreach(var protocolConfig in httpClientOptions.SslProtocols)
+                {
+                    sslProtocols |= protocolConfig;
+                }
+            }
+
+            var clientCertificate = httpClientOptions.ClientCertificate != null ? _certificateConfigLoader.LoadCertificate(clusterId, httpClientOptions.ClientCertificate) : null;
+            return new ClusterConfig.ClusterProxyHttpClientOptions(
+                sslApplicationProtocols,
+                httpClientOptions.RevocationCheckMode,
+                cipherSuitesPolicy,
+                sslProtocols,
+                httpClientOptions.EncryptionPolicy,
+                httpClientOptions.ValidateRemoteCertificate,
+                clientCertificate,
+                httpClientOptions.MaxConnectionsPerServer);
         }
 
         public void Dispose()

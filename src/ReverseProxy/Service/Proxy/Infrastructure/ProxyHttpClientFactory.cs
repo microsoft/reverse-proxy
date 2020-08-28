@@ -2,8 +2,13 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
 {
@@ -12,84 +17,86 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
     /// </summary>
     internal class ProxyHttpClientFactory : IProxyHttpClientFactory
     {
-        /// <summary>
-        /// Handler for http requests.
-        /// </summary>
-        private readonly HttpMessageHandler _handler;
-
-        private bool _disposed;
+        private readonly ILogger<ProxyHttpClientFactory> _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ProxyHttpClientFactory"/> class.
         /// </summary>
-        public ProxyHttpClientFactory()
+        public ProxyHttpClientFactory(ILogger<ProxyHttpClientFactory> logger)
         {
-            _handler = new SocketsHttpHandler
-            {
-                UseProxy = false,
-                AllowAutoRedirect = false,
-                AutomaticDecompression = DecompressionMethods.None,
-                UseCookies = false,
-                MaxConnectionsPerServer = int.MaxValue, // Proxy manages max connections
-
-                // NOTE: MaxResponseHeadersLength = 64, which means up to 64 KB of headers are allowed by default as of .NET Core 3.1.
-            };
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         /// <inheritdoc/>
         public HttpMessageInvoker CreateClient(ProxyHttpClientContext context)
         {
-            if (_disposed)
-            {
-                throw new ObjectDisposedException(typeof(ProxyHttpClientFactory).FullName);
-            }
-
             if (CanReuseOldClient(context))
             {
+                Log.ProxyClientReused(_logger, context.ClusterID);
                 return context.OldClient;
             }
 
-            return new HttpMessageInvoker(_handler, disposeHandler: false);
-        }
-
-        /// <inheritdoc/>
-        public void Dispose()
-        {
-            Dispose(true);
-        }
-
-        /// <summary>
-        /// Disposes the current instance.
-        /// </summary>
-        /// <remarks>
-        /// This will dispose the underlying <see cref="HttpClientHandler"/>,
-        /// so it can only be called after it is no longer in use.
-        /// </remarks>
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!_disposed)
+            var newClientOptions = context.NewOptions;
+            var handler = new SocketsHttpHandler
             {
-                if (disposing)
-                {
-                    // TODO: This has high potential to cause coding defects. See if we can do better,
-                    // perhaps do something like `Microsoft.Extensions.Http.LifetimeTrackingHttpMessageHandler`.
-                    _handler.Dispose();
-                }
+                UseProxy = false,
+                AllowAutoRedirect = false,
+                AutomaticDecompression = DecompressionMethods.None,
+                UseCookies = false
 
-                _disposed = true;
+                // NOTE: MaxResponseHeadersLength = 64, which means up to 64 KB of headers are allowed by default as of .NET Core 3.1.
+            };
+
+            if (newClientOptions.SslApplicationProtocols != null)
+            {
+                handler.SslOptions.ApplicationProtocols = new List<SslApplicationProtocol>(newClientOptions.SslApplicationProtocols);
             }
+            if (newClientOptions.RevocationCheckMode != null)
+            {
+                handler.SslOptions.CertificateRevocationCheckMode = newClientOptions.RevocationCheckMode.Value;
+            }
+            if (newClientOptions.CipherSuitesPolicy != null)
+            {
+                handler.SslOptions.CipherSuitesPolicy = newClientOptions.CipherSuitesPolicy;
+            }
+            if (newClientOptions.SslProtocols != null)
+            {
+                handler.SslOptions.EnabledSslProtocols = newClientOptions.SslProtocols.Value;
+            }
+            if (newClientOptions.EncryptionPolicy != null)
+            {
+                handler.SslOptions.EncryptionPolicy = newClientOptions.EncryptionPolicy.Value;
+            }
+            if (newClientOptions.ClientCertificate != null)
+            {
+                handler.SslOptions.ClientCertificates = new X509CertificateCollection
+                {
+                    newClientOptions.ClientCertificate
+                };
+            }
+            if (newClientOptions.MaxConnectionsPerServer != null)
+            {
+                handler.MaxConnectionsPerServer = newClientOptions.MaxConnectionsPerServer.Value;
+            }
+            if (!newClientOptions.ValidateRemoteCertificate)
+            {
+                handler.SslOptions.RemoteCertificateValidationCallback = delegate { return true; };
+            }
+
+            Log.ProxyClientCreated(_logger, context.ClusterID);
+            return new HttpMessageInvoker(handler, disposeHandler: false);
         }
 
         private bool CanReuseOldClient(ProxyHttpClientContext context)
         {
             if (context.OldClient == null || context.NewOptions != context.OldOptions)
             {
-                return false;
+                return context.NewOptions == null;
             }
 
             if (!Equals(context.OldMetadata, context.NewMetadata) && context.OldMetadata.Count == context.NewMetadata.Count)
             {
-                foreach(var oldPair in context.OldMetadata)
+                foreach (var oldPair in context.OldMetadata)
                 {
                     if (!context.NewMetadata.TryGetValue(oldPair.Key, out var newValue) || !Equals(oldPair.Value, newValue))
                     {
@@ -99,6 +106,29 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
             }
 
             return true;
+        }
+
+        private static class Log
+        {
+            private static readonly Action<ILogger, string, Exception> _proxyClientCreated = LoggerMessage.Define<string>(
+                  LogLevel.Debug,
+                  EventIds.ProxyClientCreated,
+                  "New proxy client created for cluster '{clusterId}'.");
+
+            private static readonly Action<ILogger, string, Exception> _proxyClientReused = LoggerMessage.Define<string>(
+                LogLevel.Debug,
+                EventIds.ProxyClientReused,
+                "Existing proxy client reused for cluster '{clusterId}'.");
+
+            public static void ProxyClientCreated(ILogger logger, string clusterId)
+            {
+                _proxyClientCreated(logger, clusterId, null);
+            }
+
+            public static void ProxyClientReused(ILogger logger, string clusterId)
+            {
+                _proxyClientReused(logger, clusterId, null);
+            }
         }
     }
 }

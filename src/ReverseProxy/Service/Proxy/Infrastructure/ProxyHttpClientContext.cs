@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.Net.Http;
-using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Microsoft.ReverseProxy.RuntimeModel;
 
 namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
@@ -14,21 +13,21 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
 
         public ClusterConfig.ClusterProxyHttpClientOptions OldOptions { get; }
 
-        public IReadOnlyDictionary<string, object> OldMetadata { get; }
+        public IReadOnlyDictionary<string, string> OldMetadata { get; }
 
         public HttpMessageInvoker OldClient { get; }
 
         public ClusterConfig.ClusterProxyHttpClientOptions NewOptions { get; }
 
-        public IReadOnlyDictionary<string, object> NewMetadata { get; }
+        public IReadOnlyDictionary<string, string> NewMetadata { get; }
 
         public ProxyHttpClientContext(
             string clusterId,
             ClusterConfig.ClusterProxyHttpClientOptions oldOptions,
-            IReadOnlyDictionary<string, object> oldMetadata,
+            IReadOnlyDictionary<string, string> oldMetadata,
             HttpMessageInvoker oldClient,
             ClusterConfig.ClusterProxyHttpClientOptions newOptions,
-            IReadOnlyDictionary<string, object> newMetadata)
+            IReadOnlyDictionary<string, string> newMetadata)
         {
             ClusterID = clusterId;
             OldOptions = oldOptions;

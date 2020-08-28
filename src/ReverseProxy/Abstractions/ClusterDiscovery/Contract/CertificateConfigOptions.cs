@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract
+namespace Microsoft.ReverseProxy.Abstractions
 {
     /// <summary>
     /// SSL certificate configuration.
@@ -25,5 +25,19 @@ namespace Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract
         public bool IsFileCert => !string.IsNullOrEmpty(Path);
 
         public bool IsStoreCert => !string.IsNullOrEmpty(Subject);
+
+        internal CertificateConfigOptions DeepClone()
+        {
+            return new CertificateConfigOptions
+            {
+                Path = Path,
+                KeyPath = KeyPath,
+                Password = Password,
+                Subject = Subject,
+                Store = Store,
+                Location = Location,
+                AllowInvalid = AllowInvalid
+            };
+        }
     }
 }
