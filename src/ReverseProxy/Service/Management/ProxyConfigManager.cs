@@ -13,7 +13,6 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Abstractions.Config;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
 
@@ -40,7 +39,6 @@ namespace Microsoft.ReverseProxy.Service.Management
         private readonly IEnumerable<IProxyConfigFilter> _filters;
         private readonly IConfigValidator _configValidator;
         private readonly IProxyHttpClientFactory _httpClientFactory;
-        private readonly ICertificateConfigLoader _certificateConfigLoader;
         private IDisposable _changeSubscription;
 
         private List<Endpoint> _endpoints = new List<Endpoint>(0);
@@ -55,8 +53,7 @@ namespace Microsoft.ReverseProxy.Service.Management
             IRouteManager routeManager,
             IEnumerable<IProxyConfigFilter> filters,
             IConfigValidator configValidator,
-            IProxyHttpClientFactory httpClientFactory,
-            ICertificateConfigLoader certificateConfigLoader)
+            IProxyHttpClientFactory httpClientFactory)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _provider = provider ?? throw new ArgumentNullException(nameof(provider));
@@ -66,7 +63,6 @@ namespace Microsoft.ReverseProxy.Service.Management
             _filters = filters ?? throw new ArgumentNullException(nameof(filters));
             _configValidator = configValidator ?? throw new ArgumentNullException(nameof(configValidator));
             _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
-            _certificateConfigLoader = certificateConfigLoader ?? throw new ArgumentNullException(nameof(certificateConfigLoader));
 
             _changeToken = new CancellationChangeToken(_cancellationTokenSource.Token);
         }
@@ -279,7 +275,7 @@ namespace Microsoft.ReverseProxy.Service.Management
 
                         var currentClusterConfig = currentCluster.Config.Value;
                         var newHttpClientOptions = newCluster.HttpClientOptions;
-                        var newClusterHttpClientOptions = ConvertProxyHttpClientOptions(newCluster.Id, newHttpClientOptions);
+                        var newClusterHttpClientOptions = ConvertProxyHttpClientOptions(newHttpClientOptions);
 
                         var httpClient = _httpClientFactory.CreateClient(new ProxyHttpClientContext(
                             currentCluster.ClusterId,
@@ -488,7 +484,7 @@ namespace Microsoft.ReverseProxy.Service.Management
             }
         }
 
-        private ClusterConfig.ClusterProxyHttpClientOptions ConvertProxyHttpClientOptions(string clusterId, ProxyHttpClientOptions httpClientOptions)
+        private ClusterConfig.ClusterProxyHttpClientOptions ConvertProxyHttpClientOptions(ProxyHttpClientOptions httpClientOptions)
         {
             if (httpClientOptions == null)
             {
@@ -509,7 +505,6 @@ namespace Microsoft.ReverseProxy.Service.Management
                 }
             }
 
-            var clientCertificate = httpClientOptions.ClientCertificate != null ? _certificateConfigLoader.LoadCertificate(clusterId, httpClientOptions.ClientCertificate) : null;
             return new ClusterConfig.ClusterProxyHttpClientOptions(
                 sslApplicationProtocols,
                 httpClientOptions.RevocationCheckMode,
@@ -517,7 +512,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                 sslProtocols,
                 httpClientOptions.EncryptionPolicy,
                 httpClientOptions.ValidateRemoteCertificate,
-                clientCertificate,
+                httpClientOptions.ClientCertificate,
                 httpClientOptions.MaxConnectionsPerServer);
         }
 

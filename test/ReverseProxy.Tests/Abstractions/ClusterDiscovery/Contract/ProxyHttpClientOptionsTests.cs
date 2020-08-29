@@ -28,7 +28,6 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
                 CipherSuitesPolicy = new List<TlsCipherSuite> { TlsCipherSuite.TLS_AES_128_CCM_SHA256, TlsCipherSuite.TLS_AES_256_GCM_SHA384 },
                 SslProtocols = new List<SslProtocols> { SslProtocols.Tls12, SslProtocols.Tls13},
                 EncryptionPolicy = EncryptionPolicy.AllowNoEncryption,
-                ClientCertificate = new CertificateConfigOptions(),
                 MaxConnectionsPerServer = 10
             };
 
@@ -47,7 +46,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
             Assert.Equal(options.CipherSuitesPolicy[0], clone.CipherSuitesPolicy[0]);
             Assert.Equal(options.CipherSuitesPolicy[1], clone.CipherSuitesPolicy[1]);
             Assert.Equal(options.EncryptionPolicy, clone.EncryptionPolicy);
-            Assert.NotSame(options.ClientCertificate, clone.ClientCertificate);
+            Assert.Equal(options.ClientCertificate, clone.ClientCertificate);
             Assert.Equal(options.MaxConnectionsPerServer, clone.MaxConnectionsPerServer);
         }
     }

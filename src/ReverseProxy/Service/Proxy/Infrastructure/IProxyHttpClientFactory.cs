@@ -24,8 +24,9 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
         /// <param name="context">An <see cref="ProxyHttpClientContext"/> carrying old and new cluster configurations.</param>
         /// <remarks>
         /// <para>
-        /// Each call to <see cref="CreateClient(ProxyHttpClientContext)"/> is guaranteed
-        /// to return a new <see cref="HttpMessageInvoker"/> instance.
+        /// A call to <see cref="CreateClient(ProxyHttpClientContext)"/> can return either
+        /// a new <see cref="HttpMessageInvoker"/> instance or an old one depending on whether they are equal or not.
+        /// If the old configuration is null, a new <see cref="HttpMessageInvoker"/> is always created.
         /// It is generally not necessary to dispose of the <see cref="HttpMessageInvoker"/>
         /// as the <see cref="IProxyHttpClientFactory"/> tracks and disposes resources
         /// used by the <see cref="HttpMessageInvoker"/>.

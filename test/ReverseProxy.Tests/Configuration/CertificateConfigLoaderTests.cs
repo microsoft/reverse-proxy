@@ -2,9 +2,10 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.ReverseProxy.Abstractions;
+using Microsoft.ReverseProxy.Configuration.Contract;
 using Microsoft.ReverseProxy.Utilities.Tests;
 using Moq;
 using Xunit;
@@ -52,6 +53,7 @@ namespace Microsoft.ReverseProxy.Configuration
             Assert.ThrowsAny<CryptographicException>(() => loader.LoadCertificate("cluster1", options));
         }
 
+#if NETCOREAPP5_0
         [Fact]
         public void LoadCertificate_PemPathAndKeySpecifiedButPasswordIsMissing_Throws()
         {
@@ -115,7 +117,7 @@ namespace Microsoft.ReverseProxy.Configuration
             var certificate = loader.LoadCertificate("cluster1", options);
             Assert.Equal(expectedSN, certificate.SerialNumber);
         }
-
+#endif
         private static IWebHostEnvironment GetHostEnvironment()
         {
             var result = new Mock<IWebHostEnvironment>();

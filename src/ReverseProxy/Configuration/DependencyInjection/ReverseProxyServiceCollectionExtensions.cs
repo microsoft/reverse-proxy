@@ -4,6 +4,7 @@
 using System;
 using Microsoft.Extensions.Configuration;
 using Microsoft.ReverseProxy.Configuration;
+using Microsoft.ReverseProxy.Configuration.Contract;
 using Microsoft.ReverseProxy.Configuration.DependencyInjection;
 using Microsoft.ReverseProxy.Service;
 

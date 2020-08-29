@@ -3,9 +3,8 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.ReverseProxy.Abstractions;
 
-namespace Microsoft.ReverseProxy.Configuration
+namespace Microsoft.ReverseProxy.Configuration.Contract
 {
     internal class ConfigurationOptions
     {

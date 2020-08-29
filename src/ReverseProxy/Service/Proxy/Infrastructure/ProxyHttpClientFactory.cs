@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Security;
@@ -91,17 +90,24 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
         {
             if (context.OldClient == null || context.NewOptions != context.OldOptions)
             {
-                return context.NewOptions == null;
+                return false;
             }
 
-            if (!Equals(context.OldMetadata, context.NewMetadata) && context.OldMetadata.Count == context.NewMetadata.Count)
+            if (!ReferenceEquals(context.OldMetadata, context.NewMetadata))
             {
-                foreach (var oldPair in context.OldMetadata)
+                if (context.OldMetadata.Count == context.NewMetadata.Count)
                 {
-                    if (!context.NewMetadata.TryGetValue(oldPair.Key, out var newValue) || !Equals(oldPair.Value, newValue))
+                    foreach (var oldPair in context.OldMetadata)
                     {
-                        return false;
+                        if (!context.NewMetadata.TryGetValue(oldPair.Key, out var newValue) || !Equals(oldPair.Value, newValue))
+                        {
+                            return false;
+                        }
                     }
+                }
+                else
+                {
+                    return false;
                 }
             }
 

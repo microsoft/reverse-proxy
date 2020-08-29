@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Microsoft.ReverseProxy.Abstractions
+namespace Microsoft.ReverseProxy.Configuration.Contract
 {
     /// <summary>
     /// Session affinitity options.
@@ -30,16 +30,5 @@ namespace Microsoft.ReverseProxy.Abstractions
         /// Key-value pair collection holding extra settings specific to different affinity modes.
         /// </summary>
         public IDictionary<string, string> Settings { get; set; }
-
-        internal SessionAffinityOptions DeepClone()
-        {
-            return new SessionAffinityOptions
-            {
-                Enabled = Enabled,
-                Mode = Mode,
-                FailurePolicy = FailurePolicy,
-                Settings = Settings?.DeepClone(StringComparer.OrdinalIgnoreCase)
-            };
-        }
     }
 }

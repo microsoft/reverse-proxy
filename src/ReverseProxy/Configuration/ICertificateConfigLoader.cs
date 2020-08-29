@@ -2,15 +2,15 @@
 // Licensed under the MIT License.
 
 using System.Security.Cryptography.X509Certificates;
-using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
+using Microsoft.ReverseProxy.Configuration.Contract;
 
-namespace Microsoft.ReverseProxy.Abstractions.Config
+namespace Microsoft.ReverseProxy.Configuration
 {
     /// <summary>
     /// Loads an <see cref="X509Certificate2"/> specified in a <see cref="CertificateConfigOptions"/>.
     /// Supports various certificate configuration schemas such as path and password, store and subject, and PEM format (on .NET version 5.0 or higher).
     /// </summary>
-    public interface ICertificateConfigLoader
+    internal interface ICertificateConfigLoader
     {
         /// <summary>
         /// Loads the certificate specified by <paramref name="certificateConfig"/>.

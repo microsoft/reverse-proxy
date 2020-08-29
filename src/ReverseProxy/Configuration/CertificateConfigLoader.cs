@@ -8,8 +8,7 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Abstractions.Config;
+using Microsoft.ReverseProxy.Configuration.Contract;
 
 namespace Microsoft.ReverseProxy.Configuration
 {
@@ -53,7 +52,7 @@ namespace Microsoft.ReverseProxy.Configuration
             }
             else if (certificateConfig.IsStoreCert)
             {
-                return LoadFromStoreCert(certificateConfig);
+                return LoadFromCertStore(certificateConfig);
             }
 
             return null;
@@ -83,12 +82,8 @@ namespace Microsoft.ReverseProxy.Configuration
 
                 return certificate;
             }
-            else
-            {
-                throw GetFailedToLoadCertificateKeyException(certificateKeyPath);
-            }
 
-            throw new InvalidOperationException($"PEM certificate key is invalid.");
+            throw GetFailedToLoadCertificateKeyException(certificateKeyPath);
         }
 
         private static X509Certificate2 PersistKey(X509Certificate2 fullCertificate)
@@ -172,7 +167,7 @@ namespace Microsoft.ReverseProxy.Configuration
         }
 #endif
 
-        private static X509Certificate2 LoadFromStoreCert(CertificateConfigOptions certificateConfig)
+        private static X509Certificate2 LoadFromCertStore(CertificateConfigOptions certificateConfig)
         {
             var subject = certificateConfig.Subject;
             var storeName = string.IsNullOrEmpty(certificateConfig.Store) ? StoreName.My.ToString() : certificateConfig.Store;
