@@ -27,9 +27,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
         /// A call to <see cref="CreateClient(ProxyHttpClientContext)"/> can return either
         /// a new <see cref="HttpMessageInvoker"/> instance or an old one depending on whether they are equal or not.
         /// If the old configuration is null, a new <see cref="HttpMessageInvoker"/> is always created.
-        /// It is generally not necessary to dispose of the <see cref="HttpMessageInvoker"/>
-        /// as the <see cref="IProxyHttpClientFactory"/> tracks and disposes resources
-        /// used by the <see cref="HttpMessageInvoker"/>.
+        /// The returned <see cref="HttpMessageInvoker"/> instance MUST NOT be disposed
+        /// because it can be used concurrently by several in-flight requests.
         /// </para>
         /// </remarks>
         HttpMessageInvoker CreateClient(ProxyHttpClientContext context);
