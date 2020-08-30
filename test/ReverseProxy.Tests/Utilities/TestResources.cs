@@ -43,7 +43,7 @@ namespace Microsoft.ReverseProxy.Utilities.Tests
                 return null;
             }
 
-            var basePath = Path.Combine(Directory.GetCurrentDirectory(), @"..\..\..\..\..\test", "TestCertificates");
+            var basePath = Path.Combine(Directory.GetCurrentDirectory(), "TestCertificates");
             return Path.Combine(basePath, fileName);
         }
     }

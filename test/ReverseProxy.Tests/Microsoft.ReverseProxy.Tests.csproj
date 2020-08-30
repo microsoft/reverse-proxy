@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Include="..\TestCertificates\*.pfx" LinkBase="TestCertificates" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\TestCertificates\*.crt" LinkBase="TestCertificates" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\TestCertificates\*.key" LinkBase="TestCertificates" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\TestCertificates\*.pem" LinkBase="TestCertificates" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="validSelfSignedClientEkuCertificate.cer">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
