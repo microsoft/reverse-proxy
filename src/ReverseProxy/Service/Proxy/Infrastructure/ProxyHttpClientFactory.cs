@@ -2,10 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
-using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.Extensions.Logging;
 
@@ -46,25 +44,9 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
                 // NOTE: MaxResponseHeadersLength = 64, which means up to 64 KB of headers are allowed by default as of .NET Core 3.1.
             };
 
-            if (newClientOptions.SslApplicationProtocols != null)
-            {
-                handler.SslOptions.ApplicationProtocols = new List<SslApplicationProtocol>(newClientOptions.SslApplicationProtocols);
-            }
-            if (newClientOptions.RevocationCheckMode != null)
-            {
-                handler.SslOptions.CertificateRevocationCheckMode = newClientOptions.RevocationCheckMode.Value;
-            }
-            if (newClientOptions.CipherSuitesPolicy != null)
-            {
-                handler.SslOptions.CipherSuitesPolicy = newClientOptions.CipherSuitesPolicy;
-            }
             if (newClientOptions.SslProtocols != null)
             {
                 handler.SslOptions.EnabledSslProtocols = newClientOptions.SslProtocols.Value;
-            }
-            if (newClientOptions.EncryptionPolicy != null)
-            {
-                handler.SslOptions.EncryptionPolicy = newClientOptions.EncryptionPolicy.Value;
             }
             if (newClientOptions.ClientCertificate != null)
             {

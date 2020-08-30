@@ -2,23 +2,13 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using System.Net.Security;
 using System.Security.Authentication;
-using System.Security.Cryptography.X509Certificates;
 
 namespace Microsoft.ReverseProxy.Configuration.Contract
 {
     public sealed class ProxyHttpClientOptions
     {
-        public List<string> SslApplicationProtocols { get; set; }
-
-        public X509RevocationMode? RevocationCheckMode { get; set; }
-
-        public List<TlsCipherSuite> CipherSuitesPolicy { get; set; }
-
         public List<SslProtocols> SslProtocols { get; set; }
-
-        public EncryptionPolicy? EncryptionPolicy { get; set; }
 
         public bool ValidateRemoteCertificate { get; set; } = true;
 

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Hosting;
@@ -50,7 +51,14 @@ namespace Microsoft.ReverseProxy.Configuration
                 Path = TestResources.GetCertPath("missingfile.pfx"),
                 Password = "testPassword"
             };
-            Assert.ThrowsAny<CryptographicException>(() => loader.LoadCertificate("cluster1", options));
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                Assert.ThrowsAny<FileNotFoundException>(() => loader.LoadCertificate("cluster1", options));
+            }
+            else
+            {
+                Assert.ThrowsAny<CryptographicException>(() => loader.LoadCertificate("cluster1", options));
+            }
         }
 
 #if NETCOREAPP5_0

@@ -362,7 +362,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                             {
                                 Log.DestinationChanged(_logger, newDestination.Key);
                             }
-                            destination.ConfigSignal.Value = new DestinationConfig(newDestination.Value.Address, newDestination.Value.ProtocolVersion ?? Destination.DefaultProtocolVersion);
+                            destination.ConfigSignal.Value = new DestinationConfig(newDestination.Value.Address);
                         }
                     });
             }
@@ -491,11 +491,6 @@ namespace Microsoft.ReverseProxy.Service.Management
                 return new ClusterConfig.ClusterProxyHttpClientOptions();
             }
 
-            var sslApplicationProtocols = httpClientOptions.SslApplicationProtocols != null && httpClientOptions.SslApplicationProtocols.Count > 0
-                ? httpClientOptions.SslApplicationProtocols.Select(p => new SslApplicationProtocol(p)).ToList().AsReadOnly()
-                : null;
-            var cipherSuitesPolicy = httpClientOptions.CipherSuitesPolicy != null ? new CipherSuitesPolicy(httpClientOptions.CipherSuitesPolicy) : null;
-
             SslProtocols? sslProtocols = null;
             if (httpClientOptions.SslProtocols != null && httpClientOptions.SslProtocols.Count > 0)
             {
@@ -506,11 +501,7 @@ namespace Microsoft.ReverseProxy.Service.Management
             }
 
             return new ClusterConfig.ClusterProxyHttpClientOptions(
-                sslApplicationProtocols,
-                httpClientOptions.RevocationCheckMode,
-                cipherSuitesPolicy,
                 sslProtocols,
-                httpClientOptions.EncryptionPolicy,
                 httpClientOptions.ValidateRemoteCertificate,
                 httpClientOptions.ClientCertificate,
                 httpClientOptions.MaxConnectionsPerServer);

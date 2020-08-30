@@ -2,8 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
-using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.RuntimeModel
 {
@@ -19,24 +17,17 @@ namespace Microsoft.ReverseProxy.RuntimeModel
     /// </remarks>
     public sealed class DestinationConfig
     {
-        public DestinationConfig(string address, string protocolVersion)
+        public DestinationConfig(string address)
         {
             if (string.IsNullOrEmpty(address))
             {
                 throw new ArgumentNullException(nameof(address));
             }
-            if (string.IsNullOrEmpty(protocolVersion))
-            {
-                throw new ArgumentNullException(nameof(protocolVersion));
-            }
 
             Address = address;
-            ProtocolVersion = protocolVersion;
         }
 
         // TODO: Make this a Uri.
         public string Address { get; }
-
-        public string ProtocolVersion { get; }
     }
 }

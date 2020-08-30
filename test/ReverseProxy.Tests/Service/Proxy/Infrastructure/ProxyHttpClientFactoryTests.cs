@@ -44,64 +44,10 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         }
 
         [Fact]
-        public void CreateClient_ApplySslApplicationProtocols_Success()
-        {
-            var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
-            var options = new ClusterConfig.ClusterProxyHttpClientOptions(new[] { SslApplicationProtocol.Http11, SslApplicationProtocol.Http2 }, default, default, default, default, true, default, default);
-            var client = factory.CreateClient(new ProxyHttpClientContext("cluster1", default, default, default, options, default));
-
-            var handler = GetHandler(client);
-
-            Assert.NotNull(handler);
-            Assert.NotNull(handler.SslOptions.ApplicationProtocols);
-            Assert.Equal(2, handler.SslOptions.ApplicationProtocols.Count);
-            Assert.Contains(SslApplicationProtocol.Http11, handler.SslOptions.ApplicationProtocols);
-            Assert.Contains(SslApplicationProtocol.Http2, handler.SslOptions.ApplicationProtocols);
-            VerifyDefaultValues(handler, "SslApplicationProtocols");
-        }
-
-        [Fact]
-        public void CreateClient_ApplyRevocationCheckMode_Success()
-        {
-            var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
-            var options = new ClusterConfig.ClusterProxyHttpClientOptions(default, X509RevocationMode.Offline, default, default, default, true, default, default);
-            var client = factory.CreateClient(new ProxyHttpClientContext("cluster1", default, default, default, options, default));
-
-            var handler = GetHandler(client);
-
-            Assert.NotNull(handler);
-            Assert.Equal(X509RevocationMode.Offline, handler.SslOptions.CertificateRevocationCheckMode);
-            VerifyDefaultValues(handler, "RevocationCheckMode");
-        }
-
-        [Fact]
-        public void CreateClient_ApplyCipherSuitesPolicy_Success()
-        {
-            // CipherSuitesPolicy is not supported on Windows.
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                return;
-            }
-
-            var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
-            var options = new ClusterConfig.ClusterProxyHttpClientOptions(default, default, new CipherSuitesPolicy(new[] { TlsCipherSuite.TLS_AES_128_CCM_SHA256, TlsCipherSuite.TLS_AES_256_GCM_SHA384}), default, default, true, default, default);
-            var client = factory.CreateClient(new ProxyHttpClientContext("cluster1", default, default, default, options, default));
-
-            var handler = GetHandler(client);
-
-            Assert.NotNull(handler);
-            Assert.NotNull(handler.SslOptions.CipherSuitesPolicy);
-            Assert.Equal(2, handler.SslOptions.CipherSuitesPolicy.AllowedCipherSuites.Count());
-            Assert.Contains(TlsCipherSuite.TLS_AES_128_CCM_SHA256, handler.SslOptions.CipherSuitesPolicy.AllowedCipherSuites);
-            Assert.Contains(TlsCipherSuite.TLS_AES_256_GCM_SHA384, handler.SslOptions.CipherSuitesPolicy.AllowedCipherSuites);
-            VerifyDefaultValues(handler, "CipherSuitesPolicy");
-        }
-
-        [Fact]
         public void CreateClient_ApplySslProtocols_Success()
         {
             var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
-            var options = new ClusterConfig.ClusterProxyHttpClientOptions(default, default, default, SslProtocols.Tls12 | SslProtocols.Tls13, default, true, default, default);
+            var options = new ClusterConfig.ClusterProxyHttpClientOptions(SslProtocols.Tls12 | SslProtocols.Tls13, true, default, default);
             var client = factory.CreateClient(new ProxyHttpClientContext("cluster1", default, default, default, options, default));
 
             var handler = GetHandler(client);
@@ -112,24 +58,10 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         }
 
         [Fact]
-        public void CreateClient_ApplyEncryptionPolicy_Success()
+        public void CreateClient_ApplyValidateRemoteCertificate_Success()
         {
             var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
-            var options = new ClusterConfig.ClusterProxyHttpClientOptions(default, default, default, default, EncryptionPolicy.AllowNoEncryption, true, default, default);
-            var client = factory.CreateClient(new ProxyHttpClientContext("cluster1", default, default, default, options, default));
-
-            var handler = GetHandler(client);
-
-            Assert.NotNull(handler);
-            Assert.Equal(EncryptionPolicy.AllowNoEncryption, handler.SslOptions.EncryptionPolicy);
-            VerifyDefaultValues(handler, "EncryptionPolicy");
-        }
-
-        [Fact]
-        public void CreateClient_ApplyEValidateRemoteCertificate_Success()
-        {
-            var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
-            var options = new ClusterConfig.ClusterProxyHttpClientOptions(default, default, default, default, default, false, default, default);
+            var options = new ClusterConfig.ClusterProxyHttpClientOptions(default, false, default, default);
             var client = factory.CreateClient(new ProxyHttpClientContext("cluster1", default, default, default, options, default));
 
             var handler = GetHandler(client);
@@ -145,7 +77,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         {
             var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
             var certificate = TestResources.GetTestCertificate();
-            var options = new ClusterConfig.ClusterProxyHttpClientOptions(default, default, default, default, default, true, certificate, default);
+            var options = new ClusterConfig.ClusterProxyHttpClientOptions(default, true, certificate, default);
             var client = factory.CreateClient(new ProxyHttpClientContext("cluster1", default, default, default, options, default));
 
             var handler = GetHandler(client);
@@ -160,7 +92,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         public void CreateClient_ApplyMaxConnectionsPerServer_Success()
         {
             var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
-            var options = new ClusterConfig.ClusterProxyHttpClientOptions(default, default, default, default, default, true, default, 22);
+            var options = new ClusterConfig.ClusterProxyHttpClientOptions(default, true, default, 22);
             var client = factory.CreateClient(new ProxyHttpClientContext("cluster1", default, default, default, options, default));
 
             var handler = GetHandler(client);
@@ -190,11 +122,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         private (string name, Func<SocketsHttpHandler, object> extractor)[] GetAllExtractors()
         {
             return new (string name, Func<SocketsHttpHandler, object> extractor)[] {
-                ("SslApplicationProtocols", h => h.SslOptions.ApplicationProtocols),
-                ("RevocationCheckMode", h => h.SslOptions.CertificateRevocationCheckMode),
-                ("CipherSuitesPolicy", h => h.SslOptions.CipherSuitesPolicy),
                 ("SslProtocols", h => h.SslOptions.EnabledSslProtocols),
-                ("EncryptionPolicy", h => h.SslOptions.EncryptionPolicy),
                 ("ValidateRemoteCertificate", h => h.SslOptions.RemoteCertificateValidationCallback),
                 ("ClientCertificate", h => h.SslOptions.ClientCertificates),
                 ("MaxConnectionsPerServer", h => h.MaxConnectionsPerServer)

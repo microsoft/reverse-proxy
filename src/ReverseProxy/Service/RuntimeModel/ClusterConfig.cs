@@ -138,34 +138,18 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         public readonly struct ClusterProxyHttpClientOptions : IEquatable<ClusterProxyHttpClientOptions>
         {
             public ClusterProxyHttpClientOptions(
-                IReadOnlyList<SslApplicationProtocol> sslApplicationProtocols,
-                X509RevocationMode? revocationCheckMode,
-                CipherSuitesPolicy cipherSuitesPolicy,
                 SslProtocols? sslProtocols,
-                EncryptionPolicy? encryptionPolicy,
                 bool validateRemoteCertificate,
                 X509Certificate clientCertificate,
                 int? maxConnectionsPerServer)
             {
-                SslApplicationProtocols = sslApplicationProtocols;
-                RevocationCheckMode = revocationCheckMode;
-                CipherSuitesPolicy = cipherSuitesPolicy;
                 SslProtocols = sslProtocols;
-                EncryptionPolicy = encryptionPolicy;
                 ValidateRemoteCertificate = validateRemoteCertificate;
                 ClientCertificate = clientCertificate;
                 MaxConnectionsPerServer = maxConnectionsPerServer;
             }
 
-            public IReadOnlyList<SslApplicationProtocol> SslApplicationProtocols { get; }
-
-            public X509RevocationMode? RevocationCheckMode { get; }
-
-            public CipherSuitesPolicy CipherSuitesPolicy { get; }
-
             public SslProtocols? SslProtocols { get; }
-
-            public EncryptionPolicy? EncryptionPolicy { get; }
 
             public bool ValidateRemoteCertificate { get; }
 
@@ -183,11 +167,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
 
             public bool Equals(ClusterProxyHttpClientOptions other)
             {
-                return EqualityComparer<IReadOnlyList<SslApplicationProtocol>>.Default.Equals(SslApplicationProtocols, other.SslApplicationProtocols) &&
-                       RevocationCheckMode == other.RevocationCheckMode &&
-                       EqualityComparer<CipherSuitesPolicy>.Default.Equals(CipherSuitesPolicy, other.CipherSuitesPolicy) &&
-                       SslProtocols == other.SslProtocols &&
-                       EncryptionPolicy == other.EncryptionPolicy &&
+                return SslProtocols == other.SslProtocols &&
                        ValidateRemoteCertificate == other.ValidateRemoteCertificate &&
                        EqualityComparer<X509Certificate>.Default.Equals(ClientCertificate, other.ClientCertificate) &&
                        MaxConnectionsPerServer == other.MaxConnectionsPerServer;
@@ -195,7 +175,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
 
             public override int GetHashCode()
             {
-                return HashCode.Combine(SslApplicationProtocols, RevocationCheckMode, CipherSuitesPolicy, SslProtocols, EncryptionPolicy, ValidateRemoteCertificate, ClientCertificate, MaxConnectionsPerServer);
+                return HashCode.Combine(SslProtocols, ValidateRemoteCertificate, ClientCertificate, MaxConnectionsPerServer);
             }
 
             public static bool operator ==(ClusterProxyHttpClientOptions left, ClusterProxyHttpClientOptions right)

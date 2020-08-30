@@ -236,11 +236,7 @@ namespace Microsoft.ReverseProxy.Configuration
             var clientCertificate = options.ClientCertificate != null ? _certificateConfigLoader.LoadCertificate(clusterId, options.ClientCertificate) : null;
             return new Abstractions.ProxyHttpClientOptions
             {
-                SslApplicationProtocols = options.SslApplicationProtocols.CloneList(),
-                RevocationCheckMode = options.RevocationCheckMode,
-                CipherSuitesPolicy = options.CipherSuitesPolicy.CloneList(),
                 SslProtocols = options.SslProtocols.CloneList(),
-                EncryptionPolicy = options.EncryptionPolicy,
                 ValidateRemoteCertificate = options.ValidateRemoteCertificate,
                 ClientCertificate = clientCertificate,
                 MaxConnectionsPerServer = options.MaxConnectionsPerServer
@@ -257,7 +253,6 @@ namespace Microsoft.ReverseProxy.Configuration
             return new Abstractions.Destination
             {
                 Address = options.Address,
-                ProtocolVersion = options.ProtocolVersion,
                 Metadata = options.Metadata?.DeepClone(StringComparer.OrdinalIgnoreCase),
             };
         }

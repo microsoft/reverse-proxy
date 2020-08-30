@@ -16,11 +16,6 @@ namespace Microsoft.ReverseProxy.Configuration.Contract
         public string Address { get; set; }
 
         /// <summary>
-        /// HTTP protocol version to call this <see cref="Destination"/>.
-        /// </summary>
-        public string ProtocolVersion { get; set; }
-
-        /// <summary>
         /// Arbitrary key-value pairs that further describe this destination.
         /// </summary>
         public IDictionary<string, string> Metadata { get; set; }
