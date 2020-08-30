@@ -274,8 +274,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                         UpdateRuntimeDestinations(newCluster.Destinations, currentCluster.DestinationManager);
 
                         var currentClusterConfig = currentCluster.Config.Value;
-                        var newHttpClientOptions = newCluster.HttpClientOptions;
-                        var newClusterHttpClientOptions = ConvertProxyHttpClientOptions(newHttpClientOptions);
+                        var newClusterHttpClientOptions = ConvertProxyHttpClientOptions(newCluster.HttpClientOptions);
 
                         var httpClient = _httpClientFactory.CreateClient(new ProxyHttpClientContext(
                             currentCluster.ClusterId,
