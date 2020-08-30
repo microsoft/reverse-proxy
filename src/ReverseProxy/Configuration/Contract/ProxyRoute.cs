@@ -21,9 +21,9 @@ namespace Microsoft.ReverseProxy.Configuration.Contract
         public ProxyMatch Match { get; private set; } = new ProxyMatch();
 
         /// <summary>
-        /// Optionally, a priority value for this route. Routes with lower numbers take precedence over higher numbers.
+        /// Optionally, an order value for this route. Routes with lower numbers take precedence over higher numbers.
         /// </summary>
-        public int? Priority { get; set; }
+        public int? Order { get; set; }
 
         /// <summary>
         /// Gets or sets the cluster that requests matching this route

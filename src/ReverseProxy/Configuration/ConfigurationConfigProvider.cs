@@ -114,7 +114,7 @@ namespace Microsoft.ReverseProxy.Configuration
             var route = new Abstractions.ProxyRoute
             {
                 RouteId = options.RouteId,
-                Priority = options.Priority,
+                Order = options.Order,
                 ClusterId = options.ClusterId,
                 AuthorizationPolicy = options.AuthorizationPolicy,
                 CorsPolicy = options.CorsPolicy,
