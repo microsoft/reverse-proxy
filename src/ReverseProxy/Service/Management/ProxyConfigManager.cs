@@ -495,7 +495,7 @@ namespace Microsoft.ReverseProxy.Service.Management
             {
                 foreach(var protocolConfig in httpClientOptions.SslProtocols)
                 {
-                    sslProtocols |= protocolConfig;
+                    sslProtocols = sslProtocols == null ? protocolConfig : sslProtocols | protocolConfig;
                 }
             }
 

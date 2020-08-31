@@ -5,11 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Net.Security;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Security.Authentication;
-using System.Security.Cryptography.X509Certificates;
 using Microsoft.Extensions.Logging;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
@@ -102,7 +99,105 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             VerifyDefaultValues(handler, "MaxConnectionsPerServer");
         }
 
-        private static SocketsHttpHandler GetHandler(HttpMessageInvoker client)
+        [Fact]
+        public void CreateClient_OldClientExistsNoConfigChange_ReturnsOldInstance()
+        {
+            var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
+            var oldClient = new HttpMessageInvoker(new SocketsHttpHandler());
+            var clientCertificate = TestResources.GetTestCertificate();
+            var oldOptions = new ClusterConfig.ClusterProxyHttpClientOptions(SslProtocols.Tls11 | SslProtocols.Tls12, true, clientCertificate, 10);
+            var newOptions = new ClusterConfig.ClusterProxyHttpClientOptions(SslProtocols.Tls11 | SslProtocols.Tls12, true, clientCertificate, 10);
+            var oldMetadata = new Dictionary<string, string> { { "key1", "value1" }, { "key2", "value2" } };
+            var newMetadata = new Dictionary<string, string> { { "key1", "value1" }, { "key2", "value2" } };
+            var context = new ProxyHttpClientContext("cluster1", oldOptions, oldMetadata, oldClient, newOptions, newMetadata);
+
+            var actualClient = factory.CreateClient(context);
+
+            Assert.Equal(newOptions, oldOptions);
+            Assert.Same(oldClient, actualClient);
+        }
+
+        [Theory]
+        [MemberData(nameof(GetChangedMetadata))]
+        public void CreateClient_OldClientExistsMetadataChanged_ReturnsNewInstance(Dictionary<string, string> oldMetadata, Dictionary<string, string> newMetadata)
+        {
+            var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
+            var oldClient = new HttpMessageInvoker(new SocketsHttpHandler());
+            var clientCertificate = TestResources.GetTestCertificate();
+            var oldOptions = new ClusterConfig.ClusterProxyHttpClientOptions(SslProtocols.Tls11 | SslProtocols.Tls12, true, clientCertificate, 10);
+            var newOptions = new ClusterConfig.ClusterProxyHttpClientOptions(SslProtocols.Tls11 | SslProtocols.Tls12, true, clientCertificate, 10);
+            var context = new ProxyHttpClientContext("cluster1", oldOptions, oldMetadata, oldClient, newOptions, newMetadata);
+
+            var actualClient = factory.CreateClient(context);
+
+            Assert.Equal(newOptions, oldOptions);
+            Assert.NotSame(oldClient, actualClient);
+        }
+
+        [Theory]
+        [MemberData(nameof(GetChangedHttpClientOptions))]
+        public void CreateClient_OldClientExistsHttpClientOptionsChanged_ReturnsNewInstance(ClusterConfig.ClusterProxyHttpClientOptions oldOptions, ClusterConfig.ClusterProxyHttpClientOptions newOptions)
+        {
+            var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
+            var oldClient = new HttpMessageInvoker(new SocketsHttpHandler());
+            var context = new ProxyHttpClientContext("cluster1", oldOptions, null, oldClient, newOptions, null);
+
+            var actualClient = factory.CreateClient(context);
+
+            Assert.NotEqual(newOptions, oldOptions);
+            Assert.NotSame(oldClient, actualClient);
+        }
+
+        public static IEnumerable<object[]> GetChangedMetadata()
+        {
+            return new[]
+            {
+                new object[] { new Dictionary<string, string>(), new Dictionary<string, string> { { "key1", "value1" } } },
+                new object[] { new Dictionary<string, string> { { "key1", "value1" } }, new Dictionary<string, string>() },
+                new object[] { new Dictionary<string, string> { { "key1", "value1" }, { "key2", "value2" } }, new Dictionary<string, string> { { "key1", "value1" }, { "key2", "value1" } } },
+                new object[] { new Dictionary<string, string> { { "key1", "value1" }, { "key2", "value2" } }, new Dictionary<string, string> { { "key3", "value1" }, { "key2", "value2" } } },
+                new object[] { new Dictionary<string, string> { { "key1", "value1" } }, new Dictionary<string, string> { { "key1", "value1" }, { "key2", "value1" } } },
+                new object[] { new Dictionary<string, string> { { "key1", "value1" }, { "key2", "value1" } }, new Dictionary<string, string> { { "key1", "value1" } } }
+            };
+        }
+
+        public static IEnumerable<object[]> GetChangedHttpClientOptions()
+        {
+            var clientCertificate = TestResources.GetTestCertificate();
+            return new[]
+            {
+                new object[] {
+                    new ClusterConfig.ClusterProxyHttpClientOptions(SslProtocols.Tls11, true, clientCertificate, null),
+                    new ClusterConfig.ClusterProxyHttpClientOptions(SslProtocols.Tls11 | SslProtocols.Tls12, true, clientCertificate, null)
+                },
+                new object[] {
+                    new ClusterConfig.ClusterProxyHttpClientOptions(SslProtocols.Tls11, true, clientCertificate, null),
+                    new ClusterConfig.ClusterProxyHttpClientOptions(SslProtocols.Tls11, false, clientCertificate, null)
+                },
+                new object[] {
+                    new ClusterConfig.ClusterProxyHttpClientOptions(SslProtocols.Tls11, true, clientCertificate, null),
+                    new ClusterConfig.ClusterProxyHttpClientOptions(SslProtocols.Tls11, true, null, null)
+                },
+                new object[] {
+                    new ClusterConfig.ClusterProxyHttpClientOptions(SslProtocols.Tls11, true, null, null),
+                    new ClusterConfig.ClusterProxyHttpClientOptions(SslProtocols.Tls11, true, clientCertificate, null)
+                },
+                new object[] {
+                    new ClusterConfig.ClusterProxyHttpClientOptions(SslProtocols.Tls11, true, null, null),
+                    new ClusterConfig.ClusterProxyHttpClientOptions(SslProtocols.Tls11, true, clientCertificate, 10)
+                },
+                new object[] {
+                    new ClusterConfig.ClusterProxyHttpClientOptions(SslProtocols.Tls11, true, null, 10),
+                    new ClusterConfig.ClusterProxyHttpClientOptions(SslProtocols.Tls11, true, clientCertificate, null)
+                },
+                new object[] {
+                    new ClusterConfig.ClusterProxyHttpClientOptions(SslProtocols.Tls11, true, null, 10),
+                    new ClusterConfig.ClusterProxyHttpClientOptions(SslProtocols.Tls11, true, clientCertificate, 20)
+                },
+            };
+        }
+
+        public static SocketsHttpHandler GetHandler(HttpMessageInvoker client)
         {
             var handlerFieldInfo = typeof(HttpMessageInvoker).GetFields(BindingFlags.Instance | BindingFlags.NonPublic).Single(f => f.Name == "_handler");
             var result = (SocketsHttpHandler)handlerFieldInfo.GetValue(client);
