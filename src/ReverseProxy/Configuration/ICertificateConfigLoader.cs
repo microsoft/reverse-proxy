@@ -16,7 +16,8 @@ namespace Microsoft.ReverseProxy.Configuration
         /// Loads the certificate specified by <paramref name="certificateConfig"/>.
         /// </summary>
         /// <param name="certificateConfig">Certificate configuration.</param>
-        /// <returns>An <see cref="X509Certificate2"/> instance if loading completed successfully; otherwise null.</returns>
+        /// <returns>An <see cref="X509Certificate2"/> instance if loading completed successfully.
+        /// It never returns null, but throws an exception in case of a failure.</returns>
         X509Certificate2 LoadCertificate(CertificateConfigOptions certificateConfig);
     }
 }

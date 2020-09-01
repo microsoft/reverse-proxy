@@ -22,9 +22,9 @@ namespace Microsoft.ReverseProxy.Configuration.Contract
 
         public bool? AllowInvalid { get; set; }
 
-        public bool IsFileCert => !string.IsNullOrEmpty(Path);
+        internal bool IsFileCert => !string.IsNullOrEmpty(Path);
 
-        public bool IsStoreCert => !string.IsNullOrEmpty(Subject);
+        internal bool IsStoreCert => !string.IsNullOrEmpty(Subject);
 
         internal CertificateConfigOptions DeepClone()
         {

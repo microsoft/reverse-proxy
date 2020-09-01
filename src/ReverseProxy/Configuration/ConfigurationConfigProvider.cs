@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Authentication;
 using System.Threading;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -73,7 +74,7 @@ namespace Microsoft.ReverseProxy.Configuration
                 _snapshot = new ConfigurationSnapshot()
                 {
                     Routes = options.Routes.Select(r => Convert(r)).ToList().AsReadOnly(),
-                    Clusters = options.Clusters.Values.Select(r => Convert(r)).ToList().AsReadOnly(),
+                    Clusters = options.Clusters.Select(c => Convert(c.Key, c.Value)).ToList().AsReadOnly(),
                     ChangeToken = new CancellationChangeToken(_changeToken.Token)
                 };
 
@@ -88,11 +89,13 @@ namespace Microsoft.ReverseProxy.Configuration
             }
         }
 
-        private Abstractions.Cluster Convert(Cluster options)
+        private Abstractions.Cluster Convert(string clusterId, Cluster options)
         {
             var cluster = new Abstractions.Cluster
             {
-                Id = options.Id,
+                // The Object style config binding puts the id as the key in the dictionary, but later we want it on the
+                // cluster object as well.
+                Id = clusterId,
                 CircuitBreakerOptions = Convert(options.CircuitBreakerOptions),
                 QuotaOptions = Convert(options.QuotaOptions),
                 PartitioningOptions = Convert(options.PartitioningOptions),
@@ -189,7 +192,7 @@ namespace Microsoft.ReverseProxy.Configuration
 
             return new Abstractions.LoadBalancingOptions
             {
-                Mode = (Abstractions.LoadBalancingMode)(int)options.Mode,
+                Mode = Enum.Parse<Abstractions.LoadBalancingMode>(options.Mode),
             };
         }
 
@@ -234,9 +237,19 @@ namespace Microsoft.ReverseProxy.Configuration
             }
 
             var clientCertificate = options.ClientCertificate != null ? _certificateConfigLoader.LoadCertificate(options.ClientCertificate) : null;
+
+            SslProtocols? sslProtocols = null;
+            if (options.SslProtocols != null && options.SslProtocols.Count > 0)
+            {
+                foreach (var protocolConfig in options.SslProtocols)
+                {
+                    sslProtocols = sslProtocols == null ? protocolConfig : sslProtocols | protocolConfig;
+                }
+            }
+
             return new Abstractions.ProxyHttpClientOptions
             {
-                SslProtocols = options.SslProtocols.CloneList(),
+                SslProtocols = sslProtocols,
                 ValidateRemoteCertificate = options.ValidateRemoteCertificate,
                 ClientCertificate = clientCertificate,
                 MaxConnectionsPerServer = options.MaxConnectionsPerServer

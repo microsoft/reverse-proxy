@@ -45,7 +45,7 @@ namespace Microsoft.ReverseProxy.Configuration
                 {
 #if NETCOREAPP5_0
                     return LoadPEMCertificate(certificateConfig, certificatePath);
-#else
+#elif NETCOREAPP3_1
                     throw new NotSupportedException("PEM certificate format is only supported on .NET 5 or higher.");
 #endif
                 }

@@ -50,7 +50,6 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
 
         public static IReverseProxyBuilder AddConfigManager(this IReverseProxyBuilder builder)
         {
-            builder.Services.TryAddSingleton<ICertificateConfigLoader, CertificateConfigLoader>();
             builder.Services.TryAddSingleton<IProxyConfigManager, ProxyConfigManager>();
             return builder;
         }

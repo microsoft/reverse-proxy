@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 
@@ -9,7 +8,7 @@ namespace Microsoft.ReverseProxy.Abstractions
 {
     public sealed class ProxyHttpClientOptions
     {
-        public List<SslProtocols> SslProtocols { get; set; }
+        public SslProtocols? SslProtocols { get; set; }
 
         public bool ValidateRemoteCertificate { get; set; } = true;
 
@@ -24,7 +23,7 @@ namespace Microsoft.ReverseProxy.Abstractions
         {
             return new ProxyHttpClientOptions
             {
-                SslProtocols = SslProtocols.CloneList(),
+                SslProtocols = SslProtocols,
                 ValidateRemoteCertificate = ValidateRemoteCertificate,
                 // TODO: Clone certificate?
                 ClientCertificate = ClientCertificate,

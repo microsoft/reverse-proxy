@@ -45,15 +45,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IReverseProxyBuilder LoadFromConfig(this IReverseProxyBuilder builder, IConfiguration config)
         {
             builder.Services.Configure<ConfigurationOptions>(config);
-            builder.Services.AddOptions().PostConfigure<ConfigurationOptions>(options =>
-            {
-                foreach (var (id, cluster) in options.Clusters)
-                {
-                    // The Object style config binding puts the id as the key in the dictionary, but later we want it on the
-                    // cluster object as well.
-                    cluster.Id = id;
-                }
-            });
+            builder.Services.AddSingleton<ICertificateConfigLoader, CertificateConfigLoader>();
             builder.Services.AddSingleton<IProxyConfigProvider, ConfigurationConfigProvider>();
 
             return builder;

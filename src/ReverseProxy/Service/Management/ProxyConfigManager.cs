@@ -490,17 +490,8 @@ namespace Microsoft.ReverseProxy.Service.Management
                 return new ClusterConfig.ClusterProxyHttpClientOptions();
             }
 
-            SslProtocols? sslProtocols = null;
-            if (httpClientOptions.SslProtocols != null && httpClientOptions.SslProtocols.Count > 0)
-            {
-                foreach(var protocolConfig in httpClientOptions.SslProtocols)
-                {
-                    sslProtocols = sslProtocols == null ? protocolConfig : sslProtocols | protocolConfig;
-                }
-            }
-
             return new ClusterConfig.ClusterProxyHttpClientOptions(
-                sslProtocols,
+                httpClientOptions.SslProtocols,
                 httpClientOptions.ValidateRemoteCertificate,
                 httpClientOptions.ClientCertificate,
                 httpClientOptions.MaxConnectionsPerServer);

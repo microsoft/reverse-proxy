@@ -150,7 +150,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
                 Id = "cluster1",
                 Destinations = { { "d1", new Destination { Address = TestAddress } } },
                 HttpClientOptions = new ProxyHttpClientOptions {
-                    SslProtocols = new List<SslProtocols> { SslProtocols.Tls11, SslProtocols.Tls12 },
+                    SslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12,
                     MaxConnectionsPerServer = 10,
                     ClientCertificate = clientCertificate
                 }

@@ -8,6 +8,6 @@ namespace Microsoft.ReverseProxy.Configuration.Contract
     /// </summary>
     public sealed class LoadBalancingOptions
     {
-        public LoadBalancingMode Mode { get; set; }
+        public string Mode { get; set; }
     }
 }
