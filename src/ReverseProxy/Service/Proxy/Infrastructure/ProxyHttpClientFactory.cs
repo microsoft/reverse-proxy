@@ -70,30 +70,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
 
         private bool CanReuseOldClient(ProxyHttpClientContext context)
         {
-            if (context.OldClient == null || context.NewOptions != context.OldOptions)
-            {
-                return false;
-            }
-
-            if (!ReferenceEquals(context.OldMetadata, context.NewMetadata))
-            {
-                if (context.OldMetadata.Count == context.NewMetadata.Count)
-                {
-                    foreach (var oldPair in context.OldMetadata)
-                    {
-                        if (!context.NewMetadata.TryGetValue(oldPair.Key, out var newValue) || !Equals(oldPair.Value, newValue))
-                        {
-                            return false;
-                        }
-                    }
-                }
-                else
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            return context.OldClient != null && context.NewOptions == context.OldOptions;
         }
 
         private static class Log

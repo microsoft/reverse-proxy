@@ -118,23 +118,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         }
 
         [Theory]
-        [MemberData(nameof(GetChangedMetadata))]
-        public void CreateClient_OldClientExistsMetadataChanged_ReturnsNewInstance(Dictionary<string, string> oldMetadata, Dictionary<string, string> newMetadata)
-        {
-            var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
-            var oldClient = new HttpMessageInvoker(new SocketsHttpHandler());
-            var clientCertificate = TestResources.GetTestCertificate();
-            var oldOptions = new ClusterConfig.ClusterProxyHttpClientOptions(SslProtocols.Tls11 | SslProtocols.Tls12, true, clientCertificate, 10);
-            var newOptions = new ClusterConfig.ClusterProxyHttpClientOptions(SslProtocols.Tls11 | SslProtocols.Tls12, true, clientCertificate, 10);
-            var context = new ProxyHttpClientContext("cluster1", oldOptions, oldMetadata, oldClient, newOptions, newMetadata);
-
-            var actualClient = factory.CreateClient(context);
-
-            Assert.Equal(newOptions, oldOptions);
-            Assert.NotSame(oldClient, actualClient);
-        }
-
-        [Theory]
         [MemberData(nameof(GetChangedHttpClientOptions))]
         public void CreateClient_OldClientExistsHttpClientOptionsChanged_ReturnsNewInstance(ClusterConfig.ClusterProxyHttpClientOptions oldOptions, ClusterConfig.ClusterProxyHttpClientOptions newOptions)
         {
@@ -146,19 +129,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
             Assert.NotEqual(newOptions, oldOptions);
             Assert.NotSame(oldClient, actualClient);
-        }
-
-        public static IEnumerable<object[]> GetChangedMetadata()
-        {
-            return new[]
-            {
-                new object[] { new Dictionary<string, string>(), new Dictionary<string, string> { { "key1", "value1" } } },
-                new object[] { new Dictionary<string, string> { { "key1", "value1" } }, new Dictionary<string, string>() },
-                new object[] { new Dictionary<string, string> { { "key1", "value1" }, { "key2", "value2" } }, new Dictionary<string, string> { { "key1", "value1" }, { "key2", "value1" } } },
-                new object[] { new Dictionary<string, string> { { "key1", "value1" }, { "key2", "value2" } }, new Dictionary<string, string> { { "key3", "value1" }, { "key2", "value2" } } },
-                new object[] { new Dictionary<string, string> { { "key1", "value1" } }, new Dictionary<string, string> { { "key1", "value1" }, { "key2", "value1" } } },
-                new object[] { new Dictionary<string, string> { { "key1", "value1" }, { "key2", "value1" } }, new Dictionary<string, string> { { "key1", "value1" } } }
-            };
         }
 
         public static IEnumerable<object[]> GetChangedHttpClientOptions()
