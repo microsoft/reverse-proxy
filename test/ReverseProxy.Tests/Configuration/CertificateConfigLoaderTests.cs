@@ -24,7 +24,7 @@ namespace Microsoft.ReverseProxy.Configuration
                 Path = TestResources.GetCertPath("aspnetdevcert.pfx"),
                 Password = "testPassword"
             };
-            var certificate = loader.LoadCertificate("cluster1", options);
+            var certificate = loader.LoadCertificate(options);
 
             Assert.NotNull(certificate);
             Assert.Equal("7E2467E85A9FA8824F6A37469334AD1C", certificate.SerialNumber);
@@ -39,7 +39,7 @@ namespace Microsoft.ReverseProxy.Configuration
                 Path = TestResources.GetCertPath("aspnetdevcert.pfx"),
                 Password = "12341234"
             };
-            Assert.ThrowsAny<CryptographicException>(() => loader.LoadCertificate("cluster1", options));
+            Assert.ThrowsAny<CryptographicException>(() => loader.LoadCertificate(options));
         }
 
         [Fact]
@@ -53,11 +53,11 @@ namespace Microsoft.ReverseProxy.Configuration
             };
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
-                Assert.ThrowsAny<FileNotFoundException>(() => loader.LoadCertificate("cluster1", options));
+                Assert.ThrowsAny<FileNotFoundException>(() => loader.LoadCertificate(options));
             }
             else
             {
-                Assert.ThrowsAny<CryptographicException>(() => loader.LoadCertificate("cluster1", options));
+                Assert.ThrowsAny<CryptographicException>(() => loader.LoadCertificate(options));
             }
         }
 
@@ -71,7 +71,7 @@ namespace Microsoft.ReverseProxy.Configuration
                 Path = TestResources.GetCertPath("https-aspnet.crt"),
                 KeyPath = TestResources.GetCertPath("https-aspnet.key")
             };
-            Assert.Throws<ArgumentException>(() => loader.LoadCertificate("cluster1", options));
+            Assert.Throws<ArgumentException>(() => loader.LoadCertificate(options));
         }
 
         [Fact]
@@ -83,7 +83,7 @@ namespace Microsoft.ReverseProxy.Configuration
                 Path = TestResources.GetCertPath("https-aspnet.crt"),
                 KeyPath = TestResources.GetCertPath("https-ecdsa.key")
             };
-            Assert.Throws<ArgumentException>(() => loader.LoadCertificate("cluster1", options));
+            Assert.Throws<ArgumentException>(() => loader.LoadCertificate(options));
         }
 
         [Fact]
@@ -96,7 +96,7 @@ namespace Microsoft.ReverseProxy.Configuration
                 KeyPath = TestResources.GetCertPath("https-aspnet.key"),
                 Password = "abcde"
             };
-            Assert.ThrowsAny<CryptographicException>(() => loader.LoadCertificate("cluster1", options));
+            Assert.ThrowsAny<CryptographicException>(() => loader.LoadCertificate(options));
         }
 
         [Theory]
@@ -122,7 +122,7 @@ namespace Microsoft.ReverseProxy.Configuration
                 Password = password
             };
 
-            var certificate = loader.LoadCertificate("cluster1", options);
+            var certificate = loader.LoadCertificate(options);
             Assert.Equal(expectedSN, certificate.SerialNumber);
         }
 #endif

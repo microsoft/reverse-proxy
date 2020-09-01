@@ -99,7 +99,7 @@ namespace Microsoft.ReverseProxy.Configuration
                 LoadBalancing = Convert(options.LoadBalancing),
                 SessionAffinity = Convert(options.SessionAffinity),
                 HealthCheckOptions = Convert(options.HealthCheckOptions),
-                HttpClientOptions = Convert(options.Id, options.HttpClientOptions),
+                HttpClientOptions = Convert(options.HttpClientOptions),
                 Metadata = options.Metadata?.DeepClone(StringComparer.OrdinalIgnoreCase)
             };
             foreach(var destination in options.Destinations)
@@ -226,14 +226,14 @@ namespace Microsoft.ReverseProxy.Configuration
             };
         }
 
-        private Abstractions.ProxyHttpClientOptions Convert(string clusterId, ProxyHttpClientOptions options)
+        private Abstractions.ProxyHttpClientOptions Convert(ProxyHttpClientOptions options)
         {
             if (options == null)
             {
                 return null;
             }
 
-            var clientCertificate = options.ClientCertificate != null ? _certificateConfigLoader.LoadCertificate(clusterId, options.ClientCertificate) : null;
+            var clientCertificate = options.ClientCertificate != null ? _certificateConfigLoader.LoadCertificate(options.ClientCertificate) : null;
             return new Abstractions.ProxyHttpClientOptions
             {
                 SslProtocols = options.SslProtocols.CloneList(),

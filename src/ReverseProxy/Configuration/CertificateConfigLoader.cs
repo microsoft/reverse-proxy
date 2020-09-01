@@ -23,7 +23,7 @@ namespace Microsoft.ReverseProxy.Configuration
         }
 
         /// <inheritdoc/>
-        public X509Certificate2 LoadCertificate(string clusterId, CertificateConfigOptions certificateConfig)
+        public X509Certificate2 LoadCertificate(CertificateConfigOptions certificateConfig)
         {
             if (certificateConfig is null)
             {
@@ -32,7 +32,7 @@ namespace Microsoft.ReverseProxy.Configuration
 
             if (certificateConfig.IsFileCert && certificateConfig.IsStoreCert)
             {
-                throw new InvalidOperationException($"Multiple certificate sources are defined in the cluster '{clusterId}' configuration.");
+                throw new InvalidOperationException($"Multiple certificate sources are defined in the cluster configuration.");
             }
             else if (certificateConfig.IsFileCert)
             {
@@ -55,7 +55,7 @@ namespace Microsoft.ReverseProxy.Configuration
                 return LoadFromCertStore(certificateConfig);
             }
 
-            return null;
+            throw new ArgumentException($"Passed {nameof(CertificateConfigOptions)} doesn't define a certificate in any known format.");
         }
 
 #if NETCOREAPP5_0
