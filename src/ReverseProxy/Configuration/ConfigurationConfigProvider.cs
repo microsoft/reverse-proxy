@@ -250,7 +250,7 @@ namespace Microsoft.ReverseProxy.Configuration
             return new Abstractions.ProxyHttpClientOptions
             {
                 SslProtocols = sslProtocols,
-                ValidateRemoteCertificate = options.ValidateRemoteCertificate,
+                DangerousAcceptAnyServerCertificate = options.DangerousAcceptAnyServerCertificate,
                 ClientCertificate = clientCertificate,
                 MaxConnectionsPerServer = options.MaxConnectionsPerServer
             };

@@ -23,7 +23,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
             var options = new ProxyHttpClientOptions
             {
                 SslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13,
-                ValidateRemoteCertificate = true,
+                DangerousAcceptAnyServerCertificate = true,
                 ClientCertificate = TestResources.GetTestCertificate(),
                 MaxConnectionsPerServer = 10
             };
@@ -34,7 +34,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
             // Assert
             Assert.NotSame(options, clone);
             Assert.Equal(options.SslProtocols, clone.SslProtocols);
-            Assert.Equal(options.ValidateRemoteCertificate, clone.ValidateRemoteCertificate);
+            Assert.Equal(options.DangerousAcceptAnyServerCertificate, clone.DangerousAcceptAnyServerCertificate);
             Assert.Same(options.ClientCertificate, clone.ClientCertificate);
             Assert.Equal(options.MaxConnectionsPerServer, clone.MaxConnectionsPerServer);
         }

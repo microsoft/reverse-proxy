@@ -44,7 +44,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         public void CreateClient_ApplySslProtocols_Success()
         {
             var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
-            var options = new ClusterConfig.ClusterProxyHttpClientOptions(SslProtocols.Tls12 | SslProtocols.Tls13, true, default, default);
+            var options = new ClusterConfig.ClusterProxyHttpClientOptions(SslProtocols.Tls12 | SslProtocols.Tls13, default, default, default);
             var client = factory.CreateClient(new ProxyHttpClientContext("cluster1", default, default, default, options, default));
 
             var handler = GetHandler(client);
@@ -55,10 +55,10 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         }
 
         [Fact]
-        public void CreateClient_ApplyValidateRemoteCertificate_Success()
+        public void CreateClient_ApplyDangerousAcceptAnyServerCertificate_Success()
         {
             var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
-            var options = new ClusterConfig.ClusterProxyHttpClientOptions(default, false, default, default);
+            var options = new ClusterConfig.ClusterProxyHttpClientOptions(default, true, default, default);
             var client = factory.CreateClient(new ProxyHttpClientContext("cluster1", default, default, default, options, default));
 
             var handler = GetHandler(client);
@@ -66,7 +66,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.NotNull(handler);
             Assert.NotNull(handler.SslOptions.RemoteCertificateValidationCallback);
             Assert.True(handler.SslOptions.RemoteCertificateValidationCallback(default, default, default, default));
-            VerifyDefaultValues(handler, "ValidateRemoteCertificate");
+            VerifyDefaultValues(handler, "DangerousAcceptAnyServerCertificate");
         }
 
         [Fact]
@@ -74,7 +74,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         {
             var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
             var certificate = TestResources.GetTestCertificate();
-            var options = new ClusterConfig.ClusterProxyHttpClientOptions(default, true, certificate, default);
+            var options = new ClusterConfig.ClusterProxyHttpClientOptions(default, default, certificate, default);
             var client = factory.CreateClient(new ProxyHttpClientContext("cluster1", default, default, default, options, default));
 
             var handler = GetHandler(client);
@@ -89,7 +89,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         public void CreateClient_ApplyMaxConnectionsPerServer_Success()
         {
             var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
-            var options = new ClusterConfig.ClusterProxyHttpClientOptions(default, true, default, 22);
+            var options = new ClusterConfig.ClusterProxyHttpClientOptions(default, default, default, 22);
             var client = factory.CreateClient(new ProxyHttpClientContext("cluster1", default, default, default, options, default));
 
             var handler = GetHandler(client);
@@ -188,7 +188,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         {
             return new (string name, Func<SocketsHttpHandler, object> extractor)[] {
                 ("SslProtocols", h => h.SslOptions.EnabledSslProtocols),
-                ("ValidateRemoteCertificate", h => h.SslOptions.RemoteCertificateValidationCallback),
+                ("DangerousAcceptAnyServerCertificate", h => h.SslOptions.RemoteCertificateValidationCallback),
                 ("ClientCertificate", h => h.SslOptions.ClientCertificates),
                 ("MaxConnectionsPerServer", h => h.MaxConnectionsPerServer)
             };

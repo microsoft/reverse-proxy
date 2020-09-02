@@ -10,7 +10,7 @@ namespace Microsoft.ReverseProxy.Abstractions
     {
         public SslProtocols? SslProtocols { get; set; }
 
-        public bool ValidateRemoteCertificate { get; set; } = true;
+        public bool DangerousAcceptAnyServerCertificate { get; set; } = true;
 
         public X509Certificate ClientCertificate { get; set; }
 
@@ -24,7 +24,7 @@ namespace Microsoft.ReverseProxy.Abstractions
             return new ProxyHttpClientOptions
             {
                 SslProtocols = SslProtocols,
-                ValidateRemoteCertificate = ValidateRemoteCertificate,
+                DangerousAcceptAnyServerCertificate = DangerousAcceptAnyServerCertificate,
                 // TODO: Clone certificate?
                 ClientCertificate = ClientCertificate,
                 MaxConnectionsPerServer = MaxConnectionsPerServer

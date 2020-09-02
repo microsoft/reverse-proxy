@@ -492,7 +492,7 @@ namespace Microsoft.ReverseProxy.Service.Management
 
             return new ClusterConfig.ClusterProxyHttpClientOptions(
                 httpClientOptions.SslProtocols,
-                httpClientOptions.ValidateRemoteCertificate,
+                httpClientOptions.DangerousAcceptAnyServerCertificate,
                 httpClientOptions.ClientCertificate,
                 httpClientOptions.MaxConnectionsPerServer);
         }

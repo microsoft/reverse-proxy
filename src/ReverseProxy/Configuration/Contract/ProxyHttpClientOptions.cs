@@ -10,7 +10,7 @@ namespace Microsoft.ReverseProxy.Configuration.Contract
     {
         public List<SslProtocols> SslProtocols { get; set; }
 
-        public bool ValidateRemoteCertificate { get; set; } = true;
+        public bool DangerousAcceptAnyServerCertificate { get; set; }
 
         public CertificateConfigOptions ClientCertificate { get; set; }
 

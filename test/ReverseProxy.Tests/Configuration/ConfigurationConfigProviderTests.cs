@@ -54,7 +54,7 @@ namespace Microsoft.ReverseProxy.Configuration
                             HttpClientOptions = new ProxyHttpClientOptions {
                                 SslProtocols = new List<SslProtocols> { SslProtocols.Tls11, SslProtocols.Tls12 },
                                 MaxConnectionsPerServer = 10,
-                                ValidateRemoteCertificate = true,
+                                DangerousAcceptAnyServerCertificate = true,
                                 ClientCertificate = new CertificateConfigOptions { Path = "mycert.pfx", Password = "myPassword1234" }
                             },
                             Metadata = new Dictionary<string, string> { { "cluster1-K1", "cluster1-V1" }, { "cluster1-K2", "cluster1-V2" } }
@@ -130,7 +130,7 @@ namespace Microsoft.ReverseProxy.Configuration
             Assert.Same(certificate, abstractCluster1.HttpClientOptions.ClientCertificate);
             Assert.Equal(validConfig.Clusters["cluster1"].HttpClientOptions.MaxConnectionsPerServer, abstractCluster1.HttpClientOptions.MaxConnectionsPerServer);
             Assert.Equal(SslProtocols.Tls11 | SslProtocols.Tls12, abstractCluster1.HttpClientOptions.SslProtocols);
-            Assert.Equal(validConfig.Clusters["cluster1"].HttpClientOptions.ValidateRemoteCertificate, abstractCluster1.HttpClientOptions.ValidateRemoteCertificate);
+            Assert.Equal(validConfig.Clusters["cluster1"].HttpClientOptions.DangerousAcceptAnyServerCertificate, abstractCluster1.HttpClientOptions.DangerousAcceptAnyServerCertificate);
             Assert.Equal(validConfig.Clusters["cluster1"].Metadata, abstractCluster1.Metadata);
 
             Assert.Single(abstractConfig.Clusters.Where(c => c.Id == "cluster2"));

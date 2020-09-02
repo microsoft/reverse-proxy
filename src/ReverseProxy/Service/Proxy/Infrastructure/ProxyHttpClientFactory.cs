@@ -59,13 +59,13 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
             {
                 handler.MaxConnectionsPerServer = newClientOptions.MaxConnectionsPerServer.Value;
             }
-            if (!newClientOptions.ValidateRemoteCertificate)
+            if (newClientOptions.DangerousAcceptAnyServerCertificate)
             {
                 handler.SslOptions.RemoteCertificateValidationCallback = delegate { return true; };
             }
 
             Log.ProxyClientCreated(_logger, context.ClusterID);
-            return new HttpMessageInvoker(handler, disposeHandler: false);
+            return new HttpMessageInvoker(handler, disposeHandler: true);
         }
 
         private bool CanReuseOldClient(ProxyHttpClientContext context)

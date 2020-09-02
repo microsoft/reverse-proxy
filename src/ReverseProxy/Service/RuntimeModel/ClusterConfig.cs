@@ -139,19 +139,19 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         {
             public ClusterProxyHttpClientOptions(
                 SslProtocols? sslProtocols,
-                bool validateRemoteCertificate,
+                bool acceptAnyServerCertificate,
                 X509Certificate clientCertificate,
                 int? maxConnectionsPerServer)
             {
                 SslProtocols = sslProtocols;
-                ValidateRemoteCertificate = validateRemoteCertificate;
+                DangerousAcceptAnyServerCertificate = acceptAnyServerCertificate;
                 ClientCertificate = clientCertificate;
                 MaxConnectionsPerServer = maxConnectionsPerServer;
             }
 
             public SslProtocols? SslProtocols { get; }
 
-            public bool ValidateRemoteCertificate { get; }
+            public bool DangerousAcceptAnyServerCertificate { get; }
 
             public X509Certificate ClientCertificate { get; }
 
@@ -168,14 +168,14 @@ namespace Microsoft.ReverseProxy.RuntimeModel
             public bool Equals(ClusterProxyHttpClientOptions other)
             {
                 return SslProtocols == other.SslProtocols &&
-                       ValidateRemoteCertificate == other.ValidateRemoteCertificate &&
+                       DangerousAcceptAnyServerCertificate == other.DangerousAcceptAnyServerCertificate &&
                        EqualityComparer<X509Certificate>.Default.Equals(ClientCertificate, other.ClientCertificate) &&
                        MaxConnectionsPerServer == other.MaxConnectionsPerServer;
             }
 
             public override int GetHashCode()
             {
-                return HashCode.Combine(SslProtocols, ValidateRemoteCertificate, ClientCertificate, MaxConnectionsPerServer);
+                return HashCode.Combine(SslProtocols, DangerousAcceptAnyServerCertificate, ClientCertificate, MaxConnectionsPerServer);
             }
 
             public static bool operator ==(ClusterProxyHttpClientOptions left, ClusterProxyHttpClientOptions right)
