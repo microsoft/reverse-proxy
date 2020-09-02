@@ -148,7 +148,7 @@ namespace Microsoft.ReverseProxy.Configuration
         }
 
         [Fact]
-        public void GetConfig_CertificateLoadingThrewException_Throws()
+        public void GetConfig_FirstTime_CertificateLoadingThrewException_Throws()
         {
             var config = new ConfigurationOptions()
             {
@@ -169,6 +169,42 @@ namespace Microsoft.ReverseProxy.Configuration
             Assert.Throws<FileNotFoundException>(() => provider.GetConfig());
         }
 
+        [Fact]
+        public void GetConfig_SecondTime_CertificateLoadingThrewException_ErrorLogged()
+        {
+            var config = new ConfigurationOptions()
+            {
+                Clusters = {
+                    {
+                        "cluster1",
+                        new Cluster {
+                            Destinations = { { "destinationA", new Destination { Address = "https://localhost:10001/destC" } } }
+                        }
+                    }
+                },
+                Routes = { new ProxyRoute { RouteId = "routeA", ClusterId = "cluster1", Order = 1, Match = { Hosts = new List<string> { "host-B" } } } }
+            };
+
+            var logger = new Mock<ILogger<ConfigurationConfigProvider>>();
+            logger.Setup(l => l.IsEnabled(LogLevel.Error)).Returns(true);
+            var configMonitor = new Mock<IOptionsMonitor<ConfigurationOptions>>();
+            configMonitor.SetupGet(m => m.CurrentValue).Returns(config);
+            Action<ConfigurationOptions, string> onChangeCallback = (a, s) => { Assert.False(true, "OnChange method was not called."); };
+            configMonitor.Setup(m => m.OnChange(It.IsAny<Action<ConfigurationOptions, string>>())).Callback((Action<ConfigurationOptions, string> a) => { onChangeCallback = a; });
+            var provider = GetProvider(configMonitor.Object, "mycert.pfx", "123", () => throw new FileNotFoundException(), logger);
+
+            var firstSnapshot = provider.GetConfig();
+            Assert.NotNull(firstSnapshot);
+            logger.Verify(l => l.Log(LogLevel.Error, It.IsAny<EventId>(), It.IsAny<string>(), It.IsAny<Exception>(), It.IsAny<Func<string, Exception, string>>()), Times.Never);
+
+            config.Clusters["cluster1"].HttpClientOptions = new ProxyHttpClientOptions { ClientCertificate = new CertificateConfigOptions { Path = "mycert.pfx", Password = "123" } };
+
+            onChangeCallback(config, null);
+            var secondSnapshot = provider.GetConfig();
+            Assert.Same(firstSnapshot, secondSnapshot);
+            logger.Verify(l => l.Log(LogLevel.Error, EventIds.ConfigurationDataConversionFailed, It.IsAny<It.IsAnyType>(), It.IsAny<Exception>(), (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Once);
+        }
+
         private void VerifyRoute(ConfigurationOptions validConfig, IProxyConfig abstractConfig, string routeId)
         {
             var route = validConfig.Routes.Single(c => c.RouteId == routeId);
@@ -186,9 +222,19 @@ namespace Microsoft.ReverseProxy.Configuration
         {
             var monitor = new Mock<IOptionsMonitor<ConfigurationOptions>>();
             monitor.SetupGet(m => m.CurrentValue).Returns(rawConfig);
+            return GetProvider(monitor.Object, certPath, certPassword, certificateFunc, null);
+        }
+
+        private ConfigurationConfigProvider GetProvider(
+            IOptionsMonitor<ConfigurationOptions> configMonitor,
+            string certPath,
+            string certPassword,
+            Func<X509Certificate2> certificateFunc,
+            Mock<ILogger<ConfigurationConfigProvider>> logger)
+        {
             var certLoader = new Mock<ICertificateConfigLoader>(MockBehavior.Strict);
             certLoader.Setup(l => l.LoadCertificate(It.Is<CertificateConfigOptions>(o => o.Path == certPath && o.Password == certPassword))).Returns(certificateFunc);
-            return new ConfigurationConfigProvider(new Mock<ILogger<ConfigurationConfigProvider>>().Object, monitor.Object, certLoader.Object);
+            return new ConfigurationConfigProvider(logger?.Object ?? new Mock<ILogger<ConfigurationConfigProvider>>().Object, configMonitor, certLoader.Object);
         }
     }
 }

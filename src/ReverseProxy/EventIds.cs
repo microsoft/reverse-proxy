@@ -53,5 +53,6 @@ namespace Microsoft.ReverseProxy
         public static readonly EventId ErrorApplyingConfig = new EventId(44, "ErrorApplyingConfig");
         public static readonly EventId ProxyClientCreated = new EventId(45, "ProxyClientCreated");
         public static readonly EventId ProxyClientReused = new EventId(46, "ProxyClientReused");
+        public static readonly EventId ConfigurationDataConversionFailed = new EventId(47, "ConfigurationDataConversionFailed");
     }
 }

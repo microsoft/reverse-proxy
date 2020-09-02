@@ -71,12 +71,26 @@ namespace Microsoft.ReverseProxy.Configuration
                 Log.LoadData(_logger);
                 var oldToken = _changeToken;
                 _changeToken = new CancellationTokenSource();
-                _snapshot = new ConfigurationSnapshot()
+                try
                 {
-                    Routes = options.Routes.Select(r => Convert(r)).ToList().AsReadOnly(),
-                    Clusters = options.Clusters.Select(c => Convert(c.Key, c.Value)).ToList().AsReadOnly(),
-                    ChangeToken = new CancellationChangeToken(_changeToken.Token)
-                };
+                    var newSnapshot = new ConfigurationSnapshot()
+                    {
+                        Routes = options.Routes.Select(r => Convert(r)).ToList().AsReadOnly(),
+                        Clusters = options.Clusters.Select(c => Convert(c.Key, c.Value)).ToList().AsReadOnly(),
+                        ChangeToken = new CancellationChangeToken(_changeToken.Token)
+                    };
+                    _snapshot = newSnapshot;
+                }
+                catch (Exception ex)
+                {
+                    Log.ConfigurationDataConversionFailed(_logger, ex);
+
+                    // Re-throw on the first time load to prevent app from starting.
+                    if (_snapshot == null)
+                    {
+                        throw;
+                    }
+                }
 
                 try
                 {
@@ -282,6 +296,11 @@ namespace Microsoft.ReverseProxy.Configuration
                 EventIds.LoadData,
                 "Loading proxy data from config.");
 
+            private static readonly Action<ILogger, Exception> _configurationDataConversionFailed = LoggerMessage.Define(
+                LogLevel.Error,
+                EventIds.ConfigurationDataConversionFailed,
+                "Configuration data conversion failed.");
+
             public static void ErrorSignalingChange(ILogger logger, Exception exception)
             {
                 _errorSignalingChange(logger, exception);
@@ -290,6 +309,11 @@ namespace Microsoft.ReverseProxy.Configuration
             public static void LoadData(ILogger logger)
             {
                 _loadData(logger, null);
+            }
+
+            public static void ConfigurationDataConversionFailed(ILogger logger, Exception exception)
+            {
+                _configurationDataConversionFailed(logger, exception);
             }
         }
     }
