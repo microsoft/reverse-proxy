@@ -29,7 +29,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
         {
             if (CanReuseOldClient(context))
             {
-                Log.ProxyClientReused(_logger, context.ClusterID);
+                Log.ProxyClientReused(_logger, context.ClusterId);
                 return context.OldClient;
             }
 
@@ -44,7 +44,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
                 // NOTE: MaxResponseHeadersLength = 64, which means up to 64 KB of headers are allowed by default as of .NET Core 3.1.
             };
 
-            if (newClientOptions.SslProtocols != null)
+            if (newClientOptions.SslProtocols.HasValue)
             {
                 handler.SslOptions.EnabledSslProtocols = newClientOptions.SslProtocols.Value;
             }
@@ -64,7 +64,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
                 handler.SslOptions.RemoteCertificateValidationCallback = delegate { return true; };
             }
 
-            Log.ProxyClientCreated(_logger, context.ClusterID);
+            Log.ProxyClientCreated(_logger, context.ClusterId);
             return new HttpMessageInvoker(handler, disposeHandler: true);
         }
 

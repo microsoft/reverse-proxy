@@ -47,6 +47,8 @@ namespace Microsoft.ReverseProxy.Configuration
                     return LoadPEMCertificate(certificateConfig, certificatePath);
 #elif NETCOREAPP3_1
                     throw new NotSupportedException("PEM certificate format is only supported on .NET 5 or higher.");
+#else
+#error A target framework was added to the project and needs to be added to this condition.
 #endif
                 }
             }
@@ -165,6 +167,9 @@ namespace Microsoft.ReverseProxy.Configuration
 
             return certificate.CopyWithPrivateKey(ecdsa);
         }
+#elif NETCOREAPP3_1
+#else
+#error A target framework was added to the project and needs to be added to this condition.
 #endif
 
         private static X509Certificate2 LoadFromCertStore(CertificateConfigData certificateConfig)

@@ -2,9 +2,11 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -27,6 +29,7 @@ namespace Microsoft.ReverseProxy.Configuration
         private readonly ILogger<ConfigurationConfigProvider> _logger;
         private readonly IOptionsMonitor<ConfigurationData> _optionsMonitor;
         private readonly ICertificateConfigLoader _certificateConfigLoader;
+        private readonly LinkedList<WeakReference<X509Certificate>> _certificates = new LinkedList<WeakReference<X509Certificate>>();
         private ConfigurationSnapshot _snapshot;
         private CancellationTokenSource _changeToken;
         private bool _disposed;
@@ -46,6 +49,13 @@ namespace Microsoft.ReverseProxy.Configuration
         {
             if (!_disposed)
             {
+                foreach(var certificateRef in _certificates)
+                {
+                    if (certificateRef.TryGetTarget(out var certificate))
+                    {
+                        certificate.Dispose();
+                    }
+                }
                 _subscription?.Dispose();
                 _changeToken?.Dispose();
                 _disposed = true;
@@ -79,6 +89,7 @@ namespace Microsoft.ReverseProxy.Configuration
                         Clusters = data.Clusters.Select(c => Convert(c.Key, c.Value)).ToList().AsReadOnly(),
                         ChangeToken = new CancellationChangeToken(_changeToken.Token)
                     };
+                    PurgeCertificateList();
                     _snapshot = newSnapshot;
                 }
                 catch (Exception ex)
@@ -99,6 +110,20 @@ namespace Microsoft.ReverseProxy.Configuration
                 catch (Exception ex)
                 {
                     Log.ErrorSignalingChange(_logger, ex);
+                }
+            }
+        }
+
+        private void PurgeCertificateList()
+        {
+            var next = _certificates.First;
+            while (next != null)
+            {
+                var current = next;
+                next = next.Next;
+                if (!current.Value.TryGetTarget(out var _))
+                {
+                    _certificates.Remove(current);
                 }
             }
         }
@@ -251,6 +276,11 @@ namespace Microsoft.ReverseProxy.Configuration
             }
 
             var clientCertificate = data.ClientCertificate != null ? _certificateConfigLoader.LoadCertificate(data.ClientCertificate) : null;
+
+            if (clientCertificate != null)
+            {
+                _certificates.AddLast(new WeakReference<X509Certificate>(clientCertificate));
+            }
 
             SslProtocols? sslProtocols = null;
             if (data.SslProtocols != null && data.SslProtocols.Count > 0)

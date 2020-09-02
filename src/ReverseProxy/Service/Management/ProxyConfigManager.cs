@@ -276,13 +276,14 @@ namespace Microsoft.ReverseProxy.Service.Management
                         var currentClusterConfig = currentCluster.Config.Value;
                         var newClusterHttpClientOptions = ConvertProxyHttpClientOptions(newCluster.HttpClientOptions);
 
-                        var httpClient = _httpClientFactory.CreateClient(new ProxyHttpClientContext(
-                            currentCluster.ClusterId,
-                            currentClusterConfig?.HttpClientOptions ?? default,
-                            currentClusterConfig?.Metadata,
-                            currentClusterConfig?.HttpClient,
-                            newClusterHttpClientOptions,
-                            (IReadOnlyDictionary<string, string>)newCluster.Metadata));
+                        var httpClient = _httpClientFactory.CreateClient(new ProxyHttpClientContext {
+                            ClusterId = currentCluster.ClusterId,
+                            OldOptions = currentClusterConfig?.HttpClientOptions ?? default,
+                            OldMetadata = currentClusterConfig?.Metadata,
+                            OldClient = currentClusterConfig?.HttpClient,
+                            NewOptions = newClusterHttpClientOptions,
+                            NewMetadata = (IReadOnlyDictionary<string, string>)newCluster.Metadata
+                        });
 
                         var newClusterConfig = new ClusterConfig(
                                 new ClusterConfig.ClusterHealthCheckOptions(

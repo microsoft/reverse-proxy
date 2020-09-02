@@ -9,32 +9,16 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
 {
     public class ProxyHttpClientContext
     {
-        public string ClusterID { get; }
+        public string ClusterId { get; set; }
 
-        public ClusterConfig.ClusterProxyHttpClientOptions OldOptions { get; }
+        public ClusterConfig.ClusterProxyHttpClientOptions OldOptions { get; set; }
 
-        public IReadOnlyDictionary<string, string> OldMetadata { get; }
+        public IReadOnlyDictionary<string, string> OldMetadata { get; set; }
 
-        public HttpMessageInvoker OldClient { get; }
+        public HttpMessageInvoker OldClient { get; set; }
 
-        public ClusterConfig.ClusterProxyHttpClientOptions NewOptions { get; }
+        public ClusterConfig.ClusterProxyHttpClientOptions NewOptions { get; set; }
 
-        public IReadOnlyDictionary<string, string> NewMetadata { get; }
-
-        public ProxyHttpClientContext(
-            string clusterId,
-            ClusterConfig.ClusterProxyHttpClientOptions oldOptions,
-            IReadOnlyDictionary<string, string> oldMetadata,
-            HttpMessageInvoker oldClient,
-            ClusterConfig.ClusterProxyHttpClientOptions newOptions,
-            IReadOnlyDictionary<string, string> newMetadata)
-        {
-            ClusterID = clusterId;
-            OldOptions = oldOptions;
-            OldMetadata = oldMetadata;
-            OldClient = oldClient;
-            NewOptions = newOptions;
-            NewMetadata = newMetadata;
-        }
+        public IReadOnlyDictionary<string, string> NewMetadata { get; set; }
     }
 }

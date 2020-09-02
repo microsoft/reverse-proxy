@@ -12,12 +12,10 @@ using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Management;
 using Microsoft.ReverseProxy.Service.Proxy;
-using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
 using Moq;
 using Tests.Common;
 using Xunit;
 using System.Net.Http;
-using Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http;
 
 namespace Microsoft.ReverseProxy.Middleware.Tests
 {

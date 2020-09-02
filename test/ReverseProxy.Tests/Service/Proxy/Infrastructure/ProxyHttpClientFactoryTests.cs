@@ -31,8 +31,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
 
             // Act
-            var actual1 = factory.CreateClient(new ProxyHttpClientContext(default, default, default, default, default, default));
-            var actual2 = factory.CreateClient(new ProxyHttpClientContext(default, default, default, default, default, default));
+            var actual1 = factory.CreateClient(new ProxyHttpClientContext());
+            var actual2 = factory.CreateClient(new ProxyHttpClientContext());
 
             // Assert
             Assert.NotNull(actual1);
@@ -45,7 +45,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         {
             var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
             var options = new ClusterConfig.ClusterProxyHttpClientOptions(SslProtocols.Tls12 | SslProtocols.Tls13, default, default, default);
-            var client = factory.CreateClient(new ProxyHttpClientContext("cluster1", default, default, default, options, default));
+            var client = factory.CreateClient(new ProxyHttpClientContext { NewOptions = options });
 
             var handler = GetHandler(client);
 
@@ -59,7 +59,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         {
             var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
             var options = new ClusterConfig.ClusterProxyHttpClientOptions(default, true, default, default);
-            var client = factory.CreateClient(new ProxyHttpClientContext("cluster1", default, default, default, options, default));
+            var client = factory.CreateClient(new ProxyHttpClientContext { NewOptions = options });
 
             var handler = GetHandler(client);
 
@@ -75,7 +75,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
             var certificate = TestResources.GetTestCertificate();
             var options = new ClusterConfig.ClusterProxyHttpClientOptions(default, default, certificate, default);
-            var client = factory.CreateClient(new ProxyHttpClientContext("cluster1", default, default, default, options, default));
+            var client = factory.CreateClient(new ProxyHttpClientContext { NewOptions = options });
 
             var handler = GetHandler(client);
 
@@ -90,7 +90,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         {
             var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
             var options = new ClusterConfig.ClusterProxyHttpClientOptions(default, default, default, 22);
-            var client = factory.CreateClient(new ProxyHttpClientContext("cluster1", default, default, default, options, default));
+            var client = factory.CreateClient(new ProxyHttpClientContext { NewOptions = options });
 
             var handler = GetHandler(client);
 
@@ -109,7 +109,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var newOptions = new ClusterConfig.ClusterProxyHttpClientOptions(SslProtocols.Tls11 | SslProtocols.Tls12, true, clientCertificate, 10);
             var oldMetadata = new Dictionary<string, string> { { "key1", "value1" }, { "key2", "value2" } };
             var newMetadata = new Dictionary<string, string> { { "key1", "value1" }, { "key2", "value2" } };
-            var context = new ProxyHttpClientContext("cluster1", oldOptions, oldMetadata, oldClient, newOptions, newMetadata);
+            var context = new ProxyHttpClientContext { ClusterId = "cluster1", OldOptions = oldOptions, OldMetadata = oldMetadata, OldClient = oldClient, NewOptions = newOptions, NewMetadata = newMetadata };
 
             var actualClient = factory.CreateClient(context);
 
@@ -123,7 +123,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         {
             var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
             var oldClient = new HttpMessageInvoker(new SocketsHttpHandler());
-            var context = new ProxyHttpClientContext("cluster1", oldOptions, null, oldClient, newOptions, null);
+            var context = new ProxyHttpClientContext { ClusterId = "cluster1", OldOptions = oldOptions, OldClient = oldClient, NewOptions = newOptions };
 
             var actualClient = factory.CreateClient(context);
 

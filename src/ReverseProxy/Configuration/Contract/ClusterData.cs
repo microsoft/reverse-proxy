@@ -15,11 +15,6 @@ namespace Microsoft.ReverseProxy.Configuration.Contract
     public sealed class ClusterData
     {
         /// <summary>
-        /// The Id for this cluster. This needs to be globally unique.
-        /// </summary>
-        public string Id { get; set; }
-
-        /// <summary>
         /// Circuit breaker options.
         /// </summary>
         public CircuitBreakerData CircuitBreakerData { get; set; }
