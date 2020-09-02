@@ -9,7 +9,7 @@ namespace Microsoft.ReverseProxy.Configuration.Contract
     /// <summary>
     /// Session affinitity options.
     /// </summary>
-    public sealed class SessionAffinityOptions
+    public sealed class SessionAffinityData
     {
         /// <summary>
         /// Indicates whether session affinity is enabled.

@@ -19,7 +19,7 @@ namespace Microsoft.ReverseProxy.Configuration
         public void LoadCertificate_PfxPathAndPasswordSpecified_Success()
         {
             var loader = new CertificateConfigLoader(GetHostEnvironment());
-            var options = new CertificateConfigOptions
+            var options = new CertificateConfigData
             {
                 Path = TestResources.GetCertPath("aspnetdevcert.pfx"),
                 Password = "testPassword"
@@ -34,7 +34,7 @@ namespace Microsoft.ReverseProxy.Configuration
         public void LoadCertificate_PfxPasswordIsNotCorrect_Throws()
         {
             var loader = new CertificateConfigLoader(GetHostEnvironment());
-            var options = new CertificateConfigOptions
+            var options = new CertificateConfigData
             {
                 Path = TestResources.GetCertPath("aspnetdevcert.pfx"),
                 Password = "12341234"
@@ -46,7 +46,7 @@ namespace Microsoft.ReverseProxy.Configuration
         public void LoadCertificate_PfxFileNotFound_Throws()
         {
             var loader = new CertificateConfigLoader(GetHostEnvironment());
-            var options = new CertificateConfigOptions
+            var options = new CertificateConfigData
             {
                 Path = TestResources.GetCertPath("missingfile.pfx"),
                 Password = "testPassword"
@@ -66,7 +66,7 @@ namespace Microsoft.ReverseProxy.Configuration
         public void LoadCertificate_PemPathAndKeySpecifiedButPasswordIsMissing_Throws()
         {
             var loader = new CertificateConfigLoader(GetHostEnvironment());
-            var options = new CertificateConfigOptions
+            var options = new CertificateConfigData
             {
                 Path = TestResources.GetCertPath("https-aspnet.crt"),
                 KeyPath = TestResources.GetCertPath("https-aspnet.key")
@@ -78,7 +78,7 @@ namespace Microsoft.ReverseProxy.Configuration
         public void LoadCertificate_PemKeyDoesntMatchTheCertificateKey_Throws()
         {
             var loader = new CertificateConfigLoader(GetHostEnvironment());
-            var options = new CertificateConfigOptions
+            var options = new CertificateConfigData
             {
                 Path = TestResources.GetCertPath("https-aspnet.crt"),
                 KeyPath = TestResources.GetCertPath("https-ecdsa.key")
@@ -90,7 +90,7 @@ namespace Microsoft.ReverseProxy.Configuration
         public void LoadCertificate_PemPasswordIsIncorrect_Throws()
         {
             var loader = new CertificateConfigLoader(GetHostEnvironment());
-            var options = new CertificateConfigOptions
+            var options = new CertificateConfigData
             {
                 Path = TestResources.GetCertPath("https-aspnet.crt"),
                 KeyPath = TestResources.GetCertPath("https-aspnet.key"),
@@ -115,7 +115,7 @@ namespace Microsoft.ReverseProxy.Configuration
         public void LoadCertificate_PemLoadCertificate_Success(string certificateFile, string certificateKey, string password, string expectedSN)
         {
             var loader = new CertificateConfigLoader(GetHostEnvironment());
-            var options = new CertificateConfigOptions
+            var options = new CertificateConfigData
             {
                 Path = TestResources.GetCertPath(certificateFile),
                 KeyPath = TestResources.GetCertPath(certificateKey),

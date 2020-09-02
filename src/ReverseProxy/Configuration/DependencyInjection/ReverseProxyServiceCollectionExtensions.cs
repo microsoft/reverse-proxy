@@ -44,7 +44,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         public static IReverseProxyBuilder LoadFromConfig(this IReverseProxyBuilder builder, IConfiguration config)
         {
-            builder.Services.Configure<ConfigurationOptions>(config);
+            builder.Services.Configure<ConfigurationData>(config);
             builder.Services.AddSingleton<ICertificateConfigLoader, CertificateConfigLoader>();
             builder.Services.AddSingleton<IProxyConfigProvider, ConfigurationConfigProvider>();
 

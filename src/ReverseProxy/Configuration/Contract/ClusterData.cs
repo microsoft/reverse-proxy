@@ -12,7 +12,7 @@ namespace Microsoft.ReverseProxy.Configuration.Contract
     /// by proxying to any endpoint within the matching cluster,
     /// honoring load balancing and partitioning policies when applicable.
     /// </summary>
-    public sealed class Cluster
+    public sealed class ClusterData
     {
         /// <summary>
         /// The Id for this cluster. This needs to be globally unique.
@@ -22,42 +22,42 @@ namespace Microsoft.ReverseProxy.Configuration.Contract
         /// <summary>
         /// Circuit breaker options.
         /// </summary>
-        public CircuitBreakerOptions CircuitBreakerOptions { get; set; }
+        public CircuitBreakerData CircuitBreakerData { get; set; }
 
         /// <summary>
         /// Quota options.
         /// </summary>
-        public QuotaOptions QuotaOptions { get; set; }
+        public QuotaData QuotaData { get; set; }
 
         /// <summary>
         /// Partitioning options.
         /// </summary>
-        public ClusterPartitioningOptions PartitioningOptions { get; set; }
+        public ClusterPartitioningData PartitioningData { get; set; }
 
         /// <summary>
         /// Load balancing options.
         /// </summary>
-        public LoadBalancingOptions LoadBalancing { get; set; }
+        public LoadBalancingData LoadBalancing { get; set; }
 
         /// <summary>
         /// Session affinity options.
         /// </summary>
-        public SessionAffinityOptions SessionAffinity { get; set; }
+        public SessionAffinityData SessionAffinity { get; set; }
 
         /// <summary>
         /// Active health checking options.
         /// </summary>
-        public HealthCheckOptions HealthCheckOptions { get; set; }
+        public HealthCheckData HealthCheckData { get; set; }
 
         /// <summary>
         /// Options of an HTTP client that is used to call this cluster.
         /// </summary>
-        public ProxyHttpClientOptions HttpClientOptions { get; set; }
+        public ProxyHttpClientData HttpClientData { get; set; }
 
         /// <summary>
         /// The set of destinations associated with this cluster.
         /// </summary>
-        public IDictionary<string, Destination> Destinations { get; private set; } = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase);
+        public IDictionary<string, DestinationData> Destinations { get; private set; } = new Dictionary<string, DestinationData>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// Arbitrary key-value pairs that further describe this cluster.

@@ -6,7 +6,7 @@ namespace Microsoft.ReverseProxy.Configuration.Contract
     /// <summary>
     /// Quota / throttling options.
     /// </summary>
-    public sealed class QuotaOptions
+    public sealed class QuotaData
     {
         /// <summary>
         /// Average allowed in a time window.

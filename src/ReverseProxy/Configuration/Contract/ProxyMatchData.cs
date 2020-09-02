@@ -8,7 +8,7 @@ namespace Microsoft.ReverseProxy.Configuration.Contract
     /// <summary>
     /// Describes the matching criteria for a route.
     /// </summary>
-    public class ProxyMatch
+    public class ProxyMatchData
     {
         /// <summary>
         /// Only match requests that use these optional HTTP methods. E.g. GET, POST.

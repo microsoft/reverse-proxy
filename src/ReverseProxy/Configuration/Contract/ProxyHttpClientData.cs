@@ -6,13 +6,13 @@ using System.Security.Authentication;
 
 namespace Microsoft.ReverseProxy.Configuration.Contract
 {
-    public sealed class ProxyHttpClientOptions
+    public sealed class ProxyHttpClientData
     {
         public List<SslProtocols> SslProtocols { get; set; }
 
         public bool DangerousAcceptAnyServerCertificate { get; set; }
 
-        public CertificateConfigOptions ClientCertificate { get; set; }
+        public CertificateConfigData ClientCertificate { get; set; }
 
         public int? MaxConnectionsPerServer { get; set; }
 

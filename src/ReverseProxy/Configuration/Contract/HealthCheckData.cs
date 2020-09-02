@@ -8,7 +8,7 @@ namespace Microsoft.ReverseProxy.Configuration.Contract
     /// <summary>
     /// Active health check options.
     /// </summary>
-    public sealed class HealthCheckOptions
+    public sealed class HealthCheckData
     {
         /// <summary>
         /// Whether health probes are enabled.

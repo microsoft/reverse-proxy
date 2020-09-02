@@ -6,7 +6,7 @@ namespace Microsoft.ReverseProxy.Configuration.Contract
     /// <summary>
     /// Circuit breaker options.
     /// </summary>
-    public sealed class CircuitBreakerOptions
+    public sealed class CircuitBreakerData
     {
         /// <summary>
         /// Maximum number of concurrent requests allowed before we start rejecting requests for a cluster.

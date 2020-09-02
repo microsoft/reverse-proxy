@@ -6,7 +6,7 @@ namespace Microsoft.ReverseProxy.Configuration.Contract
     /// <summary>
     /// Cluster partitioning configures which endpoints in a cluster are eligible to process each request.
     /// </summary>
-    public sealed class ClusterPartitioningOptions
+    public sealed class ClusterPartitioningData
     {
         /// <summary>
         /// Number of partitions.

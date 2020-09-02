@@ -23,7 +23,7 @@ namespace Microsoft.ReverseProxy.Configuration
         }
 
         /// <inheritdoc/>
-        public X509Certificate2 LoadCertificate(CertificateConfigOptions certificateConfig)
+        public X509Certificate2 LoadCertificate(CertificateConfigData certificateConfig)
         {
             if (certificateConfig is null)
             {
@@ -55,11 +55,11 @@ namespace Microsoft.ReverseProxy.Configuration
                 return LoadFromCertStore(certificateConfig);
             }
 
-            throw new ArgumentException($"Passed {nameof(CertificateConfigOptions)} doesn't define a certificate in any known format.");
+            throw new ArgumentException($"Passed {nameof(CertificateConfigData)} doesn't define a certificate in any known format.");
         }
 
 #if NETCOREAPP5_0
-        private X509Certificate2 LoadPEMCertificate(CertificateConfigOptions certificateConfig, string certificatePath)
+        private X509Certificate2 LoadPEMCertificate(CertificateConfigData certificateConfig, string certificatePath)
         {
             var certificateKeyPath = Path.Combine(_hostEnvironment.ContentRootPath, certificateConfig.KeyPath);
             var certificate = GetCertificate(certificatePath);
@@ -167,7 +167,7 @@ namespace Microsoft.ReverseProxy.Configuration
         }
 #endif
 
-        private static X509Certificate2 LoadFromCertStore(CertificateConfigOptions certificateConfig)
+        private static X509Certificate2 LoadFromCertStore(CertificateConfigData certificateConfig)
         {
             var subject = certificateConfig.Subject;
             var storeName = string.IsNullOrEmpty(certificateConfig.Store) ? StoreName.My.ToString() : certificateConfig.Store;

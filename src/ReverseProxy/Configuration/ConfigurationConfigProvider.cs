@@ -15,7 +15,7 @@ using Microsoft.ReverseProxy.Service;
 namespace Microsoft.ReverseProxy.Configuration
 {
     /// <summary>
-    /// Reacts to configuration changes for type <see cref="ConfigurationOptions"/>
+    /// Reacts to configuration changes for type <see cref="ConfigurationData"/>
     /// via <see cref="IOptionsMonitor{TOptions}"/>, and applies configurations
     /// to the Reverse Proxy core.
     /// When configs are loaded from appsettings.json, this takes care of hot updates
@@ -25,7 +25,7 @@ namespace Microsoft.ReverseProxy.Configuration
     {
         private readonly object _lockObject = new object();
         private readonly ILogger<ConfigurationConfigProvider> _logger;
-        private readonly IOptionsMonitor<ConfigurationOptions> _optionsMonitor;
+        private readonly IOptionsMonitor<ConfigurationData> _optionsMonitor;
         private readonly ICertificateConfigLoader _certificateConfigLoader;
         private ConfigurationSnapshot _snapshot;
         private CancellationTokenSource _changeToken;
@@ -34,11 +34,11 @@ namespace Microsoft.ReverseProxy.Configuration
 
         public ConfigurationConfigProvider(
             ILogger<ConfigurationConfigProvider> logger,
-            IOptionsMonitor<ConfigurationOptions> optionsMonitor,
+            IOptionsMonitor<ConfigurationData> dataMonitor,
             ICertificateConfigLoader certificateConfigLoader)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _optionsMonitor = optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
+            _optionsMonitor = dataMonitor ?? throw new ArgumentNullException(nameof(dataMonitor));
             _certificateConfigLoader = certificateConfigLoader ?? throw new ArgumentNullException(nameof(certificateConfigLoader));
         }
 
@@ -63,7 +63,7 @@ namespace Microsoft.ReverseProxy.Configuration
             return _snapshot;
         }
 
-        private void UpdateSnapshot(ConfigurationOptions options)
+        private void UpdateSnapshot(ConfigurationData data)
         {
             // Prevent overlapping updates, especially on startup.
             lock (_lockObject)
@@ -75,8 +75,8 @@ namespace Microsoft.ReverseProxy.Configuration
                 {
                     var newSnapshot = new ConfigurationSnapshot()
                     {
-                        Routes = options.Routes.Select(r => Convert(r)).ToList().AsReadOnly(),
-                        Clusters = options.Clusters.Select(c => Convert(c.Key, c.Value)).ToList().AsReadOnly(),
+                        Routes = data.Routes.Select(r => Convert(r)).ToList().AsReadOnly(),
+                        Clusters = data.Clusters.Select(c => Convert(c.Key, c.Value)).ToList().AsReadOnly(),
                         ChangeToken = new CancellationChangeToken(_changeToken.Token)
                     };
                     _snapshot = newSnapshot;
@@ -103,159 +103,159 @@ namespace Microsoft.ReverseProxy.Configuration
             }
         }
 
-        private Abstractions.Cluster Convert(string clusterId, Cluster options)
+        private Abstractions.Cluster Convert(string clusterId, ClusterData data)
         {
             var cluster = new Abstractions.Cluster
             {
                 // The Object style config binding puts the id as the key in the dictionary, but later we want it on the
                 // cluster object as well.
                 Id = clusterId,
-                CircuitBreakerOptions = Convert(options.CircuitBreakerOptions),
-                QuotaOptions = Convert(options.QuotaOptions),
-                PartitioningOptions = Convert(options.PartitioningOptions),
-                LoadBalancing = Convert(options.LoadBalancing),
-                SessionAffinity = Convert(options.SessionAffinity),
-                HealthCheckOptions = Convert(options.HealthCheckOptions),
-                HttpClientOptions = Convert(options.HttpClientOptions),
-                Metadata = options.Metadata?.DeepClone(StringComparer.OrdinalIgnoreCase)
+                CircuitBreakerOptions = Convert(data.CircuitBreakerData),
+                QuotaOptions = Convert(data.QuotaData),
+                PartitioningOptions = Convert(data.PartitioningData),
+                LoadBalancing = Convert(data.LoadBalancing),
+                SessionAffinity = Convert(data.SessionAffinity),
+                HealthCheckOptions = Convert(data.HealthCheckData),
+                HttpClientOptions = Convert(data.HttpClientData),
+                Metadata = data.Metadata?.DeepClone(StringComparer.OrdinalIgnoreCase)
             };
-            foreach(var destination in options.Destinations)
+            foreach(var destination in data.Destinations)
             {
                 cluster.Destinations.Add(destination.Key, Convert(destination.Value));
             }
             return cluster;
         }
 
-        private Abstractions.ProxyRoute Convert(ProxyRoute options)
+        private Abstractions.ProxyRoute Convert(ProxyRouteData data)
         {
             var route = new Abstractions.ProxyRoute
             {
-                RouteId = options.RouteId,
-                Order = options.Order,
-                ClusterId = options.ClusterId,
-                AuthorizationPolicy = options.AuthorizationPolicy,
-                CorsPolicy = options.CorsPolicy,
-                Metadata = options.Metadata?.DeepClone(StringComparer.OrdinalIgnoreCase),
-                Transforms = options.Transforms?.Select(d => new Dictionary<string, string>(d, StringComparer.OrdinalIgnoreCase)).ToList<IDictionary<string, string>>(),
+                RouteId = data.RouteId,
+                Order = data.Order,
+                ClusterId = data.ClusterId,
+                AuthorizationPolicy = data.AuthorizationPolicy,
+                CorsPolicy = data.CorsPolicy,
+                Metadata = data.Metadata?.DeepClone(StringComparer.OrdinalIgnoreCase),
+                Transforms = data.Transforms?.Select(d => new Dictionary<string, string>(d, StringComparer.OrdinalIgnoreCase)).ToList<IDictionary<string, string>>(),
             };
-            Convert(route.Match, options.Match);
+            Convert(route.Match, data.Match);
             return route;
         }
 
-        private void Convert(Abstractions.ProxyMatch proxyMatch, ProxyMatch options)
+        private void Convert(Abstractions.ProxyMatch proxyMatch, ProxyMatchData data)
         {
-            if (options == null)
+            if (data == null)
             {
                 return;
             }
 
-            proxyMatch.Methods = options.Methods?.ToArray();
-            proxyMatch.Hosts = options.Hosts?.ToArray();
-            proxyMatch.Path = options.Path;
+            proxyMatch.Methods = data.Methods?.ToArray();
+            proxyMatch.Hosts = data.Hosts?.ToArray();
+            proxyMatch.Path = data.Path;
         }
 
-        private Abstractions.CircuitBreakerOptions Convert(CircuitBreakerOptions options)
+        private Abstractions.CircuitBreakerOptions Convert(CircuitBreakerData data)
         {
-            if(options == null)
+            if(data == null)
             {
                 return null;
             }
 
             return new Abstractions.CircuitBreakerOptions
             {
-                MaxConcurrentRequests = options.MaxConcurrentRequests,
-                MaxConcurrentRetries = options.MaxConcurrentRetries,
+                MaxConcurrentRequests = data.MaxConcurrentRequests,
+                MaxConcurrentRetries = data.MaxConcurrentRetries,
             };
         }
 
-        private Abstractions.QuotaOptions Convert(QuotaOptions options)
+        private Abstractions.QuotaOptions Convert(QuotaData data)
         {
-            if (options == null)
+            if (data == null)
             {
                 return null;
             }
 
             return new Abstractions.QuotaOptions
             {
-                Average = options.Average,
-                Burst = options.Burst,
+                Average = data.Average,
+                Burst = data.Burst,
             };
         }
 
-        private Abstractions.ClusterPartitioningOptions Convert(ClusterPartitioningOptions options)
+        private Abstractions.ClusterPartitioningOptions Convert(ClusterPartitioningData data)
         {
-            if (options == null)
+            if (data == null)
             {
                 return null;
             }
 
             return new Abstractions.ClusterPartitioningOptions
             {
-                PartitionCount = options.PartitionCount,
-                PartitionKeyExtractor = options.PartitionKeyExtractor,
-                PartitioningAlgorithm = options.PartitioningAlgorithm,
+                PartitionCount = data.PartitionCount,
+                PartitionKeyExtractor = data.PartitionKeyExtractor,
+                PartitioningAlgorithm = data.PartitioningAlgorithm,
             };
         }
 
-        private Abstractions.LoadBalancingOptions Convert(LoadBalancingOptions options)
+        private Abstractions.LoadBalancingOptions Convert(LoadBalancingData data)
         {
-            if (options == null)
+            if (data == null)
             {
                 return null;
             }
 
             return new Abstractions.LoadBalancingOptions
             {
-                Mode = Enum.Parse<Abstractions.LoadBalancingMode>(options.Mode),
+                Mode = Enum.Parse<Abstractions.LoadBalancingMode>(data.Mode),
             };
         }
 
-        private Abstractions.SessionAffinityOptions Convert(SessionAffinityOptions options)
+        private Abstractions.SessionAffinityOptions Convert(SessionAffinityData data)
         {
-            if (options == null)
+            if (data == null)
             {
                 return null;
             }
 
             return new Abstractions.SessionAffinityOptions
             {
-                Enabled = options.Enabled,
-                Mode = options.Mode,
-                FailurePolicy = options.FailurePolicy,
-                Settings = options.Settings?.DeepClone(StringComparer.OrdinalIgnoreCase)
+                Enabled = data.Enabled,
+                Mode = data.Mode,
+                FailurePolicy = data.FailurePolicy,
+                Settings = data.Settings?.DeepClone(StringComparer.OrdinalIgnoreCase)
             };
         }
 
-        private Abstractions.HealthCheckOptions Convert(HealthCheckOptions options)
+        private Abstractions.HealthCheckOptions Convert(HealthCheckData data)
         {
-            if (options == null)
+            if (data == null)
             {
                 return null;
             }
 
             return new Abstractions.HealthCheckOptions
             {
-                Enabled = options.Enabled,
-                Interval = options.Interval,
-                Timeout = options.Timeout,
-                Port = options.Port,
-                Path = options.Path,
+                Enabled = data.Enabled,
+                Interval = data.Interval,
+                Timeout = data.Timeout,
+                Port = data.Port,
+                Path = data.Path,
             };
         }
 
-        private Abstractions.ProxyHttpClientOptions Convert(ProxyHttpClientOptions options)
+        private Abstractions.ProxyHttpClientOptions Convert(ProxyHttpClientData data)
         {
-            if (options == null)
+            if (data == null)
             {
                 return null;
             }
 
-            var clientCertificate = options.ClientCertificate != null ? _certificateConfigLoader.LoadCertificate(options.ClientCertificate) : null;
+            var clientCertificate = data.ClientCertificate != null ? _certificateConfigLoader.LoadCertificate(data.ClientCertificate) : null;
 
             SslProtocols? sslProtocols = null;
-            if (options.SslProtocols != null && options.SslProtocols.Count > 0)
+            if (data.SslProtocols != null && data.SslProtocols.Count > 0)
             {
-                foreach (var protocolConfig in options.SslProtocols)
+                foreach (var protocolConfig in data.SslProtocols)
                 {
                     sslProtocols = sslProtocols == null ? protocolConfig : sslProtocols | protocolConfig;
                 }
@@ -264,23 +264,23 @@ namespace Microsoft.ReverseProxy.Configuration
             return new Abstractions.ProxyHttpClientOptions
             {
                 SslProtocols = sslProtocols,
-                DangerousAcceptAnyServerCertificate = options.DangerousAcceptAnyServerCertificate,
+                DangerousAcceptAnyServerCertificate = data.DangerousAcceptAnyServerCertificate,
                 ClientCertificate = clientCertificate,
-                MaxConnectionsPerServer = options.MaxConnectionsPerServer
+                MaxConnectionsPerServer = data.MaxConnectionsPerServer
             };
         }
 
-        private Abstractions.Destination Convert(Destination options)
+        private Abstractions.Destination Convert(DestinationData data)
         {
-            if (options == null)
+            if (data == null)
             {
                 return null;
             }
 
             return new Abstractions.Destination
             {
-                Address = options.Address,
-                Metadata = options.Metadata?.DeepClone(StringComparer.OrdinalIgnoreCase),
+                Address = data.Address,
+                Metadata = data.Metadata?.DeepClone(StringComparer.OrdinalIgnoreCase),
             };
         }
 

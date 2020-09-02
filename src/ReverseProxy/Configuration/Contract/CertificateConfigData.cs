@@ -6,7 +6,7 @@ namespace Microsoft.ReverseProxy.Configuration.Contract
     /// <summary>
     /// SSL certificate configuration.
     /// </summary>
-    public class CertificateConfigOptions
+    public class CertificateConfigData
     {
         public string Path { get; set; }
 
@@ -26,9 +26,9 @@ namespace Microsoft.ReverseProxy.Configuration.Contract
 
         internal bool IsStoreCert => !string.IsNullOrEmpty(Subject);
 
-        internal CertificateConfigOptions DeepClone()
+        internal CertificateConfigData DeepClone()
         {
-            return new CertificateConfigOptions
+            return new CertificateConfigData
             {
                 Path = Path,
                 KeyPath = KeyPath,

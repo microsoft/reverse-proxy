@@ -8,7 +8,7 @@ namespace Microsoft.ReverseProxy.Configuration.Contract
     /// <summary>
     /// Describes a destination of a cluster.
     /// </summary>
-    public sealed class Destination
+    public sealed class DestinationData
     {
         /// <summary>
         /// Address of this destination. E.g. <c>https://127.0.0.1:123/abcd1234/</c>.

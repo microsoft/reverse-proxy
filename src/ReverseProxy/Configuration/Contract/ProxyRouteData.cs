@@ -9,14 +9,14 @@ namespace Microsoft.ReverseProxy.Configuration.Contract
     /// Describes a route that matches incoming requests based on a the <see cref="Match"/> criteria
     /// and proxies matching requests to the cluster identified by its <see cref="ClusterId"/>.
     /// </summary>
-    public sealed class ProxyRoute
+    public sealed class ProxyRouteData
     {
         /// <summary>
         /// Globally unique identifier of the route.
         /// </summary>
         public string RouteId { get; set; }
 
-        public ProxyMatch Match { get; private set; } = new ProxyMatch();
+        public ProxyMatchData Match { get; private set; } = new ProxyMatchData();
 
         /// <summary>
         /// Optionally, an order value for this route. Routes with lower numbers take precedence over higher numbers.
