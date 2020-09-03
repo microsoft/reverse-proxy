@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -343,6 +344,74 @@ namespace Microsoft.ReverseProxy.Configuration
             var secondSnapshot = provider.GetConfig();
             Assert.Same(firstSnapshot, secondSnapshot);
             logger.Verify(l => l.Log(LogLevel.Error, EventIds.ConfigurationDataConversionFailed, It.IsAny<It.IsAnyType>(), It.IsAny<Exception>(), (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Once);
+        }
+
+        [Fact]
+        public void CachedCertificateIsDisposed_RemoveItFromCache()
+        {
+            var config = new ConfigurationData()
+            {
+                Clusters = {
+                    {
+                        "cluster1",
+                        new ClusterData {
+                            Destinations = { { "destinationA", new DestinationData { Address = "https://localhost:10001/destC" } } },
+                            HttpClientData = new ProxyHttpClientData { ClientCertificate = new CertificateConfigData { Path = "testCert.pfx" }}
+                        }
+                    }
+                },
+                Routes = { new ProxyRouteData { RouteId = "routeA", ClusterId = "cluster1", Order = 1, Match = { Hosts = new List<string> { "host-B" } } } }
+            };
+
+            var configMonitor = new Mock<IOptionsMonitor<ConfigurationData>>();
+            Action<ConfigurationData, string> onChangeCallback = (a, s) => { Assert.False(true, "OnChange method was not called."); };
+            configMonitor.SetupGet(m => m.CurrentValue).Returns(config);
+            configMonitor.Setup(m => m.OnChange(It.IsAny<Action<ConfigurationData, string>>())).Callback((Action<ConfigurationData, string> a) => { onChangeCallback = a; });
+            var provider = GetProvider(configMonitor.Object, "testCert.pfx", null, () => TestResources.GetTestCertificate(), null);
+
+            // Get several certificates.
+            var certificateConfig = new List<X509Certificate>();
+            for (var i = 0; i < 5; i++)
+            {
+                certificateConfig.AddRange(provider.GetConfig().Clusters.Select(c => c.HttpClientOptions.ClientCertificate));
+                if (i < 4)
+                {
+                    onChangeCallback(config, null);
+                }
+            }
+
+            // Verify cache contents match the configuration objects.
+            var cachedCertificates = GetCachedCertificates(provider);
+            Assert.Equal(certificateConfig.Count, cachedCertificates.Length);
+            for(var i = 0; i < certificateConfig.Count; i++)
+            {
+                Assert.Same(certificateConfig[i], cachedCertificates[i]);
+            }
+
+            // Get several certificates.
+            certificateConfig[1].Dispose();
+            certificateConfig[3].Dispose();
+
+            // Trigger cache compaction.
+            onChangeCallback(config, null);
+
+            // Verify disposed certificates were purged out.
+            cachedCertificates = GetCachedCertificates(provider);
+            Assert.Equal(4, cachedCertificates.Length);
+            Assert.Same(certificateConfig[0], cachedCertificates[0]);
+            Assert.Same(certificateConfig[2], cachedCertificates[1]);
+            Assert.Same(certificateConfig[4], cachedCertificates[2]);
+        }
+
+        private X509Certificate[] GetCachedCertificates(ConfigurationConfigProvider provider)
+        {
+            var certficatesField = typeof(ConfigurationConfigProvider).GetFields(BindingFlags.Instance | BindingFlags.NonPublic).Single(f => f.FieldType == typeof(LinkedList<WeakReference<X509Certificate>>));
+            var cache = (LinkedList<WeakReference<X509Certificate>>)certficatesField.GetValue(provider);
+            return cache.Select(r =>
+            {
+                Assert.True(r.TryGetTarget(out var certificate));
+                return certificate;
+            }).ToArray();
         }
 
         private void VerifyValidAbstractConfig(ConfigurationData validConfig, X509Certificate2 certificate, IProxyConfig abstractConfig)

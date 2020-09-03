@@ -121,7 +121,8 @@ namespace Microsoft.ReverseProxy.Configuration
             {
                 var current = next;
                 next = next.Next;
-                if (!current.Value.TryGetTarget(out var _))
+                // Remove a certificate from the collection if either it has been already collected or at least disposed.
+                if (!current.Value.TryGetTarget(out var cert) || cert.Handle == default)
                 {
                     _certificates.Remove(current);
                 }
