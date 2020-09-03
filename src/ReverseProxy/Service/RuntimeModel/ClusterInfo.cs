@@ -71,12 +71,12 @@ namespace Microsoft.ReverseProxy.RuntimeModel
                     _ =>
                     {
                         var allDestinations = DestinationManager.Items.Value ?? new List<DestinationInfo>().AsReadOnly();
-                        var healthyEndpoints = (Config.Value?.HealthCheckOptions.Enabled ?? false)
-                            ? allDestinations.Where(endpoint => endpoint.DynamicState?.Health == DestinationHealth.Healthy).ToList().AsReadOnly()
+                        var healthyDestinations = (Config.Value?.HealthCheckOptions.Enabled ?? false)
+                            ? allDestinations.Where(destination => destination.DynamicState?.Health == DestinationHealth.Healthy).ToList().AsReadOnly()
                             : allDestinations;
                         return new ClusterDynamicState(
                             allDestinations: allDestinations,
-                            healthyDestinations: healthyEndpoints);
+                            healthyDestinations: healthyDestinations);
                     });
         }
     }
