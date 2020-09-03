@@ -61,25 +61,23 @@ namespace Microsoft.ReverseProxy.Service.Config
                 }
                 else if (rawTransform.TryGetValue("QueryValueParameter", out var queryValueParameter))
                 {
-                    success &= TryCheckTooManyParameters(rawTransform, routeId, expected: 2);
+                    TryCheckTooManyParameters(errors.Add, rawTransform, expected: 2);
                     if (!rawTransform.TryGetValue("Append", out var _) && !rawTransform.TryGetValue("Set", out var _))
                     {
-                        Log.InvalidTransform(_logger, routeId, $"Unexpected parameters for QueryValueParameter: {string.Join(';', rawTransform.Keys)}. Expected 'Append' or 'Set'.");
-                        success = false;
+                        errors.Add(new ArgumentException($"Unexpected parameters for QueryValueParameter: {string.Join(';', rawTransform.Keys)}. Expected 'Append' or 'Set'."));
                     }
                 }
                 else if (rawTransform.TryGetValue("QueryRouteParameter", out var queryRouteParameter))
                 {
-                    success &= TryCheckTooManyParameters(rawTransform, routeId, expected: 2);
+                    TryCheckTooManyParameters(errors.Add, rawTransform, expected: 2);
                     if (!rawTransform.TryGetValue("Append", out var _) && !rawTransform.TryGetValue("Set", out var _))
                     {
-                        Log.InvalidTransform(_logger, routeId, $"Unexpected parameters for QueryRouteParameter: {string.Join(';', rawTransform.Keys)}. Expected 'Append' or 'Set'.");
-                        success = false;
+                        errors.Add(new ArgumentException($"Unexpected parameters for QueryRouteParameter: {string.Join(';', rawTransform.Keys)}. Expected 'Append' or 'Set'."));
                     }
                 }
                 else if (rawTransform.TryGetValue("QueryRemoveParameter", out var removeQueryParameter))
                 {
-                    success &= TryCheckTooManyParameters(rawTransform, routeId, expected: 1);
+                    TryCheckTooManyParameters(errors.Add, rawTransform, expected: 1);
                 }
                 else if (rawTransform.TryGetValue("RequestHeadersCopy", out var copyHeaders))
                 {
