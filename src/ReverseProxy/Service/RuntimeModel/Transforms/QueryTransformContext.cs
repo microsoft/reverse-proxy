@@ -35,50 +35,28 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                 {
                     return _originalQueryString;
                 }
-                else
-                {
+
 #if NETCOREAPP3_1
-                    var queryBuilder = new QueryBuilder(_modifiedQueryParameters.Select(pair => new System.Collections.Generic.KeyValuePair<string, string>(pair.Key, pair.Value.ToString())));
+                var queryBuilder = new QueryBuilder(_modifiedQueryParameters.Select(pair => new System.Collections.Generic.KeyValuePair<string, string>(pair.Key, pair.Value.ToString())));
 #elif NETCOREAPP5_0
-                    var queryBuilder = new QueryBuilder(_modifiedQueryParameters);
+                var queryBuilder = new QueryBuilder(_modifiedQueryParameters);
 #else
 #error A target framework was added to the project and needs to be added to this condition.
 #endif
-                    return queryBuilder.ToQueryString();
+                return queryBuilder.ToQueryString();
+            }
+        }
+
+        public Dictionary<string, StringValues> ModifiedQueryParameters
+        {
+            get
+            {
+                if (_modifiedQueryParameters == null)
+                {
+                    _modifiedQueryParameters = QueryHelpers.ParseQuery(_originalQueryString.Value);
                 }
-            }
-        }
 
-        public void AppendQueryParameter(string name, StringValues value)
-        {
-            EnsureParsedQueryString();
-            if (_modifiedQueryParameters.ContainsKey(name))
-            {
-                _modifiedQueryParameters[name] = StringValues.Concat(_modifiedQueryParameters[name], value);
-            }
-            else
-            {
-                _modifiedQueryParameters.Add(name, value);
-            }
-        }
-
-        public void SetQueryParameter(string name, StringValues value)
-        {
-            EnsureParsedQueryString();
-            _modifiedQueryParameters[name] = value;
-        }
-
-        public void RemoveQueryParameter(string name)
-        {
-            EnsureParsedQueryString();
-            _modifiedQueryParameters.Remove(name);
-        }
-
-        private void EnsureParsedQueryString()
-        {
-            if (_modifiedQueryParameters == null)
-            {
-                _modifiedQueryParameters = QueryHelpers.ParseQuery(_originalQueryString.Value);
+                return _modifiedQueryParameters;
             }
         }
     }
