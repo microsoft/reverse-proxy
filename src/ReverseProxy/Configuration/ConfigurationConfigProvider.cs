@@ -79,18 +79,17 @@ namespace Microsoft.ReverseProxy.Configuration
             lock (_lockObject)
             {
                 Log.LoadData(_logger);
-                var updatedSuccessfully = false;
+                ConfigurationSnapshot newSnapshot = null;
                 try
                 {
-                    var newSnapshot = new ConfigurationSnapshot()
+                    var tmpSnapshot = new ConfigurationSnapshot()
                     {
                         Routes = data.Routes.Select(r => Convert(r)).ToList().AsReadOnly(),
                         Clusters = data.Clusters.Select(c => Convert(c.Key, c.Value)).ToList().AsReadOnly(),
                         ChangeToken = new CancellationChangeToken(_changeToken.Token)
                     };
                     PurgeCertificateList();
-                    _snapshot = newSnapshot;
-                    updatedSuccessfully = true;
+                    newSnapshot = tmpSnapshot;
                 }
                 catch (Exception ex)
                 {
@@ -103,19 +102,22 @@ namespace Microsoft.ReverseProxy.Configuration
                     }
                 }
 
-                if (updatedSuccessfully)
+                if (newSnapshot == null)
                 {
-                    var oldToken = _changeToken;
-                    _changeToken = new CancellationTokenSource();
+                    return;
+                }
 
-                    try
-                    {
-                        oldToken?.Cancel(throwOnFirstException: false);
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.ErrorSignalingChange(_logger, ex);
-                    }
+                var oldToken = _changeToken;
+                _changeToken = new CancellationTokenSource();
+                _snapshot = newSnapshot;
+
+                try
+                {
+                    oldToken?.Cancel(throwOnFirstException: false);
+                }
+                catch (Exception ex)
+                {
+                    Log.ErrorSignalingChange(_logger, ex);
                 }
             }
         }
