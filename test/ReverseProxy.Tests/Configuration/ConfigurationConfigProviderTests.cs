@@ -106,15 +106,15 @@ namespace Microsoft.ReverseProxy.Configuration
 {
     ""Clusters"": {
         ""cluster1"": {
-            ""CircuitBreakerData"": {
+            ""CircuitBreaker"": {
                 ""MaxConcurrentRequests"": 2,
                 ""MaxConcurrentRetries"": 3
             },
-            ""QuotaData"": {
+            ""Quota"": {
                 ""Average"": 8.5,
                 ""Burst"": 9.1
             },
-            ""PartitioningData"": {
+            ""Partitioning"": {
                 ""PartitionCount"": 7,
                 ""PartitionKeyExtractor"": ""partionKeyA"",
                 ""PartitioningAlgorithm"": ""SHA358""
@@ -131,17 +131,17 @@ namespace Microsoft.ReverseProxy.Configuration
                     ""affinity1-K2"": ""affinity1-V2""
                 }
             },
-            ""HealthCheckData"": {
+            ""HealthCheck"": {
                 ""Enabled"": true,
                 ""Interval"": ""00:00:04"",
                 ""Timeout"": ""00:00:06"",
                 ""Port"": 5,
                 ""Path"": ""healthCheckPath""
             },
-            ""HttpClientData"": {
+            ""HttpClient"": {
                 ""SslProtocols"": [
-                    768,
-                    3072
+                    ""Tls11"",
+                    ""Tls12""
                 ],
                 ""DangerousAcceptAnyServerCertificate"": true,
                 ""ClientCertificate"": {
@@ -177,15 +177,15 @@ namespace Microsoft.ReverseProxy.Configuration
             }
         },
         ""cluster2"": {
-            ""CircuitBreakerData"": null,
-            ""QuotaData"": null,
-            ""PartitioningData"": null,
+            ""CircuitBreaker"": null,
+            ""Quota"": null,
+            ""Partitioning"": null,
             ""LoadBalancing"": {
                 ""Mode"": ""RoundRobin""
             },
             ""SessionAffinity"": null,
-            ""HealthCheckData"": null,
-            ""HttpClientData"": null,
+            ""HealthCheck"": null,
+            ""HttpClient"": null,
             ""Destinations"": {
                 ""destinationC"": {
                     ""Address"": ""https://localhost:10001/destC"",

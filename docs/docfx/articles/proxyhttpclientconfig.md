@@ -78,7 +78,7 @@ The below example shows 2 samples of HTTP client configurations for `cluster1` a
             "LoadBalancing": {
                 "Mode": "Random"
             },
-            "HttpClientOptions": {
+            "HttpClient": {
                 "SslProtocols": [
                     "Tls11",
                     "Tls12"
@@ -96,7 +96,7 @@ The below example shows 2 samples of HTTP client configurations for `cluster1` a
             }
         },
         "cluster2": {
-            "HttpClientOptions": {
+            "HttpClient": {
                 "SslProtocols": [
                     "Tls12"
                 ],

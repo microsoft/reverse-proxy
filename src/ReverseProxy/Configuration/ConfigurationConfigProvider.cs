@@ -85,8 +85,7 @@ namespace Microsoft.ReverseProxy.Configuration
                     var tmpSnapshot = new ConfigurationSnapshot()
                     {
                         Routes = data.Routes.Select(r => Convert(r)).ToList().AsReadOnly(),
-                        Clusters = data.Clusters.Select(c => Convert(c.Key, c.Value)).ToList().AsReadOnly(),
-                        ChangeToken = new CancellationChangeToken(_changeToken.Token)
+                        Clusters = data.Clusters.Select(c => Convert(c.Key, c.Value)).ToList().AsReadOnly()
                     };
                     PurgeCertificateList();
                     newSnapshot = tmpSnapshot;
@@ -109,6 +108,7 @@ namespace Microsoft.ReverseProxy.Configuration
 
                 var oldToken = _changeToken;
                 _changeToken = new CancellationTokenSource();
+                newSnapshot.ChangeToken = new CancellationChangeToken(_changeToken.Token);
                 _snapshot = newSnapshot;
 
                 try
