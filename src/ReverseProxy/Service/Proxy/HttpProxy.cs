@@ -116,8 +116,20 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 4: Send the outgoing request using HttpClient
             ////this.logger.LogInformation($"   Starting Proxy --> Destination request");
-            var httpClient = httpClientFactory.CreateClient();
-            var destinationResponse = await httpClient.SendAsync(destinationRequest, shortCancellation);
+            HttpResponseMessage destinationResponse;
+            try
+            {
+                destinationResponse = await httpClient.SendAsync(destinationRequest, shortCancellation);
+            }
+            catch (Exception ex)
+            {
+                // TODO: Log;
+                // We couldn't communicate with the destination.
+                context.Response.StatusCode = StatusCodes.Status502BadGateway;
+
+                // TODO: store the exception
+                return;
+            }
 
             // Detect connection downgrade, which may be problematic for e.g. gRPC.
             if (!isUpgrade && isIncomingHttp2 && destinationResponse.Version.Major != 2)
@@ -167,7 +179,27 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 7: Copy response body Client ◄-- Proxy ◄-- Destination
-            await CopyResponseBodyAsync(destinationResponse.Content, context.Response.Body, proxyTelemetryContext, longCancellation);
+            try
+            {
+                await CopyResponseBodyAsync(destinationResponse.Content, context.Response.Body, proxyTelemetryContext, longCancellation);
+            }
+            catch (Exception)
+            {
+                // TODO: Log
+                if (!context.Response.HasStarted)
+                {
+                    // Nothing has been sent to the client yet, we can still send a good error response.
+                    context.Response.Clear();
+                    context.Response.StatusCode = StatusCodes.Status502BadGateway;
+                    return;
+                }
+
+                // The response has already started, we must forcefully terminate it so the client doesn't get the
+                // the mistaken impression that the truncated response is complete.
+                context.Abort();
+                return;
+            }
+
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 8: Copy response trailer headers and finish response Client ◄-- Proxy ◄-- Destination
@@ -188,6 +220,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             // :: Step 9: Wait for completion of step 2: copying request body Client --► Proxy --► Destination
             if (requestContent != null)
             {
+                // TODO: Catch exceptions
                 ////this.logger.LogInformation($"   Waiting for Client --> Proxy --> Destination body proxying to complete");
                 await requestContent.ConsumptionTask;
             }
