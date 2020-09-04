@@ -176,7 +176,7 @@ namespace Microsoft.ReverseProxy.Configuration
             return route;
         }
 
-        private void Convert(Abstractions.ProxyMatch proxyMatch, ProxyMatchData data)
+        private void Convert(ProxyMatch proxyMatch, ProxyMatchData data)
         {
             if (data == null)
             {
@@ -240,7 +240,7 @@ namespace Microsoft.ReverseProxy.Configuration
 
             return new LoadBalancingOptions
             {
-                Mode = Enum.Parse<Abstractions.LoadBalancingMode>(data.Mode),
+                Mode = Enum.Parse<LoadBalancingMode>(data.Mode),
             };
         }
 

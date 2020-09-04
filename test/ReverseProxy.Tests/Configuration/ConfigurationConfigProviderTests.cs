@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -28,56 +29,58 @@ namespace Microsoft.ReverseProxy.Configuration
         private readonly ConfigurationData _validConfigurationData = new ConfigurationData()
         {
             Clusters =
-                {
+            {
                 {
                     "cluster1",
-                        new ClusterData
-                        {
-                            Destinations = {
-                                {
-                                    "destinationA",
-                                    new DestinationData { Address = "https://localhost:10000/destA", Metadata = new Dictionary<string, string> { { "destA-K1", "destA-V1" }, { "destA-K2", "destA-V2" } } }
-                                },
-                                {
-                                    "destinationB",
-                                    new DestinationData { Address = "https://localhost:10000/destB", Metadata = new Dictionary<string, string> { { "destB-K1", "destB-V1" }, { "destB-K2", "destB-V2" } } }
-                                }
-                            },
-                            CircuitBreaker = new CircuitBreakerData { MaxConcurrentRequests = 2, MaxConcurrentRetries = 3 },
-                            HealthCheck = new HealthCheckData { Enabled = true, Interval = TimeSpan.FromSeconds(4), Path = "healthCheckPath", Port = 5, Timeout = TimeSpan.FromSeconds(6) },
-                            LoadBalancing = new LoadBalancingData { Mode = "Random" },
-                            Partitioning = new ClusterPartitioningData { PartitionCount = 7, PartitioningAlgorithm = "SHA358", PartitionKeyExtractor = "partionKeyA" },
-                            Quota = new QuotaData { Average = 8.5, Burst = 9.1 },
-                            SessionAffinity = new SessionAffinityData
-                            {
-                                Enabled = true,
-                                FailurePolicy = "Return503Error",
-                                Mode = "Cookie",
-                                Settings = new Dictionary<string, string> { { "affinity1-K1", "affinity1-V1" }, { "affinity1-K2", "affinity1-V2" } }
-                            },
-                            HttpClient = new ProxyHttpClientData
-                            {
-                                SslProtocols = new List<SslProtocols> { SslProtocols.Tls11, SslProtocols.Tls12 },
-                                MaxConnectionsPerServer = 10,
-                                DangerousAcceptAnyServerCertificate = true,
-                                ClientCertificate = new CertificateConfigData { Path = "mycert.pfx", Password = "myPassword1234" }
-                            },
-                            Metadata = new Dictionary<string, string> { { "cluster1-K1", "cluster1-V1" }, { "cluster1-K2", "cluster1-V2" } }
-                        }
-                    },
+                    new ClusterData
                     {
-                    "cluster2",
-                        new ClusterData
+                        Destinations = {
                         {
-                            Destinations = {
-                                { "destinationC", new DestinationData { Address = "https://localhost:10001/destC" } },
-                                { "destinationD", new DestinationData { Address = "https://localhost:10000/destB" } }
-                            },
-                            LoadBalancing = new LoadBalancingData { Mode = "RoundRobin" }
+                            "destinationA",
+                            new DestinationData { Address = "https://localhost:10000/destA", Metadata = new Dictionary<string, string> { { "destA-K1", "destA-V1" }, { "destA-K2", "destA-V2" } } }
+                        },
+                        {
+                            "destinationB",
+                            new DestinationData { Address = "https://localhost:10000/destB", Metadata = new Dictionary<string, string> { { "destB-K1", "destB-V1" }, { "destB-K2", "destB-V2" } } }
                         }
+                        },
+                        CircuitBreaker = new CircuitBreakerData { MaxConcurrentRequests = 2, MaxConcurrentRetries = 3 },
+                        HealthCheck = new HealthCheckData { Enabled = true, Interval = TimeSpan.FromSeconds(4), Path = "healthCheckPath", Port = 5, Timeout = TimeSpan.FromSeconds(6) },
+                        LoadBalancing = new LoadBalancingData { Mode = "Random" },
+                        Partitioning = new ClusterPartitioningData { PartitionCount = 7, PartitioningAlgorithm = "SHA358", PartitionKeyExtractor = "partionKeyA" },
+                        Quota = new QuotaData { Average = 8.5, Burst = 9.1 },
+                        SessionAffinity = new SessionAffinityData
+                        {
+                            Enabled = true,
+                            FailurePolicy = "Return503Error",
+                            Mode = "Cookie",
+                            Settings = new Dictionary<string, string> { { "affinity1-K1", "affinity1-V1" }, { "affinity1-K2", "affinity1-V2" } }
+                        },
+                        HttpClient = new ProxyHttpClientData
+                        {
+                            SslProtocols = new List<SslProtocols> { SslProtocols.Tls11, SslProtocols.Tls12 },
+                            MaxConnectionsPerServer = 10,
+                            DangerousAcceptAnyServerCertificate = true,
+                            ClientCertificate = new CertificateConfigData { Path = "mycert.pfx", Password = "myPassword1234" }
+                        },
+                        Metadata = new Dictionary<string, string> { { "cluster1-K1", "cluster1-V1" }, { "cluster1-K2", "cluster1-V2" } }
                     }
+                },
+                {
+                    "cluster2",
+                    new ClusterData
+                    {
+                        Destinations =
+                        {
+                            { "destinationC", new DestinationData { Address = "https://localhost:10001/destC" } },
+                            { "destinationD", new DestinationData { Address = "https://localhost:10000/destB" } }
+                        },
+                        LoadBalancing = new LoadBalancingData { Mode = "RoundRobin" }
+                    }
+                }
             },
-                Routes = {
+            Routes =
+            {
                 new ProxyRouteData
                 {
                     RouteId = "routeA",
@@ -87,19 +90,19 @@ namespace Microsoft.ReverseProxy.Configuration
                     Order = 1,
                     Match = { Hosts = new List<string> { "host-A" }, Methods = new List<string> { "GET", "POST", "DELETE" }, Path = "/apis/entities" },
                     Transforms = new List<IDictionary<string, string>>
-                        {
-                            new Dictionary<string, string> { { "RequestHeadersCopy", "true" }, { "PathRemovePrefix", "/apis" } }, new Dictionary<string, string> { { "PathPrefix", "/apis" } }
-                        },
+                    {
+                        new Dictionary<string, string> { { "RequestHeadersCopy", "true" }, { "PathRemovePrefix", "/apis" } }, new Dictionary<string, string> { { "PathPrefix", "/apis" } }
+                    },
                     Metadata = new Dictionary<string, string> { { "routeA-K1", "routeA-V1" }, { "routeA-K2", "routeA-V2" } }
                 },
-                    new ProxyRouteData
-                    {
-                        RouteId = "routeB",
-                        ClusterId = "cluster2",
-                        Order = 2,
-                        Match = { Hosts = new List<string> { "host-B" }, Methods = new List<string> { "GET" }, Path = "/apis/users" }
-                    }
+                new ProxyRouteData
+                {
+                    RouteId = "routeB",
+                    ClusterId = "cluster2",
+                    Order = 2,
+                    Match = { Hosts = new List<string> { "host-B" }, Methods = new List<string> { "GET" }, Path = "/apis/users" }
                 }
+            }
         };
 
         private const string _validJsonConfig = @"
@@ -286,6 +289,78 @@ namespace Microsoft.ReverseProxy.Configuration
             var abstractConfig = provider.GetConfig();
 
             VerifyValidAbstractConfig(_validConfigurationData, certificate, abstractConfig);
+        }
+
+        [Fact]
+        public void GetConfig_ValidConfiguration_AllAbstractionsPropertiesAreSet()
+        {
+            var certificate = TestResources.GetTestCertificate();
+            var abstractionsNamespace = typeof(Abstractions.Cluster).Namespace;
+            var provider = GetProvider(_validConfigurationData, "mycert.pfx", "myPassword1234", () => certificate);
+            var abstractConfig = (ConfigurationSnapshot) provider.GetConfig();
+            //Removed incompletely filled out instances.
+            abstractConfig.Clusters = abstractConfig.Clusters.Where(c => c.Id == "cluster1").ToList();
+            abstractConfig.Routes = abstractConfig.Routes.Where(r => r.RouteId == "routeA").ToList();
+
+            VerifyAllPropertiesAreSet(abstractConfig);
+
+            void VerifyFullyInitialized(object obj, string name)
+            {
+                switch (obj)
+                {
+                    case null:
+                        Assert.True(false, $"Property {name} is not initialized.");
+                        break;
+                    case Enum m:
+                        Assert.NotEqual(0, (int)(object)m);
+                        break;
+                    case string str:
+                        Assert.NotEmpty(str);
+                        break;
+                    case ValueType v:
+                        var equals = Equals(Activator.CreateInstance(v.GetType()), v);
+                        Assert.False(equals, $"Property {name} is not initialized.");
+                        if (v.GetType().Namespace == abstractionsNamespace)
+                        {
+                            VerifyAllPropertiesAreSet(v);
+                        }
+                        break;
+                    case IDictionary d:
+                        Assert.NotEmpty(d);
+                        foreach (var value in d.Values)
+                        {
+                            VerifyFullyInitialized(value, name);
+                        }
+                        break;
+                    case IEnumerable e:
+                        Assert.NotEmpty(e);
+                        foreach (var item in e)
+                        {
+                            VerifyFullyInitialized(item, name);
+                        }
+
+                        if (e.GetType().Namespace == abstractionsNamespace)
+                        {
+                            VerifyAllPropertiesAreSet(e);
+                        }
+                        break;
+                    case object o:
+                        if (o.GetType().Namespace == abstractionsNamespace)
+                        {
+                            VerifyAllPropertiesAreSet(o);
+                        }
+                        break;
+                }
+            }
+
+            void VerifyAllPropertiesAreSet(object obj)
+            {
+                var properties = obj.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public).Cast<PropertyInfo>();
+                foreach(var property in properties)
+                {
+                    VerifyFullyInitialized(property.GetValue(obj), $"{property.DeclaringType.Name}.{property.Name}");
+                }
+            }
         }
 
         [Fact]
