@@ -17,17 +17,17 @@ namespace Microsoft.ReverseProxy.Configuration.Contract
         /// <summary>
         /// Circuit breaker options.
         /// </summary>
-        public CircuitBreakerData CircuitBreakerData { get; set; }
+        public CircuitBreakerData CircuitBreaker { get; set; }
 
         /// <summary>
         /// Quota options.
         /// </summary>
-        public QuotaData QuotaData { get; set; }
+        public QuotaData Quota { get; set; }
 
         /// <summary>
         /// Partitioning options.
         /// </summary>
-        public ClusterPartitioningData PartitioningData { get; set; }
+        public ClusterPartitioningData Partitioning { get; set; }
 
         /// <summary>
         /// Load balancing options.
@@ -42,12 +42,12 @@ namespace Microsoft.ReverseProxy.Configuration.Contract
         /// <summary>
         /// Active health checking options.
         /// </summary>
-        public HealthCheckData HealthCheckData { get; set; }
+        public HealthCheckData HealthCheck { get; set; }
 
         /// <summary>
         /// Options of an HTTP client that is used to call this cluster.
         /// </summary>
-        public ProxyHttpClientData HttpClientData { get; set; }
+        public ProxyHttpClientData HttpClient { get; set; }
 
         /// <summary>
         /// The set of destinations associated with this cluster.

@@ -43,11 +43,11 @@ namespace Microsoft.ReverseProxy.Configuration
                                     new DestinationData { Address = "https://localhost:10000/destB", Metadata = new Dictionary<string, string> { { "destB-K1", "destB-V1" }, { "destB-K2", "destB-V2" } } }
                                 }
                             },
-                            CircuitBreakerData = new CircuitBreakerData { MaxConcurrentRequests = 2, MaxConcurrentRetries = 3 },
-                            HealthCheckData = new HealthCheckData { Enabled = true, Interval = TimeSpan.FromSeconds(4), Path = "healthCheckPath", Port = 5, Timeout = TimeSpan.FromSeconds(6) },
+                            CircuitBreaker = new CircuitBreakerData { MaxConcurrentRequests = 2, MaxConcurrentRetries = 3 },
+                            HealthCheck = new HealthCheckData { Enabled = true, Interval = TimeSpan.FromSeconds(4), Path = "healthCheckPath", Port = 5, Timeout = TimeSpan.FromSeconds(6) },
                             LoadBalancing = new LoadBalancingData { Mode = "Random" },
-                            PartitioningData = new ClusterPartitioningData { PartitionCount = 7, PartitioningAlgorithm = "SHA358", PartitionKeyExtractor = "partionKeyA" },
-                            QuotaData = new QuotaData { Average = 8.5, Burst = 9.1 },
+                            Partitioning = new ClusterPartitioningData { PartitionCount = 7, PartitioningAlgorithm = "SHA358", PartitionKeyExtractor = "partionKeyA" },
+                            Quota = new QuotaData { Average = 8.5, Burst = 9.1 },
                             SessionAffinity = new SessionAffinityData
                             {
                                 Enabled = true,
@@ -55,7 +55,7 @@ namespace Microsoft.ReverseProxy.Configuration
                                 Mode = "Cookie",
                                 Settings = new Dictionary<string, string> { { "affinity1-K1", "affinity1-V1" }, { "affinity1-K2", "affinity1-V2" } }
                             },
-                            HttpClientData = new ProxyHttpClientData
+                            HttpClient = new ProxyHttpClientData
                             {
                                 SslProtocols = new List<SslProtocols> { SslProtocols.Tls11, SslProtocols.Tls12 },
                                 MaxConnectionsPerServer = 10,
@@ -298,7 +298,7 @@ namespace Microsoft.ReverseProxy.Configuration
                         "cluster1",
                         new ClusterData {
                             Destinations = { { "destinationA", new DestinationData { Address = "https://localhost:10001/destC" } } },
-                            HttpClientData = new ProxyHttpClientData { ClientCertificate = new CertificateConfigData { Path = "mycert.pfx", Password = "123" }}
+                            HttpClient = new ProxyHttpClientData { ClientCertificate = new CertificateConfigData { Path = "mycert.pfx", Password = "123" }}
                         }
                     }
                 },
@@ -338,7 +338,7 @@ namespace Microsoft.ReverseProxy.Configuration
             Assert.NotNull(firstSnapshot);
             logger.Verify(l => l.Log(LogLevel.Error, It.IsAny<EventId>(), It.IsAny<string>(), It.IsAny<Exception>(), It.IsAny<Func<string, Exception, string>>()), Times.Never);
 
-            config.Clusters["cluster1"].HttpClientData = new ProxyHttpClientData { ClientCertificate = new CertificateConfigData { Path = "mycert.pfx", Password = "123" } };
+            config.Clusters["cluster1"].HttpClient = new ProxyHttpClientData { ClientCertificate = new CertificateConfigData { Path = "mycert.pfx", Password = "123" } };
 
             onChangeCallback(config, null);
             var secondSnapshot = provider.GetConfig();
@@ -356,7 +356,7 @@ namespace Microsoft.ReverseProxy.Configuration
                         "cluster1",
                         new ClusterData {
                             Destinations = { { "destinationA", new DestinationData { Address = "https://localhost:10001/destC" } } },
-                            HttpClientData = new ProxyHttpClientData { ClientCertificate = new CertificateConfigData { Path = "testCert.pfx" }}
+                            HttpClient = new ProxyHttpClientData { ClientCertificate = new CertificateConfigData { Path = "testCert.pfx" }}
                         }
                     }
                 },
@@ -425,27 +425,27 @@ namespace Microsoft.ReverseProxy.Configuration
             Assert.Equal(validConfig.Clusters["cluster1"].Destinations["destinationA"].Metadata, abstractCluster1.Destinations["destinationA"].Metadata);
             Assert.Equal(validConfig.Clusters["cluster1"].Destinations["destinationB"].Address, abstractCluster1.Destinations["destinationB"].Address);
             Assert.Equal(validConfig.Clusters["cluster1"].Destinations["destinationB"].Metadata, abstractCluster1.Destinations["destinationB"].Metadata);
-            Assert.Equal(validConfig.Clusters["cluster1"].CircuitBreakerData.MaxConcurrentRequests, abstractCluster1.CircuitBreakerOptions.MaxConcurrentRequests);
-            Assert.Equal(validConfig.Clusters["cluster1"].CircuitBreakerData.MaxConcurrentRetries, abstractCluster1.CircuitBreakerOptions.MaxConcurrentRetries);
-            Assert.Equal(validConfig.Clusters["cluster1"].HealthCheckData.Enabled, abstractCluster1.HealthCheckOptions.Enabled);
-            Assert.Equal(validConfig.Clusters["cluster1"].HealthCheckData.Interval, abstractCluster1.HealthCheckOptions.Interval);
-            Assert.Equal(validConfig.Clusters["cluster1"].HealthCheckData.Path, abstractCluster1.HealthCheckOptions.Path);
-            Assert.Equal(validConfig.Clusters["cluster1"].HealthCheckData.Port, abstractCluster1.HealthCheckOptions.Port);
-            Assert.Equal(validConfig.Clusters["cluster1"].HealthCheckData.Timeout, abstractCluster1.HealthCheckOptions.Timeout);
+            Assert.Equal(validConfig.Clusters["cluster1"].CircuitBreaker.MaxConcurrentRequests, abstractCluster1.CircuitBreakerOptions.MaxConcurrentRequests);
+            Assert.Equal(validConfig.Clusters["cluster1"].CircuitBreaker.MaxConcurrentRetries, abstractCluster1.CircuitBreakerOptions.MaxConcurrentRetries);
+            Assert.Equal(validConfig.Clusters["cluster1"].HealthCheck.Enabled, abstractCluster1.HealthCheckOptions.Enabled);
+            Assert.Equal(validConfig.Clusters["cluster1"].HealthCheck.Interval, abstractCluster1.HealthCheckOptions.Interval);
+            Assert.Equal(validConfig.Clusters["cluster1"].HealthCheck.Path, abstractCluster1.HealthCheckOptions.Path);
+            Assert.Equal(validConfig.Clusters["cluster1"].HealthCheck.Port, abstractCluster1.HealthCheckOptions.Port);
+            Assert.Equal(validConfig.Clusters["cluster1"].HealthCheck.Timeout, abstractCluster1.HealthCheckOptions.Timeout);
             Assert.Equal(Abstractions.LoadBalancingMode.Random, abstractCluster1.LoadBalancing.Mode);
-            Assert.Equal(validConfig.Clusters["cluster1"].PartitioningData.PartitionCount, abstractCluster1.PartitioningOptions.PartitionCount);
-            Assert.Equal(validConfig.Clusters["cluster1"].PartitioningData.PartitioningAlgorithm, abstractCluster1.PartitioningOptions.PartitioningAlgorithm);
-            Assert.Equal(validConfig.Clusters["cluster1"].PartitioningData.PartitionKeyExtractor, abstractCluster1.PartitioningOptions.PartitionKeyExtractor);
-            Assert.Equal(validConfig.Clusters["cluster1"].QuotaData.Average, abstractCluster1.QuotaOptions.Average);
-            Assert.Equal(validConfig.Clusters["cluster1"].QuotaData.Burst, abstractCluster1.QuotaOptions.Burst);
+            Assert.Equal(validConfig.Clusters["cluster1"].Partitioning.PartitionCount, abstractCluster1.PartitioningOptions.PartitionCount);
+            Assert.Equal(validConfig.Clusters["cluster1"].Partitioning.PartitioningAlgorithm, abstractCluster1.PartitioningOptions.PartitioningAlgorithm);
+            Assert.Equal(validConfig.Clusters["cluster1"].Partitioning.PartitionKeyExtractor, abstractCluster1.PartitioningOptions.PartitionKeyExtractor);
+            Assert.Equal(validConfig.Clusters["cluster1"].Quota.Average, abstractCluster1.QuotaOptions.Average);
+            Assert.Equal(validConfig.Clusters["cluster1"].Quota.Burst, abstractCluster1.QuotaOptions.Burst);
             Assert.Equal(validConfig.Clusters["cluster1"].SessionAffinity.Enabled, abstractCluster1.SessionAffinity.Enabled);
             Assert.Equal(validConfig.Clusters["cluster1"].SessionAffinity.FailurePolicy, abstractCluster1.SessionAffinity.FailurePolicy);
             Assert.Equal(validConfig.Clusters["cluster1"].SessionAffinity.Mode, abstractCluster1.SessionAffinity.Mode);
             Assert.Equal(validConfig.Clusters["cluster1"].SessionAffinity.Settings, abstractCluster1.SessionAffinity.Settings);
             Assert.Same(certificate, abstractCluster1.HttpClientOptions.ClientCertificate);
-            Assert.Equal(validConfig.Clusters["cluster1"].HttpClientData.MaxConnectionsPerServer, abstractCluster1.HttpClientOptions.MaxConnectionsPerServer);
+            Assert.Equal(validConfig.Clusters["cluster1"].HttpClient.MaxConnectionsPerServer, abstractCluster1.HttpClientOptions.MaxConnectionsPerServer);
             Assert.Equal(SslProtocols.Tls11 | SslProtocols.Tls12, abstractCluster1.HttpClientOptions.SslProtocols);
-            Assert.Equal(validConfig.Clusters["cluster1"].HttpClientData.DangerousAcceptAnyServerCertificate, abstractCluster1.HttpClientOptions.DangerousAcceptAnyServerCertificate);
+            Assert.Equal(validConfig.Clusters["cluster1"].HttpClient.DangerousAcceptAnyServerCertificate, abstractCluster1.HttpClientOptions.DangerousAcceptAnyServerCertificate);
             Assert.Equal(validConfig.Clusters["cluster1"].Metadata, abstractCluster1.Metadata);
 
             Assert.Single(abstractConfig.Clusters.Where(c => c.Id == "cluster2"));

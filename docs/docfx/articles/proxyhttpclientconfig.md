@@ -3,12 +3,12 @@
 Introduced: preview5
 
 ## Introduction
-Each `Cluster` has a dedicated `HttpMessageInvoker` instance used to proxy requests to its `Destination`s. The configuration is defined per cluster. On YARP startup, all `Cluster`s get new `HttpMessageInvoker` instances, however if later the `Cluster` configuration gets changed the `IProxyHttpClientFactory` will re-run and decide if it should create a new `HttpMessageInvoker` or keep using the existing one. The default `IProxyHttpClientFactory` creates a new `HttpMessageInvoker` when there are changes either to the `ProxyHttpClientOptions`.
+Each [Cluster](xref:Microsoft.ReverseProxy.Abstractions.Cluster) has a dedicated [HttpMessageInvoker](xref:System.Net.Http.HttpMessageInvoker) instance used to proxy requests to its [Destination](xref:Microsoft.ReverseProxy.Abstractions.Destination)s. The configuration is defined per cluster. On YARP startup, all [Cluster](xref:Microsoft.ReverseProxy.Abstractions.Cluster)s get new [HttpMessageInvoker](xref:System.Net.Http.HttpMessageInvoker) instances, however if later the [Cluster](xref:Microsoft.ReverseProxy.Abstractions.Cluster) configuration gets changed the [IProxyHttpClientFactory](xref:Microsoft.ReverseProxy.Service.Proxy.Infrastructure.IProxyHttpClientFactory) will re-run and decide if it should create a new [HttpMessageInvoker](xref:System.Net.Http.HttpMessageInvoker) or keep using the existing one. The default [IProxyHttpClientFactory](xref:Microsoft.ReverseProxy.Service.Proxy.Infrastructure.IProxyHttpClientFactory) implementation creates a new [HttpMessageInvoker](xref:System.Net.Http.HttpMessageInvoker) when there are changes to the [ProxyHttpClientOptions](xref:Microsoft.ReverseProxy.Abstractions.ProxyHttpClientOptions).
 
-The configuration is represented differently if you're using the `IConfiguration` model or the code-first model.
+The configuration is represented differently if you're using the [IConfiguration](xref:Microsoft.Extensions.Configuration.IConfiguration) model or the code-first model.
 
 ## IConfiguration
-HTTP client configuration contract consists of `Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpClientData` and `Microsoft.ReverseProxy.Configuration.Contract.CertificateConfigData` types defining the following configuration schema. These types are focused on defining serializable configuration. The code based HTTP client configuration model is described below in the "Code Configuration" section.
+HTTP client configuration contract consists of [ProxyHttpClientData](xref:Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpClientData) and [CertificateConfigData](xref:Microsoft.ReverseProxy.Configuration.Contract.CertificateConfigData) types defining the following configuration schema. These types are focused on defining serializable configuration. The code based HTTP client configuration model is described below in the "Code Configuration" section.
 ```JSON
 "HttpClientOptions": {
     "SslProtocols": [ "<protocol-names>" ],
@@ -117,7 +117,7 @@ The below example shows 2 samples of HTTP client configurations for `cluster1` a
 ```
 
 ## Code Configuration
-HTTP client configuration abstraction constists of the only type `Microsoft.ReverseProxy.Abstractions.ProxyHttpClientOptions` defined as follows.
+HTTP client configuration abstraction constists of the only type [ProxyHttpClientOptions](xref:Microsoft.ReverseProxy.Abstractions.ProxyHttpClientOptions) defined as follows.
 ```C#
 public sealed class ProxyHttpClientOptions
 {
@@ -130,4 +130,17 @@ public sealed class ProxyHttpClientOptions
     public int? MaxConnectionsPerServer { get; set; }
 }
 ```
-Note that instead of defining certificate location as it was in `Microsoft.ReverseProxy.Configuration.Contract.CertificateConfigData` model, this type exposes a fully constructed `X509Certificate` certificate. Conversion from the configuration contract to the abstraction model is done by a `IProxyConfigProvider` which loads a client certificate into memory.
+Note that instead of defining certificate location as it was in [CertificateConfigData](xref:Microsoft.ReverseProxy.Configuration.Contract.CertificateConfigData) model, this type exposes a fully constructed [X509Certificate](xref:System.Security.Cryptography.X509Certificates.X509Certificate) certificate. Conversion from the configuration contract to the abstraction model is done by a [IProxyConfigProvider](xref:Microsoft.ReverseProxy.Service.IProxyConfigProvider) which loads a client certificate into memory.
+
+## Custom IProxyHttpClientFactory
+In case the direct control on a proxy HTTP client construction is necessary, the default [IProxyHttpClientFactory](xref:Microsoft.ReverseProxy.Service.Proxy.Infrastructure.IProxyHttpClientFactory) can be replaced with a custom one. In example, that custom logic can use [Cluster](xref:Microsoft.ReverseProxy.Abstractions.Cluster)'s metadata as an extra data source for [HttpMessageInvoker](xref:System.Net.Http.HttpMessageInvoker) configuration. However, it's still recommended for any custom factory to set the following [HttpMessageInvoker](xref:System.Net.Http.HttpMessageInvoker) properties to the same values as the default factory does in order to preserve a correct reverse proxy behavior.
+
+```C#
+new SocketsHttpHandler
+{
+    UseProxy = false,
+    AllowAutoRedirect = false,
+    AutomaticDecompression = DecompressionMethods.None,
+    UseCookies = false
+};
+```

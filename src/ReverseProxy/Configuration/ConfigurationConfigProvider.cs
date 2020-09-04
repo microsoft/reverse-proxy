@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Authentication;
@@ -11,6 +10,7 @@ using System.Threading;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
+using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Configuration.Contract;
 using Microsoft.ReverseProxy.Service;
 
@@ -79,8 +79,7 @@ namespace Microsoft.ReverseProxy.Configuration
             lock (_lockObject)
             {
                 Log.LoadData(_logger);
-                var oldToken = _changeToken;
-                _changeToken = new CancellationTokenSource();
+                var updatedSuccessfully = false;
                 try
                 {
                     var newSnapshot = new ConfigurationSnapshot()
@@ -91,6 +90,7 @@ namespace Microsoft.ReverseProxy.Configuration
                     };
                     PurgeCertificateList();
                     _snapshot = newSnapshot;
+                    updatedSuccessfully = true;
                 }
                 catch (Exception ex)
                 {
@@ -103,13 +103,19 @@ namespace Microsoft.ReverseProxy.Configuration
                     }
                 }
 
-                try
+                if (updatedSuccessfully)
                 {
-                    oldToken?.Cancel(throwOnFirstException: false);
-                }
-                catch (Exception ex)
-                {
-                    Log.ErrorSignalingChange(_logger, ex);
+                    var oldToken = _changeToken;
+                    _changeToken = new CancellationTokenSource();
+
+                    try
+                    {
+                        oldToken?.Cancel(throwOnFirstException: false);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.ErrorSignalingChange(_logger, ex);
+                    }
                 }
             }
         }
@@ -129,20 +135,20 @@ namespace Microsoft.ReverseProxy.Configuration
             }
         }
 
-        private Abstractions.Cluster Convert(string clusterId, ClusterData data)
+        private Cluster Convert(string clusterId, ClusterData data)
         {
-            var cluster = new Abstractions.Cluster
+            var cluster = new Cluster
             {
                 // The Object style config binding puts the id as the key in the dictionary, but later we want it on the
                 // cluster object as well.
                 Id = clusterId,
-                CircuitBreakerOptions = Convert(data.CircuitBreakerData),
-                QuotaOptions = Convert(data.QuotaData),
-                PartitioningOptions = Convert(data.PartitioningData),
+                CircuitBreakerOptions = Convert(data.CircuitBreaker),
+                QuotaOptions = Convert(data.Quota),
+                PartitioningOptions = Convert(data.Partitioning),
                 LoadBalancing = Convert(data.LoadBalancing),
                 SessionAffinity = Convert(data.SessionAffinity),
-                HealthCheckOptions = Convert(data.HealthCheckData),
-                HttpClientOptions = Convert(data.HttpClientData),
+                HealthCheckOptions = Convert(data.HealthCheck),
+                HttpClientOptions = Convert(data.HttpClient),
                 Metadata = data.Metadata?.DeepClone(StringComparer.OrdinalIgnoreCase)
             };
             foreach(var destination in data.Destinations)
@@ -152,9 +158,9 @@ namespace Microsoft.ReverseProxy.Configuration
             return cluster;
         }
 
-        private Abstractions.ProxyRoute Convert(ProxyRouteData data)
+        private ProxyRoute Convert(ProxyRouteData data)
         {
-            var route = new Abstractions.ProxyRoute
+            var route = new ProxyRoute
             {
                 RouteId = data.RouteId,
                 Order = data.Order,
@@ -180,42 +186,42 @@ namespace Microsoft.ReverseProxy.Configuration
             proxyMatch.Path = data.Path;
         }
 
-        private Abstractions.CircuitBreakerOptions Convert(CircuitBreakerData data)
+        private CircuitBreakerOptions Convert(CircuitBreakerData data)
         {
             if(data == null)
             {
                 return null;
             }
 
-            return new Abstractions.CircuitBreakerOptions
+            return new CircuitBreakerOptions
             {
                 MaxConcurrentRequests = data.MaxConcurrentRequests,
                 MaxConcurrentRetries = data.MaxConcurrentRetries,
             };
         }
 
-        private Abstractions.QuotaOptions Convert(QuotaData data)
+        private QuotaOptions Convert(QuotaData data)
         {
             if (data == null)
             {
                 return null;
             }
 
-            return new Abstractions.QuotaOptions
+            return new QuotaOptions
             {
                 Average = data.Average,
                 Burst = data.Burst,
             };
         }
 
-        private Abstractions.ClusterPartitioningOptions Convert(ClusterPartitioningData data)
+        private ClusterPartitioningOptions Convert(ClusterPartitioningData data)
         {
             if (data == null)
             {
                 return null;
             }
 
-            return new Abstractions.ClusterPartitioningOptions
+            return new ClusterPartitioningOptions
             {
                 PartitionCount = data.PartitionCount,
                 PartitionKeyExtractor = data.PartitionKeyExtractor,
@@ -223,27 +229,27 @@ namespace Microsoft.ReverseProxy.Configuration
             };
         }
 
-        private Abstractions.LoadBalancingOptions Convert(LoadBalancingData data)
+        private LoadBalancingOptions Convert(LoadBalancingData data)
         {
             if (data == null)
             {
                 return null;
             }
 
-            return new Abstractions.LoadBalancingOptions
+            return new LoadBalancingOptions
             {
                 Mode = Enum.Parse<Abstractions.LoadBalancingMode>(data.Mode),
             };
         }
 
-        private Abstractions.SessionAffinityOptions Convert(SessionAffinityData data)
+        private SessionAffinityOptions Convert(SessionAffinityData data)
         {
             if (data == null)
             {
                 return null;
             }
 
-            return new Abstractions.SessionAffinityOptions
+            return new SessionAffinityOptions
             {
                 Enabled = data.Enabled,
                 Mode = data.Mode,
@@ -252,14 +258,14 @@ namespace Microsoft.ReverseProxy.Configuration
             };
         }
 
-        private Abstractions.HealthCheckOptions Convert(HealthCheckData data)
+        private HealthCheckOptions Convert(HealthCheckData data)
         {
             if (data == null)
             {
                 return null;
             }
 
-            return new Abstractions.HealthCheckOptions
+            return new HealthCheckOptions
             {
                 Enabled = data.Enabled,
                 Interval = data.Interval,
@@ -269,7 +275,7 @@ namespace Microsoft.ReverseProxy.Configuration
             };
         }
 
-        private Abstractions.ProxyHttpClientOptions Convert(ProxyHttpClientData data)
+        private ProxyHttpClientOptions Convert(ProxyHttpClientData data)
         {
             if (data == null)
             {
@@ -292,7 +298,7 @@ namespace Microsoft.ReverseProxy.Configuration
                 }
             }
 
-            return new Abstractions.ProxyHttpClientOptions
+            return new ProxyHttpClientOptions
             {
                 SslProtocols = sslProtocols,
                 DangerousAcceptAnyServerCertificate = data.DangerousAcceptAnyServerCertificate,
@@ -301,14 +307,14 @@ namespace Microsoft.ReverseProxy.Configuration
             };
         }
 
-        private Abstractions.Destination Convert(DestinationData data)
+        private Destination Convert(DestinationData data)
         {
             if (data == null)
             {
                 return null;
             }
 
-            return new Abstractions.Destination
+            return new Destination
             {
                 Address = data.Address,
                 Metadata = data.Metadata?.DeepClone(StringComparer.OrdinalIgnoreCase),
