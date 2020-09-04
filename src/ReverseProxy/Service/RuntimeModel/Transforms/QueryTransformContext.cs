@@ -47,7 +47,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             }
         }
 
-        public IDictionary<string, StringValues> ModifiedQueryParameters
+        public IDictionary<string, StringValues> Query
         {
             get
             {
