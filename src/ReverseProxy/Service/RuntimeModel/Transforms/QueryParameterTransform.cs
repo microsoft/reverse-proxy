@@ -21,22 +21,22 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         {
             if (context == null)
             {
-                throw new System.ArgumentNullException(nameof(context));
+                throw new ArgumentNullException(nameof(context));
             }
 
-            string value = GetValue(context);
+            var value = GetValue(context);
             if (!string.IsNullOrEmpty(value))
             {
                 switch (_mode)
                 {
                     case QueryStringTransformMode.Append:
-                        if (!context.Query.ModifiedQueryParameters.ContainsKey(_key))
+                        if (!context.Query.ModifiedQueryParameters.TryGetValue(_key, out var currentValue))
                         {
                             context.Query.ModifiedQueryParameters.Add(_key, value.ToString());
                         }
                         else
                         {
-                            var newValue = StringValues.Concat(context.Query.ModifiedQueryParameters[_key], value.ToString());
+                            var newValue = StringValues.Concat(currentValue, value.ToString());
                             context.Query.ModifiedQueryParameters[_key] = newValue;
                         }
                         break;

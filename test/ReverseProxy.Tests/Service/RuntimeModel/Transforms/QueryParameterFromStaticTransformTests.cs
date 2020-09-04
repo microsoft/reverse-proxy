@@ -34,7 +34,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             };
             var transform = new QueryParameterFromStaticTransform(QueryStringTransformMode.Append, "z", "foo");
             transform.Apply(context);
-            Assert.Equal("?z=1,foo", context.Query.QueryString.Value);
+            Assert.Equal("?z=1&z=foo", context.Query.QueryString.Value);
         }
 
         [Fact]

@@ -36,10 +36,10 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                     return _originalQueryString;
                 }
 
-#if NETCOREAPP3_1
-                var queryBuilder = new QueryBuilder(_modifiedQueryParameters.Select(pair => new System.Collections.Generic.KeyValuePair<string, string>(pair.Key, pair.Value.ToString())));
-#elif NETCOREAPP5_0
+#if NET5_0
                 var queryBuilder = new QueryBuilder(_modifiedQueryParameters);
+#elif NETCOREAPP3_1
+                var queryBuilder = new QueryBuilder(_modifiedQueryParameters.SelectMany(kvp => kvp.Value, (kvp, v) => KeyValuePair.Create(kvp.Key, v)));
 #else
 #error A target framework was added to the project and needs to be added to this condition.
 #endif
@@ -47,7 +47,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             }
         }
 
-        public Dictionary<string, StringValues> ModifiedQueryParameters
+        public IDictionary<string, StringValues> ModifiedQueryParameters
         {
             get
             {

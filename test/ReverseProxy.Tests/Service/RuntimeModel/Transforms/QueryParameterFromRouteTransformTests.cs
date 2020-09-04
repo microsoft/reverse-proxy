@@ -54,7 +54,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             };
             var transform = new QueryParameterRouteTransform(QueryStringTransformMode.Append, "z", "a");
             transform.Apply(context);
-            Assert.Equal("?z=1,6", context.Query.QueryString.Value);
+            Assert.Equal("?z=1&z=6", context.Query.QueryString.Value);
         }
 
         [Fact]
