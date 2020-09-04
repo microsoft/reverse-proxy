@@ -48,10 +48,10 @@ stages:
         pool:
           ${{ if eq(variables['System.TeamProject'], 'public') }}:
             name: NetCorePublic-Pool
-            queue: BuildPool.Windows.VS2019.Pre.Scouting.Open
+            queue: BuildPool.Windows.10.Amd64.VS2019.Pre.Open
           ${{ if ne(variables['System.TeamProject'], 'public') }}:
             name: NetCoreInternal-Pool
-            queue: BuildPool.Server.Amd64.VS2019
+            queue: BuildPool.Windows.10.Amd64.VS2019.Pre
         variables:
           
 
