@@ -70,7 +70,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         /// </remarks>
         /// <param name="longCancellation">This should be linked to a client disconnect notification like <see cref="HttpContext.RequestAborted"/>
         /// to avoid leaking long running requests.</param>
-        public Task ProxyAsync(
+        public async Task ProxyAsync(
             HttpContext context,
             string destinationPrefix,
             Transforms transforms,
@@ -96,122 +96,82 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             // (see Step 3 below). TBD how this will change when HTTP/3 is supported.
             var version = isUpgrade ? ProtocolHelper.Http11Version : ProtocolHelper.Http2Version;
 
-            var request = CreateRequestMessage(context, destinationPrefix, version, transforms.RequestTransforms);
+            var destinationRequest = CreateRequestMessage(context, destinationPrefix, version, transforms.RequestTransforms);
 
-            if (isUpgrade)
-            {
-                return UpgradableProxyAsync(context, upgradeFeature, request, transforms, httpClient, proxyTelemetryContext, shortCancellation, longCancellation);
-            }
-            else
-            {
-                return NormalProxyAsync(context, request, transforms, httpClient, proxyTelemetryContext, shortCancellation, longCancellation);
-            }
-        }
-
-        /// <summary>
-        /// Proxies a normal (i.e. non-upgradable) request to the upstream server, and the response back to our client.
-        /// </summary>
-        /// <remarks>
-        /// Normal proxying comprises the following steps:
-        ///    (0) Disable ASP .NET Core limits for streaming requests
-        ///    (1) Create outgoing HttpRequestMessage
-        ///    (2) Setup copy of request body (background)             Downstream --► Proxy --► Upstream
-        ///    (3) Copy request headers                                Downstream --► Proxy --► Upstream
-        ///    (4) Send the outgoing request using HttpMessageInvoker  Downstream --► Proxy --► Upstream
-        ///    (5) Copy response status line                           Downstream ◄-- Proxy ◄-- Upstream
-        ///    (6) Copy response headers                               Downstream ◄-- Proxy ◄-- Upstream
-        ///    (7) Copy response body                                  Downstream ◄-- Proxy ◄-- Upstream
-        ///    (8) Copy response trailer headers and finish response   Downstream ◄-- Proxy ◄-- Upstream
-        ///    (9) Wait for completion of step 2: copying request body Downstream --► Proxy --► Upstream
-        ///
-        /// ASP .NET Core (Kestrel) will finally send response trailers (if any)
-        /// after we complete the steps above and relinquish control.
-        /// </remarks>
-        private async Task NormalProxyAsync(
-            HttpContext context,
-            HttpRequestMessage upstreamRequest,
-            Transforms transforms,
-            HttpMessageInvoker httpClient,
-            ProxyTelemetryContext proxyTelemetryContext,
-            CancellationToken shortCancellation,
-            CancellationToken longCancellation)
-        {
-            _ = context ?? throw new ArgumentNullException(nameof(context));
-            _ = upstreamRequest ?? throw new ArgumentNullException(nameof(upstreamRequest));
-            _ = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-
-            // :::::::::::::::::::::::::::::::::::::::::::::
-            // :: Step 0: Disable ASP .NET Core limits for streaming requests
             var isIncomingHttp2 = ProtocolHelper.IsHttp2(context.Request.Protocol);
 
             // NOTE: We heuristically assume gRPC-looking requests may require streaming semantics.
             // See https://github.com/microsoft/reverse-proxy/issues/118 for design discussion.
             var isStreamingRequest = isIncomingHttp2 && ProtocolHelper.IsGrpcContentType(context.Request.ContentType);
-            if (isStreamingRequest)
-            {
-                DisableMinRequestBodyDataRateAndMaxRequestBodySize(context);
-            }
 
             // :::::::::::::::::::::::::::::::::::::::::::::
-            // :: Step 2: Setup copy of request body (background) Downstream --► Proxy --► Upstream
+            // :: Step 2: Setup copy of request body (background) Client --► Proxy --► Destination
             // Note that we must do this before step (3) because step (3) may also add headers to the HttpContent that we set up here.
-            var bodyToUpstreamContent = SetupCopyBodyUpstream(context.Request, upstreamRequest, in proxyTelemetryContext, isStreamingRequest, longCancellation);
+            var requestContent = SetupRequestBodyCopy(context.Request, destinationRequest, in proxyTelemetryContext, isStreamingRequest, longCancellation);
 
             // :::::::::::::::::::::::::::::::::::::::::::::
-            // :: Step 3: Copy request headers Downstream --► Proxy --► Upstream
-            CopyHeadersToUpstream(context, upstreamRequest, transforms.CopyRequestHeaders, transforms.RequestHeaderTransforms);
+            // :: Step 3: Copy request headers Client --► Proxy --► Destination
+            CopyRequestHeaders(context, destinationRequest, transforms.CopyRequestHeaders, transforms.RequestHeaderTransforms);
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 4: Send the outgoing request using HttpClient
-            ////this.logger.LogInformation($"   Starting Proxy --> upstream request");
-            var upstreamResponse = await httpClient.SendAsync(upstreamRequest, shortCancellation);
+            ////this.logger.LogInformation($"   Starting Proxy --> Destination request");
+            var httpClient = httpClientFactory.CreateClient();
+            var destinationResponse = await httpClient.SendAsync(destinationRequest, shortCancellation);
 
             // Detect connection downgrade, which may be problematic for e.g. gRPC.
-            if (isIncomingHttp2 && upstreamResponse.Version.Major != 2)
+            if (!isUpgrade && isIncomingHttp2 && destinationResponse.Version.Major != 2)
             {
                 // TODO: Do something on connection downgrade...
                 Log.HttpDowngradeDetected(_logger);
             }
 
-            // Assert that, if we are proxying content upstream, it must have started by now
+            // Assert that, if we are proxying content Destination, it must have started by now
             // (since HttpClient.SendAsync has already completed asynchronously).
             // If this check fails, there is a coding defect which would otherwise
             // cause us to wait forever in step 9, so fail fast here.
-            if (bodyToUpstreamContent != null && !bodyToUpstreamContent.Started)
+            if (requestContent != null && !requestContent.Started)
             {
-                // TODO: bodyToUpstreamContent is never null. HttpClient might would not need to read the body in some scenarios, such as an early auth failure with Expect: 100-continue.
-                throw new InvalidOperationException("Proxying the downstream request body to the upstream server hasn't started. This is a coding defect.");
+                // TODO: bodyToDestinationContent is never null. HttpClient might would not need to read the body in some scenarios, such as an early auth failure with Expect: 100-continue.
+                throw new InvalidOperationException("Proxying the Client request body to the Destination server hasn't started. This is a coding defect.");
             }
 
             // :::::::::::::::::::::::::::::::::::::::::::::
-            // :: Step 5: Copy response status line Downstream ◄-- Proxy ◄-- Upstream
-            ////this.logger.LogInformation($"   Setting downstream <-- Proxy status: {(int)upstreamResponse.StatusCode} {upstreamResponse.ReasonPhrase}");
-            context.Response.StatusCode = (int)upstreamResponse.StatusCode;
-            context.Features.Get<IHttpResponseFeature>().ReasonPhrase = upstreamResponse.ReasonPhrase;
+            // :: Step 5: Copy response status line Client ◄-- Proxy ◄-- Destination
+            ////this.logger.LogInformation($"   Setting Client <-- Proxy status: {(int)DestinationResponse.StatusCode} {DestinationResponse.ReasonPhrase}");
+            context.Response.StatusCode = (int)destinationResponse.StatusCode;
+            context.Features.Get<IHttpResponseFeature>().ReasonPhrase = destinationResponse.ReasonPhrase;
 
             // :::::::::::::::::::::::::::::::::::::::::::::
-            // :: Step 6: Copy response headers Downstream ◄-- Proxy ◄-- Upstream
-            CopyHeadersToDownstream(upstreamResponse, context, transforms.ResponseHeaderTransforms);
+            // :: Step 6: Copy response headers Client ◄-- Proxy ◄-- Destination
+            CopyResponseHeaders(destinationResponse, context, transforms.ResponseHeaderTransforms);
+
+            var upgraded = destinationResponse.StatusCode == HttpStatusCode.SwitchingProtocols && destinationResponse.Content != null;
+            if (upgraded)
+            {
+                await HandleUpgradedResponse(upgradeFeature, destinationResponse, proxyTelemetryContext, longCancellation);
+                return;
+            }
 
             // NOTE: it may *seem* wise to call `context.Response.StartAsync()` at this point
             // since it looks like we are ready to send back response headers
-            // (and this might help reduce extra delays while we wait to receive the body from upstream).
+            // (and this might help reduce extra delays while we wait to receive the body from Destination).
             // HOWEVER, this would produce the wrong result if it turns out that there is no content
-            // from the upstream -- instead of sending headers and terminating the stream at once,
+            // from the Destination -- instead of sending headers and terminating the stream at once,
             // we would send headers thinking a body may be coming, and there is none.
-            // This is problematic on gRPC connections when the upstream server encounters an error,
+            // This is problematic on gRPC connections when the Destination server encounters an error,
             // in which case it immediately returns the response headers and trailing headers, but no content,
             // and clients misbehave if the initial headers response does not indicate stream end.
 
             // TODO: Some of the tasks in steps (7) - (9) may go unobserved depending on what fails first. Needs more consideration.
 
             // :::::::::::::::::::::::::::::::::::::::::::::
-            // :: Step 7: Copy response body Downstream ◄-- Proxy ◄-- Upstream
-            await CopyBodyDownstreamAsync(upstreamResponse.Content, context.Response.Body, proxyTelemetryContext, longCancellation);
+            // :: Step 7: Copy response body Client ◄-- Proxy ◄-- Destination
+            await CopyResponseBodyAsync(destinationResponse.Content, context.Response.Body, proxyTelemetryContext, longCancellation);
 
             // :::::::::::::::::::::::::::::::::::::::::::::
-            // :: Step 8: Copy response trailer headers and finish response Downstream ◄-- Proxy ◄-- Upstream
-            CopyTrailingHeadersToDownstream(upstreamResponse, context, transforms.ResponseTrailerTransforms);
+            // :: Step 8: Copy response trailer headers and finish response Client ◄-- Proxy ◄-- Destination
+            CopyResponseTrailingHeaders(destinationResponse, context, transforms.ResponseTrailerTransforms);
 
             if (isStreamingRequest)
             {
@@ -225,88 +185,24 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             }
 
             // :::::::::::::::::::::::::::::::::::::::::::::
-            // :: Step 9: Wait for completion of step 2: copying request body Downstream --► Proxy --► Upstream
-            if (bodyToUpstreamContent != null)
+            // :: Step 9: Wait for completion of step 2: copying request body Client --► Proxy --► Destination
+            if (requestContent != null)
             {
-                ////this.logger.LogInformation($"   Waiting for downstream --> Proxy --> upstream body proxying to complete");
-                await bodyToUpstreamContent.ConsumptionTask;
+                ////this.logger.LogInformation($"   Waiting for Client --> Proxy --> Destination body proxying to complete");
+                await requestContent.ConsumptionTask;
             }
         }
 
-        /// <summary>
-        /// Proxies an upgradable request to the upstream server, treating the upgraded stream as an opaque duplex channel.
-        /// </summary>
-        /// <remarks>
-        /// Upgradable request proxying comprises the following steps:
-        ///    (1)  Create outgoing HttpRequestMessage
-        ///    (2)  Copy request headers                                              Downstream ---► Proxy ---► Upstream
-        ///    (3)  Send the outgoing request using HttpMessageInvoker                Downstream ---► Proxy ---► Upstream
-        ///    (4)  Copy response status line                                         Downstream ◄--- Proxy ◄--- Upstream
-        ///    (5)  Copy response headers                                             Downstream ◄--- Proxy ◄--- Upstream
-        ///       Scenario A: upgrade with upstream worked (got 101 response)
-        ///          (A-6)  Upgrade downstream channel (also sends response headers)  Downstream ◄--- Proxy ◄--- Upstream
-        ///          (A-7)  Copy duplex streams                                       Downstream ◄--► Proxy ◄--► Upstream
-        ///       ---- or ----
-        ///       Scenario B: upgrade with upstream failed (got non-101 response)
-        ///          (B-6)  Send response headers                                     Downstream ◄--- Proxy ◄--- Upstream
-        ///          (B-7)  Copy response body                                        Downstream ◄--- Proxy ◄--- Upstream
-        ///
-        /// This takes care of WebSockets as well as any other upgradable protocol.
-        /// </remarks>
-        private async Task UpgradableProxyAsync(
-            HttpContext context,
-            IHttpUpgradeFeature upgradeFeature,
-            HttpRequestMessage upstreamRequest,
-            Transforms transforms,
-            HttpMessageInvoker httpClient,
-            ProxyTelemetryContext proxyTelemetryContext,
-            CancellationToken shortCancellation,
-            CancellationToken longCancellation)
+        private async Task HandleUpgradedResponse(IHttpUpgradeFeature upgradeFeature, HttpResponseMessage destinationResponse,
+            ProxyTelemetryContext proxyTelemetryContext, CancellationToken longCancellation)
         {
-            _ = context ?? throw new ArgumentNullException(nameof(context));
-            _ = upgradeFeature ?? throw new ArgumentNullException(nameof(upgradeFeature));
-            _ = upstreamRequest ?? throw new ArgumentNullException(nameof(upstreamRequest));
-            _ = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-
-            // :::::::::::::::::::::::::::::::::::::::::::::
-            // :: Step 2: Copy request headers Downstream --► Proxy --► Upstream
-            CopyHeadersToUpstream(context, upstreamRequest, transforms.CopyRequestHeaders, transforms.RequestHeaderTransforms);
-
-            // :::::::::::::::::::::::::::::::::::::::::::::
-            // :: Step 3: Send the outgoing request using HttpMessageInvoker
-            var upstreamResponse = await httpClient.SendAsync(upstreamRequest, shortCancellation);
-            var upgraded = upstreamResponse.StatusCode == HttpStatusCode.SwitchingProtocols && upstreamResponse.Content != null;
-
-            // :::::::::::::::::::::::::::::::::::::::::::::
-            // :: Step 4: Copy response status line Downstream ◄-- Proxy ◄-- Upstream
-            context.Response.StatusCode = (int)upstreamResponse.StatusCode;
-            context.Features.Get<IHttpResponseFeature>().ReasonPhrase = upstreamResponse.ReasonPhrase;
-
-            // :::::::::::::::::::::::::::::::::::::::::::::
-            // :: Step 5: Copy response headers Downstream ◄-- Proxy ◄-- Upstream
-            CopyHeadersToDownstream(upstreamResponse, context, transforms.ResponseHeaderTransforms);
-
-            if (!upgraded)
-            {
-                // :::::::::::::::::::::::::::::::::::::::::::::
-                // :: Step B-6: Send response headers Downstream ◄-- Proxy ◄-- Upstream
-                // This is important to avoid any extra delays in sending response headers
-                // e.g. if the upstream server is slow to provide its response body.
-                await context.Response.StartAsync(shortCancellation);
-
-                // :::::::::::::::::::::::::::::::::::::::::::::
-                // :: Step B-7: Copy response body Downstream ◄-- Proxy ◄-- Upstream
-                await CopyBodyDownstreamAsync(upstreamResponse.Content, context.Response.Body, proxyTelemetryContext, longCancellation);
-                return;
-            }
-
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step A-6: Upgrade the downstream channel. This will send all response headers too.
             using var downstreamStream = await upgradeFeature.UpgradeAsync();
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step A-7: Copy duplex streams
-            var upstreamStream = await upstreamResponse.Content.ReadAsStreamAsync();
+            var upstreamStream = await destinationResponse.Content.ReadAsStreamAsync();
 
             var upstreamCopier = new StreamCopier(
                 _metrics,
@@ -371,7 +267,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             return new HttpRequestMessage(HttpUtilities.GetHttpMethod(transformContext.Method), targetUri) { Version = transformContext.Version };
         }
 
-        private StreamCopyHttpContent SetupCopyBodyUpstream(HttpRequest request, HttpRequestMessage upstreamRequest, in ProxyTelemetryContext proxyTelemetryContext, bool isStreamingRequest, CancellationToken cancellation)
+        private StreamCopyHttpContent SetupRequestBodyCopy(HttpRequest request, HttpRequestMessage upstreamRequest, in ProxyTelemetryContext proxyTelemetryContext, bool isStreamingRequest, CancellationToken cancellation)
         {
             // If we generate an HttpContent without a Content-Length then for HTTP/1.1 HttpClient will add a Transfer-Encoding: chunked header
             // even if it's a GET request. Some servers reject requests containing a Transfer-Encoding header if they're not expecting a body.
@@ -431,6 +327,10 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             StreamCopyHttpContent contentToUpstream = null;
             if (hasBody)
             {
+                if (isStreamingRequest)
+                {
+                    DisableMinRequestBodyDataRateAndMaxRequestBodySize(request.HttpContext);
+                }
                 ////this.logger.LogInformation($"   Setting up downstream --> Proxy --> upstream body proxying");
 
                 // Note on `autoFlushHttpClientOutgoingStream: isStreamingRequest`:
@@ -460,7 +360,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             return contentToUpstream;
         }
 
-        private void CopyHeadersToUpstream(HttpContext context, HttpRequestMessage destination, bool? copyAllHeaders, IReadOnlyDictionary<string, RequestHeaderTransform> transforms)
+        private void CopyRequestHeaders(HttpContext context, HttpRequestMessage destination, bool? copyAllHeaders, IReadOnlyDictionary<string, RequestHeaderTransform> transforms)
         {
             // Transforms that were run in the first pass.
             HashSet<string> transformsRun = null;
@@ -534,7 +434,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             }
         }
 
-        private void CopyHeadersToDownstream(HttpResponseMessage source, HttpContext context, IReadOnlyDictionary<string, ResponseHeaderTransform> transforms)
+        private void CopyResponseHeaders(HttpResponseMessage source, HttpContext context, IReadOnlyDictionary<string, ResponseHeaderTransform> transforms)
         {
             // Transforms that were run in the first pass.
             HashSet<string> transformsRun = null;
@@ -547,7 +447,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             RunRemainingResponseTransforms(source, context, responseHeaders, transforms, transformsRun);
         }
 
-        private async Task CopyBodyDownstreamAsync(HttpContent upstreamResponseContent, Stream destination, ProxyTelemetryContext proxyTelemetryContext, CancellationToken cancellation)
+        private async Task CopyResponseBodyAsync(HttpContent upstreamResponseContent, Stream destination, ProxyTelemetryContext proxyTelemetryContext, CancellationToken cancellation)
         {
             if (upstreamResponseContent != null)
             {
@@ -564,7 +464,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             }
         }
 
-        private void CopyTrailingHeadersToDownstream(HttpResponseMessage source, HttpContext context, IReadOnlyDictionary<string, ResponseHeaderTransform> transforms)
+        private void CopyResponseTrailingHeaders(HttpResponseMessage source, HttpContext context, IReadOnlyDictionary<string, ResponseHeaderTransform> transforms)
         {
             // NOTE: Deliberately not using `context.Response.SupportsTrailers()`, `context.Response.AppendTrailer(...)`
             // because they lookup `IHttpResponseTrailersFeature` for every call. Here we do it just once instead.
