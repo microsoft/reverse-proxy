@@ -3,12 +3,12 @@
 Introduced: preview5
 
 ## Introduction
-Each `Cluster` has a dedicated `HttpMessageInvoker` instance used to proxy request to its `Destination`s and `HttMessageInvoker`'s configuration is defined on per cluster level. On YARP startup, all `Cluster`s get new `HttpMessageInvoker` instances, however if later the `Cluster` configuration gets changed a new `HttpMessageInvoker` gets created only when `IProxyHttpClientFactory` detects a difference between an old and a new configuration affecting HTTP client parameters. The default `ProxyHttpClientFactory` creates a new `HttpMessageInvoker` when there changes eithes to `ProxyHttpClientOptions` or to `Cluster.Metadata`.
+Each `Cluster` has a dedicated `HttpMessageInvoker` instance used to proxy requests to its `Destination`s. The configuration is defined per cluster. On YARP startup, all `Cluster`s get new `HttpMessageInvoker` instances, however if later the `Cluster` configuration gets changed the `IProxyHttpClientFactory` will re-run and decide if it should create a new `HttpMessageInvoker` or keep using the existing one. The default `IProxyHttpClientFactory` creates a new `HttpMessageInvoker` when there are changes either to the `ProxyHttpClientOptions`.
 
-HTTP client configuration represented by slightly different models in the Contract and Abstractions layers.
+The configuration is represented differently if you're using the `IConfiguration` model or the code-first model.
 
-## Configuration contract
-HTTP client configuration contract consists of `Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpClientData` and `Microsoft.ReverseProxy.Configuration.Contract.CertificateConfigData` types defining the following configuration schema. This types are focused on defining serializable configuration. The in-memory HTTP client configuration model is described below in the "Configuration abstractions" section.
+## IConfiguration
+HTTP client configuration contract consists of `Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpClientData` and `Microsoft.ReverseProxy.Configuration.Contract.CertificateConfigData` types defining the following configuration schema. These types are focused on defining serializable configuration. The code based HTTP client configuration model is described below in the "Code Configuration" section.
 ```JSON
 "HttpClientOptions": {
     "SslProtocols": [ "<protocol-names>" ],
@@ -116,7 +116,7 @@ The below example shows 2 samples of HTTP client configurations for `cluster1` a
 }
 ```
 
-## Configuration abstractions
+## Code Configuration
 HTTP client configuration abstraction constists of the only type `Microsoft.ReverseProxy.Abstractions.ProxyHttpClientOptions` defined as follows.
 ```C#
 public sealed class ProxyHttpClientOptions
