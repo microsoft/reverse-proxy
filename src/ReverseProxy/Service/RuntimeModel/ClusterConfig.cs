@@ -140,7 +140,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
             public ClusterProxyHttpClientOptions(
                 SslProtocols? sslProtocols,
                 bool acceptAnyServerCertificate,
-                X509Certificate clientCertificate,
+                X509Certificate2 clientCertificate,
                 int? maxConnectionsPerServer)
             {
                 SslProtocols = sslProtocols;
@@ -153,7 +153,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
 
             public bool DangerousAcceptAnyServerCertificate { get; }
 
-            public X509Certificate ClientCertificate { get; }
+            public X509Certificate2 ClientCertificate { get; }
 
             public int? MaxConnectionsPerServer { get; }
 
@@ -169,7 +169,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
             {
                 return SslProtocols == other.SslProtocols &&
                        DangerousAcceptAnyServerCertificate == other.DangerousAcceptAnyServerCertificate &&
-                       EqualityComparer<X509Certificate>.Default.Equals(ClientCertificate, other.ClientCertificate) &&
+                       EqualityComparer<X509Certificate2>.Default.Equals(ClientCertificate, other.ClientCertificate) &&
                        MaxConnectionsPerServer == other.MaxConnectionsPerServer;
             }
 

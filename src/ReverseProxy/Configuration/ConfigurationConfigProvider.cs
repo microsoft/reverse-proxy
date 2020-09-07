@@ -29,7 +29,7 @@ namespace Microsoft.ReverseProxy.Configuration
         private readonly ILogger<ConfigurationConfigProvider> _logger;
         private readonly IOptionsMonitor<ConfigurationData> _optionsMonitor;
         private readonly ICertificateConfigLoader _certificateConfigLoader;
-        private readonly LinkedList<WeakReference<X509Certificate>> _certificates = new LinkedList<WeakReference<X509Certificate>>();
+        private readonly LinkedList<WeakReference<X509Certificate2>> _certificates = new LinkedList<WeakReference<X509Certificate2>>();
         private ConfigurationSnapshot _snapshot;
         private CancellationTokenSource _changeToken;
         private bool _disposed;
@@ -82,13 +82,12 @@ namespace Microsoft.ReverseProxy.Configuration
                 ConfigurationSnapshot newSnapshot = null;
                 try
                 {
-                    var tmpSnapshot = new ConfigurationSnapshot()
+                    newSnapshot = new ConfigurationSnapshot()
                     {
                         Routes = data.Routes.Select(r => Convert(r)).ToList().AsReadOnly(),
                         Clusters = data.Clusters.Select(c => Convert(c.Key, c.Value)).ToList().AsReadOnly()
                     };
                     PurgeCertificateList();
-                    newSnapshot = tmpSnapshot;
                 }
                 catch (Exception ex)
                 {
@@ -99,10 +98,7 @@ namespace Microsoft.ReverseProxy.Configuration
                     {
                         throw;
                     }
-                }
 
-                if (newSnapshot == null)
-                {
                     return;
                 }
 
@@ -288,7 +284,7 @@ namespace Microsoft.ReverseProxy.Configuration
 
             if (clientCertificate != null)
             {
-                _certificates.AddLast(new WeakReference<X509Certificate>(clientCertificate));
+                _certificates.AddLast(new WeakReference<X509Certificate2>(clientCertificate));
             }
 
             SslProtocols? sslProtocols = null;

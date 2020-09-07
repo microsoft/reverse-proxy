@@ -445,7 +445,7 @@ namespace Microsoft.ReverseProxy.Configuration
             var provider = GetProvider(configMonitor.Object, "testCert.pfx", null, () => TestResources.GetTestCertificate(), null);
 
             // Get several certificates.
-            var certificateConfig = new List<X509Certificate>();
+            var certificateConfig = new List<X509Certificate2>();
             for (var i = 0; i < 5; i++)
             {
                 certificateConfig.AddRange(provider.GetConfig().Clusters.Select(c => c.HttpClientOptions.ClientCertificate));
@@ -478,10 +478,10 @@ namespace Microsoft.ReverseProxy.Configuration
             Assert.Same(certificateConfig[4], cachedCertificates[2]);
         }
 
-        private X509Certificate[] GetCachedCertificates(ConfigurationConfigProvider provider)
+        private X509Certificate2[] GetCachedCertificates(ConfigurationConfigProvider provider)
         {
-            var certficatesField = typeof(ConfigurationConfigProvider).GetFields(BindingFlags.Instance | BindingFlags.NonPublic).Single(f => f.FieldType == typeof(LinkedList<WeakReference<X509Certificate>>));
-            var cache = (LinkedList<WeakReference<X509Certificate>>)certficatesField.GetValue(provider);
+            var certficatesField = typeof(ConfigurationConfigProvider).GetFields(BindingFlags.Instance | BindingFlags.NonPublic).Single(f => f.FieldType == typeof(LinkedList<WeakReference<X509Certificate2>>));
+            var cache = (LinkedList<WeakReference<X509Certificate2>>)certficatesField.GetValue(provider);
             return cache.Select(r =>
             {
                 Assert.True(r.TryGetTarget(out var certificate));

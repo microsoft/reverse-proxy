@@ -12,7 +12,7 @@ namespace Microsoft.ReverseProxy.Abstractions
 
         public bool DangerousAcceptAnyServerCertificate { get; set; } = true;
 
-        public X509Certificate ClientCertificate { get; set; }
+        public X509Certificate2 ClientCertificate { get; set; }
 
         public int? MaxConnectionsPerServer { get; set; }
 

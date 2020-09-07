@@ -38,7 +38,7 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 ```
 
 ## Configuration contract
-File-based configuration is defined by the types in Microsoft.ReverseProxy.Configuration.Contract namespace. Contract types have a simple POCO-like design aimed to a convenient serialization/deserialization, but not to an efficient usage in runtime. There is another runtime-friendly abstract model living in Microsoft.ReverseProxy.Abstractions namespace that is used by the most of reverse proxy logic. The default [IProxyConfigProvider](xref:Microsoft.ReverseProxy.Service.IProxyConfigProvider) implementation converts Contracts to Abstractions on the applicaiton start and each time the configuration changes.
+File-based configuration is defined by the types in [Microsoft.ReverseProxy.Configuration.Contract](xref:Microsoft.ReverseProxy.Configuration.Contract) namespace. Contract types have a simple POCO-like design aimed to a convenient serialization/deserialization, but not to an efficient usage in runtime. There is another runtime-friendly abstract model living in Microsoft.ReverseProxy.Abstractions namespace that is used by the most of reverse proxy logic. The default [IProxyConfigProvider](xref:Microsoft.ReverseProxy.Service.IProxyConfigProvider) implementation converts Contracts to Abstractions on the applicaiton start and each time the configuration changes.
 
 ## Configuration Structure
 The configuration consists of a named section that you specified above via `Configuration.GetSection("ReverseProxy")`, and contains subsections for routes and clusters.
