@@ -11,6 +11,6 @@
   </PropertyGroup>
   <!--Package versions-->
   <PropertyGroup>
-    <MicrosoftNETCoreAppPackageVersion>5.0.0-rc.1.20430.6</MicrosoftNETCoreAppPackageVersion>
+    <MicrosoftNETCoreAppPackageVersion>5.0.0-rc.1.20452.14</MicrosoftNETCoreAppPackageVersion>
   </PropertyGroup>
 </Project>
