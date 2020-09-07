@@ -2,8 +2,11 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
+using System.Net.Http;
 using Microsoft.ReverseProxy.Service.Management;
 using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
+using Moq;
 using Tests.Common;
 using Xunit;
 
@@ -18,7 +21,6 @@ namespace Microsoft.ReverseProxy.RuntimeModel.Tests
             // These are satellite classes with simple functionality and adding the actual implementations
             // much more convenient than replicating functionality for the purpose of the tests.
             Provide<IDestinationManagerFactory, DestinationManagerFactory>();
-            Provide<IProxyHttpClientFactoryFactory, ProxyHttpClientFactoryFactory>();
             _clusterManager = Provide<IClusterManager, ClusterManager>();
         }
 
@@ -76,7 +78,8 @@ namespace Microsoft.ReverseProxy.RuntimeModel.Tests
             Assert.NotNull(state1);
             Assert.Empty(state1.AllDestinations);
 
-            cluster.Config.Value = new ClusterConfig(healthCheckOptions: default, loadBalancingOptions: default, sessionAffinityOptions: default);
+            cluster.Config.Value = new ClusterConfig(healthCheckOptions: default, loadBalancingOptions: default, sessionAffinityOptions: default,
+                httpClient: new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object), httpClientOptions: default, metadata: new Dictionary<string, string>());
             Assert.NotSame(state1, cluster.DynamicState.Value);
             Assert.Empty(cluster.DynamicState.Value.AllDestinations);
         }
@@ -146,7 +149,10 @@ namespace Microsoft.ReverseProxy.RuntimeModel.Tests
                     port: 30000,
                     path: "/"),
                 loadBalancingOptions: default,
-                sessionAffinityOptions: default);
+                sessionAffinityOptions: default,
+                httpClient: new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object),
+                httpClientOptions: default,
+                metadata: new Dictionary<string, string>());
         }
     }
 }

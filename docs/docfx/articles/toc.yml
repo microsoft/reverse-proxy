@@ -6,6 +6,8 @@
   href: configfiles.md
 - name: Configuration Providers
   href: configproviders.md
+- name: Proxy HTTP client configuration
+  href: proxyhttpclientconfig.md
 - name: Authentication and Authorization
   href: authn-authz.md
 - name: Cross-Origin Requests (CORS)

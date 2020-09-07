@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract
+namespace Microsoft.ReverseProxy.Abstractions
 {
     /// <summary>
     /// Session affinitity options.

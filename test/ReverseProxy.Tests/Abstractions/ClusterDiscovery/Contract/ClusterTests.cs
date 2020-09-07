@@ -25,6 +25,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
                 PartitioningOptions = new ClusterPartitioningOptions(),
                 LoadBalancing = new LoadBalancingOptions(),
                 HealthCheckOptions = new HealthCheckOptions(),
+                HttpClientOptions = new ProxyHttpClientOptions(),
                 Metadata = new Dictionary<string, string>
                 {
                     { "key", "value" },
@@ -46,6 +47,8 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
             Assert.NotSame(cluster.LoadBalancing, clone.LoadBalancing);
             Assert.NotNull(clone.HealthCheckOptions);
             Assert.NotSame(cluster.HealthCheckOptions, clone.HealthCheckOptions);
+            Assert.NotNull(clone.HttpClientOptions);
+            Assert.NotSame(cluster.HttpClientOptions, clone.HttpClientOptions);
             Assert.NotNull(clone.Metadata);
             Assert.NotSame(cluster.Metadata, clone.Metadata);
             Assert.Equal("value", clone.Metadata["key"]);
@@ -67,6 +70,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
             Assert.Null(clone.PartitioningOptions);
             Assert.Null(clone.LoadBalancing);
             Assert.Null(clone.HealthCheckOptions);
+            Assert.Null(clone.HttpClientOptions);
             Assert.Null(clone.Metadata);
         }
     }

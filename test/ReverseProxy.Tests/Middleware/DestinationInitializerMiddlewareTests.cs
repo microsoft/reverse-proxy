@@ -2,11 +2,13 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Patterns;
+using Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Management;
 using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
@@ -32,12 +34,11 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
         [Fact]
         public async Task Invoke_SetsFeatures()
         {
-            var proxyHttpClientFactoryMock = new Mock<IProxyHttpClientFactory>();
+            var httpClient = new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object);
             var cluster1 = new ClusterInfo(
                 clusterId: "cluster1",
-                destinationManager: new DestinationManager(),
-                proxyHttpClientFactory: proxyHttpClientFactoryMock.Object);
-            cluster1.Config.Value = new ClusterConfig(default, default, default);
+                destinationManager: new DestinationManager());
+            cluster1.Config.Value = new ClusterConfig(default, default, default, httpClient, default, new Dictionary<string, string>());
             var destination1 = cluster1.DestinationManager.GetOrCreateItem(
                 "destination1",
                 destination =>
@@ -76,15 +77,16 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
         [Fact]
         public async Task Invoke_NoHealthyEndpoints_503()
         {
-            var proxyHttpClientFactoryMock = new Mock<IProxyHttpClientFactory>();
+            var httpClient = new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object);
             var cluster1 = new ClusterInfo(
                 clusterId: "cluster1",
-                destinationManager: new DestinationManager(),
-                proxyHttpClientFactory: proxyHttpClientFactoryMock.Object);
+                destinationManager: new DestinationManager());
             cluster1.Config.Value = new ClusterConfig(
                 new ClusterConfig.ClusterHealthCheckOptions(enabled: true, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan, 0, ""),
                 new ClusterConfig.ClusterLoadBalancingOptions(),
-                new ClusterConfig.ClusterSessionAffinityOptions());
+                new ClusterConfig.ClusterSessionAffinityOptions(),
+                httpClient, new ClusterConfig.ClusterProxyHttpClientOptions(),
+                new Dictionary<string, string>());
             var destination1 = cluster1.DestinationManager.GetOrCreateItem(
                 "destination1",
                 destination =>

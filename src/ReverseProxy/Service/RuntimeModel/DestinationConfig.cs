@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.RuntimeModel
 {
@@ -24,6 +23,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
             {
                 throw new ArgumentNullException(nameof(address));
             }
+
             Address = address;
         }
 

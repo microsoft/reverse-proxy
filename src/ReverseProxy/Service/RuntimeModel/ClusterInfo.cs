@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.ReverseProxy.Service.Management;
-using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
 using Microsoft.ReverseProxy.Signals;
 using Microsoft.ReverseProxy.Utilities;
 
@@ -23,11 +22,10 @@ namespace Microsoft.ReverseProxy.RuntimeModel
     /// </remarks>
     internal sealed class ClusterInfo
     {
-        public ClusterInfo(string clusterId, IDestinationManager destinationManager, IProxyHttpClientFactory proxyHttpClientFactory)
+        public ClusterInfo(string clusterId, IDestinationManager destinationManager)
         {
             ClusterId = clusterId ?? throw new ArgumentNullException(nameof(clusterId));
             DestinationManager = destinationManager ?? throw new ArgumentNullException(nameof(destinationManager));
-            ProxyHttpClientFactory = proxyHttpClientFactory ?? throw new ArgumentNullException(nameof(proxyHttpClientFactory));
 
             DynamicState = CreateDynamicStateQuery();
         }
@@ -35,12 +33,6 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         public string ClusterId { get; }
 
         public IDestinationManager DestinationManager { get; }
-
-        /// <summary>
-        /// Used to create instances of <see cref="System.Net.Http.HttpClient"/>
-        /// when proxying requests to this cluster.
-        /// </summary>
-        public IProxyHttpClientFactory ProxyHttpClientFactory { get; }
 
         /// <summary>
         /// Encapsulates parts of a cluster that can change atomically
@@ -79,12 +71,12 @@ namespace Microsoft.ReverseProxy.RuntimeModel
                     _ =>
                     {
                         var allDestinations = DestinationManager.Items.Value ?? new List<DestinationInfo>().AsReadOnly();
-                        var healthyEndpoints = (Config.Value?.HealthCheckOptions.Enabled ?? false)
-                            ? allDestinations.Where(endpoint => endpoint.DynamicState?.Health == DestinationHealth.Healthy).ToList().AsReadOnly()
+                        var healthyDestinations = (Config.Value?.HealthCheckOptions.Enabled ?? false)
+                            ? allDestinations.Where(destination => destination.DynamicState?.Health == DestinationHealth.Healthy).ToList().AsReadOnly()
                             : allDestinations;
                         return new ClusterDynamicState(
                             allDestinations: allDestinations,
-                            healthyDestinations: healthyEndpoints);
+                            healthyDestinations: healthyDestinations);
                     });
         }
     }

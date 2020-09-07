@@ -29,9 +29,6 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             Mock<IDestinationManagerFactory>()
                 .Setup(e => e.CreateDestinationManager())
                 .Returns(endpointManager);
-            Mock<IProxyHttpClientFactoryFactory>()
-                .Setup(e => e.CreateFactory())
-                .Returns(proxyHttpClientFactory);
             var manager = Create<ClusterManager>();
 
             // Act
@@ -41,7 +38,6 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             Assert.NotNull(item);
             Assert.Equal("abc", item.ClusterId);
             Assert.Same(endpointManager, item.DestinationManager);
-            Assert.Same(proxyHttpClientFactory, item.ProxyHttpClientFactory);
         }
     }
 }

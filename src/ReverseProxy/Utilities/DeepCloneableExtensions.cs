@@ -20,6 +20,11 @@ namespace Microsoft.ReverseProxy
             return list.Select(entry => entry.DeepClone()).ToList();
         }
 
+        public static List<T> CloneList<T>(this IList<T> list)
+        {
+            return list != null ? new List<T>(list) : null;
+        }
+
         public static IDictionary<string, string> DeepClone(this IDictionary<string, string> dictionary, IEqualityComparer<string> comparer)
         {
             return dictionary.ToDictionary(entry => entry.Key, entry => entry.Value, comparer);

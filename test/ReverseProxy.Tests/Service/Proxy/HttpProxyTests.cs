@@ -91,8 +91,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     response.Content.Headers.TryAddWithoutValidation("Content-Language", "responseLanguage");
                     return response;
                 });
-            var factoryMock = new Mock<IProxyHttpClientFactory>();
-            factoryMock.Setup(f => f.CreateClient()).Returns(client);
 
             var proxyTelemetryContext = new ProxyTelemetryContext(
                 clusterId: "be1",
@@ -100,7 +98,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 destinationId: "d1");
 
             // Act
-            await sut.ProxyAsync(httpContext, destinationPrefix, Transforms.Empty, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+            await sut.ProxyAsync(httpContext, destinationPrefix, Transforms.Empty, client, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
 
             // Assert
             Assert.Equal(234, httpContext.Response.StatusCode);
@@ -190,8 +188,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     response.Content.Headers.TryAddWithoutValidation("Content-Language", "responseLanguage");
                     return response;
                 });
-            var factoryMock = new Mock<IProxyHttpClientFactory>();
-            factoryMock.Setup(f => f.CreateClient()).Returns(client);
 
             var proxyTelemetryContext = new ProxyTelemetryContext(
                 clusterId: "be1",
@@ -199,7 +195,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 destinationId: "d1");
 
             // Act
-            await sut.ProxyAsync(httpContext, destinationPrefix, transforms: transforms, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+            await sut.ProxyAsync(httpContext, destinationPrefix, transforms: transforms, client, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
 
             // Assert
             Assert.Equal(234, httpContext.Response.StatusCode);
@@ -288,8 +284,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     response.Content.Headers.TryAddWithoutValidation("Content-Language", "responseLanguage");
                     return response;
                 });
-            var factoryMock = new Mock<IProxyHttpClientFactory>();
-            factoryMock.Setup(f => f.CreateClient()).Returns(client);
 
             var proxyTelemetryContext = new ProxyTelemetryContext(
                 clusterId: "be1",
@@ -297,7 +291,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 destinationId: "d1");
 
             // Act
-            await sut.ProxyAsync(httpContext, destinationPrefix, transforms: transforms, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+            await sut.ProxyAsync(httpContext, destinationPrefix, transforms: transforms, client, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
 
             // Assert
             Assert.Equal(234, httpContext.Response.StatusCode);
@@ -369,8 +363,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     var response = new HttpResponseMessage((HttpStatusCode)234);
                     return response;
                 });
-            var factoryMock = new Mock<IProxyHttpClientFactory>();
-            factoryMock.Setup(f => f.CreateClient()).Returns(client);
 
             var proxyTelemetryContext = new ProxyTelemetryContext(
                 clusterId: "be1",
@@ -378,7 +370,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 destinationId: "d1");
 
             // Act
-            await sut.ProxyAsync(httpContext, destinationPrefix, transforms, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+            await sut.ProxyAsync(httpContext, destinationPrefix, transforms, client, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
 
             // Assert
             Assert.Equal(234, httpContext.Response.StatusCode);
@@ -437,8 +429,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     response.Content = new RawStreamContent(upstreamStream);
                     return response;
                 });
-            var factoryMock = new Mock<IProxyHttpClientFactory>();
-            factoryMock.Setup(f => f.CreateClient()).Returns(client);
 
             var proxyTelemetryContext = new ProxyTelemetryContext(
                 clusterId: "be1",
@@ -446,7 +436,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 destinationId: "d1");
 
             // Act
-            await sut.ProxyAsync(httpContext, destinationPrefix, Transforms.Empty, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+            await sut.ProxyAsync(httpContext, destinationPrefix, Transforms.Empty, client, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
 
             // Assert
             Assert.Equal(StatusCodes.Status101SwitchingProtocols, httpContext.Response.StatusCode);
@@ -509,8 +499,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     response.Content.Headers.TryAddWithoutValidation("Content-Language", "responseLanguage");
                     return response;
                 });
-            var factoryMock = new Mock<IProxyHttpClientFactory>();
-            factoryMock.Setup(f => f.CreateClient()).Returns(client);
 
             var proxyTelemetryContext = new ProxyTelemetryContext(
                 clusterId: "be1",
@@ -518,7 +506,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 destinationId: "d1");
 
             // Act
-            await sut.ProxyAsync(httpContext, destinationPrefix, Transforms.Empty, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+            await sut.ProxyAsync(httpContext, destinationPrefix, Transforms.Empty, client, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
 
             // Assert
             Assert.Equal(234, httpContext.Response.StatusCode);
@@ -576,15 +564,13 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
                     return Task.FromResult(response);
                 });
-            var factoryMock = new Mock<IProxyHttpClientFactory>();
-            factoryMock.Setup(f => f.CreateClient()).Returns(client);
 
             var proxyTelemetryContext = new ProxyTelemetryContext(
                 clusterId: "be1",
                 routeId: "rt1",
                 destinationId: "d1");
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, Transforms.Empty, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+            await sut.ProxyAsync(httpContext, destinationPrefix, Transforms.Empty, client, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
 
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
         }
@@ -628,15 +614,13 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
                     return new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
                 });
-            var factoryMock = new Mock<IProxyHttpClientFactory>();
-            factoryMock.Setup(f => f.CreateClient()).Returns(client);
 
             var proxyTelemetryContext = new ProxyTelemetryContext(
                 clusterId: "be1",
                 routeId: "rt1",
                 destinationId: "d1");
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, Transforms.Empty, factoryMock.Object, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+            await sut.ProxyAsync(httpContext, destinationPrefix, Transforms.Empty, client, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
 
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
         }

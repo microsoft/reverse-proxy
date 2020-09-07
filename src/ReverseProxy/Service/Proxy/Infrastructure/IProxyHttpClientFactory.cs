@@ -15,21 +15,22 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
     /// except that this factory class is meant for direct use,
     /// which Proxy requires in order to keep separate pools for each cluster.
     /// </remarks>
-    internal interface IProxyHttpClientFactory : IDisposable
+    public interface IProxyHttpClientFactory
     {
         /// <summary>
         /// Creates and configures an <see cref="HttpMessageInvoker"/> instance
         /// that can be used for proxying requests to an upstream server.
         /// </summary>
+        /// <param name="context">An <see cref="ProxyHttpClientContext"/> carrying old and new cluster configurations.</param>
         /// <remarks>
         /// <para>
-        /// Each call to <see cref="CreateClient()"/> is guaranteed
-        /// to return a new <see cref="HttpMessageInvoker"/> instance.
-        /// It is generally not necessary to dispose of the <see cref="HttpMessageInvoker"/>
-        /// as the <see cref="IProxyHttpClientFactory"/> tracks and disposes resources
-        /// used by the <see cref="HttpMessageInvoker"/>.
+        /// A call to <see cref="CreateClient(ProxyHttpClientContext)"/> can return either
+        /// a new <see cref="HttpMessageInvoker"/> instance or an old one if the configuration has not changed.
+        /// If the old configuration is null, a new <see cref="HttpMessageInvoker"/> is always created.
+        /// The returned <see cref="HttpMessageInvoker"/> instance MUST NOT be disposed
+        /// because it can be used concurrently by several in-flight requests.
         /// </para>
         /// </remarks>
-        HttpMessageInvoker CreateClient();
+        HttpMessageInvoker CreateClient(ProxyHttpClientContext context);
     }
 }

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Management;
@@ -18,13 +19,14 @@ namespace Microsoft.ReverseProxy.Middleware
     {
         protected const string AffinitizedDestinationName = "dest-B";
         protected readonly IReadOnlyList<DestinationInfo> Destinations = new[] { new DestinationInfo("dest-A"), new DestinationInfo(AffinitizedDestinationName), new DestinationInfo("dest-C") };
-        protected readonly ClusterConfig ClusterConfig = new ClusterConfig(default, default, new ClusterConfig.ClusterSessionAffinityOptions(true, "Mode-B", "Policy-1", null));
+        protected readonly ClusterConfig ClusterConfig = new ClusterConfig(default, default, new ClusterConfig.ClusterSessionAffinityOptions(true, "Mode-B", "Policy-1", null),
+            new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object), default, new Dictionary<string, string>());
 
         internal ClusterInfo GetCluster()
         {
             var destinationManager = new Mock<IDestinationManager>();
             destinationManager.SetupGet(m => m.Items).Returns(SignalFactory.Default.CreateSignal(Destinations));
-            var cluster = new ClusterInfo("cluster-1", destinationManager.Object, new Mock<IProxyHttpClientFactory>().Object);
+            var cluster = new ClusterInfo("cluster-1", destinationManager.Object);
             cluster.Config.Value = ClusterConfig;
             return cluster;
         }

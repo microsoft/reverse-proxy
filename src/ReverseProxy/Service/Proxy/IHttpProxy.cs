@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 
 namespace Microsoft.ReverseProxy.Service.Proxy
@@ -23,7 +23,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             HttpContext context,
             string destinationPrefix,
             Transforms transforms,
-            IProxyHttpClientFactory httpClientFactory,
+            HttpMessageInvoker httpClient,
             ProxyTelemetryContext proxyTelemetryContext,
             CancellationToken shortCancellation,
             CancellationToken longCancellation);

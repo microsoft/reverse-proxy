@@ -18,7 +18,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 using Microsoft.ReverseProxy.Service.Metrics;
-using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 
 namespace Microsoft.ReverseProxy.Service.Proxy
@@ -75,7 +74,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             HttpContext context,
             string destinationPrefix,
             Transforms transforms,
-            IProxyHttpClientFactory httpClientFactory,
+            HttpMessageInvoker httpClient,
             ProxyTelemetryContext proxyTelemetryContext,
             CancellationToken shortCancellation,
             CancellationToken longCancellation)
@@ -83,7 +82,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             _ = context ?? throw new ArgumentNullException(nameof(context));
             _ = destinationPrefix ?? throw new ArgumentNullException(nameof(destinationPrefix));
             _ = transforms ?? throw new ArgumentNullException(nameof(transforms));
-            _ = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+            _ = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step 1: Create outgoing HttpRequestMessage
@@ -101,11 +100,11 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 
             if (isUpgrade)
             {
-                return UpgradableProxyAsync(context, upgradeFeature, request, transforms, httpClientFactory.CreateClient(), proxyTelemetryContext, shortCancellation, longCancellation);
+                return UpgradableProxyAsync(context, upgradeFeature, request, transforms, httpClient, proxyTelemetryContext, shortCancellation, longCancellation);
             }
             else
             {
-                return NormalProxyAsync(context, request, transforms, httpClientFactory.CreateClient(), proxyTelemetryContext, shortCancellation, longCancellation);
+                return NormalProxyAsync(context, request, transforms, httpClient, proxyTelemetryContext, shortCancellation, longCancellation);
             }
         }
 

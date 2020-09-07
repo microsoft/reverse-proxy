@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Security;
+using System.Security.Authentication;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -12,6 +14,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.RuntimeModel;
+using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
 
 namespace Microsoft.ReverseProxy.Service.Management
 {
@@ -35,6 +38,7 @@ namespace Microsoft.ReverseProxy.Service.Management
         private readonly IRouteManager _routeManager;
         private readonly IEnumerable<IProxyConfigFilter> _filters;
         private readonly IConfigValidator _configValidator;
+        private readonly IProxyHttpClientFactory _httpClientFactory;
         private IDisposable _changeSubscription;
 
         private List<Endpoint> _endpoints = new List<Endpoint>(0);
@@ -48,7 +52,8 @@ namespace Microsoft.ReverseProxy.Service.Management
             IClusterManager clusterManager,
             IRouteManager routeManager,
             IEnumerable<IProxyConfigFilter> filters,
-            IConfigValidator configValidator)
+            IConfigValidator configValidator,
+            IProxyHttpClientFactory httpClientFactory)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _provider = provider ?? throw new ArgumentNullException(nameof(provider));
@@ -57,6 +62,7 @@ namespace Microsoft.ReverseProxy.Service.Management
             _routeManager = routeManager ?? throw new ArgumentNullException(nameof(routeManager));
             _filters = filters ?? throw new ArgumentNullException(nameof(filters));
             _configValidator = configValidator ?? throw new ArgumentNullException(nameof(configValidator));
+            _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
 
             _changeToken = new CancellationChangeToken(_cancellationTokenSource.Token);
         }
@@ -254,53 +260,67 @@ namespace Microsoft.ReverseProxy.Service.Management
             return (configuredClusters, errors);
         }
 
-        private void UpdateRuntimeClusters(IList<Cluster> clusters)
+        private void UpdateRuntimeClusters(IList<Cluster> newClusters)
         {
             var desiredClusters = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            foreach (var configCluster in clusters)
+            foreach (var newCluster in newClusters)
             {
-                desiredClusters.Add(configCluster.Id);
+                desiredClusters.Add(newCluster.Id);
 
                 _clusterManager.GetOrCreateItem(
-                    itemId: configCluster.Id,
-                    setupAction: cluster =>
+                    itemId: newCluster.Id,
+                    setupAction: currentCluster =>
                     {
-                        UpdateRuntimeDestinations(configCluster.Destinations, cluster.DestinationManager);
+                        UpdateRuntimeDestinations(newCluster.Destinations, currentCluster.DestinationManager);
 
-                        var newConfig = new ClusterConfig(
+                        var currentClusterConfig = currentCluster.Config.Value;
+                        var newClusterHttpClientOptions = ConvertProxyHttpClientOptions(newCluster.HttpClientOptions);
+
+                        var httpClient = _httpClientFactory.CreateClient(new ProxyHttpClientContext {
+                            ClusterId = currentCluster.ClusterId,
+                            OldOptions = currentClusterConfig?.HttpClientOptions ?? default,
+                            OldMetadata = currentClusterConfig?.Metadata,
+                            OldClient = currentClusterConfig?.HttpClient,
+                            NewOptions = newClusterHttpClientOptions,
+                            NewMetadata = (IReadOnlyDictionary<string, string>)newCluster.Metadata
+                        });
+
+                        var newClusterConfig = new ClusterConfig(
                                 new ClusterConfig.ClusterHealthCheckOptions(
-                                    enabled: configCluster.HealthCheckOptions?.Enabled ?? false,
-                                    interval: configCluster.HealthCheckOptions?.Interval ?? TimeSpan.FromSeconds(0),
-                                    timeout: configCluster.HealthCheckOptions?.Timeout ?? TimeSpan.FromSeconds(0),
-                                    port: configCluster.HealthCheckOptions?.Port ?? 0,
-                                    path: configCluster.HealthCheckOptions?.Path ?? string.Empty),
+                                    enabled: newCluster.HealthCheckOptions?.Enabled ?? false,
+                                    interval: newCluster.HealthCheckOptions?.Interval ?? TimeSpan.FromSeconds(0),
+                                    timeout: newCluster.HealthCheckOptions?.Timeout ?? TimeSpan.FromSeconds(0),
+                                    port: newCluster.HealthCheckOptions?.Port ?? 0,
+                                    path: newCluster.HealthCheckOptions?.Path ?? string.Empty),
                                 new ClusterConfig.ClusterLoadBalancingOptions(
-                                    mode: configCluster.LoadBalancing?.Mode ?? default),
+                                    mode: newCluster.LoadBalancing?.Mode ?? default),
                                 new ClusterConfig.ClusterSessionAffinityOptions(
-                                    enabled: configCluster.SessionAffinity?.Enabled ?? false,
-                                    mode: configCluster.SessionAffinity?.Mode,
-                                    failurePolicy: configCluster.SessionAffinity?.FailurePolicy,
-                                    settings: configCluster.SessionAffinity?.Settings as IReadOnlyDictionary<string, string>));
+                                    enabled: newCluster.SessionAffinity?.Enabled ?? false,
+                                    mode: newCluster.SessionAffinity?.Mode,
+                                    failurePolicy: newCluster.SessionAffinity?.FailurePolicy,
+                                    settings: newCluster.SessionAffinity?.Settings as IReadOnlyDictionary<string, string>),
+                                httpClient,
+                                newClusterHttpClientOptions,
+                                (IReadOnlyDictionary<string, string>)newCluster.Metadata);
 
-                        var currentClusterConfig = cluster.Config.Value;
                         if (currentClusterConfig == null ||
-                            currentClusterConfig.HealthCheckOptions.Enabled != newConfig.HealthCheckOptions.Enabled ||
-                            currentClusterConfig.HealthCheckOptions.Interval != newConfig.HealthCheckOptions.Interval ||
-                            currentClusterConfig.HealthCheckOptions.Timeout != newConfig.HealthCheckOptions.Timeout ||
-                            currentClusterConfig.HealthCheckOptions.Port != newConfig.HealthCheckOptions.Port ||
-                            currentClusterConfig.HealthCheckOptions.Path != newConfig.HealthCheckOptions.Path)
+                            currentClusterConfig.HealthCheckOptions.Enabled != newClusterConfig.HealthCheckOptions.Enabled ||
+                            currentClusterConfig.HealthCheckOptions.Interval != newClusterConfig.HealthCheckOptions.Interval ||
+                            currentClusterConfig.HealthCheckOptions.Timeout != newClusterConfig.HealthCheckOptions.Timeout ||
+                            currentClusterConfig.HealthCheckOptions.Port != newClusterConfig.HealthCheckOptions.Port ||
+                            currentClusterConfig.HealthCheckOptions.Path != newClusterConfig.HealthCheckOptions.Path)
                         {
                             if (currentClusterConfig == null)
                             {
-                                Log.ClusterAdded(_logger, configCluster.Id);
+                                Log.ClusterAdded(_logger, newCluster.Id);
                             }
                             else
                             {
-                                Log.ClusterChanged(_logger, configCluster.Id);
+                                Log.ClusterChanged(_logger, newCluster.Id);
                             }
 
                             // Config changed, so update runtime cluster
-                            cluster.Config.Value = newConfig;
+                            currentCluster.Config.Value = newClusterConfig;
                         }
                     });
             }
@@ -321,28 +341,28 @@ namespace Microsoft.ReverseProxy.Service.Management
             }
         }
 
-        private void UpdateRuntimeDestinations(IDictionary<string, Destination> configDestinations, IDestinationManager destinationManager)
+        private void UpdateRuntimeDestinations(IDictionary<string, Destination> newDestinations, IDestinationManager destinationManager)
         {
             var desiredDestinations = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            foreach (var configDestination in configDestinations)
+            foreach (var newDestination in newDestinations)
             {
-                desiredDestinations.Add(configDestination.Key);
+                desiredDestinations.Add(newDestination.Key);
                 destinationManager.GetOrCreateItem(
-                    itemId: configDestination.Key,
+                    itemId: newDestination.Key,
                     setupAction: destination =>
                     {
                         var destinationConfig = destination.ConfigSignal.Value;
-                        if (destinationConfig?.Address != configDestination.Value.Address)
+                        if (destinationConfig?.Address != newDestination.Value.Address)
                         {
                             if (destinationConfig == null)
                             {
-                                Log.DestinationAdded(_logger, configDestination.Key);
+                                Log.DestinationAdded(_logger, newDestination.Key);
                             }
                             else
                             {
-                                Log.DestinationChanged(_logger, configDestination.Key);
+                                Log.DestinationChanged(_logger, newDestination.Key);
                             }
-                            destination.ConfigSignal.Value = new DestinationConfig(configDestination.Value.Address);
+                            destination.ConfigSignal.Value = new DestinationConfig(newDestination.Value.Address);
                         }
                     });
             }
@@ -462,6 +482,20 @@ namespace Microsoft.ReverseProxy.Service.Management
                 // Step 4 - trigger old token
                 oldCancellationTokenSource?.Cancel();
             }
+        }
+
+        private ClusterConfig.ClusterProxyHttpClientOptions ConvertProxyHttpClientOptions(ProxyHttpClientOptions httpClientOptions)
+        {
+            if (httpClientOptions == null)
+            {
+                return new ClusterConfig.ClusterProxyHttpClientOptions();
+            }
+
+            return new ClusterConfig.ClusterProxyHttpClientOptions(
+                httpClientOptions.SslProtocols,
+                httpClientOptions.DangerousAcceptAnyServerCertificate,
+                httpClientOptions.ClientCertificate,
+                httpClientOptions.MaxConnectionsPerServer);
         }
 
         public void Dispose()

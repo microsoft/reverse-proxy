@@ -43,7 +43,8 @@ namespace Microsoft.ReverseProxy.Middleware
         {
             _ = context ?? throw new ArgumentNullException(nameof(context));
 
-            var destinations = context.GetRequiredProxyFeature().AvailableDestinations
+            var reverseProxyFeature = context.GetRequiredProxyFeature();
+            var destinations = reverseProxyFeature.AvailableDestinations
                 ?? throw new InvalidOperationException($"The {nameof(IReverseProxyFeature)} Destinations collection was not set.");
 
             var routeConfig = context.GetRequiredRouteConfig();
@@ -92,7 +93,7 @@ namespace Microsoft.ReverseProxy.Middleware
 
                     await _operationLogger.ExecuteAsync(
                         "ReverseProxy.Proxy",
-                        () => _httpProxy.ProxyAsync(context, destinationConfig.Address, routeConfig.Transforms, cluster.ProxyHttpClientFactory, proxyTelemetryContext, shortCancellation: shortCts.Token, longCancellation: longCancellation));
+                        () => _httpProxy.ProxyAsync(context, destinationConfig.Address, routeConfig.Transforms, reverseProxyFeature.ClusterConfig.HttpClient, proxyTelemetryContext, shortCancellation: shortCts.Token, longCancellation: longCancellation));
                 }
                 finally
                 {
