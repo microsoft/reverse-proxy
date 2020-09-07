@@ -132,6 +132,43 @@ public sealed class ProxyHttpClientOptions
 ```
 Note that instead of defining certificate location as it was in [CertificateConfigData](xref:Microsoft.ReverseProxy.Configuration.Contract.CertificateConfigData) model, this type exposes a fully constructed [X509Certificate](xref:System.Security.Cryptography.X509Certificates.X509Certificate) certificate. Conversion from the configuration contract to the abstraction model is done by a [IProxyConfigProvider](xref:Microsoft.ReverseProxy.Service.IProxyConfigProvider) which loads a client certificate into memory.
 
+The following is an example of `ProxyHttpClientOptions` usage based on a code-first configuration sample project [ReverseProxy.Code.Sample](https://github.com/microsoft/reverse-proxy/tree/master/samples/ReverseProxy.Code.Sample). An instance of `ProxyHttpClientOptions` is assigned to the [Cluster.HttpClientOptions](xref:Microsoft.ReverseProxy.Abstractions.Cluster.HttpClientOptions) property before passing the `Cluster` array to `LoadFromMemory` method.
+
+```C#
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddControllers();
+    var routes = new[]
+    {
+        new ProxyRoute()
+        {
+            RouteId = "route1",
+            ClusterId = "cluster1",
+            Match =
+            {
+                Path = "{**catch-all}"
+            }
+        }
+    };
+    var clusters = new[]
+    {
+        new Cluster()
+        {
+            Id = "cluster1",
+            Destinations =
+            {
+                { "destination1", new Destination() { Address = "https://localhost:10000" } }
+            },
+            HttpClientOptions = new ProxyHttpClientOptions { MaxConnectionsPerServer = 10, SslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12 }
+        }
+    };
+
+    services.AddReverseProxy()
+        .LoadFromMemory(routes, clusters)
+        .AddProxyConfigFilter<CustomConfigFilter>();
+}
+```
+
 ## Custom IProxyHttpClientFactory
 In case the direct control on a proxy HTTP client construction is necessary, the default [IProxyHttpClientFactory](xref:Microsoft.ReverseProxy.Service.Proxy.Infrastructure.IProxyHttpClientFactory) can be replaced with a custom one. In example, that custom logic can use [Cluster](xref:Microsoft.ReverseProxy.Abstractions.Cluster)'s metadata as an extra data source for [HttpMessageInvoker](https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httpmessageinvoker?view=netcore-3.1) configuration. However, it's still recommended for any custom factory to set the following `HttpMessageInvoker` properties to the same values as the default factory does in order to preserve a correct reverse proxy behavior.
 
@@ -143,4 +180,51 @@ new SocketsHttpHandler
     AutomaticDecompression = DecompressionMethods.None,
     UseCookies = false
 };
+```
+
+The below is an example of a custom `IProxyHttpClientFactory` implementation.
+
+```C#
+public class CustomProxyHttpClientFactory : IProxyHttpClientFactory
+{
+    public HttpMessageInvoker CreateClient(ProxyHttpClientContext context)
+    {
+        if (context.OldClient != null && context.NewOptions == context.OldOptions)
+        {
+            return context.OldClient;
+        }
+
+        var newClientOptions = context.NewOptions;
+        
+        var handler = new SocketsHttpHandler
+        {
+            UseProxy = false,
+            AllowAutoRedirect = false,
+            AutomaticDecompression = DecompressionMethods.None,
+            UseCookies = false
+        };
+
+        if (newClientOptions.SslProtocols.HasValue)
+        {
+            handler.SslOptions.EnabledSslProtocols = newClientOptions.SslProtocols.Value;
+        }
+        if (newClientOptions.ClientCertificate != null)
+        {
+            handler.SslOptions.ClientCertificates = new X509CertificateCollection
+            {
+                newClientOptions.ClientCertificate
+            };
+        }
+        if (newClientOptions.MaxConnectionsPerServer != null)
+        {
+            handler.MaxConnectionsPerServer = newClientOptions.MaxConnectionsPerServer.Value;
+        }
+        if (newClientOptions.DangerousAcceptAnyServerCertificate)
+        {
+            handler.SslOptions.RemoteCertificateValidationCallback = (sender, cert, chain, errors) => cert.Subject == "dev.mydomain";
+        }
+
+        return new HttpMessageInvoker(handler, disposeHandler: true);
+    }
+}
 ```
