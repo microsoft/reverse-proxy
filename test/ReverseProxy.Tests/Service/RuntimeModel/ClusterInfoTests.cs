@@ -4,10 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using Microsoft.ReverseProxy.Common.Tests;
 using Microsoft.ReverseProxy.Service.Management;
-using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
 using Moq;
-using Tests.Common;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.RuntimeModel.Tests

@@ -1,6 +1,9 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 using System;
 
-namespace Microsoft.ReverseProxy.Common
+namespace Microsoft.ReverseProxy.Common.Tests
 {
     public class TestRandom : Random
     {

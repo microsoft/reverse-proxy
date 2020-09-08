@@ -6,8 +6,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.ReverseProxy.Abstractions.Telemetry;
+using Microsoft.ReverseProxy.Common.Tests;
 using Microsoft.ReverseProxy.Service.Metrics;
-using Tests.Common;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Service.Proxy.Tests

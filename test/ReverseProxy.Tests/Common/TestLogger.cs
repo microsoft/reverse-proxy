@@ -1,9 +1,12 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.ReverseProxy.Common
+namespace Microsoft.ReverseProxy.Common.Tests
 {
 
     public class TestLogger : ILogger

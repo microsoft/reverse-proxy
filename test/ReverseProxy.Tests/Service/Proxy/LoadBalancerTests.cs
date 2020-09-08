@@ -3,10 +3,9 @@
 
 using System;
 using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Common;
+using Microsoft.ReverseProxy.Common.Tests;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Utilities;
-using Tests.Common;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Service.Proxy.Tests
