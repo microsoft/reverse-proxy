@@ -53,7 +53,13 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             {
                 if (_modifiedQueryParameters == null)
                 {
-                    _modifiedQueryParameters = QueryHelpers.ParseQuery(_originalQueryString.Value);
+                    _modifiedQueryParameters = new Dictionary<string, StringValues>();
+
+                    var queryCollection = _request.Query;
+                    foreach (var key in queryCollection.Keys)
+                    {
+                        _modifiedQueryParameters.Add(key, queryCollection[key]);
+                    }
                 }
 
                 return _modifiedQueryParameters;
