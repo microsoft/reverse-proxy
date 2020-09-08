@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Pipelines;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -14,10 +15,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Net.Http.Headers;
 using Microsoft.ReverseProxy.Abstractions.Telemetry;
-using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
+using Microsoft.ReverseProxy.Common.Tests;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 using Moq;
-using Tests.Common;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Service.Proxy.Tests
@@ -697,9 +697,10 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "GET";
             httpContext.Request.Host = new HostString("example.com:3456");
-
-            var proxyResponseStream = new MemoryStream();
-            httpContext.Response.Body = proxyResponseStream;
+            var responseBody = new TestResponseBody();
+            httpContext.Features.Set<IHttpResponseFeature>(responseBody);
+            httpContext.Features.Set<IHttpResponseBodyFeature>(responseBody);
+            httpContext.Features.Set<IHttpRequestLifetimeFeature>(responseBody);
 
             var destinationPrefix = "https://localhost:123/";
             var sut = Create<HttpProxy>();
@@ -719,11 +720,11 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 routeId: "rt1",
                 destinationId: "d1");
 
-            await Assert.ThrowsAsync<IOException>(() =>
-                sut.ProxyAsync(httpContext, destinationPrefix, Transforms.Empty, client, proxyTelemetryContext, CancellationToken.None, CancellationToken.None));
+            await sut.ProxyAsync(httpContext, destinationPrefix, Transforms.Empty, client, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
 
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
-            Assert.Equal(1, proxyResponseStream.Length);
+            Assert.Equal(1, responseBody.InnerStream.Length);
+            Assert.True(responseBody.Aborted);
         }
 
         private static MemoryStream StringToStream(string text)
@@ -900,6 +901,93 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             public override void Write(byte[] buffer, int offset, int count)
             {
                 throw new NotSupportedException();
+            }
+        }
+
+        private class TestResponseBody : Stream, IHttpResponseBodyFeature, IHttpResponseFeature, IHttpRequestLifetimeFeature
+        {
+            public Stream InnerStream { get; } = new MemoryStream();
+
+            public bool Aborted { get; private set; }
+
+            public Stream Stream => this;
+
+            public PipeWriter Writer => throw new NotImplementedException();
+
+            public override bool CanRead => false;
+
+            public override bool CanSeek => false;
+
+            public override bool CanWrite => true;
+
+            public override long Length => throw new NotSupportedException();
+
+            public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
+            public int StatusCode { get; set; } = 200;
+            public string ReasonPhrase { get; set; }
+            public IHeaderDictionary Headers { get; set; } = new HeaderDictionary();
+            public Stream Body { get => this; set => throw new NotImplementedException(); }
+            public bool HasStarted { get; private set; }
+            public CancellationToken RequestAborted { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+            public void Abort()
+            {
+                Aborted = true;
+            }
+
+            public Task CompleteAsync()
+            {
+                throw new NotImplementedException();
+            }
+
+            public void DisableBuffering()
+            {
+                throw new NotImplementedException();
+            }
+
+            public override void Flush()
+            {
+                throw new NotImplementedException();
+            }
+
+            public void OnCompleted(Func<object, Task> callback, object state)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void OnStarting(Func<object, Task> callback, object state)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+
+            public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+
+            public Task SendFileAsync(string path, long offset, long? count, CancellationToken cancellationToken = default)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override void SetLength(long value) => throw new NotSupportedException();
+
+            public Task StartAsync(CancellationToken cancellationToken = default)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override void Write(byte[] buffer, int offset, int count)
+            {
+                OnStart();
+                InnerStream.Write(buffer, offset, count);
+            }
+
+            private void OnStart()
+            {
+                if (!HasStarted)
+                {
+                    HasStarted = true;
+                }
             }
         }
     }
