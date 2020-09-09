@@ -191,7 +191,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             var upgraded = destinationResponse.StatusCode == HttpStatusCode.SwitchingProtocols && destinationResponse.Content != null;
             if (upgraded)
             {
-                await HandleUpgradedResponse(upgradeFeature, destinationResponse, proxyTelemetryContext, longCancellation);
+                await HandleUpgradedResponse(context, upgradeFeature, destinationResponse, proxyTelemetryContext, longCancellation);
                 return;
             }
 
@@ -339,37 +339,105 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             context.Abort();
         }
 
-        private async Task HandleUpgradedResponse(IHttpUpgradeFeature upgradeFeature, HttpResponseMessage destinationResponse,
+        private async Task HandleUpgradedResponse(HttpContext context, IHttpUpgradeFeature upgradeFeature, HttpResponseMessage destinationResponse,
             ProxyTelemetryContext proxyTelemetryContext, CancellationToken longCancellation)
         {
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step A-6: Upgrade the downstream channel. This will send all response headers too.
-            using var downstreamStream = await upgradeFeature.UpgradeAsync();
+            using var clientStream = await upgradeFeature.UpgradeAsync();
 
             // :::::::::::::::::::::::::::::::::::::::::::::
             // :: Step A-7: Copy duplex streams
-            var upstreamStream = await destinationResponse.Content.ReadAsStreamAsync();
+            var destinationStream = await destinationResponse.Content.ReadAsStreamAsync();
 
-            var upstreamCopier = new StreamCopier(
+            using var abortTokenSource = CancellationTokenSource.CreateLinkedTokenSource(longCancellation);
+
+            var requestCopier = new StreamCopier(
                 _metrics,
                 new StreamCopyTelemetryContext(
-                    direction: "upstream",
+                    direction: "request",
                     clusterId: proxyTelemetryContext.ClusterId,
                     routeId: proxyTelemetryContext.RouteId,
                     destinationId: proxyTelemetryContext.DestinationId));
-            var upstreamTask = upstreamCopier.CopyAsync(downstreamStream, upstreamStream, longCancellation);
+            var requestTask = requestCopier.CopyAsync(clientStream, destinationStream, abortTokenSource.Token);
 
-            var downstreamCopier = new StreamCopier(
+            var responseCopier = new StreamCopier(
                 _metrics,
                 new StreamCopyTelemetryContext(
-                    direction: "downstream",
+                    direction: "response",
                     clusterId: proxyTelemetryContext.ClusterId,
                     routeId: proxyTelemetryContext.RouteId,
                     destinationId: proxyTelemetryContext.DestinationId));
-            var downstreamTask = downstreamCopier.CopyAsync(upstreamStream, downstreamStream, longCancellation);
+            var responseTask = responseCopier.CopyAsync(destinationStream, clientStream, abortTokenSource.Token);
 
-            // TODO: use WhenAny to Report errors and cancel the other direction.
-            await Task.WhenAll(upstreamTask, downstreamTask);
+            var firstTask = await Task.WhenAny(requestTask, responseTask);
+
+            var faulted = false;
+            if (firstTask == requestTask)
+            {
+                var (requestCopyResult, requestCopyError) = await requestTask;
+                if (requestCopyResult != StreamCopyResult.Success)
+                {
+                    faulted = true;
+                    ProcessRequestResult(context, requestCopyResult, requestCopyError);
+                    // Cancel the other direction
+                    abortTokenSource.Cancel();
+                }
+
+                var (responseCopyResult, responseCopyError) = await responseTask;
+
+                if (!faulted && responseCopyResult != StreamCopyResult.Success)
+                {
+                    ProcessResponseResult(context, responseCopyResult, responseCopyError);
+                }
+            }
+            else
+            {
+                var (responseCopyResult, responseCopyError) = await responseTask;
+
+                if (responseCopyResult != StreamCopyResult.Success)
+                {
+                    faulted = true;
+                    ProcessResponseResult(context, responseCopyResult, responseCopyError);
+                    // Cancel the other direction
+                    abortTokenSource.Cancel();
+                }
+
+                var (requestCopyResult, requestCopyError) = await requestTask;
+                if (!faulted && requestCopyResult != StreamCopyResult.Success)
+                {
+                    ProcessRequestResult(context, requestCopyResult, requestCopyError);
+                }
+            }
+
+            // TODO: Log
+            static void ProcessRequestResult(HttpContext context, StreamCopyResult result, Exception error)
+            {
+                var errorCode = result switch
+                {
+                    StreamCopyResult.SourceError => ProxyErrorCode.UpgradeRequestClient,
+                    StreamCopyResult.DestionationError => ProxyErrorCode.UpgradeRequestDestination,
+                    StreamCopyResult.Canceled => ProxyErrorCode.UpgradeRequestCanceled,
+                    _ => throw new NotImplementedException(result.ToString()),
+                };
+
+                var ex = new ProxyException(errorCode, error);
+                context.Features.Set<IProxyErrorFeature>(new ProxyErrorFeature() { Error = ex });
+            }
+
+            static void ProcessResponseResult(HttpContext context, StreamCopyResult result, Exception error)
+            {
+                var errorCode = result switch
+                {
+                    StreamCopyResult.SourceError => ProxyErrorCode.UpgradeResponseDestination,
+                    StreamCopyResult.DestionationError => ProxyErrorCode.UpgradeResponseClient,
+                    StreamCopyResult.Canceled => ProxyErrorCode.UpgradeResponseCanceled,
+                    _ => throw new NotImplementedException(result.ToString()),
+                };
+
+                var ex = new ProxyException(errorCode, error);
+                context.Features.Set<IProxyErrorFeature>(new ProxyErrorFeature() { Error = ex });
+            }
         }
 
         private HttpRequestMessage CreateRequestMessage(HttpContext context,

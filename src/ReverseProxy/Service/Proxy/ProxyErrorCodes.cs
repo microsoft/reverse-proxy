@@ -20,5 +20,11 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         ResponseBodyDestination,
         // Failed when writing response data to the client.
         ResponseBodyClient,
+        UpgradeRequestCanceled,
+        UpgradeRequestClient,
+        UpgradeRequestDestination,
+        UpgradeResponseCanceled,
+        UpgradeResponseClient,
+        UpgradeResponseDestination,
     }
 }
