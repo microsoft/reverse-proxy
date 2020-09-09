@@ -33,7 +33,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         /// Based on <c>Microsoft.AspNetCore.Http.StreamCopyOperationInternal.CopyToAsync</c>.
         /// See: <see href="https://github.com/dotnet/aspnetcore/blob/080660967b6043f731d4b7163af9e9e6047ef0c4/src/Http/Shared/StreamCopyOperationInternal.cs"/>.
         /// </remarks>
-        public async Task CopyAsync(Stream source, Stream destination, CancellationToken cancellation)
+        public async Task<(StreamCopyResult, Exception)> CopyAsync(Stream source, Stream destination, CancellationToken cancellation)
         {
             _ = source ?? throw new ArgumentNullException(nameof(source));
             _ = destination ?? throw new ArgumentNullException(nameof(destination));
@@ -46,18 +46,49 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             {
                 while (true)
                 {
-                    cancellation.ThrowIfCancellationRequested();
+                    if (cancellation.IsCancellationRequested)
+                    {
+                        return (StreamCopyResult.Canceled, new OperationCanceledException(cancellation));
+                    }
+
                     iops++;
-                    var read = await source.ReadAsync(buffer, 0, buffer.Length, cancellation);
+                    int read;
+                    try
+                    {
+                        read = await source.ReadAsync(buffer.AsMemory(), cancellation);
+                    }
+                    catch (OperationCanceledException oex)
+                    {
+                        return (StreamCopyResult.Canceled, oex);
+                    }
+                    catch (Exception ex)
+                    {
+                        return (StreamCopyResult.SourceError, ex);
+                    }
 
                     // End of the source stream.
                     if (read == 0)
                     {
-                        return;
+                        return (StreamCopyResult.Success, null);
                     }
 
-                    cancellation.ThrowIfCancellationRequested();
-                    await destination.WriteAsync(buffer, 0, read, cancellation);
+                    if (cancellation.IsCancellationRequested)
+                    {
+                        return (StreamCopyResult.Canceled, new OperationCanceledException(cancellation));
+                    }
+
+                    try
+                    {
+                        await destination.WriteAsync(buffer.AsMemory(0, read), cancellation);
+                    }
+                    catch (OperationCanceledException oex)
+                    {
+                        return (StreamCopyResult.Canceled, oex);
+                    }
+                    catch (Exception ex)
+                    {
+                        return (StreamCopyResult.DestionationError, ex);
+                    }
                     totalBytes += read;
                 }
             }
