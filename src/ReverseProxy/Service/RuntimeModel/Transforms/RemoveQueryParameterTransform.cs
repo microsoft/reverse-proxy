@@ -19,7 +19,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                 throw new System.ArgumentNullException(nameof(context));
             }
 
-            context.Query.Query.Remove(_key);
+            context.Query.Collection.Remove(_key);
         }
     }
 }

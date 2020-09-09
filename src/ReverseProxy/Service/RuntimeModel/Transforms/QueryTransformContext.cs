@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
-using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Primitives;
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
@@ -47,7 +46,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             }
         }
 
-        public IDictionary<string, StringValues> Query
+        public IDictionary<string, StringValues> Collection
         {
             get
             {

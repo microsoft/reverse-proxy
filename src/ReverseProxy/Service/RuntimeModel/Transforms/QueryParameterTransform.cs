@@ -30,18 +30,15 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                 switch (_mode)
                 {
                     case QueryStringTransformMode.Append:
-                        if (!context.Query.Query.TryGetValue(_key, out var currentValue))
+                        StringValues newValue = value;
+                        if (context.Query.Collection.TryGetValue(_key, out var currentValue))
                         {
-                            context.Query.Query.Add(_key, value.ToString());
+                             newValue = StringValues.Concat(currentValue, value);
                         }
-                        else
-                        {
-                            var newValue = StringValues.Concat(currentValue, value.ToString());
-                            context.Query.Query[_key] = newValue;
-                        }
+                        context.Query.Collection[_key] = newValue;
                         break;
                     case QueryStringTransformMode.Set:
-                        context.Query.Query[_key] = value;
+                        context.Query.Collection[_key] = value;
                         break;
                     default:
                         throw new NotImplementedException(_mode.ToString());
@@ -52,7 +49,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         protected abstract string GetValue(RequestParametersTransformContext context);
     }
 
-    public enum QueryStringTransformMode
+    internal enum QueryStringTransformMode
     {
         Append,
         Set
