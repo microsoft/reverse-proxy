@@ -9,6 +9,7 @@ The configuration is represented differently if you're using the [IConfiguration
 
 ## IConfiguration
 HTTP client configuration contract consists of [ProxyHttpClientData](xref:Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpClientData) and [CertificateConfigData](xref:Microsoft.ReverseProxy.Configuration.Contract.CertificateConfigData) types defining the following configuration schema. These types are focused on defining serializable configuration. The code based HTTP client configuration model is described below in the "Code Configuration" section.
+
 ```JSON
 "HttpClientOptions": {
     "SslProtocols": [ "<protocol-names>" ],
@@ -25,6 +26,7 @@ HTTP client configuration contract consists of [ProxyHttpClientData](xref:Micros
     }
 }
 ```
+
 Configuration settings:
 - SslProtocols - [SSL protocols](https://docs.microsoft.com/en-us/dotnet/api/system.security.authentication.sslprotocols?view=netcore-3.1) enabled on the given HTTP client. Protocol names are specified as array of strings. Default value is [None](https://docs.microsoft.com/en-us/dotnet/api/system.security.authentication.sslprotocols?view=netcore-3.1#System_Security_Authentication_SslProtocols_None).
 ```JSON
@@ -118,6 +120,7 @@ The below example shows 2 samples of HTTP client configurations for `cluster1` a
 
 ## Code Configuration
 HTTP client configuration abstraction constists of the only type [ProxyHttpClientOptions](xref:Microsoft.ReverseProxy.Abstractions.ProxyHttpClientOptions) defined as follows.
+
 ```C#
 public sealed class ProxyHttpClientOptions
 {
@@ -130,6 +133,7 @@ public sealed class ProxyHttpClientOptions
     public int? MaxConnectionsPerServer { get; set; }
 }
 ```
+
 Note that instead of defining certificate location as it was in [CertificateConfigData](xref:Microsoft.ReverseProxy.Configuration.Contract.CertificateConfigData) model, this type exposes a fully constructed [X509Certificate](xref:System.Security.Cryptography.X509Certificates.X509Certificate) certificate. Conversion from the configuration contract to the abstraction model is done by a [IProxyConfigProvider](xref:Microsoft.ReverseProxy.Service.IProxyConfigProvider) which loads a client certificate into memory.
 
 The following is an example of `ProxyHttpClientOptions` using [code based](configproviders.md) configuration. An instance of `ProxyHttpClientOptions` is assigned to the [Cluster.HttpClientOptions](xref:Microsoft.ReverseProxy.Abstractions.Cluster.HttpClientOptions) property before passing the `Cluster` array to `LoadFromMemory` method.
