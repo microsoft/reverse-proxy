@@ -73,7 +73,11 @@ Here is an example of common transforms:
           "Path": "/api/{plugin}/stuff/{*remainder}"
         },
         "Transforms": [
-          { "PathPattern": "/foo/{plugin}/bar/{remainder}" }
+          { "PathPattern": "/foo/{plugin}/bar/{remainder}" },
+          {
+            "QueryStringParameter": "q",
+            "Append": "plugin"
+          }
         ]
       }
     ],
@@ -175,6 +179,77 @@ Example:
 | PathPattern | `/my/{plugin}/api/{remainder}` |
 | Result | `/my/v1/api/more/stuff` |
 
+#### QueryValueParameter
+| Key | Value | Required |
+| QueryValueParameter | Name of a query string parameter | yes |
+| Set/Append | Static value | yes |
+
+Config:
+```JSON
+{
+  "QueryValueParameter": "foo",
+  "Append": "bar"
+}
+```
+
+This will add a query string parameter with the name `foo` and sets it to the static value `bar`.
+
+Example:
+
+| Step | Value |
+|------|-------|
+| Query | `?a=b` |
+| QueryValueParameter | `foo` |
+| Append | `remainder` |
+| Result | `?a=b&foo=remainder` |
+
+#### QueryRouteParameter
+| Key | Value | Required |
+| QueryRouteParameter | Name of a query string parameter | yes |
+| Set/Append | The name of a route value | yes |
+
+Config:
+```JSON
+{
+  "QueryRouteParameter": "foo",
+  "Append": "remainder"
+}
+```
+
+This will add a query string parameter with the name `foo` and sets it to the value of the associated route value.
+
+Example:
+
+| Step | Value |
+|------|-------|
+| Route definition | `/api/{*remainder}` |
+| Request path | `/api/more/stuff` |
+| Remainder value | `more/stuff` |
+| QueryRouteParameter | `foo` |
+| Append | `remainder` |
+| Result | `?foo=more/stuff` |
+
+#### QueryRemoveParameter
+| Key | Value | Required |
+| QueryRemoveParameter | Name of a query string parameter | yes |
+
+Config:
+```JSON
+{
+  "QueryRemoveParameter": "foo"
+}
+```
+
+This will remove a query string parameter with the name `foo` if present on the request.
+
+Example:
+
+| Step | Value |
+|------|-------|
+| Request path | `?a=b&foo=c` |
+| QueryRemoveParameter | `foo` |
+| Result | `?a=b` |
+
 ### Request Headers
 
 All incoming request headers are copied to the proxy request by default with the exception of the Host header (see [Defaults](#defaults)). [X-Forwarded](#x-forwarded) headers are also added by default. These behaviors can be configured using the following transforms. Additional request headers can be specified, or request headers can be excluded by setting them to an empty value.
@@ -258,7 +333,7 @@ Disable default headers:
 { "X-Forwarded": "" }
 ```
 
-X-Forwarded-* headers are a common way to forward information to the destination server that may otherwise be obscured by the use of a proxy. The destination server likely needs this information for security checks and to properly generate absolute URIs for links and redirects. There is no standard that defines these headers and implementations vary, check your destination server for support. 
+X-Forwarded-* headers are a common way to forward information to the destination server that may otherwise be obscured by the use of a proxy. The destination server likely needs this information for security checks and to properly generate absolute URIs for links and redirects. There is no standard that defines these headers and implementations vary, check your destination server for support.
 
 This transform is enabled by default even if not specified in the route config.
 
