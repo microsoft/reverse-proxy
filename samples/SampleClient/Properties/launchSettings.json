@@ -2,7 +2,7 @@
   "profiles": {
     "SampleClient": {
       "commandName": "Project",
-      "commandLineArgs": "-t https://localhost:1443"
+      "commandLineArgs": "-t https://localhost:5001"
     }
   }
 }
