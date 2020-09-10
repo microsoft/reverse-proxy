@@ -8,6 +8,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         None,
         // Failed to connect or send the request.
         Request,
+        RequestCanceled,
         // A cancellation occurred while copying the response body.
         RequestBodyCanceled,
         // Failed reading the request body from the client.

@@ -41,6 +41,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         private readonly Stream _source;
         private readonly IStreamCopier _streamCopier;
         private readonly bool _autoFlushHttpClientOutgoingStream;
+        // Note this is the long token that should only be canceled in the event of an error, not timed out.
         private readonly CancellationToken _cancellation;
         private readonly TaskCompletionSource<(StreamCopyResult, Exception)> _tcs = new TaskCompletionSource<(StreamCopyResult, Exception)>();
 
@@ -112,6 +113,9 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         /// we have full control over pumping bytes to the target stream for all protocols
         /// (except Web Sockets, which is handled separately).
         /// </remarks>
+        // Note we do not need to implement the SerializeToStreamAsync(Stream stream, TransportContext context, CancellationToken token) overload
+        // because the token it provides is the short request token, not the long body token passed from the constructor. Using the short token
+        // would break bidirectional streaming scenarios.
         protected override async Task SerializeToStreamAsync(Stream stream, TransportContext context)
         {
             if (Started)
@@ -133,7 +137,18 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 
             // Immediately flush request stream to send headers
             // https://github.com/dotnet/corefx/issues/39586#issuecomment-516210081
-            await stream.FlushAsync();
+            try
+            {
+                await stream.FlushAsync(_cancellation);
+            }
+            catch (OperationCanceledException oex)
+            {
+                _tcs.TrySetResult((StreamCopyResult.Canceled, oex));
+            }
+            catch (Exception ex)
+            {
+                _tcs.TrySetResult((StreamCopyResult.DestionationError, ex));
+            }
 
             var (result, error) = await _streamCopier.CopyAsync(_source, stream, _cancellation);
             _tcs.TrySetResult((result, error));
@@ -141,13 +156,13 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             // We have to throw something here so the transport knows the body is incomplete.
             // We can't re-throw the original exception since that would cause concurrency issues.
             // We need to wrap it.
-            if (error is OperationCanceledException oce)
-            {
-                throw new OperationCanceledException("The request body copy was canceled.", oce, oce.CancellationToken);
-            }
             if (result == StreamCopyResult.SourceError)
             {
                 throw new ProxyException(ProxyErrorCode.RequestBodyClient, error);
+            }
+            if (result == StreamCopyResult.Canceled)
+            {
+                throw new OperationCanceledException("The request body copy was canceled.", error);
             }
         }
 
