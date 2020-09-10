@@ -316,6 +316,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                         StreamCopyResult.SourceError => ProxyErrorCode.RequestBodyClient,
                         StreamCopyResult.DestionationError => ProxyErrorCode.RequestBodyDestination,
                         StreamCopyResult.Canceled => ProxyErrorCode.RequestBodyCanceled,
+                        _ => throw new NotImplementedException(requestBodyCopyResult.ToString())
                     };
                     var ex = new ProxyException(errorCode, requestBodyError);
                     context.Features.Set<IProxyErrorFeature>(new ProxyErrorFeature() { Error = ex });
