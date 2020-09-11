@@ -18,7 +18,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 
         public ProxyErrorCode ErrorCode { get; }
 
-        private static string GetMessage(ProxyErrorCode errorCode)
+        internal static string GetMessage(ProxyErrorCode errorCode)
         {
             return errorCode switch
             {

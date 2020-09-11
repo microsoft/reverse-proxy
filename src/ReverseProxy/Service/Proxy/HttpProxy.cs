@@ -29,7 +29,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
     {
         private static readonly HashSet<string> _headersToSkipGoingDownstream = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
-            "Transfer-Encoding",
+            HeaderNames.TransferEncoding
         };
 
         private readonly ILogger _logger;
@@ -119,9 +119,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             catch (OperationCanceledException oex)
             {
                 // We're not sure if this was canceled by a timeout or a client disconnect.
-                // TODO: Log
+                ReportProxyError(context, ProxyErrorCode.RequestCanceled, oex);
                 context.Response.StatusCode = StatusCodes.Status502BadGateway;
-                StoreProxyError(context, ProxyErrorCode.RequestCanceled, oex);
                 return;
             }
             catch (Exception ex)
@@ -156,18 +155,16 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                                 throw new NotImplementedException(requestBodyCopyResult.ToString());
                         }
 
-                        StoreProxyError(context, requestBodyErrorCode, new AggregateException(requestBodyError, ex));
-                        // TODO: Log
                         // We don't know if the client is still around to see this error, but set it for diagnostics to see.
+                        ReportProxyError(context, requestBodyErrorCode, new AggregateException(requestBodyError, ex));
                         context.Response.StatusCode = statusCode;
                         return;
                     }
                 }
 
-                // TODO: Log;
                 // We couldn't communicate with the destination.
+                ReportProxyError(context, ProxyErrorCode.Request, ex);
                 context.Response.StatusCode = StatusCodes.Status502BadGateway;
-                StoreProxyError(context, ProxyErrorCode.Request, ex);
                 return;
             }
 
@@ -255,9 +252,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                                 throw new NotImplementedException(requestBodyCopyResult.ToString());
                         }
 
-                        StoreProxyError(context, requestBodyErrorCode, new AggregateException(requestBodyError, responseBodyError));
+                        ReportProxyError(context, requestBodyErrorCode, new AggregateException(requestBodyError, responseBodyError));
 
-                        // TODO: Log
                         // We don't know if the client is still around to see this error, but set it for diagnostics to see.
                         if (!context.Response.HasStarted)
                         {
@@ -279,18 +275,16 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                     StreamCopyResult.Canceled => ProxyErrorCode.ResponseBodyCanceled,
                     _ => throw new NotImplementedException(responseBodyCopyResult.ToString()),
                 };
-                StoreProxyError(context, errorCode, responseBodyError);
+                ReportProxyError(context, errorCode, responseBodyError);
 
                 if (!context.Response.HasStarted)
                 {
-                    // TODO: Log
                     // Nothing has been sent to the client yet, we can still send a good error response.
                     context.Response.Clear();
                     context.Response.StatusCode = StatusCodes.Status502BadGateway;
                     return;
                 }
 
-                // TODO: Log
                 // The response has already started, we must forcefully terminate it so the client doesn't get the
                 // the mistaken impression that the truncated response is complete.
                 ResetOrAbort(context, isCancelled: responseBodyCopyResult == StreamCopyResult.Canceled);
@@ -330,8 +324,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                         StreamCopyResult.Canceled => ProxyErrorCode.RequestBodyCanceled,
                         _ => throw new NotImplementedException(requestBodyCopyResult.ToString())
                     };
-                    StoreProxyError(context, errorCode, requestBodyError);
-                    // TODO: Log
+                    ReportProxyError(context, errorCode, requestBodyError);
                 }
             }
         }
@@ -351,10 +344,11 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             context.Abort();
         }
 
-        private static void StoreProxyError(HttpContext context, ProxyErrorCode errorCode, Exception ex)
+        private void ReportProxyError(HttpContext context, ProxyErrorCode errorCode, Exception ex)
         {
             var clientEx = new ProxyException(errorCode, ex);
             context.Features.Set<IProxyErrorFeature>(new ProxyErrorFeature() { Error = clientEx });
+            Log.ProxyError(_logger, errorCode, ex);
         }
 
         private async Task HandleUpgradedResponse(HttpContext context, IHttpUpgradeFeature upgradeFeature, HttpResponseMessage destinationResponse,
@@ -428,8 +422,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 }
             }
 
-            // TODO: Log
-            static void ProcessRequestResult(HttpContext context, StreamCopyResult result, Exception error)
+            void ProcessRequestResult(HttpContext context, StreamCopyResult result, Exception error)
             {
                 var errorCode = result switch
                 {
@@ -438,10 +431,10 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                     StreamCopyResult.Canceled => ProxyErrorCode.UpgradeRequestCanceled,
                     _ => throw new NotImplementedException(result.ToString()),
                 };
-                StoreProxyError(context, errorCode, error);
+                ReportProxyError(context, errorCode, error);
             }
 
-            static void ProcessResponseResult(HttpContext context, StreamCopyResult result, Exception error)
+            void ProcessResponseResult(HttpContext context, StreamCopyResult result, Exception error)
             {
                 var errorCode = result switch
                 {
@@ -450,7 +443,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                     StreamCopyResult.Canceled => ProxyErrorCode.UpgradeResponseCanceled,
                     _ => throw new NotImplementedException(result.ToString()),
                 };
-                StoreProxyError(context, errorCode, error);
+                ReportProxyError(context, errorCode, error);
             }
         }
 
@@ -798,7 +791,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         private static class Log
         {
             private static readonly Action<ILogger, Exception> _httpDowngradeDetected = LoggerMessage.Define(
-                LogLevel.Information,
+                LogLevel.Debug,
                 EventIds.HttpDowngradeDetected,
                 "The request was downgraded from HTTP/2.");
 
@@ -806,6 +799,11 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 LogLevel.Information,
                 EventIds.Proxying,
                 "Proxying to {targetUrl}");
+
+            private static readonly Action<ILogger, ProxyErrorCode, string, Exception> _proxyError = LoggerMessage.Define<ProxyErrorCode, string>(
+                LogLevel.Information,
+                EventIds.ProxyError,
+                "{errorCode}: {message}");
 
             public static void HttpDowngradeDetected(ILogger logger)
             {
@@ -815,6 +813,11 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             public static void Proxying(ILogger logger, string targetUrl)
             {
                 _proxying(logger, targetUrl, null);
+            }
+
+            public static void ProxyError(ILogger logger, ProxyErrorCode errorCode, Exception ex)
+            {
+                _proxyError(logger, errorCode, ProxyException.GetMessage(errorCode), ex);
             }
         }
     }
