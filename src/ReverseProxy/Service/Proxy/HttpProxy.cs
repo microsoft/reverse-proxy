@@ -131,33 +131,35 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 {
                     var (requestBodyCopyResult, requestBodyError) = await requestContent.ConsumptionTask;
 
-                    // Canceled while trying to copy the request body, either due to a client disconnect or a timeout. This probably caused the response body to fail as a secondary error. Report the first error.
-                    if (requestBodyCopyResult == StreamCopyResult.Canceled)
+                    if (requestBodyCopyResult != StreamCopyResult.Success)
                     {
-                        StoreProxyError(context, ProxyErrorCode.RequestBodyCanceled, new AggregateException(requestBodyError, ex));
+                        ProxyErrorCode requestBodyErrorCode;
+                        int statusCode;
+                        switch (requestBodyCopyResult)
+                        {
+                            // Failed while trying to copy the request body. This probably caused the response to fail as a secondary error. Report the first error.
+                            case StreamCopyResult.SourceError:
+                                requestBodyErrorCode = ProxyErrorCode.RequestBodyClient;
+                                statusCode = StatusCodes.Status400BadRequest;
+                                break;
+                            case StreamCopyResult.DestionationError:
+                                requestBodyErrorCode = ProxyErrorCode.RequestBodyDestination;
+                                statusCode = StatusCodes.Status502BadGateway;
+                                break;
+                            // Canceled while trying to copy the request body, either due to a client disconnect or a timeout. This probably caused the response body to fail as a secondary error. Report the first error.
+                            case StreamCopyResult.Canceled:
+                                requestBodyErrorCode = ProxyErrorCode.RequestBodyCanceled;
+                                // We don't use 504 timed out here because we can't tell why it was canceled.
+                                statusCode = StatusCodes.Status502BadGateway;
+                                break;
+                            default:
+                                throw new NotImplementedException(requestBodyCopyResult.ToString());
+                        }
 
+                        StoreProxyError(context, requestBodyErrorCode, new AggregateException(requestBodyError, ex));
                         // TODO: Log
                         // We don't know if the client is still around to see this error, but set it for diagnostics to see.
-                        // We don't use 504 timed out here because we can't tell why it was canceled.
-                        context.Response.StatusCode = StatusCodes.Status502BadGateway;
-                        return;
-                    }
-                    if (requestBodyCopyResult == StreamCopyResult.DestionationError)
-                    {
-                        StoreProxyError(context, ProxyErrorCode.RequestBodyDestination, new AggregateException(requestBodyError, ex));
-
-                        // TODO: Log
-                        context.Response.StatusCode = StatusCodes.Status502BadGateway;
-                        return;
-                    }
-                    // Failed while trying to copy the request body. This probably caused the response body to fail as a secondary error. Report the first error.
-                    if (requestBodyCopyResult == StreamCopyResult.SourceError)
-                    {
-                        StoreProxyError(context, ProxyErrorCode.RequestBodyClient, new AggregateException(requestBodyError, ex));
-
-                        // TODO: Log
-                        // We don't know if the client is still around to see this error, but set it for diagnostics to see.
-                        context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                        context.Response.StatusCode = statusCode;
                         return;
                     }
                 }
@@ -196,6 +198,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             // :: Step 6: Copy response headers Client ◄-- Proxy ◄-- Destination
             CopyResponseHeaders(destinationResponse, context, transforms.ResponseHeaderTransforms);
 
+            // Note as of 5.0 HttpResponse.Content never returns null.
+            // https://github.com/dotnet/runtime/blame/8fc68f626a11d646109a758cb0fc70a0aa7826f1/src/libraries/System.Net.Http/src/System/Net/Http/HttpResponseMessage.cs#L46
             if (destinationResponse.StatusCode == HttpStatusCode.SwitchingProtocols && destinationResponse.Content != null)
             {
                 await HandleUpgradedResponse(context, upgradeFeature, destinationResponse, proxyTelemetryContext, longCancellation);
@@ -680,6 +684,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 
         private async Task<(StreamCopyResult, Exception)> CopyResponseBodyAsync(HttpContent destinationResponseContent, Stream clientResponseStream, ProxyTelemetryContext proxyTelemetryContext, CancellationToken cancellation)
         {
+            // Note as of 5.0 HttpResponse.Content never returns null.
+            // https://github.com/dotnet/runtime/blame/8fc68f626a11d646109a758cb0fc70a0aa7826f1/src/libraries/System.Net.Http/src/System/Net/Http/HttpResponseMessage.cs#L46
             if (destinationResponseContent != null)
             {
                 var streamCopier = new StreamCopier(

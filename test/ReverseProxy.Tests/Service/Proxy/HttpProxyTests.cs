@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.IO.Pipelines;
 using System.Linq;
@@ -18,27 +17,12 @@ using Microsoft.Net.Http.Headers;
 using Microsoft.ReverseProxy.Abstractions.Telemetry;
 using Microsoft.ReverseProxy.Common.Tests;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
+using Microsoft.ReverseProxy.Utilities;
 using Moq;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 {
-    // Done:
-    // Throws when connecting and sending request (With and Without a body)
-    // Got response, destination response body throws (first write vs second write)
-    // Canceled when connecting and sending request (With and Without a body)
-    // Client throws when uploading body, before response
-    // Destination throws when uploading body, before response
-    // Request body canceled before response
-    // Got response, client response body throws
-    // Got response, response body canceled
-    // TODO:
-    // Got response, client request body throws
-    // Got response, destination request body throws
-    // Got response, request body canceled
-    // Got response, both request and response body throw for reasons...
-    // Upgrade throws x client x destination x cancel x request body x response body
-
     public class HttpProxyTests : TestAutoMockBase
     {
         public HttpProxyTests()
@@ -52,7 +36,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Create<HttpProxy>();
         }
 
-        // Tests normal (as opposed to upgradable) request proxying.
+        // Tests normal (as opposed to upgradeable) request proxying.
         [Fact]
         public async Task ProxyAsync_NormalRequest_Works()
         {
@@ -392,7 +376,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.Equal(234, httpContext.Response.StatusCode);
         }
 
-        // Tests proxying an upgradable request.
+        // Tests proxying an upgradeable request.
         [Fact]
         public async Task ProxyAsync_UpgradableRequest_Works()
         {
@@ -468,7 +452,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.Equal("request content", sentToUpstream);
         }
 
-        // Tests proxying an upgradable request where the upstream refused to upgrade.
+        // Tests proxying an upgradeable request where the destination refused to upgrade.
         // We should still proxy back the response.
         [Fact]
         public async Task ProxyAsync_UpgradableRequestFailsToUpgrade_ProxiesResponse()
@@ -847,7 +831,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.Equal(ProxyErrorCode.RequestBodyDestination, pex.ErrorCode);
         }
 
-        // The HttpContent overload for cancellation was new in 5.0
         [Fact]
         public async Task ProxyAsync_RequestBodyCanceledBeforeResponseError_Returns502()
         {
@@ -868,10 +851,10 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     // should throw
                     try
                     {
-                        await request.Content.CopyToAsync(new ThrowStream());
+                        await request.Content.CopyToAsync(new MemoryStream());
                     }
                     catch (OperationCanceledException) { }
-                    return new HttpResponseMessage();
+                    throw new HttpRequestException();
                 });
 
             var proxyTelemetryContext = new ProxyTelemetryContext(
@@ -1083,13 +1066,252 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.Equal(ProxyErrorCode.ResponseBodyCanceled, pex.ErrorCode);
         }
 
+        [Fact]
+        public async Task ProxyAsync_RequestBodyCanceledAfterResponse_Reported()
+        {
+            var waitTcs = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
+            var httpContext = new DefaultHttpContext();
+            httpContext.Request.Method = "POST";
+            httpContext.Request.Host = new HostString("example.com:3456");
+            httpContext.Request.Body = new StallStream(waitTcs.Task);
+            httpContext.Request.ContentLength = 1;
+
+            var proxyResponseStream = new MemoryStream();
+            httpContext.Response.Body = proxyResponseStream;
+
+            var longTokenSource = new CancellationTokenSource();
+
+            var destinationPrefix = "https://localhost:123/";
+            var sut = Create<HttpProxy>();
+            var client = MockHttpHandler.CreateClient(
+                (HttpRequestMessage request, CancellationToken cancellationToken) =>
+                {
+                    // Background copy
+                    _ = request.Content.CopyToAsync(new MemoryStream());
+                    // Make sure the request isn't canceled until the response finishes copying.
+                    return Task.FromResult(new HttpResponseMessage()
+                    {
+                        Content = new StreamContent(new OnCompletedReadStream(() =>
+                        {
+                            longTokenSource.Cancel();
+                            waitTcs.SetResult(0);
+                        }))
+                    });
+                });
+
+            var proxyTelemetryContext = new ProxyTelemetryContext(
+                clusterId: "be1",
+                routeId: "rt1",
+                destinationId: "d1");
+
+            await sut.ProxyAsync(httpContext, destinationPrefix, Transforms.Empty, client, proxyTelemetryContext, CancellationToken.None, longTokenSource.Token);
+
+            Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
+            Assert.Equal(0, proxyResponseStream.Length);
+            var error = httpContext.Features.Get<IProxyErrorFeature>()?.Error;
+            var pex = Assert.IsType<ProxyException>(error);
+            Assert.Equal(ProxyErrorCode.RequestBodyCanceled, pex.ErrorCode);
+        }
+
+        [Fact]
+        public async Task ProxyAsync_RequestBodyClientErrorAfterResponse_Reported()
+        {
+            var waitTcs = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
+            var httpContext = new DefaultHttpContext();
+            httpContext.Request.Method = "POST";
+            httpContext.Request.Host = new HostString("example.com:3456");
+            httpContext.Request.Body = new StallStream(waitTcs.Task);
+            httpContext.Request.ContentLength = 1;
+
+            var proxyResponseStream = new MemoryStream();
+            httpContext.Response.Body = proxyResponseStream;
+
+            var destinationPrefix = "https://localhost:123/";
+            var sut = Create<HttpProxy>();
+            var client = MockHttpHandler.CreateClient(
+                (HttpRequestMessage request, CancellationToken cancellationToken) =>
+                {
+                    // Background copy
+                    _ = request.Content.CopyToAsync(new MemoryStream());
+                    // Make sure the request isn't canceled until the response finishes copying.
+                    return Task.FromResult(new HttpResponseMessage()
+                    {
+                        Content = new StreamContent(new OnCompletedReadStream(() => waitTcs.SetResult(0)))
+                    });
+                });
+
+            var proxyTelemetryContext = new ProxyTelemetryContext(
+                clusterId: "be1",
+                routeId: "rt1",
+                destinationId: "d1");
+
+            await sut.ProxyAsync(httpContext, destinationPrefix, Transforms.Empty, client, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+
+            Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
+            Assert.Equal(0, proxyResponseStream.Length);
+            var error = httpContext.Features.Get<IProxyErrorFeature>()?.Error;
+            var pex = Assert.IsType<ProxyException>(error);
+            Assert.Equal(ProxyErrorCode.RequestBodyClient, pex.ErrorCode);
+        }
+
+        [Fact]
+        public async Task ProxyAsync_RequestBodyDestinationErrorAfterResponse_Reported()
+        {
+            var waitTcs = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
+            var httpContext = new DefaultHttpContext();
+            httpContext.Request.Method = "POST";
+            httpContext.Request.Host = new HostString("example.com:3456");
+            httpContext.Request.Body = new MemoryStream(new byte[1]);
+            httpContext.Request.ContentLength = 1;
+
+            var proxyResponseStream = new MemoryStream();
+            httpContext.Response.Body = proxyResponseStream;
+
+            var destinationPrefix = "https://localhost:123/";
+            var sut = Create<HttpProxy>();
+            var client = MockHttpHandler.CreateClient(
+                (HttpRequestMessage request, CancellationToken cancellationToken) =>
+                {
+                    // Background copy
+                    _ = request.Content.CopyToAsync(new StallStream(waitTcs.Task));
+                    // Make sure the request isn't canceled until the response finishes copying.
+                    return Task.FromResult(new HttpResponseMessage()
+                    {
+                        Content = new StreamContent(new OnCompletedReadStream(() => waitTcs.SetResult(0)))
+                    });
+                });
+
+            var proxyTelemetryContext = new ProxyTelemetryContext(
+                clusterId: "be1",
+                routeId: "rt1",
+                destinationId: "d1");
+
+            await sut.ProxyAsync(httpContext, destinationPrefix, Transforms.Empty, client, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+
+            Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
+            Assert.Equal(0, proxyResponseStream.Length);
+            var error = httpContext.Features.Get<IProxyErrorFeature>()?.Error;
+            var pex = Assert.IsType<ProxyException>(error);
+            Assert.Equal(ProxyErrorCode.RequestBodyDestination, pex.ErrorCode);
+        }
+
+        [Fact]
+        public async Task ProxyAsync_UpgradableRequest_RequestBodyCopyError_CancelsResponseBody()
+        {
+            var httpContext = new DefaultHttpContext();
+            httpContext.Request.Method = "GET";
+            httpContext.Request.Scheme = "http";
+            httpContext.Request.Host = new HostString("example.com:3456");
+            // TODO: https://github.com/microsoft/reverse-proxy/issues/255
+            httpContext.Request.Headers.Add("Upgrade", "WebSocket");
+
+            var downstreamStream = new DuplexStream(
+                readStream: new ThrowStream(),
+                writeStream: new MemoryStream());
+            DuplexStream upstreamStream = null;
+
+            var upgradeFeatureMock = new Mock<IHttpUpgradeFeature>();
+            upgradeFeatureMock.SetupGet(u => u.IsUpgradableRequest).Returns(true);
+            upgradeFeatureMock.Setup(u => u.UpgradeAsync()).ReturnsAsync(downstreamStream);
+            httpContext.Features.Set(upgradeFeatureMock.Object);
+
+            var sut = Create<HttpProxy>();
+            var client = MockHttpHandler.CreateClient(
+                (HttpRequestMessage request, CancellationToken cancellationToken) =>
+                {
+                    Assert.Equal(new Version(1, 1), request.Version);
+                    Assert.Equal(HttpMethod.Get, request.Method);
+
+                    Assert.Null(request.Content);
+
+                    var response = new HttpResponseMessage(HttpStatusCode.SwitchingProtocols);
+                    upstreamStream = new DuplexStream(
+                        readStream: new StallStream(ct =>
+                        {
+                            var tcs = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
+                            ct.Register(() => tcs.SetResult(0));
+                            return tcs.Task.DefaultTimeout();
+                        }),
+                        writeStream: new MemoryStream());
+                    response.Content = new RawStreamContent(upstreamStream);
+                    return Task.FromResult(response);
+                });
+
+            var proxyTelemetryContext = new ProxyTelemetryContext(
+                clusterId: "be1",
+                routeId: "rt1",
+                destinationId: "d1");
+
+            await sut.ProxyAsync(httpContext, "https://localhost/", Transforms.Empty, client, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+
+            Assert.Equal(StatusCodes.Status101SwitchingProtocols, httpContext.Response.StatusCode);
+            var error = httpContext.Features.Get<IProxyErrorFeature>()?.Error;
+            var pex = Assert.IsType<ProxyException>(error);
+            Assert.Equal(ProxyErrorCode.UpgradeRequestClient, pex.ErrorCode);
+        }
+
+        [Fact]
+        public async Task ProxyAsync_UpgradableRequest_ResponseBodyCopyError_CancelsRequestBody()
+        {
+            var httpContext = new DefaultHttpContext();
+            httpContext.Request.Method = "GET";
+            httpContext.Request.Scheme = "http";
+            httpContext.Request.Host = new HostString("example.com:3456");
+            // TODO: https://github.com/microsoft/reverse-proxy/issues/255
+            httpContext.Request.Headers.Add("Upgrade", "WebSocket");
+
+            var downstreamStream = new DuplexStream(
+                readStream: new StallStream(ct =>
+                {
+                    var tcs = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
+                    ct.Register(() => tcs.SetResult(0));
+                    return tcs.Task.DefaultTimeout();
+                }),
+                writeStream: new MemoryStream());
+            DuplexStream upstreamStream = null;
+
+            var upgradeFeatureMock = new Mock<IHttpUpgradeFeature>();
+            upgradeFeatureMock.SetupGet(u => u.IsUpgradableRequest).Returns(true);
+            upgradeFeatureMock.Setup(u => u.UpgradeAsync()).ReturnsAsync(downstreamStream);
+            httpContext.Features.Set(upgradeFeatureMock.Object);
+
+            var sut = Create<HttpProxy>();
+            var client = MockHttpHandler.CreateClient(
+                (HttpRequestMessage request, CancellationToken cancellationToken) =>
+                {
+                    Assert.Equal(new Version(1, 1), request.Version);
+                    Assert.Equal(HttpMethod.Get, request.Method);
+
+                    Assert.Null(request.Content);
+
+                    var response = new HttpResponseMessage(HttpStatusCode.SwitchingProtocols);
+                    upstreamStream = new DuplexStream(
+                        readStream: new ThrowStream(),
+                        writeStream: new MemoryStream());
+                    response.Content = new RawStreamContent(upstreamStream);
+                    return Task.FromResult(response);
+                });
+
+            var proxyTelemetryContext = new ProxyTelemetryContext(
+                clusterId: "be1",
+                routeId: "rt1",
+                destinationId: "d1");
+
+            await sut.ProxyAsync(httpContext, "https://localhost/", Transforms.Empty, client, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+
+            Assert.Equal(StatusCodes.Status101SwitchingProtocols, httpContext.Response.StatusCode);
+            var error = httpContext.Features.Get<IProxyErrorFeature>()?.Error;
+            var pex = Assert.IsType<ProxyException>(error);
+            Assert.Equal(ProxyErrorCode.UpgradeResponseDestination, pex.ErrorCode);
+        }
+
         private static MemoryStream StringToStream(string text)
         {
             var stream = new MemoryStream(Encoding.UTF8.GetBytes(text));
             return stream;
         }
 
-        private static string StreamToString(MemoryStream stream)
+        private static string StreamToString(Stream stream)
         {
             using var reader = new StreamReader(stream, Encoding.UTF8, leaveOpen: true);
             return reader.ReadToEnd();
@@ -1118,15 +1340,15 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
         private class DuplexStream : Stream
         {
-            public DuplexStream(MemoryStream readStream, MemoryStream writeStream)
+            public DuplexStream(Stream readStream, Stream writeStream)
             {
                 ReadStream = readStream ?? throw new ArgumentNullException(nameof(readStream));
                 WriteStream = writeStream ?? throw new ArgumentNullException(nameof(writeStream));
             }
 
-            public MemoryStream ReadStream { get; }
+            public Stream ReadStream { get; }
 
-            public MemoryStream WriteStream { get; }
+            public Stream WriteStream { get; }
 
             public override bool CanRead => true;
 
@@ -1143,9 +1365,29 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 return ReadStream.Read(buffer, offset, count);
             }
 
+            public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+            {
+                return ReadStream.ReadAsync(buffer, offset, count, cancellationToken);
+            }
+
+            public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
+            {
+                return ReadStream.ReadAsync(buffer, cancellationToken);
+            }
+
             public override void Write(byte[] buffer, int offset, int count)
             {
                 WriteStream.Write(buffer, offset, count);
+            }
+
+            public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+            {
+                return WriteStream.WriteAsync(buffer, offset, count, cancellationToken);
+            }
+
+            public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
+            {
+                return WriteStream.WriteAsync(buffer, cancellationToken);
             }
 
             public override void Flush()
@@ -1268,6 +1510,75 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             }
         }
 
+        private class StallStream : Stream
+        {
+            public StallStream(Task until) : this(_ => until) 
+            {
+            }
+
+            public StallStream(Func<CancellationToken, Task> onStallAction)
+            {
+                OnStallAction = onStallAction;
+            }
+
+            public override bool CanRead => true;
+
+            public override bool CanSeek => false;
+
+            public override bool CanWrite => true;
+
+            public override long Length => throw new NotSupportedException();
+
+            public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
+
+            public Func<CancellationToken, Task> OnStallAction { get; }
+
+            public override void Flush()
+            {
+                throw new NotImplementedException();
+            }
+
+            public override Task FlushAsync(CancellationToken cancellationToken)
+            {
+                // If we want this to throw then make it conditional. Write is more interesting.
+                return Task.CompletedTask;
+            }
+
+            public override int Read(byte[] buffer, int offset, int count)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+            {
+                await OnStallAction(cancellationToken);
+                cancellationToken.ThrowIfCancellationRequested();
+                throw new IOException();
+            }
+
+            public override long Seek(long offset, SeekOrigin origin)
+            {
+                throw new NotSupportedException();
+            }
+
+            public override void SetLength(long value)
+            {
+                throw new NotSupportedException();
+            }
+
+            public override void Write(byte[] buffer, int offset, int count)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+            {
+                await OnStallAction(cancellationToken);
+                cancellationToken.ThrowIfCancellationRequested();
+                throw new IOException();
+            }
+        }
+
         private class TestResponseBody : Stream, IHttpResponseBodyFeature, IHttpResponseFeature, IHttpRequestLifetimeFeature
         {
             public Stream InnerStream { get; set; } = new MemoryStream();
@@ -1352,6 +1663,68 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 {
                     HasStarted = true;
                 }
+            }
+        }
+
+        private class OnCompletedReadStream : Stream
+        {
+            public OnCompletedReadStream(Action onCompleted)
+            {
+                OnCompleted = onCompleted;
+            }
+
+            public override bool CanRead => true;
+
+            public override bool CanSeek => false;
+
+            public override bool CanWrite => false;
+
+            public override long Length => throw new NotSupportedException();
+
+            public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
+
+            public Action OnCompleted { get; }
+
+            public override void Flush()
+            {
+                throw new NotImplementedException();
+            }
+
+            public override Task FlushAsync(CancellationToken cancellationToken)
+            {
+                // If we want this to throw then make it conditional. Write is more interesting.
+                return Task.CompletedTask;
+            }
+
+            public override int Read(byte[] buffer, int offset, int count)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+            {
+                OnCompleted();
+                return Task.FromResult(0);
+            }
+
+            public override long Seek(long offset, SeekOrigin origin)
+            {
+                throw new NotSupportedException();
+            }
+
+            public override void SetLength(long value)
+            {
+                throw new NotSupportedException();
+            }
+
+            public override void Write(byte[] buffer, int offset, int count)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+            {
+                throw new NotImplementedException();
             }
         }
     }
