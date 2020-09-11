@@ -5,7 +5,7 @@ using System;
 
 namespace Microsoft.ReverseProxy.Service.Proxy
 {
-    public class ProxyErrorFeature : IProxyErrorFeature
+    internal class ProxyErrorFeature : IProxyErrorFeature
     {
         public Exception Error { get; set; }
     }
