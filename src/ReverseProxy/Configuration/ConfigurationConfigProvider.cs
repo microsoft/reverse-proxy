@@ -140,13 +140,13 @@ namespace Microsoft.ReverseProxy.Configuration
                 // The Object style config binding puts the id as the key in the dictionary, but later we want it on the
                 // cluster object as well.
                 Id = clusterId,
-                CircuitBreakerOptions = Convert(data.CircuitBreaker),
-                QuotaOptions = Convert(data.Quota),
-                PartitioningOptions = Convert(data.Partitioning),
+                CircuitBreaker = Convert(data.CircuitBreaker),
+                Quota = Convert(data.Quota),
+                Partitioning = Convert(data.Partitioning),
                 LoadBalancing = Convert(data.LoadBalancing),
                 SessionAffinity = Convert(data.SessionAffinity),
-                HealthCheckOptions = Convert(data.HealthCheck),
-                HttpClientOptions = Convert(data.HttpClient),
+                HealthCheck = Convert(data.HealthCheck),
+                HttpClient = Convert(data.HttpClient),
                 Metadata = data.Metadata?.DeepClone(StringComparer.OrdinalIgnoreCase)
             };
             foreach(var destination in data.Destinations)
