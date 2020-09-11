@@ -131,7 +131,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 Log.HttpDowngradeDetected(_logger);
             }
 
-            // Assert that, if we are proxying content Destination, it must have started by now
+            // Assert that, if we are proxying content to the destination, it must have started by now
             // (since HttpClient.SendAsync has already completed asynchronously).
             // If this check fails, there is a coding defect which would otherwise
             // cause us to wait forever in step 9, so fail fast here.
@@ -155,9 +155,9 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 
             // NOTE: it may *seem* wise to call `context.Response.StartAsync()` at this point
             // since it looks like we are ready to send back response headers
-            // (and this might help reduce extra delays while we wait to receive the body from Destination).
+            // (and this might help reduce extra delays while we wait to receive the body from the destination).
             // HOWEVER, this would produce the wrong result if it turns out that there is no content
-            // from the Destination -- instead of sending headers and terminating the stream at once,
+            // from the destination -- instead of sending headers and terminating the stream at once,
             // we would send headers thinking a body may be coming, and there is none.
             // This is problematic on gRPC connections when the destination server encounters an error,
             // in which case it immediately returns the response headers and trailing headers, but no content,
@@ -198,8 +198,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 
                     var errorCode = requestBodyCopyResult switch
                     {
-                        StreamCopyResult.SourceError => ProxyErrorCode.RequestBodyClient,
-                        StreamCopyResult.DestionationError => ProxyErrorCode.RequestBodyDestination,
+                        StreamCopyResult.InputError => ProxyErrorCode.RequestBodyClient,
+                        StreamCopyResult.OutputError => ProxyErrorCode.RequestBodyDestination,
                         StreamCopyResult.Canceled => ProxyErrorCode.RequestBodyCanceled,
                         _ => throw new NotImplementedException(requestBodyCopyResult.ToString())
                     };
@@ -426,17 +426,17 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             int statusCode;
             switch (requestBodyCopyResult)
             {
-                // Failed while trying to copy the request body from the client. It's ambiguous if the request or response body failed first. Report both errors.
-                case StreamCopyResult.SourceError:
+                // Failed while trying to copy the request body from the client. It's ambiguous if the request or response failed first.
+                case StreamCopyResult.InputError:
                     requestBodyErrorCode = ProxyErrorCode.RequestBodyClient;
                     statusCode = StatusCodes.Status400BadRequest;
                     break;
-                // Failed while trying to copy the request body to the destination. It's ambiguous if the request or response body failed first. Report both errors.
-                case StreamCopyResult.DestionationError:
+                // Failed while trying to copy the request body to the destination. It's ambiguous if the request or response failed first.
+                case StreamCopyResult.OutputError:
                     requestBodyErrorCode = ProxyErrorCode.RequestBodyDestination;
                     statusCode = StatusCodes.Status502BadGateway;
                     break;
-                // Canceled while trying to copy the request body, either due to a client disconnect or a timeout. This probably caused the response body to fail as a secondary error. Report the first error.
+                // Canceled while trying to copy the request body, either due to a client disconnect or a timeout. This probably caused the response to fail as a secondary error.
                 case StreamCopyResult.Canceled:
                     requestBodyErrorCode = ProxyErrorCode.RequestBodyCanceled;
                     // We don't use 504 timed out here because we can't tell why it was canceled.
@@ -498,7 +498,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         private async Task HandleUpgradedResponse(HttpContext context, IHttpUpgradeFeature upgradeFeature, HttpResponseMessage destinationResponse,
             ProxyTelemetryContext proxyTelemetryContext, CancellationToken longCancellation)
         {
-            // :: Step A-6: Upgrade the downstream channel. This will send all response headers too.
+            // :: Step A-6: Upgrade the client channel. This will send all response headers too.
             using var clientStream = await upgradeFeature.UpgradeAsync();
 
             // :: Step A-7: Copy duplex streams
@@ -568,8 +568,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             {
                 var errorCode = result switch
                 {
-                    StreamCopyResult.SourceError => ProxyErrorCode.UpgradeRequestClient,
-                    StreamCopyResult.DestionationError => ProxyErrorCode.UpgradeRequestDestination,
+                    StreamCopyResult.InputError => ProxyErrorCode.UpgradeRequestClient,
+                    StreamCopyResult.OutputError => ProxyErrorCode.UpgradeRequestDestination,
                     StreamCopyResult.Canceled => ProxyErrorCode.UpgradeRequestCanceled,
                     _ => throw new NotImplementedException(result.ToString()),
                 };
@@ -580,8 +580,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             {
                 var errorCode = result switch
                 {
-                    StreamCopyResult.SourceError => ProxyErrorCode.UpgradeResponseDestination,
-                    StreamCopyResult.DestionationError => ProxyErrorCode.UpgradeResponseClient,
+                    StreamCopyResult.InputError => ProxyErrorCode.UpgradeResponseDestination,
+                    StreamCopyResult.OutputError => ProxyErrorCode.UpgradeResponseClient,
                     StreamCopyResult.Canceled => ProxyErrorCode.UpgradeResponseCanceled,
                     _ => throw new NotImplementedException(result.ToString()),
                 };
@@ -627,8 +627,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 
             var errorCode = responseBodyCopyResult switch
             {
-                StreamCopyResult.SourceError => ProxyErrorCode.ResponseBodyDestination,
-                StreamCopyResult.DestionationError => ProxyErrorCode.ResponseBodyClient,
+                StreamCopyResult.InputError => ProxyErrorCode.ResponseBodyDestination,
+                StreamCopyResult.OutputError => ProxyErrorCode.ResponseBodyClient,
                 StreamCopyResult.Canceled => ProxyErrorCode.ResponseBodyCanceled,
                 _ => throw new NotImplementedException(responseBodyCopyResult.ToString()),
             };

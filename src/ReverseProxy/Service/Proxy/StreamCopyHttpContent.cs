@@ -147,7 +147,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             }
             catch (Exception ex)
             {
-                _tcs.TrySetResult((StreamCopyResult.DestionationError, ex));
+                _tcs.TrySetResult((StreamCopyResult.OutputError, ex));
             }
 
             var (result, error) = await _streamCopier.CopyAsync(_source, stream, _cancellation);
@@ -156,7 +156,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             // We have to throw something here so the transport knows the body is incomplete.
             // We can't re-throw the original exception since that would cause concurrency issues.
             // We need to wrap it.
-            if (result == StreamCopyResult.SourceError)
+            if (result == StreamCopyResult.InputError)
             {
                 throw new ProxyException(ProxyErrorCode.RequestBodyClient, error);
             }

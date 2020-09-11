@@ -33,10 +33,10 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         /// Based on <c>Microsoft.AspNetCore.Http.StreamCopyOperationInternal.CopyToAsync</c>.
         /// See: <see href="https://github.com/dotnet/aspnetcore/blob/080660967b6043f731d4b7163af9e9e6047ef0c4/src/Http/Shared/StreamCopyOperationInternal.cs"/>.
         /// </remarks>
-        public async Task<(StreamCopyResult, Exception)> CopyAsync(Stream source, Stream destination, CancellationToken cancellation)
+        public async Task<(StreamCopyResult, Exception)> CopyAsync(Stream input, Stream output, CancellationToken cancellation)
         {
-            _ = source ?? throw new ArgumentNullException(nameof(source));
-            _ = destination ?? throw new ArgumentNullException(nameof(destination));
+            _ = input ?? throw new ArgumentNullException(nameof(input));
+            _ = output ?? throw new ArgumentNullException(nameof(output));
 
             // TODO: Consider System.IO.Pipelines for better perf (e.g. reads during writes)
             var buffer = ArrayPool<byte>.Shared.Rent(DefaultBufferSize);
@@ -55,7 +55,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                     int read;
                     try
                     {
-                        read = await source.ReadAsync(buffer.AsMemory(), cancellation);
+                        read = await input.ReadAsync(buffer.AsMemory(), cancellation);
                     }
                     catch (OperationCanceledException oex)
                     {
@@ -63,7 +63,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                     }
                     catch (Exception ex)
                     {
-                        return (StreamCopyResult.SourceError, ex);
+                        return (StreamCopyResult.InputError, ex);
                     }
 
                     // End of the source stream.
@@ -79,7 +79,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 
                     try
                     {
-                        await destination.WriteAsync(buffer.AsMemory(0, read), cancellation);
+                        await output.WriteAsync(buffer.AsMemory(0, read), cancellation);
                     }
                     catch (OperationCanceledException oex)
                     {
@@ -87,7 +87,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                     }
                     catch (Exception ex)
                     {
-                        return (StreamCopyResult.DestionationError, ex);
+                        return (StreamCopyResult.OutputError, ex);
                     }
                     totalBytes += read;
                 }

@@ -64,7 +64,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var sut = new StreamCopier(_metrics, in proxyTelemetryContext);
 
             var (result, error) = await sut.CopyAsync(source, destination, CancellationToken.None);
-            Assert.Equal(StreamCopyResult.SourceError, result);
+            Assert.Equal(StreamCopyResult.InputError, result);
             Assert.IsAssignableFrom<IOException>(error);
         }
 
@@ -81,7 +81,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var sut = new StreamCopier(_metrics, in proxyTelemetryContext);
 
             var (result, error) = await sut.CopyAsync(source, destination, CancellationToken.None);
-            Assert.Equal(StreamCopyResult.DestionationError, result);
+            Assert.Equal(StreamCopyResult.OutputError, result);
             Assert.IsAssignableFrom<IOException>(error);
         }
 

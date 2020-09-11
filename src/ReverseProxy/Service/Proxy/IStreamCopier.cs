@@ -14,16 +14,16 @@ namespace Microsoft.ReverseProxy.Service.Proxy
     internal interface IStreamCopier
     {
         /// <summary>
-        /// Copies the <paramref name="source"/> stream into the <paramref name="destination"/> stream.
+        /// Copies the <paramref name="input"/> stream into the <paramref name="output"/> stream.
         /// </summary>
-        Task<(StreamCopyResult, Exception)> CopyAsync(Stream source, Stream destination, CancellationToken cancellation);
+        Task<(StreamCopyResult, Exception)> CopyAsync(Stream input, Stream output, CancellationToken cancellation);
     }
 
     internal enum StreamCopyResult
     {
         Success,
-        SourceError,
-        DestionationError,
+        InputError,
+        OutputError,
         Canceled
     }
 }
