@@ -1722,7 +1722,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 throw new NotImplementedException();
             }
 
-            public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+            public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
             {
                 throw new NotImplementedException();
             }
