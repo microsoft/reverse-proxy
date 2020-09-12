@@ -743,8 +743,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 
         private void ReportProxyError(HttpContext context, ProxyErrorCode errorCode, Exception ex)
         {
-            var clientEx = new ProxyException(errorCode, ex);
-            context.Features.Set<IProxyErrorFeature>(new ProxyErrorFeature() { Error = clientEx });
+            context.Features.Set<IProxyErrorFeature>(new ProxyErrorFeature(errorCode, ex));
             Log.ProxyError(_logger, errorCode, ex);
         }
 
@@ -792,7 +791,30 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 
             public static void ProxyError(ILogger logger, ProxyErrorCode errorCode, Exception ex)
             {
-                _proxyError(logger, errorCode, ProxyException.GetMessage(errorCode), ex);
+                _proxyError(logger, errorCode, ProxyErrorFeature.GetMessage(errorCode), ex);
+            }
+
+            private static string GetMessage(ProxyErrorCode errorCode)
+            {
+                return errorCode switch
+                {
+                    ProxyErrorCode.None => throw new NotSupportedException("A more specific error code must be used"),
+                    ProxyErrorCode.Request => "An error was encountered when sending the request to the destination.",
+                    ProxyErrorCode.RequestCanceled => "The request was canceled while sending it to the destination.",
+                    ProxyErrorCode.RequestBodyCanceled => "Copying the request body was canceled.",
+                    ProxyErrorCode.RequestBodyClient => "The client reported an error when copying the request body.",
+                    ProxyErrorCode.RequestBodyDestination => "The destination reported an error when copying the request body.",
+                    ProxyErrorCode.ResponseBodyCanceled => "Copying the response body was canceled.",
+                    ProxyErrorCode.ResponseBodyClient => "The client reported an error when copying the response body.",
+                    ProxyErrorCode.ResponseBodyDestination => "The destination reported an error when copying the response body.",
+                    ProxyErrorCode.UpgradeRequestCanceled => "Copying the upgraded request body was canceled.",
+                    ProxyErrorCode.UpgradeRequestClient => "The client reported an error when copying the upgraded request body.",
+                    ProxyErrorCode.UpgradeRequestDestination => "The destination reported an error when copying the upgraded request body.",
+                    ProxyErrorCode.UpgradeResponseCanceled => "Copying the upgraded response body was canceled.",
+                    ProxyErrorCode.UpgradeResponseClient => "The client reported an error when copying the upgraded response body.",
+                    ProxyErrorCode.UpgradeResponseDestination => "The destination reported an error when copying the upgraded response body.",
+                    _ => throw new NotImplementedException(errorCode.ToString()),
+                };
             }
         }
     }

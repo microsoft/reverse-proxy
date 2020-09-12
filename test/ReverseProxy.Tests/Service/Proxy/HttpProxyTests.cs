@@ -652,9 +652,9 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
             Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
-            var error = httpContext.Features.Get<IProxyErrorFeature>()?.Error;
-            var pex = Assert.IsType<ProxyException>(error);
-            Assert.Equal(ProxyErrorCode.Request, pex.ErrorCode);
+            var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
+            Assert.Equal(ProxyErrorCode.Request, errorFeature.ErrorCode);
+            Assert.IsType<HttpRequestException>(errorFeature.Error);
         }
 
         [Fact]
@@ -686,9 +686,9 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
             Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
-            var error = httpContext.Features.Get<IProxyErrorFeature>()?.Error;
-            var pex = Assert.IsType<ProxyException>(error);
-            Assert.Equal(ProxyErrorCode.Request, pex.ErrorCode);
+            var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
+            Assert.Equal(ProxyErrorCode.Request, errorFeature.ErrorCode);
+            Assert.IsType<HttpRequestException>(errorFeature.Error);
         }
 
         [Fact]
@@ -719,9 +719,9 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
             Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
-            var error = httpContext.Features.Get<IProxyErrorFeature>()?.Error;
-            var pex = Assert.IsType<ProxyException>(error);
-            Assert.Equal(ProxyErrorCode.RequestCanceled, pex.ErrorCode);
+            var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
+            Assert.Equal(ProxyErrorCode.RequestCanceled, errorFeature.ErrorCode);
+            Assert.IsType<OperationCanceledException>(errorFeature.Error);
         }
 
         [Fact]
@@ -754,9 +754,9 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
             Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
-            var error = httpContext.Features.Get<IProxyErrorFeature>()?.Error;
-            var pex = Assert.IsType<ProxyException>(error);
-            Assert.Equal(ProxyErrorCode.RequestCanceled, pex.ErrorCode);
+            var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
+            Assert.Equal(ProxyErrorCode.RequestCanceled, errorFeature.ErrorCode);
+            Assert.IsType<OperationCanceledException>(errorFeature.Error);
         }
 
         [Fact]
@@ -790,9 +790,9 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
             Assert.Equal(StatusCodes.Status400BadRequest, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
-            var error = httpContext.Features.Get<IProxyErrorFeature>()?.Error;
-            var pex = Assert.IsType<ProxyException>(error);
-            Assert.Equal(ProxyErrorCode.RequestBodyClient, pex.ErrorCode);
+            var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
+            Assert.Equal(ProxyErrorCode.RequestBodyClient, errorFeature.ErrorCode);
+            Assert.IsType<AggregateException>(errorFeature.Error);
         }
 
         [Fact]
@@ -826,9 +826,9 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
             Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
-            var error = httpContext.Features.Get<IProxyErrorFeature>()?.Error;
-            var pex = Assert.IsType<ProxyException>(error);
-            Assert.Equal(ProxyErrorCode.RequestBodyDestination, pex.ErrorCode);
+            var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
+            Assert.Equal(ProxyErrorCode.RequestBodyDestination, errorFeature.ErrorCode);
+            Assert.IsType<AggregateException>(errorFeature.Error);
         }
 
         [Fact]
@@ -866,9 +866,9 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
             Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
-            var error = httpContext.Features.Get<IProxyErrorFeature>()?.Error;
-            var pex = Assert.IsType<ProxyException>(error);
-            Assert.Equal(ProxyErrorCode.RequestBodyCanceled, pex.ErrorCode);
+            var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
+            Assert.Equal(ProxyErrorCode.RequestBodyCanceled, errorFeature.ErrorCode);
+            Assert.IsType<AggregateException>(errorFeature.Error);
         }
 
         [Fact]
@@ -904,9 +904,9 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
             Assert.Empty(httpContext.Response.Headers);
-            var error = httpContext.Features.Get<IProxyErrorFeature>()?.Error;
-            var pex = Assert.IsType<ProxyException>(error);
-            Assert.Equal(ProxyErrorCode.ResponseBodyDestination, pex.ErrorCode);
+            var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
+            Assert.Equal(ProxyErrorCode.ResponseBodyDestination, errorFeature.ErrorCode);
+            Assert.IsType<IOException>(errorFeature.Error);
         }
 
         [Fact]
@@ -944,9 +944,9 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.Equal(1, responseBody.InnerStream.Length);
             Assert.True(responseBody.Aborted);
             Assert.Equal("bytes", httpContext.Response.Headers[HeaderNames.AcceptRanges]);
-            var error = httpContext.Features.Get<IProxyErrorFeature>()?.Error;
-            var pex = Assert.IsType<ProxyException>(error);
-            Assert.Equal(ProxyErrorCode.ResponseBodyDestination, pex.ErrorCode);
+            var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
+            Assert.Equal(ProxyErrorCode.ResponseBodyDestination, errorFeature.ErrorCode);
+            Assert.IsType<IOException>(errorFeature.Error);
         }
 
         [Fact]
@@ -983,9 +983,9 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
             Assert.True(responseBody.Aborted);
             Assert.Equal("bytes", httpContext.Response.Headers[HeaderNames.AcceptRanges]);
-            var error = httpContext.Features.Get<IProxyErrorFeature>()?.Error;
-            var pex = Assert.IsType<ProxyException>(error);
-            Assert.Equal(ProxyErrorCode.ResponseBodyClient, pex.ErrorCode);
+            var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
+            Assert.Equal(ProxyErrorCode.ResponseBodyClient, errorFeature.ErrorCode);
+            Assert.IsType<IOException>(errorFeature.Error);
         }
 
         [Fact]
@@ -1022,9 +1022,9 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
             Assert.False(responseBody.Aborted);
             Assert.Empty(httpContext.Response.Headers);
-            var error = httpContext.Features.Get<IProxyErrorFeature>()?.Error;
-            var pex = Assert.IsType<ProxyException>(error);
-            Assert.Equal(ProxyErrorCode.ResponseBodyCanceled, pex.ErrorCode);
+            var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
+            Assert.Equal(ProxyErrorCode.ResponseBodyCanceled, errorFeature.ErrorCode);
+            Assert.IsType<OperationCanceledException>(errorFeature.Error);
         }
 
         [Fact]
@@ -1061,9 +1061,9 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
             Assert.True(responseBody.Aborted);
             Assert.Equal("bytes", httpContext.Response.Headers[HeaderNames.AcceptRanges]);
-            var error = httpContext.Features.Get<IProxyErrorFeature>()?.Error;
-            var pex = Assert.IsType<ProxyException>(error);
-            Assert.Equal(ProxyErrorCode.ResponseBodyCanceled, pex.ErrorCode);
+            var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
+            Assert.Equal(ProxyErrorCode.ResponseBodyCanceled, errorFeature.ErrorCode);
+            Assert.IsType<OperationCanceledException>(errorFeature.Error);
         }
 
         [Fact]
@@ -1108,9 +1108,9 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
-            var error = httpContext.Features.Get<IProxyErrorFeature>()?.Error;
-            var pex = Assert.IsType<ProxyException>(error);
-            Assert.Equal(ProxyErrorCode.RequestBodyCanceled, pex.ErrorCode);
+            var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
+            Assert.Equal(ProxyErrorCode.RequestBodyCanceled, errorFeature.ErrorCode);
+            Assert.IsType<OperationCanceledException>(errorFeature.Error);
         }
 
         [Fact]
@@ -1149,9 +1149,9 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
-            var error = httpContext.Features.Get<IProxyErrorFeature>()?.Error;
-            var pex = Assert.IsType<ProxyException>(error);
-            Assert.Equal(ProxyErrorCode.RequestBodyClient, pex.ErrorCode);
+            var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
+            Assert.Equal(ProxyErrorCode.RequestBodyClient, errorFeature.ErrorCode);
+            Assert.IsType<IOException>(errorFeature.Error);
         }
 
         [Fact]
@@ -1190,9 +1190,9 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
-            var error = httpContext.Features.Get<IProxyErrorFeature>()?.Error;
-            var pex = Assert.IsType<ProxyException>(error);
-            Assert.Equal(ProxyErrorCode.RequestBodyDestination, pex.ErrorCode);
+            var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
+            Assert.Equal(ProxyErrorCode.RequestBodyDestination, errorFeature.ErrorCode);
+            Assert.IsType<IOException>(errorFeature.Error);
         }
 
         [Fact]
@@ -1245,9 +1245,9 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             await sut.ProxyAsync(httpContext, "https://localhost/", Transforms.Empty, client, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
 
             Assert.Equal(StatusCodes.Status101SwitchingProtocols, httpContext.Response.StatusCode);
-            var error = httpContext.Features.Get<IProxyErrorFeature>()?.Error;
-            var pex = Assert.IsType<ProxyException>(error);
-            Assert.Equal(ProxyErrorCode.UpgradeRequestClient, pex.ErrorCode);
+            var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
+            Assert.Equal(ProxyErrorCode.UpgradeRequestClient, errorFeature.ErrorCode);
+            Assert.IsType<IOException>(errorFeature.Error);
         }
 
         [Fact]
@@ -1300,9 +1300,9 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             await sut.ProxyAsync(httpContext, "https://localhost/", Transforms.Empty, client, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
 
             Assert.Equal(StatusCodes.Status101SwitchingProtocols, httpContext.Response.StatusCode);
-            var error = httpContext.Features.Get<IProxyErrorFeature>()?.Error;
-            var pex = Assert.IsType<ProxyException>(error);
-            Assert.Equal(ProxyErrorCode.UpgradeResponseDestination, pex.ErrorCode);
+            var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
+            Assert.Equal(ProxyErrorCode.UpgradeResponseDestination, errorFeature.ErrorCode);
+            Assert.IsType<IOException>(errorFeature.Error);
         }
 
         private static MemoryStream StringToStream(string text)
@@ -1653,8 +1653,13 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
             public override void Write(byte[] buffer, int offset, int count)
             {
+                throw new NotImplementedException();
+            }
+
+            public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+            {
                 OnStart();
-                InnerStream.Write(buffer, offset, count);
+                return InnerStream.WriteAsync(buffer, offset, count, cancellationToken);
             }
 
             private void OnStart()

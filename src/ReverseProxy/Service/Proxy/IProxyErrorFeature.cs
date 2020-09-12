@@ -11,8 +11,13 @@ namespace Microsoft.ReverseProxy.Service.Proxy
     public interface IProxyErrorFeature
     {
         /// <summary>
-        /// An error that occured when proxying the request ot the destination.
+        /// The specified ProxyErrorCode.
         /// </summary>
-        Exception Error { get; set; }
+        public ProxyErrorCode ErrorCode { get; }
+
+        /// <summary>
+        /// An error that occurred when proxying the request to the destination.
+        /// </summary>
+        public Exception Error { get; }
     }
 }

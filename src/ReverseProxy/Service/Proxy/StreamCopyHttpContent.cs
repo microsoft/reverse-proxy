@@ -158,7 +158,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             // We need to wrap it.
             if (result == StreamCopyResult.InputError)
             {
-                throw new ProxyException(ProxyErrorCode.RequestBodyClient, error);
+                throw new IOException(string.Empty, error);
             }
             if (result == StreamCopyResult.Canceled)
             {
