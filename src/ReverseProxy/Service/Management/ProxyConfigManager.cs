@@ -274,7 +274,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                         UpdateRuntimeDestinations(newCluster.Destinations, currentCluster.DestinationManager);
 
                         var currentClusterConfig = currentCluster.Config.Value;
-                        var newClusterHttpClientOptions = ConvertProxyHttpClientOptions(newCluster.HttpClientOptions);
+                        var newClusterHttpClientOptions = ConvertProxyHttpClientOptions(newCluster.HttpClient);
 
                         var httpClient = _httpClientFactory.CreateClient(new ProxyHttpClientContext {
                             ClusterId = currentCluster.ClusterId,
@@ -287,11 +287,11 @@ namespace Microsoft.ReverseProxy.Service.Management
 
                         var newClusterConfig = new ClusterConfig(
                                 new ClusterConfig.ClusterHealthCheckOptions(
-                                    enabled: newCluster.HealthCheckOptions?.Enabled ?? false,
-                                    interval: newCluster.HealthCheckOptions?.Interval ?? TimeSpan.FromSeconds(0),
-                                    timeout: newCluster.HealthCheckOptions?.Timeout ?? TimeSpan.FromSeconds(0),
-                                    port: newCluster.HealthCheckOptions?.Port ?? 0,
-                                    path: newCluster.HealthCheckOptions?.Path ?? string.Empty),
+                                    enabled: newCluster.HealthCheck?.Enabled ?? false,
+                                    interval: newCluster.HealthCheck?.Interval ?? TimeSpan.FromSeconds(0),
+                                    timeout: newCluster.HealthCheck?.Timeout ?? TimeSpan.FromSeconds(0),
+                                    port: newCluster.HealthCheck?.Port ?? 0,
+                                    path: newCluster.HealthCheck?.Path ?? string.Empty),
                                 new ClusterConfig.ClusterLoadBalancingOptions(
                                     mode: newCluster.LoadBalancing?.Mode ?? default),
                                 new ClusterConfig.ClusterSessionAffinityOptions(

@@ -149,7 +149,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             {
                 Id = "cluster1",
                 Destinations = { { "d1", new Destination { Address = TestAddress } } },
-                HttpClientOptions = new ProxyHttpClientOptions {
+                HttpClient = new ProxyHttpClientOptions {
                     SslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12,
                     MaxConnectionsPerServer = 10,
                     ClientCertificate = clientCertificate
@@ -284,7 +284,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
         {
             public Task ConfigureClusterAsync(Cluster cluster, CancellationToken cancel)
             {
-                cluster.HealthCheckOptions = new HealthCheckOptions() { Enabled = true, Interval = TimeSpan.FromSeconds(12) };
+                cluster.HealthCheck = new HealthCheckOptions() { Enabled = true, Interval = TimeSpan.FromSeconds(12) };
                 return Task.CompletedTask;
             }
 

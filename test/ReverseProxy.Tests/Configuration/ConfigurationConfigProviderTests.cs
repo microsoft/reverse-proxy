@@ -448,7 +448,7 @@ namespace Microsoft.ReverseProxy.Configuration
             var certificateConfig = new List<X509Certificate2>();
             for (var i = 0; i < 5; i++)
             {
-                certificateConfig.AddRange(provider.GetConfig().Clusters.Select(c => c.HttpClientOptions.ClientCertificate));
+                certificateConfig.AddRange(provider.GetConfig().Clusters.Select(c => c.HttpClient.ClientCertificate));
                 if (i < 4)
                 {
                     onChangeCallback(config, null);
@@ -500,27 +500,27 @@ namespace Microsoft.ReverseProxy.Configuration
             Assert.Equal(validConfig.Clusters["cluster1"].Destinations["destinationA"].Metadata, abstractCluster1.Destinations["destinationA"].Metadata);
             Assert.Equal(validConfig.Clusters["cluster1"].Destinations["destinationB"].Address, abstractCluster1.Destinations["destinationB"].Address);
             Assert.Equal(validConfig.Clusters["cluster1"].Destinations["destinationB"].Metadata, abstractCluster1.Destinations["destinationB"].Metadata);
-            Assert.Equal(validConfig.Clusters["cluster1"].CircuitBreaker.MaxConcurrentRequests, abstractCluster1.CircuitBreakerOptions.MaxConcurrentRequests);
-            Assert.Equal(validConfig.Clusters["cluster1"].CircuitBreaker.MaxConcurrentRetries, abstractCluster1.CircuitBreakerOptions.MaxConcurrentRetries);
-            Assert.Equal(validConfig.Clusters["cluster1"].HealthCheck.Enabled, abstractCluster1.HealthCheckOptions.Enabled);
-            Assert.Equal(validConfig.Clusters["cluster1"].HealthCheck.Interval, abstractCluster1.HealthCheckOptions.Interval);
-            Assert.Equal(validConfig.Clusters["cluster1"].HealthCheck.Path, abstractCluster1.HealthCheckOptions.Path);
-            Assert.Equal(validConfig.Clusters["cluster1"].HealthCheck.Port, abstractCluster1.HealthCheckOptions.Port);
-            Assert.Equal(validConfig.Clusters["cluster1"].HealthCheck.Timeout, abstractCluster1.HealthCheckOptions.Timeout);
+            Assert.Equal(validConfig.Clusters["cluster1"].CircuitBreaker.MaxConcurrentRequests, abstractCluster1.CircuitBreaker.MaxConcurrentRequests);
+            Assert.Equal(validConfig.Clusters["cluster1"].CircuitBreaker.MaxConcurrentRetries, abstractCluster1.CircuitBreaker.MaxConcurrentRetries);
+            Assert.Equal(validConfig.Clusters["cluster1"].HealthCheck.Enabled, abstractCluster1.HealthCheck.Enabled);
+            Assert.Equal(validConfig.Clusters["cluster1"].HealthCheck.Interval, abstractCluster1.HealthCheck.Interval);
+            Assert.Equal(validConfig.Clusters["cluster1"].HealthCheck.Path, abstractCluster1.HealthCheck.Path);
+            Assert.Equal(validConfig.Clusters["cluster1"].HealthCheck.Port, abstractCluster1.HealthCheck.Port);
+            Assert.Equal(validConfig.Clusters["cluster1"].HealthCheck.Timeout, abstractCluster1.HealthCheck.Timeout);
             Assert.Equal(Abstractions.LoadBalancingMode.Random, abstractCluster1.LoadBalancing.Mode);
-            Assert.Equal(validConfig.Clusters["cluster1"].Partitioning.PartitionCount, abstractCluster1.PartitioningOptions.PartitionCount);
-            Assert.Equal(validConfig.Clusters["cluster1"].Partitioning.PartitioningAlgorithm, abstractCluster1.PartitioningOptions.PartitioningAlgorithm);
-            Assert.Equal(validConfig.Clusters["cluster1"].Partitioning.PartitionKeyExtractor, abstractCluster1.PartitioningOptions.PartitionKeyExtractor);
-            Assert.Equal(validConfig.Clusters["cluster1"].Quota.Average, abstractCluster1.QuotaOptions.Average);
-            Assert.Equal(validConfig.Clusters["cluster1"].Quota.Burst, abstractCluster1.QuotaOptions.Burst);
+            Assert.Equal(validConfig.Clusters["cluster1"].Partitioning.PartitionCount, abstractCluster1.Partitioning.PartitionCount);
+            Assert.Equal(validConfig.Clusters["cluster1"].Partitioning.PartitioningAlgorithm, abstractCluster1.Partitioning.PartitioningAlgorithm);
+            Assert.Equal(validConfig.Clusters["cluster1"].Partitioning.PartitionKeyExtractor, abstractCluster1.Partitioning.PartitionKeyExtractor);
+            Assert.Equal(validConfig.Clusters["cluster1"].Quota.Average, abstractCluster1.Quota.Average);
+            Assert.Equal(validConfig.Clusters["cluster1"].Quota.Burst, abstractCluster1.Quota.Burst);
             Assert.Equal(validConfig.Clusters["cluster1"].SessionAffinity.Enabled, abstractCluster1.SessionAffinity.Enabled);
             Assert.Equal(validConfig.Clusters["cluster1"].SessionAffinity.FailurePolicy, abstractCluster1.SessionAffinity.FailurePolicy);
             Assert.Equal(validConfig.Clusters["cluster1"].SessionAffinity.Mode, abstractCluster1.SessionAffinity.Mode);
             Assert.Equal(validConfig.Clusters["cluster1"].SessionAffinity.Settings, abstractCluster1.SessionAffinity.Settings);
-            Assert.Same(certificate, abstractCluster1.HttpClientOptions.ClientCertificate);
-            Assert.Equal(validConfig.Clusters["cluster1"].HttpClient.MaxConnectionsPerServer, abstractCluster1.HttpClientOptions.MaxConnectionsPerServer);
-            Assert.Equal(SslProtocols.Tls11 | SslProtocols.Tls12, abstractCluster1.HttpClientOptions.SslProtocols);
-            Assert.Equal(validConfig.Clusters["cluster1"].HttpClient.DangerousAcceptAnyServerCertificate, abstractCluster1.HttpClientOptions.DangerousAcceptAnyServerCertificate);
+            Assert.Same(certificate, abstractCluster1.HttpClient.ClientCertificate);
+            Assert.Equal(validConfig.Clusters["cluster1"].HttpClient.MaxConnectionsPerServer, abstractCluster1.HttpClient.MaxConnectionsPerServer);
+            Assert.Equal(SslProtocols.Tls11 | SslProtocols.Tls12, abstractCluster1.HttpClient.SslProtocols);
+            Assert.Equal(validConfig.Clusters["cluster1"].HttpClient.DangerousAcceptAnyServerCertificate, abstractCluster1.HttpClient.DangerousAcceptAnyServerCertificate);
             Assert.Equal(validConfig.Clusters["cluster1"].Metadata, abstractCluster1.Metadata);
 
             Assert.Single(abstractConfig.Clusters.Where(c => c.Id == "cluster2"));
