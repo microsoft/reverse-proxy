@@ -169,6 +169,9 @@ stages:
       enableSymbolValidation: false
       # It's a private repo in github so this won't pass until we create an internal mirror
       enableSourceLinkValidation: false
+      # Broken by the move to the 5.0.0-preview8 SDK
+      enableSigningValidation: false
+      enableNugetValidation: false
       # This is to enable SDL runs part of Post-Build Validation Stage
       SDLValidationParameters:
         enable: true
