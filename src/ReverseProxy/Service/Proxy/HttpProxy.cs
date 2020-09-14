@@ -791,7 +791,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 
             public static void ProxyError(ILogger logger, ProxyErrorCode errorCode, Exception ex)
             {
-                _proxyError(logger, errorCode, ProxyErrorFeature.GetMessage(errorCode), ex);
+                _proxyError(logger, errorCode, GetMessage(errorCode), ex);
             }
 
             private static string GetMessage(ProxyErrorCode errorCode)
