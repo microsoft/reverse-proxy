@@ -82,5 +82,11 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         /// Failed when reading the upgraded response body from the destination.
         /// </summary>
         UpgradeResponseDestination,
+
+        /// <summary>
+        /// Indicates there were no destinations remaining to proxy the request to.
+        /// The configured destinations may have been excluded due to heath or other considerations.
+        /// </summary>
+        NoAvailableDestinations,
     }
 }

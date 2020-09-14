@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading;
@@ -114,6 +115,60 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
 
             // Assert
             Mock<IHttpProxy>().Verify();
+        }
+
+        [Fact]
+        public async Task NoDestinations_503()
+        {
+            var httpContext = new DefaultHttpContext();
+            httpContext.Request.Method = "GET";
+            httpContext.Request.Scheme = "https";
+            httpContext.Request.Host = new HostString("example.com");
+
+            var httpClient = new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object);
+            var cluster1 = new ClusterInfo(
+                clusterId: "cluster1",
+                destinationManager: new DestinationManager());
+            var clusterConfig = new ClusterConfig(default, default, default, httpClient, default, new Dictionary<string, string>());
+            httpContext.Features.Set<IReverseProxyFeature>(
+                new ReverseProxyFeature() { AvailableDestinations = Array.Empty<DestinationInfo>(), ClusterConfig = clusterConfig });
+            httpContext.Features.Set(cluster1);
+
+            var aspNetCoreEndpoints = new List<Endpoint>();
+            var routeConfig = new RouteConfig(
+                route: new RouteInfo("route1"),
+                configHash: 0,
+                order: null,
+                cluster: cluster1,
+                aspNetCoreEndpoints: aspNetCoreEndpoints.AsReadOnly(),
+                transforms: null);
+            var aspNetCoreEndpoint = CreateAspNetCoreEndpoint(routeConfig);
+            aspNetCoreEndpoints.Add(aspNetCoreEndpoint);
+            httpContext.SetEndpoint(aspNetCoreEndpoint);
+
+            Mock<IHttpProxy>()
+                .Setup(h => h.ProxyAsync(
+                    httpContext,
+                    It.IsAny<string>(),
+                    It.IsAny<Transforms>(),
+                    httpClient,
+                    It.IsAny<ProxyTelemetryContext>(),
+                    It.IsAny<CancellationToken>(),
+                    It.IsAny<CancellationToken>()))
+                .Returns(() => throw new NotImplementedException());
+
+            var sut = Create<ProxyInvokerMiddleware>();
+
+            Assert.Equal(0, cluster1.ConcurrencyCounter.Value);
+
+            await sut.Invoke(httpContext);
+            Assert.Equal(0, cluster1.ConcurrencyCounter.Value);
+
+            Mock<IHttpProxy>().Verify();
+            Assert.Equal(StatusCodes.Status503ServiceUnavailable, httpContext.Response.StatusCode);
+            var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
+            Assert.Equal(ProxyErrorCode.NoAvailableDestinations, errorFeature?.ErrorCode);
+            Assert.Null(errorFeature.Error);
         }
 
         private static Endpoint CreateAspNetCoreEndpoint(RouteConfig routeConfig)
