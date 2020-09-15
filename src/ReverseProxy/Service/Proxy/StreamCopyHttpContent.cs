@@ -142,10 +142,12 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             catch (OperationCanceledException oex)
             {
                 _tcs.TrySetResult((StreamCopyResult.Canceled, oex));
+                return;
             }
             catch (Exception ex)
             {
                 _tcs.TrySetResult((StreamCopyResult.OutputError, ex));
+                return;
             }
 
             var (result, error) = await _streamCopier.CopyAsync(_source, stream, _cancellation);
@@ -156,7 +158,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             // We need to wrap it.
             if (result == StreamCopyResult.InputError)
             {
-                throw new IOException(string.Empty, error);
+                throw new IOException("An error occurred when reading the request body from the client.", error);
             }
             if (result == StreamCopyResult.Canceled)
             {
