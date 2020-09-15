@@ -72,35 +72,30 @@ namespace Microsoft.ReverseProxy.Middleware
                 throw new InvalidOperationException($"Chosen destination has no configs set: '{destination.DestinationId}'");
             }
 
-            using (var shortCts = CancellationTokenSource.CreateLinkedTokenSource(context.RequestAborted))
+            // TODO: Make this configurable on a route rather than create it per request?
+            var proxyOptions = new RequestProxyOptions()
             {
-                // TODO: Configurable timeout, measure from request start, make it unit-testable
-                shortCts.CancelAfter(TimeSpan.FromSeconds(30));
+                Transforms = routeConfig.Transforms,
+            };
 
-                // TODO: Retry against other destinations
-                try
-                {
-                    // TODO: Apply caps
-                    cluster.ConcurrencyCounter.Increment();
-                    destination.ConcurrencyCounter.Increment();
+            try
+            {
+                cluster.ConcurrencyCounter.Increment();
+                destination.ConcurrencyCounter.Increment();
 
-                    // TODO: Duplex channels should not have a timeout (?), but must react to Proxy force-shutdown signals.
-                    var longCancellation = context.RequestAborted;
+                var proxyTelemetryContext = new ProxyTelemetryContext(
+                    clusterId: cluster.ClusterId,
+                    routeId: routeConfig.Route.RouteId,
+                    destinationId: destination.DestinationId);
 
-                    var proxyTelemetryContext = new ProxyTelemetryContext(
-                        clusterId: cluster.ClusterId,
-                        routeId: routeConfig.Route.RouteId,
-                        destinationId: destination.DestinationId);
-
-                    await _operationLogger.ExecuteAsync(
-                        "ReverseProxy.Proxy",
-                        () => _httpProxy.ProxyAsync(context, destinationConfig.Address, routeConfig.Transforms, reverseProxyFeature.ClusterConfig.HttpClient, proxyTelemetryContext, shortCancellation: shortCts.Token, longCancellation: longCancellation));
-                }
-                finally
-                {
-                    destination.ConcurrencyCounter.Decrement();
-                    cluster.ConcurrencyCounter.Decrement();
-                }
+                await _operationLogger.ExecuteAsync(
+                    "ReverseProxy.Proxy",
+                    () => _httpProxy.ProxyAsync(context, destinationConfig.Address, reverseProxyFeature.ClusterConfig.HttpClient, proxyOptions, proxyTelemetryContext));
+            }
+            finally
+            {
+                destination.ConcurrencyCounter.Decrement();
+                cluster.ConcurrencyCounter.Decrement();
             }
         }
 

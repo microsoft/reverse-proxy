@@ -79,11 +79,9 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 .Setup(h => h.ProxyAsync(
                     httpContext,
                     It.Is<string>(uri => uri == "https://localhost:123/a/b/"),
-                    It.IsAny<Transforms>(),
                     httpClient,
-                    It.Is<ProxyTelemetryContext>(ctx => ctx.ClusterId == "cluster1" && ctx.RouteId == "route1" && ctx.DestinationId == "destination1"),
-                    It.IsAny<CancellationToken>(),
-                    It.IsAny<CancellationToken>()))
+                    It.IsAny<RequestProxyOptions>(),
+                    It.Is<ProxyTelemetryContext>(ctx => ctx.ClusterId == "cluster1" && ctx.RouteId == "route1" && ctx.DestinationId == "destination1")))
                 .Returns(
                     async () =>
                     {
@@ -150,11 +148,9 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 .Setup(h => h.ProxyAsync(
                     httpContext,
                     It.IsAny<string>(),
-                    It.IsAny<Transforms>(),
                     httpClient,
-                    It.IsAny<ProxyTelemetryContext>(),
-                    It.IsAny<CancellationToken>(),
-                    It.IsAny<CancellationToken>()))
+                    It.IsAny<RequestProxyOptions>(),
+                    It.IsAny<ProxyTelemetryContext>()))
                 .Returns(() => throw new NotImplementedException());
 
             var sut = Create<ProxyInvokerMiddleware>();

@@ -19,6 +19,11 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         Request,
 
         /// <summary>
+        /// Timed out when trying to connect, send the request headers, or receive the response headers.
+        /// </summary>
+        RequestTimedOut,
+
+        /// <summary>
         /// Canceled when trying to connect, send the request headers, or receive the response headers.
         /// </summary>
         RequestCanceled,

@@ -91,16 +91,15 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         public async Task ProxyAsync(
             HttpContext context,
             string destinationPrefix,
-            Transforms transforms,
             HttpMessageInvoker httpClient,
-            ProxyTelemetryContext proxyTelemetryContext,
-            CancellationToken shortCancellation,
-            CancellationToken longCancellation)
+            RequestProxyOptions proxyOptions,
+            ProxyTelemetryContext proxyTelemetryContext)
         {
             _ = context ?? throw new ArgumentNullException(nameof(context));
             _ = destinationPrefix ?? throw new ArgumentNullException(nameof(destinationPrefix));
-            _ = transforms ?? throw new ArgumentNullException(nameof(transforms));
             _ = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+            _ = proxyOptions ?? throw new ArgumentNullException(nameof(proxyOptions));
+            var requestAborted = context.RequestAborted;
 
             // :: Step 1: Create outgoing HttpRequestMessage
             var upgradeFeature = context.Features.Get<IHttpUpgradeFeature>();
@@ -108,7 +107,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 // Mitigate https://github.com/microsoft/reverse-proxy/issues/255, IIS considers all requests upgradeable.
                 && string.Equals("WebSocket", context.Request.Headers[HeaderNames.Upgrade], StringComparison.OrdinalIgnoreCase);
 
-            var destinationRequest = CreateRequestMessage(context, destinationPrefix, isUpgradeRequest, transforms.RequestTransforms);
+            var destinationRequest = CreateRequestMessage(context, destinationPrefix, isUpgradeRequest, proxyOptions.Transforms.RequestTransforms);
 
             var isClientHttp2 = ProtocolHelper.IsHttp2(context.Request.Protocol);
 
@@ -118,21 +117,30 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 
             // :: Step 2: Setup copy of request body (background) Client --► Proxy --► Destination
             // Note that we must do this before step (3) because step (3) may also add headers to the HttpContent that we set up here.
-            var requestContent = SetupRequestBodyCopy(context.Request, destinationRequest, in proxyTelemetryContext, isStreamingRequest, longCancellation);
+            var requestContent = SetupRequestBodyCopy(context.Request, destinationRequest, in proxyTelemetryContext, isStreamingRequest, requestAborted);
 
             // :: Step 3: Copy request headers Client --► Proxy --► Destination
-            CopyRequestHeaders(context, destinationRequest, transforms.CopyRequestHeaders, transforms.RequestHeaderTransforms);
+            CopyRequestHeaders(context, destinationRequest, proxyOptions.Transforms);
 
             // :: Step 4: Send the outgoing request using HttpClient
             HttpResponseMessage destinationResponse;
+            var requestTimeoutSource = CancellationTokenSource.CreateLinkedTokenSource(requestAborted);
+            requestTimeoutSource.CancelAfter(proxyOptions.RequestTimeout);
+            var requestTimeoutToken = requestTimeoutSource.Token;
             try
             {
-                destinationResponse = await httpClient.SendAsync(destinationRequest, shortCancellation);
+                destinationResponse = await httpClient.SendAsync(destinationRequest, requestTimeoutToken);
             }
-            catch (OperationCanceledException oex)
+            catch (OperationCanceledException canceledException)
             {
-                // We're not sure if this was canceled by a timeout or a client disconnect.
-                ReportProxyError(context, ProxyError.RequestCanceled, oex);
+                if (!requestAborted.IsCancellationRequested && requestTimeoutToken.IsCancellationRequested)
+                {
+                    ReportProxyError(context, ProxyError.RequestTimedOut, canceledException);
+                    context.Response.StatusCode = StatusCodes.Status504GatewayTimeout;
+                    return;
+                }
+
+                ReportProxyError(context, ProxyError.RequestCanceled, canceledException);
                 context.Response.StatusCode = StatusCodes.Status502BadGateway;
                 return;
             }
@@ -140,6 +148,10 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             {
                 await HandleRequestFailureAsync(context, requestContent, requestException);
                 return;
+            }
+            finally
+            {
+                requestTimeoutSource.Dispose();
             }
 
             // Detect connection downgrade, which may be problematic for e.g. gRPC.
@@ -161,12 +173,12 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 
             // :: Step 5: Copy response status line Client ◄-- Proxy ◄-- Destination
             // :: Step 6: Copy response headers Client ◄-- Proxy ◄-- Destination
-            CopyResponseStatusAndHeaders(destinationResponse, context, transforms.ResponseHeaderTransforms);
+            CopyResponseStatusAndHeaders(destinationResponse, context, proxyOptions.Transforms.ResponseHeaderTransforms);
 
             // :: Step 7-A: Check for a 101 upgrade response, this takes care of WebSockets as well as any other upgradeable protocol.
             if (destinationResponse.StatusCode == HttpStatusCode.SwitchingProtocols)
             {
-                await HandleUpgradedResponse(context, upgradeFeature, destinationResponse, proxyTelemetryContext, longCancellation);
+                await HandleUpgradedResponse(context, upgradeFeature, destinationResponse, proxyTelemetryContext, requestAborted);
                 return;
             }
 
@@ -181,7 +193,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             // and clients misbehave if the initial headers response does not indicate stream end.
 
             // :: Step 7-B: Copy response body Client ◄-- Proxy ◄-- Destination
-            var (responseBodyCopyResult, responseBodyException) = await CopyResponseBodyAsync(destinationResponse.Content, context.Response.Body, proxyTelemetryContext, longCancellation);
+            var (responseBodyCopyResult, responseBodyException) = await CopyResponseBodyAsync(destinationResponse.Content, context.Response.Body, proxyTelemetryContext, requestAborted);
 
             if (responseBodyCopyResult != StreamCopyResult.Success)
             {
@@ -190,7 +202,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             }
 
             // :: Step 8: Copy response trailer headers and finish response Client ◄-- Proxy ◄-- Destination
-            CopyResponseTrailingHeaders(destinationResponse, context, transforms.ResponseTrailerTransforms);
+            CopyResponseTrailingHeaders(destinationResponse, context, proxyOptions.Transforms.ResponseTrailerTransforms);
 
             if (isStreamingRequest)
             {
@@ -363,11 +375,11 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             return requestContent;
         }
 
-        private static void CopyRequestHeaders(HttpContext context, HttpRequestMessage destination, bool? copyAllHeaders, IReadOnlyDictionary<string, RequestHeaderTransform> transforms)
+        private static void CopyRequestHeaders(HttpContext context, HttpRequestMessage destination, Transforms transforms)
         {
             // Transforms that were run in the first pass.
             HashSet<string> transformsRun = null;
-            if (copyAllHeaders ?? true)
+            if (transforms.CopyRequestHeaders ?? true)
             {
                 foreach (var header in context.Request.Headers)
                 {
@@ -384,7 +396,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                         continue;
                     }
 
-                    if (transforms.TryGetValue(headerName, out var transform))
+                    if (transforms.RequestHeaderTransforms.TryGetValue(headerName, out var transform))
                     {
                         (transformsRun ??= new HashSet<string>(StringComparer.OrdinalIgnoreCase)).Add(headerName);
                         value = transform.Apply(context, value);
@@ -399,7 +411,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             }
 
             // Run any transforms that weren't run yet.
-            foreach (var (headerName, transform) in transforms)
+            foreach (var (headerName, transform) in transforms.RequestHeaderTransforms)
             {
                 if (!(transformsRun?.Contains(headerName) ?? false))
                 {
@@ -827,6 +839,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 {
                     ProxyError.None => throw new NotSupportedException("A more specific error must be used"),
                     ProxyError.Request => "An error was encountered before receiving a response.",
+                    ProxyError.RequestTimedOut => "The request timed out before receiving a response.",
                     ProxyError.RequestCanceled => "The request was canceled before receiving a response.",
                     ProxyError.RequestBodyCanceled => "Copying the request body was canceled.",
                     ProxyError.RequestBodyClient => "The client reported an error when copying the request body.",
@@ -840,6 +853,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                     ProxyError.UpgradeResponseCanceled => "Copying the upgraded response body was canceled.",
                     ProxyError.UpgradeResponseClient => "The client reported an error when copying the upgraded response body.",
                     ProxyError.UpgradeResponseDestination => "The destination reported an error when copying the upgraded response body.",
+                    ProxyError.NoAvailableDestinations => throw new NotImplementedException(), // Not used in this class
                     _ => throw new NotImplementedException(error.ToString()),
                 };
             }

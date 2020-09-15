@@ -40,7 +40,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         [Fact]
         public async Task ProxyAsync_NormalRequest_Works()
         {
-            // Arrange
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "POST";
             httpContext.Request.Scheme = "http";
@@ -97,10 +96,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 routeId: "rt1",
                 destinationId: "d1");
 
-            // Act
-            await sut.ProxyAsync(httpContext, destinationPrefix, Transforms.Empty, client, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions(), proxyTelemetryContext);
 
-            // Assert
             Assert.Equal(234, httpContext.Response.StatusCode);
             var reasonPhrase = httpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase;
             Assert.Equal("Test Reason Phrase", reasonPhrase);
@@ -115,7 +112,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         [Fact]
         public async Task ProxyAsync_NormalRequestWithTransforms_Works()
         {
-            // Arrange
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "POST";
             httpContext.Request.Protocol = "http/2";
@@ -194,10 +190,13 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 routeId: "rt1",
                 destinationId: "d1");
 
-            // Act
-            await sut.ProxyAsync(httpContext, destinationPrefix, transforms: transforms, client, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+            var proxyOptions = new RequestProxyOptions()
+            {
+                Transforms = transforms,
+            };
 
-            // Assert
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, proxyOptions, proxyTelemetryContext);
+
             Assert.Equal(234, httpContext.Response.StatusCode);
             var reasonPhrase = httpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase;
             Assert.Equal("Test Reason Phrase", reasonPhrase);
@@ -214,7 +213,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         [Fact]
         public async Task ProxyAsync_NormalRequestWithCopyRequestHeadersDisabled_Works()
         {
-            // Arrange
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "POST";
             httpContext.Request.Scheme = "http";
@@ -290,10 +288,13 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 routeId: "rt1",
                 destinationId: "d1");
 
-            // Act
-            await sut.ProxyAsync(httpContext, destinationPrefix, transforms: transforms, client, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+            var proxyOptions = new RequestProxyOptions()
+            {
+                Transforms = transforms,
+            };
 
-            // Assert
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, proxyOptions, proxyTelemetryContext);
+
             Assert.Equal(234, httpContext.Response.StatusCode);
             var reasonPhrase = httpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase;
             Assert.Equal("Test Reason Phrase", reasonPhrase);
@@ -308,7 +309,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         [Fact]
         public async Task ProxyAsync_NormalRequestWithExistingForwarders_Appends()
         {
-            // Arrange
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "GET";
             httpContext.Request.Scheme = "http";
@@ -369,10 +369,13 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 routeId: "rt1",
                 destinationId: "d1");
 
-            // Act
-            await sut.ProxyAsync(httpContext, destinationPrefix, transforms, client, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+            var proxyOptions = new RequestProxyOptions()
+            {
+                Transforms = transforms,
+            };
 
-            // Assert
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, proxyOptions, proxyTelemetryContext);
+
             Assert.Equal(234, httpContext.Response.StatusCode);
         }
 
@@ -380,7 +383,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         [Fact]
         public async Task ProxyAsync_UpgradableRequest_Works()
         {
-            // Arrange
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "GET";
             httpContext.Request.Scheme = "http";
@@ -435,10 +437,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 routeId: "rt1",
                 destinationId: "d1");
 
-            // Act
-            await sut.ProxyAsync(httpContext, destinationPrefix, Transforms.Empty, client, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions(), proxyTelemetryContext);
 
-            // Assert
             Assert.Equal(StatusCodes.Status101SwitchingProtocols, httpContext.Response.StatusCode);
             Assert.Contains("response", httpContext.Response.Headers["x-ms-response-test"].ToArray());
 
@@ -457,7 +457,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         [Fact]
         public async Task ProxyAsync_UpgradableRequestFailsToUpgrade_ProxiesResponse()
         {
-            // Arrange
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "GET";
             httpContext.Request.Scheme = "https";
@@ -505,10 +504,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 routeId: "rt1",
                 destinationId: "d1");
 
-            // Act
-            await sut.ProxyAsync(httpContext, destinationPrefix, Transforms.Empty, client, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions(), proxyTelemetryContext);
 
-            // Assert
             Assert.Equal(234, httpContext.Response.StatusCode);
             var reasonPhrase = httpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase;
             Assert.Equal("Test Reason Phrase", reasonPhrase);
@@ -570,7 +567,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 routeId: "rt1",
                 destinationId: "d1");
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, Transforms.Empty, client, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions(), proxyTelemetryContext);
 
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
         }
@@ -620,7 +617,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 routeId: "rt1",
                 destinationId: "d1");
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, Transforms.Empty, client, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions(), proxyTelemetryContext);
 
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
         }
@@ -648,7 +645,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 routeId: "rt1",
                 destinationId: "d1");
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, Transforms.Empty, client, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions(), proxyTelemetryContext);
 
             Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
@@ -682,7 +679,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 routeId: "rt1",
                 destinationId: "d1");
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, Transforms.Empty, client, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions(), proxyTelemetryContext);
 
             Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
@@ -692,11 +689,51 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         }
 
         [Fact]
+        public async Task ProxyAsync_RequestTimedOut_Returns504()
+        {
+            var httpContext = new DefaultHttpContext();
+            httpContext.Request.Method = "GET";
+            httpContext.Request.Host = new HostString("example.com:3456");
+
+            var proxyResponseStream = new MemoryStream();
+            httpContext.Response.Body = proxyResponseStream;
+
+            var destinationPrefix = "https://localhost:123/";
+            var sut = Create<HttpProxy>();
+            var client = MockHttpHandler.CreateClient(
+                (HttpRequestMessage request, CancellationToken cancellationToken) =>
+                {
+                    cancellationToken.WaitHandle.WaitOne();
+                    cancellationToken.ThrowIfCancellationRequested();
+                    return Task.FromResult(new HttpResponseMessage());
+                });
+
+            var proxyTelemetryContext = new ProxyTelemetryContext(
+                clusterId: "be1",
+                routeId: "rt1",
+                destinationId: "d1");
+
+            var proxyOptions = new RequestProxyOptions()
+            {
+                RequestTimeout = TimeSpan.FromTicks(1), // Time out immediately
+            };
+
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, proxyOptions, proxyTelemetryContext);
+
+            Assert.Equal(StatusCodes.Status504GatewayTimeout, httpContext.Response.StatusCode);
+            Assert.Equal(0, proxyResponseStream.Length);
+            var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
+            Assert.Equal(ProxyError.RequestTimedOut, errorFeature.Error);
+            Assert.IsType<OperationCanceledException>(errorFeature.Exception);
+        }
+
+        [Fact]
         public async Task ProxyAsync_RequestCanceled_Returns502()
         {
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "GET";
             httpContext.Request.Host = new HostString("example.com:3456");
+            httpContext.RequestAborted = new CancellationToken(canceled: true);
 
             var proxyResponseStream = new MemoryStream();
             httpContext.Response.Body = proxyResponseStream;
@@ -715,7 +752,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 routeId: "rt1",
                 destinationId: "d1");
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, Transforms.Empty, client, proxyTelemetryContext, new CancellationToken(canceled: true), CancellationToken.None);
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions(), proxyTelemetryContext);
 
             Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
@@ -725,7 +762,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         }
 
         [Fact]
-        public async Task ProxyAsync_RequestWithBodyCanceled_Returns502()
+        public async Task ProxyAsync_RequestWithBodyTimedOut_Returns504()
         {
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "POST";
@@ -741,6 +778,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var client = MockHttpHandler.CreateClient(
                 (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
+                    cancellationToken.WaitHandle.WaitOne();
                     cancellationToken.ThrowIfCancellationRequested();
                     return Task.FromResult(new HttpResponseMessage());
                 });
@@ -750,7 +788,48 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 routeId: "rt1",
                 destinationId: "d1");
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, Transforms.Empty, client, proxyTelemetryContext, new CancellationToken(canceled: true), CancellationToken.None);
+            var proxyOptions = new RequestProxyOptions()
+            {
+                RequestTimeout = TimeSpan.FromTicks(1), // Time out immediately
+            };
+
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, proxyOptions, proxyTelemetryContext);
+
+            Assert.Equal(StatusCodes.Status504GatewayTimeout, httpContext.Response.StatusCode);
+            Assert.Equal(0, proxyResponseStream.Length);
+            var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
+            Assert.Equal(ProxyError.RequestTimedOut, errorFeature.Error);
+            Assert.IsType<OperationCanceledException>(errorFeature.Exception);
+        }
+
+        [Fact]
+        public async Task ProxyAsync_RequestWithBodyCanceled_Returns502()
+        {
+            var httpContext = new DefaultHttpContext();
+            httpContext.Request.Method = "POST";
+            httpContext.Request.Host = new HostString("example.com:3456");
+            httpContext.Request.Body = new MemoryStream(new byte[1]);
+            httpContext.Request.ContentLength = 1;
+            httpContext.RequestAborted = new CancellationToken(canceled: true);
+
+            var proxyResponseStream = new MemoryStream();
+            httpContext.Response.Body = proxyResponseStream;
+
+            var destinationPrefix = "https://localhost:123/";
+            var sut = Create<HttpProxy>();
+            var client = MockHttpHandler.CreateClient(
+                (HttpRequestMessage request, CancellationToken cancellationToken) =>
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    return Task.FromResult(new HttpResponseMessage());
+                });
+
+            var proxyTelemetryContext = new ProxyTelemetryContext(
+                clusterId: "be1",
+                routeId: "rt1",
+                destinationId: "d1");
+
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions(), proxyTelemetryContext);
 
             Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
@@ -786,7 +865,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 routeId: "rt1",
                 destinationId: "d1");
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, Transforms.Empty, client, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions(), proxyTelemetryContext);
 
             Assert.Equal(StatusCodes.Status400BadRequest, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
@@ -822,7 +901,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 routeId: "rt1",
                 destinationId: "d1");
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, Transforms.Empty, client, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions(), proxyTelemetryContext);
 
             Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
@@ -839,6 +918,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             httpContext.Request.Host = new HostString("example.com:3456");
             httpContext.Request.Body = new MemoryStream(new byte[1]);
             httpContext.Request.ContentLength = 1;
+            httpContext.RequestAborted = new CancellationToken(canceled: true);
 
             var proxyResponseStream = new MemoryStream();
             httpContext.Response.Body = proxyResponseStream;
@@ -862,7 +942,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 routeId: "rt1",
                 destinationId: "d1");
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, Transforms.Empty, client, proxyTelemetryContext, CancellationToken.None, new CancellationToken(canceled: true));
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions(), proxyTelemetryContext);
 
             Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
@@ -899,7 +979,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 routeId: "rt1",
                 destinationId: "d1");
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, Transforms.Empty, client, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions(), proxyTelemetryContext);
 
             Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
@@ -938,7 +1018,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 routeId: "rt1",
                 destinationId: "d1");
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, Transforms.Empty, client, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions(), proxyTelemetryContext);
 
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
             Assert.Equal(1, responseBody.InnerStream.Length);
@@ -978,7 +1058,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 routeId: "rt1",
                 destinationId: "d1");
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, Transforms.Empty, client, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions(), proxyTelemetryContext);
 
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
             Assert.True(responseBody.Aborted);
@@ -998,6 +1078,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             httpContext.Features.Set<IHttpResponseFeature>(responseBody);
             httpContext.Features.Set<IHttpResponseBodyFeature>(responseBody);
             httpContext.Features.Set<IHttpRequestLifetimeFeature>(responseBody);
+            httpContext.RequestAborted = new CancellationToken(canceled: true);
 
             var destinationPrefix = "https://localhost:123/";
             var sut = Create<HttpProxy>();
@@ -1017,7 +1098,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 routeId: "rt1",
                 destinationId: "d1");
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, Transforms.Empty, client, proxyTelemetryContext, CancellationToken.None, new CancellationToken(canceled: true));
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions(), proxyTelemetryContext);
 
             Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
             Assert.False(responseBody.Aborted);
@@ -1037,6 +1118,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             httpContext.Features.Set<IHttpResponseFeature>(responseBody);
             httpContext.Features.Set<IHttpResponseBodyFeature>(responseBody);
             httpContext.Features.Set<IHttpRequestLifetimeFeature>(responseBody);
+            httpContext.RequestAborted = new CancellationToken(canceled: true);
 
             var destinationPrefix = "https://localhost:123/";
             var sut = Create<HttpProxy>();
@@ -1056,7 +1138,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 routeId: "rt1",
                 destinationId: "d1");
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, Transforms.Empty, client, proxyTelemetryContext, CancellationToken.None, new CancellationToken(canceled: true));
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions(), proxyTelemetryContext);
 
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
             Assert.True(responseBody.Aborted);
@@ -1079,7 +1161,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var proxyResponseStream = new MemoryStream();
             httpContext.Response.Body = proxyResponseStream;
 
-            var longTokenSource = new CancellationTokenSource();
+            using var longTokenSource = new CancellationTokenSource();
+            httpContext.RequestAborted = longTokenSource.Token;
 
             var destinationPrefix = "https://localhost:123/";
             var sut = Create<HttpProxy>();
@@ -1104,7 +1187,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 routeId: "rt1",
                 destinationId: "d1");
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, Transforms.Empty, client, proxyTelemetryContext, CancellationToken.None, longTokenSource.Token);
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions(), proxyTelemetryContext);
 
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
@@ -1145,7 +1228,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 routeId: "rt1",
                 destinationId: "d1");
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, Transforms.Empty, client, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions(), proxyTelemetryContext);
 
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
@@ -1186,7 +1269,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 routeId: "rt1",
                 destinationId: "d1");
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, Transforms.Empty, client, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions(), proxyTelemetryContext);
 
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
@@ -1242,7 +1325,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 routeId: "rt1",
                 destinationId: "d1");
 
-            await sut.ProxyAsync(httpContext, "https://localhost/", Transforms.Empty, client, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+            await sut.ProxyAsync(httpContext, "https://localhost/", client, new RequestProxyOptions(), proxyTelemetryContext);
 
             Assert.Equal(StatusCodes.Status101SwitchingProtocols, httpContext.Response.StatusCode);
             var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
@@ -1297,7 +1380,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 routeId: "rt1",
                 destinationId: "d1");
 
-            await sut.ProxyAsync(httpContext, "https://localhost/", Transforms.Empty, client, proxyTelemetryContext, CancellationToken.None, CancellationToken.None);
+            await sut.ProxyAsync(httpContext, "https://localhost/", client, new RequestProxyOptions(), proxyTelemetryContext);
 
             Assert.Equal(StatusCodes.Status101SwitchingProtocols, httpContext.Response.StatusCode);
             var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
@@ -1603,7 +1686,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             public IHeaderDictionary Headers { get; set; } = new HeaderDictionary();
             public Stream Body { get => this; set => throw new NotImplementedException(); }
             public bool HasStarted { get; set; }
-            public CancellationToken RequestAborted { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+            public CancellationToken RequestAborted { get; set; }
 
             public void Abort()
             {
