@@ -4,30 +4,30 @@
         {
             "_justification": "Legitimate key/cert used for testing",
             "file": [
-                "\\test\\TestCertificates\\testCert.pfx",
-                "\\test\\TestCertificates\\aspnetdevcert.pfx",
-                "\\test\\TestCertificates\\https-aspnet.key",
-                "\\test\\TestCertificates\\https-dsa-protected.key",
-                "\\test\\TestCertificates\\https-dsa.key",
-                "\\test\\TestCertificates\\https-ecdsa-protected.key",
-                "\\test\\TestCertificates\\https-ecdsa.key",
-                "\\test\\TestCertificates\\https-rsa-protected.key",
-                "\\test\\TestCertificates\\https-rsa.key"
+                "test/TestCertificates/testCert.pfx",
+                "test/TestCertificates/aspnetdevcert.pfx",
+                "test/TestCertificates/https-aspnet.key",
+                "test/TestCertificates/https-dsa-protected.key",
+                "test/TestCertificates/https-dsa.key",
+                "test/TestCertificates/https-ecdsa-protected.key",
+                "test/TestCertificates/https-ecdsa.key",
+                "test/TestCertificates/https-rsa-protected.key",
+                "test/TestCertificates/https-rsa.key"
             ]
         },
         {
             "_justification": "Generic example password in documentation",
-            "file": "\\docs\\docfx\\articles\\proxyhttpclientconfig.md",
+            "file": "docs/docfx/articles/proxyhttpclientconfig.md",
             "placeholder": "1234abc"
         },
         {
             "_justification": "Fake password used in test code",
-            "file": "\\test\\ReverseProxy.Tests\\Configuration\\CertificateConfigLoaderTests.cs",
+            "file": "test/ReverseProxy.Tests/Configuration/CertificateConfigLoaderTests.cs",
             "placeholder": "abcde"
         },
         {
             "_justification": "Fake password used in test code",
-            "file": "\\test\\ReverseProxy.Tests\\Configuration\\ConfigurationConfigProviderTests.cs",
+            "file": "test/ReverseProxy.Tests/Configuration/ConfigurationConfigProviderTests.cs",
             "placeholder": [
                 "myPassword1234",
                 "123"
