@@ -54,7 +54,7 @@ namespace Microsoft.ReverseProxy.Middleware
             {
                 Log.NoAvailableDestinations(_logger, cluster.ClusterId);
                 context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
-                context.Features.Set<IProxyErrorFeature>(new ProxyErrorFeature(ProxyErrorCode.NoAvailableDestinations, ex: null));
+                context.Features.Set<IProxyErrorFeature>(new ProxyErrorFeature(ProxyError.NoAvailableDestinations, ex: null));
                 return;
             }
 

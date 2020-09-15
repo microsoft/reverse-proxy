@@ -18,12 +18,4 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         /// </summary>
         Task<(StreamCopyResult, Exception)> CopyAsync(Stream input, Stream output, CancellationToken cancellation);
     }
-
-    internal enum StreamCopyResult
-    {
-        Success,
-        InputError,
-        OutputError,
-        Canceled
-    }
 }

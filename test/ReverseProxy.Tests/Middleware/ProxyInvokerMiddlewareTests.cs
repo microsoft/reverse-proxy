@@ -167,8 +167,8 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             Mock<IHttpProxy>().Verify();
             Assert.Equal(StatusCodes.Status503ServiceUnavailable, httpContext.Response.StatusCode);
             var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
-            Assert.Equal(ProxyErrorCode.NoAvailableDestinations, errorFeature?.ErrorCode);
-            Assert.Null(errorFeature.Error);
+            Assert.Equal(ProxyError.NoAvailableDestinations, errorFeature?.Error);
+            Assert.Null(errorFeature.Exception);
         }
 
         private static Endpoint CreateAspNetCoreEndpoint(RouteConfig routeConfig)

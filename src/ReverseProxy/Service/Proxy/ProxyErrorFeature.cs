@@ -7,20 +7,20 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 {
     internal class ProxyErrorFeature : IProxyErrorFeature
     {
-        internal ProxyErrorFeature(ProxyErrorCode errorCode, Exception ex)
+        internal ProxyErrorFeature(ProxyError error, Exception ex)
         {
-            ErrorCode = errorCode;
-            Error = ex;
+            Error = error;
+            Exception = ex;
         }
 
         /// <summary>
         /// The specified ProxyErrorCode.
         /// </summary>
-        public ProxyErrorCode ErrorCode { get; }
+        public ProxyError Error { get; }
 
         /// <summary>
         /// The error, if any.
         /// </summary>
-        public Exception Error { get; }
+        public Exception Exception { get; }
     }
 }

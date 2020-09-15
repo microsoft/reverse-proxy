@@ -6,18 +6,18 @@ using System;
 namespace Microsoft.ReverseProxy.Service.Proxy
 {
     /// <summary>
-    /// Stores errors that occurred when proxying the request to the destination.
+    /// Stores errors and exceptions that occurred when proxying the request to the destination.
     /// </summary>
     public interface IProxyErrorFeature
     {
         /// <summary>
-        /// The specified ProxyErrorCode.
+        /// The specified ProxyError.
         /// </summary>
-        public ProxyErrorCode ErrorCode { get; }
+        public ProxyError Error { get; }
 
         /// <summary>
-        /// An error that occurred when proxying the request to the destination.
+        /// An Exception that occurred when proxying the request to the destination.
         /// </summary>
-        public Exception Error { get; }
+        public Exception Exception { get; }
     }
 }

@@ -6,7 +6,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
     /// <summary>
     /// Errors reported when proxying a request to the destination.
     /// </summary>
-    public enum ProxyErrorCode
+    public enum ProxyError
     {
         /// <summary>
         /// No error.
@@ -14,12 +14,12 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         None,
 
         /// <summary>
-        /// Failed to connect or send the request.
+        /// Failed to connect, send the request headers, or receive the response headers.
         /// </summary>
         Request,
 
         /// <summary>
-        /// Canceled when trying to connection or send the request.
+        /// Canceled when trying to connect, send the request headers, or receive the response headers.
         /// </summary>
         RequestCanceled,
 
