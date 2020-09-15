@@ -468,7 +468,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 // Canceled while trying to copy the request body, either due to a client disconnect or a timeout. This probably caused the response to fail as a secondary error.
                 case StreamCopyResult.Canceled:
                     requestBodyError = ProxyError.RequestBodyCanceled;
-                    // We don't use 504 timed out here because we can't tell why it was canceled.
+                    // Timeouts (504s) are handled at the SendAsync call site.
+                    // The request body should only be canceled by the RequestAborted token.
                     statusCode = StatusCodes.Status502BadGateway;
                     break;
                 default:
