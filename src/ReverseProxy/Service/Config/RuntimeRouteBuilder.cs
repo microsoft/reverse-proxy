@@ -55,8 +55,7 @@ namespace Microsoft.ReverseProxy.Service
             var aspNetCoreEndpoints = new List<Endpoint>(1);
             var newRouteConfig = new RouteConfig(
                 runtimeRoute,
-                source.GetConfigHash(),
-                source.Order,
+                source,
                 cluster,
                 aspNetCoreEndpoints.AsReadOnly(),
                 transforms);

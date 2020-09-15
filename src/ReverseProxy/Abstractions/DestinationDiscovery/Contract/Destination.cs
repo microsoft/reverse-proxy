@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Abstractions
 {
@@ -29,6 +30,22 @@ namespace Microsoft.ReverseProxy.Abstractions
                 Address = Address,
                 Metadata = Metadata?.DeepClone(StringComparer.OrdinalIgnoreCase),
             };
+        }
+
+        internal static bool Equals(Destination destination1, Destination destination2)
+        {
+            if (destination1 == null && destination2 == null)
+            {
+                return true;
+            }
+
+            if (destination1 == null || destination2 == null)
+            {
+                return false;
+            }
+
+            return string.Equals(destination1.Address, destination2.Address, StringComparison.OrdinalIgnoreCase)
+                && CaseInsensitiveEqualHelper.Equals(destination1.Metadata, destination2.Metadata);
         }
     }
 }

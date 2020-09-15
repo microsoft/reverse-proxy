@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Patterns;
 using Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http;
+using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Abstractions.Telemetry;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Management;
@@ -50,7 +51,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             var cluster1 = new ClusterInfo(
                 clusterId: "cluster1",
                 destinationManager: new DestinationManager());
-            var clusterConfig = new ClusterConfig(default, default, default, httpClient, default, new Dictionary<string, string>());
+            var clusterConfig = new ClusterConfig(default, default, default, default, httpClient, default, new Dictionary<string, string>());
             var destination1 = cluster1.DestinationManager.GetOrCreateItem(
                 "destination1",
                 destination =>
@@ -65,8 +66,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             var aspNetCoreEndpoints = new List<Endpoint>();
             var routeConfig = new RouteConfig(
                 route: new RouteInfo("route1"),
-                configHash: 0,
-                order: null,
+                proxyRoute: new ProxyRoute(),
                 cluster: cluster1,
                 aspNetCoreEndpoints: aspNetCoreEndpoints.AsReadOnly(),
                 transforms: null);

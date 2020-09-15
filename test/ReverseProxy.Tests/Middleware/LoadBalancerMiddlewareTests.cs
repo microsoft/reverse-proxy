@@ -40,7 +40,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             var cluster1 = new ClusterInfo(
                 clusterId: "cluster1",
                 destinationManager: new DestinationManager());
-            cluster1.Config.Value = new ClusterConfig(default, new ClusterConfig.ClusterLoadBalancingOptions(LoadBalancingMode.RoundRobin), default, httpClient, default, new Dictionary<string, string>());
+            cluster1.Config.Value = new ClusterConfig(default, default, new ClusterConfig.ClusterLoadBalancingOptions(LoadBalancingMode.RoundRobin), default, httpClient, default, new Dictionary<string, string>());
             var destination1 = cluster1.DestinationManager.GetOrCreateItem(
                 "destination1",
                 destination =>
@@ -59,8 +59,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             var aspNetCoreEndpoints = new List<Endpoint>();
             var routeConfig = new RouteConfig(
                 route: new RouteInfo("route1"),
-                configHash: 0,
-                order: null,
+                proxyRoute: new ProxyRoute(),
                 cluster: cluster1,
                 aspNetCoreEndpoints: aspNetCoreEndpoints.AsReadOnly(),
                 transforms: null);
@@ -98,7 +97,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             var cluster1 = new ClusterInfo(
                 clusterId: "cluster1",
                 destinationManager: new DestinationManager());
-            cluster1.Config.Value = new ClusterConfig(default, new ClusterConfig.ClusterLoadBalancingOptions(LoadBalancingMode.RoundRobin), default, httpClient, default, new Dictionary<string, string>());
+            cluster1.Config.Value = new ClusterConfig(default, default, new ClusterConfig.ClusterLoadBalancingOptions(LoadBalancingMode.RoundRobin), default, httpClient, default, new Dictionary<string, string>());
             var destination1 = cluster1.DestinationManager.GetOrCreateItem(
                 "destination1",
                 destination =>
@@ -117,8 +116,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             var aspNetCoreEndpoints = new List<Endpoint>();
             var routeConfig = new RouteConfig(
                 route: new RouteInfo("route1"),
-                configHash: 0,
-                order: null,
+                proxyRoute: new ProxyRoute(),
                 cluster: cluster1,
                 aspNetCoreEndpoints: aspNetCoreEndpoints.AsReadOnly(),
                 transforms: null);

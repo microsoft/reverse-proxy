@@ -286,6 +286,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                         });
 
                         var newClusterConfig = new ClusterConfig(
+                                newCluster,
                                 new ClusterConfig.ClusterHealthCheckOptions(
                                     enabled: newCluster.HealthCheck?.Enabled ?? false,
                                     interval: newCluster.HealthCheck?.Interval ?? TimeSpan.FromSeconds(0),

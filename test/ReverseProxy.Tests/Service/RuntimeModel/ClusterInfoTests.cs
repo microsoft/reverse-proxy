@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Service.Management;
 using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
 using Moq;
@@ -78,7 +79,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel.Tests
             Assert.NotNull(state1);
             Assert.Empty(state1.AllDestinations);
 
-            cluster.Config.Value = new ClusterConfig(healthCheckOptions: default, loadBalancingOptions: default, sessionAffinityOptions: default,
+            cluster.Config.Value = new ClusterConfig(cluster: default, healthCheckOptions: default, loadBalancingOptions: default, sessionAffinityOptions: default,
                 httpClient: new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object), httpClientOptions: default, metadata: new Dictionary<string, string>());
             Assert.NotSame(state1, cluster.DynamicState.Value);
             Assert.Empty(cluster.DynamicState.Value.AllDestinations);
@@ -142,6 +143,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel.Tests
         {
             // Pretend that health checks are enabled so that destination health states are honored
             cluster.Config.Value = new ClusterConfig(
+                new Cluster(),
                 healthCheckOptions: new ClusterConfig.ClusterHealthCheckOptions(
                     enabled: true,
                     interval: TimeSpan.FromSeconds(5),

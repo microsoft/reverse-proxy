@@ -24,7 +24,10 @@ namespace Microsoft.ReverseProxy.RuntimeModel
     /// </remarks>
     public sealed class ClusterConfig
     {
+        private readonly Cluster _cluster;
+
         public ClusterConfig(
+            Cluster cluster,
             ClusterHealthCheckOptions healthCheckOptions,
             ClusterLoadBalancingOptions loadBalancingOptions,
             ClusterSessionAffinityOptions sessionAffinityOptions,
@@ -32,6 +35,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
             ClusterProxyHttpClientOptions httpClientOptions,
             IReadOnlyDictionary<string, string> metadata)
         {
+            _cluster = cluster;
             HealthCheckOptions = healthCheckOptions;
             LoadBalancingOptions = loadBalancingOptions;
             SessionAffinityOptions = sessionAffinityOptions;
@@ -57,6 +61,21 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         /// Arbitrary key-value pairs that further describe this cluster.
         /// </summary>
         public IReadOnlyDictionary<string, string> Metadata { get; }
+
+        internal static bool Equals(ClusterConfig configCluster1, ClusterConfig configCluster2)
+        {
+            if (configCluster1 == null && configCluster2 == null)
+            {
+                return true;
+            }
+
+            if (configCluster1 == null || configCluster2 == null)
+            {
+                return false;
+            }
+
+            return Cluster.Equals(configCluster1._cluster, configCluster2._cluster);
+        }
 
         /// <summary>
         /// Active health probing options for a cluster.
@@ -132,7 +151,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
 
             public string FailurePolicy { get; }
 
-            public IReadOnlyDictionary<string, string> Settings { get;  }
+            public IReadOnlyDictionary<string, string> Settings { get; }
         }
 
         public readonly struct ClusterProxyHttpClientOptions : IEquatable<ClusterProxyHttpClientOptions>
