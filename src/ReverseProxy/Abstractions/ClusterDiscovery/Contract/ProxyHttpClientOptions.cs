@@ -62,7 +62,7 @@ namespace Microsoft.ReverseProxy.Abstractions
                 return false;
             }
 
-            return string.Equals(certificate1.Thumbprint, certificate1.Thumbprint, StringComparison.OrdinalIgnoreCase);
+            return string.Equals(certificate1.Thumbprint, certificate2.Thumbprint, StringComparison.OrdinalIgnoreCase);
         }
     }
 }
