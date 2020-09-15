@@ -94,6 +94,7 @@ namespace Microsoft.ReverseProxy.Configuration
             {
                 Path = TestResources.GetCertPath("https-aspnet.crt"),
                 KeyPath = TestResources.GetCertPath("https-aspnet.key"),
+                // [SuppressMessage("Microsoft.Security", "CS002:SecretInNextLine", Justification="Unit test dummy credentials.")]
                 Password = "abcde"
             };
             Assert.ThrowsAny<CryptographicException>(() => loader.LoadCertificate(options));

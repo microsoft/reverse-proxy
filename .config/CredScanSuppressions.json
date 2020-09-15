@@ -19,19 +19,6 @@
             "_justification": "Generic example password in documentation",
             "file": "docs/docfx/articles/proxyhttpclientconfig.md",
             "placeholder": "1234abc"
-        },
-        {
-            "_justification": "Fake password used in test code",
-            "file": "test/ReverseProxy.Tests/Configuration/CertificateConfigLoaderTests.cs",
-            "placeholder": "abcde"
-        },
-        {
-            "_justification": "Fake password used in test code",
-            "file": "test/ReverseProxy.Tests/Configuration/ConfigurationConfigProviderTests.cs",
-            "placeholder": [
-                "myPassword1234",
-                "123"
-            ]
         }
     ]
 }
