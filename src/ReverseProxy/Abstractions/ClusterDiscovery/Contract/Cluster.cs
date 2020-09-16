@@ -102,6 +102,7 @@ namespace Microsoft.ReverseProxy.Abstractions
                 && LoadBalancingOptions.Equals(cluster1.LoadBalancing, cluster2.LoadBalancing)
                 && SessionAffinityOptions.Equals(cluster1.SessionAffinity, cluster2.SessionAffinity)
                 && HealthCheckOptions.Equals(cluster1.HealthCheck, cluster2.HealthCheck)
+                && ProxyHttpClientOptions.Equals(cluster1.HttpClient, cluster2.HttpClient)
                 && CaseInsensitiveEqualHelper.Equals(cluster1.Destinations, cluster2.Destinations, Destination.Equals)
                 && CaseInsensitiveEqualHelper.Equals(cluster1.Metadata, cluster2.Metadata);
         }

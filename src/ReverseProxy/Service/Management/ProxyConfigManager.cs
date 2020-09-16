@@ -305,11 +305,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                                 (IReadOnlyDictionary<string, string>)newCluster.Metadata);
 
                         if (currentClusterConfig == null ||
-                            currentClusterConfig.HealthCheckOptions.Enabled != newClusterConfig.HealthCheckOptions.Enabled ||
-                            currentClusterConfig.HealthCheckOptions.Interval != newClusterConfig.HealthCheckOptions.Interval ||
-                            currentClusterConfig.HealthCheckOptions.Timeout != newClusterConfig.HealthCheckOptions.Timeout ||
-                            currentClusterConfig.HealthCheckOptions.Port != newClusterConfig.HealthCheckOptions.Port ||
-                            currentClusterConfig.HealthCheckOptions.Path != newClusterConfig.HealthCheckOptions.Path)
+                            currentClusterConfig.HasConfigChanged(newClusterConfig))
                         {
                             if (currentClusterConfig == null)
                             {

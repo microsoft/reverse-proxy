@@ -46,7 +46,7 @@ namespace Microsoft.ReverseProxy.Abstractions
 
             return options1.SslProtocols == options2.SslProtocols
                 && Equals(options1.ClientCertificate, options2.ClientCertificate)
-                && options1.MaxConnectionsPerServer == options2.MaxConnectionsPerServer
+                && options1.DangerousAcceptAnyServerCertificate == options2.DangerousAcceptAnyServerCertificate
                 && options1.MaxConnectionsPerServer == options2.MaxConnectionsPerServer;
         }
 

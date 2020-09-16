@@ -79,20 +79,5 @@ namespace Microsoft.ReverseProxy.RuntimeModel
                             healthyDestinations: healthyDestinations);
                     });
         }
-
-        internal static bool Equals(ClusterInfo clusterInfo1, ClusterInfo clusterInfo2)
-        {
-            if (clusterInfo1 == null && clusterInfo2 == null)
-            {
-                return true;
-            }
-
-            if (clusterInfo1 == null || clusterInfo2 == null)
-            {
-                return false;
-            }
-
-            return ClusterConfig.Equals(clusterInfo1.Config.Value, clusterInfo2.Config.Value);
-        }
     }
 }

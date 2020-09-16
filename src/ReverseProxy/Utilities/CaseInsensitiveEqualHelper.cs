@@ -25,6 +25,11 @@ namespace Microsoft.ReverseProxy.Utilities
                 return false;
             }
 
+            if (list1.Count != list2.Count)
+            {
+                return false;
+            }
+
             for (var i = 0; i < list1.Count; i++)
             {
                 if (!string.Equals(list1[i], list2[i], StringComparison.OrdinalIgnoreCase))
@@ -49,6 +54,11 @@ namespace Microsoft.ReverseProxy.Utilities
             }
 
             if (dictionaryList1 != null && dictionaryList2 == null || dictionaryList1 == null && dictionaryList2 != null)
+            {
+                return false;
+            }
+
+            if (dictionaryList1.Count != dictionaryList2.Count)
             {
                 return false;
             }
@@ -87,6 +97,11 @@ namespace Microsoft.ReverseProxy.Utilities
             }
 
             if (dictionary1 != null && dictionary2 == null || dictionary1 == null && dictionary2 != null)
+            {
+                return false;
+            }
+
+            if (dictionary1.Count != dictionary2.Count)
             {
                 return false;
             }

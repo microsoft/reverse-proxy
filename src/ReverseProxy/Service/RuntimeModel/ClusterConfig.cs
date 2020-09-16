@@ -62,19 +62,9 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         /// </summary>
         public IReadOnlyDictionary<string, string> Metadata { get; }
 
-        internal static bool Equals(ClusterConfig configCluster1, ClusterConfig configCluster2)
+        internal bool HasConfigChanged(ClusterConfig newClusterConfig)
         {
-            if (configCluster1 == null && configCluster2 == null)
-            {
-                return true;
-            }
-
-            if (configCluster1 == null || configCluster2 == null)
-            {
-                return false;
-            }
-
-            return Cluster.Equals(configCluster1._cluster, configCluster2._cluster);
+            return !Cluster.Equals(_cluster, newClusterConfig._cluster);
         }
 
         /// <summary>
