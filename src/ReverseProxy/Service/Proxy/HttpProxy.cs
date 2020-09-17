@@ -562,65 +562,36 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                     destinationId: proxyTelemetryContext.DestinationId));
             var responseTask = responseCopier.CopyAsync(destinationStream, clientStream, abortTokenSource.Token);
 
+            // Make sure we report the first failure.
             var firstTask = await Task.WhenAny(requestTask, responseTask);
+            var requestFinishedFirst = firstTask == requestTask;
+            var secondTask = requestFinishedFirst ? responseTask : requestTask;
 
-            var faulted = false;
-            if (firstTask == requestTask)
+            var (firstResult, firstException) = await firstTask;
+            if (firstResult != StreamCopyResult.Success)
             {
-                var (requestCopyResult, requestCopyError) = await requestTask;
-                if (requestCopyResult != StreamCopyResult.Success)
-                {
-                    faulted = true;
-                    ProcessRequestResult(context, requestCopyResult, requestCopyError);
-                    // Cancel the other direction
-                    abortTokenSource.Cancel();
-                }
-
-                var (responseCopyResult, responseCopyError) = await responseTask;
-
-                if (!faulted && responseCopyResult != StreamCopyResult.Success)
-                {
-                    ProcessResponseResult(context, responseCopyResult, responseCopyError);
-                }
+                ReportResult(context, requestFinishedFirst, firstResult, firstException);
+                // Cancel the other direction
+                abortTokenSource.Cancel();
+                // Wait for this to finish before exiting so the resources get cleaned up properly.
+                await secondTask;
             }
             else
             {
-                var (responseCopyResult, responseCopyError) = await responseTask;
-
-                if (responseCopyResult != StreamCopyResult.Success)
+                var (secondResult, secondException) = await secondTask;
+                if (secondResult != StreamCopyResult.Success)
                 {
-                    faulted = true;
-                    ProcessResponseResult(context, responseCopyResult, responseCopyError);
-                    // Cancel the other direction
-                    abortTokenSource.Cancel();
-                }
-
-                var (requestCopyResult, requestCopyError) = await requestTask;
-                if (!faulted && requestCopyResult != StreamCopyResult.Success)
-                {
-                    ProcessRequestResult(context, requestCopyResult, requestCopyError);
+                    ReportResult(context, requestFinishedFirst, secondResult, secondException);
                 }
             }
 
-            void ProcessRequestResult(HttpContext context, StreamCopyResult result, Exception exception)
+            void ReportResult(HttpContext context, bool reqeuest, StreamCopyResult result, Exception exception)
             {
                 var error = result switch
                 {
-                    StreamCopyResult.InputError => ProxyError.UpgradeRequestClient,
-                    StreamCopyResult.OutputError => ProxyError.UpgradeRequestDestination,
-                    StreamCopyResult.Canceled => ProxyError.UpgradeRequestCanceled,
-                    _ => throw new NotImplementedException(result.ToString()),
-                };
-                ReportProxyError(context, error, exception);
-            }
-
-            void ProcessResponseResult(HttpContext context, StreamCopyResult result, Exception exception)
-            {
-                var error = result switch
-                {
-                    StreamCopyResult.InputError => ProxyError.UpgradeResponseDestination,
-                    StreamCopyResult.OutputError => ProxyError.UpgradeResponseClient,
-                    StreamCopyResult.Canceled => ProxyError.UpgradeResponseCanceled,
+                    StreamCopyResult.InputError => reqeuest ? ProxyError.UpgradeRequestClient : ProxyError.UpgradeResponseDestination,
+                    StreamCopyResult.OutputError => reqeuest ? ProxyError.UpgradeRequestDestination : ProxyError.UpgradeResponseClient,
+                    StreamCopyResult.Canceled => reqeuest ? ProxyError.UpgradeRequestCanceled : ProxyError.UpgradeResponseCanceled,
                     _ => throw new NotImplementedException(result.ToString()),
                 };
                 ReportProxyError(context, error, exception);

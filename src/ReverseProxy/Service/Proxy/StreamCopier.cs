@@ -42,6 +42,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             var buffer = ArrayPool<byte>.Shared.Rent(DefaultBufferSize);
             long iops = 0;
             long totalBytes = 0;
+            var reading = true;
             try
             {
                 while (true)
@@ -52,19 +53,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                     }
 
                     iops++;
-                    int read;
-                    try
-                    {
-                        read = await input.ReadAsync(buffer.AsMemory(), cancellation);
-                    }
-                    catch (OperationCanceledException oex)
-                    {
-                        return (StreamCopyResult.Canceled, oex);
-                    }
-                    catch (Exception ex)
-                    {
-                        return (StreamCopyResult.InputError, ex);
-                    }
+                    reading = true;
+                    var read = await input.ReadAsync(buffer.AsMemory(), cancellation);
 
                     // End of the source stream.
                     if (read == 0)
@@ -77,20 +67,19 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                         return (StreamCopyResult.Canceled, new OperationCanceledException(cancellation));
                     }
 
-                    try
-                    {
-                        await output.WriteAsync(buffer.AsMemory(0, read), cancellation);
-                    }
-                    catch (OperationCanceledException oex)
-                    {
-                        return (StreamCopyResult.Canceled, oex);
-                    }
-                    catch (Exception ex)
-                    {
-                        return (StreamCopyResult.OutputError, ex);
-                    }
+                    reading = false;
+                    await output.WriteAsync(buffer.AsMemory(0, read), cancellation);
+
                     totalBytes += read;
                 }
+            }
+            catch (OperationCanceledException oex)
+            {
+                return (StreamCopyResult.Canceled, oex);
+            }
+            catch (Exception ex)
+            {
+                return (reading ? StreamCopyResult.InputError : StreamCopyResult.OutputError, ex);
             }
             finally
             {
