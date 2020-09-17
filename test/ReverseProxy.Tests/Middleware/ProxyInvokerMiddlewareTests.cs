@@ -127,7 +127,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             var cluster1 = new ClusterInfo(
                 clusterId: "cluster1",
                 destinationManager: new DestinationManager());
-            var clusterConfig = new ClusterConfig(default, default, default, httpClient, default, new Dictionary<string, string>());
+            var clusterConfig = new ClusterConfig(default, default, default, default, httpClient, default, new Dictionary<string, string>());
             httpContext.Features.Set<IReverseProxyFeature>(
                 new ReverseProxyFeature() { AvailableDestinations = Array.Empty<DestinationInfo>(), ClusterConfig = clusterConfig });
             httpContext.Features.Set(cluster1);
@@ -135,8 +135,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             var aspNetCoreEndpoints = new List<Endpoint>();
             var routeConfig = new RouteConfig(
                 route: new RouteInfo("route1"),
-                configHash: 0,
-                order: null,
+                proxyRoute: new ProxyRoute(),
                 cluster: cluster1,
                 aspNetCoreEndpoints: aspNetCoreEndpoints.AsReadOnly(),
                 transforms: null);
