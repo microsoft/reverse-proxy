@@ -61,7 +61,6 @@ namespace Microsoft.ReverseProxy.Configuration
                             SslProtocols = new List<SslProtocols> { SslProtocols.Tls11, SslProtocols.Tls12 },
                             MaxConnectionsPerServer = 10,
                             DangerousAcceptAnyServerCertificate = true,
-                            // [SuppressMessage("Microsoft.Security", "CS002:SecretInNextLine", Justification="Unit test dummy credentials.")]
                             ClientCertificate = new CertificateConfigData { Path = "mycert.pfx", Password = "myPassword1234" }
                         },
                         Metadata = new Dictionary<string, string> { { "cluster1-K1", "cluster1-V1" }, { "cluster1-K2", "cluster1-V2" } }
@@ -269,7 +268,6 @@ namespace Microsoft.ReverseProxy.Configuration
             services.AddSingleton<IProxyConfigProvider, ConfigurationConfigProvider>();
             var certLoader = new Mock<ICertificateConfigLoader>(MockBehavior.Strict);
             var certificate = TestResources.GetTestCertificate();
-            // [SuppressMessage("Microsoft.Security", "CS002:SecretInNextLine", Justification="Unit test dummy credentials.")]
             certLoader.Setup(l => l.LoadCertificate(It.Is<CertificateConfigData>(o => o.Path == "mycert.pfx" && o.Password == "myPassword1234"))).Returns(certificate);
             services.AddSingleton(certLoader.Object);
             services.AddSingleton(new Mock<ILogger<ConfigurationConfigProvider>>().Object);
@@ -375,7 +373,6 @@ namespace Microsoft.ReverseProxy.Configuration
                         "cluster1",
                         new ClusterData {
                             Destinations = { { "destinationA", new DestinationData { Address = "https://localhost:10001/destC" } } },
-                            // [SuppressMessage("Microsoft.Security", "CS002:SecretInNextLine", Justification="Unit test dummy credentials.")]
                             HttpClient = new ProxyHttpClientData { ClientCertificate = new CertificateConfigData { Path = "mycert.pfx", Password = "123" }}
                         }
                     }
@@ -416,7 +413,6 @@ namespace Microsoft.ReverseProxy.Configuration
             Assert.NotNull(firstSnapshot);
             logger.Verify(l => l.Log(LogLevel.Error, It.IsAny<EventId>(), It.IsAny<string>(), It.IsAny<Exception>(), It.IsAny<Func<string, Exception, string>>()), Times.Never);
 
-            // [SuppressMessage("Microsoft.Security", "CS002:SecretInNextLine", Justification="Unit test dummy credentials.")]
             config.Clusters["cluster1"].HttpClient = new ProxyHttpClientData { ClientCertificate = new CertificateConfigData { Path = "mycert.pfx", Password = "123" } };
 
             onChangeCallback(config, null);
