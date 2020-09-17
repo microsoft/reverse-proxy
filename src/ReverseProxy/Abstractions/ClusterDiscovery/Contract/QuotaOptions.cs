@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 namespace Microsoft.ReverseProxy.Abstractions
@@ -26,6 +26,22 @@ namespace Microsoft.ReverseProxy.Abstractions
                 Average = Average,
                 Burst = Burst,
             };
+        }
+
+        internal static bool Equals(QuotaOptions options1, QuotaOptions options2)
+        {
+            if (options1 == null && options2 == null)
+            {
+                return true;
+            }
+
+            if (options1 == null || options2 == null)
+            {
+                return false;
+            }
+
+            return options1.Average == options2.Average
+                && options1.Burst == options2.Burst;
         }
     }
 }

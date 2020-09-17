@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -46,6 +46,25 @@ namespace Microsoft.ReverseProxy.Abstractions
                 Port = Port,
                 Path = Path,
             };
+        }
+
+        internal static bool Equals(HealthCheckOptions options1, HealthCheckOptions options2)
+        {
+            if (options1 == null && options2 == null)
+            {
+                return true;
+            }
+
+            if (options1 == null || options2 == null)
+            {
+                return false;
+            }
+
+            return options1.Enabled == options2.Enabled
+                && options1.Interval == options2.Interval
+                && options1.Timeout == options2.Timeout
+                && options1.Port == options2.Port
+                && string.Equals(options1.Path, options2.Path, StringComparison.OrdinalIgnoreCase);
         }
     }
 }

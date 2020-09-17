@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using Microsoft.AspNetCore.Http;
+using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Management;
 using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
@@ -19,7 +20,7 @@ namespace Microsoft.ReverseProxy.Middleware
     {
         protected const string AffinitizedDestinationName = "dest-B";
         protected readonly IReadOnlyList<DestinationInfo> Destinations = new[] { new DestinationInfo("dest-A"), new DestinationInfo(AffinitizedDestinationName), new DestinationInfo("dest-C") };
-        protected readonly ClusterConfig ClusterConfig = new ClusterConfig(default, default, new ClusterConfig.ClusterSessionAffinityOptions(true, "Mode-B", "Policy-1", null),
+        protected readonly ClusterConfig ClusterConfig = new ClusterConfig(default, default, default, new ClusterConfig.ClusterSessionAffinityOptions(true, "Mode-B", "Policy-1", null),
             new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object), default, new Dictionary<string, string>());
 
         internal ClusterInfo GetCluster()
@@ -91,7 +92,8 @@ namespace Microsoft.ReverseProxy.Middleware
         internal Endpoint GetEndpoint(ClusterInfo cluster)
         {
             var endpoints = new List<Endpoint>(1);
-            var routeConfig = new RouteConfig(new RouteInfo("route-1"), 47, null, cluster, endpoints.AsReadOnly(), Transforms.Empty);
+            var proxyRoute = new ProxyRoute();
+            var routeConfig = new RouteConfig(new RouteInfo("route-1"), proxyRoute, cluster, endpoints.AsReadOnly(), Transforms.Empty);
             var endpoint = new Endpoint(default, new EndpointMetadataCollection(routeConfig), string.Empty);
             endpoints.Add(endpoint);
             return endpoint;

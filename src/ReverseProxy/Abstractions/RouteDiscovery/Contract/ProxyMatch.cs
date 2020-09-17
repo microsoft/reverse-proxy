@@ -1,14 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Abstractions
 {
-     /// <summary>
-     /// Describes the matching criteria for a route.
-     /// </summary>
+    /// <summary>
+    /// Describes the matching criteria for a route.
+    /// </summary>
     public class ProxyMatch : IDeepCloneable<ProxyMatch>
     {
         /// <summary>
@@ -47,6 +49,23 @@ namespace Microsoft.ReverseProxy.Abstractions
                 Path = Path,
                 // Headers = Headers.DeepClone(); // TODO:
             };
+        }
+
+        internal static bool Equals(ProxyMatch proxyMatch1, ProxyMatch proxyMatch2)
+        {
+            if (proxyMatch1 == null && proxyMatch2 == null)
+            {
+                return true;
+            }
+
+            if (proxyMatch1 == null || proxyMatch2 == null)
+            {
+                return false;
+            }
+
+            return string.Equals(proxyMatch1.Path, proxyMatch2.Path, StringComparison.OrdinalIgnoreCase)
+                && CaseInsensitiveEqualHelper.Equals(proxyMatch1.Hosts, proxyMatch2.Hosts)
+                && CaseInsensitiveEqualHelper.Equals(proxyMatch1.Methods, proxyMatch2.Methods);
         }
     }
 }

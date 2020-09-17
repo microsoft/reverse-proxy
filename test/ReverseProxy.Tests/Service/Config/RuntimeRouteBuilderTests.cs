@@ -60,13 +60,13 @@ namespace Microsoft.ReverseProxy.Service.Tests
 
             Assert.Same(cluster, config.Cluster);
             Assert.Equal(12, config.Order);
-            Assert.Equal(route.GetConfigHash(), config.ConfigHash);
             Assert.Single(config.Endpoints);
             var routeEndpoint = config.Endpoints[0] as AspNetCore.Routing.RouteEndpoint;
             Assert.Equal("route1", routeEndpoint.DisplayName);
             Assert.Same(config, routeEndpoint.Metadata.GetMetadata<RouteConfig>());
             Assert.Equal("/a", routeEndpoint.RoutePattern.RawText);
             Assert.Equal(12, routeEndpoint.Order);
+            Assert.False(config.HasConfigChanged(route, cluster));
 
             var hostMetadata = routeEndpoint.Metadata.GetMetadata<AspNetCore.Routing.HostAttribute>();
             Assert.NotNull(hostMetadata);
@@ -97,13 +97,13 @@ namespace Microsoft.ReverseProxy.Service.Tests
 
             Assert.Same(cluster, config.Cluster);
             Assert.Equal(12, config.Order);
-            Assert.Equal(route.GetConfigHash(), config.ConfigHash);
             Assert.Single(config.Endpoints);
             var routeEndpoint = config.Endpoints[0] as AspNetCore.Routing.RouteEndpoint;
             Assert.Equal("route1", routeEndpoint.DisplayName);
             Assert.Same(config, routeEndpoint.Metadata.GetMetadata<RouteConfig>());
             Assert.Equal("/{**catchall}", routeEndpoint.RoutePattern.RawText);
             Assert.Equal(12, routeEndpoint.Order);
+            Assert.False(config.HasConfigChanged(route, cluster));
 
             var hostMetadata = routeEndpoint.Metadata.GetMetadata<AspNetCore.Routing.HostAttribute>();
             Assert.NotNull(hostMetadata);
@@ -134,13 +134,13 @@ namespace Microsoft.ReverseProxy.Service.Tests
 
             Assert.Same(cluster, config.Cluster);
             Assert.Equal(12, config.Order);
-            Assert.Equal(route.GetConfigHash(), config.ConfigHash);
             Assert.Single(config.Endpoints);
             var routeEndpoint = config.Endpoints[0] as AspNetCore.Routing.RouteEndpoint;
             Assert.Equal("route1", routeEndpoint.DisplayName);
             Assert.Same(config, routeEndpoint.Metadata.GetMetadata<RouteConfig>());
             Assert.Equal("/{**catchall}", routeEndpoint.RoutePattern.RawText);
             Assert.Equal(12, routeEndpoint.Order);
+            Assert.False(config.HasConfigChanged(route, cluster));
 
             var hostMetadata = routeEndpoint.Metadata.GetMetadata<AspNetCore.Routing.HostAttribute>();
             Assert.NotNull(hostMetadata);
@@ -171,13 +171,13 @@ namespace Microsoft.ReverseProxy.Service.Tests
 
             Assert.Same(cluster, config.Cluster);
             Assert.Equal(12, config.Order);
-            Assert.Equal(route.GetConfigHash(), config.ConfigHash);
             Assert.Single(config.Endpoints);
             var routeEndpoint = config.Endpoints[0] as AspNetCore.Routing.RouteEndpoint;
             Assert.Equal("route1", routeEndpoint.DisplayName);
             Assert.Same(config, routeEndpoint.Metadata.GetMetadata<RouteConfig>());
             Assert.Equal("/a", routeEndpoint.RoutePattern.RawText);
             Assert.Equal(12, routeEndpoint.Order);
+            Assert.False(config.HasConfigChanged(route, cluster));
 
             var hostMetadata = routeEndpoint.Metadata.GetMetadata<AspNetCore.Routing.HostAttribute>();
             Assert.Null(hostMetadata);
@@ -202,13 +202,13 @@ namespace Microsoft.ReverseProxy.Service.Tests
 
             Assert.Same(cluster, config.Cluster);
             Assert.Equal(12, config.Order);
-            Assert.NotEqual(0, config.ConfigHash);
             Assert.Single(config.Endpoints);
             var routeEndpoint = config.Endpoints[0] as AspNetCore.Routing.RouteEndpoint;
             Assert.Equal("route1", routeEndpoint.DisplayName);
             Assert.Same(config, routeEndpoint.Metadata.GetMetadata<RouteConfig>());
             Assert.Equal("/{**catchall}", routeEndpoint.RoutePattern.RawText);
             Assert.Equal(12, routeEndpoint.Order);
+            Assert.False(config.HasConfigChanged(route, cluster));
 
             var hostMetadata = routeEndpoint.Metadata.GetMetadata<AspNetCore.Routing.HostAttribute>();
             Assert.Null(hostMetadata);

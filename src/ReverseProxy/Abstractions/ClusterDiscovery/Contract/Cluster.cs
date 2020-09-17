@@ -3,7 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
+using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Abstractions
 {
@@ -81,6 +81,30 @@ namespace Microsoft.ReverseProxy.Abstractions
                 Destinations = Destinations.DeepClone(StringComparer.OrdinalIgnoreCase),
                 Metadata = Metadata?.DeepClone(StringComparer.OrdinalIgnoreCase),
             };
+        }
+
+        internal static bool Equals(Cluster cluster1, Cluster cluster2)
+        {
+            if (cluster1 == null && cluster2 == null)
+            {
+                return true;
+            }
+
+            if (cluster1 == null || cluster2 == null)
+            {
+                return false;
+            }
+
+            return string.Equals(cluster1.Id, cluster2.Id, StringComparison.OrdinalIgnoreCase)
+                && CircuitBreakerOptions.Equals(cluster1.CircuitBreaker, cluster2.CircuitBreaker)
+                && QuotaOptions.Equals(cluster1.Quota, cluster2.Quota)
+                && ClusterPartitioningOptions.Equals(cluster1.Partitioning, cluster2.Partitioning)
+                && LoadBalancingOptions.Equals(cluster1.LoadBalancing, cluster2.LoadBalancing)
+                && SessionAffinityOptions.Equals(cluster1.SessionAffinity, cluster2.SessionAffinity)
+                && HealthCheckOptions.Equals(cluster1.HealthCheck, cluster2.HealthCheck)
+                && ProxyHttpClientOptions.Equals(cluster1.HttpClient, cluster2.HttpClient)
+                && CaseInsensitiveEqualHelper.Equals(cluster1.Destinations, cluster2.Destinations, Destination.Equals)
+                && CaseInsensitiveEqualHelper.Equals(cluster1.Metadata, cluster2.Metadata);
         }
     }
 }

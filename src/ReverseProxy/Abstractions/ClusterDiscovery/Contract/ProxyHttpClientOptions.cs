@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 
@@ -29,6 +30,39 @@ namespace Microsoft.ReverseProxy.Abstractions
                 ClientCertificate = ClientCertificate,
                 MaxConnectionsPerServer = MaxConnectionsPerServer
             };
+        }
+
+        internal static bool Equals(ProxyHttpClientOptions options1, ProxyHttpClientOptions options2)
+        {
+            if (options1 == null && options2 == null)
+            {
+                return true;
+            }
+
+            if (options1 == null || options2 == null)
+            {
+                return false;
+            }
+
+            return options1.SslProtocols == options2.SslProtocols
+                && Equals(options1.ClientCertificate, options2.ClientCertificate)
+                && options1.DangerousAcceptAnyServerCertificate == options2.DangerousAcceptAnyServerCertificate
+                && options1.MaxConnectionsPerServer == options2.MaxConnectionsPerServer;
+        }
+
+        private static bool Equals(X509Certificate2 certificate1, X509Certificate2 certificate2)
+        {
+            if (certificate1 == null && certificate2 == null)
+            {
+                return true;
+            }
+
+            if (certificate1 == null || certificate2 == null)
+            {
+                return false;
+            }
+
+            return string.Equals(certificate1.Thumbprint, certificate2.Thumbprint, StringComparison.OrdinalIgnoreCase);
         }
     }
 }
