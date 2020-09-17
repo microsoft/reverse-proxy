@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.ReverseProxy.Abstractions.Telemetry;
-using Tests.Common;
+using Microsoft.ReverseProxy.Common.Tests;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Service.Metrics.Tests

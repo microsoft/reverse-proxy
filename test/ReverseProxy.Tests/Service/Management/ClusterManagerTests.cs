@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.ReverseProxy.Common.Tests;
 using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
 using Moq;
-using Tests.Common;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Service.Management.Tests

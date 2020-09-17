@@ -8,10 +8,10 @@ using System.Net.Http;
 using System.Reflection;
 using System.Security.Authentication;
 using Microsoft.Extensions.Logging;
+using Microsoft.ReverseProxy.Common.Tests;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
 using Microsoft.ReverseProxy.Utilities.Tests;
-using Tests.Common;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Service.Proxy.Tests

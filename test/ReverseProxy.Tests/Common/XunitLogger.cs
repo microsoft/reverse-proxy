@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -6,7 +6,7 @@ using System;
 using Microsoft.Extensions.Logging;
 using Xunit.Abstractions;
 
-namespace Tests.Common
+namespace Microsoft.ReverseProxy.Common.Tests
 {
     public class XunitLogger<TCategoryName> : ILogger<TCategoryName>
     {

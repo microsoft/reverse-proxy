@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.ReverseProxy.Abstractions.Time;
 
-namespace Tests.Common
+namespace Microsoft.ReverseProxy.Common.Tests
 {
     /// <summary>
     /// Simulation analog to MonotonicTimer, used for testing.
