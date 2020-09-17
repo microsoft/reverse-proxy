@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.ReverseProxy.Abstractions.Telemetry;
 
-namespace Tests.Common
+namespace Microsoft.ReverseProxy.Common.Tests
 {
     /// <summary>
     /// Implementation of <see cref="IMetricCreator"/>

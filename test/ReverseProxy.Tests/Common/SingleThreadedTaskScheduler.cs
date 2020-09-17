@@ -7,7 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.ReverseProxy.Utilities;
 
-namespace Tests.Common
+namespace Microsoft.ReverseProxy.Common.Tests
 {
     /// <summary>
     /// Task scheduler that only schedules execution of one task at a time.

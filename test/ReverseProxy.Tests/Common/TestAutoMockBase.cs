@@ -4,10 +4,9 @@
 using System;
 using Autofac.Core;
 using Autofac.Extras.Moq;
-using Microsoft.ReverseProxy.Utilities;
 using Moq;
 
-namespace Tests.Common
+namespace Microsoft.ReverseProxy.Common.Tests
 {
     /// <summary>
     /// Automatically generates mocks for interfaces on the Class under test.

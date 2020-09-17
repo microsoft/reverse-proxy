@@ -22,10 +22,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         Task ProxyAsync(
             HttpContext context,
             string destinationPrefix,
-            Transforms transforms,
             HttpMessageInvoker httpClient,
-            ProxyTelemetryContext proxyTelemetryContext,
-            CancellationToken shortCancellation,
-            CancellationToken longCancellation);
+            RequestProxyOptions proxyOptions,
+            ProxyTelemetryContext proxyTelemetryContext);
     }
 }
