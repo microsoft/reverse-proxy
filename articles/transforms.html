@@ -136,7 +136,11 @@ X-Forwarded-Host: IncomingHost:5000
           &quot;Path&quot;: &quot;/api/{plugin}/stuff/{*remainder}&quot;
         },
         &quot;Transforms&quot;: [
-          { &quot;PathPattern&quot;: &quot;/foo/{plugin}/bar/{remainder}&quot; }
+          { &quot;PathPattern&quot;: &quot;/foo/{plugin}/bar/{remainder}&quot; },
+          {
+            &quot;QueryStringParameter&quot;: &quot;q&quot;,
+            &quot;Append&quot;: &quot;plugin&quot;
+          }
         ]
       }
     ],
@@ -286,6 +290,122 @@ X-Forwarded-Host: IncomingHost:5000
 <tr>
 <td>Result</td>
 <td><code>/my/v1/api/more/stuff</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="queryvalueparameter">QueryValueParameter</h4>
+<p>| Key | Value | Required |
+| QueryValueParameter | Name of a query string parameter | yes |
+| Set/Append | Static value | yes |</p>
+<p>Config:</p>
+<pre><code class="lang-JSON">{
+  &quot;QueryValueParameter&quot;: &quot;foo&quot;,
+  &quot;Append&quot;: &quot;bar&quot;
+}
+</code></pre>
+<p>This will add a query string parameter with the name <code>foo</code> and sets it to the static value <code>bar</code>.</p>
+<p>Example:</p>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Query</td>
+<td><code>?a=b</code></td>
+</tr>
+<tr>
+<td>QueryValueParameter</td>
+<td><code>foo</code></td>
+</tr>
+<tr>
+<td>Append</td>
+<td><code>remainder</code></td>
+</tr>
+<tr>
+<td>Result</td>
+<td><code>?a=b&amp;foo=remainder</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="queryrouteparameter">QueryRouteParameter</h4>
+<p>| Key | Value | Required |
+| QueryRouteParameter | Name of a query string parameter | yes |
+| Set/Append | The name of a route value | yes |</p>
+<p>Config:</p>
+<pre><code class="lang-JSON">{
+  &quot;QueryRouteParameter&quot;: &quot;foo&quot;,
+  &quot;Append&quot;: &quot;remainder&quot;
+}
+</code></pre>
+<p>This will add a query string parameter with the name <code>foo</code> and sets it to the value of the associated route value.</p>
+<p>Example:</p>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Route definition</td>
+<td><code>/api/{*remainder}</code></td>
+</tr>
+<tr>
+<td>Request path</td>
+<td><code>/api/more/stuff</code></td>
+</tr>
+<tr>
+<td>Remainder value</td>
+<td><code>more/stuff</code></td>
+</tr>
+<tr>
+<td>QueryRouteParameter</td>
+<td><code>foo</code></td>
+</tr>
+<tr>
+<td>Append</td>
+<td><code>remainder</code></td>
+</tr>
+<tr>
+<td>Result</td>
+<td><code>?foo=more/stuff</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="queryremoveparameter">QueryRemoveParameter</h4>
+<p>| Key | Value | Required |
+| QueryRemoveParameter | Name of a query string parameter | yes |</p>
+<p>Config:</p>
+<pre><code class="lang-JSON">{
+  &quot;QueryRemoveParameter&quot;: &quot;foo&quot;
+}
+</code></pre>
+<p>This will remove a query string parameter with the name <code>foo</code> if present on the request.</p>
+<p>Example:</p>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Request path</td>
+<td><code>?a=b&amp;foo=c</code></td>
+</tr>
+<tr>
+<td>QueryRemoveParameter</td>
+<td><code>foo</code></td>
+</tr>
+<tr>
+<td>Result</td>
+<td><code>?a=b</code></td>
 </tr>
 </tbody>
 </table>
@@ -647,7 +767,7 @@ X-Forwarded-PathBase: /path/base
               <div class="contribution">
                 <ul class="nav">
                   <li>
-                    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/docs/docfx/articles/transforms.md/#L1" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/microsoft/reverse-proxy/blob/master/docs/docfx/articles/transforms.md/#L1" class="contribution-link">Improve this Doc</a>
                   </li>
                 </ul>
               </div>
