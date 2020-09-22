@@ -4,9 +4,6 @@
 imports:
   - https://raw.githubusercontent.com/aspnet/Benchmarks/master/src/BenchmarksDriver2/benchmarks.proxy.yml
 
-variables:
-  serverPort: 5000
-
 jobs:
   yarp:
     source:
@@ -14,7 +11,7 @@ jobs:
       branchOrCommit: master
       project: samples/BenchmarkApp/BenchmarkApp.csproj
     readyStateText: Application started.
-    arguments: '--urls {{serverUri}}:{{serverPort}} --clusterUrls {{downstreamUri}}'
+    arguments: '--urls {{serverScheme}}://*:5000 --clusterUrls {{downstreamScheme}}://{{downstreamAddress}}:{{downstreamPort}}'
     port: 5000
 
 scenarios:
@@ -25,3 +22,14 @@ scenarios:
       job: yarp
     load:
       job: bombardier
+  proxy-yarp-http2:
+    downstream:
+      job: downstream
+      variables:
+        httpProtocol: Http2
+    application:
+      job: yarp
+    load:
+      job: bombardier 
+      variables:
+        transport: http2
