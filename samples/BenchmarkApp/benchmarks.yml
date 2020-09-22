@@ -2,7 +2,7 @@
 # --config benchmarks.yml --scenario proxy-yarp --profile aspnet-physical
 
 imports:
-  - https://raw.githubusercontent.com/aspnet/Benchmarks/halter73/https-proxy/src/BenchmarksDriver2/benchmarks.proxy.yml
+  - https://raw.githubusercontent.com/aspnet/Benchmarks/halter73/https-proxy/src/scenarios/proxy.benchmarks.yml
 
 jobs:
   yarp:
