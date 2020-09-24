@@ -3,7 +3,7 @@
 Introduced: preview4
 
 ## Introduction
-Proxy configuration can be loaded programatically from the source of your choosing by implementing an [IProxyConfigProvider](xref:Microsoft.ReverseProxy.Service.IProxyConfigProvider).
+Proxy configuration can be loaded programmatically from the source of your choosing by implementing an [IProxyConfigProvider](xref:Microsoft.ReverseProxy.Service.IProxyConfigProvider).
 
 ## Structure
 [IProxyConfigProvider](xref:Microsoft.ReverseProxy.Service.IProxyConfigProvider) has a single method `GetConfig()` that returns an [IProxyConfig](xref:Microsoft.ReverseProxy.Service.IProxyConfig) instance. The IProxyConfig has lists of the current routes and clusters, as well as an `IChangeToken` to notify the proxy when this information is out of date and should be reloaded by calling `GetConfig()` again.
