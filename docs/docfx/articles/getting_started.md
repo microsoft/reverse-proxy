@@ -80,7 +80,7 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 
 The configuration for YARP is defined in the appsettings.json file. See [Configuration Files](configfiles.md) for details.
 
-The configuration can also be provided programatically. See [Configuration Providers](configproviders.md) for details.
+The configuration can also be provided programmatically. See [Configuration Providers](configproviders.md) for details.
 
 You can find out more about the available configuration options by looking at [ProxyRoute](xref:Microsoft.ReverseProxy.Abstractions.ProxyRoute) and [Cluster](xref:Microsoft.ReverseProxy.Abstractions.Cluster).
  
