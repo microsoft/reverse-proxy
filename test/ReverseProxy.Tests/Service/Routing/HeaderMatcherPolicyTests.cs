@@ -23,29 +23,19 @@ namespace Microsoft.ReverseProxy.Service.Routing
                 (0, Endpoint("header", new[] { "abc", "def" }, HeaderValueMatchMode.Exact)),
                 (0, Endpoint("header2", new[] { "abc", "def" }, HeaderValueMatchMode.Exact)),
 
-                (1, Endpoint("header", new[] { "abc" }, HeaderValueMatchMode.Exact, maxValuesToInspect: 2)),
-
-                (2, Endpoint("header", new[] { "abc" }, HeaderValueMatchMode.Exact, maxValuesToInspect: 3)),
-
                 (3, Endpoint("header", new[] { "abc" }, HeaderValueMatchMode.Exact, valueIgnoresCase: true)),
-
-                (4, Endpoint("header", new[] { "abc" }, HeaderValueMatchMode.Exact, valueIgnoresCase: true, maxValuesToInspect: 2)),
 
                 (5, Endpoint("header", new[] { "abc" }, HeaderValueMatchMode.Prefix)),
                 (5, Endpoint("header", new[] { "abc", "def" }, HeaderValueMatchMode.Prefix)),
                 (5, Endpoint("header2", new[] { "abc", "def" }, HeaderValueMatchMode.Prefix)),
 
-                (6, Endpoint("header", new[] { "abc" }, HeaderValueMatchMode.Prefix, maxValuesToInspect: 2)),
-
                 (7, Endpoint("header", new[] { "abc" }, HeaderValueMatchMode.Prefix, valueIgnoresCase: true)),
-
-                (8, Endpoint("header", new[] { "abc" }, HeaderValueMatchMode.Prefix, valueIgnoresCase: true, maxValuesToInspect: 2)),
 
                 (9, Endpoint("header", new string[0], HeaderValueMatchMode.Exact)),
                 (9, Endpoint("header", new string[0], HeaderValueMatchMode.Exact, valueIgnoresCase: true)),
                 (9, Endpoint("header", new string[0], HeaderValueMatchMode.Prefix)),
                 (9, Endpoint("header", new string[0], HeaderValueMatchMode.Prefix, valueIgnoresCase: true)),
-                (9, Endpoint("header", new string[0], maxValuesToInspect: 2)),
+                (9, Endpoint("header", new string[0])),
 
                 (10, Endpoint(string.Empty, null)),
                 (10, Endpoint(null, null)),
@@ -142,6 +132,24 @@ namespace Microsoft.ReverseProxy.Service.Routing
 
             // Assert
             Assert.Equal(shouldMatch, candidates.IsValidCandidate(0));
+        }
+
+        [Fact]
+        public async Task ApplyAsync_MultipleHeaderValues_NotSupported()
+        {
+            // Arrange
+            var context = new DefaultHttpContext();
+            context.Request.Headers.Add("org-id", new[] { "a", "b" });
+
+            var endpoint = Endpoint("org-id", new[] { "a" });
+            var candidates = new CandidateSet(new[] { endpoint }, new RouteValueDictionary[1], new int[1]);
+            var sut = new HeaderMatcherPolicy();
+
+            // Act
+            await sut.ApplyAsync(context, candidates);
+
+            // Assert
+            Assert.False(candidates.IsValidCandidate(0));
         }
 
         [Theory]
@@ -244,36 +252,11 @@ namespace Microsoft.ReverseProxy.Service.Routing
             Assert.Equal(shouldMatch, candidates.IsValidCandidate(0));
         }
 
-        [Fact]
-        public async Task ApplyAsync_RespectsMaxHeadersToInspect()
-        {
-            // Arrange
-            var context = new DefaultHttpContext();
-            context.Request.Headers.Add("org-id", new[] { "abc1", "abc2", "abc3" });
-            var endpoint1 = Endpoint("org-id", new[] { "abc1" }, maxValuesToInspect: 2);
-            var endpoint2 = Endpoint("org-id", new[] { "abc2" }, maxValuesToInspect: 2);
-            var endpoint3 = Endpoint("org-id", new[] { "abc3" }, maxValuesToInspect: 2);
-            var endpoint4 = Endpoint("org-id", new[] { "abc3" }, maxValuesToInspect: 3);
-
-            var candidates = new CandidateSet(new[] { endpoint1, endpoint2, endpoint3, endpoint4 }, new RouteValueDictionary[4], new int[4]);
-            var sut = new HeaderMatcherPolicy();
-
-            // Act
-            await sut.ApplyAsync(context, candidates);
-
-            // Assert
-            Assert.True(candidates.IsValidCandidate(0));
-            Assert.True(candidates.IsValidCandidate(1));
-            Assert.False(candidates.IsValidCandidate(2));
-            Assert.True(candidates.IsValidCandidate(3));
-        }
-
         private static Endpoint Endpoint(
             string headerName,
             string[] headerValues,
             HeaderValueMatchMode headerValueMatchMode = HeaderValueMatchMode.Exact,
             bool valueIgnoresCase = false,
-            int maxValuesToInspect = 1,
             bool isDynamic = false)
         {
             var builder = new RouteEndpointBuilder(_ => Task.CompletedTask, RoutePatternFactory.Parse("/"), 0);
@@ -282,7 +265,6 @@ namespace Microsoft.ReverseProxy.Service.Routing
             metadata.SetupGet(m => m.HeaderValues).Returns(headerValues);
             metadata.SetupGet(m => m.ValueMatchMode).Returns(headerValueMatchMode);
             metadata.SetupGet(m => m.ValueIgnoresCase).Returns(valueIgnoresCase);
-            metadata.SetupGet(m => m.MaximumValuesToInspect).Returns(maxValuesToInspect);
 
             builder.Metadata.Add(metadata.Object);
             if (isDynamic)

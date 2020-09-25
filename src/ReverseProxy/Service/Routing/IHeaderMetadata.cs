@@ -35,14 +35,5 @@ namespace Microsoft.ReverseProxy.Service.Routing
         /// Defaults to <c>false</c>.
         /// </summary>
         bool ValueIgnoresCase { get; }
-
-        /// <summary>
-        /// Specifies the maximum number of incoming header values to inspect when evaluating each <see cref="HeaderValues"/>.
-        /// </summary>
-        /// <remarks>
-        /// Since header-based routing is commonly used in scenarios where a single header value is expected,
-        /// this helps us bail out early for unexpected requests.
-        /// </remarks>
-        int MaximumValuesToInspect { get; }
     }
 }

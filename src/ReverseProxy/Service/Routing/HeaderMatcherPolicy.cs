@@ -56,7 +56,6 @@ namespace Microsoft.ReverseProxy.Service.Routing
                 }
 
                 var metadataHeaderValues = metadata.HeaderValues;
-                var maxValuesToInspect = metadata.MaximumValuesToInspect;
 
                 var matched = false;
                 if (httpContext.Request.Headers.TryGetValue(metadataHeaderName, out var requestHeaderValues))
@@ -66,23 +65,17 @@ namespace Microsoft.ReverseProxy.Service.Routing
                         // We were asked to match as long as the header exists, and it *does* exist
                         matched = true;
                     }
-                    else
+                    // Multi-value headers are not supported.
+                    else if (requestHeaderValues.Count == 1)
                     {
+                        var requestHeaderValue = requestHeaderValues.ToString();
                         var comparisonFunc = GetComparisonFunc(metadata.ValueMatchMode);
                         var stringComparison = metadata.ValueIgnoresCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
                         for (var j = 0; j < metadataHeaderValues.Count; j++)
                         {
-                            for (var k = 0; k < requestHeaderValues.Count && k < maxValuesToInspect; k++)
+                            if (comparisonFunc(requestHeaderValue, metadataHeaderValues[j], stringComparison))
                             {
-                                if (comparisonFunc(requestHeaderValues[k], metadataHeaderValues[j], stringComparison))
-                                {
-                                    matched = true;
-                                    break;
-                                }
-                            }
-
-                            if (matched)
-                            {
+                                matched = true;
                                 break;
                             }
                         }
@@ -184,18 +177,6 @@ namespace Microsoft.ReverseProxy.Service.Routing
                 else if (!x.ValueIgnoresCase && y.ValueIgnoresCase)
                 {
                     // x is more specific, as *only it* is case sensitive
-                    return -1;
-                }
-
-                // 5. then, by how many headers are inspected
-                if (x.MaximumValuesToInspect > y.MaximumValuesToInspect)
-                {
-                    // y is more specific, as it needs a match among a smaller number of incoming headers.
-                    return 1;
-                }
-                else if (x.MaximumValuesToInspect < y.MaximumValuesToInspect)
-                {
-                    // x is more specific, as it needs a match among a smaller number of incoming headers.
                     return -1;
                 }
 
