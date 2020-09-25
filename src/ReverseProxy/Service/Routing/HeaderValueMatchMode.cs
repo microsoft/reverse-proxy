@@ -9,12 +9,12 @@ namespace Microsoft.ReverseProxy.Service.Routing
     public enum HeaderValueMatchMode
     {
         /// <summary>
-        /// Header value must match in its entirety, subject to the value of <see cref="IHeaderMetadata.ValueIgnoresCase"/>.
+        /// Header value must match in its entirety, subject to the value of <see cref="IHeaderMetadata.CaseSensitive"/>.
         /// </summary>
         Exact,
 
         /// <summary>
-        /// Header value must match by prefix, subject to the value of <see cref="IHeaderMetadata.ValueIgnoresCase"/>.
+        /// Header value must match by prefix, subject to the value of <see cref="IHeaderMetadata.CaseSensitive"/>.
         /// </summary>
         Prefix,
     }

@@ -70,7 +70,7 @@ namespace Microsoft.ReverseProxy.Service.Routing
                     {
                         var requestHeaderValue = requestHeaderValues.ToString();
                         var comparisonFunc = GetComparisonFunc(metadata.ValueMatchMode);
-                        var stringComparison = metadata.ValueIgnoresCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+                        var stringComparison = metadata.CaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
                         for (var j = 0; j < metadataHeaderValues.Count; j++)
                         {
                             if (comparisonFunc(requestHeaderValue, metadataHeaderValues[j], stringComparison))
@@ -169,15 +169,15 @@ namespace Microsoft.ReverseProxy.Service.Routing
                 }
 
                 // 4. Then, by case sensitivity
-                if (x.ValueIgnoresCase && !y.ValueIgnoresCase)
-                {
-                    // y is more specific, as *only it* is case sensitive
-                    return 1;
-                }
-                else if (!x.ValueIgnoresCase && y.ValueIgnoresCase)
+                if (x.CaseSensitive && !y.CaseSensitive)
                 {
                     // x is more specific, as *only it* is case sensitive
                     return -1;
+                }
+                else if (!x.CaseSensitive && y.CaseSensitive)
+                {
+                    // y is more specific, as *only it* is case sensitive
+                    return 1;
                 }
 
                 // They have equal specificity

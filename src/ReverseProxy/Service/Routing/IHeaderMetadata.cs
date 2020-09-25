@@ -30,10 +30,10 @@ namespace Microsoft.ReverseProxy.Service.Routing
 
         /// <summary>
         /// Specifies whether header value comparisons should ignore case.
-        /// When <c>false</c>, <see cref="StringComparison.Ordinal" /> is used.
-        /// When <c>true</c>, <see cref="StringComparison.OrdinalIgnoreCase" /> is used.
+        /// When <c>true</c>, <see cref="StringComparison.Ordinal" /> is used.
+        /// When <c>false</c>, <see cref="StringComparison.OrdinalIgnoreCase" /> is used.
         /// Defaults to <c>false</c>.
         /// </summary>
-        bool ValueIgnoresCase { get; }
+        bool CaseSensitive { get; }
     }
 }
