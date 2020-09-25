@@ -47,59 +47,61 @@ namespace Microsoft.ReverseProxy.Service.Routing
                     continue;
                 }
 
-                var metadata = candidates[i].Endpoint.Metadata.GetMetadata<IHeaderMetadata>();
-                if (metadata == null)
-                {
-                    // Can match any request
-                    continue;
-                }
+                var metadataList = candidates[i].Endpoint.Metadata.GetOrderedMetadata<IHeaderMetadata>();
 
-                var metadataHeaderName = metadata.HeaderName;
-                if (string.IsNullOrEmpty(metadataHeaderName))
+                for (var m = 0; m < metadataList.Count; m++)
                 {
-                    throw new InvalidOperationException("A header name must be specified.");
-                }
-                var metadataHeaderValues = metadata.HeaderValues;
-
-                var matched = false;
-                if (httpContext.Request.Headers.TryGetValue(metadataHeaderName, out var requestHeaderValues))
-                {
-                    if (metadataHeaderValues == null || metadataHeaderValues.Count == 0)
+                    var metadata = metadataList[m];
+                    var metadataHeaderName = metadata.HeaderName;
+                    if (string.IsNullOrEmpty(metadataHeaderName))
                     {
-                        // We were asked to match as long as the header exists, and it *does* exist
-                        matched = true;
+                        throw new InvalidOperationException("A header name must be specified.");
                     }
-                    // Multi-value headers are not supported.
-                    else if (requestHeaderValues.Count == 1)
+
+                    var metadataHeaderValues = metadata.HeaderValues;
+
+                    var matched = false;
+                    if (httpContext.Request.Headers.TryGetValue(metadataHeaderName, out var requestHeaderValues))
                     {
-                        var requestHeaderValue = requestHeaderValues.ToString();
-                        for (var j = 0; j < metadataHeaderValues.Count; j++)
+                        if (metadataHeaderValues == null || metadataHeaderValues.Count == 0)
                         {
-                            if (MatchHeader(metadata.ValueMatchMode, requestHeaderValue, metadataHeaderValues[j], metadata.CaseSensitive))
+                            // We were asked to match as long as the header exists, and it *does* exist
+                            matched = true;
+                        }
+                        // Multi-value headers are not supported.
+                        else if (requestHeaderValues.Count == 1)
+                        {
+                            var requestHeaderValue = requestHeaderValues.ToString();
+                            for (var j = 0; j < metadataHeaderValues.Count; j++)
                             {
-                                matched = true;
-                                break;
+                                if (MatchHeader(metadata.Mode, requestHeaderValue, metadataHeaderValues[j], metadata.CaseSensitive))
+                                {
+                                    matched = true;
+                                    break;
+                                }
                             }
                         }
                     }
-                }
 
-                if (!matched)
-                {
-                    candidates.SetValidity(i, false);
+                    // All rules must match
+                    if (!matched)
+                    {
+                        candidates.SetValidity(i, false);
+                        break;
+                    }
                 }
             }
 
             return Task.CompletedTask;
         }
 
-        private static bool MatchHeader(HeaderValueMatchMode matchMode, string requestHeaderValue, string metadataHeaderValue, bool caseSensitive)
+        private static bool MatchHeader(HeaderMatchMode matchMode, string requestHeaderValue, string metadataHeaderValue, bool caseSensitive)
         {
             var comparison = caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
             return matchMode switch
             {
-                HeaderValueMatchMode.Exact => MemoryExtensions.Equals(requestHeaderValue, metadataHeaderValue, comparison),
-                HeaderValueMatchMode.Prefix => requestHeaderValue != null && metadataHeaderValue != null
+                HeaderMatchMode.Exact => MemoryExtensions.Equals(requestHeaderValue, metadataHeaderValue, comparison),
+                HeaderMatchMode.Prefix => requestHeaderValue != null && metadataHeaderValue != null
                     && MemoryExtensions.StartsWith(requestHeaderValue, metadataHeaderValue, comparison),
                 _ => throw new NotImplementedException(matchMode.ToString()),
             };
@@ -159,12 +161,12 @@ namespace Microsoft.ReverseProxy.Service.Routing
                 }
 
                 // 3. Then, by value match mode (Exact Vs. Prefix)
-                if (x.ValueMatchMode != HeaderValueMatchMode.Exact && y.ValueMatchMode == HeaderValueMatchMode.Exact)
+                if (x.Mode != HeaderMatchMode.Exact && y.Mode == HeaderMatchMode.Exact)
                 {
                     // y is more specific, as *only it* does exact match
                     return 1;
                 }
-                else if (x.ValueMatchMode == HeaderValueMatchMode.Exact && y.ValueMatchMode != HeaderValueMatchMode.Exact)
+                else if (x.Mode == HeaderMatchMode.Exact && y.Mode != HeaderMatchMode.Exact)
                 {
                     // x is more specific, as *only it* does exact match
                     return -1;

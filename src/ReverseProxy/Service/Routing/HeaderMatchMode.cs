@@ -6,7 +6,7 @@ namespace Microsoft.ReverseProxy.Service.Routing
     /// <summary>
     /// How to compare header values.
     /// </summary>
-    public enum HeaderValueMatchMode
+    public enum HeaderMatchMode
     {
         /// <summary>
         /// Header value must match in its entirety, subject to the value of <see cref="IHeaderMetadata.CaseSensitive"/>.

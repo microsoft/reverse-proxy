@@ -9,24 +9,32 @@ namespace Microsoft.ReverseProxy.Service.Routing
     /// <summary>
     /// Represents request header metadata used during routing.
     /// </summary>
-    internal interface IHeaderMetadata
+    internal class HeaderMetadata : IHeaderMetadata
     {
+        public HeaderMetadata(string headerName, IReadOnlyList<string> headerValues, HeaderMatchMode mode, bool caseSensitive)
+        {
+            HeaderName = headerName;
+            HeaderValues = headerValues;
+            Mode = mode;
+            CaseSensitive = caseSensitive;
+        }
+
         /// <summary>
         /// Name of the header to look for.
         /// </summary>
-        string HeaderName { get; }
+        public string HeaderName { get; }
 
         /// <summary>
         /// Returns a read-only collection of acceptable header values used during routing.
         /// An empty collection means any header value will be accepted, as long as the header is present.
         /// </summary>
-        IReadOnlyList<string> HeaderValues { get; }
+        public IReadOnlyList<string> HeaderValues { get; }
 
         /// <summary>
         /// Specifies how header values should be compared (e.g. exact matches Vs. by prefix).
         /// Defaults to <see cref="HeaderMatchMode.Exact"/>.
         /// </summary>
-        HeaderMatchMode Mode { get; }
+        public HeaderMatchMode Mode { get; }
 
         /// <summary>
         /// Specifies whether header value comparisons should ignore case.
@@ -34,6 +42,6 @@ namespace Microsoft.ReverseProxy.Service.Routing
         /// When <c>false</c>, <see cref="StringComparison.OrdinalIgnoreCase" /> is used.
         /// Defaults to <c>false</c>.
         /// </summary>
-        bool CaseSensitive { get; }
+        public bool CaseSensitive { get; }
     }
 }
