@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Matching;
+using Microsoft.Extensions.Primitives;
 
 namespace Microsoft.ReverseProxy.Service.Routing
 {
@@ -59,16 +60,25 @@ namespace Microsoft.ReverseProxy.Service.Routing
                     }
 
                     var metadataHeaderValues = metadata.HeaderValues;
+                    if (metadataHeaderValues == null || metadataHeaderValues.Count == 0)
+                    {
+                        throw new InvalidOperationException("IHeaderMetadata.HeaderValues must have a value.");
+                    }
 
                     var matched = false;
                     if (httpContext.Request.Headers.TryGetValue(metadataHeaderName, out var requestHeaderValues))
                     {
-                        if (metadataHeaderValues == null || metadataHeaderValues.Count == 0)
+                        if (StringValues.IsNullOrEmpty(requestHeaderValues))
+                        {
+                            // A non-empty value is required for a match.
+                        }
+                        else if (metadata.Mode == HeaderMatchMode.Exists)
                         {
                             // We were asked to match as long as the header exists, and it *does* exist
                             matched = true;
                         }
                         // Multi-value headers are not supported.
+                        // Note a single entry may also contain multiple values, we don't distinguish, we only match on the whole header.
                         else if (requestHeaderValues.Count == 1)
                         {
                             var requestHeaderValue = requestHeaderValues.ToString();

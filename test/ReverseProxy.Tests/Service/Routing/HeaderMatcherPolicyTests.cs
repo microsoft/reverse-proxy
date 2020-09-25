@@ -103,7 +103,7 @@ namespace Microsoft.ReverseProxy.Service.Routing
 
         [Theory]
         [InlineData(null, false)]
-        [InlineData("", true)]
+        [InlineData("", false)]
         [InlineData("abc", true)]
         public async Task ApplyAsync_MatchingScenarios_AnyHeaderValue(string incomingHeaderValue, bool shouldMatch)
         {
@@ -114,7 +114,7 @@ namespace Microsoft.ReverseProxy.Service.Routing
                 context.Request.Headers.Add("org-id", incomingHeaderValue);
             }
 
-            var endpoint = Endpoint("org-id", new string[0]);
+            var endpoint = Endpoint("org-id", new[] { string.Empty }, HeaderMatchMode.Exists);
             var candidates = new CandidateSet(new[] { endpoint }, new RouteValueDictionary[1], new int[1]);
             var sut = new HeaderMatcherPolicy();
 

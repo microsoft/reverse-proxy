@@ -14,6 +14,11 @@ namespace Microsoft.ReverseProxy.Service.Routing
         Exact,
 
         /// <summary>
+        /// The header must exist, but any non-empty value is allowed.
+        /// </summary>
+        Exists,
+
+        /// <summary>
         /// Header value must match by prefix, subject to the value of <see cref="IHeaderMetadata.CaseSensitive"/>.
         /// </summary>
         Prefix,

@@ -28,6 +28,14 @@ namespace Microsoft.ReverseProxy.Service.Routing
         /// </summary>
         HeaderMatchMode Mode { get; }
 
+        // Not implemented:
+        // A request header may have multiple values, either as multiple headers,
+        // a comma separated header, or some combination of the two.
+        // Also don't forget cookies that are semi-colon separated.
+        // The current implementation doesn't attempt to match individual header values,
+        // it only supports matching a single full header.
+        // bool AllowMultiValueHeaders { get; }
+
         /// <summary>
         /// Specifies whether header value comparisons should ignore case.
         /// When <c>true</c>, <see cref="StringComparison.Ordinal" /> is used.
