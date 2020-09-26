@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Microsoft.ReverseProxy.Utilities
 {
-    internal class CaseInsensitiveEqualHelper
+    internal static class CaseInsensitiveEqualHelper
     {
         internal static bool Equals(IReadOnlyList<string> list1, IReadOnlyList<string> list2)
         {

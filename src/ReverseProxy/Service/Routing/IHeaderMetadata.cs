@@ -18,7 +18,7 @@ namespace Microsoft.ReverseProxy.Service.Routing
 
         /// <summary>
         /// Returns a read-only collection of acceptable header values used during routing.
-        /// An empty collection means any header value will be accepted, as long as the header is present.
+        /// The list must not be empty.
         /// </summary>
         IReadOnlyList<string> HeaderValues { get; }
 

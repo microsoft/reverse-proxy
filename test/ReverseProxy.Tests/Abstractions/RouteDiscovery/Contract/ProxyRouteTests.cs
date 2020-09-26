@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using Microsoft.ReverseProxy.Service.Routing;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Abstractions.Tests
@@ -26,6 +27,16 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
                     Methods = new[] { "GET", "POST" },
                     Hosts = new[] { "example.com" },
                     Path = "/",
+                    Headers = new[]
+                    {
+                        new RouteHeader()
+                        {
+                            HeaderName = "header1",
+                            HeaderValues = new[] { "value1", "value2" },
+                            Mode = HeaderMatchMode.Prefix,
+                            CaseSensitive = true,
+                        }
+                    },
                 },
                 Order = 2,
                 ClusterId = "cluster1",
@@ -45,8 +56,11 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
             Assert.Equal(sut.RouteId, clone.RouteId);
             Assert.NotSame(sut.Match, clone.Match);
             Assert.NotSame(sut.Match.Methods, clone.Match.Methods);
+            Assert.NotSame(sut.Match.Hosts, clone.Match.Hosts);
+            Assert.NotSame(sut.Match.Headers, clone.Match.Headers);
             Assert.Equal(sut.Match.Methods, clone.Match.Methods);
             Assert.Equal(sut.Match.Hosts, clone.Match.Hosts);
+            Assert.Equal(sut.Match.Headers.Count, clone.Match.Headers.Count); // These types don't implement the standard Object.Equals
             Assert.Equal(sut.Match.Path, clone.Match.Path);
             Assert.Equal(sut.Order, clone.Order);
             Assert.Equal(sut.ClusterId, clone.ClusterId);
@@ -71,6 +85,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
             Assert.Null(clone.RouteId);
             Assert.Null(clone.Match.Methods);
             Assert.Null(clone.Match.Hosts);
+            Assert.Null(clone.Match.Headers);
             Assert.Null(clone.Match.Path);
             Assert.Null(clone.Order);
             Assert.Null(clone.ClusterId);
