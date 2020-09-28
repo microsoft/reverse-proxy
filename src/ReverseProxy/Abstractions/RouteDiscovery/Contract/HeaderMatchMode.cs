@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Microsoft.ReverseProxy.Service.Routing
+namespace Microsoft.ReverseProxy.Abstractions
 {
     /// <summary>
     /// How to match header values.

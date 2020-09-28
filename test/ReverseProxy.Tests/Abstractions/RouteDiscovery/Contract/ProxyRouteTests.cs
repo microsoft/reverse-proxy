@@ -69,18 +69,17 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
             Assert.NotNull(clone.Metadata);
             Assert.NotSame(sut.Metadata, clone.Metadata);
             Assert.Equal("value", clone.Metadata["key"]);
+
+            Assert.True(ProxyRoute.Equals(sut, clone));
         }
 
         [Fact]
         public void DeepClone_Nulls_Works()
         {
-            // Arrange
             var sut = new ProxyRoute();
 
-            // Act
             var clone = sut.DeepClone();
 
-            // Assert
             Assert.NotSame(sut, clone);
             Assert.Null(clone.RouteId);
             Assert.Null(clone.Match.Methods);
@@ -92,6 +91,8 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
             Assert.Null(clone.AuthorizationPolicy);
             Assert.Null(clone.CorsPolicy);
             Assert.Null(clone.Metadata);
+
+            Assert.True(ProxyRoute.Equals(sut, clone));
         }
     }
 }

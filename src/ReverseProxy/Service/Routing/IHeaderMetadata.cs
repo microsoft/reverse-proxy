@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.ReverseProxy.Abstractions;
 
 namespace Microsoft.ReverseProxy.Service.Routing
 {

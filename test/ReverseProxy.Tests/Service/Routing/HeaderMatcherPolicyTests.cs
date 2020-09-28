@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Matching;
 using Microsoft.AspNetCore.Routing.Patterns;
-using Microsoft.Extensions.Options;
+using Microsoft.ReverseProxy.Abstractions;
 using Moq;
 using Xunit;
 
