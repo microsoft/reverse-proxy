@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.ReverseProxy.Service.Routing;
+
 namespace Microsoft.ReverseProxy.Abstractions
 {
     /// <summary>
@@ -9,7 +11,7 @@ namespace Microsoft.ReverseProxy.Abstractions
     public enum HeaderMatchMode
     {
         /// <summary>
-        /// The header must match in its entirety, subject to the value of <see cref="IHeaderMetadata.CaseSensitive"/>.
+        /// The header must match in its entirety, subject to the value of <see cref="IHeaderMetadata.IsCaseSensitive"/>.
         /// Only single headers are supported. If there are multiple headers with the same name then the match fails.
         /// </summary>
         ExactHeader,
@@ -20,7 +22,7 @@ namespace Microsoft.ReverseProxy.Abstractions
         // ValuePrefix,
 
         /// <summary>
-        /// The header must match by prefix, subject to the value of <see cref="IHeaderMetadata.CaseSensitive"/>.
+        /// The header must match by prefix, subject to the value of <see cref="IHeaderMetadata.IsCaseSensitive"/>.
         /// Only single headers are supported. If there are multiple headers with the same name then the match fails.
         /// </summary>
         HeaderPrefix,

@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.ReverseProxy.Service.Routing;
 using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Abstractions
@@ -17,13 +16,13 @@ namespace Microsoft.ReverseProxy.Abstractions
         /// <summary>
         /// Name of the header to look for.
         /// </summary>
-        public string HeaderName { get; set; }
+        public string Name { get; set; }
 
         /// <summary>
-        /// A collection of acceptable header values used during routing.
-        /// The list must not be empty.
+        /// A collection of acceptable header values used during routing. Only one value must match.
+        /// The list must not be empty unless using <see cref="HeaderMatchMode.Exists"/>.
         /// </summary>
-        public IReadOnlyList<string> HeaderValues { get; set; }
+        public IReadOnlyList<string> Values { get; set; }
 
         /// <summary>
         /// Specifies how header values should be compared (e.g. exact matches Vs. by prefix).
@@ -37,16 +36,16 @@ namespace Microsoft.ReverseProxy.Abstractions
         /// When <c>false</c>, <see cref="StringComparison.OrdinalIgnoreCase" /> is used.
         /// Defaults to <c>false</c>.
         /// </summary>
-        public bool CaseSensitive { get; set; }
+        public bool IsCaseSensitive { get; set; }
 
         RouteHeader IDeepCloneable<RouteHeader>.DeepClone()
         {
             return new RouteHeader()
             {
-                HeaderName = HeaderName,
-                HeaderValues = HeaderValues?.ToArray(),
+                Name = Name,
+                Values = Values?.ToArray(),
                 Mode = Mode,
-                CaseSensitive = CaseSensitive,
+                IsCaseSensitive = IsCaseSensitive,
             };
         }
 
@@ -62,12 +61,12 @@ namespace Microsoft.ReverseProxy.Abstractions
                 return false;
             }
 
-            return string.Equals(header1.HeaderName, header1.HeaderName, StringComparison.OrdinalIgnoreCase)
+            return string.Equals(header1.Name, header1.Name, StringComparison.OrdinalIgnoreCase)
                 && header1.Mode == header2.Mode
-                && header1.CaseSensitive == header2.CaseSensitive
-                && header1.CaseSensitive
-                    ? CaseSensitiveEqualHelper.Equals(header1.HeaderValues, header2.HeaderValues)
-                    : CaseInsensitiveEqualHelper.Equals(header1.HeaderValues, header2.HeaderValues);
+                && header1.IsCaseSensitive == header2.IsCaseSensitive
+                && header1.IsCaseSensitive
+                    ? CaseSensitiveEqualHelper.Equals(header1.Values, header2.Values)
+                    : CaseInsensitiveEqualHelper.Equals(header1.Values, header2.Values);
         }
     }
 }

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.ReverseProxy.Abstractions.Telemetry;
@@ -11,6 +12,7 @@ using Microsoft.ReverseProxy.Service.Management;
 using Microsoft.ReverseProxy.Service.Metrics;
 using Microsoft.ReverseProxy.Service.Proxy;
 using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
+using Microsoft.ReverseProxy.Service.Routing;
 using Microsoft.ReverseProxy.Service.SessionAffinity;
 using Microsoft.ReverseProxy.Telemetry;
 using Microsoft.ReverseProxy.Utilities;
@@ -37,6 +39,7 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
         {
             builder.Services.TryAddSingleton<IConfigValidator, ConfigValidator>();
             builder.Services.TryAddSingleton<IRuntimeRouteBuilder, RuntimeRouteBuilder>();
+            builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<MatcherPolicy, HeaderMatcherPolicy>());
             return builder;
         }
 

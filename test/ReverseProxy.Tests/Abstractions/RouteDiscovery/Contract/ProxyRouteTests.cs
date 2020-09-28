@@ -31,10 +31,10 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
                     {
                         new RouteHeader()
                         {
-                            HeaderName = "header1",
-                            HeaderValues = new[] { "value1", "value2" },
+                            Name = "header1",
+                            Values = new[] { "value1", "value2" },
                             Mode = HeaderMatchMode.HeaderPrefix,
-                            CaseSensitive = true,
+                            IsCaseSensitive = true,
                         }
                     },
                 },

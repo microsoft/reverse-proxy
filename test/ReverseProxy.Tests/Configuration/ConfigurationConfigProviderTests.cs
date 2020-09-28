@@ -14,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Configuration.Contract;
 using Microsoft.ReverseProxy.Service;
 using Microsoft.ReverseProxy.Utilities.Tests;
@@ -88,7 +89,22 @@ namespace Microsoft.ReverseProxy.Configuration
                     AuthorizationPolicy = "Default",
                     CorsPolicy = "Default",
                     Order = 1,
-                    Match = { Hosts = new List<string> { "host-A" }, Methods = new List<string> { "GET", "POST", "DELETE" }, Path = "/apis/entities" },
+                    Match =
+                    {
+                        Hosts = new List<string> { "host-A" },
+                        Methods = new List<string> { "GET", "POST", "DELETE" },
+                        Path = "/apis/entities",
+                        Headers = new[]
+                        {
+                            new RouteHeaderData()
+                            {
+                                Name = "header1",
+                                Values = new[] { "value1" },
+                                IsCaseSensitive = true,
+                                Mode = HeaderMatchMode.HeaderPrefix
+                            }
+                        }
+                    },
                     Transforms = new List<IDictionary<string, string>>
                     {
                         new Dictionary<string, string> { { "RequestHeadersCopy", "true" }, { "PathRemovePrefix", "/apis" } }, new Dictionary<string, string> { { "PathPrefix", "/apis" } }
@@ -100,7 +116,22 @@ namespace Microsoft.ReverseProxy.Configuration
                     RouteId = "routeB",
                     ClusterId = "cluster2",
                     Order = 2,
-                    Match = { Hosts = new List<string> { "host-B" }, Methods = new List<string> { "GET" }, Path = "/apis/users" }
+                    Match =
+                    {
+                        Hosts = new List<string> { "host-B" },
+                        Methods = new List<string> { "GET" },
+                        Path = "/apis/users",
+                        Headers = new[]
+                        {
+                            new RouteHeaderData()
+                            {
+                                Name = "header2",
+                                Values = new[] { "value2" },
+                                IsCaseSensitive = false,
+                                Mode = HeaderMatchMode.ExactHeader
+                            }
+                        }
+                    }
                 }
             }
         };
@@ -214,7 +245,15 @@ namespace Microsoft.ReverseProxy.Configuration
                 ""Hosts"": [
                     ""host-A""
                 ],
-                ""Path"": ""/apis/entities""
+                ""Path"": ""/apis/entities"",
+                ""Headers"": [
+                  {
+                    ""Name"": ""header1"",
+                    ""Values"": [ ""value1"" ],
+                    ""IsCaseSensitive"": true,
+                    ""Mode"": ""HeaderPrefix""
+                  }
+                ]
             },
             ""Order"": 1,
             ""ClusterId"": ""cluster1"",
@@ -243,7 +282,13 @@ namespace Microsoft.ReverseProxy.Configuration
                 ""Hosts"": [
                     ""host-B""
                 ],
-                ""Path"": ""/apis/users""
+                ""Path"": ""/apis/users"",
+                ""Headers"": [
+                  {
+                    ""Name"": ""header2"",
+                    ""Values"": [ ""value2"" ]
+                  }
+                ]
             },
             ""Order"": 2,
             ""ClusterId"": ""cluster2"",
@@ -339,7 +384,8 @@ namespace Microsoft.ReverseProxy.Configuration
                             VerifyFullyInitialized(item, name);
                         }
 
-                        if (e.GetType().Namespace == abstractionsNamespace)
+                        var type = e.GetType();
+                        if (!type.IsArray && type.Namespace == abstractionsNamespace)
                         {
                             VerifyAllPropertiesAreSet(e);
                         }
@@ -547,6 +593,12 @@ namespace Microsoft.ReverseProxy.Configuration
             Assert.Equal(route.Match.Hosts, abstractRoute.Match.Hosts);
             Assert.Equal(route.Match.Methods, abstractRoute.Match.Methods);
             Assert.Equal(route.Match.Path, abstractRoute.Match.Path);
+            var header = route.Match.Headers.Single();
+            var expectedHeader = abstractRoute.Match.Headers.Single();
+            Assert.Equal(header.Name, expectedHeader.Name);
+            Assert.Equal(header.Mode, expectedHeader.Mode);
+            Assert.Equal(header.IsCaseSensitive, expectedHeader.IsCaseSensitive);
+            // Skipping header.Value/s because it's a fuzzy match
             Assert.Equal(route.Transforms, abstractRoute.Transforms);
         }
 

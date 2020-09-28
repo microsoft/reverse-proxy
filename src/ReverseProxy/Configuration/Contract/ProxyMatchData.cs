@@ -31,10 +31,9 @@ namespace Microsoft.ReverseProxy.Configuration.Contract
         /// </summary>
         // public ICollection<KeyValuePair<string, string>> QueryParameters { get; set; }
 
-        // TODO:
         /// <summary>
-        /// Only match requests that contain all of these request headers.
+        /// Only match requests that contain all of these headers.
         /// </summary>
-        // public ICollection<KeyValuePair<string, string>> Headers { get; set; }
+        public IReadOnlyList<RouteHeaderData> Headers { get; set; }
     }
 }

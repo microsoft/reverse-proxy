@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.ReverseProxy.Abstractions;
 
 namespace Microsoft.ReverseProxy.Service.Routing
 {
@@ -12,47 +11,12 @@ namespace Microsoft.ReverseProxy.Service.Routing
     /// </summary>
     internal class HeaderMetadata : IHeaderMetadata
     {
-        public HeaderMetadata(string headerName, IReadOnlyList<string> headerValues, HeaderMatchMode mode, bool caseSensitive)
+        public HeaderMetadata(IReadOnlyList<HeaderMatcher> matchers)
         {
-            if (string.IsNullOrEmpty(headerName))
-            {
-                throw new ArgumentException("A header name is required.", nameof(headerName));
-            }
-            if (mode != HeaderMatchMode.Exists
-                && (headerValues == null || headerValues.Count == 0))
-            {
-                throw new ArgumentException("Header values must have at least one value.", nameof(headerValues));
-            }
-
-            HeaderName = headerName;
-            HeaderValues = headerValues;
-            Mode = mode;
-            CaseSensitive = caseSensitive;
+            Matchers = matchers ?? throw new ArgumentNullException(nameof(matchers));
         }
 
-        /// <summary>
-        /// Name of the header to look for.
-        /// </summary>
-        public string HeaderName { get; }
-
-        /// <summary>
-        /// Returns a read-only collection of acceptable header values used during routing.
-        /// An empty collection means any header value will be accepted, as long as the header is present.
-        /// </summary>
-        public IReadOnlyList<string> HeaderValues { get; }
-
-        /// <summary>
-        /// Specifies how header values should be compared (e.g. exact matches Vs. by prefix).
-        /// Defaults to <see cref="HeaderMatchMode.ExactHeader"/>.
-        /// </summary>
-        public HeaderMatchMode Mode { get; }
-
-        /// <summary>
-        /// Specifies whether header value comparisons should ignore case.
-        /// When <c>true</c>, <see cref="StringComparison.Ordinal" /> is used.
-        /// When <c>false</c>, <see cref="StringComparison.OrdinalIgnoreCase" /> is used.
-        /// Defaults to <c>false</c>.
-        /// </summary>
-        public bool CaseSensitive { get; }
+        /// <inheritdoc/>
+        public IReadOnlyList<HeaderMatcher> Matchers { get; }
     }
 }

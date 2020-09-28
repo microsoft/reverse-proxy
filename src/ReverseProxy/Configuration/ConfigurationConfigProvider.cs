@@ -156,7 +156,7 @@ namespace Microsoft.ReverseProxy.Configuration
             return cluster;
         }
 
-        private ProxyRoute Convert(ProxyRouteData data)
+        private static ProxyRoute Convert(ProxyRouteData data)
         {
             var route = new ProxyRoute
             {
@@ -172,7 +172,7 @@ namespace Microsoft.ReverseProxy.Configuration
             return route;
         }
 
-        private void Convert(ProxyMatch proxyMatch, ProxyMatchData data)
+        private static void Convert(ProxyMatch proxyMatch, ProxyMatchData data)
         {
             if (data == null)
             {
@@ -182,9 +182,28 @@ namespace Microsoft.ReverseProxy.Configuration
             proxyMatch.Methods = data.Methods?.ToArray();
             proxyMatch.Hosts = data.Hosts?.ToArray();
             proxyMatch.Path = data.Path;
+            proxyMatch.Headers = Convert(data.Headers);
         }
 
-        private CircuitBreakerOptions Convert(CircuitBreakerData data)
+        private static IReadOnlyList<RouteHeader> Convert(IReadOnlyList<RouteHeaderData> headers)
+        {
+            return headers?.Select(data => Convert(data)).ToArray();
+        }
+
+        private static RouteHeader Convert(RouteHeaderData data)
+        {
+            var routeHeader = new RouteHeader()
+            {
+                Name = data.Name,
+                Values = data.Values,
+                Mode = data.Mode,
+                IsCaseSensitive = data.IsCaseSensitive,
+            };
+
+            return routeHeader;
+        }
+
+        private static CircuitBreakerOptions Convert(CircuitBreakerData data)
         {
             if(data == null)
             {
@@ -198,7 +217,7 @@ namespace Microsoft.ReverseProxy.Configuration
             };
         }
 
-        private QuotaOptions Convert(QuotaData data)
+        private static QuotaOptions Convert(QuotaData data)
         {
             if (data == null)
             {
@@ -212,7 +231,7 @@ namespace Microsoft.ReverseProxy.Configuration
             };
         }
 
-        private ClusterPartitioningOptions Convert(ClusterPartitioningData data)
+        private static ClusterPartitioningOptions Convert(ClusterPartitioningData data)
         {
             if (data == null)
             {
@@ -227,7 +246,7 @@ namespace Microsoft.ReverseProxy.Configuration
             };
         }
 
-        private LoadBalancingOptions Convert(LoadBalancingData data)
+        private static LoadBalancingOptions Convert(LoadBalancingData data)
         {
             if (data == null)
             {
@@ -240,7 +259,7 @@ namespace Microsoft.ReverseProxy.Configuration
             };
         }
 
-        private SessionAffinityOptions Convert(SessionAffinityData data)
+        private static SessionAffinityOptions Convert(SessionAffinityData data)
         {
             if (data == null)
             {
@@ -256,7 +275,7 @@ namespace Microsoft.ReverseProxy.Configuration
             };
         }
 
-        private HealthCheckOptions Convert(HealthCheckData data)
+        private static HealthCheckOptions Convert(HealthCheckData data)
         {
             if (data == null)
             {
@@ -305,7 +324,7 @@ namespace Microsoft.ReverseProxy.Configuration
             };
         }
 
-        private Destination Convert(DestinationData data)
+        private static Destination Convert(DestinationData data)
         {
             if (data == null)
             {

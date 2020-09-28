@@ -15,12 +15,7 @@ namespace Microsoft.ReverseProxy.Utilities
                 return true;
             }
 
-            if ((list1?.Count ?? 0) == 0 && (list2?.Count ?? 0) == 0)
-            {
-                return true;
-            }
-
-            if (list1 != null && list2 == null || list1 == null && list2 != null)
+            if (list1 == null && list2 == null)
             {
                 return false;
             }

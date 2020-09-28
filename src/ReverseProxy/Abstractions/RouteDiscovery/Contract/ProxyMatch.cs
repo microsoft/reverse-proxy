@@ -76,12 +76,7 @@ namespace Microsoft.ReverseProxy.Abstractions
                 return true;
             }
 
-            if ((headers1?.Count ?? 0) == 0 && (headers2?.Count ?? 0) == 0)
-            {
-                return true;
-            }
-
-            if (headers1 != null && headers2 == null || headers1 == null && headers2 != null)
+            if (headers1 == null || headers2 == null)
             {
                 return false;
             }

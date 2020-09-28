@@ -15,12 +15,7 @@ namespace Microsoft.ReverseProxy.Utilities
                 return true;
             }
 
-            if ((list1?.Count ?? 0) == 0 && (list2?.Count ?? 0) == 0)
-            {
-                return true;
-            }
-
-            if (list1 != null && list2 == null || list1 == null && list2 != null)
+            if (list1 == null || list2 == null)
             {
                 return false;
             }
@@ -48,12 +43,7 @@ namespace Microsoft.ReverseProxy.Utilities
                 return true;
             }
 
-            if ((dictionaryList1?.Count ?? 0) == 0 && (dictionaryList2?.Count ?? 0) == 0)
-            {
-                return true;
-            }
-
-            if (dictionaryList1 != null && dictionaryList2 == null || dictionaryList1 == null && dictionaryList2 != null)
+            if (dictionaryList1 == null || dictionaryList2 == null)
             {
                 return false;
             }
@@ -91,12 +81,7 @@ namespace Microsoft.ReverseProxy.Utilities
                 return true;
             }
 
-            if ((dictionary1?.Count ?? 0) == 0 && (dictionary2?.Count ?? 0) == 0)
-            {
-                return true;
-            }
-
-            if (dictionary1 != null && dictionary2 == null || dictionary1 == null && dictionary2 != null)
+            if (dictionary1 == null || dictionary2 == null)
             {
                 return false;
             }
@@ -104,6 +89,11 @@ namespace Microsoft.ReverseProxy.Utilities
             if (dictionary1.Count != dictionary2.Count)
             {
                 return false;
+            }
+
+            if (dictionary1.Count == 0)
+            {
+                return true;
             }
 
             foreach (var (key, value1) in dictionary1)
