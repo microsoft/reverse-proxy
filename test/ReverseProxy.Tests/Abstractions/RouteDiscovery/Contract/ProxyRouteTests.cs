@@ -33,7 +33,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
                         {
                             HeaderName = "header1",
                             HeaderValues = new[] { "value1", "value2" },
-                            Mode = HeaderMatchMode.Prefix,
+                            Mode = HeaderMatchMode.HeaderPrefix,
                             CaseSensitive = true,
                         }
                     },

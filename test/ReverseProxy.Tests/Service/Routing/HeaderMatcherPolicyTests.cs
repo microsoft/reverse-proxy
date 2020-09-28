@@ -20,22 +20,22 @@ namespace Microsoft.ReverseProxy.Service.Routing
             // Arrange
             var endpoints = new[]
             {
-                (0, Endpoint("header", new[] { "abc" }, HeaderMatchMode.Exact, caseSensitive: true)),
+                (0, Endpoint("header", new[] { "abc" }, HeaderMatchMode.ExactHeader, caseSensitive: true)),
 
-                (1, Endpoint("header", new[] { "abc" }, HeaderMatchMode.Exact)),
-                (1, Endpoint("header", new[] { "abc", "def" }, HeaderMatchMode.Exact)),
-                (1, Endpoint("header2", new[] { "abc", "def" }, HeaderMatchMode.Exact)),
+                (1, Endpoint("header", new[] { "abc" }, HeaderMatchMode.ExactHeader)),
+                (1, Endpoint("header", new[] { "abc", "def" }, HeaderMatchMode.ExactHeader)),
+                (1, Endpoint("header2", new[] { "abc", "def" }, HeaderMatchMode.ExactHeader)),
 
-                (2, Endpoint("header", new[] { "abc" }, HeaderMatchMode.Prefix, caseSensitive: true)),
+                (2, Endpoint("header", new[] { "abc" }, HeaderMatchMode.HeaderPrefix, caseSensitive: true)),
 
-                (3, Endpoint("header", new[] { "abc" }, HeaderMatchMode.Prefix)),
-                (3, Endpoint("header", new[] { "abc", "def" }, HeaderMatchMode.Prefix)),
-                (3, Endpoint("header2", new[] { "abc", "def" }, HeaderMatchMode.Prefix)),
+                (3, Endpoint("header", new[] { "abc" }, HeaderMatchMode.HeaderPrefix)),
+                (3, Endpoint("header", new[] { "abc", "def" }, HeaderMatchMode.HeaderPrefix)),
+                (3, Endpoint("header2", new[] { "abc", "def" }, HeaderMatchMode.HeaderPrefix)),
 
-                (9, Endpoint("header", new string[0], HeaderMatchMode.Exact, caseSensitive: true)),
-                (9, Endpoint("header", new string[0], HeaderMatchMode.Exact)),
-                (9, Endpoint("header", new string[0], HeaderMatchMode.Prefix, caseSensitive: true)),
-                (9, Endpoint("header", new string[0], HeaderMatchMode.Prefix)),
+                (9, Endpoint("header", new string[0], HeaderMatchMode.ExactHeader, caseSensitive: true)),
+                (9, Endpoint("header", new string[0], HeaderMatchMode.ExactHeader)),
+                (9, Endpoint("header", new string[0], HeaderMatchMode.HeaderPrefix, caseSensitive: true)),
+                (9, Endpoint("header", new string[0], HeaderMatchMode.HeaderPrefix)),
                 (9, Endpoint("header", new string[0])),
 
                 (10, Endpoint(string.Empty, null)),
@@ -144,28 +144,28 @@ namespace Microsoft.ReverseProxy.Service.Routing
         }
 
         [Theory]
-        [InlineData("abc", HeaderMatchMode.Exact, false, null, false)]
-        [InlineData("abc", HeaderMatchMode.Exact, false, "", false)]
-        [InlineData("abc", HeaderMatchMode.Exact, false, "abc", true)]
-        [InlineData("abc", HeaderMatchMode.Exact, false, "aBC", true)]
-        [InlineData("abc", HeaderMatchMode.Exact, false, "abcd", false)]
-        [InlineData("abc", HeaderMatchMode.Exact, false, "ab", false)]
-        [InlineData("abc", HeaderMatchMode.Exact, true, "", false)]
-        [InlineData("abc", HeaderMatchMode.Exact, true, "abc", true)]
-        [InlineData("abc", HeaderMatchMode.Exact, true, "aBC", false)]
-        [InlineData("abc", HeaderMatchMode.Exact, true, "abcd", false)]
-        [InlineData("abc", HeaderMatchMode.Exact, true, "ab", false)]
-        [InlineData("abc", HeaderMatchMode.Prefix, false, "", false)]
-        [InlineData("abc", HeaderMatchMode.Prefix, false, "abc", true)]
-        [InlineData("abc", HeaderMatchMode.Prefix, false, "aBC", true)]
-        [InlineData("abc", HeaderMatchMode.Prefix, false, "abcd", true)]
-        [InlineData("abc", HeaderMatchMode.Prefix, false, "ab", false)]
-        [InlineData("abc", HeaderMatchMode.Prefix, true, "", false)]
-        [InlineData("abc", HeaderMatchMode.Prefix, true, "abc", true)]
-        [InlineData("abc", HeaderMatchMode.Prefix, true, "aBC", false)]
-        [InlineData("abc", HeaderMatchMode.Prefix, true, "abcd", true)]
-        [InlineData("abc", HeaderMatchMode.Prefix, true, "aBCd", false)]
-        [InlineData("abc", HeaderMatchMode.Prefix, true, "ab", false)]
+        [InlineData("abc", HeaderMatchMode.ExactHeader, false, null, false)]
+        [InlineData("abc", HeaderMatchMode.ExactHeader, false, "", false)]
+        [InlineData("abc", HeaderMatchMode.ExactHeader, false, "abc", true)]
+        [InlineData("abc", HeaderMatchMode.ExactHeader, false, "aBC", true)]
+        [InlineData("abc", HeaderMatchMode.ExactHeader, false, "abcd", false)]
+        [InlineData("abc", HeaderMatchMode.ExactHeader, false, "ab", false)]
+        [InlineData("abc", HeaderMatchMode.ExactHeader, true, "", false)]
+        [InlineData("abc", HeaderMatchMode.ExactHeader, true, "abc", true)]
+        [InlineData("abc", HeaderMatchMode.ExactHeader, true, "aBC", false)]
+        [InlineData("abc", HeaderMatchMode.ExactHeader, true, "abcd", false)]
+        [InlineData("abc", HeaderMatchMode.ExactHeader, true, "ab", false)]
+        [InlineData("abc", HeaderMatchMode.HeaderPrefix, false, "", false)]
+        [InlineData("abc", HeaderMatchMode.HeaderPrefix, false, "abc", true)]
+        [InlineData("abc", HeaderMatchMode.HeaderPrefix, false, "aBC", true)]
+        [InlineData("abc", HeaderMatchMode.HeaderPrefix, false, "abcd", true)]
+        [InlineData("abc", HeaderMatchMode.HeaderPrefix, false, "ab", false)]
+        [InlineData("abc", HeaderMatchMode.HeaderPrefix, true, "", false)]
+        [InlineData("abc", HeaderMatchMode.HeaderPrefix, true, "abc", true)]
+        [InlineData("abc", HeaderMatchMode.HeaderPrefix, true, "aBC", false)]
+        [InlineData("abc", HeaderMatchMode.HeaderPrefix, true, "abcd", true)]
+        [InlineData("abc", HeaderMatchMode.HeaderPrefix, true, "aBCd", false)]
+        [InlineData("abc", HeaderMatchMode.HeaderPrefix, true, "ab", false)]
         public async Task ApplyAsync_MatchingScenarios_OneHeaderValue(
             string headerValue,
             HeaderMatchMode headerValueMatchMode,
@@ -192,41 +192,41 @@ namespace Microsoft.ReverseProxy.Service.Routing
         }
 
         [Theory]
-        [InlineData("abc", "def", HeaderMatchMode.Exact, false, null, false)]
-        [InlineData("abc", "def", HeaderMatchMode.Exact, false, "", false)]
-        [InlineData("abc", "def", HeaderMatchMode.Exact, false, "abc", true)]
-        [InlineData("abc", "def", HeaderMatchMode.Exact, false, "aBc", true)]
-        [InlineData("abc", "def", HeaderMatchMode.Exact, false, "abcd", false)]
-        [InlineData("abc", "def", HeaderMatchMode.Exact, false, "def", true)]
-        [InlineData("abc", "def", HeaderMatchMode.Exact, false, "deF", true)]
-        [InlineData("abc", "def", HeaderMatchMode.Exact, false, "defg", false)]
-        [InlineData("abc", "def", HeaderMatchMode.Exact, true, null, false)]
-        [InlineData("abc", "def", HeaderMatchMode.Exact, true, "", false)]
-        [InlineData("abc", "def", HeaderMatchMode.Exact, true, "abc", true)]
-        [InlineData("abc", "def", HeaderMatchMode.Exact, true, "aBC", false)]
-        [InlineData("abc", "def", HeaderMatchMode.Exact, true, "aBCd", false)]
-        [InlineData("abc", "def", HeaderMatchMode.Exact, true, "def", true)]
-        [InlineData("abc", "def", HeaderMatchMode.Exact, true, "DEFg", false)]
-        [InlineData("abc", "def", HeaderMatchMode.Exact, true, "dEf", false)]
-        [InlineData("abc", "def", HeaderMatchMode.Prefix, false, null, false)]
-        [InlineData("abc", "def", HeaderMatchMode.Prefix, false, "", false)]
-        [InlineData("abc", "def", HeaderMatchMode.Prefix, false, "abc", true)]
-        [InlineData("abc", "def", HeaderMatchMode.Prefix, false, "aBc", true)]
-        [InlineData("abc", "def", HeaderMatchMode.Prefix, false, "abcd", true)]
-        [InlineData("abc", "def", HeaderMatchMode.Prefix, false, "abcD", true)]
-        [InlineData("abc", "def", HeaderMatchMode.Prefix, false, "def", true)]
-        [InlineData("abc", "def", HeaderMatchMode.Prefix, false, "deF", true)]
-        [InlineData("abc", "def", HeaderMatchMode.Prefix, false, "defg", true)]
-        [InlineData("abc", "def", HeaderMatchMode.Prefix, false, "defG", true)]
-        [InlineData("abc", "def", HeaderMatchMode.Prefix, false, "aabc", false)]
-        [InlineData("abc", "def", HeaderMatchMode.Prefix, true, null, false)]
-        [InlineData("abc", "def", HeaderMatchMode.Prefix, true, "", false)]
-        [InlineData("abc", "def", HeaderMatchMode.Prefix, true, "abc", true)]
-        [InlineData("abc", "def", HeaderMatchMode.Prefix, true, "aBC", false)]
-        [InlineData("abc", "def", HeaderMatchMode.Prefix, true, "aBCd", false)]
-        [InlineData("abc", "def", HeaderMatchMode.Prefix, true, "def", true)]
-        [InlineData("abc", "def", HeaderMatchMode.Prefix, true, "DEFg", false)]
-        [InlineData("abc", "def", HeaderMatchMode.Prefix, true, "aabc", false)]
+        [InlineData("abc", "def", HeaderMatchMode.ExactHeader, false, null, false)]
+        [InlineData("abc", "def", HeaderMatchMode.ExactHeader, false, "", false)]
+        [InlineData("abc", "def", HeaderMatchMode.ExactHeader, false, "abc", true)]
+        [InlineData("abc", "def", HeaderMatchMode.ExactHeader, false, "aBc", true)]
+        [InlineData("abc", "def", HeaderMatchMode.ExactHeader, false, "abcd", false)]
+        [InlineData("abc", "def", HeaderMatchMode.ExactHeader, false, "def", true)]
+        [InlineData("abc", "def", HeaderMatchMode.ExactHeader, false, "deF", true)]
+        [InlineData("abc", "def", HeaderMatchMode.ExactHeader, false, "defg", false)]
+        [InlineData("abc", "def", HeaderMatchMode.ExactHeader, true, null, false)]
+        [InlineData("abc", "def", HeaderMatchMode.ExactHeader, true, "", false)]
+        [InlineData("abc", "def", HeaderMatchMode.ExactHeader, true, "abc", true)]
+        [InlineData("abc", "def", HeaderMatchMode.ExactHeader, true, "aBC", false)]
+        [InlineData("abc", "def", HeaderMatchMode.ExactHeader, true, "aBCd", false)]
+        [InlineData("abc", "def", HeaderMatchMode.ExactHeader, true, "def", true)]
+        [InlineData("abc", "def", HeaderMatchMode.ExactHeader, true, "DEFg", false)]
+        [InlineData("abc", "def", HeaderMatchMode.ExactHeader, true, "dEf", false)]
+        [InlineData("abc", "def", HeaderMatchMode.HeaderPrefix, false, null, false)]
+        [InlineData("abc", "def", HeaderMatchMode.HeaderPrefix, false, "", false)]
+        [InlineData("abc", "def", HeaderMatchMode.HeaderPrefix, false, "abc", true)]
+        [InlineData("abc", "def", HeaderMatchMode.HeaderPrefix, false, "aBc", true)]
+        [InlineData("abc", "def", HeaderMatchMode.HeaderPrefix, false, "abcd", true)]
+        [InlineData("abc", "def", HeaderMatchMode.HeaderPrefix, false, "abcD", true)]
+        [InlineData("abc", "def", HeaderMatchMode.HeaderPrefix, false, "def", true)]
+        [InlineData("abc", "def", HeaderMatchMode.HeaderPrefix, false, "deF", true)]
+        [InlineData("abc", "def", HeaderMatchMode.HeaderPrefix, false, "defg", true)]
+        [InlineData("abc", "def", HeaderMatchMode.HeaderPrefix, false, "defG", true)]
+        [InlineData("abc", "def", HeaderMatchMode.HeaderPrefix, false, "aabc", false)]
+        [InlineData("abc", "def", HeaderMatchMode.HeaderPrefix, true, null, false)]
+        [InlineData("abc", "def", HeaderMatchMode.HeaderPrefix, true, "", false)]
+        [InlineData("abc", "def", HeaderMatchMode.HeaderPrefix, true, "abc", true)]
+        [InlineData("abc", "def", HeaderMatchMode.HeaderPrefix, true, "aBC", false)]
+        [InlineData("abc", "def", HeaderMatchMode.HeaderPrefix, true, "aBCd", false)]
+        [InlineData("abc", "def", HeaderMatchMode.HeaderPrefix, true, "def", true)]
+        [InlineData("abc", "def", HeaderMatchMode.HeaderPrefix, true, "DEFg", false)]
+        [InlineData("abc", "def", HeaderMatchMode.HeaderPrefix, true, "aabc", false)]
         public async Task ApplyAsync_MatchingScenarios_TwoHeaderValues(
             string header1Value,
             string header2Value,
@@ -258,8 +258,8 @@ namespace Microsoft.ReverseProxy.Service.Routing
         public async Task ApplyAsync_MultipleRules_RequiresAllHeaders(bool sendHeader1, bool sendHeader2, bool shouldMatch)
         {
             var builder = new RouteEndpointBuilder(_ => Task.CompletedTask, RoutePatternFactory.Parse("/"), 0);
-            var metadata1 = new HeaderMetadata("header1", new[] { "value1" }, HeaderMatchMode.Exact, caseSensitive: false);
-            var metadata2 = new HeaderMetadata("header2", new[] { "value2" }, HeaderMatchMode.Exact, caseSensitive: false);
+            var metadata1 = new HeaderMetadata("header1", new[] { "value1" }, HeaderMatchMode.ExactHeader, caseSensitive: false);
+            var metadata2 = new HeaderMetadata("header2", new[] { "value2" }, HeaderMatchMode.ExactHeader, caseSensitive: false);
             builder.Metadata.Add(metadata1);
             builder.Metadata.Add(metadata2);
             var endpoint = builder.Build();
@@ -285,7 +285,7 @@ namespace Microsoft.ReverseProxy.Service.Routing
         private static Endpoint Endpoint(
             string headerName,
             string[] headerValues,
-            HeaderMatchMode headerValueMatchMode = HeaderMatchMode.Exact,
+            HeaderMatchMode headerValueMatchMode = HeaderMatchMode.ExactHeader,
             bool caseSensitive = false,
             bool isDynamic = false)
         {

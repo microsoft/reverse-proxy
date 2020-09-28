@@ -4,23 +4,30 @@
 namespace Microsoft.ReverseProxy.Service.Routing
 {
     /// <summary>
-    /// How to compare header values.
+    /// How to match header values.
     /// </summary>
     public enum HeaderMatchMode
     {
         /// <summary>
-        /// Header value must match in its entirety, subject to the value of <see cref="IHeaderMetadata.CaseSensitive"/>.
+        /// The header must match in its entirety, subject to the value of <see cref="IHeaderMetadata.CaseSensitive"/>.
+        /// Only single headers are supported. If there are multiple headers with the same name then the match fails.
         /// </summary>
-        Exact,
+        ExactHeader,
+
+        // TODO: Matches individual values from multi-value headers (split by coma, or semicolon for cookies).
+        // Also supports multiple headers of the same name.
+        // ExactValue,
+        // ValuePrefix,
 
         /// <summary>
-        /// The header must exist, but any non-empty value is allowed.
+        /// The header must match by prefix, subject to the value of <see cref="IHeaderMetadata.CaseSensitive"/>.
+        /// Only single headers are supported. If there are multiple headers with the same name then the match fails.
+        /// </summary>
+        HeaderPrefix,
+
+        /// <summary>
+        /// The header must exist and contain any non-empty value.
         /// </summary>
         Exists,
-
-        /// <summary>
-        /// Header value must match by prefix, subject to the value of <see cref="IHeaderMetadata.CaseSensitive"/>.
-        /// </summary>
-        Prefix,
     }
 }

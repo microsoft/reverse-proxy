@@ -13,6 +13,16 @@ namespace Microsoft.ReverseProxy.Service.Routing
     {
         public HeaderMetadata(string headerName, IReadOnlyList<string> headerValues, HeaderMatchMode mode, bool caseSensitive)
         {
+            if (string.IsNullOrEmpty(headerName))
+            {
+                throw new ArgumentException("A header name is required.", nameof(headerName));
+            }
+            if (mode != HeaderMatchMode.Exists
+                && (headerValues == null || headerValues.Count == 0))
+            {
+                throw new ArgumentException("Header values must have at least one value.", nameof(headerValues));
+            }
+
             HeaderName = headerName;
             HeaderValues = headerValues;
             Mode = mode;
@@ -32,7 +42,7 @@ namespace Microsoft.ReverseProxy.Service.Routing
 
         /// <summary>
         /// Specifies how header values should be compared (e.g. exact matches Vs. by prefix).
-        /// Defaults to <see cref="HeaderMatchMode.Exact"/>.
+        /// Defaults to <see cref="HeaderMatchMode.ExactHeader"/>.
         /// </summary>
         public HeaderMatchMode Mode { get; }
 

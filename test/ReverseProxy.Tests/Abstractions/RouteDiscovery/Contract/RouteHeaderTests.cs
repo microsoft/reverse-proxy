@@ -21,7 +21,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
             {
                 HeaderName = "header1",
                 HeaderValues = new[] { "value1", "value2" },
-                Mode = HeaderMatchMode.Prefix,
+                Mode = HeaderMatchMode.HeaderPrefix,
                 CaseSensitive = true,
             };
 
@@ -46,7 +46,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
             Assert.NotSame(sut, clone);
             Assert.Null(clone.HeaderName);
             Assert.Null(clone.HeaderValues);
-            Assert.Equal(HeaderMatchMode.Exact, clone.Mode);
+            Assert.Equal(HeaderMatchMode.ExactHeader, clone.Mode);
             Assert.False(clone.CaseSensitive);
 
             Assert.True(RouteHeader.Equals(sut, clone));

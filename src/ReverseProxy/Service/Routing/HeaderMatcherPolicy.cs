@@ -54,15 +54,17 @@ namespace Microsoft.ReverseProxy.Service.Routing
                 {
                     var metadata = metadataList[m];
                     var metadataHeaderName = metadata.HeaderName;
+                    var metadataHeaderValues = metadata.HeaderValues;
+
+                    // Also checked in the HeaderMetadata constructor.
                     if (string.IsNullOrEmpty(metadataHeaderName))
                     {
                         throw new InvalidOperationException("A header name must be specified.");
                     }
-
-                    var metadataHeaderValues = metadata.HeaderValues;
-                    if (metadataHeaderValues == null || metadataHeaderValues.Count == 0)
+                    if (metadata.Mode != HeaderMatchMode.Exists
+                        && (metadataHeaderValues == null || metadataHeaderValues.Count == 0))
                     {
-                        throw new InvalidOperationException("IHeaderMetadata.HeaderValues must have a value.");
+                        throw new InvalidOperationException("IHeaderMetadata.HeaderValues must have at least one value.");
                     }
 
                     var matched = false;
@@ -110,8 +112,8 @@ namespace Microsoft.ReverseProxy.Service.Routing
             var comparison = caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
             return matchMode switch
             {
-                HeaderMatchMode.Exact => MemoryExtensions.Equals(requestHeaderValue, metadataHeaderValue, comparison),
-                HeaderMatchMode.Prefix => requestHeaderValue != null && metadataHeaderValue != null
+                HeaderMatchMode.ExactHeader => MemoryExtensions.Equals(requestHeaderValue, metadataHeaderValue, comparison),
+                HeaderMatchMode.HeaderPrefix => requestHeaderValue != null && metadataHeaderValue != null
                     && MemoryExtensions.StartsWith(requestHeaderValue, metadataHeaderValue, comparison),
                 _ => throw new NotImplementedException(matchMode.ToString()),
             };
@@ -171,12 +173,12 @@ namespace Microsoft.ReverseProxy.Service.Routing
                 }
 
                 // 3. Then, by value match mode (Exact Vs. Prefix)
-                if (x.Mode != HeaderMatchMode.Exact && y.Mode == HeaderMatchMode.Exact)
+                if (x.Mode != HeaderMatchMode.ExactHeader && y.Mode == HeaderMatchMode.ExactHeader)
                 {
                     // y is more specific, as *only it* does exact match
                     return 1;
                 }
-                else if (x.Mode == HeaderMatchMode.Exact && y.Mode != HeaderMatchMode.Exact)
+                else if (x.Mode == HeaderMatchMode.ExactHeader && y.Mode != HeaderMatchMode.ExactHeader)
                 {
                     // x is more specific, as *only it* does exact match
                     return -1;

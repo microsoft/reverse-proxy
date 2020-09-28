@@ -27,7 +27,7 @@ namespace Microsoft.ReverseProxy.Abstractions
 
         /// <summary>
         /// Specifies how header values should be compared (e.g. exact matches Vs. by prefix).
-        /// Defaults to <see cref="HeaderMatchMode.Exact"/>.
+        /// Defaults to <see cref="HeaderMatchMode.ExactHeader"/>.
         /// </summary>
         public HeaderMatchMode Mode { get; set; }
 
