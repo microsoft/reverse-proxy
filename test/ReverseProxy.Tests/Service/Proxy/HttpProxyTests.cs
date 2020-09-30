@@ -622,6 +622,46 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
         }
 
+        [Theory]
+        [InlineData("HTTP/1.1")]
+        [InlineData("HTTP/2")]
+        public async Task ProxyAsync_RequestWithCookieHeaders(string protocol)
+        {
+            var cookies = new [] { "testA=A_Cookie", "testB=B_Cookie", "testC=C_Cookie" };
+            var httpContext = new DefaultHttpContext();
+            httpContext.Request.Method = "GET";
+            httpContext.Request.Protocol = protocol;
+            httpContext.Request.Headers.Add("Cookie", cookies.Take(2).ToArray());
+            httpContext.Request.Headers.Append("Cookie", cookies.Last());
+
+            var destinationPrefix = "https://localhost/";
+            var sut = Create<HttpProxy>();
+            var client = MockHttpHandler.CreateClient(
+                (HttpRequestMessage request, CancellationToken cancellationToken) =>
+                {
+                    Assert.Equal(new Version(2, 0), request.Version);
+                    Assert.Equal("GET", request.Method.Method, StringComparer.OrdinalIgnoreCase);
+                    Assert.Null(request.Content);
+                    Assert.True(request.Headers.TryGetValues("Cookie", out var cookieHeaders));
+                    Assert.NotNull(cookieHeaders);
+                    Assert.Equal(1, cookieHeaders.Count());
+                    Assert.Equal(String.Join("; ", cookies), cookieHeaders.Single());
+
+                    var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
+                    return Task.FromResult(response);
+                });
+
+            var proxyTelemetryContext = new ProxyTelemetryContext(
+                clusterId: "be1",
+                routeId: "rt1",
+                destinationId: "d1");
+
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions(), proxyTelemetryContext);
+
+            Assert.Null(httpContext.Features.Get<IProxyErrorFeature>());
+            Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
+        }
+
         [Fact]
         public async Task ProxyAsync_UnableToConnect_Returns502()
         {

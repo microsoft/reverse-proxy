@@ -379,13 +379,18 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         {
             // Transforms that were run in the first pass.
             HashSet<string> transformsRun = null;
+
+            // HttpClient wrongly uses comma (",") instead of semi-colon (";") as a separator for Cookie headers.
+            // To mitigate this, we collect them, concatenate them manually and put them back as a single header value.
+            List<string> cookies = null;
+
             if (transforms.CopyRequestHeaders ?? true)
             {
                 foreach (var header in context.Request.Headers)
                 {
                     var headerName = header.Key;
-                    var value = header.Value;
-                    if (StringValues.IsNullOrEmpty(value))
+                    var headerValue = header.Value;
+                    if (StringValues.IsNullOrEmpty(headerValue))
                     {
                         continue;
                     }
@@ -399,14 +404,17 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                     if (transforms.RequestHeaderTransforms.TryGetValue(headerName, out var transform))
                     {
                         (transformsRun ??= new HashSet<string>(StringComparer.OrdinalIgnoreCase)).Add(headerName);
-                        value = transform.Apply(context, value);
-                        if (StringValues.IsNullOrEmpty(value))
+                        headerValue = transform.Apply(context, headerValue);
+                        if (StringValues.IsNullOrEmpty(headerValue))
                         {
                             continue;
                         }
                     }
 
-                    AddHeader(destination, headerName, value);
+                    if (!CatchCookies(headerName, headerValue, ref cookies))
+                    {
+                        AddHeader(destination, headerName, headerValue);
+                    }
                 }
             }
 
@@ -419,9 +427,40 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                     headerValue = transform.Apply(context, headerValue);
                     if (!StringValues.IsNullOrEmpty(headerValue))
                     {
-                        AddHeader(destination, headerName, headerValue);
+                        if (!CatchCookies(headerName, headerValue, ref cookies))
+                        {
+                            AddHeader(destination, headerName, headerValue);
+                        }
                     }
                 }
+            }
+
+            if (cookies != null && cookies.Count > 0)
+            {
+                AddHeader(destination, "Cookie", String.Join("; ", cookies));
+            }
+
+            // Returns true when a cookie header is collected and therefore shouldn't be added to the destination yet.
+            static bool CatchCookies(string headerName, StringValues value, ref List<string> cookies)
+            {
+                if (headerName != "Cookie")
+                {
+                    return false;
+                }
+
+                cookies ??= new List<string>();
+                if (value.Count == 1)
+                {
+                    string headerValue = value;
+                    cookies.Add(headerValue);
+                }
+                else
+                {
+                    string[] headerValues = value;
+                    cookies.AddRange(headerValues);
+                }
+
+                return true;
             }
 
             // Note: HttpClient.SendAsync will end up sending the union of
