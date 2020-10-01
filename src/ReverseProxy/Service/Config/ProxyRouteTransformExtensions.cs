@@ -170,5 +170,14 @@ namespace Microsoft.ReverseProxy.Service
 
             proxyRoute.Transforms.Add(transform);
         }
+
+        public static void AddTransformHttpMethod(this ProxyRoute proxyRoute, string fromHttpMethod, string toHttpMethod)
+        {
+            proxyRoute.Transforms.Add(new Dictionary<string, string>
+            {
+                ["HttpMethod"] = fromHttpMethod,
+                ["Set"] = toHttpMethod
+            });
+        }
     }
 }

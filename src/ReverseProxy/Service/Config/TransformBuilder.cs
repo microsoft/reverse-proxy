@@ -229,6 +229,14 @@ namespace Microsoft.ReverseProxy.Service.Config
                 {
                     TryCheckTooManyParameters(errors.Add, rawTransform, expected: 1);
                 }
+                else if (rawTransform.TryGetValue("HttpMethod", out var fromHttpMethod))
+                {
+                    CheckTooManyParameters(rawTransform, expected: 2);
+                    if (!rawTransform.TryGetValue("Set", out var _))
+                    {
+                        errors.Add(new ArgumentException($"Unexpected parameters for HttpMethod: {string.Join(';', rawTransform.Keys)}. Expected 'Set'"));
+                    }
+                }
                 else
                 {
                     errors.Add(new ArgumentException($"Unknown transform: {string.Join(';', rawTransform.Keys)}"));
@@ -509,6 +517,14 @@ namespace Microsoft.ReverseProxy.Service.Config
                     {
                         CheckTooManyParameters(rawTransform, expected: 1);
                         requestHeaderTransforms[clientCertHeader] = new RequestHeaderClientCertTransform();
+                    }
+                    else if (rawTransform.TryGetValue("HttpMethod", out var fromHttpMethod))
+                    {
+                        CheckTooManyParameters(rawTransform, expected: 2);
+                        if (rawTransform.TryGetValue("Set", out var toHttpMethod))
+                        {
+                            requestTransforms.Add(new HttpMethodTransform(fromHttpMethod, toHttpMethod));
+                        }
                     }
                     else
                     {

@@ -281,7 +281,20 @@ namespace Microsoft.ReverseProxy.Service.Config
             }
         }
 
+        [Fact]
+        public void AddTransformHttpMethod()
+        {
+            var proxyRoute = CreateProxyRoute();
 
+            proxyRoute.AddTransformHttpMethod(HttpMethods.Put, HttpMethods.Post);
+
+            var transform = BuildTransform(proxyRoute);
+
+            var requestTransform = Assert.Single(transform.RequestTransforms);
+            var httpMethodTransform = Assert.IsType<HttpMethodTransform>(requestTransform);
+            Assert.Equal(HttpMethods.Put, httpMethodTransform.FromMethod);
+            Assert.Equal(HttpMethods.Post, httpMethodTransform.ToMethod);
+        }
 
         private static Transforms BuildTransform(ProxyRoute proxyRoute)
         {

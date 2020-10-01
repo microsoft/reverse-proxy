@@ -250,6 +250,22 @@ Example:
 | QueryRemoveParameter | `foo` |
 | Result | `?a=b` |
 
+#### HttpMethod
+
+| Key | Value | Required |
+|-----|-------|----------|
+| HttpMethod | http method | yes |
+| Set | http method | yes |
+
+Config:
+```JSON
+{
+  "HttpMethod": "PUT",
+  "Set": "POST",
+}
+```
+This will change PUT requests to POST.
+
 ### Request Headers
 
 All incoming request headers are copied to the proxy request by default with the exception of the Host header (see [Defaults](#defaults)). [X-Forwarded](#x-forwarded) headers are also added by default. These behaviors can be configured using the following transforms. Additional request headers can be specified, or request headers can be excluded by setting them to an empty value.
