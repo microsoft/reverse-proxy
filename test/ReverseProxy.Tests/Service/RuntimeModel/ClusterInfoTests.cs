@@ -29,10 +29,10 @@ namespace Microsoft.ReverseProxy.RuntimeModel.Tests
         {
             // Arrange
             var cluster = _clusterManager.GetOrCreateItem("abc", c => { });
-            var destination1 = cluster.DestinationManager.GetOrCreateItem("d1", destination => destination.DynamicStateSignal.Value = new DestinationDynamicState(DestinationHealth.Healthy));
-            var destination2 = cluster.DestinationManager.GetOrCreateItem("d2", destination => destination.DynamicStateSignal.Value = new DestinationDynamicState(DestinationHealth.Unhealthy));
-            var destination3 = cluster.DestinationManager.GetOrCreateItem("d3", destination => destination.DynamicStateSignal.Value = new DestinationDynamicState(DestinationHealth.Unknown));
-            var destination4 = cluster.DestinationManager.GetOrCreateItem("d4", destination => destination.DynamicStateSignal.Value = new DestinationDynamicState(DestinationHealth.Healthy));
+            var destination1 = cluster.DestinationManager.GetOrCreateItem("d1", destination => destination.DynamicStateSignal.Value = new DestinationDynamicState(new CompositeDestinationHealth(DestinationHealth.Healthy, DestinationHealth.Unknown)));
+            var destination2 = cluster.DestinationManager.GetOrCreateItem("d2", destination => destination.DynamicStateSignal.Value = new DestinationDynamicState(new CompositeDestinationHealth(DestinationHealth.Unhealthy, DestinationHealth.Unknown)));
+            var destination3 = cluster.DestinationManager.GetOrCreateItem("d3", destination => destination.DynamicStateSignal.Value = new DestinationDynamicState(new CompositeDestinationHealth(DestinationHealth.Unknown, DestinationHealth.Unknown)));
+            var destination4 = cluster.DestinationManager.GetOrCreateItem("d4", destination => destination.DynamicStateSignal.Value = new DestinationDynamicState(new CompositeDestinationHealth(DestinationHealth.Unknown, DestinationHealth.Healthy)));
 
             // Assert
             Assert.Same(destination1, cluster.DynamicState.Value.AllDestinations[0]);
@@ -51,10 +51,10 @@ namespace Microsoft.ReverseProxy.RuntimeModel.Tests
         {
             // Arrange
             var cluster = _clusterManager.GetOrCreateItem("abc", c => EnableHealthChecks(c));
-            var destination1 = cluster.DestinationManager.GetOrCreateItem("d1", destination => destination.DynamicStateSignal.Value = new DestinationDynamicState(DestinationHealth.Healthy));
-            var destination2 = cluster.DestinationManager.GetOrCreateItem("d2", destination => destination.DynamicStateSignal.Value = new DestinationDynamicState(DestinationHealth.Unhealthy));
-            var destination3 = cluster.DestinationManager.GetOrCreateItem("d3", destination => destination.DynamicStateSignal.Value = new DestinationDynamicState(DestinationHealth.Unknown));
-            var destination4 = cluster.DestinationManager.GetOrCreateItem("d4", destination => destination.DynamicStateSignal.Value = new DestinationDynamicState(DestinationHealth.Healthy));
+            var destination1 = cluster.DestinationManager.GetOrCreateItem("d1", destination => destination.DynamicStateSignal.Value = new DestinationDynamicState(new CompositeDestinationHealth(DestinationHealth.Healthy, DestinationHealth.Unknown)));
+            var destination2 = cluster.DestinationManager.GetOrCreateItem("d2", destination => destination.DynamicStateSignal.Value = new DestinationDynamicState(new CompositeDestinationHealth(DestinationHealth.Unhealthy, DestinationHealth.Unknown)));
+            var destination3 = cluster.DestinationManager.GetOrCreateItem("d3", destination => destination.DynamicStateSignal.Value = new DestinationDynamicState(new CompositeDestinationHealth(DestinationHealth.Unknown, DestinationHealth.Unknown)));
+            var destination4 = cluster.DestinationManager.GetOrCreateItem("d4", destination => destination.DynamicStateSignal.Value = new DestinationDynamicState(new CompositeDestinationHealth(DestinationHealth.Unknown, DestinationHealth.Healthy)));
 
             // Assert
             Assert.Same(destination1, cluster.DynamicState.Value.AllDestinations[0]);
@@ -123,14 +123,14 @@ namespace Microsoft.ReverseProxy.RuntimeModel.Tests
             Assert.NotSame(state1, cluster.DynamicState.Value);
             var state2 = cluster.DynamicState.Value;
 
-            destination.DynamicStateSignal.Value = new DestinationDynamicState(DestinationHealth.Unhealthy);
+            destination.DynamicStateSignal.Value = new DestinationDynamicState(new CompositeDestinationHealth(DestinationHealth.Unhealthy, DestinationHealth.Unknown));
             Assert.NotSame(state2, cluster.DynamicState.Value);
             var state3 = cluster.DynamicState.Value;
 
             Assert.Contains(destination, state3.AllDestinations);
             Assert.Empty(state3.HealthyDestinations);
 
-            destination.DynamicStateSignal.Value = new DestinationDynamicState(DestinationHealth.Healthy);
+            destination.DynamicStateSignal.Value = new DestinationDynamicState(new CompositeDestinationHealth(DestinationHealth.Healthy, DestinationHealth.Unknown));
             Assert.NotSame(state3, cluster.DynamicState.Value);
             var state4 = cluster.DynamicState.Value;
 
@@ -144,11 +144,16 @@ namespace Microsoft.ReverseProxy.RuntimeModel.Tests
             cluster.Config.Value = new ClusterConfig(
                 new Cluster(),
                 healthCheckOptions: new ClusterHealthCheckOptions(
-                    enabled: true,
-                    interval: TimeSpan.FromSeconds(5),
-                    timeout: TimeSpan.FromSeconds(30),
-                    port: 30000,
-                    path: "/"),
+                    new ClusterPassiveHealthCheckOptions(
+                        enabled: true,
+                        policy: "FailureRate",
+                        reactivationPeriod: TimeSpan.FromMinutes(5)),
+                    new ClusterActiveHealthCheckOptions(
+                        enabled: true,
+                        interval: TimeSpan.FromSeconds(5),
+                        timeout: TimeSpan.FromSeconds(30),
+                        policy: "Any5xxResponse",
+                        path: "/")),
                 loadBalancingOptions: default,
                 sessionAffinityOptions: default,
                 httpClient: new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object),

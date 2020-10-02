@@ -72,7 +72,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
                     {
                         var allDestinations = DestinationManager.Items.Value ?? new List<DestinationInfo>().AsReadOnly();
                         var healthyDestinations = (Config.Value?.HealthCheckOptions.Enabled ?? false)
-                            ? allDestinations.Where(destination => destination.DynamicState?.Health == DestinationHealth.Healthy).ToList().AsReadOnly()
+                            ? allDestinations.Where(destination => destination.DynamicState?.Health.Current == DestinationHealth.Healthy).ToList().AsReadOnly()
                             : allDestinations;
                         return new ClusterDynamicState(
                             allDestinations: allDestinations,

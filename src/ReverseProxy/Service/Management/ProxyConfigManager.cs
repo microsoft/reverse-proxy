@@ -288,11 +288,16 @@ namespace Microsoft.ReverseProxy.Service.Management
                         var newClusterConfig = new ClusterConfig(
                                 newCluster,
                                 new ClusterHealthCheckOptions(
-                                    enabled: newCluster.HealthCheck?.Enabled ?? false,
-                                    interval: newCluster.HealthCheck?.Interval ?? TimeSpan.FromSeconds(0),
-                                    timeout: newCluster.HealthCheck?.Timeout ?? TimeSpan.FromSeconds(0),
-                                    port: newCluster.HealthCheck?.Port ?? 0,
-                                    path: newCluster.HealthCheck?.Path ?? string.Empty),
+                                    passive: new ClusterConfig.ClusterPassiveHealthCheckOptions(
+                                        enabled: newCluster.HealthCheck?.Passive?.Enabled ?? false,
+                                        policy: newCluster.HealthCheck?.Passive.Policy,
+                                        reactivationPeriod: newCluster?.HealthCheck.Passive.ReactivationPeriod),
+                                    active: new ClusterConfig.ClusterActiveHealthCheckOptions(
+                                        enabled: newCluster.HealthCheck?.Active?.Enabled ?? false,
+                                        interval: newCluster.HealthCheck?.Active?.Interval,
+                                        timeout: newCluster.HealthCheck?.Active?.Timeout,
+                                        policy: newCluster.HealthCheck?.Active?.Policy,
+                                        path: newCluster.HealthCheck?.Active?.Path ?? string.Empty)),
                                 new ClusterLoadBalancingOptions(
                                     mode: newCluster.LoadBalancing?.Mode ?? default),
                                 new ClusterSessionAffinityOptions(

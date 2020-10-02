@@ -284,7 +284,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
         {
             public Task ConfigureClusterAsync(Cluster cluster, CancellationToken cancel)
             {
-                cluster.HealthCheck = new HealthCheckOptions() { Enabled = true, Interval = TimeSpan.FromSeconds(12) };
+                cluster.HealthCheck = new HealthCheckOptions() { Active = new ActiveHealthCheckOptions { Enabled = true, Interval = TimeSpan.FromSeconds(12) } };
                 return Task.CompletedTask;
             }
 
@@ -313,7 +313,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
 
             Assert.NotNull(clusterInfo);
             Assert.True(clusterInfo.Config.Value.HealthCheckOptions.Enabled);
-            Assert.Equal(TimeSpan.FromSeconds(12), clusterInfo.Config.Value.HealthCheckOptions.Interval);
+            Assert.Equal(TimeSpan.FromSeconds(12), clusterInfo.Config.Value.HealthCheckOptions.Active.Interval);
             var destination = Assert.Single(clusterInfo.DynamicState.Value.AllDestinations);
             Assert.Equal("http://localhost", destination.Config.Address);
         }

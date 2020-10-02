@@ -6,24 +6,24 @@ using Xunit;
 
 namespace Microsoft.ReverseProxy.Abstractions.Tests
 {
-    public class HealthCheckOptionsTests
+    public class ActiveHealthCheckOptionsTests
     {
         [Fact]
         public void Constructor_Works()
         {
-            new HealthCheckOptions();
+            new ActiveHealthCheckOptions();
         }
 
         [Fact]
         public void DeepClone_Works()
         {
             // Arrange
-            var sut = new HealthCheckOptions
+            var sut = new ActiveHealthCheckOptions
             {
                 Enabled = true,
                 Interval = TimeSpan.FromSeconds(2),
                 Timeout = TimeSpan.FromSeconds(1),
-                Port = 123,
+                Policy = "Any5xxResponse",
                 Path = "/a",
             };
 
@@ -35,7 +35,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
             Assert.Equal(sut.Enabled, clone.Enabled);
             Assert.Equal(sut.Interval, clone.Interval);
             Assert.Equal(sut.Timeout, clone.Timeout);
-            Assert.Equal(sut.Port, clone.Port);
+            Assert.Equal(sut.Policy, clone.Policy);
             Assert.Equal(sut.Path, clone.Path);
         }
 
@@ -43,26 +43,26 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
         public void Equals_Same_Value_Returns_True()
         {
             // Arrange
-            var options1 = new HealthCheckOptions
+            var options1 = new ActiveHealthCheckOptions
             {
                 Enabled = true,
                 Interval = TimeSpan.FromSeconds(2),
                 Timeout = TimeSpan.FromSeconds(1),
-                Port = 123,
+                Policy = "Any5xxResponse",
                 Path = "/a",
             };
 
-            var options2 = new HealthCheckOptions
+            var options2 = new ActiveHealthCheckOptions
             {
                 Enabled = true,
                 Interval = TimeSpan.FromSeconds(2),
                 Timeout = TimeSpan.FromSeconds(1),
-                Port = 123,
+                Policy = "Any5xxResponse",
                 Path = "/a",
             };
 
             // Act
-            var equals = HealthCheckOptions.Equals(options1, options2);
+            var equals = ActiveHealthCheckOptions.Equals(options1, options2);
 
             // Assert
             Assert.True(equals);
@@ -72,26 +72,26 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
         public void Equals_Different_Value_Returns_False()
         {
             // Arrange
-            var options1 = new HealthCheckOptions
+            var options1 = new ActiveHealthCheckOptions
             {
                 Enabled = true,
                 Interval = TimeSpan.FromSeconds(2),
                 Timeout = TimeSpan.FromSeconds(1),
-                Port = 123,
+                Policy = "Any5xxResponse",
                 Path = "/a",
             };
 
-            var options2 = new HealthCheckOptions
+            var options2 = new ActiveHealthCheckOptions
             {
                 Enabled = false,
                 Interval = TimeSpan.FromSeconds(4),
                 Timeout = TimeSpan.FromSeconds(2),
-                Port = 246,
+                Policy = "AnyFailure",
                 Path = "/b",
             };
 
             // Act
-            var equals = HealthCheckOptions.Equals(options1, options2);
+            var equals = ActiveHealthCheckOptions.Equals(options1, options2);
 
             // Assert
             Assert.False(equals);
@@ -101,17 +101,17 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
         public void Equals_First_Null_Returns_False()
         {
             // Arrange
-            var options2 = new HealthCheckOptions
+            var options2 = new ActiveHealthCheckOptions
             {
                 Enabled = false,
                 Interval = TimeSpan.FromSeconds(4),
                 Timeout = TimeSpan.FromSeconds(2),
-                Port = 246,
+                Policy = "Any5xxResponse",
                 Path = "/b",
             };
 
             // Act
-            var equals = HealthCheckOptions.Equals(null, options2);
+            var equals = ActiveHealthCheckOptions.Equals(null, options2);
 
             // Assert
             Assert.False(equals);
@@ -121,17 +121,17 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
         public void Equals_Second_Null_Returns_False()
         {
             // Arrange
-            var options1 = new HealthCheckOptions
+            var options1 = new ActiveHealthCheckOptions
             {
                 Enabled = true,
                 Interval = TimeSpan.FromSeconds(2),
                 Timeout = TimeSpan.FromSeconds(1),
-                Port = 123,
+                Policy = "Any5xxResponse",
                 Path = "/a",
             };
 
             // Act
-            var equals = HealthCheckOptions.Equals(options1, null);
+            var equals = ActiveHealthCheckOptions.Equals(options1, null);
 
             // Assert
             Assert.False(equals);
@@ -143,7 +143,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
             // Arrange
 
             // Act
-            var equals = HealthCheckOptions.Equals(null, null);
+            var equals = ActiveHealthCheckOptions.Equals(null, null);
 
             // Assert
             Assert.True(equals);

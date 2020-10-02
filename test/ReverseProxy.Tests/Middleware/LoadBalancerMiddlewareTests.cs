@@ -46,14 +46,14 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 destination =>
                 {
                     destination.ConfigSignal.Value = new DestinationConfig("https://localhost:123/a/b/");
-                    destination.DynamicStateSignal.Value = new DestinationDynamicState(DestinationHealth.Healthy);
+                    destination.DynamicStateSignal.Value = new DestinationDynamicState(new CompositeDestinationHealth(DestinationHealth.Healthy, DestinationHealth.Unknown));
                 });
             var destination2 = cluster1.DestinationManager.GetOrCreateItem(
                 "destination2",
                 destination =>
                 {
                     destination.ConfigSignal.Value = new DestinationConfig("https://localhost:123/a/b/");
-                    destination.DynamicStateSignal.Value = new DestinationDynamicState(DestinationHealth.Healthy);
+                    destination.DynamicStateSignal.Value = new DestinationDynamicState(new CompositeDestinationHealth(DestinationHealth.Healthy, DestinationHealth.Unknown));
                 });
 
             var aspNetCoreEndpoints = new List<Endpoint>();
@@ -103,14 +103,14 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 destination =>
                 {
                     destination.ConfigSignal.Value = new DestinationConfig("https://localhost:123/a/b/");
-                    destination.DynamicStateSignal.Value = new DestinationDynamicState(DestinationHealth.Healthy);
+                    destination.DynamicStateSignal.Value = new DestinationDynamicState(new CompositeDestinationHealth(DestinationHealth.Healthy, DestinationHealth.Unknown));
                 });
             var destination2 = cluster1.DestinationManager.GetOrCreateItem(
                 "destination2",
                 destination =>
                 {
                     destination.ConfigSignal.Value = new DestinationConfig("https://localhost:123/a/b/");
-                    destination.DynamicStateSignal.Value = new DestinationDynamicState(DestinationHealth.Healthy);
+                    destination.DynamicStateSignal.Value = new DestinationDynamicState(new CompositeDestinationHealth(DestinationHealth.Healthy, DestinationHealth.Unknown));
                 });
 
             var aspNetCoreEndpoints = new List<Endpoint>();

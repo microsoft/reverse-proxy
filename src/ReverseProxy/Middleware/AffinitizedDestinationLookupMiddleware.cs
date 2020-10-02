@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.SessionAffinity;
+using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Middleware
 {
