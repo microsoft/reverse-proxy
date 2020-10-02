@@ -644,8 +644,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     Assert.Null(request.Content);
                     Assert.True(request.Headers.TryGetValues("Cookie", out var cookieHeaders));
                     Assert.NotNull(cookieHeaders);
-                    Assert.Equal(1, cookieHeaders.Count());
-                    Assert.Equal(String.Join("; ", cookies), cookieHeaders.Single());
+                    var cookie = Assert.Single(cookieHeaders);
+                    Assert.Equal(String.Join("; ", cookies), cookie);
 
                     var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
                     return Task.FromResult(response);
