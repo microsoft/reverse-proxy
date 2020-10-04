@@ -8,14 +8,15 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
     internal abstract class QueryParameterTransform : RequestParametersTransform
     {
-        private readonly QueryStringTransformMode _mode;
-        private readonly string _key;
-
         public QueryParameterTransform(QueryStringTransformMode mode, string key)
         {
-            _mode = mode;
-            _key = key;
+            Mode = mode;
+            Key = key;
         }
+
+        internal QueryStringTransformMode Mode { get; }
+
+        internal string Key { get; }
 
         public override void Apply(RequestParametersTransformContext context)
         {
@@ -27,21 +28,21 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             var value = GetValue(context);
             if (!string.IsNullOrEmpty(value))
             {
-                switch (_mode)
+                switch (Mode)
                 {
                     case QueryStringTransformMode.Append:
                         StringValues newValue = value;
-                        if (context.Query.Collection.TryGetValue(_key, out var currentValue))
+                        if (context.Query.Collection.TryGetValue(Key, out var currentValue))
                         {
                              newValue = StringValues.Concat(currentValue, value);
                         }
-                        context.Query.Collection[_key] = newValue;
+                        context.Query.Collection[Key] = newValue;
                         break;
                     case QueryStringTransformMode.Set:
-                        context.Query.Collection[_key] = value;
+                        context.Query.Collection[Key] = value;
                         break;
                     default:
-                        throw new NotImplementedException(_mode.ToString());
+                        throw new NotImplementedException(Mode.ToString());
                 }
             }
         }

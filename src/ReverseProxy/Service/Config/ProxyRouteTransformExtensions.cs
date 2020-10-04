@@ -179,5 +179,35 @@ namespace Microsoft.ReverseProxy.Service
                 ["Set"] = toHttpMethod
             });
         }
+
+        public static void AddTransformQueryRouteParameter(this ProxyRoute proxyRoute, string queryKey, string routeValueKey, bool append = true)
+        {
+            var type = append ? "Append" : "Set";
+
+            proxyRoute.Transforms.Add(new Dictionary<string, string>
+            {
+                ["QueryRouteParameter"] = queryKey,
+                [type] = routeValueKey
+            });
+        }
+
+        public static void AddTransformQueryValueParameter(this ProxyRoute proxyRoute, string queryKey, string value, bool append = true)
+        {
+            var type = append ? "Append" : "Set";
+
+            proxyRoute.Transforms.Add(new Dictionary<string, string>
+            {
+                ["QueryValueParameter"] = queryKey,
+                [type] = value
+            });
+        }
+
+        public static void AddTransformRemoveQueryParameter(this ProxyRoute proxyRoute, string queryKey)
+        {
+            proxyRoute.Transforms.Add(new Dictionary<string, string>
+            {
+                ["QueryRemoveParameter"] = queryKey
+            });
+        }
     }
 }
