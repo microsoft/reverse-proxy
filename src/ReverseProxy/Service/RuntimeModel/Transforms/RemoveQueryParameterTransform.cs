@@ -5,12 +5,12 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
     internal class RemoveQueryParameterTransform : RequestParametersTransform
     {
-        private readonly string _key;
-
         public RemoveQueryParameterTransform(string key)
         {
-            _key = key;
+            Key = key;
         }
+
+        internal string Key { get; }
 
         public override void Apply(RequestParametersTransformContext context)
         {
@@ -19,7 +19,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                 throw new System.ArgumentNullException(nameof(context));
             }
 
-            context.Query.Collection.Remove(_key);
+            context.Query.Collection.Remove(Key);
         }
     }
 }

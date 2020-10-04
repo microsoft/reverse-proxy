@@ -5,18 +5,18 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
     internal class QueryParameterRouteTransform : QueryParameterTransform
     {
-        private readonly string _routeValueKey;
-
         public QueryParameterRouteTransform(QueryStringTransformMode mode, string key, string routeValueKey)
             : base(mode, key)
         {
-            _routeValueKey = routeValueKey;
+            RouteValueKey = routeValueKey;
         }
+
+        internal string RouteValueKey { get; }
 
         protected override string GetValue(RequestParametersTransformContext context)
         {
             var routeValues = context.HttpContext.Request.RouteValues;
-            if (!routeValues.TryGetValue(_routeValueKey, out var value))
+            if (!routeValues.TryGetValue(RouteValueKey, out var value))
             {
                 return null;
             }
