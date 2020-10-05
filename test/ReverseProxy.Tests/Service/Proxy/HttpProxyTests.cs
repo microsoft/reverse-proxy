@@ -622,30 +622,30 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
         }
 
-        [Theory]
-        [InlineData("HTTP/1.1")]
-        [InlineData("HTTP/2")]
-        public async Task ProxyAsync_RequestWithCookieHeaders(string protocol)
+        [Fact]
+        public async Task ProxyAsync_RequestWithCookieHeaders()
         {
+            // This is an invalid format per spec but may happen due to https://github.com/dotnet/aspnetcore/issues/26461
             var cookies = new [] { "testA=A_Cookie", "testB=B_Cookie", "testC=C_Cookie" };
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "GET";
-            httpContext.Request.Protocol = protocol;
-            httpContext.Request.Headers.Add("Cookie", cookies.Take(2).ToArray());
-            httpContext.Request.Headers.Append("Cookie", cookies.Last());
+            httpContext.Request.Headers.Add(HeaderNames.Cookie, cookies);
 
             var destinationPrefix = "https://localhost/";
             var sut = Create<HttpProxy>();
             var client = MockHttpHandler.CreateClient(
                 (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
+                    // "testA=A_Cookie; testB=B_Cookie; testC=C_Cookie"
+                    var expectedCookieString = String.Join("; ", cookies);
+
                     Assert.Equal(new Version(2, 0), request.Version);
                     Assert.Equal("GET", request.Method.Method, StringComparer.OrdinalIgnoreCase);
                     Assert.Null(request.Content);
-                    Assert.True(request.Headers.TryGetValues("Cookie", out var cookieHeaders));
+                    Assert.True(request.Headers.TryGetValues(HeaderNames.Cookie, out var cookieHeaders));
                     Assert.NotNull(cookieHeaders);
                     var cookie = Assert.Single(cookieHeaders);
-                    Assert.Equal(String.Join("; ", cookies), cookie);
+                    Assert.Equal(expectedCookieString, cookie);
 
                     var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
                     return Task.FromResult(response);
