@@ -25,16 +25,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var source = new MemoryStream(sourceBytes);
             var destination = new MemoryStream();
 
-            var streamCopierMock = new Mock<IStreamCopier>();
-            streamCopierMock
-                .Setup(s => s.CopyAsync(source, destination, It.IsAny<CancellationToken>()))
-                .Returns(async () =>
-                {
-                    await source.CopyToAsync(destination);
-                    return (StreamCopyResult.Success, null);
-                });
-
-            var sut = new StreamCopyHttpContent(source, streamCopierMock.Object, autoFlushHttpClientOutgoingStream: false, CancellationToken.None);
+            var sut = new StreamCopyHttpContent(source, autoFlushHttpClientOutgoingStream: false, CancellationToken.None);
 
             // Act & Assert
             Assert.False(sut.ConsumptionTask.IsCompleted);
@@ -59,16 +50,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var destination = new MemoryStream();
             var flushCountingDestination = new FlushCountingStream(destination);
 
-            var streamCopierMock = new Mock<IStreamCopier>();
-            streamCopierMock
-                .Setup(s => s.CopyAsync(source, It.IsAny<Stream>(), It.IsAny<CancellationToken>()))
-                .Returns(async (Stream source_, Stream destination_, CancellationToken cancellation_) =>
-                {
-                    await source_.CopyToAsync(destination_, cancellation_);
-                    return (StreamCopyResult.Success, null);
-                });
-
-            var sut = new StreamCopyHttpContent(source, streamCopierMock.Object, autoFlushHttpClientOutgoingStream: autoFlush, CancellationToken.None);
+            var sut = new StreamCopyHttpContent(source, autoFlushHttpClientOutgoingStream: autoFlush, CancellationToken.None);
 
             // Act & Assert
             Assert.False(sut.ConsumptionTask.IsCompleted);
@@ -85,15 +67,12 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         public async Task CopyToAsync_AsyncSequencing()
         {
             // Arrange
-            var source = new MemoryStream();
+            var tcs = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
+            var source = new Mock<Stream>();
+            source.Setup(s => s.ReadAsync(It.IsAny<Memory<byte>>(), It.IsAny<CancellationToken>())).Returns(() => new ValueTask<int>(tcs.Task));
             var destination = new MemoryStream();
-            var streamCopierMock = new Mock<IStreamCopier>();
-            var tcs = new TaskCompletionSource<(StreamCopyResult, Exception)>();
-            streamCopierMock
-                .Setup(s => s.CopyAsync(source, destination, It.IsAny<CancellationToken>()))
-                .Returns(() => tcs.Task);
 
-            var sut = new StreamCopyHttpContent(source, streamCopierMock.Object, autoFlushHttpClientOutgoingStream: false, CancellationToken.None);
+            var sut = new StreamCopyHttpContent(source.Object, autoFlushHttpClientOutgoingStream: false, CancellationToken.None);
 
             // Act & Assert
             Assert.False(sut.ConsumptionTask.IsCompleted);
@@ -103,7 +82,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.True(sut.Started); // This should happen synchronously
             Assert.False(sut.ConsumptionTask.IsCompleted); // This cannot happen until the tcs releases it
 
-            tcs.TrySetResult((StreamCopyResult.Success, null));
+            tcs.TrySetResult(0);
             await task;
             Assert.True(sut.ConsumptionTask.IsCompleted);
         }
@@ -114,7 +93,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             // Arrange
             var source = new MemoryStream();
             var destination = new MemoryStream();
-            var sut = new StreamCopyHttpContent(source, new Mock<IStreamCopier>().Object, autoFlushHttpClientOutgoingStream: false, CancellationToken.None);
+            var sut = new StreamCopyHttpContent(source, autoFlushHttpClientOutgoingStream: false, CancellationToken.None);
 
             // Act
             Func<Task> func = () => sut.ReadAsStreamAsync();
@@ -128,8 +107,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         {
             // Arrange
             var source = new MemoryStream();
-            var streamCopierMock = new Mock<IStreamCopier>();
-            var sut = new StreamCopyHttpContent(source, streamCopierMock.Object, autoFlushHttpClientOutgoingStream: false, CancellationToken.None);
+            var sut = new StreamCopyHttpContent(source, autoFlushHttpClientOutgoingStream: false, CancellationToken.None);
 
             // Assert
             // This is an internal property that HttpClient and friends use internally and which must be true

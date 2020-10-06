@@ -24,7 +24,6 @@ namespace Microsoft.Extensions.DependencyInjection
             var builder = new ReverseProxyBuilder(services);
             builder
                 .AddTelemetryShims()
-                .AddMetrics()
                 .AddConfigBuilder()
                 .AddRuntimeStateManagers()
                 .AddConfigManager()

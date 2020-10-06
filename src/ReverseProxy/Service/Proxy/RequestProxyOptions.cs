@@ -6,7 +6,7 @@ using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 
 namespace Microsoft.ReverseProxy.Service.Proxy
 {
-    internal class RequestProxyOptions
+    public class RequestProxyOptions
     {
         public Transforms Transforms { get; set; } = Transforms.Empty;
 

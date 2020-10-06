@@ -6,30 +6,13 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.ReverseProxy.Abstractions.Telemetry;
 using Microsoft.ReverseProxy.Common.Tests;
-using Microsoft.ReverseProxy.Service.Metrics;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 {
     public class StreamCopierTests : TestAutoMockBase
     {
-        private readonly TestMetricCreator _metricCreator;
-        private readonly ProxyMetrics _metrics;
-
-        public StreamCopierTests()
-        {
-            _metricCreator = Provide<IMetricCreator, TestMetricCreator>();
-            _metrics = Create<ProxyMetrics>();
-        }
-
-        [Fact]
-        public void Constructor_Works()
-        {
-            new StreamCopier(_metrics, default);
-        }
-
         [Fact]
         public async Task CopyAsync_Works()
         {
@@ -37,18 +20,10 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var sourceBytes = Enumerable.Range(0, SourceSize).Select(i => (byte)(i % 256)).ToArray();
             var source = new MemoryStream(sourceBytes);
             var destination = new MemoryStream();
-            var proxyTelemetryContext = new StreamCopyTelemetryContext(
-                direction: "upstream",
-                clusterId: "be1",
-                routeId: "rt1",
-                destinationId: "d1");
-            var sut = new StreamCopier(_metrics, in proxyTelemetryContext);
 
-            await sut.CopyAsync(source, destination, CancellationToken.None);
+            await StreamCopier.CopyAsync(source, destination, CancellationToken.None);
 
             Assert.Equal(sourceBytes, destination.ToArray());
-            Assert.Equal("StreamCopyBytes=131069;direction=upstream;clusterId=be1;routeId=rt1;destinationId=d1;protocol=", _metricCreator.MetricsLogged[0]);
-            Assert.Equal("StreamCopyIops=2;direction=upstream;clusterId=be1;routeId=rt1;destinationId=d1;protocol=", _metricCreator.MetricsLogged[1]);
         }
 
         [Fact]
@@ -56,14 +31,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         {
             var source = new ThrowStream();
             var destination = new MemoryStream();
-            var proxyTelemetryContext = new StreamCopyTelemetryContext(
-                direction: "upstream",
-                clusterId: "be1",
-                routeId: "rt1",
-                destinationId: "d1");
-            var sut = new StreamCopier(_metrics, in proxyTelemetryContext);
 
-            var (result, error) = await sut.CopyAsync(source, destination, CancellationToken.None);
+            var (result, error) = await StreamCopier.CopyAsync(source, destination, CancellationToken.None);
             Assert.Equal(StreamCopyResult.InputError, result);
             Assert.IsAssignableFrom<IOException>(error);
         }
@@ -73,14 +42,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         {
             var source = new MemoryStream(new byte[10]);
             var destination = new ThrowStream();
-            var proxyTelemetryContext = new StreamCopyTelemetryContext(
-                direction: "upstream",
-                clusterId: "be1",
-                routeId: "rt1",
-                destinationId: "d1");
-            var sut = new StreamCopier(_metrics, in proxyTelemetryContext);
 
-            var (result, error) = await sut.CopyAsync(source, destination, CancellationToken.None);
+            var (result, error) = await StreamCopier.CopyAsync(source, destination, CancellationToken.None);
             Assert.Equal(StreamCopyResult.OutputError, result);
             Assert.IsAssignableFrom<IOException>(error);
         }
@@ -90,14 +53,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         {
             var source = new MemoryStream(new byte[10]);
             var destination = new MemoryStream();
-            var proxyTelemetryContext = new StreamCopyTelemetryContext(
-                direction: "upstream",
-                clusterId: "be1",
-                routeId: "rt1",
-                destinationId: "d1");
-            var sut = new StreamCopier(_metrics, in proxyTelemetryContext);
 
-            var (result, error) = await sut.CopyAsync(source, destination, new CancellationToken(canceled: true));
+            var (result, error) = await StreamCopier.CopyAsync(source, destination, new CancellationToken(canceled: true));
             Assert.Equal(StreamCopyResult.Canceled, result);
             Assert.IsAssignableFrom<OperationCanceledException>(error);
         }
