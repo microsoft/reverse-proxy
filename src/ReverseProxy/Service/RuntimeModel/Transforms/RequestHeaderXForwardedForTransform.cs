@@ -9,7 +9,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
     /// <summary>
     /// Sets or appends the X-Forwarded-For header with the previous clients's IP address.
     /// </summary>
-    internal class RequestHeaderXForwardedForTransform : RequestHeaderTransform
+    public class RequestHeaderXForwardedForTransform : RequestHeaderTransform
     {
         public RequestHeaderXForwardedForTransform(bool append)
         {

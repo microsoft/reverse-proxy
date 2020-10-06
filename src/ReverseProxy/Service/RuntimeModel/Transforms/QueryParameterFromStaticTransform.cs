@@ -3,7 +3,7 @@
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
-    internal class QueryParameterFromStaticTransform : QueryParameterTransform
+    public class QueryParameterFromStaticTransform : QueryParameterTransform
     {
         public QueryParameterFromStaticTransform(QueryStringTransformMode mode, string key, string value)
             : base(mode, key)

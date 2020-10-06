@@ -3,7 +3,7 @@
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
-    internal class QueryParameterRouteTransform : QueryParameterTransform
+    public class QueryParameterRouteTransform : QueryParameterTransform
     {
         public QueryParameterRouteTransform(QueryStringTransformMode mode, string key, string routeValueKey)
             : base(mode, key)

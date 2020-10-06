@@ -3,7 +3,7 @@
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
-    internal class RemoveQueryParameterTransform : RequestParametersTransform
+    public class RemoveQueryParameterTransform : RequestParametersTransform
     {
         public RemoveQueryParameterTransform(string key)
         {

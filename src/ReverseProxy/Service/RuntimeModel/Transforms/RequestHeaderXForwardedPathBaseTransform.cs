@@ -9,7 +9,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
     /// <summary>
     /// Sets or appends the X-Forwarded-PathBase header with the request's original PathBase.
     /// </summary>
-    internal class RequestHeaderXForwardedPathBaseTransform : RequestHeaderTransform
+    public class RequestHeaderXForwardedPathBaseTransform : RequestHeaderTransform
     {
 
         public RequestHeaderXForwardedPathBaseTransform(bool append)
