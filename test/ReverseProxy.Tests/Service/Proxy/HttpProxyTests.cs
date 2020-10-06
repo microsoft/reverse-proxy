@@ -13,9 +13,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Net.Http.Headers;
-using Microsoft.ReverseProxy.Abstractions.Telemetry;
-using Microsoft.ReverseProxy.Common.Tests;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 using Microsoft.ReverseProxy.Utilities;
 using Moq;
@@ -23,12 +22,21 @@ using Xunit;
 
 namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 {
-    public class HttpProxyTests : TestAutoMockBase
+    public class HttpProxyTests
     {
+        private IHttpProxy CreateProxy()
+        {
+            var services = new ServiceCollection();
+            services.AddLogging();
+            services.AddHttpProxy();
+            var provider = services.BuildServiceProvider();
+            return provider.GetRequiredService<IHttpProxy>();
+        }
+
         [Fact]
         public void Constructor_Works()
         {
-            Create<HttpProxy>();
+            Assert.NotNull(CreateProxy());
         }
 
         // Tests normal (as opposed to upgradeable) request proxying.
@@ -54,7 +62,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
             var destinationPrefix = "https://localhost:123/a/b/";
             var targetUri = "https://localhost:123/a/b/api/test?a=b&c=d";
-            var sut = Create<HttpProxy>();
+            var sut = CreateProxy();
             var client = MockHttpHandler.CreateClient(
                 async (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
@@ -142,7 +150,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 { "trailerTransform", new ResponseHeaderValueTransform("value", append: false, always: true) }
             });
             var targetUri = "https://localhost:123/a/b/prefix/api/test?a=b&c=d";
-            var sut = Create<HttpProxy>();
+            var sut = CreateProxy();
             var client = MockHttpHandler.CreateClient(
                 async (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
@@ -231,7 +239,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 responseHeaderTransforms: new Dictionary<string, ResponseHeaderTransform>(StringComparer.OrdinalIgnoreCase),
                 responseTrailerTransforms: new Dictionary<string, ResponseHeaderTransform>(StringComparer.OrdinalIgnoreCase));
             var targetUri = "https://localhost:123/a/b/test?a=b&c=d";
-            var sut = Create<HttpProxy>();
+            var sut = CreateProxy();
             var client = MockHttpHandler.CreateClient(
                 async (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
@@ -322,7 +330,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
             var destinationPrefix = "https://localhost:123/a/b/";
             var targetUri = "https://localhost:123/a/b/api/test?a=b&c=d";
-            var sut = Create<HttpProxy>();
+            var sut = CreateProxy();
             var client = MockHttpHandler.CreateClient(
                 async (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
@@ -383,7 +391,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
             var destinationPrefix = "https://localhost:123/a/b/";
             var targetUri = "https://localhost:123/a/b/api/test?a=b&c=d";
-            var sut = Create<HttpProxy>();
+            var sut = CreateProxy();
             var client = MockHttpHandler.CreateClient(
                 async (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
@@ -448,7 +456,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
             var destinationPrefix = "https://localhost:123/a/b/";
             var targetUri = "https://localhost:123/a/b/api/test?a=b&c=d";
-            var sut = Create<HttpProxy>();
+            var sut = CreateProxy();
             var client = MockHttpHandler.CreateClient(
                 async (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
@@ -514,7 +522,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             }
 
             var destinationPrefix = "https://localhost/";
-            var sut = Create<HttpProxy>();
+            var sut = CreateProxy();
             var client = MockHttpHandler.CreateClient(
                 (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
@@ -557,7 +565,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             }
 
             var destinationPrefix = "https://localhost/";
-            var sut = Create<HttpProxy>();
+            var sut = CreateProxy();
             var client = MockHttpHandler.CreateClient(
                 async (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
@@ -588,7 +596,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             httpContext.Response.Body = proxyResponseStream;
 
             var destinationPrefix = "https://localhost:123/";
-            var sut = Create<HttpProxy>();
+            var sut = CreateProxy();
             var client = MockHttpHandler.CreateClient(
                 (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
@@ -617,7 +625,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             httpContext.Response.Body = proxyResponseStream;
 
             var destinationPrefix = "https://localhost:123/";
-            var sut = Create<HttpProxy>();
+            var sut = CreateProxy();
             var client = MockHttpHandler.CreateClient(
                 (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
@@ -644,7 +652,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             httpContext.Response.Body = proxyResponseStream;
 
             var destinationPrefix = "https://localhost:123/";
-            var sut = Create<HttpProxy>();
+            var sut = CreateProxy();
             var client = MockHttpHandler.CreateClient(
                 (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
@@ -679,7 +687,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             httpContext.Response.Body = proxyResponseStream;
 
             var destinationPrefix = "https://localhost:123/";
-            var sut = Create<HttpProxy>();
+            var sut = CreateProxy();
             var client = MockHttpHandler.CreateClient(
                 (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
@@ -709,7 +717,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             httpContext.Response.Body = proxyResponseStream;
 
             var destinationPrefix = "https://localhost:123/";
-            var sut = Create<HttpProxy>();
+            var sut = CreateProxy();
             var client = MockHttpHandler.CreateClient(
                 (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
@@ -746,7 +754,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             httpContext.Response.Body = proxyResponseStream;
 
             var destinationPrefix = "https://localhost:123/";
-            var sut = Create<HttpProxy>();
+            var sut = CreateProxy();
             var client = MockHttpHandler.CreateClient(
                 (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
@@ -776,7 +784,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             httpContext.Response.Body = proxyResponseStream;
 
             var destinationPrefix = "https://localhost:123/";
-            var sut = Create<HttpProxy>();
+            var sut = CreateProxy();
             var client = MockHttpHandler.CreateClient(
                 async (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
@@ -807,7 +815,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             httpContext.Response.Body = proxyResponseStream;
 
             var destinationPrefix = "https://localhost:123/";
-            var sut = Create<HttpProxy>();
+            var sut = CreateProxy();
             var client = MockHttpHandler.CreateClient(
                 async (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
@@ -839,7 +847,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             httpContext.Response.Body = proxyResponseStream;
 
             var destinationPrefix = "https://localhost:123/";
-            var sut = Create<HttpProxy>();
+            var sut = CreateProxy();
             var client = MockHttpHandler.CreateClient(
                 async (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
@@ -872,7 +880,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             httpContext.Response.Body = proxyResponseStream;
 
             var destinationPrefix = "https://localhost:123/";
-            var sut = Create<HttpProxy>();
+            var sut = CreateProxy();
             var client = MockHttpHandler.CreateClient(
                 (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
@@ -906,7 +914,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             httpContext.Features.Set<IHttpRequestLifetimeFeature>(responseBody);
 
             var destinationPrefix = "https://localhost:123/";
-            var sut = Create<HttpProxy>();
+            var sut = CreateProxy();
             var client = MockHttpHandler.CreateClient(
                 (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
@@ -941,7 +949,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             httpContext.Features.Set<IHttpRequestLifetimeFeature>(responseBody);
 
             var destinationPrefix = "https://localhost:123/";
-            var sut = Create<HttpProxy>();
+            var sut = CreateProxy();
             var client = MockHttpHandler.CreateClient(
                 (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
@@ -976,7 +984,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             httpContext.RequestAborted = new CancellationToken(canceled: true);
 
             var destinationPrefix = "https://localhost:123/";
-            var sut = Create<HttpProxy>();
+            var sut = CreateProxy();
             var client = MockHttpHandler.CreateClient(
                 (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
@@ -1011,7 +1019,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             httpContext.RequestAborted = new CancellationToken(canceled: true);
 
             var destinationPrefix = "https://localhost:123/";
-            var sut = Create<HttpProxy>();
+            var sut = CreateProxy();
             var client = MockHttpHandler.CreateClient(
                 (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
@@ -1050,7 +1058,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             httpContext.RequestAborted = longTokenSource.Token;
 
             var destinationPrefix = "https://localhost:123/";
-            var sut = Create<HttpProxy>();
+            var sut = CreateProxy();
             var client = MockHttpHandler.CreateClient(
                 (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
@@ -1090,7 +1098,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             httpContext.Response.Body = proxyResponseStream;
 
             var destinationPrefix = "https://localhost:123/";
-            var sut = Create<HttpProxy>();
+            var sut = CreateProxy();
             var client = MockHttpHandler.CreateClient(
                 (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
@@ -1126,7 +1134,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             httpContext.Response.Body = proxyResponseStream;
 
             var destinationPrefix = "https://localhost:123/";
-            var sut = Create<HttpProxy>();
+            var sut = CreateProxy();
             var client = MockHttpHandler.CreateClient(
                 (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
@@ -1168,7 +1176,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             upgradeFeatureMock.Setup(u => u.UpgradeAsync()).ReturnsAsync(downstreamStream);
             httpContext.Features.Set(upgradeFeatureMock.Object);
 
-            var sut = Create<HttpProxy>();
+            var sut = CreateProxy();
             var client = MockHttpHandler.CreateClient(
                 (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
@@ -1223,7 +1231,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             upgradeFeatureMock.Setup(u => u.UpgradeAsync()).ReturnsAsync(downstreamStream);
             httpContext.Features.Set(upgradeFeatureMock.Object);
 
-            var sut = Create<HttpProxy>();
+            var sut = CreateProxy();
             var client = MockHttpHandler.CreateClient(
                 (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {

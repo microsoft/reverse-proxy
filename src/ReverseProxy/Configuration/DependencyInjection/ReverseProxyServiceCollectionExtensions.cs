@@ -3,10 +3,12 @@
 
 using System;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.ReverseProxy.Configuration;
 using Microsoft.ReverseProxy.Configuration.Contract;
 using Microsoft.ReverseProxy.Configuration.DependencyInjection;
 using Microsoft.ReverseProxy.Service;
+using Microsoft.ReverseProxy.Service.Proxy;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -16,6 +18,17 @@ namespace Microsoft.Extensions.DependencyInjection
     /// </summary>
     public static class ReverseProxyServiceCollectionExtensions
     {
+        /// <summary>
+        /// Registers the <see cref="IHttpProxy"/> service for direct proxying scenarios.
+        /// </summary>
+        /// <param name="services"></param>
+        /// <returns></returns>
+        public static IServiceCollection AddHttpProxy(this IServiceCollection services)
+        {
+            services.TryAddSingleton<IHttpProxy, HttpProxy>();
+            return services;
+        }
+
         /// <summary>
         /// Adds ReverseProxy's services to Dependency Injection.
         /// </summary>
