@@ -89,6 +89,7 @@ namespace Microsoft.ReverseProxy.Service
             ValidateHost(errors, route.Match.Hosts, route.RouteId);
             ValidatePath(errors, route.Match.Path, route.RouteId);
             ValidateMethods(errors, route.Match.Methods, route.RouteId);
+            ValidateHeaders(errors, route.Match.Headers, route.RouteId);
             errors.AddRange(_transformBuilder.Validate(route.Transforms));
             await ValidateAuthorizationPolicyAsync(errors, route.AuthorizationPolicy, route.RouteId);
             await ValidateCorsPolicyAsync(errors, route.CorsPolicy, route.RouteId);
@@ -167,6 +168,40 @@ namespace Microsoft.ReverseProxy.Service
                 if (!_validMethods.Contains(method))
                 {
                     errors.Add(new ArgumentException($"Unsupported HTTP method '{method}' has been set for route '{routeId}'."));
+                }
+            }
+        }
+
+        private void ValidateHeaders(List<Exception> errors, IReadOnlyList<RouteHeader> headers, string routeId)
+        {
+            // Headers are optional
+            if (headers == null)
+            {
+                return;
+            }
+
+            foreach (var header in headers)
+            {
+                if (header == null)
+                {
+                    errors.Add(new ArgumentException($"A null route header has been set for route '{routeId}'."));
+                    continue;
+                }
+
+                if (string.IsNullOrEmpty(header.Name))
+                {
+                    errors.Add(new ArgumentException($"A null or empty route header name has been set for route '{routeId}'."));
+                }
+
+                if (header.Mode != HeaderMatchMode.Exists
+                    && (header.Values == null || header.Values.Count == 0))
+                {
+                    errors.Add(new ArgumentException($"No header values were set on route header '{header.Name}' for route '{routeId}'."));
+                }
+
+                if (header.Mode == HeaderMatchMode.Exists && header.Values?.Count > 0)
+                {
+                    errors.Add(new ArgumentException($"Header values where set when using mode '{nameof(HeaderMatchMode.Exists)}' on route header '{header.Name}' for route '{routeId}'."));
                 }
             }
         }

@@ -168,8 +168,6 @@ namespace Microsoft.ReverseProxy
         {
             return CreateHost(services =>
             {
-                services.AddRouting();
-
                 var proxyRoute = new ProxyRoute
                 {
                     RouteId = "route1",
