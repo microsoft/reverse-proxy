@@ -89,6 +89,12 @@ namespace Microsoft.ReverseProxy.Service.Management
         /// </summary>
         protected abstract T InstantiateItem(string itemId);
 
+        protected virtual void OnItemChanged(T item, bool added)
+        {}
+
+        protected virtual void OnItemRemoved(T item)
+        {}
+
         private void UpdateSignal()
         {
             _signal.Value = _items.Select(kvp => kvp.Value).ToList().AsReadOnly();

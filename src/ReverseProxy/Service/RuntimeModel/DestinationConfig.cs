@@ -17,7 +17,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
     /// </remarks>
     public sealed class DestinationConfig
     {
-        public DestinationConfig(string address)
+        public DestinationConfig(string address, string health)
         {
             if (string.IsNullOrEmpty(address))
             {
@@ -25,9 +25,15 @@ namespace Microsoft.ReverseProxy.RuntimeModel
             }
 
             Address = address;
+            Health = health;
         }
 
         // TODO: Make this a Uri.
         public string Address { get; }
+
+        /// <summary>
+        /// Endpoint accepting active health check probes.
+        /// </summary>
+        public string Health { get; }
     }
 }

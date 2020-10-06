@@ -38,11 +38,11 @@ namespace Microsoft.ReverseProxy.Configuration
                         Destinations = {
                         {
                             "destinationA",
-                            new DestinationData { Address = "https://localhost:10000/destA", Metadata = new Dictionary<string, string> { { "destA-K1", "destA-V1" }, { "destA-K2", "destA-V2" } } }
+                            new DestinationData { Address = "https://localhost:10000/destA", Health = "https://localhost:20000/destA", Metadata = new Dictionary<string, string> { { "destA-K1", "destA-V1" }, { "destA-K2", "destA-V2" } } }
                         },
                         {
                             "destinationB",
-                            new DestinationData { Address = "https://localhost:10000/destB", Metadata = new Dictionary<string, string> { { "destB-K1", "destB-V1" }, { "destB-K2", "destB-V2" } } }
+                            new DestinationData { Address = "https://localhost:10000/destB", Health = "https://localhost:20000/destB", Metadata = new Dictionary<string, string> { { "destB-K1", "destB-V1" }, { "destB-K2", "destB-V2" } } }
                         }
                         },
                         CircuitBreaker = new CircuitBreakerData { MaxConcurrentRequests = 2, MaxConcurrentRetries = 3 },
@@ -202,6 +202,7 @@ namespace Microsoft.ReverseProxy.Configuration
             ""Destinations"": {
                 ""destinationA"": {
                     ""Address"": ""https://localhost:10000/destA"",
+                    ""Health"": ""https://localhost:20000/destA"",
                     ""Metadata"": {
                         ""destA-K1"": ""destA-V1"",
                         ""destA-K2"": ""destA-V2""
@@ -209,6 +210,7 @@ namespace Microsoft.ReverseProxy.Configuration
                 },
                 ""destinationB"": {
                     ""Address"": ""https://localhost:10000/destB"",
+                    ""Health"": ""https://localhost:20000/destB"",
                     ""Metadata"": {
                         ""destB-K1"": ""destB-V1"",
                         ""destB-K2"": ""destB-V2""
@@ -553,8 +555,10 @@ namespace Microsoft.ReverseProxy.Configuration
             Assert.Single(abstractConfig.Clusters.Where(c => c.Id == "cluster1"));
             var abstractCluster1 = abstractConfig.Clusters.Single(c => c.Id == "cluster1");
             Assert.Equal(validConfig.Clusters["cluster1"].Destinations["destinationA"].Address, abstractCluster1.Destinations["destinationA"].Address);
+            Assert.Equal(validConfig.Clusters["cluster1"].Destinations["destinationA"].Health, abstractCluster1.Destinations["destinationA"].Health);
             Assert.Equal(validConfig.Clusters["cluster1"].Destinations["destinationA"].Metadata, abstractCluster1.Destinations["destinationA"].Metadata);
             Assert.Equal(validConfig.Clusters["cluster1"].Destinations["destinationB"].Address, abstractCluster1.Destinations["destinationB"].Address);
+            Assert.Equal(validConfig.Clusters["cluster1"].Destinations["destinationB"].Health, abstractCluster1.Destinations["destinationB"].Health);
             Assert.Equal(validConfig.Clusters["cluster1"].Destinations["destinationB"].Metadata, abstractCluster1.Destinations["destinationB"].Metadata);
             Assert.Equal(validConfig.Clusters["cluster1"].CircuitBreaker.MaxConcurrentRequests, abstractCluster1.CircuitBreaker.MaxConcurrentRequests);
             Assert.Equal(validConfig.Clusters["cluster1"].CircuitBreaker.MaxConcurrentRetries, abstractCluster1.CircuitBreaker.MaxConcurrentRetries);

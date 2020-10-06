@@ -44,7 +44,7 @@ namespace Microsoft.ReverseProxy.Middleware
                 return Task.CompletedTask;
             }
 
-            var dynamicState = cluster.DynamicState.Value;
+            var dynamicState = cluster.DynamicState;
             if (dynamicState == null)
             {
                 Log.ClusterDataNotAvailable(_logger, routeConfig.Route.RouteId, cluster.ClusterId);

@@ -55,7 +55,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 "destination1",
                 destination =>
                 {
-                    destination.ConfigSignal.Value = new DestinationConfig("https://localhost:123/a/b/");
+                    destination.ConfigSignal.Value = new DestinationConfig("https://localhost:123/a/b/", null);
                     destination.DynamicStateSignal.Value = new DestinationDynamicState(new CompositeDestinationHealth(DestinationHealth.Healthy, DestinationHealth.Unknown));
                 });
             httpContext.Features.Set<IReverseProxyFeature>(

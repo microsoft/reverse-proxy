@@ -363,6 +363,7 @@ namespace Microsoft.ReverseProxy.Configuration
             return new Destination
             {
                 Address = data.Address,
+                Health = data.Health,
                 Metadata = data.Metadata?.DeepClone(StringComparer.OrdinalIgnoreCase),
             };
         }

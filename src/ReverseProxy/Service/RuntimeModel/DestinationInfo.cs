@@ -50,7 +50,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         internal Signal<DestinationDynamicState> DynamicStateSignal { get; } = SignalFactory.Default.CreateSignal<DestinationDynamicState>();
 
         /// <summary>
-        /// A snapshot of the current health state.
+        /// A snapshot of the current dynamic state.
         /// </summary>
         public DestinationDynamicState DynamicState => DynamicStateSignal.Value;
 

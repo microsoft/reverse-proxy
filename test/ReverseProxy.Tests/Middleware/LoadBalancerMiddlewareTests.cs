@@ -45,14 +45,14 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 "destination1",
                 destination =>
                 {
-                    destination.ConfigSignal.Value = new DestinationConfig("https://localhost:123/a/b/");
+                    destination.ConfigSignal.Value = new DestinationConfig("https://localhost:123/a/b/", null);
                     destination.DynamicStateSignal.Value = new DestinationDynamicState(new CompositeDestinationHealth(DestinationHealth.Healthy, DestinationHealth.Unknown));
                 });
             var destination2 = cluster1.DestinationManager.GetOrCreateItem(
                 "destination2",
                 destination =>
                 {
-                    destination.ConfigSignal.Value = new DestinationConfig("https://localhost:123/a/b/");
+                    destination.ConfigSignal.Value = new DestinationConfig("https://localhost:123/a/b/", null);
                     destination.DynamicStateSignal.Value = new DestinationDynamicState(new CompositeDestinationHealth(DestinationHealth.Healthy, DestinationHealth.Unknown));
                 });
 
@@ -102,14 +102,14 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 "destination1",
                 destination =>
                 {
-                    destination.ConfigSignal.Value = new DestinationConfig("https://localhost:123/a/b/");
+                    destination.ConfigSignal.Value = new DestinationConfig("https://localhost:123/a/b/", null);
                     destination.DynamicStateSignal.Value = new DestinationDynamicState(new CompositeDestinationHealth(DestinationHealth.Healthy, DestinationHealth.Unknown));
                 });
             var destination2 = cluster1.DestinationManager.GetOrCreateItem(
                 "destination2",
                 destination =>
                 {
-                    destination.ConfigSignal.Value = new DestinationConfig("https://localhost:123/a/b/");
+                    destination.ConfigSignal.Value = new DestinationConfig("https://localhost:123/a/b/", null);
                     destination.DynamicStateSignal.Value = new DestinationDynamicState(new CompositeDestinationHealth(DestinationHealth.Healthy, DestinationHealth.Unknown));
                 });
 

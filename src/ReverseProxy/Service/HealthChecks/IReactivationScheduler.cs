@@ -9,7 +9,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
     /// <summary>
     /// Reactivates a destination by restoring it's passive health state to <see cref="DestinationHealth.Healthy"/> after some period.
     /// </summary>
-    public interface IReactivationScheduler
+    public interface IReactivationScheduler : IDisposable
     {
         /// <summary>
         /// Schedules restoring a destination as <see cref="DestinationHealth.Healthy"/>.

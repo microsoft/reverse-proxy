@@ -20,36 +20,41 @@ namespace Microsoft.ReverseProxy.RuntimeModel
     /// relevant to this cluster.
     /// All members are thread safe.
     /// </remarks>
-    internal sealed class ClusterInfo
+    public sealed class ClusterInfo
     {
-        public ClusterInfo(string clusterId, IDestinationManager destinationManager)
+        internal ClusterInfo(string clusterId, IDestinationManager destinationManager)
         {
             ClusterId = clusterId ?? throw new ArgumentNullException(nameof(clusterId));
             DestinationManager = destinationManager ?? throw new ArgumentNullException(nameof(destinationManager));
 
-            DynamicState = CreateDynamicStateQuery();
+            DynamicStateSignal = CreateDynamicStateQuery();
         }
 
         public string ClusterId { get; }
 
-        public IDestinationManager DestinationManager { get; }
+        internal IDestinationManager DestinationManager { get; }
 
         /// <summary>
         /// Encapsulates parts of a cluster that can change atomically
         /// in reaction to config changes.
         /// </summary>
-        public Signal<ClusterConfig> Config { get; } = SignalFactory.Default.CreateSignal<ClusterConfig>();
+        internal Signal<ClusterConfig> Config { get; } = SignalFactory.Default.CreateSignal<ClusterConfig>();
 
         /// <summary>
         /// Encapsulates parts of a cluster that can change atomically
         /// in reaction to runtime state changes (e.g. dynamic endpoint discovery).
         /// </summary>
-        public IReadableSignal<ClusterDynamicState> DynamicState { get; }
+        internal IReadableSignal<ClusterDynamicState> DynamicStateSignal { get; }
+
+        /// <summary>
+        /// A snapshot of the current dynamic state.
+        /// </summary>
+        public ClusterDynamicState DynamicState => DynamicStateSignal.Value;
 
         /// <summary>
         /// Keeps track of the total number of concurrent requests on this cluster.
         /// </summary>
-        public AtomicCounter ConcurrencyCounter { get; } = new AtomicCounter();
+        internal AtomicCounter ConcurrencyCounter { get; } = new AtomicCounter();
 
         /// <summary>
         /// Sets up the data flow that keeps <see cref="DynamicState"/> up to date.

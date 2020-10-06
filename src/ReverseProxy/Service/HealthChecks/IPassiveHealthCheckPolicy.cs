@@ -8,7 +8,7 @@ using Microsoft.ReverseProxy.Service.Proxy;
 namespace Microsoft.ReverseProxy.Service.HealthChecks
 {
     /// <summary>
-    /// Passive health check policy.
+    /// Passive health check evaluation policy.
     /// </summary>
     public interface IPassiveHealthCheckPolicy
     {

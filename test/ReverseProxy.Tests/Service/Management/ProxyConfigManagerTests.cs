@@ -314,7 +314,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             Assert.NotNull(clusterInfo);
             Assert.True(clusterInfo.Config.Value.HealthCheckOptions.Enabled);
             Assert.Equal(TimeSpan.FromSeconds(12), clusterInfo.Config.Value.HealthCheckOptions.Active.Interval);
-            var destination = Assert.Single(clusterInfo.DynamicState.Value.AllDestinations);
+            var destination = Assert.Single(clusterInfo.DynamicState.AllDestinations);
             Assert.Equal("http://localhost", destination.Config.Address);
         }
 

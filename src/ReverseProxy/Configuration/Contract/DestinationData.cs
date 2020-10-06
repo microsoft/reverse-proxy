@@ -16,6 +16,11 @@ namespace Microsoft.ReverseProxy.Configuration.Contract
         public string Address { get; set; }
 
         /// <summary>
+        /// Endpoint accepting active health check probes.
+        /// </summary>
+        public string Health { get; set; }
+
+        /// <summary>
         /// Arbitrary key-value pairs that further describe this destination.
         /// </summary>
         public IDictionary<string, string> Metadata { get; set; }
