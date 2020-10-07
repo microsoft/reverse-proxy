@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.Extensions.Logging;
+using Microsoft.ReverseProxy.Telemetry;
 
 namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
 {
@@ -65,7 +66,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
             }
 
             Log.ProxyClientCreated(_logger, context.ClusterId);
-            return new HttpMessageInvoker(handler, disposeHandler: true);
+            return new HttpMessageInvoker(new DiagnosticsHandler(handler), disposeHandler: true);
         }
 
         private bool CanReuseOldClient(ProxyHttpClientContext context)
