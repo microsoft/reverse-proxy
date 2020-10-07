@@ -119,6 +119,10 @@ Config:
 ```JSON
 { "PathPrefix": "/prefix" }
 ```
+Code:
+```csharp
+proxyRoute.AddTransformPathPrefix(prefix: "/prefix");
+```
 Example:<br/>
 `/request/path` becomes `/prefix/request/path`
 
@@ -133,6 +137,10 @@ This will prefix the request path with the given value.
 Config:
 ```JSON
 { "PathRemovePrefix": "/prefix" }
+```
+Code:
+```csharp
+proxyRoute.AddTransformPathRemovePrefix(prefix: "/prefix");
 ```
 Example:<br/>
 `/prefix/request/path` becomes `/request/path`<br/>
@@ -150,6 +158,10 @@ Config:
 ```JSON
 { "PathSet": "/newpath" }
 ```
+Code:
+```csharp
+proxyRoute.AddTransformPathSet(path: "/newpath");
+```
 Example:<br/>
 `/request/path` becomes `/newpath`
 
@@ -164,6 +176,10 @@ This will set the request path with the given value.
 Config:
 ```JSON
 { "PathPattern": "/my/{plugin}/api/{remainder}" }
+```
+Code:
+```csharp
+proxyRoute.AddTransformPathRouteValues(pattern: "/my/{plugin}/api/{remainder}");
 ```
 
 This will set the request path with the given value and replace any `{}` segments with the associated route value. `{}` segments without a matching route value are removed. See ASP.NET Core's [routing docs](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/routing?view=aspnetcore-3.1#route-template-reference) for more information about route templates.
@@ -191,6 +207,10 @@ Config:
   "Append": "bar"
 }
 ```
+Code:
+```csharp
+proxyRoute.AddTransformQueryValueParameter(queryKey: "foo", value: "bar", append: true);
+```
 
 This will add a query string parameter with the name `foo` and sets it to the static value `bar`.
 
@@ -214,6 +234,10 @@ Config:
   "QueryRouteParameter": "foo",
   "Append": "remainder"
 }
+```
+Code:
+```csharp
+proxyRoute.AddTransformQueryRouteParameter(queryKey: "foo", routeValueKey: "remainder", append: true);
 ```
 
 This will add a query string parameter with the name `foo` and sets it to the value of the associated route value.
@@ -239,6 +263,10 @@ Config:
   "QueryRemoveParameter": "foo"
 }
 ```
+Code:
+```csharp
+proxyRoute.AddTransformRemoveQueryParameter(queryKey: "foo");
+```
 
 This will remove a query string parameter with the name `foo` if present on the request.
 
@@ -249,6 +277,27 @@ Example:
 | Request path | `?a=b&foo=c` |
 | QueryRemoveParameter | `foo` |
 | Result | `?a=b` |
+
+#### HttpMethod
+
+| Key | Value | Required |
+|-----|-------|----------|
+| HttpMethod | The http method to replace | yes |
+| Set | The new http method | yes |
+
+Config:
+```JSON
+{
+  "HttpMethod": "PUT",
+  "Set": "POST",
+}
+```
+Code:
+```csharp
+proxyRoute.AddTransformHttpMethod(fromHttpMethod: HttpMethods.Put, toHttpMethod: HttpMethods.Post);
+```
+
+This will change PUT requests to POST.
 
 ### Request Headers
 
@@ -267,6 +316,10 @@ Only one transform per header name is supported.
 Config:
 ```JSON
 { "RequestHeadersCopy": "false" }
+```
+Code:
+```csharp
+proxyRoute.AddTransformSuppressRequestHeaders();
 ```
 
 This sets if all incoming request headers are copied to the proxy request. This setting is enabled by default and can by disabled by configuring the transform with a `false` value. Transforms that reference specific headers will still be run if this is disabled.
@@ -298,6 +351,10 @@ Config:
   "Set": "MyValue",
 }
 ```
+Code:
+```csharp
+proxyRoute.AddTransformRequestHeader(headerName: "MyHeader", value: "MyValue", append: false);
+```
 Example:
 ```
 MyHeader: MyValue
@@ -320,6 +377,10 @@ Config:
   "Prefix": "X-Forwarded-",
   "Append": "true"
 }
+```
+Code:
+```csharp
+proxyRoute.AddTransformXForwarded(headerPrefix: "X-Forwarded-", useFor: true, useHost: true, useProto: true, usePathBase: true, append: true);
 ```
 Example:
 ```
@@ -368,6 +429,10 @@ Config:
   "ForFormat": "IpAndPort"
 },
 ```
+Code:
+```csharp
+proxyRoute.AddTransformForwarded(useFor: true, useHost: true, useProto: true, useBy: true, append: true, forFormat: "IpAndPort", ByFormat: "Random");
+```
 Example:
 ```
 Forwarded: proto=https;host="localhost:5001";for="[::1]:20173";by=_YQuN68tm6
@@ -410,6 +475,10 @@ Config:
 ```JSON
 { "ClientCert": "X-Client-Cert" }
 ```
+Code:
+```csharp
+proxyRoute.AddTransformClientCert(headerName: "X-Client-Cert");
+```
 Example:
 ```
 X-Client-Cert: SSdtIGEgY2VydGlmaWNhdGU...
@@ -439,6 +508,10 @@ Config:
   "When": "Success"
 }
 ```
+Code:
+```csharp
+proxyRoute.AddTransformResponseHeader(headerName: "HeaderName", value: "value", append: true, always: false);
+```
 Example:
 ```
 HeaderName: value
@@ -463,6 +536,10 @@ Config:
   "Append": "value",
   "When": "Success"
 }
+```
+Code:
+```csharp
+proxyRoute.AddTransformResponseTrailer(headerName: "HeaderName", value: "value", append: true, always: false);
 ```
 Example:
 ```
