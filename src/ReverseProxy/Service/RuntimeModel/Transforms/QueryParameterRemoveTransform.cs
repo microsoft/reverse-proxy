@@ -3,15 +3,19 @@
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
-    public class RemoveQueryParameterTransform : RequestParametersTransform
+    /// <summary>
+    /// A request transform that removes the given query parameter.
+    /// </summary>
+    public class QueryParameterRemoveTransform : RequestParametersTransform
     {
-        public RemoveQueryParameterTransform(string key)
+        public QueryParameterRemoveTransform(string key)
         {
             Key = key;
         }
 
         internal string Key { get; }
 
+        /// <inheritdoc/>
         public override void Apply(RequestParametersTransformContext context)
         {
             if (context == null)

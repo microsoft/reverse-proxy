@@ -11,6 +11,11 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
     /// </summary>
     public class PathStringTransform : RequestParametersTransform
     {
+        /// <summary>
+        /// Creates a new transform.
+        /// </summary>
+        /// <param name="mode">A <see cref="PathTransformMode"/> indicating how the given value should update the existing path.</param>
+        /// <param name="value">The path value used to update the existing value.</param>
         public PathStringTransform(PathTransformMode mode, PathString value)
         {
             Mode = mode;
@@ -21,6 +26,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 
         internal PathTransformMode Mode { get; }
 
+        /// <inheritdoc/>
         public override void Apply(RequestParametersTransformContext context)
         {
             if (context is null)

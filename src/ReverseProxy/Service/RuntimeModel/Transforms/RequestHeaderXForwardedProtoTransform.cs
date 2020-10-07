@@ -19,6 +19,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 
         internal bool Append { get; }
 
+        /// <inheritdoc/>
         public override StringValues Apply(HttpContext context, StringValues values)
         {
             if (context is null)

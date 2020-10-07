@@ -26,6 +26,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         internal string Value { get; }
 
         // Assumes the response status code has been set on the HttpContext already.
+        /// <inheritdoc/>
         public override StringValues Apply(HttpContext context, HttpResponseMessage response, StringValues values)
         {
             if (context is null)

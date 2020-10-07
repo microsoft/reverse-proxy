@@ -12,6 +12,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
     /// </summary>
     public class RequestHeaderClientCertTransform : RequestHeaderTransform
     {
+        /// <inheritdoc/>
         public override StringValues Apply(HttpContext context, StringValues values)
         {
             if (context is null)

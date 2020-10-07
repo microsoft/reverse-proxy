@@ -344,7 +344,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             var transform = BuildTransform(proxyRoute);
 
             var requestTransform = Assert.Single(transform.RequestTransforms);
-            var removeQueryParameterTransform = Assert.IsType<RemoveQueryParameterTransform>(requestTransform);
+            var removeQueryParameterTransform = Assert.IsType<QueryParameterRemoveTransform>(requestTransform);
             Assert.Equal("key", removeQueryParameterTransform.Key);
         }
 
