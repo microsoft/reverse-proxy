@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
