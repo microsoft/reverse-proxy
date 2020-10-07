@@ -11,12 +11,12 @@ namespace Microsoft.ReverseProxy.Service.Management
     internal sealed class ClusterManager : ItemManagerBase<ClusterInfo>, IClusterManager
     {
         private readonly IDestinationManagerFactory _destinationManagerFactory;
-        private readonly IReadOnlyList<IModelChangeListener> _changeListeners;
+        private readonly IReadOnlyList<IClusterChangeListener> _changeListeners;
 
-        public ClusterManager(IDestinationManagerFactory destinationManagerFactory, IEnumerable<IModelChangeListener> changeListeners)
+        public ClusterManager(IDestinationManagerFactory destinationManagerFactory, IEnumerable<IClusterChangeListener> changeListeners)
         {
             _destinationManagerFactory = destinationManagerFactory ?? throw new ArgumentNullException(nameof(destinationManagerFactory));
-            _changeListeners = changeListeners?.ToArray() ?? throw new ArgumentNullException(nameof(changeListeners));
+            _changeListeners = changeListeners?.ToArray() ?? new IClusterChangeListener[0];
         }
 
         protected override void OnItemRemoved(ClusterInfo item)

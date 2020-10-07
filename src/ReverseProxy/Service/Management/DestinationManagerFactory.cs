@@ -1,6 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.ReverseProxy.Service.RuntimeModel;
+
 namespace Microsoft.ReverseProxy.Service.Management
 {
     /// <summary>
@@ -10,10 +14,17 @@ namespace Microsoft.ReverseProxy.Service.Management
     /// </summary>
     internal class DestinationManagerFactory : IDestinationManagerFactory
     {
+        private readonly IReadOnlyList<IDestinationChangeListener> _changeListeners;
+
+        public DestinationManagerFactory(IEnumerable<IDestinationChangeListener> changeListeners)
+        {
+            _changeListeners = changeListeners?.ToArray() ?? new IDestinationChangeListener[0];
+        }
+
         /// <inheritdoc/>
         public IDestinationManager CreateDestinationManager()
         {
-            return new DestinationManager();
+            return new DestinationManager(_changeListeners);
         }
     }
 }

@@ -4,9 +4,9 @@
 namespace Microsoft.ReverseProxy.RuntimeModel
 {
     /// <summary>
-    /// Listener for changes in the runtime model instances.
+    /// Listener for changes in the clusters.
     /// </summary>
-    public interface IModelChangeListener
+    public interface IClusterChangeListener
     {
         /// <summary>
         /// Gets called after a new <see cref="ClusterInfo"/> has been added.

@@ -24,7 +24,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
         public void GetOrCreateItem_NonExistentItem_CreatesNewItem()
         {
             // Arrange
-            var endpointManager = new DestinationManager();
+            var endpointManager = new DestinationManager(null);
             var proxyHttpClientFactory = new Mock<IProxyHttpClientFactory>().Object;
             Mock<IDestinationManagerFactory>()
                 .Setup(e => e.CreateDestinationManager())
@@ -38,6 +38,8 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             Assert.NotNull(item);
             Assert.Equal("abc", item.ClusterId);
             Assert.Same(endpointManager, item.DestinationManager);
+
+            Assert.True(false, "Test cluster change listeners.");
         }
     }
 }

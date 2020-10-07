@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Extensions.Internal;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Management;
+using Microsoft.ReverseProxy.Utilities;
 using System;
 
 namespace Microsoft.ReverseProxy.Service.HealthChecks
@@ -12,7 +12,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
     {
         private readonly EntityActionScheduler<DestinationInfo> _scheduler;
 
-        public ReactivationScheduler(ISystemClock clock)
+        public ReactivationScheduler(IUptimeClock clock)
         {
             _scheduler = new EntityActionScheduler<DestinationInfo>(Reactivate, true, clock);
         }

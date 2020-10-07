@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Extensions.Internal;
+using Microsoft.Extensions.Options;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Management;
@@ -14,16 +14,15 @@ using System.Threading.Tasks;
 
 namespace Microsoft.ReverseProxy.Service.HealthChecks
 {
-    internal class ActiveHealthCheckMonitor : IActiveHealthCheckMonitor, IModelChangeListener
+    internal class ActiveHealthCheckMonitor : IActiveHealthCheckMonitor, IClusterChangeListener
     {
-        private static readonly TimeSpan _defaultInterval = TimeSpan.FromSeconds(60);
-        private static readonly TimeSpan _defaultTimeout = TimeSpan.FromSeconds(10);
+        private readonly ActiveHealthCheckMonitorOptions _monitorOptions;
         private readonly IDictionary<string, IActiveHealthCheckPolicy> _policies;
-        private readonly List<ClusterConfig> _clusters;
         private readonly EntityActionScheduler<ClusterInfo> _scheduler;
 
-        public ActiveHealthCheckMonitor(IEnumerable<IActiveHealthCheckPolicy> policies, ISystemClock clock)
+        public ActiveHealthCheckMonitor(IOptions<ActiveHealthCheckMonitorOptions> monitorOptions, IEnumerable<IActiveHealthCheckPolicy> policies, IUptimeClock clock)
         {
+            _monitorOptions = monitorOptions?.Value ?? throw new ArgumentNullException(nameof(monitorOptions));
             _policies = policies.ToDictionaryByUniqueId(p => p.Name);
             _scheduler = new EntityActionScheduler<ClusterInfo>(async cluster => await ProbeCluster(cluster), false, clock);
         }
@@ -44,7 +43,11 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 
         public void OnClusterAdded(ClusterInfo cluster)
         {
-            OnClusterChanged(cluster);
+            var activeHealthCheckOptions = cluster.Config.Value.HealthCheckOptions.Active;
+            if (activeHealthCheckOptions.Enabled)
+            {
+                _scheduler.ScheduleEntity(cluster, activeHealthCheckOptions.Interval ?? _monitorOptions.DefaultInterval);
+            }
         }
 
         public void OnClusterChanged(ClusterInfo cluster)
@@ -52,7 +55,11 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             var activeHealthCheckOptions = cluster.Config.Value.HealthCheckOptions.Active;
             if (activeHealthCheckOptions.Enabled)
             {
-                _scheduler.ScheduleEntity(cluster, activeHealthCheckOptions.Interval ?? _defaultInterval);
+                _scheduler.ChangePeriod(cluster, activeHealthCheckOptions.Interval ?? _monitorOptions.DefaultInterval);
+            }
+            else
+            {
+                _scheduler.UnscheduleEntity(cluster);
             }
         }
 
@@ -69,7 +76,15 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         private async Task ProbeCluster(ClusterInfo cluster)
         {
             var clusterConfig = cluster.Config.Value;
-            var policy = _policies.GetRequiredServiceById(clusterConfig.HealthCheckOptions.Active.Policy, HealthCheckConstants.ActivePolicy.ConsequitiveFailures);
+
+            if (!clusterConfig.HealthCheckOptions.Active.Enabled)
+            {
+                return;
+            }
+
+            // Policy must always be present if the active health check is enabled for a cluster.
+            // It's validated and ensured by a configuration validator.
+            var policy = _policies.GetRequiredServiceById(clusterConfig.HealthCheckOptions.Active.Policy, clusterConfig.HealthCheckOptions.Active.Policy);
             var allDestinations = cluster.DynamicState.AllDestinations;
             var probeTasks = new List<Task<HttpResponseMessage>>();
             foreach (var destination in allDestinations)
@@ -78,7 +93,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 var probePath = clusterConfig.HealthCheckOptions.Active.Path;
                 var probeUri = new Uri(probeAddress, probePath);
                 var request = new HttpRequestMessage(HttpMethod.Get, probeUri);
-                var timeout = clusterConfig.HealthCheckOptions.Active.Timeout ?? _defaultTimeout;
+                var timeout = clusterConfig.HealthCheckOptions.Active.Timeout ?? _monitorOptions.DefaultTimeout;
                 probeTasks.Add(clusterConfig.HttpClient.SendAsync(request, new CancellationTokenSource(timeout).Token));
             }
 

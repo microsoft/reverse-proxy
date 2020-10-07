@@ -55,7 +55,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
                 },
                 Order = 12,
             };
-            var cluster = new ClusterInfo("cluster1", new DestinationManager());
+            var cluster = new ClusterInfo("cluster1", new DestinationManager(null));
             var routeInfo = new RouteInfo("route1");
 
             var config = builder.Build(route, cluster, routeInfo);
@@ -92,7 +92,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
                 },
                 Order = 12,
             };
-            var cluster = new ClusterInfo("cluster1", new DestinationManager());
+            var cluster = new ClusterInfo("cluster1", new DestinationManager(null));
             var routeInfo = new RouteInfo("route1");
 
             var config = builder.Build(route, cluster, routeInfo);
@@ -129,7 +129,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
                 },
                 Order = 12,
             };
-            var cluster = new ClusterInfo("cluster1", new DestinationManager());
+            var cluster = new ClusterInfo("cluster1", new DestinationManager(null));
             var routeInfo = new RouteInfo("route1");
 
             var config = builder.Build(route, cluster, routeInfo);
@@ -166,7 +166,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
                 },
                 Order = 12,
             };
-            var cluster = new ClusterInfo("cluster1", new DestinationManager());
+            var cluster = new ClusterInfo("cluster1", new DestinationManager(null));
             var routeInfo = new RouteInfo("route1");
 
             var config = builder.Build(route, cluster, routeInfo);
@@ -197,7 +197,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
                 RouteId = "route1",
                 Order = 12,
             };
-            var cluster = new ClusterInfo("cluster1", new DestinationManager());
+            var cluster = new ClusterInfo("cluster1", new DestinationManager(null));
             var routeInfo = new RouteInfo("route1");
 
             var config = builder.Build(route, cluster, routeInfo);
@@ -232,7 +232,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
                 },
                 Order = 12,
             };
-            var cluster = new ClusterInfo("cluster1", new DestinationManager());
+            var cluster = new ClusterInfo("cluster1", new DestinationManager(null));
             var routeInfo = new RouteInfo("route1");
 
             Action action = () => builder.Build(route, cluster, routeInfo);
@@ -359,7 +359,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
                 AuthorizationPolicy = "defaulT",
                 Order = 12,
             };
-            var cluster = new ClusterInfo("cluster1", new DestinationManager());
+            var cluster = new ClusterInfo("cluster1", new DestinationManager(null));
             var routeInfo = new RouteInfo("route1");
 
             var config = builder.Build(route, cluster, routeInfo);
@@ -383,7 +383,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
                 AuthorizationPolicy = "custom",
                 Order = 12,
             };
-            var cluster = new ClusterInfo("cluster1", new DestinationManager());
+            var cluster = new ClusterInfo("cluster1", new DestinationManager(null));
             var routeInfo = new RouteInfo("route1");
 
             var config = builder.Build(route, cluster, routeInfo);
@@ -406,7 +406,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
                 RouteId = "route1",
                 Order = 12,
             };
-            var cluster = new ClusterInfo("cluster1", new DestinationManager());
+            var cluster = new ClusterInfo("cluster1", new DestinationManager(null));
             var routeInfo = new RouteInfo("route1");
 
             var config = builder.Build(route, cluster, routeInfo);
@@ -430,7 +430,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
                 CorsPolicy = "defaulT",
                 Order = 12,
             };
-            var cluster = new ClusterInfo("cluster1", new DestinationManager());
+            var cluster = new ClusterInfo("cluster1", new DestinationManager(null));
             var routeInfo = new RouteInfo("route1");
 
             var config = builder.Build(route, cluster, routeInfo);
@@ -455,7 +455,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
                 CorsPolicy = "custom",
                 Order = 12,
             };
-            var cluster = new ClusterInfo("cluster1", new DestinationManager());
+            var cluster = new ClusterInfo("cluster1", new DestinationManager(null));
             var routeInfo = new RouteInfo("route1");
 
             var config = builder.Build(route, cluster, routeInfo);
@@ -480,7 +480,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
                 CorsPolicy = "disAble",
                 Order = 12,
             };
-            var cluster = new ClusterInfo("cluster1", new DestinationManager());
+            var cluster = new ClusterInfo("cluster1", new DestinationManager(null));
             var routeInfo = new RouteInfo("route1");
 
             var config = builder.Build(route, cluster, routeInfo);
@@ -503,7 +503,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
                 RouteId = "route1",
                 Order = 12,
             };
-            var cluster = new ClusterInfo("cluster1", new DestinationManager());
+            var cluster = new ClusterInfo("cluster1", new DestinationManager(null));
             var routeInfo = new RouteInfo("route1");
 
             var config = builder.Build(route, cluster, routeInfo);

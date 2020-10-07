@@ -12,7 +12,7 @@ namespace Microsoft.ReverseProxy.Abstractions
 
         public static class ActivePolicy
         {
-            public static string ConsequitiveFailures => "ConsequitiveFailures";
+            public static string ConsecutiveFailures => "ConsecutiveFailures";
         }
     }
 }
