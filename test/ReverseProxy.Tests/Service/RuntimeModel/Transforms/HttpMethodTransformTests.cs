@@ -15,11 +15,6 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         [InlineData("PUT", "POST", "GET", "GET")]
         public void HttpMethod_Works(string fromMethod, string toMethod, string requestMethod, string expected)
         {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddOptions();
-            serviceCollection.AddRouting();
-            using var services = serviceCollection.BuildServiceProvider();
-
             var httpContext = new DefaultHttpContext();
             var context = new RequestParametersTransformContext()
             {
