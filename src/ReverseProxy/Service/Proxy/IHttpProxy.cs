@@ -15,6 +15,10 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         /// <summary>
         /// Proxies the incoming request to the destination server, and the response back to the client.
         /// </summary>
+        /// <param name="context">The HttpContent to proxy from.</param>
+        /// <param name="destinationPrefix">The url prefix for where to proxy the request to.</param>
+        /// <param name="httpClient">The HTTP client used to send the proxy request.</param>
+        /// <param name="proxyOptions">Options for this operation.</param>
         Task ProxyAsync(
             HttpContext context,
             string destinationPrefix,
