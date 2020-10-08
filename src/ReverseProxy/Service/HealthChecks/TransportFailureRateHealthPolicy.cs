@@ -35,9 +35,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             lock (failureHistory)
             {
                 failureHistory.AddNewFailure(_clock.TickCount, _policyOptions.DetectionWindowSize);
-                var failureRateLimit = cluster.Metadata.TryGetValue(TransportFailureRateHealthPolicyOptions.FailureRateLimitMetadataName, out var metadataRateLimitString)
-                    && double.TryParse(metadataRateLimitString, out var metadataRateLimit) ? metadataRateLimit : _policyOptions.DefaultFailureRateLimit;
-                return failureHistory.Rate >= failureRateLimit ? DestinationHealth.Unhealthy : DestinationHealth.Healthy;
+                return failureHistory.IsHealthy(cluster, _policyOptions.DefaultFailureRateLimit) ? DestinationHealth.Healthy : DestinationHealth.Unhealthy;
             }
         }
 
@@ -66,6 +64,8 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             private long _nextRecordUpdatedAt;
             private long _nextRecordCount;
             private long _totalCount;
+            private string _clusterRateLimitString;
+            private double _clusterRateLimit;
             private readonly Queue<FailureRecord> _records = new Queue<FailureRecord>();
 
             public double Rate { get; private set; }
@@ -89,6 +89,24 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 }
 
                 Rate = _totalCount == 0 ? 0.0 : _totalCount / detectionWindowSize;
+            }
+
+            public bool IsHealthy(ClusterConfig cluster, double defaultFailureRateLimit)
+            {
+                if (cluster.Metadata.TryGetValue(TransportFailureRateHealthPolicyOptions.FailureRateLimitMetadataName, out var metadataRateLimitString))
+                {
+                    if (_clusterRateLimitString != metadataRateLimitString)
+                    {
+                        _clusterRateLimit = double.TryParse(metadataRateLimitString, out var metadataRateLimit) ? metadataRateLimit : defaultFailureRateLimit;
+                        _clusterRateLimitString = metadataRateLimitString;
+                    }
+                }
+                else
+                {
+                    _clusterRateLimit = defaultFailureRateLimit;
+                }
+
+                return Rate < _clusterRateLimit;
             }
 
             private readonly struct FailureRecord
