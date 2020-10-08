@@ -61,7 +61,7 @@ namespace Microsoft.ReverseProxy.Abstractions
                 return false;
             }
 
-            return string.Equals(header1.Name, header1.Name, StringComparison.OrdinalIgnoreCase)
+            return string.Equals(header1.Name, header2.Name, StringComparison.OrdinalIgnoreCase)
                 && header1.Mode == header2.Mode
                 && header1.IsCaseSensitive == header2.IsCaseSensitive
                 && header1.IsCaseSensitive
