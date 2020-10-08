@@ -18,6 +18,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 
         internal string Key { get; }
 
+        /// <inheritdoc/>
         public override void Apply(RequestParametersTransformContext context)
         {
             if (context == null)

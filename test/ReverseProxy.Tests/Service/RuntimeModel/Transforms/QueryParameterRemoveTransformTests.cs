@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
-    public class RemoveQueryParameterTransformTests
+    public class QueryParameterRemoveTransformTests
     {
         [Fact]
         public void RemovesExistingQueryParameter()

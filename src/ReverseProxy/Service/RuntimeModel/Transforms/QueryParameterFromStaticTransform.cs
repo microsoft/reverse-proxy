@@ -13,6 +13,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 
         internal string Value { get; }
 
+        /// <inheritdoc/>
         protected override string GetValue(RequestParametersTransformContext context)
         {
             return Value;
