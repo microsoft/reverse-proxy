@@ -6,8 +6,8 @@
   href: configfiles.md
 - name: Configuration Providers
   href: configproviders.md
-- name: Direct Proxing
-  href: direct-proxing.md
+- name: Direct Proxying
+  href: direct-proxying.md
 - name: Proxy HTTP client configuration
   href: proxyhttpclientconfig.md
 - name: Header Routing

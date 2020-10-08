@@ -1,5 +1,5 @@
 ---
-uid: direct-proxing
+uid: direct-proxying
 title: Direct Proxying
 ---
 

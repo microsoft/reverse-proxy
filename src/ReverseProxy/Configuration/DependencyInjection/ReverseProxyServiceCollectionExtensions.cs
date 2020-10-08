@@ -21,8 +21,6 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>
         /// Registers the <see cref="IHttpProxy"/> service for direct proxying scenarios.
         /// </summary>
-        /// <param name="services"></param>
-        /// <returns></returns>
         public static IServiceCollection AddHttpProxy(this IServiceCollection services)
         {
             services.TryAddSingleton<IHttpProxy, HttpProxy>();
