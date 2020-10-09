@@ -85,20 +85,6 @@ namespace Microsoft.ReverseProxy.Telemetry
                     activity.Start();
                 }
             }
-            // try to write System.Net.Http.Request event (deprecated)
-            if (s_diagnosticListener.IsEnabled(DiagnosticsHandlerLoggingStrings.RequestWriteNameDeprecated))
-            {
-                var timestamp = Stopwatch.GetTimestamp();
-                loggingRequestId = Guid.NewGuid();
-                s_diagnosticListener.Write(DiagnosticsHandlerLoggingStrings.RequestWriteNameDeprecated,
-                    new
-                    {
-                        Request = request,
-                        LoggingRequestId = loggingRequestId,
-                        Timestamp = timestamp
-                    }
-                );
-            }
 
             // If we are on at all, we propagate current activity information
             var currentActivity = Activity.Current;
@@ -144,20 +130,6 @@ namespace Microsoft.ReverseProxy.Telemetry
                         Request = request,
                         RequestTaskStatus = responseTask?.Status ?? TaskStatus.Faulted
                     });
-                }
-                // Try to write System.Net.Http.Response event (deprecated)
-                if (s_diagnosticListener.IsEnabled(DiagnosticsHandlerLoggingStrings.ResponseWriteNameDeprecated))
-                {
-                    var timestamp = Stopwatch.GetTimestamp();
-                    s_diagnosticListener.Write(DiagnosticsHandlerLoggingStrings.ResponseWriteNameDeprecated,
-                        new
-                        {
-                            Response = responseTask?.Status == TaskStatus.RanToCompletion ? responseTask.Result : null,
-                            LoggingRequestId = loggingRequestId,
-                            TimeStamp = timestamp,
-                            RequestTaskStatus = responseTask?.Status ?? TaskStatus.Faulted
-                        }
-                    );
                 }
             }
         }
