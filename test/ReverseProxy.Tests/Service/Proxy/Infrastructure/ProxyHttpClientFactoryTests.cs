@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.ReverseProxy.Common.Tests;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
+using Microsoft.ReverseProxy.Telemetry;
 using Microsoft.ReverseProxy.Utilities.Tests;
 using Xunit;
 
@@ -170,7 +171,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         public static SocketsHttpHandler GetHandler(HttpMessageInvoker client)
         {
             var handlerFieldInfo = typeof(HttpMessageInvoker).GetFields(BindingFlags.Instance | BindingFlags.NonPublic).Single(f => f.Name == "_handler");
-            var result = (SocketsHttpHandler)handlerFieldInfo.GetValue(client);
+            var diagnosticsHandler = (DiagnosticsHandler)handlerFieldInfo.GetValue(client);
+            var result = (SocketsHttpHandler)diagnosticsHandler.InnerHandler;
             return result;
         }
 
