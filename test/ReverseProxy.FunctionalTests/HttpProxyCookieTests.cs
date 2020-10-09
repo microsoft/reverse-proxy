@@ -36,7 +36,7 @@ namespace Microsoft.ReverseProxy
         [Fact]
         public async Task ProxyAsync_RequestWithCookieHeaders()
         {
-            var tcs = new TaskCompletionSource<StringValues>();
+            var tcs = new TaskCompletionSource<StringValues>(TaskCreationOptions.RunContinuationsAsynchronously);
 
             using var destinationHost = CreateDestinationHost(
                 context =>
@@ -149,13 +149,28 @@ namespace Microsoft.ReverseProxy
             {
                 // Ensure that CookieA is the first and CookieB the last.
                 Assert.True(context.Request.Headers.TryGetValue(HeaderNames.Cookie, out var headerValues));
-                Assert.StartsWith(CookieA, headerValues);
-                Assert.EndsWith(CookieB, headerValues);
+
+                if (context.Request.Protocol == "HTTP/1.1")
+                {
+                    Assert.Single(headerValues);
+                    Assert.Equal(Cookies, headerValues);
+                }
+                else if (context.Request.Protocol == "HTTP/2")
+                {
+                    Assert.Equal(2, headerValues.Count);
+                    Assert.Equal(CookieA, headerValues[0]);
+                    Assert.Equal(CookieB, headerValues[1]);
+                }
+                else
+                {
+                    Assert.True(false, $"Unexpected HTTP protocol '{context.Request.Protocol}'");
+                }
 
                 await _next.Invoke(context);
             }
         }
     }
+
     public class HttpProxyCookieTests_Http1 : HttpProxyCookieTests
     {
         public override HttpProtocols HttpProtocol => HttpProtocols.Http1;
@@ -163,26 +178,11 @@ namespace Microsoft.ReverseProxy
         // Using simple TcpClient since HttpClient will always concatenate cookies with comma separator.
         public override async Task ProcessHttpRequest(Uri proxyHostUri)
         {
-            using var client = new TcpClient(proxyHostUri.Host, proxyHostUri.Port);
-            using var stream = client.GetStream();
-            using var writer = new StreamWriter(stream, Encoding.ASCII);
-            using var reader = new StreamReader(stream, Encoding.ASCII);
-
-            await writer.WriteAsync($"GET / HTTP/1.1\r\n");
-            await writer.WriteAsync($"Host: {proxyHostUri.Authority}\r\n");
-            await writer.WriteAsync($"Cookie: {Cookies}\r\n");
-            await writer.WriteAsync($"Connection: close\r\n");
-            await writer.WriteAsync($"\r\n");
-            await writer.FlushAsync();
-
-            string line = null;
-            string statusLine = null;
-            while ((line = await reader.ReadLineAsync()) != null)
-            {
-                statusLine ??= line;
-            }
-
-            Assert.Equal($"HTTP/1.1 200 OK", statusLine);
+            using var client = new HttpClient();            
+            using var message = new HttpRequestMessage(HttpMethod.Get, proxyHostUri);
+            message.Headers.Add(HeaderNames.Cookie, $"{Cookies}");
+            using var response = await client.SendAsync(message);
+            response.EnsureSuccessStatusCode();
         }
     }
 
@@ -195,10 +195,10 @@ namespace Microsoft.ReverseProxy
         // It will first send message header cookie and than the container one and we expect them in the order of cookieA;cookieB.
         public override async Task ProcessHttpRequest(Uri proxyHostUri)
         {
-            var handler = new HttpClientHandler();
+            using var handler = new HttpClientHandler();
             handler.CookieContainer.Add(new System.Net.Cookie(CookieBKey, CookieBValue, path: "/", domain: proxyHostUri.Host));
-            var client = new HttpClient(handler);
-            var message = new HttpRequestMessage(HttpMethod.Get, proxyHostUri);
+            using var client = new HttpClient(handler);
+            using var message = new HttpRequestMessage(HttpMethod.Get, proxyHostUri);
             message.Version = HttpVersion.Version20;
             message.VersionPolicy = HttpVersionPolicy.RequestVersionExact;
             message.Headers.Add(HeaderNames.Cookie, $"{CookieA}");
