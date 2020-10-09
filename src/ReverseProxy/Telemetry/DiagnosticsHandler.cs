@@ -52,6 +52,12 @@ namespace Microsoft.ReverseProxy.Telemetry
                 throw new ArgumentNullException(nameof(request)); //, SR.net_http_handler_norequest); TODO: Is this really necessary?
             }
 
+            // Short-circuit to inner handler if we're not enabled at all
+            if (!IsEnabled())
+            {
+                return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
+            }
+
             Activity activity = null;
 
             // if there is no listener, but propagation is enabled (with previous IsEnabled() check)
