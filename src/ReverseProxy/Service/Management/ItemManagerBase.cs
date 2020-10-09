@@ -53,6 +53,8 @@ namespace Microsoft.ReverseProxy.Service.Management
                     UpdateSignal();
                 }
 
+                OnItemChanged(item, !existed);
+
                 return item;
             }
         }
@@ -73,11 +75,12 @@ namespace Microsoft.ReverseProxy.Service.Management
 
             lock (_lockObject)
             {
-                var removed = _items.Remove(itemId);
+                var removed = _items.Remove(itemId, out var removedItem);
 
                 if (removed)
                 {
                     UpdateSignal();
+                    OnItemRemoved(removedItem);
                 }
 
                 return removed;

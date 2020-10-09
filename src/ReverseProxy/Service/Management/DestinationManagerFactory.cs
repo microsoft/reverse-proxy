@@ -1,9 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.ReverseProxy.Service.RuntimeModel;
+using Microsoft.ReverseProxy.RuntimeModel;
 
 namespace Microsoft.ReverseProxy.Service.Management
 {
@@ -18,7 +19,7 @@ namespace Microsoft.ReverseProxy.Service.Management
 
         public DestinationManagerFactory(IEnumerable<IDestinationChangeListener> changeListeners)
         {
-            _changeListeners = changeListeners?.ToArray() ?? new IDestinationChangeListener[0];
+            _changeListeners = changeListeners?.ToArray() ?? Array.Empty<IDestinationChangeListener>();
         }
 
         /// <inheritdoc/>

@@ -35,6 +35,15 @@ namespace Microsoft.AspNetCore.Builder
         /// </summary>
         public static void MapReverseProxy(this IEndpointRouteBuilder endpoints, Action<IApplicationBuilder> configureApp)
         {
+            endpoints.MapReverseProxy(_ => { }, configureApp);
+        }
+
+        /// <summary>
+        /// Adds Reverse Proxy routes to the route table with the customized processing pipeline and allows to configure request interceptors which are invoked before all remaining proxy logic.
+        /// The pipeline includes by default the initialization step and the final proxy step, but not LoadBalancingMiddleware or other intermediate components.
+        /// </summary>
+        public static void MapReverseProxy(this IEndpointRouteBuilder endpoints, Action<IApplicationBuilder> configureInterceptors, Action<IApplicationBuilder> configureApp)
+        {
             if (endpoints is null)
             {
                 throw new ArgumentNullException(nameof(endpoints));
@@ -45,6 +54,7 @@ namespace Microsoft.AspNetCore.Builder
             }
 
             var appBuilder = endpoints.CreateApplicationBuilder();
+            configureInterceptors(appBuilder);
             appBuilder.UseMiddleware<DestinationInitializerMiddleware>();
             configureApp(appBuilder);
             appBuilder.UseMiddleware<ProxyInvokerMiddleware>();

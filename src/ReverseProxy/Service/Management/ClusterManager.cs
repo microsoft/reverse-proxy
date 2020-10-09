@@ -16,7 +16,7 @@ namespace Microsoft.ReverseProxy.Service.Management
         public ClusterManager(IDestinationManagerFactory destinationManagerFactory, IEnumerable<IClusterChangeListener> changeListeners)
         {
             _destinationManagerFactory = destinationManagerFactory ?? throw new ArgumentNullException(nameof(destinationManagerFactory));
-            _changeListeners = changeListeners?.ToArray() ?? new IClusterChangeListener[0];
+            _changeListeners = changeListeners?.ToArray() ?? Array.Empty<IClusterChangeListener>();
         }
 
         protected override void OnItemRemoved(ClusterInfo item)

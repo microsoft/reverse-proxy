@@ -6,8 +6,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.ReverseProxy.Abstractions.Telemetry;
 using Microsoft.ReverseProxy.Abstractions.Time;
+using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service;
 using Microsoft.ReverseProxy.Service.Config;
+using Microsoft.ReverseProxy.Service.HealthChecks;
 using Microsoft.ReverseProxy.Service.Management;
 using Microsoft.ReverseProxy.Service.Proxy;
 using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
@@ -40,12 +42,14 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
             builder.Services.TryAddSingleton<IDestinationManagerFactory, DestinationManagerFactory>();
             builder.Services.TryAddSingleton<IClusterManager, ClusterManager>();
             builder.Services.TryAddSingleton<IRouteManager, RouteManager>();
+            builder.Services.TryAddSingleton<IUptimeClock, UptimeClock>();
             return builder;
         }
 
         public static IReverseProxyBuilder AddConfigManager(this IReverseProxyBuilder builder)
         {
             builder.Services.TryAddSingleton<IProxyConfigManager, ProxyConfigManager>();
+            builder.Services.TryAddSingleton<IProxyAppState, ProxyAppState>();
             return builder;
         }
 
@@ -77,6 +81,30 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
                 new ServiceDescriptor(typeof(ISessionAffinityProvider), typeof(CustomHeaderSessionAffinityProvider), ServiceLifetime.Singleton)
             });
 
+            return builder;
+        }
+
+        public static IReverseProxyBuilder AddActiveHealthChecks(this IReverseProxyBuilder builder)
+        {
+            builder.Services.TryAddEnumerable(new[] {
+                new ServiceDescriptor(typeof(IActiveHealthCheckMonitor), typeof(ActiveHealthCheckMonitor), ServiceLifetime.Singleton),
+                new ServiceDescriptor(typeof(IClusterChangeListener), typeof(ActiveHealthCheckMonitor), ServiceLifetime.Singleton)
+            });
+            builder.Services.TryAddEnumerable(new[] {
+                new ServiceDescriptor(typeof(IActiveHealthCheckPolicy), typeof(ConsecutiveFailuresHealthPolicy), ServiceLifetime.Singleton),
+                new ServiceDescriptor(typeof(IDestinationChangeListener), typeof(ConsecutiveFailuresHealthPolicy), ServiceLifetime.Singleton)
+            });
+            return builder;
+        }
+
+        public static IReverseProxyBuilder AddPassiveHealthCheck(this IReverseProxyBuilder builder)
+        {
+            builder.Services.TryAddSingleton<IPassiveHealthCheckWatcher, PassiveHealthCheckWatcher>();
+            builder.Services.TryAddSingleton<IReactivationScheduler, ReactivationScheduler>();
+            builder.Services.TryAddEnumerable(new[] {
+                new ServiceDescriptor(typeof(IPassiveHealthCheckPolicy), typeof(TransportFailureRateHealthPolicy), ServiceLifetime.Singleton),
+                new ServiceDescriptor(typeof(IDestinationChangeListener), typeof(TransportFailureRateHealthPolicy), ServiceLifetime.Singleton)
+            });
             return builder;
         }
     }

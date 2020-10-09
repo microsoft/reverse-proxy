@@ -144,7 +144,6 @@ namespace Microsoft.ReverseProxy.RuntimeModel
             /// <summary>
             /// Health probe interval.
             /// </summary>
-            // TODO: Consider switching to ISO8601 duration (e.g. "PT5M")
             public TimeSpan? Interval { get; }
 
             /// <summary>

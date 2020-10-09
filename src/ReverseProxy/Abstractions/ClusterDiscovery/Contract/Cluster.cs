@@ -46,7 +46,7 @@ namespace Microsoft.ReverseProxy.Abstractions
         public SessionAffinityOptions SessionAffinity { get; set; }
 
         /// <summary>
-        /// Active health checking options.
+        /// Health checking options.
         /// </summary>
         public HealthCheckOptions HealthCheck { get; set; }
 

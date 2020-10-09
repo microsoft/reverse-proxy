@@ -86,6 +86,8 @@ namespace Microsoft.ReverseProxy.Middleware
                 await _operationLogger.ExecuteAsync(
                     "ReverseProxy.Proxy",
                     () => _httpProxy.ProxyAsync(context, destinationConfig.Address, reverseProxyFeature.ClusterConfig.HttpClient, proxyOptions));
+
+                reverseProxyFeature.TargetDestination = destination;
             }
             finally
             {

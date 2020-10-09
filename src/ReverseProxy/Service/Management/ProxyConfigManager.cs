@@ -4,8 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Security;
-using System.Security.Authentication;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -14,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.RuntimeModel;
+using Microsoft.ReverseProxy.Service.HealthChecks;
 using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
 
 namespace Microsoft.ReverseProxy.Service.Management
@@ -39,6 +38,8 @@ namespace Microsoft.ReverseProxy.Service.Management
         private readonly IEnumerable<IProxyConfigFilter> _filters;
         private readonly IConfigValidator _configValidator;
         private readonly IProxyHttpClientFactory _httpClientFactory;
+        private readonly IActiveHealthCheckMonitor _activeHealthCheckMonitor;
+        private readonly IProxyAppState _proxyAppState;
         private IDisposable _changeSubscription;
 
         private List<Endpoint> _endpoints = new List<Endpoint>(0);
@@ -53,7 +54,9 @@ namespace Microsoft.ReverseProxy.Service.Management
             IRouteManager routeManager,
             IEnumerable<IProxyConfigFilter> filters,
             IConfigValidator configValidator,
-            IProxyHttpClientFactory httpClientFactory)
+            IProxyHttpClientFactory httpClientFactory,
+            IActiveHealthCheckMonitor activeHealthCheckMonitor,
+            IProxyAppState proxyAppState)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _provider = provider ?? throw new ArgumentNullException(nameof(provider));
@@ -63,6 +66,8 @@ namespace Microsoft.ReverseProxy.Service.Management
             _filters = filters ?? throw new ArgumentNullException(nameof(filters));
             _configValidator = configValidator ?? throw new ArgumentNullException(nameof(configValidator));
             _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+            _activeHealthCheckMonitor = activeHealthCheckMonitor ?? throw new ArgumentNullException(nameof(activeHealthCheckMonitor));
+            _proxyAppState = proxyAppState ?? throw new ArgumentNullException(nameof(proxyAppState));
 
             _changeToken = new CancellationChangeToken(_cancellationTokenSource.Token);
         }
@@ -97,6 +102,8 @@ namespace Microsoft.ReverseProxy.Service.Management
                 throw new InvalidOperationException("Unable to load or apply the proxy configuration.", ex);
             }
 
+            // Initial active health check is being run in background.
+            _activeHealthCheckMonitor.ForceCheckAll(_clusterManager.Items.Value, () => _proxyAppState.SetFullyInitialized());
             return this;
         }
 
@@ -290,8 +297,8 @@ namespace Microsoft.ReverseProxy.Service.Management
                                 new ClusterHealthCheckOptions(
                                     passive: new ClusterConfig.ClusterPassiveHealthCheckOptions(
                                         enabled: newCluster.HealthCheck?.Passive?.Enabled ?? false,
-                                        policy: newCluster.HealthCheck?.Passive.Policy,
-                                        reactivationPeriod: newCluster?.HealthCheck.Passive.ReactivationPeriod),
+                                        policy: newCluster.HealthCheck?.Passive?.Policy,
+                                        reactivationPeriod: newCluster.HealthCheck?.Passive?.ReactivationPeriod),
                                     active: new ClusterConfig.ClusterActiveHealthCheckOptions(
                                         enabled: newCluster.HealthCheck?.Active?.Enabled ?? false,
                                         interval: newCluster.HealthCheck?.Active?.Interval,

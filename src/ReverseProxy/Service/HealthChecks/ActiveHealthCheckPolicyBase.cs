@@ -18,7 +18,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         /// <inheritdoc/>
         public void ProbingCompleted(ClusterConfig cluster, DestinationInfo destination, HttpResponseMessage response, Exception exception)
         {
-            var newHealth = response.IsSuccessStatusCode && exception == null
+            var newHealth = response != null && response.IsSuccessStatusCode && exception == null
                 ? EvaluateSuccessfulProbe(cluster, destination, response)
                 : EvaluateFailedProbe(cluster, destination, response, exception);
             UpdateDestinationHealth(destination, newHealth);
@@ -45,10 +45,14 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 
         private void UpdateDestinationHealth(DestinationInfo destination, DestinationHealth newActiveHealth)
         {
-            var compositeHealth = destination.DynamicState.Health;
-            if (newActiveHealth != compositeHealth.Active)
+            var state = destination.DynamicState;
+            if (state == null)
             {
-                destination.DynamicStateSignal.Value = new DestinationDynamicState(compositeHealth.ChangeActive(newActiveHealth));
+                destination.DynamicStateSignal.Value = new DestinationDynamicState(new CompositeDestinationHealth(passive: default, active: newActiveHealth));
+            }
+            else if (newActiveHealth != state.Health.Active)
+            {
+                destination.DynamicStateSignal.Value = new DestinationDynamicState(state.Health.ChangeActive(newActiveHealth));
             }
         }
     }

@@ -1,9 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.ReverseProxy.RuntimeModel;
-
-namespace Microsoft.ReverseProxy.Service.RuntimeModel
+namespace Microsoft.ReverseProxy.RuntimeModel
 {
     /// <summary>
     /// Listener for changes in the destinations.

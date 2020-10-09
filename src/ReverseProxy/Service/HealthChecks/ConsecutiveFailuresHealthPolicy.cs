@@ -39,7 +39,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         protected override DestinationHealth EvaluateFailedProbe(ClusterConfig cluster, DestinationInfo destination, HttpResponseMessage response, Exception exception)
         {
             var count = _failures.AddOrUpdate(destination, 1, (d, v) => v + 1);
-            var threshold = cluster.Metadata.TryGetValue(ConsecutiveFailuresHealthPolicyOptions.ThresholdMetadataName, out var metadataThresholdString)
+            var threshold = cluster.Metadata != null && cluster.Metadata.TryGetValue(ConsecutiveFailuresHealthPolicyOptions.ThresholdMetadataName, out var metadataThresholdString)
                     && double.TryParse(metadataThresholdString, out var metadataThreshold) ? metadataThreshold : _options.DefaultThreshold;
             return count >= threshold ? DestinationHealth.Unhealthy : DestinationHealth.Healthy;
         }

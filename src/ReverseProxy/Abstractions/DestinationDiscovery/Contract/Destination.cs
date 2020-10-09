@@ -18,7 +18,7 @@ namespace Microsoft.ReverseProxy.Abstractions
         public string Address { get; set; }
 
         /// <summary>
-        /// Endpoint accepting active health check probes.
+        /// Endpoint accepting active health check probes. E.g. <c>http://127.0.0.1:1234/</c>.
         /// </summary>
         public string Health { get; set; }
 

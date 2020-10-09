@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.ReverseProxy.RuntimeModel;
-using Microsoft.ReverseProxy.Service.RuntimeModel;
 
 namespace Microsoft.ReverseProxy.Service.Management
 {
@@ -14,7 +14,7 @@ namespace Microsoft.ReverseProxy.Service.Management
 
         public DestinationManager(IEnumerable<IDestinationChangeListener> changeListeners)
         {
-            _changeListeners = changeListeners?.ToArray() ?? new IDestinationChangeListener[0];
+            _changeListeners = changeListeners?.ToArray() ?? Array.Empty<IDestinationChangeListener>();
         }
 
         protected override void OnItemRemoved(DestinationInfo item)

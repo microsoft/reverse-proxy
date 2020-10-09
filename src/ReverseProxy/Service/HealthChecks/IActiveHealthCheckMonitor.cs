@@ -17,7 +17,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         /// Force health checks of all given clusters' destinations.
         /// </summary>
         /// <param name="allClusters">Clusters whose destinations' health will be checked.</param>
-        /// <returns><see cref="Task"/> representing an asyncronous health check operation.</returns>
-        Task ForceCheckAll(IEnumerable<ClusterInfo> allClusters);
+        /// /// <param name="callback">Callback to invoke after all the clusters have been checked.</param>
+        void ForceCheckAll(IEnumerable<ClusterInfo> allClusters, Action callback);
     }
 }

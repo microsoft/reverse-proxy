@@ -18,13 +18,12 @@ namespace Microsoft.ReverseProxy.Configuration.Contract
         /// <summary>
         /// Health probe interval.
         /// </summary>
-        // TODO: Consider switching to ISO8601 duration (e.g. "PT5M")
-        public TimeSpan Interval { get; set; }
+        public TimeSpan? Interval { get; set; }
 
         /// <summary>
         /// Health probe timeout, after which a destination is considered unhealthy.
         /// </summary>
-        public TimeSpan Timeout { get; set; }
+        public TimeSpan? Timeout { get; set; }
 
         /// <summary>
         /// Active health check policy.

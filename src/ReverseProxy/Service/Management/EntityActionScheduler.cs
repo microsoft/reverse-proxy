@@ -106,7 +106,7 @@ namespace Microsoft.ReverseProxy.Service.Management
             }
             else
             {
-                newNode = _list.AddFirst(newEntry);
+                newNode = _list.AddLast(newEntry);
             }
 
             _map[entity] = newNode;
@@ -141,7 +141,8 @@ namespace Microsoft.ReverseProxy.Service.Management
 
                 if (_list.First != null)
                 {
-                    _timer.Change(_list.First.Value.RunAt - cutoff, Timeout.Infinite);
+                    var newDueTime = _list.First.Value.RunAt >= cutoff ? _list.First.Value.RunAt - cutoff : 0;
+                    _timer.Change(newDueTime, Timeout.Infinite);
                 }
             }
 

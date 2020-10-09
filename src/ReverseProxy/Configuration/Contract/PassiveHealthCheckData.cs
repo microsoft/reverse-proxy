@@ -11,7 +11,7 @@ namespace Microsoft.ReverseProxy.Configuration.Contract
     public sealed class PassiveHealthCheckData
     {
         /// <summary>
-        /// Whether active health checks are enabled.
+        /// Whether passive health checks are enabled.
         /// </summary>
         public bool Enabled { get; set; }
 
@@ -23,6 +23,6 @@ namespace Microsoft.ReverseProxy.Configuration.Contract
         /// <summary>
         /// Destination reactivation period after which an unhealthy destination is considered healthy again.
         /// </summary>
-        public TimeSpan ReactivationPeriod { get; set; }
+        public TimeSpan? ReactivationPeriod { get; set; }
     }
 }

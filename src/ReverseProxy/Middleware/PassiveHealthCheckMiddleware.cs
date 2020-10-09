@@ -29,9 +29,8 @@ namespace Microsoft.ReverseProxy.Middleware
             var proxyFeature = context.GetRequiredProxyFeature();
             var options = proxyFeature.ClusterConfig.HealthCheckOptions.Passive;
 
-            // Don't do anything if there is no the only available destination on the list
-            // because it means something else went wrong and the request has not been proxied.
-            if (!options.Enabled || proxyFeature.AvailableDestinations.Count != 1)
+            // Do nothing if no target destination has been chosen for the request.
+            if (!options.Enabled || proxyFeature.TargetDestination == null)
             {
                 return;
             }

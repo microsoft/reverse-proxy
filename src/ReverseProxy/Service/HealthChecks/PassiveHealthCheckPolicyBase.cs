@@ -52,10 +52,14 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 
         private void UpdateDestinationHealth(ClusterConfig cluster, DestinationInfo destination, DestinationHealth newPassiveHealth)
         {
-            var compositeHealth = destination.DynamicState.Health;
-            if (newPassiveHealth != compositeHealth.Passive)
+            var state = destination.DynamicState;
+            if (state == null)
             {
-                destination.DynamicStateSignal.Value = new DestinationDynamicState(compositeHealth.ChangePassive(newPassiveHealth));
+                destination.DynamicStateSignal.Value = new DestinationDynamicState(new CompositeDestinationHealth(passive: newPassiveHealth, active: default));
+            }
+            else if (newPassiveHealth != state.Health.Passive)
+            {
+                destination.DynamicStateSignal.Value = new DestinationDynamicState(state.Health.ChangePassive(newPassiveHealth));
 
                 if (newPassiveHealth == DestinationHealth.Unhealthy)
                 {

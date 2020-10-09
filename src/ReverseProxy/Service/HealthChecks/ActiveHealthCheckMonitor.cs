@@ -19,26 +19,44 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         private readonly ActiveHealthCheckMonitorOptions _monitorOptions;
         private readonly IDictionary<string, IActiveHealthCheckPolicy> _policies;
         private readonly EntityActionScheduler<ClusterInfo> _scheduler;
+        private readonly IProxyAppState _proxyAppState;
 
-        public ActiveHealthCheckMonitor(IOptions<ActiveHealthCheckMonitorOptions> monitorOptions, IEnumerable<IActiveHealthCheckPolicy> policies, IUptimeClock clock)
+        public ActiveHealthCheckMonitor(
+            IOptions<ActiveHealthCheckMonitorOptions> monitorOptions,
+            IEnumerable<IActiveHealthCheckPolicy> policies,
+            IUptimeClock clock,
+            IProxyAppState proxyAppState)
         {
             _monitorOptions = monitorOptions?.Value ?? throw new ArgumentNullException(nameof(monitorOptions));
+            _proxyAppState = proxyAppState ?? throw new ArgumentNullException(nameof(proxyAppState));
             _policies = policies.ToDictionaryByUniqueId(p => p.Name);
-            _scheduler = new EntityActionScheduler<ClusterInfo>(async cluster => await ProbeCluster(cluster), false, clock);
+            _scheduler = new EntityActionScheduler<ClusterInfo>(async cluster => await ProbeCluster(cluster, false), false, clock);
         }
 
-        public async Task ForceCheckAll(IEnumerable<ClusterInfo> allClusters)
+        public void ForceCheckAll(IEnumerable<ClusterInfo> allClusters, Action callback)
         {
-            var probeClusterTasks = new List<Task>();
-            foreach (var cluster in allClusters)
+            Task.Run(async () =>
             {
-                if (cluster.Config.Value.HealthCheckOptions.Active.Enabled)
+                try
                 {
-                    probeClusterTasks.Add(ProbeCluster(cluster));
-                }
-            }
+                    var probeClusterTasks = new List<Task>();
+                    foreach (var cluster in allClusters)
+                    {
+                        if (cluster.Config.Value.HealthCheckOptions.Active.Enabled)
+                        {
+                            probeClusterTasks.Add(ProbeCluster(cluster, true));
+                        }
+                    }
 
-            await Task.WhenAll(probeClusterTasks);
+                    await Task.WhenAll(probeClusterTasks);
+                }
+                catch (Exception)
+                {
+                    // TODO: Add logging
+                }
+
+                callback();
+            });
         }
 
         public void OnClusterAdded(ClusterInfo cluster)
@@ -73,10 +91,15 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             _scheduler.Dispose();
         }
 
-        private async Task ProbeCluster(ClusterInfo cluster)
+        private async Task ProbeCluster(ClusterInfo cluster, bool force)
         {
-            var clusterConfig = cluster.Config.Value;
+            if (!force && !_proxyAppState.IsFullyInitialized)
+            {
+                // Do nothing until the proxy is fully initialized.
+                return;
+            }
 
+            var clusterConfig = cluster.Config.Value;
             if (!clusterConfig.HealthCheckOptions.Active.Enabled)
             {
                 return;
@@ -86,27 +109,50 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             // It's validated and ensured by a configuration validator.
             var policy = _policies.GetRequiredServiceById(clusterConfig.HealthCheckOptions.Active.Policy, clusterConfig.HealthCheckOptions.Active.Policy);
             var allDestinations = cluster.DynamicState.AllDestinations;
-            var probeTasks = new List<Task<HttpResponseMessage>>();
-            foreach (var destination in allDestinations)
+            var probeTasks = new List<(Task<HttpResponseMessage> Task, CancellationTokenSource Cts)>();
+            try
             {
-                var probeAddress = new Uri(!string.IsNullOrEmpty(destination.Config.Health) ? destination.Config.Health : destination.Config.Address, UriKind.Absolute);
-                var probePath = clusterConfig.HealthCheckOptions.Active.Path;
-                var probeUri = new Uri(probeAddress, probePath);
-                var request = new HttpRequestMessage(HttpMethod.Get, probeUri);
-                var timeout = clusterConfig.HealthCheckOptions.Active.Timeout ?? _monitorOptions.DefaultTimeout;
-                probeTasks.Add(clusterConfig.HttpClient.SendAsync(request, new CancellationTokenSource(timeout).Token));
-            }
-
-            for (var i = 0; i < allDestinations.Count; i++)
-            {
-                try
+                foreach (var destination in allDestinations)
                 {
-                    var response = await probeTasks[i].ConfigureAwait(false);
-                    policy.ProbingCompleted(clusterConfig, allDestinations[i], response, null);
+                    var probeAddress = new Uri(!string.IsNullOrEmpty(destination.Config.Health) ? destination.Config.Health : destination.Config.Address, UriKind.Absolute);
+                    var probePath = clusterConfig.HealthCheckOptions.Active.Path;
+                    var probeUri = new Uri(probeAddress, probePath);
+                    var request = new HttpRequestMessage(HttpMethod.Get, probeUri);
+                    var timeout = clusterConfig.HealthCheckOptions.Active.Timeout ?? _monitorOptions.DefaultTimeout;
+                    var cts = new CancellationTokenSource(timeout);
+                    probeTasks.Add((clusterConfig.HttpClient.SendAsync(request, cts.Token), cts));
                 }
-                catch (Exception e)
+
+                for (var i = 0; i < allDestinations.Count; i++)
                 {
-                    policy.ProbingCompleted(clusterConfig, allDestinations[i], null, e);
+                    try
+                    {
+                        var response = await probeTasks[i].Task.ConfigureAwait(false);
+                        policy.ProbingCompleted(clusterConfig, allDestinations[i], response, null);
+                    }
+                    catch (Exception e)
+                    {
+                        policy.ProbingCompleted(clusterConfig, allDestinations[i], null, e);
+                    }
+                }
+            }
+            finally
+            {
+                foreach(var probeTask in probeTasks)
+                {
+                    try
+                    {
+                        if (probeTask.Task.Exception == null && probeTask.Task.IsCompleted)
+                        {
+                            probeTask.Task.Result.Dispose();
+                        }
+
+                        probeTask.Cts.Dispose();
+                    }
+                    catch
+                    {
+                        // Suppress exceptions to ensure all responses get a chance to be disposed.
+                    }
                 }
             }
         }

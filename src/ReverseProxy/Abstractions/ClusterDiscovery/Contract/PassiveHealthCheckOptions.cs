@@ -11,7 +11,7 @@ namespace Microsoft.ReverseProxy.Abstractions
     public sealed class PassiveHealthCheckOptions
     {
         /// <summary>
-        /// Whether active health checks are enabled.
+        /// Whether passive health checks are enabled.
         /// </summary>
         public bool Enabled { get; set; }
 
@@ -23,7 +23,7 @@ namespace Microsoft.ReverseProxy.Abstractions
         /// <summary>
         /// Destination reactivation period after which an unhealthy destination is considered healthy again.
         /// </summary>
-        public TimeSpan ReactivationPeriod { get; set; }
+        public TimeSpan? ReactivationPeriod { get; set; }
 
         internal PassiveHealthCheckOptions DeepClone()
         {

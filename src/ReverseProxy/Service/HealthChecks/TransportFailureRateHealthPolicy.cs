@@ -93,7 +93,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 
             public bool IsHealthy(ClusterConfig cluster, double defaultFailureRateLimit)
             {
-                if (cluster.Metadata.TryGetValue(TransportFailureRateHealthPolicyOptions.FailureRateLimitMetadataName, out var metadataRateLimitString))
+                if (cluster.Metadata != null && cluster.Metadata.TryGetValue(TransportFailureRateHealthPolicyOptions.FailureRateLimitMetadataName, out var metadataRateLimitString))
                 {
                     if (_clusterRateLimitString != metadataRateLimitString)
                     {
