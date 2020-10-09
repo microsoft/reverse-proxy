@@ -17,6 +17,8 @@ namespace Microsoft.ReverseProxy.Abstractions
 
         public int? MaxConnectionsPerServer { get; set; }
 
+        public bool PropagateActivityContext { get; set; }
+
         // TODO: Add this property once we have migrated to SDK version that supports it.
         //public bool? EnableMultipleHttp2Connections { get; set; }
 
@@ -28,7 +30,8 @@ namespace Microsoft.ReverseProxy.Abstractions
                 DangerousAcceptAnyServerCertificate = DangerousAcceptAnyServerCertificate,
                 // TODO: Clone certificate?
                 ClientCertificate = ClientCertificate,
-                MaxConnectionsPerServer = MaxConnectionsPerServer
+                MaxConnectionsPerServer = MaxConnectionsPerServer,
+                PropagateActivityContext = PropagateActivityContext,
             };
         }
 
@@ -47,7 +50,8 @@ namespace Microsoft.ReverseProxy.Abstractions
             return options1.SslProtocols == options2.SslProtocols
                 && Equals(options1.ClientCertificate, options2.ClientCertificate)
                 && options1.DangerousAcceptAnyServerCertificate == options2.DangerousAcceptAnyServerCertificate
-                && options1.MaxConnectionsPerServer == options2.MaxConnectionsPerServer;
+                && options1.MaxConnectionsPerServer == options2.MaxConnectionsPerServer
+                && options1.PropagateActivityContext == options2.PropagateActivityContext;
         }
 
         private static bool Equals(X509Certificate2 certificate1, X509Certificate2 certificate2)

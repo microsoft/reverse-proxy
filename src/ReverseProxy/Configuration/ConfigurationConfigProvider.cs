@@ -349,7 +349,8 @@ namespace Microsoft.ReverseProxy.Configuration
                 SslProtocols = sslProtocols,
                 DangerousAcceptAnyServerCertificate = data.DangerousAcceptAnyServerCertificate,
                 ClientCertificate = clientCertificate,
-                MaxConnectionsPerServer = data.MaxConnectionsPerServer
+                MaxConnectionsPerServer = data.MaxConnectionsPerServer,
+                PropagateActivityContext = data.PropagateActivityContext
             };
         }
 

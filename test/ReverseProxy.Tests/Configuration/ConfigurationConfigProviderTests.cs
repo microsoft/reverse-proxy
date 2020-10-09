@@ -65,7 +65,8 @@ namespace Microsoft.ReverseProxy.Configuration
                             SslProtocols = new List<SslProtocols> { SslProtocols.Tls11, SslProtocols.Tls12 },
                             MaxConnectionsPerServer = 10,
                             DangerousAcceptAnyServerCertificate = true,
-                            ClientCertificate = new CertificateConfigData { Path = "mycert.pfx", Password = "myPassword1234" }
+                            ClientCertificate = new CertificateConfigData { Path = "mycert.pfx", Password = "myPassword1234" },
+                            PropagateActivityContext = true,
                         },
                         Metadata = new Dictionary<string, string> { { "cluster1-K1", "cluster1-V1" }, { "cluster1-K2", "cluster1-V2" } }
                     }
@@ -197,7 +198,8 @@ namespace Microsoft.ReverseProxy.Configuration
                     ""Location"": null,
                     ""AllowInvalid"": null
                 },
-                ""MaxConnectionsPerServer"": 10
+                ""MaxConnectionsPerServer"": 10,
+                ""PropagateActivityContext"": true,
             },
             ""Destinations"": {
                 ""destinationA"": {

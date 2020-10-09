@@ -165,6 +165,10 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     new ClusterProxyHttpClientOptions(SslProtocols.Tls11, true, null, 10),
                     new ClusterProxyHttpClientOptions(SslProtocols.Tls11, true, clientCertificate, 20)
                 },
+                new object[] {
+                    new ClusterConfig.ClusterProxyHttpClientOptions(SslProtocols.Tls11, true, null, 10, true),
+                    new ClusterConfig.ClusterProxyHttpClientOptions(SslProtocols.Tls11, true, null, 10, false)
+                }
             };
         }
 
