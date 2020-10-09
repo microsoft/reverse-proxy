@@ -33,7 +33,7 @@ Follow the [Getting Started](xref:getting_started) guide to create a project and
 
 ### Update Startup
 
-In this example the IHttpProxy is registered in DI, injected into the `Startup.Configure` method, and used to proxy requests from a specific route to `https://localhost:10000/`.
+In this example the IHttpProxy is registered in DI, injected into the `Startup.Configure` method, and used to proxy requests from a specific route to `https://localhost:10000/prefix/`.
 
 The optional transforms show how to copy all request headers except for the `Host`, it's common that the destination requires its own `Host` from the url.
 
@@ -75,7 +75,7 @@ public void Configure(IApplicationBuilder app, IHttpProxy httpProxy)
         endpoints.Map("/{**catch-all}", async httpContext =>
         {
             await httpProxy.ProxyAsync(
-                httpContext, "https://localhost:10000/", httpClient, proxyOptions);
+                httpContext, "https://localhost:10000/prefix/", httpClient, proxyOptions);
 
             var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
             if (errorFeature != null)
