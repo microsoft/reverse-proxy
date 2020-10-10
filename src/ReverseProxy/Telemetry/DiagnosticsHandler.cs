@@ -180,6 +180,11 @@ namespace Microsoft.ReverseProxy.Telemetry
 
             if (currentActivity.IdFormat == ActivityIdFormat.W3C)
             {
+                if (!string.IsNullOrEmpty(currentActivity.ParentId))
+                {
+                    request.Headers.Remove(DiagnosticsHandlerLoggingStrings.TraceParentHeaderName);
+                }
+
                 if (!request.Headers.Contains(DiagnosticsHandlerLoggingStrings.TraceParentHeaderName))
                 {
                     request.Headers.TryAddWithoutValidation(DiagnosticsHandlerLoggingStrings.TraceParentHeaderName, currentActivity.Id);
@@ -191,6 +196,11 @@ namespace Microsoft.ReverseProxy.Telemetry
             }
             else
             {
+                if (!string.IsNullOrEmpty(currentActivity.ParentId))
+                {
+                    request.Headers.Remove(DiagnosticsHandlerLoggingStrings.RequestIdHeaderName);
+                }
+
                 if (!request.Headers.Contains(DiagnosticsHandlerLoggingStrings.RequestIdHeaderName))
                 {
                     request.Headers.TryAddWithoutValidation(DiagnosticsHandlerLoggingStrings.RequestIdHeaderName, currentActivity.Id);
