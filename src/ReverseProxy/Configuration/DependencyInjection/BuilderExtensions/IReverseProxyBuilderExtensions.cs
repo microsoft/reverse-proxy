@@ -9,7 +9,6 @@ using Microsoft.ReverseProxy.Abstractions.Time;
 using Microsoft.ReverseProxy.Service;
 using Microsoft.ReverseProxy.Service.Config;
 using Microsoft.ReverseProxy.Service.Management;
-using Microsoft.ReverseProxy.Service.Metrics;
 using Microsoft.ReverseProxy.Service.Proxy;
 using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
 using Microsoft.ReverseProxy.Service.Routing;
@@ -24,14 +23,7 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
         public static IReverseProxyBuilder AddTelemetryShims(this IReverseProxyBuilder builder)
         {
             // NOTE: Consumers of ReverseProxy are expected to replace these with their own classes
-            builder.Services.TryAddSingleton<IMetricCreator, NullMetricCreator>();
             builder.Services.TryAddSingleton(typeof(IOperationLogger<>), typeof(TextOperationLogger<>));
-            return builder;
-        }
-
-        public static IReverseProxyBuilder AddMetrics(this IReverseProxyBuilder builder)
-        {
-            builder.Services.TryAddSingleton<ProxyMetrics>();
             return builder;
         }
 
@@ -63,7 +55,7 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
             builder.Services.TryAddSingleton<IProxyHttpClientFactory, ProxyHttpClientFactory>();
             builder.Services.TryAddSingleton<ILoadBalancer, LoadBalancer>();
             builder.Services.TryAddSingleton<IRandomFactory, RandomFactory>();
-            builder.Services.TryAddSingleton<IHttpProxy, HttpProxy>();
+            builder.Services.AddHttpProxy();
             return builder;
         }
 

@@ -80,8 +80,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                     httpContext,
                     It.Is<string>(uri => uri == "https://localhost:123/a/b/"),
                     httpClient,
-                    It.IsAny<RequestProxyOptions>(),
-                    It.Is<ProxyTelemetryContext>(ctx => ctx.ClusterId == "cluster1" && ctx.RouteId == "route1" && ctx.DestinationId == "destination1")))
+                    It.IsAny<RequestProxyOptions>()))
                 .Returns(
                     async () =>
                     {
@@ -148,8 +147,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                     httpContext,
                     It.IsAny<string>(),
                     httpClient,
-                    It.IsAny<RequestProxyOptions>(),
-                    It.IsAny<ProxyTelemetryContext>()))
+                    It.IsAny<RequestProxyOptions>()))
                 .Returns(() => throw new NotImplementedException());
 
             var sut = Create<ProxyInvokerMiddleware>();

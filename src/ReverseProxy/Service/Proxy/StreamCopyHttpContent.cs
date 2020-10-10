@@ -37,16 +37,14 @@ namespace Microsoft.ReverseProxy.Service.Proxy
     internal class StreamCopyHttpContent : HttpContent
     {
         private readonly Stream _source;
-        private readonly IStreamCopier _streamCopier;
         private readonly bool _autoFlushHttpClientOutgoingStream;
         // Note this is the long token that should only be canceled in the event of an error, not timed out.
         private readonly CancellationToken _cancellation;
         private readonly TaskCompletionSource<(StreamCopyResult, Exception)> _tcs = new TaskCompletionSource<(StreamCopyResult, Exception)>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-        public StreamCopyHttpContent(Stream source, IStreamCopier streamCopier, bool autoFlushHttpClientOutgoingStream, CancellationToken cancellation)
+        public StreamCopyHttpContent(Stream source, bool autoFlushHttpClientOutgoingStream, CancellationToken cancellation)
         {
             _source = source ?? throw new ArgumentNullException(nameof(source));
-            _streamCopier = streamCopier ?? throw new ArgumentNullException(nameof(streamCopier));
             _autoFlushHttpClientOutgoingStream = autoFlushHttpClientOutgoingStream;
             _cancellation = cancellation;
         }
@@ -150,7 +148,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 return;
             }
 
-            var (result, error) = await _streamCopier.CopyAsync(_source, stream, _cancellation);
+            var (result, error) = await StreamCopier.CopyAsync(_source, stream, _cancellation);
             _tcs.TrySetResult((result, error));
             // Check for errors that weren't the result of the destination failing.
             // We have to throw something here so the transport knows the body is incomplete.

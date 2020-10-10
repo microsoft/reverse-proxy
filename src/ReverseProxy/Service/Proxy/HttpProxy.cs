@@ -17,7 +17,6 @@ using Microsoft.AspNetCore.Server.Kestrel.Core.Features;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
-using Microsoft.ReverseProxy.Service.Metrics;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 
 namespace Microsoft.ReverseProxy.Service.Proxy
@@ -33,16 +32,14 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         };
 
         private readonly ILogger _logger;
-        private readonly ProxyMetrics _metrics;
 
-        public HttpProxy(ILogger<HttpProxy> logger, ProxyMetrics metrics)
+        public HttpProxy(ILogger<HttpProxy> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _metrics = metrics ?? throw new ArgumentNullException(nameof(metrics));
         }
 
         /// <summary>
-        /// Proxies the incoming request to the destination server, and the response back to our client.
+        /// Proxies the incoming request to the destination server, and the response back to the client.
         /// </summary>
         /// <remarks>
         /// In what follows, as well as throughout in Reverse Proxy, we consider
@@ -86,14 +83,11 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         /// ASP .NET Core (Kestrel) will finally send response trailers (if any)
         /// after we complete the steps above and relinquish control.
         /// </remarks>
-        /// <param name="longCancellation">This should be linked to a client disconnect notification like <see cref="HttpContext.RequestAborted"/>
-        /// to avoid leaking long running requests.</param>
         public async Task ProxyAsync(
             HttpContext context,
             string destinationPrefix,
             HttpMessageInvoker httpClient,
-            RequestProxyOptions proxyOptions,
-            ProxyTelemetryContext proxyTelemetryContext)
+            RequestProxyOptions proxyOptions)
         {
             _ = context ?? throw new ArgumentNullException(nameof(context));
             _ = destinationPrefix ?? throw new ArgumentNullException(nameof(destinationPrefix));
@@ -117,7 +111,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 
             // :: Step 2: Setup copy of request body (background) Client --► Proxy --► Destination
             // Note that we must do this before step (3) because step (3) may also add headers to the HttpContent that we set up here.
-            var requestContent = SetupRequestBodyCopy(context.Request, destinationRequest, in proxyTelemetryContext, isStreamingRequest, requestAborted);
+            var requestContent = SetupRequestBodyCopy(context.Request, destinationRequest, isStreamingRequest, requestAborted);
 
             // :: Step 3: Copy request headers Client --► Proxy --► Destination
             CopyRequestHeaders(context, destinationRequest, proxyOptions.Transforms);
@@ -178,7 +172,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             // :: Step 7-A: Check for a 101 upgrade response, this takes care of WebSockets as well as any other upgradeable protocol.
             if (destinationResponse.StatusCode == HttpStatusCode.SwitchingProtocols)
             {
-                await HandleUpgradedResponse(context, upgradeFeature, destinationResponse, proxyTelemetryContext, requestAborted);
+                await HandleUpgradedResponse(context, upgradeFeature, destinationResponse, requestAborted);
                 return;
             }
 
@@ -193,7 +187,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             // and clients misbehave if the initial headers response does not indicate stream end.
 
             // :: Step 7-B: Copy response body Client ◄-- Proxy ◄-- Destination
-            var (responseBodyCopyResult, responseBodyException) = await CopyResponseBodyAsync(destinationResponse.Content, context.Response.Body, proxyTelemetryContext, requestAborted);
+            var (responseBodyCopyResult, responseBodyException) = await CopyResponseBodyAsync(destinationResponse.Content, context.Response.Body, requestAborted);
 
             if (responseBodyCopyResult != StreamCopyResult.Success)
             {
@@ -282,7 +276,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             return new HttpRequestMessage(HttpUtilities.GetHttpMethod(transformContext.Method), targetUri) { Version = transformContext.Version };
         }
 
-        private StreamCopyHttpContent SetupRequestBodyCopy(HttpRequest request, HttpRequestMessage destinationRequest, in ProxyTelemetryContext proxyTelemetryContext,
+        private StreamCopyHttpContent SetupRequestBodyCopy(HttpRequest request, HttpRequestMessage destinationRequest,
             bool isStreamingRequest, CancellationToken cancellation)
         {
             // If we generate an HttpContent without a Content-Length then for HTTP/1.1 HttpClient will add a Transfer-Encoding: chunked header
@@ -357,16 +351,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 // Because the sockets aren't flushed, the perf impact of this choice is expected to be small.
                 // Future: It may be wise to set this to true for *all* http2 incoming requests,
                 // but for now, out of an abundance of caution, we only do it for requests that look like gRPC.
-                var streamCopier = new StreamCopier(
-                    _metrics,
-                    new StreamCopyTelemetryContext(
-                        direction: "request",
-                        clusterId: proxyTelemetryContext.ClusterId,
-                        routeId: proxyTelemetryContext.RouteId,
-                        destinationId: proxyTelemetryContext.DestinationId));
                 requestContent = new StreamCopyHttpContent(
                     source: request.Body,
-                    streamCopier: streamCopier,
                     autoFlushHttpClientOutgoingStream: isStreamingRequest,
                     cancellation: cancellation);
                 destinationRequest.Content = requestContent;
@@ -526,7 +512,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         }
 
         private async Task HandleUpgradedResponse(HttpContext context, IHttpUpgradeFeature upgradeFeature, HttpResponseMessage destinationResponse,
-            ProxyTelemetryContext proxyTelemetryContext, CancellationToken longCancellation)
+            CancellationToken longCancellation)
         {
             // SocketHttpHandler and similar transports always provide an HttpContent object, even if it's empty.
             // Note as of 5.0 HttpResponse.Content never returns null.
@@ -544,23 +530,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 
             using var abortTokenSource = CancellationTokenSource.CreateLinkedTokenSource(longCancellation);
 
-            var requestCopier = new StreamCopier(
-                _metrics,
-                new StreamCopyTelemetryContext(
-                    direction: "request",
-                    clusterId: proxyTelemetryContext.ClusterId,
-                    routeId: proxyTelemetryContext.RouteId,
-                    destinationId: proxyTelemetryContext.DestinationId));
-            var requestTask = requestCopier.CopyAsync(clientStream, destinationStream, abortTokenSource.Token);
-
-            var responseCopier = new StreamCopier(
-                _metrics,
-                new StreamCopyTelemetryContext(
-                    direction: "response",
-                    clusterId: proxyTelemetryContext.ClusterId,
-                    routeId: proxyTelemetryContext.RouteId,
-                    destinationId: proxyTelemetryContext.DestinationId));
-            var responseTask = responseCopier.CopyAsync(destinationStream, clientStream, abortTokenSource.Token);
+            var requestTask = StreamCopier.CopyAsync(clientStream, destinationStream, abortTokenSource.Token);
+            var responseTask = StreamCopier.CopyAsync(destinationStream, clientStream, abortTokenSource.Token);
 
             // Make sure we report the first failure.
             var firstTask = await Task.WhenAny(requestTask, responseTask);
@@ -599,7 +570,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         }
 
         private async Task<(StreamCopyResult, Exception)> CopyResponseBodyAsync(HttpContent destinationResponseContent, Stream clientResponseStream,
-            ProxyTelemetryContext proxyTelemetryContext, CancellationToken cancellation)
+            CancellationToken cancellation)
         {
             // SocketHttpHandler and similar transports always provide an HttpContent object, even if it's empty.
             // In 3.1 this is only likely to return null in tests.
@@ -607,16 +578,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             // https://github.com/dotnet/runtime/blame/8fc68f626a11d646109a758cb0fc70a0aa7826f1/src/libraries/System.Net.Http/src/System/Net/Http/HttpResponseMessage.cs#L46
             if (destinationResponseContent != null)
             {
-                var streamCopier = new StreamCopier(
-                    _metrics,
-                    new StreamCopyTelemetryContext(
-                        direction: "response",
-                        clusterId: proxyTelemetryContext.ClusterId,
-                        routeId: proxyTelemetryContext.RouteId,
-                        destinationId: proxyTelemetryContext.DestinationId));
-
                 using var destinationResponseStream = await destinationResponseContent.ReadAsStreamAsync();
-                return await streamCopier.CopyAsync(destinationResponseStream, clientResponseStream, cancellation);
+                return await StreamCopier.CopyAsync(destinationResponseStream, clientResponseStream, cancellation);
             }
 
             return (StreamCopyResult.Success, null);
