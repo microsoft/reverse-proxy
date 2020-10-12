@@ -44,32 +44,27 @@ namespace Microsoft.ReverseProxy.Sample
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapReverseProxy(
-                    proxyPipeline =>
+                endpoints.MapReverseProxy(proxyPipeline =>
+                {
+                    // Custom endpoint selection
+                    proxyPipeline.Use((context, next) =>
                     {
-                        proxyPipeline.UseFullProxyInitializationAwaiter();
-                    },
-                    proxyPipeline =>
-                    {
-                        // Custom endpoint selection
-                        proxyPipeline.Use((context, next) =>
-                        {
-                            var someCriteria = false; // MeetsCriteria(context);
+                        var someCriteria = false; // MeetsCriteria(context);
                         if (someCriteria)
-                            {
-                                var availableDestinationsFeature = context.Features.Get<IReverseProxyFeature>();
-                                var destination = availableDestinationsFeature.AvailableDestinations[0]; // PickDestination(availableDestinationsFeature.Destinations);
-                                                                                                         // Load balancing will no-op if we've already reduced the list of available destinations to 1.
-                            availableDestinationsFeature.AvailableDestinations = destination;
-                            }
+                        {
+                            var availableDestinationsFeature = context.Features.Get<IReverseProxyFeature>();
+                            var destination = availableDestinationsFeature.AvailableDestinations[0]; // PickDestination(availableDestinationsFeature.Destinations);
+                                                                                                     // Load balancing will no-op if we've already reduced the list of available destinations to 1.
+                                availableDestinationsFeature.AvailableDestinations = destination;
+                        }
 
-                            return next();
-                        });
-                        proxyPipeline.UseAffinitizedDestinationLookup();
-                        proxyPipeline.UseProxyLoadBalancing();
-                        proxyPipeline.UseRequestAffinitizer();
-                        proxyPipeline.UsePassiveHealthChecks();
+                        return next();
                     });
+                    proxyPipeline.UseAffinitizedDestinationLookup();
+                    proxyPipeline.UseProxyLoadBalancing();
+                    proxyPipeline.UseRequestAffinitizer();
+                    proxyPipeline.UsePassiveHealthChecks();
+                });
             });
         }
     }

@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.ReverseProxy.RuntimeModel;
 
 namespace Microsoft.ReverseProxy.Sample.Controllers
 {
@@ -11,6 +13,13 @@ namespace Microsoft.ReverseProxy.Sample.Controllers
     [ApiController]
     public class HealthController : ControllerBase
     {
+        private readonly IProxyAppState _proxyAppState;
+
+        public HealthController(IProxyAppState proxyAppState)
+        {
+            _proxyAppState = proxyAppState ?? throw new ArgumentNullException(nameof(proxyAppState));
+        }
+
         /// <summary>
         /// Returns 200 if Proxy is healthy.
         /// </summary>
@@ -18,8 +27,7 @@ namespace Microsoft.ReverseProxy.Sample.Controllers
         [Route("/api/health")]
         public IActionResult CheckHealth()
         {
-            // TODO: Implement health controller, use guid in route.
-            return Ok();
+            return _proxyAppState.IsFullyInitialized ? Ok() : StatusCode(503);
         }
     }
 }

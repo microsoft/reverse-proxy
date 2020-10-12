@@ -33,7 +33,8 @@ namespace SampleClient
             var scenarioFactories = new Dictionary<string, Func<IScenario>>(StringComparer.OrdinalIgnoreCase) {
                 {"Http1", () => new Http1Scenario()},
                 {"Http2", () => new Http2Scenario()},
-                {"RawUpgrade", () => new RawUpgradeScenario()},
+                // Disabled due to a conflict with a workaround to the issue https://github.com/microsoft/reverse-proxy/issues/255.
+                //{"RawUpgrade", () => new RawUpgradeScenario()},
                 {"WebSockets", () => new WebSocketsScenario()},
                 {"SessionAffinity", () => new SessionAffinityScenario()}
             };

@@ -46,13 +46,5 @@ namespace Microsoft.AspNetCore.Builder
         {
             return builder.UseMiddleware<PassiveHealthCheckMiddleware>();
         }
-
-        /// <summary>
-        /// Blocks incoming requests until the proxy is fully initialized.
-        /// </summary>
-        public static IApplicationBuilder UseFullProxyInitializationAwaiter(this IApplicationBuilder builder)
-        {
-            return builder.UseMiddleware<FullProxyInitializationAwaiterMiddleware>();
-        }
     }
 }
