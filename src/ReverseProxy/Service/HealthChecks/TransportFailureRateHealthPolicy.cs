@@ -9,7 +9,6 @@ using Microsoft.Extensions.Options;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Proxy;
-using Microsoft.ReverseProxy.Service.RuntimeModel;
 using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Service.HealthChecks
@@ -64,8 +63,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             private long _nextRecordUpdatedAt;
             private long _nextRecordCount;
             private long _totalCount;
-            private string _clusterRateLimitString;
-            private double _clusterRateLimit;
+            private readonly ParsedMetadataEntry<double> _clusterRateLimit = new ParsedMetadataEntry<double>(Parse);
             private readonly Queue<FailureRecord> _records = new Queue<FailureRecord>();
 
             public double Rate { get; private set; }
@@ -93,20 +91,12 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 
             public bool IsHealthy(ClusterConfig cluster, double defaultFailureRateLimit)
             {
-                if (cluster.Metadata != null && cluster.Metadata.TryGetValue(TransportFailureRateHealthPolicyOptions.FailureRateLimitMetadataName, out var metadataRateLimitString))
-                {
-                    if (_clusterRateLimitString != metadataRateLimitString)
-                    {
-                        _clusterRateLimit = double.TryParse(metadataRateLimitString, out var metadataRateLimit) ? metadataRateLimit : defaultFailureRateLimit;
-                        _clusterRateLimitString = metadataRateLimitString;
-                    }
-                }
-                else
-                {
-                    _clusterRateLimit = defaultFailureRateLimit;
-                }
+                return Rate < _clusterRateLimit.GetParsedOrDefault(cluster, TransportFailureRateHealthPolicyOptions.FailureRateLimitMetadataName, defaultFailureRateLimit);
+            }
 
-                return Rate < _clusterRateLimit;
+            private static (double, bool) Parse(string stringValue)
+            {
+                return double.TryParse(stringValue, out var parsedValue) ? (parsedValue, true) : (default(double), false);
             }
 
             private readonly struct FailureRecord
