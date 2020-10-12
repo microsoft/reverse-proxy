@@ -265,7 +265,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
                     }
                 },
             };
-            var cluster = new ClusterInfo("cluster1", new DestinationManager());
+            var cluster = new ClusterInfo("cluster1", new DestinationManager(null));
             var routeInfo = new RouteInfo("route1");
 
             var config = builder.Build(route, cluster, routeInfo);
@@ -317,7 +317,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
                     }
                 },
             };
-            var cluster = new ClusterInfo("cluster1", new DestinationManager());
+            var cluster = new ClusterInfo("cluster1", new DestinationManager(null));
             var routeInfo = new RouteInfo("route1");
 
             var config = builder.Build(route, cluster, routeInfo);

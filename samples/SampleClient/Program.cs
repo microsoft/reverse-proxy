@@ -59,7 +59,11 @@ namespace SampleClient
                 }
 
                 Console.WriteLine();
+                Console.ForegroundColor = success ? ConsoleColor.Green : ConsoleColor.Red;
                 Console.WriteLine($"All scenarios completed {(success ? "successfully" : "with errors")}.");
+                Console.ResetColor();
+                Console.WriteLine("Press any key to exit.");
+                Console.ReadKey();
                 return success ? 0 : 1;
             }
 
@@ -87,6 +91,11 @@ namespace SampleClient
                 return 1;
             }
 
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("All scenarios completed successfully!");
+            Console.ResetColor();
+            Console.WriteLine("Press any key to exit.");
+            Console.ReadKey();
             return 0;
         }
     }

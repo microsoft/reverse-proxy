@@ -289,7 +289,7 @@ namespace Microsoft.ReverseProxy.Configuration
             };
         }
 
-        private PassiveHealthCheckOptions Convert(PassiveHealthCheckData data)
+        private static PassiveHealthCheckOptions Convert(PassiveHealthCheckData data)
         {
             if (data == null)
             {
@@ -304,7 +304,7 @@ namespace Microsoft.ReverseProxy.Configuration
             };
         }
 
-        private ActiveHealthCheckOptions Convert(ActiveHealthCheckData data)
+        private static ActiveHealthCheckOptions Convert(ActiveHealthCheckData data)
         {
             if (data == null)
             {
