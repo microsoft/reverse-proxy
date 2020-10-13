@@ -52,7 +52,11 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         /// <summary>
         /// A snapshot of the current dynamic state.
         /// </summary>
-        public DestinationDynamicState DynamicState => DynamicStateSignal.Value;
+        public DestinationDynamicState DynamicState
+        {
+            get => DynamicStateSignal.Value;
+            set => DynamicStateSignal.Value = value;
+        }
 
         /// <summary>
         /// Keeps track of the total number of concurrent requests on this endpoint.

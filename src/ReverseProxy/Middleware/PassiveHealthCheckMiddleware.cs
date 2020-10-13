@@ -30,7 +30,7 @@ namespace Microsoft.ReverseProxy.Middleware
             var options = proxyFeature.ClusterConfig.HealthCheckOptions.Passive;
 
             // Do nothing if no target destination has been chosen for the request.
-            if (!options.Enabled || proxyFeature.TargetDestination == null)
+            if (!options.Enabled || proxyFeature.SelectedDestination == null)
             {
                 return;
             }

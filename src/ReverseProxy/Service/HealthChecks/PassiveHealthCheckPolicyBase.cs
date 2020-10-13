@@ -55,11 +55,11 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             var state = destination.DynamicState;
             if (state == null)
             {
-                destination.DynamicStateSignal.Value = new DestinationDynamicState(new CompositeDestinationHealth(passive: newPassiveHealth, active: default));
+                destination.DynamicState = new DestinationDynamicState(new CompositeDestinationHealth(passive: newPassiveHealth, active: default));
             }
             else if (newPassiveHealth != state.Health.Passive)
             {
-                destination.DynamicStateSignal.Value = new DestinationDynamicState(state.Health.ChangePassive(newPassiveHealth));
+                destination.DynamicState = new DestinationDynamicState(state.Health.ChangePassive(newPassiveHealth));
 
                 if (newPassiveHealth == DestinationHealth.Unhealthy)
                 {

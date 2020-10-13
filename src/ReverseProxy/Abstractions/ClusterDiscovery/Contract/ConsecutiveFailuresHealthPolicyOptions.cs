@@ -12,7 +12,7 @@ namespace Microsoft.ReverseProxy.Abstractions
         /// Name of the consecutive failure threshold metadata parameter.
         /// It's the number of consecutive failure that needs to happen in order to mark a destination as unhealthy.
         /// </summary>
-        public const string ThresholdMetadataName = "ConsecutiveFailuresHealthPolicy.Threshold";
+        public static string ThresholdMetadataName => "ConsecutiveFailuresHealthPolicy.Threshold";
 
         /// <summary>
         /// Default consecutive failures threshold that is applied if it's not set on a cluster's metadata.

@@ -12,7 +12,9 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
     /// </summary>
     public interface IPassiveHealthCheckPolicy
     {
-
+        /// <summary>
+        /// Policy's name.
+        /// </summary>
         string Name { get; }
 
         /// <summary>

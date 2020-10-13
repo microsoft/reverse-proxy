@@ -13,6 +13,9 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
     /// </summary>
     public interface IActiveHealthCheckPolicy
     {
+        /// <summary>
+        /// Policy's name.
+        /// </summary>
         string Name { get; }
 
         /// <summary>

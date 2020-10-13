@@ -87,7 +87,7 @@ namespace Microsoft.ReverseProxy.Middleware
                     "ReverseProxy.Proxy",
                     () => _httpProxy.ProxyAsync(context, destinationConfig.Address, reverseProxyFeature.ClusterConfig.HttpClient, proxyOptions));
 
-                reverseProxyFeature.TargetDestination = destination;
+                reverseProxyFeature.SelectedDestination = destination;
             }
             finally
             {

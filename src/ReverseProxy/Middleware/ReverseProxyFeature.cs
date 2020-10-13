@@ -24,7 +24,7 @@ namespace Microsoft.ReverseProxy.Middleware
         /// <summary>
         /// Actual destination chosen as the target that received the current request.
         /// </summary>
-        public DestinationInfo TargetDestination { get; set; }
+        public DestinationInfo SelectedDestination { get; set; }
 
     }
 }

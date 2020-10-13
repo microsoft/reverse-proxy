@@ -33,7 +33,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             var failureHistory = _failures.GetOrAdd(destination, d => new FailureHistory());
             lock (failureHistory)
             {
-                failureHistory.AddNewFailure(_clock.TickCount, _policyOptions.DetectionWindowSize);
+                failureHistory.AddNewFailure(_clock.TickCount, (long) _policyOptions.DetectionWindowSize.TotalMilliseconds);
                 return failureHistory.IsHealthy(cluster, _policyOptions.DefaultFailureRateLimit) ? DestinationHealth.Healthy : DestinationHealth.Unhealthy;
             }
         }
