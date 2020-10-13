@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Net.Http;
 using Microsoft.AspNetCore.Http;
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
@@ -20,6 +21,17 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         /// The HTTP version to use for the proxy request.
         /// </summary>
         public Version Version { get; set; }
+
+#if NET5_0
+        /// <summary>
+        /// The HTTP version policy to use for the proxy request.
+        /// </summary>
+        public HttpVersionPolicy VersionPolicy { get; set; }
+#elif NETCOREAPP3_1
+        // HttpVersionPolicy didn't exist in .NET Core 3.1 and there's no equivalent.
+#else
+#error A target framework was added to the project and needs to be added to this condition.
+#endif
 
         /// <summary>
         /// The HTTP method to use for the proxy request.
