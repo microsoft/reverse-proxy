@@ -10,7 +10,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
     /// <summary>
     /// Sets or appends simple request header values.
     /// </summary>
-    internal class RequestHeaderValueTransform : RequestHeaderTransform
+    public class RequestHeaderValueTransform : RequestHeaderTransform
     {
         public RequestHeaderValueTransform(string value, bool append)
         {
@@ -22,6 +22,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 
         internal bool Append { get; }
 
+        /// <inheritdoc/>
         public override StringValues Apply(HttpContext context, StringValues values)
         {
             if (context is null)

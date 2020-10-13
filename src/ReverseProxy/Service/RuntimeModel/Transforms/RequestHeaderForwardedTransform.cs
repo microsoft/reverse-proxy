@@ -13,7 +13,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
     /// <summary>
     /// An implementation of the Forwarded header as defined in https://tools.ietf.org/html/rfc7239.
     /// </summary>
-    internal class RequestHeaderForwardedTransform : RequestHeaderTransform
+    public class RequestHeaderForwardedTransform : RequestHeaderTransform
     {
         // obfnode = "_" 1*( ALPHA / DIGIT / "." / "_" / "-")
         private static readonly string ObfChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-";
@@ -40,6 +40,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 
         internal bool Append { get; }
 
+        /// <inheritdoc/>
         public override StringValues Apply(HttpContext context, StringValues values)
         {
             if (context is null)

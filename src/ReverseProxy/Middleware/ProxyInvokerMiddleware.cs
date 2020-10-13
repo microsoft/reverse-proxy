@@ -83,14 +83,9 @@ namespace Microsoft.ReverseProxy.Middleware
                 cluster.ConcurrencyCounter.Increment();
                 destination.ConcurrencyCounter.Increment();
 
-                var proxyTelemetryContext = new ProxyTelemetryContext(
-                    clusterId: cluster.ClusterId,
-                    routeId: routeConfig.Route.RouteId,
-                    destinationId: destination.DestinationId);
-
                 await _operationLogger.ExecuteAsync(
                     "ReverseProxy.Proxy",
-                    () => _httpProxy.ProxyAsync(context, destinationConfig.Address, reverseProxyFeature.ClusterConfig.HttpClient, proxyOptions, proxyTelemetryContext));
+                    () => _httpProxy.ProxyAsync(context, destinationConfig.Address, reverseProxyFeature.ClusterConfig.HttpClient, proxyOptions));
             }
             finally
             {

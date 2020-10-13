@@ -10,7 +10,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
     /// <summary>
     /// Sets or appends simple response header or trailer values.
     /// </summary>
-    internal class ResponseHeaderValueTransform : ResponseHeaderTransform
+    public class ResponseHeaderValueTransform : ResponseHeaderTransform
     {
         public ResponseHeaderValueTransform(string value, bool append, bool always)
         {
@@ -26,6 +26,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         internal string Value { get; }
 
         // Assumes the response status code has been set on the HttpContext already.
+        /// <inheritdoc/>
         public override StringValues Apply(HttpContext context, HttpResponseMessage response, StringValues values)
         {
             if (context is null)

@@ -11,7 +11,7 @@ namespace Microsoft.ReverseProxy.Abstractions
     public enum HeaderMatchMode
     {
         /// <summary>
-        /// The header must match in its entirety, subject to the value of <see cref="IHeaderMetadata.IsCaseSensitive"/>.
+        /// The header must match in its entirety, subject to case sensitivity settings.
         /// Only single headers are supported. If there are multiple headers with the same name then the match fails.
         /// </summary>
         ExactHeader,
@@ -22,7 +22,7 @@ namespace Microsoft.ReverseProxy.Abstractions
         // ValuePrefix,
 
         /// <summary>
-        /// The header must match by prefix, subject to the value of <see cref="IHeaderMetadata.IsCaseSensitive"/>.
+        /// The header must match by prefix, subject to case sensitivity settings.
         /// Only single headers are supported. If there are multiple headers with the same name then the match fails.
         /// </summary>
         HeaderPrefix,

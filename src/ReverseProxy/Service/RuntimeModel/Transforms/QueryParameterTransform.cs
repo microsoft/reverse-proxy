@@ -6,7 +6,7 @@ using Microsoft.Extensions.Primitives;
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
-    internal abstract class QueryParameterTransform : RequestParametersTransform
+    public abstract class QueryParameterTransform : RequestParametersTransform
     {
         public QueryParameterTransform(QueryStringTransformMode mode, string key)
         {
@@ -18,6 +18,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 
         internal string Key { get; }
 
+        /// <inheritdoc/>
         public override void Apply(RequestParametersTransformContext context)
         {
             if (context == null)
@@ -50,7 +51,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         protected abstract string GetValue(RequestParametersTransformContext context);
     }
 
-    internal enum QueryStringTransformMode
+    public enum QueryStringTransformMode
     {
         Append,
         Set

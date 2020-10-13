@@ -316,7 +316,7 @@ namespace Microsoft.ReverseProxy.Service.Config
                     else if (rawTransform.TryGetValue("QueryRemoveParameter", out var removeQueryParameter))
                     {
                         CheckTooManyParameters(rawTransform, expected: 1);
-                        requestTransforms.Add(new RemoveQueryParameterTransform(removeQueryParameter));
+                        requestTransforms.Add(new QueryParameterRemoveTransform(removeQueryParameter));
                     }
                     else if (rawTransform.TryGetValue("RequestHeadersCopy", out var copyHeaders))
                     {

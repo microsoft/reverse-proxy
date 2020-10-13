@@ -3,7 +3,7 @@
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
-    internal class QueryParameterFromStaticTransform : QueryParameterTransform
+    public class QueryParameterFromStaticTransform : QueryParameterTransform
     {
         public QueryParameterFromStaticTransform(QueryStringTransformMode mode, string key, string value)
             : base(mode, key)
@@ -13,6 +13,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 
         internal string Value { get; }
 
+        /// <inheritdoc/>
         protected override string GetValue(RequestParametersTransformContext context)
         {
             return Value;
