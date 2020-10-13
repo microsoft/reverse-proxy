@@ -31,13 +31,16 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 
             var httpClient0 = GetHttpClient();
             var cluster0 = GetClusterInfo("cluster0", "policy0", true, httpClient0.Object);
+            monitor.OnClusterAdded(cluster0);
             var httpClient1 = GetHttpClient();
             var cluster1 = GetClusterInfo("cluster1", "policy0", false, httpClient1.Object);
+            monitor.OnClusterAdded(cluster1);
             var httpClient2 = GetHttpClient();
             var cluster2 = GetClusterInfo("cluster2", "policy1", true, httpClient2.Object);
+            monitor.OnClusterAdded(cluster2);
 
             var checkCompleted = new TaskCompletionSource<bool>();
-            monitor.ForceCheckAll(new[] { cluster0, cluster1, cluster2 }, () => checkCompleted.SetResult(true));
+            monitor.ForceCheckAll(() => checkCompleted.SetResult(true));
             await checkCompleted.Task.ConfigureAwait(false);
 
             httpClient0.Verify(c => c.SendAsync(It.Is<HttpRequestMessage>(m => m.RequestUri.AbsoluteUri == "https://localhost:20000/cluster0/api/health/"), It.IsAny<CancellationToken>()), Times.Once);

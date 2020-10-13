@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using Microsoft.ReverseProxy.Utilities;
 
@@ -27,6 +28,14 @@ namespace Microsoft.ReverseProxy.Service.Management
             _clock = clock ?? throw new ArgumentNullException(nameof(clock));
             _runOnce = runOnce;
             _timer = new Timer(_ => Run(), null, Timeout.Infinite, Timeout.Infinite);
+        }
+
+        public IEnumerable<T> GetScheduledEntities()
+        {
+            lock (_syncRoot)
+            {
+                return _map.Keys.ToArray();
+            }
         }
 
         public void Dispose()

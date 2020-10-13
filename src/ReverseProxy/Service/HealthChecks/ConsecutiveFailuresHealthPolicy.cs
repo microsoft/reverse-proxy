@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Globalization;
 using System.Net.Http;
 using System.Threading;
 using Microsoft.Extensions.Options;
@@ -67,7 +68,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 
             private static (double, bool) Parse(string stringValue)
             {
-                return double.TryParse(stringValue, out var parsedValue) ? (parsedValue, true) : (default(double), false);
+                return double.TryParse(stringValue, NumberStyles.Float, CultureInfo.InvariantCulture, out var parsedValue) ? (parsedValue, true) : (default(double), false);
             }
         }
     }

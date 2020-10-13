@@ -103,7 +103,7 @@ namespace Microsoft.ReverseProxy.Service.Management
             }
 
             // Initial active health check is being run in background.
-            _activeHealthCheckMonitor.ForceCheckAll(_clusterManager.Items.Value, () => _proxyAppState.SetFullyInitialized());
+            _activeHealthCheckMonitor.ForceCheckAll(() => _proxyAppState.SetFullyInitialized());
             return this;
         }
 

@@ -33,14 +33,14 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             _scheduler = new EntityActionScheduler<ClusterInfo>(async cluster => await ProbeCluster(cluster, false), false, clock);
         }
 
-        public void ForceCheckAll(IEnumerable<ClusterInfo> allClusters, Action callback)
+        public void ForceCheckAll(Action callback)
         {
             Task.Run(async () =>
             {
                 try
                 {
                     var probeClusterTasks = new List<Task>();
-                    foreach (var cluster in allClusters)
+                    foreach (var cluster in _scheduler.GetScheduledEntities())
                     {
                         if (cluster.Config.Value.HealthCheckOptions.Active.Enabled)
                         {
