@@ -175,12 +175,11 @@ namespace Microsoft.ReverseProxy
     {
         public override HttpProtocols HttpProtocol => HttpProtocols.Http1;
 
-        // Using simple TcpClient since HttpClient will always concatenate cookies with comma separator.
         public override async Task ProcessHttpRequest(Uri proxyHostUri)
         {
             using var client = new HttpClient();            
             using var message = new HttpRequestMessage(HttpMethod.Get, proxyHostUri);
-            message.Headers.Add(HeaderNames.Cookie, $"{Cookies}");
+            message.Headers.Add(HeaderNames.Cookie, Cookies);
             using var response = await client.SendAsync(message);
             response.EnsureSuccessStatusCode();
         }
@@ -201,7 +200,7 @@ namespace Microsoft.ReverseProxy
             using var message = new HttpRequestMessage(HttpMethod.Get, proxyHostUri);
             message.Version = HttpVersion.Version20;
             message.VersionPolicy = HttpVersionPolicy.RequestVersionExact;
-            message.Headers.Add(HeaderNames.Cookie, $"{CookieA}");
+            message.Headers.Add(HeaderNames.Cookie, CookieA);
             using var response = await client.SendAsync(message);
             response.EnsureSuccessStatusCode();
         }
