@@ -86,24 +86,21 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
 
         public static IReverseProxyBuilder AddActiveHealthChecks(this IReverseProxyBuilder builder)
         {
-            builder.Services.TryAddEnumerable(new[] {
-                new ServiceDescriptor(typeof(IActiveHealthCheckMonitor), typeof(ActiveHealthCheckMonitor), ServiceLifetime.Singleton),
-                new ServiceDescriptor(typeof(IClusterChangeListener), typeof(ActiveHealthCheckMonitor), ServiceLifetime.Singleton)
-            });
-            builder.Services.TryAddEnumerable(new[] {
-                new ServiceDescriptor(typeof(IActiveHealthCheckPolicy), typeof(ConsecutiveFailuresHealthPolicy), ServiceLifetime.Singleton),
-                new ServiceDescriptor(typeof(IDestinationChangeListener), typeof(ConsecutiveFailuresHealthPolicy), ServiceLifetime.Singleton)
-            });
+            builder.Services.AddSingleton<ActiveHealthCheckMonitor>();
+            builder.Services.AddSingleton<IActiveHealthCheckMonitor>(b => b.GetRequiredService<ActiveHealthCheckMonitor>());
+            builder.Services.AddSingleton<IClusterChangeListener>(b => b.GetRequiredService<ActiveHealthCheckMonitor>());
+            builder.Services.AddSingleton<ConsecutiveFailuresHealthPolicy>();
+            builder.Services.AddSingleton<IActiveHealthCheckPolicy>(b => b.GetRequiredService<ConsecutiveFailuresHealthPolicy>());
+            builder.Services.AddSingleton<IDestinationChangeListener>(b => b.GetRequiredService<ConsecutiveFailuresHealthPolicy>());
             return builder;
         }
 
         public static IReverseProxyBuilder AddPassiveHealthCheck(this IReverseProxyBuilder builder)
         {
             builder.Services.TryAddSingleton<IReactivationScheduler, ReactivationScheduler>();
-            builder.Services.TryAddEnumerable(new[] {
-                new ServiceDescriptor(typeof(IPassiveHealthCheckPolicy), typeof(TransportFailureRateHealthPolicy), ServiceLifetime.Singleton),
-                new ServiceDescriptor(typeof(IDestinationChangeListener), typeof(TransportFailureRateHealthPolicy), ServiceLifetime.Singleton)
-            });
+            builder.Services.AddSingleton<TransportFailureRateHealthPolicy>();
+            builder.Services.AddSingleton<IPassiveHealthCheckPolicy>(b => b.GetRequiredService<TransportFailureRateHealthPolicy>());
+            builder.Services.AddSingleton<IDestinationChangeListener>(b => b.GetRequiredService<TransportFailureRateHealthPolicy>());
             return builder;
         }
     }

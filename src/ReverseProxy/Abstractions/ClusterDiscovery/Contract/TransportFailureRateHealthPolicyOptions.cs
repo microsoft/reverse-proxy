@@ -17,14 +17,14 @@ namespace Microsoft.ReverseProxy.Abstractions
 
         /// <summary>
         /// Period of time while detected failures are kept and taken into account in the rate calculation.
-        /// In milliseconds.
+        /// The default is 60 seconds.
         /// </summary>
         public TimeSpan DetectionWindowSize { get; set; } = TimeSpan.FromSeconds(60);
 
         /// <summary>
         /// Default failure rate limit for a destination to be marked as unhealhty that is applied if it's not set on a cluster's metadata.
         /// It's calucated as a share of failed requests out of all requests proxied to the same destination in the <see cref="DetectionWindowSize"/> period.
-        /// The value is in range (0,1).
+        /// The value is in range (0,1). The default is 0.3.
         /// </summary>
         public double DefaultFailureRateLimit { get; set; } = 0.3;
     }
