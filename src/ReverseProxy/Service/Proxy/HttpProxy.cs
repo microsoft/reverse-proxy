@@ -370,8 +370,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 foreach (var header in context.Request.Headers)
                 {
                     var headerName = header.Key;
-                    var value = header.Value;
-                    if (StringValues.IsNullOrEmpty(value))
+                    var headerValue = header.Value;
+                    if (StringValues.IsNullOrEmpty(headerValue))
                     {
                         continue;
                     }
@@ -385,14 +385,14 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                     if (transforms.RequestHeaderTransforms.TryGetValue(headerName, out var transform))
                     {
                         (transformsRun ??= new HashSet<string>(StringComparer.OrdinalIgnoreCase)).Add(headerName);
-                        value = transform.Apply(context, value);
-                        if (StringValues.IsNullOrEmpty(value))
+                        headerValue = transform.Apply(context, headerValue);
+                        if (StringValues.IsNullOrEmpty(headerValue))
                         {
                             continue;
                         }
                     }
 
-                    AddHeader(destination, headerName, value);
+                    AddHeader(destination, headerName, headerValue);
                 }
             }
 
@@ -416,6 +416,15 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             // as long as they appear in one (and only one, otherwise they would be duplicated).
             static void AddHeader(HttpRequestMessage request, string headerName, StringValues value)
             {
+                // HttpClient wrongly uses comma (",") instead of semi-colon (";") as a separator for Cookie headers.
+                // To mitigate this, we concatenate them manually and put them back as a single header value.
+                // A multi-header cookie header is invalid, but we get one because of
+                // https://github.com/dotnet/aspnetcore/issues/26461
+                if (string.Equals(headerName, HeaderNames.Cookie, StringComparison.OrdinalIgnoreCase) && value.Count > 1)
+                {
+                    value = String.Join("; ", value);
+                }
+
                 if (value.Count == 1)
                 {
                     string headerValue = value;

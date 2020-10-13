@@ -586,6 +586,41 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         }
 
         [Fact]
+        public async Task ProxyAsync_RequestWithCookieHeaders()
+        {
+            // This is an invalid format per spec but may happen due to https://github.com/dotnet/aspnetcore/issues/26461
+            var cookies = new [] { "testA=A_Cookie", "testB=B_Cookie", "testC=C_Cookie" };
+            var httpContext = new DefaultHttpContext();
+            httpContext.Request.Method = "GET";
+            httpContext.Request.Headers.Add(HeaderNames.Cookie, cookies);
+
+            var destinationPrefix = "https://localhost/";
+            var sut = CreateProxy();
+            var client = MockHttpHandler.CreateClient(
+                (HttpRequestMessage request, CancellationToken cancellationToken) =>
+                {
+                    // "testA=A_Cookie; testB=B_Cookie; testC=C_Cookie"
+                    var expectedCookieString = String.Join("; ", cookies);
+
+                    Assert.Equal(new Version(2, 0), request.Version);
+                    Assert.Equal("GET", request.Method.Method, StringComparer.OrdinalIgnoreCase);
+                    Assert.Null(request.Content);
+                    Assert.True(request.Headers.TryGetValues(HeaderNames.Cookie, out var cookieHeaders));
+                    Assert.NotNull(cookieHeaders);
+                    var cookie = Assert.Single(cookieHeaders);
+                    Assert.Equal(expectedCookieString, cookie);
+
+                    var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
+                    return Task.FromResult(response);
+                });
+
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions());
+
+            Assert.Null(httpContext.Features.Get<IProxyErrorFeature>());
+            Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
+        }
+
+        [Fact]
         public async Task ProxyAsync_UnableToConnect_Returns502()
         {
             var httpContext = new DefaultHttpContext();
