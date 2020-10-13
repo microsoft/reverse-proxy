@@ -595,7 +595,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             httpContext.Request.Headers.Add(HeaderNames.Cookie, cookies);
 
             var destinationPrefix = "https://localhost/";
-            var sut = Create<HttpProxy>();
+            var sut = CreateProxy();
             var client = MockHttpHandler.CreateClient(
                 (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
@@ -614,12 +614,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     return Task.FromResult(response);
                 });
 
-            var proxyTelemetryContext = new ProxyTelemetryContext(
-                clusterId: "be1",
-                routeId: "rt1",
-                destinationId: "d1");
-
-            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions(), proxyTelemetryContext);
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions());
 
             Assert.Null(httpContext.Features.Get<IProxyErrorFeature>());
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
