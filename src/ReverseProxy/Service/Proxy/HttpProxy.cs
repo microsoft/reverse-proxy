@@ -432,6 +432,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             {
                 // HttpClient wrongly uses comma (",") instead of semi-colon (";") as a separator for Cookie headers.
                 // To mitigate this, we concatenate them manually and put them back as a single header value.
+                // A multi-header cookie header is invalid, but we get one because of
+                // https://github.com/dotnet/aspnetcore/issues/26461
                 if (string.Equals(headerName, HeaderNames.Cookie, StringComparison.OrdinalIgnoreCase) && value.Count > 1)
                 {
                     value = String.Join("; ", value);
