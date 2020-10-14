@@ -17,6 +17,7 @@ using Microsoft.ReverseProxy.Service.Routing;
 using Microsoft.ReverseProxy.Service.SessionAffinity;
 using Microsoft.ReverseProxy.Telemetry;
 using Microsoft.ReverseProxy.Utilities;
+using System.Linq;
 
 namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
 {
@@ -86,12 +87,19 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
 
         public static IReverseProxyBuilder AddActiveHealthChecks(this IReverseProxyBuilder builder)
         {
-            builder.Services.AddSingleton<ActiveHealthCheckMonitor>();
-            builder.Services.AddSingleton<IActiveHealthCheckMonitor>(b => b.GetRequiredService<ActiveHealthCheckMonitor>());
-            builder.Services.AddSingleton<IClusterChangeListener>(b => b.GetRequiredService<ActiveHealthCheckMonitor>());
+            builder.Services.TryAddSingleton<IProbingRequestFactory, DefaultProbingRequestFactory>();
+
+            // Avoid registering several IActiveHealthCheckMonitor implementations.
+            if (!builder.Services.Any(d => d.ServiceType == typeof(IActiveHealthCheckMonitor)))
+            {
+                builder.Services.AddSingleton<ActiveHealthCheckMonitor>();
+                builder.Services.AddSingleton<IActiveHealthCheckMonitor>(p => p.GetRequiredService<ActiveHealthCheckMonitor>());
+                builder.Services.AddSingleton<IClusterChangeListener>(p => p.GetRequiredService<ActiveHealthCheckMonitor>());
+            }
+
             builder.Services.AddSingleton<ConsecutiveFailuresHealthPolicy>();
-            builder.Services.AddSingleton<IActiveHealthCheckPolicy>(b => b.GetRequiredService<ConsecutiveFailuresHealthPolicy>());
-            builder.Services.AddSingleton<IDestinationChangeListener>(b => b.GetRequiredService<ConsecutiveFailuresHealthPolicy>());
+            builder.Services.AddSingleton<IActiveHealthCheckPolicy>(p => p.GetRequiredService<ConsecutiveFailuresHealthPolicy>());
+            builder.Services.AddSingleton<IDestinationChangeListener>(p => p.GetRequiredService<ConsecutiveFailuresHealthPolicy>());
             return builder;
         }
 
@@ -99,8 +107,8 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
         {
             builder.Services.TryAddSingleton<IReactivationScheduler, ReactivationScheduler>();
             builder.Services.AddSingleton<TransportFailureRateHealthPolicy>();
-            builder.Services.AddSingleton<IPassiveHealthCheckPolicy>(b => b.GetRequiredService<TransportFailureRateHealthPolicy>());
-            builder.Services.AddSingleton<IDestinationChangeListener>(b => b.GetRequiredService<TransportFailureRateHealthPolicy>());
+            builder.Services.AddSingleton<IPassiveHealthCheckPolicy>(p => p.GetRequiredService<TransportFailureRateHealthPolicy>());
+            builder.Services.AddSingleton<IDestinationChangeListener>(p => p.GetRequiredService<TransportFailureRateHealthPolicy>());
             return builder;
         }
     }

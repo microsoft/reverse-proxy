@@ -7,12 +7,12 @@ namespace Microsoft.ReverseProxy.Abstractions
     {
         public static class PassivePolicy
         {
-            public static string TransportFailureRate => "TransportFailureRate";
+            public static readonly string TransportFailureRate = "TransportFailureRate";
         }
 
         public static class ActivePolicy
         {
-            public static string ConsecutiveFailures => "ConsecutiveFailures";
+            public static readonly string ConsecutiveFailures = "ConsecutiveFailures";
         }
     }
 }

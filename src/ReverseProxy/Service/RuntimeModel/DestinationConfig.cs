@@ -28,7 +28,9 @@ namespace Microsoft.ReverseProxy.RuntimeModel
             Health = health;
         }
 
-        // TODO: Make this a Uri.
+        /// <summary>
+        /// Endpoint accepting proxied requests.
+        /// </summary>
         public string Address { get; }
 
         /// <summary>

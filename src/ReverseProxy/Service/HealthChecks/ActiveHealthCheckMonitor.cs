@@ -9,6 +9,7 @@ using Microsoft.ReverseProxy.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -18,22 +19,25 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
     {
         private readonly ActiveHealthCheckMonitorOptions _monitorOptions;
         private readonly IDictionary<string, IActiveHealthCheckPolicy> _policies;
+        private readonly IProbingRequestFactory _probingRequestFactory;
         private readonly EntityActionScheduler<ClusterInfo> _scheduler;
         private readonly IProxyAppState _proxyAppState;
 
         public ActiveHealthCheckMonitor(
             IOptions<ActiveHealthCheckMonitorOptions> monitorOptions,
             IEnumerable<IActiveHealthCheckPolicy> policies,
+            IProbingRequestFactory probingRequestFactory,
             IUptimeClock clock,
             IProxyAppState proxyAppState)
         {
             _monitorOptions = monitorOptions?.Value ?? throw new ArgumentNullException(nameof(monitorOptions));
             _proxyAppState = proxyAppState ?? throw new ArgumentNullException(nameof(proxyAppState));
             _policies = policies.ToDictionaryByUniqueId(p => p.Name);
-            _scheduler = new EntityActionScheduler<ClusterInfo>(async cluster => await ProbeCluster(cluster, false), false, clock);
+            _probingRequestFactory = probingRequestFactory ?? throw new ArgumentNullException(nameof(probingRequestFactory));
+            _scheduler = new EntityActionScheduler<ClusterInfo>(async cluster => await ProbeCluster(cluster), autoStart: false, runOnce: false, clock);
         }
 
-        public void ForceCheckAll(Action callback)
+        public void ForceCheckAll()
         {
             Task.Run(async () =>
             {
@@ -44,18 +48,18 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                     {
                         if (cluster.Config.Value.HealthCheckOptions.Active.Enabled)
                         {
-                            probeClusterTasks.Add(ProbeCluster(cluster, true));
+                            probeClusterTasks.Add(ProbeCluster(cluster));
                         }
                     }
 
                     await Task.WhenAll(probeClusterTasks);
+                    _proxyAppState.SetFullyInitialized();
+                    _scheduler.Start();
                 }
                 catch (Exception)
                 {
                     // TODO: Add logging
                 }
-
-                callback();
             });
         }
 
@@ -91,14 +95,8 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             _scheduler.Dispose();
         }
 
-        private async Task ProbeCluster(ClusterInfo cluster, bool force)
+        private async Task ProbeCluster(ClusterInfo cluster)
         {
-            if (!force && !_proxyAppState.IsFullyInitialized)
-            {
-                // Do nothing until the proxy is fully initialized.
-                return;
-            }
-
             var clusterConfig = cluster.Config.Value;
             if (!clusterConfig.HealthCheckOptions.Active.Enabled)
             {
@@ -114,10 +112,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             {
                 foreach (var destination in allDestinations)
                 {
-                    var probeAddress = new Uri(!string.IsNullOrEmpty(destination.Config.Health) ? destination.Config.Health : destination.Config.Address, UriKind.Absolute);
-                    var probePath = clusterConfig.HealthCheckOptions.Active.Path;
-                    var probeUri = new Uri(probeAddress, probePath);
-                    var request = new HttpRequestMessage(HttpMethod.Get, probeUri);
+                    var request = _probingRequestFactory.GetRequest(clusterConfig, destination);
                     var timeout = clusterConfig.HealthCheckOptions.Active.Timeout ?? _monitorOptions.DefaultTimeout;
                     var cts = new CancellationTokenSource(timeout);
                     probeTasks.Add((clusterConfig.HttpClient.SendAsync(request, cts.Token), cts));
@@ -125,15 +120,18 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 
                 for (var i = 0; i < allDestinations.Count; i++)
                 {
+                    HttpResponseMessage response = null;
+                    ExceptionDispatchInfo edi = null;
                     try
                     {
-                        var response = await probeTasks[i].Task.ConfigureAwait(false);
-                        policy.ProbingCompleted(clusterConfig, allDestinations[i], response, null);
+                        response = await probeTasks[i].Task.ConfigureAwait(false);
                     }
                     catch (Exception e)
                     {
-                        policy.ProbingCompleted(clusterConfig, allDestinations[i], null, e);
+                        edi = ExceptionDispatchInfo.Capture(e);
                     }
+                    // TBD: Add bulk update here.
+                    policy.ProbingCompleted(clusterConfig, allDestinations[i], response, edi?.SourceException);
                 }
             }
             finally
@@ -142,16 +140,16 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 {
                     try
                     {
-                        if (probeTask.Task.Exception == null && probeTask.Task.IsCompleted)
-                        {
-                            probeTask.Task.Result.Dispose();
-                        }
-
-                        probeTask.Cts.Dispose();
+                        var response = await probeTask.Task;
+                        response.Dispose();
                     }
                     catch
                     {
                         // Suppress exceptions to ensure all responses get a chance to be disposed.
+                    }
+                    finally
+                    {
+                        probeTask.Cts.Dispose();
                     }
                 }
             }

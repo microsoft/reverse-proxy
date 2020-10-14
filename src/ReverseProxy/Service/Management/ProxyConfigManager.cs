@@ -39,7 +39,6 @@ namespace Microsoft.ReverseProxy.Service.Management
         private readonly IConfigValidator _configValidator;
         private readonly IProxyHttpClientFactory _httpClientFactory;
         private readonly IActiveHealthCheckMonitor _activeHealthCheckMonitor;
-        private readonly IProxyAppState _proxyAppState;
         private IDisposable _changeSubscription;
 
         private List<Endpoint> _endpoints = new List<Endpoint>(0);
@@ -55,8 +54,7 @@ namespace Microsoft.ReverseProxy.Service.Management
             IEnumerable<IProxyConfigFilter> filters,
             IConfigValidator configValidator,
             IProxyHttpClientFactory httpClientFactory,
-            IActiveHealthCheckMonitor activeHealthCheckMonitor,
-            IProxyAppState proxyAppState)
+            IActiveHealthCheckMonitor activeHealthCheckMonitor)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _provider = provider ?? throw new ArgumentNullException(nameof(provider));
@@ -67,7 +65,6 @@ namespace Microsoft.ReverseProxy.Service.Management
             _configValidator = configValidator ?? throw new ArgumentNullException(nameof(configValidator));
             _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
             _activeHealthCheckMonitor = activeHealthCheckMonitor ?? throw new ArgumentNullException(nameof(activeHealthCheckMonitor));
-            _proxyAppState = proxyAppState ?? throw new ArgumentNullException(nameof(proxyAppState));
 
             _changeToken = new CancellationChangeToken(_cancellationTokenSource.Token);
         }
@@ -102,8 +99,8 @@ namespace Microsoft.ReverseProxy.Service.Management
                 throw new InvalidOperationException("Unable to load or apply the proxy configuration.", ex);
             }
 
-            // Initial active health check is being run in background.
-            _activeHealthCheckMonitor.ForceCheckAll(() => _proxyAppState.SetFullyInitialized());
+            // Initial active health check is run in the background.
+            _activeHealthCheckMonitor.ForceCheckAll();
             return this;
         }
 

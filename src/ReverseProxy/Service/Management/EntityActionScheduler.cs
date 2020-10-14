@@ -20,13 +20,15 @@ namespace Microsoft.ReverseProxy.Service.Management
         private readonly LinkedList<SchedulerEntry> _list = new LinkedList<SchedulerEntry>();
         private readonly Timer _timer;
         private readonly IUptimeClock _clock;
+        private bool _isStarted;
         private readonly object _syncRoot = new object();
 
-        public EntityActionScheduler(Action<T> action, bool runOnce, IUptimeClock clock)
+        public EntityActionScheduler(Action<T> action, bool autoStart, bool runOnce, IUptimeClock clock)
         {
             _action = action ?? throw new ArgumentNullException(nameof(action));
             _clock = clock ?? throw new ArgumentNullException(nameof(clock));
             _runOnce = runOnce;
+            _isStarted = autoStart;
             _timer = new Timer(_ => Run(), null, Timeout.Infinite, Timeout.Infinite);
         }
 
@@ -41,6 +43,15 @@ namespace Microsoft.ReverseProxy.Service.Management
         public void Dispose()
         {
             _timer.Dispose();
+        }
+
+        public void Start()
+        {
+            lock (_syncRoot)
+            {
+                _isStarted = true;
+                ScheduleNextRun(_clock.TickCount);
+            }
         }
 
         public void ScheduleEntity(T entity, TimeSpan period)
@@ -83,43 +94,9 @@ namespace Microsoft.ReverseProxy.Service.Management
                 if (_list.First == null)
                 {
                     // The last node was removed, so we need to disable timer.
-                    _timer.Change(Timeout.Infinite, Timeout.Infinite);
+                    RestartTimer(Timeout.Infinite);
                 }
             }
-        }
-
-        private void InsertAndAdjustTimer(T entity, long period)
-        {
-            var newNode = InsertNewNode(entity, period, _clock.TickCount + period);
-
-            if (ReferenceEquals(newNode, _list.First))
-            {
-                // The first node was added, so we need to change timer.
-                _timer.Change(period, Timeout.Infinite);
-            }
-        }
-
-        private LinkedListNode<SchedulerEntry> InsertNewNode(T entity, long period, long newRunAt)
-        {
-            var next = _list.First;
-            while (next != null && next.Value.RunAt < newRunAt)
-            {
-                next = next.Next;
-            }
-
-            var newEntry = new SchedulerEntry(entity, period, newRunAt);
-            LinkedListNode<SchedulerEntry> newNode;
-            if (next != null)
-            {
-                newNode = _list.AddBefore(next, newEntry);
-            }
-            else
-            {
-                newNode = _list.AddLast(newEntry);
-            }
-
-            _map[entity] = newNode;
-            return newNode;
         }
 
         private void Run()
@@ -148,14 +125,61 @@ namespace Microsoft.ReverseProxy.Service.Management
                     _list.RemoveFirst();
                 }
 
-                if (_list.First != null)
-                {
-                    var newDueTime = _list.First.Value.RunAt >= cutoff ? _list.First.Value.RunAt - cutoff : 0;
-                    _timer.Change(newDueTime, Timeout.Infinite);
-                }
+                ScheduleNextRun(cutoff);
             }
 
             _action(triggeredEntry.Entity);
+        }
+
+        private void ScheduleNextRun(long cutoff)
+        {
+            if (_list.First != null)
+            {
+                var newDueTime = _list.First.Value.RunAt >= cutoff ? _list.First.Value.RunAt - cutoff : 0;
+                RestartTimer(newDueTime);
+            }
+        }
+
+        private void InsertAndAdjustTimer(T entity, long period)
+        {
+            var newNode = InsertNewNode(entity, period, _clock.TickCount + period);
+
+            if (ReferenceEquals(newNode, _list.First))
+            {
+                // The first node was added, so we need to change timer.
+                RestartTimer(period);
+            }
+        }
+
+        private LinkedListNode<SchedulerEntry> InsertNewNode(T entity, long period, long newRunAt)
+        {
+            var next = _list.First;
+            while (next != null && next.Value.RunAt < newRunAt)
+            {
+                next = next.Next;
+            }
+
+            var newEntry = new SchedulerEntry(entity, period, newRunAt);
+            LinkedListNode<SchedulerEntry> newNode;
+            if (next != null)
+            {
+                newNode = _list.AddBefore(next, newEntry);
+            }
+            else
+            {
+                newNode = _list.AddLast(newEntry);
+            }
+
+            _map[entity] = newNode;
+            return newNode;
+        }
+
+        private void RestartTimer(long dueTime)
+        {
+            if (_isStarted)
+            {
+                _timer.Change(dueTime, Timeout.Infinite);
+            }
         }
 
         private readonly struct SchedulerEntry

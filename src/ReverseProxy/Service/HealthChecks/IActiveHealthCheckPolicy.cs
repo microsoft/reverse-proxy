@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Net;
 using System.Net.Http;
 using Microsoft.ReverseProxy.RuntimeModel;
 

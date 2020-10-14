@@ -66,6 +66,8 @@ namespace Microsoft.ReverseProxy.Middleware
                 destination = destinations[random.Next(destinations.Count)];
             }
 
+            reverseProxyFeature.SelectedDestination = destination;
+
             var destinationConfig = destination.Config;
             if (destinationConfig == null)
             {
@@ -86,8 +88,6 @@ namespace Microsoft.ReverseProxy.Middleware
                 await _operationLogger.ExecuteAsync(
                     "ReverseProxy.Proxy",
                     () => _httpProxy.ProxyAsync(context, destinationConfig.Address, reverseProxyFeature.ClusterConfig.HttpClient, proxyOptions));
-
-                reverseProxyFeature.SelectedDestination = destination;
             }
             finally
             {

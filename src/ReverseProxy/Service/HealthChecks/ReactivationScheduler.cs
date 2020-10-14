@@ -14,7 +14,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 
         public ReactivationScheduler(IUptimeClock clock)
         {
-            _scheduler = new EntityActionScheduler<DestinationInfo>(Reactivate, runOnce: true, clock);
+            _scheduler = new EntityActionScheduler<DestinationInfo>(Reactivate, autoStart: true, runOnce: true, clock);
         }
 
         public void ScheduleRestoringAsHealthy(DestinationInfo destination, TimeSpan reactivationPeriod)

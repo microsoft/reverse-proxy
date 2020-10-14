@@ -13,7 +13,7 @@ namespace Microsoft.ReverseProxy.Abstractions
         /// <summary>
         /// Name of failure rate limit metadata parameter. Destination marked as unhealthy once this limit is reached.
         /// </summary>
-        public static string FailureRateLimitMetadataName => "TransportFailureRateHealthPolicy.RateLimit";
+        public static readonly string FailureRateLimitMetadataName = "TransportFailureRateHealthPolicy.RateLimit";
 
         /// <summary>
         /// Period of time while detected failures are kept and taken into account in the rate calculation.

@@ -27,7 +27,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             var policy1 = new Mock<IActiveHealthCheckPolicy>();
             policy1.SetupGet(p => p.Name).Returns("policy1");
             var proxyAppState = new ProxyAppState();
-            var monitor = new ActiveHealthCheckMonitor(options, new[] { policy0.Object, policy1.Object }, new UptimeClock(), proxyAppState);
+            var monitor = new ActiveHealthCheckMonitor(options, new[] { policy0.Object, policy1.Object }, new DefaultProbingRequestFactory(), new UptimeClock(), proxyAppState);
 
             var httpClient0 = GetHttpClient();
             var cluster0 = GetClusterInfo("cluster0", "policy0", true, httpClient0.Object);
@@ -39,9 +39,8 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             var cluster2 = GetClusterInfo("cluster2", "policy1", true, httpClient2.Object);
             monitor.OnClusterAdded(cluster2);
 
-            var checkCompleted = new TaskCompletionSource<bool>();
-            monitor.ForceCheckAll(() => checkCompleted.SetResult(true));
-            await checkCompleted.Task.ConfigureAwait(false);
+            monitor.ForceCheckAll();
+            await proxyAppState.WaitForFullInitialization().ConfigureAwait(false);
 
             httpClient0.Verify(c => c.SendAsync(It.Is<HttpRequestMessage>(m => m.RequestUri.AbsoluteUri == "https://localhost:20000/cluster0/api/health/"), It.IsAny<CancellationToken>()), Times.Once);
             httpClient0.Verify(c => c.SendAsync(It.Is<HttpRequestMessage>(m => m.RequestUri.AbsoluteUri == "https://localhost:20001/cluster0/api/health/"), It.IsAny<CancellationToken>()), Times.Once);

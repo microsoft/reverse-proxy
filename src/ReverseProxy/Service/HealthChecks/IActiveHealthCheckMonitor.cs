@@ -1,10 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.ReverseProxy.RuntimeModel;
 using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Microsoft.ReverseProxy.Service.HealthChecks
 {
@@ -14,9 +11,8 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
     public interface IActiveHealthCheckMonitor : IDisposable
     {
         /// <summary>
-        /// Force health checks of all given clusters' destinations.
+        /// Force health check of all clusters' destinations.
         /// </summary>
-        /// /// <param name="callback">Callback to invoke after all the clusters have been checked.</param>
-        void ForceCheckAll(Action callback);
+        void ForceCheckAll();
     }
 }
