@@ -118,6 +118,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                     probeTasks.Add((clusterConfig.HttpClient.SendAsync(request, cts.Token), cts));
                 }
 
+                var probingResults = new DestinationProbingResult[allDestinations.Count];
                 for (var i = 0; i < allDestinations.Count; i++)
                 {
                     HttpResponseMessage response = null;
@@ -130,9 +131,10 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                     {
                         edi = ExceptionDispatchInfo.Capture(e);
                     }
-                    // TBD: Add bulk update here.
-                    policy.ProbingCompleted(clusterConfig, allDestinations[i], response, edi?.SourceException);
+                    probingResults[i] = new DestinationProbingResult(allDestinations[i], response, edi?.SourceException);
                 }
+
+                policy.ProbingCompleted(cluster, probingResults);
             }
             finally
             {

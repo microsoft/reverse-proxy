@@ -76,7 +76,7 @@ namespace Microsoft.ReverseProxy.Sample
                     proxyPipeline.Use((context, next) =>
                     {
                         var someCriteria = false; // MeetsCriteria(context);
-                            if (someCriteria)
+                        if (someCriteria)
                         {
                             var availableDestinationsFeature = context.Features.Get<IReverseProxyFeature>();
                             var destination = availableDestinationsFeature.AvailableDestinations[0]; // PickDestination(availableDestinationsFeature.Destinations);

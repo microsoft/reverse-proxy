@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
@@ -45,8 +47,11 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             httpClient0.Verify(c => c.SendAsync(It.Is<HttpRequestMessage>(m => m.RequestUri.AbsoluteUri == "https://localhost:20000/cluster0/api/health/"), It.IsAny<CancellationToken>()), Times.Once);
             httpClient0.Verify(c => c.SendAsync(It.Is<HttpRequestMessage>(m => m.RequestUri.AbsoluteUri == "https://localhost:20001/cluster0/api/health/"), It.IsAny<CancellationToken>()), Times.Once);
             httpClient0.VerifyNoOtherCalls();
-            policy0.Verify(p => p.ProbingCompleted(cluster0.Config.Value, cluster0.DestinationManager.Items.Value[0], It.Is<HttpResponseMessage>(r => r.StatusCode == HttpStatusCode.OK), null), Times.Once);
-            policy0.Verify(p => p.ProbingCompleted(cluster0.Config.Value, cluster0.DestinationManager.Items.Value[1], It.Is<HttpResponseMessage>(r => r.StatusCode == HttpStatusCode.OK), null), Times.Once);
+            policy0.Verify(
+                p => p.ProbingCompleted(
+                    cluster0,
+                    It.Is<IReadOnlyList<DestinationProbingResult>>(r => cluster0.DestinationManager.Items.Value.All(d => r.Any(i => i.Destination == d && i.Response.StatusCode == HttpStatusCode.OK)))),
+                Times.Once);
             policy0.Verify(p => p.Name);
             policy0.VerifyNoOtherCalls();
 
@@ -55,8 +60,11 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             httpClient2.Verify(c => c.SendAsync(It.Is<HttpRequestMessage>(m => m.RequestUri.AbsoluteUri == "https://localhost:20000/cluster2/api/health/"), It.IsAny<CancellationToken>()), Times.Once);
             httpClient2.Verify(c => c.SendAsync(It.Is<HttpRequestMessage>(m => m.RequestUri.AbsoluteUri == "https://localhost:20001/cluster2/api/health/"), It.IsAny<CancellationToken>()), Times.Once);
             httpClient2.VerifyNoOtherCalls();
-            policy1.Verify(p => p.ProbingCompleted(cluster2.Config.Value, cluster2.DestinationManager.Items.Value[0], It.Is<HttpResponseMessage>(r => r.StatusCode == HttpStatusCode.OK), null), Times.Once);
-            policy1.Verify(p => p.ProbingCompleted(cluster2.Config.Value, cluster2.DestinationManager.Items.Value[1], It.Is<HttpResponseMessage>(r => r.StatusCode == HttpStatusCode.OK), null), Times.Once);
+            policy0.Verify(
+                p => p.ProbingCompleted(
+                    cluster2,
+                    It.Is<IReadOnlyList<DestinationProbingResult>>(r => cluster2.DestinationManager.Items.Value.All(d => r.Any(i => i.Destination == d && i.Response.StatusCode == HttpStatusCode.OK)))),
+                Times.Once);
             policy1.Verify(p => p.Name);
             policy1.VerifyNoOtherCalls();
         }

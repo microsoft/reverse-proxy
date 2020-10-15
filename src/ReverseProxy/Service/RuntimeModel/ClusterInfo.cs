@@ -22,11 +22,14 @@ namespace Microsoft.ReverseProxy.RuntimeModel
     /// </remarks>
     public sealed class ClusterInfo
     {
+        private readonly DelayableSignal<Unit> _destinationsStateSignal;
+
         internal ClusterInfo(string clusterId, IDestinationManager destinationManager)
         {
             ClusterId = clusterId ?? throw new ArgumentNullException(nameof(clusterId));
             DestinationManager = destinationManager ?? throw new ArgumentNullException(nameof(destinationManager));
 
+            _destinationsStateSignal = CreateDestinationsStateSignal();
             DynamicStateSignal = CreateDynamicStateQuery();
         }
 
@@ -51,10 +54,28 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         /// </summary>
         public ClusterDynamicState DynamicState => DynamicStateSignal.Value;
 
+        public void PauseHealthyDestinationUpdates()
+        {
+            _destinationsStateSignal.Pause();
+        }
+
+        public void ResumeHealthyDestinationUpdates()
+        {
+            _destinationsStateSignal.Resume();
+        }
+
         /// <summary>
         /// Keeps track of the total number of concurrent requests on this cluster.
         /// </summary>
         internal AtomicCounter ConcurrencyCounter { get; } = new AtomicCounter();
+
+        private DelayableSignal<Unit> CreateDestinationsStateSignal()
+        {
+            return DestinationManager.Items
+                .SelectMany(destinations =>destinations.Select(destination => destination.DynamicStateSignal).AnyChange())
+                .DropValue()
+                .ToDelayable();
+        }
 
         /// <summary>
         /// Sets up the data flow that keeps <see cref="DynamicState"/> up to date.
@@ -62,22 +83,14 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         /// </summary>
         private IReadableSignal<ClusterDynamicState> CreateDynamicStateQuery()
         {
-            var endpointsAndStateChanges =
-                DestinationManager.Items
-                    .SelectMany(destinations =>
-                        destinations
-                            .Select(destination => destination.DynamicStateSignal)
-                            .AnyChange())
-                    .DropValue();
-
-            return new[] { endpointsAndStateChanges, Config.DropValue() }
+            return new[] { _destinationsStateSignal, Config.DropValue() }
                 .AnyChange() // If any of them change...
                 .Select(
                     _ =>
                     {
                         var allDestinations = DestinationManager.Items.Value ?? new List<DestinationInfo>().AsReadOnly();
                         var healthyDestinations = (Config.Value?.HealthCheckOptions.Enabled ?? false)
-                            ? allDestinations.Where(destination => destination.DynamicState?.Health.Current == DestinationHealth.Healthy).ToList().AsReadOnly()
+                            ? allDestinations.Where(destination => destination.DynamicState?.Health.Current != DestinationHealth.Unhealthy).ToList().AsReadOnly()
                             : allDestinations;
                         return new ClusterDynamicState(
                             allDestinations: allDestinations,

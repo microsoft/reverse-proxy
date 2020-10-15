@@ -47,7 +47,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         /// Encapsulates parts of an destination that can change atomically
         /// in reaction to runtime state changes (e.g. endpoint health states).
         /// </summary>
-        internal Signal<DestinationDynamicState> DynamicStateSignal { get; } = SignalFactory.Default.CreateSignal<DestinationDynamicState>();
+        internal Signal<DestinationDynamicState> DynamicStateSignal { get; } = SignalFactory.Default.CreateSignal<DestinationDynamicState>(new DestinationDynamicState(default));
 
         /// <summary>
         /// A snapshot of the current dynamic state.

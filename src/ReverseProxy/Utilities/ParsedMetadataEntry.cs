@@ -8,11 +8,13 @@ namespace Microsoft.ReverseProxy.Utilities
 {
     internal class ParsedMetadataEntry<T>
     {
-        private readonly Func<string, (T, bool)> _parser;
+        private readonly Parser _parser;
         // Use a volatile field of a reference Tuple<T1, T2> type to ensure atomicity during concurrent access.
         private volatile Tuple<string, T> _value;
 
-        public ParsedMetadataEntry(Func<string, (T, bool)> parser)
+        public delegate bool Parser(string stringValue, out T parsedValue);
+
+        public ParsedMetadataEntry(Parser parser)
         {
             _parser = parser ?? throw new ArgumentNullException(nameof(parser));
         }
@@ -24,8 +26,7 @@ namespace Microsoft.ReverseProxy.Utilities
             {
                 if (currentValue == null || currentValue.Item1 != stringValue)
                 {
-                    var parserResult = _parser(stringValue);
-                    _value = Tuple.Create(stringValue, parserResult.Item2 ? parserResult.Item1 : defaultValue);
+                    _value = Tuple.Create(stringValue, _parser(stringValue, out var parsedValue) ? parsedValue : defaultValue);
                 }
             }
             else if (currentValue == null || currentValue.Item1 != null)

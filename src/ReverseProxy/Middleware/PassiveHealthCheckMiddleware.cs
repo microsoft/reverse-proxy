@@ -39,7 +39,7 @@ namespace Microsoft.ReverseProxy.Middleware
             // It's validated and ensured by a configuration validator.
             var policy = _policies.GetRequiredServiceById(options.Policy, options.Policy);
             var error = context.Features.Get<IProxyErrorFeature>();
-            policy.RequestProxied(proxyFeature.ClusterConfig, proxyFeature.AvailableDestinations[0], context, error);
+            policy.RequestProxied(proxyFeature.ClusterConfig, proxyFeature.SelectedDestination, context, error);
         }
     }
 }

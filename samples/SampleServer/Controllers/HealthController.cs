@@ -21,7 +21,7 @@ namespace Microsoft.ReverseProxy.Sample.Controllers
         {
             _count++;
             // Simulate temporary health degradation.
-            return _count % 10 < 5 ? Ok() : StatusCode(500);
+            return _count % 10 < 4 ? Ok() : StatusCode(500);
         }
     }
 }

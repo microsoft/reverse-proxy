@@ -13,7 +13,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
     /// </summary>
     public abstract class PassiveHealthCheckPolicyBase : IPassiveHealthCheckPolicy
     {
-        private static readonly TimeSpan _defaultReactivationPeriod = TimeSpan.FromMinutes(5);
+        private static readonly TimeSpan _defaultReactivationPeriod = TimeSpan.FromSeconds(60);
         private readonly IReactivationScheduler _reactivationScheduler;
 
         protected PassiveHealthCheckPolicyBase(IReactivationScheduler reactivationScheduler)
@@ -53,11 +53,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         private void UpdateDestinationHealth(ClusterConfig cluster, DestinationInfo destination, DestinationHealth newPassiveHealth)
         {
             var state = destination.DynamicState;
-            if (state == null)
-            {
-                destination.DynamicState = new DestinationDynamicState(new CompositeDestinationHealth(passive: newPassiveHealth, active: default));
-            }
-            else if (newPassiveHealth != state.Health.Passive)
+            if (newPassiveHealth != state.Health.Passive)
             {
                 destination.DynamicState = new DestinationDynamicState(state.Health.ChangePassive(newPassiveHealth));
 

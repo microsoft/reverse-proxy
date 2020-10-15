@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using Microsoft.ReverseProxy.RuntimeModel;
 
@@ -16,12 +17,20 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         public abstract string Name { get; }
 
         /// <inheritdoc/>
-        public void ProbingCompleted(ClusterConfig cluster, DestinationInfo destination, HttpResponseMessage response, Exception exception)
+        public void ProbingCompleted(ClusterInfo cluster, IReadOnlyList<DestinationProbingResult> probingResults)
         {
-            var newHealth = response != null && response.IsSuccessStatusCode && exception == null
-                ? EvaluateSuccessfulProbe(cluster, destination, response)
-                : EvaluateFailedProbe(cluster, destination, response, exception);
-            UpdateDestinationHealth(destination, newHealth);
+            var newHealths = new DestinationHealth[probingResults.Count];
+            var clusterConfig = cluster.Config.Value;
+            for (var i = 0; i < probingResults.Count; i++)
+            {
+                var response = probingResults[i].Response;
+                var exception = probingResults[i].Exception;
+                var destination = probingResults[i].Destination;
+                newHealths[i] = response != null && response.IsSuccessStatusCode && exception == null
+                    ? EvaluateSuccessfulProbe(clusterConfig, destination, response)
+                    : EvaluateFailedProbe(clusterConfig, destination, response, exception);
+            }
+            UpdateDestinationsHealth(cluster, probingResults, newHealths);
         }
 
         /// <summary>
@@ -43,17 +52,21 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         /// <returns>New <see cref="DestinationHealth"/> value.</returns>
         protected abstract DestinationHealth EvaluateSuccessfulProbe(ClusterConfig cluster, DestinationInfo destination, HttpResponseMessage response);
 
-        private void UpdateDestinationHealth(DestinationInfo destination, DestinationHealth newActiveHealth)
+        private void UpdateDestinationsHealth(ClusterInfo cluster, IReadOnlyList<DestinationProbingResult> probingResults, IReadOnlyList<DestinationHealth> newActiveHealths)
         {
-            var state = destination.DynamicState;
-            if (state == null)
+            cluster.PauseHealthyDestinationUpdates();
+
+            for (var i = 0; i < probingResults.Count; i++)
             {
-                destination.DynamicState = new DestinationDynamicState(new CompositeDestinationHealth(passive: default, active: newActiveHealth));
+                var destination = probingResults[i].Destination;
+                var state = destination.DynamicState;
+                if (newActiveHealths[i] != state.Health.Active)
+                {
+                    destination.DynamicState = new DestinationDynamicState(state.Health.ChangeActive(newActiveHealths[i]));
+                }
             }
-            else if (newActiveHealth != state.Health.Active)
-            {
-                destination.DynamicState = new DestinationDynamicState(state.Health.ChangeActive(newActiveHealth));
-            }
+
+            cluster.ResumeHealthyDestinationUpdates();
         }
     }
 }

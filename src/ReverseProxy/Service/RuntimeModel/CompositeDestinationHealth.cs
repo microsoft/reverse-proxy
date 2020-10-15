@@ -12,7 +12,14 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         {
             Passive = passive;
             Active = active;
-            Current = passive == DestinationHealth.Unhealthy || active == DestinationHealth.Unhealthy ? DestinationHealth.Unhealthy : DestinationHealth.Healthy;
+            if (passive == DestinationHealth.Unknown && active == DestinationHealth.Unknown)
+            {
+                Current = DestinationHealth.Unknown;
+            }
+            else
+            {
+                Current = passive == DestinationHealth.Unhealthy || active == DestinationHealth.Unhealthy ? DestinationHealth.Unhealthy : DestinationHealth.Healthy;
+            }
         }
 
         /// <summary>

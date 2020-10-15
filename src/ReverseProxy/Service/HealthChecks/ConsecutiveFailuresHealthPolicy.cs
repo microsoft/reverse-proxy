@@ -66,9 +66,9 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 return _count >= _threshold.GetParsedOrDefault(cluster, ConsecutiveFailuresHealthPolicyOptions.ThresholdMetadataName, defaultThreshold);
             }
 
-            private static (double, bool) Parse(string stringValue)
+            private static bool Parse(string stringValue, out double parsedValue)
             {
-                return double.TryParse(stringValue, NumberStyles.Float, CultureInfo.InvariantCulture, out var parsedValue) ? (parsedValue, true) : (default(double), false);
+                return double.TryParse(stringValue, NumberStyles.Float, CultureInfo.InvariantCulture, out parsedValue);
             }
         }
     }
