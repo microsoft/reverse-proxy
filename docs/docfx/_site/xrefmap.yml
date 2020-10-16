@@ -1,9 +1,15 @@
 ### YamlMime:XRefMap
 sorted: true
 references:
+- uid: direct-proxying
+  name: Direct Proxying
+  href: articles/direct-proxying.html
 - uid: getting_started
   name: Getting Started with YARP
   href: articles/getting_started.html
+- uid: header-routing
+  name: Header Routing
+  href: articles/header-routing.html
 - uid: intro
   name: Welcome to the YARP documentation!
   href: articles/index.html
@@ -117,6 +123,19 @@ references:
   commentId: T:Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions
   fullName: Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions
   nameWithType: ReverseProxyServiceCollectionExtensions
+- uid: Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.AddHttpProxy(Microsoft.Extensions.DependencyInjection.IServiceCollection)
+  name: AddHttpProxy(IServiceCollection)
+  href: api/Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.html#Microsoft_Extensions_DependencyInjection_ReverseProxyServiceCollectionExtensions_AddHttpProxy_Microsoft_Extensions_DependencyInjection_IServiceCollection_
+  commentId: M:Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.AddHttpProxy(Microsoft.Extensions.DependencyInjection.IServiceCollection)
+  fullName: Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.AddHttpProxy(Microsoft.Extensions.DependencyInjection.IServiceCollection)
+  nameWithType: ReverseProxyServiceCollectionExtensions.AddHttpProxy(IServiceCollection)
+- uid: Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.AddHttpProxy*
+  name: AddHttpProxy
+  href: api/Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.html#Microsoft_Extensions_DependencyInjection_ReverseProxyServiceCollectionExtensions_AddHttpProxy_
+  commentId: Overload:Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.AddHttpProxy
+  isSpec: "True"
+  fullName: Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.AddHttpProxy
+  nameWithType: ReverseProxyServiceCollectionExtensions.AddHttpProxy
 - uid: Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.AddProxyConfigFilter*
   name: AddProxyConfigFilter
   href: api/Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.html#Microsoft_Extensions_DependencyInjection_ReverseProxyServiceCollectionExtensions_AddProxyConfigFilter_
@@ -511,6 +530,30 @@ references:
   isSpec: "True"
   fullName: Microsoft.ReverseProxy.Abstractions.Destination.Metadata
   nameWithType: Destination.Metadata
+- uid: Microsoft.ReverseProxy.Abstractions.HeaderMatchMode
+  name: HeaderMatchMode
+  href: api/Microsoft.ReverseProxy.Abstractions.HeaderMatchMode.html
+  commentId: T:Microsoft.ReverseProxy.Abstractions.HeaderMatchMode
+  fullName: Microsoft.ReverseProxy.Abstractions.HeaderMatchMode
+  nameWithType: HeaderMatchMode
+- uid: Microsoft.ReverseProxy.Abstractions.HeaderMatchMode.ExactHeader
+  name: ExactHeader
+  href: api/Microsoft.ReverseProxy.Abstractions.HeaderMatchMode.html#Microsoft_ReverseProxy_Abstractions_HeaderMatchMode_ExactHeader
+  commentId: F:Microsoft.ReverseProxy.Abstractions.HeaderMatchMode.ExactHeader
+  fullName: Microsoft.ReverseProxy.Abstractions.HeaderMatchMode.ExactHeader
+  nameWithType: HeaderMatchMode.ExactHeader
+- uid: Microsoft.ReverseProxy.Abstractions.HeaderMatchMode.Exists
+  name: Exists
+  href: api/Microsoft.ReverseProxy.Abstractions.HeaderMatchMode.html#Microsoft_ReverseProxy_Abstractions_HeaderMatchMode_Exists
+  commentId: F:Microsoft.ReverseProxy.Abstractions.HeaderMatchMode.Exists
+  fullName: Microsoft.ReverseProxy.Abstractions.HeaderMatchMode.Exists
+  nameWithType: HeaderMatchMode.Exists
+- uid: Microsoft.ReverseProxy.Abstractions.HeaderMatchMode.HeaderPrefix
+  name: HeaderPrefix
+  href: api/Microsoft.ReverseProxy.Abstractions.HeaderMatchMode.html#Microsoft_ReverseProxy_Abstractions_HeaderMatchMode_HeaderPrefix
+  commentId: F:Microsoft.ReverseProxy.Abstractions.HeaderMatchMode.HeaderPrefix
+  fullName: Microsoft.ReverseProxy.Abstractions.HeaderMatchMode.HeaderPrefix
+  nameWithType: HeaderMatchMode.HeaderPrefix
 - uid: Microsoft.ReverseProxy.Abstractions.HealthCheckOptions
   name: HealthCheckOptions
   href: api/Microsoft.ReverseProxy.Abstractions.HealthCheckOptions.html
@@ -701,6 +744,19 @@ references:
   commentId: T:Microsoft.ReverseProxy.Abstractions.ProxyMatch
   fullName: Microsoft.ReverseProxy.Abstractions.ProxyMatch
   nameWithType: ProxyMatch
+- uid: Microsoft.ReverseProxy.Abstractions.ProxyMatch.Headers
+  name: Headers
+  href: api/Microsoft.ReverseProxy.Abstractions.ProxyMatch.html#Microsoft_ReverseProxy_Abstractions_ProxyMatch_Headers
+  commentId: P:Microsoft.ReverseProxy.Abstractions.ProxyMatch.Headers
+  fullName: Microsoft.ReverseProxy.Abstractions.ProxyMatch.Headers
+  nameWithType: ProxyMatch.Headers
+- uid: Microsoft.ReverseProxy.Abstractions.ProxyMatch.Headers*
+  name: Headers
+  href: api/Microsoft.ReverseProxy.Abstractions.ProxyMatch.html#Microsoft_ReverseProxy_Abstractions_ProxyMatch_Headers_
+  commentId: Overload:Microsoft.ReverseProxy.Abstractions.ProxyMatch.Headers
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Abstractions.ProxyMatch.Headers
+  nameWithType: ProxyMatch.Headers
 - uid: Microsoft.ReverseProxy.Abstractions.ProxyMatch.Hosts
   name: Hosts
   href: api/Microsoft.ReverseProxy.Abstractions.ProxyMatch.html#Microsoft_ReverseProxy_Abstractions_ProxyMatch_Hosts
@@ -882,6 +938,64 @@ references:
   isSpec: "True"
   fullName: Microsoft.ReverseProxy.Abstractions.QuotaOptions.Burst
   nameWithType: QuotaOptions.Burst
+- uid: Microsoft.ReverseProxy.Abstractions.RouteHeader
+  name: RouteHeader
+  href: api/Microsoft.ReverseProxy.Abstractions.RouteHeader.html
+  commentId: T:Microsoft.ReverseProxy.Abstractions.RouteHeader
+  fullName: Microsoft.ReverseProxy.Abstractions.RouteHeader
+  nameWithType: RouteHeader
+- uid: Microsoft.ReverseProxy.Abstractions.RouteHeader.IsCaseSensitive
+  name: IsCaseSensitive
+  href: api/Microsoft.ReverseProxy.Abstractions.RouteHeader.html#Microsoft_ReverseProxy_Abstractions_RouteHeader_IsCaseSensitive
+  commentId: P:Microsoft.ReverseProxy.Abstractions.RouteHeader.IsCaseSensitive
+  fullName: Microsoft.ReverseProxy.Abstractions.RouteHeader.IsCaseSensitive
+  nameWithType: RouteHeader.IsCaseSensitive
+- uid: Microsoft.ReverseProxy.Abstractions.RouteHeader.IsCaseSensitive*
+  name: IsCaseSensitive
+  href: api/Microsoft.ReverseProxy.Abstractions.RouteHeader.html#Microsoft_ReverseProxy_Abstractions_RouteHeader_IsCaseSensitive_
+  commentId: Overload:Microsoft.ReverseProxy.Abstractions.RouteHeader.IsCaseSensitive
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Abstractions.RouteHeader.IsCaseSensitive
+  nameWithType: RouteHeader.IsCaseSensitive
+- uid: Microsoft.ReverseProxy.Abstractions.RouteHeader.Mode
+  name: Mode
+  href: api/Microsoft.ReverseProxy.Abstractions.RouteHeader.html#Microsoft_ReverseProxy_Abstractions_RouteHeader_Mode
+  commentId: P:Microsoft.ReverseProxy.Abstractions.RouteHeader.Mode
+  fullName: Microsoft.ReverseProxy.Abstractions.RouteHeader.Mode
+  nameWithType: RouteHeader.Mode
+- uid: Microsoft.ReverseProxy.Abstractions.RouteHeader.Mode*
+  name: Mode
+  href: api/Microsoft.ReverseProxy.Abstractions.RouteHeader.html#Microsoft_ReverseProxy_Abstractions_RouteHeader_Mode_
+  commentId: Overload:Microsoft.ReverseProxy.Abstractions.RouteHeader.Mode
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Abstractions.RouteHeader.Mode
+  nameWithType: RouteHeader.Mode
+- uid: Microsoft.ReverseProxy.Abstractions.RouteHeader.Name
+  name: Name
+  href: api/Microsoft.ReverseProxy.Abstractions.RouteHeader.html#Microsoft_ReverseProxy_Abstractions_RouteHeader_Name
+  commentId: P:Microsoft.ReverseProxy.Abstractions.RouteHeader.Name
+  fullName: Microsoft.ReverseProxy.Abstractions.RouteHeader.Name
+  nameWithType: RouteHeader.Name
+- uid: Microsoft.ReverseProxy.Abstractions.RouteHeader.Name*
+  name: Name
+  href: api/Microsoft.ReverseProxy.Abstractions.RouteHeader.html#Microsoft_ReverseProxy_Abstractions_RouteHeader_Name_
+  commentId: Overload:Microsoft.ReverseProxy.Abstractions.RouteHeader.Name
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Abstractions.RouteHeader.Name
+  nameWithType: RouteHeader.Name
+- uid: Microsoft.ReverseProxy.Abstractions.RouteHeader.Values
+  name: Values
+  href: api/Microsoft.ReverseProxy.Abstractions.RouteHeader.html#Microsoft_ReverseProxy_Abstractions_RouteHeader_Values
+  commentId: P:Microsoft.ReverseProxy.Abstractions.RouteHeader.Values
+  fullName: Microsoft.ReverseProxy.Abstractions.RouteHeader.Values
+  nameWithType: RouteHeader.Values
+- uid: Microsoft.ReverseProxy.Abstractions.RouteHeader.Values*
+  name: Values
+  href: api/Microsoft.ReverseProxy.Abstractions.RouteHeader.html#Microsoft_ReverseProxy_Abstractions_RouteHeader_Values_
+  commentId: Overload:Microsoft.ReverseProxy.Abstractions.RouteHeader.Values
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Abstractions.RouteHeader.Values
+  nameWithType: RouteHeader.Values
 - uid: Microsoft.ReverseProxy.Abstractions.SessionAffinityOptions
   name: SessionAffinityOptions
   href: api/Microsoft.ReverseProxy.Abstractions.SessionAffinityOptions.html
@@ -946,64 +1060,6 @@ references:
   commentId: N:Microsoft.ReverseProxy.Abstractions.Telemetry
   fullName: Microsoft.ReverseProxy.Abstractions.Telemetry
   nameWithType: Microsoft.ReverseProxy.Abstractions.Telemetry
-- uid: Microsoft.ReverseProxy.Abstractions.Telemetry.IMetricCreator
-  name: IMetricCreator
-  href: api/Microsoft.ReverseProxy.Abstractions.Telemetry.IMetricCreator.html
-  commentId: T:Microsoft.ReverseProxy.Abstractions.Telemetry.IMetricCreator
-  fullName: Microsoft.ReverseProxy.Abstractions.Telemetry.IMetricCreator
-  nameWithType: IMetricCreator
-- uid: Microsoft.ReverseProxy.Abstractions.Telemetry.IMetricCreator.Create(System.String)
-  name: Create(String)
-  href: api/Microsoft.ReverseProxy.Abstractions.Telemetry.IMetricCreator.html#Microsoft_ReverseProxy_Abstractions_Telemetry_IMetricCreator_Create_System_String_
-  commentId: M:Microsoft.ReverseProxy.Abstractions.Telemetry.IMetricCreator.Create(System.String)
-  fullName: Microsoft.ReverseProxy.Abstractions.Telemetry.IMetricCreator.Create(System.String)
-  nameWithType: IMetricCreator.Create(String)
-- uid: Microsoft.ReverseProxy.Abstractions.Telemetry.IMetricCreator.Create(System.String,System.String)
-  name: Create(String, String)
-  href: api/Microsoft.ReverseProxy.Abstractions.Telemetry.IMetricCreator.html#Microsoft_ReverseProxy_Abstractions_Telemetry_IMetricCreator_Create_System_String_System_String_
-  commentId: M:Microsoft.ReverseProxy.Abstractions.Telemetry.IMetricCreator.Create(System.String,System.String)
-  fullName: Microsoft.ReverseProxy.Abstractions.Telemetry.IMetricCreator.Create(System.String, System.String)
-  nameWithType: IMetricCreator.Create(String, String)
-- uid: Microsoft.ReverseProxy.Abstractions.Telemetry.IMetricCreator.Create(System.String,System.String,System.String)
-  name: Create(String, String, String)
-  href: api/Microsoft.ReverseProxy.Abstractions.Telemetry.IMetricCreator.html#Microsoft_ReverseProxy_Abstractions_Telemetry_IMetricCreator_Create_System_String_System_String_System_String_
-  commentId: M:Microsoft.ReverseProxy.Abstractions.Telemetry.IMetricCreator.Create(System.String,System.String,System.String)
-  fullName: Microsoft.ReverseProxy.Abstractions.Telemetry.IMetricCreator.Create(System.String, System.String, System.String)
-  nameWithType: IMetricCreator.Create(String, String, String)
-- uid: Microsoft.ReverseProxy.Abstractions.Telemetry.IMetricCreator.Create(System.String,System.String,System.String,System.String)
-  name: Create(String, String, String, String)
-  href: api/Microsoft.ReverseProxy.Abstractions.Telemetry.IMetricCreator.html#Microsoft_ReverseProxy_Abstractions_Telemetry_IMetricCreator_Create_System_String_System_String_System_String_System_String_
-  commentId: M:Microsoft.ReverseProxy.Abstractions.Telemetry.IMetricCreator.Create(System.String,System.String,System.String,System.String)
-  fullName: Microsoft.ReverseProxy.Abstractions.Telemetry.IMetricCreator.Create(System.String, System.String, System.String, System.String)
-  nameWithType: IMetricCreator.Create(String, String, String, String)
-- uid: Microsoft.ReverseProxy.Abstractions.Telemetry.IMetricCreator.Create(System.String,System.String,System.String,System.String,System.String)
-  name: Create(String, String, String, String, String)
-  href: api/Microsoft.ReverseProxy.Abstractions.Telemetry.IMetricCreator.html#Microsoft_ReverseProxy_Abstractions_Telemetry_IMetricCreator_Create_System_String_System_String_System_String_System_String_System_String_
-  commentId: M:Microsoft.ReverseProxy.Abstractions.Telemetry.IMetricCreator.Create(System.String,System.String,System.String,System.String,System.String)
-  fullName: Microsoft.ReverseProxy.Abstractions.Telemetry.IMetricCreator.Create(System.String, System.String, System.String, System.String, System.String)
-  nameWithType: IMetricCreator.Create(String, String, String, String, String)
-- uid: Microsoft.ReverseProxy.Abstractions.Telemetry.IMetricCreator.Create(System.String,System.String,System.String,System.String,System.String,System.String)
-  name: Create(String, String, String, String, String, String)
-  href: api/Microsoft.ReverseProxy.Abstractions.Telemetry.IMetricCreator.html#Microsoft_ReverseProxy_Abstractions_Telemetry_IMetricCreator_Create_System_String_System_String_System_String_System_String_System_String_System_String_
-  commentId: M:Microsoft.ReverseProxy.Abstractions.Telemetry.IMetricCreator.Create(System.String,System.String,System.String,System.String,System.String,System.String)
-  fullName: Microsoft.ReverseProxy.Abstractions.Telemetry.IMetricCreator.Create(System.String, System.String, System.String, System.String, System.String, System.String)
-  nameWithType: IMetricCreator.Create(String, String, String, String, String, String)
-- uid: Microsoft.ReverseProxy.Abstractions.Telemetry.IMetricCreator.Create(System.String,System.String[])
-  name: Create(String, String[])
-  href: api/Microsoft.ReverseProxy.Abstractions.Telemetry.IMetricCreator.html#Microsoft_ReverseProxy_Abstractions_Telemetry_IMetricCreator_Create_System_String_System_String___
-  commentId: M:Microsoft.ReverseProxy.Abstractions.Telemetry.IMetricCreator.Create(System.String,System.String[])
-  name.vb: Create(String, String())
-  fullName: Microsoft.ReverseProxy.Abstractions.Telemetry.IMetricCreator.Create(System.String, System.String[])
-  fullName.vb: Microsoft.ReverseProxy.Abstractions.Telemetry.IMetricCreator.Create(System.String, System.String())
-  nameWithType: IMetricCreator.Create(String, String[])
-  nameWithType.vb: IMetricCreator.Create(String, String())
-- uid: Microsoft.ReverseProxy.Abstractions.Telemetry.IMetricCreator.Create*
-  name: Create
-  href: api/Microsoft.ReverseProxy.Abstractions.Telemetry.IMetricCreator.html#Microsoft_ReverseProxy_Abstractions_Telemetry_IMetricCreator_Create_
-  commentId: Overload:Microsoft.ReverseProxy.Abstractions.Telemetry.IMetricCreator.Create
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Abstractions.Telemetry.IMetricCreator.Create
-  nameWithType: IMetricCreator.Create
 - uid: Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationContext
   name: IOperationContext
   href: api/Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationContext.html
@@ -1661,6 +1717,19 @@ references:
   commentId: T:Microsoft.ReverseProxy.Configuration.Contract.ProxyMatchData
   fullName: Microsoft.ReverseProxy.Configuration.Contract.ProxyMatchData
   nameWithType: ProxyMatchData
+- uid: Microsoft.ReverseProxy.Configuration.Contract.ProxyMatchData.Headers
+  name: Headers
+  href: api/Microsoft.ReverseProxy.Configuration.Contract.ProxyMatchData.html#Microsoft_ReverseProxy_Configuration_Contract_ProxyMatchData_Headers
+  commentId: P:Microsoft.ReverseProxy.Configuration.Contract.ProxyMatchData.Headers
+  fullName: Microsoft.ReverseProxy.Configuration.Contract.ProxyMatchData.Headers
+  nameWithType: ProxyMatchData.Headers
+- uid: Microsoft.ReverseProxy.Configuration.Contract.ProxyMatchData.Headers*
+  name: Headers
+  href: api/Microsoft.ReverseProxy.Configuration.Contract.ProxyMatchData.html#Microsoft_ReverseProxy_Configuration_Contract_ProxyMatchData_Headers_
+  commentId: Overload:Microsoft.ReverseProxy.Configuration.Contract.ProxyMatchData.Headers
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Configuration.Contract.ProxyMatchData.Headers
+  nameWithType: ProxyMatchData.Headers
 - uid: Microsoft.ReverseProxy.Configuration.Contract.ProxyMatchData.Hosts
   name: Hosts
   href: api/Microsoft.ReverseProxy.Configuration.Contract.ProxyMatchData.html#Microsoft_ReverseProxy_Configuration_Contract_ProxyMatchData_Hosts
@@ -1842,6 +1911,64 @@ references:
   isSpec: "True"
   fullName: Microsoft.ReverseProxy.Configuration.Contract.QuotaData.Burst
   nameWithType: QuotaData.Burst
+- uid: Microsoft.ReverseProxy.Configuration.Contract.RouteHeaderData
+  name: RouteHeaderData
+  href: api/Microsoft.ReverseProxy.Configuration.Contract.RouteHeaderData.html
+  commentId: T:Microsoft.ReverseProxy.Configuration.Contract.RouteHeaderData
+  fullName: Microsoft.ReverseProxy.Configuration.Contract.RouteHeaderData
+  nameWithType: RouteHeaderData
+- uid: Microsoft.ReverseProxy.Configuration.Contract.RouteHeaderData.IsCaseSensitive
+  name: IsCaseSensitive
+  href: api/Microsoft.ReverseProxy.Configuration.Contract.RouteHeaderData.html#Microsoft_ReverseProxy_Configuration_Contract_RouteHeaderData_IsCaseSensitive
+  commentId: P:Microsoft.ReverseProxy.Configuration.Contract.RouteHeaderData.IsCaseSensitive
+  fullName: Microsoft.ReverseProxy.Configuration.Contract.RouteHeaderData.IsCaseSensitive
+  nameWithType: RouteHeaderData.IsCaseSensitive
+- uid: Microsoft.ReverseProxy.Configuration.Contract.RouteHeaderData.IsCaseSensitive*
+  name: IsCaseSensitive
+  href: api/Microsoft.ReverseProxy.Configuration.Contract.RouteHeaderData.html#Microsoft_ReverseProxy_Configuration_Contract_RouteHeaderData_IsCaseSensitive_
+  commentId: Overload:Microsoft.ReverseProxy.Configuration.Contract.RouteHeaderData.IsCaseSensitive
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Configuration.Contract.RouteHeaderData.IsCaseSensitive
+  nameWithType: RouteHeaderData.IsCaseSensitive
+- uid: Microsoft.ReverseProxy.Configuration.Contract.RouteHeaderData.Mode
+  name: Mode
+  href: api/Microsoft.ReverseProxy.Configuration.Contract.RouteHeaderData.html#Microsoft_ReverseProxy_Configuration_Contract_RouteHeaderData_Mode
+  commentId: P:Microsoft.ReverseProxy.Configuration.Contract.RouteHeaderData.Mode
+  fullName: Microsoft.ReverseProxy.Configuration.Contract.RouteHeaderData.Mode
+  nameWithType: RouteHeaderData.Mode
+- uid: Microsoft.ReverseProxy.Configuration.Contract.RouteHeaderData.Mode*
+  name: Mode
+  href: api/Microsoft.ReverseProxy.Configuration.Contract.RouteHeaderData.html#Microsoft_ReverseProxy_Configuration_Contract_RouteHeaderData_Mode_
+  commentId: Overload:Microsoft.ReverseProxy.Configuration.Contract.RouteHeaderData.Mode
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Configuration.Contract.RouteHeaderData.Mode
+  nameWithType: RouteHeaderData.Mode
+- uid: Microsoft.ReverseProxy.Configuration.Contract.RouteHeaderData.Name
+  name: Name
+  href: api/Microsoft.ReverseProxy.Configuration.Contract.RouteHeaderData.html#Microsoft_ReverseProxy_Configuration_Contract_RouteHeaderData_Name
+  commentId: P:Microsoft.ReverseProxy.Configuration.Contract.RouteHeaderData.Name
+  fullName: Microsoft.ReverseProxy.Configuration.Contract.RouteHeaderData.Name
+  nameWithType: RouteHeaderData.Name
+- uid: Microsoft.ReverseProxy.Configuration.Contract.RouteHeaderData.Name*
+  name: Name
+  href: api/Microsoft.ReverseProxy.Configuration.Contract.RouteHeaderData.html#Microsoft_ReverseProxy_Configuration_Contract_RouteHeaderData_Name_
+  commentId: Overload:Microsoft.ReverseProxy.Configuration.Contract.RouteHeaderData.Name
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Configuration.Contract.RouteHeaderData.Name
+  nameWithType: RouteHeaderData.Name
+- uid: Microsoft.ReverseProxy.Configuration.Contract.RouteHeaderData.Values
+  name: Values
+  href: api/Microsoft.ReverseProxy.Configuration.Contract.RouteHeaderData.html#Microsoft_ReverseProxy_Configuration_Contract_RouteHeaderData_Values
+  commentId: P:Microsoft.ReverseProxy.Configuration.Contract.RouteHeaderData.Values
+  fullName: Microsoft.ReverseProxy.Configuration.Contract.RouteHeaderData.Values
+  nameWithType: RouteHeaderData.Values
+- uid: Microsoft.ReverseProxy.Configuration.Contract.RouteHeaderData.Values*
+  name: Values
+  href: api/Microsoft.ReverseProxy.Configuration.Contract.RouteHeaderData.html#Microsoft_ReverseProxy_Configuration_Contract_RouteHeaderData_Values_
+  commentId: Overload:Microsoft.ReverseProxy.Configuration.Contract.RouteHeaderData.Values
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Configuration.Contract.RouteHeaderData.Values
+  nameWithType: RouteHeaderData.Values
 - uid: Microsoft.ReverseProxy.Configuration.Contract.SessionAffinityData
   name: SessionAffinityData
   href: api/Microsoft.ReverseProxy.Configuration.Contract.SessionAffinityData.html
@@ -2896,6 +3023,25 @@ references:
   commentId: N:Microsoft.ReverseProxy.Service.Proxy
   fullName: Microsoft.ReverseProxy.Service.Proxy
   nameWithType: Microsoft.ReverseProxy.Service.Proxy
+- uid: Microsoft.ReverseProxy.Service.Proxy.IHttpProxy
+  name: IHttpProxy
+  href: api/Microsoft.ReverseProxy.Service.Proxy.IHttpProxy.html
+  commentId: T:Microsoft.ReverseProxy.Service.Proxy.IHttpProxy
+  fullName: Microsoft.ReverseProxy.Service.Proxy.IHttpProxy
+  nameWithType: IHttpProxy
+- uid: Microsoft.ReverseProxy.Service.Proxy.IHttpProxy.ProxyAsync(Microsoft.AspNetCore.Http.HttpContext,System.String,System.Net.Http.HttpMessageInvoker,Microsoft.ReverseProxy.Service.Proxy.RequestProxyOptions)
+  name: ProxyAsync(HttpContext, String, HttpMessageInvoker, RequestProxyOptions)
+  href: api/Microsoft.ReverseProxy.Service.Proxy.IHttpProxy.html#Microsoft_ReverseProxy_Service_Proxy_IHttpProxy_ProxyAsync_Microsoft_AspNetCore_Http_HttpContext_System_String_System_Net_Http_HttpMessageInvoker_Microsoft_ReverseProxy_Service_Proxy_RequestProxyOptions_
+  commentId: M:Microsoft.ReverseProxy.Service.Proxy.IHttpProxy.ProxyAsync(Microsoft.AspNetCore.Http.HttpContext,System.String,System.Net.Http.HttpMessageInvoker,Microsoft.ReverseProxy.Service.Proxy.RequestProxyOptions)
+  fullName: Microsoft.ReverseProxy.Service.Proxy.IHttpProxy.ProxyAsync(Microsoft.AspNetCore.Http.HttpContext, System.String, System.Net.Http.HttpMessageInvoker, Microsoft.ReverseProxy.Service.Proxy.RequestProxyOptions)
+  nameWithType: IHttpProxy.ProxyAsync(HttpContext, String, HttpMessageInvoker, RequestProxyOptions)
+- uid: Microsoft.ReverseProxy.Service.Proxy.IHttpProxy.ProxyAsync*
+  name: ProxyAsync
+  href: api/Microsoft.ReverseProxy.Service.Proxy.IHttpProxy.html#Microsoft_ReverseProxy_Service_Proxy_IHttpProxy_ProxyAsync_
+  commentId: Overload:Microsoft.ReverseProxy.Service.Proxy.IHttpProxy.ProxyAsync
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.Proxy.IHttpProxy.ProxyAsync
+  nameWithType: IHttpProxy.ProxyAsync
 - uid: Microsoft.ReverseProxy.Service.Proxy.Infrastructure
   name: Microsoft.ReverseProxy.Service.Proxy.Infrastructure
   href: api/Microsoft.ReverseProxy.Service.Proxy.Infrastructure.html
@@ -3145,6 +3291,38 @@ references:
   commentId: F:Microsoft.ReverseProxy.Service.Proxy.ProxyError.UpgradeResponseDestination
   fullName: Microsoft.ReverseProxy.Service.Proxy.ProxyError.UpgradeResponseDestination
   nameWithType: ProxyError.UpgradeResponseDestination
+- uid: Microsoft.ReverseProxy.Service.Proxy.RequestProxyOptions
+  name: RequestProxyOptions
+  href: api/Microsoft.ReverseProxy.Service.Proxy.RequestProxyOptions.html
+  commentId: T:Microsoft.ReverseProxy.Service.Proxy.RequestProxyOptions
+  fullName: Microsoft.ReverseProxy.Service.Proxy.RequestProxyOptions
+  nameWithType: RequestProxyOptions
+- uid: Microsoft.ReverseProxy.Service.Proxy.RequestProxyOptions.RequestTimeout
+  name: RequestTimeout
+  href: api/Microsoft.ReverseProxy.Service.Proxy.RequestProxyOptions.html#Microsoft_ReverseProxy_Service_Proxy_RequestProxyOptions_RequestTimeout
+  commentId: P:Microsoft.ReverseProxy.Service.Proxy.RequestProxyOptions.RequestTimeout
+  fullName: Microsoft.ReverseProxy.Service.Proxy.RequestProxyOptions.RequestTimeout
+  nameWithType: RequestProxyOptions.RequestTimeout
+- uid: Microsoft.ReverseProxy.Service.Proxy.RequestProxyOptions.RequestTimeout*
+  name: RequestTimeout
+  href: api/Microsoft.ReverseProxy.Service.Proxy.RequestProxyOptions.html#Microsoft_ReverseProxy_Service_Proxy_RequestProxyOptions_RequestTimeout_
+  commentId: Overload:Microsoft.ReverseProxy.Service.Proxy.RequestProxyOptions.RequestTimeout
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.Proxy.RequestProxyOptions.RequestTimeout
+  nameWithType: RequestProxyOptions.RequestTimeout
+- uid: Microsoft.ReverseProxy.Service.Proxy.RequestProxyOptions.Transforms
+  name: Transforms
+  href: api/Microsoft.ReverseProxy.Service.Proxy.RequestProxyOptions.html#Microsoft_ReverseProxy_Service_Proxy_RequestProxyOptions_Transforms
+  commentId: P:Microsoft.ReverseProxy.Service.Proxy.RequestProxyOptions.Transforms
+  fullName: Microsoft.ReverseProxy.Service.Proxy.RequestProxyOptions.Transforms
+  nameWithType: RequestProxyOptions.Transforms
+- uid: Microsoft.ReverseProxy.Service.Proxy.RequestProxyOptions.Transforms*
+  name: Transforms
+  href: api/Microsoft.ReverseProxy.Service.Proxy.RequestProxyOptions.html#Microsoft_ReverseProxy_Service_Proxy_RequestProxyOptions_Transforms_
+  commentId: Overload:Microsoft.ReverseProxy.Service.Proxy.RequestProxyOptions.Transforms
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.Proxy.RequestProxyOptions.Transforms
+  nameWithType: RequestProxyOptions.Transforms
 - uid: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions
   name: ProxyRouteTransformExtensions
   href: api/Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.html
@@ -3177,6 +3355,19 @@ references:
   isSpec: "True"
   fullName: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformForwarded
   nameWithType: ProxyRouteTransformExtensions.AddTransformForwarded
+- uid: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformHttpMethod(Microsoft.ReverseProxy.Abstractions.ProxyRoute,System.String,System.String)
+  name: AddTransformHttpMethod(ProxyRoute, String, String)
+  href: api/Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.html#Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformHttpMethod_Microsoft_ReverseProxy_Abstractions_ProxyRoute_System_String_System_String_
+  commentId: M:Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformHttpMethod(Microsoft.ReverseProxy.Abstractions.ProxyRoute,System.String,System.String)
+  fullName: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformHttpMethod(Microsoft.ReverseProxy.Abstractions.ProxyRoute, System.String, System.String)
+  nameWithType: ProxyRouteTransformExtensions.AddTransformHttpMethod(ProxyRoute, String, String)
+- uid: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformHttpMethod*
+  name: AddTransformHttpMethod
+  href: api/Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.html#Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformHttpMethod_
+  commentId: Overload:Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformHttpMethod
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformHttpMethod
+  nameWithType: ProxyRouteTransformExtensions.AddTransformHttpMethod
 - uid: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformPathPrefix(Microsoft.ReverseProxy.Abstractions.ProxyRoute,Microsoft.AspNetCore.Http.PathString)
   name: AddTransformPathPrefix(ProxyRoute, PathString)
   href: api/Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.html#Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformPathPrefix_Microsoft_ReverseProxy_Abstractions_ProxyRoute_Microsoft_AspNetCore_Http_PathString_
@@ -3229,6 +3420,45 @@ references:
   isSpec: "True"
   fullName: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformPathSet
   nameWithType: ProxyRouteTransformExtensions.AddTransformPathSet
+- uid: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformQueryRouteParameter(Microsoft.ReverseProxy.Abstractions.ProxyRoute,System.String,System.String,System.Boolean)
+  name: AddTransformQueryRouteParameter(ProxyRoute, String, String, Boolean)
+  href: api/Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.html#Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformQueryRouteParameter_Microsoft_ReverseProxy_Abstractions_ProxyRoute_System_String_System_String_System_Boolean_
+  commentId: M:Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformQueryRouteParameter(Microsoft.ReverseProxy.Abstractions.ProxyRoute,System.String,System.String,System.Boolean)
+  fullName: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformQueryRouteParameter(Microsoft.ReverseProxy.Abstractions.ProxyRoute, System.String, System.String, System.Boolean)
+  nameWithType: ProxyRouteTransformExtensions.AddTransformQueryRouteParameter(ProxyRoute, String, String, Boolean)
+- uid: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformQueryRouteParameter*
+  name: AddTransformQueryRouteParameter
+  href: api/Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.html#Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformQueryRouteParameter_
+  commentId: Overload:Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformQueryRouteParameter
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformQueryRouteParameter
+  nameWithType: ProxyRouteTransformExtensions.AddTransformQueryRouteParameter
+- uid: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformQueryValueParameter(Microsoft.ReverseProxy.Abstractions.ProxyRoute,System.String,System.String,System.Boolean)
+  name: AddTransformQueryValueParameter(ProxyRoute, String, String, Boolean)
+  href: api/Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.html#Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformQueryValueParameter_Microsoft_ReverseProxy_Abstractions_ProxyRoute_System_String_System_String_System_Boolean_
+  commentId: M:Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformQueryValueParameter(Microsoft.ReverseProxy.Abstractions.ProxyRoute,System.String,System.String,System.Boolean)
+  fullName: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformQueryValueParameter(Microsoft.ReverseProxy.Abstractions.ProxyRoute, System.String, System.String, System.Boolean)
+  nameWithType: ProxyRouteTransformExtensions.AddTransformQueryValueParameter(ProxyRoute, String, String, Boolean)
+- uid: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformQueryValueParameter*
+  name: AddTransformQueryValueParameter
+  href: api/Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.html#Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformQueryValueParameter_
+  commentId: Overload:Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformQueryValueParameter
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformQueryValueParameter
+  nameWithType: ProxyRouteTransformExtensions.AddTransformQueryValueParameter
+- uid: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformRemoveQueryParameter(Microsoft.ReverseProxy.Abstractions.ProxyRoute,System.String)
+  name: AddTransformRemoveQueryParameter(ProxyRoute, String)
+  href: api/Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.html#Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformRemoveQueryParameter_Microsoft_ReverseProxy_Abstractions_ProxyRoute_System_String_
+  commentId: M:Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformRemoveQueryParameter(Microsoft.ReverseProxy.Abstractions.ProxyRoute,System.String)
+  fullName: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformRemoveQueryParameter(Microsoft.ReverseProxy.Abstractions.ProxyRoute, System.String)
+  nameWithType: ProxyRouteTransformExtensions.AddTransformRemoveQueryParameter(ProxyRoute, String)
+- uid: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformRemoveQueryParameter*
+  name: AddTransformRemoveQueryParameter
+  href: api/Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.html#Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformRemoveQueryParameter_
+  commentId: Overload:Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformRemoveQueryParameter
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformRemoveQueryParameter
+  nameWithType: ProxyRouteTransformExtensions.AddTransformRemoveQueryParameter
 - uid: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformRequestHeader(Microsoft.ReverseProxy.Abstractions.ProxyRoute,System.String,System.String,System.Boolean)
   name: AddTransformRequestHeader(ProxyRoute, String, String, Boolean)
   href: api/Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.html#Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformRequestHeader_Microsoft_ReverseProxy_Abstractions_ProxyRoute_System_String_System_String_System_Boolean_
@@ -3313,6 +3543,253 @@ references:
   commentId: N:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
   fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
   nameWithType: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathRouteValuesTransform
+  name: PathRouteValuesTransform
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathRouteValuesTransform.html
+  commentId: T:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathRouteValuesTransform
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathRouteValuesTransform
+  nameWithType: PathRouteValuesTransform
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathRouteValuesTransform.#ctor(System.String,Microsoft.AspNetCore.Routing.Template.TemplateBinderFactory)
+  name: PathRouteValuesTransform(String, TemplateBinderFactory)
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathRouteValuesTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_PathRouteValuesTransform__ctor_System_String_Microsoft_AspNetCore_Routing_Template_TemplateBinderFactory_
+  commentId: M:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathRouteValuesTransform.#ctor(System.String,Microsoft.AspNetCore.Routing.Template.TemplateBinderFactory)
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathRouteValuesTransform.PathRouteValuesTransform(System.String, Microsoft.AspNetCore.Routing.Template.TemplateBinderFactory)
+  nameWithType: PathRouteValuesTransform.PathRouteValuesTransform(String, TemplateBinderFactory)
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathRouteValuesTransform.#ctor*
+  name: PathRouteValuesTransform
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathRouteValuesTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_PathRouteValuesTransform__ctor_
+  commentId: Overload:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathRouteValuesTransform.#ctor
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathRouteValuesTransform.PathRouteValuesTransform
+  nameWithType: PathRouteValuesTransform.PathRouteValuesTransform
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathRouteValuesTransform.Apply(Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestParametersTransformContext)
+  name: Apply(RequestParametersTransformContext)
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathRouteValuesTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_PathRouteValuesTransform_Apply_Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestParametersTransformContext_
+  commentId: M:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathRouteValuesTransform.Apply(Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestParametersTransformContext)
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathRouteValuesTransform.Apply(Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestParametersTransformContext)
+  nameWithType: PathRouteValuesTransform.Apply(RequestParametersTransformContext)
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathRouteValuesTransform.Apply*
+  name: Apply
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathRouteValuesTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_PathRouteValuesTransform_Apply_
+  commentId: Overload:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathRouteValuesTransform.Apply
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathRouteValuesTransform.Apply
+  nameWithType: PathRouteValuesTransform.Apply
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathStringTransform
+  name: PathStringTransform
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathStringTransform.html
+  commentId: T:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathStringTransform
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathStringTransform
+  nameWithType: PathStringTransform
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathStringTransform.#ctor(Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathStringTransform.PathTransformMode,Microsoft.AspNetCore.Http.PathString)
+  name: PathStringTransform(PathStringTransform.PathTransformMode, PathString)
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathStringTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_PathStringTransform__ctor_Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_PathStringTransform_PathTransformMode_Microsoft_AspNetCore_Http_PathString_
+  commentId: M:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathStringTransform.#ctor(Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathStringTransform.PathTransformMode,Microsoft.AspNetCore.Http.PathString)
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathStringTransform.PathStringTransform(Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathStringTransform.PathTransformMode, Microsoft.AspNetCore.Http.PathString)
+  nameWithType: PathStringTransform.PathStringTransform(PathStringTransform.PathTransformMode, PathString)
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathStringTransform.#ctor*
+  name: PathStringTransform
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathStringTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_PathStringTransform__ctor_
+  commentId: Overload:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathStringTransform.#ctor
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathStringTransform.PathStringTransform
+  nameWithType: PathStringTransform.PathStringTransform
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathStringTransform.Apply(Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestParametersTransformContext)
+  name: Apply(RequestParametersTransformContext)
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathStringTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_PathStringTransform_Apply_Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestParametersTransformContext_
+  commentId: M:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathStringTransform.Apply(Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestParametersTransformContext)
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathStringTransform.Apply(Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestParametersTransformContext)
+  nameWithType: PathStringTransform.Apply(RequestParametersTransformContext)
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathStringTransform.Apply*
+  name: Apply
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathStringTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_PathStringTransform_Apply_
+  commentId: Overload:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathStringTransform.Apply
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathStringTransform.Apply
+  nameWithType: PathStringTransform.Apply
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathStringTransform.PathTransformMode
+  name: PathStringTransform.PathTransformMode
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathStringTransform.PathTransformMode.html
+  commentId: T:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathStringTransform.PathTransformMode
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathStringTransform.PathTransformMode
+  nameWithType: PathStringTransform.PathTransformMode
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathStringTransform.PathTransformMode.Prefix
+  name: Prefix
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathStringTransform.PathTransformMode.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_PathStringTransform_PathTransformMode_Prefix
+  commentId: F:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathStringTransform.PathTransformMode.Prefix
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathStringTransform.PathTransformMode.Prefix
+  nameWithType: PathStringTransform.PathTransformMode.Prefix
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathStringTransform.PathTransformMode.RemovePrefix
+  name: RemovePrefix
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathStringTransform.PathTransformMode.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_PathStringTransform_PathTransformMode_RemovePrefix
+  commentId: F:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathStringTransform.PathTransformMode.RemovePrefix
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathStringTransform.PathTransformMode.RemovePrefix
+  nameWithType: PathStringTransform.PathTransformMode.RemovePrefix
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathStringTransform.PathTransformMode.Set
+  name: Set
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathStringTransform.PathTransformMode.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_PathStringTransform_PathTransformMode_Set
+  commentId: F:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathStringTransform.PathTransformMode.Set
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathStringTransform.PathTransformMode.Set
+  nameWithType: PathStringTransform.PathTransformMode.Set
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterFromStaticTransform
+  name: QueryParameterFromStaticTransform
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterFromStaticTransform.html
+  commentId: T:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterFromStaticTransform
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterFromStaticTransform
+  nameWithType: QueryParameterFromStaticTransform
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterFromStaticTransform.#ctor(Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryStringTransformMode,System.String,System.String)
+  name: QueryParameterFromStaticTransform(QueryStringTransformMode, String, String)
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterFromStaticTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_QueryParameterFromStaticTransform__ctor_Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_QueryStringTransformMode_System_String_System_String_
+  commentId: M:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterFromStaticTransform.#ctor(Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryStringTransformMode,System.String,System.String)
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterFromStaticTransform.QueryParameterFromStaticTransform(Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryStringTransformMode, System.String, System.String)
+  nameWithType: QueryParameterFromStaticTransform.QueryParameterFromStaticTransform(QueryStringTransformMode, String, String)
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterFromStaticTransform.#ctor*
+  name: QueryParameterFromStaticTransform
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterFromStaticTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_QueryParameterFromStaticTransform__ctor_
+  commentId: Overload:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterFromStaticTransform.#ctor
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterFromStaticTransform.QueryParameterFromStaticTransform
+  nameWithType: QueryParameterFromStaticTransform.QueryParameterFromStaticTransform
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterFromStaticTransform.GetValue(Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestParametersTransformContext)
+  name: GetValue(RequestParametersTransformContext)
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterFromStaticTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_QueryParameterFromStaticTransform_GetValue_Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestParametersTransformContext_
+  commentId: M:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterFromStaticTransform.GetValue(Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestParametersTransformContext)
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterFromStaticTransform.GetValue(Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestParametersTransformContext)
+  nameWithType: QueryParameterFromStaticTransform.GetValue(RequestParametersTransformContext)
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterFromStaticTransform.GetValue*
+  name: GetValue
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterFromStaticTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_QueryParameterFromStaticTransform_GetValue_
+  commentId: Overload:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterFromStaticTransform.GetValue
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterFromStaticTransform.GetValue
+  nameWithType: QueryParameterFromStaticTransform.GetValue
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterRemoveTransform
+  name: QueryParameterRemoveTransform
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterRemoveTransform.html
+  commentId: T:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterRemoveTransform
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterRemoveTransform
+  nameWithType: QueryParameterRemoveTransform
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterRemoveTransform.#ctor(System.String)
+  name: QueryParameterRemoveTransform(String)
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterRemoveTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_QueryParameterRemoveTransform__ctor_System_String_
+  commentId: M:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterRemoveTransform.#ctor(System.String)
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterRemoveTransform.QueryParameterRemoveTransform(System.String)
+  nameWithType: QueryParameterRemoveTransform.QueryParameterRemoveTransform(String)
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterRemoveTransform.#ctor*
+  name: QueryParameterRemoveTransform
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterRemoveTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_QueryParameterRemoveTransform__ctor_
+  commentId: Overload:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterRemoveTransform.#ctor
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterRemoveTransform.QueryParameterRemoveTransform
+  nameWithType: QueryParameterRemoveTransform.QueryParameterRemoveTransform
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterRemoveTransform.Apply(Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestParametersTransformContext)
+  name: Apply(RequestParametersTransformContext)
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterRemoveTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_QueryParameterRemoveTransform_Apply_Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestParametersTransformContext_
+  commentId: M:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterRemoveTransform.Apply(Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestParametersTransformContext)
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterRemoveTransform.Apply(Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestParametersTransformContext)
+  nameWithType: QueryParameterRemoveTransform.Apply(RequestParametersTransformContext)
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterRemoveTransform.Apply*
+  name: Apply
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterRemoveTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_QueryParameterRemoveTransform_Apply_
+  commentId: Overload:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterRemoveTransform.Apply
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterRemoveTransform.Apply
+  nameWithType: QueryParameterRemoveTransform.Apply
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterRouteTransform
+  name: QueryParameterRouteTransform
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterRouteTransform.html
+  commentId: T:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterRouteTransform
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterRouteTransform
+  nameWithType: QueryParameterRouteTransform
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterRouteTransform.#ctor(Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryStringTransformMode,System.String,System.String)
+  name: QueryParameterRouteTransform(QueryStringTransformMode, String, String)
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterRouteTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_QueryParameterRouteTransform__ctor_Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_QueryStringTransformMode_System_String_System_String_
+  commentId: M:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterRouteTransform.#ctor(Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryStringTransformMode,System.String,System.String)
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterRouteTransform.QueryParameterRouteTransform(Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryStringTransformMode, System.String, System.String)
+  nameWithType: QueryParameterRouteTransform.QueryParameterRouteTransform(QueryStringTransformMode, String, String)
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterRouteTransform.#ctor*
+  name: QueryParameterRouteTransform
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterRouteTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_QueryParameterRouteTransform__ctor_
+  commentId: Overload:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterRouteTransform.#ctor
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterRouteTransform.QueryParameterRouteTransform
+  nameWithType: QueryParameterRouteTransform.QueryParameterRouteTransform
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterRouteTransform.GetValue(Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestParametersTransformContext)
+  name: GetValue(RequestParametersTransformContext)
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterRouteTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_QueryParameterRouteTransform_GetValue_Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestParametersTransformContext_
+  commentId: M:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterRouteTransform.GetValue(Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestParametersTransformContext)
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterRouteTransform.GetValue(Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestParametersTransformContext)
+  nameWithType: QueryParameterRouteTransform.GetValue(RequestParametersTransformContext)
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterRouteTransform.GetValue*
+  name: GetValue
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterRouteTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_QueryParameterRouteTransform_GetValue_
+  commentId: Overload:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterRouteTransform.GetValue
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterRouteTransform.GetValue
+  nameWithType: QueryParameterRouteTransform.GetValue
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterTransform
+  name: QueryParameterTransform
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterTransform.html
+  commentId: T:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterTransform
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterTransform
+  nameWithType: QueryParameterTransform
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterTransform.#ctor(Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryStringTransformMode,System.String)
+  name: QueryParameterTransform(QueryStringTransformMode, String)
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_QueryParameterTransform__ctor_Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_QueryStringTransformMode_System_String_
+  commentId: M:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterTransform.#ctor(Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryStringTransformMode,System.String)
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterTransform.QueryParameterTransform(Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryStringTransformMode, System.String)
+  nameWithType: QueryParameterTransform.QueryParameterTransform(QueryStringTransformMode, String)
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterTransform.#ctor*
+  name: QueryParameterTransform
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_QueryParameterTransform__ctor_
+  commentId: Overload:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterTransform.#ctor
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterTransform.QueryParameterTransform
+  nameWithType: QueryParameterTransform.QueryParameterTransform
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterTransform.Apply(Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestParametersTransformContext)
+  name: Apply(RequestParametersTransformContext)
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_QueryParameterTransform_Apply_Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestParametersTransformContext_
+  commentId: M:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterTransform.Apply(Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestParametersTransformContext)
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterTransform.Apply(Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestParametersTransformContext)
+  nameWithType: QueryParameterTransform.Apply(RequestParametersTransformContext)
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterTransform.Apply*
+  name: Apply
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_QueryParameterTransform_Apply_
+  commentId: Overload:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterTransform.Apply
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterTransform.Apply
+  nameWithType: QueryParameterTransform.Apply
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterTransform.GetValue(Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestParametersTransformContext)
+  name: GetValue(RequestParametersTransformContext)
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_QueryParameterTransform_GetValue_Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestParametersTransformContext_
+  commentId: M:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterTransform.GetValue(Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestParametersTransformContext)
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterTransform.GetValue(Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestParametersTransformContext)
+  nameWithType: QueryParameterTransform.GetValue(RequestParametersTransformContext)
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterTransform.GetValue*
+  name: GetValue
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_QueryParameterTransform_GetValue_
+  commentId: Overload:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterTransform.GetValue
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterTransform.GetValue
+  nameWithType: QueryParameterTransform.GetValue
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryStringTransformMode
+  name: QueryStringTransformMode
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryStringTransformMode.html
+  commentId: T:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryStringTransformMode
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryStringTransformMode
+  nameWithType: QueryStringTransformMode
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryStringTransformMode.Append
+  name: Append
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryStringTransformMode.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_QueryStringTransformMode_Append
+  commentId: F:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryStringTransformMode.Append
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryStringTransformMode.Append
+  nameWithType: QueryStringTransformMode.Append
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryStringTransformMode.Set
+  name: Set
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryStringTransformMode.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_QueryStringTransformMode_Set
+  commentId: F:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryStringTransformMode.Set
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryStringTransformMode.Set
+  nameWithType: QueryStringTransformMode.Set
 - uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryTransformContext
   name: QueryTransformContext
   href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryTransformContext.html
@@ -3358,6 +3835,105 @@ references:
   isSpec: "True"
   fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryTransformContext.QueryString
   nameWithType: QueryTransformContext.QueryString
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderClientCertTransform
+  name: RequestHeaderClientCertTransform
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderClientCertTransform.html
+  commentId: T:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderClientCertTransform
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderClientCertTransform
+  nameWithType: RequestHeaderClientCertTransform
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderClientCertTransform.Apply(Microsoft.AspNetCore.Http.HttpContext,Microsoft.Extensions.Primitives.StringValues)
+  name: Apply(HttpContext, StringValues)
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderClientCertTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestHeaderClientCertTransform_Apply_Microsoft_AspNetCore_Http_HttpContext_Microsoft_Extensions_Primitives_StringValues_
+  commentId: M:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderClientCertTransform.Apply(Microsoft.AspNetCore.Http.HttpContext,Microsoft.Extensions.Primitives.StringValues)
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderClientCertTransform.Apply(Microsoft.AspNetCore.Http.HttpContext, Microsoft.Extensions.Primitives.StringValues)
+  nameWithType: RequestHeaderClientCertTransform.Apply(HttpContext, StringValues)
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderClientCertTransform.Apply*
+  name: Apply
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderClientCertTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestHeaderClientCertTransform_Apply_
+  commentId: Overload:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderClientCertTransform.Apply
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderClientCertTransform.Apply
+  nameWithType: RequestHeaderClientCertTransform.Apply
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform
+  name: RequestHeaderForwardedTransform
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.html
+  commentId: T:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform
+  nameWithType: RequestHeaderForwardedTransform
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.#ctor(Microsoft.ReverseProxy.Utilities.IRandomFactory,Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.NodeFormat,Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.NodeFormat,System.Boolean,System.Boolean,System.Boolean)
+  name: RequestHeaderForwardedTransform(IRandomFactory, RequestHeaderForwardedTransform.NodeFormat, RequestHeaderForwardedTransform.NodeFormat, Boolean, Boolean, Boolean)
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestHeaderForwardedTransform__ctor_Microsoft_ReverseProxy_Utilities_IRandomFactory_Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestHeaderForwardedTransform_NodeFormat_Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestHeaderForwardedTransform_NodeFormat_System_Boolean_System_Boolean_System_Boolean_
+  commentId: M:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.#ctor(Microsoft.ReverseProxy.Utilities.IRandomFactory,Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.NodeFormat,Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.NodeFormat,System.Boolean,System.Boolean,System.Boolean)
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.RequestHeaderForwardedTransform(Microsoft.ReverseProxy.Utilities.IRandomFactory, Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.NodeFormat, Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.NodeFormat, System.Boolean, System.Boolean, System.Boolean)
+  nameWithType: RequestHeaderForwardedTransform.RequestHeaderForwardedTransform(IRandomFactory, RequestHeaderForwardedTransform.NodeFormat, RequestHeaderForwardedTransform.NodeFormat, Boolean, Boolean, Boolean)
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.#ctor*
+  name: RequestHeaderForwardedTransform
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestHeaderForwardedTransform__ctor_
+  commentId: Overload:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.#ctor
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.RequestHeaderForwardedTransform
+  nameWithType: RequestHeaderForwardedTransform.RequestHeaderForwardedTransform
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.Apply(Microsoft.AspNetCore.Http.HttpContext,Microsoft.Extensions.Primitives.StringValues)
+  name: Apply(HttpContext, StringValues)
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestHeaderForwardedTransform_Apply_Microsoft_AspNetCore_Http_HttpContext_Microsoft_Extensions_Primitives_StringValues_
+  commentId: M:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.Apply(Microsoft.AspNetCore.Http.HttpContext,Microsoft.Extensions.Primitives.StringValues)
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.Apply(Microsoft.AspNetCore.Http.HttpContext, Microsoft.Extensions.Primitives.StringValues)
+  nameWithType: RequestHeaderForwardedTransform.Apply(HttpContext, StringValues)
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.Apply*
+  name: Apply
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestHeaderForwardedTransform_Apply_
+  commentId: Overload:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.Apply
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.Apply
+  nameWithType: RequestHeaderForwardedTransform.Apply
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.NodeFormat
+  name: RequestHeaderForwardedTransform.NodeFormat
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.NodeFormat.html
+  commentId: T:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.NodeFormat
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.NodeFormat
+  nameWithType: RequestHeaderForwardedTransform.NodeFormat
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.NodeFormat.Ip
+  name: Ip
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.NodeFormat.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestHeaderForwardedTransform_NodeFormat_Ip
+  commentId: F:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.NodeFormat.Ip
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.NodeFormat.Ip
+  nameWithType: RequestHeaderForwardedTransform.NodeFormat.Ip
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.NodeFormat.IpAndPort
+  name: IpAndPort
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.NodeFormat.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestHeaderForwardedTransform_NodeFormat_IpAndPort
+  commentId: F:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.NodeFormat.IpAndPort
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.NodeFormat.IpAndPort
+  nameWithType: RequestHeaderForwardedTransform.NodeFormat.IpAndPort
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.NodeFormat.None
+  name: None
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.NodeFormat.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestHeaderForwardedTransform_NodeFormat_None
+  commentId: F:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.NodeFormat.None
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.NodeFormat.None
+  nameWithType: RequestHeaderForwardedTransform.NodeFormat.None
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.NodeFormat.Random
+  name: Random
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.NodeFormat.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestHeaderForwardedTransform_NodeFormat_Random
+  commentId: F:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.NodeFormat.Random
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.NodeFormat.Random
+  nameWithType: RequestHeaderForwardedTransform.NodeFormat.Random
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.NodeFormat.RandomAndPort
+  name: RandomAndPort
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.NodeFormat.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestHeaderForwardedTransform_NodeFormat_RandomAndPort
+  commentId: F:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.NodeFormat.RandomAndPort
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.NodeFormat.RandomAndPort
+  nameWithType: RequestHeaderForwardedTransform.NodeFormat.RandomAndPort
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.NodeFormat.Unknown
+  name: Unknown
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.NodeFormat.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestHeaderForwardedTransform_NodeFormat_Unknown
+  commentId: F:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.NodeFormat.Unknown
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.NodeFormat.Unknown
+  nameWithType: RequestHeaderForwardedTransform.NodeFormat.Unknown
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.NodeFormat.UnknownAndPort
+  name: UnknownAndPort
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.NodeFormat.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestHeaderForwardedTransform_NodeFormat_UnknownAndPort
+  commentId: F:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.NodeFormat.UnknownAndPort
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.NodeFormat.UnknownAndPort
+  nameWithType: RequestHeaderForwardedTransform.NodeFormat.UnknownAndPort
 - uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderTransform
   name: RequestHeaderTransform
   href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderTransform.html
@@ -3377,6 +3953,166 @@ references:
   isSpec: "True"
   fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderTransform.Apply
   nameWithType: RequestHeaderTransform.Apply
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderValueTransform
+  name: RequestHeaderValueTransform
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderValueTransform.html
+  commentId: T:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderValueTransform
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderValueTransform
+  nameWithType: RequestHeaderValueTransform
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderValueTransform.#ctor(System.String,System.Boolean)
+  name: RequestHeaderValueTransform(String, Boolean)
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderValueTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestHeaderValueTransform__ctor_System_String_System_Boolean_
+  commentId: M:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderValueTransform.#ctor(System.String,System.Boolean)
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderValueTransform.RequestHeaderValueTransform(System.String, System.Boolean)
+  nameWithType: RequestHeaderValueTransform.RequestHeaderValueTransform(String, Boolean)
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderValueTransform.#ctor*
+  name: RequestHeaderValueTransform
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderValueTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestHeaderValueTransform__ctor_
+  commentId: Overload:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderValueTransform.#ctor
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderValueTransform.RequestHeaderValueTransform
+  nameWithType: RequestHeaderValueTransform.RequestHeaderValueTransform
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderValueTransform.Apply(Microsoft.AspNetCore.Http.HttpContext,Microsoft.Extensions.Primitives.StringValues)
+  name: Apply(HttpContext, StringValues)
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderValueTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestHeaderValueTransform_Apply_Microsoft_AspNetCore_Http_HttpContext_Microsoft_Extensions_Primitives_StringValues_
+  commentId: M:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderValueTransform.Apply(Microsoft.AspNetCore.Http.HttpContext,Microsoft.Extensions.Primitives.StringValues)
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderValueTransform.Apply(Microsoft.AspNetCore.Http.HttpContext, Microsoft.Extensions.Primitives.StringValues)
+  nameWithType: RequestHeaderValueTransform.Apply(HttpContext, StringValues)
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderValueTransform.Apply*
+  name: Apply
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderValueTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestHeaderValueTransform_Apply_
+  commentId: Overload:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderValueTransform.Apply
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderValueTransform.Apply
+  nameWithType: RequestHeaderValueTransform.Apply
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedForTransform
+  name: RequestHeaderXForwardedForTransform
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedForTransform.html
+  commentId: T:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedForTransform
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedForTransform
+  nameWithType: RequestHeaderXForwardedForTransform
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedForTransform.#ctor(System.Boolean)
+  name: RequestHeaderXForwardedForTransform(Boolean)
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedForTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestHeaderXForwardedForTransform__ctor_System_Boolean_
+  commentId: M:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedForTransform.#ctor(System.Boolean)
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedForTransform.RequestHeaderXForwardedForTransform(System.Boolean)
+  nameWithType: RequestHeaderXForwardedForTransform.RequestHeaderXForwardedForTransform(Boolean)
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedForTransform.#ctor*
+  name: RequestHeaderXForwardedForTransform
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedForTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestHeaderXForwardedForTransform__ctor_
+  commentId: Overload:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedForTransform.#ctor
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedForTransform.RequestHeaderXForwardedForTransform
+  nameWithType: RequestHeaderXForwardedForTransform.RequestHeaderXForwardedForTransform
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedForTransform.Apply(Microsoft.AspNetCore.Http.HttpContext,Microsoft.Extensions.Primitives.StringValues)
+  name: Apply(HttpContext, StringValues)
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedForTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestHeaderXForwardedForTransform_Apply_Microsoft_AspNetCore_Http_HttpContext_Microsoft_Extensions_Primitives_StringValues_
+  commentId: M:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedForTransform.Apply(Microsoft.AspNetCore.Http.HttpContext,Microsoft.Extensions.Primitives.StringValues)
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedForTransform.Apply(Microsoft.AspNetCore.Http.HttpContext, Microsoft.Extensions.Primitives.StringValues)
+  nameWithType: RequestHeaderXForwardedForTransform.Apply(HttpContext, StringValues)
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedForTransform.Apply*
+  name: Apply
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedForTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestHeaderXForwardedForTransform_Apply_
+  commentId: Overload:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedForTransform.Apply
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedForTransform.Apply
+  nameWithType: RequestHeaderXForwardedForTransform.Apply
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedHostTransform
+  name: RequestHeaderXForwardedHostTransform
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedHostTransform.html
+  commentId: T:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedHostTransform
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedHostTransform
+  nameWithType: RequestHeaderXForwardedHostTransform
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedHostTransform.#ctor(System.Boolean)
+  name: RequestHeaderXForwardedHostTransform(Boolean)
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedHostTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestHeaderXForwardedHostTransform__ctor_System_Boolean_
+  commentId: M:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedHostTransform.#ctor(System.Boolean)
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedHostTransform.RequestHeaderXForwardedHostTransform(System.Boolean)
+  nameWithType: RequestHeaderXForwardedHostTransform.RequestHeaderXForwardedHostTransform(Boolean)
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedHostTransform.#ctor*
+  name: RequestHeaderXForwardedHostTransform
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedHostTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestHeaderXForwardedHostTransform__ctor_
+  commentId: Overload:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedHostTransform.#ctor
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedHostTransform.RequestHeaderXForwardedHostTransform
+  nameWithType: RequestHeaderXForwardedHostTransform.RequestHeaderXForwardedHostTransform
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedHostTransform.Apply(Microsoft.AspNetCore.Http.HttpContext,Microsoft.Extensions.Primitives.StringValues)
+  name: Apply(HttpContext, StringValues)
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedHostTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestHeaderXForwardedHostTransform_Apply_Microsoft_AspNetCore_Http_HttpContext_Microsoft_Extensions_Primitives_StringValues_
+  commentId: M:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedHostTransform.Apply(Microsoft.AspNetCore.Http.HttpContext,Microsoft.Extensions.Primitives.StringValues)
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedHostTransform.Apply(Microsoft.AspNetCore.Http.HttpContext, Microsoft.Extensions.Primitives.StringValues)
+  nameWithType: RequestHeaderXForwardedHostTransform.Apply(HttpContext, StringValues)
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedHostTransform.Apply*
+  name: Apply
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedHostTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestHeaderXForwardedHostTransform_Apply_
+  commentId: Overload:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedHostTransform.Apply
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedHostTransform.Apply
+  nameWithType: RequestHeaderXForwardedHostTransform.Apply
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedPathBaseTransform
+  name: RequestHeaderXForwardedPathBaseTransform
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedPathBaseTransform.html
+  commentId: T:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedPathBaseTransform
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedPathBaseTransform
+  nameWithType: RequestHeaderXForwardedPathBaseTransform
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedPathBaseTransform.#ctor(System.Boolean)
+  name: RequestHeaderXForwardedPathBaseTransform(Boolean)
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedPathBaseTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestHeaderXForwardedPathBaseTransform__ctor_System_Boolean_
+  commentId: M:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedPathBaseTransform.#ctor(System.Boolean)
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedPathBaseTransform.RequestHeaderXForwardedPathBaseTransform(System.Boolean)
+  nameWithType: RequestHeaderXForwardedPathBaseTransform.RequestHeaderXForwardedPathBaseTransform(Boolean)
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedPathBaseTransform.#ctor*
+  name: RequestHeaderXForwardedPathBaseTransform
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedPathBaseTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestHeaderXForwardedPathBaseTransform__ctor_
+  commentId: Overload:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedPathBaseTransform.#ctor
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedPathBaseTransform.RequestHeaderXForwardedPathBaseTransform
+  nameWithType: RequestHeaderXForwardedPathBaseTransform.RequestHeaderXForwardedPathBaseTransform
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedPathBaseTransform.Apply(Microsoft.AspNetCore.Http.HttpContext,Microsoft.Extensions.Primitives.StringValues)
+  name: Apply(HttpContext, StringValues)
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedPathBaseTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestHeaderXForwardedPathBaseTransform_Apply_Microsoft_AspNetCore_Http_HttpContext_Microsoft_Extensions_Primitives_StringValues_
+  commentId: M:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedPathBaseTransform.Apply(Microsoft.AspNetCore.Http.HttpContext,Microsoft.Extensions.Primitives.StringValues)
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedPathBaseTransform.Apply(Microsoft.AspNetCore.Http.HttpContext, Microsoft.Extensions.Primitives.StringValues)
+  nameWithType: RequestHeaderXForwardedPathBaseTransform.Apply(HttpContext, StringValues)
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedPathBaseTransform.Apply*
+  name: Apply
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedPathBaseTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestHeaderXForwardedPathBaseTransform_Apply_
+  commentId: Overload:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedPathBaseTransform.Apply
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedPathBaseTransform.Apply
+  nameWithType: RequestHeaderXForwardedPathBaseTransform.Apply
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedProtoTransform
+  name: RequestHeaderXForwardedProtoTransform
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedProtoTransform.html
+  commentId: T:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedProtoTransform
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedProtoTransform
+  nameWithType: RequestHeaderXForwardedProtoTransform
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedProtoTransform.#ctor(System.Boolean)
+  name: RequestHeaderXForwardedProtoTransform(Boolean)
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedProtoTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestHeaderXForwardedProtoTransform__ctor_System_Boolean_
+  commentId: M:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedProtoTransform.#ctor(System.Boolean)
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedProtoTransform.RequestHeaderXForwardedProtoTransform(System.Boolean)
+  nameWithType: RequestHeaderXForwardedProtoTransform.RequestHeaderXForwardedProtoTransform(Boolean)
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedProtoTransform.#ctor*
+  name: RequestHeaderXForwardedProtoTransform
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedProtoTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestHeaderXForwardedProtoTransform__ctor_
+  commentId: Overload:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedProtoTransform.#ctor
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedProtoTransform.RequestHeaderXForwardedProtoTransform
+  nameWithType: RequestHeaderXForwardedProtoTransform.RequestHeaderXForwardedProtoTransform
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedProtoTransform.Apply(Microsoft.AspNetCore.Http.HttpContext,Microsoft.Extensions.Primitives.StringValues)
+  name: Apply(HttpContext, StringValues)
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedProtoTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestHeaderXForwardedProtoTransform_Apply_Microsoft_AspNetCore_Http_HttpContext_Microsoft_Extensions_Primitives_StringValues_
+  commentId: M:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedProtoTransform.Apply(Microsoft.AspNetCore.Http.HttpContext,Microsoft.Extensions.Primitives.StringValues)
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedProtoTransform.Apply(Microsoft.AspNetCore.Http.HttpContext, Microsoft.Extensions.Primitives.StringValues)
+  nameWithType: RequestHeaderXForwardedProtoTransform.Apply(HttpContext, StringValues)
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedProtoTransform.Apply*
+  name: Apply
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedProtoTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestHeaderXForwardedProtoTransform_Apply_
+  commentId: Overload:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedProtoTransform.Apply
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedProtoTransform.Apply
+  nameWithType: RequestHeaderXForwardedProtoTransform.Apply
 - uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestParametersTransform
   name: RequestParametersTransform
   href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestParametersTransform.html
@@ -3486,6 +4222,38 @@ references:
   isSpec: "True"
   fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseHeaderTransform.Apply
   nameWithType: ResponseHeaderTransform.Apply
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseHeaderValueTransform
+  name: ResponseHeaderValueTransform
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseHeaderValueTransform.html
+  commentId: T:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseHeaderValueTransform
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseHeaderValueTransform
+  nameWithType: ResponseHeaderValueTransform
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseHeaderValueTransform.#ctor(System.String,System.Boolean,System.Boolean)
+  name: ResponseHeaderValueTransform(String, Boolean, Boolean)
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseHeaderValueTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_ResponseHeaderValueTransform__ctor_System_String_System_Boolean_System_Boolean_
+  commentId: M:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseHeaderValueTransform.#ctor(System.String,System.Boolean,System.Boolean)
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseHeaderValueTransform.ResponseHeaderValueTransform(System.String, System.Boolean, System.Boolean)
+  nameWithType: ResponseHeaderValueTransform.ResponseHeaderValueTransform(String, Boolean, Boolean)
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseHeaderValueTransform.#ctor*
+  name: ResponseHeaderValueTransform
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseHeaderValueTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_ResponseHeaderValueTransform__ctor_
+  commentId: Overload:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseHeaderValueTransform.#ctor
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseHeaderValueTransform.ResponseHeaderValueTransform
+  nameWithType: ResponseHeaderValueTransform.ResponseHeaderValueTransform
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseHeaderValueTransform.Apply(Microsoft.AspNetCore.Http.HttpContext,System.Net.Http.HttpResponseMessage,Microsoft.Extensions.Primitives.StringValues)
+  name: Apply(HttpContext, HttpResponseMessage, StringValues)
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseHeaderValueTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_ResponseHeaderValueTransform_Apply_Microsoft_AspNetCore_Http_HttpContext_System_Net_Http_HttpResponseMessage_Microsoft_Extensions_Primitives_StringValues_
+  commentId: M:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseHeaderValueTransform.Apply(Microsoft.AspNetCore.Http.HttpContext,System.Net.Http.HttpResponseMessage,Microsoft.Extensions.Primitives.StringValues)
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseHeaderValueTransform.Apply(Microsoft.AspNetCore.Http.HttpContext, System.Net.Http.HttpResponseMessage, Microsoft.Extensions.Primitives.StringValues)
+  nameWithType: ResponseHeaderValueTransform.Apply(HttpContext, HttpResponseMessage, StringValues)
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseHeaderValueTransform.Apply*
+  name: Apply
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseHeaderValueTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_ResponseHeaderValueTransform_Apply_
+  commentId: Overload:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseHeaderValueTransform.Apply
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseHeaderValueTransform.Apply
+  nameWithType: ResponseHeaderValueTransform.Apply
 - uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.Transforms
   name: Transforms
   href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.Transforms.html
@@ -3714,64 +4482,6 @@ references:
   commentId: N:Microsoft.ReverseProxy.Telemetry
   fullName: Microsoft.ReverseProxy.Telemetry
   nameWithType: Microsoft.ReverseProxy.Telemetry
-- uid: Microsoft.ReverseProxy.Telemetry.NullMetricCreator
-  name: NullMetricCreator
-  href: api/Microsoft.ReverseProxy.Telemetry.NullMetricCreator.html
-  commentId: T:Microsoft.ReverseProxy.Telemetry.NullMetricCreator
-  fullName: Microsoft.ReverseProxy.Telemetry.NullMetricCreator
-  nameWithType: NullMetricCreator
-- uid: Microsoft.ReverseProxy.Telemetry.NullMetricCreator.Create(System.String)
-  name: Create(String)
-  href: api/Microsoft.ReverseProxy.Telemetry.NullMetricCreator.html#Microsoft_ReverseProxy_Telemetry_NullMetricCreator_Create_System_String_
-  commentId: M:Microsoft.ReverseProxy.Telemetry.NullMetricCreator.Create(System.String)
-  fullName: Microsoft.ReverseProxy.Telemetry.NullMetricCreator.Create(System.String)
-  nameWithType: NullMetricCreator.Create(String)
-- uid: Microsoft.ReverseProxy.Telemetry.NullMetricCreator.Create(System.String,System.String)
-  name: Create(String, String)
-  href: api/Microsoft.ReverseProxy.Telemetry.NullMetricCreator.html#Microsoft_ReverseProxy_Telemetry_NullMetricCreator_Create_System_String_System_String_
-  commentId: M:Microsoft.ReverseProxy.Telemetry.NullMetricCreator.Create(System.String,System.String)
-  fullName: Microsoft.ReverseProxy.Telemetry.NullMetricCreator.Create(System.String, System.String)
-  nameWithType: NullMetricCreator.Create(String, String)
-- uid: Microsoft.ReverseProxy.Telemetry.NullMetricCreator.Create(System.String,System.String,System.String)
-  name: Create(String, String, String)
-  href: api/Microsoft.ReverseProxy.Telemetry.NullMetricCreator.html#Microsoft_ReverseProxy_Telemetry_NullMetricCreator_Create_System_String_System_String_System_String_
-  commentId: M:Microsoft.ReverseProxy.Telemetry.NullMetricCreator.Create(System.String,System.String,System.String)
-  fullName: Microsoft.ReverseProxy.Telemetry.NullMetricCreator.Create(System.String, System.String, System.String)
-  nameWithType: NullMetricCreator.Create(String, String, String)
-- uid: Microsoft.ReverseProxy.Telemetry.NullMetricCreator.Create(System.String,System.String,System.String,System.String)
-  name: Create(String, String, String, String)
-  href: api/Microsoft.ReverseProxy.Telemetry.NullMetricCreator.html#Microsoft_ReverseProxy_Telemetry_NullMetricCreator_Create_System_String_System_String_System_String_System_String_
-  commentId: M:Microsoft.ReverseProxy.Telemetry.NullMetricCreator.Create(System.String,System.String,System.String,System.String)
-  fullName: Microsoft.ReverseProxy.Telemetry.NullMetricCreator.Create(System.String, System.String, System.String, System.String)
-  nameWithType: NullMetricCreator.Create(String, String, String, String)
-- uid: Microsoft.ReverseProxy.Telemetry.NullMetricCreator.Create(System.String,System.String,System.String,System.String,System.String)
-  name: Create(String, String, String, String, String)
-  href: api/Microsoft.ReverseProxy.Telemetry.NullMetricCreator.html#Microsoft_ReverseProxy_Telemetry_NullMetricCreator_Create_System_String_System_String_System_String_System_String_System_String_
-  commentId: M:Microsoft.ReverseProxy.Telemetry.NullMetricCreator.Create(System.String,System.String,System.String,System.String,System.String)
-  fullName: Microsoft.ReverseProxy.Telemetry.NullMetricCreator.Create(System.String, System.String, System.String, System.String, System.String)
-  nameWithType: NullMetricCreator.Create(String, String, String, String, String)
-- uid: Microsoft.ReverseProxy.Telemetry.NullMetricCreator.Create(System.String,System.String,System.String,System.String,System.String,System.String)
-  name: Create(String, String, String, String, String, String)
-  href: api/Microsoft.ReverseProxy.Telemetry.NullMetricCreator.html#Microsoft_ReverseProxy_Telemetry_NullMetricCreator_Create_System_String_System_String_System_String_System_String_System_String_System_String_
-  commentId: M:Microsoft.ReverseProxy.Telemetry.NullMetricCreator.Create(System.String,System.String,System.String,System.String,System.String,System.String)
-  fullName: Microsoft.ReverseProxy.Telemetry.NullMetricCreator.Create(System.String, System.String, System.String, System.String, System.String, System.String)
-  nameWithType: NullMetricCreator.Create(String, String, String, String, String, String)
-- uid: Microsoft.ReverseProxy.Telemetry.NullMetricCreator.Create(System.String,System.String[])
-  name: Create(String, String[])
-  href: api/Microsoft.ReverseProxy.Telemetry.NullMetricCreator.html#Microsoft_ReverseProxy_Telemetry_NullMetricCreator_Create_System_String_System_String___
-  commentId: M:Microsoft.ReverseProxy.Telemetry.NullMetricCreator.Create(System.String,System.String[])
-  name.vb: Create(String, String())
-  fullName: Microsoft.ReverseProxy.Telemetry.NullMetricCreator.Create(System.String, System.String[])
-  fullName.vb: Microsoft.ReverseProxy.Telemetry.NullMetricCreator.Create(System.String, System.String())
-  nameWithType: NullMetricCreator.Create(String, String[])
-  nameWithType.vb: NullMetricCreator.Create(String, String())
-- uid: Microsoft.ReverseProxy.Telemetry.NullMetricCreator.Create*
-  name: Create
-  href: api/Microsoft.ReverseProxy.Telemetry.NullMetricCreator.html#Microsoft_ReverseProxy_Telemetry_NullMetricCreator_Create_
-  commentId: Overload:Microsoft.ReverseProxy.Telemetry.NullMetricCreator.Create
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Telemetry.NullMetricCreator.Create
-  nameWithType: NullMetricCreator.Create
 - uid: Microsoft.ReverseProxy.Telemetry.NullOperationContext
   name: NullOperationContext
   href: api/Microsoft.ReverseProxy.Telemetry.NullOperationContext.html
@@ -3973,6 +4683,25 @@ references:
   commentId: N:Microsoft.ReverseProxy.Utilities
   fullName: Microsoft.ReverseProxy.Utilities
   nameWithType: Microsoft.ReverseProxy.Utilities
+- uid: Microsoft.ReverseProxy.Utilities.IRandomFactory
+  name: IRandomFactory
+  href: api/Microsoft.ReverseProxy.Utilities.IRandomFactory.html
+  commentId: T:Microsoft.ReverseProxy.Utilities.IRandomFactory
+  fullName: Microsoft.ReverseProxy.Utilities.IRandomFactory
+  nameWithType: IRandomFactory
+- uid: Microsoft.ReverseProxy.Utilities.IRandomFactory.CreateRandomInstance
+  name: CreateRandomInstance()
+  href: api/Microsoft.ReverseProxy.Utilities.IRandomFactory.html#Microsoft_ReverseProxy_Utilities_IRandomFactory_CreateRandomInstance
+  commentId: M:Microsoft.ReverseProxy.Utilities.IRandomFactory.CreateRandomInstance
+  fullName: Microsoft.ReverseProxy.Utilities.IRandomFactory.CreateRandomInstance()
+  nameWithType: IRandomFactory.CreateRandomInstance()
+- uid: Microsoft.ReverseProxy.Utilities.IRandomFactory.CreateRandomInstance*
+  name: CreateRandomInstance
+  href: api/Microsoft.ReverseProxy.Utilities.IRandomFactory.html#Microsoft_ReverseProxy_Utilities_IRandomFactory_CreateRandomInstance_
+  commentId: Overload:Microsoft.ReverseProxy.Utilities.IRandomFactory.CreateRandomInstance
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Utilities.IRandomFactory.CreateRandomInstance
+  nameWithType: IRandomFactory.CreateRandomInstance
 - uid: Microsoft.ReverseProxy.Utilities.MonotonicTimer
   name: MonotonicTimer
   href: api/Microsoft.ReverseProxy.Utilities.MonotonicTimer.html
