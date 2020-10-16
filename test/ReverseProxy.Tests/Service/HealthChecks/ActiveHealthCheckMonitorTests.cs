@@ -79,7 +79,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 httpClient,
                 default,
                 null);
-            var clusterInfo = new ClusterInfo(id, new DestinationManager(null));
+            var clusterInfo = new ClusterInfo(id, new DestinationManager());
             clusterInfo.ConfigSignal.Value = clusterConfig;
             for (var i = 0; i < 2; i++)
             {

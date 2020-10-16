@@ -49,7 +49,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             var httpClient = new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object);
             var cluster1 = new ClusterInfo(
                 clusterId: "cluster1",
-                destinationManager: new DestinationManager(null));
+                destinationManager: new DestinationManager());
             var clusterConfig = new ClusterConfig(default, default, default, default, httpClient, default, new Dictionary<string, string>());
             var destination1 = cluster1.DestinationManager.GetOrCreateItem(
                 "destination1",
@@ -125,7 +125,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             var httpClient = new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object);
             var cluster1 = new ClusterInfo(
                 clusterId: "cluster1",
-                destinationManager: new DestinationManager(null));
+                destinationManager: new DestinationManager());
             var clusterConfig = new ClusterConfig(default, default, default, default, httpClient, default, new Dictionary<string, string>());
             httpContext.Features.Set<IReverseProxyFeature>(
                 new ReverseProxyFeature() { AvailableDestinations = Array.Empty<DestinationInfo>(), ClusterConfig = clusterConfig });

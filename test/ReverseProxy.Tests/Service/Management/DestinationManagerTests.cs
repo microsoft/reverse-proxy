@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.ReverseProxy.RuntimeModel;
-using Moq;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Service.Management.Tests
@@ -16,16 +14,14 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
         [Fact]
         public void Constructor_Works()
         {
-            new DestinationManager(null);
+            new DestinationManager();
         }
 
         [Fact]
         public void GetOrCreateItem_NonExistentItem_CreatesNewItem()
         {
-            var changeListeners = new[] { new Mock<IDestinationChangeListener>().Object, new Mock<IDestinationChangeListener>().Object };
-
             // Arrange
-            var manager = new DestinationManager(changeListeners);
+            var manager = new DestinationManager();
 
             // Act
             var item = manager.GetOrCreateItem("abc", item => { });
@@ -33,8 +29,6 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             // Assert
             Assert.NotNull(item);
             Assert.Equal("abc", item.DestinationId);
-
-            Assert.True(false, "Test destination change listeners.");
         }
     }
 }

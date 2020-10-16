@@ -24,7 +24,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
         public void GetOrCreateItem_NonExistentItem_CreatesNewItem()
         {
             // Arrange
-            var endpointManager = new DestinationManager(null);
+            var endpointManager = new DestinationManager();
             var proxyHttpClientFactory = new Mock<IProxyHttpClientFactory>().Object;
             Mock<IDestinationManagerFactory>()
                 .Setup(e => e.CreateDestinationManager())

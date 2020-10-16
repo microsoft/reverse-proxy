@@ -23,29 +23,27 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
     /// to enable a fast calculation of the current failure rate. When a new proxied request is reported, its status firstly affects those 2 aggregated counters and then also gets put
     /// in the record history. Once some record moves out of the detection time window, the failed and total counter deltas stored on it get subtracted from the respective aggregated counters.
     /// </remarks>
-    internal class TransportFailureRateHealthPolicy : PassiveHealthCheckPolicyBase
+    internal class TransportFailureRateHealthPolicy : IPassiveHealthCheckPolicy
     {
+        private static readonly TimeSpan _defaultReactivationPeriod = TimeSpan.FromSeconds(60);
+        private readonly IReactivationScheduler _reactivationScheduler;
         private readonly TransportFailureRateHealthPolicyOptions _policyOptions;
         private readonly IUptimeClock _clock;
         private readonly string _propertyKey = nameof(TransportFailureRateHealthPolicy);
 
-        public override string Name => HealthCheckConstants.PassivePolicy.TransportFailureRate;
+        public string Name => HealthCheckConstants.PassivePolicy.TransportFailureRate;
 
         public TransportFailureRateHealthPolicy(IOptions<TransportFailureRateHealthPolicyOptions> policyOptions, IUptimeClock clock, IReactivationScheduler reactivationScheduler)
-            : base(reactivationScheduler)
         {
             _clock = clock ?? throw new ArgumentNullException(nameof(clock));
             _policyOptions = policyOptions?.Value ?? throw new ArgumentNullException(nameof(policyOptions));
+            _reactivationScheduler = reactivationScheduler ?? throw new ArgumentNullException(nameof(reactivationScheduler));
         }
 
-        protected override DestinationHealth EvaluateFailedRequest(ClusterConfig cluster, DestinationInfo destination, HttpContext context, IProxyErrorFeature error)
+        public void RequestProxied(ClusterConfig cluster, DestinationInfo destination, HttpContext context, IProxyErrorFeature error)
         {
-            return EvaluateProxiedRequest(cluster, destination, failed: true);
-        }
-
-        protected override DestinationHealth EvaluateSuccessfulRequest(ClusterConfig cluster, DestinationInfo destination, HttpContext context)
-        {
-            return EvaluateProxiedRequest(cluster, destination, failed: false);
+            var newHealth = EvaluateProxiedRequest(cluster, destination, error != null);
+            UpdateDestinationHealth(cluster, destination, newHealth);
         }
 
         private DestinationHealth EvaluateProxiedRequest(ClusterConfig cluster, DestinationInfo destination, bool failed)
@@ -55,6 +53,20 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             {
                 failureHistory.AddNew(_clock.TickCount, (long)_policyOptions.DetectionWindowSize.TotalMilliseconds, failed);
                 return failureHistory.IsHealthy(cluster, _policyOptions.DefaultFailureRateLimit) ? DestinationHealth.Healthy : DestinationHealth.Unhealthy;
+            }
+        }
+
+        private void UpdateDestinationHealth(ClusterConfig cluster, DestinationInfo destination, DestinationHealth newPassiveHealth)
+        {
+            var state = destination.DynamicState;
+            if (newPassiveHealth != state.Health.Passive)
+            {
+                destination.DynamicState = new DestinationDynamicState(state.Health.ChangePassive(newPassiveHealth));
+
+                if (newPassiveHealth == DestinationHealth.Unhealthy)
+                {
+                    _reactivationScheduler.Schedule(destination, cluster.HealthCheckOptions.Passive.ReactivationPeriod ?? _defaultReactivationPeriod);
+                }
             }
         }
 
