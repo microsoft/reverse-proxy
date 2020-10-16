@@ -59,7 +59,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 
                 if (newPassiveHealth == DestinationHealth.Unhealthy)
                 {
-                    _reactivationScheduler.ScheduleRestoringAsHealthy(destination, cluster.HealthCheckOptions.Passive.ReactivationPeriod ?? _defaultReactivationPeriod);
+                    _reactivationScheduler.Schedule(destination, cluster.HealthCheckOptions.Passive.ReactivationPeriod ?? _defaultReactivationPeriod);
                 }
             }
         }

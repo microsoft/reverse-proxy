@@ -28,6 +28,11 @@ namespace Microsoft.ReverseProxy.Utilities
             return result;
         }
 
+        public static T GetRequiredServiceById<T>(this IDictionary<string, T> services, string id)
+        {
+            return services.GetRequiredServiceById<T>(id, id);
+        }
+
         public static T GetRequiredServiceById<T>(this IDictionary<string, T> services, string id, string defaultId)
         {
             var lookup = id;

@@ -16,6 +16,6 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         /// </summary>
         /// <param name="destination">Destination marked as <see cref="DestinationHealth.Unhealthy"/> by the passive health check.</param>
         /// <param name="reactivationPeriod">Reactivation period.</param>
-        void ScheduleRestoringAsHealthy(DestinationInfo destination, TimeSpan reactivationPeriod);
+        void Schedule(DestinationInfo destination, TimeSpan reactivationPeriod);
     }
 }

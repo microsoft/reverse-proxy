@@ -7,7 +7,7 @@ using Microsoft.ReverseProxy.RuntimeModel;
 namespace Microsoft.ReverseProxy.Service.HealthChecks
 {
     /// <summary>
-    /// Factory creating probing <see cref="HttpRequestMessage"/>s to be sent to destinations.
+    /// A factory for creating <see cref="HttpRequestMessage"/>s for active health probes to be sent to destinations.
     /// </summary>
     public interface IProbingRequestFactory
     {
@@ -17,6 +17,6 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         /// <param name="clusterConfig">Cluster's config.</param>
         /// <param name="destination">Destination being probed.</param>
         /// <returns>Probing <see cref="HttpRequestMessage"/>.</returns>
-        HttpRequestMessage GetRequest(ClusterConfig clusterConfig, DestinationInfo destination);
+        HttpRequestMessage CreateRequest(ClusterConfig clusterConfig, DestinationInfo destination);
     }
 }

@@ -37,7 +37,7 @@ namespace Microsoft.ReverseProxy.Middleware
 
             // Policy must always be present if the passive health check is enabled for a cluster.
             // It's validated and ensured by a configuration validator.
-            var policy = _policies.GetRequiredServiceById(options.Policy, options.Policy);
+            var policy = _policies.GetRequiredServiceById(options.Policy);
             var error = context.Features.Get<IProxyErrorFeature>();
             policy.RequestProxied(proxyFeature.ClusterConfig, proxyFeature.SelectedDestination, context, error);
         }

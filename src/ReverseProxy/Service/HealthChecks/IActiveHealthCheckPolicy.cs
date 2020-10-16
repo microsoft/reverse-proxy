@@ -19,7 +19,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         string Name { get; }
 
         /// <summary>
-        /// Registers a successful or failed active health probing result and evaluates a new <see cref="CompositeDestinationHealth.Active"/> value.
+        /// Anaylizes results of active health probes sent to destinations and calculates their new health states.
         /// </summary>
         /// <param name="cluster">Cluster.</param>
         /// <param name="probingResults">Destination probing results.</param>

@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 namespace Microsoft.ReverseProxy.RuntimeModel
 {
-    internal class ProxyAppState : IProxyAppState
+    internal class ProxyAppState : IProxyAppState, IProxyAppStateSetter
     {
-        private readonly TaskCompletionSource<bool> _isFullyInitialized = new TaskCompletionSource<bool>();
+        private readonly TaskCompletionSource<bool> _isFullyInitialized = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
         public bool IsFullyInitialized => _isFullyInitialized.Task.IsCompleted;
 
@@ -16,7 +16,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
             return _isFullyInitialized.Task;
         }
 
-        void IProxyAppState.SetFullyInitialized()
+        void IProxyAppStateSetter.SetFullyInitialized()
         {
             _isFullyInitialized.TrySetResult(true);
         }

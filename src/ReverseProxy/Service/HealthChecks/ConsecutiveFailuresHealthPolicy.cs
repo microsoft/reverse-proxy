@@ -53,7 +53,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 
         private class FailureCounter
         {
-            private readonly ParsedMetadataEntry<double> _threshold = new ParsedMetadataEntry<double>(Parse);
+            private readonly ParsedMetadataEntry<double> _threshold = new ParsedMetadataEntry<double>(TryParse);
             private int _count;
 
             public void Increment()
@@ -66,7 +66,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 return _count >= _threshold.GetParsedOrDefault(cluster, ConsecutiveFailuresHealthPolicyOptions.ThresholdMetadataName, defaultThreshold);
             }
 
-            private static bool Parse(string stringValue, out double parsedValue)
+            private static bool TryParse(string stringValue, out double parsedValue)
             {
                 return double.TryParse(stringValue, NumberStyles.Float, CultureInfo.InvariantCulture, out parsedValue);
             }

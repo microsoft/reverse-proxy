@@ -20,10 +20,5 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         /// </summary>
         /// <returns><see cref="Task"/> that completes once the proxy gets fully initialized.</returns>
         Task WaitForFullInitialization();
-
-        /// <summary>
-        /// Sets a flag indicating the proxy is fully initialized and ready to serve client requests.
-        /// </summary>
-        internal void SetFullyInitialized();
     }
 }

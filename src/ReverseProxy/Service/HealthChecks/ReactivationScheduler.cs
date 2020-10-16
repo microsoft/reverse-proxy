@@ -17,7 +17,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             _scheduler = new EntityActionScheduler<DestinationInfo>(Reactivate, autoStart: true, runOnce: true, clock);
         }
 
-        public void ScheduleRestoringAsHealthy(DestinationInfo destination, TimeSpan reactivationPeriod)
+        public void Schedule(DestinationInfo destination, TimeSpan reactivationPeriod)
         {
             _scheduler.ScheduleEntity(destination, reactivationPeriod);
         }
@@ -29,7 +29,11 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 
         private void Reactivate(DestinationInfo destination)
         {
-            destination.DynamicState = new DestinationDynamicState(destination.DynamicState.Health.ChangePassive(DestinationHealth.Unknown));
+            var state = destination.DynamicState;
+            if (state.Health.Passive == DestinationHealth.Unhealthy)
+            {
+                destination.DynamicState = new DestinationDynamicState(state.Health.ChangePassive(DestinationHealth.Unknown));
+            }
         }
     }
 }

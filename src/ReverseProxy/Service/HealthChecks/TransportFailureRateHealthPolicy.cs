@@ -15,16 +15,18 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 {
     /// <summary>
     /// Calculates a proxied request failure rate for each destination and marks it as unhealthy if the specified limit is exceeded.
+    /// </summary>
+    /// <remarks>
     /// Rate is calculated as a percentage of failured requests to the total number of request proxied to a destination in the given period of time. Failed and total counters are tracked
     /// in a sliding time window which means that only the recent readings fitting in the window are taken into account. The window is implemented as a linked-list of timestamped records
     /// where each record contains the difference from the previous one in the number of failed and total requests. Additionally, there are 2 destination-wide counters storing aggregated values
     /// to enable a fast calculation of the current failure rate. When a new proxied request is reported, its status firstly affects those 2 aggregated counters and then also gets put
     /// in the record history. Once some record moves out of the detection time window, the failed and total counter deltas stored on it get subtracted from the respective aggregated counters.
-    /// </summary>
+    /// </remarks>
     internal class TransportFailureRateHealthPolicy : PassiveHealthCheckPolicyBase, IDestinationChangeListener
     {
         private readonly TransportFailureRateHealthPolicyOptions _policyOptions;
-        private readonly ConcurrentDictionary<DestinationInfo, ProxiedRequestHistory> _failures = new ConcurrentDictionary<DestinationInfo, ProxiedRequestHistory>();
+        private readonly ConcurrentDictionary<DestinationInfo, ProxiedRequestHistory> _history = new ConcurrentDictionary<DestinationInfo, ProxiedRequestHistory>();
         private readonly IUptimeClock _clock;
 
         public override string Name => HealthCheckConstants.PassivePolicy.TransportFailureRate;
@@ -56,12 +58,12 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 
         public void OnDestinationRemoved(DestinationInfo destination)
         {
-            _failures.TryRemove(destination, out _);
+            _history.TryRemove(destination, out _);
         }
 
         private DestinationHealth EvaluateProxiedRequest(ClusterConfig cluster, DestinationInfo destination, bool failed)
         {
-            var failureHistory = _failures.GetOrAdd(destination, d => new ProxiedRequestHistory());
+            var failureHistory = _history.GetOrAdd(destination, d => new ProxiedRequestHistory());
             lock (failureHistory)
             {
                 failureHistory.AddNew(_clock.TickCount, (long)_policyOptions.DetectionWindowSize.TotalMilliseconds, failed);
@@ -77,7 +79,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             private long _nextRecordFailedCount;
             private long _failedCount;
             private long _totalCount;
-            private readonly ParsedMetadataEntry<double> _clusterRateLimit = new ParsedMetadataEntry<double>(Parse);
+            private readonly ParsedMetadataEntry<double> _clusterRateLimit = new ParsedMetadataEntry<double>(TryParse);
             private readonly Queue<HistoryRecord> _records = new Queue<HistoryRecord>();
 
             public double Rate { get; private set; }
@@ -124,7 +126,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 return Rate < _clusterRateLimit.GetParsedOrDefault(cluster, TransportFailureRateHealthPolicyOptions.FailureRateLimitMetadataName, defaultFailureRateLimit);
             }
 
-            private static bool Parse(string stringValue, out double parsedValue)
+            private static bool TryParse(string stringValue, out double parsedValue)
             {
                 return double.TryParse(stringValue, out parsedValue);
             }
