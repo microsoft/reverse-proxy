@@ -37,7 +37,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             var cluster1 = new ClusterInfo(
                 clusterId: "cluster1",
                 destinationManager: new DestinationManager(null));
-            cluster1.Config.Value = new ClusterConfig(default, default, default, default, httpClient, default, new Dictionary<string, string>());
+            cluster1.ConfigSignal.Value = new ClusterConfig(default, default, default, default, httpClient, default, new Dictionary<string, string>());
             var destination1 = cluster1.DestinationManager.GetOrCreateItem(
                 "destination1",
                 destination =>
@@ -67,7 +67,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             Assert.NotNull(proxyFeature.AvailableDestinations);
             Assert.Equal(1, proxyFeature.AvailableDestinations.Count);
             Assert.Same(destination1, proxyFeature.AvailableDestinations[0]);
-            Assert.Same(cluster1.Config.Value, proxyFeature.ClusterConfig);
+            Assert.Same(cluster1.Config, proxyFeature.ClusterConfig);
 
             Assert.Equal(200, httpContext.Response.StatusCode);
         }
@@ -79,7 +79,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             var cluster1 = new ClusterInfo(
                 clusterId: "cluster1",
                 destinationManager: new DestinationManager(null));
-            cluster1.Config.Value = new ClusterConfig(
+            cluster1.ConfigSignal.Value = new ClusterConfig(
                 new Cluster(),
                 new ClusterHealthCheckOptions(default, new ClusterActiveHealthCheckOptions(enabled: true, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan, "Any5xxResponse", "")),
                 new ClusterLoadBalancingOptions(),

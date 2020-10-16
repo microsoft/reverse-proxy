@@ -37,16 +37,16 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             _scheduler = new EntityActionScheduler<ClusterInfo>(async cluster => await ProbeCluster(cluster), autoStart: false, runOnce: false, clock);
         }
 
-        public void ForceCheckAll()
+        public Task ForceCheckAll()
         {
-            Task.Run(async () =>
+            return Task.Run(async () =>
             {
                 try
                 {
                     var probeClusterTasks = new List<Task>();
                     foreach (var cluster in _scheduler.GetScheduledEntities())
                     {
-                        if (cluster.Config.Value.HealthCheckOptions.Active.Enabled)
+                        if (cluster.Config.HealthCheckOptions.Active.Enabled)
                         {
                             probeClusterTasks.Add(ProbeCluster(cluster));
                         }
@@ -65,7 +65,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 
         public void OnClusterAdded(ClusterInfo cluster)
         {
-            var activeHealthCheckOptions = cluster.Config.Value.HealthCheckOptions.Active;
+            var activeHealthCheckOptions = cluster.Config.HealthCheckOptions.Active;
             if (activeHealthCheckOptions.Enabled)
             {
                 _scheduler.ScheduleEntity(cluster, activeHealthCheckOptions.Interval ?? _monitorOptions.DefaultInterval);
@@ -74,7 +74,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 
         public void OnClusterChanged(ClusterInfo cluster)
         {
-            var activeHealthCheckOptions = cluster.Config.Value.HealthCheckOptions.Active;
+            var activeHealthCheckOptions = cluster.Config.HealthCheckOptions.Active;
             if (activeHealthCheckOptions.Enabled)
             {
                 _scheduler.ChangePeriod(cluster, activeHealthCheckOptions.Interval ?? _monitorOptions.DefaultInterval);
@@ -97,7 +97,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 
         private async Task ProbeCluster(ClusterInfo cluster)
         {
-            var clusterConfig = cluster.Config.Value;
+            var clusterConfig = cluster.Config;
             if (!clusterConfig.HealthCheckOptions.Active.Enabled)
             {
                 return;
@@ -142,16 +142,14 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 {
                     try
                     {
+                        // CancellationTokenSource.Dispose() is not expected to throw an exception.
+                        probeTask.Cts.Dispose();
                         var response = await probeTask.Task;
                         response.Dispose();
                     }
                     catch
                     {
                         // Suppress exceptions to ensure all responses get a chance to be disposed.
-                    }
-                    finally
-                    {
-                        probeTask.Cts.Dispose();
                     }
                 }
             }

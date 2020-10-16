@@ -97,18 +97,14 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
                 builder.Services.AddSingleton<IClusterChangeListener>(p => p.GetRequiredService<ActiveHealthCheckMonitor>());
             }
 
-            builder.Services.AddSingleton<ConsecutiveFailuresHealthPolicy>();
-            builder.Services.AddSingleton<IActiveHealthCheckPolicy>(p => p.GetRequiredService<ConsecutiveFailuresHealthPolicy>());
-            builder.Services.AddSingleton<IDestinationChangeListener>(p => p.GetRequiredService<ConsecutiveFailuresHealthPolicy>());
+            builder.Services.AddSingleton<IActiveHealthCheckPolicy, ConsecutiveFailuresHealthPolicy>();
             return builder;
         }
 
         public static IReverseProxyBuilder AddPassiveHealthCheck(this IReverseProxyBuilder builder)
         {
             builder.Services.TryAddSingleton<IReactivationScheduler, ReactivationScheduler>();
-            builder.Services.AddSingleton<TransportFailureRateHealthPolicy>();
-            builder.Services.AddSingleton<IPassiveHealthCheckPolicy>(p => p.GetRequiredService<TransportFailureRateHealthPolicy>());
-            builder.Services.AddSingleton<IDestinationChangeListener>(p => p.GetRequiredService<TransportFailureRateHealthPolicy>());
+            builder.Services.AddSingleton<IPassiveHealthCheckPolicy, TransportFailureRateHealthPolicy>();
             return builder;
         }
     }

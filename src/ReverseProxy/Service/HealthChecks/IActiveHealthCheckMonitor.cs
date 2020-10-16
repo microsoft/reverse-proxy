@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Threading.Tasks;
 
 namespace Microsoft.ReverseProxy.Service.HealthChecks
 {
@@ -13,6 +14,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         /// <summary>
         /// Force health check of all clusters' destinations.
         /// </summary>
-        void ForceCheckAll();
+        /// <returns><see cref="Task"/> representing the health check process.</returns>
+        Task ForceCheckAll();
     }
 }

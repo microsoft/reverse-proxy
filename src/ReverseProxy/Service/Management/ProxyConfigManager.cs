@@ -100,7 +100,7 @@ namespace Microsoft.ReverseProxy.Service.Management
             }
 
             // Initial active health check is run in the background.
-            _activeHealthCheckMonitor.ForceCheckAll();
+            _ = _activeHealthCheckMonitor.ForceCheckAll();
             return this;
         }
 
@@ -277,7 +277,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                     {
                         UpdateRuntimeDestinations(newCluster.Destinations, currentCluster.DestinationManager);
 
-                        var currentClusterConfig = currentCluster.Config.Value;
+                        var currentClusterConfig = currentCluster.Config;
                         var newClusterHttpClientOptions = ConvertProxyHttpClientOptions(newCluster.HttpClient);
 
                         var httpClient = _httpClientFactory.CreateClient(new ProxyHttpClientContext {
@@ -326,7 +326,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                             }
 
                             // Config changed, so update runtime cluster
-                            currentCluster.Config.Value = newClusterConfig;
+                            currentCluster.ConfigSignal.Value = newClusterConfig;
                         }
                     });
             }

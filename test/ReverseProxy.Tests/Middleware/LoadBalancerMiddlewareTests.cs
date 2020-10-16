@@ -40,7 +40,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             var cluster1 = new ClusterInfo(
                 clusterId: "cluster1",
                 destinationManager: new DestinationManager(null));
-            cluster1.Config.Value = new ClusterConfig(default, default, new ClusterLoadBalancingOptions(LoadBalancingMode.RoundRobin), default, httpClient, default, new Dictionary<string, string>());
+            cluster1.ConfigSignal.Value = new ClusterConfig(default, default, new ClusterLoadBalancingOptions(LoadBalancingMode.RoundRobin), default, httpClient, default, new Dictionary<string, string>());
             var destination1 = cluster1.DestinationManager.GetOrCreateItem(
                 "destination1",
                 destination =>
@@ -73,7 +73,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 new ReverseProxyFeature()
                 {
                     AvailableDestinations = new List<DestinationInfo>() { destination1, destination2 },
-                    ClusterConfig = cluster1.Config.Value
+                    ClusterConfig = cluster1.Config
                 });
             httpContext.Features.Set(cluster1);
 
@@ -97,7 +97,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             var cluster1 = new ClusterInfo(
                 clusterId: "cluster1",
                 destinationManager: new DestinationManager(null));
-            cluster1.Config.Value = new ClusterConfig(default, default, new ClusterLoadBalancingOptions(LoadBalancingMode.RoundRobin), default, httpClient, default, new Dictionary<string, string>());
+            cluster1.ConfigSignal.Value = new ClusterConfig(default, default, new ClusterLoadBalancingOptions(LoadBalancingMode.RoundRobin), default, httpClient, default, new Dictionary<string, string>());
             var destination1 = cluster1.DestinationManager.GetOrCreateItem(
                 "destination1",
                 destination =>
@@ -133,7 +133,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 new ReverseProxyFeature()
                 {
                     AvailableDestinations = new List<DestinationInfo>() { destination1, destination2 }.AsReadOnly(),
-                    ClusterConfig = cluster1.Config.Value
+                    ClusterConfig = cluster1.Config
                 });
             httpContext.Features.Set(cluster1);
 

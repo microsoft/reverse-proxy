@@ -21,6 +21,8 @@ namespace Microsoft.ReverseProxy.RuntimeModel
     /// </remarks>
     public sealed class DestinationInfo : IReadOnlyList<DestinationInfo>
     {
+        private readonly Dictionary<object, object> _dynamicProperties = new Dictionary<object, object>();
+
         public DestinationInfo(string destinationId)
         {
             if (string.IsNullOrEmpty(destinationId))
@@ -64,6 +66,30 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         public int ConcurrentRequestCount => ConcurrencyCounter.Value;
 
         internal AtomicCounter ConcurrencyCounter { get; } = new AtomicCounter();
+
+        // Temporary implementation of a simple thread-safe dynamic property bag.
+        // It will be replaced later with something more advanced.
+        internal TValue GetOrAddProperty<TKey, TValue>(TKey key, Func<TKey, TValue> valueFactory)
+        {
+            lock (_dynamicProperties)
+            {
+                if (!_dynamicProperties.TryGetValue(key, out var value))
+                {
+                    value = valueFactory(key);
+                    _dynamicProperties[key] = value;
+                }
+
+                return (TValue) value;
+            }
+        }
+
+        internal bool TryRemoveProperty<TKey>(TKey key)
+        {
+            lock (_dynamicProperties)
+            {
+                return _dynamicProperties.Remove(key);
+            }
+        }
 
         DestinationInfo IReadOnlyList<DestinationInfo>.this[int index]
             => index == 0 ? this : throw new IndexOutOfRangeException();

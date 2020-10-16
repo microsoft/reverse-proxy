@@ -41,7 +41,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             var cluster2 = GetClusterInfo("cluster2", "policy1", true, httpClient2.Object);
             monitor.OnClusterAdded(cluster2);
 
-            monitor.ForceCheckAll();
+            _ = monitor.ForceCheckAll();
             await proxyAppState.WaitForFullInitialization().ConfigureAwait(false);
 
             httpClient0.Verify(c => c.SendAsync(It.Is<HttpRequestMessage>(m => m.RequestUri.AbsoluteUri == "https://localhost:20000/cluster0/api/health/"), It.IsAny<CancellationToken>()), Times.Once);
@@ -80,7 +80,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 default,
                 null);
             var clusterInfo = new ClusterInfo(id, new DestinationManager(null));
-            clusterInfo.Config.Value = clusterConfig;
+            clusterInfo.ConfigSignal.Value = clusterConfig;
             for (var i = 0; i < 2; i++)
             {
                 var destinationConfig = new DestinationConfig($"https://localhost:1000{i}/{id}/", $"https://localhost:2000{i}/{id}/");

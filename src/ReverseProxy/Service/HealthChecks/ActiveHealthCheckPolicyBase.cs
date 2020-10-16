@@ -20,7 +20,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         public void ProbingCompleted(ClusterInfo cluster, IReadOnlyList<DestinationProbingResult> probingResults)
         {
             var newHealths = new DestinationHealth[probingResults.Count];
-            var clusterConfig = cluster.Config.Value;
+            var clusterConfig = cluster.Config;
             for (var i = 0; i < probingResults.Count; i++)
             {
                 var response = probingResults[i].Response;

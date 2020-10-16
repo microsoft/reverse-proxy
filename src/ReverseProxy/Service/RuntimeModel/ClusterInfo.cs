@@ -35,13 +35,15 @@ namespace Microsoft.ReverseProxy.RuntimeModel
 
         public string ClusterId { get; }
 
+        public ClusterConfig Config => ConfigSignal.Value;
+
         internal IDestinationManager DestinationManager { get; }
 
         /// <summary>
         /// Encapsulates parts of a cluster that can change atomically
         /// in reaction to config changes.
         /// </summary>
-        internal Signal<ClusterConfig> Config { get; } = SignalFactory.Default.CreateSignal<ClusterConfig>();
+        internal Signal<ClusterConfig> ConfigSignal { get; } = SignalFactory.Default.CreateSignal<ClusterConfig>();
 
         /// <summary>
         /// Encapsulates parts of a cluster that can change atomically
@@ -83,13 +85,13 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         /// </summary>
         private IReadableSignal<ClusterDynamicState> CreateDynamicStateQuery()
         {
-            return new[] { _destinationsStateSignal, Config.DropValue() }
+            return new[] { _destinationsStateSignal, ConfigSignal.DropValue() }
                 .AnyChange() // If any of them change...
                 .Select(
                     _ =>
                     {
                         var allDestinations = DestinationManager.Items.Value ?? new List<DestinationInfo>().AsReadOnly();
-                        var healthyDestinations = (Config.Value?.HealthCheckOptions.Enabled ?? false)
+                        var healthyDestinations = (Config?.HealthCheckOptions.Enabled ?? false)
                             ? allDestinations.Where(destination => destination.DynamicState?.Health.Current != DestinationHealth.Unhealthy).ToList().AsReadOnly()
                             : allDestinations;
                         return new ClusterDynamicState(

@@ -23,11 +23,11 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
     /// to enable a fast calculation of the current failure rate. When a new proxied request is reported, its status firstly affects those 2 aggregated counters and then also gets put
     /// in the record history. Once some record moves out of the detection time window, the failed and total counter deltas stored on it get subtracted from the respective aggregated counters.
     /// </remarks>
-    internal class TransportFailureRateHealthPolicy : PassiveHealthCheckPolicyBase, IDestinationChangeListener
+    internal class TransportFailureRateHealthPolicy : PassiveHealthCheckPolicyBase
     {
         private readonly TransportFailureRateHealthPolicyOptions _policyOptions;
-        private readonly ConcurrentDictionary<DestinationInfo, ProxiedRequestHistory> _history = new ConcurrentDictionary<DestinationInfo, ProxiedRequestHistory>();
         private readonly IUptimeClock _clock;
+        private readonly string _propertyKey = nameof(TransportFailureRateHealthPolicy);
 
         public override string Name => HealthCheckConstants.PassivePolicy.TransportFailureRate;
 
@@ -48,22 +48,9 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             return EvaluateProxiedRequest(cluster, destination, failed: false);
         }
 
-        public void OnDestinationAdded(DestinationInfo destination)
-        {
-        }
-
-        public void OnDestinationChanged(DestinationInfo destination)
-        {
-        }
-
-        public void OnDestinationRemoved(DestinationInfo destination)
-        {
-            _history.TryRemove(destination, out _);
-        }
-
         private DestinationHealth EvaluateProxiedRequest(ClusterConfig cluster, DestinationInfo destination, bool failed)
         {
-            var failureHistory = _history.GetOrAdd(destination, d => new ProxiedRequestHistory());
+            var failureHistory = destination.GetOrAddProperty(_propertyKey, k => new ProxiedRequestHistory());
             lock (failureHistory)
             {
                 failureHistory.AddNew(_clock.TickCount, (long)_policyOptions.DetectionWindowSize.TotalMilliseconds, failed);

@@ -13,10 +13,10 @@ using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Service.HealthChecks
 {
-    internal class ConsecutiveFailuresHealthPolicy : ActiveHealthCheckPolicyBase, IDestinationChangeListener
+    internal class ConsecutiveFailuresHealthPolicy : ActiveHealthCheckPolicyBase
     {
         private readonly ConsecutiveFailuresHealthPolicyOptions _options;
-        private readonly ConcurrentDictionary<DestinationInfo, FailureCounter> _failures = new ConcurrentDictionary<DestinationInfo, FailureCounter>();
+        private readonly string _propertyKey = nameof(ConsecutiveFailuresHealthPolicy);
 
         public ConsecutiveFailuresHealthPolicy(IOptions<ConsecutiveFailuresHealthPolicyOptions> options)
         {
@@ -25,29 +25,17 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 
         public override string Name => HealthCheckConstants.ActivePolicy.ConsecutiveFailures;
 
-        public void OnDestinationAdded(DestinationInfo destination)
-        {
-        }
-
-        public void OnDestinationChanged(DestinationInfo destination)
-        {
-        }
-
-        public void OnDestinationRemoved(DestinationInfo destination)
-        {
-            _failures.TryRemove(destination, out _);
-        }
-
         protected override DestinationHealth EvaluateFailedProbe(ClusterConfig cluster, DestinationInfo destination, HttpResponseMessage response, Exception exception)
         {
-            var count = _failures.GetOrAdd(destination, d => new FailureCounter());
+            var count = destination.GetOrAddProperty(_propertyKey, k => new FailureCounter());
             count.Increment();
             return count.IsHealthy(cluster, _options.DefaultThreshold) ? DestinationHealth.Healthy : DestinationHealth.Unhealthy;
         }
 
         protected override DestinationHealth EvaluateSuccessfulProbe(ClusterConfig cluster, DestinationInfo destination, HttpResponseMessage response)
         {
-            _failures.TryRemove(destination, out _);
+            var count = destination.GetOrAddProperty(_propertyKey, k => new FailureCounter());
+            count.Reset();
             return DestinationHealth.Healthy;
         }
 
@@ -59,6 +47,11 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             public void Increment()
             {
                 Interlocked.Increment(ref _count);
+            }
+
+            public void Reset()
+            {
+                Interlocked.Exchange(ref _count, 0);
             }
 
             public bool IsHealthy(ClusterConfig cluster, double defaultThreshold)

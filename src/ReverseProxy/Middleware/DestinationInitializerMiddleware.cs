@@ -36,7 +36,7 @@ namespace Microsoft.ReverseProxy.Middleware
                 return Task.CompletedTask;
             }
 
-            var clusterConfig = cluster.Config.Value;
+            var clusterConfig = cluster.Config;
             if (clusterConfig == null)
             {
                 Log.ClusterConfigNotAvailable(_logger, routeConfig.Route.RouteId, cluster.ClusterId);
