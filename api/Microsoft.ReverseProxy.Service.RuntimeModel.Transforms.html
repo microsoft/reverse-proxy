@@ -77,11 +77,47 @@
   <div class="markdown level0 remarks"></div>
     <h3 id="classes">Classes
   </h3>
+      <h4><a class="xref" href="Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathRouteValuesTransform.html">PathRouteValuesTransform</a></h4>
+      <section><p>Generates a new request path by plugging matched route parameters into the given pattern.</p>
+</section>
+      <h4><a class="xref" href="Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathStringTransform.html">PathStringTransform</a></h4>
+      <section><p>Modifies the proxy request Path with the given value.</p>
+</section>
+      <h4><a class="xref" href="Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterFromStaticTransform.html">QueryParameterFromStaticTransform</a></h4>
+      <section></section>
+      <h4><a class="xref" href="Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterRemoveTransform.html">QueryParameterRemoveTransform</a></h4>
+      <section><p>A request transform that removes the given query parameter.</p>
+</section>
+      <h4><a class="xref" href="Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterRouteTransform.html">QueryParameterRouteTransform</a></h4>
+      <section></section>
+      <h4><a class="xref" href="Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterTransform.html">QueryParameterTransform</a></h4>
+      <section></section>
       <h4><a class="xref" href="Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryTransformContext.html">QueryTransformContext</a></h4>
       <section><p>Transform state for use with <a class="xref" href="Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestParametersTransform.html">RequestParametersTransform</a></p>
 </section>
+      <h4><a class="xref" href="Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderClientCertTransform.html">RequestHeaderClientCertTransform</a></h4>
+      <section><p>Base64 encodes the client certificate (if any) and sets it as the header value.</p>
+</section>
+      <h4><a class="xref" href="Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.html">RequestHeaderForwardedTransform</a></h4>
+      <section><p>An implementation of the Forwarded header as defined in <a href="https://tools.ietf.org/html/rfc7239">https://tools.ietf.org/html/rfc7239</a>.</p>
+</section>
       <h4><a class="xref" href="Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderTransform.html">RequestHeaderTransform</a></h4>
       <section><p>The base class for request header transformations.</p>
+</section>
+      <h4><a class="xref" href="Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderValueTransform.html">RequestHeaderValueTransform</a></h4>
+      <section><p>Sets or appends simple request header values.</p>
+</section>
+      <h4><a class="xref" href="Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedForTransform.html">RequestHeaderXForwardedForTransform</a></h4>
+      <section><p>Sets or appends the X-Forwarded-For header with the previous clients's IP address.</p>
+</section>
+      <h4><a class="xref" href="Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedHostTransform.html">RequestHeaderXForwardedHostTransform</a></h4>
+      <section><p>Sets or appends the X-Forwarded-Host header with the request's original Host header.</p>
+</section>
+      <h4><a class="xref" href="Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedPathBaseTransform.html">RequestHeaderXForwardedPathBaseTransform</a></h4>
+      <section><p>Sets or appends the X-Forwarded-PathBase header with the request's original PathBase.</p>
+</section>
+      <h4><a class="xref" href="Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedProtoTransform.html">RequestHeaderXForwardedProtoTransform</a></h4>
+      <section><p>Sets or appends the X-Forwarded-Proto header with the request's original url scheme.</p>
 </section>
       <h4><a class="xref" href="Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestParametersTransform.html">RequestParametersTransform</a></h4>
       <section><p>The base class for request transforms.</p>
@@ -92,9 +128,20 @@
       <h4><a class="xref" href="Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseHeaderTransform.html">ResponseHeaderTransform</a></h4>
       <section><p>Transforms for response headers and trailers.</p>
 </section>
+      <h4><a class="xref" href="Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseHeaderValueTransform.html">ResponseHeaderValueTransform</a></h4>
+      <section><p>Sets or appends simple response header or trailer values.</p>
+</section>
       <h4><a class="xref" href="Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.Transforms.html">Transforms</a></h4>
       <section><p>Transforms for a given route.</p>
 </section>
+    <h3 id="enums">Enums
+  </h3>
+      <h4><a class="xref" href="Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathStringTransform.PathTransformMode.html">PathStringTransform.PathTransformMode</a></h4>
+      <section></section>
+      <h4><a class="xref" href="Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryStringTransformMode.html">QueryStringTransformMode</a></h4>
+      <section></section>
+      <h4><a class="xref" href="Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.NodeFormat.html">RequestHeaderForwardedTransform.NodeFormat</a></h4>
+      <section></section>
 </article>
           </div>
           

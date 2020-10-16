@@ -187,6 +187,9 @@ X-Forwarded-Host: IncomingHost:5000
 <p>Config:</p>
 <pre><code class="lang-JSON">{ &quot;PathPrefix&quot;: &quot;/prefix&quot; }
 </code></pre>
+<p>Code:</p>
+<pre><code class="lang-csharp">proxyRoute.AddTransformPathPrefix(prefix: &quot;/prefix&quot;);
+</code></pre>
 <p>Example:<br>
 <code>/request/path</code> becomes <code>/prefix/request/path</code></p>
 <p>This will prefix the request path with the given value.</p>
@@ -209,6 +212,9 @@ X-Forwarded-Host: IncomingHost:5000
 </table>
 <p>Config:</p>
 <pre><code class="lang-JSON">{ &quot;PathRemovePrefix&quot;: &quot;/prefix&quot; }
+</code></pre>
+<p>Code:</p>
+<pre><code class="lang-csharp">proxyRoute.AddTransformPathRemovePrefix(prefix: &quot;/prefix&quot;);
 </code></pre>
 <p>Example:<br>
 <code>/prefix/request/path</code> becomes <code>/request/path</code><br>
@@ -234,6 +240,9 @@ X-Forwarded-Host: IncomingHost:5000
 <p>Config:</p>
 <pre><code class="lang-JSON">{ &quot;PathSet&quot;: &quot;/newpath&quot; }
 </code></pre>
+<p>Code:</p>
+<pre><code class="lang-csharp">proxyRoute.AddTransformPathSet(path: &quot;/newpath&quot;);
+</code></pre>
 <p>Example:<br>
 <code>/request/path</code> becomes <code>/newpath</code></p>
 <p>This will set the request path with the given value.</p>
@@ -256,6 +265,9 @@ X-Forwarded-Host: IncomingHost:5000
 </table>
 <p>Config:</p>
 <pre><code class="lang-JSON">{ &quot;PathPattern&quot;: &quot;/my/{plugin}/api/{remainder}&quot; }
+</code></pre>
+<p>Code:</p>
+<pre><code class="lang-csharp">proxyRoute.AddTransformPathRouteValues(pattern: &quot;/my/{plugin}/api/{remainder}&quot;);
 </code></pre>
 <p>This will set the request path with the given value and replace any <code>{}</code> segments with the associated route value. <code>{}</code> segments without a matching route value are removed. See ASP.NET Core's <a href="https://docs.microsoft.com/en-us/aspnet/core/fundamentals/routing?view=aspnetcore-3.1#route-template-reference">routing docs</a> for more information about route templates.</p>
 <p>Example:</p>
@@ -303,6 +315,9 @@ X-Forwarded-Host: IncomingHost:5000
   &quot;Append&quot;: &quot;bar&quot;
 }
 </code></pre>
+<p>Code:</p>
+<pre><code class="lang-csharp">proxyRoute.AddTransformQueryValueParameter(queryKey: &quot;foo&quot;, value: &quot;bar&quot;, append: true);
+</code></pre>
 <p>This will add a query string parameter with the name <code>foo</code> and sets it to the static value <code>bar</code>.</p>
 <p>Example:</p>
 <table>
@@ -340,6 +355,9 @@ X-Forwarded-Host: IncomingHost:5000
   &quot;QueryRouteParameter&quot;: &quot;foo&quot;,
   &quot;Append&quot;: &quot;remainder&quot;
 }
+</code></pre>
+<p>Code:</p>
+<pre><code class="lang-csharp">proxyRoute.AddTransformQueryRouteParameter(queryKey: &quot;foo&quot;, routeValueKey: &quot;remainder&quot;, append: true);
 </code></pre>
 <p>This will add a query string parameter with the name <code>foo</code> and sets it to the value of the associated route value.</p>
 <p>Example:</p>
@@ -385,6 +403,9 @@ X-Forwarded-Host: IncomingHost:5000
   &quot;QueryRemoveParameter&quot;: &quot;foo&quot;
 }
 </code></pre>
+<p>Code:</p>
+<pre><code class="lang-csharp">proxyRoute.AddTransformRemoveQueryParameter(queryKey: &quot;foo&quot;);
+</code></pre>
 <p>This will remove a query string parameter with the name <code>foo</code> if present on the request.</p>
 <p>Example:</p>
 <table>
@@ -409,6 +430,38 @@ X-Forwarded-Host: IncomingHost:5000
 </tr>
 </tbody>
 </table>
+<h4 id="httpmethod">HttpMethod</h4>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+<th>Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HttpMethod</td>
+<td>The http method to replace</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>Set</td>
+<td>The new http method</td>
+<td>yes</td>
+</tr>
+</tbody>
+</table>
+<p>Config:</p>
+<pre><code class="lang-JSON">{
+  &quot;HttpMethod&quot;: &quot;PUT&quot;,
+  &quot;Set&quot;: &quot;POST&quot;,
+}
+</code></pre>
+<p>Code:</p>
+<pre><code class="lang-csharp">proxyRoute.AddTransformHttpMethod(fromHttpMethod: HttpMethods.Put, toHttpMethod: HttpMethods.Post);
+</code></pre>
+<p>This will change PUT requests to POST.</p>
 <h3 id="request-headers">Request Headers</h3>
 <p>All incoming request headers are copied to the proxy request by default with the exception of the Host header (see <a href="#defaults">Defaults</a>). <a href="#x-forwarded">X-Forwarded</a> headers are also added by default. These behaviors can be configured using the following transforms. Additional request headers can be specified, or request headers can be excluded by setting them to an empty value.</p>
 <p>In code these are implemented as derivations of the abstract class <a class="xref" href="../api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderTransform.html">RequestHeaderTransform</a>.</p>
@@ -434,6 +487,9 @@ X-Forwarded-Host: IncomingHost:5000
 </table>
 <p>Config:</p>
 <pre><code class="lang-JSON">{ &quot;RequestHeadersCopy&quot;: &quot;false&quot; }
+</code></pre>
+<p>Code:</p>
+<pre><code class="lang-csharp">proxyRoute.AddTransformSuppressRequestHeaders();
 </code></pre>
 <p>This sets if all incoming request headers are copied to the proxy request. This setting is enabled by default and can by disabled by configuring the transform with a <code>false</code> value. Transforms that reference specific headers will still be run if this is disabled.</p>
 <h4 id="requestheaderoriginalhost">RequestHeaderOriginalHost</h4>
@@ -487,6 +543,9 @@ X-Forwarded-Host: IncomingHost:5000
   &quot;Set&quot;: &quot;MyValue&quot;,
 }
 </code></pre>
+<p>Code:</p>
+<pre><code class="lang-csharp">proxyRoute.AddTransformRequestHeader(headerName: &quot;MyHeader&quot;, value: &quot;MyValue&quot;, append: false);
+</code></pre>
 <p>Example:</p>
 <pre><code>MyHeader: MyValue
 </code></pre>
@@ -528,6 +587,9 @@ X-Forwarded-Host: IncomingHost:5000
   &quot;Prefix&quot;: &quot;X-Forwarded-&quot;,
   &quot;Append&quot;: &quot;true&quot;
 }
+</code></pre>
+<p>Code:</p>
+<pre><code class="lang-csharp">proxyRoute.AddTransformXForwarded(headerPrefix: &quot;X-Forwarded-&quot;, useFor: true, useHost: true, useProto: true, usePathBase: true, append: true);
 </code></pre>
 <p>Example:</p>
 <pre><code>X-Forwarded-For: 5.5.5.5
@@ -590,6 +652,9 @@ X-Forwarded-PathBase: /path/base
   &quot;ByFormat&quot;: &quot;Random&quot;,
   &quot;ForFormat&quot;: &quot;IpAndPort&quot;
 },
+</code></pre>
+<p>Code:</p>
+<pre><code class="lang-csharp">proxyRoute.AddTransformForwarded(useFor: true, useHost: true, useProto: true, useBy: true, append: true, forFormat: &quot;IpAndPort&quot;, ByFormat: &quot;Random&quot;);
 </code></pre>
 <p>Example:</p>
 <pre><code>Forwarded: proto=https;host=&quot;localhost:5001&quot;;for=&quot;[::1]:20173&quot;;by=_YQuN68tm6
@@ -664,6 +729,9 @@ X-Forwarded-PathBase: /path/base
 <p>Config:</p>
 <pre><code class="lang-JSON">{ &quot;ClientCert&quot;: &quot;X-Client-Cert&quot; }
 </code></pre>
+<p>Code:</p>
+<pre><code class="lang-csharp">proxyRoute.AddTransformClientCert(headerName: &quot;X-Client-Cert&quot;);
+</code></pre>
 <p>Example:</p>
 <pre><code>X-Client-Cert: SSdtIGEgY2VydGlmaWNhdGU...
 </code></pre>
@@ -709,6 +777,9 @@ X-Forwarded-PathBase: /path/base
   &quot;When&quot;: &quot;Success&quot;
 }
 </code></pre>
+<p>Code:</p>
+<pre><code class="lang-csharp">proxyRoute.AddTransformResponseHeader(headerName: &quot;HeaderName&quot;, value: &quot;value&quot;, append: true, always: false);
+</code></pre>
 <p>Example:</p>
 <pre><code>HeaderName: value
 </code></pre>
@@ -752,6 +823,9 @@ X-Forwarded-PathBase: /path/base
   &quot;When&quot;: &quot;Success&quot;
 }
 </code></pre>
+<p>Code:</p>
+<pre><code class="lang-csharp">proxyRoute.AddTransformResponseTrailer(headerName: &quot;HeaderName&quot;, value: &quot;value&quot;, append: true, always: false);
+</code></pre>
 <p>Example:</p>
 <pre><code>HeaderName: value
 </code></pre>
@@ -767,7 +841,7 @@ X-Forwarded-PathBase: /path/base
               <div class="contribution">
                 <ul class="nav">
                   <li>
-                    <a href="https://github.com/microsoft/reverse-proxy/blob/master/docs/docfx/articles/transforms.md/#L1" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/microsoft/reverse-proxy/blob/tratcher/publicproxy/docs/docfx/articles/transforms.md/#L1" class="contribution-link">Improve this Doc</a>
                   </li>
                 </ul>
               </div>

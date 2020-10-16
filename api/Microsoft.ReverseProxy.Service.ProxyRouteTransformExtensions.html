@@ -117,11 +117,12 @@
     <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformClientCert_Microsoft_ReverseProxy_Abstractions_ProxyRoute_System_String_.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformClientCert(Microsoft.ReverseProxy.Abstractions.ProxyRoute%2CSystem.String)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/Config/ProxyRouteTransformExtensions.cs/#L91">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/Config/ProxyRouteTransformExtensions.cs/#L121">View Source</a>
   </span>
   <a id="Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformClientCert_" data-uid="Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformClientCert*"></a>
   <h4 id="Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformClientCert_Microsoft_ReverseProxy_Abstractions_ProxyRoute_System_String_" data-uid="Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformClientCert(Microsoft.ReverseProxy.Abstractions.ProxyRoute,System.String)">AddTransformClientCert(ProxyRoute, String)</h4>
-  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 summary"><p>Adds a transform to the route which will add Base64 encoded client certificate to the given header name.</p>
+</div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
@@ -154,11 +155,12 @@
     <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformForwarded_Microsoft_ReverseProxy_Abstractions_ProxyRoute_System_Boolean_System_Boolean_System_Boolean_System_Boolean_System_Boolean_System_String_System_String_.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformForwarded(Microsoft.ReverseProxy.Abstractions.ProxyRoute%2CSystem.Boolean%2CSystem.Boolean%2CSystem.Boolean%2CSystem.Boolean%2CSystem.Boolean%2CSystem.String%2CSystem.String)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/Config/ProxyRouteTransformExtensions.cs/#L131">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/Config/ProxyRouteTransformExtensions.cs/#L167">View Source</a>
   </span>
   <a id="Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformForwarded_" data-uid="Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformForwarded*"></a>
   <h4 id="Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformForwarded_Microsoft_ReverseProxy_Abstractions_ProxyRoute_System_Boolean_System_Boolean_System_Boolean_System_Boolean_System_Boolean_System_String_System_String_" data-uid="Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformForwarded(Microsoft.ReverseProxy.Abstractions.ProxyRoute,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.String,System.String)">AddTransformForwarded(ProxyRoute, Boolean, Boolean, Boolean, Boolean, Boolean, String, String)</h4>
-  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 summary"><p>Adds a transform to the route which will add Forwarded header as defined by <a href="https://tools.ietf.org/html/rfc7239">RFC 7239</a>.</p>
+</div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
@@ -218,14 +220,58 @@
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformHttpMethod_Microsoft_ReverseProxy_Abstractions_ProxyRoute_System_String_System_String_.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformHttpMethod(Microsoft.ReverseProxy.Abstractions.ProxyRoute%2CSystem.String%2CSystem.String)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/Config/ProxyRouteTransformExtensions.cs/#L213">View Source</a>
+  </span>
+  <a id="Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformHttpMethod_" data-uid="Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformHttpMethod*"></a>
+  <h4 id="Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformHttpMethod_Microsoft_ReverseProxy_Abstractions_ProxyRoute_System_String_System_String_" data-uid="Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformHttpMethod(Microsoft.ReverseProxy.Abstractions.ProxyRoute,System.String,System.String)">AddTransformHttpMethod(ProxyRoute, String, String)</h4>
+  <div class="markdown level1 summary"><p>Adds a transform to the route that will replace the HTTP method if it matches.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static void AddTransformHttpMethod(this ProxyRoute proxyRoute, string fromHttpMethod, string toHttpMethod)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Microsoft.ReverseProxy.Abstractions.ProxyRoute.html">ProxyRoute</a></td>
+        <td><span class="parametername">proxyRoute</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.string">String</a></td>
+        <td><span class="parametername">fromHttpMethod</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.string">String</a></td>
+        <td><span class="parametername">toHttpMethod</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
     <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformPathPrefix_Microsoft_ReverseProxy_Abstractions_ProxyRoute_Microsoft_AspNetCore_Http_PathString_.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformPathPrefix(Microsoft.ReverseProxy.Abstractions.ProxyRoute%2CMicrosoft.AspNetCore.Http.PathString)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/Config/ProxyRouteTransformExtensions.cs/#L17">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/Config/ProxyRouteTransformExtensions.cs/#L23">View Source</a>
   </span>
   <a id="Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformPathPrefix_" data-uid="Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformPathPrefix*"></a>
   <h4 id="Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformPathPrefix_Microsoft_ReverseProxy_Abstractions_ProxyRoute_Microsoft_AspNetCore_Http_PathString_" data-uid="Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformPathPrefix(Microsoft.ReverseProxy.Abstractions.ProxyRoute,Microsoft.AspNetCore.Http.PathString)">AddTransformPathPrefix(ProxyRoute, PathString)</h4>
-  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 summary"><p>Adds a transform to the route which will prefix the request path with the given value.</p>
+</div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
@@ -258,11 +304,12 @@
     <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformPathRemovePrefix_Microsoft_ReverseProxy_Abstractions_ProxyRoute_Microsoft_AspNetCore_Http_PathString_.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformPathRemovePrefix(Microsoft.ReverseProxy.Abstractions.ProxyRoute%2CMicrosoft.AspNetCore.Http.PathString)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/Config/ProxyRouteTransformExtensions.cs/#L25">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/Config/ProxyRouteTransformExtensions.cs/#L34">View Source</a>
   </span>
   <a id="Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformPathRemovePrefix_" data-uid="Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformPathRemovePrefix*"></a>
   <h4 id="Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformPathRemovePrefix_Microsoft_ReverseProxy_Abstractions_ProxyRoute_Microsoft_AspNetCore_Http_PathString_" data-uid="Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformPathRemovePrefix(Microsoft.ReverseProxy.Abstractions.ProxyRoute,Microsoft.AspNetCore.Http.PathString)">AddTransformPathRemovePrefix(ProxyRoute, PathString)</h4>
-  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 summary"><p>Adds a transform to the route which will remove the matching prefix from the request path.</p>
+</div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
@@ -295,11 +342,12 @@
     <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformPathRouteValues_Microsoft_ReverseProxy_Abstractions_ProxyRoute_Microsoft_AspNetCore_Http_PathString_.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformPathRouteValues(Microsoft.ReverseProxy.Abstractions.ProxyRoute%2CMicrosoft.AspNetCore.Http.PathString)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/Config/ProxyRouteTransformExtensions.cs/#L33">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/Config/ProxyRouteTransformExtensions.cs/#L45">View Source</a>
   </span>
   <a id="Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformPathRouteValues_" data-uid="Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformPathRouteValues*"></a>
   <h4 id="Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformPathRouteValues_Microsoft_ReverseProxy_Abstractions_ProxyRoute_Microsoft_AspNetCore_Http_PathString_" data-uid="Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformPathRouteValues(Microsoft.ReverseProxy.Abstractions.ProxyRoute,Microsoft.AspNetCore.Http.PathString)">AddTransformPathRouteValues(ProxyRoute, PathString)</h4>
-  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 summary"><p>Adds a transform to the route which will set the request path with the given value.</p>
+</div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
@@ -332,11 +380,12 @@
     <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformPathSet_Microsoft_ReverseProxy_Abstractions_ProxyRoute_Microsoft_AspNetCore_Http_PathString_.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformPathSet(Microsoft.ReverseProxy.Abstractions.ProxyRoute%2CMicrosoft.AspNetCore.Http.PathString)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/Config/ProxyRouteTransformExtensions.cs/#L9">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/Config/ProxyRouteTransformExtensions.cs/#L12">View Source</a>
   </span>
   <a id="Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformPathSet_" data-uid="Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformPathSet*"></a>
   <h4 id="Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformPathSet_Microsoft_ReverseProxy_Abstractions_ProxyRoute_Microsoft_AspNetCore_Http_PathString_" data-uid="Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformPathSet(Microsoft.ReverseProxy.Abstractions.ProxyRoute,Microsoft.AspNetCore.Http.PathString)">AddTransformPathSet(ProxyRoute, PathString)</h4>
-  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 summary"><p>Adds a transform to the route which set the request path with the given value.</p>
+</div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
@@ -366,14 +415,149 @@
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformQueryRouteParameter_Microsoft_ReverseProxy_Abstractions_ProxyRoute_System_String_System_String_System_Boolean_.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformQueryRouteParameter(Microsoft.ReverseProxy.Abstractions.ProxyRoute%2CSystem.String%2CSystem.String%2CSystem.Boolean)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/Config/ProxyRouteTransformExtensions.cs/#L225">View Source</a>
+  </span>
+  <a id="Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformQueryRouteParameter_" data-uid="Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformQueryRouteParameter*"></a>
+  <h4 id="Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformQueryRouteParameter_Microsoft_ReverseProxy_Abstractions_ProxyRoute_System_String_System_String_System_Boolean_" data-uid="Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformQueryRouteParameter(Microsoft.ReverseProxy.Abstractions.ProxyRoute,System.String,System.String,System.Boolean)">AddTransformQueryRouteParameter(ProxyRoute, String, String, Boolean)</h4>
+  <div class="markdown level1 summary"><p>Adds a transform to the route that will append or set query from route value.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static void AddTransformQueryRouteParameter(this ProxyRoute proxyRoute, string queryKey, string routeValueKey, bool append = true)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Microsoft.ReverseProxy.Abstractions.ProxyRoute.html">ProxyRoute</a></td>
+        <td><span class="parametername">proxyRoute</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.string">String</a></td>
+        <td><span class="parametername">queryKey</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.string">String</a></td>
+        <td><span class="parametername">routeValueKey</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.boolean">Boolean</a></td>
+        <td><span class="parametername">append</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformQueryValueParameter_Microsoft_ReverseProxy_Abstractions_ProxyRoute_System_String_System_String_System_Boolean_.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformQueryValueParameter(Microsoft.ReverseProxy.Abstractions.ProxyRoute%2CSystem.String%2CSystem.String%2CSystem.Boolean)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/Config/ProxyRouteTransformExtensions.cs/#L239">View Source</a>
+  </span>
+  <a id="Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformQueryValueParameter_" data-uid="Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformQueryValueParameter*"></a>
+  <h4 id="Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformQueryValueParameter_Microsoft_ReverseProxy_Abstractions_ProxyRoute_System_String_System_String_System_Boolean_" data-uid="Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformQueryValueParameter(Microsoft.ReverseProxy.Abstractions.ProxyRoute,System.String,System.String,System.Boolean)">AddTransformQueryValueParameter(ProxyRoute, String, String, Boolean)</h4>
+  <div class="markdown level1 summary"><p>Adds a transform to the route that will append or set query from the given value.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static void AddTransformQueryValueParameter(this ProxyRoute proxyRoute, string queryKey, string value, bool append = true)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Microsoft.ReverseProxy.Abstractions.ProxyRoute.html">ProxyRoute</a></td>
+        <td><span class="parametername">proxyRoute</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.string">String</a></td>
+        <td><span class="parametername">queryKey</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.string">String</a></td>
+        <td><span class="parametername">value</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.boolean">Boolean</a></td>
+        <td><span class="parametername">append</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformRemoveQueryParameter_Microsoft_ReverseProxy_Abstractions_ProxyRoute_System_String_.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformRemoveQueryParameter(Microsoft.ReverseProxy.Abstractions.ProxyRoute%2CSystem.String)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/Config/ProxyRouteTransformExtensions.cs/#L253">View Source</a>
+  </span>
+  <a id="Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformRemoveQueryParameter_" data-uid="Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformRemoveQueryParameter*"></a>
+  <h4 id="Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformRemoveQueryParameter_Microsoft_ReverseProxy_Abstractions_ProxyRoute_System_String_" data-uid="Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformRemoveQueryParameter(Microsoft.ReverseProxy.Abstractions.ProxyRoute,System.String)">AddTransformRemoveQueryParameter(ProxyRoute, String)</h4>
+  <div class="markdown level1 summary"><p>Adds a transform to the route that will remove the given query key.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static void AddTransformRemoveQueryParameter(this ProxyRoute proxyRoute, string queryKey)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Microsoft.ReverseProxy.Abstractions.ProxyRoute.html">ProxyRoute</a></td>
+        <td><span class="parametername">proxyRoute</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.string">String</a></td>
+        <td><span class="parametername">queryKey</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
     <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformRequestHeader_Microsoft_ReverseProxy_Abstractions_ProxyRoute_System_String_System_String_System_Boolean_.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformRequestHeader(Microsoft.ReverseProxy.Abstractions.ProxyRoute%2CSystem.String%2CSystem.String%2CSystem.Boolean)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/Config/ProxyRouteTransformExtensions.cs/#L57">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/Config/ProxyRouteTransformExtensions.cs/#L78">View Source</a>
   </span>
   <a id="Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformRequestHeader_" data-uid="Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformRequestHeader*"></a>
   <h4 id="Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformRequestHeader_Microsoft_ReverseProxy_Abstractions_ProxyRoute_System_String_System_String_System_Boolean_" data-uid="Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformRequestHeader(Microsoft.ReverseProxy.Abstractions.ProxyRoute,System.String,System.String,System.Boolean)">AddTransformRequestHeader(ProxyRoute, String, String, Boolean)</h4>
-  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 summary"><p>Adds a transform to the route which will append or set request header.</p>
+</div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
@@ -416,11 +600,12 @@
     <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformResponseHeader_Microsoft_ReverseProxy_Abstractions_ProxyRoute_System_String_System_String_System_Boolean_System_Boolean_.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformResponseHeader(Microsoft.ReverseProxy.Abstractions.ProxyRoute%2CSystem.String%2CSystem.String%2CSystem.Boolean%2CSystem.Boolean)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/Config/ProxyRouteTransformExtensions.cs/#L67">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/Config/ProxyRouteTransformExtensions.cs/#L91">View Source</a>
   </span>
   <a id="Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformResponseHeader_" data-uid="Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformResponseHeader*"></a>
   <h4 id="Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformResponseHeader_Microsoft_ReverseProxy_Abstractions_ProxyRoute_System_String_System_String_System_Boolean_System_Boolean_" data-uid="Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformResponseHeader(Microsoft.ReverseProxy.Abstractions.ProxyRoute,System.String,System.String,System.Boolean,System.Boolean)">AddTransformResponseHeader(ProxyRoute, String, String, Boolean, Boolean)</h4>
-  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 summary"><p>Adds a transform to the route which will append or set response header.</p>
+</div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
@@ -468,11 +653,12 @@
     <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformResponseTrailer_Microsoft_ReverseProxy_Abstractions_ProxyRoute_System_String_System_String_System_Boolean_System_Boolean_.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformResponseTrailer(Microsoft.ReverseProxy.Abstractions.ProxyRoute%2CSystem.String%2CSystem.String%2CSystem.Boolean%2CSystem.Boolean)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/Config/ProxyRouteTransformExtensions.cs/#L79">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/Config/ProxyRouteTransformExtensions.cs/#L106">View Source</a>
   </span>
   <a id="Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformResponseTrailer_" data-uid="Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformResponseTrailer*"></a>
   <h4 id="Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformResponseTrailer_Microsoft_ReverseProxy_Abstractions_ProxyRoute_System_String_System_String_System_Boolean_System_Boolean_" data-uid="Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformResponseTrailer(Microsoft.ReverseProxy.Abstractions.ProxyRoute,System.String,System.String,System.Boolean,System.Boolean)">AddTransformResponseTrailer(ProxyRoute, String, String, Boolean, Boolean)</h4>
-  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 summary"><p>Adds a transform to the route which will append or set response trailer header.</p>
+</div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
@@ -520,11 +706,12 @@
     <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformSuppressRequestHeaders_Microsoft_ReverseProxy_Abstractions_ProxyRoute_.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformSuppressRequestHeaders(Microsoft.ReverseProxy.Abstractions.ProxyRoute)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/Config/ProxyRouteTransformExtensions.cs/#L41">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/Config/ProxyRouteTransformExtensions.cs/#L56">View Source</a>
   </span>
   <a id="Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformSuppressRequestHeaders_" data-uid="Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformSuppressRequestHeaders*"></a>
   <h4 id="Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformSuppressRequestHeaders_Microsoft_ReverseProxy_Abstractions_ProxyRoute_" data-uid="Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformSuppressRequestHeaders(Microsoft.ReverseProxy.Abstractions.ProxyRoute)">AddTransformSuppressRequestHeaders(ProxyRoute)</h4>
-  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 summary"><p>Adds a transform to the route which will prevent adding reqesut headers to the proxy request.</p>
+</div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
@@ -552,11 +739,12 @@
     <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformUseOriginalHostHeader_Microsoft_ReverseProxy_Abstractions_ProxyRoute_.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformUseOriginalHostHeader(Microsoft.ReverseProxy.Abstractions.ProxyRoute)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/Config/ProxyRouteTransformExtensions.cs/#L49">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/Config/ProxyRouteTransformExtensions.cs/#L67">View Source</a>
   </span>
   <a id="Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformUseOriginalHostHeader_" data-uid="Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformUseOriginalHostHeader*"></a>
   <h4 id="Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformUseOriginalHostHeader_Microsoft_ReverseProxy_Abstractions_ProxyRoute_" data-uid="Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformUseOriginalHostHeader(Microsoft.ReverseProxy.Abstractions.ProxyRoute)">AddTransformUseOriginalHostHeader(ProxyRoute)</h4>
-  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 summary"><p>Adds a transform to the route which will copy the incoming request Host header to the proxy request.</p>
+</div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
@@ -584,11 +772,12 @@
     <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformXForwarded_Microsoft_ReverseProxy_Abstractions_ProxyRoute_System_String_System_Boolean_System_Boolean_System_Boolean_System_Boolean_System_Boolean_.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformXForwarded(Microsoft.ReverseProxy.Abstractions.ProxyRoute%2CSystem.String%2CSystem.Boolean%2CSystem.Boolean%2CSystem.Boolean%2CSystem.Boolean%2CSystem.Boolean)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/Config/ProxyRouteTransformExtensions.cs/#L99">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Service/Config/ProxyRouteTransformExtensions.cs/#L132">View Source</a>
   </span>
   <a id="Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformXForwarded_" data-uid="Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformXForwarded*"></a>
   <h4 id="Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformXForwarded_Microsoft_ReverseProxy_Abstractions_ProxyRoute_System_String_System_Boolean_System_Boolean_System_Boolean_System_Boolean_System_Boolean_" data-uid="Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.AddTransformXForwarded(Microsoft.ReverseProxy.Abstractions.ProxyRoute,System.String,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Boolean)">AddTransformXForwarded(ProxyRoute, String, Boolean, Boolean, Boolean, Boolean, Boolean)</h4>
-  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 summary"><p>Adds a transform to the route which will add X-Forwarded-* headers.</p>
+</div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
