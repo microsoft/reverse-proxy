@@ -142,14 +142,27 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 {
                     try
                     {
-                        // CancellationTokenSource.Dispose() is not expected to throw an exception.
-                        probeTask.Cts.Dispose();
+                        try
+                        {
+                            probeTask.Cts.Cancel();
+                        }
+                        catch
+                        {
+                            // Suppress exceptions to ensure the task will be awaited.
+                        }
+
                         var response = await probeTask.Task;
                         response.Dispose();
                     }
                     catch
                     {
                         // Suppress exceptions to ensure all responses get a chance to be disposed.
+                    }
+                    finally
+                    {
+                        // Dispose CancellationTokenSource even if the response task threw an exception.
+                        // Dispose() is not expected to throw here.
+                        probeTask.Cts.Dispose();
                     }
                 }
             }
