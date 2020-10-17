@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Net.Http;
 using System.Threading;
@@ -13,30 +14,57 @@ using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Service.HealthChecks
 {
-    internal class ConsecutiveFailuresHealthPolicy : ActiveHealthCheckPolicyBase
+    internal class ConsecutiveFailuresHealthPolicy : IActiveHealthCheckPolicy
     {
         private readonly ConsecutiveFailuresHealthPolicyOptions _options;
         private readonly string _propertyKey = nameof(ConsecutiveFailuresHealthPolicy);
+
+        public string Name => HealthCheckConstants.ActivePolicy.ConsecutiveFailures;
 
         public ConsecutiveFailuresHealthPolicy(IOptions<ConsecutiveFailuresHealthPolicyOptions> options)
         {
             _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
         }
 
-        public override string Name => HealthCheckConstants.ActivePolicy.ConsecutiveFailures;
-
-        protected override DestinationHealth EvaluateFailedProbe(ClusterConfig cluster, DestinationInfo destination, HttpResponseMessage response, Exception exception)
+        public void ProbingCompleted(ClusterInfo cluster, IReadOnlyList<DestinationProbingResult> probingResults)
         {
-            var count = destination.GetOrAddProperty(_propertyKey, k => new FailureCounter());
-            count.Increment();
-            return count.IsHealthy(cluster, _options.DefaultThreshold) ? DestinationHealth.Healthy : DestinationHealth.Unhealthy;
+            cluster.PauseHealthyDestinationUpdates();
+
+            var clusterConfig = cluster.Config;
+            for (var i = 0; i < probingResults.Count; i++)
+            {
+                var destination = probingResults[i].Destination;
+
+                var count = destination.GetOrAddProperty(_propertyKey, k => new FailureCounter());
+                var newHealth = EvaluateHealthState(clusterConfig, probingResults[i].Response, count);
+
+                var state = destination.DynamicState;
+                if (newHealth != state.Health.Active)
+                {
+                    destination.DynamicState = new DestinationDynamicState(state.Health.ChangeActive(newHealth));
+                }
+            }
+
+            cluster.ResumeHealthyDestinationUpdates();
         }
 
-        protected override DestinationHealth EvaluateSuccessfulProbe(ClusterConfig cluster, DestinationInfo destination, HttpResponseMessage response)
+        private DestinationHealth EvaluateHealthState(ClusterConfig clusterConfig, HttpResponseMessage response, FailureCounter count)
         {
-            var count = destination.GetOrAddProperty(_propertyKey, k => new FailureCounter());
-            count.Reset();
-            return DestinationHealth.Healthy;
+            DestinationHealth newHealth;
+            if (response != null && response.IsSuccessStatusCode)
+            {
+                // Success
+                count.Reset();
+                newHealth = DestinationHealth.Healthy;
+            }
+            else
+            {
+                // Failure
+                count.Increment();
+                newHealth = count.IsHealthy(clusterConfig, _options.DefaultThreshold) ? DestinationHealth.Healthy : DestinationHealth.Unhealthy;
+            }
+
+            return newHealth;
         }
 
         private class FailureCounter

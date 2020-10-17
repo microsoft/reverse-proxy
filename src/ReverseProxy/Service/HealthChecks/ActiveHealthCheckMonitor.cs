@@ -53,13 +53,14 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                     }
 
                     await Task.WhenAll(probeClusterTasks);
-                    _proxyAppStateSetter.SetFullyInitialized();
-                    _scheduler.Start();
                 }
                 catch (Exception)
                 {
                     // TODO: Add logging
                 }
+
+                _proxyAppStateSetter.SetFullyInitialized();
+                _scheduler.Start();
             });
         }
 
