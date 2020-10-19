@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 
@@ -36,6 +37,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
             Order = proxyRoute.Order;
             Cluster = cluster;
             Transforms = transforms;
+            Metadata = proxyRoute.Metadata.ToImmutableDictionary();
         }
 
         public RouteInfo Route { get; }
@@ -48,6 +50,8 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         public IReadOnlyList<AspNetCore.Http.Endpoint> Endpoints { get; }
 
         public Transforms Transforms { get; }
+
+        public IReadOnlyDictionary<string, string> Metadata { get; }
 
         public bool HasConfigChanged(ProxyRoute newConfig, ClusterInfo cluster)
         {
