@@ -13,7 +13,7 @@ namespace Microsoft.ReverseProxy.Abstractions
         /// <summary>
         /// Default probing interval.
         /// </summary>
-        public TimeSpan DefaultInterval { get; set; } = TimeSpan.FromSeconds(60);
+        public TimeSpan DefaultInterval { get; set; } = TimeSpan.FromSeconds(15);
 
         /// <summary>
         /// Default probes timeout.

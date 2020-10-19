@@ -17,6 +17,6 @@ namespace Microsoft.ReverseProxy.Abstractions
         /// <summary>
         /// Default consecutive failures threshold that is applied if it's not set on a cluster's metadata.
         /// </summary>
-        public long DefaultThreshold { get; set; } = 3;
+        public long DefaultThreshold { get; set; } = 2;
     }
 }

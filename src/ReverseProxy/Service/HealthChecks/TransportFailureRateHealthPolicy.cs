@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
@@ -40,19 +39,22 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             _reactivationScheduler = reactivationScheduler ?? throw new ArgumentNullException(nameof(reactivationScheduler));
         }
 
-        public void RequestProxied(ClusterConfig cluster, DestinationInfo destination, HttpContext context, IProxyErrorFeature error)
+        public void RequestProxied(ClusterInfo cluster, DestinationInfo destination, HttpContext context, IProxyErrorFeature error)
         {
-            var newHealth = EvaluateProxiedRequest(cluster, destination, error != null);
-            UpdateDestinationHealth(cluster, destination, newHealth);
+            var clusterConfig = cluster.Config;
+            var newHealth = EvaluateProxiedRequest(cluster, clusterConfig, destination, error != null);
+            UpdateDestinationHealth(clusterConfig, destination, newHealth);
         }
 
-        private DestinationHealth EvaluateProxiedRequest(ClusterConfig cluster, DestinationInfo destination, bool failed)
+        private DestinationHealth EvaluateProxiedRequest(ClusterInfo cluster, ClusterConfig clusterConfig, DestinationInfo destination, bool failed)
         {
             var failureHistory = destination.GetOrAddProperty(_propertyKey, k => new ProxiedRequestHistory());
+            var rateLimitEntry = cluster.GetOrAddProperty<string, ParsedMetadataEntry<double>>(TransportFailureRateHealthPolicyOptions.FailureRateLimitMetadataName, _ => new ParsedMetadataEntry<double>(TryParse));
+            var rateLimit = rateLimitEntry.GetParsedOrDefault(clusterConfig, TransportFailureRateHealthPolicyOptions.FailureRateLimitMetadataName, _policyOptions.DefaultFailureRateLimit);
             lock (failureHistory)
             {
-                failureHistory.AddNew(_clock.TickCount, (long)_policyOptions.DetectionWindowSize.TotalMilliseconds, failed);
-                return failureHistory.IsHealthy(cluster, _policyOptions.DefaultFailureRateLimit) ? DestinationHealth.Healthy : DestinationHealth.Unhealthy;
+                var failureRate = failureHistory.AddNew(_clock.TickCount, (long)_policyOptions.DetectionWindowSize.TotalMilliseconds, failed);
+                return failureRate < rateLimit ? DestinationHealth.Healthy : DestinationHealth.Unhealthy;
             }
         }
 
@@ -70,6 +72,11 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             }
         }
 
+        private static bool TryParse(string stringValue, out double parsedValue)
+        {
+            return double.TryParse(stringValue, out parsedValue);
+        }
+
         private class ProxiedRequestHistory
         {
             private const long RecordWindowSize = 1000;
@@ -78,12 +85,9 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             private long _nextRecordFailedCount;
             private long _failedCount;
             private long _totalCount;
-            private readonly ParsedMetadataEntry<double> _clusterRateLimit = new ParsedMetadataEntry<double>(TryParse);
             private readonly Queue<HistoryRecord> _records = new Queue<HistoryRecord>();
 
-            public double Rate { get; private set; }
-
-            public void AddNew(long eventTime, long detectionWindowSize, bool failed)
+            public double AddNew(long eventTime, long detectionWindowSize, bool failed)
             {
                 if (_nextRecordCreatedAt == 0)
                 {
@@ -117,17 +121,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                     _totalCount -= removed.TotalCount;
                 }
 
-                Rate = _totalCount == 0 ? 0.0 : _failedCount / _totalCount;
-            }
-
-            public bool IsHealthy(ClusterConfig cluster, double defaultFailureRateLimit)
-            {
-                return Rate < _clusterRateLimit.GetParsedOrDefault(cluster, TransportFailureRateHealthPolicyOptions.FailureRateLimitMetadataName, defaultFailureRateLimit);
-            }
-
-            private static bool TryParse(string stringValue, out double parsedValue)
-            {
-                return double.TryParse(stringValue, out parsedValue);
+                return _totalCount == 0 ? 0.0 : _failedCount / _totalCount;
             }
 
             private readonly struct HistoryRecord

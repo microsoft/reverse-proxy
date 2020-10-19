@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Net.Http;
@@ -35,8 +34,8 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             {
                 var destination = probingResults[i].Destination;
 
-                var count = destination.GetOrAddProperty(_propertyKey, k => new FailureCounter());
-                var newHealth = EvaluateHealthState(clusterConfig, probingResults[i].Response, count);
+                var count = destination.GetOrAddProperty(_propertyKey, k => new AtomicCounter());
+                var newHealth = EvaluateHealthState(cluster, clusterConfig, probingResults[i].Response, count);
 
                 var state = destination.DynamicState;
                 if (newHealth != state.Health.Active)
@@ -48,7 +47,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             cluster.ResumeHealthyDestinationUpdates();
         }
 
-        private DestinationHealth EvaluateHealthState(ClusterConfig clusterConfig, HttpResponseMessage response, FailureCounter count)
+        private DestinationHealth EvaluateHealthState(ClusterInfo cluster, ClusterConfig clusterConfig, HttpResponseMessage response, AtomicCounter count)
         {
             DestinationHealth newHealth;
             if (response != null && response.IsSuccessStatusCode)
@@ -60,37 +59,18 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             else
             {
                 // Failure
-                count.Increment();
-                newHealth = count.IsHealthy(clusterConfig, _options.DefaultThreshold) ? DestinationHealth.Healthy : DestinationHealth.Unhealthy;
+                var currentFailureCount = count.Increment();
+                var thresholdEntry = cluster.GetOrAddProperty<string, ParsedMetadataEntry<double>>(ConsecutiveFailuresHealthPolicyOptions.ThresholdMetadataName, _ => new ParsedMetadataEntry<double>(TryParse));
+                var threshold = thresholdEntry.GetParsedOrDefault(clusterConfig, ConsecutiveFailuresHealthPolicyOptions.ThresholdMetadataName, _options.DefaultThreshold);
+                newHealth = currentFailureCount < threshold ? DestinationHealth.Healthy : DestinationHealth.Unhealthy;
             }
 
             return newHealth;
         }
 
-        private class FailureCounter
+        private static bool TryParse(string stringValue, out double parsedValue)
         {
-            private readonly ParsedMetadataEntry<double> _threshold = new ParsedMetadataEntry<double>(TryParse);
-            private int _count;
-
-            public void Increment()
-            {
-                Interlocked.Increment(ref _count);
-            }
-
-            public void Reset()
-            {
-                Interlocked.Exchange(ref _count, 0);
-            }
-
-            public bool IsHealthy(ClusterConfig cluster, double defaultThreshold)
-            {
-                return _count >= _threshold.GetParsedOrDefault(cluster, ConsecutiveFailuresHealthPolicyOptions.ThresholdMetadataName, defaultThreshold);
-            }
-
-            private static bool TryParse(string stringValue, out double parsedValue)
-            {
-                return double.TryParse(stringValue, NumberStyles.Float, CultureInfo.InvariantCulture, out parsedValue);
-            }
+            return double.TryParse(stringValue, NumberStyles.Float, CultureInfo.InvariantCulture, out parsedValue);
         }
     }
 }
