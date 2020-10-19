@@ -28,7 +28,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 
         private static string GetCanonicalizedValue(string method)
         {
-#if NET5_0 || NETCOREAPP5_0
+#if NET5_0
             return HttpMethods.GetCanonicalizedValue(method);
 #elif NETCOREAPP3_1
             return method switch
@@ -51,7 +51,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 
         private static bool HttpMethodEquals(string methodA, string methodB)
         {
-#if NET5_0 || NETCOREAPP5_0
+#if NET5_0
             return HttpMethods.Equals(methodA, methodB);
 #elif NETCOREAPP3_1
             return object.ReferenceEquals(methodA, methodB) || StringComparer.OrdinalIgnoreCase.Equals(methodA, methodB);
