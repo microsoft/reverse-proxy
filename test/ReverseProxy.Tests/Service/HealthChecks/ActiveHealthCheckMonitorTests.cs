@@ -23,12 +23,12 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         [Fact]
         public async Task ForceCheckAll_ActiveHealthCheckIsEnabledForCluster_SendProbe()
         {
-            var options = Options.Create(new ActiveHealthCheckMonitorOptions { DefaultInterval = TimeSpan.FromSeconds(60), DefaultTimeout = TimeSpan.FromSeconds(5) });
             var policy0 = new Mock<IActiveHealthCheckPolicy>();
             policy0.SetupGet(p => p.Name).Returns("policy0");
             var policy1 = new Mock<IActiveHealthCheckPolicy>();
             policy1.SetupGet(p => p.Name).Returns("policy1");
             var proxyAppState = new ProxyAppState();
+            var options = Options.Create(new ActiveHealthCheckMonitorOptions { DefaultInterval = TimeSpan.FromSeconds(60), DefaultTimeout = TimeSpan.FromSeconds(5) });
             var monitor = new ActiveHealthCheckMonitor(options, new[] { policy0.Object, policy1.Object }, new DefaultProbingRequestFactory(), new UptimeClock(), proxyAppState);
 
             var httpClient0 = GetHttpClient();
@@ -41,39 +41,171 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             var cluster2 = GetClusterInfo("cluster2", "policy1", true, httpClient2.Object);
             monitor.OnClusterAdded(cluster2);
 
-            _ = monitor.ForceCheckAll();
+            await monitor.ForceCheckAll().ConfigureAwait(false);
             await proxyAppState.WaitForFullInitialization().ConfigureAwait(false);
+            Assert.True(proxyAppState.IsFullyInitialized);
 
-            httpClient0.Verify(c => c.SendAsync(It.Is<HttpRequestMessage>(m => m.RequestUri.AbsoluteUri == "https://localhost:20000/cluster0/api/health/"), It.IsAny<CancellationToken>()), Times.Once);
-            httpClient0.Verify(c => c.SendAsync(It.Is<HttpRequestMessage>(m => m.RequestUri.AbsoluteUri == "https://localhost:20001/cluster0/api/health/"), It.IsAny<CancellationToken>()), Times.Once);
-            httpClient0.VerifyNoOtherCalls();
-            policy0.Verify(
-                p => p.ProbingCompleted(
-                    cluster0,
-                    It.Is<IReadOnlyList<DestinationProbingResult>>(r => cluster0.DestinationManager.Items.Value.All(d => r.Any(i => i.Destination == d && i.Response.StatusCode == HttpStatusCode.OK)))),
-                Times.Once);
-            policy0.Verify(p => p.Name);
-            policy0.VerifyNoOtherCalls();
+            VerifySentProbeAndResult(cluster0, httpClient0, policy0, new[] { ("https://localhost:20000/cluster0/api/health/", 1), ("https://localhost:20001/cluster0/api/health/", 1) });
 
             httpClient1.Verify(c => c.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()), Times.Never);
 
-            httpClient2.Verify(c => c.SendAsync(It.Is<HttpRequestMessage>(m => m.RequestUri.AbsoluteUri == "https://localhost:20000/cluster2/api/health/"), It.IsAny<CancellationToken>()), Times.Once);
-            httpClient2.Verify(c => c.SendAsync(It.Is<HttpRequestMessage>(m => m.RequestUri.AbsoluteUri == "https://localhost:20001/cluster2/api/health/"), It.IsAny<CancellationToken>()), Times.Once);
-            httpClient2.VerifyNoOtherCalls();
-            policy0.Verify(
-                p => p.ProbingCompleted(
-                    cluster2,
-                    It.Is<IReadOnlyList<DestinationProbingResult>>(r => cluster2.DestinationManager.Items.Value.All(d => r.Any(i => i.Destination == d && i.Response.StatusCode == HttpStatusCode.OK)))),
-                Times.Once);
-            policy1.Verify(p => p.Name);
-            policy1.VerifyNoOtherCalls();
+            VerifySentProbeAndResult(cluster2, httpClient2, policy1, new[] { ("https://localhost:20000/cluster2/api/health/", 1), ("https://localhost:20001/cluster2/api/health/", 1) });
         }
 
-        private ClusterInfo GetClusterInfo(string id, string policy, bool activeCheckEnabled, HttpMessageInvoker httpClient)
+        [Fact]
+        public async Task ProbeCluster_ProbingTimerFired_SendProbesAndReceiveResponses()
+        {
+            var policy0 = new Mock<IActiveHealthCheckPolicy>();
+            policy0.SetupGet(p => p.Name).Returns("policy0");
+            var policy1 = new Mock<IActiveHealthCheckPolicy>();
+            policy1.SetupGet(p => p.Name).Returns("policy1");
+            var options = Options.Create(new ActiveHealthCheckMonitorOptions { DefaultInterval = TimeSpan.FromSeconds(60), DefaultTimeout = TimeSpan.FromSeconds(5) });
+            var monitor = new ActiveHealthCheckMonitor(options, new[] { policy0.Object, policy1.Object }, new DefaultProbingRequestFactory(), new UptimeClock(), new ProxyAppState());
+
+            var httpClient0 = GetHttpClient();
+            var cluster0 = GetClusterInfo("cluster0", "policy0", true, httpClient0.Object, interval: TimeSpan.FromSeconds(1));
+            monitor.OnClusterAdded(cluster0);
+            var httpClient2 = GetHttpClient();
+            var cluster2 = GetClusterInfo("cluster2", "policy1", true, httpClient2.Object, interval: TimeSpan.FromSeconds(2));
+            monitor.OnClusterAdded(cluster2);
+
+            await monitor.ForceCheckAll().ConfigureAwait(false);
+
+            await Task.Delay(2500);
+
+            VerifySentProbeAndResult(cluster0, httpClient0, policy0, new[] { ("https://localhost:20000/cluster0/api/health/", 3), ("https://localhost:20001/cluster0/api/health/", 3) }, policyCallTimes: 3);
+            VerifySentProbeAndResult(cluster2, httpClient2, policy1, new[] { ("https://localhost:20000/cluster2/api/health/", 2), ("https://localhost:20001/cluster2/api/health/", 2) }, policyCallTimes: 2);
+        }
+
+        [Fact]
+        public async Task ProbeCluster_UnsuccessfulResponseReceivedOrExceptionThrown_ReportItToPolicy()
+        {
+            var policy = new Mock<IActiveHealthCheckPolicy>();
+            policy.SetupGet(p => p.Name).Returns("policy0");
+            var options = Options.Create(new ActiveHealthCheckMonitorOptions { DefaultInterval = TimeSpan.FromSeconds(60), DefaultTimeout = TimeSpan.FromSeconds(5) });
+            var proxyAppState = new ProxyAppState();
+            var monitor = new ActiveHealthCheckMonitor(options, new[] { policy.Object }, new DefaultProbingRequestFactory(), new UptimeClock(), proxyAppState);
+
+            var httpClient = new Mock<HttpMessageInvoker>(() => new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object));
+            httpClient.Setup(c => c.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()))
+                .Returns((HttpRequestMessage m, CancellationToken t) => GetResponse(m, t));
+            var cluster = GetClusterInfo("cluster0", "policy0", true, httpClient.Object, destinationCount: 3);
+            monitor.OnClusterAdded(cluster);
+
+            await monitor.ForceCheckAll().ConfigureAwait(false);
+            Assert.True(proxyAppState.IsFullyInitialized);
+
+            policy.Verify(
+                p => p.ProbingCompleted(
+                    cluster,
+                    It.Is<IReadOnlyList<DestinationProbingResult>>(
+                        r => r.Count == 3
+                        && r.Single(i => i.Destination.DestinationId == "destination0").Response.StatusCode == HttpStatusCode.InternalServerError
+                        && r.Single(i => i.Destination.DestinationId == "destination0").Exception == null
+                        && r.Single(i => i.Destination.DestinationId == "destination1").Response == null
+                        && r.Single(i => i.Destination.DestinationId == "destination1").Exception.GetType() == typeof(InvalidOperationException)
+                        && r.Single(i => i.Destination.DestinationId == "destination2").Response.StatusCode == HttpStatusCode.OK
+                        && r.Single(i => i.Destination.DestinationId == "destination2").Exception == null)),
+                Times.Once);
+            policy.Verify(p => p.Name);
+            policy.VerifyNoOtherCalls();
+
+            async Task<HttpResponseMessage> GetResponse(HttpRequestMessage m, CancellationToken t)
+            {
+                return await Task.Run(() =>
+                {
+                    switch (m.RequestUri.AbsoluteUri)
+                    {
+                        case "https://localhost:20000/cluster0/api/health/":
+                            return new HttpResponseMessage(HttpStatusCode.InternalServerError) { Version = m.Version };
+                        case "https://localhost:20001/cluster0/api/health/":
+                            throw new InvalidOperationException();
+                        default:
+                            return new HttpResponseMessage(HttpStatusCode.OK) { Version = m.Version };
+                    }
+                });
+            }
+        }
+
+        [Fact]
+        public async Task ForceCheckAll_SendingProbeToDestinationThrowsException_SkipItAndProceedToNextDestination()
+        {
+            var policy = new Mock<IActiveHealthCheckPolicy>();
+            policy.SetupGet(p => p.Name).Returns("policy0");
+            var options = Options.Create(new ActiveHealthCheckMonitorOptions { DefaultInterval = TimeSpan.FromSeconds(60), DefaultTimeout = TimeSpan.FromSeconds(5) });
+            var proxyAppState = new ProxyAppState();
+            var monitor = new ActiveHealthCheckMonitor(options, new[] { policy.Object }, new DefaultProbingRequestFactory(), new UptimeClock(), proxyAppState);
+
+            var httpClient = new Mock<HttpMessageInvoker>(() => new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object));
+            httpClient.Setup(c => c.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((HttpRequestMessage m, CancellationToken t) => {
+                    switch (m.RequestUri.AbsoluteUri)
+                    {
+                        case "https://localhost:20001/cluster0/api/health/":
+                            throw new InvalidOperationException();
+                        default:
+                            return new HttpResponseMessage(HttpStatusCode.OK) { Version = m.Version };
+                    }
+                });
+            var cluster = GetClusterInfo("cluster0", "policy0", true, httpClient.Object, destinationCount: 3);
+            monitor.OnClusterAdded(cluster);
+
+            await monitor.ForceCheckAll().ConfigureAwait(false);
+            Assert.True(proxyAppState.IsFullyInitialized);
+
+            policy.Verify(
+                p => p.ProbingCompleted(
+                    cluster,
+                    It.Is<IReadOnlyList<DestinationProbingResult>>(r => r.Count == 2 && r.All(i => i.Response.StatusCode == HttpStatusCode.OK && i.Exception == null))),
+                Times.Once);
+            policy.Verify(p => p.Name);
+            policy.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task ForceCheckAll_PolicyThrowsException_SkipItAndSetIsFullyInitializedFlag()
+        {
+            var policy = new Mock<IActiveHealthCheckPolicy>();
+            policy.SetupGet(p => p.Name).Returns("policy0");
+            policy.Setup(p => p.ProbingCompleted(It.IsAny<ClusterInfo>(), It.IsAny<IReadOnlyList<DestinationProbingResult>>())).Throws<InvalidOperationException>();
+            var options = Options.Create(new ActiveHealthCheckMonitorOptions { DefaultInterval = TimeSpan.FromSeconds(60), DefaultTimeout = TimeSpan.FromSeconds(5) });
+            var proxyAppState = new ProxyAppState();
+            var monitor = new ActiveHealthCheckMonitor(options, new[] { policy.Object }, new DefaultProbingRequestFactory(), new UptimeClock(), proxyAppState);
+
+            var httpClient = GetHttpClient();
+            var cluster = GetClusterInfo("cluster0", "policy0", true, httpClient.Object);
+            monitor.OnClusterAdded(cluster);
+
+            await monitor.ForceCheckAll().ConfigureAwait(false);
+            await proxyAppState.WaitForFullInitialization().ConfigureAwait(false);
+            Assert.True(proxyAppState.IsFullyInitialized);
+
+            policy.Verify(p => p.ProbingCompleted(It.IsAny<ClusterInfo>(), It.IsAny<IReadOnlyList<DestinationProbingResult>>()), Times.Once);
+            policy.Verify(p => p.Name);
+            policy.VerifyNoOtherCalls();
+        }
+
+        private static void VerifySentProbeAndResult(ClusterInfo cluster, Mock<HttpMessageInvoker> httpClient, Mock<IActiveHealthCheckPolicy> policy, (string RequestUri, int Times)[] probes, int policyCallTimes = 1)
+        {
+            foreach(var probe in probes)
+            {
+                httpClient.Verify(c => c.SendAsync(It.Is<HttpRequestMessage>(m => m.RequestUri.AbsoluteUri == probe.RequestUri), It.IsAny<CancellationToken>()), Times.Exactly(probe.Times));
+            }
+            httpClient.VerifyNoOtherCalls();
+            policy.Verify(
+                p => p.ProbingCompleted(
+                    cluster,
+                    It.Is<IReadOnlyList<DestinationProbingResult>>(r => cluster.DestinationManager.Items.Value.All(d => r.Any(i => i.Destination == d && i.Response.StatusCode == HttpStatusCode.OK)))),
+                Times.Exactly(policyCallTimes));
+            policy.Verify(p => p.Name);
+            policy.VerifyNoOtherCalls();
+        }
+
+        private ClusterInfo GetClusterInfo(string id, string policy, bool activeCheckEnabled, HttpMessageInvoker httpClient, TimeSpan? interval = null, TimeSpan? timeout = null, int destinationCount = 2)
         {
             var clusterConfig = new ClusterConfig(
                 new Cluster { Id = id },
-                new ClusterConfig.ClusterHealthCheckOptions(default, new ClusterConfig.ClusterActiveHealthCheckOptions(activeCheckEnabled, null, null, policy, "api/health/")),
+                new ClusterConfig.ClusterHealthCheckOptions(default, new ClusterConfig.ClusterActiveHealthCheckOptions(activeCheckEnabled, interval, timeout, policy, "/api/health/")),
                 default,
                 default,
                 httpClient,
@@ -81,7 +213,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 null);
             var clusterInfo = new ClusterInfo(id, new DestinationManager());
             clusterInfo.ConfigSignal.Value = clusterConfig;
-            for (var i = 0; i < 2; i++)
+            for (var i = 0; i < destinationCount; i++)
             {
                 var destinationConfig = new DestinationConfig($"https://localhost:1000{i}/{id}/", $"https://localhost:2000{i}/{id}/");
                 var destinationId = $"destination{i}";

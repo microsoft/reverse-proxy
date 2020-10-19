@@ -113,14 +113,23 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             {
                 foreach (var destination in allDestinations)
                 {
-                    var request = _probingRequestFactory.CreateRequest(clusterConfig, destination);
                     var timeout = clusterConfig.HealthCheckOptions.Active.Timeout ?? _monitorOptions.DefaultTimeout;
                     var cts = new CancellationTokenSource(timeout);
-                    probeTasks.Add((clusterConfig.HttpClient.SendAsync(request, cts.Token), cts));
+                    try
+                    {
+                        var request = _probingRequestFactory.CreateRequest(clusterConfig, destination);
+                        probeTasks.Add((clusterConfig.HttpClient.SendAsync(request, cts.Token), cts));
+                    }
+                    catch
+                    {
+                        cts.Cancel();
+                        cts.Dispose();
+                        // Log and suppress an exception to give a chance for all destinations to be probed.
+                    }
                 }
 
-                var probingResults = new DestinationProbingResult[allDestinations.Count];
-                for (var i = 0; i < allDestinations.Count; i++)
+                var probingResults = new DestinationProbingResult[probeTasks.Count];
+                for (var i = 0; i < probeTasks.Count; i++)
                 {
                     HttpResponseMessage response = null;
                     ExceptionDispatchInfo edi = null;
