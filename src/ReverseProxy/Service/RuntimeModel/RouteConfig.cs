@@ -37,7 +37,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
             Order = proxyRoute.Order;
             Cluster = cluster;
             Transforms = transforms;
-            Metadata = proxyRoute.Metadata.ToImmutableDictionary();
+            Metadata = proxyRoute.Metadata?.ToImmutableDictionary();
         }
 
         public RouteInfo Route { get; }
