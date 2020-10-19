@@ -100,7 +100,7 @@ namespace Microsoft.ReverseProxy
 
 #if NETCOREAPP3_1
             using var rawStream = await response.Content.ReadAsStreamAsync();
-#elif NETCOREAPP5_0
+#elif NET5_0
             using var rawStream = await response.Content.ReadAsStreamAsync(cts.Token);
 #else
 #error A target framework was added to the project and needs to be added to this condition.
@@ -154,7 +154,7 @@ namespace Microsoft.ReverseProxy
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 #if NETCOREAPP3_1
             Assert.Equal("Hello World", await response.Content.ReadAsStringAsync());
-#elif NETCOREAPP5_0
+#elif NET5_0
             Assert.Equal("Hello World", await response.Content.ReadAsStringAsync(cts.Token));
 #else
 #error A target framework was added to the project and needs to be added to this condition.
