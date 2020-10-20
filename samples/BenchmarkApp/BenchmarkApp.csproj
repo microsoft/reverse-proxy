@@ -8,4 +8,10 @@
     <ProjectReference Include="..\..\src\ReverseProxy\Microsoft.ReverseProxy.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="testCert.pfx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

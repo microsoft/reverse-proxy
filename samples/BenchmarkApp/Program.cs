@@ -3,6 +3,7 @@
 
 using System;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
@@ -20,9 +21,14 @@ namespace BenchmarkApp
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                });
+                    webBuilder.ConfigureKestrel((_, kestrelOptions) =>
+                    {
+                        kestrelOptions.ConfigureHttpsDefaults(httpsOptions =>
+                        {
+                            httpsOptions.ServerCertificate = new X509Certificate2("testCert.pfx", "testPassword");
+                        });
+                    })
+                   .UseStartup<Startup>());
 
         private static void WriteStatistics() =>
             Console.WriteLine(
