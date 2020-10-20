@@ -102,6 +102,7 @@ namespace Microsoft.ReverseProxy.Service.Management
         private void Run()
         {
             SchedulerEntry triggeredEntry;
+            var runAction = false;
             lock (_syncRoot)
             {
                 if (_list.First == null)
@@ -113,6 +114,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                 triggeredEntry = _list.First.Value;
                 if (triggeredEntry.RunAt <= cutoff)
                 {
+                    runAction = true;
                     if (_runOnce)
                     {
                         _map.Remove(triggeredEntry.Entity);
@@ -128,7 +130,12 @@ namespace Microsoft.ReverseProxy.Service.Management
                 ScheduleNextRun(cutoff);
             }
 
-            _action(triggeredEntry.Entity);
+            // Don't invoke callback if it's too soon.
+            // This can happen if an entry was removed concurrently with the timer firing.
+            if (runAction)
+            {
+                _action(triggeredEntry.Entity);
+            }
         }
 
         private void ScheduleNextRun(long cutoff)

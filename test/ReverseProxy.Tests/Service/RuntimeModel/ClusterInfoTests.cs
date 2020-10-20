@@ -55,15 +55,20 @@ namespace Microsoft.ReverseProxy.RuntimeModel.Tests
             var destination2 = cluster.DestinationManager.GetOrCreateItem("d2", destination => destination.DynamicStateSignal.Value = new DestinationDynamicState(new CompositeDestinationHealth(DestinationHealth.Unhealthy, DestinationHealth.Unknown)));
             var destination3 = cluster.DestinationManager.GetOrCreateItem("d3", destination => destination.DynamicStateSignal.Value = new DestinationDynamicState(new CompositeDestinationHealth(DestinationHealth.Unknown, DestinationHealth.Unknown)));
             var destination4 = cluster.DestinationManager.GetOrCreateItem("d4", destination => destination.DynamicStateSignal.Value = new DestinationDynamicState(new CompositeDestinationHealth(DestinationHealth.Unknown, DestinationHealth.Healthy)));
+            var destination5 = cluster.DestinationManager.GetOrCreateItem("d5", destination => destination.DynamicStateSignal.Value = new DestinationDynamicState(new CompositeDestinationHealth(DestinationHealth.Unknown, DestinationHealth.Unhealthy)));
 
             // Assert
+            Assert.Equal(5, cluster.DynamicState.AllDestinations.Count);
             Assert.Same(destination1, cluster.DynamicState.AllDestinations[0]);
             Assert.Same(destination2, cluster.DynamicState.AllDestinations[1]);
             Assert.Same(destination3, cluster.DynamicState.AllDestinations[2]);
             Assert.Same(destination4, cluster.DynamicState.AllDestinations[3]);
+            Assert.Same(destination5, cluster.DynamicState.AllDestinations[4]);
 
+            Assert.Equal(3, cluster.DynamicState.HealthyDestinations.Count);
             Assert.Same(destination1, cluster.DynamicState.HealthyDestinations[0]);
-            Assert.Same(destination4, cluster.DynamicState.HealthyDestinations[1]);
+            Assert.Same(destination3, cluster.DynamicState.HealthyDestinations[1]);
+            Assert.Same(destination4, cluster.DynamicState.HealthyDestinations[2]);
         }
 
         // Verify that we detect changes to a cluster's ClusterInfo.Config

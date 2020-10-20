@@ -15,8 +15,8 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         /// Creates a probing request.
         /// </summary>
         /// <param name="clusterConfig">Cluster's config.</param>
-        /// <param name="destination">Destination being probed.</param>
+        /// <param name="destinationConfig">Destination being probed.</param>
         /// <returns>Probing <see cref="HttpRequestMessage"/>.</returns>
-        HttpRequestMessage CreateRequest(ClusterConfig clusterConfig, DestinationInfo destination);
+        HttpRequestMessage CreateRequest(ClusterConfig clusterConfig, DestinationConfig destinationConfig);
     }
 }

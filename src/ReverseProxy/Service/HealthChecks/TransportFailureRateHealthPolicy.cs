@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Microsoft.ReverseProxy.Abstractions;
@@ -74,7 +75,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 
         private static bool TryParse(string stringValue, out double parsedValue)
         {
-            return double.TryParse(stringValue, out parsedValue);
+            return double.TryParse(stringValue, NumberStyles.Float, CultureInfo.InvariantCulture, out parsedValue);
         }
 
         private class ProxiedRequestHistory
@@ -84,7 +85,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             private long _nextRecordTotalCount;
             private long _nextRecordFailedCount;
             private long _failedCount;
-            private long _totalCount;
+            private double _totalCount;
             private readonly Queue<HistoryRecord> _records = new Queue<HistoryRecord>();
 
             public double AddNew(long eventTime, long detectionWindowSize, bool failed)

@@ -108,7 +108,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             // It's validated and ensured by a configuration validator.
             var policy = _policies.GetRequiredServiceById(clusterConfig.HealthCheckOptions.Active.Policy);
             var allDestinations = cluster.DynamicState.AllDestinations;
-            var probeTasks = new List<(Task<HttpResponseMessage> Task, CancellationTokenSource Cts)>();
+            var probeTasks = new List<(Task<HttpResponseMessage> Task, CancellationTokenSource Cts)>(allDestinations.Count);
             try
             {
                 foreach (var destination in allDestinations)
@@ -117,7 +117,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                     var cts = new CancellationTokenSource(timeout);
                     try
                     {
-                        var request = _probingRequestFactory.CreateRequest(clusterConfig, destination);
+                        var request = _probingRequestFactory.CreateRequest(clusterConfig, destination.Config);
                         probeTasks.Add((clusterConfig.HttpClient.SendAsync(request, cts.Token), cts));
                     }
                     catch

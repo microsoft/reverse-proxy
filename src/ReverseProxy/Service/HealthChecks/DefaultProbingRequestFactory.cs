@@ -9,9 +9,9 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 {
     internal class DefaultProbingRequestFactory : IProbingRequestFactory
     {
-        public HttpRequestMessage CreateRequest(ClusterConfig clusterConfig, DestinationInfo destination)
+        public HttpRequestMessage CreateRequest(ClusterConfig clusterConfig, DestinationConfig destinationConfig)
         {
-            var probeAddress = !string.IsNullOrEmpty(destination.Config.Health) ? destination.Config.Health : destination.Config.Address;
+            var probeAddress = !string.IsNullOrEmpty(destinationConfig.Health) ? destinationConfig.Health : destinationConfig.Address;
             var probePath = clusterConfig.HealthCheckOptions.Active.Path;
             UriHelper.FromAbsolute(probeAddress, out var destinationScheme, out var destinationHost, out var destinationPathBase, out _, out _);
             var probeUri = UriHelper.BuildAbsolute(destinationScheme, destinationHost, destinationPathBase, probePath, default);

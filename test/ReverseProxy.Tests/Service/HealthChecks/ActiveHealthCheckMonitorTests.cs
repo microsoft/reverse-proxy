@@ -78,6 +78,109 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         }
 
         [Fact]
+        public async Task ProbeCluster_ClusterRemoved_StopSendingProbes()
+        {
+            var policy0 = new Mock<IActiveHealthCheckPolicy>();
+            policy0.SetupGet(p => p.Name).Returns("policy0");
+            var policy1 = new Mock<IActiveHealthCheckPolicy>();
+            policy1.SetupGet(p => p.Name).Returns("policy1");
+            var options = Options.Create(new ActiveHealthCheckMonitorOptions { DefaultInterval = TimeSpan.FromSeconds(60), DefaultTimeout = TimeSpan.FromSeconds(5) });
+            var monitor = new ActiveHealthCheckMonitor(options, new[] { policy0.Object, policy1.Object }, new DefaultProbingRequestFactory(), new UptimeClock(), new ProxyAppState());
+
+            var httpClient0 = GetHttpClient();
+            var cluster0 = GetClusterInfo("cluster0", "policy0", true, httpClient0.Object, interval: TimeSpan.FromSeconds(1));
+            monitor.OnClusterAdded(cluster0);
+            var httpClient2 = GetHttpClient();
+            var cluster2 = GetClusterInfo("cluster2", "policy1", true, httpClient2.Object, interval: TimeSpan.FromSeconds(1));
+            monitor.OnClusterAdded(cluster2);
+
+            await monitor.ForceCheckAll().ConfigureAwait(false);
+
+            await Task.Delay(1500);
+
+            VerifySentProbeAndResult(cluster0, httpClient0, policy0, new[] { ("https://localhost:20000/cluster0/api/health/", 2), ("https://localhost:20001/cluster0/api/health/", 2) }, policyCallTimes: 2);
+            VerifySentProbeAndResult(cluster2, httpClient2, policy1, new[] { ("https://localhost:20000/cluster2/api/health/", 2), ("https://localhost:20001/cluster2/api/health/", 2) }, policyCallTimes: 2);
+
+            monitor.OnClusterRemoved(cluster2);
+
+            await Task.Delay(1200);
+
+            VerifySentProbeAndResult(cluster0, httpClient0, policy0, new[] { ("https://localhost:20000/cluster0/api/health/", 3), ("https://localhost:20001/cluster0/api/health/", 3) }, policyCallTimes: 3);
+            VerifySentProbeAndResult(cluster2, httpClient2, policy1, new[] { ("https://localhost:20000/cluster2/api/health/", 2), ("https://localhost:20001/cluster2/api/health/", 2) }, policyCallTimes: 2);
+        }
+
+        [Fact]
+        public async Task ProbeCluster_ClusterAdded_StartSendingProbes()
+        {
+            var policy0 = new Mock<IActiveHealthCheckPolicy>();
+            policy0.SetupGet(p => p.Name).Returns("policy0");
+            var policy1 = new Mock<IActiveHealthCheckPolicy>();
+            policy1.SetupGet(p => p.Name).Returns("policy1");
+            var options = Options.Create(new ActiveHealthCheckMonitorOptions { DefaultInterval = TimeSpan.FromSeconds(60), DefaultTimeout = TimeSpan.FromSeconds(5) });
+            var monitor = new ActiveHealthCheckMonitor(options, new[] { policy0.Object, policy1.Object }, new DefaultProbingRequestFactory(), new UptimeClock(), new ProxyAppState());
+
+            var httpClient0 = GetHttpClient();
+            var cluster0 = GetClusterInfo("cluster0", "policy0", true, httpClient0.Object, interval: TimeSpan.FromSeconds(1));
+            monitor.OnClusterAdded(cluster0);
+
+            await monitor.ForceCheckAll().ConfigureAwait(false);
+
+            await Task.Delay(1500);
+
+            VerifySentProbeAndResult(cluster0, httpClient0, policy0, new[] { ("https://localhost:20000/cluster0/api/health/", 2), ("https://localhost:20001/cluster0/api/health/", 2) }, policyCallTimes: 2);
+
+            var httpClient2 = GetHttpClient();
+            var cluster2 = GetClusterInfo("cluster2", "policy1", true, httpClient2.Object, interval: TimeSpan.FromSeconds(1));
+            monitor.OnClusterAdded(cluster2);
+
+            await Task.Delay(1200);
+
+            VerifySentProbeAndResult(cluster0, httpClient0, policy0, new[] { ("https://localhost:20000/cluster0/api/health/", 3), ("https://localhost:20001/cluster0/api/health/", 3) }, policyCallTimes: 3);
+            VerifySentProbeAndResult(cluster2, httpClient2, policy1, new[] { ("https://localhost:20000/cluster2/api/health/", 1), ("https://localhost:20001/cluster2/api/health/", 1) }, policyCallTimes: 1);
+        }
+
+        [Fact]
+        public async Task ProbeCluster_ClusterChanged_StopSendingProbes()
+        {
+            var policy0 = new Mock<IActiveHealthCheckPolicy>();
+            policy0.SetupGet(p => p.Name).Returns("policy0");
+            var policy1 = new Mock<IActiveHealthCheckPolicy>();
+            policy1.SetupGet(p => p.Name).Returns("policy1");
+            var options = Options.Create(new ActiveHealthCheckMonitorOptions { DefaultInterval = TimeSpan.FromSeconds(60), DefaultTimeout = TimeSpan.FromSeconds(5) });
+            var monitor = new ActiveHealthCheckMonitor(options, new[] { policy0.Object, policy1.Object }, new DefaultProbingRequestFactory(), new UptimeClock(), new ProxyAppState());
+
+            var httpClient0 = GetHttpClient();
+            var cluster0 = GetClusterInfo("cluster0", "policy0", true, httpClient0.Object, interval: TimeSpan.FromSeconds(1));
+            monitor.OnClusterAdded(cluster0);
+            var httpClient2 = GetHttpClient();
+            var cluster2 = GetClusterInfo("cluster2", "policy1", true, httpClient2.Object, interval: TimeSpan.FromSeconds(1));
+            monitor.OnClusterAdded(cluster2);
+
+            await monitor.ForceCheckAll().ConfigureAwait(false);
+
+            await Task.Delay(1500);
+
+            VerifySentProbeAndResult(cluster0, httpClient0, policy0, new[] { ("https://localhost:20000/cluster0/api/health/", 2), ("https://localhost:20001/cluster0/api/health/", 2) }, policyCallTimes: 2);
+            VerifySentProbeAndResult(cluster2, httpClient2, policy1, new[] { ("https://localhost:20000/cluster2/api/health/", 2), ("https://localhost:20001/cluster2/api/health/", 2) }, policyCallTimes: 2);
+
+            foreach (var destination in cluster2.DestinationManager.Items.Value)
+            {
+                var newDestinationConfig = new DestinationConfig(destination.Config.Address, null);
+                cluster2.DestinationManager.GetOrCreateItem(destination.DestinationId, d =>
+                {
+                    d.ConfigSignal.Value = newDestinationConfig;
+                });
+            }
+
+            monitor.OnClusterChanged(cluster2);
+
+            await Task.Delay(1200);
+
+            VerifySentProbeAndResult(cluster0, httpClient0, policy0, new[] { ("https://localhost:20000/cluster0/api/health/", 3), ("https://localhost:20001/cluster0/api/health/", 3) }, policyCallTimes: 3);
+            VerifySentProbeAndResult(cluster2, httpClient2, policy1, new[] { ("https://localhost:10000/cluster2/api/health/", 1), ("https://localhost:10001/cluster2/api/health/", 1) }, policyCallTimes: 3);
+        }
+
+        [Fact]
         public async Task ProbeCluster_UnsuccessfulResponseReceivedOrExceptionThrown_ReportItToPolicy()
         {
             var policy = new Mock<IActiveHealthCheckPolicy>();
