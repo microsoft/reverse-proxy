@@ -1,22 +1,16 @@
 ### Crank command to test against a local BenchmarkServer
 
-1. Clone https://github.com/dotnet/crank.git
-2. In one shell, `dotnet run` https://github.com/dotnet/crank/tree/master/src/Microsoft.Crank.Agent
-3. In another shell, `dotnet run` https://github.com/dotnet/crank/tree/master/src/Microsoft.Crank.Controller as follows: 
+1. Follow the [Crank Getting Started Guide](https://github.com/dotnet/crank/blob/master/docs/getting_started.md) to install Microsoft.Crank.Controller and Microsoft.Crank.Agent globally.
+2. In one shell, run `crank-agent`
+3. In another shell, run `crank` as follows:
 
 ```
-dotnet run -p ..\..\..\..\dotnet\crank\src\Microsoft.Crank.Controller -- `
+crank `
      --config https://raw.githubusercontent.com/aspnet/Benchmarks/master/scenarios/proxy.benchmarks.yml `
      --scenario proxy-yarp `
+     --profile local `
      --no-measurements `
      --load.variables.duration 5 `
-     --application.endpoints http://localhost:5010 `
-     --load.endpoints http://localhost:5010 `
-     --downstream.endpoints http://localhost:5010 `
-     --variable serverAddress=localhost `
-     --variable serverPort=5000 `
-     --variable downstreamAddress=localhost `
-     --variable downstreamPort=5001 `
      --variable path=/?s=1024 `
      --variable serverScheme=https `
      --variable downstreamScheme=https `
