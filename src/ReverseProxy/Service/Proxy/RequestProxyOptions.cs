@@ -28,18 +28,14 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         /// Preferred version of the outgoing request.
         /// The default is HTTP/2.0.
         /// </summary>
-        public Version Version { get; set; } = System.Net.HttpVersion.Version20;
+        public Version Version { get; set; } = HttpVersion.Version20;
 
-#if NET5_0
+#if NET
         /// <summary>
         /// The policy applied to version selection, e.g. whether to prefer downgrades, upgrades or request an exact version.
         /// The default is `RequestVersionOrLower`.
         /// </summary>
         public HttpVersionPolicy VersionPolicy { get; set; } = HttpVersionPolicy.RequestVersionOrLower;
-#elif NETCOREAPP3_1
-        // HttpVersionPolicy didn't exist in .NET Core 3.1 and there's no equivalent.
-#else
-#error A target framework was added to the project and needs to be added to this condition.
 #endif
     }
 }

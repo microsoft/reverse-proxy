@@ -245,12 +245,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             // This is done without extra round-trips thanks to ALPN. We can detect a downgrade after calling HttpClient.SendAsync
             // (see Step 3 below). TBD how this will change when HTTP/3 is supported.
             var httpVersion = isUpgradeRequest ? ProtocolHelper.Http11Version : proxyOptions.Version;
-#if NET5_0
+#if NET
             var httpVersionPolicy = isUpgradeRequest ? HttpVersionPolicy.RequestVersionOrLower : proxyOptions.VersionPolicy;
-#elif NETCOREAPP3_1
-            // HttpVersionPolicy didn't exist in .NET Core 3.1 and there's no equivalent.
-#else
-#error A target framework was added to the project and needs to be added to this condition.
 #endif
 
             // TODO Perf: We could probably avoid splitting this and just append the final path and query
@@ -266,12 +262,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 return new HttpRequestMessage(HttpUtilities.GetHttpMethod(context.Request.Method), uri)
                 {
                     Version = httpVersion,
-#if NET5_0
+#if NET
                     VersionPolicy = httpVersionPolicy,
-#elif NETCOREAPP3_1
-                    // HttpVersionPolicy didn't exist in .NET Core 3.1 and there's no equivalent.
-#else
-#error A target framework was added to the project and needs to be added to this condition.
 #endif
                 };
             }
@@ -283,12 +275,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 Method = request.Method,
                 Path = request.Path,
                 Query = new QueryTransformContext(request),
-#if NET5_0
+#if NET
                 VersionPolicy = httpVersionPolicy,
-#elif NETCOREAPP3_1
-                // HttpVersionPolicy didn't exist in .NET Core 3.1 and there's no equivalent.
-#else
-#error A target framework was added to the project and needs to be added to this condition.
 #endif
 
             };
@@ -303,12 +291,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             return new HttpRequestMessage(HttpUtilities.GetHttpMethod(transformContext.Method), targetUri)
             {
                 Version = transformContext.Version,
-#if NET5_0
+#if NET
                 VersionPolicy = transformContext.VersionPolicy,
-#elif NETCOREAPP3_1
-                // HttpVersionPolicy didn't exist in .NET Core 3.1 and there's no equivalent.
-#else
-#error A target framework was added to the project and needs to be added to this condition.
 #endif
             };
         }
