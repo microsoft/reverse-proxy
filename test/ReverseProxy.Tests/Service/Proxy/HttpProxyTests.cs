@@ -621,6 +621,105 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         }
 
         [Fact]
+        public async Task ProxyAsync_OptionsWithVersion()
+        {
+            // Use any non-default value
+            var version = new Version(5, 5);
+#if NET
+            var versionPolicy = HttpVersionPolicy.RequestVersionExact;
+#endif
+
+            var httpContext = new DefaultHttpContext();
+            httpContext.Request.Method = "GET";
+
+            var destinationPrefix = "https://localhost/";
+            var sut = CreateProxy();
+            var client = MockHttpHandler.CreateClient(
+                (HttpRequestMessage request, CancellationToken cancellationToken) =>
+                {
+                    Assert.Equal(version, request.Version);
+#if NET
+                    Assert.Equal(versionPolicy, request.VersionPolicy);
+#endif
+                    Assert.Equal("GET", request.Method.Method, StringComparer.OrdinalIgnoreCase);
+                    Assert.Null(request.Content);
+
+                    var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
+                    return Task.FromResult(response);
+                });
+
+            var options = new RequestProxyOptions()
+            {
+                Version = version,
+#if NET
+                VersionPolicy = versionPolicy,
+#endif
+            };
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, options);
+
+            Assert.Null(httpContext.Features.Get<IProxyErrorFeature>());
+            Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
+        }
+
+        [Fact]
+        public async Task ProxyAsync_OptionsWithVersion_Transformed()
+        {
+            // Use any non-default value
+            var version = new Version(5, 5);
+            var transformedVersion = new Version(6, 6);
+#if NET
+            var versionPolicy = HttpVersionPolicy.RequestVersionExact;
+            var transformedVersionPolicy = HttpVersionPolicy.RequestVersionOrHigher;
+#endif
+
+            var httpContext = new DefaultHttpContext();
+            httpContext.Request.Method = "GET";
+
+            var destinationPrefix = "https://localhost/";
+            var sut = CreateProxy();
+            var client = MockHttpHandler.CreateClient(
+                (HttpRequestMessage request, CancellationToken cancellationToken) =>
+                {
+                    Assert.Equal(transformedVersion, request.Version);
+#if NET
+                    Assert.Equal(transformedVersionPolicy, request.VersionPolicy);
+#endif
+                    Assert.Equal("GET", request.Method.Method, StringComparer.OrdinalIgnoreCase);
+                    Assert.Null(request.Content);
+
+                    var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
+                    return Task.FromResult(response);
+                });
+
+            var transforms = new Transforms(copyRequestHeaders: false,
+                requestTransforms: new []{ new TestRequestParametersTransform(context =>
+                {
+                    Assert.Equal(version, context.Version);
+                    context.Version = transformedVersion;
+#if NET
+                    Assert.Equal(versionPolicy, context.VersionPolicy);
+                    context.VersionPolicy = transformedVersionPolicy;
+#endif
+                })},
+                requestHeaderTransforms: new Dictionary<string, RequestHeaderTransform>(StringComparer.OrdinalIgnoreCase),
+                responseHeaderTransforms: new Dictionary<string, ResponseHeaderTransform>(StringComparer.OrdinalIgnoreCase),
+                responseTrailerTransforms: new Dictionary<string, ResponseHeaderTransform>(StringComparer.OrdinalIgnoreCase));
+
+            var options = new RequestProxyOptions()
+            {
+                Version = version,
+                Transforms = transforms,
+#if NET
+                VersionPolicy = versionPolicy,
+#endif
+            };
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, options);
+
+            Assert.Null(httpContext.Features.Get<IProxyErrorFeature>());
+            Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
+        }
+
+        [Fact]
         public async Task ProxyAsync_UnableToConnect_Returns502()
         {
             var httpContext = new DefaultHttpContext();
@@ -1716,6 +1815,21 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
             {
                 throw new NotImplementedException();
+            }
+        }
+
+        private class TestRequestParametersTransform : RequestParametersTransform
+        {
+            private Action<RequestParametersTransformContext> _transformation;
+            
+            public TestRequestParametersTransform(Action<RequestParametersTransformContext> transformation)
+            {
+                _transformation = transformation;
+            }
+
+            public override void Apply(RequestParametersTransformContext context)
+            {
+                _transformation(context);
             }
         }
     }

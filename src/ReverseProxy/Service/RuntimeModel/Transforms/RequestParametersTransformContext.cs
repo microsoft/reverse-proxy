@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Net.Http;
 using Microsoft.AspNetCore.Http;
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
@@ -20,6 +21,13 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         /// The HTTP version to use for the proxy request.
         /// </summary>
         public Version Version { get; set; }
+
+#if NET
+        /// <summary>
+        /// The HTTP version policy to use for the proxy request.
+        /// </summary>
+        public HttpVersionPolicy VersionPolicy { get; set; }
+#endif
 
         /// <summary>
         /// The HTTP method to use for the proxy request.

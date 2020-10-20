@@ -185,7 +185,7 @@ namespace Microsoft.ReverseProxy
         }
     }
 
-#if NET5_0
+#if NET
     public class HttpProxyCookieTests_Http2 : HttpProxyCookieTests
     {
         public override HttpProtocols HttpProtocol => HttpProtocols.Http2;
@@ -205,9 +205,5 @@ namespace Microsoft.ReverseProxy
             response.EnsureSuccessStatusCode();
         }
     }
-#elif NETCOREAPP3_1
-// Do not test HTTP/2 on .NET Core 3.1
-#else
-#error A target framework was added to the project and needs to be added to this condition. 
 #endif
 }

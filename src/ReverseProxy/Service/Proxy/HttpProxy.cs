@@ -101,7 +101,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 // Mitigate https://github.com/microsoft/reverse-proxy/issues/255, IIS considers all requests upgradeable.
                 && string.Equals("WebSocket", context.Request.Headers[HeaderNames.Upgrade], StringComparison.OrdinalIgnoreCase);
 
-            var destinationRequest = CreateRequestMessage(context, destinationPrefix, isUpgradeRequest, proxyOptions.Transforms.RequestTransforms);
+            var destinationRequest = CreateRequestMessage(context, destinationPrefix, isUpgradeRequest, proxyOptions);
 
             var isClientHttp2 = ProtocolHelper.IsHttp2(context.Request.Protocol);
 
@@ -231,7 +231,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             }
         }
 
-        private HttpRequestMessage CreateRequestMessage(HttpContext context, string destinationAddress, bool isUpgradeRequest, IReadOnlyList<RequestParametersTransform> transforms)
+        private HttpRequestMessage CreateRequestMessage(HttpContext context, string destinationAddress, bool isUpgradeRequest, RequestProxyOptions proxyOptions)
         {
             // "http://a".Length = 8
             if (destinationAddress == null || destinationAddress.Length < 8)
@@ -240,21 +240,32 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             }
 
             // Default to HTTP/1.1 for proxying upgradeable requests. This is already the default as of .NET Core 3.1
-            // Otherwise request HTTP/2 and let HttpClient fallback to HTTP/1.1 if it cannot establish HTTP/2 with the target.
+            // Otherwise request what's set in proxyOptions (e.g. default HTTP/2) and let HttpClient negotiate the protocol
+            // based on VersionPolicy (for .NET 5 and higher). For example, downgrading to HTTP/1.1 if it cannot establish HTTP/2 with the target.
             // This is done without extra round-trips thanks to ALPN. We can detect a downgrade after calling HttpClient.SendAsync
             // (see Step 3 below). TBD how this will change when HTTP/3 is supported.
-            var httpVersion = isUpgradeRequest ? ProtocolHelper.Http11Version : ProtocolHelper.Http2Version;
+            var httpVersion = isUpgradeRequest ? ProtocolHelper.Http11Version : proxyOptions.Version;
+#if NET
+            var httpVersionPolicy = isUpgradeRequest ? HttpVersionPolicy.RequestVersionOrLower : proxyOptions.VersionPolicy;
+#endif
 
             // TODO Perf: We could probably avoid splitting this and just append the final path and query
             UriHelper.FromAbsolute(destinationAddress, out var destinationScheme, out var destinationHost, out var destinationPathBase, out _, out _); // Query and Fragment are not supported here.
 
             var request = context.Request;
+            var transforms = proxyOptions.Transforms.RequestTransforms;
             if (transforms.Count == 0)
             {
                 var url = UriHelper.BuildAbsolute(destinationScheme, destinationHost, destinationPathBase, request.Path, request.QueryString);
                 Log.Proxying(_logger, url);
                 var uri = new Uri(url, UriKind.Absolute);
-                return new HttpRequestMessage(HttpUtilities.GetHttpMethod(context.Request.Method), uri) { Version = httpVersion };
+                return new HttpRequestMessage(HttpUtilities.GetHttpMethod(context.Request.Method), uri)
+                {
+                    Version = httpVersion,
+#if NET
+                    VersionPolicy = httpVersionPolicy,
+#endif
+                };
             }
 
             var transformContext = new RequestParametersTransformContext()
@@ -264,6 +275,10 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 Method = request.Method,
                 Path = request.Path,
                 Query = new QueryTransformContext(request),
+#if NET
+                VersionPolicy = httpVersionPolicy,
+#endif
+
             };
             foreach (var transform in transforms)
             {
@@ -273,7 +288,13 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             var targetUrl = UriHelper.BuildAbsolute(destinationScheme, destinationHost, destinationPathBase, transformContext.Path, transformContext.Query.QueryString);
             Log.Proxying(_logger, targetUrl);
             var targetUri = new Uri(targetUrl, UriKind.Absolute);
-            return new HttpRequestMessage(HttpUtilities.GetHttpMethod(transformContext.Method), targetUri) { Version = transformContext.Version };
+            return new HttpRequestMessage(HttpUtilities.GetHttpMethod(transformContext.Method), targetUri)
+            {
+                Version = transformContext.Version,
+#if NET
+                VersionPolicy = transformContext.VersionPolicy,
+#endif
+            };
         }
 
         private StreamCopyHttpContent SetupRequestBodyCopy(HttpRequest request, HttpRequestMessage destinationRequest,

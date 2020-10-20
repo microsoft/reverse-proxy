@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Net;
+using System.Net.Http;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 
 namespace Microsoft.ReverseProxy.Service.Proxy
@@ -22,9 +24,19 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         /// </summary>
         public TimeSpan RequestTimeout { get; set; } = TimeSpan.FromSeconds(100);
 
-        // Future:
-        // ResponseBodyTimeout - The time allowed to receive the full response body. Default to infinite. Not applied to Upgraded requests or gRPC streams.
-        // HttpVersion - Default to HTTP/2?
-        // HttpVersionPolicy - Default to OrLower?
+        /// <summary>
+        /// Preferred version of the outgoing request.
+        /// The default is HTTP/2.0.
+        /// </summary>
+        public Version Version { get; set; } = HttpVersion.Version20;
+
+#if NET
+        /// <summary>
+        /// The policy applied to version selection, e.g. whether to prefer downgrades, upgrades or request an exact version.
+        /// The default is `RequestVersionOrLower`.
+        /// </summary>
+        public HttpVersionPolicy VersionPolicy { get; set; } = HttpVersionPolicy.RequestVersionOrLower;
+#endif
     }
 }
+
