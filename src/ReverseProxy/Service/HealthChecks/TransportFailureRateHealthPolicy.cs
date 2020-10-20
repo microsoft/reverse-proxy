@@ -49,12 +49,13 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 
         private DestinationHealth EvaluateProxiedRequest(ClusterInfo cluster, ClusterConfig clusterConfig, DestinationInfo destination, bool failed)
         {
-            var failureHistory = destination.GetOrAddProperty(_propertyKey, k => new ProxiedRequestHistory());
-            var rateLimitEntry = cluster.GetOrAddProperty<string, ParsedMetadataEntry<double>>(TransportFailureRateHealthPolicyOptions.FailureRateLimitMetadataName, _ => new ParsedMetadataEntry<double>(TryParse));
-            var rateLimit = rateLimitEntry.GetParsedOrDefault(clusterConfig, TransportFailureRateHealthPolicyOptions.FailureRateLimitMetadataName, _policyOptions.DefaultFailureRateLimit);
-            lock (failureHistory)
+            var history = destination.GetOrAddProperty(_propertyKey, k => new ProxiedRequestHistory());
+            var metadataName = TransportFailureRateHealthPolicyOptions.FailureRateLimitMetadataName;
+            var rateLimitEntry = cluster.GetOrAddProperty<string, ParsedMetadataEntry<double>>(metadataName, _ => new ParsedMetadataEntry<double>(TryParse));
+            var rateLimit = rateLimitEntry.GetParsedOrDefault(clusterConfig, metadataName, _policyOptions.DefaultFailureRateLimit);
+            lock (history)
             {
-                var failureRate = failureHistory.AddNew(_clock.TickCount, (long)_policyOptions.DetectionWindowSize.TotalMilliseconds, failed);
+                var failureRate = history.AddNew(_clock.TickCount, (long)_policyOptions.DetectionWindowSize.TotalMilliseconds, failed);
                 return failureRate < rateLimit ? DestinationHealth.Healthy : DestinationHealth.Unhealthy;
             }
         }

@@ -15,6 +15,7 @@ using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Microsoft.ReverseProxy.Abstractions.RouteDiscovery.Contract;
 using Microsoft.ReverseProxy.Service.Config;
 using Microsoft.ReverseProxy.Service.SessionAffinity;
+using Microsoft.ReverseProxy.Utilities;
 using CorsConstants = Microsoft.ReverseProxy.Abstractions.RouteDiscovery.Contract.CorsConstants;
 
 namespace Microsoft.ReverseProxy.Service
@@ -66,8 +67,8 @@ namespace Microsoft.ReverseProxy.Service
             _transformBuilder = transformBuilder ?? throw new ArgumentNullException(nameof(transformBuilder));
             _authorizationPolicyProvider = authorizationPolicyProvider ?? throw new ArgumentNullException(nameof(authorizationPolicyProvider));
             _corsPolicyProvider = corsPolicyProvider ?? throw new ArgumentNullException(nameof(corsPolicyProvider));
-            _sessionAffinityProviders = sessionAffinityProviders?.ToProviderDictionary() ?? throw new ArgumentNullException(nameof(sessionAffinityProviders));
-            _affinityFailurePolicies = affinityFailurePolicies?.ToPolicyDictionary() ?? throw new ArgumentNullException(nameof(affinityFailurePolicies));
+            _sessionAffinityProviders = sessionAffinityProviders?.ToDictionaryByUniqueId(p => p.Mode) ?? throw new ArgumentNullException(nameof(sessionAffinityProviders));
+            _affinityFailurePolicies = affinityFailurePolicies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(affinityFailurePolicies));
         }
 
         // Note this performs all validation steps without short circuiting in order to report all possible errors.

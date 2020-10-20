@@ -30,7 +30,7 @@ namespace Microsoft.ReverseProxy.Middleware
         {
             _next = next ?? throw new ArgumentNullException(nameof(next));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _sessionAffinityProviders = sessionAffinityProviders.ToProviderDictionary();
+            _sessionAffinityProviders = sessionAffinityProviders?.ToDictionaryByUniqueId(p => p.Mode) ?? throw new ArgumentNullException(nameof(sessionAffinityProviders));
         }
 
         public Task Invoke(HttpContext context)
