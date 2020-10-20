@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.IO;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
@@ -21,11 +22,11 @@ namespace BenchmarkApp
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
-                    webBuilder.ConfigureKestrel((_, kestrelOptions) =>
+                    webBuilder.ConfigureKestrel((context, kestrelOptions) =>
                     {
                         kestrelOptions.ConfigureHttpsDefaults(httpsOptions =>
                         {
-                            httpsOptions.ServerCertificate = new X509Certificate2("testCert.pfx", "testPassword");
+                            httpsOptions.ServerCertificate = new X509Certificate2(Path.Combine(context.HostingEnvironment.ContentRootPath, "testCert.pfx"), "testPassword");
                         });
                     })
                    .UseStartup<Startup>());
