@@ -9,7 +9,6 @@ crank `
      --config https://raw.githubusercontent.com/aspnet/Benchmarks/master/scenarios/proxy.benchmarks.yml `
      --scenario proxy-yarp `
      --profile local `
-     --no-measurements `
      --load.variables.duration 5 `
      --variable path=/?s=1024 `
      --variable serverScheme=https `
