@@ -32,6 +32,7 @@ namespace BenchmarkApp
                 { "Routes:0:RouteId", "route" },
                 { "Routes:0:ClusterId", "cluster" },
                 { "Routes:0:Match:Path", "/{**catchall}" },
+                { "Clusters:cluster:HttpClient:DangerousAcceptAnyServerCertificate", "true" },
             };
 
             var clusterCount = 0;
