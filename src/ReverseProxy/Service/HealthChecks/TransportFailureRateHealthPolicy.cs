@@ -55,7 +55,11 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             var rateLimit = rateLimitEntry.GetParsedOrDefault(clusterConfig, metadataName, _policyOptions.DefaultFailureRateLimit);
             lock (history)
             {
-                var failureRate = history.AddNew(_clock.TickCount, (long)_policyOptions.DetectionWindowSize.TotalMilliseconds, failed);
+                var failureRate = history.AddNew(
+                    _clock.TickCount,
+                    (long)_policyOptions.DetectionWindowSize.TotalMilliseconds,
+                    _policyOptions.MinimalTotalCountThreshold,
+                    failed);
                 return failureRate < rateLimit ? DestinationHealth.Healthy : DestinationHealth.Unhealthy;
             }
         }
@@ -89,7 +93,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             private double _totalCount;
             private readonly Queue<HistoryRecord> _records = new Queue<HistoryRecord>();
 
-            public double AddNew(long eventTime, long detectionWindowSize, bool failed)
+            public double AddNew(long eventTime, long detectionWindowSize, int totalCountThreshold, bool failed)
             {
                 if (_nextRecordCreatedAt == 0)
                 {
@@ -123,7 +127,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                     _totalCount -= removed.TotalCount;
                 }
 
-                return _totalCount == 0 ? 0.0 : _failedCount / _totalCount;
+                return _totalCount < totalCountThreshold || _totalCount == 0 ? 0.0 : _failedCount / _totalCount;
             }
 
             private readonly struct HistoryRecord

@@ -20,7 +20,8 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         [Fact]
         public void RequestProxied_FailureRateLimitExceeded_MarkDestinationUnhealthy()
         {
-            var options = Options.Create(new TransportFailureRateHealthPolicyOptions { DefaultFailureRateLimit = 0.5, DetectionWindowSize = TimeSpan.FromSeconds(30) });
+            var options = Options.Create(
+                new TransportFailureRateHealthPolicyOptions { DefaultFailureRateLimit = 0.5, DetectionWindowSize = TimeSpan.FromSeconds(30), MinimalTotalCountThreshold = 1 });
             var clock = new UptimeClockStub { TickCount = 10000 };
             var reactivationScheduler = new Mock<IReactivationScheduler>();
             var policy = new TransportFailureRateHealthPolicy(options, clock, reactivationScheduler.Object);
@@ -80,7 +81,8 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         [Fact]
         public void RequestProxied_FailureMovedOutOfDetectionWindow_MarkDestinationHealthy()
         {
-            var options = Options.Create(new TransportFailureRateHealthPolicyOptions { DefaultFailureRateLimit = 0.5, DetectionWindowSize = TimeSpan.FromSeconds(30) });
+            var options = Options.Create(
+                new TransportFailureRateHealthPolicyOptions { DefaultFailureRateLimit = 0.5, DetectionWindowSize = TimeSpan.FromSeconds(30), MinimalTotalCountThreshold = 1 });
             var clock = new UptimeClockStub { TickCount = 10000 };
             var reactivationScheduler = new Mock<IReactivationScheduler>();
             var policy = new TransportFailureRateHealthPolicy(options, clock, reactivationScheduler.Object);
@@ -133,7 +135,8 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         [Fact]
         public void RequestProxied_MultipleConcurrentRequests_MarkDestinationUnhealthyAndHealthyAgain()
         {
-            var options = Options.Create(new TransportFailureRateHealthPolicyOptions { DefaultFailureRateLimit = 0.5, DetectionWindowSize = TimeSpan.FromSeconds(30) });
+            var options = Options.Create(
+                new TransportFailureRateHealthPolicyOptions { DefaultFailureRateLimit = 0.5, DetectionWindowSize = TimeSpan.FromSeconds(30), MinimalTotalCountThreshold = 1 });
             var clock = new UptimeClockStub { TickCount = 10000 };
             var reactivationScheduler = new Mock<IReactivationScheduler>();
             var reactivationPeriod = TimeSpan.FromSeconds(15);

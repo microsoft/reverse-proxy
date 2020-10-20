@@ -22,6 +22,13 @@ namespace Microsoft.ReverseProxy.Abstractions
         public TimeSpan DetectionWindowSize { get; set; } = TimeSpan.FromSeconds(60);
 
         /// <summary>
+        /// Minimal total number of requests which must be proxied to a destination
+        /// before this policy starts evaluating the destination's health and enforcing the failure rate limit.
+        /// The default is 10.
+        /// </summary>
+        public int MinimalTotalCountThreshold { get; set; } = 10;
+
+        /// <summary>
         /// Default failure rate limit for a destination to be marked as unhealhty that is applied if it's not set on a cluster's metadata.
         /// It's calculated as a percentage of failed requests out of all requests proxied to the same destination in the <see cref="DetectionWindowSize"/> period.
         /// The value is in range (0,1). The default is 0.3 (30%).
