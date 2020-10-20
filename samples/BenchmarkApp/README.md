@@ -6,8 +6,8 @@
 
 ```
 dotnet run -p ..\..\..\..\dotnet\crank\src\Microsoft.Crank.Controller -- `
-     --config benchmarks.yml `
-     --scenario proxy-yarp-http2 `
+     --config https://raw.githubusercontent.com/aspnet/Benchmarks/master/scenarios/proxy.benchmarks.yml `
+     --scenario proxy-yarp `
      --no-measurements `
      --load.variables.duration 5 `
      --application.endpoints http://localhost:5010 `
@@ -17,7 +17,9 @@ dotnet run -p ..\..\..\..\dotnet\crank\src\Microsoft.Crank.Controller -- `
      --variable serverPort=5000 `
      --variable downstreamAddress=localhost `
      --variable downstreamPort=5001 `
+     --variable path=/?s=1024 `
      --variable serverScheme=https `
      --variable downstreamScheme=https `
-     --variable path=/?s=1024
- ```
+     --load.variables.transport http2 `
+     --downstream.variables.httpProtocol http2
+```
