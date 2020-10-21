@@ -12,7 +12,7 @@ namespace Microsoft.ReverseProxy.Service.Management
     /// <summary>
     /// Periodically invokes specified actions on registered entities.
     /// </summary>
-    public sealed class EntityActionScheduler<T> : IDisposable
+    internal sealed class EntityActionScheduler<T> : IDisposable
     {
         private readonly Action<T> _action;
         private readonly bool _runOnce;
@@ -49,8 +49,23 @@ namespace Microsoft.ReverseProxy.Service.Management
         {
             lock (_syncRoot)
             {
+                if (_isStarted)
+                {
+                    return;
+                }
+
+                // Update entries RunAt due to a delayed start to avoid triggering all of them immediately.
+                var now = _clock.TickCount;
+                var next = _list.First;
+                while (next != null)
+                {
+                    var currentEntry = next.Value;
+                    next.Value = new SchedulerEntry(currentEntry.Entity, currentEntry.Period, now + currentEntry.Period);
+                    next = next.Next;
+                }
+
                 _isStarted = true;
-                ScheduleNextRun(_clock.TickCount);
+                ScheduleNextRun(now);
             }
         }
 

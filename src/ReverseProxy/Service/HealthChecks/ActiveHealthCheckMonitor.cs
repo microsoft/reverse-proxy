@@ -135,7 +135,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                     ExceptionDispatchInfo edi = null;
                     try
                     {
-                        response = await probeTasks[i].Task.ConfigureAwait(false);
+                        response = await probeTasks[i].Task;
                     }
                     catch (Exception e)
                     {
