@@ -34,7 +34,7 @@ namespace Microsoft.ReverseProxy.Middleware
             await middleware.Invoke(context0).ConfigureAwait(false);
 
             Assert.True(nextInvoked);
-            policies[0].Verify(p => p.RequestProxied(cluster0, cluster0.DynamicState.AllDestinations[1], context0, null), Times.Once);
+            policies[0].Verify(p => p.RequestProxied(cluster0, cluster0.DynamicState.AllDestinations[1], context0), Times.Once);
             policies[0].VerifyGet(p => p.Name, Times.Once);
             policies[0].VerifyNoOtherCalls();
             policies[1].VerifyGet(p => p.Name, Times.Once);
@@ -47,7 +47,7 @@ namespace Microsoft.ReverseProxy.Middleware
             await middleware.Invoke(context1).ConfigureAwait(false);
 
             Assert.True(nextInvoked);
-            policies[1].Verify(p => p.RequestProxied(cluster1, cluster1.DynamicState.AllDestinations[0], context1, error), Times.Once);
+            policies[1].Verify(p => p.RequestProxied(cluster1, cluster1.DynamicState.AllDestinations[0], context1), Times.Once);
             policies[1].VerifyNoOtherCalls();
             policies[0].VerifyNoOtherCalls();
         }

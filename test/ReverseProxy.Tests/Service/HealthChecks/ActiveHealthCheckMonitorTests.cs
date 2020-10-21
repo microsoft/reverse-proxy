@@ -41,9 +41,8 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             var cluster2 = GetClusterInfo("cluster2", "policy1", true, httpClient2.Object);
             monitor.OnClusterAdded(cluster2);
 
-            await monitor.ForceCheckAll().ConfigureAwait(false);
-            await proxyAppState.WaitForFullInitialization().ConfigureAwait(false);
-            Assert.True(proxyAppState.IsFullyInitialized);
+            await monitor.CheckHealthAsync().ConfigureAwait(false);
+            await proxyAppState.InitializationTask.ConfigureAwait(false);
 
             VerifySentProbeAndResult(cluster0, httpClient0, policy0, new[] { ("https://localhost:20000/cluster0/api/health/", 1), ("https://localhost:20001/cluster0/api/health/", 1) });
 
@@ -69,7 +68,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             var cluster2 = GetClusterInfo("cluster2", "policy1", true, httpClient2.Object, interval: TimeSpan.FromSeconds(2));
             monitor.OnClusterAdded(cluster2);
 
-            await monitor.ForceCheckAll().ConfigureAwait(false);
+            await monitor.CheckHealthAsync().ConfigureAwait(false);
 
             await Task.Delay(2500);
 
@@ -94,7 +93,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             var cluster2 = GetClusterInfo("cluster2", "policy1", true, httpClient2.Object, interval: TimeSpan.FromSeconds(1));
             monitor.OnClusterAdded(cluster2);
 
-            await monitor.ForceCheckAll().ConfigureAwait(false);
+            await monitor.CheckHealthAsync().ConfigureAwait(false);
 
             await Task.Delay(1500);
 
@@ -123,7 +122,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             var cluster0 = GetClusterInfo("cluster0", "policy0", true, httpClient0.Object, interval: TimeSpan.FromSeconds(1));
             monitor.OnClusterAdded(cluster0);
 
-            await monitor.ForceCheckAll().ConfigureAwait(false);
+            await monitor.CheckHealthAsync().ConfigureAwait(false);
 
             await Task.Delay(1500);
 
@@ -156,7 +155,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             var cluster2 = GetClusterInfo("cluster2", "policy1", true, httpClient2.Object, interval: TimeSpan.FromSeconds(1));
             monitor.OnClusterAdded(cluster2);
 
-            await monitor.ForceCheckAll().ConfigureAwait(false);
+            await monitor.CheckHealthAsync().ConfigureAwait(false);
 
             await Task.Delay(1500);
 
@@ -195,8 +194,8 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             var cluster = GetClusterInfo("cluster0", "policy0", true, httpClient.Object, destinationCount: 3);
             monitor.OnClusterAdded(cluster);
 
-            await monitor.ForceCheckAll().ConfigureAwait(false);
-            Assert.True(proxyAppState.IsFullyInitialized);
+            await monitor.CheckHealthAsync().ConfigureAwait(false);
+            Assert.True(proxyAppState.InitializationTask.IsCompleted);
 
             policy.Verify(
                 p => p.ProbingCompleted(
@@ -253,8 +252,8 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             var cluster = GetClusterInfo("cluster0", "policy0", true, httpClient.Object, destinationCount: 3);
             monitor.OnClusterAdded(cluster);
 
-            await monitor.ForceCheckAll().ConfigureAwait(false);
-            Assert.True(proxyAppState.IsFullyInitialized);
+            await monitor.CheckHealthAsync().ConfigureAwait(false);
+            Assert.True(proxyAppState.InitializationTask.IsCompleted);
 
             policy.Verify(
                 p => p.ProbingCompleted(
@@ -279,9 +278,8 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             var cluster = GetClusterInfo("cluster0", "policy0", true, httpClient.Object);
             monitor.OnClusterAdded(cluster);
 
-            await monitor.ForceCheckAll().ConfigureAwait(false);
-            await proxyAppState.WaitForFullInitialization().ConfigureAwait(false);
-            Assert.True(proxyAppState.IsFullyInitialized);
+            await monitor.CheckHealthAsync().ConfigureAwait(false);
+            await proxyAppState.InitializationTask.ConfigureAwait(false);
 
             policy.Verify(p => p.ProbingCompleted(It.IsAny<ClusterInfo>(), It.IsAny<IReadOnlyList<DestinationProbingResult>>()), Times.Once);
             policy.Verify(p => p.Name);

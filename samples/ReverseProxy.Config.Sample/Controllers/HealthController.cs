@@ -27,7 +27,7 @@ namespace Microsoft.ReverseProxy.Sample.Controllers
         [Route("/api/health")]
         public IActionResult CheckHealth()
         {
-            return _proxyAppState.IsFullyInitialized ? Ok() : StatusCode(503);
+            return _proxyAppState.InitializationTask.IsCompleted ? Ok() : StatusCode(503);
         }
     }
 }

@@ -100,7 +100,7 @@ namespace Microsoft.ReverseProxy.Service.Management
             }
 
             // Initial active health check is run in the background.
-            _ = _activeHealthCheckMonitor.ForceCheckAll();
+            _ = _activeHealthCheckMonitor.CheckHealthAsync();
             return this;
         }
 

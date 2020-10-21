@@ -50,14 +50,7 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
         public static IReverseProxyBuilder AddConfigManager(this IReverseProxyBuilder builder)
         {
             builder.Services.TryAddSingleton<IProxyConfigManager, ProxyConfigManager>();
-
-            // Avoid registering several IProxyAppState implementations.
-            if (!builder.Services.Any(d => d.ServiceType == typeof(IProxyAppState)))
-            {
-                builder.Services.AddSingleton<ProxyAppState>();
-                builder.Services.AddSingleton<IProxyAppState>(p => p.GetRequiredService<ProxyAppState>());
-                builder.Services.AddSingleton<IProxyAppStateSetter>(p => p.GetRequiredService<ProxyAppState>());
-            }
+            builder.Services.TryAddSingleton<IProxyAppState, ProxyAppState>();
             return builder;
         }
 

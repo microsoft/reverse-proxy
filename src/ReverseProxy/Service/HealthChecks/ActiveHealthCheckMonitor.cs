@@ -15,29 +15,29 @@ using System.Threading.Tasks;
 
 namespace Microsoft.ReverseProxy.Service.HealthChecks
 {
-    internal class ActiveHealthCheckMonitor : IActiveHealthCheckMonitor, IClusterChangeListener
+    internal class ActiveHealthCheckMonitor : IActiveHealthCheckMonitor, IClusterChangeListener, IDisposable
     {
         private readonly ActiveHealthCheckMonitorOptions _monitorOptions;
         private readonly IDictionary<string, IActiveHealthCheckPolicy> _policies;
         private readonly IProbingRequestFactory _probingRequestFactory;
         private readonly EntityActionScheduler<ClusterInfo> _scheduler;
-        private readonly IProxyAppStateSetter _proxyAppStateSetter;
+        private readonly IProxyAppState _proxyAppState;
 
         public ActiveHealthCheckMonitor(
             IOptions<ActiveHealthCheckMonitorOptions> monitorOptions,
             IEnumerable<IActiveHealthCheckPolicy> policies,
             IProbingRequestFactory probingRequestFactory,
             IUptimeClock clock,
-            IProxyAppStateSetter proxyAppState)
+            IProxyAppState proxyAppState)
         {
             _monitorOptions = monitorOptions?.Value ?? throw new ArgumentNullException(nameof(monitorOptions));
-            _proxyAppStateSetter = proxyAppState ?? throw new ArgumentNullException(nameof(proxyAppState));
+            _proxyAppState = proxyAppState ?? throw new ArgumentNullException(nameof(proxyAppState));
             _policies = policies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(policies));
             _probingRequestFactory = probingRequestFactory ?? throw new ArgumentNullException(nameof(probingRequestFactory));
             _scheduler = new EntityActionScheduler<ClusterInfo>(async cluster => await ProbeCluster(cluster), autoStart: false, runOnce: false, clock);
         }
 
-        public Task ForceCheckAll()
+        public Task CheckHealthAsync()
         {
             return Task.Run(async () =>
             {
@@ -59,7 +59,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                     // TODO: Add logging
                 }
 
-                _proxyAppStateSetter.SetFullyInitialized();
+                _proxyAppState.SetFullyInitialized();
                 _scheduler.Start();
             });
         }

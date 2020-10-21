@@ -14,6 +14,7 @@ using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Microsoft.ReverseProxy.Abstractions.RouteDiscovery.Contract;
 using Microsoft.ReverseProxy.Service.Config;
+using Microsoft.ReverseProxy.Service.HealthChecks;
 using Microsoft.ReverseProxy.Service.SessionAffinity;
 using Microsoft.ReverseProxy.Utilities;
 using CorsConstants = Microsoft.ReverseProxy.Abstractions.RouteDiscovery.Contract.CorsConstants;
@@ -56,19 +57,25 @@ namespace Microsoft.ReverseProxy.Service
         private readonly ICorsPolicyProvider _corsPolicyProvider;
         private readonly IDictionary<string, ISessionAffinityProvider> _sessionAffinityProviders;
         private readonly IDictionary<string, IAffinityFailurePolicy> _affinityFailurePolicies;
+        private readonly IDictionary<string, IActiveHealthCheckPolicy> _activeHealthCheckPolicies;
+        private readonly IDictionary<string, IPassiveHealthCheckPolicy> _passiveHealthCheckPolicies;
 
 
         public ConfigValidator(ITransformBuilder transformBuilder,
             IAuthorizationPolicyProvider authorizationPolicyProvider,
             ICorsPolicyProvider corsPolicyProvider,
             IEnumerable<ISessionAffinityProvider> sessionAffinityProviders,
-            IEnumerable<IAffinityFailurePolicy> affinityFailurePolicies)
+            IEnumerable<IAffinityFailurePolicy> affinityFailurePolicies,
+            IEnumerable<IActiveHealthCheckPolicy> activeHealthCheckPolicies,
+            IEnumerable<IPassiveHealthCheckPolicy> passiveHealthCheckPolicies)
         {
             _transformBuilder = transformBuilder ?? throw new ArgumentNullException(nameof(transformBuilder));
             _authorizationPolicyProvider = authorizationPolicyProvider ?? throw new ArgumentNullException(nameof(authorizationPolicyProvider));
             _corsPolicyProvider = corsPolicyProvider ?? throw new ArgumentNullException(nameof(corsPolicyProvider));
             _sessionAffinityProviders = sessionAffinityProviders?.ToDictionaryByUniqueId(p => p.Mode) ?? throw new ArgumentNullException(nameof(sessionAffinityProviders));
             _affinityFailurePolicies = affinityFailurePolicies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(affinityFailurePolicies));
+            _activeHealthCheckPolicies = activeHealthCheckPolicies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(activeHealthCheckPolicies));
+            _passiveHealthCheckPolicies = passiveHealthCheckPolicies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(passiveHealthCheckPolicies));
         }
 
         // Note this performs all validation steps without short circuiting in order to report all possible errors.
@@ -110,6 +117,9 @@ namespace Microsoft.ReverseProxy.Service
             }
 
             ValidateSessionAffinity(errors, cluster);
+            ValidateProxyHttpClient(errors, cluster);
+            ValidateActiveHealthCheck(errors, cluster);
+            ValidatePassiveHealthCheck(errors, cluster);
 
             return new ValueTask<IList<Exception>>(errors);
         }
@@ -295,6 +305,76 @@ namespace Microsoft.ReverseProxy.Service
             if (!_affinityFailurePolicies.ContainsKey(affinityFailurePolicy))
             {
                 errors.Add(new ArgumentException($"No matching IAffinityFailurePolicy found for the affinity failure policy name '{affinityFailurePolicy}' set on the cluster '{cluster.Id}'."));
+            }
+        }
+
+        private void ValidateProxyHttpClient(IList<Exception> errors, Cluster cluster)
+        {
+            if (cluster.HttpClient == null)
+            {
+                // Proxy http client options are not set.
+                return;
+            }
+
+            if (cluster.HttpClient.MaxConnectionsPerServer != null && cluster.HttpClient.MaxConnectionsPerServer <= 0)
+            {
+                errors.Add(new ArgumentException($"Max connections per server limit set on the cluster '{cluster.Id}' must be positive."));
+            }
+        }
+
+        private void ValidateActiveHealthCheck(IList<Exception> errors, Cluster cluster)
+        {
+            if (cluster.HealthCheck == null || cluster.HealthCheck.Active == null || !cluster.HealthCheck.Active.Enabled)
+            {
+                // Active health check is disabled
+                return;
+            }
+
+            var activeOptions = cluster.HealthCheck.Active;
+            var policy = activeOptions.Policy;
+            if (string.IsNullOrEmpty(policy))
+            {
+                errors.Add(new ArgumentException($"Active health policy name is not set on the cluster '{cluster.Id}'"));
+            }
+            else if (!_activeHealthCheckPolicies.ContainsKey(policy))
+            {
+                errors.Add(new ArgumentException($"No matching {nameof(IActiveHealthCheckPolicy)} found for the active health check policy name '{policy}' set on the cluster '{cluster.Id}'."));
+            }
+
+            if (activeOptions.Interval != null && activeOptions.Interval <= TimeSpan.Zero)
+            {
+                errors.Add(new ArgumentException($"Destination probing interval set on the cluster '{cluster.Id}' must be positive."));
+            }
+
+            if (activeOptions.Timeout != null && activeOptions.Timeout <= TimeSpan.Zero)
+            {
+                errors.Add(new ArgumentException($"Destination probing timeout set on the cluster '{cluster.Id}' must be positive."));
+            }
+
+            if (activeOptions.Path != null && !Uri.TryCreate(activeOptions.Path, UriKind.Relative, out _))
+            {
+                errors.Add(new ArgumentException($"Active health probing path set on the cluster '{cluster.Id}' must be a valid relative URI."));
+            }
+        }
+
+        private void ValidatePassiveHealthCheck(IList<Exception> errors, Cluster cluster)
+        {
+            if (cluster.HealthCheck == null || cluster.HealthCheck.Passive == null || !cluster.HealthCheck.Passive.Enabled)
+            {
+                // Passive health check is disabled
+                return;
+            }
+
+            var passiveOptions = cluster.HealthCheck.Passive;
+            var policy = passiveOptions.Policy;
+            if (string.IsNullOrEmpty(policy))
+            {
+                errors.Add(new ArgumentException($"Passive health policy name is not set on the cluster '{cluster.Id}'"));
+            }
+
+            if (passiveOptions.ReactivationPeriod != null && passiveOptions.ReactivationPeriod <= TimeSpan.Zero)
+            {
+                errors.Add(new ArgumentException($"Unhealthy destination reactivation period set on the cluster '{cluster.Id}' must be positive."));
             }
         }
     }

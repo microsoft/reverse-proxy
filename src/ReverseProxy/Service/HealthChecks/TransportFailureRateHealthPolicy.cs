@@ -40,9 +40,10 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             _reactivationScheduler = reactivationScheduler ?? throw new ArgumentNullException(nameof(reactivationScheduler));
         }
 
-        public void RequestProxied(ClusterInfo cluster, DestinationInfo destination, HttpContext context, IProxyErrorFeature error)
+        public void RequestProxied(ClusterInfo cluster, DestinationInfo destination, HttpContext context)
         {
             var clusterConfig = cluster.Config;
+            var error = context.Features.Get<IProxyErrorFeature>();
             var newHealth = EvaluateProxiedRequest(cluster, clusterConfig, destination, error != null);
             UpdateDestinationHealth(clusterConfig, destination, newHealth);
         }

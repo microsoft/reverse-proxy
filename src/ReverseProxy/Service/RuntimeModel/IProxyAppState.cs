@@ -11,14 +11,14 @@ namespace Microsoft.ReverseProxy.RuntimeModel
     public interface IProxyAppState
     {
         /// <summary>
-        /// Whether the proxy is fully initialized and ready to serve client requests.
-        /// </summary>
-        bool IsFullyInitialized { get; }
-
-        /// <summary>
-        /// Waits for the full proxy initialization.
+        /// Tasks representing a proxy initialization.
         /// </summary>
         /// <returns><see cref="Task"/> that completes once the proxy gets fully initialized.</returns>
-        Task WaitForFullInitialization();
+        Task InitializationTask { get; }
+
+        /// <summary>
+        /// Sets a flag indicating the proxy is fully initialized and ready to serve client requests.
+        /// </summary>
+        void SetFullyInitialized();
     }
 }

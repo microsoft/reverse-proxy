@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.ReverseProxy.Service.Management;
@@ -23,7 +24,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
     public sealed class ClusterInfo
     {
         private readonly DelayableSignal<Unit> _destinationsStateSignal;
-        private readonly Dictionary<object, object> _dynamicProperties = new Dictionary<object, object>();
+        private readonly ConcurrentDictionary<object, object> _dynamicProperties = new ConcurrentDictionary<object, object>();
 
         internal ClusterInfo(string clusterId, IDestinationManager destinationManager)
         {
@@ -76,24 +77,12 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         // It will be replaced later with something more advanced.
         internal TValue GetOrAddProperty<TKey, TValue>(TKey key, Func<TKey, TValue> valueFactory)
         {
-            lock (_dynamicProperties)
-            {
-                if (!_dynamicProperties.TryGetValue(key, out var value))
-                {
-                    value = valueFactory(key);
-                    _dynamicProperties[key] = value;
-                }
-
-                return (TValue)value;
-            }
+            return (TValue)_dynamicProperties.GetOrAdd(key, k => valueFactory((TKey)k));
         }
 
         internal bool TryRemoveProperty<TKey>(TKey key)
         {
-            lock (_dynamicProperties)
-            {
-                return _dynamicProperties.Remove(key);
-            }
+            return _dynamicProperties.TryRemove(key, out _);
         }
 
         private DelayableSignal<Unit> CreateDestinationsStateSignal()

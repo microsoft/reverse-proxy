@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Microsoft.ReverseProxy.Signals;
 using Microsoft.ReverseProxy.Utilities;
@@ -21,7 +22,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
     /// </remarks>
     public sealed class DestinationInfo : IReadOnlyList<DestinationInfo>
     {
-        private readonly Dictionary<object, object> _dynamicProperties = new Dictionary<object, object>();
+        private readonly ConcurrentDictionary<object, object> _dynamicProperties = new ConcurrentDictionary<object, object>();
 
         public DestinationInfo(string destinationId)
         {
@@ -71,24 +72,12 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         // It will be replaced later with something more advanced.
         internal TValue GetOrAddProperty<TKey, TValue>(TKey key, Func<TKey, TValue> valueFactory)
         {
-            lock (_dynamicProperties)
-            {
-                if (!_dynamicProperties.TryGetValue(key, out var value))
-                {
-                    value = valueFactory(key);
-                    _dynamicProperties[key] = value;
-                }
-
-                return (TValue) value;
-            }
+            return (TValue)_dynamicProperties.GetOrAdd(key, k => valueFactory((TKey)k));
         }
 
         internal bool TryRemoveProperty<TKey>(TKey key)
         {
-            lock (_dynamicProperties)
-            {
-                return _dynamicProperties.Remove(key);
-            }
+            return _dynamicProperties.TryRemove(key, out _);
         }
 
         DestinationInfo IReadOnlyList<DestinationInfo>.this[int index]

@@ -22,7 +22,7 @@ namespace Microsoft.ReverseProxy.Abstractions
         public TimeSpan DetectionWindowSize { get; set; } = TimeSpan.FromSeconds(60);
 
         /// <summary>
-        /// Minimal total number of requests which must be proxied to a destination
+        /// Minimal total number of requests which must be proxied to a destination within the detection window
         /// before this policy starts evaluating the destination's health and enforcing the failure rate limit.
         /// The default is 10.
         /// </summary>

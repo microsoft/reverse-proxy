@@ -13,6 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Configuration;
+using Microsoft.ReverseProxy.Service.HealthChecks;
 using Microsoft.ReverseProxy.Utilities;
 using Microsoft.ReverseProxy.Utilities.Tests;
 using Moq;
@@ -29,6 +30,9 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             serviceCollection.AddRouting();
             var proxyBuilder = serviceCollection.AddReverseProxy().LoadFromMemory(routes, clusters);
             serviceCollection.TryAddSingleton(new Mock<IWebHostEnvironment>().Object);
+            var activeHealthPolicy = new Mock<IActiveHealthCheckPolicy>();
+            activeHealthPolicy.SetupGet(p => p.Name).Returns("activePolicyA");
+            serviceCollection.AddSingleton(activeHealthPolicy.Object);
             configureProxy?.Invoke(proxyBuilder);
             var services = serviceCollection.BuildServiceProvider();
             var routeBuilder = services.GetRequiredService<IRuntimeRouteBuilder>();
@@ -284,7 +288,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
         {
             public Task ConfigureClusterAsync(Cluster cluster, CancellationToken cancel)
             {
-                cluster.HealthCheck = new HealthCheckOptions() { Active = new ActiveHealthCheckOptions { Enabled = true, Interval = TimeSpan.FromSeconds(12) } };
+                cluster.HealthCheck = new HealthCheckOptions() { Active = new ActiveHealthCheckOptions { Enabled = true, Interval = TimeSpan.FromSeconds(12), Policy = "activePolicyA" } };
                 return Task.CompletedTask;
             }
 

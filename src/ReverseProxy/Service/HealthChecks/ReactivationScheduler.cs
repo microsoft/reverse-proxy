@@ -8,7 +8,7 @@ using System;
 
 namespace Microsoft.ReverseProxy.Service.HealthChecks
 {
-    internal class ReactivationScheduler : IReactivationScheduler
+    internal class ReactivationScheduler : IReactivationScheduler, IDisposable
     {
         private readonly EntityActionScheduler<DestinationInfo> _scheduler;
 

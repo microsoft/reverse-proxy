@@ -140,6 +140,7 @@ namespace Microsoft.ReverseProxy.Service.Management
 
         private void ScheduleNextRun(long cutoff)
         {
+            // Assume the lock is being held.
             if (_list.First != null)
             {
                 var newDueTime = _list.First.Value.RunAt >= cutoff ? _list.First.Value.RunAt - cutoff : 0;
@@ -149,6 +150,7 @@ namespace Microsoft.ReverseProxy.Service.Management
 
         private void InsertAndAdjustTimer(T entity, long period)
         {
+            // Assume the lock is being held.
             var newNode = InsertNewNode(entity, period, _clock.TickCount + period);
 
             if (ReferenceEquals(newNode, _list.First))
@@ -160,6 +162,7 @@ namespace Microsoft.ReverseProxy.Service.Management
 
         private LinkedListNode<SchedulerEntry> InsertNewNode(T entity, long period, long newRunAt)
         {
+            // Assume the lock is being held.
             var next = _list.First;
             while (next != null && next.Value.RunAt < newRunAt)
             {
@@ -183,6 +186,7 @@ namespace Microsoft.ReverseProxy.Service.Management
 
         private void RestartTimer(long dueTime)
         {
+            // Assume the lock is being held.
             if (_isStarted)
             {
                 _timer.Change(dueTime, Timeout.Infinite);

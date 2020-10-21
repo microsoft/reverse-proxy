@@ -23,7 +23,6 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         /// <param name="cluster">Request's cluster.</param>
         /// <param name="destination">Request's destination.</param>
         /// <param name="context">Context.</param>
-        /// <param name="error">Error occurred while proxying a request.</param>
-        void RequestProxied(ClusterInfo cluster, DestinationInfo destination, HttpContext context, IProxyErrorFeature error);
+        void RequestProxied(ClusterInfo cluster, DestinationInfo destination, HttpContext context);
     }
 }

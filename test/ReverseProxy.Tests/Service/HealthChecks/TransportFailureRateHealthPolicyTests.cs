@@ -37,10 +37,10 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             // Successful requests
             for (var i = 0; i < 3; i++)
             {
-                policy.RequestProxied(cluster0, cluster0.DestinationManager.Items.Value[0], new DefaultHttpContext(), null);
-                policy.RequestProxied(cluster0, cluster0.DestinationManager.Items.Value[1], new DefaultHttpContext(), null);
-                policy.RequestProxied(cluster1, cluster1.DestinationManager.Items.Value[0], new DefaultHttpContext(), null);
-                policy.RequestProxied(cluster1, cluster1.DestinationManager.Items.Value[1], new DefaultHttpContext(), null);
+                policy.RequestProxied(cluster0, cluster0.DestinationManager.Items.Value[0], new DefaultHttpContext());
+                policy.RequestProxied(cluster0, cluster0.DestinationManager.Items.Value[1], new DefaultHttpContext());
+                policy.RequestProxied(cluster1, cluster1.DestinationManager.Items.Value[0], new DefaultHttpContext());
+                policy.RequestProxied(cluster1, cluster1.DestinationManager.Items.Value[1], new DefaultHttpContext());
                 clock.TickCount += 4000;
             }
 
@@ -50,8 +50,8 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             // Failed requests
             for (var i = 0; i < 3; i++)
             {
-                policy.RequestProxied(cluster0, cluster0.DestinationManager.Items.Value[1], new DefaultHttpContext(), new ProxyErrorFeature(ProxyError.RequestTimedOut, null));
-                policy.RequestProxied(cluster1, cluster1.DestinationManager.Items.Value[0], new DefaultHttpContext(), new ProxyErrorFeature(ProxyError.Request, null));
+                policy.RequestProxied(cluster0, cluster0.DestinationManager.Items.Value[1], GetFailedRequestContext(ProxyError.RequestTimedOut));
+                policy.RequestProxied(cluster1, cluster1.DestinationManager.Items.Value[0], GetFailedRequestContext(ProxyError.Request));
                 clock.TickCount += 4000;
             }
 
@@ -63,10 +63,10 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             reactivationScheduler.VerifyNoOtherCalls();
 
             // Two more failed requests
-            policy.RequestProxied(cluster1, cluster1.DestinationManager.Items.Value[0], new DefaultHttpContext(), new ProxyErrorFeature(ProxyError.Request, null));
+            policy.RequestProxied(cluster1, cluster1.DestinationManager.Items.Value[0], GetFailedRequestContext(ProxyError.Request));
             // End of the detection window
             clock.TickCount += 6000;
-            policy.RequestProxied(cluster1, cluster1.DestinationManager.Items.Value[0], new DefaultHttpContext(), new ProxyErrorFeature(ProxyError.Request, null));
+            policy.RequestProxied(cluster1, cluster1.DestinationManager.Items.Value[0], GetFailedRequestContext(ProxyError.Request));
 
             Assert.Equal(DestinationHealth.Unhealthy, cluster1.DestinationManager.Items.Value[0].DynamicState.Health.Passive);
             Assert.Equal(DestinationHealth.Healthy, cluster1.DestinationManager.Items.Value[1].DynamicState.Health.Passive);
@@ -95,7 +95,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             // Initial failed requests
             for (var i = 0; i < 2; i++)
             {
-                policy.RequestProxied(cluster, cluster.DestinationManager.Items.Value[1], new DefaultHttpContext(), new ProxyErrorFeature(ProxyError.RequestTimedOut, null));
+                policy.RequestProxied(cluster, cluster.DestinationManager.Items.Value[1], GetFailedRequestContext(ProxyError.RequestTimedOut));
                 clock.TickCount += 1000;
             }
 
@@ -105,8 +105,8 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             // Successful requests
             for (var i = 0; i < 4; i++)
             {
-                policy.RequestProxied(cluster, cluster.DestinationManager.Items.Value[0], new DefaultHttpContext(), null);
-                policy.RequestProxied(cluster, cluster.DestinationManager.Items.Value[1], new DefaultHttpContext(), null);
+                policy.RequestProxied(cluster, cluster.DestinationManager.Items.Value[0], new DefaultHttpContext());
+                policy.RequestProxied(cluster, cluster.DestinationManager.Items.Value[1], new DefaultHttpContext());
                 clock.TickCount += 5000;
             }
 
@@ -115,7 +115,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             // Failed requests
             for (var i = 0; i < 2; i++)
             {
-                policy.RequestProxied(cluster, cluster.DestinationManager.Items.Value[1], new DefaultHttpContext(), new ProxyErrorFeature(ProxyError.RequestTimedOut, null));
+                policy.RequestProxied(cluster, cluster.DestinationManager.Items.Value[1], GetFailedRequestContext(ProxyError.RequestTimedOut));
                 clock.TickCount += 1;
             }
 
@@ -126,7 +126,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             clock.TickCount += 10998;
 
             // New failed request, but 2 oldest failures have moved out of the detection window
-            policy.RequestProxied(cluster, cluster.DestinationManager.Items.Value[1], new DefaultHttpContext(), new ProxyErrorFeature(ProxyError.RequestTimedOut, null));
+            policy.RequestProxied(cluster, cluster.DestinationManager.Items.Value[1], GetFailedRequestContext(ProxyError.RequestTimedOut));
 
             Assert.Equal(DestinationHealth.Healthy, cluster.DestinationManager.Items.Value[0].DynamicState.Health.Passive);
             Assert.Equal(DestinationHealth.Healthy, cluster.DestinationManager.Items.Value[1].DynamicState.Health.Passive);
@@ -150,7 +150,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             // Initial sucessful requests
             for (var i = 0; i < 2; i++)
             {
-                policy.RequestProxied(cluster, cluster.DestinationManager.Items.Value[1], new DefaultHttpContext(), null);
+                policy.RequestProxied(cluster, cluster.DestinationManager.Items.Value[1], new DefaultHttpContext());
             }
 
             Assert.Equal(DestinationHealth.Unknown, cluster.DestinationManager.Items.Value[0].DynamicState.Health.Passive);
@@ -161,7 +161,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             // They are 'concurrent' because the clock is not updated.
             for (var i = 0; i < 2; i++)
             {
-                policy.RequestProxied(cluster, cluster.DestinationManager.Items.Value[1], new DefaultHttpContext(), new ProxyErrorFeature(ProxyError.RequestTimedOut, null));
+                policy.RequestProxied(cluster, cluster.DestinationManager.Items.Value[1], GetFailedRequestContext(ProxyError.RequestTimedOut));
             }
 
             Assert.Equal(DestinationHealth.Unknown, cluster.DestinationManager.Items.Value[0].DynamicState.Health.Passive);
@@ -172,7 +172,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             // More successful requests
             for (var i = 0; i < 2; i++)
             {
-                policy.RequestProxied(cluster, cluster.DestinationManager.Items.Value[1], new DefaultHttpContext(), null);
+                policy.RequestProxied(cluster, cluster.DestinationManager.Items.Value[1], new DefaultHttpContext());
                 clock.TickCount += 100;
             }
 
@@ -183,7 +183,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             // More failed requests
             for (var i = 0; i < 2; i++)
             {
-                policy.RequestProxied(cluster, cluster.DestinationManager.Items.Value[1], new DefaultHttpContext(), new ProxyErrorFeature(ProxyError.RequestTimedOut, null));
+                policy.RequestProxied(cluster, cluster.DestinationManager.Items.Value[1], GetFailedRequestContext(ProxyError.RequestTimedOut));
                 clock.TickCount += 100;
             }
 
@@ -192,10 +192,18 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             reactivationScheduler.Verify(s => s.Schedule(cluster.DestinationManager.Items.Value[1], reactivationPeriod), Times.Exactly(2));
             reactivationScheduler.VerifyNoOtherCalls();
 
-            policy.RequestProxied(cluster, cluster.DestinationManager.Items.Value[0], new DefaultHttpContext(), null);
+            policy.RequestProxied(cluster, cluster.DestinationManager.Items.Value[0], new DefaultHttpContext());
 
             Assert.Equal(DestinationHealth.Healthy, cluster.DestinationManager.Items.Value[0].DynamicState.Health.Passive);
             reactivationScheduler.VerifyNoOtherCalls();
+        }
+
+        private HttpContext GetFailedRequestContext(ProxyError error)
+        {
+            var errorFeature = new ProxyErrorFeature(error, null);
+            var context = new DefaultHttpContext();
+            context.Features.Set<IProxyErrorFeature>(errorFeature);
+            return context;
         }
 
         private ClusterInfo GetClusterInfo(string id, int destinationCount, double? failureRateLimit = null, TimeSpan? reactivationPeriod = null)
