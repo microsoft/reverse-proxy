@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Crank.EventSources;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -32,6 +33,7 @@ namespace BenchmarkApp
                 { "Routes:0:RouteId", "route" },
                 { "Routes:0:ClusterId", "cluster" },
                 { "Routes:0:Match:Path", "/{**catchall}" },
+                { "Clusters:cluster:HttpClient:DangerousAcceptAnyServerCertificate", "true" },
             };
 
             var clusterCount = 0;
@@ -47,6 +49,9 @@ namespace BenchmarkApp
 
         public void Configure(IApplicationBuilder app)
         {
+            BenchmarksEventSource.MeasureAspNetVersion();
+            BenchmarksEventSource.MeasureNetCoreAppVersion();
+
             app.UseRouting();
             app.UseEndpoints(endpoints =>
             {
