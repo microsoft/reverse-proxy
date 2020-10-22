@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>net5.0;netcoreapp3.1</TargetFrameworks>
@@ -19,7 +19,6 @@
     <PackageReference Include="coverlet.collector" Version="1.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="3.1.0" />
     <PackageReference Include="Moq" Version="4.13.1" />
-    <PackageReference Include="System.IO.Pipelines" Version="4.7.2" />
   </ItemGroup>
 
   <ItemGroup>
