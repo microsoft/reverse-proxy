@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Net.Http;
-using System.Threading;
+using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Options;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.RuntimeModel;
@@ -16,7 +16,8 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
     internal class ConsecutiveFailuresHealthPolicy : IActiveHealthCheckPolicy
     {
         private readonly ConsecutiveFailuresHealthPolicyOptions _options;
-        private readonly string _propertyKey = nameof(ConsecutiveFailuresHealthPolicy);
+        private readonly ConditionalWeakTable<ClusterInfo, ParsedMetadataEntry<double>> _clusterThresholds = new ConditionalWeakTable<ClusterInfo, ParsedMetadataEntry<double>>();
+        private readonly ConditionalWeakTable<DestinationInfo, AtomicCounter> _failureCounters = new ConditionalWeakTable<DestinationInfo, AtomicCounter>();
 
         public string Name => HealthCheckConstants.ActivePolicy.ConsecutiveFailures;
 
@@ -29,22 +30,27 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         {
             cluster.PauseHealthyDestinationUpdates();
 
-            var clusterConfig = cluster.Config;
-            for (var i = 0; i < probingResults.Count; i++)
+            try
             {
-                var destination = probingResults[i].Destination;
-
-                var count = destination.GetOrAddProperty(_propertyKey, k => new AtomicCounter());
-                var newHealth = EvaluateHealthState(cluster, clusterConfig, probingResults[i].Response, count);
-
-                var state = destination.DynamicState;
-                if (newHealth != state.Health.Active)
+                var clusterConfig = cluster.Config;
+                for (var i = 0; i < probingResults.Count; i++)
                 {
-                    destination.DynamicState = new DestinationDynamicState(state.Health.ChangeActive(newHealth));
+                    var destination = probingResults[i].Destination;
+
+                    var count = _failureCounters.GetOrCreateValue(destination);
+                    var newHealth = EvaluateHealthState(cluster, clusterConfig, probingResults[i].Response, count);
+
+                    var state = destination.DynamicState;
+                    if (newHealth != state.Health.Active)
+                    {
+                        destination.DynamicState = new DestinationDynamicState(state.Health.ChangeActive(newHealth));
+                    }
                 }
             }
-
-            cluster.ResumeHealthyDestinationUpdates();
+            finally
+            {
+                cluster.ResumeHealthyDestinationUpdates();
+            }
         }
 
         private DestinationHealth EvaluateHealthState(ClusterInfo cluster, ClusterConfig clusterConfig, HttpResponseMessage response, AtomicCounter count)
@@ -61,7 +67,11 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 // Failure
                 var currentFailureCount = count.Increment();
                 var metadataName = ConsecutiveFailuresHealthPolicyOptions.ThresholdMetadataName;
-                var thresholdEntry = cluster.GetOrAddProperty<string, ParsedMetadataEntry<double>>(metadataName, _ => new ParsedMetadataEntry<double>(TryParse));
+                if (!_clusterThresholds.TryGetValue(cluster, out var thresholdEntry))
+                {
+                    thresholdEntry = new ParsedMetadataEntry<double>(TryParse);
+                    _clusterThresholds.AddOrUpdate(cluster, thresholdEntry);
+                }
                 var threshold = thresholdEntry.GetParsedOrDefault(clusterConfig, metadataName, _options.DefaultThreshold);
                 newHealth = currentFailureCount < threshold ? DestinationHealth.Healthy : DestinationHealth.Unhealthy;
             }

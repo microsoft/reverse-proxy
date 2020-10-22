@@ -178,21 +178,24 @@ namespace Microsoft.ReverseProxy.Service.Management
         private LinkedListNode<SchedulerEntry> InsertNewNode(T entity, long period, long newRunAt)
         {
             // Assume the lock is being held.
-            var next = _list.First;
-            while (next != null && next.Value.RunAt < newRunAt)
+            // Go from an entry with the most distant firing time to an entry with the soonest one (from Last to First).
+            // Insert a new entry either right after an entry with the closest but still lower (closer to 'now') firing time
+            // or as the new First if the new entry is the soonest among all others on the list.
+            var previous = _list.Last;
+            while (previous != null && previous.Value.RunAt > newRunAt)
             {
-                next = next.Next;
+                previous = previous.Previous;
             }
 
             var newEntry = new SchedulerEntry(entity, period, newRunAt);
             LinkedListNode<SchedulerEntry> newNode;
-            if (next != null)
+            if (previous != null)
             {
-                newNode = _list.AddBefore(next, newEntry);
+                newNode = _list.AddAfter(previous, newEntry);
             }
             else
             {
-                newNode = _list.AddLast(newEntry);
+                newNode = _list.AddFirst(newEntry);
             }
 
             _map[entity] = newNode;

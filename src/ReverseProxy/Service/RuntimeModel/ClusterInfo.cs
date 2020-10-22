@@ -24,7 +24,6 @@ namespace Microsoft.ReverseProxy.RuntimeModel
     public sealed class ClusterInfo
     {
         private readonly DelayableSignal<Unit> _destinationsStateSignal;
-        private readonly ConcurrentDictionary<object, object> _dynamicProperties = new ConcurrentDictionary<object, object>();
 
         internal ClusterInfo(string clusterId, IDestinationManager destinationManager)
         {
@@ -72,18 +71,6 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         /// Keeps track of the total number of concurrent requests on this cluster.
         /// </summary>
         internal AtomicCounter ConcurrencyCounter { get; } = new AtomicCounter();
-
-        // Temporary implementation of a simple thread-safe dynamic property bag.
-        // It will be replaced later with something more advanced.
-        internal TValue GetOrAddProperty<TKey, TValue>(TKey key, Func<TKey, TValue> valueFactory)
-        {
-            return (TValue)_dynamicProperties.GetOrAdd(key, k => valueFactory((TKey)k));
-        }
-
-        internal bool TryRemoveProperty<TKey>(TKey key)
-        {
-            return _dynamicProperties.TryRemove(key, out _);
-        }
 
         private DelayableSignal<Unit> CreateDestinationsStateSignal()
         {

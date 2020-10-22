@@ -154,6 +154,128 @@ namespace Microsoft.ReverseProxy.Service.Management
             VerifyEntities(scheduler, entity0);
         }
 
+        [Fact]
+        public void ChangePeriod_PeriodDecreasedTimerNotStarted_PeriodChangedBeforeFirstCall()
+        {
+            var invoked = new AutoResetEvent(false);
+            var entity = new Entity { Id = "entity0" };
+            var period = TimeSpan.FromMilliseconds(1000);
+            var timeout = TimeSpan.FromSeconds(2);
+            var clock = new UptimeClock();
+            Entity lastInvokedEntity = null;
+            using var scheduler = new EntityActionScheduler<Entity>(e =>
+            {
+                lastInvokedEntity = e;
+                invoked.Set();
+            }, autoStart: false, runOnce: false, clock);
+
+            scheduler.ScheduleEntity(entity, period);
+
+            var newPeriod = TimeSpan.FromMilliseconds(500);
+            scheduler.ChangePeriod(entity, newPeriod);
+
+            scheduler.Start();
+
+            var before = clock.TickCount;
+            Assert.True(invoked.WaitOne(timeout));
+
+            var elapsed = TimeSpan.FromMilliseconds(clock.TickCount - before);
+            Assert.True(elapsed >= newPeriod && elapsed < period);
+            Assert.Same(entity, lastInvokedEntity);
+        }
+
+        [Fact]
+        public void ChangePeriod_PeriodIncreasedTimerNotStarted_PeriodChangedBeforeFirstCall()
+        {
+            var invoked = new AutoResetEvent(false);
+            var entity = new Entity { Id = "entity0" };
+            var period = TimeSpan.FromMilliseconds(250);
+            var timeout = TimeSpan.FromSeconds(2);
+            var clock = new UptimeClock();
+            Entity lastInvokedEntity = null;
+            using var scheduler = new EntityActionScheduler<Entity>(e =>
+            {
+                lastInvokedEntity = e;
+                invoked.Set();
+            }, autoStart: false, runOnce: false, clock);
+
+            scheduler.ScheduleEntity(entity, period);
+
+            var newPeriod = TimeSpan.FromMilliseconds(500);
+            scheduler.ChangePeriod(entity, newPeriod);
+
+            scheduler.Start();
+
+            var before = clock.TickCount;
+            Assert.True(invoked.WaitOne(timeout));
+
+            var elapsed = TimeSpan.FromMilliseconds(clock.TickCount - before);
+            Assert.True(elapsed >= newPeriod);
+            Assert.Same(entity, lastInvokedEntity);
+        }
+
+        [Fact]
+        public void ChangePeriod_TimerStartedPeriodDecreasedAfterFirstCall_PeriodChangedBeforeNextCall()
+        {
+            var invoked = new AutoResetEvent(false);
+            var entity = new Entity { Id = "entity0" };
+            var period = TimeSpan.FromMilliseconds(1000);
+            var timeout = TimeSpan.FromSeconds(2);
+            var clock = new UptimeClock();
+            Entity lastInvokedEntity = null;
+            using var scheduler = new EntityActionScheduler<Entity>(e =>
+            {
+                lastInvokedEntity = e;
+                invoked.Set();
+            }, autoStart: true, runOnce: false, clock);
+
+            scheduler.ScheduleEntity(entity, period);
+
+            Assert.True(invoked.WaitOne(timeout));
+            lastInvokedEntity = null;
+
+            var newPeriod = TimeSpan.FromMilliseconds(500);
+            scheduler.ChangePeriod(entity, newPeriod);
+
+            var before = clock.TickCount;
+            Assert.True(invoked.WaitOne(timeout));
+
+            var elapsed = TimeSpan.FromMilliseconds(clock.TickCount - before);
+            Assert.True(elapsed >= newPeriod && elapsed < period);
+            Assert.Same(entity, lastInvokedEntity);
+        }
+
+        [Fact]
+        public void ChangePeriod_TimerStartedPeriodIncreasedAfterFirstCall_PeriodChangedBeforeNextCall()
+        {
+            var invoked = new AutoResetEvent(false);
+            var entity = new Entity { Id = "entity0" };
+            var period = TimeSpan.FromMilliseconds(250);
+            var timeout = TimeSpan.FromSeconds(2);
+            var clock = new UptimeClock();
+            Entity lastInvokedEntity = null;
+            using var scheduler = new EntityActionScheduler<Entity>(e =>
+            {
+                lastInvokedEntity = e;
+                invoked.Set();
+            }, autoStart: true, runOnce: false, clock);
+
+            scheduler.ScheduleEntity(entity, period);
+
+            Assert.True(invoked.WaitOne(timeout));
+            lastInvokedEntity = null;
+
+            var newPeriod = TimeSpan.FromMilliseconds(500);
+            scheduler.ChangePeriod(entity, newPeriod);
+
+            var before = clock.TickCount;
+            Assert.True(invoked.WaitOne(timeout));
+
+            var elapsed = TimeSpan.FromMilliseconds(clock.TickCount - before);
+            Assert.True(elapsed >= newPeriod);
+            Assert.Same(entity, lastInvokedEntity);
+        }
+
         private void VerifyEntities(EntityActionScheduler<Entity> scheduler, params Entity[] entities)
         {
             var scheduledEntities = scheduler.GetScheduledEntities().ToList();

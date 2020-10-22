@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Microsoft.ReverseProxy.Abstractions;
@@ -29,7 +30,8 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         private readonly IReactivationScheduler _reactivationScheduler;
         private readonly TransportFailureRateHealthPolicyOptions _policyOptions;
         private readonly IUptimeClock _clock;
-        private readonly string _propertyKey = nameof(TransportFailureRateHealthPolicy);
+        private readonly ConditionalWeakTable<ClusterInfo, ParsedMetadataEntry<double>> _clusterFailureRateLimits = new ConditionalWeakTable<ClusterInfo, ParsedMetadataEntry<double>>();
+        private readonly ConditionalWeakTable<DestinationInfo, ProxiedRequestHistory> _requestHistories = new ConditionalWeakTable<DestinationInfo, ProxiedRequestHistory>();
 
         public string Name => HealthCheckConstants.PassivePolicy.TransportFailureRate;
 
@@ -50,9 +52,13 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 
         private DestinationHealth EvaluateProxiedRequest(ClusterInfo cluster, ClusterConfig clusterConfig, DestinationInfo destination, bool failed)
         {
-            var history = destination.GetOrAddProperty(_propertyKey, k => new ProxiedRequestHistory());
+            var history = _requestHistories.GetOrCreateValue(destination);
             var metadataName = TransportFailureRateHealthPolicyOptions.FailureRateLimitMetadataName;
-            var rateLimitEntry = cluster.GetOrAddProperty<string, ParsedMetadataEntry<double>>(metadataName, _ => new ParsedMetadataEntry<double>(TryParse));
+            if (!_clusterFailureRateLimits.TryGetValue(cluster, out var rateLimitEntry))
+            {
+                rateLimitEntry = new ParsedMetadataEntry<double>(TryParse);
+                _clusterFailureRateLimits.AddOrUpdate(cluster, rateLimitEntry);
+            }
             var rateLimit = rateLimitEntry.GetParsedOrDefault(clusterConfig, metadataName, _policyOptions.DefaultFailureRateLimit);
             lock (history)
             {

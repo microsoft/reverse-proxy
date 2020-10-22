@@ -122,7 +122,6 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                     }
                     catch
                     {
-                        cts.Cancel();
                         cts.Dispose();
                         // Log and suppress an exception to give a chance for all destinations to be probed.
                     }
