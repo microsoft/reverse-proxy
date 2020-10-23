@@ -97,10 +97,13 @@ namespace Microsoft.ReverseProxy.Service.Management
                 // Check if the entity is still scheduled.
                 if (_entries.ContainsKey(entry.Entity))
                 {
-                    entry.Timer.Change(entry.Period, Timeout.Infinite);
+                    entry.SetTimer();
                 }
             }
         }
+
+        private void ChangePeriodInternal()
+        {}
 
         private class SchedulerEntry
         {
@@ -122,7 +125,20 @@ namespace Microsoft.ReverseProxy.Service.Management
             public void ChangePeriod(long newPeriod)
             {
                 Interlocked.Exchange(ref _period, newPeriod);
-                Timer.Change(newPeriod, Timeout.Infinite);
+                SetTimer();
+            }
+
+            public void SetTimer()
+            {
+                try
+                {
+                    Timer.Change(Period, Timeout.Infinite);
+                }
+                catch (ObjectDisposedException)
+                {
+                    // It can be thrown if the timer has been already disposed.
+                    // Just suppress it.
+                }
             }
         }
     }
