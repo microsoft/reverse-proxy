@@ -35,7 +35,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                     return _originalQueryString;
                 }
 
-#if NET5_0 || NETCOREAPP5_0
+#if NET5_0
                 var queryBuilder = new QueryBuilder(_modifiedQueryParameters);
 #elif NETCOREAPP3_1
                 var queryBuilder = new QueryBuilder(_modifiedQueryParameters.SelectMany(kvp => kvp.Value, (kvp, v) => KeyValuePair.Create(kvp.Key, v)));
