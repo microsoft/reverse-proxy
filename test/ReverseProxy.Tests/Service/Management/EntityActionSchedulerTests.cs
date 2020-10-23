@@ -18,7 +18,7 @@ namespace Microsoft.ReverseProxy.Service.Management
             var entity0 = new Entity { Id = "entity0" };
             var period0 = TimeSpan.FromMilliseconds(1100);
             var entity1 = new Entity { Id = "entity1" };
-            var period1 = TimeSpan.FromMilliseconds(700);
+            var period1 = TimeSpan.FromMilliseconds(900);
             var timeout = TimeSpan.FromSeconds(2);
             Entity lastInvokedEntity = null;
             using var scheduler = new EntityActionScheduler<Entity>(e =>
@@ -37,9 +37,6 @@ namespace Microsoft.ReverseProxy.Service.Management
 
             Assert.True(invoked.WaitOne(timeout));
             Assert.Same(entity0, lastInvokedEntity);
-
-            Assert.True(invoked.WaitOne(timeout));
-            Assert.Same(entity1, lastInvokedEntity);
 
             Assert.True(invoked.WaitOne(timeout));
             Assert.Same(entity1, lastInvokedEntity);
