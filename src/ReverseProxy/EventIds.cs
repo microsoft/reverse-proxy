@@ -22,11 +22,11 @@ namespace Microsoft.ReverseProxy
         public static readonly EventId ActiveHealthProbeConstructionFailedOnCluster = new EventId(13, "ActiveHealthProbeConstructionFailedOnCluster");
         public static readonly EventId StartingActiveHealthProbingOnCluster = new EventId(14, "StartingActiveHealthProbingOnCluster");
         public static readonly EventId StoppedActiveHealthProbingOnCluster = new EventId(15, "StoppedActiveHealthProbingOnCluster");
-        public static readonly EventId ProberFailed = new EventId(16, "ProberFailed");
-        public static readonly EventId ProberChecked = new EventId(17, "ProberChecked");
-        public static readonly EventId ProberGracefulShutdown = new EventId(18, "ProberGracefulShutdown");
-        public static readonly EventId ProberStarted = new EventId(19, "ProberStarted");
-        public static readonly EventId ProberResult = new EventId(20, "ProberResult");
+        public static readonly EventId DestinationProbingCompleted = new EventId(16, "DestinationActiveProbingCompleted");
+        public static readonly EventId DestinationProbingFailed = new EventId(17, "DestinationActiveProbingFailed");
+        public static readonly EventId SendingHealthProbeToEndpointOfDestination = new EventId(18, "SendingHealthProbeToEndpointOfDestination");
+        public static readonly EventId UnhealthyDestinationIsScheduledForReactivation = new EventId(19, "UnhealthyDestinationIsScheduledForReactivation");
+        public static readonly EventId PassiveDestinationHealthResetToUnkownState = new EventId(20, "PassiveDestinationHealthResetToUnkownState");
         public static readonly EventId ClusterAdded = new EventId(21, "ClusterAdded");
         public static readonly EventId ClusterChanged = new EventId(22, "ClusterChanged");
         public static readonly EventId ClusterRemoved = new EventId(23, "ClusterRemoved");
@@ -55,5 +55,7 @@ namespace Microsoft.ReverseProxy
         public static readonly EventId ProxyClientReused = new EventId(46, "ProxyClientReused");
         public static readonly EventId ConfigurationDataConversionFailed = new EventId(47, "ConfigurationDataConversionFailed");
         public static readonly EventId ProxyError = new EventId(48, "ProxyError");
+        public static readonly EventId ActiveDestinationHealthStateIsSetToUnhealthy = new EventId(49, "ActiveDestinationHealthStateIsSetToUnhealthy");
+        public static readonly EventId ActiveDestinationHealthStateIsSet = new EventId(50, "ActiveDestinationHealthStateIsSet");
     }
 }

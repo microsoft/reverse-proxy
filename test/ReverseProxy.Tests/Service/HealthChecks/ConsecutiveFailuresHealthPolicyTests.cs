@@ -5,10 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Management;
+using Moq;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Service.HealthChecks
@@ -19,7 +21,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         public void ProbingCompleted_FailureThresholdExceeded_MarkDestinationUnhealthy()
         {
             var options = Options.Create(new ConsecutiveFailuresHealthPolicyOptions { DefaultThreshold = 2 });
-            var policy = new ConsecutiveFailuresHealthPolicy(options);
+            var policy = new ConsecutiveFailuresHealthPolicy(options, new Mock<ILogger<ConsecutiveFailuresHealthPolicy>>().Object);
             var cluster0 = GetClusterInfo("cluster0", destinationCount: 2);
             var cluster1 = GetClusterInfo("cluster0", destinationCount: 2, failureThreshold: 3);
 
@@ -67,7 +69,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         public void ProbingCompleted_SuccessfulResponse_MarkDestinationHealthy()
         {
             var options = Options.Create(new ConsecutiveFailuresHealthPolicyOptions { DefaultThreshold = 2 });
-            var policy = new ConsecutiveFailuresHealthPolicy(options);
+            var policy = new ConsecutiveFailuresHealthPolicy(options, new Mock<ILogger<ConsecutiveFailuresHealthPolicy>>().Object);
             var cluster = GetClusterInfo("cluster0", destinationCount: 2);
 
             var probingResults = new[] {
@@ -95,7 +97,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         public void ProbingCompleted_EmptyProbingResultList_DoNothing()
         {
             var options = Options.Create(new ConsecutiveFailuresHealthPolicyOptions { DefaultThreshold = 2 });
-            var policy = new ConsecutiveFailuresHealthPolicy(options);
+            var policy = new ConsecutiveFailuresHealthPolicy(options, new Mock<ILogger<ConsecutiveFailuresHealthPolicy>>().Object);
             var cluster = GetClusterInfo("cluster0", destinationCount: 2);
 
             var probingResults = new[] {

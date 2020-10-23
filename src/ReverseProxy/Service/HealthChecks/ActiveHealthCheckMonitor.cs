@@ -10,6 +10,7 @@ using Microsoft.ReverseProxy.Service.Management;
 using Microsoft.ReverseProxy.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Runtime.ExceptionServices;
 using System.Threading;
@@ -124,6 +125,9 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                     try
                     {
                         var request = _probingRequestFactory.CreateRequest(clusterConfig, destination.Config);
+
+                        Log.SendingHealthProbeToEndpointOfDestination(_logger, request.RequestUri, destination.DestinationId, cluster.ClusterId);
+
                         probeTasks.Add((clusterConfig.HttpClient.SendAsync(request, cts.Token), cts));
                     }
                     catch (Exception ex)
@@ -143,10 +147,12 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                     try
                     {
                         response = await probeTasks[i].Task;
+                        Log.DestinationProbingCompleted(_logger, allDestinations[i].DestinationId, cluster.ClusterId, response.StatusCode);
                     }
-                    catch (Exception e)
+                    catch (Exception ex)
                     {
-                        edi = ExceptionDispatchInfo.Capture(e);
+                        edi = ExceptionDispatchInfo.Capture(ex);
+                        Log.DestinationProbingFailed(_logger, allDestinations[i].DestinationId, cluster.ClusterId, ex);
                     }
                     probingResults[i] = new DestinationProbingResult(allDestinations[i], response, edi?.SourceException);
                 }
@@ -225,6 +231,21 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 EventIds.StoppedActiveHealthProbingOnCluster,
                 "Active health check probing on cluster `{clusterId}` has stopped.");
 
+            private static readonly Action<ILogger, string, string, HttpStatusCode, Exception> _destinationProbingCompleted = LoggerMessage.Define<string, string, HttpStatusCode>(
+                LogLevel.Information,
+                EventIds.DestinationProbingCompleted,
+                "Probing destination `{destinationId}` on cluster `{clusterId}` completed with the response code `{responseCode}`.");
+
+            private static readonly Action<ILogger, string, string, Exception> _destinationProbingFailed = LoggerMessage.Define<string, string>(
+                LogLevel.Warning,
+                EventIds.DestinationProbingFailed,
+                "Probing destination `{destinationId}` on cluster `{clusterId}` failed.");
+
+            private static readonly Action<ILogger, Uri, string, string, Exception> _sendingHealthProbeToEndpointOfDestination = LoggerMessage.Define<Uri, string, string>(
+                LogLevel.Debug,
+                EventIds.SendingHealthProbeToEndpointOfDestination,
+                "Sending a health probe to endpoint `{endpointUri}` of destination `{destinationId}` on cluster `{clusterId}`.");
+
             public static void ExplicitActiveCheckOfAllClustersHealthFailed(ILogger logger, Exception ex)
             {
                 _explicitActiveCheckOfAllClustersHealthFailed(logger, ex);
@@ -253,6 +274,21 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             public static void StoppedActiveHealthProbingOnCluster(ILogger logger, string clusterId)
             {
                 _stoppedActiveHealthProbingOnCluster(logger, clusterId, null);
+            }
+
+            public static void DestinationProbingCompleted(ILogger logger, string destinationId, string clusterId, HttpStatusCode responseCode)
+            {
+                _destinationProbingCompleted(logger, destinationId, clusterId, responseCode, null);
+            }
+
+            public static void DestinationProbingFailed(ILogger logger, string destinationId, string clusterId, Exception ex)
+            {
+                _destinationProbingFailed(logger, destinationId, clusterId, ex);
+            }
+
+            public static void SendingHealthProbeToEndpointOfDestination(ILogger logger, Uri endpointUri, string destinationId, string clusterId)
+            {
+                _sendingHealthProbeToEndpointOfDestination(logger, endpointUri, destinationId, clusterId, null);
             }
         }
     }

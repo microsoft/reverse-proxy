@@ -3,8 +3,9 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Microsoft.ReverseProxy.RuntimeModel;
-using Microsoft.ReverseProxy.Utilities;
+using Moq;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Service.HealthChecks
@@ -16,7 +17,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         {
             var destination = new DestinationInfo("destination0");
             destination.DynamicState = new DestinationDynamicState(new CompositeDestinationHealth(DestinationHealth.Unhealthy, DestinationHealth.Unhealthy));
-            var scheduler = new ReactivationScheduler();
+            var scheduler = new ReactivationScheduler(new Mock<ILogger<ReactivationScheduler>>().Object);
 
             Assert.Equal(DestinationHealth.Unhealthy, destination.DynamicState.Health.Active);
             Assert.Equal(DestinationHealth.Unhealthy, destination.DynamicState.Health.Passive);
@@ -35,7 +36,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         {
             var destination = new DestinationInfo("destination0");
             destination.DynamicState = new DestinationDynamicState(new CompositeDestinationHealth(DestinationHealth.Unhealthy, DestinationHealth.Unhealthy));
-            var scheduler = new ReactivationScheduler();
+            var scheduler = new ReactivationScheduler(new Mock<ILogger<ReactivationScheduler>>().Object);
 
             Assert.Equal(DestinationHealth.Unhealthy, destination.DynamicState.Health.Active);
             Assert.Equal(DestinationHealth.Unhealthy, destination.DynamicState.Health.Passive);

@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 
 namespace Microsoft.ReverseProxy.Service.Management
@@ -36,7 +35,7 @@ namespace Microsoft.ReverseProxy.Service.Management
 
         public IEnumerable<T> GetScheduledEntities()
         {
-            return _entries.Keys.ToArray();
+            return _entries.Keys;
         }
 
         public void Dispose()
