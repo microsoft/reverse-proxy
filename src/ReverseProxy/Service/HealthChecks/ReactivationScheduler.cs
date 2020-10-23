@@ -3,7 +3,6 @@
 
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Management;
-using Microsoft.ReverseProxy.Utilities;
 using System;
 
 namespace Microsoft.ReverseProxy.Service.HealthChecks
@@ -12,9 +11,9 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
     {
         private readonly EntityActionScheduler<DestinationInfo> _scheduler;
 
-        public ReactivationScheduler(IUptimeClock clock)
+        public ReactivationScheduler()
         {
-            _scheduler = new EntityActionScheduler<DestinationInfo>(Reactivate, autoStart: true, runOnce: true, clock);
+            _scheduler = new EntityActionScheduler<DestinationInfo>(Reactivate, autoStart: true, runOnce: true);
         }
 
         public void Schedule(DestinationInfo destination, TimeSpan reactivationPeriod)

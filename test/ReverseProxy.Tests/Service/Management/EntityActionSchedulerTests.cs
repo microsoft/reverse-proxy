@@ -25,7 +25,7 @@ namespace Microsoft.ReverseProxy.Service.Management
             {
                 lastInvokedEntity = e;
                 invoked.Set();
-            }, autoStart: true, runOnce: false, new UptimeClock());
+            }, autoStart: true, runOnce: false);
 
             scheduler.ScheduleEntity(entity0, period0);
             scheduler.ScheduleEntity(entity1, period1);
@@ -64,7 +64,7 @@ namespace Microsoft.ReverseProxy.Service.Management
             {
                 lastInvokedEntity = e;
                 invoked.Set();
-            }, autoStart: false, runOnce: true, new UptimeClock());
+            }, autoStart: false, runOnce: true);
 
             scheduler.ScheduleEntity(entity0, period0);
             scheduler.ScheduleEntity(entity1, period1);
@@ -100,7 +100,7 @@ namespace Microsoft.ReverseProxy.Service.Management
             {
                 lastInvokedEntity = e;
                 invoked.Set();
-            }, autoStart: false, runOnce: false, new UptimeClock());
+            }, autoStart: false, runOnce: false);
 
             scheduler.ScheduleEntity(entity0, period0);
             scheduler.ScheduleEntity(entity1, period1);
@@ -132,7 +132,7 @@ namespace Microsoft.ReverseProxy.Service.Management
             {
                 lastInvokedEntity = e;
                 invoked.Set();
-            }, autoStart: true, runOnce: false, new UptimeClock());
+            }, autoStart: true, runOnce: false);
 
             scheduler.ScheduleEntity(entity0, period0);
             scheduler.ScheduleEntity(entity1, period1);
@@ -167,7 +167,7 @@ namespace Microsoft.ReverseProxy.Service.Management
             {
                 lastInvokedEntity = e;
                 invoked.Set();
-            }, autoStart: false, runOnce: false, clock);
+            }, autoStart: false, runOnce: false);
 
             scheduler.ScheduleEntity(entity, period);
 
@@ -197,7 +197,7 @@ namespace Microsoft.ReverseProxy.Service.Management
             {
                 lastInvokedEntity = e;
                 invoked.Set();
-            }, autoStart: false, runOnce: false, clock);
+            }, autoStart: false, runOnce: false);
 
             scheduler.ScheduleEntity(entity, period);
 
@@ -227,7 +227,7 @@ namespace Microsoft.ReverseProxy.Service.Management
             {
                 lastInvokedEntity = e;
                 invoked.Set();
-            }, autoStart: true, runOnce: false, clock);
+            }, autoStart: true, runOnce: false);
 
             scheduler.ScheduleEntity(entity, period);
 
@@ -258,7 +258,7 @@ namespace Microsoft.ReverseProxy.Service.Management
             {
                 lastInvokedEntity = e;
                 invoked.Set();
-            }, autoStart: true, runOnce: false, clock);
+            }, autoStart: true, runOnce: false);
 
             scheduler.ScheduleEntity(entity, period);
 
