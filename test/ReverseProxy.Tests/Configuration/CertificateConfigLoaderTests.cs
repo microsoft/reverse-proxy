@@ -61,7 +61,7 @@ namespace Microsoft.ReverseProxy.Configuration
             }
         }
 
-#if NETCOREAPP5_0
+#if NET5_0
         [Fact]
         public void LoadCertificate_PemPathAndKeySpecifiedButPasswordIsMissing_Throws()
         {
