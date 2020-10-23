@@ -6,9 +6,9 @@ using System.Collections.Generic;
 
 namespace Microsoft.ReverseProxy.Utilities
 {
-    public static class ServiceLookupHelper
+    internal static class ServiceLookupHelper
     {
-        internal static IDictionary<string, T> ToDictionaryByUniqueId<T>(this IEnumerable<T> services, Func<T, string> idSelector)
+        public static IDictionary<string, T> ToDictionaryByUniqueId<T>(this IEnumerable<T> services, Func<T, string> idSelector)
         {
             if (services == null)
             {
@@ -28,12 +28,12 @@ namespace Microsoft.ReverseProxy.Utilities
             return result;
         }
 
-        internal static T GetRequiredServiceById<T>(this IDictionary<string, T> services, string id)
+        public static T GetRequiredServiceById<T>(this IDictionary<string, T> services, string id)
         {
             return services.GetRequiredServiceById<T>(id, id);
         }
 
-        internal static T GetRequiredServiceById<T>(this IDictionary<string, T> services, string id, string defaultId)
+        public static T GetRequiredServiceById<T>(this IDictionary<string, T> services, string id, string defaultId)
         {
             var lookup = id;
             if (string.IsNullOrEmpty(lookup))

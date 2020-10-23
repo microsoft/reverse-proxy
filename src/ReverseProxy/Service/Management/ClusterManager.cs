@@ -21,7 +21,7 @@ namespace Microsoft.ReverseProxy.Service.Management
 
         protected override void OnItemRemoved(ClusterInfo item)
         {
-            foreach(var changeListener in _changeListeners)
+            foreach (var changeListener in _changeListeners)
             {
                 changeListener.OnClusterRemoved(item);
             }
@@ -29,7 +29,7 @@ namespace Microsoft.ReverseProxy.Service.Management
 
         protected override void OnItemChanged(ClusterInfo item, bool added)
         {
-            foreach(var changeListener in _changeListeners)
+            foreach (var changeListener in _changeListeners)
             {
                 if (added)
                 {

@@ -84,19 +84,22 @@ namespace Microsoft.ReverseProxy.Service.Management
 
         private void Run(object entryObj)
         {
-            var entry = (SchedulerEntry)entryObj;
-
-            if (_runOnce)
+            lock (entryObj)
             {
-                UnscheduleEntity(entry.Entity);
-            }
+                var entry = (SchedulerEntry)entryObj;
 
-            _action(entry.Entity);
+                if (_runOnce)
+                {
+                    UnscheduleEntity(entry.Entity);
+                }
 
-            // Check if the entity is still scheduled.
-            if (_entries.ContainsKey(entry.Entity))
-            {
-                entry.Timer.Change(entry.Period, Timeout.Infinite);
+                _action(entry.Entity);
+
+                // Check if the entity is still scheduled.
+                if (_entries.ContainsKey(entry.Entity))
+                {
+                    entry.Timer.Change(entry.Period, Timeout.Infinite);
+                }
             }
         }
 

@@ -1,8 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.ReverseProxy.Abstractions;
+using Microsoft.ReverseProxy.Abstractions.Telemetry;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Management;
 using Microsoft.ReverseProxy.Utilities;
@@ -22,17 +24,20 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         private readonly IProbingRequestFactory _probingRequestFactory;
         private readonly EntityActionScheduler<ClusterInfo> _scheduler;
         private readonly IProxyAppState _proxyAppState;
+        private readonly ILogger<ActiveHealthCheckMonitor> _logger;
 
         public ActiveHealthCheckMonitor(
             IOptions<ActiveHealthCheckMonitorOptions> monitorOptions,
             IEnumerable<IActiveHealthCheckPolicy> policies,
             IProbingRequestFactory probingRequestFactory,
-            IProxyAppState proxyAppState)
+            IProxyAppState proxyAppState,
+            ILogger<ActiveHealthCheckMonitor> logger)
         {
             _monitorOptions = monitorOptions?.Value ?? throw new ArgumentNullException(nameof(monitorOptions));
             _proxyAppState = proxyAppState ?? throw new ArgumentNullException(nameof(proxyAppState));
             _policies = policies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(policies));
             _probingRequestFactory = probingRequestFactory ?? throw new ArgumentNullException(nameof(probingRequestFactory));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _scheduler = new EntityActionScheduler<ClusterInfo>(async cluster => await ProbeCluster(cluster), autoStart: false, runOnce: false);
         }
 
@@ -53,9 +58,9 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 
                     await Task.WhenAll(probeClusterTasks);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    // TODO: Add logging
+                    Log.ExplicitActiveCheckOfAllClustersHealthFailed(_logger, ex);
                 }
 
                 _proxyAppState.SetFullyInitialized();
@@ -103,6 +108,8 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 return;
             }
 
+            Log.StartingActiveHealthProbingOnCluster(_logger, cluster.ClusterId);
+
             // Policy must always be present if the active health check is enabled for a cluster.
             // It's validated and ensured by a configuration validator.
             var policy = _policies.GetRequiredServiceById(clusterConfig.HealthCheckOptions.Active.Policy);
@@ -119,10 +126,12 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                         var request = _probingRequestFactory.CreateRequest(clusterConfig, destination.Config);
                         probeTasks.Add((clusterConfig.HttpClient.SendAsync(request, cts.Token), cts));
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        cts.Dispose();
                         // Log and suppress an exception to give a chance for all destinations to be probed.
+                        Log.ActiveHealthProbeConstructionFailedOnCluster(_logger, destination.DestinationId, cluster.ClusterId, ex);
+
+                        cts.Dispose();
                     }
                 }
 
@@ -144,9 +153,13 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 
                 policy.ProbingCompleted(cluster, probingResults);
             }
+            catch (Exception ex)
+            {
+                Log.ActiveHealthProbingFailedOnCluster(_logger, cluster.ClusterId, ex);
+            }
             finally
             {
-                foreach(var probeTask in probeTasks)
+                foreach (var probeTask in probeTasks)
                 {
                     try
                     {
@@ -154,17 +167,19 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                         {
                             probeTask.Cts.Cancel();
                         }
-                        catch
+                        catch (Exception ex)
                         {
                             // Suppress exceptions to ensure the task will be awaited.
+                            Log.ErrorOccuredDuringActiveHealthProbingShutdownOnCluster(_logger, cluster.ClusterId, ex);
                         }
 
                         var response = await probeTask.Task;
                         response.Dispose();
                     }
-                    catch
+                    catch (Exception ex)
                     {
                         // Suppress exceptions to ensure all responses get a chance to be disposed.
+                        Log.ErrorOccuredDuringActiveHealthProbingShutdownOnCluster(_logger, cluster.ClusterId, ex);
                     }
                     finally
                     {
@@ -173,6 +188,71 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                         probeTask.Cts.Dispose();
                     }
                 }
+
+                Log.StoppedActiveHealthProbingOnCluster(_logger, cluster.ClusterId);
+            }
+        }
+
+        private static class Log
+        {
+            private static readonly Action<ILogger, Exception> _explicitActiveCheckOfAllClustersHealthFailed = LoggerMessage.Define(
+                LogLevel.Error,
+                EventIds.ExplicitActiveCheckOfAllClustersHealthFailed,
+                "An explicitly started active check of all clusters health failed.");
+
+            private static readonly Action<ILogger, string, Exception> _activeHealthProbingFailedOnCluster = LoggerMessage.Define<string>(
+                LogLevel.Error,
+                EventIds.ActiveHealthProbingFailedOnCluster,
+                "Active health probing failed on cluster `{clusterId}`.");
+
+            private static readonly Action<ILogger, string, Exception> _errorOccuredDuringActiveHealthProbingShutdownOnCluster = LoggerMessage.Define<string>(
+                LogLevel.Error,
+                EventIds.ErrorOccuredDuringActiveHealthProbingShutdownOnCluster,
+                "An error occured during shutdown of an active health probing on cluster `{clusterId}`.");
+
+            private static readonly Action<ILogger, string, string, Exception> _activeHealthProbeConstructionFailedOnCluster = LoggerMessage.Define<string, string>(
+                LogLevel.Error,
+                EventIds.ActiveHealthProbeConstructionFailedOnCluster,
+                "Construction of an active health probe for destination `{destinationId}` on cluster `{clusterId}` failed.");
+
+            private static readonly Action<ILogger, string, Exception> _startingActiveHealthProbingOnCluster = LoggerMessage.Define<string>(
+                LogLevel.Debug,
+                EventIds.StartingActiveHealthProbingOnCluster,
+                "Starting active health check probing on cluster `{clusterId}`.");
+
+            private static readonly Action<ILogger, string, Exception> _stoppedActiveHealthProbingOnCluster = LoggerMessage.Define<string>(
+                LogLevel.Debug,
+                EventIds.StoppedActiveHealthProbingOnCluster,
+                "Active health check probing on cluster `{clusterId}` has stopped.");
+
+            public static void ExplicitActiveCheckOfAllClustersHealthFailed(ILogger logger, Exception ex)
+            {
+                _explicitActiveCheckOfAllClustersHealthFailed(logger, ex);
+            }
+
+            public static void ActiveHealthProbingFailedOnCluster(ILogger logger, string clusterId, Exception ex)
+            {
+                _activeHealthProbingFailedOnCluster(logger, clusterId, ex);
+            }
+
+            public static void ErrorOccuredDuringActiveHealthProbingShutdownOnCluster(ILogger logger, string clusterId, Exception ex)
+            {
+                _errorOccuredDuringActiveHealthProbingShutdownOnCluster(logger, clusterId, ex);
+            }
+
+            public static void ActiveHealthProbeConstructionFailedOnCluster(ILogger logger, string destinationId, string clusterId, Exception ex)
+            {
+                _activeHealthProbeConstructionFailedOnCluster(logger, destinationId, clusterId, ex);
+            }
+
+            public static void StartingActiveHealthProbingOnCluster(ILogger logger, string clusterId)
+            {
+                _startingActiveHealthProbingOnCluster(logger, clusterId, null);
+            }
+
+            public static void StoppedActiveHealthProbingOnCluster(ILogger logger, string clusterId)
+            {
+                _stoppedActiveHealthProbingOnCluster(logger, clusterId, null);
             }
         }
     }
