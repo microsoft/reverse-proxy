@@ -85,13 +85,13 @@ namespace Microsoft.ReverseProxy.Service.Management
         private void Run(object entryObj)
         {
             var entry = (SchedulerEntry)entryObj;
-            _action(entry.Entity);
 
             if (_runOnce)
             {
                 UnscheduleEntity(entry.Entity);
-                return;
             }
+
+            _action(entry.Entity);
 
             // Check if the entity is still scheduled.
             if (_entries.ContainsKey(entry.Entity))
