@@ -3323,6 +3323,32 @@ references:
   isSpec: "True"
   fullName: Microsoft.ReverseProxy.Service.Proxy.RequestProxyOptions.Transforms
   nameWithType: RequestProxyOptions.Transforms
+- uid: Microsoft.ReverseProxy.Service.Proxy.RequestProxyOptions.Version
+  name: Version
+  href: api/Microsoft.ReverseProxy.Service.Proxy.RequestProxyOptions.html#Microsoft_ReverseProxy_Service_Proxy_RequestProxyOptions_Version
+  commentId: P:Microsoft.ReverseProxy.Service.Proxy.RequestProxyOptions.Version
+  fullName: Microsoft.ReverseProxy.Service.Proxy.RequestProxyOptions.Version
+  nameWithType: RequestProxyOptions.Version
+- uid: Microsoft.ReverseProxy.Service.Proxy.RequestProxyOptions.Version*
+  name: Version
+  href: api/Microsoft.ReverseProxy.Service.Proxy.RequestProxyOptions.html#Microsoft_ReverseProxy_Service_Proxy_RequestProxyOptions_Version_
+  commentId: Overload:Microsoft.ReverseProxy.Service.Proxy.RequestProxyOptions.Version
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.Proxy.RequestProxyOptions.Version
+  nameWithType: RequestProxyOptions.Version
+- uid: Microsoft.ReverseProxy.Service.Proxy.RequestProxyOptions.VersionPolicy
+  name: VersionPolicy
+  href: api/Microsoft.ReverseProxy.Service.Proxy.RequestProxyOptions.html#Microsoft_ReverseProxy_Service_Proxy_RequestProxyOptions_VersionPolicy
+  commentId: P:Microsoft.ReverseProxy.Service.Proxy.RequestProxyOptions.VersionPolicy
+  fullName: Microsoft.ReverseProxy.Service.Proxy.RequestProxyOptions.VersionPolicy
+  nameWithType: RequestProxyOptions.VersionPolicy
+- uid: Microsoft.ReverseProxy.Service.Proxy.RequestProxyOptions.VersionPolicy*
+  name: VersionPolicy
+  href: api/Microsoft.ReverseProxy.Service.Proxy.RequestProxyOptions.html#Microsoft_ReverseProxy_Service_Proxy_RequestProxyOptions_VersionPolicy_
+  commentId: Overload:Microsoft.ReverseProxy.Service.Proxy.RequestProxyOptions.VersionPolicy
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.Proxy.RequestProxyOptions.VersionPolicy
+  nameWithType: RequestProxyOptions.VersionPolicy
 - uid: Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions
   name: ProxyRouteTransformExtensions
   href: api/Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.html
@@ -4203,6 +4229,19 @@ references:
   isSpec: "True"
   fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestParametersTransformContext.Version
   nameWithType: RequestParametersTransformContext.Version
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestParametersTransformContext.VersionPolicy
+  name: VersionPolicy
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestParametersTransformContext.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestParametersTransformContext_VersionPolicy
+  commentId: P:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestParametersTransformContext.VersionPolicy
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestParametersTransformContext.VersionPolicy
+  nameWithType: RequestParametersTransformContext.VersionPolicy
+- uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestParametersTransformContext.VersionPolicy*
+  name: VersionPolicy
+  href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestParametersTransformContext.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestParametersTransformContext_VersionPolicy_
+  commentId: Overload:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestParametersTransformContext.VersionPolicy
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestParametersTransformContext.VersionPolicy
+  nameWithType: RequestParametersTransformContext.VersionPolicy
 - uid: Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseHeaderTransform
   name: ResponseHeaderTransform
   href: api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseHeaderTransform.html
