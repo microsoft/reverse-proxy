@@ -143,7 +143,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel.Tests
             // Pretend that health checks are enabled so that destination health states are honored
             cluster.Config.Value = new ClusterConfig(
                 new Cluster(),
-                healthCheckOptions: new ClusterConfig.ClusterHealthCheckOptions(
+                healthCheckOptions: new ClusterHealthCheckOptions(
                     enabled: true,
                     interval: TimeSpan.FromSeconds(5),
                     timeout: TimeSpan.FromSeconds(30),

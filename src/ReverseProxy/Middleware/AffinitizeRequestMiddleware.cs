@@ -67,7 +67,7 @@ namespace Microsoft.ReverseProxy.Middleware
             return _next(context);
         }
 
-        private void AffinitizeRequest(HttpContext context, ClusterConfig.ClusterSessionAffinityOptions options, DestinationInfo destination)
+        private void AffinitizeRequest(HttpContext context, ClusterSessionAffinityOptions options, DestinationInfo destination)
         {
             var currentProvider = _sessionAffinityProviders.GetRequiredServiceById(options.Mode, SessionAffinityConstants.Modes.Cookie);
             currentProvider.AffinitizeRequest(context, options, destination);

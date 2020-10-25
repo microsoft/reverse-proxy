@@ -25,7 +25,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
 
         public abstract string Mode { get; }
 
-        public virtual void AffinitizeRequest(HttpContext context, in ClusterConfig.ClusterSessionAffinityOptions options, DestinationInfo destination)
+        public virtual void AffinitizeRequest(HttpContext context, in ClusterSessionAffinityOptions options, DestinationInfo destination)
         {
             if (!options.Enabled)
             {
@@ -40,7 +40,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
             }
         }
 
-        public virtual AffinityResult FindAffinitizedDestinations(HttpContext context, IReadOnlyList<DestinationInfo> destinations, string clusterId, in ClusterConfig.ClusterSessionAffinityOptions options)
+        public virtual AffinityResult FindAffinitizedDestinations(HttpContext context, IReadOnlyList<DestinationInfo> destinations, string clusterId, in ClusterSessionAffinityOptions options)
         {
             if (!options.Enabled)
             {
@@ -85,7 +85,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
             return new AffinityResult(matchingDestinations, AffinityStatus.OK);
         }
 
-        protected virtual string GetSettingValue(string key, ClusterConfig.ClusterSessionAffinityOptions options)
+        protected virtual string GetSettingValue(string key, ClusterSessionAffinityOptions options)
         {
             if (options.Settings == null || !options.Settings.TryGetValue(key, out var value))
             {
@@ -97,9 +97,9 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
 
         protected abstract T GetDestinationAffinityKey(DestinationInfo destination);
 
-        protected abstract (T Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, in ClusterConfig.ClusterSessionAffinityOptions options);
+        protected abstract (T Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, in ClusterSessionAffinityOptions options);
 
-        protected abstract void SetAffinityKey(HttpContext context, in ClusterConfig.ClusterSessionAffinityOptions options, T unencryptedKey);
+        protected abstract void SetAffinityKey(HttpContext context, in ClusterSessionAffinityOptions options, T unencryptedKey);
 
         protected string Protect(string unencryptedKey)
         {

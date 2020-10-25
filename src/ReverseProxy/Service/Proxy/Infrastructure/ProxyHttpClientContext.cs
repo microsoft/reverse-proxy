@@ -22,7 +22,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
         /// from which the <see cref="OldClient"/> was created.
         /// Can be null if a client is getting constructed for the first time.
         /// </summary>
-        public ClusterConfig.ClusterProxyHttpClientOptions OldOptions { get; set; }
+        public ClusterProxyHttpClientOptions OldOptions { get; set; }
 
         /// <summary>
         /// Old metadata instance from which the <see cref="OldClient"/> was created.
@@ -41,7 +41,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
         /// specifying the settings for a new client.
         /// CANNOT be null.
         /// </summary>
-        public ClusterConfig.ClusterProxyHttpClientOptions NewOptions { get; set; }
+        public ClusterProxyHttpClientOptions NewOptions { get; set; }
 
         /// <summary>
         /// New metadata instance used for a new client construction.

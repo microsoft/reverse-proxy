@@ -49,7 +49,7 @@ namespace Microsoft.ReverseProxy.Middleware
             return InvokeInternal(context, proxyFeature, options, cluster.ClusterId);
         }
 
-        private async Task InvokeInternal(HttpContext context, IReverseProxyFeature proxyFeature, ClusterConfig.ClusterSessionAffinityOptions options, string clusterId)
+        private async Task InvokeInternal(HttpContext context, IReverseProxyFeature proxyFeature, ClusterSessionAffinityOptions options, string clusterId)
         {
             var destinations = proxyFeature.AvailableDestinations;
 
