@@ -102,9 +102,6 @@ namespace Microsoft.ReverseProxy.Service.Management
             }
         }
 
-        private void ChangePeriodInternal()
-        {}
-
         private class SchedulerEntry
         {
             private long _period;

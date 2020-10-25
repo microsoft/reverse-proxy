@@ -78,13 +78,12 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             {
                 // Failure
                 var currentFailureCount = count.Increment();
-                var metadataName = ConsecutiveFailuresHealthPolicyOptions.ThresholdMetadataName;
                 if (!_clusterThresholds.TryGetValue(cluster, out var thresholdEntry))
                 {
-                    thresholdEntry = new ParsedMetadataEntry<double>(TryParse);
+                    thresholdEntry = new ParsedMetadataEntry<double>(TryParse, ConsecutiveFailuresHealthPolicyOptions.ThresholdMetadataName);
                     _clusterThresholds.AddOrUpdate(cluster, thresholdEntry);
                 }
-                var threshold = thresholdEntry.GetParsedOrDefault(clusterConfig, metadataName, _options.DefaultThreshold);
+                var threshold = thresholdEntry.GetParsedOrDefault(clusterConfig, _options.DefaultThreshold);
                 newHealth = currentFailureCount < threshold ? DestinationHealth.Healthy : DestinationHealth.Unhealthy;
             }
 
