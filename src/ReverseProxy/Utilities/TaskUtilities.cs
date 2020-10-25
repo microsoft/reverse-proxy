@@ -12,6 +12,6 @@ namespace Microsoft.ReverseProxy.Utilities
     internal static class TaskUtilities
     {
         internal static readonly Task<bool> TrueTask = Task.FromResult(true);
-        internal static readonly Task<bool> FalseTask = Task.FromResult(true);
+        internal static readonly Task<bool> FalseTask = Task.FromResult(false);
     }
 }
