@@ -3,7 +3,6 @@
 
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.ReverseProxy.Middleware;
 using Microsoft.ReverseProxy.RuntimeModel;
 
 namespace Microsoft.ReverseProxy.Service.SessionAffinity
@@ -29,6 +28,6 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
         /// <see cref="true"/> if the failure is considered recoverable and the request processing can proceed.
         /// Otherwise, <see cref="false"/> indicating that an error response has been generated and the request's processing must be terminated.
         /// </returns>
-        public Task<bool> Handle(HttpContext context, ClusterConfig.ClusterSessionAffinityOptions options, AffinityStatus affinityStatus);
+        public Task<bool> Handle(HttpContext context, ClusterSessionAffinityOptions options, AffinityStatus affinityStatus);
     }
 }

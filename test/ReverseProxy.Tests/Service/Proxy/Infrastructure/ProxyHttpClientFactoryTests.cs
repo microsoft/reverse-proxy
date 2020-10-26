@@ -44,7 +44,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         public void CreateClient_ApplySslProtocols_Success()
         {
             var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
-            var options = new ClusterConfig.ClusterProxyHttpClientOptions(SslProtocols.Tls12 | SslProtocols.Tls13, default, default, default);
+            var options = new ClusterProxyHttpClientOptions(SslProtocols.Tls12 | SslProtocols.Tls13, default, default, default);
             var client = factory.CreateClient(new ProxyHttpClientContext { NewOptions = options });
 
             var handler = GetHandler(client);
@@ -58,7 +58,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         public void CreateClient_ApplyDangerousAcceptAnyServerCertificate_Success()
         {
             var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
-            var options = new ClusterConfig.ClusterProxyHttpClientOptions(default, true, default, default);
+            var options = new ClusterProxyHttpClientOptions(default, true, default, default);
             var client = factory.CreateClient(new ProxyHttpClientContext { NewOptions = options });
 
             var handler = GetHandler(client);
@@ -74,7 +74,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         {
             var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
             var certificate = TestResources.GetTestCertificate();
-            var options = new ClusterConfig.ClusterProxyHttpClientOptions(default, default, certificate, default);
+            var options = new ClusterProxyHttpClientOptions(default, default, certificate, default);
             var client = factory.CreateClient(new ProxyHttpClientContext { NewOptions = options });
 
             var handler = GetHandler(client);
@@ -89,7 +89,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         public void CreateClient_ApplyMaxConnectionsPerServer_Success()
         {
             var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
-            var options = new ClusterConfig.ClusterProxyHttpClientOptions(default, default, default, 22);
+            var options = new ClusterProxyHttpClientOptions(default, default, default, 22);
             var client = factory.CreateClient(new ProxyHttpClientContext { NewOptions = options });
 
             var handler = GetHandler(client);
@@ -105,8 +105,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
             var oldClient = new HttpMessageInvoker(new SocketsHttpHandler());
             var clientCertificate = TestResources.GetTestCertificate();
-            var oldOptions = new ClusterConfig.ClusterProxyHttpClientOptions(SslProtocols.Tls11 | SslProtocols.Tls12, true, clientCertificate, 10);
-            var newOptions = new ClusterConfig.ClusterProxyHttpClientOptions(SslProtocols.Tls11 | SslProtocols.Tls12, true, clientCertificate, 10);
+            var oldOptions = new ClusterProxyHttpClientOptions(SslProtocols.Tls11 | SslProtocols.Tls12, true, clientCertificate, 10);
+            var newOptions = new ClusterProxyHttpClientOptions(SslProtocols.Tls11 | SslProtocols.Tls12, true, clientCertificate, 10);
             var oldMetadata = new Dictionary<string, string> { { "key1", "value1" }, { "key2", "value2" } };
             var newMetadata = new Dictionary<string, string> { { "key1", "value1" }, { "key2", "value2" } };
             var context = new ProxyHttpClientContext { ClusterId = "cluster1", OldOptions = oldOptions, OldMetadata = oldMetadata, OldClient = oldClient, NewOptions = newOptions, NewMetadata = newMetadata };
@@ -119,7 +119,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
         [Theory]
         [MemberData(nameof(GetChangedHttpClientOptions))]
-        public void CreateClient_OldClientExistsHttpClientOptionsChanged_ReturnsNewInstance(ClusterConfig.ClusterProxyHttpClientOptions oldOptions, ClusterConfig.ClusterProxyHttpClientOptions newOptions)
+        public void CreateClient_OldClientExistsHttpClientOptionsChanged_ReturnsNewInstance(ClusterProxyHttpClientOptions oldOptions, ClusterProxyHttpClientOptions newOptions)
         {
             var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
             var oldClient = new HttpMessageInvoker(new SocketsHttpHandler());
@@ -137,32 +137,32 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             return new[]
             {
                 new object[] {
-                    new ClusterConfig.ClusterProxyHttpClientOptions(SslProtocols.Tls11, true, clientCertificate, null),
-                    new ClusterConfig.ClusterProxyHttpClientOptions(SslProtocols.Tls11 | SslProtocols.Tls12, true, clientCertificate, null)
+                    new ClusterProxyHttpClientOptions(SslProtocols.Tls11, true, clientCertificate, null),
+                    new ClusterProxyHttpClientOptions(SslProtocols.Tls11 | SslProtocols.Tls12, true, clientCertificate, null)
                 },
                 new object[] {
-                    new ClusterConfig.ClusterProxyHttpClientOptions(SslProtocols.Tls11, true, clientCertificate, null),
-                    new ClusterConfig.ClusterProxyHttpClientOptions(SslProtocols.Tls11, false, clientCertificate, null)
+                    new ClusterProxyHttpClientOptions(SslProtocols.Tls11, true, clientCertificate, null),
+                    new ClusterProxyHttpClientOptions(SslProtocols.Tls11, false, clientCertificate, null)
                 },
                 new object[] {
-                    new ClusterConfig.ClusterProxyHttpClientOptions(SslProtocols.Tls11, true, clientCertificate, null),
-                    new ClusterConfig.ClusterProxyHttpClientOptions(SslProtocols.Tls11, true, null, null)
+                    new ClusterProxyHttpClientOptions(SslProtocols.Tls11, true, clientCertificate, null),
+                    new ClusterProxyHttpClientOptions(SslProtocols.Tls11, true, null, null)
                 },
                 new object[] {
-                    new ClusterConfig.ClusterProxyHttpClientOptions(SslProtocols.Tls11, true, null, null),
-                    new ClusterConfig.ClusterProxyHttpClientOptions(SslProtocols.Tls11, true, clientCertificate, null)
+                    new ClusterProxyHttpClientOptions(SslProtocols.Tls11, true, null, null),
+                    new ClusterProxyHttpClientOptions(SslProtocols.Tls11, true, clientCertificate, null)
                 },
                 new object[] {
-                    new ClusterConfig.ClusterProxyHttpClientOptions(SslProtocols.Tls11, true, null, null),
-                    new ClusterConfig.ClusterProxyHttpClientOptions(SslProtocols.Tls11, true, clientCertificate, 10)
+                    new ClusterProxyHttpClientOptions(SslProtocols.Tls11, true, null, null),
+                    new ClusterProxyHttpClientOptions(SslProtocols.Tls11, true, clientCertificate, 10)
                 },
                 new object[] {
-                    new ClusterConfig.ClusterProxyHttpClientOptions(SslProtocols.Tls11, true, null, 10),
-                    new ClusterConfig.ClusterProxyHttpClientOptions(SslProtocols.Tls11, true, clientCertificate, null)
+                    new ClusterProxyHttpClientOptions(SslProtocols.Tls11, true, null, 10),
+                    new ClusterProxyHttpClientOptions(SslProtocols.Tls11, true, clientCertificate, null)
                 },
                 new object[] {
-                    new ClusterConfig.ClusterProxyHttpClientOptions(SslProtocols.Tls11, true, null, 10),
-                    new ClusterConfig.ClusterProxyHttpClientOptions(SslProtocols.Tls11, true, clientCertificate, 20)
+                    new ClusterProxyHttpClientOptions(SslProtocols.Tls11, true, null, 10),
+                    new ClusterProxyHttpClientOptions(SslProtocols.Tls11, true, clientCertificate, 20)
                 },
             };
         }

@@ -23,7 +23,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 
         public DestinationInfo PickDestination(
             IReadOnlyList<DestinationInfo> endpoints,
-            in ClusterConfig.ClusterLoadBalancingOptions loadBalancingOptions)
+            in ClusterLoadBalancingOptions loadBalancingOptions)
         {
             var endpointCount = endpoints.Count;
             if (endpointCount == 0)

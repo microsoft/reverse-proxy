@@ -40,7 +40,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             var cluster1 = new ClusterInfo(
                 clusterId: "cluster1",
                 destinationManager: new DestinationManager());
-            cluster1.Config.Value = new ClusterConfig(default, default, new ClusterConfig.ClusterLoadBalancingOptions(LoadBalancingMode.RoundRobin), default, httpClient, default, new Dictionary<string, string>());
+            cluster1.Config.Value = new ClusterConfig(default, default, new ClusterLoadBalancingOptions(LoadBalancingMode.RoundRobin), default, httpClient, default, new Dictionary<string, string>());
             var destination1 = cluster1.DestinationManager.GetOrCreateItem(
                 "destination1",
                 destination =>
@@ -97,7 +97,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             var cluster1 = new ClusterInfo(
                 clusterId: "cluster1",
                 destinationManager: new DestinationManager());
-            cluster1.Config.Value = new ClusterConfig(default, default, new ClusterConfig.ClusterLoadBalancingOptions(LoadBalancingMode.RoundRobin), default, httpClient, default, new Dictionary<string, string>());
+            cluster1.Config.Value = new ClusterConfig(default, default, new ClusterLoadBalancingOptions(LoadBalancingMode.RoundRobin), default, httpClient, default, new Dictionary<string, string>());
             var destination1 = cluster1.DestinationManager.GetOrCreateItem(
                 "destination1",
                 destination =>
@@ -126,7 +126,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             httpContext.SetEndpoint(aspNetCoreEndpoint);
 
             Mock<ILoadBalancer>()
-                .Setup(l => l.PickDestination(It.IsAny<IReadOnlyList<DestinationInfo>>(), It.IsAny<ClusterConfig.ClusterLoadBalancingOptions>()))
+                .Setup(l => l.PickDestination(It.IsAny<IReadOnlyList<DestinationInfo>>(), It.IsAny<ClusterLoadBalancingOptions>()))
                 .Returns((DestinationInfo)null);
 
             httpContext.Features.Set<IReverseProxyFeature>(

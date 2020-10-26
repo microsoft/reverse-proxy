@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Microsoft.ReverseProxy.RuntimeModel;
+using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Service.SessionAffinity
 {
@@ -13,7 +14,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
     {
         public string Name => SessionAffinityConstants.AffinityFailurePolicies.Redistribute;
 
-        public Task<bool> Handle(HttpContext context, ClusterConfig.ClusterSessionAffinityOptions options, AffinityStatus affinityStatus)
+        public Task<bool> Handle(HttpContext context, ClusterSessionAffinityOptions options, AffinityStatus affinityStatus)
         {
             if (affinityStatus == AffinityStatus.OK
                 || affinityStatus == AffinityStatus.AffinityKeyNotSet)
@@ -23,7 +24,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
 
             // Available destinations list have not been changed in the context,
             // so simply allow processing to proceed to load balancing.
-            return Task.FromResult(true);
+            return TaskUtilities.TrueTask;
         }
     }
 }

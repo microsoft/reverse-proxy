@@ -287,15 +287,15 @@ namespace Microsoft.ReverseProxy.Service.Management
 
                         var newClusterConfig = new ClusterConfig(
                                 newCluster,
-                                new ClusterConfig.ClusterHealthCheckOptions(
+                                new ClusterHealthCheckOptions(
                                     enabled: newCluster.HealthCheck?.Enabled ?? false,
                                     interval: newCluster.HealthCheck?.Interval ?? TimeSpan.FromSeconds(0),
                                     timeout: newCluster.HealthCheck?.Timeout ?? TimeSpan.FromSeconds(0),
                                     port: newCluster.HealthCheck?.Port ?? 0,
                                     path: newCluster.HealthCheck?.Path ?? string.Empty),
-                                new ClusterConfig.ClusterLoadBalancingOptions(
+                                new ClusterLoadBalancingOptions(
                                     mode: newCluster.LoadBalancing?.Mode ?? default),
-                                new ClusterConfig.ClusterSessionAffinityOptions(
+                                new ClusterSessionAffinityOptions(
                                     enabled: newCluster.SessionAffinity?.Enabled ?? false,
                                     mode: newCluster.SessionAffinity?.Mode,
                                     failurePolicy: newCluster.SessionAffinity?.FailurePolicy,
@@ -481,14 +481,14 @@ namespace Microsoft.ReverseProxy.Service.Management
             }
         }
 
-        private ClusterConfig.ClusterProxyHttpClientOptions ConvertProxyHttpClientOptions(ProxyHttpClientOptions httpClientOptions)
+        private ClusterProxyHttpClientOptions ConvertProxyHttpClientOptions(ProxyHttpClientOptions httpClientOptions)
         {
             if (httpClientOptions == null)
             {
-                return new ClusterConfig.ClusterProxyHttpClientOptions();
+                return new ClusterProxyHttpClientOptions();
             }
 
-            return new ClusterConfig.ClusterProxyHttpClientOptions(
+            return new ClusterProxyHttpClientOptions(
                 httpClientOptions.SslProtocols,
                 httpClientOptions.DangerousAcceptAnyServerCertificate,
                 httpClientOptions.ClientCertificate,

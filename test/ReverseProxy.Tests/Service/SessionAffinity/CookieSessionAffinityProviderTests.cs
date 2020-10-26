@@ -14,7 +14,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
     public class CookieSessionAffinityProviderTests
     {
         private readonly CookieSessionAffinityProviderOptions _defaultProviderOptions = new CookieSessionAffinityProviderOptions();
-        private readonly ClusterConfig.ClusterSessionAffinityOptions _defaultOptions = new ClusterConfig.ClusterSessionAffinityOptions(true, "Cookie", "Return503", null);
+        private readonly ClusterSessionAffinityOptions _defaultOptions = new ClusterSessionAffinityOptions(true, "Cookie", "Return503", null);
         private readonly IReadOnlyList<DestinationInfo> _destinations = new[] { new DestinationInfo("dest-A"), new DestinationInfo("dest-B"), new DestinationInfo("dest-C") };
 
         [Fact]

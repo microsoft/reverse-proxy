@@ -81,10 +81,10 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 destinationManager: new DestinationManager());
             cluster1.Config.Value = new ClusterConfig(
                 new Cluster(),
-                new ClusterConfig.ClusterHealthCheckOptions(enabled: true, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan, 0, ""),
-                new ClusterConfig.ClusterLoadBalancingOptions(),
-                new ClusterConfig.ClusterSessionAffinityOptions(),
-                httpClient, new ClusterConfig.ClusterProxyHttpClientOptions(),
+                new ClusterHealthCheckOptions(enabled: true, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan, 0, ""),
+                new ClusterLoadBalancingOptions(),
+                new ClusterSessionAffinityOptions(),
+                httpClient, new ClusterProxyHttpClientOptions(),
                 new Dictionary<string, string>());
             var destination1 = cluster1.DestinationManager.GetOrCreateItem(
                 "destination1",
