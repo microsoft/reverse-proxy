@@ -2,15 +2,17 @@
 
 This document provides a guide on how to release a preview of YARP.
 
-## Identify the Final Build
-
-First, identify the final build of the [`microsoft-reverse-proxy-official` Azure Pipeline](https://dev.azure.com/dnceng/internal/_build?definitionId=809&_a=summary) (on dnceng/internal). The final build will be the latest successful build **in the relevant `release/x` branch**. Use the "Branches" tab on Azure DevOps to help identify it.
-
-Once you've identified that build, click in to the build details.
-
 ## Ensure there's a release branch created.
 
 See [Branching](Branching.md).
+
+## Identify the Final Build
+
+First, identify the final build of the [`microsoft-reverse-proxy-official` Azure Pipeline](https://dev.azure.com/dnceng/internal/_build?definitionId=809&_a=summary) (on dnceng/internal). The final build will be the latest successful build **in the relevant `release/x` branch**. Use the "Branches" tab on Azure DevOps to help identify it. If the branch hasn't been mirrored yet ([code-mirror pipeline](https://dev.azure.com/dnceng/internal/_build?definitionId=16&keywordFilter=microsoft%20reverse-proxy)) and there are no outstanding changesets in the branch, the build of the correspoding commit from the master branch can be used.
+
+Once you've identified that build, click in to the build details.
+
+
 
 ## Validate the Final Build
 
@@ -22,7 +24,9 @@ The packages can be accessed from the `PackageArtifacts` artifact:
 
 ![image](https://user-images.githubusercontent.com/7574/81447168-fef2bc80-9130-11ea-8aa0-5a83d90efa0d.png)
 
-Place it in a local folder and add that folder as a nuget feed in Visual Studio.
+### Consume .nupkg
+- Visual Studio: Place it in a local folder and add that folder as a nuget feed in Visual Studio.
+- Command Line: `dotnet nuget add source <directory> -n local`
 
 Walk through the [Getting Started](https://microsoft.github.io/reverse-proxy/articles/getting_started.html) instructions and update them in the release branch as needed.
 
@@ -62,6 +66,37 @@ The packages will be pushed and when the "NuGet.org" stage turns green, the pack
 
 *Note: NuGet publishing is quick, but there is a background indexing process that can mean it will take up to several hours for packages to become available*
 
+## Tag the commit
+
+Create and push a git tag for the commit associated with the final build (not necessarily the HEAD of the current release branch). See prior tags for the preferred format. Use a lightweight tag, not annotated, e.g.: `git tag v1.0.0-preview6`.
+
+## Draft release notes
+
+Create a draft release at https://github.com/microsoft/reverse-proxy/releases using the new tag. See prior releases for the recommended content and format.
+
+## Publish the docs
+
+Reset the `release/docs` branch to the head of the current preview branch to publish the latest docs. See [docs](../docfx/readme.md).
+
+## Publish the release notes
+
+Publish the draft release notes. These should be referencing the latest docs, packages, etc..
+
+## Close the old milestone
+
+It should be empty now. If it's not, move the outstanding issues to the next one.
+
+## Announce on social media
+
+David Fowler has a lot of twitter followers interested in YARP. Tweet a link to the release notes and let him retweet it.
+
+## Complete any outstanding branching tasks.
+
+See [Branching](Branching.md).
+- Make sure the versions in master have been updated for the next milestone.
+- Update the runtime dependency flow with DARC
+- Update the SDK
+
 ## Troubleshooting
 
 ### Authentication Errors
@@ -88,34 +123,3 @@ In the event you overpublish (publish a package that wasn't intended to be relea
 ### Package was rejected
 
 NuGet.org has special criteria for all packages starting `Microsoft.`. If the package is rejected for not meeting one of those criteria, go to the [NuGet @ Microsoft](http://aka.ms/nuget) page for more information on required criteria and guidance for how to configure the package appropriately.
-
-## Tag the commit
-
-Create and push a git tag for the commit associated with the final build (not necessarily the HEAD of the current release branch). See prior tags for the preferred format.
-
-## Draft release notes
-
-Create a draft release at https://github.com/microsoft/reverse-proxy/releases using the new tag. See prior releases for the recommended content and format.
-
-## Publish the docs
-
-Reset the `release/docs` branch to the head of the current preview branch to publish the latest docs. See [docs](../docfx/readme.md).
-
-## Publish the release notes
-
-Publish the draft release notes. These should be referencing the latest docs, packages, etc..
-
-## Close the old milestone
-
-It should be empty now.
-
-## Announce on social media
-
-David Fowler has a lot of twitter followers interested in YARP. Tweet a link to the release notes and let him retweet it.
-
-## Complete any outstanding branching tasks.
-
-See [Branching](Branching.md).
-- Make sure the versions in master have been updated for the next milestone.
-- Update the runtime dependency flow with DARC
-- Update the SDK
