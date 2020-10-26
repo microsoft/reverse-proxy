@@ -302,7 +302,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         {
             var clusterConfig = new ClusterConfig(
                 new Cluster { Id = id },
-                new ClusterConfig.ClusterHealthCheckOptions(default, new ClusterConfig.ClusterActiveHealthCheckOptions(activeCheckEnabled, interval, timeout, policy, "/api/health/")),
+                new ClusterHealthCheckOptions(default, new ClusterActiveHealthCheckOptions(activeCheckEnabled, interval, timeout, policy, "/api/health/")),
                 default,
                 default,
                 httpClient,

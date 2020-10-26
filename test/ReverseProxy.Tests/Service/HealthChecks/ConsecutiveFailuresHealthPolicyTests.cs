@@ -126,7 +126,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 : null;
             var clusterConfig = new ClusterConfig(
                 new Cluster { Id = id },
-                new ClusterConfig.ClusterHealthCheckOptions(default, new ClusterConfig.ClusterActiveHealthCheckOptions(true, null, null, "policy", "/api/health/")),
+                new ClusterHealthCheckOptions(default, new ClusterActiveHealthCheckOptions(true, null, null, "policy", "/api/health/")),
                 default,
                 default,
                 null,

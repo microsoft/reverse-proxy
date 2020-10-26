@@ -123,7 +123,7 @@ namespace Microsoft.ReverseProxy.Middleware
         {
             var clusterConfig = new ClusterConfig(
                 new Cluster { Id = id },
-                new ClusterConfig.ClusterHealthCheckOptions(new ClusterConfig.ClusterPassiveHealthCheckOptions(enabled, policy, null), default),
+                new ClusterHealthCheckOptions(new ClusterPassiveHealthCheckOptions(enabled, policy, null), default),
                 default,
                 default,
                 null,

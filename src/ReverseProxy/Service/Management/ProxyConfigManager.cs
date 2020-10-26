@@ -292,11 +292,11 @@ namespace Microsoft.ReverseProxy.Service.Management
                         var newClusterConfig = new ClusterConfig(
                                 newCluster,
                                 new ClusterHealthCheckOptions(
-                                    passive: new ClusterConfig.ClusterPassiveHealthCheckOptions(
+                                    passive: new ClusterPassiveHealthCheckOptions(
                                         enabled: newCluster.HealthCheck?.Passive?.Enabled ?? false,
                                         policy: newCluster.HealthCheck?.Passive?.Policy,
                                         reactivationPeriod: newCluster.HealthCheck?.Passive?.ReactivationPeriod),
-                                    active: new ClusterConfig.ClusterActiveHealthCheckOptions(
+                                    active: new ClusterActiveHealthCheckOptions(
                                         enabled: newCluster.HealthCheck?.Active?.Enabled ?? false,
                                         interval: newCluster.HealthCheck?.Active?.Interval,
                                         timeout: newCluster.HealthCheck?.Active?.Timeout,

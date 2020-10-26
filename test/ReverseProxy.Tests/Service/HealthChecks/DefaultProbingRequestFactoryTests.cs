@@ -16,7 +16,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         [InlineData("https://localhost:10000/", "https://localhost:20000/", "/api/health/", "https://localhost:20000/api/health/")]
         public void CreateRequest_HealthEndpointIsNotDefined_UseDestinationAddress(string address, string health, string healthPath, string expectedRequestUri)
         {
-            var clusterConfig = GetClusterConfig("cluster0", new ClusterConfig.ClusterActiveHealthCheckOptions(true, null, null, "policy", healthPath));
+            var clusterConfig = GetClusterConfig("cluster0", new ClusterActiveHealthCheckOptions(true, null, null, "policy", healthPath));
             var destinationConfig = new DestinationConfig(address, health);
             var factory = new DefaultProbingRequestFactory();
 
@@ -26,10 +26,10 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             Assert.Equal(ProtocolHelper.Http2Version, request.Version);
         }
 
-        private ClusterConfig GetClusterConfig(string id, ClusterConfig.ClusterActiveHealthCheckOptions healthCheckOptions)
+        private ClusterConfig GetClusterConfig(string id, ClusterActiveHealthCheckOptions healthCheckOptions)
         {
             return new ClusterConfig(
-                new Cluster { Id = id }, new ClusterConfig.ClusterHealthCheckOptions(default, healthCheckOptions), default, default, null, default, null);
+                new Cluster { Id = id }, new ClusterHealthCheckOptions(default, healthCheckOptions), default, default, null, default, null);
         }
     }
 }

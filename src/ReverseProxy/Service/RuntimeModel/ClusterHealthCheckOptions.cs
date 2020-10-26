@@ -1,12 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-
 namespace Microsoft.ReverseProxy.RuntimeModel
 {
     /// <summary>
-    /// Active health probing options for a cluster.
+    /// All health check options for a cluster.
     /// </summary>
     /// <remarks>
     /// Struct used only to keep things organized as we add more configuration options inside of `ClusterConfig`.
@@ -14,38 +12,25 @@ namespace Microsoft.ReverseProxy.RuntimeModel
     /// </remarks>
     public readonly struct ClusterHealthCheckOptions
     {
-        public ClusterHealthCheckOptions(bool enabled, TimeSpan interval, TimeSpan timeout, int port, string path)
+        public ClusterHealthCheckOptions(ClusterPassiveHealthCheckOptions passive, ClusterActiveHealthCheckOptions active)
         {
-            Enabled = enabled;
-            Interval = interval;
-            Timeout = timeout;
-            Port = port;
-            Path = path;
+            Passive = passive;
+            Active = active;
         }
 
         /// <summary>
-        /// Whether health probes are enabled.
+        /// Whether at least one type of health check is enabled.
         /// </summary>
-        public bool Enabled { get; }
+        public bool Enabled => Passive.Enabled || Active.Enabled;
 
         /// <summary>
-        /// Interval between health probes.
+        /// Passive health check options.
         /// </summary>
-        public TimeSpan Interval { get; }
+        public ClusterPassiveHealthCheckOptions Passive { get; }
 
         /// <summary>
-        /// Health probe timeout, after which the targeted endpoint is considered unhealthy.
+        /// Active health check options.
         /// </summary>
-        public TimeSpan Timeout { get; }
-
-        /// <summary>
-        /// Port number.
-        /// </summary>
-        public int Port { get; }
-
-        /// <summary>
-        /// Http path.
-        /// </summary>
-        public string Path { get; }
+        public ClusterActiveHealthCheckOptions Active { get; }
     }
 }
