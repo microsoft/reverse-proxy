@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Management;
 using System;
+using System.Threading.Tasks;
 
 namespace Microsoft.ReverseProxy.Service.HealthChecks
 {
@@ -15,7 +16,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 
         public ReactivationScheduler(ILogger<ReactivationScheduler> logger)
         {
-            _scheduler = new EntityActionScheduler<DestinationInfo>(Reactivate, autoStart: true, runOnce: true);
+            _scheduler = new EntityActionScheduler<DestinationInfo>(d => Reactivate(d), autoStart: true, runOnce: true);
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -30,7 +31,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             _scheduler.Dispose();
         }
 
-        private void Reactivate(DestinationInfo destination)
+        private Task Reactivate(DestinationInfo destination)
         {
             var state = destination.DynamicState;
             if (state.Health.Passive == DestinationHealth.Unhealthy)
@@ -38,6 +39,8 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 destination.DynamicState = new DestinationDynamicState(state.Health.ChangePassive(DestinationHealth.Unknown));
                 Log.PassiveDestinationHealthResetToUnkownState(_logger, destination.DestinationId);
             }
+
+            return Task.CompletedTask;
         }
 
         private static class Log

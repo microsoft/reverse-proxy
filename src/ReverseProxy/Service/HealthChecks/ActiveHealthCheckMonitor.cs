@@ -24,32 +24,29 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         private readonly IDictionary<string, IActiveHealthCheckPolicy> _policies;
         private readonly IProbingRequestFactory _probingRequestFactory;
         private readonly EntityActionScheduler<ClusterInfo> _scheduler;
-        private readonly IProxyAppState _proxyAppState;
         private readonly ILogger<ActiveHealthCheckMonitor> _logger;
 
         public ActiveHealthCheckMonitor(
             IOptions<ActiveHealthCheckMonitorOptions> monitorOptions,
             IEnumerable<IActiveHealthCheckPolicy> policies,
             IProbingRequestFactory probingRequestFactory,
-            IProxyAppState proxyAppState,
             ILogger<ActiveHealthCheckMonitor> logger)
         {
             _monitorOptions = monitorOptions?.Value ?? throw new ArgumentNullException(nameof(monitorOptions));
-            _proxyAppState = proxyAppState ?? throw new ArgumentNullException(nameof(proxyAppState));
             _policies = policies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(policies));
             _probingRequestFactory = probingRequestFactory ?? throw new ArgumentNullException(nameof(probingRequestFactory));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _scheduler = new EntityActionScheduler<ClusterInfo>(async cluster => await ProbeCluster(cluster), autoStart: false, runOnce: false);
         }
 
-        public Task CheckHealthAsync()
+        public Task CheckHealthAsync(IEnumerable<ClusterInfo> clusters)
         {
             return Task.Run(async () =>
             {
                 try
                 {
                     var probeClusterTasks = new List<Task>();
-                    foreach (var cluster in _scheduler.GetScheduledEntities())
+                    foreach (var cluster in clusters)
                     {
                         if (cluster.Config.HealthCheckOptions.Active.Enabled)
                         {
@@ -64,7 +61,6 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                     Log.ExplicitActiveCheckOfAllClustersHealthFailed(_logger, ex);
                 }
 
-                _proxyAppState.SetFullyInitialized();
                 _scheduler.Start();
             });
         }

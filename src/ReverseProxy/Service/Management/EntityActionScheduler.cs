@@ -5,6 +5,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Microsoft.ReverseProxy.Service.Management
 {
@@ -22,20 +23,15 @@ namespace Microsoft.ReverseProxy.Service.Management
     internal class EntityActionScheduler<T> : IDisposable
     {
         private readonly ConcurrentDictionary<T, SchedulerEntry> _entries = new ConcurrentDictionary<T, SchedulerEntry>();
-        private readonly Action<T> _action;
+        private readonly Func<T, Task> _action;
         private readonly bool _runOnce;
         private int _isStarted;
 
-        public EntityActionScheduler(Action<T> action, bool autoStart, bool runOnce)
+        public EntityActionScheduler(Func<T, Task> action, bool autoStart, bool runOnce)
         {
             _action = action ?? throw new ArgumentNullException(nameof(action));
             _runOnce = runOnce;
             _isStarted = autoStart ? 1 : 0;
-        }
-
-        public IEnumerable<T> GetScheduledEntities()
-        {
-            return _entries.Keys;
         }
 
         public void Dispose()
@@ -61,7 +57,7 @@ namespace Microsoft.ReverseProxy.Service.Management
 
         public void ScheduleEntity(T entity, TimeSpan period)
         {
-            var entry = new SchedulerEntry(entity, (long)period.TotalMilliseconds, Run, Volatile.Read(ref _isStarted) == 1);
+            var entry = new SchedulerEntry(entity, (long)period.TotalMilliseconds, async o => await Run(o), Volatile.Read(ref _isStarted) == 1);
             _entries.TryAdd(entity, entry);
         }
 
@@ -81,24 +77,26 @@ namespace Microsoft.ReverseProxy.Service.Management
             }
         }
 
-        private void Run(object entryObj)
+        public bool IsScheduled(T entity)
         {
-            lock (entryObj)
+            return _entries.ContainsKey(entity);
+        }
+
+        private async Task Run(object entryObj)
+        {
+            var entry = (SchedulerEntry)entryObj;
+
+            if (_runOnce)
             {
-                var entry = (SchedulerEntry)entryObj;
+                UnscheduleEntity(entry.Entity);
+            }
 
-                if (_runOnce)
-                {
-                    UnscheduleEntity(entry.Entity);
-                }
+            await _action(entry.Entity);
 
-                _action(entry.Entity);
-
-                // Check if the entity is still scheduled.
-                if (_entries.ContainsKey(entry.Entity))
-                {
-                    entry.SetTimer();
-                }
+            // Check if the entity is still scheduled.
+            if (_entries.ContainsKey(entry.Entity))
+            {
+                entry.SetTimer();
             }
         }
 
@@ -129,7 +127,7 @@ namespace Microsoft.ReverseProxy.Service.Management
             {
                 try
                 {
-                    Timer.Change(Period, Timeout.Infinite);
+                    Timer.Change(Interlocked.Read(ref _period), Timeout.Infinite);
                 }
                 catch (ObjectDisposedException)
                 {

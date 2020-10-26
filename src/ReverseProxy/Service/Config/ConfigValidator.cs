@@ -350,11 +350,6 @@ namespace Microsoft.ReverseProxy.Service
             {
                 errors.Add(new ArgumentException($"Destination probing timeout set on the cluster '{cluster.Id}' must be positive."));
             }
-
-            if (activeOptions.Path != null && !Uri.TryCreate(activeOptions.Path, UriKind.Relative, out _))
-            {
-                errors.Add(new ArgumentException($"Active health probing path set on the cluster '{cluster.Id}' must be a valid relative URI."));
-            }
         }
 
         private void ValidatePassiveHealthCheck(IList<Exception> errors, Cluster cluster)

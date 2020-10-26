@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.ReverseProxy.Utilities;
 using Xunit;
 
@@ -25,6 +26,7 @@ namespace Microsoft.ReverseProxy.Service.Management
             {
                 lastInvokedEntity = e;
                 invoked.Set();
+                return Task.CompletedTask;
             }, autoStart: true, runOnce: false);
 
             scheduler.ScheduleEntity(entity0, period0);
@@ -61,6 +63,7 @@ namespace Microsoft.ReverseProxy.Service.Management
             {
                 lastInvokedEntity = e;
                 invoked.Set();
+                return Task.CompletedTask;
             }, autoStart: false, runOnce: true);
 
             scheduler.ScheduleEntity(entity0, period0);
@@ -80,7 +83,8 @@ namespace Microsoft.ReverseProxy.Service.Management
             Assert.True(invoked.WaitOne(timeout));
             Assert.Same(entity0, lastInvokedEntity);
 
-            Assert.Empty(scheduler.GetScheduledEntities());
+            Assert.False(scheduler.IsScheduled(entity0));
+            Assert.False(scheduler.IsScheduled(entity1));
         }
 
         [Fact]
@@ -97,6 +101,7 @@ namespace Microsoft.ReverseProxy.Service.Management
             {
                 lastInvokedEntity = e;
                 invoked.Set();
+                return Task.CompletedTask;
             }, autoStart: false, runOnce: false);
 
             scheduler.ScheduleEntity(entity0, period0);
@@ -129,6 +134,7 @@ namespace Microsoft.ReverseProxy.Service.Management
             {
                 lastInvokedEntity = e;
                 invoked.Set();
+                return Task.CompletedTask;
             }, autoStart: true, runOnce: false);
 
             scheduler.ScheduleEntity(entity0, period0);
@@ -164,6 +170,7 @@ namespace Microsoft.ReverseProxy.Service.Management
             {
                 lastInvokedEntity = e;
                 invoked.Set();
+                return Task.CompletedTask;
             }, autoStart: false, runOnce: false);
 
             scheduler.ScheduleEntity(entity, period);
@@ -194,6 +201,7 @@ namespace Microsoft.ReverseProxy.Service.Management
             {
                 lastInvokedEntity = e;
                 invoked.Set();
+                return Task.CompletedTask;
             }, autoStart: false, runOnce: false);
 
             scheduler.ScheduleEntity(entity, period);
@@ -224,6 +232,7 @@ namespace Microsoft.ReverseProxy.Service.Management
             {
                 lastInvokedEntity = e;
                 invoked.Set();
+                return Task.CompletedTask;
             }, autoStart: true, runOnce: false);
 
             scheduler.ScheduleEntity(entity, period);
@@ -255,6 +264,7 @@ namespace Microsoft.ReverseProxy.Service.Management
             {
                 lastInvokedEntity = e;
                 invoked.Set();
+                return Task.CompletedTask;
             }, autoStart: true, runOnce: false);
 
             scheduler.ScheduleEntity(entity, period);
@@ -275,12 +285,13 @@ namespace Microsoft.ReverseProxy.Service.Management
 
         private void VerifyEntities(EntityActionScheduler<Entity> scheduler, params Entity[] entities)
         {
-            var scheduledEntities = scheduler.GetScheduledEntities().ToList();
-            Assert.Equal(entities.Length, scheduledEntities.Count);
+            var actualCount = 0;
             foreach(var entity in entities)
             {
-                Assert.Contains(entity, scheduledEntities);
+                Assert.True(scheduler.IsScheduled(entity));
+                actualCount++;
             }
+            Assert.Equal(entities.Length, actualCount);
         }
 
         private class Entity

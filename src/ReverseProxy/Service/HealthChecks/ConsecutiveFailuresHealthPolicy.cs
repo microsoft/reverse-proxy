@@ -35,20 +35,21 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 
             try
             {
-                var clusterConfig = cluster.Config;
+                var threshold = GetFailureThreshold(cluster);
+
                 for (var i = 0; i < probingResults.Count; i++)
                 {
                     var destination = probingResults[i].Destination;
 
                     var count = _failureCounters.GetOrCreateValue(destination);
-                    var newHealth = EvaluateHealthState(cluster, clusterConfig, probingResults[i].Response, count);
+                    var newHealth = EvaluateHealthState(threshold, probingResults[i].Response, count);
 
                     var state = destination.DynamicState;
                     if (newHealth != state.Health.Active)
                     {
                         destination.DynamicState = new DestinationDynamicState(state.Health.ChangeActive(newHealth));
 
-                        if(newHealth == DestinationHealth.Unhealthy)
+                        if (newHealth == DestinationHealth.Unhealthy)
                         {
                             Log.ActiveDestinationHealthStateIsSetToUnhealthy(_logger, destination.DestinationId, cluster.ClusterId);
                         }
@@ -65,7 +66,13 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             }
         }
 
-        private DestinationHealth EvaluateHealthState(ClusterInfo cluster, ClusterConfig clusterConfig, HttpResponseMessage response, AtomicCounter count)
+        private double GetFailureThreshold(ClusterInfo cluster)
+        {
+            var thresholdEntry = _clusterThresholds.GetValue(cluster, c => new ParsedMetadataEntry<double>(TryParse, c, ConsecutiveFailuresHealthPolicyOptions.ThresholdMetadataName));
+            return thresholdEntry.GetParsedOrDefault(_options.DefaultThreshold);
+        }
+
+        private DestinationHealth EvaluateHealthState(double threshold, HttpResponseMessage response, AtomicCounter count)
         {
             DestinationHealth newHealth;
             if (response != null && response.IsSuccessStatusCode)
@@ -78,12 +85,6 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             {
                 // Failure
                 var currentFailureCount = count.Increment();
-                if (!_clusterThresholds.TryGetValue(cluster, out var thresholdEntry))
-                {
-                    thresholdEntry = new ParsedMetadataEntry<double>(TryParse, ConsecutiveFailuresHealthPolicyOptions.ThresholdMetadataName);
-                    _clusterThresholds.AddOrUpdate(cluster, thresholdEntry);
-                }
-                var threshold = thresholdEntry.GetParsedOrDefault(clusterConfig, _options.DefaultThreshold);
                 newHealth = currentFailureCount < threshold ? DestinationHealth.Healthy : DestinationHealth.Unhealthy;
             }
 
