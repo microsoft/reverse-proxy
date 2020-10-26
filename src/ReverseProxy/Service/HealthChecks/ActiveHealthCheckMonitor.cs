@@ -36,7 +36,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             _policies = policies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(policies));
             _probingRequestFactory = probingRequestFactory ?? throw new ArgumentNullException(nameof(probingRequestFactory));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _scheduler = new EntityActionScheduler<ClusterInfo>(async cluster => await ProbeCluster(cluster), autoStart: false, runOnce: false);
+            _scheduler = new EntityActionScheduler<ClusterInfo>(cluster => ProbeCluster(cluster), autoStart: false, runOnce: false);
         }
 
         public Task CheckHealthAsync(IEnumerable<ClusterInfo> clusters)
