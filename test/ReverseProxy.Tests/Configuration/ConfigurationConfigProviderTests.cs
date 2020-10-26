@@ -6,6 +6,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Reflection;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
@@ -66,6 +68,13 @@ namespace Microsoft.ReverseProxy.Configuration
                             MaxConnectionsPerServer = 10,
                             DangerousAcceptAnyServerCertificate = true,
                             ClientCertificate = new CertificateConfigData { Path = "mycert.pfx", Password = "myPassword1234" }
+                        },
+                        HttpRequest = new ProxyHttpRequestData()
+                        {
+                            Version = HttpVersion.Version20,
+#if NET
+                            VersionPolicy = HttpVersionPolicy.RequestVersionExact,
+#endif
                         },
                         Metadata = new Dictionary<string, string> { { "cluster1-K1", "cluster1-V1" }, { "cluster1-K2", "cluster1-V2" } }
                     }
@@ -198,6 +207,10 @@ namespace Microsoft.ReverseProxy.Configuration
                     ""AllowInvalid"": null
                 },
                 ""MaxConnectionsPerServer"": 10
+            },
+            ""HttpRequest"": {
+                ""Version"": ""2.0"",
+                ""VersionPolicy"": ""RequestVersionExact""
             },
             ""Destinations"": {
                 ""destinationA"": {
@@ -354,7 +367,7 @@ namespace Microsoft.ReverseProxy.Configuration
             var certificate = TestResources.GetTestCertificate();
             var abstractionsNamespace = typeof(Abstractions.Cluster).Namespace;
             var provider = GetProvider(_validConfigurationData, "mycert.pfx", "myPassword1234", () => certificate);
-            var abstractConfig = (ConfigurationSnapshot) provider.GetConfig();
+            var abstractConfig = (ConfigurationSnapshot)provider.GetConfig();
             //Removed incompletely filled out instances.
             abstractConfig.Clusters = abstractConfig.Clusters.Where(c => c.Id == "cluster1").ToList();
             abstractConfig.Routes = abstractConfig.Routes.Where(r => r.RouteId == "routeA").ToList();

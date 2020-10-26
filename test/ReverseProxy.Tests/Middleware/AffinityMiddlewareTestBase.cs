@@ -21,7 +21,7 @@ namespace Microsoft.ReverseProxy.Middleware
         protected const string AffinitizedDestinationName = "dest-B";
         protected readonly IReadOnlyList<DestinationInfo> Destinations = new[] { new DestinationInfo("dest-A"), new DestinationInfo(AffinitizedDestinationName), new DestinationInfo("dest-C") };
         protected readonly ClusterConfig ClusterConfig = new ClusterConfig(default, default, default, new ClusterSessionAffinityOptions(true, "Mode-B", "Policy-1", null),
-            new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object), default, new Dictionary<string, string>());
+            new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object), default, default, new Dictionary<string, string>());
 
         internal ClusterInfo GetCluster()
         {

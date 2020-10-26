@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -45,10 +46,16 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             httpContext.Request.QueryString = new QueryString("?a=b&c=d");
 
             var httpClient = new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object);
+            var httpRequestOptions = new ClusterProxyHttpRequestOptions(
+                HttpVersion.Version11
+#if NET
+                , HttpVersionPolicy.RequestVersionExact
+#endif
+            );
             var cluster1 = new ClusterInfo(
                 clusterId: "cluster1",
                 destinationManager: new DestinationManager());
-            var clusterConfig = new ClusterConfig(default, default, default, default, httpClient, default, new Dictionary<string, string>());
+            var clusterConfig = new ClusterConfig(default, default, default, default, httpClient, default, httpRequestOptions, new Dictionary<string, string>());
             var destination1 = cluster1.DestinationManager.GetOrCreateItem(
                 "destination1",
                 destination =>
@@ -78,7 +85,12 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                     httpContext,
                     It.Is<string>(uri => uri == "https://localhost:123/a/b/"),
                     httpClient,
-                    It.IsAny<RequestProxyOptions>()))
+                    It.Is<RequestProxyOptions>(options =>
+                        options.Version == httpRequestOptions.Version
+#if NET
+                        && options.VersionPolicy == httpRequestOptions.VersionPolicy
+#endif
+                        )))
                 .Returns(
                     async () =>
                     {
@@ -126,7 +138,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             var cluster1 = new ClusterInfo(
                 clusterId: "cluster1",
                 destinationManager: new DestinationManager());
-            var clusterConfig = new ClusterConfig(default, default, default, default, httpClient, default, new Dictionary<string, string>());
+            var clusterConfig = new ClusterConfig(default, default, default, default, httpClient, default, default, new Dictionary<string, string>());
             httpContext.Features.Set<IReverseProxyFeature>(
                 new ReverseProxyFeature() { AvailableDestinations = Array.Empty<DestinationInfo>(), ClusterConfig = clusterConfig });
             httpContext.Features.Set(cluster1);

@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -311,6 +313,12 @@ namespace Microsoft.ReverseProxy.Service.Management
                                     settings: newCluster.SessionAffinity?.Settings as IReadOnlyDictionary<string, string>),
                                 httpClient,
                                 newClusterHttpClientOptions,
+                                new ClusterProxyHttpRequestOptions(
+                                    version: newCluster.HttpRequest?.Version ?? HttpVersion.Version20
+#if NET
+                                    , versionPolicy: newCluster.HttpRequest?.VersionPolicy ?? HttpVersionPolicy.RequestVersionOrLower
+#endif
+                                    ),
                                 (IReadOnlyDictionary<string, string>)newCluster.Metadata);
 
                         if (currentClusterConfig == null ||

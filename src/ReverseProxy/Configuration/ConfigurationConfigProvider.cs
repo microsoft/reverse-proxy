@@ -147,6 +147,7 @@ namespace Microsoft.ReverseProxy.Configuration
                 SessionAffinity = Convert(data.SessionAffinity),
                 HealthCheck = Convert(data.HealthCheck),
                 HttpClient = Convert(data.HttpClient),
+                HttpRequest = Convert(data.HttpRequest),
                 Metadata = data.Metadata?.DeepClone(StringComparer.OrdinalIgnoreCase)
             };
             foreach(var destination in data.Destinations)
@@ -350,6 +351,22 @@ namespace Microsoft.ReverseProxy.Configuration
                 DangerousAcceptAnyServerCertificate = data.DangerousAcceptAnyServerCertificate,
                 ClientCertificate = clientCertificate,
                 MaxConnectionsPerServer = data.MaxConnectionsPerServer
+            };
+        }
+
+        private ProxyHttpRequestOptions Convert(ProxyHttpRequestData data)
+        {
+            if (data == null)
+            {
+                return null;
+            }
+
+            return new ProxyHttpRequestOptions
+            {
+                Version = data.Version,
+#if NET
+                VersionPolicy = data.VersionPolicy,
+#endif
             };
         }
 

@@ -31,7 +31,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         private ClusterConfig GetClusterConfig(string id, ClusterActiveHealthCheckOptions healthCheckOptions)
         {
             return new ClusterConfig(
-                new Cluster { Id = id }, new ClusterHealthCheckOptions(default, healthCheckOptions), default, default, null, default, null);
+                new Cluster { Id = id }, new ClusterHealthCheckOptions(default, healthCheckOptions), default, default, null, default, default, null);
         }
     }
 }

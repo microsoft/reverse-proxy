@@ -26,6 +26,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
                 LoadBalancing = new LoadBalancingOptions(),
                 HealthCheck = new HealthCheckOptions(),
                 HttpClient = new ProxyHttpClientOptions(),
+                HttpRequest = new ProxyHttpRequestOptions(),
                 Metadata = new Dictionary<string, string>
                 {
                     { "key", "value" },

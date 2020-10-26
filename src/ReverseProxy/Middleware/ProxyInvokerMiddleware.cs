@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.ReverseProxy.Abstractions.Telemetry;
+using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Proxy;
 using Microsoft.ReverseProxy.Utilities;
 
@@ -79,6 +80,15 @@ namespace Microsoft.ReverseProxy.Middleware
             {
                 Transforms = routeConfig.Transforms,
             };
+
+            var requestOptions = cluster.Config?.HttpRequestOptions ?? default;
+            if (requestOptions.Version != default)
+            {
+                proxyOptions.Version = requestOptions.Version;
+            }
+#if NET
+            proxyOptions.VersionPolicy = requestOptions.VersionPolicy;
+#endif
 
             try
             {

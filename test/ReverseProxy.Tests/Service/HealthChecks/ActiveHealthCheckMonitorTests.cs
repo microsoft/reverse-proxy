@@ -219,7 +219,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             var healthCheckConfig = new ClusterHealthCheckOptions(
                 new ClusterPassiveHealthCheckOptions(true, "passive0", null),
                 new ClusterActiveHealthCheckOptions(false, null, null, cluster2.Config.HealthCheckOptions.Active.Policy, null));
-            cluster2.ConfigSignal.Value = new ClusterConfig(new Cluster { Id = cluster2.ClusterId }, healthCheckConfig, default, default, cluster2.Config.HttpClient, default, null);
+            cluster2.ConfigSignal.Value = new ClusterConfig(new Cluster { Id = cluster2.ClusterId }, healthCheckConfig, default, default, cluster2.Config.HttpClient, default, default, null);
 
             monitor.OnClusterChanged(cluster2);
 
@@ -358,6 +358,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 default,
                 default,
                 httpClient,
+                default,
                 default,
                 null);
             var clusterInfo = new ClusterInfo(id, new DestinationManager());
