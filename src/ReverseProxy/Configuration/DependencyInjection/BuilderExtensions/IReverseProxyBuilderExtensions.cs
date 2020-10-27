@@ -86,7 +86,6 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
         public static IReverseProxyBuilder AddPassiveHealthCheck(this IReverseProxyBuilder builder)
         {
             builder.Services.TryAddSingleton<IReactivationScheduler, ReactivationScheduler>();
-            builder.Services.AddSingleton<IPassiveHealthCheckPolicy, TransportFailureRateHealthPolicy>();
             return builder;
         }
     }
