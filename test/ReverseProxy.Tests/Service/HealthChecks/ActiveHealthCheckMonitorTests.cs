@@ -63,10 +63,10 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             var monitor = new ActiveHealthCheckMonitor(options, new[] { policy0.Object, policy1.Object }, new DefaultProbingRequestFactory(), timerFactory, GetLogger());
 
             var httpClient0 = GetHttpClient();
-            var cluster0 = GetClusterInfo("cluster0", "policy0", true, httpClient0.Object, interval: TimeSpan.FromSeconds(1));
+            var cluster0 = GetClusterInfo("cluster0", "policy0", true, httpClient0.Object, interval: TimeSpan.FromSeconds(10));
             monitor.OnClusterAdded(cluster0);
             var httpClient2 = GetHttpClient();
-            var cluster2 = GetClusterInfo("cluster2", "policy1", true, httpClient2.Object, interval: TimeSpan.FromSeconds(2));
+            var cluster2 = GetClusterInfo("cluster2", "policy1", true, httpClient2.Object, interval: TimeSpan.FromSeconds(20));
             monitor.OnClusterAdded(cluster2);
 
             await monitor.CheckHealthAsync(new ClusterInfo[0]);
@@ -90,10 +90,10 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             var monitor = new ActiveHealthCheckMonitor(options, new[] { policy0.Object, policy1.Object }, new DefaultProbingRequestFactory(), timerFactory, GetLogger());
 
             var httpClient0 = GetHttpClient();
-            var cluster0 = GetClusterInfo("cluster0", "policy0", true, httpClient0.Object, interval: TimeSpan.FromSeconds(1));
+            var cluster0 = GetClusterInfo("cluster0", "policy0", true, httpClient0.Object, interval: TimeSpan.FromSeconds(10));
             monitor.OnClusterAdded(cluster0);
             var httpClient2 = GetHttpClient();
-            var cluster2 = GetClusterInfo("cluster2", "policy1", true, httpClient2.Object, interval: TimeSpan.FromSeconds(2));
+            var cluster2 = GetClusterInfo("cluster2", "policy1", true, httpClient2.Object, interval: TimeSpan.FromSeconds(20));
             monitor.OnClusterAdded(cluster2);
 
             await monitor.CheckHealthAsync(new ClusterInfo[0]);
@@ -127,7 +127,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             var monitor = new ActiveHealthCheckMonitor(options, new[] { policy0.Object, policy1.Object }, new DefaultProbingRequestFactory(), timerFactory, GetLogger());
 
             var httpClient0 = GetHttpClient();
-            var cluster0 = GetClusterInfo("cluster0", "policy0", true, httpClient0.Object, interval: TimeSpan.FromSeconds(1));
+            var cluster0 = GetClusterInfo("cluster0", "policy0", true, httpClient0.Object, interval: TimeSpan.FromSeconds(10));
             monitor.OnClusterAdded(cluster0);
 
             await monitor.CheckHealthAsync(new ClusterInfo[0]);
@@ -138,13 +138,13 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             VerifySentProbeAndResult(cluster0, httpClient0, policy0, new[] { ("https://localhost:20000/cluster0/api/health/", 1), ("https://localhost:20001/cluster0/api/health/", 1) }, policyCallTimes: 1);
 
             var httpClient2 = GetHttpClient();
-            var cluster2 = GetClusterInfo("cluster2", "policy1", true, httpClient2.Object, interval: TimeSpan.FromSeconds(2));
+            var cluster2 = GetClusterInfo("cluster2", "policy1", true, httpClient2.Object, interval: TimeSpan.FromSeconds(20));
             monitor.OnClusterAdded(cluster2);
 
             timerFactory.FireAndWaitAll();
 
             Assert.Equal(2, timerFactory.Count);
-            timerFactory.VerifyTimer(1, 2000);
+            timerFactory.VerifyTimer(1, 20000);
             VerifySentProbeAndResult(cluster0, httpClient0, policy0, new[] { ("https://localhost:20000/cluster0/api/health/", 2), ("https://localhost:20001/cluster0/api/health/", 2) }, policyCallTimes: 2);
             VerifySentProbeAndResult(cluster2, httpClient2, policy1, new[] { ("https://localhost:20000/cluster2/api/health/", 1), ("https://localhost:20001/cluster2/api/health/", 1) }, policyCallTimes: 1);
         }
@@ -161,10 +161,10 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             var monitor = new ActiveHealthCheckMonitor(options, new[] { policy0.Object, policy1.Object }, new DefaultProbingRequestFactory(), timerFactory, GetLogger());
 
             var httpClient0 = GetHttpClient();
-            var cluster0 = GetClusterInfo("cluster0", "policy0", true, httpClient0.Object, interval: TimeSpan.FromSeconds(1));
+            var cluster0 = GetClusterInfo("cluster0", "policy0", true, httpClient0.Object, interval: TimeSpan.FromSeconds(10));
             monitor.OnClusterAdded(cluster0);
             var httpClient2 = GetHttpClient();
-            var cluster2 = GetClusterInfo("cluster2", "policy1", true, httpClient2.Object, interval: TimeSpan.FromSeconds(1));
+            var cluster2 = GetClusterInfo("cluster2", "policy1", true, httpClient2.Object, interval: TimeSpan.FromSeconds(20));
             monitor.OnClusterAdded(cluster2);
 
             await monitor.CheckHealthAsync(new ClusterInfo[0]);
@@ -203,10 +203,10 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             var monitor = new ActiveHealthCheckMonitor(options, new[] { policy0.Object, policy1.Object }, new DefaultProbingRequestFactory(), timerFactory, GetLogger());
 
             var httpClient0 = GetHttpClient();
-            var cluster0 = GetClusterInfo("cluster0", "policy0", true, httpClient0.Object, interval: TimeSpan.FromSeconds(1));
+            var cluster0 = GetClusterInfo("cluster0", "policy0", true, httpClient0.Object, interval: TimeSpan.FromSeconds(10));
             monitor.OnClusterAdded(cluster0);
             var httpClient2 = GetHttpClient();
-            var cluster2 = GetClusterInfo("cluster2", "policy1", true, httpClient2.Object, interval: TimeSpan.FromSeconds(1));
+            var cluster2 = GetClusterInfo("cluster2", "policy1", true, httpClient2.Object, interval: TimeSpan.FromSeconds(20));
             monitor.OnClusterAdded(cluster2);
 
             await monitor.CheckHealthAsync(new ClusterInfo[0]);
