@@ -52,7 +52,6 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         private DestinationHealth EvaluateProxiedRequest(ClusterInfo cluster, DestinationInfo destination, bool failed)
         {
             var history = _requestHistories.GetOrCreateValue(destination);
-            var metadataName = TransportFailureRateHealthPolicyOptions.FailureRateLimitMetadataName;
             var rateLimitEntry = _clusterFailureRateLimits.GetValue(cluster, c => new ParsedMetadataEntry<double>(TryParse, c, TransportFailureRateHealthPolicyOptions.FailureRateLimitMetadataName));
             var rateLimit = rateLimitEntry.GetParsedOrDefault(_policyOptions.DefaultFailureRateLimit);
             lock (history)
