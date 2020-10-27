@@ -284,11 +284,40 @@ namespace Microsoft.ReverseProxy.Configuration
 
             return new HealthCheckOptions
             {
+                Passive = Convert(data.Passive),
+                Active = Convert(data.Active)
+            };
+        }
+
+        private static PassiveHealthCheckOptions Convert(PassiveHealthCheckData data)
+        {
+            if (data == null)
+            {
+                return null;
+            }
+
+            return new PassiveHealthCheckOptions
+            {
+                Enabled = data.Enabled,
+                Policy = data.Policy,
+                ReactivationPeriod = data.ReactivationPeriod
+            };
+        }
+
+        private static ActiveHealthCheckOptions Convert(ActiveHealthCheckData data)
+        {
+            if (data == null)
+            {
+                return null;
+            }
+
+            return new ActiveHealthCheckOptions
+            {
                 Enabled = data.Enabled,
                 Interval = data.Interval,
                 Timeout = data.Timeout,
-                Port = data.Port,
-                Path = data.Path,
+                Policy = data.Policy,
+                Path = data.Path
             };
         }
 
@@ -334,6 +363,7 @@ namespace Microsoft.ReverseProxy.Configuration
             return new Destination
             {
                 Address = data.Address,
+                Health = data.Health,
                 Metadata = data.Metadata?.DeepClone(StringComparer.OrdinalIgnoreCase),
             };
         }

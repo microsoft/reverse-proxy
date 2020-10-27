@@ -66,6 +66,8 @@ namespace Microsoft.ReverseProxy.Middleware
                 destination = destinations[random.Next(destinations.Count)];
             }
 
+            reverseProxyFeature.SelectedDestination = destination;
+
             var destinationConfig = destination.Config;
             if (destinationConfig == null)
             {

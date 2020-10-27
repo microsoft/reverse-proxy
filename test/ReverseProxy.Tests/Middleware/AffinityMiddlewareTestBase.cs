@@ -28,7 +28,7 @@ namespace Microsoft.ReverseProxy.Middleware
             var destinationManager = new Mock<IDestinationManager>();
             destinationManager.SetupGet(m => m.Items).Returns(SignalFactory.Default.CreateSignal(Destinations));
             var cluster = new ClusterInfo("cluster-1", destinationManager.Object);
-            cluster.Config.Value = ClusterConfig;
+            cluster.ConfigSignal.Value = ClusterConfig;
             return cluster;
         }
 

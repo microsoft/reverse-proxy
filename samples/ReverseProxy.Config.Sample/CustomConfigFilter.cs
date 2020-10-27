@@ -14,17 +14,23 @@ namespace Microsoft.ReverseProxy.Sample
     {
         public Task ConfigureClusterAsync(Cluster cluster, CancellationToken cancel)
         {
-            cluster.HealthCheck ??= new HealthCheckOptions();
             // How to use custom metadata to configure clusters
             if (cluster.Metadata?.TryGetValue("CustomHealth", out var customHealth) ?? false
                 && string.Equals(customHealth, "true", StringComparison.OrdinalIgnoreCase))
             {
-                cluster.HealthCheck.Enabled = true;
+                cluster.HealthCheck ??= new HealthCheckOptions { Active = new ActiveHealthCheckOptions() };
+                cluster.HealthCheck.Active.Enabled = true;
+                cluster.HealthCheck.Active.Policy = HealthCheckConstants.ActivePolicy.ConsecutiveFailures;
             }
 
             // Or wrap the meatadata in config sugar
             var config = new ConfigurationBuilder().AddInMemoryCollection(cluster.Metadata).Build();
-            cluster.HealthCheck.Enabled = config.GetValue<bool>("CustomHealth");
+            if (config.GetValue<bool>("CustomHealth"))
+            {
+                cluster.HealthCheck ??= new HealthCheckOptions { Active = new ActiveHealthCheckOptions() };
+                cluster.HealthCheck.Active.Enabled = true;
+                cluster.HealthCheck.Active.Policy = HealthCheckConstants.ActivePolicy.ConsecutiveFailures;
+            }
 
             return Task.CompletedTask;
         }

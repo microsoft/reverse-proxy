@@ -6,34 +6,18 @@ using System;
 namespace Microsoft.ReverseProxy.Configuration.Contract
 {
     /// <summary>
-    /// Active health check options.
+    /// All health check options.
     /// </summary>
     public sealed class HealthCheckData
     {
         /// <summary>
-        /// Whether health probes are enabled.
+        /// Passive health check options.
         /// </summary>
-        public bool Enabled { get; set; }
+        public PassiveHealthCheckData Passive { get; set; }
 
         /// <summary>
-        /// Health probe interval.
+        /// Active health check options.
         /// </summary>
-        // TODO: Consider switching to ISO8601 duration (e.g. "PT5M")
-        public TimeSpan Interval { get; set; }
-
-        /// <summary>
-        /// Health probe timeout, after which the targeted endpoint is considered unhealthy.
-        /// </summary>
-        public TimeSpan Timeout { get; set; }
-
-        /// <summary>
-        /// Port number.
-        /// </summary>
-        public int Port { get; set; }
-
-        /// <summary>
-        /// Http path.
-        /// </summary>
-        public string Path { get; set; }
+        public ActiveHealthCheckData Active { get; set; }
     }
 }

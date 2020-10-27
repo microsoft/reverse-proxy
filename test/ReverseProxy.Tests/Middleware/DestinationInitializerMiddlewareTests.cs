@@ -37,13 +37,13 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             var cluster1 = new ClusterInfo(
                 clusterId: "cluster1",
                 destinationManager: new DestinationManager());
-            cluster1.Config.Value = new ClusterConfig(default, default, default, default, httpClient, default, new Dictionary<string, string>());
+            cluster1.ConfigSignal.Value = new ClusterConfig(default, default, default, default, httpClient, default, new Dictionary<string, string>());
             var destination1 = cluster1.DestinationManager.GetOrCreateItem(
                 "destination1",
                 destination =>
                 {
-                    destination.ConfigSignal.Value = new DestinationConfig("https://localhost:123/a/b/");
-                    destination.DynamicStateSignal.Value = new DestinationDynamicState(DestinationHealth.Healthy);
+                    destination.ConfigSignal.Value = new DestinationConfig("https://localhost:123/a/b/", null);
+                    destination.DynamicStateSignal.Value = new DestinationDynamicState(new CompositeDestinationHealth(DestinationHealth.Healthy, DestinationHealth.Healthy));
                 });
 
             var aspNetCoreEndpoints = new List<Endpoint>();
@@ -67,7 +67,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             Assert.NotNull(proxyFeature.AvailableDestinations);
             Assert.Equal(1, proxyFeature.AvailableDestinations.Count);
             Assert.Same(destination1, proxyFeature.AvailableDestinations[0]);
-            Assert.Same(cluster1.Config.Value, proxyFeature.ClusterConfig);
+            Assert.Same(cluster1.Config, proxyFeature.ClusterConfig);
 
             Assert.Equal(200, httpContext.Response.StatusCode);
         }
@@ -79,9 +79,9 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             var cluster1 = new ClusterInfo(
                 clusterId: "cluster1",
                 destinationManager: new DestinationManager());
-            cluster1.Config.Value = new ClusterConfig(
+            cluster1.ConfigSignal.Value = new ClusterConfig(
                 new Cluster(),
-                new ClusterHealthCheckOptions(enabled: true, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan, 0, ""),
+                new ClusterHealthCheckOptions(default, new ClusterActiveHealthCheckOptions(enabled: true, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan, "Any5xxResponse", "")),
                 new ClusterLoadBalancingOptions(),
                 new ClusterSessionAffinityOptions(),
                 httpClient, new ClusterProxyHttpClientOptions(),
@@ -90,8 +90,8 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 "destination1",
                 destination =>
                 {
-                    destination.ConfigSignal.Value = new DestinationConfig("https://localhost:123/a/b/");
-                    destination.DynamicStateSignal.Value = new DestinationDynamicState(DestinationHealth.Unhealthy);
+                    destination.ConfigSignal.Value = new DestinationConfig("https://localhost:123/a/b/", null);
+                    destination.DynamicStateSignal.Value = new DestinationDynamicState(new CompositeDestinationHealth(DestinationHealth.Unknown, DestinationHealth.Unhealthy));
                 });
 
             var aspNetCoreEndpoints = new List<Endpoint>();

@@ -21,5 +21,10 @@ namespace Microsoft.ReverseProxy.Middleware
         /// </summary>
         public IReadOnlyList<DestinationInfo> AvailableDestinations { get; set; }
 
+        /// <summary>
+        /// Actual destination chosen as the target that received the current request.
+        /// </summary>
+        public DestinationInfo SelectedDestination { get; set; }
+
     }
 }

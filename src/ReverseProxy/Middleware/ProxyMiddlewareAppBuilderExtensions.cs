@@ -38,5 +38,13 @@ namespace Microsoft.AspNetCore.Builder
         {
             return builder.UseMiddleware<AffinitizeRequestMiddleware>();
         }
+
+        /// <summary>
+        /// Passively checks destinations health by watching for successes and failures in client request proxying.
+        /// </summary>
+        public static IApplicationBuilder UsePassiveHealthChecks(this IApplicationBuilder builder)
+        {
+            return builder.UseMiddleware<PassiveHealthCheckMiddleware>();
+        }
     }
 }

@@ -13,6 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Configuration;
+using Microsoft.ReverseProxy.Service.HealthChecks;
 using Microsoft.ReverseProxy.Utilities;
 using Microsoft.ReverseProxy.Utilities.Tests;
 using Moq;
@@ -29,6 +30,9 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             serviceCollection.AddRouting();
             var proxyBuilder = serviceCollection.AddReverseProxy().LoadFromMemory(routes, clusters);
             serviceCollection.TryAddSingleton(new Mock<IWebHostEnvironment>().Object);
+            var activeHealthPolicy = new Mock<IActiveHealthCheckPolicy>();
+            activeHealthPolicy.SetupGet(p => p.Name).Returns("activePolicyA");
+            serviceCollection.AddSingleton(activeHealthPolicy.Object);
             configureProxy?.Invoke(proxyBuilder);
             var services = serviceCollection.BuildServiceProvider();
             var routeBuilder = services.GetRequiredService<IRuntimeRouteBuilder>();
@@ -122,8 +126,8 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             Assert.Single(actualClusters);
             Assert.Equal("cluster1", actualClusters[0].ClusterId);
             Assert.NotNull(actualClusters[0].DestinationManager);
-            Assert.NotNull(actualClusters[0].Config.Value);
-            Assert.NotNull(actualClusters[0].Config.Value.HttpClient);
+            Assert.NotNull(actualClusters[0].Config);
+            Assert.NotNull(actualClusters[0].Config.HttpClient);
 
             var actualDestinations = actualClusters[0].DestinationManager.GetItems();
             Assert.Single(actualDestinations);
@@ -135,7 +139,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             var actualRoutes = routeManager.GetItems();
             Assert.Single(actualRoutes);
             Assert.Equal("route1", actualRoutes[0].RouteId);
-            Assert.NotNull(actualRoutes[0].Config.Value);
+            Assert.NotNull(actualRoutes[0].Config);
             Assert.Same(actualClusters[0], actualRoutes[0].Config.Value.Cluster);
         }
 
@@ -173,7 +177,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             var actualClusters = clusterManager.GetItems();
             Assert.Single(actualClusters);
             Assert.Equal("cluster1", actualClusters[0].ClusterId);
-            var clusterConfig = actualClusters[0].Config.Value;
+            var clusterConfig = actualClusters[0].Config;
             Assert.NotNull(clusterConfig.HttpClient);
             Assert.Equal(SslProtocols.Tls11 | SslProtocols.Tls12, clusterConfig.HttpClientOptions.SslProtocols);
             Assert.Equal(10, clusterConfig.HttpClientOptions.MaxConnectionsPerServer);
@@ -284,7 +288,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
         {
             public Task ConfigureClusterAsync(Cluster cluster, CancellationToken cancel)
             {
-                cluster.HealthCheck = new HealthCheckOptions() { Enabled = true, Interval = TimeSpan.FromSeconds(12) };
+                cluster.HealthCheck = new HealthCheckOptions() { Active = new ActiveHealthCheckOptions { Enabled = true, Interval = TimeSpan.FromSeconds(12), Policy = "activePolicyA" } };
                 return Task.CompletedTask;
             }
 
@@ -312,9 +316,9 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             var clusterInfo = clusterManager.TryGetItem("cluster1");
 
             Assert.NotNull(clusterInfo);
-            Assert.True(clusterInfo.Config.Value.HealthCheckOptions.Enabled);
-            Assert.Equal(TimeSpan.FromSeconds(12), clusterInfo.Config.Value.HealthCheckOptions.Interval);
-            var destination = Assert.Single(clusterInfo.DynamicState.Value.AllDestinations);
+            Assert.True(clusterInfo.Config.HealthCheckOptions.Enabled);
+            Assert.Equal(TimeSpan.FromSeconds(12), clusterInfo.Config.HealthCheckOptions.Active.Interval);
+            var destination = Assert.Single(clusterInfo.DynamicState.AllDestinations);
             Assert.Equal("http://localhost", destination.Config.Address);
         }
 

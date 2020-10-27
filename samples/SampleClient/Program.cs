@@ -33,7 +33,8 @@ namespace SampleClient
             var scenarioFactories = new Dictionary<string, Func<IScenario>>(StringComparer.OrdinalIgnoreCase) {
                 {"Http1", () => new Http1Scenario()},
                 {"Http2", () => new Http2Scenario()},
-                {"RawUpgrade", () => new RawUpgradeScenario()},
+                // Disabled due to a conflict with a workaround to the issue https://github.com/microsoft/reverse-proxy/issues/255.
+                //{"RawUpgrade", () => new RawUpgradeScenario()},
                 {"WebSockets", () => new WebSocketsScenario()},
                 {"SessionAffinity", () => new SessionAffinityScenario()}
             };
@@ -59,7 +60,11 @@ namespace SampleClient
                 }
 
                 Console.WriteLine();
+                Console.ForegroundColor = success ? ConsoleColor.Green : ConsoleColor.Red;
                 Console.WriteLine($"All scenarios completed {(success ? "successfully" : "with errors")}.");
+                Console.ResetColor();
+                Console.WriteLine("Press any key to exit.");
+                Console.ReadKey();
                 return success ? 0 : 1;
             }
 
@@ -87,6 +92,11 @@ namespace SampleClient
                 return 1;
             }
 
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("All scenarios completed successfully!");
+            Console.ResetColor();
+            Console.WriteLine("Press any key to exit.");
+            Console.ReadKey();
             return 0;
         }
     }

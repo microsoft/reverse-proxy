@@ -68,7 +68,11 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
                         break;
                     }
                 }
-                Log.DestinationMatchingToAffinityKeyNotFound(Logger, clusterId);
+
+                if (matchingDestinations == null)
+                {
+                    Log.DestinationMatchingToAffinityKeyNotFound(Logger, clusterId);
+                }
             }
             else
             {

@@ -47,6 +47,7 @@ namespace Microsoft.ReverseProxy.Sample
                 new Cluster()
                 {
                     Id = "cluster1",
+                    SessionAffinity = new SessionAffinityOptions { Enabled = true, Mode = "Cookie" },
                     Destinations =
                     {
                         { "destination1", new Destination() { Address = "https://localhost:10000" } }

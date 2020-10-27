@@ -18,6 +18,11 @@ namespace Microsoft.ReverseProxy.Abstractions
         public string Address { get; set; }
 
         /// <summary>
+        /// Endpoint accepting active health check probes. E.g. <c>http://127.0.0.1:1234/</c>.
+        /// </summary>
+        public string Health { get; set; }
+
+        /// <summary>
         /// Arbitrary key-value pairs that further describe this destination.
         /// </summary>
         public IDictionary<string, string> Metadata { get; set; }
@@ -28,6 +33,7 @@ namespace Microsoft.ReverseProxy.Abstractions
             return new Destination
             {
                 Address = Address,
+                Health = Health,
                 Metadata = Metadata?.DeepClone(StringComparer.OrdinalIgnoreCase),
             };
         }
@@ -45,6 +51,7 @@ namespace Microsoft.ReverseProxy.Abstractions
             }
 
             return string.Equals(destination1.Address, destination2.Address, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(destination1.Health, destination2.Health, StringComparison.OrdinalIgnoreCase)
                 && CaseInsensitiveEqualHelper.Equals(destination1.Metadata, destination2.Metadata);
         }
     }

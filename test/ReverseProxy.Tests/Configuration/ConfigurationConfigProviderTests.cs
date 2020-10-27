@@ -38,15 +38,18 @@ namespace Microsoft.ReverseProxy.Configuration
                         Destinations = {
                         {
                             "destinationA",
-                            new DestinationData { Address = "https://localhost:10000/destA", Metadata = new Dictionary<string, string> { { "destA-K1", "destA-V1" }, { "destA-K2", "destA-V2" } } }
+                            new DestinationData { Address = "https://localhost:10000/destA", Health = "https://localhost:20000/destA", Metadata = new Dictionary<string, string> { { "destA-K1", "destA-V1" }, { "destA-K2", "destA-V2" } } }
                         },
                         {
                             "destinationB",
-                            new DestinationData { Address = "https://localhost:10000/destB", Metadata = new Dictionary<string, string> { { "destB-K1", "destB-V1" }, { "destB-K2", "destB-V2" } } }
+                            new DestinationData { Address = "https://localhost:10000/destB", Health = "https://localhost:20000/destB", Metadata = new Dictionary<string, string> { { "destB-K1", "destB-V1" }, { "destB-K2", "destB-V2" } } }
                         }
                         },
                         CircuitBreaker = new CircuitBreakerData { MaxConcurrentRequests = 2, MaxConcurrentRetries = 3 },
-                        HealthCheck = new HealthCheckData { Enabled = true, Interval = TimeSpan.FromSeconds(4), Path = "healthCheckPath", Port = 5, Timeout = TimeSpan.FromSeconds(6) },
+                        HealthCheck = new HealthCheckData {
+                            Passive = new PassiveHealthCheckData { Enabled = true, Policy = "FailureRate", ReactivationPeriod = TimeSpan.FromMinutes(5) },
+                            Active = new ActiveHealthCheckData { Enabled = true, Interval = TimeSpan.FromSeconds(4), Timeout = TimeSpan.FromSeconds(6), Policy = "Any5xxResponse", Path = "healthCheckPath"}
+                        },
                         LoadBalancing = new LoadBalancingData { Mode = "Random" },
                         Partitioning = new ClusterPartitioningData { PartitionCount = 7, PartitioningAlgorithm = "SHA358", PartitionKeyExtractor = "partionKeyA" },
                         Quota = new QuotaData { Average = 8.5, Burst = 9.1 },
@@ -166,11 +169,18 @@ namespace Microsoft.ReverseProxy.Configuration
                 }
             },
             ""HealthCheck"": {
-                ""Enabled"": true,
-                ""Interval"": ""00:00:04"",
-                ""Timeout"": ""00:00:06"",
-                ""Port"": 5,
-                ""Path"": ""healthCheckPath""
+                ""Passive"": {
+                    ""Enabled"": true,
+                    ""Policy"": ""FailureRate"",
+                    ""ReactivationPeriod"": ""00:05:00""
+                },
+                ""Active"": {
+                    ""Enabled"": true,
+                    ""Interval"": ""00:00:04"",
+                    ""Timeout"": ""00:00:06"",
+                    ""Policy"": ""Any5xxResponse"",
+                    ""Path"": ""healthCheckPath""
+                }
             },
             ""HttpClient"": {
                 ""SslProtocols"": [
@@ -192,6 +202,7 @@ namespace Microsoft.ReverseProxy.Configuration
             ""Destinations"": {
                 ""destinationA"": {
                     ""Address"": ""https://localhost:10000/destA"",
+                    ""Health"": ""https://localhost:20000/destA"",
                     ""Metadata"": {
                         ""destA-K1"": ""destA-V1"",
                         ""destA-K2"": ""destA-V2""
@@ -199,6 +210,7 @@ namespace Microsoft.ReverseProxy.Configuration
                 },
                 ""destinationB"": {
                     ""Address"": ""https://localhost:10000/destB"",
+                    ""Health"": ""https://localhost:20000/destB"",
                     ""Metadata"": {
                         ""destB-K1"": ""destB-V1"",
                         ""destB-K2"": ""destB-V2""
@@ -543,16 +555,21 @@ namespace Microsoft.ReverseProxy.Configuration
             Assert.Single(abstractConfig.Clusters.Where(c => c.Id == "cluster1"));
             var abstractCluster1 = abstractConfig.Clusters.Single(c => c.Id == "cluster1");
             Assert.Equal(validConfig.Clusters["cluster1"].Destinations["destinationA"].Address, abstractCluster1.Destinations["destinationA"].Address);
+            Assert.Equal(validConfig.Clusters["cluster1"].Destinations["destinationA"].Health, abstractCluster1.Destinations["destinationA"].Health);
             Assert.Equal(validConfig.Clusters["cluster1"].Destinations["destinationA"].Metadata, abstractCluster1.Destinations["destinationA"].Metadata);
             Assert.Equal(validConfig.Clusters["cluster1"].Destinations["destinationB"].Address, abstractCluster1.Destinations["destinationB"].Address);
+            Assert.Equal(validConfig.Clusters["cluster1"].Destinations["destinationB"].Health, abstractCluster1.Destinations["destinationB"].Health);
             Assert.Equal(validConfig.Clusters["cluster1"].Destinations["destinationB"].Metadata, abstractCluster1.Destinations["destinationB"].Metadata);
             Assert.Equal(validConfig.Clusters["cluster1"].CircuitBreaker.MaxConcurrentRequests, abstractCluster1.CircuitBreaker.MaxConcurrentRequests);
             Assert.Equal(validConfig.Clusters["cluster1"].CircuitBreaker.MaxConcurrentRetries, abstractCluster1.CircuitBreaker.MaxConcurrentRetries);
-            Assert.Equal(validConfig.Clusters["cluster1"].HealthCheck.Enabled, abstractCluster1.HealthCheck.Enabled);
-            Assert.Equal(validConfig.Clusters["cluster1"].HealthCheck.Interval, abstractCluster1.HealthCheck.Interval);
-            Assert.Equal(validConfig.Clusters["cluster1"].HealthCheck.Path, abstractCluster1.HealthCheck.Path);
-            Assert.Equal(validConfig.Clusters["cluster1"].HealthCheck.Port, abstractCluster1.HealthCheck.Port);
-            Assert.Equal(validConfig.Clusters["cluster1"].HealthCheck.Timeout, abstractCluster1.HealthCheck.Timeout);
+            Assert.Equal(validConfig.Clusters["cluster1"].HealthCheck.Passive.Enabled, abstractCluster1.HealthCheck.Passive.Enabled);
+            Assert.Equal(validConfig.Clusters["cluster1"].HealthCheck.Passive.Policy, abstractCluster1.HealthCheck.Passive.Policy);
+            Assert.Equal(validConfig.Clusters["cluster1"].HealthCheck.Passive.ReactivationPeriod, abstractCluster1.HealthCheck.Passive.ReactivationPeriod);
+            Assert.Equal(validConfig.Clusters["cluster1"].HealthCheck.Active.Enabled, abstractCluster1.HealthCheck.Active.Enabled);
+            Assert.Equal(validConfig.Clusters["cluster1"].HealthCheck.Active.Interval, abstractCluster1.HealthCheck.Active.Interval);
+            Assert.Equal(validConfig.Clusters["cluster1"].HealthCheck.Active.Timeout, abstractCluster1.HealthCheck.Active.Timeout);
+            Assert.Equal(validConfig.Clusters["cluster1"].HealthCheck.Active.Policy, abstractCluster1.HealthCheck.Active.Policy);
+            Assert.Equal(validConfig.Clusters["cluster1"].HealthCheck.Active.Path, abstractCluster1.HealthCheck.Active.Path);
             Assert.Equal(Abstractions.LoadBalancingMode.Random, abstractCluster1.LoadBalancing.Mode);
             Assert.Equal(validConfig.Clusters["cluster1"].Partitioning.PartitionCount, abstractCluster1.Partitioning.PartitionCount);
             Assert.Equal(validConfig.Clusters["cluster1"].Partitioning.PartitioningAlgorithm, abstractCluster1.Partitioning.PartitioningAlgorithm);

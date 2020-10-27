@@ -53,6 +53,8 @@ namespace Microsoft.ReverseProxy.Service.Management
                     UpdateSignal();
                 }
 
+                OnItemChanged(item, !existed);
+
                 return item;
             }
         }
@@ -73,11 +75,12 @@ namespace Microsoft.ReverseProxy.Service.Management
 
             lock (_lockObject)
             {
-                var removed = _items.Remove(itemId);
+                var removed = _items.Remove(itemId, out var removedItem);
 
                 if (removed)
                 {
                     UpdateSignal();
+                    OnItemRemoved(removedItem);
                 }
 
                 return removed;
@@ -88,6 +91,12 @@ namespace Microsoft.ReverseProxy.Service.Management
         /// Creates a new item with the given <paramref name="itemId"/>.
         /// </summary>
         protected abstract T InstantiateItem(string itemId);
+
+        protected virtual void OnItemChanged(T item, bool added)
+        {}
+
+        protected virtual void OnItemRemoved(T item)
+        {}
 
         private void UpdateSignal()
         {
