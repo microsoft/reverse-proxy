@@ -73,7 +73,7 @@
   
   <h1 id="Microsoft_ReverseProxy_Abstractions_HealthCheckOptions" data-uid="Microsoft.ReverseProxy.Abstractions.HealthCheckOptions" class="text-break">Class HealthCheckOptions
   </h1>
-  <div class="markdown level0 summary"><p>Active health check options.</p>
+  <div class="markdown level0 summary"><p>All health check options.</p>
 </div>
   <div class="markdown level0 conceptual"></div>
   <div class="inheritance">
@@ -115,19 +115,19 @@
   </h3>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Abstractions_HealthCheckOptions_Enabled.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Abstractions.HealthCheckOptions.Enabled%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/alnikola/reverse-proxy/new/alnikola/498-transport-failure-rate-policy/apiSpec/new?filename=Microsoft_ReverseProxy_Abstractions_HealthCheckOptions_Active.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Abstractions.HealthCheckOptions.Active%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Abstractions/ClusterDiscovery/Contract/HealthCheckOptions.cs/#L16">View Source</a>
+    <a href="https://github.com/alnikola/reverse-proxy/blob/alnikola/498-transport-failure-rate-policy/src/ReverseProxy/Abstractions/ClusterDiscovery/Contract/HealthCheckOptions.cs/#L21">View Source</a>
   </span>
-  <a id="Microsoft_ReverseProxy_Abstractions_HealthCheckOptions_Enabled_" data-uid="Microsoft.ReverseProxy.Abstractions.HealthCheckOptions.Enabled*"></a>
-  <h4 id="Microsoft_ReverseProxy_Abstractions_HealthCheckOptions_Enabled" data-uid="Microsoft.ReverseProxy.Abstractions.HealthCheckOptions.Enabled">Enabled</h4>
-  <div class="markdown level1 summary"><p>Whether health probes are enabled.</p>
+  <a id="Microsoft_ReverseProxy_Abstractions_HealthCheckOptions_Active_" data-uid="Microsoft.ReverseProxy.Abstractions.HealthCheckOptions.Active*"></a>
+  <h4 id="Microsoft_ReverseProxy_Abstractions_HealthCheckOptions_Active" data-uid="Microsoft.ReverseProxy.Abstractions.HealthCheckOptions.Active">Active</h4>
+  <div class="markdown level1 summary"><p>Active health check options.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public bool Enabled { get; set; }</code></pre>
+    <pre><code class="lang-csharp hljs">public ActiveHealthCheckOptions Active { get; set; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -139,26 +139,26 @@
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.boolean">Boolean</a></td>
+        <td><a class="xref" href="Microsoft.ReverseProxy.Abstractions.ActiveHealthCheckOptions.html">ActiveHealthCheckOptions</a></td>
         <td></td>
       </tr>
     </tbody>
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Abstractions_HealthCheckOptions_Interval.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Abstractions.HealthCheckOptions.Interval%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/alnikola/reverse-proxy/new/alnikola/498-transport-failure-rate-policy/apiSpec/new?filename=Microsoft_ReverseProxy_Abstractions_HealthCheckOptions_Passive.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Abstractions.HealthCheckOptions.Passive%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Abstractions/ClusterDiscovery/Contract/HealthCheckOptions.cs/#L22">View Source</a>
+    <a href="https://github.com/alnikola/reverse-proxy/blob/alnikola/498-transport-failure-rate-policy/src/ReverseProxy/Abstractions/ClusterDiscovery/Contract/HealthCheckOptions.cs/#L16">View Source</a>
   </span>
-  <a id="Microsoft_ReverseProxy_Abstractions_HealthCheckOptions_Interval_" data-uid="Microsoft.ReverseProxy.Abstractions.HealthCheckOptions.Interval*"></a>
-  <h4 id="Microsoft_ReverseProxy_Abstractions_HealthCheckOptions_Interval" data-uid="Microsoft.ReverseProxy.Abstractions.HealthCheckOptions.Interval">Interval</h4>
-  <div class="markdown level1 summary"><p>Health probe interval.</p>
+  <a id="Microsoft_ReverseProxy_Abstractions_HealthCheckOptions_Passive_" data-uid="Microsoft.ReverseProxy.Abstractions.HealthCheckOptions.Passive*"></a>
+  <h4 id="Microsoft_ReverseProxy_Abstractions_HealthCheckOptions_Passive" data-uid="Microsoft.ReverseProxy.Abstractions.HealthCheckOptions.Passive">Passive</h4>
+  <div class="markdown level1 summary"><p>Passive health check options.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public TimeSpan Interval { get; set; }</code></pre>
+    <pre><code class="lang-csharp hljs">public PassiveHealthCheckOptions Passive { get; set; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -170,100 +170,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.timespan">TimeSpan</a></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  <span class="small pull-right mobile-hide">
-    <span class="divider">|</span>
-    <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Abstractions_HealthCheckOptions_Path.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Abstractions.HealthCheckOptions.Path%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
-  </span>
-  <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Abstractions/ClusterDiscovery/Contract/HealthCheckOptions.cs/#L37">View Source</a>
-  </span>
-  <a id="Microsoft_ReverseProxy_Abstractions_HealthCheckOptions_Path_" data-uid="Microsoft.ReverseProxy.Abstractions.HealthCheckOptions.Path*"></a>
-  <h4 id="Microsoft_ReverseProxy_Abstractions_HealthCheckOptions_Path" data-uid="Microsoft.ReverseProxy.Abstractions.HealthCheckOptions.Path">Path</h4>
-  <div class="markdown level1 summary"><p>Http path.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public string Path { get; set; }</code></pre>
-  </div>
-  <h5 class="propertyValue">Property Value</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.string">String</a></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  <span class="small pull-right mobile-hide">
-    <span class="divider">|</span>
-    <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Abstractions_HealthCheckOptions_Port.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Abstractions.HealthCheckOptions.Port%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
-  </span>
-  <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Abstractions/ClusterDiscovery/Contract/HealthCheckOptions.cs/#L32">View Source</a>
-  </span>
-  <a id="Microsoft_ReverseProxy_Abstractions_HealthCheckOptions_Port_" data-uid="Microsoft.ReverseProxy.Abstractions.HealthCheckOptions.Port*"></a>
-  <h4 id="Microsoft_ReverseProxy_Abstractions_HealthCheckOptions_Port" data-uid="Microsoft.ReverseProxy.Abstractions.HealthCheckOptions.Port">Port</h4>
-  <div class="markdown level1 summary"><p>Port number.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public int Port { get; set; }</code></pre>
-  </div>
-  <h5 class="propertyValue">Property Value</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.int32">Int32</a></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  <span class="small pull-right mobile-hide">
-    <span class="divider">|</span>
-    <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Abstractions_HealthCheckOptions_Timeout.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Abstractions.HealthCheckOptions.Timeout%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
-  </span>
-  <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Abstractions/ClusterDiscovery/Contract/HealthCheckOptions.cs/#L27">View Source</a>
-  </span>
-  <a id="Microsoft_ReverseProxy_Abstractions_HealthCheckOptions_Timeout_" data-uid="Microsoft.ReverseProxy.Abstractions.HealthCheckOptions.Timeout*"></a>
-  <h4 id="Microsoft_ReverseProxy_Abstractions_HealthCheckOptions_Timeout" data-uid="Microsoft.ReverseProxy.Abstractions.HealthCheckOptions.Timeout">Timeout</h4>
-  <div class="markdown level1 summary"><p>Health probe timeout, after which the targeted endpoint is considered unhealthy.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public TimeSpan Timeout { get; set; }</code></pre>
-  </div>
-  <h5 class="propertyValue">Property Value</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.timespan">TimeSpan</a></td>
+        <td><a class="xref" href="Microsoft.ReverseProxy.Abstractions.PassiveHealthCheckOptions.html">PassiveHealthCheckOptions</a></td>
         <td></td>
       </tr>
     </tbody>
@@ -276,10 +183,10 @@
               <div class="contribution">
                 <ul class="nav">
                   <li>
-                    <a href="https://github.com/microsoft/reverse-proxy/new/master/apiSpec/new?filename=Microsoft_ReverseProxy_Abstractions_HealthCheckOptions.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Abstractions.HealthCheckOptions%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/alnikola/reverse-proxy/new/alnikola/498-transport-failure-rate-policy/apiSpec/new?filename=Microsoft_ReverseProxy_Abstractions_HealthCheckOptions.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Abstractions.HealthCheckOptions%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
                   </li>
                   <li>
-                    <a href="https://github.com/microsoft/reverse-proxy/blob/master/src/ReverseProxy/Abstractions/ClusterDiscovery/Contract/HealthCheckOptions.cs/#L11" class="contribution-link">View Source</a>
+                    <a href="https://github.com/alnikola/reverse-proxy/blob/alnikola/498-transport-failure-rate-policy/src/ReverseProxy/Abstractions/ClusterDiscovery/Contract/HealthCheckOptions.cs/#L11" class="contribution-link">View Source</a>
                   </li>
                 </ul>
               </div>
