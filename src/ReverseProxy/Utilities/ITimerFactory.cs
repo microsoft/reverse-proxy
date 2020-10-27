@@ -9,7 +9,5 @@ namespace Microsoft.ReverseProxy.Utilities
     internal interface ITimerFactory
     {
         Timer CreateTimer(TimerCallback callback, object state, long dueTime, long period);
-
-        Timer CreateTimer(TimerCallback callback, object state, TimeSpan dueTime, TimeSpan period);
     }
 }

@@ -12,10 +12,5 @@ namespace Microsoft.ReverseProxy.Utilities
         {
             return new Timer(callback, state, dueTime, period);
         }
-
-        public Timer CreateTimer(TimerCallback callback, object state, TimeSpan dueTime, TimeSpan period)
-        {
-            return new Timer(callback, state, dueTime, period);
-        }
     }
 }

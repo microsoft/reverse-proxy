@@ -58,11 +58,6 @@ namespace Microsoft.ReverseProxy.Utilities
             return timer;
         }
 
-        public Timer CreateTimer(TimerCallback callback, object state, TimeSpan dueTime, TimeSpan period)
-        {
-            throw new NotImplementedException();
-        }
-
         public void Dispose()
         {
             for (var i = 0; i < _timers.Count; i++)
