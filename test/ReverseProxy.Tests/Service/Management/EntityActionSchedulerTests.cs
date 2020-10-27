@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.ReverseProxy.Utilities;
@@ -10,6 +9,7 @@ using Xunit;
 
 namespace Microsoft.ReverseProxy.Service.Management
 {
+    // It uses a real TimerFactory to verify scheduling work E2E.
     public class EntityActionSchedulerTests
     {
         [Fact]
@@ -27,7 +27,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                 lastInvokedEntity = e;
                 invoked.Set();
                 return Task.CompletedTask;
-            }, autoStart: true, runOnce: false);
+            }, autoStart: true, runOnce: false, new TimerFactory());
 
             scheduler.ScheduleEntity(entity0, period0);
             scheduler.ScheduleEntity(entity1, period1);
@@ -64,7 +64,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                 lastInvokedEntity = e;
                 invoked.Set();
                 return Task.CompletedTask;
-            }, autoStart: false, runOnce: true);
+            }, autoStart: false, runOnce: true, new TimerFactory());
 
             scheduler.ScheduleEntity(entity0, period0);
             scheduler.ScheduleEntity(entity1, period1);
@@ -102,7 +102,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                 lastInvokedEntity = e;
                 invoked.Set();
                 return Task.CompletedTask;
-            }, autoStart: false, runOnce: false);
+            }, autoStart: false, runOnce: false, new TimerFactory());
 
             scheduler.ScheduleEntity(entity0, period0);
             scheduler.ScheduleEntity(entity1, period1);
@@ -135,7 +135,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                 lastInvokedEntity = e;
                 invoked.Set();
                 return Task.CompletedTask;
-            }, autoStart: true, runOnce: false);
+            }, autoStart: true, runOnce: false, new TimerFactory());
 
             scheduler.ScheduleEntity(entity0, period0);
             scheduler.ScheduleEntity(entity1, period1);
@@ -171,7 +171,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                 lastInvokedEntity = e;
                 invoked.Set();
                 return Task.CompletedTask;
-            }, autoStart: false, runOnce: false);
+            }, autoStart: false, runOnce: false, new TimerFactory());
 
             scheduler.ScheduleEntity(entity, period);
 
@@ -202,7 +202,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                 lastInvokedEntity = e;
                 invoked.Set();
                 return Task.CompletedTask;
-            }, autoStart: false, runOnce: false);
+            }, autoStart: false, runOnce: false, new TimerFactory());
 
             scheduler.ScheduleEntity(entity, period);
 
@@ -233,7 +233,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                 lastInvokedEntity = e;
                 invoked.Set();
                 return Task.CompletedTask;
-            }, autoStart: true, runOnce: false);
+            }, autoStart: true, runOnce: false, new TimerFactory());
 
             scheduler.ScheduleEntity(entity, period);
 
@@ -265,7 +265,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                 lastInvokedEntity = e;
                 invoked.Set();
                 return Task.CompletedTask;
-            }, autoStart: true, runOnce: false);
+            }, autoStart: true, runOnce: false, new TimerFactory());
 
             scheduler.ScheduleEntity(entity, period);
 

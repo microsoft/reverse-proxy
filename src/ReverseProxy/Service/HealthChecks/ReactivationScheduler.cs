@@ -4,6 +4,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Management;
+using Microsoft.ReverseProxy.Utilities;
 using System;
 using System.Threading.Tasks;
 
@@ -14,9 +15,9 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         private readonly EntityActionScheduler<DestinationInfo> _scheduler;
         private readonly ILogger<ReactivationScheduler> _logger;
 
-        public ReactivationScheduler(ILogger<ReactivationScheduler> logger)
+        public ReactivationScheduler(ITimerFactory timerFactory, ILogger<ReactivationScheduler> logger)
         {
-            _scheduler = new EntityActionScheduler<DestinationInfo>(d => Reactivate(d), autoStart: true, runOnce: true);
+            _scheduler = new EntityActionScheduler<DestinationInfo>(d => Reactivate(d), autoStart: true, runOnce: true, timerFactory);
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 

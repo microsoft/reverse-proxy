@@ -31,7 +31,7 @@ namespace Microsoft.ReverseProxy.Middleware
             }, policies.Select(p => p.Object));
 
             var context0 = GetContext(cluster0, selectedDestination: 1, error: null);
-            await middleware.Invoke(context0).ConfigureAwait(false);
+            await middleware.Invoke(context0);
 
             Assert.True(nextInvoked);
             policies[0].Verify(p => p.RequestProxied(cluster0, cluster0.DynamicState.AllDestinations[1], context0), Times.Once);
@@ -44,7 +44,7 @@ namespace Microsoft.ReverseProxy.Middleware
 
             var error = new ProxyErrorFeature(ProxyError.Request, null);
             var context1 = GetContext(cluster1, selectedDestination: 0, error);
-            await middleware.Invoke(context1).ConfigureAwait(false);
+            await middleware.Invoke(context1);
 
             Assert.True(nextInvoked);
             policies[1].Verify(p => p.RequestProxied(cluster1, cluster1.DynamicState.AllDestinations[0], context1), Times.Once);
@@ -64,7 +64,7 @@ namespace Microsoft.ReverseProxy.Middleware
             }, policies.Select(p => p.Object));
 
             var context0 = GetContext(cluster0, selectedDestination: 0, error: null);
-            await middleware.Invoke(context0).ConfigureAwait(false);
+            await middleware.Invoke(context0);
 
             Assert.True(nextInvoked);
             policies[0].VerifyGet(p => p.Name, Times.Once);
@@ -86,7 +86,7 @@ namespace Microsoft.ReverseProxy.Middleware
 
             var context0 = GetContext(cluster0, selectedDestination: 1, error: null);
             context0.GetRequiredProxyFeature().SelectedDestination = null;
-            await middleware.Invoke(context0).ConfigureAwait(false);
+            await middleware.Invoke(context0);
 
             Assert.True(nextInvoked);
             policies[0].VerifyGet(p => p.Name, Times.Once);

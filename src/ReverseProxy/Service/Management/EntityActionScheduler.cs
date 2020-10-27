@@ -3,9 +3,9 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Service.Management
 {
@@ -25,12 +25,16 @@ namespace Microsoft.ReverseProxy.Service.Management
         private readonly ConcurrentDictionary<T, SchedulerEntry> _entries = new ConcurrentDictionary<T, SchedulerEntry>();
         private readonly Func<T, Task> _action;
         private readonly bool _runOnce;
+        private readonly ITimerFactory _timerFactory;
+        private readonly TimerCallback _timerCallback;
         private int _isStarted;
 
-        public EntityActionScheduler(Func<T, Task> action, bool autoStart, bool runOnce)
+        public EntityActionScheduler(Func<T, Task> action, bool autoStart, bool runOnce, ITimerFactory timerFactory)
         {
             _action = action ?? throw new ArgumentNullException(nameof(action));
             _runOnce = runOnce;
+            _timerFactory = timerFactory ?? throw new ArgumentNullException(nameof(timerFactory));
+            _timerCallback = async o => await Run(o);
             _isStarted = autoStart ? 1 : 0;
         }
 
@@ -57,7 +61,7 @@ namespace Microsoft.ReverseProxy.Service.Management
 
         public void ScheduleEntity(T entity, TimeSpan period)
         {
-            var entry = new SchedulerEntry(entity, (long)period.TotalMilliseconds, async o => await Run(o), Volatile.Read(ref _isStarted) == 1);
+            var entry = new SchedulerEntry(entity, (long)period.TotalMilliseconds, _timerCallback, Volatile.Read(ref _isStarted) == 1, _timerFactory);
             _entries.TryAdd(entity, entry);
         }
 
@@ -104,11 +108,11 @@ namespace Microsoft.ReverseProxy.Service.Management
         {
             private long _period;
 
-            public SchedulerEntry(T entity, long period, TimerCallback timerCallback, bool autoStart)
+            public SchedulerEntry(T entity, long period, TimerCallback timerCallback, bool autoStart, ITimerFactory timerFactory)
             {
                 Entity = entity;
                 _period = period;
-                Timer = new Timer(timerCallback, this, autoStart ? period : Timeout.Infinite, Timeout.Infinite);
+                Timer = timerFactory.CreateTimer(timerCallback, this, autoStart ? period : Timeout.Infinite, Timeout.Infinite);
             }
 
             public T Entity { get; }

@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -15,7 +14,6 @@ using Microsoft.ReverseProxy.Common.Tests;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Management;
 using Microsoft.ReverseProxy.Service.Proxy;
-using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 using Microsoft.ReverseProxy.Telemetry;
 using Moq;
 using Xunit;
@@ -104,6 +102,8 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             await tcs1.Task; // Wait until we get to the proxying step.
             Assert.Equal(1, cluster1.ConcurrencyCounter.Value);
             Assert.Equal(1, destination1.ConcurrencyCounter.Value);
+
+            Assert.Same(destination1, httpContext.GetRequiredProxyFeature().SelectedDestination);
 
             tcs2.TrySetResult(true);
             await task;

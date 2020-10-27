@@ -6,7 +6,7 @@ namespace Microsoft.ReverseProxy.Utilities
     /// <summary>
     /// Measures the time passed since the application start.
     /// </summary>
-    public interface IUptimeClock
+    internal interface IUptimeClock
     {
         long TickCount { get; }
     }

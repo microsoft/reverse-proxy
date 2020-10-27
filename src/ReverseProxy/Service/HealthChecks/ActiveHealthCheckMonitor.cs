@@ -30,13 +30,14 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             IOptions<ActiveHealthCheckMonitorOptions> monitorOptions,
             IEnumerable<IActiveHealthCheckPolicy> policies,
             IProbingRequestFactory probingRequestFactory,
+            ITimerFactory timerFactory,
             ILogger<ActiveHealthCheckMonitor> logger)
         {
             _monitorOptions = monitorOptions?.Value ?? throw new ArgumentNullException(nameof(monitorOptions));
             _policies = policies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(policies));
             _probingRequestFactory = probingRequestFactory ?? throw new ArgumentNullException(nameof(probingRequestFactory));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _scheduler = new EntityActionScheduler<ClusterInfo>(cluster => ProbeCluster(cluster), autoStart: false, runOnce: false);
+            _scheduler = new EntityActionScheduler<ClusterInfo>(cluster => ProbeCluster(cluster), autoStart: false, runOnce: false, timerFactory);
         }
 
         public Task CheckHealthAsync(IEnumerable<ClusterInfo> clusters)
