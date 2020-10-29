@@ -27,7 +27,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
     internal class TransportFailureRateHealthPolicy : IPassiveHealthCheckPolicy
     {
         private static readonly TimeSpan _defaultReactivationPeriod = TimeSpan.FromSeconds(60);
-        private readonly IReactivationScheduler _reactivationScheduler;
+        private readonly IDestinationHealthUpdater _healthUpdater;
         private readonly TransportFailureRateHealthPolicyOptions _policyOptions;
         private readonly IUptimeClock _clock;
         private readonly ConditionalWeakTable<ClusterInfo, ParsedMetadataEntry<double>> _clusterFailureRateLimits = new ConditionalWeakTable<ClusterInfo, ParsedMetadataEntry<double>>();
@@ -35,18 +35,22 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 
         public string Name => HealthCheckConstants.PassivePolicy.TransportFailureRate;
 
-        public TransportFailureRateHealthPolicy(IOptions<TransportFailureRateHealthPolicyOptions> policyOptions, IUptimeClock clock, IReactivationScheduler reactivationScheduler)
+        public TransportFailureRateHealthPolicy(
+            IOptions<TransportFailureRateHealthPolicyOptions> policyOptions,
+            IUptimeClock clock,
+            IDestinationHealthUpdater healthUpdater)
         {
             _clock = clock ?? throw new ArgumentNullException(nameof(clock));
             _policyOptions = policyOptions?.Value ?? throw new ArgumentNullException(nameof(policyOptions));
-            _reactivationScheduler = reactivationScheduler ?? throw new ArgumentNullException(nameof(reactivationScheduler));
+            _healthUpdater = healthUpdater ?? throw new ArgumentNullException(nameof(healthUpdater));
         }
 
         public void RequestProxied(ClusterInfo cluster, DestinationInfo destination, HttpContext context)
         {
             var error = context.Features.Get<IProxyErrorFeature>();
             var newHealth = EvaluateProxiedRequest(cluster, destination, error != null);
-            UpdateDestinationHealth(cluster.Config, destination, newHealth);
+            var reactivationPeriod = cluster.Config.HealthCheckOptions.Passive.ReactivationPeriod ?? _defaultReactivationPeriod;
+            _ = _healthUpdater.SetPassiveAsync(cluster, destination, newHealth, reactivationPeriod);
         }
 
         private DestinationHealth EvaluateProxiedRequest(ClusterInfo cluster, DestinationInfo destination, bool failed)
@@ -62,20 +66,6 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                     _policyOptions.MinimalTotalCountThreshold,
                     failed);
                 return failureRate < rateLimit ? DestinationHealth.Healthy : DestinationHealth.Unhealthy;
-            }
-        }
-
-        private void UpdateDestinationHealth(ClusterConfig cluster, DestinationInfo destination, DestinationHealth newPassiveHealth)
-        {
-            var state = destination.DynamicState;
-            if (newPassiveHealth != state.Health.Passive)
-            {
-                destination.DynamicState = new DestinationDynamicState(state.Health.ChangePassive(newPassiveHealth));
-
-                if (newPassiveHealth == DestinationHealth.Unhealthy)
-                {
-                    _reactivationScheduler.Schedule(destination, cluster.HealthCheckOptions.Passive.ReactivationPeriod ?? _defaultReactivationPeriod);
-                }
             }
         }
 

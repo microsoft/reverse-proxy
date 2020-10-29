@@ -23,12 +23,14 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             var options = Options.Create(
                 new TransportFailureRateHealthPolicyOptions { DefaultFailureRateLimit = 0.5, DetectionWindowSize = TimeSpan.FromSeconds(30), MinimalTotalCountThreshold = 1 });
             var clock = new UptimeClockStub { TickCount = 10000 };
-            var reactivationScheduler = new Mock<IReactivationScheduler>();
-            var policy = new TransportFailureRateHealthPolicy(options, clock, reactivationScheduler.Object);
+            var healthUpdater = new Mock<IDestinationHealthUpdater>();
+            var policy = new TransportFailureRateHealthPolicy(options, clock, healthUpdater.Object);
             Assert.Equal(HealthCheckConstants.PassivePolicy.TransportFailureRate, policy.Name);
 
+            var reactivationPeriod0 = TimeSpan.FromSeconds(60);
+            var reactivationPeriod1 = TimeSpan.FromSeconds(100);
             var cluster0 = GetClusterInfo("cluster0", destinationCount: 2);
-            var cluster1 = GetClusterInfo("cluster1", destinationCount: 2, failureRateLimit: 0.61, reactivationPeriod: TimeSpan.FromSeconds(100));
+            var cluster1 = GetClusterInfo("cluster1", destinationCount: 2, failureRateLimit: 0.61, reactivationPeriod1);
 
             // Initial state
             Assert.All(cluster0.DestinationManager.Items.Value, d => Assert.Equal(DestinationHealth.Unknown, d.DynamicState.Health.Passive));
@@ -44,8 +46,11 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 clock.TickCount += 4000;
             }
 
-            Assert.All(cluster0.DestinationManager.Items.Value, d => Assert.Equal(DestinationHealth.Healthy, d.DynamicState.Health.Passive));
-            Assert.All(cluster1.DestinationManager.Items.Value, d => Assert.Equal(DestinationHealth.Healthy, d.DynamicState.Health.Passive));
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster0, cluster0.DestinationManager.Items.Value[0], DestinationHealth.Healthy, reactivationPeriod0), Times.Exactly(3));
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster0, cluster0.DestinationManager.Items.Value[1], DestinationHealth.Healthy, reactivationPeriod0), Times.Exactly(3));
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster1, cluster1.DestinationManager.Items.Value[0], DestinationHealth.Healthy, reactivationPeriod1), Times.Exactly(3));
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster1, cluster1.DestinationManager.Items.Value[1], DestinationHealth.Healthy, reactivationPeriod1), Times.Exactly(3));
+            healthUpdater.VerifyNoOtherCalls();
 
             // Failed requests
             for (var i = 0; i < 3; i++)
@@ -55,12 +60,10 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 clock.TickCount += 4000;
             }
 
-            Assert.Equal(DestinationHealth.Healthy, cluster0.DestinationManager.Items.Value[0].DynamicState.Health.Passive);
-            Assert.Equal(DestinationHealth.Unhealthy, cluster0.DestinationManager.Items.Value[1].DynamicState.Health.Passive);
-            Assert.All(cluster1.DestinationManager.Items.Value, d => Assert.Equal(DestinationHealth.Healthy, d.DynamicState.Health.Passive));
-
-            reactivationScheduler.Verify(s => s.Schedule(cluster0.DestinationManager.Items.Value[1], TimeSpan.FromSeconds(60)), Times.Once);
-            reactivationScheduler.VerifyNoOtherCalls();
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster0, cluster0.DestinationManager.Items.Value[1], DestinationHealth.Healthy, reactivationPeriod0), Times.Exactly(5));
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster0, cluster0.DestinationManager.Items.Value[1], DestinationHealth.Unhealthy, reactivationPeriod0), Times.Once);
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster1, cluster1.DestinationManager.Items.Value[0], DestinationHealth.Healthy, reactivationPeriod1), Times.Exactly(6));
+            healthUpdater.VerifyNoOtherCalls();
 
             // Two more failed requests
             policy.RequestProxied(cluster1, cluster1.DestinationManager.Items.Value[0], GetFailedRequestContext(ProxyError.Request));
@@ -68,14 +71,9 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             clock.TickCount += 6000;
             policy.RequestProxied(cluster1, cluster1.DestinationManager.Items.Value[0], GetFailedRequestContext(ProxyError.Request));
 
-            Assert.Equal(DestinationHealth.Unhealthy, cluster1.DestinationManager.Items.Value[0].DynamicState.Health.Passive);
-            Assert.Equal(DestinationHealth.Healthy, cluster1.DestinationManager.Items.Value[1].DynamicState.Health.Passive);
-
-            reactivationScheduler.Verify(s => s.Schedule(cluster1.DestinationManager.Items.Value[0], TimeSpan.FromSeconds(100)), Times.Once);
-            reactivationScheduler.VerifyNoOtherCalls();
-
-            Assert.All(cluster0.DestinationManager.Items.Value, d => Assert.Equal(DestinationHealth.Unknown, d.DynamicState.Health.Active));
-            Assert.All(cluster1.DestinationManager.Items.Value, d => Assert.Equal(DestinationHealth.Unknown, d.DynamicState.Health.Active));
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster1, cluster1.DestinationManager.Items.Value[0], DestinationHealth.Healthy, reactivationPeriod1), Times.Exactly(7));
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster1, cluster1.DestinationManager.Items.Value[0], DestinationHealth.Unhealthy, reactivationPeriod1), Times.Once);
+            healthUpdater.VerifyNoOtherCalls();
         }
 
         [Fact]
@@ -84,13 +82,10 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             var options = Options.Create(
                 new TransportFailureRateHealthPolicyOptions { DefaultFailureRateLimit = 0.5, DetectionWindowSize = TimeSpan.FromSeconds(30), MinimalTotalCountThreshold = 1 });
             var clock = new UptimeClockStub { TickCount = 10000 };
-            var reactivationScheduler = new Mock<IReactivationScheduler>();
-            var policy = new TransportFailureRateHealthPolicy(options, clock, reactivationScheduler.Object);
+            var healthUpdater = new Mock<IDestinationHealthUpdater>();
+            var policy = new TransportFailureRateHealthPolicy(options, clock, healthUpdater.Object);
 
             var cluster = GetClusterInfo("cluster0", destinationCount: 2);
-
-            // Initial state
-            Assert.All(cluster.DestinationManager.Items.Value, d => Assert.Equal(DestinationHealth.Unknown, d.DynamicState.Health.Passive));
 
             // Initial failed requests
             for (var i = 0; i < 2; i++)
@@ -99,8 +94,8 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 clock.TickCount += 1000;
             }
 
-            Assert.Equal(DestinationHealth.Unknown, cluster.DestinationManager.Items.Value[0].DynamicState.Health.Passive);
-            Assert.Equal(DestinationHealth.Unhealthy, cluster.DestinationManager.Items.Value[1].DynamicState.Health.Passive);
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster, cluster.DestinationManager.Items.Value[1], DestinationHealth.Unhealthy, TimeSpan.FromSeconds(60)), Times.Exactly(2));
+            healthUpdater.VerifyNoOtherCalls();
 
             // Successful requests
             for (var i = 0; i < 4; i++)
@@ -110,7 +105,10 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 clock.TickCount += 5000;
             }
 
-            Assert.All(cluster.DestinationManager.Items.Value, d => Assert.Equal(DestinationHealth.Healthy, d.DynamicState.Health.Passive));
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster, cluster.DestinationManager.Items.Value[0], DestinationHealth.Healthy, TimeSpan.FromSeconds(60)), Times.Exactly(4));
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster, cluster.DestinationManager.Items.Value[1], DestinationHealth.Healthy, TimeSpan.FromSeconds(60)), Times.Exactly(2));
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster, cluster.DestinationManager.Items.Value[1], DestinationHealth.Unhealthy, TimeSpan.FromSeconds(60)), Times.Exactly(4));
+            healthUpdater.VerifyNoOtherCalls();
 
             // Failed requests
             for (var i = 0; i < 2; i++)
@@ -119,8 +117,9 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 clock.TickCount += 1;
             }
 
-            Assert.Equal(DestinationHealth.Healthy, cluster.DestinationManager.Items.Value[0].DynamicState.Health.Passive);
-            Assert.Equal(DestinationHealth.Unhealthy, cluster.DestinationManager.Items.Value[1].DynamicState.Health.Passive);
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster, cluster.DestinationManager.Items.Value[1], DestinationHealth.Healthy, TimeSpan.FromSeconds(60)), Times.Exactly(3));
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster, cluster.DestinationManager.Items.Value[1], DestinationHealth.Unhealthy, TimeSpan.FromSeconds(60)), Times.Exactly(5));
+            healthUpdater.VerifyNoOtherCalls();
 
             // Shift the detection window to the future
             clock.TickCount += 10998;
@@ -128,8 +127,8 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             // New failed request, but 2 oldest failures have moved out of the detection window
             policy.RequestProxied(cluster, cluster.DestinationManager.Items.Value[1], GetFailedRequestContext(ProxyError.RequestTimedOut));
 
-            Assert.Equal(DestinationHealth.Healthy, cluster.DestinationManager.Items.Value[0].DynamicState.Health.Passive);
-            Assert.Equal(DestinationHealth.Healthy, cluster.DestinationManager.Items.Value[1].DynamicState.Health.Passive);
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster, cluster.DestinationManager.Items.Value[1], DestinationHealth.Healthy, TimeSpan.FromSeconds(60)), Times.Exactly(4));
+            healthUpdater.VerifyNoOtherCalls();
         }
 
         [Fact]
@@ -138,9 +137,9 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             var options = Options.Create(
                 new TransportFailureRateHealthPolicyOptions { DefaultFailureRateLimit = 0.5, DetectionWindowSize = TimeSpan.FromSeconds(30), MinimalTotalCountThreshold = 1 });
             var clock = new UptimeClockStub { TickCount = 10000 };
-            var reactivationScheduler = new Mock<IReactivationScheduler>();
+            var healthUpdater = new Mock<IDestinationHealthUpdater>();
             var reactivationPeriod = TimeSpan.FromSeconds(15);
-            var policy = new TransportFailureRateHealthPolicy(options, clock, reactivationScheduler.Object);
+            var policy = new TransportFailureRateHealthPolicy(options, clock, healthUpdater.Object);
 
             var cluster = GetClusterInfo("cluster0", destinationCount: 2, reactivationPeriod: reactivationPeriod);
 
@@ -153,9 +152,8 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 policy.RequestProxied(cluster, cluster.DestinationManager.Items.Value[1], new DefaultHttpContext());
             }
 
-            Assert.Equal(DestinationHealth.Unknown, cluster.DestinationManager.Items.Value[0].DynamicState.Health.Passive);
-            Assert.Equal(DestinationHealth.Healthy, cluster.DestinationManager.Items.Value[1].DynamicState.Health.Passive);
-            reactivationScheduler.VerifyNoOtherCalls();
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster, cluster.DestinationManager.Items.Value[1], DestinationHealth.Healthy, reactivationPeriod), Times.Exactly(2));
+            healthUpdater.VerifyNoOtherCalls();
 
             // Concurrent failed requests.
             // They are 'concurrent' because the clock is not updated.
@@ -164,10 +162,9 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 policy.RequestProxied(cluster, cluster.DestinationManager.Items.Value[1], GetFailedRequestContext(ProxyError.RequestTimedOut));
             }
 
-            Assert.Equal(DestinationHealth.Unknown, cluster.DestinationManager.Items.Value[0].DynamicState.Health.Passive);
-            Assert.Equal(DestinationHealth.Unhealthy, cluster.DestinationManager.Items.Value[1].DynamicState.Health.Passive);
-            reactivationScheduler.Verify(s => s.Schedule(cluster.DestinationManager.Items.Value[1], reactivationPeriod), Times.Once);
-            reactivationScheduler.VerifyNoOtherCalls();
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster, cluster.DestinationManager.Items.Value[1], DestinationHealth.Healthy, reactivationPeriod), Times.Exactly(3));
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster, cluster.DestinationManager.Items.Value[1], DestinationHealth.Unhealthy, reactivationPeriod), Times.Once);
+            healthUpdater.VerifyNoOtherCalls();
 
             // More successful requests
             for (var i = 0; i < 2; i++)
@@ -176,9 +173,9 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 clock.TickCount += 100;
             }
 
-            Assert.Equal(DestinationHealth.Unknown, cluster.DestinationManager.Items.Value[0].DynamicState.Health.Passive);
-            Assert.Equal(DestinationHealth.Healthy, cluster.DestinationManager.Items.Value[1].DynamicState.Health.Passive);
-            reactivationScheduler.VerifyNoOtherCalls();
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster, cluster.DestinationManager.Items.Value[1], DestinationHealth.Healthy, reactivationPeriod), Times.Exactly(5));
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster, cluster.DestinationManager.Items.Value[1], DestinationHealth.Unhealthy, reactivationPeriod), Times.Once);
+            healthUpdater.VerifyNoOtherCalls();
 
             // More failed requests
             for (var i = 0; i < 2; i++)
@@ -187,15 +184,14 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 clock.TickCount += 100;
             }
 
-            Assert.Equal(DestinationHealth.Unknown, cluster.DestinationManager.Items.Value[0].DynamicState.Health.Passive);
-            Assert.Equal(DestinationHealth.Unhealthy, cluster.DestinationManager.Items.Value[1].DynamicState.Health.Passive);
-            reactivationScheduler.Verify(s => s.Schedule(cluster.DestinationManager.Items.Value[1], reactivationPeriod), Times.Exactly(2));
-            reactivationScheduler.VerifyNoOtherCalls();
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster, cluster.DestinationManager.Items.Value[1], DestinationHealth.Healthy, reactivationPeriod), Times.Exactly(6));
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster, cluster.DestinationManager.Items.Value[1], DestinationHealth.Unhealthy, reactivationPeriod), Times.Exactly(2));
+            healthUpdater.VerifyNoOtherCalls();
 
             policy.RequestProxied(cluster, cluster.DestinationManager.Items.Value[0], new DefaultHttpContext());
 
-            Assert.Equal(DestinationHealth.Healthy, cluster.DestinationManager.Items.Value[0].DynamicState.Health.Passive);
-            reactivationScheduler.VerifyNoOtherCalls();
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster, cluster.DestinationManager.Items.Value[0], DestinationHealth.Healthy, reactivationPeriod), Times.Once);
+            healthUpdater.VerifyNoOtherCalls();
         }
 
         private HttpContext GetFailedRequestContext(ProxyError error)
