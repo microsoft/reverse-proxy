@@ -5,14 +5,17 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.ReverseProxy.Abstractions.Time;
+using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service;
 using Microsoft.ReverseProxy.Service.Config;
+using Microsoft.ReverseProxy.Service.HealthChecks;
 using Microsoft.ReverseProxy.Service.Management;
 using Microsoft.ReverseProxy.Service.Proxy;
 using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
 using Microsoft.ReverseProxy.Service.Routing;
 using Microsoft.ReverseProxy.Service.SessionAffinity;
 using Microsoft.ReverseProxy.Utilities;
+using System.Linq;
 
 namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
 {
@@ -31,6 +34,8 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
             builder.Services.TryAddSingleton<IDestinationManagerFactory, DestinationManagerFactory>();
             builder.Services.TryAddSingleton<IClusterManager, ClusterManager>();
             builder.Services.TryAddSingleton<IRouteManager, RouteManager>();
+            builder.Services.TryAddSingleton<IUptimeClock, UptimeClock>();
+            builder.Services.TryAddSingleton<ITimerFactory, TimerFactory>();
             return builder;
         }
 
@@ -68,6 +73,28 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
                 new ServiceDescriptor(typeof(ISessionAffinityProvider), typeof(CustomHeaderSessionAffinityProvider), ServiceLifetime.Singleton)
             });
 
+            return builder;
+        }
+
+        public static IReverseProxyBuilder AddActiveHealthChecks(this IReverseProxyBuilder builder)
+        {
+            builder.Services.TryAddSingleton<IProbingRequestFactory, DefaultProbingRequestFactory>();
+
+            // Avoid registering several IActiveHealthCheckMonitor implementations.
+            if (!builder.Services.Any(d => d.ServiceType == typeof(IActiveHealthCheckMonitor)))
+            {
+                builder.Services.AddSingleton<ActiveHealthCheckMonitor>();
+                builder.Services.AddSingleton<IActiveHealthCheckMonitor>(p => p.GetRequiredService<ActiveHealthCheckMonitor>());
+                builder.Services.AddSingleton<IClusterChangeListener>(p => p.GetRequiredService<ActiveHealthCheckMonitor>());
+            }
+
+            builder.Services.AddSingleton<IActiveHealthCheckPolicy, ConsecutiveFailuresHealthPolicy>();
+            return builder;
+        }
+
+        public static IReverseProxyBuilder AddPassiveHealthCheck(this IReverseProxyBuilder builder)
+        {
+            builder.Services.TryAddSingleton<IReactivationScheduler, ReactivationScheduler>();
             return builder;
         }
     }

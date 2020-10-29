@@ -108,6 +108,25 @@ namespace Microsoft.ReverseProxy.Signals
         }
 
         /// <summary>
+        /// Creates a delayable signal that can postpone applying updates to a wrapped signal.
+        /// </summary>
+        public static DelayableSignal<T> ToDelayable<T>(this IReadableSignal<T> source)
+        {
+            CheckValue(source, nameof(source));
+
+            var result = new DelayableSignal<T>(source.Context);
+            Update();
+            return result;
+
+            void Update()
+            {
+                var snapshot = source.GetSnapshot();
+                result.Value = snapshot.Value;
+                snapshot.OnChange(Update);
+            }
+        }
+
+        /// <summary>
         /// Creates a signal that reacts to changes to each item
         /// in the <paramref name="source"/> list without materializing any projections.
         /// If <paramref name="source"/> is empty, null is returned.

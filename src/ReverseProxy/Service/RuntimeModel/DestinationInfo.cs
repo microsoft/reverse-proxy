@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Microsoft.ReverseProxy.Signals;
 using Microsoft.ReverseProxy.Utilities;
@@ -47,12 +48,16 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         /// Encapsulates parts of an destination that can change atomically
         /// in reaction to runtime state changes (e.g. endpoint health states).
         /// </summary>
-        internal Signal<DestinationDynamicState> DynamicStateSignal { get; } = SignalFactory.Default.CreateSignal<DestinationDynamicState>();
+        internal Signal<DestinationDynamicState> DynamicStateSignal { get; } = SignalFactory.Default.CreateSignal<DestinationDynamicState>(new DestinationDynamicState(default));
 
         /// <summary>
-        /// A snapshot of the current health state.
+        /// A snapshot of the current dynamic state.
         /// </summary>
-        public DestinationDynamicState DynamicState => DynamicStateSignal.Value;
+        public DestinationDynamicState DynamicState
+        {
+            get => DynamicStateSignal.Value;
+            set => DynamicStateSignal.Value = value;
+        }
 
         /// <summary>
         /// Keeps track of the total number of concurrent requests on this endpoint.

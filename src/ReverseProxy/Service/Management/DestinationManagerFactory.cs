@@ -10,7 +10,6 @@ namespace Microsoft.ReverseProxy.Service.Management
     /// </summary>
     internal class DestinationManagerFactory : IDestinationManagerFactory
     {
-        /// <inheritdoc/>
         public IDestinationManager CreateDestinationManager()
         {
             return new DestinationManager();

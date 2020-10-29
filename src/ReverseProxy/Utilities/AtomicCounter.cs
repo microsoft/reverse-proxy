@@ -32,5 +32,13 @@ namespace Microsoft.ReverseProxy.Utilities
         {
             return Interlocked.Decrement(ref _value);
         }
+
+        /// <summary>
+        /// Atomically resets the counter value to 0.
+        /// </summary>
+        public void Reset()
+        {
+            Interlocked.Exchange(ref _value, 0);
+        }
     }
 }

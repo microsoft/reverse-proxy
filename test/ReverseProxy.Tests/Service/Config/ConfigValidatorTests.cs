@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
+using Microsoft.ReverseProxy.Service.HealthChecks;
+using Moq;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Service.Tests
@@ -17,6 +18,9 @@ namespace Microsoft.ReverseProxy.Service.Tests
         {
             var services = new ServiceCollection();
             services.AddReverseProxy();
+            var passivePolicy = new Mock<IPassiveHealthCheckPolicy>();
+            passivePolicy.SetupGet(p => p.Name).Returns("passive0");
+            services.AddSingleton(passivePolicy.Object);
             services.AddOptions();
             services.AddLogging();
             services.AddRouting();
@@ -555,6 +559,121 @@ namespace Microsoft.ReverseProxy.Service.Tests
 
             var ex = Assert.Single(errors);
             Assert.Equal("No matching IAffinityFailurePolicy found for the affinity failure policy name 'Invalid' set on the cluster 'cluster1'.", ex.Message);
+        }
+
+        [Theory]
+        [InlineData(null, null, null, "ConsecutiveFailures")]
+        [InlineData(25, null, null, "ConsecutiveFailures")]
+        [InlineData(25, 10, null, "ConsecutiveFailures")]
+        [InlineData(25, 10, "/api/health", "ConsecutiveFailures")]
+        public async Task EnableActiveHealthCheck_Works(int? interval, int? timeout, string path, string policy)
+        {
+            var services = CreateServices();
+            var validator = services.GetRequiredService<IConfigValidator>();
+
+            var cluster = new Cluster
+            {
+                Id = "cluster1",
+                HealthCheck = new HealthCheckOptions
+                {
+                    Active = new ActiveHealthCheckOptions {
+                        Enabled = true,
+                        Interval = interval != null ? TimeSpan.FromSeconds(interval.Value) : (TimeSpan?)null,
+                        Path = path,
+                        Policy = policy,
+                        Timeout = timeout != null ? TimeSpan.FromSeconds(timeout.Value) : (TimeSpan?)null
+                    }
+                }
+            };
+
+            var errors = await validator.ValidateClusterAsync(cluster);
+
+            Assert.Empty(errors);
+        }
+
+        [Theory]
+        [InlineData(null, null, null, "Active health policy name is not set")]
+        [InlineData(-1, null, "ConsecutiveFailures", "Destination probing interval")]
+        [InlineData(null, -1, "ConsecutiveFailures", "Destination probing timeout")]
+        public async Task EnableActiveHealthCheck_InvalidParameter_ErrorReturned(int? interval, int? timeout, string policy, string expectedError)
+        {
+            var services = CreateServices();
+            var validator = services.GetRequiredService<IConfigValidator>();
+
+            var cluster = new Cluster
+            {
+                Id = "cluster1",
+                HealthCheck = new HealthCheckOptions
+                {
+                    Active = new ActiveHealthCheckOptions
+                    {
+                        Enabled = true,
+                        Interval = interval != null ? TimeSpan.FromSeconds(interval.Value) : (TimeSpan?)null,
+                        Policy = policy,
+                        Timeout = timeout != null ? TimeSpan.FromSeconds(timeout.Value) : (TimeSpan?)null
+                    }
+                }
+            };
+
+            var errors = await validator.ValidateClusterAsync(cluster);
+
+            Assert.Equal(1, errors.Count);
+            Assert.Contains(expectedError, errors[0].Message);
+            Assert.IsType<ArgumentException>(errors[0]);
+        }
+
+        [Theory]
+        [InlineData(null, "passive0")]
+        [InlineData(25, "passive0")]
+        public async Task EnablePassiveHealthCheck_Works(int? reactivationPeriod, string policy)
+        {
+            var services = CreateServices();
+            var validator = services.GetRequiredService<IConfigValidator>();
+
+            var cluster = new Cluster
+            {
+                Id = "cluster1",
+                HealthCheck = new HealthCheckOptions
+                {
+                    Passive = new PassiveHealthCheckOptions
+                    {
+                        Enabled = true, Policy = policy, ReactivationPeriod = reactivationPeriod != null ? TimeSpan.FromSeconds(reactivationPeriod.Value) : (TimeSpan?)null
+                    }
+                }
+            };
+
+            var errors = await validator.ValidateClusterAsync(cluster);
+
+            Assert.Empty(errors);
+        }
+
+        [Theory]
+        [InlineData(null, null, "Passive health policy name is not set")]
+        [InlineData(-1, "passive0", "Unhealthy destination reactivation period")]
+        public async Task EnablePassiveHealthCheck_InvalidParameter_ErrorReturned(int? reactivationPeriod, string policy, string expectedError)
+        {
+            var services = CreateServices();
+            var validator = services.GetRequiredService<IConfigValidator>();
+
+            var cluster = new Cluster
+            {
+                Id = "cluster1",
+                HealthCheck = new HealthCheckOptions
+                {
+                    Passive = new PassiveHealthCheckOptions
+                    {
+                        Enabled = true,
+                        Policy = policy,
+                        ReactivationPeriod = reactivationPeriod != null ? TimeSpan.FromSeconds(reactivationPeriod.Value) : (TimeSpan?)null
+                    }
+                }
+            };
+
+            var errors = await validator.ValidateClusterAsync(cluster);
+
+            Assert.Equal(1, errors.Count);
+            Assert.Contains(expectedError, errors[0].Message);
+            Assert.IsType<ArgumentException>(errors[0]);
         }
     }
 }

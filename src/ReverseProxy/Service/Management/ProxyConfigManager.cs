@@ -4,8 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Security;
-using System.Security.Authentication;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -14,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.RuntimeModel;
+using Microsoft.ReverseProxy.Service.HealthChecks;
 using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
 
 namespace Microsoft.ReverseProxy.Service.Management
@@ -39,6 +38,7 @@ namespace Microsoft.ReverseProxy.Service.Management
         private readonly IEnumerable<IProxyConfigFilter> _filters;
         private readonly IConfigValidator _configValidator;
         private readonly IProxyHttpClientFactory _httpClientFactory;
+        private readonly IActiveHealthCheckMonitor _activeHealthCheckMonitor;
         private IDisposable _changeSubscription;
 
         private List<Endpoint> _endpoints = new List<Endpoint>(0);
@@ -53,7 +53,8 @@ namespace Microsoft.ReverseProxy.Service.Management
             IRouteManager routeManager,
             IEnumerable<IProxyConfigFilter> filters,
             IConfigValidator configValidator,
-            IProxyHttpClientFactory httpClientFactory)
+            IProxyHttpClientFactory httpClientFactory,
+            IActiveHealthCheckMonitor activeHealthCheckMonitor)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _provider = provider ?? throw new ArgumentNullException(nameof(provider));
@@ -63,6 +64,7 @@ namespace Microsoft.ReverseProxy.Service.Management
             _filters = filters ?? throw new ArgumentNullException(nameof(filters));
             _configValidator = configValidator ?? throw new ArgumentNullException(nameof(configValidator));
             _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+            _activeHealthCheckMonitor = activeHealthCheckMonitor ?? throw new ArgumentNullException(nameof(activeHealthCheckMonitor));
 
             _changeToken = new CancellationChangeToken(_cancellationTokenSource.Token);
         }
@@ -97,6 +99,8 @@ namespace Microsoft.ReverseProxy.Service.Management
                 throw new InvalidOperationException("Unable to load or apply the proxy configuration.", ex);
             }
 
+            // Initial active health check is run in the background.
+            _ = _activeHealthCheckMonitor.CheckHealthAsync(_clusterManager.GetItems());
             return this;
         }
 
@@ -273,7 +277,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                     {
                         UpdateRuntimeDestinations(newCluster.Destinations, currentCluster.DestinationManager);
 
-                        var currentClusterConfig = currentCluster.Config.Value;
+                        var currentClusterConfig = currentCluster.Config;
                         var newClusterHttpClientOptions = ConvertProxyHttpClientOptions(newCluster.HttpClient);
 
                         var httpClient = _httpClientFactory.CreateClient(new ProxyHttpClientContext {
@@ -287,15 +291,20 @@ namespace Microsoft.ReverseProxy.Service.Management
 
                         var newClusterConfig = new ClusterConfig(
                                 newCluster,
-                                new ClusterConfig.ClusterHealthCheckOptions(
-                                    enabled: newCluster.HealthCheck?.Enabled ?? false,
-                                    interval: newCluster.HealthCheck?.Interval ?? TimeSpan.FromSeconds(0),
-                                    timeout: newCluster.HealthCheck?.Timeout ?? TimeSpan.FromSeconds(0),
-                                    port: newCluster.HealthCheck?.Port ?? 0,
-                                    path: newCluster.HealthCheck?.Path ?? string.Empty),
-                                new ClusterConfig.ClusterLoadBalancingOptions(
+                                new ClusterHealthCheckOptions(
+                                    passive: new ClusterPassiveHealthCheckOptions(
+                                        enabled: newCluster.HealthCheck?.Passive?.Enabled ?? false,
+                                        policy: newCluster.HealthCheck?.Passive?.Policy,
+                                        reactivationPeriod: newCluster.HealthCheck?.Passive?.ReactivationPeriod),
+                                    active: new ClusterActiveHealthCheckOptions(
+                                        enabled: newCluster.HealthCheck?.Active?.Enabled ?? false,
+                                        interval: newCluster.HealthCheck?.Active?.Interval,
+                                        timeout: newCluster.HealthCheck?.Active?.Timeout,
+                                        policy: newCluster.HealthCheck?.Active?.Policy,
+                                        path: newCluster.HealthCheck?.Active?.Path ?? string.Empty)),
+                                new ClusterLoadBalancingOptions(
                                     mode: newCluster.LoadBalancing?.Mode ?? default),
-                                new ClusterConfig.ClusterSessionAffinityOptions(
+                                new ClusterSessionAffinityOptions(
                                     enabled: newCluster.SessionAffinity?.Enabled ?? false,
                                     mode: newCluster.SessionAffinity?.Mode,
                                     failurePolicy: newCluster.SessionAffinity?.FailurePolicy,
@@ -317,7 +326,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                             }
 
                             // Config changed, so update runtime cluster
-                            currentCluster.Config.Value = newClusterConfig;
+                            currentCluster.ConfigSignal.Value = newClusterConfig;
                         }
                     });
             }
@@ -349,7 +358,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                     setupAction: destination =>
                     {
                         var destinationConfig = destination.ConfigSignal.Value;
-                        if (destinationConfig?.Address != newDestination.Value.Address)
+                        if (destinationConfig?.Address != newDestination.Value.Address || destinationConfig?.Health != newDestination.Value.Health)
                         {
                             if (destinationConfig == null)
                             {
@@ -359,7 +368,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                             {
                                 Log.DestinationChanged(_logger, newDestination.Key);
                             }
-                            destination.ConfigSignal.Value = new DestinationConfig(newDestination.Value.Address);
+                            destination.ConfigSignal.Value = new DestinationConfig(newDestination.Value.Address, newDestination.Value.Health);
                         }
                     });
             }
@@ -481,14 +490,14 @@ namespace Microsoft.ReverseProxy.Service.Management
             }
         }
 
-        private ClusterConfig.ClusterProxyHttpClientOptions ConvertProxyHttpClientOptions(ProxyHttpClientOptions httpClientOptions)
+        private ClusterProxyHttpClientOptions ConvertProxyHttpClientOptions(ProxyHttpClientOptions httpClientOptions)
         {
             if (httpClientOptions == null)
             {
-                return new ClusterConfig.ClusterProxyHttpClientOptions();
+                return new ClusterProxyHttpClientOptions();
             }
 
-            return new ClusterConfig.ClusterProxyHttpClientOptions(
+            return new ClusterProxyHttpClientOptions(
                 httpClientOptions.SslProtocols,
                 httpClientOptions.DangerousAcceptAnyServerCertificate,
                 httpClientOptions.ClientCertificate,

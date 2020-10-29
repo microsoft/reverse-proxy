@@ -38,6 +38,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddRuntimeStateManagers()
                 .AddConfigManager()
                 .AddSessionAffinityProvider()
+                .AddActiveHealthChecks()
+                .AddPassiveHealthCheck()
                 .AddProxy()
                 .AddBackgroundWorkers();
 

@@ -63,6 +63,7 @@ namespace Microsoft.ReverseProxy.Sample
                     proxyPipeline.UseAffinitizedDestinationLookup();
                     proxyPipeline.UseProxyLoadBalancing();
                     proxyPipeline.UseRequestAffinitizer();
+                    proxyPipeline.UsePassiveHealthChecks();
                 });
             });
         }
