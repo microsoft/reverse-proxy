@@ -41,7 +41,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 EventIds.StoppedActiveHealthProbingOnCluster,
                 "Active health check probing on cluster `{clusterId}` has stopped.");
 
-            private static readonly Action<ILogger, string, string, HttpStatusCode, Exception> _destinationProbingCompleted = LoggerMessage.Define<string, string, HttpStatusCode>(
+            private static readonly Action<ILogger, string, string, int, Exception> _destinationProbingCompleted = LoggerMessage.Define<string, string, int>(
                 LogLevel.Information,
                 EventIds.DestinationProbingCompleted,
                 "Probing destination `{destinationId}` on cluster `{clusterId}` completed with the response code `{responseCode}`.");
@@ -86,7 +86,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 _stoppedActiveHealthProbingOnCluster(logger, clusterId, null);
             }
 
-            public static void DestinationProbingCompleted(ILogger logger, string destinationId, string clusterId, HttpStatusCode responseCode)
+            public static void DestinationProbingCompleted(ILogger logger, string destinationId, string clusterId, int responseCode)
             {
                 _destinationProbingCompleted(logger, destinationId, clusterId, responseCode, null);
             }
