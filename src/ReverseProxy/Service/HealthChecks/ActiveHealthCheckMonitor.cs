@@ -144,7 +144,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                     try
                     {
                         response = await probeTasks[i].Task;
-                        Log.DestinationProbingCompleted(_logger, allDestinations[i].DestinationId, cluster.ClusterId, response.StatusCode);
+                        Log.DestinationProbingCompleted(_logger, allDestinations[i].DestinationId, cluster.ClusterId, (int)response.StatusCode);
                     }
                     catch (Exception ex)
                     {
