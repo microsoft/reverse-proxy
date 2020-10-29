@@ -15,7 +15,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Net.Http.Headers;
+using Microsoft.ReverseProxy.Common.Tests;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
+using Microsoft.ReverseProxy.Telemetry;
 using Microsoft.ReverseProxy.Utilities;
 using Moq;
 using Xunit;
@@ -43,6 +45,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         [Fact]
         public async Task ProxyAsync_NormalRequest_Works()
         {
+            var events = TestEventListener.Collect();
+
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "POST";
             httpContext.Request.Scheme = "http";
@@ -105,11 +109,15 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             proxyResponseStream.Position = 0;
             var proxyResponseText = StreamToString(proxyResponseStream);
             Assert.Equal("response content", proxyResponseText);
+
+            events.AssertContainProxyStages();
         }
 
         [Fact]
         public async Task ProxyAsync_NormalRequestWithTransforms_Works()
         {
+            var events = TestEventListener.Collect();
+
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "POST";
             httpContext.Request.Protocol = "http/2";
@@ -201,11 +209,15 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             proxyResponseStream.Position = 0;
             var proxyResponseText = StreamToString(proxyResponseStream);
             Assert.Equal("response content", proxyResponseText);
+
+            events.AssertContainProxyStages();
         }
 
         [Fact]
         public async Task ProxyAsync_NormalRequestWithCopyRequestHeadersDisabled_Works()
         {
+            var events = TestEventListener.Collect();
+
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "POST";
             httpContext.Request.Scheme = "http";
@@ -292,11 +304,15 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             proxyResponseStream.Position = 0;
             var proxyResponseText = StreamToString(proxyResponseStream);
             Assert.Equal("response content", proxyResponseText);
+
+            events.AssertContainProxyStages();
         }
 
         [Fact]
         public async Task ProxyAsync_NormalRequestWithExistingForwarders_Appends()
         {
+            var events = TestEventListener.Collect();
+
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "GET";
             httpContext.Request.Scheme = "http";
@@ -348,7 +364,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
                     Assert.Null(request.Content);
 
-                    var response = new HttpResponseMessage((HttpStatusCode)234);
+                    var response = new HttpResponseMessage((HttpStatusCode)234) { Content = new ByteArrayContent(Array.Empty<byte>()) };
                     return response;
                 });
 
@@ -360,12 +376,16 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             await sut.ProxyAsync(httpContext, destinationPrefix, client, proxyOptions);
 
             Assert.Equal(234, httpContext.Response.StatusCode);
+
+            events.AssertContainProxyStages(hasRequestContent: false);
         }
 
         // Tests proxying an upgradeable request.
         [Fact]
         public async Task ProxyAsync_UpgradableRequest_Works()
         {
+            var events = TestEventListener.Collect();
+
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "GET";
             httpContext.Request.Scheme = "http";
@@ -428,6 +448,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             upstreamStream.WriteStream.Position = 0;
             var sentToUpstream = StreamToString(upstreamStream.WriteStream);
             Assert.Equal("request content", sentToUpstream);
+
+            events.AssertContainProxyStages(upgrade: true);
         }
 
         // Tests proxying an upgradeable request where the destination refused to upgrade.
@@ -435,6 +457,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         [Fact]
         public async Task ProxyAsync_UpgradableRequestFailsToUpgrade_ProxiesResponse()
         {
+            var events = TestEventListener.Collect();
+
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "GET";
             httpContext.Request.Scheme = "https";
@@ -488,6 +512,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             proxyResponseStream.Position = 0;
             var proxyResponseText = StreamToString(proxyResponseStream);
             Assert.Equal("response content", proxyResponseText);
+
+            events.AssertContainProxyStages(hasRequestContent: false, upgrade: false);
         }
 
         [Theory]
@@ -510,6 +536,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         // [InlineData("CONNECT", "HTTP/1.1", "")] Blocked in HttpUtilities.GetHttpMethod
         public async Task ProxyAsync_RequetsWithoutBodies_NoHttpContent(string method, string protocol, string headers)
         {
+            var events = TestEventListener.Collect();
+
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = method;
             httpContext.Request.Protocol = protocol;
@@ -538,6 +566,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions());
 
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
+
+            events.AssertContainProxyStages(hasRequestContent: false);
         }
 
         [Theory]
@@ -553,6 +583,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         [InlineData("Delete", "HTTP/2", "expect:100-continue")]
         public async Task ProxyAsync_RequetsWithBodies_HasHttpContent(string method, string protocol, string headers)
         {
+            var events = TestEventListener.Collect();
+
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = method;
             httpContext.Request.Protocol = protocol;
@@ -583,11 +615,15 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions());
 
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
+
+            events.AssertContainProxyStages();
         }
 
         [Fact]
         public async Task ProxyAsync_RequestWithCookieHeaders()
         {
+            var events = TestEventListener.Collect();
+
             // This is an invalid format per spec but may happen due to https://github.com/dotnet/aspnetcore/issues/26461
             var cookies = new [] { "testA=A_Cookie", "testB=B_Cookie", "testC=C_Cookie" };
             var httpContext = new DefaultHttpContext();
@@ -600,7 +636,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
                     // "testA=A_Cookie; testB=B_Cookie; testC=C_Cookie"
-                    var expectedCookieString = String.Join("; ", cookies);
+                    var expectedCookieString = string.Join("; ", cookies);
 
                     Assert.Equal(new Version(2, 0), request.Version);
                     Assert.Equal("GET", request.Method.Method, StringComparer.OrdinalIgnoreCase);
@@ -618,11 +654,15 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
             Assert.Null(httpContext.Features.Get<IProxyErrorFeature>());
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
+
+            events.AssertContainProxyStages(hasRequestContent: false);
         }
 
         [Fact]
         public async Task ProxyAsync_OptionsWithVersion()
         {
+            var events = TestEventListener.Collect();
+
             // Use any non-default value
             var version = new Version(5, 5);
 #if NET
@@ -659,11 +699,15 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
             Assert.Null(httpContext.Features.Get<IProxyErrorFeature>());
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
+
+            events.AssertContainProxyStages(hasRequestContent: false);
         }
 
         [Fact]
         public async Task ProxyAsync_OptionsWithVersion_Transformed()
         {
+            var events = TestEventListener.Collect();
+
             // Use any non-default value
             var version = new Version(5, 5);
             var transformedVersion = new Version(6, 6);
@@ -717,11 +761,15 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
             Assert.Null(httpContext.Features.Get<IProxyErrorFeature>());
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
+
+            events.AssertContainProxyStages(hasRequestContent: false);
         }
 
         [Fact]
         public async Task ProxyAsync_UnableToConnect_Returns502()
         {
+            var events = TestEventListener.Collect();
+
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "GET";
             httpContext.Request.Host = new HostString("example.com:3456");
@@ -744,11 +792,15 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
             Assert.Equal(ProxyError.Request, errorFeature.Error);
             Assert.IsType<HttpRequestException>(errorFeature.Exception);
+
+            events.AssertContainProxyStages(new[] { ProxyStage.InvokerSendAsyncStart });
         }
 
         [Fact]
         public async Task ProxyAsync_UnableToConnectWithBody_Returns502()
         {
+            var events = TestEventListener.Collect();
+
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "POST";
             httpContext.Request.Host = new HostString("example.com:3456");
@@ -773,11 +825,15 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
             Assert.Equal(ProxyError.Request, errorFeature.Error);
             Assert.IsType<HttpRequestException>(errorFeature.Exception);
+
+            events.AssertContainProxyStages(new[] { ProxyStage.InvokerSendAsyncStart });
         }
 
         [Fact]
         public async Task ProxyAsync_RequestTimedOut_Returns504()
         {
+            var events = TestEventListener.Collect();
+
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "GET";
             httpContext.Request.Host = new HostString("example.com:3456");
@@ -807,11 +863,15 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
             Assert.Equal(ProxyError.RequestTimedOut, errorFeature.Error);
             Assert.IsType<OperationCanceledException>(errorFeature.Exception);
+
+            events.AssertContainProxyStages(new[] { ProxyStage.InvokerSendAsyncStart });
         }
 
         [Fact]
         public async Task ProxyAsync_RequestCanceled_Returns502()
         {
+            var events = TestEventListener.Collect();
+
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "GET";
             httpContext.Request.Host = new HostString("example.com:3456");
@@ -836,11 +896,15 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
             Assert.Equal(ProxyError.RequestCanceled, errorFeature.Error);
             Assert.IsType<OperationCanceledException>(errorFeature.Exception);
+
+            events.AssertContainProxyStages(new[] { ProxyStage.InvokerSendAsyncStart });
         }
 
         [Fact]
         public async Task ProxyAsync_RequestWithBodyTimedOut_Returns504()
         {
+            var events = TestEventListener.Collect();
+
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "POST";
             httpContext.Request.Host = new HostString("example.com:3456");
@@ -872,11 +936,15 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
             Assert.Equal(ProxyError.RequestTimedOut, errorFeature.Error);
             Assert.IsType<OperationCanceledException>(errorFeature.Exception);
+
+            events.AssertContainProxyStages(new[] { ProxyStage.InvokerSendAsyncStart });
         }
 
         [Fact]
         public async Task ProxyAsync_RequestWithBodyCanceled_Returns502()
         {
+            var events = TestEventListener.Collect();
+
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "POST";
             httpContext.Request.Host = new HostString("example.com:3456");
@@ -903,11 +971,15 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
             Assert.Equal(ProxyError.RequestCanceled, errorFeature.Error);
             Assert.IsType<OperationCanceledException>(errorFeature.Exception);
+
+            events.AssertContainProxyStages(new[] { ProxyStage.InvokerSendAsyncStart });
         }
 
         [Fact]
         public async Task ProxyAsync_RequestBodyClientErrorBeforeResponseError_Returns400()
         {
+            var events = TestEventListener.Collect();
+
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "POST";
             httpContext.Request.Host = new HostString("example.com:3456");
@@ -934,11 +1006,19 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
             Assert.Equal(ProxyError.RequestBodyClient, errorFeature.Error);
             Assert.IsType<AggregateException>(errorFeature.Exception);
+
+            events.AssertContainProxyStages(new[] {
+                ProxyStage.InvokerSendAsyncStart,
+                ProxyStage.RequestContentTransferStart,
+                ProxyStage.RequestContentTransferStop
+            });
         }
 
         [Fact]
         public async Task ProxyAsync_RequestBodyDestinationErrorBeforeResponseError_Returns502()
         {
+            var events = TestEventListener.Collect();
+
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "POST";
             httpContext.Request.Host = new HostString("example.com:3456");
@@ -965,11 +1045,19 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
             Assert.Equal(ProxyError.RequestBodyDestination, errorFeature.Error);
             Assert.IsType<AggregateException>(errorFeature.Exception);
+
+            events.AssertContainProxyStages(new[] {
+                ProxyStage.InvokerSendAsyncStart,
+                ProxyStage.RequestContentTransferStart,
+                ProxyStage.RequestContentTransferStop
+            });
         }
 
         [Fact]
         public async Task ProxyAsync_RequestBodyCanceledBeforeResponseError_Returns502()
         {
+            var events = TestEventListener.Collect();
+
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "POST";
             httpContext.Request.Host = new HostString("example.com:3456");
@@ -1001,11 +1089,15 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
             Assert.Equal(ProxyError.RequestBodyCanceled, errorFeature.Error);
             Assert.IsType<AggregateException>(errorFeature.Exception);
+
+            events.AssertContainProxyStages(new[] { ProxyStage.InvokerSendAsyncStart });
         }
 
         [Fact]
         public async Task ProxyAsync_ResponseBodyDestionationErrorFirstRead_Returns502()
         {
+            var events = TestEventListener.Collect();
+
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "GET";
             httpContext.Request.Host = new HostString("example.com:3456");
@@ -1034,11 +1126,15 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
             Assert.Equal(ProxyError.ResponseBodyDestination, errorFeature.Error);
             Assert.IsType<IOException>(errorFeature.Exception);
+
+            events.AssertContainProxyStages(hasRequestContent: false);
         }
 
         [Fact]
         public async Task ProxyAsync_ResponseBodyDestionationErrorSecondRead_Aborted()
         {
+            var events = TestEventListener.Collect();
+
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "GET";
             httpContext.Request.Host = new HostString("example.com:3456");
@@ -1069,11 +1165,15 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
             Assert.Equal(ProxyError.ResponseBodyDestination, errorFeature.Error);
             Assert.IsType<IOException>(errorFeature.Exception);
+
+            events.AssertContainProxyStages(hasRequestContent: false);
         }
 
         [Fact]
         public async Task ProxyAsync_ResponseBodyClientError_Aborted()
         {
+            var events = TestEventListener.Collect();
+
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "GET";
             httpContext.Request.Host = new HostString("example.com:3456");
@@ -1103,11 +1203,15 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
             Assert.Equal(ProxyError.ResponseBodyClient, errorFeature.Error);
             Assert.IsType<IOException>(errorFeature.Exception);
+
+            events.AssertContainProxyStages(hasRequestContent: false);
         }
 
         [Fact]
         public async Task ProxyAsync_ResponseBodyCancelled_502()
         {
+            var events = TestEventListener.Collect();
+
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "GET";
             httpContext.Request.Host = new HostString("example.com:3456");
@@ -1138,11 +1242,15 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
             Assert.Equal(ProxyError.ResponseBodyCanceled, errorFeature.Error);
             Assert.IsType<OperationCanceledException>(errorFeature.Exception);
+
+            events.AssertContainProxyStages(hasRequestContent: false);
         }
 
         [Fact]
         public async Task ProxyAsync_ResponseBodyCancelledAfterStart_Aborted()
         {
+            var events = TestEventListener.Collect();
+
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "GET";
             httpContext.Request.Host = new HostString("example.com:3456");
@@ -1173,11 +1281,15 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
             Assert.Equal(ProxyError.ResponseBodyCanceled, errorFeature.Error);
             Assert.IsType<OperationCanceledException>(errorFeature.Exception);
+
+            events.AssertContainProxyStages(hasRequestContent: false);
         }
 
         [Fact]
         public async Task ProxyAsync_RequestBodyCanceledAfterResponse_Reported()
         {
+            var events = TestEventListener.Collect();
+
             var waitTcs = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "POST";
@@ -1216,11 +1328,15 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
             Assert.Equal(ProxyError.RequestBodyCanceled, errorFeature.Error);
             Assert.IsType<OperationCanceledException>(errorFeature.Exception);
+
+            events.AssertContainProxyStages();
         }
 
         [Fact]
         public async Task ProxyAsync_RequestBodyClientErrorAfterResponse_Reported()
         {
+            var events = TestEventListener.Collect();
+
             var waitTcs = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "POST";
@@ -1252,11 +1368,15 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
             Assert.Equal(ProxyError.RequestBodyClient, errorFeature.Error);
             Assert.IsType<IOException>(errorFeature.Exception);
+
+            events.AssertContainProxyStages();
         }
 
         [Fact]
         public async Task ProxyAsync_RequestBodyDestinationErrorAfterResponse_Reported()
         {
+            var events = TestEventListener.Collect();
+
             var waitTcs = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "POST";
@@ -1288,11 +1408,15 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
             Assert.Equal(ProxyError.RequestBodyDestination, errorFeature.Error);
             Assert.IsType<IOException>(errorFeature.Exception);
+
+            events.AssertContainProxyStages();
         }
 
         [Fact]
         public async Task ProxyAsync_UpgradableRequest_RequestBodyCopyError_CancelsResponseBody()
         {
+            var events = TestEventListener.Collect();
+
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "GET";
             httpContext.Request.Scheme = "http";
@@ -1338,11 +1462,15 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
             Assert.Equal(ProxyError.UpgradeRequestClient, errorFeature.Error);
             Assert.IsType<IOException>(errorFeature.Exception);
+
+            events.AssertContainProxyStages(upgrade: true);
         }
 
         [Fact]
         public async Task ProxyAsync_UpgradableRequest_ResponseBodyCopyError_CancelsRequestBody()
         {
+            var events = TestEventListener.Collect();
+
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "GET";
             httpContext.Request.Scheme = "http";
@@ -1388,6 +1516,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
             Assert.Equal(ProxyError.UpgradeResponseDestination, errorFeature.Error);
             Assert.IsType<IOException>(errorFeature.Exception);
+
+            events.AssertContainProxyStages(upgrade: true);
         }
 
         private static MemoryStream StringToStream(string text)
@@ -1820,7 +1950,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
         private class TestRequestParametersTransform : RequestParametersTransform
         {
-            private Action<RequestParametersTransformContext> _transformation;
+            private readonly Action<RequestParametersTransformContext> _transformation;
             
             public TestRequestParametersTransform(Action<RequestParametersTransformContext> transformation)
             {

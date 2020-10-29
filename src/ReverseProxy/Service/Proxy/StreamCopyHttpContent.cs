@@ -148,7 +148,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 return;
             }
 
-            var (result, error) = await StreamCopier.CopyAsync(_source, stream, _cancellation);
+            var (result, error) = await StreamCopier.CopyAsync(isRequest: true, _source, stream, _cancellation);
             _tcs.TrySetResult((result, error));
             // Check for errors that weren't the result of the destination failing.
             // We have to throw something here so the transport knows the body is incomplete.

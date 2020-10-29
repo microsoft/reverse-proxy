@@ -2,12 +2,9 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.ReverseProxy.Abstractions.Telemetry;
 using Microsoft.ReverseProxy.Service.Proxy;
 using Microsoft.ReverseProxy.Utilities;
 
@@ -21,19 +18,16 @@ namespace Microsoft.ReverseProxy.Middleware
         private readonly IRandomFactory _randomFactory;
         private readonly RequestDelegate _next; // Unused, this middleware is always terminal
         private readonly ILogger _logger;
-        private readonly IOperationLogger<ProxyInvokerMiddleware> _operationLogger;
         private readonly IHttpProxy _httpProxy;
 
         public ProxyInvokerMiddleware(
             RequestDelegate next,
             ILogger<ProxyInvokerMiddleware> logger,
-            IOperationLogger<ProxyInvokerMiddleware> operationLogger,
             IHttpProxy httpProxy,
             IRandomFactory randomFactory)
         {
             _next = next ?? throw new ArgumentNullException(nameof(next));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _operationLogger = operationLogger ?? throw new ArgumentNullException(nameof(operationLogger));
             _httpProxy = httpProxy ?? throw new ArgumentNullException(nameof(httpProxy));
             _randomFactory = randomFactory ?? throw new ArgumentNullException(nameof(randomFactory));
         }
@@ -83,9 +77,7 @@ namespace Microsoft.ReverseProxy.Middleware
                 cluster.ConcurrencyCounter.Increment();
                 destination.ConcurrencyCounter.Increment();
 
-                await _operationLogger.ExecuteAsync(
-                    "ReverseProxy.Proxy",
-                    () => _httpProxy.ProxyAsync(context, destinationConfig.Address, reverseProxyFeature.ClusterConfig.HttpClient, proxyOptions));
+                await _httpProxy.ProxyAsync(context, destinationConfig.Address, reverseProxyFeature.ClusterConfig.HttpClient, proxyOptions);
             }
             finally
             {

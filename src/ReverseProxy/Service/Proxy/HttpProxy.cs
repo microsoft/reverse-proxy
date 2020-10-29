@@ -18,6 +18,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
+using Microsoft.ReverseProxy.Telemetry;
 
 namespace Microsoft.ReverseProxy.Service.Proxy
 {
@@ -83,7 +84,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         /// ASP .NET Core (Kestrel) will finally send response trailers (if any)
         /// after we complete the steps above and relinquish control.
         /// </remarks>
-        public async Task ProxyAsync(
+        public Task ProxyAsync(
             HttpContext context,
             string destinationPrefix,
             HttpMessageInvoker httpClient,
@@ -93,6 +94,42 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             _ = destinationPrefix ?? throw new ArgumentNullException(nameof(destinationPrefix));
             _ = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _ = proxyOptions ?? throw new ArgumentNullException(nameof(proxyOptions));
+
+            return ProxyTelemetry.Log.IsEnabled()
+                ? ProxyWithTelemetryAsync()
+                : ProxyAsyncCore(context, destinationPrefix, httpClient, proxyOptions);
+
+            async Task ProxyWithTelemetryAsync()
+            {
+                ProxyTelemetry.Log.ProxyStart(context);
+                try
+                {
+                    await ProxyAsyncCore(context, destinationPrefix, httpClient, proxyOptions);
+
+                    if (context.Response.StatusCode >= 400 &&
+                        context.Features.Get<IProxyErrorFeature>() != null)
+                    {
+                        ProxyTelemetry.Log.ProxyFailed();
+                    }
+                }
+                catch
+                {
+                    ProxyTelemetry.Log.ProxyFailed();
+                    throw;
+                }
+                finally
+                {
+                    ProxyTelemetry.Log.ProxyStop(context.Response.StatusCode);
+                }
+            }
+        }
+
+        private async Task ProxyAsyncCore(
+            HttpContext context,
+            string destinationPrefix,
+            HttpMessageInvoker httpClient,
+            RequestProxyOptions proxyOptions)
+        {
             var requestAborted = context.RequestAborted;
 
             // :: Step 1: Create outgoing HttpRequestMessage
@@ -123,7 +160,9 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             var requestTimeoutToken = requestTimeoutSource.Token;
             try
             {
+                ProxyTelemetry.Log.ProxyStage(ProxyStage.InvokerSendAsyncStart);
                 destinationResponse = await httpClient.SendAsync(destinationRequest, requestTimeoutToken);
+                ProxyTelemetry.Log.ProxyStage(ProxyStage.InvokerSendAsyncStop);
             }
             catch (OperationCanceledException canceledException)
             {
@@ -443,7 +482,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 // https://github.com/dotnet/aspnetcore/issues/26461
                 if (string.Equals(headerName, HeaderNames.Cookie, StringComparison.OrdinalIgnoreCase) && value.Count > 1)
                 {
-                    value = String.Join("; ", value);
+                    value = string.Join("; ", value);
                 }
 
                 if (value.Count == 1)
@@ -544,6 +583,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         private async Task HandleUpgradedResponse(HttpContext context, IHttpUpgradeFeature upgradeFeature, HttpResponseMessage destinationResponse,
             CancellationToken longCancellation)
         {
+            ProxyTelemetry.Log.ProxyStage(ProxyStage.ResponseUpgradeStart);
+
             // SocketHttpHandler and similar transports always provide an HttpContent object, even if it's empty.
             // Note as of 5.0 HttpResponse.Content never returns null.
             // https://github.com/dotnet/runtime/blame/8fc68f626a11d646109a758cb0fc70a0aa7826f1/src/libraries/System.Net.Http/src/System/Net/Http/HttpResponseMessage.cs#L46
@@ -560,8 +601,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 
             using var abortTokenSource = CancellationTokenSource.CreateLinkedTokenSource(longCancellation);
 
-            var requestTask = StreamCopier.CopyAsync(clientStream, destinationStream, abortTokenSource.Token);
-            var responseTask = StreamCopier.CopyAsync(destinationStream, clientStream, abortTokenSource.Token);
+            var requestTask = StreamCopier.CopyAsync(isRequest: true, clientStream, destinationStream, abortTokenSource.Token);
+            var responseTask = StreamCopier.CopyAsync(isRequest: false, destinationStream, clientStream, abortTokenSource.Token);
 
             // Make sure we report the first failure.
             var firstTask = await Task.WhenAny(requestTask, responseTask);
@@ -609,7 +650,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             if (destinationResponseContent != null)
             {
                 using var destinationResponseStream = await destinationResponseContent.ReadAsStreamAsync();
-                return await StreamCopier.CopyAsync(destinationResponseStream, clientResponseStream, cancellation);
+                return await StreamCopier.CopyAsync(isRequest: false, destinationResponseStream, clientResponseStream, cancellation);
             }
 
             return (StreamCopyResult.Success, null);
