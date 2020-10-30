@@ -2,11 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.ReverseProxy.Service.Management;
-using Microsoft.ReverseProxy.Signals;
 using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.RuntimeModel
@@ -23,82 +19,46 @@ namespace Microsoft.ReverseProxy.RuntimeModel
     /// </remarks>
     public sealed class ClusterInfo
     {
-        private readonly DelayableSignal<Unit> _destinationsStateSignal;
+        private volatile ClusterDynamicState _dynamicState = new ClusterDynamicState(Array.Empty<DestinationInfo>(), healthChecksEnabled: false);
+        private volatile ClusterConfig _config;
 
         internal ClusterInfo(string clusterId, IDestinationManager destinationManager)
         {
             ClusterId = clusterId ?? throw new ArgumentNullException(nameof(clusterId));
             DestinationManager = destinationManager ?? throw new ArgumentNullException(nameof(destinationManager));
-
-            _destinationsStateSignal = CreateDestinationsStateSignal();
-            DynamicStateSignal = CreateDynamicStateQuery();
         }
 
         public string ClusterId { get; }
-
-        public ClusterConfig Config => ConfigSignal.Value;
-
-        internal IDestinationManager DestinationManager { get; }
 
         /// <summary>
         /// Encapsulates parts of a cluster that can change atomically
         /// in reaction to config changes.
         /// </summary>
-        internal Signal<ClusterConfig> ConfigSignal { get; } = SignalFactory.Default.CreateSignal<ClusterConfig>();
+        public ClusterConfig Config
+        {
+            get => _config;
+            set => _config = value;
+        }
+
+        internal IDestinationManager DestinationManager { get; }
 
         /// <summary>
         /// Encapsulates parts of a cluster that can change atomically
         /// in reaction to runtime state changes (e.g. dynamic endpoint discovery).
         /// </summary>
-        internal IReadableSignal<ClusterDynamicState> DynamicStateSignal { get; }
-
-        /// <summary>
-        /// A snapshot of the current dynamic state.
-        /// </summary>
-        public ClusterDynamicState DynamicState => DynamicStateSignal.Value;
-
-        public void PauseHealthyDestinationUpdates()
-        {
-            _destinationsStateSignal.Pause();
-        }
-
-        public void ResumeHealthyDestinationUpdates()
-        {
-            _destinationsStateSignal.Resume();
-        }
+        public ClusterDynamicState DynamicState => _dynamicState;
 
         /// <summary>
         /// Keeps track of the total number of concurrent requests on this cluster.
         /// </summary>
         internal AtomicCounter ConcurrencyCounter { get; } = new AtomicCounter();
 
-        private DelayableSignal<Unit> CreateDestinationsStateSignal()
-        {
-            return DestinationManager.Items
-                .SelectMany(destinations =>destinations.Select(destination => destination.DynamicStateSignal).AnyChange())
-                .DropValue()
-                .ToDelayable();
-        }
-
         /// <summary>
-        /// Sets up the data flow that keeps <see cref="DynamicState"/> up to date.
-        /// See <c>Signals\Readme.md</c> for more information.
+        /// Recreates the DynamicState data.
         /// </summary>
-        private IReadableSignal<ClusterDynamicState> CreateDynamicStateQuery()
+        public void UpdateDynamicState()
         {
-            return new[] { _destinationsStateSignal, ConfigSignal.DropValue() }
-                .AnyChange() // If any of them change...
-                .Select(
-                    _ =>
-                    {
-                        var allDestinations = DestinationManager.Items.Value ?? new List<DestinationInfo>().AsReadOnly();
-                        var healthyDestinations = (Config?.HealthCheckOptions.Enabled ?? false)
-                            ? allDestinations.Where(destination => destination.DynamicState?.Health.Current != DestinationHealth.Unhealthy).ToList().AsReadOnly()
-                            : allDestinations;
-                        return new ClusterDynamicState(
-                            allDestinations: allDestinations,
-                            healthyDestinations: healthyDestinations);
-                    });
+            _dynamicState = new ClusterDynamicState(DestinationManager.Items, _config?.HealthCheckOptions.Enabled ?? false);
         }
     }
 }

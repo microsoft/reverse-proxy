@@ -1,9 +1,8 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
 using System.Collections.Generic;
-using Microsoft.ReverseProxy.Signals;
 
 namespace Microsoft.ReverseProxy.Service.Management
 {
@@ -18,7 +17,7 @@ namespace Microsoft.ReverseProxy.Service.Management
         /// Gets an <see cref="IReadableSignal{T}"/> representing the tracked items,
         /// which can be queried using Linq extension methods in <see cref="SignalExtensions"/>.
         /// </summary>
-        IReadableSignal<IReadOnlyList<T>> Items { get; }
+        IReadOnlyList<T> Items { get; }
 
         /// <summary>
         /// Gets an item identified by its <paramref name="itemId"/>,
@@ -41,7 +40,7 @@ namespace Microsoft.ReverseProxy.Service.Management
         /// Implementations must be thread-safe.
         /// </summary>
         /// <remarks>
-        /// Note that this is not strictly equivalent to <c>this.Items.Value</c> because
+        /// Note that this is not strictly equivalent to <c>this.Items</c> because
         /// <see cref="GetItems"/> will wait for ongoing operations to complete, whereas
         /// <see cref="Items"/> will immediately return the most recent snapshot, without
         /// waiting for any ongoing writes.
