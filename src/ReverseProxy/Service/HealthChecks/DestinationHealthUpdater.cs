@@ -32,12 +32,6 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 
             return Task.Run(() =>
             {
-                if (!_activeSynchTokens.TryGetValue(cluster, out _))
-                {
-                    // Update operation was cancelled.
-                    return;
-                }
-
                 try
                 {
                     cluster.PauseHealthyDestinationUpdates();
