@@ -24,8 +24,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 
         public Task SetActiveAsync(ClusterInfo cluster, IEnumerable<(DestinationInfo Destination, DestinationHealth NewHealth)> newHealthPairs)
         {
-            var updateSyncToken = new object();
-            if (!_activeSynchTokens.TryAdd(cluster, updateSyncToken))
+            if (!_activeSynchTokens.TryAdd(cluster, null))
             {
                 // Don't allow concurrent updates.
                 return Task.CompletedTask;
@@ -33,7 +32,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 
             return Task.Run(() =>
             {
-                if (!_activeSynchTokens.TryGetValue(cluster, out var currentToken))
+                if (!_activeSynchTokens.TryGetValue(cluster, out _))
                 {
                     // Update operation was cancelled.
                     return;
