@@ -14,8 +14,7 @@ namespace Microsoft.ReverseProxy.Service.Management
         where T : class
     {
         /// <summary>
-        /// Gets an <see cref="IReadableSignal{T}"/> representing the tracked items,
-        /// which can be queried using Linq extension methods in <see cref="SignalExtensions"/>.
+        /// Gets a snapshot representing the tracked items.
         /// </summary>
         IReadOnlyList<T> Items { get; }
 

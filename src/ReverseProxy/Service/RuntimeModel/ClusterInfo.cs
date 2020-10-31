@@ -37,7 +37,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         public ClusterConfig Config
         {
             get => _config;
-            set => _config = value;
+            internal set => _config = value;
         }
 
         internal IDestinationManager DestinationManager { get; }

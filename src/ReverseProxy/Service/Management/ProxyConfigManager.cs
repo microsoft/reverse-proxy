@@ -355,7 +355,7 @@ namespace Microsoft.ReverseProxy.Service.Management
             foreach (var newDestination in newDestinations)
             {
                 desiredDestinations.Add(newDestination.Key);
-                var newDestinationInfo = destinationManager.GetOrCreateItem(
+                destinationManager.GetOrCreateItem(
                     itemId: newDestination.Key,
                     setupAction: destination =>
                     {

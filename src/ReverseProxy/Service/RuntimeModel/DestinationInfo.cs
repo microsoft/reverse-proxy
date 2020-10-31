@@ -40,7 +40,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         public DestinationConfig Config
         {
             get => _config;
-            set => _config = value;
+            internal set => _config = value;
         }
 
         /// <summary>
