@@ -6,7 +6,7 @@ using System.Diagnostics;
 
 namespace Microsoft.ReverseProxy.Utilities
 {
-    internal class UptimeClock : IUptimeClock
+    internal sealed class UptimeClock : IUptimeClock
     {
         public long TickCount => Environment.TickCount64;
 
