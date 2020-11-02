@@ -4,10 +4,12 @@
 namespace Microsoft.ReverseProxy.Utilities
 {
     /// <summary>
-    /// Measures the time passed since the application start.
+    /// Abstraction over time providers (Environment.TickCount64, Stopwatch.GetTimestamp)
     /// </summary>
     internal interface IUptimeClock
     {
         long TickCount { get; }
+
+        long GetStopwatchTimestamp();
     }
 }

@@ -34,7 +34,6 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
             builder.Services.TryAddSingleton<IDestinationManagerFactory, DestinationManagerFactory>();
             builder.Services.TryAddSingleton<IClusterManager, ClusterManager>();
             builder.Services.TryAddSingleton<IRouteManager, RouteManager>();
-            builder.Services.TryAddSingleton<IUptimeClock, UptimeClock>();
             builder.Services.TryAddSingleton<ITimerFactory, TimerFactory>();
             return builder;
         }

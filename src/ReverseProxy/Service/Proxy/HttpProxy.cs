@@ -19,6 +19,7 @@ using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 using Microsoft.ReverseProxy.Telemetry;
+using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Service.Proxy
 {
@@ -33,10 +34,12 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         };
 
         private readonly ILogger _logger;
+        private readonly IUptimeClock _clock;
 
-        public HttpProxy(ILogger<HttpProxy> logger)
+        public HttpProxy(ILogger<HttpProxy> logger, IUptimeClock clock)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _clock = clock ?? throw new ArgumentNullException(nameof(_clock));
         }
 
         /// <summary>
@@ -396,6 +399,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 requestContent = new StreamCopyHttpContent(
                     source: request.Body,
                     autoFlushHttpClientOutgoingStream: isStreamingRequest,
+                    clock: _clock,
                     cancellation: cancellation);
                 destinationRequest.Content = requestContent;
             }
@@ -583,8 +587,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 
             using var abortTokenSource = CancellationTokenSource.CreateLinkedTokenSource(longCancellation);
 
-            var requestTask = StreamCopier.CopyAsync(isRequest: true, clientStream, destinationStream, abortTokenSource.Token);
-            var responseTask = StreamCopier.CopyAsync(isRequest: false, destinationStream, clientStream, abortTokenSource.Token);
+            var requestTask = StreamCopier.CopyAsync(isRequest: true, clientStream, destinationStream, _clock, abortTokenSource.Token);
+            var responseTask = StreamCopier.CopyAsync(isRequest: false, destinationStream, clientStream, _clock, abortTokenSource.Token);
 
             // Make sure we report the first failure.
             var firstTask = await Task.WhenAny(requestTask, responseTask);
@@ -633,7 +637,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             if (destinationResponseContent != null)
             {
                 using var destinationResponseStream = await destinationResponseContent.ReadAsStreamAsync();
-                return await StreamCopier.CopyAsync(isRequest: false, destinationResponseStream, clientResponseStream, cancellation);
+                return await StreamCopier.CopyAsync(isRequest: false, destinationResponseStream, clientResponseStream, _clock, cancellation);
             }
 
             return (StreamCopyResult.Success, null);

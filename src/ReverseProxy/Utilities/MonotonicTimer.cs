@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -22,7 +22,7 @@ namespace Microsoft.ReverseProxy.Utilities
         private static readonly TimeSpan _minimalInterval = TimeSpan.FromMilliseconds(0.1);
 
         /// <summary>
-        /// Use a System.Diagnostics.StopWatch to measure time. Even though it has a poorer resolution, it serves this purpose very well.
+        /// Use a System.Diagnostics.StopWatch to measure time.
         /// </summary>
         private readonly Stopwatch _timeProvider;
 

@@ -8,6 +8,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.ReverseProxy.Telemetry;
+using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Service.Proxy
 {
@@ -24,7 +25,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         /// Based on <c>Microsoft.AspNetCore.Http.StreamCopyOperationInternal.CopyToAsync</c>.
         /// See: <see href="https://github.com/dotnet/aspnetcore/blob/080660967b6043f731d4b7163af9e9e6047ef0c4/src/Http/Shared/StreamCopyOperationInternal.cs"/>.
         /// </remarks>
-        public static async Task<(StreamCopyResult, Exception)> CopyAsync(bool isRequest, Stream input, Stream output, CancellationToken cancellation)
+        public static async Task<(StreamCopyResult, Exception)> CopyAsync(bool isRequest, Stream input, Stream output, IUptimeClock clock, CancellationToken cancellation)
         {
             _ = input ?? throw new ArgumentNullException(nameof(input));
             _ = output ?? throw new ArgumentNullException(nameof(output));
@@ -53,7 +54,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                     ProxyTelemetry.Log.ProxyStage(isRequest ? ProxyStage.RequestContentTransferStart : ProxyStage.ResponseContentTransferStart);
 
                     stopwatchTicksBetweenTransferringEvents = Stopwatch.Frequency; // 1 second
-                    lastTime = Stopwatch.GetTimestamp();
+                    lastTime = clock.GetStopwatchTimestamp();
                     nextTransferringEvent = lastTime + stopwatchTicksBetweenTransferringEvents;
                 }
 
@@ -72,7 +73,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                         contentLength += read;
                         iops++;
 
-                        var readStop = Stopwatch.GetTimestamp();
+                        var readStop = clock.GetStopwatchTimestamp();
                         var currentReadTime = readStop - lastTime;
                         lastTime = readStop;
                         readTime += currentReadTime;
@@ -111,7 +112,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 
                     if (telemetryEnabled)
                     {
-                        var writeStop = Stopwatch.GetTimestamp();
+                        var writeStop = clock.GetStopwatchTimestamp();
                         writeTime += writeStop - lastTime;
                         lastTime = writeStop;
                         if (lastTime >= nextTransferringEvent)
@@ -124,7 +125,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                                 StopwatchTicksToDateTimeTicks(writeTime));
 
                             // Avoid attributing the time taken by logging ContentTransferring to the next read call
-                            lastTime = Stopwatch.GetTimestamp();
+                            lastTime = clock.GetStopwatchTimestamp();
                             nextTransferringEvent = lastTime + stopwatchTicksBetweenTransferringEvents;
                         }
                     }
