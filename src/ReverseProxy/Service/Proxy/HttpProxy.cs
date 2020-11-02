@@ -160,9 +160,9 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             var requestTimeoutToken = requestTimeoutSource.Token;
             try
             {
-                ProxyTelemetry.Log.ProxyStage(ProxyStage.InvokerSendAsyncStart);
+                ProxyTelemetry.Log.ProxyStage(ProxyStage.SendAsyncStart);
                 destinationResponse = await httpClient.SendAsync(destinationRequest, requestTimeoutToken);
-                ProxyTelemetry.Log.ProxyStage(ProxyStage.InvokerSendAsyncStop);
+                ProxyTelemetry.Log.ProxyStage(ProxyStage.SendAsyncStop);
             }
             catch (OperationCanceledException canceledException)
             {

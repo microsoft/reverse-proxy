@@ -5,8 +5,8 @@ namespace Microsoft.ReverseProxy.Telemetry
 {
     public enum ProxyStage : int
     {
-        InvokerSendAsyncStart = 1,
-        InvokerSendAsyncStop,
+        SendAsyncStart = 1,
+        SendAsyncStop,
         RequestContentTransferStart,
         RequestContentTransferStop,
         ResponseContentTransferStart,

@@ -793,7 +793,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.Equal(ProxyError.Request, errorFeature.Error);
             Assert.IsType<HttpRequestException>(errorFeature.Exception);
 
-            events.AssertContainProxyStages(new[] { ProxyStage.InvokerSendAsyncStart });
+            events.AssertContainProxyStages(new[] { ProxyStage.SendAsyncStart });
         }
 
         [Fact]
@@ -826,7 +826,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.Equal(ProxyError.Request, errorFeature.Error);
             Assert.IsType<HttpRequestException>(errorFeature.Exception);
 
-            events.AssertContainProxyStages(new[] { ProxyStage.InvokerSendAsyncStart });
+            events.AssertContainProxyStages(new[] { ProxyStage.SendAsyncStart });
         }
 
         [Fact]
@@ -864,7 +864,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.Equal(ProxyError.RequestTimedOut, errorFeature.Error);
             Assert.IsType<OperationCanceledException>(errorFeature.Exception);
 
-            events.AssertContainProxyStages(new[] { ProxyStage.InvokerSendAsyncStart });
+            events.AssertContainProxyStages(new[] { ProxyStage.SendAsyncStart });
         }
 
         [Fact]
@@ -897,7 +897,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.Equal(ProxyError.RequestCanceled, errorFeature.Error);
             Assert.IsType<OperationCanceledException>(errorFeature.Exception);
 
-            events.AssertContainProxyStages(new[] { ProxyStage.InvokerSendAsyncStart });
+            events.AssertContainProxyStages(new[] { ProxyStage.SendAsyncStart });
         }
 
         [Fact]
@@ -937,7 +937,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.Equal(ProxyError.RequestTimedOut, errorFeature.Error);
             Assert.IsType<OperationCanceledException>(errorFeature.Exception);
 
-            events.AssertContainProxyStages(new[] { ProxyStage.InvokerSendAsyncStart });
+            events.AssertContainProxyStages(new[] { ProxyStage.SendAsyncStart });
         }
 
         [Fact]
@@ -972,7 +972,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.Equal(ProxyError.RequestCanceled, errorFeature.Error);
             Assert.IsType<OperationCanceledException>(errorFeature.Exception);
 
-            events.AssertContainProxyStages(new[] { ProxyStage.InvokerSendAsyncStart });
+            events.AssertContainProxyStages(new[] { ProxyStage.SendAsyncStart });
         }
 
         [Fact]
@@ -1008,7 +1008,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.IsType<AggregateException>(errorFeature.Exception);
 
             events.AssertContainProxyStages(new[] {
-                ProxyStage.InvokerSendAsyncStart,
+                ProxyStage.SendAsyncStart,
                 ProxyStage.RequestContentTransferStart,
                 ProxyStage.RequestContentTransferStop
             });
@@ -1047,7 +1047,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.IsType<AggregateException>(errorFeature.Exception);
 
             events.AssertContainProxyStages(new[] {
-                ProxyStage.InvokerSendAsyncStart,
+                ProxyStage.SendAsyncStart,
                 ProxyStage.RequestContentTransferStart,
                 ProxyStage.RequestContentTransferStop
             });
@@ -1090,7 +1090,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.Equal(ProxyError.RequestBodyCanceled, errorFeature.Error);
             Assert.IsType<AggregateException>(errorFeature.Exception);
 
-            events.AssertContainProxyStages(new[] { ProxyStage.InvokerSendAsyncStart });
+            events.AssertContainProxyStages(new[] { ProxyStage.SendAsyncStart });
         }
 
         [Fact]
