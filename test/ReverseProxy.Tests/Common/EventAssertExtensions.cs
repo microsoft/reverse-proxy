@@ -10,7 +10,7 @@ using Xunit;
 
 namespace Microsoft.ReverseProxy.Common.Tests
 {
-    public static class EventAssertExtensions
+    internal static class EventAssertExtensions
     {
         public static (ProxyStage Stage, DateTime TimeStamp)[] GetProxyStages(this List<EventWrittenEventArgs> events)
         {

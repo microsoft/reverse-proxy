@@ -3,7 +3,7 @@
 
 namespace Microsoft.ReverseProxy.Telemetry
 {
-    public enum ProxyStage : int
+    internal enum ProxyStage : int
     {
         SendAsyncStart = 1,
         SendAsyncStop,
