@@ -5,11 +5,6 @@ namespace Microsoft.ReverseProxy.RuntimeModel
 {
     public sealed class DestinationDynamicState
     {
-        public DestinationDynamicState(CompositeDestinationHealth health)
-        {
-            Health = health;
-        }
-
-        public CompositeDestinationHealth Health { get; }
+        public DestinationHealthState Health { get; } = new DestinationHealthState();
     }
 }

@@ -16,7 +16,8 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         public void Schedule_ReactivationPeriodElapsed_SetPassiveHealthToUnknown()
         {
             var destination = new DestinationInfo("destination0");
-            destination.DynamicState = new DestinationDynamicState(new CompositeDestinationHealth(DestinationHealth.Unhealthy, DestinationHealth.Unhealthy));
+            destination.DynamicState.Health.Active = DestinationHealth.Unhealthy;
+            destination.DynamicState.Health.Passive = DestinationHealth.Unhealthy;
             using var timerFactory = new TestTimerFactory();
             var scheduler = new ReactivationScheduler(timerFactory, new Mock<ILogger<ReactivationScheduler>>().Object);
 
@@ -37,7 +38,8 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         public void Schedule_ReactivationPeriodElapsedTwice_ReactivateDestinationOnlyOnce()
         {
             var destination = new DestinationInfo("destination0");
-            destination.DynamicState = new DestinationDynamicState(new CompositeDestinationHealth(DestinationHealth.Unhealthy, DestinationHealth.Unhealthy));
+            destination.DynamicState.Health.Active = DestinationHealth.Unhealthy;
+            destination.DynamicState.Health.Passive = DestinationHealth.Unhealthy;
             using var timerFactory = new TestTimerFactory();
             var scheduler = new ReactivationScheduler(timerFactory, new Mock<ILogger<ReactivationScheduler>>().Object);
 

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Linq;
 using Microsoft.ReverseProxy.Service.Management;
 using Microsoft.ReverseProxy.Utilities;
 
@@ -19,7 +20,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
     /// </remarks>
     public sealed class ClusterInfo
     {
-        private volatile ClusterDynamicState _dynamicState = new ClusterDynamicState(Array.Empty<DestinationInfo>(), healthChecksEnabled: false);
+        private volatile ClusterDynamicState _dynamicState = new ClusterDynamicState(Array.Empty<DestinationInfo>(), Array.Empty<DestinationInfo>());
         private volatile ClusterConfig _config;
 
         internal ClusterInfo(string clusterId, IDestinationManager destinationManager)
@@ -37,7 +38,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         public ClusterConfig Config
         {
             get => _config;
-            internal set => _config = value;
+            internal set => _config = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         internal IDestinationManager DestinationManager { get; }
@@ -58,7 +59,28 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         /// </summary>
         public void UpdateDynamicState()
         {
-            _dynamicState = new ClusterDynamicState(DestinationManager.Items, _config?.HealthCheckOptions.Enabled ?? false);
+            var healthChecks = _config?.HealthCheckOptions ?? default;
+            var allDestinations = DestinationManager.Items;
+            var healthyDestinations = allDestinations;
+
+            if (healthChecks.Enabled)
+            {
+                var activeEnabled = healthChecks.Active.Enabled;
+                var passiveEnabled = healthChecks.Passive.Enabled;
+
+                healthyDestinations = allDestinations.Where(destination =>
+                {
+                    // Only consider the current state if those checks are enabled.
+                    var state = destination.DynamicState;
+                    var active = activeEnabled ? state.Health.Active : DestinationHealth.Unknown;
+                    var passive = passiveEnabled ? state.Health.Passive : DestinationHealth.Unknown;
+
+                    // Filter out unhealthy ones. Unknown state is OK, all destinations start that way.
+                    return passive != DestinationHealth.Unhealthy && active != DestinationHealth.Unhealthy;
+                }).ToList().AsReadOnly();
+            }
+
+            _dynamicState = new ClusterDynamicState(allDestinations, healthyDestinations);
         }
     }
 }

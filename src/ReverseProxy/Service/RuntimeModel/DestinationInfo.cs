@@ -21,7 +21,6 @@ namespace Microsoft.ReverseProxy.RuntimeModel
     public sealed class DestinationInfo : IReadOnlyList<DestinationInfo>
     {
         private volatile DestinationConfig _config;
-        private volatile DestinationDynamicState _dynamicState = new DestinationDynamicState(default);
 
         public DestinationInfo(string destinationId)
         {
@@ -40,18 +39,14 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         public DestinationConfig Config
         {
             get => _config;
-            internal set => _config = value;
+            internal set => _config = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         /// <summary>
         /// Encapsulates parts of an destination that can change atomically
         /// in reaction to runtime state changes (e.g. endpoint health states).
         /// </summary>
-        public DestinationDynamicState DynamicState
-        {
-            get => _dynamicState;
-            set => _dynamicState = value;
-        }
+        public DestinationDynamicState DynamicState { get; } = new DestinationDynamicState();
 
         /// <summary>
         /// Keeps track of the total number of concurrent requests on this endpoint.

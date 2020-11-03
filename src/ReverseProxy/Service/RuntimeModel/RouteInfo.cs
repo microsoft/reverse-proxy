@@ -35,7 +35,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         internal RouteConfig Config
         {
             get => _config;
-            set => _config = value;
+            set => _config = value ?? throw new ArgumentNullException(nameof(value));
         }
     }
 }

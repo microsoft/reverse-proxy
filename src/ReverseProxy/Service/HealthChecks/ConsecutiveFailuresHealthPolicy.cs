@@ -43,9 +43,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 var state = destination.DynamicState;
                 if (newHealth != state.Health.Active)
                 {
-                    // TODO: Should this use the same pattern as cluster state updates? This has consistency issues.
-                    // E.g. track active and passive separately and create a new dynamic state as a composite as needed.
-                    destination.DynamicState = new DestinationDynamicState(state.Health.ChangeActive(newHealth));
+                    state.Health.Active = newHealth;
                     changed = true;
                     if (newHealth == DestinationHealth.Unhealthy)
                     {
