@@ -13,8 +13,8 @@ namespace Microsoft.ReverseProxy.RuntimeModel
     /// </summary>
     /// <remarks>
     /// Note that while this class is immutable, specific members such as
-    /// <see cref="Config"/> and <see cref="DynamicState"/> hold mutable references
-    /// that can be updated atomically and which will always have latest information
+    /// <see cref="Config"/> and <see cref="Health"/> hold mutable references
+    /// that can be updated and which will always have latest information
     /// relevant to this endpoint.
     /// All members are thread safe.
     /// </remarks>
@@ -43,10 +43,9 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         }
 
         /// <summary>
-        /// Encapsulates parts of an destination that can change
-        /// in reaction to runtime state changes (e.g. endpoint health states).
+        /// Mutable health state for this destination.
         /// </summary>
-        public DestinationDynamicState DynamicState { get; } = new DestinationDynamicState();
+        public DestinationHealthState Health { get; } = new DestinationHealthState();
 
         /// <summary>
         /// Keeps track of the total number of concurrent requests on this endpoint.

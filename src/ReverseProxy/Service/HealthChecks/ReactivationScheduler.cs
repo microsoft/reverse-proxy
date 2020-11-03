@@ -34,10 +34,10 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 
         private Task Reactivate(DestinationInfo destination)
         {
-            var state = destination.DynamicState;
-            if (state.Health.Passive == DestinationHealth.Unhealthy)
+            var healthState = destination.Health;
+            if (healthState.Passive == DestinationHealth.Unhealthy)
             {
-                destination.DynamicState.Health.Passive = DestinationHealth.Unknown;
+                healthState.Passive = DestinationHealth.Unknown;
                 Log.PassiveDestinationHealthResetToUnkownState(_logger, destination.DestinationId);
                 // TODO: Update cluster by calling cluster.UpdateDynamicState()
             }

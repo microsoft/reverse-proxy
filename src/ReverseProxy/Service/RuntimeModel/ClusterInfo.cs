@@ -20,7 +20,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
     /// </remarks>
     public sealed class ClusterInfo
     {
-        private readonly object _stateLock;
+        private readonly object _stateLock = new object();
         private volatile ClusterDynamicState _dynamicState = new ClusterDynamicState(Array.Empty<DestinationInfo>(), Array.Empty<DestinationInfo>());
         private volatile ClusterConfig _config;
 
@@ -78,9 +78,9 @@ namespace Microsoft.ReverseProxy.RuntimeModel
                     healthyDestinations = allDestinations.Where(destination =>
                     {
                         // Only consider the current state if those checks are enabled.
-                        var state = destination.DynamicState;
-                        var active = activeEnabled ? state.Health.Active : DestinationHealth.Unknown;
-                        var passive = passiveEnabled ? state.Health.Passive : DestinationHealth.Unknown;
+                        var healthState = destination.Health;
+                        var active = activeEnabled ? healthState.Active : DestinationHealth.Unknown;
+                        var passive = passiveEnabled ? healthState.Passive : DestinationHealth.Unknown;
 
                         // Filter out unhealthy ones. Unknown state is OK, all destinations start that way.
                         return passive != DestinationHealth.Unhealthy && active != DestinationHealth.Unhealthy;

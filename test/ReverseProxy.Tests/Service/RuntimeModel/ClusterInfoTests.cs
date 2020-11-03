@@ -23,10 +23,10 @@ namespace Microsoft.ReverseProxy.RuntimeModel.Tests
         public void DynamicState_WithoutHealthChecks_AssumesAllHealthy()
         {
             var cluster = CreateClusterManager().GetOrCreateItem("abc", c => { });
-            var destination1 = cluster.DestinationManager.GetOrCreateItem("d1", destination => destination.DynamicState.Health.Active = DestinationHealth.Healthy);
-            var destination2 = cluster.DestinationManager.GetOrCreateItem("d2", destination => destination.DynamicState.Health.Active = DestinationHealth.Unhealthy);
+            var destination1 = cluster.DestinationManager.GetOrCreateItem("d1", destination => destination.Health.Active = DestinationHealth.Healthy);
+            var destination2 = cluster.DestinationManager.GetOrCreateItem("d2", destination => destination.Health.Active = DestinationHealth.Unhealthy);
             var destination3 = cluster.DestinationManager.GetOrCreateItem("d3", destination => { }); // Unknown health state
-            var destination4 = cluster.DestinationManager.GetOrCreateItem("d4", destination => destination.DynamicState.Health.Passive = DestinationHealth.Healthy);
+            var destination4 = cluster.DestinationManager.GetOrCreateItem("d4", destination => destination.Health.Passive = DestinationHealth.Healthy);
             cluster.UpdateDynamicState();
 
             Assert.Same(destination1, cluster.DynamicState.AllDestinations[0]);
@@ -44,11 +44,11 @@ namespace Microsoft.ReverseProxy.RuntimeModel.Tests
         public void DynamicState_WithHealthChecks_HonorsHealthState()
         {
             var cluster = CreateClusterManager().GetOrCreateItem("abc", c => EnableHealthChecks(c));
-            var destination1 = cluster.DestinationManager.GetOrCreateItem("d1", destination => destination.DynamicState.Health.Active = DestinationHealth.Healthy);
-            var destination2 = cluster.DestinationManager.GetOrCreateItem("d2", destination => destination.DynamicState.Health.Active = DestinationHealth.Unhealthy);
+            var destination1 = cluster.DestinationManager.GetOrCreateItem("d1", destination => destination.Health.Active = DestinationHealth.Healthy);
+            var destination2 = cluster.DestinationManager.GetOrCreateItem("d2", destination => destination.Health.Active = DestinationHealth.Unhealthy);
             var destination3 = cluster.DestinationManager.GetOrCreateItem("d3", destination => { }); // Unknown health state
-            var destination4 = cluster.DestinationManager.GetOrCreateItem("d4", destination => destination.DynamicState.Health.Passive = DestinationHealth.Healthy);
-            var destination5 = cluster.DestinationManager.GetOrCreateItem("d5", destination => destination.DynamicState.Health.Passive = DestinationHealth.Unhealthy);
+            var destination4 = cluster.DestinationManager.GetOrCreateItem("d4", destination => destination.Health.Passive = DestinationHealth.Healthy);
+            var destination5 = cluster.DestinationManager.GetOrCreateItem("d5", destination => destination.Health.Passive = DestinationHealth.Unhealthy);
             cluster.UpdateDynamicState();
 
             Assert.Equal(5, cluster.DynamicState.AllDestinations.Count);
@@ -129,7 +129,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel.Tests
             Assert.NotSame(state1, cluster.DynamicState);
             var state2 = cluster.DynamicState;
 
-            destination.DynamicState.Health.Active = DestinationHealth.Unhealthy;
+            destination.Health.Active = DestinationHealth.Unhealthy;
             cluster.UpdateDynamicState();
             Assert.NotSame(state2, cluster.DynamicState);
             var state3 = cluster.DynamicState;
@@ -137,7 +137,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel.Tests
             Assert.Contains(destination, state3.AllDestinations);
             Assert.Empty(state3.HealthyDestinations);
 
-            destination.DynamicState.Health.Active = DestinationHealth.Healthy;
+            destination.Health.Active = DestinationHealth.Healthy;
             cluster.UpdateDynamicState();
             Assert.NotSame(state3, cluster.DynamicState);
             var state4 = cluster.DynamicState;

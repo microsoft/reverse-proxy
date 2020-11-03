@@ -16,13 +16,13 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         public void Schedule_ReactivationPeriodElapsed_SetPassiveHealthToUnknown()
         {
             var destination = new DestinationInfo("destination0");
-            destination.DynamicState.Health.Active = DestinationHealth.Unhealthy;
-            destination.DynamicState.Health.Passive = DestinationHealth.Unhealthy;
+            destination.Health.Active = DestinationHealth.Unhealthy;
+            destination.Health.Passive = DestinationHealth.Unhealthy;
             using var timerFactory = new TestTimerFactory();
             var scheduler = new ReactivationScheduler(timerFactory, new Mock<ILogger<ReactivationScheduler>>().Object);
 
-            Assert.Equal(DestinationHealth.Unhealthy, destination.DynamicState.Health.Active);
-            Assert.Equal(DestinationHealth.Unhealthy, destination.DynamicState.Health.Passive);
+            Assert.Equal(DestinationHealth.Unhealthy, destination.Health.Active);
+            Assert.Equal(DestinationHealth.Unhealthy, destination.Health.Passive);
 
             var reactivationPeriod = TimeSpan.FromSeconds(2);
             scheduler.Schedule(destination, reactivationPeriod);
@@ -30,21 +30,21 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             timerFactory.FireAndWaitAll();
 
             timerFactory.VerifyTimer(0, 2000);
-            Assert.Equal(DestinationHealth.Unhealthy, destination.DynamicState.Health.Active);
-            Assert.Equal(DestinationHealth.Unknown, destination.DynamicState.Health.Passive);
+            Assert.Equal(DestinationHealth.Unhealthy, destination.Health.Active);
+            Assert.Equal(DestinationHealth.Unknown, destination.Health.Passive);
         }
 
         [Fact]
         public void Schedule_ReactivationPeriodElapsedTwice_ReactivateDestinationOnlyOnce()
         {
             var destination = new DestinationInfo("destination0");
-            destination.DynamicState.Health.Active = DestinationHealth.Unhealthy;
-            destination.DynamicState.Health.Passive = DestinationHealth.Unhealthy;
+            destination.Health.Active = DestinationHealth.Unhealthy;
+            destination.Health.Passive = DestinationHealth.Unhealthy;
             using var timerFactory = new TestTimerFactory();
             var scheduler = new ReactivationScheduler(timerFactory, new Mock<ILogger<ReactivationScheduler>>().Object);
 
-            Assert.Equal(DestinationHealth.Unhealthy, destination.DynamicState.Health.Active);
-            Assert.Equal(DestinationHealth.Unhealthy, destination.DynamicState.Health.Passive);
+            Assert.Equal(DestinationHealth.Unhealthy, destination.Health.Active);
+            Assert.Equal(DestinationHealth.Unhealthy, destination.Health.Passive);
 
             var reactivationPeriod = TimeSpan.FromSeconds(2);
             scheduler.Schedule(destination, reactivationPeriod);
@@ -53,7 +53,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 
             timerFactory.VerifyTimer(0, 2000);
             Assert.Equal(1, timerFactory.Count);
-            Assert.Equal(DestinationHealth.Unknown, destination.DynamicState.Health.Passive);
+            Assert.Equal(DestinationHealth.Unknown, destination.Health.Passive);
             Assert.Throws<ObjectDisposedException>(() => timerFactory.FireTimer(0));
         }
     }

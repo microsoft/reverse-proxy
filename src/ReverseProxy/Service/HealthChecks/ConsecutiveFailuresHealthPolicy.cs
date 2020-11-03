@@ -40,10 +40,10 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 var count = _failureCounters.GetOrCreateValue(destination);
                 var newHealth = EvaluateHealthState(threshold, probingResults[i].Response, count);
 
-                var state = destination.DynamicState;
-                if (newHealth != state.Health.Active)
+                var healthState = destination.Health;
+                if (newHealth != healthState.Active)
                 {
-                    state.Health.Active = newHealth;
+                    healthState.Active = newHealth;
                     changed = true;
                     if (newHealth == DestinationHealth.Unhealthy)
                     {

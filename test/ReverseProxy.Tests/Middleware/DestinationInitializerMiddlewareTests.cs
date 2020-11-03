@@ -91,7 +91,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 destination =>
                 {
                     destination.Config = new DestinationConfig("https://localhost:123/a/b/", null);
-                    destination.DynamicState.Health.Passive = DestinationHealth.Unhealthy;
+                    destination.Health.Passive = DestinationHealth.Unhealthy;
                 });
 
             var aspNetCoreEndpoints = new List<Endpoint>();

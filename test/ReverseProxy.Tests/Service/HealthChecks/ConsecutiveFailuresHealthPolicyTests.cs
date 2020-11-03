@@ -37,32 +37,32 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             Assert.Equal(HealthCheckConstants.ActivePolicy.ConsecutiveFailures, policy.Name);
 
             // Initial state
-            Assert.All(cluster0.DestinationManager.Items, d => Assert.Equal(DestinationHealth.Unknown, d.DynamicState.Health.Active));
-            Assert.All(cluster1.DestinationManager.Items, d => Assert.Equal(DestinationHealth.Unknown, d.DynamicState.Health.Active));
+            Assert.All(cluster0.DestinationManager.Items, d => Assert.Equal(DestinationHealth.Unknown, d.Health.Active));
+            Assert.All(cluster1.DestinationManager.Items, d => Assert.Equal(DestinationHealth.Unknown, d.Health.Active));
 
             // First probing attempt
             policy.ProbingCompleted(cluster0, probingResults0);
-            Assert.All(cluster0.DestinationManager.Items, d => Assert.Equal(DestinationHealth.Healthy, d.DynamicState.Health.Active));
+            Assert.All(cluster0.DestinationManager.Items, d => Assert.Equal(DestinationHealth.Healthy, d.Health.Active));
             policy.ProbingCompleted(cluster1, probingResults1);
-            Assert.All(cluster1.DestinationManager.Items, d => Assert.Equal(DestinationHealth.Healthy, d.DynamicState.Health.Active));
+            Assert.All(cluster1.DestinationManager.Items, d => Assert.Equal(DestinationHealth.Healthy, d.Health.Active));
 
             // Second probing attempt
             policy.ProbingCompleted(cluster0, probingResults0);
-            Assert.Equal(DestinationHealth.Unhealthy, cluster0.DestinationManager.Items[0].DynamicState.Health.Active);
-            Assert.Equal(DestinationHealth.Healthy, cluster0.DestinationManager.Items[1].DynamicState.Health.Active);
+            Assert.Equal(DestinationHealth.Unhealthy, cluster0.DestinationManager.Items[0].Health.Active);
+            Assert.Equal(DestinationHealth.Healthy, cluster0.DestinationManager.Items[1].Health.Active);
             policy.ProbingCompleted(cluster1, probingResults1);
-            Assert.All(cluster1.DestinationManager.Items, d => Assert.Equal(DestinationHealth.Healthy, d.DynamicState.Health.Active));
+            Assert.All(cluster1.DestinationManager.Items, d => Assert.Equal(DestinationHealth.Healthy, d.Health.Active));
 
             // Third probing attempt
             policy.ProbingCompleted(cluster0, probingResults0);
-            Assert.Equal(DestinationHealth.Unhealthy, cluster0.DestinationManager.Items[0].DynamicState.Health.Active);
-            Assert.Equal(DestinationHealth.Healthy, cluster0.DestinationManager.Items[1].DynamicState.Health.Active);
+            Assert.Equal(DestinationHealth.Unhealthy, cluster0.DestinationManager.Items[0].Health.Active);
+            Assert.Equal(DestinationHealth.Healthy, cluster0.DestinationManager.Items[1].Health.Active);
             policy.ProbingCompleted(cluster1, probingResults1);
-            Assert.Equal(DestinationHealth.Healthy, cluster1.DestinationManager.Items[0].DynamicState.Health.Active);
-            Assert.Equal(DestinationHealth.Unhealthy, cluster1.DestinationManager.Items[1].DynamicState.Health.Active);
+            Assert.Equal(DestinationHealth.Healthy, cluster1.DestinationManager.Items[0].Health.Active);
+            Assert.Equal(DestinationHealth.Unhealthy, cluster1.DestinationManager.Items[1].Health.Active);
 
-            Assert.All(cluster0.DestinationManager.Items, d => Assert.Equal(DestinationHealth.Unknown, d.DynamicState.Health.Passive));
-            Assert.All(cluster1.DestinationManager.Items, d => Assert.Equal(DestinationHealth.Unknown, d.DynamicState.Health.Passive));
+            Assert.All(cluster0.DestinationManager.Items, d => Assert.Equal(DestinationHealth.Unknown, d.Health.Passive));
+            Assert.All(cluster1.DestinationManager.Items, d => Assert.Equal(DestinationHealth.Unknown, d.Health.Passive));
         }
 
         [Fact]
@@ -82,15 +82,15 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 policy.ProbingCompleted(cluster, probingResults);
             }
 
-            Assert.Equal(DestinationHealth.Unhealthy, cluster.DestinationManager.Items[0].DynamicState.Health.Active);
-            Assert.Equal(DestinationHealth.Healthy, cluster.DestinationManager.Items[1].DynamicState.Health.Active);
+            Assert.Equal(DestinationHealth.Unhealthy, cluster.DestinationManager.Items[0].Health.Active);
+            Assert.Equal(DestinationHealth.Healthy, cluster.DestinationManager.Items[1].Health.Active);
 
             policy.ProbingCompleted(cluster, new[] { new DestinationProbingResult(cluster.DestinationManager.Items[0], new HttpResponseMessage(HttpStatusCode.OK), null) });
 
-            Assert.Equal(DestinationHealth.Healthy, cluster.DestinationManager.Items[0].DynamicState.Health.Active);
-            Assert.Equal(DestinationHealth.Healthy, cluster.DestinationManager.Items[1].DynamicState.Health.Active);
+            Assert.Equal(DestinationHealth.Healthy, cluster.DestinationManager.Items[0].Health.Active);
+            Assert.Equal(DestinationHealth.Healthy, cluster.DestinationManager.Items[1].Health.Active);
 
-            Assert.All(cluster.DestinationManager.Items, d => Assert.Equal(DestinationHealth.Unknown, d.DynamicState.Health.Passive));
+            Assert.All(cluster.DestinationManager.Items, d => Assert.Equal(DestinationHealth.Unknown, d.Health.Passive));
         }
 
         [Fact]
@@ -110,13 +110,13 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 policy.ProbingCompleted(cluster, probingResults);
             }
 
-            Assert.Equal(DestinationHealth.Unhealthy, cluster.DestinationManager.Items[0].DynamicState.Health.Active);
-            Assert.Equal(DestinationHealth.Healthy, cluster.DestinationManager.Items[1].DynamicState.Health.Active);
+            Assert.Equal(DestinationHealth.Unhealthy, cluster.DestinationManager.Items[0].Health.Active);
+            Assert.Equal(DestinationHealth.Healthy, cluster.DestinationManager.Items[1].Health.Active);
 
             policy.ProbingCompleted(cluster, new DestinationProbingResult[0]);
 
-            Assert.Equal(DestinationHealth.Unhealthy, cluster.DestinationManager.Items[0].DynamicState.Health.Active);
-            Assert.Equal(DestinationHealth.Healthy, cluster.DestinationManager.Items[1].DynamicState.Health.Active);
+            Assert.Equal(DestinationHealth.Unhealthy, cluster.DestinationManager.Items[0].Health.Active);
+            Assert.Equal(DestinationHealth.Healthy, cluster.DestinationManager.Items[1].Health.Active);
         }
 
         private ClusterInfo GetClusterInfo(string id, int destinationCount, int? failureThreshold = null)
