@@ -39,12 +39,12 @@ namespace Microsoft.ReverseProxy.Service.Proxy
     {
         private readonly Stream _source;
         private readonly bool _autoFlushHttpClientOutgoingStream;
-        private readonly IUptimeClock _clock;
+        private readonly IClock _clock;
         // Note this is the long token that should only be canceled in the event of an error, not timed out.
         private readonly CancellationToken _cancellation;
         private readonly TaskCompletionSource<(StreamCopyResult, Exception)> _tcs = new TaskCompletionSource<(StreamCopyResult, Exception)>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-        public StreamCopyHttpContent(Stream source, bool autoFlushHttpClientOutgoingStream, IUptimeClock clock, CancellationToken cancellation)
+        public StreamCopyHttpContent(Stream source, bool autoFlushHttpClientOutgoingStream, IClock clock, CancellationToken cancellation)
         {
             _source = source ?? throw new ArgumentNullException(nameof(source));
             _autoFlushHttpClientOutgoingStream = autoFlushHttpClientOutgoingStream;

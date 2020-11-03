@@ -6,7 +6,7 @@ namespace Microsoft.ReverseProxy.Utilities
     /// <summary>
     /// Abstraction over time providers (Environment.TickCount64, Stopwatch.GetTimestamp)
     /// </summary>
-    internal interface IUptimeClock
+    internal interface IClock
     {
         long TickCount { get; }
 

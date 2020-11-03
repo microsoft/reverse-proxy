@@ -31,7 +31,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var source = new MemoryStream(sourceBytes);
             var destination = new MemoryStream();
 
-            await StreamCopier.CopyAsync(isRequest, source, destination, new UptimeClock(), CancellationToken.None);
+            await StreamCopier.CopyAsync(isRequest, source, destination, new Clock(), CancellationToken.None);
 
             Assert.Equal(sourceBytes, destination.ToArray());
 
@@ -48,7 +48,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var source = new ThrowStream();
             var destination = new MemoryStream();
 
-            var (result, error) = await StreamCopier.CopyAsync(isRequest, source, destination, new UptimeClock(), CancellationToken.None);
+            var (result, error) = await StreamCopier.CopyAsync(isRequest, source, destination, new Clock(), CancellationToken.None);
             Assert.Equal(StreamCopyResult.InputError, result);
             Assert.IsAssignableFrom<IOException>(error);
 
@@ -65,7 +65,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var source = new MemoryStream(new byte[10]);
             var destination = new ThrowStream();
 
-            var (result, error) = await StreamCopier.CopyAsync(isRequest, source, destination, new UptimeClock(), CancellationToken.None);
+            var (result, error) = await StreamCopier.CopyAsync(isRequest, source, destination, new Clock(), CancellationToken.None);
             Assert.Equal(StreamCopyResult.OutputError, result);
             Assert.IsAssignableFrom<IOException>(error);
 
@@ -82,7 +82,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var source = new MemoryStream(new byte[10]);
             var destination = new MemoryStream();
 
-            var (result, error) = await StreamCopier.CopyAsync(isRequest, source, destination, new UptimeClock(), new CancellationToken(canceled: true));
+            var (result, error) = await StreamCopier.CopyAsync(isRequest, source, destination, new Clock(), new CancellationToken(canceled: true));
             Assert.Equal(StreamCopyResult.Canceled, result);
             Assert.IsAssignableFrom<OperationCanceledException>(error);
 

@@ -164,7 +164,7 @@ namespace Microsoft.ReverseProxy.Service.Management
             var entity = new Entity { Id = "entity0" };
             var period = TimeSpan.FromMilliseconds(1000);
             var timeout = TimeSpan.FromSeconds(2);
-            var clock = new UptimeClock();
+            var clock = new Clock();
             Entity lastInvokedEntity = null;
             using var scheduler = new EntityActionScheduler<Entity>(e =>
             {
@@ -195,7 +195,7 @@ namespace Microsoft.ReverseProxy.Service.Management
             var entity = new Entity { Id = "entity0" };
             var period = TimeSpan.FromMilliseconds(250);
             var timeout = TimeSpan.FromSeconds(2);
-            var clock = new UptimeClock();
+            var clock = new Clock();
             Entity lastInvokedEntity = null;
             using var scheduler = new EntityActionScheduler<Entity>(e =>
             {
@@ -226,7 +226,7 @@ namespace Microsoft.ReverseProxy.Service.Management
             var entity = new Entity { Id = "entity0" };
             var period = TimeSpan.FromMilliseconds(1000);
             var timeout = TimeSpan.FromSeconds(2);
-            var clock = new UptimeClock();
+            var clock = new Clock();
             Entity lastInvokedEntity = null;
             using var scheduler = new EntityActionScheduler<Entity>(e =>
             {
@@ -258,7 +258,7 @@ namespace Microsoft.ReverseProxy.Service.Management
             var entity = new Entity { Id = "entity0" };
             var period = TimeSpan.FromMilliseconds(250);
             var timeout = TimeSpan.FromSeconds(2);
-            var clock = new UptimeClock();
+            var clock = new Clock();
             Entity lastInvokedEntity = null;
             using var scheduler = new EntityActionScheduler<Entity>(e =>
             {

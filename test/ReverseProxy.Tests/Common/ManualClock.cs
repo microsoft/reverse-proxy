@@ -7,7 +7,7 @@ using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Common.Tests
 {
-    internal class ManualClock : IUptimeClock
+    internal class ManualClock : IClock
     {
         public TimeSpan Time { get; set; }
 

@@ -24,7 +24,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         public static IServiceCollection AddHttpProxy(this IServiceCollection services)
         {
-            services.TryAddSingleton<IUptimeClock, UptimeClock>();
+            services.TryAddSingleton<IClock, Clock>();
             services.TryAddSingleton<IHttpProxy, HttpProxy>();
             return services;
         }

@@ -34,9 +34,9 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         };
 
         private readonly ILogger _logger;
-        private readonly IUptimeClock _clock;
+        private readonly IClock _clock;
 
-        public HttpProxy(ILogger<HttpProxy> logger, IUptimeClock clock)
+        public HttpProxy(ILogger<HttpProxy> logger, IClock clock)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _clock = clock ?? throw new ArgumentNullException(nameof(_clock));
