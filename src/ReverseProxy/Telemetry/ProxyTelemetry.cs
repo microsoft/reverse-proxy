@@ -86,6 +86,15 @@ namespace Microsoft.ReverseProxy.Telemetry
             }
         }
 
+        [Event(7, Level = EventLevel.Informational)]
+        public void ProxyInvoke(string clusterId, string routeId, string destinationId)
+        {
+            if (IsEnabled(EventLevel.Informational, EventKeywords.All))
+            {
+                WriteEvent(eventId: 7, clusterId, routeId, destinationId);
+            }
+        }
+
 
         protected override void OnEventCommand(EventCommandEventArgs command)
         {

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.ReverseProxy.Service.Proxy;
+using Microsoft.ReverseProxy.Telemetry;
 using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Middleware
@@ -78,6 +79,8 @@ namespace Microsoft.ReverseProxy.Middleware
             {
                 cluster.ConcurrencyCounter.Increment();
                 destination.ConcurrencyCounter.Increment();
+
+                ProxyTelemetry.Log.ProxyInvoke(cluster.ClusterId, routeConfig.Route.RouteId, destination.DestinationId);
 
                 await _httpProxy.ProxyAsync(context, destinationConfig.Address, reverseProxyFeature.ClusterConfig.HttpClient, proxyOptions);
             }
