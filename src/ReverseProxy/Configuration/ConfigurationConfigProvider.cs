@@ -363,7 +363,7 @@ namespace Microsoft.ReverseProxy.Configuration
 
             return new ProxyHttpRequestOptions
             {
-                Version = data.Version,
+                Version = Version.Parse(data.Version + (data.Version.Contains('.') ? "" : ".0")),
 #if NET
                 VersionPolicy = data.VersionPolicy,
 #endif

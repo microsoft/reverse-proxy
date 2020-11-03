@@ -85,12 +85,11 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                     httpContext,
                     It.Is<string>(uri => uri == "https://localhost:123/a/b/"),
                     httpClient,
-                    It.Is<RequestProxyOptions>(options => true
-// Booooo doesn't work
-/*                        options.Version == httpRequestOptions.Version
+                    It.Is<RequestProxyOptions>(options =>
+                        options.Version == httpRequestOptions.Version
 #if NET
                         && options.VersionPolicy == httpRequestOptions.VersionPolicy
-#endif*/
+#endif
                         )))
                 .Returns(
                     async () =>
@@ -113,7 +112,9 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 await task;
             }
 
-            // Booooo this gets stuck if Setup fails, maybe Mock<IHttpProxy>().Verify(); should be put before the await
+            // Assert before awaiting the task
+            Mock<IHttpProxy>().Verify();
+
             await tcs1.Task; // Wait until we get to the proxying step.
             Assert.Equal(1, cluster1.ConcurrencyCounter.Value);
             Assert.Equal(1, destination1.ConcurrencyCounter.Value);
@@ -124,9 +125,6 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             await task;
             Assert.Equal(0, cluster1.ConcurrencyCounter.Value);
             Assert.Equal(0, destination1.ConcurrencyCounter.Value);
-
-            // Assert
-            Mock<IHttpProxy>().Verify();
         }
 
         [Fact]

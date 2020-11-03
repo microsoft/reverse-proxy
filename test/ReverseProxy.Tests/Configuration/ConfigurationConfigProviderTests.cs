@@ -71,7 +71,7 @@ namespace Microsoft.ReverseProxy.Configuration
                         },
                         HttpRequest = new ProxyHttpRequestData()
                         {
-                            Version = HttpVersion.Version20,
+                            Version = "2",
 #if NET
                             VersionPolicy = HttpVersionPolicy.RequestVersionExact,
 #endif
@@ -209,7 +209,7 @@ namespace Microsoft.ReverseProxy.Configuration
                 ""MaxConnectionsPerServer"": 10
             },
             ""HttpRequest"": {
-                ""Version"": ""2.0"",
+                ""Version"": ""2"",
                 ""VersionPolicy"": ""RequestVersionExact""
             },
             ""Destinations"": {

@@ -81,8 +81,7 @@ namespace Microsoft.ReverseProxy.Middleware
                 Transforms = routeConfig.Transforms,
             };
 
-            // Booooo is null in Invoke_Works test but reverseProxyFeature.ClusterConfig.HttpRequestOptions works, what is right?
-            var requestOptions = cluster.Config?.HttpRequestOptions ?? default;
+            var requestOptions = reverseProxyFeature.ClusterConfig.HttpRequestOptions;
             if (requestOptions.Version != default)
             {
                 proxyOptions.Version = requestOptions.Version;

@@ -5,7 +5,7 @@ namespace Microsoft.ReverseProxy.Configuration.Contract
 {
     public class ProxyHttpRequestData
     {
-        public Version Version { get; set; }
+        public string Version { get; set; }
 
 #if NET
         public HttpVersionPolicy VersionPolicy { get; set; }
