@@ -11,7 +11,6 @@ using Microsoft.ReverseProxy.RuntimeModel;
 
 namespace Microsoft.ReverseProxy.Telemetry
 {
-    [EventSource(Name = "Microsoft.ReverseProxy")]
     internal sealed class ProxyTelemetry : EventSource
     {
         public static readonly ProxyTelemetry Log = new ProxyTelemetry();
@@ -24,6 +23,10 @@ namespace Microsoft.ReverseProxy.Telemetry
         private long _startedRequests;
         private long _stoppedRequests;
         private long _failedRequests;
+
+        private ProxyTelemetry()
+            : base("Microsoft.ReverseProxy")
+        { }
 
         [Event(1, Level = EventLevel.Informational)]
         private void ProxyStart(string clusterId, string routeId, string destinationId)
