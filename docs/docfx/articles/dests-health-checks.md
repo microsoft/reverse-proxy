@@ -25,7 +25,7 @@ All but one of active health check settings are specified on the cluster level i
 
 `Destination` section.
 
-- `Health` - dedicated health probing endpoint. Default `null`.
+- `Health` - A dedicated health probing endpoint such as `http://destination:12345/`. Defaults `null` and falls back to `Destination/Address`.
 
 #### Example
 ```JSON
