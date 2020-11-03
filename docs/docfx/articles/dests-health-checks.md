@@ -2,7 +2,26 @@
 In most of the real-world systems, it's expected for their nodes to occasionally experience transient issues and go down completely due to a variety of reasons such as an overload, resource leakage, hardware failures, etc. Ideally, it'd be desirable to completely prevent those unfornunate events from occuring in a proactive way, but the cost of designing and building such an ideal system is generally prohibitively high. However, there is another reactive approach which is cheaper and aimed to minimizing a negative impact failures cause on client requests by constantly analyzing nodes health to stop sending client traffic to ones became unhealthy until they have recovered. YARP implements this approach in the form of active and passive destination health checks.
 
 ## Active health checks
-YARP can proactively monitor destination health by sending periodic probing requests to designated health endpoints and analyzing responses. The main service in this process is [IActiveHealthMonitor](xref:Microsoft.ReverseProxy.Service.HealthChecks.IActiveHealthMonitor) that periodically creates probing requests via [IProbingRequestFactory](xref:Microsoft.ReverseProxy.Service.HealthChecks.IProbingRequestFactory), sends them to all [Destinations](xref:Microsoft.ReverseProxy.Abstractions.Destination) of each [Cluster](xref:Microsoft.ReverseProxy.Abstractions.Cluster) with enabled active health checks and then passes all the responses down to a [IActiveHealthCheckPolicy](xref:Microsoft.ReverseProxy.Service.HealthChecks.IActiveHealthCheckPolicy) specified for a cluster. IActiveHealthMonitor doesn't make the actual decision on whether a destination is healthy or not, but delegates this duty to an IActiveHealthCheckPolicy specified for a cluster. A policy is called to evaluate the new health states once all probing of all cluster's destination completed. It takes in a [ClusterInfo](xref:Microsoft.ReverseProxy.RuntimeModel.ClusterInfo) representing the cluster's dynamic state and a set of [DestinationProbingResult](xref:Microsoft.ReverseProxy.Service.HealthChecks.DestinationProbingResult) storing cluster's destinations' probing results. Having evaluated a new health state for each destination, the policy actually updates [CompositeDestinationHealth.Active](xref:Microsoft.ReverseProxy.RuntimeModel.CompositeDestinationHealth.Active) value.
+YARP can proactively monitor destination health by sending periodic probing requests to designated health endpoints and analyzing responses. The main service in this process is [IActiveHealthMonitor](xref:Microsoft.ReverseProxy.Service.HealthChecks.IActiveHealthMonitor) that periodically creates probing requests via [IProbingRequestFactory](xref:Microsoft.ReverseProxy.Service.HealthChecks.IProbingRequestFactory), sends them to all [Destinations](xref:Microsoft.ReverseProxy.Abstractions.Destination) of each [Cluster](xref:Microsoft.ReverseProxy.Abstractions.Cluster) with enabled active health checks and then passes all the responses down to a [IActiveHealthCheckPolicy](xref:Microsoft.ReverseProxy.Service.HealthChecks.IActiveHealthCheckPolicy) specified for a cluster. IActiveHealthMonitor doesn't make the actual decision on whether a destination is healthy or not, but delegates this duty to an IActiveHealthCheckPolicy specified for a cluster. A policy is called to evaluate the new health states once all probing of all cluster's destination completed. It takes in a [ClusterInfo](xref:Microsoft.ReverseProxy.RuntimeModel.ClusterInfo) representing the cluster's dynamic state and a set of [DestinationProbingResult](xref:Microsoft.ReverseProxy.Service.HealthChecks.DestinationProbingResult) storing cluster's destinations' probing results. Having evaluated a new health state for each destination, the policy actually updates [DestinationHealthState.Active](xref:Microsoft.ReverseProxy.RuntimeModel.DestinationHealthState.Active) value.
+
+```
+-{For each cluster's destination}-
+IActiveHealthMonitor <--(Create probing request)--> IProbingRequestFactory
+        |
+        V
+ HttpMessageInvoker <--(Send probe and receive response)--> Destination
+        |
+(Save probing result)
+        |
+        V
+DestinationProbingResult
+--------------{END}---------------
+        |
+(Evaluate new destination health states using probing results)
+        |
+        V
+IActiveHealthCheckPolicy --(update for each)--> DestinationInfo.DynamicState.Health.Active
+```
 
 There are default built-in implementation for all of the aforementioned components which can also be replaced with custom ones when necessary.
 
@@ -15,7 +34,9 @@ The policy parameters are set in the cluster's metadata as follows:
 ### Configuration
 All but one of active health check settings are specified on the cluster level in `Cluster/HealthCheck` section. The only exception is an optional `Destination/Health` element specifying a separate active health check endpoint. The actual health probing URI is constructed as `Destination/Address` (or `Destination/Health` when it's set) + `Cluster/HealthCheck/Path`.
 
-`Cluster/HealthCheck` section:
+Active health check settings can also be defined in code via the corresponding types in [Microsoft.ReverseProxy.Abstractions](xref:Microsoft.ReverseProxy.Abstractions) namespace mirroring the configuration contract.
+
+`Cluster/HealthCheck/Active` section and [ActiveHealthCheckOptions](xref:Microsoft.ReverseProxy.Abstractions.ActiveHealthCheckOptions):
 
 - `Enabled` - flag indicating whether active health check is enabled for a cluster. Default `false`
 - `Interval` - period of sending health probing requests. Default `00:00:15`
@@ -23,7 +44,7 @@ All but one of active health check settings are specified on the cluster level i
 - `Policy` - name of a policy evaluating destinations' active health states. Mandatory parameter
 - `Path` -  health check path on all cluster's destinations. Default `null`.
 
-`Destination` section.
+`Destination` section and [Destination](xref:Microsoft.ReverseProxy.Abstractions.Destination).
 
 - `Health` - A dedicated health probing endpoint such as `http://destination:12345/`. Defaults `null` and falls back to `Destination/Address`.
 
@@ -58,10 +79,8 @@ All but one of active health check settings are specified on the cluster level i
       }
 ```
 
-### Code configuration
-Active health check configuration can also be specified in code.
+#### Code configuration example
 
-#### Example
 ```C#
 var clusters = new[]
 {
