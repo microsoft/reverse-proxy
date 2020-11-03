@@ -11,6 +11,6 @@ namespace Microsoft.ReverseProxy.Telemetry
         RequestContentTransferStop,
         ResponseContentTransferStart,
         ResponseContentTransferStop,
-        ResponseUpgradeStart,
+        ResponseUpgrade,
     }
 }

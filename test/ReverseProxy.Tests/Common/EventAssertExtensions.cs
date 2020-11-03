@@ -19,7 +19,7 @@ namespace Microsoft.ReverseProxy.Common.Tests
                 .Select(e =>
                 {
                     var stage = (ProxyStage)Assert.Single(e.Payload);
-                    Assert.InRange(stage, ProxyStage.SendAsyncStart, ProxyStage.ResponseUpgradeStart);
+                    Assert.InRange(stage, ProxyStage.SendAsyncStart, ProxyStage.ResponseUpgrade);
                     return (stage, e.TimeStamp);
                 })
                 .ToArray();
@@ -43,7 +43,7 @@ namespace Microsoft.ReverseProxy.Common.Tests
 
             if (upgrade)
             {
-                stages.Add(ProxyStage.ResponseUpgradeStart);
+                stages.Add(ProxyStage.ResponseUpgrade);
             }
 
             events.AssertContainProxyStages(stages.ToArray());

@@ -569,7 +569,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         private async Task HandleUpgradedResponse(HttpContext context, IHttpUpgradeFeature upgradeFeature, HttpResponseMessage destinationResponse,
             CancellationToken longCancellation)
         {
-            ProxyTelemetry.Log.ProxyStage(ProxyStage.ResponseUpgradeStart);
+            ProxyTelemetry.Log.ProxyStage(ProxyStage.ResponseUpgrade);
 
             // SocketHttpHandler and similar transports always provide an HttpContent object, even if it's empty.
             // Note as of 5.0 HttpResponse.Content never returns null.
