@@ -4,7 +4,6 @@
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.ReverseProxy.Abstractions.Time;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service;
 using Microsoft.ReverseProxy.Service.Config;
@@ -51,13 +50,6 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
             builder.Services.TryAddSingleton<ILoadBalancer, LoadBalancer>();
             builder.Services.TryAddSingleton<IRandomFactory, RandomFactory>();
             builder.Services.AddHttpProxy();
-            return builder;
-        }
-
-        public static IReverseProxyBuilder AddBackgroundWorkers(this IReverseProxyBuilder builder)
-        {
-            builder.Services.TryAddSingleton<IMonotonicTimer, MonotonicTimer>();
-
             return builder;
         }
 

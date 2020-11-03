@@ -42,8 +42,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddSessionAffinityProvider()
                 .AddActiveHealthChecks()
                 .AddPassiveHealthCheck()
-                .AddProxy()
-                .AddBackgroundWorkers();
+                .AddProxy();
 
             services.AddDataProtection();
             services.AddAuthorization();
