@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Tracing;
 using System.IO;
 using System.IO.Pipelines;
 using System.Linq;
@@ -110,6 +111,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var proxyResponseText = StreamToString(proxyResponseStream);
             Assert.Equal("response content", proxyResponseText);
 
+            AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
             events.AssertContainProxyStages();
         }
 
@@ -210,6 +212,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var proxyResponseText = StreamToString(proxyResponseStream);
             Assert.Equal("response content", proxyResponseText);
 
+            AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
             events.AssertContainProxyStages();
         }
 
@@ -305,6 +308,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var proxyResponseText = StreamToString(proxyResponseStream);
             Assert.Equal("response content", proxyResponseText);
 
+            AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
             events.AssertContainProxyStages();
         }
 
@@ -377,6 +381,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
             Assert.Equal(234, httpContext.Response.StatusCode);
 
+            AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
             events.AssertContainProxyStages(hasRequestContent: false);
         }
 
@@ -449,6 +454,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var sentToUpstream = StreamToString(upstreamStream.WriteStream);
             Assert.Equal("request content", sentToUpstream);
 
+            AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
             events.AssertContainProxyStages(upgrade: true);
         }
 
@@ -513,6 +519,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var proxyResponseText = StreamToString(proxyResponseStream);
             Assert.Equal("response content", proxyResponseText);
 
+            AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
             events.AssertContainProxyStages(hasRequestContent: false, upgrade: false);
         }
 
@@ -567,6 +574,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
 
+            AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
             events.AssertContainProxyStages(hasRequestContent: false);
         }
 
@@ -616,6 +624,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
 
+            AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
             events.AssertContainProxyStages();
         }
 
@@ -655,6 +664,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.Null(httpContext.Features.Get<IProxyErrorFeature>());
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
 
+            AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
             events.AssertContainProxyStages(hasRequestContent: false);
         }
 
@@ -700,6 +710,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.Null(httpContext.Features.Get<IProxyErrorFeature>());
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
 
+            AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
             events.AssertContainProxyStages(hasRequestContent: false);
         }
 
@@ -762,6 +773,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.Null(httpContext.Features.Get<IProxyErrorFeature>());
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
 
+            AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
             events.AssertContainProxyStages(hasRequestContent: false);
         }
 
@@ -793,6 +805,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.Equal(ProxyError.Request, errorFeature.Error);
             Assert.IsType<HttpRequestException>(errorFeature.Exception);
 
+            AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
             events.AssertContainProxyStages(new[] { ProxyStage.SendAsyncStart });
         }
 
@@ -826,6 +839,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.Equal(ProxyError.Request, errorFeature.Error);
             Assert.IsType<HttpRequestException>(errorFeature.Exception);
 
+            AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
             events.AssertContainProxyStages(new[] { ProxyStage.SendAsyncStart });
         }
 
@@ -864,6 +878,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.Equal(ProxyError.RequestTimedOut, errorFeature.Error);
             Assert.IsType<OperationCanceledException>(errorFeature.Exception);
 
+            AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
             events.AssertContainProxyStages(new[] { ProxyStage.SendAsyncStart });
         }
 
@@ -897,6 +912,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.Equal(ProxyError.RequestCanceled, errorFeature.Error);
             Assert.IsType<OperationCanceledException>(errorFeature.Exception);
 
+            AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
             events.AssertContainProxyStages(new[] { ProxyStage.SendAsyncStart });
         }
 
@@ -937,6 +953,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.Equal(ProxyError.RequestTimedOut, errorFeature.Error);
             Assert.IsType<OperationCanceledException>(errorFeature.Exception);
 
+            AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
             events.AssertContainProxyStages(new[] { ProxyStage.SendAsyncStart });
         }
 
@@ -972,6 +989,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.Equal(ProxyError.RequestCanceled, errorFeature.Error);
             Assert.IsType<OperationCanceledException>(errorFeature.Exception);
 
+            AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
             events.AssertContainProxyStages(new[] { ProxyStage.SendAsyncStart });
         }
 
@@ -1007,6 +1025,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.Equal(ProxyError.RequestBodyClient, errorFeature.Error);
             Assert.IsType<AggregateException>(errorFeature.Exception);
 
+            AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
             events.AssertContainProxyStages(new[] {
                 ProxyStage.SendAsyncStart,
                 ProxyStage.RequestContentTransferStart,
@@ -1046,6 +1065,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.Equal(ProxyError.RequestBodyDestination, errorFeature.Error);
             Assert.IsType<AggregateException>(errorFeature.Exception);
 
+            AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
             events.AssertContainProxyStages(new[] {
                 ProxyStage.SendAsyncStart,
                 ProxyStage.RequestContentTransferStart,
@@ -1090,6 +1110,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.Equal(ProxyError.RequestBodyCanceled, errorFeature.Error);
             Assert.IsType<AggregateException>(errorFeature.Exception);
 
+            AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
             events.AssertContainProxyStages(new[] { ProxyStage.SendAsyncStart });
         }
 
@@ -1127,6 +1148,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.Equal(ProxyError.ResponseBodyDestination, errorFeature.Error);
             Assert.IsType<IOException>(errorFeature.Exception);
 
+            AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
             events.AssertContainProxyStages(hasRequestContent: false);
         }
 
@@ -1166,6 +1188,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.Equal(ProxyError.ResponseBodyDestination, errorFeature.Error);
             Assert.IsType<IOException>(errorFeature.Exception);
 
+            AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
             events.AssertContainProxyStages(hasRequestContent: false);
         }
 
@@ -1204,6 +1227,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.Equal(ProxyError.ResponseBodyClient, errorFeature.Error);
             Assert.IsType<IOException>(errorFeature.Exception);
 
+            AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
             events.AssertContainProxyStages(hasRequestContent: false);
         }
 
@@ -1243,6 +1267,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.Equal(ProxyError.ResponseBodyCanceled, errorFeature.Error);
             Assert.IsType<OperationCanceledException>(errorFeature.Exception);
 
+            AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
             events.AssertContainProxyStages(hasRequestContent: false);
         }
 
@@ -1282,6 +1307,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.Equal(ProxyError.ResponseBodyCanceled, errorFeature.Error);
             Assert.IsType<OperationCanceledException>(errorFeature.Exception);
 
+            AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
             events.AssertContainProxyStages(hasRequestContent: false);
         }
 
@@ -1329,6 +1355,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.Equal(ProxyError.RequestBodyCanceled, errorFeature.Error);
             Assert.IsType<OperationCanceledException>(errorFeature.Exception);
 
+            AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
             events.AssertContainProxyStages();
         }
 
@@ -1369,6 +1396,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.Equal(ProxyError.RequestBodyClient, errorFeature.Error);
             Assert.IsType<IOException>(errorFeature.Exception);
 
+            AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
             events.AssertContainProxyStages();
         }
 
@@ -1409,6 +1437,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.Equal(ProxyError.RequestBodyDestination, errorFeature.Error);
             Assert.IsType<IOException>(errorFeature.Exception);
 
+            AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
             events.AssertContainProxyStages();
         }
 
@@ -1434,6 +1463,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             upgradeFeatureMock.Setup(u => u.UpgradeAsync()).ReturnsAsync(downstreamStream);
             httpContext.Features.Set(upgradeFeatureMock.Object);
 
+            var destinationPrefix = "https://localhost/";
             var sut = CreateProxy();
             var client = MockHttpHandler.CreateClient(
                 (HttpRequestMessage request, CancellationToken cancellationToken) =>
@@ -1456,13 +1486,14 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     return Task.FromResult(response);
                 });
 
-            await sut.ProxyAsync(httpContext, "https://localhost/", client, new RequestProxyOptions());
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions());
 
             Assert.Equal(StatusCodes.Status101SwitchingProtocols, httpContext.Response.StatusCode);
             var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
             Assert.Equal(ProxyError.UpgradeRequestClient, errorFeature.Error);
             Assert.IsType<IOException>(errorFeature.Exception);
 
+            AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
             events.AssertContainProxyStages(upgrade: true);
         }
 
@@ -1493,6 +1524,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             upgradeFeatureMock.Setup(u => u.UpgradeAsync()).ReturnsAsync(downstreamStream);
             httpContext.Features.Set(upgradeFeatureMock.Object);
 
+            var destinationPrefix = "https://localhost/";
             var sut = CreateProxy();
             var client = MockHttpHandler.CreateClient(
                 (HttpRequestMessage request, CancellationToken cancellationToken) =>
@@ -1510,14 +1542,45 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     return Task.FromResult(response);
                 });
 
-            await sut.ProxyAsync(httpContext, "https://localhost/", client, new RequestProxyOptions());
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions());
 
             Assert.Equal(StatusCodes.Status101SwitchingProtocols, httpContext.Response.StatusCode);
             var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
             Assert.Equal(ProxyError.UpgradeResponseDestination, errorFeature.Error);
             Assert.IsType<IOException>(errorFeature.Exception);
 
+            AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
             events.AssertContainProxyStages(upgrade: true);
+        }
+
+        private static void AssertProxyStartStop(List<EventWrittenEventArgs> events, string destinationPrefix, int statusCode)
+        {
+            AssertProxyStartFailedStop(events, destinationPrefix, statusCode, error: null);
+        }
+
+        private static void AssertProxyStartFailedStop(List<EventWrittenEventArgs> events, string destinationPrefix, int statusCode, ProxyError? error)
+        {
+            var start = Assert.Single(events, e => e.EventName == "ProxyStart");
+            var prefixActual = (string)Assert.Single(start.Payload);
+            Assert.Equal(destinationPrefix, prefixActual);
+
+            var stop = Assert.Single(events, e => e.EventName == "ProxyStop");
+            var statusActual = (int)Assert.Single(stop.Payload);
+            Assert.Equal(statusCode, statusActual);
+            Assert.True(start.TimeStamp <= stop.TimeStamp);
+
+            if (error is null)
+            {
+                Assert.DoesNotContain(events, e => e.EventName == "ProxyFailed");
+            }
+            else
+            {
+                var failed = Assert.Single(events, e => e.EventName == "ProxyFailed");
+                var errorActual = (ProxyError)Assert.Single(failed.Payload);
+                Assert.Equal(error.Value, errorActual);
+                Assert.True(start.TimeStamp <= failed.TimeStamp);
+                Assert.True(failed.TimeStamp <= stop.TimeStamp);
+            }
         }
 
         private static MemoryStream StringToStream(string text)
