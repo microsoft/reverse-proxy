@@ -17,7 +17,7 @@ IActiveHealthMonitor <--(Create probing request)--> IProbingRequestFactory
 DestinationProbingResult
 --------------{END}---------------
         |
-(Evaluate new destination health states using probing results)
+(Evaluate new destination active health states using probing results)
         |
         V
 IActiveHealthCheckPolicy --(update for each)--> DestinationInfo.DynamicState.Health.Active
@@ -32,7 +32,7 @@ The policy parameters are set in the cluster's metadata as follows:
 `ConsecutiveFailuresHealthPolicy.Threshold` - number of consecutively failed active health probing requests required to mark a destination as unhealthy. Default `2`.
 
 ### Configuration
-All but one of active health check settings are specified on the cluster level in `Cluster/HealthCheck` section. The only exception is an optional `Destination/Health` element specifying a separate active health check endpoint. The actual health probing URI is constructed as `Destination/Address` (or `Destination/Health` when it's set) + `Cluster/HealthCheck/Path`.
+All but one of active health check settings are specified on the cluster level in `Cluster/HealthCheck/Active` section. The only exception is an optional `Destination/Health` element specifying a separate active health check endpoint. The actual health probing URI is constructed as `Destination/Address` (or `Destination/Health` when it's set) + `Cluster/HealthCheck/Path`.
 
 Active health check settings can also be defined in code via the corresponding types in [Microsoft.ReverseProxy.Abstractions](xref:Microsoft.ReverseProxy.Abstractions) namespace mirroring the configuration contract.
 
@@ -103,6 +103,90 @@ var clusters = new[]
         {
             { "destination1", new Destination() { Address = "https://localhost:10000" } },
             { "destination2", new Destination() { Address = "https://localhost:10010", Health = "https://localhost:10010" } }
+        }
+    }
+};
+```
+
+## Passive health checks
+YARP can reactively watch for client request proxying results analyzing successes and failures to passively evaluate destination health states. The main component is [PassiveHealthCheckMiddleware](xref:Microsoft.ReverseProxy.Middleware.PassiveHealthCheckMiddleware) sitting on the request pipeline just after [ProxyInvokerMiddleware](xref:Microsoft.ReverseProxy.Middleware.ProxyInvokerMiddleware) and analyzing responses returned by destinations. For each response from a destination belonging to a cluster with enabled passive health checks, that ProxyInvokerMiddleware invokes an [IPassiveHealthCheckPolicy](xref:Microsoft.ReverseProxy.Service.HealthChecks.IPassiveHealthCheckPolicy) specified for the cluster. The policy analyzes the given response, evaluates a new destination's passive health state and updates [DestinationHealthState.Passive](xref:Microsoft.ReverseProxy.RuntimeModel.DestinationHealthState.Passive) value. When a destination gets marked as unhealthy, it stops receiving new requests until it gets reactivated after a configured period. Reactivation means DestinationHealthState.Passive value is reset from `Unhealthy` to `Unknown` that brings the destination back on the healthy destination list. The policy schedules a destinaton's reactivation with [IReactivationScheduler](xref:Microsoft.ReverseProxy.Service.HealthChecks.IReactivationScheduler) right after setting its `DestinationHealthState.Passive` to `Unhealthy`.
+
+```
+          ProxyInvokerMiddleware
+                  |
+      (respose to a proxied request)
+      PassiveHealthCheckMiddleware
+                  |
+(evaluate new destination's passive health state)
+                  |
+                  V
+      IPassiveHealthCheckPolicy --(update)--> DestinationInfo.DynamicState.Health.Passive
+                  |
+      (schedule a reactivation)
+                  |
+                  V
+        IReactivationScheduler --(set to Unknown)--> DestinationInfo.DynamicState.Health.Passive
+```
+
+### Configuration
+Passive health check settings are specified on the cluster level in `Cluster/HealthCheck/Passive` section. Alternatively, they can be defined in code via the corresponding types in [Microsoft.ReverseProxy.Abstractions](xref:Microsoft.ReverseProxy.Abstractions) namespace mirroring the configuration contract.
+
+`Cluster/HealthCheck/Passive` section and [PassiveHealthCheckOptions](xref:Microsoft.ReverseProxy.Abstractions.PassiveHealthCheckOptions):
+
+- `Enabled` - flag indicating whether passive health check is enabled for a cluster. Default `false`
+- `Policy` - name of a policy evaluating destinations' passive health states. Mandatory parameter
+- `ReactivationPeriod` - period after which an unhealthy destination's passive health state is reset to `Unknown` and it starts receiving traffic again. Default value is `null` which means the period will be set by a IPassiveHealthCheckPolicy
+
+#### Example
+```JSON
+"Clusters": {
+      "cluster1": {
+        "LoadBalancing": {
+          "Mode": "Random"
+        },
+        "HealthCheck": {
+          "Passive": {
+            "Enabled": "true",
+            "Policy": "TransportFailureRate",
+            "ReactivationPeriod": "00:02:00"
+          }
+        },
+        "Metadata": {
+          "TransportFailureRateHealthPolicy.RateLimit": "0.5"
+        },
+        "Destinations": {
+          "cluster1/destination1": {
+            "Address": "https://localhost:10000/"
+          },
+          "cluster1/destination2": {
+            "Address": "http://localhost:10010/"
+          }
+        }
+      }
+```
+
+#### Code configuration example
+
+```C#
+var clusters = new[]
+{
+    new Cluster()
+    {
+        Id = "cluster1",
+        HealthCheck = new HealthCheckOptions
+        {
+            Passive = new PassiveHealthCheckOptions
+            {
+                Enabled = true,
+                Policy = HealthCheckConstants.PassivePolicy.TransportFailureRate,
+                ReactivationPeriod = TimeSpan.FromMinutes(2)
+            }
+        },
+        Metadata = new Dictionary<string, string> { { TransportFailureRateHealthPolicyOptions.FailureRateLimitMetadataName, "0.5" } },
+        Destinations =
+        {
+            { "destination1", new Destination() { Address = "https://localhost:10000" } },
+            { "destination2", new Destination() { Address = "https://localhost:10010" } }
         }
     }
 };
