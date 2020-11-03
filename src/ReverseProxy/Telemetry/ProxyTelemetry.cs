@@ -5,9 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Diagnostics.Tracing;
 using System.Threading;
-using Microsoft.AspNetCore.Http;
-using Microsoft.ReverseProxy.Middleware;
-using Microsoft.ReverseProxy.RuntimeModel;
+using Microsoft.ReverseProxy.Service.Proxy;
 
 namespace Microsoft.ReverseProxy.Telemetry
 {
@@ -29,28 +27,11 @@ namespace Microsoft.ReverseProxy.Telemetry
         { }
 
         [Event(1, Level = EventLevel.Informational)]
-        private void ProxyStart(string clusterId, string routeId, string destinationId)
+        public void ProxyStart(string destinationPrefix)
         {
-            WriteEvent(eventId: 1, clusterId, routeId, destinationId);
-        }
-
-        [NonEvent]
-        public void ProxyStart(HttpContext context)
-        {
-            Interlocked.Increment(ref _startedRequests);
-
             if (IsEnabled(EventLevel.Informational, EventKeywords.All))
             {
-                var routeConfig = context.GetEndpoint()?.Metadata.GetMetadata<RouteConfig>();
-                var cluserId = routeConfig?.Cluster.ClusterId;
-                var routeId = routeConfig?.Route.RouteId;
-
-                var destinations = context.Features.Get<IReverseProxyFeature>()?.AvailableDestinations;
-                var destinationId = destinations != null && destinations.Count != 0
-                    ? destinations[0].DestinationId
-                    : null;
-
-                ProxyStart(cluserId, routeId, destinationId);
+                WriteEvent(eventId: 1, destinationPrefix);
             }
         }
 
@@ -65,40 +46,43 @@ namespace Microsoft.ReverseProxy.Telemetry
             }
         }
 
-        // PR REVIEW:
-        // Should this be an event?
-        // Runtime has a Start/Failed/Stop pattern, AspNetCore only counts failed
-        [NonEvent]
-        public void ProxyFailed()
+        [Event(3, Level = EventLevel.Informational)]
+        public void ProxyFailed(ProxyError error)
         {
             Interlocked.Increment(ref _failedRequests);
+
+            if (IsEnabled(EventLevel.Informational, EventKeywords.All))
+            {
+                Debug.Assert(sizeof(ProxyError) == sizeof(int), "Backing type of ProxyError MUST NOT be changed");
+                WriteEvent(eventId: 3, (int)error);
+            }
         }
 
-        [Event(3, Level = EventLevel.Informational)]
+        [Event(4, Level = EventLevel.Informational)]
         public void ProxyStage(ProxyStage stage)
         {
             if (IsEnabled(EventLevel.Informational, EventKeywords.All))
             {
                 Debug.Assert(sizeof(ProxyStage) == sizeof(int), "Backing type of ProxyStage MUST NOT be changed");
-                WriteEvent(eventId: 3, (int)stage);
-            }
-        }
-
-        [Event(4, Level = EventLevel.Informational)]
-        public void ContentTransferring(bool isRequest, long contentLength, long iops, long readTime, long writeTime)
-        {
-            if (IsEnabled(EventLevel.Informational, EventKeywords.All))
-            {
-                WriteEvent(eventId: 4, isRequest, contentLength, iops, readTime, writeTime);
+                WriteEvent(eventId: 4, (int)stage);
             }
         }
 
         [Event(5, Level = EventLevel.Informational)]
+        public void ContentTransferring(bool isRequest, long contentLength, long iops, long readTime, long writeTime)
+        {
+            if (IsEnabled(EventLevel.Informational, EventKeywords.All))
+            {
+                WriteEvent(eventId: 5, isRequest, contentLength, iops, readTime, writeTime);
+            }
+        }
+
+        [Event(6, Level = EventLevel.Informational)]
         public void ContentTransferred(bool isRequest, long contentLength, long iops, long readTime, long writeTime, long firstReadTime)
         {
             if (IsEnabled(EventLevel.Informational, EventKeywords.All))
             {
-                WriteEvent(eventId: 5, isRequest, contentLength, iops, readTime, writeTime, firstReadTime);
+                WriteEvent(eventId: 6, isRequest, contentLength, iops, readTime, writeTime, firstReadTime);
             }
         }
 

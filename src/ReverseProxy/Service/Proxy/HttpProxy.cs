@@ -98,7 +98,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             _ = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _ = proxyOptions ?? throw new ArgumentNullException(nameof(proxyOptions));
 
-            ProxyTelemetry.Log.ProxyStart(context);
+            ProxyTelemetry.Log.ProxyStart(destinationPrefix);
             try
             {
                 var requestAborted = context.RequestAborted;
@@ -141,19 +141,16 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                     {
                         ReportProxyError(context, ProxyError.RequestTimedOut, canceledException);
                         context.Response.StatusCode = StatusCodes.Status504GatewayTimeout;
-                        ProxyTelemetry.Log.ProxyFailed();
                         return;
                     }
 
                     ReportProxyError(context, ProxyError.RequestCanceled, canceledException);
                     context.Response.StatusCode = StatusCodes.Status502BadGateway;
-                    ProxyTelemetry.Log.ProxyFailed();
                     return;
                 }
                 catch (Exception requestException)
                 {
                     await HandleRequestFailureAsync(context, requestContent, requestException);
-                    ProxyTelemetry.Log.ProxyFailed();
                     return;
                 }
                 finally
@@ -205,7 +202,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 if (responseBodyCopyResult != StreamCopyResult.Success)
                 {
                     await HandleResponseBodyErrorAsync(context, requestContent, responseBodyCopyResult, responseBodyException);
-                    ProxyTelemetry.Log.ProxyFailed();
                     return;
                 }
 
@@ -243,11 +239,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                         ReportProxyError(context, error, requestBodyException);
                     }
                 }
-            }
-            catch
-            {
-                ProxyTelemetry.Log.ProxyFailed();
-                throw;
             }
             finally
             {
@@ -623,7 +614,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                     _ => throw new NotImplementedException(result.ToString()),
                 };
                 ReportProxyError(context, error, exception);
-                ProxyTelemetry.Log.ProxyFailed();
             }
         }
 
@@ -777,6 +767,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         {
             context.Features.Set<IProxyErrorFeature>(new ProxyErrorFeature(error, ex));
             Log.ErrorProxying(_logger, error, ex);
+            ProxyTelemetry.Log.ProxyFailed(error);
         }
 
         private static void ResetOrAbort(HttpContext context, bool isCancelled)
