@@ -43,7 +43,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         }
 
         /// <summary>
-        /// Encapsulates parts of an destination that can change atomically
+        /// Encapsulates parts of an destination that can change
         /// in reaction to runtime state changes (e.g. endpoint health states).
         /// </summary>
         public DestinationDynamicState DynamicState { get; } = new DestinationDynamicState();

@@ -39,7 +39,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             {
                 destination.DynamicState.Health.Passive = DestinationHealth.Unknown;
                 Log.PassiveDestinationHealthResetToUnkownState(_logger, destination.DestinationId);
-                // TODO: Update cluster
+                // TODO: Update cluster by calling cluster.UpdateDynamicState()
             }
 
             return Task.CompletedTask;

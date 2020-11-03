@@ -4,7 +4,7 @@
 namespace Microsoft.ReverseProxy.RuntimeModel
 {
     /// <summary>
-    /// Composite destination health combining the passive and active health states.
+    /// Tracks destination passive and active health states.
     /// </summary>
     public class DestinationHealthState
     {
