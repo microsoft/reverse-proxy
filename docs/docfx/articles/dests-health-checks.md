@@ -1,4 +1,4 @@
-# Destinations health checks
+# Destination health checks
 In most of the real-world systems, it's expected for their nodes to occasionally experience transient issues and go down completely due to a variety of reasons such as an overload, resource leakage, hardware failures, etc. Ideally, it'd be desirable to completely prevent those unfornunate events from occuring in a proactive way, but the cost of desiging and building such an ideal system is generally prohibitively high. However, there is another reactive approach which is cheaper and aimed to minimizing a negative impact failures cause on client requests by constantly analyzing nodes health and stopping sending client traffic to ones became unhealthy until they have recovered. YARP implements this apporach in the form of active and passive destination health checks.
 
 ## Active health checks
