@@ -8,10 +8,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Management;
-using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 using Microsoft.ReverseProxy.Service.SessionAffinity;
-using Microsoft.ReverseProxy.Signals;
 using Moq;
 
 namespace Microsoft.ReverseProxy.Middleware
@@ -19,16 +17,19 @@ namespace Microsoft.ReverseProxy.Middleware
     public abstract class AffinityMiddlewareTestBase
     {
         protected const string AffinitizedDestinationName = "dest-B";
-        protected readonly IReadOnlyList<DestinationInfo> Destinations = new[] { new DestinationInfo("dest-A"), new DestinationInfo(AffinitizedDestinationName), new DestinationInfo("dest-C") };
         protected readonly ClusterConfig ClusterConfig = new ClusterConfig(default, default, default, new ClusterSessionAffinityOptions(true, "Mode-B", "Policy-1", null),
             new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object), default, default, new Dictionary<string, string>());
 
         internal ClusterInfo GetCluster()
         {
-            var destinationManager = new Mock<IDestinationManager>();
-            destinationManager.SetupGet(m => m.Items).Returns(SignalFactory.Default.CreateSignal(Destinations));
-            var cluster = new ClusterInfo("cluster-1", destinationManager.Object);
-            cluster.ConfigSignal.Value = ClusterConfig;
+            var destinationManager = new DestinationManager();
+            destinationManager.GetOrCreateItem("dest-A", d => { });
+            destinationManager.GetOrCreateItem(AffinitizedDestinationName, d => { });
+            destinationManager.GetOrCreateItem("dest-C", d => { });
+
+            var cluster = new ClusterInfo("cluster-1", destinationManager);
+            cluster.Config = ClusterConfig;
+            cluster.UpdateDynamicState();
             return cluster;
         }
 

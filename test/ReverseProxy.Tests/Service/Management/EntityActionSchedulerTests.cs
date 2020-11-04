@@ -219,7 +219,7 @@ namespace Microsoft.ReverseProxy.Service.Management
             Assert.Same(entity, lastInvokedEntity);
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/microsoft/reverse-proxy/issues/508")]
         public void ChangePeriod_TimerStartedPeriodDecreasedAfterFirstCall_PeriodChangedBeforeNextCall()
         {
             var invoked = new AutoResetEvent(false);

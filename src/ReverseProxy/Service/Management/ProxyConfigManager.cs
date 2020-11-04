@@ -334,8 +334,10 @@ namespace Microsoft.ReverseProxy.Service.Management
                             }
 
                             // Config changed, so update runtime cluster
-                            currentCluster.ConfigSignal.Value = newClusterConfig;
+                            currentCluster.Config = newClusterConfig;
                         }
+
+                        currentCluster.UpdateDynamicState();
                     });
             }
 
@@ -365,7 +367,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                     itemId: newDestination.Key,
                     setupAction: destination =>
                     {
-                        var destinationConfig = destination.ConfigSignal.Value;
+                        var destinationConfig = destination.Config;
                         if (destinationConfig?.Address != newDestination.Value.Address || destinationConfig?.Health != newDestination.Value.Health)
                         {
                             if (destinationConfig == null)
@@ -376,7 +378,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                             {
                                 Log.DestinationChanged(_logger, newDestination.Key);
                             }
-                            destination.ConfigSignal.Value = new DestinationConfig(newDestination.Value.Address, newDestination.Value.Health);
+                            destination.Config = new DestinationConfig(newDestination.Value.Address, newDestination.Value.Health);
                         }
                     });
             }
@@ -415,7 +417,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                     itemId: configRoute.RouteId,
                     setupAction: route =>
                     {
-                        var currentRouteConfig = route.Config.Value;
+                        var currentRouteConfig = route.Config;
                         if (currentRouteConfig == null ||
                             currentRouteConfig.HasConfigChanged(configRoute, cluster))
                         {
@@ -431,7 +433,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                             }
 
                             var newConfig = _routeEndpointBuilder.Build(configRoute, cluster, route);
-                            route.Config.Value = newConfig;
+                            route.Config = newConfig;
                         }
                     });
             }
@@ -457,7 +459,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                 var endpoints = new List<Endpoint>();
                 foreach (var existingRoute in _routeManager.GetItems())
                 {
-                    var runtimeConfig = existingRoute.Config.Value;
+                    var runtimeConfig = existingRoute.Config;
                     if (runtimeConfig?.Endpoints != null)
                     {
                         endpoints.AddRange(runtimeConfig.Endpoints);

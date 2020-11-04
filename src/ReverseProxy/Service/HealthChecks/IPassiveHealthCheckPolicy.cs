@@ -18,7 +18,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         string Name { get; }
 
         /// <summary>
-        /// Registers a successful or failed request and evaluates a new <see cref="CompositeDestinationHealth.Passive"/> value.
+        /// Registers a successful or failed request and evaluates a new <see cref="DestinationHealthState.Passive"/> value.
         /// </summary>
         /// <param name="cluster">Request's cluster.</param>
         /// <param name="destination">Request's destination.</param>

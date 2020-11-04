@@ -4,8 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.ReverseProxy.Utilities;
-using Microsoft.ReverseProxy.Signals;
 
 namespace Microsoft.ReverseProxy.Service.Management
 {
@@ -14,10 +12,10 @@ namespace Microsoft.ReverseProxy.Service.Management
     {
         private readonly object _lockObject = new object();
         private readonly Dictionary<string, T> _items = new Dictionary<string, T>(StringComparer.OrdinalIgnoreCase);
-        private readonly Signal<IReadOnlyList<T>> _signal = SignalFactory.Default.CreateSignal<IReadOnlyList<T>>(new List<T>().AsReadOnly());
+        private volatile IReadOnlyList<T> _snapshot = Array.Empty<T>();
 
         /// <inheritdoc/>
-        public IReadableSignal<IReadOnlyList<T>> Items => _signal;
+        public IReadOnlyList<T> Items => _snapshot;
 
         /// <inheritdoc/>
         public T TryGetItem(string itemId)
@@ -50,7 +48,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                 if (!existed)
                 {
                     _items.Add(itemId, item);
-                    UpdateSignal();
+                    UpdateSnapshot();
                 }
 
                 OnItemChanged(item, !existed);
@@ -79,7 +77,7 @@ namespace Microsoft.ReverseProxy.Service.Management
 
                 if (removed)
                 {
-                    UpdateSignal();
+                    UpdateSnapshot();
                     OnItemRemoved(removedItem);
                 }
 
@@ -98,9 +96,9 @@ namespace Microsoft.ReverseProxy.Service.Management
         protected virtual void OnItemRemoved(T item)
         {}
 
-        private void UpdateSignal()
+        private void UpdateSnapshot()
         {
-            _signal.Value = _items.Select(kvp => kvp.Value).ToList().AsReadOnly();
+            _snapshot = _items.Select(kvp => kvp.Value).ToList().AsReadOnly();
         }
     }
 }

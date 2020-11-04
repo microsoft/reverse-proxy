@@ -24,7 +24,7 @@ namespace Microsoft.ReverseProxy.Middleware
             const string expectedMode = "Mode-B";
             var providers = RegisterAffinityProviders(
                 false,
-                Destinations[1],
+                cluster.DestinationManager.Items[1],
                 cluster.ClusterId,
                 ("Mode-A", (AffinityStatus?)null, (DestinationInfo[])null, (Action<ISessionAffinityProvider>)(p => throw new InvalidOperationException($"Provider {p.Mode} call is not expected."))),
                 (expectedMode, (AffinityStatus?)null, (DestinationInfo[])null, (Action<ISessionAffinityProvider>)(p => invokedMode = p.Mode)));
@@ -37,7 +37,7 @@ namespace Microsoft.ReverseProxy.Middleware
                 new Mock<ILogger<AffinitizeRequestMiddleware>>().Object);
             var context = new DefaultHttpContext();
             context.Features.Set(cluster);
-            var destinationFeature = GetDestinationsFeature(Destinations[1], cluster.Config);
+            var destinationFeature = GetDestinationsFeature(cluster.DestinationManager.Items[1], cluster.Config);
             context.Features.Set(destinationFeature);
 
             await middleware.Invoke(context);
@@ -47,7 +47,7 @@ namespace Microsoft.ReverseProxy.Middleware
             providers[0].VerifyGet(p => p.Mode, Times.Once);
             providers[0].VerifyNoOtherCalls();
             providers[1].VerifyAll();
-            Assert.Same(destinationFeature.AvailableDestinations, Destinations[1]);
+            Assert.Same(destinationFeature.AvailableDestinations, cluster.DestinationManager.Items[1]);
         }
 
         [Fact]
@@ -58,8 +58,8 @@ namespace Microsoft.ReverseProxy.Middleware
             var invokedMode = string.Empty;
             const string expectedMode = "Mode-B";
             var providers = new[] {
-                GetProviderForRandomDestination("Mode-A", Destinations, p => throw new InvalidOperationException($"Provider {p.Mode} call is not expected.")),
-                GetProviderForRandomDestination(expectedMode, Destinations, p => invokedMode = p.Mode)
+                GetProviderForRandomDestination("Mode-A", cluster.DestinationManager.Items, p => throw new InvalidOperationException($"Provider {p.Mode} call is not expected.")),
+                GetProviderForRandomDestination(expectedMode, cluster.DestinationManager.Items, p => invokedMode = p.Mode)
             };
             var nextInvoked = false;
             var logger = AffinityTestHelper.GetLogger<AffinitizeRequestMiddleware>();
@@ -71,7 +71,7 @@ namespace Microsoft.ReverseProxy.Middleware
                 logger.Object);
             var context = new DefaultHttpContext();
             context.SetEndpoint(endpoint);
-            var destinationFeature = GetDestinationsFeature(Destinations, cluster.Config);
+            var destinationFeature = GetDestinationsFeature(cluster.DestinationManager.Items, cluster.Config);
             context.Features.Set(destinationFeature);
 
             await middleware.Invoke(context);
@@ -86,7 +86,7 @@ namespace Microsoft.ReverseProxy.Middleware
                 Times.Once);
             Assert.Equal(1, destinationFeature.AvailableDestinations.Count);
             var chosen = destinationFeature.AvailableDestinations[0];
-            var sameDestinationCount = Destinations.Count(d => chosen == d);
+            var sameDestinationCount = cluster.DestinationManager.Items.Count(d => chosen == d);
             Assert.Equal(1, sameDestinationCount);
         }
 
