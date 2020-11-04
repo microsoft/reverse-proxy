@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -118,6 +119,7 @@ namespace Microsoft.ReverseProxy.Service
 
             ValidateSessionAffinity(errors, cluster);
             ValidateProxyHttpClient(errors, cluster);
+            ValidateProxyHttpRequest(errors, cluster);
             ValidateActiveHealthCheck(errors, cluster);
             ValidatePassiveHealthCheck(errors, cluster);
 
@@ -319,6 +321,23 @@ namespace Microsoft.ReverseProxy.Service
             if (cluster.HttpClient.MaxConnectionsPerServer != null && cluster.HttpClient.MaxConnectionsPerServer <= 0)
             {
                 errors.Add(new ArgumentException($"Max connections per server limit set on the cluster '{cluster.Id}' must be positive."));
+            }
+        }
+
+        private void ValidateProxyHttpRequest(IList<Exception> errors, Cluster cluster)
+        {
+            if (cluster.HttpRequest == null)
+            {
+                // Proxy http request options are not set.
+                return;
+            }
+
+            if (cluster.HttpRequest.Version != null &&
+                cluster.HttpRequest.Version != HttpVersion.Version10 &&
+                cluster.HttpRequest.Version != HttpVersion.Version11 &&
+                cluster.HttpRequest.Version != HttpVersion.Version20)
+            {
+                errors.Add(new ArgumentException($"Outgoing request version '{cluster.HttpRequest.Version}' is not any of supported HTTP versions (1.0, 1.1 and 2)."));
             }
         }
 

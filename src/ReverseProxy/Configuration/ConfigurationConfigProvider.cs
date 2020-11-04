@@ -361,9 +361,16 @@ namespace Microsoft.ReverseProxy.Configuration
                 return null;
             }
 
+            // Parse version only if it contains any characters; otherwise, leave it null.
+            var version = default(Version);
+            if (!string.IsNullOrEmpty(data.Version))
+            {
+                version = Version.Parse(data.Version + (data.Version.Contains('.') ? "" : ".0"));
+            }
+
             return new ProxyHttpRequestOptions
             {
-                Version = Version.Parse(data.Version + (data.Version.Contains('.') ? "" : ".0")),
+                Version = version,
 #if NET
                 VersionPolicy = data.VersionPolicy,
 #endif
