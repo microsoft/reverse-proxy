@@ -17,17 +17,13 @@ namespace Microsoft.ReverseProxy.Telemetry
     /// </summary>
     internal sealed class DiagnosticsHandler : DelegatingHandler
     {
-        private readonly bool _injectHeaders;
-
         /// <summary>
         /// DiagnosticHandler constructor
         /// </summary>
         /// <param name="innerHandler">Inner handler: Windows or Unix implementation of HttpMessageHandler.
         /// Note that DiagnosticHandler is the latest in the pipeline </param>
-        /// <param name="injectHeaders">Indicates whether headers will be injected to enable distributed tracing.</param>
-        public DiagnosticsHandler(HttpMessageHandler innerHandler, bool injectHeaders) : base(innerHandler)
+        public DiagnosticsHandler(HttpMessageHandler innerHandler) : base(innerHandler)
         {
-            _injectHeaders = injectHeaders;
         }
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
@@ -68,12 +64,6 @@ namespace Microsoft.ReverseProxy.Telemetry
 
         private void InjectHeaders(Activity currentActivity, HttpRequestMessage request)
         {
-            if (!_injectHeaders)
-            {
-                // If we're not enabled we don't have anything to do here
-                return;
-            }
-
             if (currentActivity.IdFormat == ActivityIdFormat.W3C)
             {
                 request.Headers.Remove(DiagnosticsHandlerLoggingStrings.TraceParentHeaderName);

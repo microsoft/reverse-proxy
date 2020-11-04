@@ -66,7 +66,13 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
             }
 
             Log.ProxyClientCreated(_logger, context.ClusterId);
-            return new HttpMessageInvoker(new DiagnosticsHandler(handler, newClientOptions.PropagateActivityContext), disposeHandler: true);
+
+            if (newClientOptions.PropagateActivityContext)
+            {
+                return new HttpMessageInvoker(new DiagnosticsHandler(handler), disposeHandler: true);
+            }
+
+            return new HttpMessageInvoker(handler, disposeHandler: true);
         }
 
         private bool CanReuseOldClient(ProxyHttpClientContext context)

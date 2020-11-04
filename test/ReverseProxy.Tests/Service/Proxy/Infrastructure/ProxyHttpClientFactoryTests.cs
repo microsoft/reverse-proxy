@@ -189,9 +189,14 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         public static SocketsHttpHandler GetHandler(HttpMessageInvoker client)
         {
             var handlerFieldInfo = typeof(HttpMessageInvoker).GetFields(BindingFlags.Instance | BindingFlags.NonPublic).Single(f => f.Name == "_handler");
-            var diagnosticsHandler = (DiagnosticsHandler)handlerFieldInfo.GetValue(client);
-            var result = (SocketsHttpHandler)diagnosticsHandler.InnerHandler;
-            return result;
+            var handler = handlerFieldInfo.GetValue(client);
+
+            if (handler is DiagnosticsHandler diagnosticsHandler)
+            {
+                return (SocketsHttpHandler)diagnosticsHandler.InnerHandler;
+            }
+
+            return (SocketsHttpHandler)handler;
         }
 
         private void VerifyDefaultValues(SocketsHttpHandler actualHandler, params string[] skippedExtractors)
