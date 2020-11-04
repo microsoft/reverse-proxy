@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
@@ -31,13 +30,6 @@ namespace Microsoft.ReverseProxy.Telemetry
             _injectHeaders = injectHeaders;
         }
 
-        internal static bool IsEnabled()
-        {
-            // check if there is a parent Activity (and propagation is not suppressed)
-            // or if someone listens to HttpHandlerDiagnosticListener
-            return s_enableActivityPropagation && (Activity.Current != null || s_diagnosticListener.IsEnabled());
-        }
-
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
             CancellationToken cancellationToken)
         {
@@ -52,50 +44,6 @@ namespace Microsoft.ReverseProxy.Telemetry
                 throw new ArgumentNullException(nameof(request)); //, SR.net_http_handler_norequest); TODO: Is this really necessary?
             }
 
-            // Short-circuit to inner handler if we're not enabled at all
-            if (!IsEnabled())
-            {
-                return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
-            }
-
-            Activity activity = null;
-
-            // if there is no listener, but propagation is enabled (with previous IsEnabled() check)
-            // do not write any events just start/stop Activity and propagate Ids
-            if (!s_diagnosticListener.IsEnabled())
-            {
-                activity = new Activity(DiagnosticsHandlerLoggingStrings.ActivityName);
-                activity.Start();
-                InjectHeaders(activity, request);
-
-                try
-                {
-                    return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
-                }
-                finally
-                {
-                    activity.Stop();
-                }
-            }
-
-            var loggingRequestId = Guid.Empty;
-
-            // There is a listener. Check if listener wants to be notified about HttpClient Activities
-            if (s_diagnosticListener.IsEnabled(DiagnosticsHandlerLoggingStrings.ActivityName, request))
-            {
-                activity = new Activity(DiagnosticsHandlerLoggingStrings.ActivityName);
-
-                // Only send start event to users who subscribed for it, but start activity anyway
-                if (s_diagnosticListener.IsEnabled(DiagnosticsHandlerLoggingStrings.ActivityStartName))
-                {
-                    s_diagnosticListener.StartActivity(activity, new { Request = request });
-                }
-                else
-                {
-                    activity.Start();
-                }
-            }
-
             // If we are on at all, we propagate current activity information
             var currentActivity = Activity.Current;
             if (currentActivity != null)
@@ -103,10 +51,9 @@ namespace Microsoft.ReverseProxy.Telemetry
                 InjectHeaders(currentActivity, request);
             }
 
-            Task<HttpResponseMessage> responseTask = null;
             try
             {
-                responseTask = base.SendAsync(request, cancellationToken);
+                var responseTask = base.SendAsync(request, cancellationToken);
 
                 return await responseTask.ConfigureAwait(false);
             }
@@ -115,75 +62,21 @@ namespace Microsoft.ReverseProxy.Telemetry
                 // we'll report task status in HttpRequestOut.Stop
                 throw;
             }
-            catch (Exception ex)
-            {
-                if (s_diagnosticListener.IsEnabled(DiagnosticsHandlerLoggingStrings.ExceptionEventName))
-                {
-                    // If request was initially instrumented, Activity.Current has all necessary context for logging
-                    // Request is passed to provide some context if instrumentation was disabled and to avoid
-                    // extensive Activity.Tags usage to tunnel request properties
-                    s_diagnosticListener.Write(DiagnosticsHandlerLoggingStrings.ExceptionEventName, new { Exception = ex, Request = request });
-                }
-                throw;
-            }
-            finally
-            {
-                // always stop activity if it was started
-                if (activity != null)
-                {
-                    s_diagnosticListener.StopActivity(activity, new
-                    {
-                        Response = responseTask?.Status == TaskStatus.RanToCompletion ? responseTask.Result : null,
-                        // If request is failed or cancelled, there is no response, therefore no information about request;
-                        // pass the request in the payload, so consumers can have it in Stop for failed/canceled requests
-                        // and not retain all requests in Start
-                        Request = request,
-                        RequestTaskStatus = responseTask?.Status ?? TaskStatus.Faulted
-                    });
-                }
-            }
         }
 
         #region private
-
-        private const string EnableActivityPropagationEnvironmentVariableSettingName = "DOTNET_SYSTEM_NET_HTTP_ENABLEACTIVITYPROPAGATION";
-        private const string EnableActivityPropagationAppCtxSettingName = "System.Net.Http.EnableActivityPropagation";
-
-        private static readonly bool s_enableActivityPropagation = GetEnableActivityPropagationValue();
-
-        private static bool GetEnableActivityPropagationValue()
-        {
-            // First check for the AppContext switch, giving it priority over the environment variable.
-            if (AppContext.TryGetSwitch(EnableActivityPropagationAppCtxSettingName, out var enableActivityPropagation))
-            {
-                return enableActivityPropagation;
-            }
-
-            // AppContext switch wasn't used. Check the environment variable to determine which handler should be used.
-            var envVar = Environment.GetEnvironmentVariable(EnableActivityPropagationEnvironmentVariableSettingName);
-            if (envVar != null && (envVar.Equals("false", StringComparison.OrdinalIgnoreCase) || envVar.Equals("0")))
-            {
-                // Suppress Activity propagation.
-                return false;
-            }
-
-            // Defaults to enabling Activity propagation.
-            return true;
-        }
 
         private void InjectHeaders(Activity currentActivity, HttpRequestMessage request)
         {
             if (!_injectHeaders)
             {
+                // If we're not enabled we don't have anything to do here
                 return;
             }
 
             if (currentActivity.IdFormat == ActivityIdFormat.W3C)
             {
-                if (!string.IsNullOrEmpty(currentActivity.ParentId))
-                {
-                    request.Headers.Remove(DiagnosticsHandlerLoggingStrings.TraceParentHeaderName);
-                }
+                request.Headers.Remove(DiagnosticsHandlerLoggingStrings.TraceParentHeaderName);
 
                 if (!request.Headers.Contains(DiagnosticsHandlerLoggingStrings.TraceParentHeaderName))
                 {
@@ -196,10 +89,7 @@ namespace Microsoft.ReverseProxy.Telemetry
             }
             else
             {
-                if (!string.IsNullOrEmpty(currentActivity.ParentId))
-                {
-                    request.Headers.Remove(DiagnosticsHandlerLoggingStrings.RequestIdHeaderName);
-                }
+                request.Headers.Remove(DiagnosticsHandlerLoggingStrings.RequestIdHeaderName);
 
                 if (!request.Headers.Contains(DiagnosticsHandlerLoggingStrings.RequestIdHeaderName))
                 {
@@ -216,16 +106,13 @@ namespace Microsoft.ReverseProxy.Telemetry
                     do
                     {
                         var item = e.Current;
-                        baggage.Add(new NameValueHeaderValue(WebUtility.UrlEncode(item.Key), WebUtility.UrlEncode(item.Value)).ToString());
+                        baggage.Add(new NameValueHeaderValue(Uri.EscapeDataString(item.Key), Uri.EscapeDataString(item.Value)).ToString());
                     }
                     while (e.MoveNext());
                     request.Headers.TryAddWithoutValidation(DiagnosticsHandlerLoggingStrings.CorrelationContextHeaderName, baggage);
                 }
             }
         }
-
-        private static readonly DiagnosticListener s_diagnosticListener =
-            new DiagnosticListener(DiagnosticsHandlerLoggingStrings.DiagnosticListenerName);
 
         #endregion
     }
