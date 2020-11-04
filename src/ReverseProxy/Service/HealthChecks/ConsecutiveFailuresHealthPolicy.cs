@@ -31,38 +31,34 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 
         public void ProbingCompleted(ClusterInfo cluster, IReadOnlyList<DestinationProbingResult> probingResults)
         {
-            cluster.PauseHealthyDestinationUpdates();
-
-            try
+            var threshold = GetFailureThreshold(cluster);
+            var changed = false;
+            for (var i = 0; i < probingResults.Count; i++)
             {
-                var threshold = GetFailureThreshold(cluster);
+                var destination = probingResults[i].Destination;
 
-                for (var i = 0; i < probingResults.Count; i++)
+                var count = _failureCounters.GetOrCreateValue(destination);
+                var newHealth = EvaluateHealthState(threshold, probingResults[i].Response, count);
+
+                var healthState = destination.Health;
+                if (newHealth != healthState.Active)
                 {
-                    var destination = probingResults[i].Destination;
-
-                    var count = _failureCounters.GetOrCreateValue(destination);
-                    var newHealth = EvaluateHealthState(threshold, probingResults[i].Response, count);
-
-                    var state = destination.DynamicState;
-                    if (newHealth != state.Health.Active)
+                    healthState.Active = newHealth;
+                    changed = true;
+                    if (newHealth == DestinationHealth.Unhealthy)
                     {
-                        destination.DynamicState = new DestinationDynamicState(state.Health.ChangeActive(newHealth));
-
-                        if (newHealth == DestinationHealth.Unhealthy)
-                        {
-                            Log.ActiveDestinationHealthStateIsSetToUnhealthy(_logger, destination.DestinationId, cluster.ClusterId);
-                        }
-                        else
-                        {
-                            Log.ActiveDestinationHealthStateIsSet(_logger, destination.DestinationId, cluster.ClusterId, newHealth);
-                        }
+                        Log.ActiveDestinationHealthStateIsSetToUnhealthy(_logger, destination.DestinationId, cluster.ClusterId);
+                    }
+                    else
+                    {
+                        Log.ActiveDestinationHealthStateIsSet(_logger, destination.DestinationId, cluster.ClusterId, newHealth);
                     }
                 }
             }
-            finally
+
+            if (changed)
             {
-                cluster.ResumeHealthyDestinationUpdates();
+                cluster.UpdateDynamicState();
             }
         }
 

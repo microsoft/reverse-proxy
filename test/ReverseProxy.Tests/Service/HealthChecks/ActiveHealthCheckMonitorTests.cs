@@ -174,12 +174,12 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             VerifySentProbeAndResult(cluster0, httpClient0, policy0, new[] { ("https://localhost:20000/cluster0/api/health/", 1), ("https://localhost:20001/cluster0/api/health/", 1) }, policyCallTimes: 1);
             VerifySentProbeAndResult(cluster2, httpClient2, policy1, new[] { ("https://localhost:20000/cluster2/api/health/", 1), ("https://localhost:20001/cluster2/api/health/", 1) }, policyCallTimes: 1);
 
-            foreach (var destination in cluster2.DestinationManager.Items.Value)
+            foreach (var destination in cluster2.DestinationManager.Items)
             {
                 var newDestinationConfig = new DestinationConfig(destination.Config.Address, null);
                 cluster2.DestinationManager.GetOrCreateItem(destination.DestinationId, d =>
                 {
-                    d.ConfigSignal.Value = newDestinationConfig;
+                    d.Config = newDestinationConfig;
                 });
             }
 
@@ -219,7 +219,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             var healthCheckConfig = new ClusterHealthCheckOptions(
                 new ClusterPassiveHealthCheckOptions(true, "passive0", null),
                 new ClusterActiveHealthCheckOptions(false, null, null, cluster2.Config.HealthCheckOptions.Active.Policy, null));
-            cluster2.ConfigSignal.Value = new ClusterConfig(new Cluster { Id = cluster2.ClusterId }, healthCheckConfig, default, default, cluster2.Config.HttpClient, default, null);
+            cluster2.Config = new ClusterConfig(new Cluster { Id = cluster2.ClusterId }, healthCheckConfig, default, default, cluster2.Config.HttpClient, default, null);
 
             monitor.OnClusterChanged(cluster2);
 
@@ -344,7 +344,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             policy.Verify(
                 p => p.ProbingCompleted(
                     cluster,
-                    It.Is<IReadOnlyList<DestinationProbingResult>>(r => cluster.DestinationManager.Items.Value.All(d => r.Any(i => i.Destination == d && i.Response.StatusCode == HttpStatusCode.OK)))),
+                    It.Is<IReadOnlyList<DestinationProbingResult>>(r => cluster.DestinationManager.Items.All(d => r.Any(i => i.Destination == d && i.Response.StatusCode == HttpStatusCode.OK)))),
                 Times.Exactly(policyCallTimes));
             policy.Verify(p => p.Name);
             policy.VerifyNoOtherCalls();
@@ -361,16 +361,17 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 default,
                 null);
             var clusterInfo = new ClusterInfo(id, new DestinationManager());
-            clusterInfo.ConfigSignal.Value = clusterConfig;
+            clusterInfo.Config = clusterConfig;
             for (var i = 0; i < destinationCount; i++)
             {
                 var destinationConfig = new DestinationConfig($"https://localhost:1000{i}/{id}/", $"https://localhost:2000{i}/{id}/");
                 var destinationId = $"destination{i}";
                 clusterInfo.DestinationManager.GetOrCreateItem(destinationId, d =>
                 {
-                    d.ConfigSignal.Value = destinationConfig;
+                    d.Config = destinationConfig;
                 });
             }
+            clusterInfo.UpdateDynamicState();
 
             return clusterInfo;
         }
