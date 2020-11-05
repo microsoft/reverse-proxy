@@ -561,6 +561,76 @@ namespace Microsoft.ReverseProxy.Service.Tests
             Assert.Equal("No matching IAffinityFailurePolicy found for the affinity failure policy name 'Invalid' set on the cluster 'cluster1'.", ex.Message);
         }
 
+        [Fact]
+        public async Task Accepts_RequestVersion_Null()
+        {
+            var services = CreateServices();
+            var validator = services.GetRequiredService<IConfigValidator>();
+
+            var cluster = new Cluster
+            {
+                Id = "cluster1",
+                HttpRequest = new ProxyHttpRequestOptions()
+                {
+                    Version = null,
+                }
+            };
+
+            var errors = await validator.ValidateClusterAsync(cluster);
+
+            Assert.Empty(errors);
+        }
+
+        [Theory]
+        [InlineData(1,0)]
+        [InlineData(1,1)]
+        [InlineData(2,0)]
+        public async Task Accepts_RequestVersion(int major, int minor)
+        {
+            var version = new Version(major, minor);
+            var services = CreateServices();
+            var validator = services.GetRequiredService<IConfigValidator>();
+
+            var cluster = new Cluster
+            {
+                Id = "cluster1",
+                HttpRequest = new ProxyHttpRequestOptions()
+                {
+                    Version = version,
+                }
+            };
+
+            var errors = await validator.ValidateClusterAsync(cluster);
+
+            Assert.Empty(errors);
+        }
+
+        [Theory]
+        [InlineData(1,9)]
+        [InlineData(2,5)]
+        [InlineData(3,0)]
+        public async Task Rejects_RequestVersion(int major, int minor)
+        {
+            var version = new Version(major, minor);
+            var services = CreateServices();
+            var validator = services.GetRequiredService<IConfigValidator>();
+
+            var cluster = new Cluster
+            {
+                Id = "cluster1",
+                HttpRequest = new ProxyHttpRequestOptions()
+                {
+                    Version = version,
+                }
+            };
+
+            var errors = await validator.ValidateClusterAsync(cluster);
+
+            Assert.Equal(1, errors.Count);
+            Assert.Equal($"Outgoing request version '{cluster.HttpRequest.Version}' is not any of supported HTTP versions (1.0, 1.1 and 2).", errors[0].Message);
+            Assert.IsType<ArgumentException>(errors[0]);
+        }
+
         [Theory]
         [InlineData(null, null, null, "ConsecutiveFailures")]
         [InlineData(25, null, null, "ConsecutiveFailures")]
@@ -650,21 +720,21 @@ namespace Microsoft.ReverseProxy.Service.Tests
         [Theory]
         [InlineData(null, null, "Passive health policy name is not set")]
         [InlineData(-1, "passive0", "Unhealthy destination reactivation period")]
-        public async Task EnablePassiveHealthCheck_InvalidParameter_ErrorReturned(int? reactivationPeriod, string policy, string expectedError)
+        public async Task EnablePassiveHealthCheck_InvalidParameter_ErrorReturned(int? reactivationPeriod,
+            string policy, string expectedError)
         {
             var services = CreateServices();
             var validator = services.GetRequiredService<IConfigValidator>();
 
-            var cluster = new Cluster
-            {
+            var cluster = new Cluster {
                 Id = "cluster1",
-                HealthCheck = new HealthCheckOptions
-                {
-                    Passive = new PassiveHealthCheckOptions
-                    {
+                HealthCheck = new HealthCheckOptions {
+                    Passive = new PassiveHealthCheckOptions {
                         Enabled = true,
                         Policy = policy,
-                        ReactivationPeriod = reactivationPeriod != null ? TimeSpan.FromSeconds(reactivationPeriod.Value) : (TimeSpan?)null
+                        ReactivationPeriod = reactivationPeriod != null
+                            ? TimeSpan.FromSeconds(reactivationPeriod.Value)
+                            : (TimeSpan?)null
                     }
                 }
             };
