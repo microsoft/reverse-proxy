@@ -29,6 +29,8 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
         [Fact]
         public async Task Invoke_Works()
         {
+            var events = TestEventListener.Collect();
+
             // Arrange
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "GET";
@@ -105,6 +107,12 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
 
             // Assert
             Mock<IHttpProxy>().Verify();
+
+            var invoke = Assert.Single(events, e => e.EventName == "ProxyInvoke");
+            Assert.Equal(3, invoke.Payload.Count);
+            Assert.Equal(cluster1.ClusterId, (string)invoke.Payload[0]);
+            Assert.Equal(routeConfig.Route.RouteId, (string)invoke.Payload[1]);
+            Assert.Equal(destination1.DestinationId, (string)invoke.Payload[2]);
         }
 
         [Fact]
