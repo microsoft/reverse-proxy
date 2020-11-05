@@ -1028,8 +1028,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
             events.AssertContainProxyStages(new[] {
                 ProxyStage.SendAsyncStart,
-                ProxyStage.RequestContentTransferStart,
-                ProxyStage.RequestContentTransferStop
+                ProxyStage.RequestContentTransferStart
             });
         }
 
@@ -1068,8 +1067,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
             events.AssertContainProxyStages(new[] {
                 ProxyStage.SendAsyncStart,
-                ProxyStage.RequestContentTransferStart,
-                ProxyStage.RequestContentTransferStop
+                ProxyStage.RequestContentTransferStart
             });
         }
 

@@ -3,8 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Tracing;
 using System.IO;
 using System.Linq;
@@ -45,14 +43,21 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         {
             var events = TestEventListener.Collect();
 
-            var source = new ThrowStream();
+            var clock = new ManualClock();
+            var sourceWaitTime = TimeSpan.FromMilliseconds(12345);
+            var source = new SlowStream(new ThrowStream(), clock, sourceWaitTime);
             var destination = new MemoryStream();
 
-            var (result, error) = await StreamCopier.CopyAsync(isRequest, source, destination, new Clock(), CancellationToken.None);
+            var (result, error) = await StreamCopier.CopyAsync(isRequest, source, destination, clock, CancellationToken.None);
             Assert.Equal(StreamCopyResult.InputError, result);
             Assert.IsAssignableFrom<IOException>(error);
 
-            Assert.DoesNotContain(events, e => e.EventName.StartsWith("ContentTransfer"));
+            AssertContentTransferred(events, isRequest,
+                contentLength: 0,
+                iops: 1,
+                firstReadTime: sourceWaitTime,
+                readTime: sourceWaitTime,
+                writeTime: TimeSpan.Zero);
         }
 
         [Theory]
@@ -62,14 +67,25 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         {
             var events = TestEventListener.Collect();
 
-            var source = new MemoryStream(new byte[10]);
-            var destination = new ThrowStream();
+            const int SourceSize = 10;
+            const int BytesPerRead = 3;
 
-            var (result, error) = await StreamCopier.CopyAsync(isRequest, source, destination, new Clock(), CancellationToken.None);
+            var clock = new ManualClock();
+            var sourceWaitTime = TimeSpan.FromMilliseconds(12345);
+            var destinationWaitTime = TimeSpan.FromMilliseconds(42);
+            var source = new SlowStream(new MemoryStream(new byte[SourceSize]), clock, sourceWaitTime) { MaxBytesPerRead = BytesPerRead };
+            var destination = new SlowStream(new ThrowStream(), clock, destinationWaitTime);
+
+            var (result, error) = await StreamCopier.CopyAsync(isRequest, source, destination, clock, CancellationToken.None);
             Assert.Equal(StreamCopyResult.OutputError, result);
             Assert.IsAssignableFrom<IOException>(error);
 
-            Assert.DoesNotContain(events, e => e.EventName.StartsWith("ContentTransfer"));
+            AssertContentTransferred(events, isRequest,
+                contentLength: BytesPerRead,
+                iops: 1,
+                firstReadTime: sourceWaitTime,
+                readTime: sourceWaitTime,
+                writeTime: destinationWaitTime);
         }
 
         [Theory]
@@ -86,7 +102,12 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.Equal(StreamCopyResult.Canceled, result);
             Assert.IsAssignableFrom<OperationCanceledException>(error);
 
-            Assert.DoesNotContain(events, e => e.EventName.StartsWith("ContentTransfer"));
+            AssertContentTransferred(events, isRequest,
+                contentLength: 0,
+                iops: 0,
+                firstReadTime: TimeSpan.Zero,
+                readTime: TimeSpan.Zero,
+                writeTime: TimeSpan.Zero);
         }
 
         [Theory]
@@ -197,7 +218,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             TimeSpan? readTime = null,
             TimeSpan? writeTime = null)
         {
-            var payload = Assert.Single(events, e => e.EventName == "ContentTransferred").Payload;
+            var contentTransferred = Assert.Single(events, e => e.EventName == "ContentTransferred");
+            var payload = contentTransferred.Payload;
             Assert.Equal(6, payload.Count);
 
             Assert.Equal(isRequest, (bool)payload[0]);
@@ -238,10 +260,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var startStage = isRequest ? ProxyStage.RequestContentTransferStart : ProxyStage.ResponseContentTransferStart;
             var startTime = Assert.Single(stages, s => s.Stage == startStage).TimeStamp;
 
-            var stopStage = isRequest ? ProxyStage.RequestContentTransferStop : ProxyStage.ResponseContentTransferStop;
-            var stopTime = Assert.Single(stages, s => s.Stage == stopStage).TimeStamp;
-
-            Assert.True(startTime <= stopTime);
+            Assert.True(startTime <= contentTransferred.TimeStamp);
         }
 
         private class ThrowStream : Stream

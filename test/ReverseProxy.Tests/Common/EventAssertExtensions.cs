@@ -32,13 +32,11 @@ namespace Microsoft.ReverseProxy.Common.Tests
                 ProxyStage.SendAsyncStart,
                 ProxyStage.SendAsyncStop,
                 ProxyStage.ResponseContentTransferStart,
-                ProxyStage.ResponseContentTransferStop,
             };
 
             if (hasRequestContent)
             {
                 stages.Add(ProxyStage.RequestContentTransferStart);
-                stages.Add(ProxyStage.RequestContentTransferStop);
             }
 
             if (upgrade)

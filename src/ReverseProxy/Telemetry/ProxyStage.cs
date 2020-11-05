@@ -8,9 +8,7 @@ namespace Microsoft.ReverseProxy.Telemetry
         SendAsyncStart = 1,
         SendAsyncStop,
         RequestContentTransferStart,
-        RequestContentTransferStop,
         ResponseContentTransferStart,
-        ResponseContentTransferStop,
         ResponseUpgrade,
     }
 }
