@@ -69,7 +69,7 @@ namespace Microsoft.ReverseProxy.Service.Management
         {
             if (_entries.TryGetValue(entity, out var entry))
             {
-                entry.ChangePeriod((long)newPeriod.TotalMilliseconds);
+                entry.ChangePeriod((long)newPeriod.TotalMilliseconds, Volatile.Read(ref _isStarted) == 1);
             }
         }
 
@@ -119,12 +119,15 @@ namespace Microsoft.ReverseProxy.Service.Management
 
             public long Period => _period;
 
-            public Timer Timer { get; }
+            public ITimer Timer { get; }
 
-            public void ChangePeriod(long newPeriod)
+            public void ChangePeriod(long newPeriod, bool resetTimer)
             {
                 Interlocked.Exchange(ref _period, newPeriod);
-                SetTimer();
+                if (resetTimer)
+                {
+                    SetTimer();
+                }
             }
 
             public void SetTimer()
