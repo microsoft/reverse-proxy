@@ -2,11 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.ReverseProxy.Service.Management;
-using Microsoft.ReverseProxy.Signals;
 using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.RuntimeModel
@@ -23,82 +20,75 @@ namespace Microsoft.ReverseProxy.RuntimeModel
     /// </remarks>
     public sealed class ClusterInfo
     {
-        private readonly DelayableSignal<Unit> _destinationsStateSignal;
+        private readonly object _stateLock = new object();
+        private volatile ClusterDynamicState _dynamicState = new ClusterDynamicState(Array.Empty<DestinationInfo>(), Array.Empty<DestinationInfo>());
+        private volatile ClusterConfig _config;
 
         internal ClusterInfo(string clusterId, IDestinationManager destinationManager)
         {
             ClusterId = clusterId ?? throw new ArgumentNullException(nameof(clusterId));
             DestinationManager = destinationManager ?? throw new ArgumentNullException(nameof(destinationManager));
-
-            _destinationsStateSignal = CreateDestinationsStateSignal();
-            DynamicStateSignal = CreateDynamicStateQuery();
         }
 
         public string ClusterId { get; }
-
-        public ClusterConfig Config => ConfigSignal.Value;
-
-        internal IDestinationManager DestinationManager { get; }
 
         /// <summary>
         /// Encapsulates parts of a cluster that can change atomically
         /// in reaction to config changes.
         /// </summary>
-        internal Signal<ClusterConfig> ConfigSignal { get; } = SignalFactory.Default.CreateSignal<ClusterConfig>();
+        public ClusterConfig Config
+        {
+            get => _config;
+            internal set => _config = value ?? throw new ArgumentNullException(nameof(value));
+        }
+
+        internal IDestinationManager DestinationManager { get; }
 
         /// <summary>
         /// Encapsulates parts of a cluster that can change atomically
         /// in reaction to runtime state changes (e.g. dynamic endpoint discovery).
         /// </summary>
-        internal IReadableSignal<ClusterDynamicState> DynamicStateSignal { get; }
-
-        /// <summary>
-        /// A snapshot of the current dynamic state.
-        /// </summary>
-        public ClusterDynamicState DynamicState => DynamicStateSignal.Value;
-
-        public void PauseHealthyDestinationUpdates()
-        {
-            _destinationsStateSignal.Pause();
-        }
-
-        public void ResumeHealthyDestinationUpdates()
-        {
-            _destinationsStateSignal.Resume();
-        }
+        public ClusterDynamicState DynamicState => _dynamicState;
 
         /// <summary>
         /// Keeps track of the total number of concurrent requests on this cluster.
         /// </summary>
         internal AtomicCounter ConcurrencyCounter { get; } = new AtomicCounter();
 
-        private DelayableSignal<Unit> CreateDestinationsStateSignal()
-        {
-            return DestinationManager.Items
-                .SelectMany(destinations =>destinations.Select(destination => destination.DynamicStateSignal).AnyChange())
-                .DropValue()
-                .ToDelayable();
-        }
-
         /// <summary>
-        /// Sets up the data flow that keeps <see cref="DynamicState"/> up to date.
-        /// See <c>Signals\Readme.md</c> for more information.
+        /// Recreates the DynamicState data.
         /// </summary>
-        private IReadableSignal<ClusterDynamicState> CreateDynamicStateQuery()
+        public void UpdateDynamicState()
         {
-            return new[] { _destinationsStateSignal, ConfigSignal.DropValue() }
-                .AnyChange() // If any of them change...
-                .Select(
-                    _ =>
+            // Prevent overlapping updates. If there are multiple signals that state needs to be updated,
+            // we want to ensure that updates don't conflict with each other. E.g. if state changes
+            // while an update is already in progress, the next update should wait until the current one finishes
+            // to ensure they don't race to set _dynamicState and end up with the stale one overwriting the fresh one.
+            lock (_stateLock)
+            {
+                var healthChecks = _config?.HealthCheckOptions ?? default;
+                var allDestinations = DestinationManager.Items;
+                var healthyDestinations = allDestinations;
+
+                if (healthChecks.Enabled)
+                {
+                    var activeEnabled = healthChecks.Active.Enabled;
+                    var passiveEnabled = healthChecks.Passive.Enabled;
+
+                    healthyDestinations = allDestinations.Where(destination =>
                     {
-                        var allDestinations = DestinationManager.Items.Value ?? new List<DestinationInfo>().AsReadOnly();
-                        var healthyDestinations = (Config?.HealthCheckOptions.Enabled ?? false)
-                            ? allDestinations.Where(destination => destination.DynamicState?.Health.Current != DestinationHealth.Unhealthy).ToList().AsReadOnly()
-                            : allDestinations;
-                        return new ClusterDynamicState(
-                            allDestinations: allDestinations,
-                            healthyDestinations: healthyDestinations);
-                    });
+                        // Only consider the current state if those checks are enabled.
+                        var healthState = destination.Health;
+                        var active = activeEnabled ? healthState.Active : DestinationHealth.Unknown;
+                        var passive = passiveEnabled ? healthState.Passive : DestinationHealth.Unknown;
+
+                        // Filter out unhealthy ones. Unknown state is OK, all destinations start that way.
+                        return passive != DestinationHealth.Unhealthy && active != DestinationHealth.Unhealthy;
+                    }).ToList().AsReadOnly();
+                }
+
+                _dynamicState = new ClusterDynamicState(allDestinations, healthyDestinations);
+            }
         }
     }
 }

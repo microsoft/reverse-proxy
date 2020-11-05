@@ -4,7 +4,6 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.ReverseProxy.Signals;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Service.Management.Tests
@@ -248,25 +247,6 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             // Assert
             Assert.True(result1);
             Assert.False(result2);
-        }
-
-        [Fact]
-        public void Items_Notifications_Work()
-        {
-            // Arrange
-            var manager = new TestItemManager();
-            var itemsCountSignal = manager.Items.Select(items => items.Count);
-
-            // Act
-            manager.GetOrCreateItem("abc", item => { });
-            manager.GetOrCreateItem("def", item => { });
-
-            Assert.Equal(2, itemsCountSignal.Value);
-
-            manager.TryRemoveItem("abc");
-            manager.TryRemoveItem("def");
-
-            Assert.Equal(0, itemsCountSignal.Value);
         }
 
         private class TestItemManager : ItemManagerBase<Item>
