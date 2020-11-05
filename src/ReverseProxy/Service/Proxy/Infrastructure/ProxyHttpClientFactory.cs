@@ -69,7 +69,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
 
             if (newClientOptions.PropagateActivityContext)
             {
-                return new HttpMessageInvoker(new DiagnosticsHandler(handler), disposeHandler: true);
+                return new HttpMessageInvoker(new ActivityPropagationHandler(handler), disposeHandler: true);
             }
 
             return new HttpMessageInvoker(handler, disposeHandler: true);

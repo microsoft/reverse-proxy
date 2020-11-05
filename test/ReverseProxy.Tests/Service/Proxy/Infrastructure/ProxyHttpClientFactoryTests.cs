@@ -191,7 +191,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var handlerFieldInfo = typeof(HttpMessageInvoker).GetFields(BindingFlags.Instance | BindingFlags.NonPublic).Single(f => f.Name == "_handler");
             var handler = handlerFieldInfo.GetValue(client);
 
-            if (handler is DiagnosticsHandler diagnosticsHandler)
+            if (handler is ActivityPropagationHandler diagnosticsHandler)
             {
                 return (SocketsHttpHandler)diagnosticsHandler.InnerHandler;
             }

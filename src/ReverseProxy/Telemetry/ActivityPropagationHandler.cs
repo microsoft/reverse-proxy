@@ -13,9 +13,9 @@ using System.Threading.Tasks;
 namespace Microsoft.ReverseProxy.Telemetry
 {
     /// <summary>
-    /// DiagnosticHandler notifies DiagnosticSource subscribers about outgoing Http requests
+    /// ActivityPropagationHandler propagates the current Activity to the downstream service
     /// </summary>
-    internal sealed class DiagnosticsHandler : DelegatingHandler
+    internal sealed class ActivityPropagationHandler : DelegatingHandler
     {
         private const string RequestIdHeaderName = "Request-Id";
         private const string CorrelationContextHeaderName = "Correlation-Context";
@@ -24,22 +24,20 @@ namespace Microsoft.ReverseProxy.Telemetry
         private const string TraceStateHeaderName = "tracestate";
 
         /// <summary>
-        /// DiagnosticHandler constructor
+        /// ActivityPropagationHandler constructor
         /// </summary>
         /// <param name="innerHandler">Inner handler: Windows or Unix implementation of HttpMessageHandler.
-        /// Note that DiagnosticHandler is the latest in the pipeline </param>
-        public DiagnosticsHandler(HttpMessageHandler innerHandler) : base(innerHandler)
+        /// Note that ActivityPropagationHandler is the latest in the pipeline </param>
+        public ActivityPropagationHandler(HttpMessageHandler innerHandler) : base(innerHandler)
         {
         }
 
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
             CancellationToken cancellationToken)
         {
-            // HttpClientHandler is responsible to call static DiagnosticsHandler.IsEnabled() before forwarding request here.
-            // It will check if propagation is on (because parent Activity exists or there is a listener) or off (forcibly disabled)
-            // This code won't be called unless consumer unsubscribes from DiagnosticListener right after the check.
-            // So some requests happening right after subscription starts might not be instrumented. Similarly,
-            // when consumer unsubscribes, extra requests might be instrumented
+            // This handler is conditionally inserted by the ProxyHttpClientFactory based on the configuration
+            // If inserted it will insert the necessary headers to propagate the current activity context to
+            // the downstream service, if there is a current activity
 
             if (request == null)
             {
