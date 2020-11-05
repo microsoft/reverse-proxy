@@ -17,6 +17,12 @@ namespace Microsoft.ReverseProxy.Telemetry
     /// </summary>
     internal sealed class DiagnosticsHandler : DelegatingHandler
     {
+        private const string RequestIdHeaderName = "Request-Id";
+        private const string CorrelationContextHeaderName = "Correlation-Context";
+
+        private const string TraceParentHeaderName = "traceparent";
+        private const string TraceStateHeaderName = "tracestate";
+
         /// <summary>
         /// DiagnosticHandler constructor
         /// </summary>
@@ -26,7 +32,7 @@ namespace Microsoft.ReverseProxy.Telemetry
         {
         }
 
-        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
             CancellationToken cancellationToken)
         {
             // HttpClientHandler is responsible to call static DiagnosticsHandler.IsEnabled() before forwarding request here.
@@ -47,17 +53,7 @@ namespace Microsoft.ReverseProxy.Telemetry
                 InjectHeaders(currentActivity, request);
             }
 
-            try
-            {
-                var responseTask = base.SendAsync(request, cancellationToken);
-
-                return await responseTask.ConfigureAwait(false);
-            }
-            catch (OperationCanceledException)
-            {
-                // we'll report task status in HttpRequestOut.Stop
-                throw;
-            }
+            return base.SendAsync(request, cancellationToken);
         }
 
         #region private
@@ -66,25 +62,18 @@ namespace Microsoft.ReverseProxy.Telemetry
         {
             if (currentActivity.IdFormat == ActivityIdFormat.W3C)
             {
-                request.Headers.Remove(DiagnosticsHandlerLoggingStrings.TraceParentHeaderName);
+                request.Headers.Remove(TraceParentHeaderName);
 
-                if (!request.Headers.Contains(DiagnosticsHandlerLoggingStrings.TraceParentHeaderName))
+                request.Headers.TryAddWithoutValidation(TraceParentHeaderName, currentActivity.Id);
+                if (currentActivity.TraceStateString != null)
                 {
-                    request.Headers.TryAddWithoutValidation(DiagnosticsHandlerLoggingStrings.TraceParentHeaderName, currentActivity.Id);
-                    if (currentActivity.TraceStateString != null)
-                    {
-                        request.Headers.TryAddWithoutValidation(DiagnosticsHandlerLoggingStrings.TraceStateHeaderName, currentActivity.TraceStateString);
-                    }
+                    request.Headers.TryAddWithoutValidation(TraceStateHeaderName, currentActivity.TraceStateString);
                 }
             }
             else
             {
-                request.Headers.Remove(DiagnosticsHandlerLoggingStrings.RequestIdHeaderName);
-
-                if (!request.Headers.Contains(DiagnosticsHandlerLoggingStrings.RequestIdHeaderName))
-                {
-                    request.Headers.TryAddWithoutValidation(DiagnosticsHandlerLoggingStrings.RequestIdHeaderName, currentActivity.Id);
-                }
+                request.Headers.Remove(RequestIdHeaderName);
+                request.Headers.TryAddWithoutValidation(RequestIdHeaderName, currentActivity.Id);
             }
 
             // we expect baggage to be empty or contain a few items
@@ -99,7 +88,7 @@ namespace Microsoft.ReverseProxy.Telemetry
                         baggage.Add(new NameValueHeaderValue(Uri.EscapeDataString(item.Key), Uri.EscapeDataString(item.Value)).ToString());
                     }
                     while (e.MoveNext());
-                    request.Headers.TryAddWithoutValidation(DiagnosticsHandlerLoggingStrings.CorrelationContextHeaderName, baggage);
+                    request.Headers.TryAddWithoutValidation(CorrelationContextHeaderName, baggage);
                 }
             }
         }
