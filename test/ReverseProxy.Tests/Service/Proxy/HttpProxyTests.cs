@@ -600,7 +600,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
                     // "testA=A_Cookie; testB=B_Cookie; testC=C_Cookie"
-                    var expectedCookieString = String.Join("; ", cookies);
+                    var expectedCookieString = string.Join("; ", cookies);
 
                     Assert.Equal(new Version(2, 0), request.Version);
                     Assert.Equal("GET", request.Method.Method, StringComparer.OrdinalIgnoreCase);
@@ -1597,7 +1597,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
         private class StallStream : Stream
         {
-            public StallStream(Task until) : this(_ => until) 
+            public StallStream(Task until) : this(_ => until)
             {
             }
 
@@ -1821,7 +1821,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         private class TestRequestParametersTransform : RequestParametersTransform
         {
             private Action<RequestParametersTransformContext> _transformation;
-            
+
             public TestRequestParametersTransform(Action<RequestParametersTransformContext> transformation)
             {
                 _transformation = transformation;

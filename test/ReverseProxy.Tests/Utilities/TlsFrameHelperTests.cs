@@ -34,11 +34,15 @@ namespace Microsoft.ReverseProxy.Utilities.Tls
 
         private void InvalidClientHello(byte[] clientHello, int id, bool shouldPass)
         {
-            string ret = TlsFrameHelper.GetServerName(clientHello);
+            var ret = TlsFrameHelper.GetServerName(clientHello);
             if (shouldPass)
+            {
                 Assert.NotNull(ret);
+            }
             else
+            {
                 Assert.Null(ret);
+            }
         }
 
         [Fact]

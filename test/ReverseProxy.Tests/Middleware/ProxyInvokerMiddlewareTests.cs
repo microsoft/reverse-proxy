@@ -47,6 +47,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
 
             var httpClient = new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object);
             var httpRequestOptions = new ClusterProxyHttpRequestOptions(
+                TimeSpan.FromSeconds(60),
                 HttpVersion.Version11
 #if NET
                 , HttpVersionPolicy.RequestVersionExact
@@ -85,7 +86,8 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                     It.Is<string>(uri => uri == "https://localhost:123/a/b/"),
                     httpClient,
                     It.Is<RequestProxyOptions>(options =>
-                        options.Version == httpRequestOptions.Version
+                        options.RequestTimeout == httpRequestOptions.RequestTimeout
+                        && options.Version == httpRequestOptions.Version
 #if NET
                         && options.VersionPolicy == httpRequestOptions.VersionPolicy
 #endif

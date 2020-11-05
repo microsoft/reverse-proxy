@@ -5,6 +5,8 @@ namespace Microsoft.ReverseProxy.Configuration.Contract
 {
     public class ProxyHttpRequestData
     {
+        public TimeSpan? RequestTimeout { get; set; }
+
         public string Version { get; set; }
 
 #if NET

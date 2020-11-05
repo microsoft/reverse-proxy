@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Net;
 using System.Net.Http;
 using Xunit;
@@ -21,6 +22,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
             // Arrange
             var options = new ProxyHttpRequestOptions
             {
+                RequestTimeout = TimeSpan.FromSeconds(60),
                 Version = HttpVersion.Version11,
 #if NET
                 VersionPolicy = HttpVersionPolicy.RequestVersionOrHigher
@@ -32,6 +34,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
 
             // Assert
             Assert.NotSame(options, clone);
+            Assert.Equal(options.RequestTimeout, clone.RequestTimeout);
             Assert.Equal(options.Version, clone.Version);
 #if NET
             Assert.Equal(options.VersionPolicy, clone.VersionPolicy);
@@ -45,6 +48,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
             // Arrange
             var options1 = new ProxyHttpRequestOptions
             {
+                RequestTimeout = TimeSpan.FromSeconds(60),
                 Version = HttpVersion.Version11,
 #if NET
                 VersionPolicy = HttpVersionPolicy.RequestVersionOrHigher
@@ -53,6 +57,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
 
             var options2 = new ProxyHttpRequestOptions
             {
+                RequestTimeout = TimeSpan.FromSeconds(60),
                 Version = HttpVersion.Version11,
 #if NET
                 VersionPolicy = HttpVersionPolicy.RequestVersionOrHigher
@@ -72,6 +77,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
             // Arrange
             var options1 = new ProxyHttpRequestOptions
             {
+                RequestTimeout = TimeSpan.FromSeconds(60),
                 Version = HttpVersion.Version11,
 #if NET
                 VersionPolicy = HttpVersionPolicy.RequestVersionOrHigher
@@ -80,6 +86,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
 
             var options2 = new ProxyHttpRequestOptions
             {
+                RequestTimeout = TimeSpan.FromSeconds(60),
                 Version = HttpVersion.Version20,
 #if NET
                 VersionPolicy = HttpVersionPolicy.RequestVersionOrHigher
@@ -88,6 +95,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
 
             var options3 = new ProxyHttpRequestOptions
             {
+                RequestTimeout = TimeSpan.FromSeconds(60),
                 Version = HttpVersion.Version11,
 #if NET
                 VersionPolicy = HttpVersionPolicy.RequestVersionOrLower
@@ -111,8 +119,9 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
         public void Equals_First_Null_Returns_False()
         {
             // Arrange
-            var options1 = new ProxyHttpRequestOptions
+            var options2 = new ProxyHttpRequestOptions
             {
+                RequestTimeout = TimeSpan.FromSeconds(60),
                 Version = HttpVersion.Version11,
 #if NET
                 VersionPolicy = HttpVersionPolicy.RequestVersionOrHigher
@@ -120,7 +129,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
             };
 
             // Act
-            var equals = ProxyHttpRequestOptions.Equals(null, options1);
+            var equals = ProxyHttpRequestOptions.Equals(null, options2);
 
             // Assert
             Assert.False(equals);
@@ -132,6 +141,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
             // Arrange
             var options1 = new ProxyHttpRequestOptions
             {
+                RequestTimeout = TimeSpan.FromSeconds(60),
                 Version = HttpVersion.Version11,
 #if NET
                 VersionPolicy = HttpVersionPolicy.RequestVersionOrHigher

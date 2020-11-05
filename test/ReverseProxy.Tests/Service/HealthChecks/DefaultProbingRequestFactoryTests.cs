@@ -41,7 +41,9 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 default,
                 null,
                 default,
-                new ClusterProxyHttpRequestOptions(version
+                new ClusterProxyHttpRequestOptions(
+                    TimeSpan.FromSeconds(60),
+                    version
 #if NET
                     , HttpVersionPolicy.RequestVersionExact
 #endif

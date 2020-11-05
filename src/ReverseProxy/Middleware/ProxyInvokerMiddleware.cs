@@ -82,6 +82,10 @@ namespace Microsoft.ReverseProxy.Middleware
             };
 
             var requestOptions = reverseProxyFeature.ClusterConfig.HttpRequestOptions;
+            if (requestOptions.RequestTimeout != default)
+            {
+                proxyOptions.RequestTimeout = requestOptions.RequestTimeout;
+            }
             if (requestOptions.Version != default)
             {
                 proxyOptions.Version = requestOptions.Version;

@@ -71,7 +71,8 @@ namespace Microsoft.ReverseProxy.Configuration
                         },
                         HttpRequest = new ProxyHttpRequestData()
                         {
-                            Version = "2",
+                            RequestTimeout = TimeSpan.FromSeconds(60),
+                            Version = "1",
 #if NET
                             VersionPolicy = HttpVersionPolicy.RequestVersionExact,
 #endif
@@ -209,7 +210,8 @@ namespace Microsoft.ReverseProxy.Configuration
                 ""MaxConnectionsPerServer"": 10
             },
             ""HttpRequest"": {
-                ""Version"": ""2"",
+                ""RequestTimeout"": ""00:01:00"",
+                ""Version"": ""1"",
                 ""VersionPolicy"": ""RequestVersionExact""
             },
             ""Destinations"": {
@@ -597,6 +599,11 @@ namespace Microsoft.ReverseProxy.Configuration
             Assert.Equal(validConfig.Clusters["cluster1"].HttpClient.MaxConnectionsPerServer, abstractCluster1.HttpClient.MaxConnectionsPerServer);
             Assert.Equal(SslProtocols.Tls11 | SslProtocols.Tls12, abstractCluster1.HttpClient.SslProtocols);
             Assert.Equal(validConfig.Clusters["cluster1"].HttpClient.DangerousAcceptAnyServerCertificate, abstractCluster1.HttpClient.DangerousAcceptAnyServerCertificate);
+            Assert.Equal(validConfig.Clusters["cluster1"].HttpRequest.RequestTimeout, abstractCluster1.HttpRequest.RequestTimeout);
+            Assert.Equal(HttpVersion.Version10, abstractCluster1.HttpRequest.Version);
+#if NET
+            Assert.Equal(validConfig.Clusters["cluster1"].HttpRequest.VersionPolicy, abstractCluster1.HttpRequest.VersionPolicy);
+#endif
             Assert.Equal(validConfig.Clusters["cluster1"].Metadata, abstractCluster1.Metadata);
 
             Assert.Single(abstractConfig.Clusters.Where(c => c.Id == "cluster2"));

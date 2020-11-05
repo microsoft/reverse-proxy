@@ -5,6 +5,8 @@ namespace Microsoft.ReverseProxy.Abstractions
 {
     public sealed class ProxyHttpRequestOptions
     {
+        public TimeSpan? RequestTimeout { get; set; }
+
         public Version Version { get; set; }
 
 #if NET
@@ -15,6 +17,7 @@ namespace Microsoft.ReverseProxy.Abstractions
         {
             return new ProxyHttpRequestOptions
             {
+                RequestTimeout = RequestTimeout,
                 Version = Version,
 #if NET
                 VersionPolicy = VersionPolicy,
@@ -34,7 +37,8 @@ namespace Microsoft.ReverseProxy.Abstractions
                 return false;
             }
 
-            return options1.Version == options2.Version
+            return options1.RequestTimeout == options2.RequestTimeout
+                   && options1.Version == options2.Version
 #if NET
                    && options1.VersionPolicy == options2.VersionPolicy
 #endif
