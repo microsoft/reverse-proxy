@@ -86,11 +86,11 @@ The policy parameters are set in the cluster's metadata as follows:
 `ConsecutiveFailuresHealthPolicy.Threshold` - number of consecutively failed active health probing requests required to mark a destination as unhealthy. Default `2`.
 
 ### Design
-The main service in this process is [IActiveHealthMonitor](xref:Microsoft.ReverseProxy.Service.HealthChecks.IActiveHealthMonitor) that periodically creates probing requests via [IProbingRequestFactory](xref:Microsoft.ReverseProxy.Service.HealthChecks.IProbingRequestFactory), sends them to all [Destinations](xref:Microsoft.ReverseProxy.Abstractions.Destination) of each [Cluster](xref:Microsoft.ReverseProxy.Abstractions.Cluster) with enabled active health checks and then passes all the responses down to a [IActiveHealthCheckPolicy](xref:Microsoft.ReverseProxy.Service.HealthChecks.IActiveHealthCheckPolicy) specified for a cluster. IActiveHealthMonitor doesn't make the actual decision on whether a destination is healthy or not, but delegates this duty to an IActiveHealthCheckPolicy specified for a cluster. A policy is called to evaluate the new health states once all probing of all cluster's destination completed. It takes in a [ClusterInfo](xref:Microsoft.ReverseProxy.RuntimeModel.ClusterInfo) representing the cluster's dynamic state and a set of [DestinationProbingResult](xref:Microsoft.ReverseProxy.Service.HealthChecks.DestinationProbingResult) storing cluster's destinations' probing results. Having evaluated a new health state for each destination, the policy actually updates [DestinationHealthState.Active](xref:Microsoft.ReverseProxy.RuntimeModel.DestinationHealthState.Active) value.
+The main service in this process is [IActiveHealthCheckMonitor](xref:Microsoft.ReverseProxy.Service.HealthChecks.IActiveHealthCheckMonitor) that periodically creates probing requests via [IProbingRequestFactory](xref:Microsoft.ReverseProxy.Service.HealthChecks.IProbingRequestFactory), sends them to all [Destinations](xref:Microsoft.ReverseProxy.Abstractions.Destination) of each [Cluster](xref:Microsoft.ReverseProxy.Abstractions.Cluster) with enabled active health checks and then passes all the responses down to a [IActiveHealthCheckPolicy](xref:Microsoft.ReverseProxy.Service.HealthChecks.IActiveHealthCheckPolicy) specified for a cluster. IActiveHealthCheckMonitor doesn't make the actual decision on whether a destination is healthy or not, but delegates this duty to an IActiveHealthCheckPolicy specified for a cluster. A policy is called to evaluate the new health states once all probing of all cluster's destination completed. It takes in a [ClusterInfo](xref:Microsoft.ReverseProxy.RuntimeModel.ClusterInfo) representing the cluster's dynamic state and a set of [DestinationProbingResult](xref:Microsoft.ReverseProxy.Service.HealthChecks.DestinationProbingResult) storing cluster's destinations' probing results. Having evaluated a new health state for each destination, the policy actually updates [DestinationHealthState.Active](xref:Microsoft.ReverseProxy.RuntimeModel.DestinationHealthState.Active) value.
 
 ```
 -{For each cluster's destination}-
-IActiveHealthMonitor <--(Create probing request)--> IProbingRequestFactory
+IActiveHealthCheckMonitor <--(Create probing request)--> IProbingRequestFactory
         |
         V
  HttpMessageInvoker <--(Send probe and receive response)--> Destination
@@ -220,7 +220,7 @@ var clusters = new[]
 ### Configuration
 Passive health check settings are specified on the cluster level in `Cluster/HealthCheck/Passive` section. Alternatively, they can be defined in code via the corresponding types in [Microsoft.ReverseProxy.Abstractions](xref:Microsoft.ReverseProxy.Abstractions) namespace mirroring the configuration contract.
 
-Passive health checks require the `PassiveHealthCheckMiddleware` to added into the pipeline for them to work. The default `void MapReverseProxy(this IEndpointRouteBuilder endpoints)` methods does it automatically, but in case of a manual pipeline construction the [ProxyMiddlewareAppBuilderExtensions.UsePassiveHealthChecks](xref:Microsoft.AspNetCore.Builder.ProxyMiddlewareAppBuilderExtensions.UsePassiveHealthChecks) method must be called to add that middleware as it's shown in `ReverseProxy.Config.Sample` project.
+Passive health checks require the `PassiveHealthCheckMiddleware` to added into the pipeline for them to work. The default `void MapReverseProxy(this IEndpointRouteBuilder endpoints)` methods does it automatically, but in case of a manual pipeline construction the [ProxyMiddlewareAppBuilderExtensions.UsePassiveHealthChecks](xref:Microsoft.AspNetCore.Builder.ProxyMiddlewareAppBuilderExtensions) method must be called to add that middleware as it's shown in `ReverseProxy.Config.Sample` project.
 
 `Cluster/HealthCheck/Passive` section and [PassiveHealthCheckOptions](xref:Microsoft.ReverseProxy.Abstractions.PassiveHealthCheckOptions):
 
@@ -229,21 +229,29 @@ Passive health checks require the `PassiveHealthCheckMiddleware` to added into t
 - `ReactivationPeriod` - period after which an unhealthy destination's passive health state is reset to `Unknown` and it starts receiving traffic again. Default value is `null` which means the period will be set by a `IPassiveHealthCheckPolicy`
 
 ### Design
-The main component is [PassiveHealthCheckMiddleware](xref:Microsoft.ReverseProxy.Middleware.PassiveHealthCheckMiddleware) sitting on the request pipeline just after [ProxyInvokerMiddleware](xref:Microsoft.ReverseProxy.Middleware.ProxyInvokerMiddleware) and analyzing responses returned by destinations. For each response from a destination belonging to a cluster with enabled passive health checks, that ProxyInvokerMiddleware invokes an [IPassiveHealthCheckPolicy](xref:Microsoft.ReverseProxy.Service.HealthChecks.IPassiveHealthCheckPolicy) specified for the cluster. The policy analyzes the given response, evaluates a new destination's passive health state and updates [DestinationHealthState.Passive](xref:Microsoft.ReverseProxy.RuntimeModel.DestinationHealthState.Passive) value. When a destination gets marked as unhealthy, it stops receiving new requests until it gets reactivated after a configured period. Reactivation means DestinationHealthState.Passive value is reset from `Unhealthy` to `Unknown` that brings the destination back on the healthy destination list. The policy schedules a destinaton's reactivation with [IReactivationScheduler](xref:Microsoft.ReverseProxy.Service.HealthChecks.IReactivationScheduler) right after setting its `DestinationHealthState.Passive` to `Unhealthy`.
+The main component is [PassiveHealthCheckMiddleware](xref:Microsoft.ReverseProxy.Middleware.PassiveHealthCheckMiddleware) sitting on the request pipeline and analyzing responses returned by destinations. For each response from a destination belonging to a cluster with enabled passive health checks, `PassiveHealthCheckMiddleware` invokes an [IPassiveHealthCheckPolicy](xref:Microsoft.ReverseProxy.Service.HealthChecks.IPassiveHealthCheckPolicy) specified for the cluster. The policy analyzes the given response, evaluates a new destination's passive health state and updates [DestinationHealthState.Passive](xref:Microsoft.ReverseProxy.RuntimeModel.DestinationHealthState.Passive) value. When a destination gets marked as unhealthy, it stops receiving new requests until it gets reactivated after a configured period. Reactivation means DestinationHealthState.Passive value is reset from `Unhealthy` to `Unknown` that brings the destination back on the healthy destination list. The policy schedules a destinaton's reactivation with [IReactivationScheduler](xref:Microsoft.ReverseProxy.Service.HealthChecks.IReactivationScheduler) right after setting its `DestinationHealthState.Passive` to `Unhealthy`.
 
 ```
-          ProxyInvokerMiddleware
+        (respose to a proxied request)
                   |
-      (respose to a proxied request)
       PassiveHealthCheckMiddleware
                   |
 (evaluate new destination's passive health state)
                   |
                   V
-      IPassiveHealthCheckPolicy --(update)--> DestinationInfo.DynamicState.Health.Passive
+      IPassiveHealthCheckPolicy --(update)--> DestinationInfo.Health.Passive
                   |
       (schedule a reactivation)
                   |
                   V
-        IReactivationScheduler --(set to Unknown)--> DestinationInfo.DynamicState.Health.Passive
+        IReactivationScheduler --(set to Unknown)--> DestinationInfo.Health.Passive
 ```
+
+## Healty destination collection
+Under normal conditions, YARP considers only healthy destinations to select the one that will receive a request. On each cluster, they are stored in a list which gets rebuilt once any destination's health state changes. Active and passive health states are combined by the `AND` operator to filter out unhealthy destinations while rebuilding that list. The exact filtering rule as follows.
+
+- Active and passive health state are initialized with `Unkown` value which can be later changed to either `Healty` or `Unhealthy` by the corresponding polices.
+- A destination is added on the healthy destination list when all of the following is TRUE:
+  - Active health checks are disabled on the cluster OR `DestinationHealthState.Active != DestinationHealth.Unhealthy`
+  - Passive health checks are disabled on the cluster OR `DestinationHealthState.Passive != DestinationHealth.Unhealthy`
+
