@@ -127,7 +127,8 @@ public class FirstUnsuccessfulResponseHealthPolicy : IActiveHealthCheckPolicy
         for (var i = 0; i < probingResults.Count; i++)
         {
             var destination = probingResults[i].Destination;
-            var newHealth = probingResults[i].Response.IsSuccessStatusCode ? DestinationHealth.Healthy : DestinationHealth.Unhealthy;
+            var response = probingResults[i].Response;
+            var newHealth = response != null && response.IsSuccessStatusCode ? DestinationHealth.Healthy : DestinationHealth.Unhealthy;
 
             if (newHealth != destination.Health.Active)
             {
@@ -223,7 +224,17 @@ var clusters = new[]
 ### Configuration
 Passive health check settings are specified on the cluster level in `Cluster/HealthCheck/Passive` section. Alternatively, they can be defined in code via the corresponding types in [Microsoft.ReverseProxy.Abstractions](xref:Microsoft.ReverseProxy.Abstractions) namespace mirroring the configuration contract.
 
-Passive health checks require the `PassiveHealthCheckMiddleware` added into the pipeline for them to work. The default `MapReverseProxy(this IEndpointRouteBuilder endpoints)` method does it automatically, but in case of a manual pipeline construction the [UsePassiveHealthChecks](xref:Microsoft.AspNetCore.Builder.ProxyMiddlewareAppBuilderExtensions.UsePassiveHealthChecks) method must be called to add that middleware.
+Passive health checks require the `PassiveHealthCheckMiddleware` added into the pipeline for them to work. The default `MapReverseProxy(this IEndpointRouteBuilder endpoints)` method does it automatically, but in case of a manual pipeline construction the [UsePassiveHealthChecks](xref:Microsoft.AspNetCore.Builder.ProxyMiddlewareAppBuilderExtensions) method must be called to add that middleware as shown in the example below.
+
+```C#
+endpoints.MapReverseProxy(proxyPipeline =>
+{
+    proxyPipeline.UseAffinitizedDestinationLookup();
+    proxyPipeline.UseProxyLoadBalancing();
+    proxyPipeline.UseRequestAffinitizer();
+    proxyPipeline.UsePassiveHealthChecks();
+});
+```
 
 `Cluster/HealthCheck/Passive` section and [PassiveHealthCheckOptions](xref:Microsoft.ReverseProxy.Abstractions.PassiveHealthCheckOptions):
 
@@ -235,14 +246,12 @@ Passive health checks require the `PassiveHealthCheckMiddleware` added into the 
 The main component is [PassiveHealthCheckMiddleware](xref:Microsoft.ReverseProxy.Middleware.PassiveHealthCheckMiddleware) sitting in the request pipeline and analyzing responses returned by destinations. For each response from a destination belonging to a cluster with enabled passive health checks, `PassiveHealthCheckMiddleware` invokes an [IPassiveHealthCheckPolicy](xref:Microsoft.ReverseProxy.Service.HealthChecks.IPassiveHealthCheckPolicy) specified for the cluster. The policy analyzes the given response, evaluates a new destination's passive health state and updates the [DestinationHealthState.Passive](xref:Microsoft.ReverseProxy.RuntimeModel.DestinationHealthState.Passive) value. When a destination gets marked as unhealthy, it stops receiving new requests until it gets reactivated after a configured period. Reactivation means the destination's DestinationHealthState.Passive state is reset from `Unhealthy` to `Unknown` and the cluster's list of healthy destinations is rebuilt to include it. The policy schedules a destination's reactivation with [IReactivationScheduler](xref:Microsoft.ReverseProxy.Service.HealthChecks.IReactivationScheduler) right after setting its `DestinationHealthState.Passive` to `Unhealthy`.
 
 ```
-        (respose to a proxied request)
+      (respose to a proxied request)
                   |
       PassiveHealthCheckMiddleware
                   |
-(evaluate new destination's passive health state)
-                  |
                   V
-      IPassiveHealthCheckPolicy --(update)--> DestinationInfo.Health.Passive
+      IPassiveHealthCheckPolicy --(evaluate new passive health state)--> DestinationInfo.Health.Passive
                   |
       (schedule a reactivation)
                   |
