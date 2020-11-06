@@ -29,6 +29,8 @@ namespace Microsoft.ReverseProxy.Telemetry
         [Event(1, Level = EventLevel.Informational)]
         public void ProxyStart(string destinationPrefix)
         {
+            Interlocked.Increment(ref _startedRequests);
+
             if (IsEnabled(EventLevel.Informational, EventKeywords.All))
             {
                 WriteEvent(eventId: 1, destinationPrefix);
