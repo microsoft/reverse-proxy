@@ -20,3 +20,5 @@
   href: session-affinity.md
 - name: Transforms
   href: transforms.md
+- name: Destinations health checks
+  href: dests-health-checks.md
