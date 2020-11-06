@@ -14,8 +14,9 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         /// <summary>
         /// Schedules restoring a destination as <see cref="DestinationHealth.Unknown"/>.
         /// </summary>
+        /// <param name="cluster">Cluster.</param>
         /// <param name="destination">Destination marked as <see cref="DestinationHealth.Unhealthy"/> by the passive health check.</param>
         /// <param name="reactivationPeriod">Reactivation period.</param>
-        void Schedule(DestinationInfo destination, TimeSpan reactivationPeriod);
+        void Schedule(ClusterInfo cluster, DestinationInfo destination, TimeSpan reactivationPeriod);
     }
 }

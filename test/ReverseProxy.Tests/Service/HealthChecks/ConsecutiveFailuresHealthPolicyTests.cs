@@ -3,16 +3,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Management;
-using Moq;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Service.HealthChecks
@@ -23,8 +20,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         public void ProbingCompleted_FailureThresholdExceeded_MarkDestinationUnhealthy()
         {
             var options = Options.Create(new ConsecutiveFailuresHealthPolicyOptions { DefaultThreshold = 2 });
-            var healthUpdater = new DestinationHealthUpdaterStub();
-            var policy = new ConsecutiveFailuresHealthPolicy(options, healthUpdater);
+            var policy = new ConsecutiveFailuresHealthPolicy(options, new DestinationHealthUpdaterStub());
             var cluster0 = GetClusterInfo("cluster0", destinationCount: 2);
             var cluster1 = GetClusterInfo("cluster0", destinationCount: 2, failureThreshold: 3);
 
@@ -72,8 +68,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         public void ProbingCompleted_SuccessfulResponse_MarkDestinationHealthy()
         {
             var options = Options.Create(new ConsecutiveFailuresHealthPolicyOptions { DefaultThreshold = 2 });
-            var healthUpdater = new DestinationHealthUpdaterStub();
-            var policy = new ConsecutiveFailuresHealthPolicy(options, healthUpdater);
+            var policy = new ConsecutiveFailuresHealthPolicy(options, new DestinationHealthUpdaterStub());
             var cluster = GetClusterInfo("cluster0", destinationCount: 2);
 
             var probingResults = new[] {
@@ -81,9 +76,10 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 new DestinationProbingResult(cluster.DestinationManager.Items[1], new HttpResponseMessage(HttpStatusCode.OK), null)
             };
 
-            policy.ProbingCompleted(cluster, probingResults);
-            healthUpdater.VerifyActiveHealth(cluster,
-                new[] { (cluster.DestinationManager.Items.Value[0], DestinationHealth.Healthy), (cluster.DestinationManager.Items.Value[1], DestinationHealth.Healthy) });
+            for (var i = 0; i < 2; i++)
+            {
+                policy.ProbingCompleted(cluster, probingResults);
+            }
 
             Assert.Equal(DestinationHealth.Unhealthy, cluster.DestinationManager.Items[0].Health.Active);
             Assert.Equal(DestinationHealth.Healthy, cluster.DestinationManager.Items[1].Health.Active);
@@ -100,8 +96,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         public void ProbingCompleted_EmptyProbingResultList_DoNothing()
         {
             var options = Options.Create(new ConsecutiveFailuresHealthPolicyOptions { DefaultThreshold = 2 });
-            var healthUpdater = new DestinationHealthUpdaterStub();
-            var policy = new ConsecutiveFailuresHealthPolicy(options, healthUpdater);
+            var policy = new ConsecutiveFailuresHealthPolicy(options, new DestinationHealthUpdaterStub());
             var cluster = GetClusterInfo("cluster0", destinationCount: 2);
 
             var probingResults = new[] {
@@ -109,9 +104,10 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 new DestinationProbingResult(cluster.DestinationManager.Items[1], new HttpResponseMessage(HttpStatusCode.OK), null)
             };
 
-            policy.ProbingCompleted(cluster, probingResults);
-            healthUpdater.VerifyActiveHealth(cluster,
-                new[] { (cluster.DestinationManager.Items.Value[0], DestinationHealth.Healthy), (cluster.DestinationManager.Items.Value[1], DestinationHealth.Healthy) });
+            for (var i = 0; i < 2; i++)
+            {
+                policy.ProbingCompleted(cluster, probingResults);
+            }
 
             Assert.Equal(DestinationHealth.Unhealthy, cluster.DestinationManager.Items[0].Health.Active);
             Assert.Equal(DestinationHealth.Healthy, cluster.DestinationManager.Items[1].Health.Active);
@@ -153,32 +149,14 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 
         private class DestinationHealthUpdaterStub : IDestinationHealthUpdater
         {
-            private readonly Dictionary<ClusterInfo, Dictionary<DestinationInfo, DestinationHealth>> _latestUpdates =
-                new Dictionary<ClusterInfo, Dictionary<DestinationInfo, DestinationHealth>>();
-
-            public Task SetActiveAsync(ClusterInfo cluster, IEnumerable<(DestinationInfo Destination, DestinationHealth NewHealth)> newHealths)
+            public void SetActive(ClusterInfo cluster, IEnumerable<(DestinationInfo Destination, DestinationHealth NewHealth)> newHealths)
             {
-                _latestUpdates.Add(cluster, newHealths.ToDictionary(p => p.Destination, p => p.NewHealth));
-                return Task.CompletedTask;
-            }
-
-            public void VerifyActiveHealth(ClusterInfo cluster, IEnumerable<(DestinationInfo Destination, DestinationHealth Health)> expectedHealths)
-            {
-                var expectedHealthList = expectedHealths.ToList();
-                Assert.True(_latestUpdates.TryGetValue(cluster, out var actualHealths));
-                Assert.Equal(expectedHealthList.Count, actualHealths.Count);
-                foreach (var expectedPair in expectedHealthList)
+                foreach(var (destination, newHealth) in newHealths)
                 {
-                    Assert.True(actualHealths.TryGetValue(expectedPair.Destination, out var actualHealth));
-                    Assert.Equal(expectedPair.Health, actualHealth);
+                    destination.Health.Active = newHealth;
                 }
 
-                _latestUpdates.Remove(cluster);
-            }
-
-            public void VerifyNoActiveSets()
-            {
-                Assert.Empty(_latestUpdates);
+                cluster.UpdateDynamicState();
             }
 
             public Task SetPassiveAsync(ClusterInfo cluster, DestinationInfo destination, DestinationHealth newHealth, TimeSpan reactivationPeriod)

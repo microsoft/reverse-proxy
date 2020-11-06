@@ -27,11 +27,10 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         Task SetPassiveAsync(ClusterInfo cluster, DestinationInfo destination, DestinationHealth newHealth, TimeSpan reactivationPeriod);
 
         /// <summary>
-        /// Asynchronously sets the active health values on the given destinations.
+        /// Sets the active health values on the given destinations.
         /// </summary>
         /// <param name="cluster">Cluster.</param>
         /// <param name="newHealths">New active health values.</param>
-        /// <returns><see cref="Task"/> representing an active health update operation.</returns>
-        Task SetActiveAsync(ClusterInfo cluster, IEnumerable<(DestinationInfo Destination, DestinationHealth NewHealth)> newHealths);
+        void SetActive(ClusterInfo cluster, IEnumerable<(DestinationInfo Destination, DestinationHealth NewHealth)> newHealths);
     }
 }

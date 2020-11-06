@@ -33,46 +33,46 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             var cluster1 = GetClusterInfo("cluster1", destinationCount: 2, failureRateLimit: 0.61, reactivationPeriod1);
 
             // Initial state
-            Assert.All(cluster0.DestinationManager.Items.Value, d => Assert.Equal(DestinationHealth.Unknown, d.DynamicState.Health.Passive));
-            Assert.All(cluster1.DestinationManager.Items.Value, d => Assert.Equal(DestinationHealth.Unknown, d.DynamicState.Health.Passive));
+            Assert.All(cluster0.DestinationManager.Items, d => Assert.Equal(DestinationHealth.Unknown, d.Health.Passive));
+            Assert.All(cluster1.DestinationManager.Items, d => Assert.Equal(DestinationHealth.Unknown, d.Health.Passive));
 
             // Successful requests
             for (var i = 0; i < 3; i++)
             {
-                policy.RequestProxied(cluster0, cluster0.DestinationManager.Items.Value[0], new DefaultHttpContext());
-                policy.RequestProxied(cluster0, cluster0.DestinationManager.Items.Value[1], new DefaultHttpContext());
-                policy.RequestProxied(cluster1, cluster1.DestinationManager.Items.Value[0], new DefaultHttpContext());
-                policy.RequestProxied(cluster1, cluster1.DestinationManager.Items.Value[1], new DefaultHttpContext());
+                policy.RequestProxied(cluster0, cluster0.DestinationManager.Items[0], new DefaultHttpContext());
+                policy.RequestProxied(cluster0, cluster0.DestinationManager.Items[1], new DefaultHttpContext());
+                policy.RequestProxied(cluster1, cluster1.DestinationManager.Items[0], new DefaultHttpContext());
+                policy.RequestProxied(cluster1, cluster1.DestinationManager.Items[1], new DefaultHttpContext());
                 clock.TickCount += 4000;
             }
 
-            healthUpdater.Verify(u => u.SetPassiveAsync(cluster0, cluster0.DestinationManager.Items.Value[0], DestinationHealth.Healthy, reactivationPeriod0), Times.Exactly(3));
-            healthUpdater.Verify(u => u.SetPassiveAsync(cluster0, cluster0.DestinationManager.Items.Value[1], DestinationHealth.Healthy, reactivationPeriod0), Times.Exactly(3));
-            healthUpdater.Verify(u => u.SetPassiveAsync(cluster1, cluster1.DestinationManager.Items.Value[0], DestinationHealth.Healthy, reactivationPeriod1), Times.Exactly(3));
-            healthUpdater.Verify(u => u.SetPassiveAsync(cluster1, cluster1.DestinationManager.Items.Value[1], DestinationHealth.Healthy, reactivationPeriod1), Times.Exactly(3));
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster0, cluster0.DestinationManager.Items[0], DestinationHealth.Healthy, reactivationPeriod0), Times.Exactly(3));
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster0, cluster0.DestinationManager.Items[1], DestinationHealth.Healthy, reactivationPeriod0), Times.Exactly(3));
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster1, cluster1.DestinationManager.Items[0], DestinationHealth.Healthy, reactivationPeriod1), Times.Exactly(3));
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster1, cluster1.DestinationManager.Items[1], DestinationHealth.Healthy, reactivationPeriod1), Times.Exactly(3));
             healthUpdater.VerifyNoOtherCalls();
 
             // Failed requests
             for (var i = 0; i < 3; i++)
             {
-                policy.RequestProxied(cluster0, cluster0.DestinationManager.Items.Value[1], GetFailedRequestContext(ProxyError.RequestTimedOut));
-                policy.RequestProxied(cluster1, cluster1.DestinationManager.Items.Value[0], GetFailedRequestContext(ProxyError.Request));
+                policy.RequestProxied(cluster0, cluster0.DestinationManager.Items[1], GetFailedRequestContext(ProxyError.RequestTimedOut));
+                policy.RequestProxied(cluster1, cluster1.DestinationManager.Items[0], GetFailedRequestContext(ProxyError.Request));
                 clock.TickCount += 4000;
             }
 
-            healthUpdater.Verify(u => u.SetPassiveAsync(cluster0, cluster0.DestinationManager.Items.Value[1], DestinationHealth.Healthy, reactivationPeriod0), Times.Exactly(5));
-            healthUpdater.Verify(u => u.SetPassiveAsync(cluster0, cluster0.DestinationManager.Items.Value[1], DestinationHealth.Unhealthy, reactivationPeriod0), Times.Once);
-            healthUpdater.Verify(u => u.SetPassiveAsync(cluster1, cluster1.DestinationManager.Items.Value[0], DestinationHealth.Healthy, reactivationPeriod1), Times.Exactly(6));
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster0, cluster0.DestinationManager.Items[1], DestinationHealth.Healthy, reactivationPeriod0), Times.Exactly(5));
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster0, cluster0.DestinationManager.Items[1], DestinationHealth.Unhealthy, reactivationPeriod0), Times.Once);
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster1, cluster1.DestinationManager.Items[0], DestinationHealth.Healthy, reactivationPeriod1), Times.Exactly(6));
             healthUpdater.VerifyNoOtherCalls();
 
             // Two more failed requests
-            policy.RequestProxied(cluster1, cluster1.DestinationManager.Items.Value[0], GetFailedRequestContext(ProxyError.Request));
+            policy.RequestProxied(cluster1, cluster1.DestinationManager.Items[0], GetFailedRequestContext(ProxyError.Request));
             // End of the detection window
             clock.TickCount += 6000;
-            policy.RequestProxied(cluster1, cluster1.DestinationManager.Items.Value[0], GetFailedRequestContext(ProxyError.Request));
+            policy.RequestProxied(cluster1, cluster1.DestinationManager.Items[0], GetFailedRequestContext(ProxyError.Request));
 
-            healthUpdater.Verify(u => u.SetPassiveAsync(cluster1, cluster1.DestinationManager.Items.Value[0], DestinationHealth.Healthy, reactivationPeriod1), Times.Exactly(7));
-            healthUpdater.Verify(u => u.SetPassiveAsync(cluster1, cluster1.DestinationManager.Items.Value[0], DestinationHealth.Unhealthy, reactivationPeriod1), Times.Once);
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster1, cluster1.DestinationManager.Items[0], DestinationHealth.Healthy, reactivationPeriod1), Times.Exactly(7));
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster1, cluster1.DestinationManager.Items[0], DestinationHealth.Unhealthy, reactivationPeriod1), Times.Once);
             healthUpdater.VerifyNoOtherCalls();
         }
 
@@ -90,44 +90,44 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             // Initial failed requests
             for (var i = 0; i < 2; i++)
             {
-                policy.RequestProxied(cluster, cluster.DestinationManager.Items.Value[1], GetFailedRequestContext(ProxyError.RequestTimedOut));
+                policy.RequestProxied(cluster, cluster.DestinationManager.Items[1], GetFailedRequestContext(ProxyError.RequestTimedOut));
                 clock.TickCount += 1000;
             }
 
-            healthUpdater.Verify(u => u.SetPassiveAsync(cluster, cluster.DestinationManager.Items.Value[1], DestinationHealth.Unhealthy, TimeSpan.FromSeconds(60)), Times.Exactly(2));
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster, cluster.DestinationManager.Items[1], DestinationHealth.Unhealthy, TimeSpan.FromSeconds(60)), Times.Exactly(2));
             healthUpdater.VerifyNoOtherCalls();
 
             // Successful requests
             for (var i = 0; i < 4; i++)
             {
-                policy.RequestProxied(cluster, cluster.DestinationManager.Items.Value[0], new DefaultHttpContext());
-                policy.RequestProxied(cluster, cluster.DestinationManager.Items.Value[1], new DefaultHttpContext());
+                policy.RequestProxied(cluster, cluster.DestinationManager.Items[0], new DefaultHttpContext());
+                policy.RequestProxied(cluster, cluster.DestinationManager.Items[1], new DefaultHttpContext());
                 clock.TickCount += 5000;
             }
 
-            healthUpdater.Verify(u => u.SetPassiveAsync(cluster, cluster.DestinationManager.Items.Value[0], DestinationHealth.Healthy, TimeSpan.FromSeconds(60)), Times.Exactly(4));
-            healthUpdater.Verify(u => u.SetPassiveAsync(cluster, cluster.DestinationManager.Items.Value[1], DestinationHealth.Healthy, TimeSpan.FromSeconds(60)), Times.Exactly(2));
-            healthUpdater.Verify(u => u.SetPassiveAsync(cluster, cluster.DestinationManager.Items.Value[1], DestinationHealth.Unhealthy, TimeSpan.FromSeconds(60)), Times.Exactly(4));
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster, cluster.DestinationManager.Items[0], DestinationHealth.Healthy, TimeSpan.FromSeconds(60)), Times.Exactly(4));
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster, cluster.DestinationManager.Items[1], DestinationHealth.Healthy, TimeSpan.FromSeconds(60)), Times.Exactly(2));
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster, cluster.DestinationManager.Items[1], DestinationHealth.Unhealthy, TimeSpan.FromSeconds(60)), Times.Exactly(4));
             healthUpdater.VerifyNoOtherCalls();
 
             // Failed requests
             for (var i = 0; i < 2; i++)
             {
-                policy.RequestProxied(cluster, cluster.DestinationManager.Items.Value[1], GetFailedRequestContext(ProxyError.RequestTimedOut));
+                policy.RequestProxied(cluster, cluster.DestinationManager.Items[1], GetFailedRequestContext(ProxyError.RequestTimedOut));
                 clock.TickCount += 1;
             }
 
-            healthUpdater.Verify(u => u.SetPassiveAsync(cluster, cluster.DestinationManager.Items.Value[1], DestinationHealth.Healthy, TimeSpan.FromSeconds(60)), Times.Exactly(3));
-            healthUpdater.Verify(u => u.SetPassiveAsync(cluster, cluster.DestinationManager.Items.Value[1], DestinationHealth.Unhealthy, TimeSpan.FromSeconds(60)), Times.Exactly(5));
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster, cluster.DestinationManager.Items[1], DestinationHealth.Healthy, TimeSpan.FromSeconds(60)), Times.Exactly(3));
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster, cluster.DestinationManager.Items[1], DestinationHealth.Unhealthy, TimeSpan.FromSeconds(60)), Times.Exactly(5));
             healthUpdater.VerifyNoOtherCalls();
 
             // Shift the detection window to the future
             clock.TickCount += 10998;
 
             // New failed request, but 2 oldest failures have moved out of the detection window
-            policy.RequestProxied(cluster, cluster.DestinationManager.Items.Value[1], GetFailedRequestContext(ProxyError.RequestTimedOut));
+            policy.RequestProxied(cluster, cluster.DestinationManager.Items[1], GetFailedRequestContext(ProxyError.RequestTimedOut));
 
-            healthUpdater.Verify(u => u.SetPassiveAsync(cluster, cluster.DestinationManager.Items.Value[1], DestinationHealth.Healthy, TimeSpan.FromSeconds(60)), Times.Exactly(4));
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster, cluster.DestinationManager.Items[1], DestinationHealth.Healthy, TimeSpan.FromSeconds(60)), Times.Exactly(4));
             healthUpdater.VerifyNoOtherCalls();
         }
 
@@ -144,53 +144,53 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             var cluster = GetClusterInfo("cluster0", destinationCount: 2, reactivationPeriod: reactivationPeriod);
 
             // Initial state
-            Assert.All(cluster.DestinationManager.Items.Value, d => Assert.Equal(DestinationHealth.Unknown, d.DynamicState.Health.Passive));
+            Assert.All(cluster.DestinationManager.Items, d => Assert.Equal(DestinationHealth.Unknown, d.Health.Passive));
 
             // Initial sucessful requests
             for (var i = 0; i < 2; i++)
             {
-                policy.RequestProxied(cluster, cluster.DestinationManager.Items.Value[1], new DefaultHttpContext());
+                policy.RequestProxied(cluster, cluster.DestinationManager.Items[1], new DefaultHttpContext());
             }
 
-            healthUpdater.Verify(u => u.SetPassiveAsync(cluster, cluster.DestinationManager.Items.Value[1], DestinationHealth.Healthy, reactivationPeriod), Times.Exactly(2));
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster, cluster.DestinationManager.Items[1], DestinationHealth.Healthy, reactivationPeriod), Times.Exactly(2));
             healthUpdater.VerifyNoOtherCalls();
 
             // Concurrent failed requests.
             // They are 'concurrent' because the clock is not updated.
             for (var i = 0; i < 2; i++)
             {
-                policy.RequestProxied(cluster, cluster.DestinationManager.Items.Value[1], GetFailedRequestContext(ProxyError.RequestTimedOut));
+                policy.RequestProxied(cluster, cluster.DestinationManager.Items[1], GetFailedRequestContext(ProxyError.RequestTimedOut));
             }
 
-            healthUpdater.Verify(u => u.SetPassiveAsync(cluster, cluster.DestinationManager.Items.Value[1], DestinationHealth.Healthy, reactivationPeriod), Times.Exactly(3));
-            healthUpdater.Verify(u => u.SetPassiveAsync(cluster, cluster.DestinationManager.Items.Value[1], DestinationHealth.Unhealthy, reactivationPeriod), Times.Once);
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster, cluster.DestinationManager.Items[1], DestinationHealth.Healthy, reactivationPeriod), Times.Exactly(3));
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster, cluster.DestinationManager.Items[1], DestinationHealth.Unhealthy, reactivationPeriod), Times.Once);
             healthUpdater.VerifyNoOtherCalls();
 
             // More successful requests
             for (var i = 0; i < 2; i++)
             {
-                policy.RequestProxied(cluster, cluster.DestinationManager.Items.Value[1], new DefaultHttpContext());
+                policy.RequestProxied(cluster, cluster.DestinationManager.Items[1], new DefaultHttpContext());
                 clock.TickCount += 100;
             }
 
-            healthUpdater.Verify(u => u.SetPassiveAsync(cluster, cluster.DestinationManager.Items.Value[1], DestinationHealth.Healthy, reactivationPeriod), Times.Exactly(5));
-            healthUpdater.Verify(u => u.SetPassiveAsync(cluster, cluster.DestinationManager.Items.Value[1], DestinationHealth.Unhealthy, reactivationPeriod), Times.Once);
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster, cluster.DestinationManager.Items[1], DestinationHealth.Healthy, reactivationPeriod), Times.Exactly(5));
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster, cluster.DestinationManager.Items[1], DestinationHealth.Unhealthy, reactivationPeriod), Times.Once);
             healthUpdater.VerifyNoOtherCalls();
 
             // More failed requests
             for (var i = 0; i < 2; i++)
             {
-                policy.RequestProxied(cluster, cluster.DestinationManager.Items.Value[1], GetFailedRequestContext(ProxyError.RequestTimedOut));
+                policy.RequestProxied(cluster, cluster.DestinationManager.Items[1], GetFailedRequestContext(ProxyError.RequestTimedOut));
                 clock.TickCount += 100;
             }
 
-            healthUpdater.Verify(u => u.SetPassiveAsync(cluster, cluster.DestinationManager.Items.Value[1], DestinationHealth.Healthy, reactivationPeriod), Times.Exactly(6));
-            healthUpdater.Verify(u => u.SetPassiveAsync(cluster, cluster.DestinationManager.Items.Value[1], DestinationHealth.Unhealthy, reactivationPeriod), Times.Exactly(2));
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster, cluster.DestinationManager.Items[1], DestinationHealth.Healthy, reactivationPeriod), Times.Exactly(6));
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster, cluster.DestinationManager.Items[1], DestinationHealth.Unhealthy, reactivationPeriod), Times.Exactly(2));
             healthUpdater.VerifyNoOtherCalls();
 
-            policy.RequestProxied(cluster, cluster.DestinationManager.Items.Value[0], new DefaultHttpContext());
+            policy.RequestProxied(cluster, cluster.DestinationManager.Items[0], new DefaultHttpContext());
 
-            healthUpdater.Verify(u => u.SetPassiveAsync(cluster, cluster.DestinationManager.Items.Value[0], DestinationHealth.Healthy, reactivationPeriod), Times.Once);
+            healthUpdater.Verify(u => u.SetPassiveAsync(cluster, cluster.DestinationManager.Items[0], DestinationHealth.Healthy, reactivationPeriod), Times.Once);
             healthUpdater.VerifyNoOtherCalls();
         }
 
@@ -216,14 +216,14 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 default,
                 metadata);
             var clusterInfo = new ClusterInfo(id, new DestinationManager());
-            clusterInfo.ConfigSignal.Value = clusterConfig;
+            clusterInfo.Config = clusterConfig;
             for (var i = 0; i < destinationCount; i++)
             {
                 var destinationConfig = new DestinationConfig($"https://localhost:1000{i}/{id}/", $"https://localhost:2000{i}/{id}/");
                 var destinationId = $"destination{i}";
                 clusterInfo.DestinationManager.GetOrCreateItem(destinationId, d =>
                 {
-                    d.ConfigSignal.Value = destinationConfig;
+                    d.Config = destinationConfig;
                 });
             }
 

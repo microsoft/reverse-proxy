@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.RuntimeModel;
@@ -31,35 +30,24 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 
         public void ProbingCompleted(ClusterInfo cluster, IReadOnlyList<DestinationProbingResult> probingResults)
         {
+            if (probingResults.Count == 0)
+            {
+                return;
+            }
+
             var threshold = GetFailureThreshold(cluster);
-            var changed = false;
+
+            var newHealthPairs = new (DestinationInfo Destination, DestinationHealth NewHealth)[probingResults.Count];
             for (var i = 0; i < probingResults.Count; i++)
             {
                 var destination = probingResults[i].Destination;
 
                 var count = _failureCounters.GetOrCreateValue(destination);
                 var newHealth = EvaluateHealthState(threshold, probingResults[i].Response, count);
-
-                var healthState = destination.Health;
-                if (newHealth != healthState.Active)
-                {
-                    healthState.Active = newHealth;
-                    changed = true;
-                    if (newHealth == DestinationHealth.Unhealthy)
-                    {
-                        Log.ActiveDestinationHealthStateIsSetToUnhealthy(_logger, destination.DestinationId, cluster.ClusterId);
-                    }
-                    else
-                    {
-                        Log.ActiveDestinationHealthStateIsSet(_logger, destination.DestinationId, cluster.ClusterId, newHealth);
-                    }
-                }
+                newHealthPairs[i] = (destination, newHealth);
             }
 
-            if (changed)
-            {
-                cluster.UpdateDynamicState();
-            }
+            _healthUpdater.SetActive(cluster, newHealthPairs);
         }
 
         private double GetFailureThreshold(ClusterInfo cluster)

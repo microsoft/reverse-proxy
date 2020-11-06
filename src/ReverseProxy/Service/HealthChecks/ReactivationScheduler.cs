@@ -12,18 +12,18 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 {
     internal class ReactivationScheduler : IReactivationScheduler, IDisposable
     {
-        private readonly EntityActionScheduler<DestinationInfo> _scheduler;
+        private readonly EntityActionScheduler<(ClusterInfo Cluster, DestinationInfo Destination)> _scheduler;
         private readonly ILogger<ReactivationScheduler> _logger;
 
         public ReactivationScheduler(ITimerFactory timerFactory, ILogger<ReactivationScheduler> logger)
         {
-            _scheduler = new EntityActionScheduler<DestinationInfo>(d => Reactivate(d), autoStart: true, runOnce: true, timerFactory);
+            _scheduler = new EntityActionScheduler<(ClusterInfo Cluster, DestinationInfo Destination)>(d => Reactivate(d.Cluster, d.Destination), autoStart: true, runOnce: true, timerFactory);
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public void Schedule(DestinationInfo destination, TimeSpan reactivationPeriod)
+        public void Schedule(ClusterInfo cluster, DestinationInfo destination, TimeSpan reactivationPeriod)
         {
-            _scheduler.ScheduleEntity(destination, reactivationPeriod);
+            _scheduler.ScheduleEntity((cluster, destination), reactivationPeriod);
             Log.UnhealthyDestinationIsScheduledForReactivation(_logger, destination.DestinationId, reactivationPeriod);
         }
 
@@ -32,14 +32,14 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             _scheduler.Dispose();
         }
 
-        private Task Reactivate(DestinationInfo destination)
+        private Task Reactivate(ClusterInfo cluster, DestinationInfo destination)
         {
             var healthState = destination.Health;
             if (healthState.Passive == DestinationHealth.Unhealthy)
             {
                 healthState.Passive = DestinationHealth.Unknown;
+                cluster.UpdateDynamicState();
                 Log.PassiveDestinationHealthResetToUnkownState(_logger, destination.DestinationId);
-                // TODO: Update cluster by calling cluster.UpdateDynamicState()
             }
 
             return Task.CompletedTask;

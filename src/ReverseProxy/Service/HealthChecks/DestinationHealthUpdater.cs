@@ -14,7 +14,6 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
     {
         private readonly IReactivationScheduler _reactivationScheduler;
         private readonly ILogger<DestinationHealthUpdater> _logger;
-        private readonly ConcurrentDictionary<ClusterInfo, object> _activeSynchTokens = new ConcurrentDictionary<ClusterInfo, object>();
 
         public DestinationHealthUpdater(IReactivationScheduler reactivationScheduler, ILogger<DestinationHealthUpdater> logger)
         {
@@ -22,61 +21,50 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public Task SetActiveAsync(ClusterInfo cluster, IEnumerable<(DestinationInfo Destination, DestinationHealth NewHealth)> newHealthPairs)
+        public void SetActive(ClusterInfo cluster, IEnumerable<(DestinationInfo Destination, DestinationHealth NewHealth)> newHealthPairs)
         {
-            if (!_activeSynchTokens.TryAdd(cluster, null))
+            var changed = false;
+            foreach (var newHealthPair in newHealthPairs)
             {
-                // Don't allow concurrent updates.
-                return Task.CompletedTask;
-            }
+                var destination = newHealthPair.Destination;
+                var newHealth = newHealthPair.NewHealth;
 
-            return Task.Run(() =>
-            {
-                try
+                var healthState = destination.Health;
+                if (newHealth != healthState.Active)
                 {
-                    cluster.PauseHealthyDestinationUpdates();
-
-                    foreach (var newHealthPair in newHealthPairs)
+                    healthState.Active = newHealth;
+                    changed = true;
+                    if (newHealth == DestinationHealth.Unhealthy)
                     {
-                        var destination = newHealthPair.Destination;
-                        var newHealth = newHealthPair.NewHealth;
-
-                        var state = destination.DynamicState;
-                        if (newHealth != state.Health.Active)
-                        {
-                            destination.DynamicState = new DestinationDynamicState(state.Health.ChangeActive(newHealth));
-
-                            if (newHealth == DestinationHealth.Unhealthy)
-                            {
-                                Log.ActiveDestinationHealthStateIsSetToUnhealthy(_logger, destination.DestinationId, cluster.ClusterId);
-                            }
-                            else
-                            {
-                                Log.ActiveDestinationHealthStateIsSet(_logger, destination.DestinationId, cluster.ClusterId, newHealth);
-                            }
-                        }
+                        Log.ActiveDestinationHealthStateIsSetToUnhealthy(_logger, destination.DestinationId, cluster.ClusterId);
+                    }
+                    else
+                    {
+                        Log.ActiveDestinationHealthStateIsSet(_logger, destination.DestinationId, cluster.ClusterId, newHealth);
                     }
                 }
-                finally
-                {
-                    cluster.ResumeHealthyDestinationUpdates();
-                    _activeSynchTokens.TryRemove(cluster, out _);
-                }
-            });
+            }
+
+            if (changed)
+            {
+                cluster.UpdateDynamicState();
+            }
         }
 
         public Task SetPassiveAsync(ClusterInfo cluster, DestinationInfo destination, DestinationHealth newHealth, TimeSpan reactivationPeriod)
         {
             return Task.Run(() =>
             {
-                var state = destination.DynamicState;
-                if (newHealth != state.Health.Passive)
+                var healthState = destination.Health;
+                if (newHealth != healthState.Passive)
                 {
-                    destination.DynamicState = new DestinationDynamicState(state.Health.ChangePassive(newHealth));
+                    healthState.Passive = newHealth;
+
+                    cluster.UpdateDynamicState();
 
                     if (newHealth == DestinationHealth.Unhealthy)
                     {
-                        _reactivationScheduler.Schedule(destination, reactivationPeriod);
+                        _reactivationScheduler.Schedule(cluster, destination, reactivationPeriod);
                     }
                 }
             });
