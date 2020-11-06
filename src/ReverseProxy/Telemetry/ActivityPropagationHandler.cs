@@ -41,7 +41,7 @@ namespace Microsoft.ReverseProxy.Telemetry
 
             if (request == null)
             {
-                throw new ArgumentNullException(nameof(request)); //, SR.net_http_handler_norequest); TODO: Is this really necessary?
+                throw new ArgumentNullException(nameof(request));
             }
 
             // If we are on at all, we propagate current activity information
