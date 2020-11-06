@@ -22,7 +22,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         {
             var options = Options.Create(
                 new TransportFailureRateHealthPolicyOptions { DefaultFailureRateLimit = 0.5, DetectionWindowSize = TimeSpan.FromSeconds(30), MinimalTotalCountThreshold = 1 });
-            var clock = new UptimeClockStub { TickCount = 10000 };
+            var clock = new ClockStub { TickCount = 10000 };
             var healthUpdater = new Mock<IDestinationHealthUpdater>();
             var policy = new TransportFailureRateHealthPolicy(options, clock, healthUpdater.Object);
             Assert.Equal(HealthCheckConstants.PassivePolicy.TransportFailureRate, policy.Name);
@@ -81,7 +81,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         {
             var options = Options.Create(
                 new TransportFailureRateHealthPolicyOptions { DefaultFailureRateLimit = 0.5, DetectionWindowSize = TimeSpan.FromSeconds(30), MinimalTotalCountThreshold = 1 });
-            var clock = new UptimeClockStub { TickCount = 10000 };
+            var clock = new ClockStub { TickCount = 10000 };
             var healthUpdater = new Mock<IDestinationHealthUpdater>();
             var policy = new TransportFailureRateHealthPolicy(options, clock, healthUpdater.Object);
 
@@ -136,7 +136,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         {
             var options = Options.Create(
                 new TransportFailureRateHealthPolicyOptions { DefaultFailureRateLimit = 0.5, DetectionWindowSize = TimeSpan.FromSeconds(30), MinimalTotalCountThreshold = 1 });
-            var clock = new UptimeClockStub { TickCount = 10000 };
+            var clock = new ClockStub { TickCount = 10000 };
             var healthUpdater = new Mock<IDestinationHealthUpdater>();
             var reactivationPeriod = TimeSpan.FromSeconds(15);
             var policy = new TransportFailureRateHealthPolicy(options, clock, healthUpdater.Object);
@@ -230,9 +230,14 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             return clusterInfo;
         }
 
-        private class UptimeClockStub : IUptimeClock
+        private class ClockStub : IClock
         {
             public long TickCount { get; set; }
+
+            public long GetStopwatchTimestamp()
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }
