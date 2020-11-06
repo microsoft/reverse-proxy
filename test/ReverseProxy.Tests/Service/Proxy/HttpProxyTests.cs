@@ -1198,7 +1198,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "GET";
             httpContext.Request.Host = new HostString("example.com:3456");
-            var responseBody = new TestResponseBody() { InnerStream = new ThrowStream() };
+            var responseBody = new TestResponseBody(new ThrowStream());
             httpContext.Features.Set<IHttpResponseFeature>(responseBody);
             httpContext.Features.Set<IHttpResponseBodyFeature>(responseBody);
             httpContext.Features.Set<IHttpRequestLifetimeFeature>(responseBody);
@@ -1716,138 +1716,58 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             public IHeaderDictionary Trailers { get; set; } = new HeaderDictionary();
         }
 
-        private class ThrowStream : Stream
+        private class ThrowStream : DelegatingStream
         {
             private bool _firstRead = true;
 
             public ThrowStream(bool throwOnFirstRead = true)
+                : base(Stream.Null)
             {
                 ThrowOnFirstRead = throwOnFirstRead;
             }
 
-            public override bool CanRead => true;
-
-            public override bool CanSeek => false;
-
-            public override bool CanWrite => true;
-
-            public override long Length => throw new NotSupportedException();
-
-            public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
-
             public bool ThrowOnFirstRead { get; }
 
-            public override void Flush()
-            {
-                throw new NotImplementedException();
-            }
-
-            public override Task FlushAsync(CancellationToken cancellationToken)
-            {
-                // If we want this to throw then make it conditional. Write is more interesting.
-                return Task.CompletedTask;
-            }
-
-            public override int Read(byte[] buffer, int offset, int count)
-            {
-                throw new NotImplementedException();
-            }
-
-            public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+            public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 if (_firstRead && !ThrowOnFirstRead)
                 {
                     _firstRead = false;
-                    return Task.FromResult(1);
+                    return new ValueTask<int>(1);
                 }
                 throw new IOException("Fake connection issue");
             }
 
-            public override long Seek(long offset, SeekOrigin origin)
-            {
-                throw new NotSupportedException();
-            }
-
-            public override void SetLength(long value)
-            {
-                throw new NotSupportedException();
-            }
-
-            public override void Write(byte[] buffer, int offset, int count)
-            {
-                throw new NotImplementedException();
-            }
-
-            public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+            public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 throw new IOException("Fake connection issue");
             }
         }
 
-        private class StallStream : Stream
+        private class StallStream : DelegatingStream
         {
-            public StallStream(Task until) : this(_ => until) 
-            {
-            }
+            public StallStream(Task until)
+                : this(_ => until)
+            { }
 
             public StallStream(Func<CancellationToken, Task> onStallAction)
+                : base(Stream.Null)
             {
                 OnStallAction = onStallAction;
             }
 
-            public override bool CanRead => true;
-
-            public override bool CanSeek => false;
-
-            public override bool CanWrite => true;
-
-            public override long Length => throw new NotSupportedException();
-
-            public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
-
             public Func<CancellationToken, Task> OnStallAction { get; }
 
-            public override void Flush()
-            {
-                throw new NotImplementedException();
-            }
-
-            public override Task FlushAsync(CancellationToken cancellationToken)
-            {
-                // If we want this to throw then make it conditional. Write is more interesting.
-                return Task.CompletedTask;
-            }
-
-            public override int Read(byte[] buffer, int offset, int count)
-            {
-                throw new NotImplementedException();
-            }
-
-            public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+            public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
             {
                 await OnStallAction(cancellationToken);
                 cancellationToken.ThrowIfCancellationRequested();
                 throw new IOException();
             }
 
-            public override long Seek(long offset, SeekOrigin origin)
-            {
-                throw new NotSupportedException();
-            }
-
-            public override void SetLength(long value)
-            {
-                throw new NotSupportedException();
-            }
-
-            public override void Write(byte[] buffer, int offset, int count)
-            {
-                throw new NotImplementedException();
-            }
-
-            public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+            public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
             {
                 await OnStallAction(cancellationToken);
                 cancellationToken.ThrowIfCancellationRequested();
@@ -1855,9 +1775,19 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             }
         }
 
-        private class TestResponseBody : Stream, IHttpResponseBodyFeature, IHttpResponseFeature, IHttpRequestLifetimeFeature
+        private class TestResponseBody : DelegatingStream, IHttpResponseBodyFeature, IHttpResponseFeature, IHttpRequestLifetimeFeature
         {
-            public Stream InnerStream { get; set; } = new MemoryStream();
+            public TestResponseBody()
+                : this(new MemoryStream())
+            { }
+
+            public TestResponseBody(Stream innerStream)
+                : base(innerStream)
+            {
+                InnerStream = innerStream;
+            }
+
+            public Stream InnerStream { get; }
 
             public bool Aborted { get; private set; }
 
@@ -1865,15 +1795,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
             public PipeWriter Writer => throw new NotImplementedException();
 
-            public override bool CanRead => false;
-
-            public override bool CanSeek => false;
-
-            public override bool CanWrite => true;
-
-            public override long Length => throw new NotSupportedException();
-
-            public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
             public int StatusCode { get; set; } = 200;
             public string ReasonPhrase { get; set; }
             public IHeaderDictionary Headers { get; set; } = new HeaderDictionary();
@@ -1896,11 +1817,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 throw new NotImplementedException();
             }
 
-            public override void Flush()
-            {
-                throw new NotImplementedException();
-            }
-
             public void OnCompleted(Func<object, Task> callback, object state)
             {
                 throw new NotImplementedException();
@@ -1911,31 +1827,20 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 throw new NotImplementedException();
             }
 
-            public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
-
-            public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
-
             public Task SendFileAsync(string path, long offset, long? count, CancellationToken cancellationToken = default)
             {
                 throw new NotImplementedException();
             }
-
-            public override void SetLength(long value) => throw new NotSupportedException();
 
             public Task StartAsync(CancellationToken cancellationToken = default)
             {
                 throw new NotImplementedException();
             }
 
-            public override void Write(byte[] buffer, int offset, int count)
-            {
-                throw new NotImplementedException();
-            }
-
-            public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+            public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
             {
                 OnStart();
-                return InnerStream.WriteAsync(buffer, offset, count, cancellationToken);
+                return base.WriteAsync(buffer, cancellationToken);
             }
 
             private void OnStart()
@@ -1947,72 +1852,27 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             }
         }
 
-        private class OnCompletedReadStream : Stream
+        private class OnCompletedReadStream : DelegatingStream
         {
             public OnCompletedReadStream(Action onCompleted)
+                : base(Stream.Null)
             {
                 OnCompleted = onCompleted;
             }
 
-            public override bool CanRead => true;
-
-            public override bool CanSeek => false;
-
-            public override bool CanWrite => false;
-
-            public override long Length => throw new NotSupportedException();
-
-            public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
-
             public Action OnCompleted { get; }
 
-            public override void Flush()
-            {
-                throw new NotImplementedException();
-            }
-
-            public override Task FlushAsync(CancellationToken cancellationToken)
-            {
-                // If we want this to throw then make it conditional. Write is more interesting.
-                return Task.CompletedTask;
-            }
-
-            public override int Read(byte[] buffer, int offset, int count)
-            {
-                throw new NotImplementedException();
-            }
-
-            public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+            public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
             {
                 OnCompleted();
-                return Task.FromResult(0);
-            }
-
-            public override long Seek(long offset, SeekOrigin origin)
-            {
-                throw new NotSupportedException();
-            }
-
-            public override void SetLength(long value)
-            {
-                throw new NotSupportedException();
-            }
-
-            public override void Write(byte[] buffer, int offset, int count)
-            {
-                throw new NotImplementedException();
-            }
-
-            public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
-            {
-                throw new NotImplementedException();
+                return new ValueTask<int>(0);
             }
         }
 
         private class TestRequestParametersTransform : RequestParametersTransform
         {
             private readonly Action<RequestParametersTransformContext> _transformation;
-            
+
             public TestRequestParametersTransform(Action<RequestParametersTransformContext> transformation)
             {
                 _transformation = transformation;
