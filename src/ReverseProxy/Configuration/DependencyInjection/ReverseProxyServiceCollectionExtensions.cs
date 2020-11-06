@@ -9,6 +9,7 @@ using Microsoft.ReverseProxy.Configuration.Contract;
 using Microsoft.ReverseProxy.Configuration.DependencyInjection;
 using Microsoft.ReverseProxy.Service;
 using Microsoft.ReverseProxy.Service.Proxy;
+using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -23,6 +24,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         public static IServiceCollection AddHttpProxy(this IServiceCollection services)
         {
+            services.TryAddSingleton<IClock, Clock>();
             services.TryAddSingleton<IHttpProxy, HttpProxy>();
             return services;
         }
@@ -34,15 +36,13 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             var builder = new ReverseProxyBuilder(services);
             builder
-                .AddTelemetryShims()
                 .AddConfigBuilder()
                 .AddRuntimeStateManagers()
                 .AddConfigManager()
                 .AddSessionAffinityProvider()
                 .AddActiveHealthChecks()
                 .AddPassiveHealthCheck()
-                .AddProxy()
-                .AddBackgroundWorkers();
+                .AddProxy();
 
             services.AddDataProtection();
             services.AddAuthorization();

@@ -81,7 +81,7 @@ namespace Microsoft.ReverseProxy.Service.Management
             timerFactory.VerifyTimer(1, Period1);
 
             timerFactory.FireTimer(1);
-            
+
             Assert.Same(entity1, lastInvokedEntity);
 
             VerifyEntities(scheduler, entity0);
@@ -224,7 +224,7 @@ namespace Microsoft.ReverseProxy.Service.Management
         private void VerifyEntities(EntityActionScheduler<Entity> scheduler, params Entity[] entities)
         {
             var actualCount = 0;
-            foreach(var entity in entities)
+            foreach (var entity in entities)
             {
                 Assert.True(scheduler.IsScheduled(entity));
                 actualCount++;

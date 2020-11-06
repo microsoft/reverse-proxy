@@ -6,7 +6,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
     /// <summary>
     /// Errors reported when proxying a request to the destination.
     /// </summary>
-    public enum ProxyError
+    public enum ProxyError : int
     {
         /// <summary>
         /// No error.
