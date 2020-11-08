@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.ReverseProxy.Configuration.Contract;
+using Microsoft.Extensions.Configuration;
 
 namespace Microsoft.ReverseProxy.Configuration
 {
@@ -23,12 +23,24 @@ namespace Microsoft.ReverseProxy.Configuration
         }
 
         /// <inheritdoc/>
-        public X509Certificate2 LoadCertificate(CertificateConfigData certificateConfig)
+        public X509Certificate2 LoadCertificate(IConfigurationSection certificateSection)
         {
-            if (certificateConfig is null)
+            if (certificateSection?.Exists() is false)
             {
                 return null;
             }
+
+            var certificateConfig = new CertificateConfigData
+            {
+                AllowInvalid = bool.TryParse(certificateSection[nameof(CertificateConfigData.AllowInvalid)], out var allowInvalid) ? allowInvalid : default,
+                KeyPath = certificateSection[nameof(CertificateConfigData.KeyPath)],
+                Location = certificateSection[nameof(CertificateConfigData.Location)],
+                Password = certificateSection[nameof(CertificateConfigData.Password)],
+                Path = certificateSection[nameof(CertificateConfigData.Path)],
+                Store = certificateSection[nameof(CertificateConfigData.Store)],
+                Subject = certificateSection[nameof(CertificateConfigData.Subject)],
+            };
+
 
             if (certificateConfig.IsFileCert && certificateConfig.IsStoreCert)
             {
@@ -268,6 +280,27 @@ namespace Microsoft.ReverseProxy.Configuration
         private static InvalidOperationException GetCertificateNotFoundInStoreException(string subject, string storeName, StoreLocation storeLocation, bool allowInvalid)
         {
             return new InvalidOperationException($"Certificate was not found in the store. Parameters: Subject={subject}, StoreLocation={storeLocation}, StoreName={storeName}, AllowInvalid={allowInvalid}");
+        }
+
+        private class CertificateConfigData
+        {
+            public string Path { get; set; }
+
+            public string KeyPath { get; set; }
+
+            public string Password { get; set; }
+
+            public string Subject { get; set; }
+
+            public string Store { get; set; }
+
+            public string Location { get; set; }
+
+            public bool? AllowInvalid { get; set; }
+
+            internal bool IsFileCert => !string.IsNullOrEmpty(Path);
+
+            internal bool IsStoreCert => !string.IsNullOrEmpty(Subject);
         }
     }
 }
