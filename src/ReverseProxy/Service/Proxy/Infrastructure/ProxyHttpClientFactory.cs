@@ -67,7 +67,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
 
             Log.ProxyClientCreated(_logger, context.ClusterId);
 
-            if (newClientOptions.PropagateActivityContext)
+            if (newClientOptions.PropagateActivityContext.GetValueOrDefault(true))
             {
                 return new HttpMessageInvoker(new ActivityPropagationHandler(handler), disposeHandler: true);
             }

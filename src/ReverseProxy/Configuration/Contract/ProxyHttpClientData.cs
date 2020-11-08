@@ -16,7 +16,7 @@ namespace Microsoft.ReverseProxy.Configuration.Contract
 
         public int? MaxConnectionsPerServer { get; set; }
 
-        public bool PropagateActivityContext { get; set; }
+        public bool? PropagateActivityContext { get; set; }
 
         // TODO: Add this property once we have migrated to SDK version that supports it.
         //public bool? EnableMultipleHttp2Connections { get; set; }

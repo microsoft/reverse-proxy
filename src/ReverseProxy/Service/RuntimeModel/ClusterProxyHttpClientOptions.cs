@@ -15,7 +15,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
             bool acceptAnyServerCertificate,
             X509Certificate2 clientCertificate,
             int? maxConnectionsPerServer,
-            bool propagateActivityContext)
+            bool? propagateActivityContext)
         {
             SslProtocols = sslProtocols;
             DangerousAcceptAnyServerCertificate = acceptAnyServerCertificate;
@@ -32,7 +32,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
 
         public int? MaxConnectionsPerServer { get; }
 
-        public bool PropagateActivityContext { get; }
+        public bool? PropagateActivityContext { get; }
 
         // TODO: Add this property once we have migrated to SDK version that supports it.
         //public bool? EnableMultipleHttp2Connections { get; }

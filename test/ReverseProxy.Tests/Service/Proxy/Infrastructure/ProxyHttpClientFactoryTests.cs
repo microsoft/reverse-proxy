@@ -110,7 +110,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var handler = GetHandler(client);
 
             Assert.NotNull(handler);
-            // TODO Assert.Equal(true, handler.prop);
+            // TODO Assert.Equal(true, handler);
             VerifyDefaultValues(handler, "MaxConnectionsPerServer");
         }
 
