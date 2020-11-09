@@ -23,11 +23,6 @@ namespace Microsoft.ReverseProxy.Telemetry
         private const string TraceParentHeaderName = "traceparent";
         private const string TraceStateHeaderName = "tracestate";
 
-        /// <summary>
-        /// ActivityPropagationHandler constructor
-        /// </summary>
-        /// <param name="innerHandler">Inner handler: Windows or Unix implementation of HttpMessageHandler.
-        /// Note that ActivityPropagationHandler is the latest in the pipeline </param>
         public ActivityPropagationHandler(HttpMessageHandler innerHandler) : base(innerHandler)
         {
         }
@@ -54,13 +49,12 @@ namespace Microsoft.ReverseProxy.Telemetry
             return base.SendAsync(request, cancellationToken);
         }
 
-        #region private
-
         private void InjectHeaders(Activity currentActivity, HttpRequestMessage request)
         {
             if (currentActivity.IdFormat == ActivityIdFormat.W3C)
             {
                 request.Headers.Remove(TraceParentHeaderName);
+                request.Headers.Remove(TraceStateHeaderName);
 
                 request.Headers.TryAddWithoutValidation(TraceParentHeaderName, currentActivity.Id);
                 if (currentActivity.TraceStateString != null)
@@ -90,7 +84,5 @@ namespace Microsoft.ReverseProxy.Telemetry
                 }
             }
         }
-
-        #endregion
     }
 }
