@@ -8,9 +8,9 @@ namespace Microsoft.ReverseProxy.Utilities
 {
     internal class TimerFactory : ITimerFactory
     {
-        public Timer CreateTimer(TimerCallback callback, object state, long dueTime, long period)
+        public ITimer CreateTimer(TimerCallback callback, object state, long dueTime, long period)
         {
-            return new Timer(callback, state, dueTime, period);
+            return new TimerWrapper(callback, state, dueTime, period);
         }
     }
 }

@@ -10,12 +10,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Patterns;
 using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Abstractions.Telemetry;
 using Microsoft.ReverseProxy.Common.Tests;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Management;
 using Microsoft.ReverseProxy.Service.Proxy;
-using Microsoft.ReverseProxy.Telemetry;
 using Moq;
 using Xunit;
 
@@ -23,11 +21,6 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
 {
     public class ProxyInvokerMiddlewareTests : TestAutoMockBase
     {
-        public ProxyInvokerMiddlewareTests()
-        {
-            Provide<IOperationLogger<ProxyInvokerMiddleware>, TextOperationLogger<ProxyInvokerMiddleware>>();
-        }
-
         [Fact]
         public void Constructor_Works()
         {
@@ -37,6 +30,8 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
         [Fact]
         public async Task Invoke_Works()
         {
+            var events = TestEventListener.Collect();
+
             // Arrange
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "GET";
@@ -126,6 +121,12 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             await task;
             Assert.Equal(0, cluster1.ConcurrencyCounter.Value);
             Assert.Equal(0, destination1.ConcurrencyCounter.Value);
+
+            var invoke = Assert.Single(events, e => e.EventName == "ProxyInvoke");
+            Assert.Equal(3, invoke.Payload.Count);
+            Assert.Equal(cluster1.ClusterId, (string)invoke.Payload[0]);
+            Assert.Equal(routeConfig.Route.RouteId, (string)invoke.Payload[1]);
+            Assert.Equal(destination1.DestinationId, (string)invoke.Payload[2]);
         }
 
         [Fact]

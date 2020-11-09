@@ -4,13 +4,11 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Abstractions.Telemetry;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Management;
 using Microsoft.ReverseProxy.Utilities;
 using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Net.Http;
 using System.Runtime.ExceptionServices;
 using System.Threading;
