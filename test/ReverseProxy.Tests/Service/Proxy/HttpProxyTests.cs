@@ -1551,6 +1551,19 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             events.AssertContainProxyStages(upgrade: true);
         }
 
+        [Fact]
+        public async Task ProxyAsync_WithHttpClient_Fails()
+        {
+            var httpClient = new HttpClient();
+            var httpContext = new DefaultHttpContext();
+            var destinationPrefix = "";
+            var requestProxyOptions = new RequestProxyOptions();
+            var proxy = CreateProxy();
+
+            await Assert.ThrowsAsync<ArgumentException>(() => proxy.ProxyAsync(httpContext,
+                destinationPrefix, httpClient, requestProxyOptions));
+        }
+
         private static void AssertProxyStartStop(List<EventWrittenEventArgs> events, string destinationPrefix, int statusCode)
         {
             AssertProxyStartFailedStop(events, destinationPrefix, statusCode, error: null);
