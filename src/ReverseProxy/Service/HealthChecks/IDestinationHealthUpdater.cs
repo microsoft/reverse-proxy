@@ -21,7 +21,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         /// <param name="destination">Destination.</param>
         /// <param name="newHealth">New passive health value.</param>
         /// <param name="reactivationPeriod">If <paramref name="newHealth"/> is <see cref="DestinationHealth.Unhealthy"/>,
-        /// this parameter secifies a reactivation period after which the destination's <see cref="CompositeDestinationHealth.Passive"/> value
+        /// this parameter specifies a reactivation period after which the destination's <see cref="DestinationHealthState.Passive"/> value
         /// will be reset to <see cref="DestinationHealth.Unknown"/>. Otherwise, it's not used.</param>
         /// <returns><see cref="Task"/> representing a passive health update operation.</returns>
         Task SetPassiveAsync(ClusterInfo cluster, DestinationInfo destination, DestinationHealth newHealth, TimeSpan reactivationPeriod);
@@ -30,7 +30,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         /// Sets the active health values on the given destinations.
         /// </summary>
         /// <param name="cluster">Cluster.</param>
-        /// <param name="newHealths">New active health values.</param>
-        void SetActive(ClusterInfo cluster, IEnumerable<(DestinationInfo Destination, DestinationHealth NewHealth)> newHealths);
+        /// <param name="newHealthStates">New active health states.</param>
+        void SetActive(ClusterInfo cluster, IEnumerable<NewActiveDestinationHealth> newHealthStates);
     }
 }

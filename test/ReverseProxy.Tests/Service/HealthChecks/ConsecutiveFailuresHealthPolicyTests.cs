@@ -149,11 +149,11 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 
         private class DestinationHealthUpdaterStub : IDestinationHealthUpdater
         {
-            public void SetActive(ClusterInfo cluster, IEnumerable<(DestinationInfo Destination, DestinationHealth NewHealth)> newHealths)
+            public void SetActive(ClusterInfo cluster, IEnumerable<NewActiveDestinationHealth> newHealthStates)
             {
-                foreach(var (destination, newHealth) in newHealths)
+                foreach(var newHealthState in newHealthStates)
                 {
-                    destination.Health.Active = newHealth;
+                    newHealthState.Destination.Health.Active = newHealthState.NewActiveHealth;
                 }
 
                 cluster.UpdateDynamicState();

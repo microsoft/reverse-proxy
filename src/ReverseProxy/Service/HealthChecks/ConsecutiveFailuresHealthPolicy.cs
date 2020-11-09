@@ -37,17 +37,17 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 
             var threshold = GetFailureThreshold(cluster);
 
-            var newHealthPairs = new (DestinationInfo Destination, DestinationHealth NewHealth)[probingResults.Count];
+            var newHealthStates = new NewActiveDestinationHealth[probingResults.Count];
             for (var i = 0; i < probingResults.Count; i++)
             {
                 var destination = probingResults[i].Destination;
 
                 var count = _failureCounters.GetOrCreateValue(destination);
                 var newHealth = EvaluateHealthState(threshold, probingResults[i].Response, count);
-                newHealthPairs[i] = (destination, newHealth);
+                newHealthStates[i] = new NewActiveDestinationHealth(destination, newHealth);
             }
 
-            _healthUpdater.SetActive(cluster, newHealthPairs);
+            _healthUpdater.SetActive(cluster, newHealthStates);
         }
 
         private double GetFailureThreshold(ClusterInfo cluster)

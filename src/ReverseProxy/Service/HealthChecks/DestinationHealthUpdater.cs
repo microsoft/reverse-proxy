@@ -2,32 +2,33 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.ReverseProxy.RuntimeModel;
+using Microsoft.ReverseProxy.Service.Management;
+using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Service.HealthChecks
 {
-    internal class DestinationHealthUpdater : IDestinationHealthUpdater
+    internal class DestinationHealthUpdater : IDestinationHealthUpdater, IDisposable
     {
-        private readonly IReactivationScheduler _reactivationScheduler;
+        private readonly EntityActionScheduler<(ClusterInfo Cluster, DestinationInfo Destination)> _scheduler;
         private readonly ILogger<DestinationHealthUpdater> _logger;
 
-        public DestinationHealthUpdater(IReactivationScheduler reactivationScheduler, ILogger<DestinationHealthUpdater> logger)
+        public DestinationHealthUpdater(ITimerFactory timerFactory, ILogger<DestinationHealthUpdater> logger)
         {
-            _reactivationScheduler = reactivationScheduler ?? throw new ArgumentNullException(nameof(reactivationScheduler));
+            _scheduler = new EntityActionScheduler<(ClusterInfo Cluster, DestinationInfo Destination)>(d => Reactivate(d.Cluster, d.Destination), autoStart: true, runOnce: true, timerFactory);
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public void SetActive(ClusterInfo cluster, IEnumerable<(DestinationInfo Destination, DestinationHealth NewHealth)> newHealthPairs)
+        public void SetActive(ClusterInfo cluster, IEnumerable<NewActiveDestinationHealth> newHealthPairs)
         {
             var changed = false;
             foreach (var newHealthPair in newHealthPairs)
             {
                 var destination = newHealthPair.Destination;
-                var newHealth = newHealthPair.NewHealth;
+                var newHealth = newHealthPair.NewActiveHealth;
 
                 var healthState = destination.Health;
                 if (newHealth != healthState.Active)
@@ -53,25 +54,58 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 
         public Task SetPassiveAsync(ClusterInfo cluster, DestinationInfo destination, DestinationHealth newHealth, TimeSpan reactivationPeriod)
         {
-            return Task.Run(() =>
+            return Task.Factory.StartNew(s =>
             {
-                var healthState = destination.Health;
-                if (newHealth != healthState.Passive)
+                (var c, var d, var h, var p) = ((ClusterInfo, DestinationInfo, DestinationHealth, TimeSpan)) s;
+                var healthState = d.Health;
+                if (h != healthState.Passive)
                 {
-                    healthState.Passive = newHealth;
-
-                    cluster.UpdateDynamicState();
-
-                    if (newHealth == DestinationHealth.Unhealthy)
-                    {
-                        _reactivationScheduler.Schedule(cluster, destination, reactivationPeriod);
-                    }
+                    healthState.Passive = h;
+                    ScheduleReactivation(c, d, h, p);
+                    c.UpdateDynamicState();
                 }
-            });
+            }, (cluster, destination, newHealth, reactivationPeriod), TaskCreationOptions.RunContinuationsAsynchronously);
+        }
+
+        private void ScheduleReactivation(ClusterInfo cluster, DestinationInfo destination, DestinationHealth newHealth, TimeSpan reactivationPeriod)
+        {
+            if (newHealth == DestinationHealth.Unhealthy)
+            {
+                _scheduler.ScheduleEntity((cluster, destination), reactivationPeriod);
+                Log.UnhealthyDestinationIsScheduledForReactivation(_logger, destination.DestinationId, reactivationPeriod);
+            }
+        }
+
+        public void Dispose()
+        {
+            _scheduler.Dispose();
+        }
+
+        private Task Reactivate(ClusterInfo cluster, DestinationInfo destination)
+        {
+            var healthState = destination.Health;
+            if (healthState.Passive == DestinationHealth.Unhealthy)
+            {
+                healthState.Passive = DestinationHealth.Unknown;
+                cluster.UpdateDynamicState();
+                Log.PassiveDestinationHealthResetToUnkownState(_logger, destination.DestinationId);
+            }
+
+            return Task.CompletedTask;
         }
 
         private static class Log
         {
+            private static readonly Action<ILogger, string, TimeSpan, Exception> _unhealthyDestinationIsScheduledForReactivation = LoggerMessage.Define<string, TimeSpan>(
+                LogLevel.Information,
+                EventIds.UnhealthyDestinationIsScheduledForReactivation,
+                "Destination `{destinationId}` marked as 'unhealthy` by the passive health check is scheduled for a reactivation in `{reactivationPeriod}`.");
+
+            private static readonly Action<ILogger, string, Exception> _passiveDestinationHealthResetToUnkownState = LoggerMessage.Define<string>(
+                LogLevel.Information,
+                EventIds.PassiveDestinationHealthResetToUnkownState,
+                "Passive health state of the destination `{destinationId}` is reset to 'unknown`.");
+
             private static readonly Action<ILogger, string, string, Exception> _activeDestinationHealthStateIsSetToUnhealthy = LoggerMessage.Define<string, string>(
                 LogLevel.Warning,
                 EventIds.ActiveDestinationHealthStateIsSetToUnhealthy,
@@ -90,6 +124,16 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             public static void ActiveDestinationHealthStateIsSet(ILogger logger, string destinationId, string clusterId, DestinationHealth newHealthState)
             {
                 _activeDestinationHealthStateIsSet(logger, destinationId, clusterId, newHealthState, null);
+            }
+
+            public static void UnhealthyDestinationIsScheduledForReactivation(ILogger logger, string destinationId, TimeSpan reactivationPeriod)
+            {
+                _unhealthyDestinationIsScheduledForReactivation(logger, destinationId, reactivationPeriod, null);
+            }
+
+            public static void PassiveDestinationHealthResetToUnkownState(ILogger logger, string destinationId)
+            {
+                _passiveDestinationHealthResetToUnkownState(logger, destinationId, null);
             }
         }
     }
