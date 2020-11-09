@@ -102,7 +102,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             // See discussion in https://github.com/microsoft/reverse-proxy/issues/458
             if (httpClient is HttpClient)
             {
-                throw new ArgumentException($"{nameof(httpClient)} should be of type HttpMessageInvoker, not HttpClient");
+                throw new ArgumentException($"The http client must be of type HttpMessageInvoker, not HttpClient", nameof(httpClient));
             }
 
             ProxyTelemetry.Log.ProxyStart(destinationPrefix);
