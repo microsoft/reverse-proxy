@@ -95,13 +95,14 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         {
             _ = context ?? throw new ArgumentNullException(nameof(context));
             _ = destinationPrefix ?? throw new ArgumentNullException(nameof(destinationPrefix));
+            _ = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _ = proxyOptions ?? throw new ArgumentNullException(nameof(proxyOptions));
 
             // HttpClient overload for SendAsync changes response behavior to fully buffered which impacts performance
             // See discussion in https://github.com/microsoft/reverse-proxy/issues/458
-            if (httpClient is HttpClient || httpClient == null)
+            if (httpClient is HttpClient)
             {
-                throw new ArgumentNullException(nameof(httpClient));
+                throw new InvalidOperationException($"{nameof(httpClient)} should be of type HttpMessageInvoker, not HttpClient");
             }
 
             ProxyTelemetry.Log.ProxyStart(destinationPrefix);
