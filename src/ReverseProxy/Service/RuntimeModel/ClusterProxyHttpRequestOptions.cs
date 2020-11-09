@@ -6,10 +6,10 @@ namespace Microsoft.ReverseProxy.RuntimeModel
     public readonly struct ClusterProxyHttpRequestOptions
     {
         public ClusterProxyHttpRequestOptions(
-            TimeSpan requestTimeout,
+            TimeSpan? requestTimeout,
             Version version
 #if NET
-            , HttpVersionPolicy versionPolicy
+            , HttpVersionPolicy? versionPolicy
 #endif
         )
         {
@@ -20,12 +20,12 @@ namespace Microsoft.ReverseProxy.RuntimeModel
 #endif
         }
 
-        public TimeSpan RequestTimeout { get; }
+        public TimeSpan? RequestTimeout { get; }
 
         public Version Version { get; }
 
 #if NET
-        public HttpVersionPolicy VersionPolicy { get; }
+        public HttpVersionPolicy? VersionPolicy { get; }
 #endif
     }
 }

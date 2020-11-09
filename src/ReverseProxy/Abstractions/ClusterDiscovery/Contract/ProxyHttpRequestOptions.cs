@@ -10,7 +10,7 @@ namespace Microsoft.ReverseProxy.Abstractions
         public Version Version { get; set; }
 
 #if NET
-        public HttpVersionPolicy VersionPolicy { get; set; }
+        public HttpVersionPolicy? VersionPolicy { get; set; }
 #endif
 
         internal ProxyHttpRequestOptions DeepClone()

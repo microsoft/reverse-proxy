@@ -82,16 +82,19 @@ namespace Microsoft.ReverseProxy.Middleware
             };
 
             var requestOptions = reverseProxyFeature.ClusterConfig.HttpRequestOptions;
-            if (requestOptions.RequestTimeout != default)
+            if (requestOptions.RequestTimeout.HasValue)
             {
-                proxyOptions.RequestTimeout = requestOptions.RequestTimeout;
+                proxyOptions.RequestTimeout = requestOptions.RequestTimeout.Value;
             }
-            if (requestOptions.Version != default)
+            if (requestOptions.Version != null)
             {
                 proxyOptions.Version = requestOptions.Version;
             }
 #if NET
-            proxyOptions.VersionPolicy = requestOptions.VersionPolicy;
+            if (requestOptions.VersionPolicy.HasValue)
+            {
+                proxyOptions.VersionPolicy = requestOptions.VersionPolicy.Value;
+            }
 #endif
 
             try

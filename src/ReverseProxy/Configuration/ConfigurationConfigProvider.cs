@@ -362,7 +362,7 @@ namespace Microsoft.ReverseProxy.Configuration
             }
 
             // Parse version only if it contains any characters; otherwise, leave it null.
-            var version = default(Version);
+            Version version = null;
             if (!string.IsNullOrEmpty(data.Version))
             {
                 version = Version.Parse(data.Version + (data.Version.Contains('.') ? "" : ".0"));

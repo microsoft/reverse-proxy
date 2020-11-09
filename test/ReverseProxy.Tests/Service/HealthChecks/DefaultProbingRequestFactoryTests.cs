@@ -33,16 +33,14 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         }
 
         [Theory]
-        [MemberData(nameof(RequestVersionMemberData))]
-        public void CreateRequest_RequestVersionProperties(Version version
-#if NET
-            , HttpVersionPolicy versionPolicy
-#endif
-        )
+        [InlineData("1.0")]
+        [InlineData(null)]
+        public void CreateRequest_RequestVersionProperties(string versionString)
         {
+            var version = versionString != null ? Version.Parse(versionString) : null;
             var clusterConfig = GetClusterConfig("cluster0", new ClusterActiveHealthCheckOptions(true, null, null, "policy", null), version
 #if NET
-                , versionPolicy
+                , HttpVersionPolicy.RequestVersionExact
 #endif
                 );
             var destinationConfig = new DestinationConfig("https://localhost:10000/", null);
@@ -52,21 +50,9 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 
             Assert.Equal(version ?? HttpVersion.Version20, request.Version);
 #if NET
-            Assert.Equal(versionPolicy, request.VersionPolicy);
+            Assert.Equal(HttpVersionPolicy.RequestVersionExact, request.VersionPolicy);
 #endif
         }
-
-        public static IEnumerable<object[]> RequestVersionMemberData() =>
-            from version in new[] { HttpVersion.Version10, HttpVersion.Version11, HttpVersion.Version20, null }
-#if NET
-            from policy in new [] { HttpVersionPolicy.RequestVersionExact, HttpVersionPolicy.RequestVersionOrHigher, HttpVersionPolicy.RequestVersionOrLower }
-#endif
-            select new object[] {
-                version
-#if NET
-                , policy
-#endif
-            };
 
         private ClusterConfig GetClusterConfig(string id, ClusterActiveHealthCheckOptions healthCheckOptions, Version version
 #if NET

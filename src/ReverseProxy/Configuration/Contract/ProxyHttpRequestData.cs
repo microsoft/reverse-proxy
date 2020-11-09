@@ -26,7 +26,7 @@ namespace Microsoft.ReverseProxy.Configuration.Contract
         /// Defines whether to upgrade or downgrade HTTP version if possible.
         /// Default is <c>RequestVersionOrLower</c>.
         /// </summary>
-        public HttpVersionPolicy VersionPolicy { get; set; }
+        public HttpVersionPolicy? VersionPolicy { get; set; }
 #endif
     }
 }

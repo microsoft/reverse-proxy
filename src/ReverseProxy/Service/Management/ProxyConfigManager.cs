@@ -314,10 +314,10 @@ namespace Microsoft.ReverseProxy.Service.Management
                                 httpClient,
                                 newClusterHttpClientOptions,
                                 new ClusterProxyHttpRequestOptions(
-                                    requestTimeout: newCluster.HttpRequest?.RequestTimeout ?? TimeSpan.FromSeconds(100),
-                                    version: newCluster.HttpRequest?.Version ?? HttpVersion.Version20
+                                    requestTimeout: newCluster.HttpRequest?.RequestTimeout,
+                                    version: newCluster.HttpRequest?.Version
 #if NET
-                                    , versionPolicy: newCluster.HttpRequest?.VersionPolicy ?? HttpVersionPolicy.RequestVersionOrLower
+                                    , versionPolicy: newCluster.HttpRequest?.VersionPolicy
 #endif
                                     ),
                                 (IReadOnlyDictionary<string, string>)newCluster.Metadata);
