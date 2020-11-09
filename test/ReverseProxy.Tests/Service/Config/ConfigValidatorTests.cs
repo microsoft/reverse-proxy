@@ -720,21 +720,21 @@ namespace Microsoft.ReverseProxy.Service.Tests
         [Theory]
         [InlineData(null, null, "Passive health policy name is not set")]
         [InlineData(-1, "passive0", "Unhealthy destination reactivation period")]
-        public async Task EnablePassiveHealthCheck_InvalidParameter_ErrorReturned(int? reactivationPeriod,
-            string policy, string expectedError)
+        public async Task EnablePassiveHealthCheck_InvalidParameter_ErrorReturned(int? reactivationPeriod, string policy, string expectedError)
         {
             var services = CreateServices();
             var validator = services.GetRequiredService<IConfigValidator>();
 
-            var cluster = new Cluster {
+            var cluster = new Cluster
+            {
                 Id = "cluster1",
-                HealthCheck = new HealthCheckOptions {
-                    Passive = new PassiveHealthCheckOptions {
+                HealthCheck = new HealthCheckOptions
+                {
+                    Passive = new PassiveHealthCheckOptions
+                    {
                         Enabled = true,
                         Policy = policy,
-                        ReactivationPeriod = reactivationPeriod != null
-                            ? TimeSpan.FromSeconds(reactivationPeriod.Value)
-                            : (TimeSpan?)null
+                        ReactivationPeriod = reactivationPeriod != null ? TimeSpan.FromSeconds(reactivationPeriod.Value) : (TimeSpan?)null
                     }
                 }
             };
