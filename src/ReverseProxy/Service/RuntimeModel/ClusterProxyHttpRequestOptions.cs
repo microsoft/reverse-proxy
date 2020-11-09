@@ -10,20 +10,20 @@ namespace Microsoft.ReverseProxy.RuntimeModel
     /// </summary>
     public readonly struct ClusterProxyHttpRequestOptions
     {
-        public ClusterProxyHttpRequestOptions(
-            TimeSpan? requestTimeout,
-            Version version
 #if NET
-            , HttpVersionPolicy? versionPolicy
-#endif
-        )
+        public ClusterProxyHttpRequestOptions(TimeSpan? requestTimeout, Version version, HttpVersionPolicy? versionPolicy)
         {
             RequestTimeout = requestTimeout;
             Version = version;
-#if NET
             VersionPolicy = versionPolicy;
-#endif
         }
+#else
+        public ClusterProxyHttpRequestOptions(TimeSpan? requestTimeout, Version version)
+        {
+            RequestTimeout = requestTimeout;
+            Version = version;
+        }
+#endif
 
         /// <summary>
         /// Timeout for the outgoing request.

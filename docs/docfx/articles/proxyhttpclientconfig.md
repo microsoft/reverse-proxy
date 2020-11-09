@@ -88,7 +88,7 @@ HTTP request configuration contract is defined by [ProxyHttpRequestData](xref:Mi
 
 Configuration settings:
 - RequestTimeout - the timeout for the outgoing request sent by [HttpMessageInvoker.SendAsync](https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httpmessageinvoker.sendasync?view=netcore-3.1). If not specified, 100 seconds is used.
-- Version - outgoing request [version](https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httprequestmessage.version?view=netcore-3.1). The supported values at the moment are 1.0, 1.1 and 2. Default value is 2.
+- Version - outgoing request [version](https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httprequestmessage.version?view=netcore-3.1). The supported values at the moment are `1.0`, `1.1` and `2`. Default value is 2.
 - VersionPolicy - defines how the final version is selected for the outgoing requests. This feature is available from .NET 5.0, see [HttpRequestMessage.VersionPolicy](https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httprequestmessage.versionpolicy?view=net-5.0). The default value is `RequestVersionOrLower`.
 
 
