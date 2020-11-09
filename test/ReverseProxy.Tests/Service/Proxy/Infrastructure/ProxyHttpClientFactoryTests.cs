@@ -104,14 +104,12 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         public void CreateClient_ApplyPropagateActivityContext_Success()
         {
             var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
-            var options = new ClusterProxyHttpClientOptions(default, default, default, default, true);
+            var options = new ClusterProxyHttpClientOptions(default, default, default, default, false);
             var client = factory.CreateClient(new ProxyHttpClientContext { NewOptions = options });
 
-            var handler = GetHandler(client);
+            var handler = GetHandler(client, expectActivityPropagationHandler: false);
 
             Assert.NotNull(handler);
-            // TODO Assert.Equal(true, handler);
-            VerifyDefaultValues(handler, "MaxConnectionsPerServer");
         }
 
         [Fact]
@@ -186,16 +184,18 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             };
         }
 
-        public static SocketsHttpHandler GetHandler(HttpMessageInvoker client)
+        public static SocketsHttpHandler GetHandler(HttpMessageInvoker client, bool expectActivityPropagationHandler = true)
         {
             var handlerFieldInfo = typeof(HttpMessageInvoker).GetFields(BindingFlags.Instance | BindingFlags.NonPublic).Single(f => f.Name == "_handler");
             var handler = handlerFieldInfo.GetValue(client);
 
             if (handler is ActivityPropagationHandler diagnosticsHandler)
             {
+                Assert.True(expectActivityPropagationHandler);
                 return (SocketsHttpHandler)diagnosticsHandler.InnerHandler;
             }
 
+            Assert.False(expectActivityPropagationHandler);
             return (SocketsHttpHandler)handler;
         }
 
