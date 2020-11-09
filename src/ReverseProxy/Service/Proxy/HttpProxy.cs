@@ -97,6 +97,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             _ = destinationPrefix ?? throw new ArgumentNullException(nameof(destinationPrefix));
             _ = proxyOptions ?? throw new ArgumentNullException(nameof(proxyOptions));
 
+            // HttpClient overload for SendAsync changes response behavior to fully buffered which impacts performance
+            // See discussion in https://github.com/microsoft/reverse-proxy/issues/458
             if (httpClient is HttpClient || httpClient == null)
             {
                 throw new ArgumentNullException(nameof(httpClient));
