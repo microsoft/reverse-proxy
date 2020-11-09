@@ -95,8 +95,12 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         {
             _ = context ?? throw new ArgumentNullException(nameof(context));
             _ = destinationPrefix ?? throw new ArgumentNullException(nameof(destinationPrefix));
-            _ = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _ = proxyOptions ?? throw new ArgumentNullException(nameof(proxyOptions));
+
+            if (httpClient is HttpClient || httpClient == null)
+            {
+                throw new ArgumentNullException(nameof(httpClient));
+            }
 
             ProxyTelemetry.Log.ProxyStart(destinationPrefix);
             try
