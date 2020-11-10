@@ -12,7 +12,7 @@ namespace Microsoft.ReverseProxy.Abstractions
         /// Timeout for the outgoing request.
         /// Default is 100 seconds.
         /// </summary>
-        public TimeSpan? Timeout { get; set; }
+        public TimeSpan? RequestTimeout { get; set; }
 
         /// <summary>
         /// HTTP version for the outgoing request.
@@ -33,7 +33,7 @@ namespace Microsoft.ReverseProxy.Abstractions
         {
             return new ProxyHttpRequestOptions
             {
-                Timeout = Timeout,
+                RequestTimeout = RequestTimeout,
                 Version = Version,
 #if NET
                 VersionPolicy = VersionPolicy,
@@ -53,7 +53,7 @@ namespace Microsoft.ReverseProxy.Abstractions
                 return false;
             }
 
-            return options1.Timeout == options2.Timeout
+            return options1.RequestTimeout == options2.RequestTimeout
                    && options1.Version == options2.Version
 #if NET
                    && options1.VersionPolicy == options2.VersionPolicy

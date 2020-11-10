@@ -17,13 +17,16 @@ namespace Microsoft.ReverseProxy.RuntimeModel
             Version = version;
             VersionPolicy = versionPolicy;
         }
-#else
+#endif
+
         public ClusterProxyHttpRequestOptions(TimeSpan? requestTimeout, Version version)
         {
             RequestTimeout = requestTimeout;
             Version = version;
-        }
+#if NET
+            VersionPolicy = HttpVersionPolicy.RequestVersionOrLower;
 #endif
+        }
 
         /// <summary>
         /// Timeout for the outgoing request.

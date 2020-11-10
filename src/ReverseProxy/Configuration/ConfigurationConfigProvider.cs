@@ -370,7 +370,7 @@ namespace Microsoft.ReverseProxy.Configuration
 
             return new ProxyHttpRequestOptions
             {
-                Timeout = data.RequestTimeout,
+                RequestTimeout = data.RequestTimeout,
                 Version = version,
 #if NET
                 VersionPolicy = data.VersionPolicy,

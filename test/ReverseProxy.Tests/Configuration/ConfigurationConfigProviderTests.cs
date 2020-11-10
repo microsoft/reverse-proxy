@@ -599,7 +599,7 @@ namespace Microsoft.ReverseProxy.Configuration
             Assert.Equal(validConfig.Clusters["cluster1"].HttpClient.MaxConnectionsPerServer, abstractCluster1.HttpClient.MaxConnectionsPerServer);
             Assert.Equal(SslProtocols.Tls11 | SslProtocols.Tls12, abstractCluster1.HttpClient.SslProtocols);
             Assert.Equal(validConfig.Clusters["cluster1"].HttpClient.DangerousAcceptAnyServerCertificate, abstractCluster1.HttpClient.DangerousAcceptAnyServerCertificate);
-            Assert.Equal(validConfig.Clusters["cluster1"].HttpRequest.RequestTimeout, abstractCluster1.HttpRequest.Timeout);
+            Assert.Equal(validConfig.Clusters["cluster1"].HttpRequest.RequestTimeout, abstractCluster1.HttpRequest.RequestTimeout);
             Assert.Equal(HttpVersion.Version10, abstractCluster1.HttpRequest.Version);
 #if NET
             Assert.Equal(validConfig.Clusters["cluster1"].HttpRequest.VersionPolicy, abstractCluster1.HttpRequest.VersionPolicy);
