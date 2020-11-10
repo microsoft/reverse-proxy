@@ -104,7 +104,7 @@ DestinationProbingResult
 (Evaluate new destination active health states using probing results)
         |
         V
-IActiveHealthCheckPolicy --(New active health state)--> IDestinationHealthUpdater --(Update for each)--> DestinationInfo.Health.Active
+IActiveHealthCheckPolicy --(New active health states)--> IDestinationHealthUpdater --(Update each destination's)--> DestinationInfo.Health.Active
 ```
 There are default built-in implementations for all of the aforementioned components which can also be replaced with custom ones when necessary.
 
@@ -292,7 +292,7 @@ The main component is [PassiveHealthCheckMiddleware](xref:Microsoft.ReverseProxy
 There is one main extensibility point in the passive health check subsystem.
 
 #### IPassiveHealthCheckPolicy
-[IPassiveHealthCheckPolicy](xref:Microsoft.ReverseProxy.Service.HealthChecks.IPassiveHealthCheckPolicy) analyzes how a destination responded to proxied client requests, evaluates its new passive health state and then call `IDestinationHealthUpdater.SetPassiveAsync` to create an async task actually updating the passive health state and rebuilding the healthy destination collection.
+[IPassiveHealthCheckPolicy](xref:Microsoft.ReverseProxy.Service.HealthChecks.IPassiveHealthCheckPolicy) analyzes how a destination responded to a proxied client request, evaluates its new passive health state and finally calls `IDestinationHealthUpdater.SetPassiveAsync` to create an async task actually updating the passive health state and rebuilding the healthy destination collection.
 
 The below is a simple example of a custom `IPassiveHealthCheckPolicy` marking destination as `Unhealthy` on the first unsuccessful response to a proxied request.
 
