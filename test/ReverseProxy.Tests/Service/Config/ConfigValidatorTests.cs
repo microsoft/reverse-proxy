@@ -561,6 +561,76 @@ namespace Microsoft.ReverseProxy.Service.Tests
             Assert.Equal("No matching IAffinityFailurePolicy found for the affinity failure policy name 'Invalid' set on the cluster 'cluster1'.", ex.Message);
         }
 
+        [Fact]
+        public async Task Accepts_RequestVersion_Null()
+        {
+            var services = CreateServices();
+            var validator = services.GetRequiredService<IConfigValidator>();
+
+            var cluster = new Cluster
+            {
+                Id = "cluster1",
+                HttpRequest = new ProxyHttpRequestOptions()
+                {
+                    Version = null,
+                }
+            };
+
+            var errors = await validator.ValidateClusterAsync(cluster);
+
+            Assert.Empty(errors);
+        }
+
+        [Theory]
+        [InlineData(1,0)]
+        [InlineData(1,1)]
+        [InlineData(2,0)]
+        public async Task Accepts_RequestVersion(int major, int minor)
+        {
+            var version = new Version(major, minor);
+            var services = CreateServices();
+            var validator = services.GetRequiredService<IConfigValidator>();
+
+            var cluster = new Cluster
+            {
+                Id = "cluster1",
+                HttpRequest = new ProxyHttpRequestOptions()
+                {
+                    Version = version,
+                }
+            };
+
+            var errors = await validator.ValidateClusterAsync(cluster);
+
+            Assert.Empty(errors);
+        }
+
+        [Theory]
+        [InlineData(1,9)]
+        [InlineData(2,5)]
+        [InlineData(3,0)]
+        public async Task Rejects_RequestVersion(int major, int minor)
+        {
+            var version = new Version(major, minor);
+            var services = CreateServices();
+            var validator = services.GetRequiredService<IConfigValidator>();
+
+            var cluster = new Cluster
+            {
+                Id = "cluster1",
+                HttpRequest = new ProxyHttpRequestOptions()
+                {
+                    Version = version,
+                }
+            };
+
+            var errors = await validator.ValidateClusterAsync(cluster);
+
+            Assert.Equal(1, errors.Count);
+            Assert.Equal($"Outgoing request version '{cluster.HttpRequest.Version}' is not any of supported HTTP versions (1.0, 1.1 and 2).", errors[0].Message);
+            Assert.IsType<ArgumentException>(errors[0]);
+        }
+
         [Theory]
         [InlineData(null, null, null, "ConsecutiveFailures")]
         [InlineData(25, null, null, "ConsecutiveFailures")]

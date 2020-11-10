@@ -5,6 +5,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Proxy;
 using Microsoft.ReverseProxy.Telemetry;
 using Microsoft.ReverseProxy.Utilities;
@@ -74,6 +75,22 @@ namespace Microsoft.ReverseProxy.Middleware
             {
                 Transforms = routeConfig.Transforms,
             };
+
+            var requestOptions = reverseProxyFeature.ClusterConfig.HttpRequestOptions;
+            if (requestOptions.RequestTimeout.HasValue)
+            {
+                proxyOptions.RequestTimeout = requestOptions.RequestTimeout.Value;
+            }
+            if (requestOptions.Version != null)
+            {
+                proxyOptions.Version = requestOptions.Version;
+            }
+#if NET
+            if (requestOptions.VersionPolicy.HasValue)
+            {
+                proxyOptions.VersionPolicy = requestOptions.VersionPolicy.Value;
+            }
+#endif
 
             try
             {

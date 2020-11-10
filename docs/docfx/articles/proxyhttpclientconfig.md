@@ -3,13 +3,18 @@
 Introduced: preview5
 
 ## Introduction
+
 Each [Cluster](xref:Microsoft.ReverseProxy.Abstractions.Cluster) has a dedicated [HttpMessageInvoker](https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httpmessageinvoker?view=netcore-3.1) instance used to proxy requests to its [Destination](xref:Microsoft.ReverseProxy.Abstractions.Destination)s. The configuration is defined per cluster. On YARP startup, all `Clusters` get new `HttpMessageInvoker` instances, however if later the `Cluster` configuration gets changed the [IProxyHttpClientFactory](xref:Microsoft.ReverseProxy.Service.Proxy.Infrastructure.IProxyHttpClientFactory) will re-run and decide if it should create a new `HttpMessageInvoker` or keep using the existing one. The default `IProxyHttpClientFactory` implementation creates a new `HttpMessageInvoker` when there are changes to the [ProxyHttpClientOptions](xref:Microsoft.ReverseProxy.Abstractions.ProxyHttpClientOptions).
+
+Properties of outgoing requests for a given cluster can be configured as well. They are defined in [ProxyHttpRequestOptions](xref:Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions).
 
 The configuration is represented differently if you're using the [IConfiguration](https://docs.microsoft.com/en-us/dotnet/api/microsoft.extensions.configuration.iconfiguration?view=dotnet-plat-ext-3.1) model or the code-first model.
 
 ## IConfiguration
-HTTP client configuration contract consists of [ProxyHttpClientData](xref:Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpClientData) and [CertificateConfigData](xref:Microsoft.ReverseProxy.Configuration.Contract.CertificateConfigData) types defining the following configuration schema. These types are focused on defining serializable configuration. The code based HTTP client configuration model is described below in the "Code Configuration" section.
+These types are focused on defining serializable configuration. The code based configuration model is described below in the "Code Configuration" section.
 
+### HttpClient
+HTTP client configuration contract consists of [ProxyHttpClientData](xref:Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpClientData) and [CertificateConfigData](xref:Microsoft.ReverseProxy.Configuration.Contract.CertificateConfigData) types defining the following configuration schema. 
 ```JSON
 "HttpClient": {
     "SslProtocols": [ "<protocol-names>" ],
@@ -70,8 +75,25 @@ Configuration settings:
 }
 
 ```
+
+### HttpRequest
+HTTP request configuration contract is defined by [ProxyHttpRequestData](xref:Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData) type defining the following configuration schema.  
+```JSON
+"HttpRequest": {
+    "RequestTimeout": "<timespan>",
+    "Version": "<string>",
+    "VersionPolicy": ["RequestVersionOrLower", "RequestVersionOrHigher", "RequestVersionExact"]
+}
+```
+
+Configuration settings:
+- RequestTimeout - the timeout for the outgoing request sent by [HttpMessageInvoker.SendAsync](https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httpmessageinvoker.sendasync?view=netcore-3.1). If not specified, 100 seconds is used.
+- Version - outgoing request [version](https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httprequestmessage.version?view=netcore-3.1). The supported values at the moment are `1.0`, `1.1` and `2`. Default value is 2.
+- VersionPolicy - defines how the final version is selected for the outgoing requests. This feature is available from .NET 5.0, see [HttpRequestMessage.VersionPolicy](https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httprequestmessage.versionpolicy?view=net-5.0). The default value is `RequestVersionOrLower`.
+
+
 ## Configuration example
-The below example shows 2 samples of HTTP client configurations for `cluster1` and `cluster2`.
+The below example shows 2 samples of HTTP client and request configurations for `cluster1` and `cluster2`.
 
 ```JSON
 {
@@ -87,6 +109,9 @@ The below example shows 2 samples of HTTP client configurations for `cluster1` a
                 ],
                 "MaxConnectionsPerServer": "10",
                 "DangerousAcceptAnyServerCertificate": "true"
+            },
+            "HttpRequest": {
+                "RequestTimeout": "00:00:30"
             },
             "Destinations": {
                 "cluster1/destination1": {
@@ -108,6 +133,10 @@ The below example shows 2 samples of HTTP client configurations for `cluster1` a
                     "Password": "1234abc"
                 }
             },
+            "HttpRequest": {
+                "Version": "1.1",
+                "VersionPolicy": "RequestVersionExact"
+            },
             "Destinations": {
                 "cluster2/destination1": {
                     "Address": "https://localhost:10001/"
@@ -119,7 +148,7 @@ The below example shows 2 samples of HTTP client configurations for `cluster1` a
 ```
 
 ## Code Configuration
-HTTP client configuration abstraction constists of the only type [ProxyHttpClientOptions](xref:Microsoft.ReverseProxy.Abstractions.ProxyHttpClientOptions) defined as follows.
+HTTP client configuration abstraction consists of the only type [ProxyHttpClientOptions](xref:Microsoft.ReverseProxy.Abstractions.ProxyHttpClientOptions) defined as follows.
 
 ```C#
 public sealed class ProxyHttpClientOptions

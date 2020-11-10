@@ -56,6 +56,11 @@ namespace Microsoft.ReverseProxy.Abstractions
         public ProxyHttpClientOptions HttpClient { get; set; }
 
         /// <summary>
+        /// Options of an outgoing HTTP request.
+        /// </summary>
+        public ProxyHttpRequestOptions HttpRequest { get; set; }
+
+        /// <summary>
         /// The set of destinations associated with this cluster.
         /// </summary>
         public IDictionary<string, Destination> Destinations { get; private set; } = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase);
@@ -78,6 +83,7 @@ namespace Microsoft.ReverseProxy.Abstractions
                 SessionAffinity = SessionAffinity?.DeepClone(),
                 HealthCheck = HealthCheck?.DeepClone(),
                 HttpClient = HttpClient?.DeepClone(),
+                HttpRequest = HttpRequest?.DeepClone(),
                 Destinations = Destinations.DeepClone(StringComparer.OrdinalIgnoreCase),
                 Metadata = Metadata?.DeepClone(StringComparer.OrdinalIgnoreCase),
             };
@@ -103,6 +109,7 @@ namespace Microsoft.ReverseProxy.Abstractions
                 && SessionAffinityOptions.Equals(cluster1.SessionAffinity, cluster2.SessionAffinity)
                 && HealthCheckOptions.Equals(cluster1.HealthCheck, cluster2.HealthCheck)
                 && ProxyHttpClientOptions.Equals(cluster1.HttpClient, cluster2.HttpClient)
+                && ProxyHttpRequestOptions.Equals(cluster1.HttpRequest, cluster2.HttpRequest)
                 && CaseInsensitiveEqualHelper.Equals(cluster1.Destinations, cluster2.Destinations, Destination.Equals)
                 && CaseInsensitiveEqualHelper.Equals(cluster1.Metadata, cluster2.Metadata);
         }

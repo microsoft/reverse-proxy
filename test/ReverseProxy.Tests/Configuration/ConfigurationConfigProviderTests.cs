@@ -6,6 +6,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Reflection;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
@@ -66,6 +68,14 @@ namespace Microsoft.ReverseProxy.Configuration
                             MaxConnectionsPerServer = 10,
                             DangerousAcceptAnyServerCertificate = true,
                             ClientCertificate = new CertificateConfigData { Path = "mycert.pfx", Password = "myPassword1234" }
+                        },
+                        HttpRequest = new ProxyHttpRequestData()
+                        {
+                            RequestTimeout = TimeSpan.FromSeconds(60),
+                            Version = "1",
+#if NET
+                            VersionPolicy = HttpVersionPolicy.RequestVersionExact,
+#endif
                         },
                         Metadata = new Dictionary<string, string> { { "cluster1-K1", "cluster1-V1" }, { "cluster1-K2", "cluster1-V2" } }
                     }
@@ -198,6 +208,11 @@ namespace Microsoft.ReverseProxy.Configuration
                     ""AllowInvalid"": null
                 },
                 ""MaxConnectionsPerServer"": 10
+            },
+            ""HttpRequest"": {
+                ""RequestTimeout"": ""00:01:00"",
+                ""Version"": ""1"",
+                ""VersionPolicy"": ""RequestVersionExact""
             },
             ""Destinations"": {
                 ""destinationA"": {
@@ -354,7 +369,7 @@ namespace Microsoft.ReverseProxy.Configuration
             var certificate = TestResources.GetTestCertificate();
             var abstractionsNamespace = typeof(Abstractions.Cluster).Namespace;
             var provider = GetProvider(_validConfigurationData, "mycert.pfx", "myPassword1234", () => certificate);
-            var abstractConfig = (ConfigurationSnapshot) provider.GetConfig();
+            var abstractConfig = (ConfigurationSnapshot)provider.GetConfig();
             //Removed incompletely filled out instances.
             abstractConfig.Clusters = abstractConfig.Clusters.Where(c => c.Id == "cluster1").ToList();
             abstractConfig.Routes = abstractConfig.Routes.Where(r => r.RouteId == "routeA").ToList();
@@ -584,6 +599,11 @@ namespace Microsoft.ReverseProxy.Configuration
             Assert.Equal(validConfig.Clusters["cluster1"].HttpClient.MaxConnectionsPerServer, abstractCluster1.HttpClient.MaxConnectionsPerServer);
             Assert.Equal(SslProtocols.Tls11 | SslProtocols.Tls12, abstractCluster1.HttpClient.SslProtocols);
             Assert.Equal(validConfig.Clusters["cluster1"].HttpClient.DangerousAcceptAnyServerCertificate, abstractCluster1.HttpClient.DangerousAcceptAnyServerCertificate);
+            Assert.Equal(validConfig.Clusters["cluster1"].HttpRequest.RequestTimeout, abstractCluster1.HttpRequest.RequestTimeout);
+            Assert.Equal(HttpVersion.Version10, abstractCluster1.HttpRequest.Version);
+#if NET
+            Assert.Equal(validConfig.Clusters["cluster1"].HttpRequest.VersionPolicy, abstractCluster1.HttpRequest.VersionPolicy);
+#endif
             Assert.Equal(validConfig.Clusters["cluster1"].Metadata, abstractCluster1.Metadata);
 
             Assert.Single(abstractConfig.Clusters.Where(c => c.Id == "cluster2"));

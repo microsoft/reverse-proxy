@@ -15,7 +15,8 @@ namespace Microsoft.ReverseProxy.Sample
         public Task ConfigureClusterAsync(Cluster cluster, CancellationToken cancel)
         {
             // How to use custom metadata to configure clusters
-            if (cluster.Metadata?.TryGetValue("CustomHealth", out var customHealth) ?? false
+            if (cluster.Metadata != null
+                && cluster.Metadata.TryGetValue("CustomHealth", out var customHealth)
                 && string.Equals(customHealth, "true", StringComparison.OrdinalIgnoreCase))
             {
                 cluster.HealthCheck ??= new HealthCheckOptions { Active = new ActiveHealthCheckOptions() };
@@ -23,7 +24,7 @@ namespace Microsoft.ReverseProxy.Sample
                 cluster.HealthCheck.Active.Policy = HealthCheckConstants.ActivePolicy.ConsecutiveFailures;
             }
 
-            // Or wrap the meatadata in config sugar
+            // Or wrap the metadata in config sugar
             var config = new ConfigurationBuilder().AddInMemoryCollection(cluster.Metadata).Build();
             if (config.GetValue<bool>("CustomHealth"))
             {

@@ -233,6 +233,30 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
         }
 
         [Fact]
+        public async Task LoadAsync_RequestVersionValidationError_Throws()
+        {
+            const string TestAddress = "https://localhost:123/";
+
+            var cluster = new Cluster
+            {
+                Id = "cluster1",
+                Destinations = { { "d1", new Destination { Address = TestAddress } } },
+                HttpRequest = new ProxyHttpRequestOptions() { Version = new Version(1, 2) }
+            };
+
+            var services = CreateServices(new List<ProxyRoute>(), new List<Cluster>() { cluster });
+            var configManager = services.GetRequiredService<IProxyConfigManager>();
+
+            var ioEx = await Assert.ThrowsAsync<InvalidOperationException>(() => configManager.InitialLoadAsync());
+            Assert.Equal("Unable to load or apply the proxy configuration.", ioEx.Message);
+            var agex = Assert.IsType<AggregateException>(ioEx.InnerException);
+
+            Assert.Single(agex.InnerExceptions);
+            var argex = Assert.IsType<ArgumentException>(agex.InnerExceptions.First());
+            Assert.StartsWith("Outgoing request version", argex.Message);
+        }
+
+        [Fact]
         public async Task LoadAsync_RouteValidationError_Throws()
         {
             var route1 = new ProxyRoute { RouteId = "route1", Match = { Hosts = new[] { "invalid host name" } }, ClusterId = "cluster1" };
