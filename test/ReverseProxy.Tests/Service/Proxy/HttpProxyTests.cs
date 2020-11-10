@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Net.Http.Headers;
+using Microsoft.ReverseProxy.Common.Tests;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 using Microsoft.ReverseProxy.Utilities;
 using Moq;
@@ -1576,7 +1577,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
         private class StallStream : Stream
         {
-            public StallStream(Task until) : this(_ => until) 
+            public StallStream(Task until) : this(_ => until)
             {
             }
 
@@ -1800,7 +1801,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         private class TestRequestParametersTransform : RequestParametersTransform
         {
             private Action<RequestParametersTransformContext> _transformation;
-            
+
             public TestRequestParametersTransform(Action<RequestParametersTransformContext> transformation)
             {
                 _transformation = transformation;
