@@ -2,13 +2,12 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.ReverseProxy.Abstractions.Telemetry;
+using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Proxy;
+using Microsoft.ReverseProxy.Telemetry;
 using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Middleware
@@ -21,19 +20,16 @@ namespace Microsoft.ReverseProxy.Middleware
         private readonly IRandomFactory _randomFactory;
         private readonly RequestDelegate _next; // Unused, this middleware is always terminal
         private readonly ILogger _logger;
-        private readonly IOperationLogger<ProxyInvokerMiddleware> _operationLogger;
         private readonly IHttpProxy _httpProxy;
 
         public ProxyInvokerMiddleware(
             RequestDelegate next,
             ILogger<ProxyInvokerMiddleware> logger,
-            IOperationLogger<ProxyInvokerMiddleware> operationLogger,
             IHttpProxy httpProxy,
             IRandomFactory randomFactory)
         {
             _next = next ?? throw new ArgumentNullException(nameof(next));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _operationLogger = operationLogger ?? throw new ArgumentNullException(nameof(operationLogger));
             _httpProxy = httpProxy ?? throw new ArgumentNullException(nameof(httpProxy));
             _randomFactory = randomFactory ?? throw new ArgumentNullException(nameof(randomFactory));
         }
@@ -80,14 +76,30 @@ namespace Microsoft.ReverseProxy.Middleware
                 Transforms = routeConfig.Transforms,
             };
 
+            var requestOptions = reverseProxyFeature.ClusterConfig.HttpRequestOptions;
+            if (requestOptions.RequestTimeout.HasValue)
+            {
+                proxyOptions.RequestTimeout = requestOptions.RequestTimeout.Value;
+            }
+            if (requestOptions.Version != null)
+            {
+                proxyOptions.Version = requestOptions.Version;
+            }
+#if NET
+            if (requestOptions.VersionPolicy.HasValue)
+            {
+                proxyOptions.VersionPolicy = requestOptions.VersionPolicy.Value;
+            }
+#endif
+
             try
             {
                 cluster.ConcurrencyCounter.Increment();
                 destination.ConcurrencyCounter.Increment();
 
-                await _operationLogger.ExecuteAsync(
-                    "ReverseProxy.Proxy",
-                    () => _httpProxy.ProxyAsync(context, destinationConfig.Address, reverseProxyFeature.ClusterConfig.HttpClient, proxyOptions));
+                ProxyTelemetry.Log.ProxyInvoke(cluster.ClusterId, routeConfig.Route.RouteId, destination.DestinationId);
+
+                await _httpProxy.ProxyAsync(context, destinationConfig.Address, reverseProxyFeature.ClusterConfig.HttpClient, proxyOptions);
             }
             finally
             {

@@ -4,8 +4,6 @@
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.ReverseProxy.Abstractions.Telemetry;
-using Microsoft.ReverseProxy.Abstractions.Time;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service;
 using Microsoft.ReverseProxy.Service.Config;
@@ -15,7 +13,6 @@ using Microsoft.ReverseProxy.Service.Proxy;
 using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
 using Microsoft.ReverseProxy.Service.Routing;
 using Microsoft.ReverseProxy.Service.SessionAffinity;
-using Microsoft.ReverseProxy.Telemetry;
 using Microsoft.ReverseProxy.Utilities;
 using System.Linq;
 
@@ -23,13 +20,6 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
 {
     internal static class IReverseProxyBuilderExtensions
     {
-        public static IReverseProxyBuilder AddTelemetryShims(this IReverseProxyBuilder builder)
-        {
-            // NOTE: Consumers of ReverseProxy are expected to replace these with their own classes
-            builder.Services.TryAddSingleton(typeof(IOperationLogger<>), typeof(TextOperationLogger<>));
-            return builder;
-        }
-
         public static IReverseProxyBuilder AddConfigBuilder(this IReverseProxyBuilder builder)
         {
             builder.Services.TryAddSingleton<IConfigValidator, ConfigValidator>();
@@ -43,7 +33,6 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
             builder.Services.TryAddSingleton<IDestinationManagerFactory, DestinationManagerFactory>();
             builder.Services.TryAddSingleton<IClusterManager, ClusterManager>();
             builder.Services.TryAddSingleton<IRouteManager, RouteManager>();
-            builder.Services.TryAddSingleton<IUptimeClock, UptimeClock>();
             builder.Services.TryAddSingleton<ITimerFactory, TimerFactory>();
             return builder;
         }
@@ -61,13 +50,6 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
             builder.Services.TryAddSingleton<ILoadBalancer, LoadBalancer>();
             builder.Services.TryAddSingleton<IRandomFactory, RandomFactory>();
             builder.Services.AddHttpProxy();
-            return builder;
-        }
-
-        public static IReverseProxyBuilder AddBackgroundWorkers(this IReverseProxyBuilder builder)
-        {
-            builder.Services.TryAddSingleton<IMonotonicTimer, MonotonicTimer>();
-
             return builder;
         }
 

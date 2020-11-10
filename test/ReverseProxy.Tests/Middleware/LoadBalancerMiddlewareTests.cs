@@ -8,12 +8,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Patterns;
 using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Abstractions.Telemetry;
 using Microsoft.ReverseProxy.Common.Tests;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Management;
 using Microsoft.ReverseProxy.Service.Proxy;
-using Microsoft.ReverseProxy.Telemetry;
 using Moq;
 using Xunit;
 
@@ -23,7 +21,6 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
     {
         public LoadBalancerMiddlewareTests()
         {
-            Provide<IOperationLogger<LoadBalancingMiddleware>, TextOperationLogger<LoadBalancingMiddleware>>();
             Provide<RequestDelegate>(context => Task.CompletedTask);
         }
 
@@ -40,7 +37,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             var cluster1 = new ClusterInfo(
                 clusterId: "cluster1",
                 destinationManager: new DestinationManager());
-            cluster1.Config = new ClusterConfig(default, default, new ClusterLoadBalancingOptions(LoadBalancingMode.RoundRobin), default, httpClient, default, new Dictionary<string, string>());
+            cluster1.Config = new ClusterConfig(default, default, new ClusterLoadBalancingOptions(LoadBalancingMode.RoundRobin), default, httpClient, default, default, new Dictionary<string, string>());
             var destination1 = cluster1.DestinationManager.GetOrCreateItem(
                 "destination1",
                 destination =>
@@ -95,7 +92,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             var cluster1 = new ClusterInfo(
                 clusterId: "cluster1",
                 destinationManager: new DestinationManager());
-            cluster1.Config = new ClusterConfig(default, default, new ClusterLoadBalancingOptions(LoadBalancingMode.RoundRobin), default, httpClient, default, new Dictionary<string, string>());
+            cluster1.Config = new ClusterConfig(default, default, new ClusterLoadBalancingOptions(LoadBalancingMode.RoundRobin), default, httpClient, default, default, new Dictionary<string, string>());
             var destination1 = cluster1.DestinationManager.GetOrCreateItem(
                 "destination1",
                 destination =>

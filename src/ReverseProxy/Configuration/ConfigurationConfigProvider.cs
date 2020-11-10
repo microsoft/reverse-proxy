@@ -147,6 +147,7 @@ namespace Microsoft.ReverseProxy.Configuration
                 SessionAffinity = Convert(data.SessionAffinity),
                 HealthCheck = Convert(data.HealthCheck),
                 HttpClient = Convert(data.HttpClient),
+                HttpRequest = Convert(data.HttpRequest),
                 Metadata = data.Metadata?.DeepClone(StringComparer.OrdinalIgnoreCase)
             };
             foreach(var destination in data.Destinations)
@@ -351,6 +352,30 @@ namespace Microsoft.ReverseProxy.Configuration
                 ClientCertificate = clientCertificate,
                 MaxConnectionsPerServer = data.MaxConnectionsPerServer,
                 PropagateActivityContext = data.PropagateActivityContext
+            };
+        }
+
+        private ProxyHttpRequestOptions Convert(ProxyHttpRequestData data)
+        {
+            if (data == null)
+            {
+                return null;
+            }
+
+            // Parse version only if it contains any characters; otherwise, leave it null.
+            Version version = null;
+            if (!string.IsNullOrEmpty(data.Version))
+            {
+                version = Version.Parse(data.Version + (data.Version.Contains('.') ? "" : ".0"));
+            }
+
+            return new ProxyHttpRequestOptions
+            {
+                RequestTimeout = data.RequestTimeout,
+                Version = version,
+#if NET
+                VersionPolicy = data.VersionPolicy,
+#endif
             };
         }
 

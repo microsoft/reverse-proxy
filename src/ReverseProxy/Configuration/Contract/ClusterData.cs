@@ -50,6 +50,11 @@ namespace Microsoft.ReverseProxy.Configuration.Contract
         public ProxyHttpClientData HttpClient { get; set; }
 
         /// <summary>
+        /// Options of an outgoing HTTP request.
+        /// </summary>
+        public ProxyHttpRequestData HttpRequest { get; set; }
+
+        /// <summary>
         /// The set of destinations associated with this cluster.
         /// </summary>
         public IDictionary<string, DestinationData> Destinations { get; private set; } = new Dictionary<string, DestinationData>(StringComparer.OrdinalIgnoreCase);
