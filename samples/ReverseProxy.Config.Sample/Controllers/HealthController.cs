@@ -18,7 +18,6 @@ namespace Microsoft.ReverseProxy.Sample.Controllers
         [Route("/api/health")]
         public IActionResult CheckHealth()
         {
-            // TODO: Implement health controller, use guid in route.
             return Ok();
         }
     }

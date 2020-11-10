@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.RuntimeModel;
 
 namespace Microsoft.ReverseProxy.Middleware
@@ -21,5 +20,10 @@ namespace Microsoft.ReverseProxy.Middleware
         /// Cluster destinations that can handle the current request.
         /// </summary>
         IReadOnlyList<DestinationInfo> AvailableDestinations { get; set; }
+
+        /// <summary>
+        /// The actual destination that the request was proxied to.
+        /// </summary>
+        DestinationInfo SelectedDestination { get; set; }
     }
 }

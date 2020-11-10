@@ -3,7 +3,7 @@
 Introduced: preview4
 
 ## Introduction
-Proxy configuration can be loaded programatically from the source of your choosing by implementing an [IProxyConfigProvider](xref:Microsoft.ReverseProxy.Service.IProxyConfigProvider).
+Proxy configuration can be loaded programmatically from the source of your choosing by implementing an [IProxyConfigProvider](xref:Microsoft.ReverseProxy.Service.IProxyConfigProvider).
 
 ## Structure
 [IProxyConfigProvider](xref:Microsoft.ReverseProxy.Service.IProxyConfigProvider) has a single method `GetConfig()` that returns an [IProxyConfig](xref:Microsoft.ReverseProxy.Service.IProxyConfig) instance. The IProxyConfig has lists of the current routes and clusters, as well as an `IChangeToken` to notify the proxy when this information is out of date and should be reloaded by calling `GetConfig()` again.
@@ -14,7 +14,7 @@ The routes section is an ordered list of route matches and their associated conf
 - ClusterId - Refers to the name of an entry in the clusters section.
 - Match containing either a Hosts array or a Path pattern string.
 
-[Authorization](authn-authz.md), [CORS](cors.md), and other route based policies can be configured on each route entry. For additional fields see [ProxyRoute](xref:Microsoft.ReverseProxy.Abstractions.ProxyRoute).
+[Headers](header-routing.md), [Authorization](authn-authz.md), [CORS](cors.md), and other route based policies can be configured on each route entry. For additional fields see [ProxyRoute](xref:Microsoft.ReverseProxy.Abstractions.ProxyRoute).
 
 The proxy will apply the given matching criteria and policies, and then pass off the request to the specified cluster.
 
@@ -49,6 +49,13 @@ Once the new configuration has been validated and applied, the proxy will regist
 The following is an example `IProxyConfigProvider` that has routes and clusters manually loaded into it.
 
 ```C#
+using System.Collections.Generic;
+using System.Threading;
+using Microsoft.Extensions.Primitives;
+using Microsoft.ReverseProxy.Abstractions;
+using Microsoft.ReverseProxy.Configuration;
+using Microsoft.ReverseProxy.Service;
+
 namespace Microsoft.Extensions.DependencyInjection
 {
     public static class InMemoryConfigProviderExtensions
@@ -109,33 +116,47 @@ namespace Microsoft.ReverseProxy.Configuration
 
 And here's how it's called in Startup.cs:
 ```C#
-        public void ConfigureServices(IServiceCollection services)
+public void ConfigureServices(IServiceCollection services)
+{
+    var routes = new[]
+    {
+        new ProxyRoute()
         {
-            var routes = new[]
+            RouteId = "route1",
+            ClusterId = "cluster1",
+            Match =
             {
-                new ProxyRoute()
-                {
-                    RouteId = "route1",
-                    ClusterId = "cluster1",
-                    Match =
-                    {
-                        Path = "{**catch-all}"
-                    }
-                }
-            };
-            var clusters = new[]
-            {
-                new Cluster()
-                {
-                    Id = "cluster1",
-                    Destinations =
-                    {
-                        { "destination1", new Destination() { Address = "https://localhost:10000" } }
-                    }
-                }
-            };
-
-            services.AddReverseProxy()
-                .LoadFromMemory(routes, clusters);
+                Path = "{**catch-all}"
+            }
         }
+    };
+    var clusters = new[]
+    {
+        new Cluster()
+        {
+            Id = "cluster1",
+            Destinations =
+            {
+                { "destination1", new Destination() { Address = "https://example.com" } }
+            }
+        }
+    };
+
+    services.AddReverseProxy()
+        .LoadFromMemory(routes, clusters);
+}
+
+public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+{
+    if (env.IsDevelopment())
+    {
+        app.UseDeveloperExceptionPage();
+    }
+
+    app.UseRouting();
+    app.UseEndpoints(endpoints =>
+    {
+        endpoints.MapReverseProxy();
+    });
+}
 ```

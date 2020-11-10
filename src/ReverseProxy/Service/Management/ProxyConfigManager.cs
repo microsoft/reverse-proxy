@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -12,6 +14,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.RuntimeModel;
+using Microsoft.ReverseProxy.Service.HealthChecks;
+using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
 
 namespace Microsoft.ReverseProxy.Service.Management
 {
@@ -35,6 +39,8 @@ namespace Microsoft.ReverseProxy.Service.Management
         private readonly IRouteManager _routeManager;
         private readonly IEnumerable<IProxyConfigFilter> _filters;
         private readonly IConfigValidator _configValidator;
+        private readonly IProxyHttpClientFactory _httpClientFactory;
+        private readonly IActiveHealthCheckMonitor _activeHealthCheckMonitor;
         private IDisposable _changeSubscription;
 
         private List<Endpoint> _endpoints = new List<Endpoint>(0);
@@ -48,7 +54,9 @@ namespace Microsoft.ReverseProxy.Service.Management
             IClusterManager clusterManager,
             IRouteManager routeManager,
             IEnumerable<IProxyConfigFilter> filters,
-            IConfigValidator configValidator)
+            IConfigValidator configValidator,
+            IProxyHttpClientFactory httpClientFactory,
+            IActiveHealthCheckMonitor activeHealthCheckMonitor)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _provider = provider ?? throw new ArgumentNullException(nameof(provider));
@@ -57,6 +65,8 @@ namespace Microsoft.ReverseProxy.Service.Management
             _routeManager = routeManager ?? throw new ArgumentNullException(nameof(routeManager));
             _filters = filters ?? throw new ArgumentNullException(nameof(filters));
             _configValidator = configValidator ?? throw new ArgumentNullException(nameof(configValidator));
+            _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+            _activeHealthCheckMonitor = activeHealthCheckMonitor ?? throw new ArgumentNullException(nameof(activeHealthCheckMonitor));
 
             _changeToken = new CancellationChangeToken(_cancellationTokenSource.Token);
         }
@@ -91,6 +101,8 @@ namespace Microsoft.ReverseProxy.Service.Management
                 throw new InvalidOperationException("Unable to load or apply the proxy configuration.", ex);
             }
 
+            // Initial active health check is run in the background.
+            _ = _activeHealthCheckMonitor.CheckHealthAsync(_clusterManager.GetItems());
             return this;
         }
 
@@ -189,7 +201,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                     continue;
                 }
 
-                sortedRoutes.Add((route.Priority ?? 0, route.RouteId), route);
+                sortedRoutes.Add((route.Order ?? 0, route.RouteId), route);
             }
 
             if (errors.Count > 0)
@@ -254,54 +266,79 @@ namespace Microsoft.ReverseProxy.Service.Management
             return (configuredClusters, errors);
         }
 
-        private void UpdateRuntimeClusters(IList<Cluster> clusters)
+        private void UpdateRuntimeClusters(IList<Cluster> newClusters)
         {
             var desiredClusters = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            foreach (var configCluster in clusters)
+            foreach (var newCluster in newClusters)
             {
-                desiredClusters.Add(configCluster.Id);
+                desiredClusters.Add(newCluster.Id);
 
                 _clusterManager.GetOrCreateItem(
-                    itemId: configCluster.Id,
-                    setupAction: cluster =>
+                    itemId: newCluster.Id,
+                    setupAction: currentCluster =>
                     {
-                        UpdateRuntimeDestinations(configCluster.Destinations, cluster.DestinationManager);
+                        UpdateRuntimeDestinations(newCluster.Destinations, currentCluster.DestinationManager);
 
-                        var newConfig = new ClusterConfig(
-                                new ClusterConfig.ClusterHealthCheckOptions(
-                                    enabled: configCluster.HealthCheckOptions?.Enabled ?? false,
-                                    interval: configCluster.HealthCheckOptions?.Interval ?? TimeSpan.FromSeconds(0),
-                                    timeout: configCluster.HealthCheckOptions?.Timeout ?? TimeSpan.FromSeconds(0),
-                                    port: configCluster.HealthCheckOptions?.Port ?? 0,
-                                    path: configCluster.HealthCheckOptions?.Path ?? string.Empty),
-                                new ClusterConfig.ClusterLoadBalancingOptions(
-                                    mode: configCluster.LoadBalancing?.Mode ?? default),
-                                new ClusterConfig.ClusterSessionAffinityOptions(
-                                    enabled: configCluster.SessionAffinity?.Enabled ?? false,
-                                    mode: configCluster.SessionAffinity?.Mode,
-                                    failurePolicy: configCluster.SessionAffinity?.FailurePolicy,
-                                    settings: configCluster.SessionAffinity?.Settings as IReadOnlyDictionary<string, string>));
+                        var currentClusterConfig = currentCluster.Config;
+                        var newClusterHttpClientOptions = ConvertProxyHttpClientOptions(newCluster.HttpClient);
 
-                        var currentClusterConfig = cluster.Config.Value;
+                        var httpClient = _httpClientFactory.CreateClient(new ProxyHttpClientContext {
+                            ClusterId = currentCluster.ClusterId,
+                            OldOptions = currentClusterConfig?.HttpClientOptions ?? default,
+                            OldMetadata = currentClusterConfig?.Metadata,
+                            OldClient = currentClusterConfig?.HttpClient,
+                            NewOptions = newClusterHttpClientOptions,
+                            NewMetadata = (IReadOnlyDictionary<string, string>)newCluster.Metadata
+                        });
+
+                        var newClusterConfig = new ClusterConfig(
+                                newCluster,
+                                new ClusterHealthCheckOptions(
+                                    passive: new ClusterPassiveHealthCheckOptions(
+                                        enabled: newCluster.HealthCheck?.Passive?.Enabled ?? false,
+                                        policy: newCluster.HealthCheck?.Passive?.Policy,
+                                        reactivationPeriod: newCluster.HealthCheck?.Passive?.ReactivationPeriod),
+                                    active: new ClusterActiveHealthCheckOptions(
+                                        enabled: newCluster.HealthCheck?.Active?.Enabled ?? false,
+                                        interval: newCluster.HealthCheck?.Active?.Interval,
+                                        timeout: newCluster.HealthCheck?.Active?.Timeout,
+                                        policy: newCluster.HealthCheck?.Active?.Policy,
+                                        path: newCluster.HealthCheck?.Active?.Path ?? string.Empty)),
+                                new ClusterLoadBalancingOptions(
+                                    mode: newCluster.LoadBalancing?.Mode ?? default),
+                                new ClusterSessionAffinityOptions(
+                                    enabled: newCluster.SessionAffinity?.Enabled ?? false,
+                                    mode: newCluster.SessionAffinity?.Mode,
+                                    failurePolicy: newCluster.SessionAffinity?.FailurePolicy,
+                                    settings: newCluster.SessionAffinity?.Settings as IReadOnlyDictionary<string, string>),
+                                httpClient,
+                                newClusterHttpClientOptions,
+                                new ClusterProxyHttpRequestOptions(
+                                    requestTimeout: newCluster.HttpRequest?.RequestTimeout,
+                                    version: newCluster.HttpRequest?.Version
+#if NET
+                                    , versionPolicy: newCluster.HttpRequest?.VersionPolicy
+#endif
+                                    ),
+                                (IReadOnlyDictionary<string, string>)newCluster.Metadata);
+
                         if (currentClusterConfig == null ||
-                            currentClusterConfig.HealthCheckOptions.Enabled != newConfig.HealthCheckOptions.Enabled ||
-                            currentClusterConfig.HealthCheckOptions.Interval != newConfig.HealthCheckOptions.Interval ||
-                            currentClusterConfig.HealthCheckOptions.Timeout != newConfig.HealthCheckOptions.Timeout ||
-                            currentClusterConfig.HealthCheckOptions.Port != newConfig.HealthCheckOptions.Port ||
-                            currentClusterConfig.HealthCheckOptions.Path != newConfig.HealthCheckOptions.Path)
+                            currentClusterConfig.HasConfigChanged(newClusterConfig))
                         {
                             if (currentClusterConfig == null)
                             {
-                                Log.ClusterAdded(_logger, configCluster.Id);
+                                Log.ClusterAdded(_logger, newCluster.Id);
                             }
                             else
                             {
-                                Log.ClusterChanged(_logger, configCluster.Id);
+                                Log.ClusterChanged(_logger, newCluster.Id);
                             }
 
                             // Config changed, so update runtime cluster
-                            cluster.Config.Value = newConfig;
+                            currentCluster.Config = newClusterConfig;
                         }
+
+                        currentCluster.UpdateDynamicState();
                     });
             }
 
@@ -321,28 +358,28 @@ namespace Microsoft.ReverseProxy.Service.Management
             }
         }
 
-        private void UpdateRuntimeDestinations(IDictionary<string, Destination> configDestinations, IDestinationManager destinationManager)
+        private void UpdateRuntimeDestinations(IDictionary<string, Destination> newDestinations, IDestinationManager destinationManager)
         {
             var desiredDestinations = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            foreach (var configDestination in configDestinations)
+            foreach (var newDestination in newDestinations)
             {
-                desiredDestinations.Add(configDestination.Key);
+                desiredDestinations.Add(newDestination.Key);
                 destinationManager.GetOrCreateItem(
-                    itemId: configDestination.Key,
+                    itemId: newDestination.Key,
                     setupAction: destination =>
                     {
-                        var destinationConfig = destination.ConfigSignal.Value;
-                        if (destinationConfig?.Address != configDestination.Value.Address)
+                        var destinationConfig = destination.Config;
+                        if (destinationConfig?.Address != newDestination.Value.Address || destinationConfig?.Health != newDestination.Value.Health)
                         {
                             if (destinationConfig == null)
                             {
-                                Log.DestinationAdded(_logger, configDestination.Key);
+                                Log.DestinationAdded(_logger, newDestination.Key);
                             }
                             else
                             {
-                                Log.DestinationChanged(_logger, configDestination.Key);
+                                Log.DestinationChanged(_logger, newDestination.Key);
                             }
-                            destination.ConfigSignal.Value = new DestinationConfig(configDestination.Value.Address);
+                            destination.Config = new DestinationConfig(newDestination.Value.Address, newDestination.Value.Health);
                         }
                     });
             }
@@ -381,7 +418,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                     itemId: configRoute.RouteId,
                     setupAction: route =>
                     {
-                        var currentRouteConfig = route.Config.Value;
+                        var currentRouteConfig = route.Config;
                         if (currentRouteConfig == null ||
                             currentRouteConfig.HasConfigChanged(configRoute, cluster))
                         {
@@ -397,7 +434,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                             }
 
                             var newConfig = _routeEndpointBuilder.Build(configRoute, cluster, route);
-                            route.Config.Value = newConfig;
+                            route.Config = newConfig;
                         }
                     });
             }
@@ -423,7 +460,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                 var endpoints = new List<Endpoint>();
                 foreach (var existingRoute in _routeManager.GetItems())
                 {
-                    var runtimeConfig = existingRoute.Config.Value;
+                    var runtimeConfig = existingRoute.Config;
                     if (runtimeConfig?.Endpoints != null)
                     {
                         endpoints.AddRange(runtimeConfig.Endpoints);
@@ -462,6 +499,20 @@ namespace Microsoft.ReverseProxy.Service.Management
                 // Step 4 - trigger old token
                 oldCancellationTokenSource?.Cancel();
             }
+        }
+
+        private ClusterProxyHttpClientOptions ConvertProxyHttpClientOptions(ProxyHttpClientOptions httpClientOptions)
+        {
+            if (httpClientOptions == null)
+            {
+                return new ClusterProxyHttpClientOptions();
+            }
+
+            return new ClusterProxyHttpClientOptions(
+                httpClientOptions.SslProtocols,
+                httpClientOptions.DangerousAcceptAnyServerCertificate,
+                httpClientOptions.ClientCertificate,
+                httpClientOptions.MaxConnectionsPerServer);
         }
 
         public void Dispose()

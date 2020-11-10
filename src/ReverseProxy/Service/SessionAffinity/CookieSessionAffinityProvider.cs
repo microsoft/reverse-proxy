@@ -31,13 +31,13 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
             return destination.DestinationId;
         }
 
-        protected override (string Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, in ClusterConfig.ClusterSessionAffinityOptions options)
+        protected override (string Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, in ClusterSessionAffinityOptions options)
         {
             var encryptedRequestKey = context.Request.Cookies.TryGetValue(_providerOptions.Cookie.Name, out var keyInCookie) ? keyInCookie : null;
             return Unprotect(encryptedRequestKey);
         }
 
-        protected override void SetAffinityKey(HttpContext context, in ClusterConfig.ClusterSessionAffinityOptions options, string unencryptedKey)
+        protected override void SetAffinityKey(HttpContext context, in ClusterSessionAffinityOptions options, string unencryptedKey)
         {
             var affinityCookieOptions = _providerOptions.Cookie.Build(context);
             context.Response.Cookies.Append(_providerOptions.Cookie.Name, Protect(unencryptedKey), affinityCookieOptions);

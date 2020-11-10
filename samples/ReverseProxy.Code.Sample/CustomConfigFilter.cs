@@ -14,17 +14,24 @@ namespace Microsoft.ReverseProxy.Sample
     {
         public Task ConfigureClusterAsync(Cluster cluster, CancellationToken cancel)
         {
-            cluster.HealthCheckOptions ??= new HealthCheckOptions();
             // How to use custom metadata to configure clusters
-            if (cluster.Metadata?.TryGetValue("CustomHealth", out var customHealth) ?? false
+            if (cluster.Metadata != null
+                && cluster.Metadata.TryGetValue("CustomHealth", out var customHealth)
                 && string.Equals(customHealth, "true", StringComparison.OrdinalIgnoreCase))
             {
-                cluster.HealthCheckOptions.Enabled = true;
+                cluster.HealthCheck ??= new HealthCheckOptions { Active = new ActiveHealthCheckOptions() };
+                cluster.HealthCheck.Active.Enabled = true;
+                cluster.HealthCheck.Active.Policy = HealthCheckConstants.ActivePolicy.ConsecutiveFailures;
             }
 
-            // Or wrap the meatadata in config sugar
+            // Or wrap the metadata in config sugar
             var config = new ConfigurationBuilder().AddInMemoryCollection(cluster.Metadata).Build();
-            cluster.HealthCheckOptions.Enabled = config.GetValue<bool>("CustomHealth");
+            if (config.GetValue<bool>("CustomHealth"))
+            {
+                cluster.HealthCheck ??= new HealthCheckOptions { Active = new ActiveHealthCheckOptions() };
+                cluster.HealthCheck.Active.Enabled = true;
+                cluster.HealthCheck.Active.Policy = HealthCheckConstants.ActivePolicy.ConsecutiveFailures;
+            }
 
             return Task.CompletedTask;
         }
@@ -33,9 +40,9 @@ namespace Microsoft.ReverseProxy.Sample
         {
             // Do not let config based routes take priority over code based routes.
             // Lower numbers are higher priority. Code routes default to 0.
-            if (route.Priority.HasValue && route.Priority.Value < 1)
+            if (route.Order.HasValue && route.Order.Value < 1)
             {
-                route.Priority = 1;
+                route.Order = 1;
             }
 
             return Task.CompletedTask;

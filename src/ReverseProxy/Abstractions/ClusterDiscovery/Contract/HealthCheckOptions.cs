@@ -6,46 +6,43 @@ using System;
 namespace Microsoft.ReverseProxy.Abstractions
 {
     /// <summary>
-    /// Active health check options.
+    /// All health check options.
     /// </summary>
     public sealed class HealthCheckOptions
     {
         /// <summary>
-        /// Whether health probes are enabled.
+        /// Passive health check options.
         /// </summary>
-        public bool Enabled { get; set; }
+        public PassiveHealthCheckOptions Passive { get; set; }
 
         /// <summary>
-        /// Health probe interval.
+        /// Active health check options.
         /// </summary>
-        // TODO: Consider switching to ISO8601 duration (e.g. "PT5M")
-        public TimeSpan Interval { get; set; }
-
-        /// <summary>
-        /// Health probe timeout, after which the targeted endpoint is considered unhealthy.
-        /// </summary>
-        public TimeSpan Timeout { get; set; }
-
-        /// <summary>
-        /// Port number.
-        /// </summary>
-        public int? Port { get; set; }
-
-        /// <summary>
-        /// Http path.
-        /// </summary>
-        public string Path { get; set; }
+        public ActiveHealthCheckOptions Active { get; set; }
 
         internal HealthCheckOptions DeepClone()
         {
             return new HealthCheckOptions
             {
-                Enabled = Enabled,
-                Interval = Interval,
-                Timeout = Timeout,
-                Port = Port,
-                Path = Path,
+                Passive = Passive?.DeepClone(),
+                Active = Active?.DeepClone()
             };
+        }
+
+        internal static bool Equals(HealthCheckOptions options1, HealthCheckOptions options2)
+        {
+            if (options1 == null && options2 == null)
+            {
+                return true;
+            }
+
+            if (options1 == null || options2 == null)
+            {
+                return false;
+            }
+
+            return PassiveHealthCheckOptions.Equals(options1.Passive, options2.Passive)
+                && ActiveHealthCheckOptions.Equals(options1.Active, options2.Active);
         }
     }
 }

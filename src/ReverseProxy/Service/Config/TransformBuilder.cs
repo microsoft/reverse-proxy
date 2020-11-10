@@ -59,6 +59,26 @@ namespace Microsoft.ReverseProxy.Service.Config
                     TryCheckTooManyParameters(errors.Add, rawTransform, expected: 1);
                     // TODO: Validate the pattern format. Does it build?
                 }
+                else if (rawTransform.TryGetValue("QueryValueParameter", out var queryValueParameter))
+                {
+                    TryCheckTooManyParameters(errors.Add, rawTransform, expected: 2);
+                    if (!rawTransform.TryGetValue("Append", out var _) && !rawTransform.TryGetValue("Set", out var _))
+                    {
+                        errors.Add(new ArgumentException($"Unexpected parameters for QueryValueParameter: {string.Join(';', rawTransform.Keys)}. Expected 'Append' or 'Set'."));
+                    }
+                }
+                else if (rawTransform.TryGetValue("QueryRouteParameter", out var queryRouteParameter))
+                {
+                    TryCheckTooManyParameters(errors.Add, rawTransform, expected: 2);
+                    if (!rawTransform.TryGetValue("Append", out var _) && !rawTransform.TryGetValue("Set", out var _))
+                    {
+                        errors.Add(new ArgumentException($"Unexpected parameters for QueryRouteParameter: {string.Join(';', rawTransform.Keys)}. Expected 'Append' or 'Set'."));
+                    }
+                }
+                else if (rawTransform.TryGetValue("QueryRemoveParameter", out var removeQueryParameter))
+                {
+                    TryCheckTooManyParameters(errors.Add, rawTransform, expected: 1);
+                }
                 else if (rawTransform.TryGetValue("RequestHeadersCopy", out var copyHeaders))
                 {
                     TryCheckTooManyParameters(errors.Add, rawTransform, expected: 1);
@@ -209,6 +229,14 @@ namespace Microsoft.ReverseProxy.Service.Config
                 {
                     TryCheckTooManyParameters(errors.Add, rawTransform, expected: 1);
                 }
+                else if (rawTransform.TryGetValue("HttpMethod", out var fromHttpMethod))
+                {
+                    CheckTooManyParameters(rawTransform, expected: 2);
+                    if (!rawTransform.TryGetValue("Set", out var _))
+                    {
+                        errors.Add(new ArgumentException($"Unexpected parameters for HttpMethod: {string.Join(';', rawTransform.Keys)}. Expected 'Set'"));
+                    }
+                }
                 else
                 {
                     errors.Add(new ArgumentException($"Unknown transform: {string.Join(';', rawTransform.Keys)}"));
@@ -256,6 +284,39 @@ namespace Microsoft.ReverseProxy.Service.Config
                         CheckTooManyParameters(rawTransform, expected: 1);
                         var path = MakePathString(pathPattern);
                         requestTransforms.Add(new PathRouteValuesTransform(path.Value, _binderFactory));
+                    }
+                    else if (rawTransform.TryGetValue("QueryValueParameter", out var queryValueParameter))
+                    {
+                        CheckTooManyParameters(rawTransform, expected: 2);
+                        if (rawTransform.TryGetValue("Append", out var appendValue))
+                        {
+                            requestTransforms.Add(new QueryParameterFromStaticTransform(QueryStringTransformMode.Append, queryValueParameter, appendValue));
+                        }
+                        else if (rawTransform.TryGetValue("Set", out var setValue))
+                        {
+                            requestTransforms.Add(new QueryParameterFromStaticTransform(QueryStringTransformMode.Set, queryValueParameter, setValue));
+                        }
+                    }
+                    else if (rawTransform.TryGetValue("QueryRouteParameter", out var queryRouteParameter))
+                    {
+                        CheckTooManyParameters(rawTransform, expected: 2);
+                        if (rawTransform.TryGetValue("Append", out var routeValueKeyAppend))
+                        {
+                            requestTransforms.Add(new QueryParameterRouteTransform(QueryStringTransformMode.Append, queryRouteParameter, routeValueKeyAppend));
+                        }
+                        else if (rawTransform.TryGetValue("Set", out var routeValueKeySet))
+                        {
+                            requestTransforms.Add(new QueryParameterRouteTransform(QueryStringTransformMode.Set, queryRouteParameter, routeValueKeySet));
+                        }
+                        else
+                        {
+                            throw new NotSupportedException(string.Join(";", rawTransform.Keys));
+                        }
+                    }
+                    else if (rawTransform.TryGetValue("QueryRemoveParameter", out var removeQueryParameter))
+                    {
+                        CheckTooManyParameters(rawTransform, expected: 1);
+                        requestTransforms.Add(new QueryParameterRemoveTransform(removeQueryParameter));
                     }
                     else if (rawTransform.TryGetValue("RequestHeadersCopy", out var copyHeaders))
                     {
@@ -456,6 +517,14 @@ namespace Microsoft.ReverseProxy.Service.Config
                     {
                         CheckTooManyParameters(rawTransform, expected: 1);
                         requestHeaderTransforms[clientCertHeader] = new RequestHeaderClientCertTransform();
+                    }
+                    else if (rawTransform.TryGetValue("HttpMethod", out var fromHttpMethod))
+                    {
+                        CheckTooManyParameters(rawTransform, expected: 2);
+                        if (rawTransform.TryGetValue("Set", out var toHttpMethod))
+                        {
+                            requestTransforms.Add(new HttpMethodTransform(fromHttpMethod, toHttpMethod));
+                        }
                     }
                     else
                     {

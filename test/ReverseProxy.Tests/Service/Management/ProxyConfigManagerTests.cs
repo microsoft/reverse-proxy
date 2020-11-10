@@ -4,13 +4,19 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Authentication;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Configuration;
-using Tests.Common;
+using Microsoft.ReverseProxy.Service.HealthChecks;
+using Microsoft.ReverseProxy.Utilities;
+using Microsoft.ReverseProxy.Utilities.Tests;
+using Moq;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Service.Management.Tests
@@ -23,6 +29,10 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             serviceCollection.AddLogging();
             serviceCollection.AddRouting();
             var proxyBuilder = serviceCollection.AddReverseProxy().LoadFromMemory(routes, clusters);
+            serviceCollection.TryAddSingleton(new Mock<IWebHostEnvironment>().Object);
+            var activeHealthPolicy = new Mock<IActiveHealthCheckPolicy>();
+            activeHealthPolicy.SetupGet(p => p.Name).Returns("activePolicyA");
+            serviceCollection.AddSingleton(activeHealthPolicy.Object);
             configureProxy?.Invoke(proxyBuilder);
             var services = serviceCollection.BuildServiceProvider();
             var routeBuilder = services.GetRequiredService<IRuntimeRouteBuilder>();
@@ -116,7 +126,8 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             Assert.Single(actualClusters);
             Assert.Equal("cluster1", actualClusters[0].ClusterId);
             Assert.NotNull(actualClusters[0].DestinationManager);
-            Assert.NotNull(actualClusters[0].Config.Value);
+            Assert.NotNull(actualClusters[0].Config);
+            Assert.NotNull(actualClusters[0].Config.HttpClient);
 
             var actualDestinations = actualClusters[0].DestinationManager.GetItems();
             Assert.Single(actualDestinations);
@@ -128,8 +139,54 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             var actualRoutes = routeManager.GetItems();
             Assert.Single(actualRoutes);
             Assert.Equal("route1", actualRoutes[0].RouteId);
-            Assert.NotNull(actualRoutes[0].Config.Value);
-            Assert.Same(actualClusters[0], actualRoutes[0].Config.Value.Cluster);
+            Assert.NotNull(actualRoutes[0].Config);
+            Assert.Same(actualClusters[0], actualRoutes[0].Config.Cluster);
+        }
+
+        [Fact]
+        public async Task InitialLoadAsync_ProxyHttpClientOptionsSet_CreateAndSetHttpClient()
+        {
+            const string TestAddress = "https://localhost:123/";
+
+            var clientCertificate = TestResources.GetTestCertificate();
+            var cluster = new Cluster
+            {
+                Id = "cluster1",
+                Destinations = { { "d1", new Destination { Address = TestAddress } } },
+                HttpClient = new ProxyHttpClientOptions {
+                    SslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12,
+                    MaxConnectionsPerServer = 10,
+                    ClientCertificate = clientCertificate
+                }
+            };
+            var route = new ProxyRoute
+            {
+                RouteId = "route1",
+                ClusterId = "cluster1",
+                Match = { Path = "/" }
+            };
+
+            var services = CreateServices(new List<ProxyRoute>() { route }, new List<Cluster>() { cluster });
+
+            var manager = services.GetRequiredService<IProxyConfigManager>();
+            var dataSource = await manager.InitialLoadAsync();
+
+            Assert.NotNull(dataSource);
+
+            var clusterManager = services.GetRequiredService<IClusterManager>();
+            var actualClusters = clusterManager.GetItems();
+            Assert.Single(actualClusters);
+            Assert.Equal("cluster1", actualClusters[0].ClusterId);
+            var clusterConfig = actualClusters[0].Config;
+            Assert.NotNull(clusterConfig.HttpClient);
+            Assert.Equal(SslProtocols.Tls11 | SslProtocols.Tls12, clusterConfig.HttpClientOptions.SslProtocols);
+            Assert.Equal(10, clusterConfig.HttpClientOptions.MaxConnectionsPerServer);
+            Assert.Same(clientCertificate, clusterConfig.HttpClientOptions.ClientCertificate);
+
+            var handler = Proxy.Tests.ProxyHttpClientFactoryTests.GetHandler(clusterConfig.HttpClient);
+            Assert.Equal(SslProtocols.Tls11 | SslProtocols.Tls12, handler.SslOptions.EnabledSslProtocols);
+            Assert.Equal(10, handler.MaxConnectionsPerServer);
+            Assert.Single(handler.SslOptions.ClientCertificates, clientCertificate);
         }
 
         [Fact]
@@ -176,6 +233,30 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
         }
 
         [Fact]
+        public async Task LoadAsync_RequestVersionValidationError_Throws()
+        {
+            const string TestAddress = "https://localhost:123/";
+
+            var cluster = new Cluster
+            {
+                Id = "cluster1",
+                Destinations = { { "d1", new Destination { Address = TestAddress } } },
+                HttpRequest = new ProxyHttpRequestOptions() { Version = new Version(1, 2) }
+            };
+
+            var services = CreateServices(new List<ProxyRoute>(), new List<Cluster>() { cluster });
+            var configManager = services.GetRequiredService<IProxyConfigManager>();
+
+            var ioEx = await Assert.ThrowsAsync<InvalidOperationException>(() => configManager.InitialLoadAsync());
+            Assert.Equal("Unable to load or apply the proxy configuration.", ioEx.Message);
+            var agex = Assert.IsType<AggregateException>(ioEx.InnerException);
+
+            Assert.Single(agex.InnerExceptions);
+            var argex = Assert.IsType<ArgumentException>(agex.InnerExceptions.First());
+            Assert.StartsWith("Outgoing request version", argex.Message);
+        }
+
+        [Fact]
         public async Task LoadAsync_RouteValidationError_Throws()
         {
             var route1 = new ProxyRoute { RouteId = "route1", Match = { Hosts = new[] { "invalid host name" } }, ClusterId = "cluster1" };
@@ -194,7 +275,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
         [Fact]
         public async Task LoadAsync_ConfigFilterRouteActions_CanFixBrokenRoute()
         {
-            var route1 = new ProxyRoute { RouteId = "route1", Match = { Hosts = new[] { "invalid host name" } }, Priority = 1, ClusterId = "cluster1" };
+            var route1 = new ProxyRoute { RouteId = "route1", Match = { Hosts = new[] { "invalid host name" } }, Order = 1, ClusterId = "cluster1" };
             var services = CreateServices(new List<ProxyRoute>() { route1 }, new List<Cluster>(), proxyBuilder =>
             {
                 proxyBuilder.AddProxyConfigFilter<FixRouteHostFilter>();
@@ -231,13 +312,13 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
         {
             public Task ConfigureClusterAsync(Cluster cluster, CancellationToken cancel)
             {
-                cluster.HealthCheckOptions = new HealthCheckOptions() { Enabled = true, Interval = TimeSpan.FromSeconds(12) };
+                cluster.HealthCheck = new HealthCheckOptions() { Active = new ActiveHealthCheckOptions { Enabled = true, Interval = TimeSpan.FromSeconds(12), Policy = "activePolicyA" } };
                 return Task.CompletedTask;
             }
 
             public Task ConfigureRouteAsync(ProxyRoute route, CancellationToken cancel)
             {
-                route.Priority = 12;
+                route.Order = 12;
                 return Task.CompletedTask;
             }
         }
@@ -259,9 +340,9 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             var clusterInfo = clusterManager.TryGetItem("cluster1");
 
             Assert.NotNull(clusterInfo);
-            Assert.True(clusterInfo.Config.Value.HealthCheckOptions.Enabled);
-            Assert.Equal(TimeSpan.FromSeconds(12), clusterInfo.Config.Value.HealthCheckOptions.Interval);
-            var destination = Assert.Single(clusterInfo.DynamicState.Value.AllDestinations);
+            Assert.True(clusterInfo.Config.HealthCheckOptions.Enabled);
+            Assert.Equal(TimeSpan.FromSeconds(12), clusterInfo.Config.HealthCheckOptions.Active.Interval);
+            var destination = Assert.Single(clusterInfo.DynamicState.AllDestinations);
             Assert.Equal("http://localhost", destination.Config.Address);
         }
 
@@ -301,8 +382,8 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
         [Fact]
         public async Task LoadAsync_ConfigFilterRouteActionThrows_Throws()
         {
-            var route1 = new ProxyRoute { RouteId = "route1", Match = { Hosts = new[] { "example.com" } }, Priority = 1, ClusterId = "cluster1" };
-            var route2 = new ProxyRoute { RouteId = "route2", Match = { Hosts = new[] { "example2.com" } }, Priority = 1, ClusterId = "cluster2" };
+            var route1 = new ProxyRoute { RouteId = "route1", Match = { Hosts = new[] { "example.com" } }, Order = 1, ClusterId = "cluster1" };
+            var route2 = new ProxyRoute { RouteId = "route2", Match = { Hosts = new[] { "example2.com" } }, Order = 1, ClusterId = "cluster2" };
             var services = CreateServices(new List<ProxyRoute>() { route1, route2 }, new List<Cluster>(), proxyBuilder =>
             {
                 proxyBuilder.AddProxyConfigFilter<ClusterAndRouteThrows>();

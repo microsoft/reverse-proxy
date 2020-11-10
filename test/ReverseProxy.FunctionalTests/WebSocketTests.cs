@@ -98,10 +98,10 @@ namespace Microsoft.ReverseProxy
 
             Assert.Equal(HttpStatusCode.SwitchingProtocols, response.StatusCode);
 
-#if NETCOREAPP3_1
-            using var rawStream = await response.Content.ReadAsStreamAsync();
-#elif NETCOREAPP5_0
+#if NET5_0
             using var rawStream = await response.Content.ReadAsStreamAsync(cts.Token);
+#elif NETCOREAPP3_1
+            using var rawStream = await response.Content.ReadAsStreamAsync();
 #else
 #error A target framework was added to the project and needs to be added to this condition.
 #endif
@@ -152,10 +152,10 @@ namespace Microsoft.ReverseProxy
             var response = await client.SendAsync(request, cts.Token);
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-#if NETCOREAPP3_1
-            Assert.Equal("Hello World", await response.Content.ReadAsStringAsync());
-#elif NETCOREAPP5_0
+#if NET5_0
             Assert.Equal("Hello World", await response.Content.ReadAsStringAsync(cts.Token));
+#elif NETCOREAPP3_1
+            Assert.Equal("Hello World", await response.Content.ReadAsStringAsync());
 #else
 #error A target framework was added to the project and needs to be added to this condition.
 #endif
@@ -168,8 +168,6 @@ namespace Microsoft.ReverseProxy
         {
             return CreateHost(services =>
             {
-                services.AddRouting();
-
                 var proxyRoute = new ProxyRoute
                 {
                     RouteId = "route1",

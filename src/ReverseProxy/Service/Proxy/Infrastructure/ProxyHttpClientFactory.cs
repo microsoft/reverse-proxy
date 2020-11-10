@@ -4,6 +4,8 @@
 using System;
 using System.Net;
 using System.Net.Http;
+using System.Security.Cryptography.X509Certificates;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
 {
@@ -12,66 +14,85 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
     /// </summary>
     internal class ProxyHttpClientFactory : IProxyHttpClientFactory
     {
-        /// <summary>
-        /// Handler for http requests.
-        /// </summary>
-        private readonly HttpMessageHandler _handler;
-
-        private bool _disposed;
+        private readonly ILogger<ProxyHttpClientFactory> _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ProxyHttpClientFactory"/> class.
         /// </summary>
-        public ProxyHttpClientFactory()
+        public ProxyHttpClientFactory(ILogger<ProxyHttpClientFactory> logger)
         {
-            _handler = new SocketsHttpHandler
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
+
+        /// <inheritdoc/>
+        public HttpMessageInvoker CreateClient(ProxyHttpClientContext context)
+        {
+            if (CanReuseOldClient(context))
+            {
+                Log.ProxyClientReused(_logger, context.ClusterId);
+                return context.OldClient;
+            }
+
+            var newClientOptions = context.NewOptions;
+            var handler = new SocketsHttpHandler
             {
                 UseProxy = false,
                 AllowAutoRedirect = false,
                 AutomaticDecompression = DecompressionMethods.None,
-                UseCookies = false,
-                MaxConnectionsPerServer = int.MaxValue, // Proxy manages max connections
+                UseCookies = false
 
                 // NOTE: MaxResponseHeadersLength = 64, which means up to 64 KB of headers are allowed by default as of .NET Core 3.1.
             };
-        }
 
-        /// <inheritdoc/>
-        public HttpMessageInvoker CreateClient()
-        {
-            if (_disposed)
+            if (newClientOptions.SslProtocols.HasValue)
             {
-                throw new ObjectDisposedException(typeof(ProxyHttpClientFactory).FullName);
+                handler.SslOptions.EnabledSslProtocols = newClientOptions.SslProtocols.Value;
+            }
+            if (newClientOptions.ClientCertificate != null)
+            {
+                handler.SslOptions.ClientCertificates = new X509CertificateCollection
+                {
+                    newClientOptions.ClientCertificate
+                };
+            }
+            if (newClientOptions.MaxConnectionsPerServer != null)
+            {
+                handler.MaxConnectionsPerServer = newClientOptions.MaxConnectionsPerServer.Value;
+            }
+            if (newClientOptions.DangerousAcceptAnyServerCertificate)
+            {
+                handler.SslOptions.RemoteCertificateValidationCallback = delegate { return true; };
             }
 
-            return new HttpMessageInvoker(_handler, disposeHandler: false);
+            Log.ProxyClientCreated(_logger, context.ClusterId);
+            return new HttpMessageInvoker(handler, disposeHandler: true);
         }
 
-        /// <inheritdoc/>
-        public void Dispose()
+        private bool CanReuseOldClient(ProxyHttpClientContext context)
         {
-            Dispose(true);
+            return context.OldClient != null && context.NewOptions == context.OldOptions;
         }
 
-        /// <summary>
-        /// Disposes the current instance.
-        /// </summary>
-        /// <remarks>
-        /// This will dispose the underlying <see cref="HttpClientHandler"/>,
-        /// so it can only be called after it is no longer in use.
-        /// </remarks>
-        protected virtual void Dispose(bool disposing)
+        private static class Log
         {
-            if (!_disposed)
+            private static readonly Action<ILogger, string, Exception> _proxyClientCreated = LoggerMessage.Define<string>(
+                  LogLevel.Debug,
+                  EventIds.ProxyClientCreated,
+                  "New proxy client created for cluster '{clusterId}'.");
+
+            private static readonly Action<ILogger, string, Exception> _proxyClientReused = LoggerMessage.Define<string>(
+                LogLevel.Debug,
+                EventIds.ProxyClientReused,
+                "Existing proxy client reused for cluster '{clusterId}'.");
+
+            public static void ProxyClientCreated(ILogger logger, string clusterId)
             {
-                if (disposing)
-                {
-                    // TODO: This has high potential to cause coding defects. See if we can do better,
-                    // perhaps do something like `Microsoft.Extensions.Http.LifetimeTrackingHttpMessageHandler`.
-                    _handler.Dispose();
-                }
+                _proxyClientCreated(logger, clusterId, null);
+            }
 
-                _disposed = true;
+            public static void ProxyClientReused(ILogger logger, string clusterId)
+            {
+                _proxyClientReused(logger, clusterId, null);
             }
         }
     }

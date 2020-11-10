@@ -3,7 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
+using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Abstractions
 {
@@ -23,17 +23,17 @@ namespace Microsoft.ReverseProxy.Abstractions
         /// <summary>
         /// Circuit breaker options.
         /// </summary>
-        public CircuitBreakerOptions CircuitBreakerOptions { get; set; }
+        public CircuitBreakerOptions CircuitBreaker { get; set; }
 
         /// <summary>
         /// Quota options.
         /// </summary>
-        public QuotaOptions QuotaOptions { get; set; }
+        public QuotaOptions Quota { get; set; }
 
         /// <summary>
         /// Partitioning options.
         /// </summary>
-        public ClusterPartitioningOptions PartitioningOptions { get; set; }
+        public ClusterPartitioningOptions Partitioning { get; set; }
 
         /// <summary>
         /// Load balancing options.
@@ -46,9 +46,19 @@ namespace Microsoft.ReverseProxy.Abstractions
         public SessionAffinityOptions SessionAffinity { get; set; }
 
         /// <summary>
-        /// Active health checking options.
+        /// Health checking options.
         /// </summary>
-        public HealthCheckOptions HealthCheckOptions { get; set; }
+        public HealthCheckOptions HealthCheck { get; set; }
+
+        /// <summary>
+        /// Options of an HTTP client that is used to call this cluster.
+        /// </summary>
+        public ProxyHttpClientOptions HttpClient { get; set; }
+
+        /// <summary>
+        /// Options of an outgoing HTTP request.
+        /// </summary>
+        public ProxyHttpRequestOptions HttpRequest { get; set; }
 
         /// <summary>
         /// The set of destinations associated with this cluster.
@@ -66,15 +76,42 @@ namespace Microsoft.ReverseProxy.Abstractions
             return new Cluster
             {
                 Id = Id,
-                CircuitBreakerOptions = CircuitBreakerOptions?.DeepClone(),
-                QuotaOptions = QuotaOptions?.DeepClone(),
-                PartitioningOptions = PartitioningOptions?.DeepClone(),
+                CircuitBreaker = CircuitBreaker?.DeepClone(),
+                Quota = Quota?.DeepClone(),
+                Partitioning = Partitioning?.DeepClone(),
                 LoadBalancing = LoadBalancing?.DeepClone(),
                 SessionAffinity = SessionAffinity?.DeepClone(),
-                HealthCheckOptions = HealthCheckOptions?.DeepClone(),
+                HealthCheck = HealthCheck?.DeepClone(),
+                HttpClient = HttpClient?.DeepClone(),
+                HttpRequest = HttpRequest?.DeepClone(),
                 Destinations = Destinations.DeepClone(StringComparer.OrdinalIgnoreCase),
                 Metadata = Metadata?.DeepClone(StringComparer.OrdinalIgnoreCase),
             };
+        }
+
+        internal static bool Equals(Cluster cluster1, Cluster cluster2)
+        {
+            if (cluster1 == null && cluster2 == null)
+            {
+                return true;
+            }
+
+            if (cluster1 == null || cluster2 == null)
+            {
+                return false;
+            }
+
+            return string.Equals(cluster1.Id, cluster2.Id, StringComparison.OrdinalIgnoreCase)
+                && CircuitBreakerOptions.Equals(cluster1.CircuitBreaker, cluster2.CircuitBreaker)
+                && QuotaOptions.Equals(cluster1.Quota, cluster2.Quota)
+                && ClusterPartitioningOptions.Equals(cluster1.Partitioning, cluster2.Partitioning)
+                && LoadBalancingOptions.Equals(cluster1.LoadBalancing, cluster2.LoadBalancing)
+                && SessionAffinityOptions.Equals(cluster1.SessionAffinity, cluster2.SessionAffinity)
+                && HealthCheckOptions.Equals(cluster1.HealthCheck, cluster2.HealthCheck)
+                && ProxyHttpClientOptions.Equals(cluster1.HttpClient, cluster2.HttpClient)
+                && ProxyHttpRequestOptions.Equals(cluster1.HttpRequest, cluster2.HttpRequest)
+                && CaseInsensitiveEqualHelper.Equals(cluster1.Destinations, cluster2.Destinations, Destination.Equals)
+                && CaseInsensitiveEqualHelper.Equals(cluster1.Metadata, cluster2.Metadata);
         }
     }
 }

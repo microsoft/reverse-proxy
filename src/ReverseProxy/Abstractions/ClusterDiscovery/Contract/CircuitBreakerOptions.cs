@@ -30,5 +30,21 @@ namespace Microsoft.ReverseProxy.Abstractions
                 MaxConcurrentRetries = MaxConcurrentRetries,
             };
         }
+
+        internal static bool Equals(CircuitBreakerOptions options1, CircuitBreakerOptions options2)
+        {
+            if (options1 == null && options2 == null)
+            {
+                return true;
+            }
+
+            if (options1 == null || options2 == null)
+            {
+                return false;
+            }
+
+            return options1.MaxConcurrentRequests == options2.MaxConcurrentRequests
+                && options1.MaxConcurrentRetries == options2.MaxConcurrentRetries;
+        }
     }
 }

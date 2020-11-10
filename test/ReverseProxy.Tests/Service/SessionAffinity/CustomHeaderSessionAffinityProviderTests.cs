@@ -13,8 +13,8 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
     public class CustomHeaderSessionAffinityProviderTests
     {
         private const string AffinityHeaderName = "X-MyAffinity";
-        private readonly ClusterConfig.ClusterSessionAffinityOptions _defaultOptions =
-            new ClusterConfig.ClusterSessionAffinityOptions(true, "Cookie", "Return503", new Dictionary<string, string> { { "CustomHeaderName", AffinityHeaderName } });
+        private readonly ClusterSessionAffinityOptions _defaultOptions =
+            new ClusterSessionAffinityOptions(true, "Cookie", "Return503", new Dictionary<string, string> { { "CustomHeaderName", AffinityHeaderName } });
         private readonly IReadOnlyList<DestinationInfo> _destinations = new[] { new DestinationInfo("dest-A"), new DestinationInfo("dest-B"), new DestinationInfo("dest-C") };
 
         [Fact]
@@ -53,7 +53,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
         [MemberData(nameof(FindAffinitizedDestination_CustomHeaderNameIsNotSpecified_Cases))]
         public void FindAffinitizedDestination_CustomHeaderNameIsNotSpecified_UseDefaultName(Dictionary<string, string> settings)
         {
-            var options = new ClusterConfig.ClusterSessionAffinityOptions(true, "CustomHeader", "Return503", settings);
+            var options = new ClusterSessionAffinityOptions(true, "CustomHeader", "Return503", settings);
             var provider = new CustomHeaderSessionAffinityProvider(AffinityTestHelper.GetDataProtector().Object, AffinityTestHelper.GetLogger<CustomHeaderSessionAffinityProvider>().Object);
             var context = new DefaultHttpContext();
             var affinitizedDestination = _destinations[1];

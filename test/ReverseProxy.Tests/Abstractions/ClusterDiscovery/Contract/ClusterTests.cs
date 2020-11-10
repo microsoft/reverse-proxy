@@ -20,11 +20,13 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
             // Arrange
             var cluster = new Cluster
             {
-                CircuitBreakerOptions = new CircuitBreakerOptions(),
-                QuotaOptions = new QuotaOptions(),
-                PartitioningOptions = new ClusterPartitioningOptions(),
+                CircuitBreaker = new CircuitBreakerOptions(),
+                Quota = new QuotaOptions(),
+                Partitioning = new ClusterPartitioningOptions(),
                 LoadBalancing = new LoadBalancingOptions(),
-                HealthCheckOptions = new HealthCheckOptions(),
+                HealthCheck = new HealthCheckOptions(),
+                HttpClient = new ProxyHttpClientOptions(),
+                HttpRequest = new ProxyHttpRequestOptions(),
                 Metadata = new Dictionary<string, string>
                 {
                     { "key", "value" },
@@ -36,16 +38,18 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
 
             // Assert
             Assert.NotSame(cluster, clone);
-            Assert.NotNull(clone.CircuitBreakerOptions);
-            Assert.NotSame(cluster.CircuitBreakerOptions, clone.CircuitBreakerOptions);
-            Assert.NotNull(clone.QuotaOptions);
-            Assert.NotSame(cluster.QuotaOptions, clone.QuotaOptions);
-            Assert.NotNull(clone.PartitioningOptions);
-            Assert.NotSame(cluster.PartitioningOptions, clone.PartitioningOptions);
+            Assert.NotNull(clone.CircuitBreaker);
+            Assert.NotSame(cluster.CircuitBreaker, clone.CircuitBreaker);
+            Assert.NotNull(clone.Quota);
+            Assert.NotSame(cluster.Quota, clone.Quota);
+            Assert.NotNull(clone.Partitioning);
+            Assert.NotSame(cluster.Partitioning, clone.Partitioning);
             Assert.NotNull(clone.LoadBalancing);
             Assert.NotSame(cluster.LoadBalancing, clone.LoadBalancing);
-            Assert.NotNull(clone.HealthCheckOptions);
-            Assert.NotSame(cluster.HealthCheckOptions, clone.HealthCheckOptions);
+            Assert.NotNull(clone.HealthCheck);
+            Assert.NotSame(cluster.HealthCheck, clone.HealthCheck);
+            Assert.NotNull(clone.HttpClient);
+            Assert.NotSame(cluster.HttpClient, clone.HttpClient);
             Assert.NotNull(clone.Metadata);
             Assert.NotSame(cluster.Metadata, clone.Metadata);
             Assert.Equal("value", clone.Metadata["key"]);
@@ -62,11 +66,12 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
 
             // Assert
             Assert.NotSame(cluster, clone);
-            Assert.Null(clone.CircuitBreakerOptions);
-            Assert.Null(clone.QuotaOptions);
-            Assert.Null(clone.PartitioningOptions);
+            Assert.Null(clone.CircuitBreaker);
+            Assert.Null(clone.Quota);
+            Assert.Null(clone.Partitioning);
             Assert.Null(clone.LoadBalancing);
-            Assert.Null(clone.HealthCheckOptions);
+            Assert.Null(clone.HealthCheck);
+            Assert.Null(clone.HttpClient);
             Assert.Null(clone.Metadata);
         }
     }

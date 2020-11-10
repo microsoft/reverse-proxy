@@ -8,4 +8,14 @@
     <ProjectReference Include="..\..\src\ReverseProxy\Microsoft.ReverseProxy.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Crank.EventSources" Version="0.1.0-alpha.20501.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="testCert.pfx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

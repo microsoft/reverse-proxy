@@ -11,7 +11,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
     /// <summary>
     /// Immutable representation of the portions of a route
     /// that only change in reaction to configuration changes
-    /// (e.g. rule, priority, action, etc.).
+    /// (e.g. rule, order, action, etc.).
     /// </summary>
     /// <remarks>
     /// All members must remain immutable to avoid thread safety issues.
@@ -20,10 +20,11 @@ namespace Microsoft.ReverseProxy.RuntimeModel
     /// </remarks>
     internal sealed class RouteConfig
     {
+        private readonly ProxyRoute _proxyRoute;
+
         public RouteConfig(
             RouteInfo route,
-            int configHash,
-            int? priority,
+            ProxyRoute proxyRoute,
             ClusterInfo cluster,
             IReadOnlyList<AspNetCore.Http.Endpoint> aspNetCoreEndpoints,
             Transforms transforms)
@@ -31,17 +32,15 @@ namespace Microsoft.ReverseProxy.RuntimeModel
             Route = route ?? throw new ArgumentNullException(nameof(route));
             Endpoints = aspNetCoreEndpoints ?? throw new ArgumentNullException(nameof(aspNetCoreEndpoints));
 
-            ConfigHash = configHash;
-            Priority = priority;
+            _proxyRoute = proxyRoute;
+            Order = proxyRoute.Order;
             Cluster = cluster;
             Transforms = transforms;
         }
 
         public RouteInfo Route { get; }
 
-        internal int ConfigHash { get; }
-
-        public int? Priority { get; }
+        public int? Order { get; }
 
         // May not be populated if the cluster config is missing.
         public ClusterInfo Cluster { get; }
@@ -53,7 +52,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         public bool HasConfigChanged(ProxyRoute newConfig, ClusterInfo cluster)
         {
             return Cluster != cluster
-                || !ConfigHash.Equals(newConfig.GetConfigHash());
+                || !ProxyRoute.Equals(_proxyRoute, newConfig);
         }
     }
 }

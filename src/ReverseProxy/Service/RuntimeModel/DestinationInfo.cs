@@ -4,7 +4,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Microsoft.ReverseProxy.Signals;
 using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.RuntimeModel
@@ -14,13 +13,15 @@ namespace Microsoft.ReverseProxy.RuntimeModel
     /// </summary>
     /// <remarks>
     /// Note that while this class is immutable, specific members such as
-    /// <see cref="Config"/> and <see cref="DynamicState"/> hold mutable references
-    /// that can be updated atomically and which will always have latest information
+    /// <see cref="Config"/> and <see cref="Health"/> hold mutable references
+    /// that can be updated and which will always have latest information
     /// relevant to this endpoint.
     /// All members are thread safe.
     /// </remarks>
     public sealed class DestinationInfo : IReadOnlyList<DestinationInfo>
     {
+        private volatile DestinationConfig _config;
+
         public DestinationInfo(string destinationId)
         {
             if (string.IsNullOrEmpty(destinationId))
@@ -33,26 +34,18 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         public string DestinationId { get; }
 
         /// <summary>
-        /// Encapsulates parts of an endpoint that can change atomically
-        /// in reaction to config changes.
-        /// </summary>
-        internal Signal<DestinationConfig> ConfigSignal { get; } = SignalFactory.Default.CreateSignal<DestinationConfig>();
-
-        /// <summary>
         /// A snapshot of the current configuration
         /// </summary>
-        public DestinationConfig Config => ConfigSignal.Value;
+        public DestinationConfig Config
+        {
+            get => _config;
+            internal set => _config = value ?? throw new ArgumentNullException(nameof(value));
+        }
 
         /// <summary>
-        /// Encapsulates parts of an destination that can change atomically
-        /// in reaction to runtime state changes (e.g. endpoint health states).
+        /// Mutable health state for this destination.
         /// </summary>
-        internal Signal<DestinationDynamicState> DynamicStateSignal { get; } = SignalFactory.Default.CreateSignal<DestinationDynamicState>();
-
-        /// <summary>
-        /// A snapshot of the current health state.
-        /// </summary>
-        public DestinationDynamicState DynamicState => DynamicStateSignal.Value;
+        public DestinationHealthState Health { get; } = new DestinationHealthState();
 
         /// <summary>
         /// Keeps track of the total number of concurrent requests on this endpoint.

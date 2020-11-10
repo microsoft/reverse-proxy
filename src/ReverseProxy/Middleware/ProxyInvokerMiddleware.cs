@@ -2,13 +2,12 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.ReverseProxy.Abstractions.Telemetry;
+using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Proxy;
+using Microsoft.ReverseProxy.Telemetry;
 using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Middleware
@@ -21,19 +20,16 @@ namespace Microsoft.ReverseProxy.Middleware
         private readonly IRandomFactory _randomFactory;
         private readonly RequestDelegate _next; // Unused, this middleware is always terminal
         private readonly ILogger _logger;
-        private readonly IOperationLogger<ProxyInvokerMiddleware> _operationLogger;
         private readonly IHttpProxy _httpProxy;
 
         public ProxyInvokerMiddleware(
             RequestDelegate next,
             ILogger<ProxyInvokerMiddleware> logger,
-            IOperationLogger<ProxyInvokerMiddleware> operationLogger,
             IHttpProxy httpProxy,
             IRandomFactory randomFactory)
         {
             _next = next ?? throw new ArgumentNullException(nameof(next));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _operationLogger = operationLogger ?? throw new ArgumentNullException(nameof(operationLogger));
             _httpProxy = httpProxy ?? throw new ArgumentNullException(nameof(httpProxy));
             _randomFactory = randomFactory ?? throw new ArgumentNullException(nameof(randomFactory));
         }
@@ -43,7 +39,8 @@ namespace Microsoft.ReverseProxy.Middleware
         {
             _ = context ?? throw new ArgumentNullException(nameof(context));
 
-            var destinations = context.GetRequiredProxyFeature().AvailableDestinations
+            var reverseProxyFeature = context.GetRequiredProxyFeature();
+            var destinations = reverseProxyFeature.AvailableDestinations
                 ?? throw new InvalidOperationException($"The {nameof(IReverseProxyFeature)} Destinations collection was not set.");
 
             var routeConfig = context.GetRequiredRouteConfig();
@@ -52,7 +49,8 @@ namespace Microsoft.ReverseProxy.Middleware
             if (destinations.Count == 0)
             {
                 Log.NoAvailableDestinations(_logger, cluster.ClusterId);
-                context.Response.StatusCode = 503;
+                context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
+                context.Features.Set<IProxyErrorFeature>(new ProxyErrorFeature(ProxyError.NoAvailableDestinations, ex: null));
                 return;
             }
 
@@ -64,41 +62,49 @@ namespace Microsoft.ReverseProxy.Middleware
                 destination = destinations[random.Next(destinations.Count)];
             }
 
+            reverseProxyFeature.SelectedDestination = destination;
+
             var destinationConfig = destination.Config;
             if (destinationConfig == null)
             {
                 throw new InvalidOperationException($"Chosen destination has no configs set: '{destination.DestinationId}'");
             }
 
-            using (var shortCts = CancellationTokenSource.CreateLinkedTokenSource(context.RequestAborted))
+            // TODO: Make this configurable on a route rather than create it per request?
+            var proxyOptions = new RequestProxyOptions()
             {
-                // TODO: Configurable timeout, measure from request start, make it unit-testable
-                shortCts.CancelAfter(TimeSpan.FromSeconds(30));
+                Transforms = routeConfig.Transforms,
+            };
 
-                // TODO: Retry against other destinations
-                try
-                {
-                    // TODO: Apply caps
-                    cluster.ConcurrencyCounter.Increment();
-                    destination.ConcurrencyCounter.Increment();
+            var requestOptions = reverseProxyFeature.ClusterConfig.HttpRequestOptions;
+            if (requestOptions.RequestTimeout.HasValue)
+            {
+                proxyOptions.RequestTimeout = requestOptions.RequestTimeout.Value;
+            }
+            if (requestOptions.Version != null)
+            {
+                proxyOptions.Version = requestOptions.Version;
+            }
+#if NET
+            if (requestOptions.VersionPolicy.HasValue)
+            {
+                proxyOptions.VersionPolicy = requestOptions.VersionPolicy.Value;
+            }
+#endif
 
-                    // TODO: Duplex channels should not have a timeout (?), but must react to Proxy force-shutdown signals.
-                    var longCancellation = context.RequestAborted;
+            try
+            {
+                cluster.ConcurrencyCounter.Increment();
+                destination.ConcurrencyCounter.Increment();
 
-                    var proxyTelemetryContext = new ProxyTelemetryContext(
-                        clusterId: cluster.ClusterId,
-                        routeId: routeConfig.Route.RouteId,
-                        destinationId: destination.DestinationId);
+                ProxyTelemetry.Log.ProxyInvoke(cluster.ClusterId, routeConfig.Route.RouteId, destination.DestinationId);
 
-                    await _operationLogger.ExecuteAsync(
-                        "ReverseProxy.Proxy",
-                        () => _httpProxy.ProxyAsync(context, destinationConfig.Address, routeConfig.Transforms, cluster.ProxyHttpClientFactory, proxyTelemetryContext, shortCancellation: shortCts.Token, longCancellation: longCancellation));
-                }
-                finally
-                {
-                    destination.ConcurrencyCounter.Decrement();
-                    cluster.ConcurrencyCounter.Decrement();
-                }
+                await _httpProxy.ProxyAsync(context, destinationConfig.Address, reverseProxyFeature.ClusterConfig.HttpClient, proxyOptions);
+            }
+            finally
+            {
+                destination.ConcurrencyCounter.Decrement();
+                cluster.ConcurrencyCounter.Decrement();
             }
         }
 

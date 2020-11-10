@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Abstractions.RouteDiscovery.Contract;
 using Microsoft.ReverseProxy.RuntimeModel;
-using Microsoft.ReverseProxy.Service.Config;
+using Microsoft.ReverseProxy.Service.Routing;
 using CorsConstants = Microsoft.ReverseProxy.Abstractions.RouteDiscovery.Contract.CorsConstants;
 
 namespace Microsoft.ReverseProxy.Service
@@ -55,8 +55,7 @@ namespace Microsoft.ReverseProxy.Service
             var aspNetCoreEndpoints = new List<Endpoint>(1);
             var newRouteConfig = new RouteConfig(
                 runtimeRoute,
-                source.GetConfigHash(),
-                source.Priority,
+                source,
                 cluster,
                 aspNetCoreEndpoints.AsReadOnly(),
                 transforms);
@@ -64,17 +63,28 @@ namespace Microsoft.ReverseProxy.Service
             // Catch-all pattern when no path was specified
             var pathPattern = string.IsNullOrEmpty(source.Match.Path) ? "/{**catchall}" : source.Match.Path;
 
-            // TODO: Propagate route priority
             var endpointBuilder = new AspNetCore.Routing.RouteEndpointBuilder(
                 requestDelegate: _pipeline,
                 routePattern: AspNetCore.Routing.Patterns.RoutePatternFactory.Parse(pathPattern),
-                order: 0);
+                order: source.Order.GetValueOrDefault());
+
             endpointBuilder.DisplayName = source.RouteId;
             endpointBuilder.Metadata.Add(newRouteConfig);
 
             if (source.Match.Hosts != null && source.Match.Hosts.Count != 0)
             {
                 endpointBuilder.Metadata.Add(new AspNetCore.Routing.HostAttribute(source.Match.Hosts.ToArray()));
+            }
+
+            if (source.Match.Headers != null && source.Match.Headers.Count > 0)
+            {
+                var matchers = new List<HeaderMatcher>(source.Match.Headers.Count);
+                foreach (var header in source.Match.Headers)
+                {
+                    matchers.Add(new HeaderMatcher(header.Name, header.Values, header.Mode, header.IsCaseSensitive));
+                }
+
+                endpointBuilder.Metadata.Add(new HeaderMetadata(matchers));
             }
 
             bool acceptCorsPreflight;

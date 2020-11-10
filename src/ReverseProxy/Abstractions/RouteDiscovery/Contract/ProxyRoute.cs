@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Abstractions
 {
@@ -21,9 +22,9 @@ namespace Microsoft.ReverseProxy.Abstractions
         public ProxyMatch Match { get; private set; } = new ProxyMatch();
 
         /// <summary>
-        /// Optionally, a priority value for this route. Routes with lower numbers take precedence over higher numbers.
+        /// Optionally, an order value for this route. Routes with lower numbers take precedence over higher numbers.
         /// </summary>
-        public int? Priority { get; set; }
+        public int? Order { get; set; }
 
         /// <summary>
         /// Gets or sets the cluster that requests matching this route
@@ -63,7 +64,7 @@ namespace Microsoft.ReverseProxy.Abstractions
             {
                 RouteId = RouteId,
                 Match = Match.DeepClone(),
-                Priority = Priority,
+                Order = Order,
                 ClusterId = ClusterId,
                 AuthorizationPolicy = AuthorizationPolicy,
                 CorsPolicy = CorsPolicy,
@@ -72,70 +73,26 @@ namespace Microsoft.ReverseProxy.Abstractions
             };
         }
 
-        // Used to diff for config changes
-        internal int GetConfigHash()
+        internal static bool Equals(ProxyRoute proxyRoute1, ProxyRoute proxyRoute2)
         {
-            var hash = 0;
-
-            if (!string.IsNullOrEmpty(RouteId))
+            if (proxyRoute1 == null && proxyRoute2 == null)
             {
-                hash ^= RouteId.GetHashCode();
+                return true;
             }
 
-            if (Match.Methods != null && Match.Methods.Count > 0)
+            if (proxyRoute1 == null || proxyRoute2 == null)
             {
-                // Assumes un-ordered
-                hash ^= Match.Methods.Select(item => item.GetHashCode())
-                    .Aggregate((total, nextCode) => total ^ nextCode);
+                return false;
             }
 
-            if (Match.Hosts != null && Match.Hosts.Count > 0)
-            {
-                // Assumes un-ordered
-                hash ^= Match.Hosts.Select(item => item.GetHashCode())
-                    .Aggregate((total, nextCode) => total ^ nextCode);
-            }
-
-            if (!string.IsNullOrEmpty(Match.Path))
-            {
-                hash ^= Match.Path.GetHashCode();
-            }
-
-            if (Priority.HasValue)
-            {
-                hash ^= Priority.GetHashCode();
-            }
-
-            if (!string.IsNullOrEmpty(ClusterId))
-            {
-                hash ^= ClusterId.GetHashCode();
-            }
-
-            if (!string.IsNullOrEmpty(AuthorizationPolicy))
-            {
-                hash ^= AuthorizationPolicy.GetHashCode();
-            }
-
-            if (!string.IsNullOrEmpty(CorsPolicy))
-            {
-                hash ^= CorsPolicy.GetHashCode();
-            }
-
-            if (Metadata != null && Metadata.Count > 0)
-            {
-                hash ^= Metadata.Select(item => HashCode.Combine(item.Key.GetHashCode(), item.Value.GetHashCode()))
-                    .Aggregate((total, nextCode) => total ^ nextCode);
-            }
-
-            if (Transforms != null)
-            {
-                hash ^= Transforms.Select(transform =>
-                    transform.Select(item => HashCode.Combine(item.Key.GetHashCode(), item.Value.GetHashCode()))
-                        .Aggregate((total, nextCode) => total ^ nextCode)) // Unordered Dictionary
-                    .Aggregate(seed: 397, (total, nextCode) => total * 31 ^ nextCode); // Ordered List
-            }
-
-            return hash;
+            return proxyRoute1.Order == proxyRoute2.Order
+                && string.Equals(proxyRoute1.RouteId, proxyRoute2.RouteId, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(proxyRoute1.ClusterId, proxyRoute2.ClusterId, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(proxyRoute1.AuthorizationPolicy, proxyRoute2.AuthorizationPolicy, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(proxyRoute1.CorsPolicy, proxyRoute2.CorsPolicy, StringComparison.OrdinalIgnoreCase)
+                && ProxyMatch.Equals(proxyRoute1.Match, proxyRoute2.Match)
+                && CaseInsensitiveEqualHelper.Equals(proxyRoute1.Metadata, proxyRoute2.Metadata)
+                && CaseInsensitiveEqualHelper.Equals(proxyRoute1.Transforms, proxyRoute2.Transforms);
         }
     }
 }

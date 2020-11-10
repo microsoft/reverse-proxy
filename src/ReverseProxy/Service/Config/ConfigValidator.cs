@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -14,7 +15,9 @@ using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Microsoft.ReverseProxy.Abstractions.RouteDiscovery.Contract;
 using Microsoft.ReverseProxy.Service.Config;
+using Microsoft.ReverseProxy.Service.HealthChecks;
 using Microsoft.ReverseProxy.Service.SessionAffinity;
+using Microsoft.ReverseProxy.Utilities;
 using CorsConstants = Microsoft.ReverseProxy.Abstractions.RouteDiscovery.Contract.CorsConstants;
 
 namespace Microsoft.ReverseProxy.Service
@@ -55,19 +58,25 @@ namespace Microsoft.ReverseProxy.Service
         private readonly ICorsPolicyProvider _corsPolicyProvider;
         private readonly IDictionary<string, ISessionAffinityProvider> _sessionAffinityProviders;
         private readonly IDictionary<string, IAffinityFailurePolicy> _affinityFailurePolicies;
+        private readonly IDictionary<string, IActiveHealthCheckPolicy> _activeHealthCheckPolicies;
+        private readonly IDictionary<string, IPassiveHealthCheckPolicy> _passiveHealthCheckPolicies;
 
 
         public ConfigValidator(ITransformBuilder transformBuilder,
             IAuthorizationPolicyProvider authorizationPolicyProvider,
             ICorsPolicyProvider corsPolicyProvider,
             IEnumerable<ISessionAffinityProvider> sessionAffinityProviders,
-            IEnumerable<IAffinityFailurePolicy> affinityFailurePolicies)
+            IEnumerable<IAffinityFailurePolicy> affinityFailurePolicies,
+            IEnumerable<IActiveHealthCheckPolicy> activeHealthCheckPolicies,
+            IEnumerable<IPassiveHealthCheckPolicy> passiveHealthCheckPolicies)
         {
             _transformBuilder = transformBuilder ?? throw new ArgumentNullException(nameof(transformBuilder));
             _authorizationPolicyProvider = authorizationPolicyProvider ?? throw new ArgumentNullException(nameof(authorizationPolicyProvider));
             _corsPolicyProvider = corsPolicyProvider ?? throw new ArgumentNullException(nameof(corsPolicyProvider));
-            _sessionAffinityProviders = sessionAffinityProviders?.ToProviderDictionary() ?? throw new ArgumentNullException(nameof(sessionAffinityProviders));
-            _affinityFailurePolicies = affinityFailurePolicies?.ToPolicyDictionary() ?? throw new ArgumentNullException(nameof(affinityFailurePolicies));
+            _sessionAffinityProviders = sessionAffinityProviders?.ToDictionaryByUniqueId(p => p.Mode) ?? throw new ArgumentNullException(nameof(sessionAffinityProviders));
+            _affinityFailurePolicies = affinityFailurePolicies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(affinityFailurePolicies));
+            _activeHealthCheckPolicies = activeHealthCheckPolicies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(activeHealthCheckPolicies));
+            _passiveHealthCheckPolicies = passiveHealthCheckPolicies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(passiveHealthCheckPolicies));
         }
 
         // Note this performs all validation steps without short circuiting in order to report all possible errors.
@@ -89,6 +98,7 @@ namespace Microsoft.ReverseProxy.Service
             ValidateHost(errors, route.Match.Hosts, route.RouteId);
             ValidatePath(errors, route.Match.Path, route.RouteId);
             ValidateMethods(errors, route.Match.Methods, route.RouteId);
+            ValidateHeaders(errors, route.Match.Headers, route.RouteId);
             errors.AddRange(_transformBuilder.Validate(route.Transforms));
             await ValidateAuthorizationPolicyAsync(errors, route.AuthorizationPolicy, route.RouteId);
             await ValidateCorsPolicyAsync(errors, route.CorsPolicy, route.RouteId);
@@ -108,6 +118,10 @@ namespace Microsoft.ReverseProxy.Service
             }
 
             ValidateSessionAffinity(errors, cluster);
+            ValidateProxyHttpClient(errors, cluster);
+            ValidateProxyHttpRequest(errors, cluster);
+            ValidateActiveHealthCheck(errors, cluster);
+            ValidatePassiveHealthCheck(errors, cluster);
 
             return new ValueTask<IList<Exception>>(errors);
         }
@@ -167,6 +181,40 @@ namespace Microsoft.ReverseProxy.Service
                 if (!_validMethods.Contains(method))
                 {
                     errors.Add(new ArgumentException($"Unsupported HTTP method '{method}' has been set for route '{routeId}'."));
+                }
+            }
+        }
+
+        private void ValidateHeaders(List<Exception> errors, IReadOnlyList<RouteHeader> headers, string routeId)
+        {
+            // Headers are optional
+            if (headers == null)
+            {
+                return;
+            }
+
+            foreach (var header in headers)
+            {
+                if (header == null)
+                {
+                    errors.Add(new ArgumentException($"A null route header has been set for route '{routeId}'."));
+                    continue;
+                }
+
+                if (string.IsNullOrEmpty(header.Name))
+                {
+                    errors.Add(new ArgumentException($"A null or empty route header name has been set for route '{routeId}'."));
+                }
+
+                if (header.Mode != HeaderMatchMode.Exists
+                    && (header.Values == null || header.Values.Count == 0))
+                {
+                    errors.Add(new ArgumentException($"No header values were set on route header '{header.Name}' for route '{routeId}'."));
+                }
+
+                if (header.Mode == HeaderMatchMode.Exists && header.Values?.Count > 0)
+                {
+                    errors.Add(new ArgumentException($"Header values where set when using mode '{nameof(HeaderMatchMode.Exists)}' on route header '{header.Name}' for route '{routeId}'."));
                 }
             }
         }
@@ -259,6 +307,88 @@ namespace Microsoft.ReverseProxy.Service
             if (!_affinityFailurePolicies.ContainsKey(affinityFailurePolicy))
             {
                 errors.Add(new ArgumentException($"No matching IAffinityFailurePolicy found for the affinity failure policy name '{affinityFailurePolicy}' set on the cluster '{cluster.Id}'."));
+            }
+        }
+
+        private void ValidateProxyHttpClient(IList<Exception> errors, Cluster cluster)
+        {
+            if (cluster.HttpClient == null)
+            {
+                // Proxy http client options are not set.
+                return;
+            }
+
+            if (cluster.HttpClient.MaxConnectionsPerServer != null && cluster.HttpClient.MaxConnectionsPerServer <= 0)
+            {
+                errors.Add(new ArgumentException($"Max connections per server limit set on the cluster '{cluster.Id}' must be positive."));
+            }
+        }
+
+        private void ValidateProxyHttpRequest(IList<Exception> errors, Cluster cluster)
+        {
+            if (cluster.HttpRequest == null)
+            {
+                // Proxy http request options are not set.
+                return;
+            }
+
+            if (cluster.HttpRequest.Version != null &&
+                cluster.HttpRequest.Version != HttpVersion.Version10 &&
+                cluster.HttpRequest.Version != HttpVersion.Version11 &&
+                cluster.HttpRequest.Version != HttpVersion.Version20)
+            {
+                errors.Add(new ArgumentException($"Outgoing request version '{cluster.HttpRequest.Version}' is not any of supported HTTP versions (1.0, 1.1 and 2)."));
+            }
+        }
+
+        private void ValidateActiveHealthCheck(IList<Exception> errors, Cluster cluster)
+        {
+            if (cluster.HealthCheck == null || cluster.HealthCheck.Active == null || !cluster.HealthCheck.Active.Enabled)
+            {
+                // Active health check is disabled
+                return;
+            }
+
+            var activeOptions = cluster.HealthCheck.Active;
+            var policy = activeOptions.Policy;
+            if (string.IsNullOrEmpty(policy))
+            {
+                errors.Add(new ArgumentException($"Active health policy name is not set on the cluster '{cluster.Id}'"));
+            }
+            else if (!_activeHealthCheckPolicies.ContainsKey(policy))
+            {
+                errors.Add(new ArgumentException($"No matching {nameof(IActiveHealthCheckPolicy)} found for the active health check policy name '{policy}' set on the cluster '{cluster.Id}'."));
+            }
+
+            if (activeOptions.Interval != null && activeOptions.Interval <= TimeSpan.Zero)
+            {
+                errors.Add(new ArgumentException($"Destination probing interval set on the cluster '{cluster.Id}' must be positive."));
+            }
+
+            if (activeOptions.Timeout != null && activeOptions.Timeout <= TimeSpan.Zero)
+            {
+                errors.Add(new ArgumentException($"Destination probing timeout set on the cluster '{cluster.Id}' must be positive."));
+            }
+        }
+
+        private void ValidatePassiveHealthCheck(IList<Exception> errors, Cluster cluster)
+        {
+            if (cluster.HealthCheck == null || cluster.HealthCheck.Passive == null || !cluster.HealthCheck.Passive.Enabled)
+            {
+                // Passive health check is disabled
+                return;
+            }
+
+            var passiveOptions = cluster.HealthCheck.Passive;
+            var policy = passiveOptions.Policy;
+            if (string.IsNullOrEmpty(policy))
+            {
+                errors.Add(new ArgumentException($"Passive health policy name is not set on the cluster '{cluster.Id}'"));
+            }
+
+            if (passiveOptions.ReactivationPeriod != null && passiveOptions.ReactivationPeriod <= TimeSpan.Zero)
+            {
+                errors.Add(new ArgumentException($"Unhealthy destination reactivation period set on the cluster '{cluster.Id}' must be positive."));
             }
         }
     }

@@ -38,16 +38,17 @@ namespace Microsoft.ReverseProxy.Service.Proxy
     internal class StreamCopyHttpContent : HttpContent
     {
         private readonly Stream _source;
-        private readonly IStreamCopier _streamCopier;
         private readonly bool _autoFlushHttpClientOutgoingStream;
+        private readonly IClock _clock;
+        // Note this is the long token that should only be canceled in the event of an error, not timed out.
         private readonly CancellationToken _cancellation;
-        private readonly TaskCompletionSource<bool> _tcs = new TaskCompletionSource<bool>();
+        private readonly TaskCompletionSource<(StreamCopyResult, Exception)> _tcs = new TaskCompletionSource<(StreamCopyResult, Exception)>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-        public StreamCopyHttpContent(Stream source, IStreamCopier streamCopier, bool autoFlushHttpClientOutgoingStream, CancellationToken cancellation)
+        public StreamCopyHttpContent(Stream source, bool autoFlushHttpClientOutgoingStream, IClock clock, CancellationToken cancellation)
         {
             _source = source ?? throw new ArgumentNullException(nameof(source));
-            _streamCopier = streamCopier ?? throw new ArgumentNullException(nameof(streamCopier));
             _autoFlushHttpClientOutgoingStream = autoFlushHttpClientOutgoingStream;
+            _clock = clock ?? throw new ArgumentNullException(nameof(clock));
             _cancellation = cancellation;
         }
 
@@ -55,7 +56,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         /// Gets a <see cref="System.Threading.Tasks.Task"/> that completes in successful or failed state
         /// mimicking the result of <see cref="SerializeToStreamAsync"/>.
         /// </summary>
-        public Task ConsumptionTask => _tcs.Task;
+        public Task<(StreamCopyResult, Exception)> ConsumptionTask => _tcs.Task;
 
         /// <summary>
         /// Gets a value indicating whether consumption of this content has begun.
@@ -111,6 +112,9 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         /// we have full control over pumping bytes to the target stream for all protocols
         /// (except Web Sockets, which is handled separately).
         /// </remarks>
+        // Note we do not need to implement the SerializeToStreamAsync(Stream stream, TransportContext context, CancellationToken token) overload
+        // because the token it provides is the short request token, not the long body token passed from the constructor. Using the short token
+        // would break bidirectional streaming scenarios.
         protected override async Task SerializeToStreamAsync(Stream stream, TransportContext context)
         {
             if (Started)
@@ -119,29 +123,47 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             }
 
             Started = true;
+
+            if (_autoFlushHttpClientOutgoingStream)
+            {
+                // HttpClient's machinery keeps an internal buffer that doesn't get flushed to the socket on every write.
+                // Some protocols (e.g. gRPC) may rely on specific bytes being sent, and HttpClient's buffering would prevent it.
+                // AutoFlushingStream delegates to the provided stream, adding calls to FlushAsync on every WriteAsync.
+                // Note that HttpClient does NOT call Flush on the underlying socket, so the perf impact of this is expected to be small.
+                // This statement is based on current knowledge as of .NET Core 3.1.201.
+                stream = new AutoFlushingStream(stream);
+            }
+
+            // Immediately flush request stream to send headers
+            // https://github.com/dotnet/corefx/issues/39586#issuecomment-516210081
             try
             {
-                if (_autoFlushHttpClientOutgoingStream)
-                {
-                    // HttpClient's machinery keeps an internal buffer that doesn't get flushed to the socket on every write.
-                    // Some protocols (e.g. gRPC) may rely on specific bytes being sent, and HttpClient's buffering would prevent it.
-                    // AutoFlushingStream delegates to the provided stream, adding calls to FlushAsync on every WriteAsync.
-                    // Note that HttpClient does NOT call Flush on the underlying socket, so the perf impact of this is expected to be small.
-                    // This statement is based on current knowledge as of .NET Core 3.1.201.
-                    stream = new AutoFlushingStream(stream);
-                }
-
-                // Immediately flush request stream to send headers
-                // https://github.com/dotnet/corefx/issues/39586#issuecomment-516210081
-                await stream.FlushAsync();
-
-                await _streamCopier.CopyAsync(_source, stream, _cancellation);
-                _tcs.TrySetResult(true);
+                await stream.FlushAsync(_cancellation);
+            }
+            catch (OperationCanceledException oex)
+            {
+                _tcs.TrySetResult((StreamCopyResult.Canceled, oex));
+                return;
             }
             catch (Exception ex)
             {
-                _tcs.TrySetException(ex);
-                throw;
+                _tcs.TrySetResult((StreamCopyResult.OutputError, ex));
+                return;
+            }
+
+            var (result, error) = await StreamCopier.CopyAsync(isRequest: true, _source, stream, _clock, _cancellation);
+            _tcs.TrySetResult((result, error));
+            // Check for errors that weren't the result of the destination failing.
+            // We have to throw something here so the transport knows the body is incomplete.
+            // We can't re-throw the original exception since that would cause concurrency issues.
+            // We need to wrap it.
+            if (result == StreamCopyResult.InputError)
+            {
+                throw new IOException("An error occurred when reading the request body from the client.", error);
+            }
+            if (result == StreamCopyResult.Canceled)
+            {
+                throw new OperationCanceledException("The request body copy was canceled.", error);
             }
         }
 

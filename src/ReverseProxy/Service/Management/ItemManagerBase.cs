@@ -4,8 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.ReverseProxy.Utilities;
-using Microsoft.ReverseProxy.Signals;
 
 namespace Microsoft.ReverseProxy.Service.Management
 {
@@ -14,10 +12,10 @@ namespace Microsoft.ReverseProxy.Service.Management
     {
         private readonly object _lockObject = new object();
         private readonly Dictionary<string, T> _items = new Dictionary<string, T>(StringComparer.OrdinalIgnoreCase);
-        private readonly Signal<IReadOnlyList<T>> _signal = SignalFactory.Default.CreateSignal<IReadOnlyList<T>>(new List<T>().AsReadOnly());
+        private volatile IReadOnlyList<T> _snapshot = Array.Empty<T>();
 
         /// <inheritdoc/>
-        public IReadableSignal<IReadOnlyList<T>> Items => _signal;
+        public IReadOnlyList<T> Items => _snapshot;
 
         /// <inheritdoc/>
         public T TryGetItem(string itemId)
@@ -50,8 +48,10 @@ namespace Microsoft.ReverseProxy.Service.Management
                 if (!existed)
                 {
                     _items.Add(itemId, item);
-                    UpdateSignal();
+                    UpdateSnapshot();
                 }
+
+                OnItemChanged(item, !existed);
 
                 return item;
             }
@@ -73,11 +73,12 @@ namespace Microsoft.ReverseProxy.Service.Management
 
             lock (_lockObject)
             {
-                var removed = _items.Remove(itemId);
+                var removed = _items.Remove(itemId, out var removedItem);
 
                 if (removed)
                 {
-                    UpdateSignal();
+                    UpdateSnapshot();
+                    OnItemRemoved(removedItem);
                 }
 
                 return removed;
@@ -89,9 +90,15 @@ namespace Microsoft.ReverseProxy.Service.Management
         /// </summary>
         protected abstract T InstantiateItem(string itemId);
 
-        private void UpdateSignal()
+        protected virtual void OnItemChanged(T item, bool added)
+        {}
+
+        protected virtual void OnItemRemoved(T item)
+        {}
+
+        private void UpdateSnapshot()
         {
-            _signal.Value = _items.Select(kvp => kvp.Value).ToList().AsReadOnly();
+            _snapshot = _items.Select(kvp => kvp.Value).ToList().AsReadOnly();
         }
     }
 }

@@ -3,8 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.ReverseProxy.Utilities;
 
-namespace Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract
+namespace Microsoft.ReverseProxy.Abstractions
 {
     /// <summary>
     /// Session affinitity options.
@@ -40,6 +41,24 @@ namespace Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract
                 FailurePolicy = FailurePolicy,
                 Settings = Settings?.DeepClone(StringComparer.OrdinalIgnoreCase)
             };
+        }
+
+        internal static bool Equals(SessionAffinityOptions options1, SessionAffinityOptions options2)
+        {
+            if (options1 == null && options2 == null)
+            {
+                return true;
+            }
+
+            if (options1 == null || options2 == null)
+            {
+                return false;
+            }
+
+            return options1.Enabled == options2.Enabled
+                && string.Equals(options1.Mode, options2.Mode, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(options1.FailurePolicy, options2.FailurePolicy, StringComparison.OrdinalIgnoreCase)
+                && CaseInsensitiveEqualHelper.Equals(options1.Settings, options2.Settings);
         }
     }
 }

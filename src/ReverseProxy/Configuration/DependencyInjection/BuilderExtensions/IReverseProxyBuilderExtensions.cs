@@ -1,46 +1,30 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
-using Microsoft.ReverseProxy.Abstractions.Telemetry;
-using Microsoft.ReverseProxy.Abstractions.Time;
+using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service;
 using Microsoft.ReverseProxy.Service.Config;
+using Microsoft.ReverseProxy.Service.HealthChecks;
 using Microsoft.ReverseProxy.Service.Management;
-using Microsoft.ReverseProxy.Service.Metrics;
 using Microsoft.ReverseProxy.Service.Proxy;
 using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
+using Microsoft.ReverseProxy.Service.Routing;
 using Microsoft.ReverseProxy.Service.SessionAffinity;
-using Microsoft.ReverseProxy.Telemetry;
 using Microsoft.ReverseProxy.Utilities;
+using System.Linq;
 
 namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
 {
     internal static class IReverseProxyBuilderExtensions
     {
-        public static IReverseProxyBuilder AddTelemetryShims(this IReverseProxyBuilder builder)
-        {
-            // NOTE: Consumers of ReverseProxy are expected to replace these with their own classes
-            builder.Services.TryAddSingleton<IMetricCreator, NullMetricCreator>();
-            builder.Services.TryAddSingleton(typeof(IOperationLogger<>), typeof(TextOperationLogger<>));
-            return builder;
-        }
-
-        public static IReverseProxyBuilder AddMetrics(this IReverseProxyBuilder builder)
-        {
-            builder.Services.TryAddSingleton<ProxyMetrics>();
-            return builder;
-        }
-
         public static IReverseProxyBuilder AddConfigBuilder(this IReverseProxyBuilder builder)
         {
             builder.Services.TryAddSingleton<IConfigValidator, ConfigValidator>();
             builder.Services.TryAddSingleton<IRuntimeRouteBuilder, RuntimeRouteBuilder>();
+            builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<MatcherPolicy, HeaderMatcherPolicy>());
             return builder;
         }
 
@@ -49,6 +33,7 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
             builder.Services.TryAddSingleton<IDestinationManagerFactory, DestinationManagerFactory>();
             builder.Services.TryAddSingleton<IClusterManager, ClusterManager>();
             builder.Services.TryAddSingleton<IRouteManager, RouteManager>();
+            builder.Services.TryAddSingleton<ITimerFactory, TimerFactory>();
             return builder;
         }
 
@@ -61,17 +46,10 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
         public static IReverseProxyBuilder AddProxy(this IReverseProxyBuilder builder)
         {
             builder.Services.TryAddSingleton<ITransformBuilder, TransformBuilder>();
-            builder.Services.TryAddSingleton<IProxyHttpClientFactoryFactory, ProxyHttpClientFactoryFactory>();
+            builder.Services.TryAddSingleton<IProxyHttpClientFactory, ProxyHttpClientFactory>();
             builder.Services.TryAddSingleton<ILoadBalancer, LoadBalancer>();
             builder.Services.TryAddSingleton<IRandomFactory, RandomFactory>();
-            builder.Services.TryAddSingleton<IHttpProxy, HttpProxy>();
-            return builder;
-        }
-
-        public static IReverseProxyBuilder AddBackgroundWorkers(this IReverseProxyBuilder builder)
-        {
-            builder.Services.TryAddSingleton<IMonotonicTimer, MonotonicTimer>();
-
+            builder.Services.AddHttpProxy();
             return builder;
         }
 
@@ -86,6 +64,28 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
                 new ServiceDescriptor(typeof(ISessionAffinityProvider), typeof(CustomHeaderSessionAffinityProvider), ServiceLifetime.Singleton)
             });
 
+            return builder;
+        }
+
+        public static IReverseProxyBuilder AddActiveHealthChecks(this IReverseProxyBuilder builder)
+        {
+            builder.Services.TryAddSingleton<IProbingRequestFactory, DefaultProbingRequestFactory>();
+
+            // Avoid registering several IActiveHealthCheckMonitor implementations.
+            if (!builder.Services.Any(d => d.ServiceType == typeof(IActiveHealthCheckMonitor)))
+            {
+                builder.Services.AddSingleton<ActiveHealthCheckMonitor>();
+                builder.Services.AddSingleton<IActiveHealthCheckMonitor>(p => p.GetRequiredService<ActiveHealthCheckMonitor>());
+                builder.Services.AddSingleton<IClusterChangeListener>(p => p.GetRequiredService<ActiveHealthCheckMonitor>());
+            }
+
+            builder.Services.AddSingleton<IActiveHealthCheckPolicy, ConsecutiveFailuresHealthPolicy>();
+            return builder;
+        }
+
+        public static IReverseProxyBuilder AddPassiveHealthCheck(this IReverseProxyBuilder builder)
+        {
+            builder.Services.TryAddSingleton<IReactivationScheduler, ReactivationScheduler>();
             return builder;
         }
     }

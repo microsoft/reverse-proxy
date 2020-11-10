@@ -2,15 +2,15 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <VersionPrefix>1.0.0</VersionPrefix>
-    <!-- 
+    <!--
       For sorting purposes, it is very important there be a '.' between the word 'preview' and the preview number.
       That ensures that if we get up to preview 10, it doesn't sort as between preview 1 and preview 2!
       See https://semver.org/spec/v2.0.0.html for details.
     -->
-    <PreReleaseVersionLabel>preview.4</PreReleaseVersionLabel>
+    <PreReleaseVersionLabel>preview.7</PreReleaseVersionLabel>
   </PropertyGroup>
   <!--Package versions-->
   <PropertyGroup>
-    <MicrosoftNETCoreAppPackageVersion>5.0.0-preview.7.20364.11</MicrosoftNETCoreAppPackageVersion>
+    <MicrosoftNETCoreAppPackageVersion>5.0.0-rtm.20529.3</MicrosoftNETCoreAppPackageVersion>
   </PropertyGroup>
 </Project>

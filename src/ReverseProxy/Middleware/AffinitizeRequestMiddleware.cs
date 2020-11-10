@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.SessionAffinity;
+using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Middleware
 {
@@ -29,7 +30,7 @@ namespace Microsoft.ReverseProxy.Middleware
         {
             _next = next ?? throw new ArgumentNullException(nameof(next));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _sessionAffinityProviders = sessionAffinityProviders.ToProviderDictionary();
+            _sessionAffinityProviders = sessionAffinityProviders?.ToDictionaryByUniqueId(p => p.Mode) ?? throw new ArgumentNullException(nameof(sessionAffinityProviders));
         }
 
         public Task Invoke(HttpContext context)
@@ -67,7 +68,7 @@ namespace Microsoft.ReverseProxy.Middleware
             return _next(context);
         }
 
-        private void AffinitizeRequest(HttpContext context, ClusterConfig.ClusterSessionAffinityOptions options, DestinationInfo destination)
+        private void AffinitizeRequest(HttpContext context, ClusterSessionAffinityOptions options, DestinationInfo destination)
         {
             var currentProvider = _sessionAffinityProviders.GetRequiredServiceById(options.Mode, SessionAffinityConstants.Modes.Cookie);
             currentProvider.AffinitizeRequest(context, options, destination);

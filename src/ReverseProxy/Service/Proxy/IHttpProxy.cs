@@ -1,31 +1,28 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Threading;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
-using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 
 namespace Microsoft.ReverseProxy.Service.Proxy
 {
     /// <summary>
     /// Provides a method to proxy an HTTP request to a target server.
     /// </summary>
-    internal interface IHttpProxy
+    public interface IHttpProxy
     {
         /// <summary>
-        /// Proxies the incoming request to the upstream server, and the response back to our client.
+        /// Proxies the incoming request to the destination server, and the response back to the client.
         /// </summary>
-        /// <param name="longCancellation">This should be linked to a client disconnect notification like <see cref="HttpContext.RequestAborted"/>
-        /// to avoid leaking long running requests.</param>
+        /// <param name="context">The HttpContent to proxy from.</param>
+        /// <param name="destinationPrefix">The url prefix for where to proxy the request to.</param>
+        /// <param name="httpClient">The HTTP client used to send the proxy request.</param>
+        /// <param name="proxyOptions">Options for this operation.</param>
         Task ProxyAsync(
             HttpContext context,
             string destinationPrefix,
-            Transforms transforms,
-            IProxyHttpClientFactory httpClientFactory,
-            ProxyTelemetryContext proxyTelemetryContext,
-            CancellationToken shortCancellation,
-            CancellationToken longCancellation);
+            HttpMessageInvoker httpClient,
+            RequestProxyOptions proxyOptions);
     }
 }
