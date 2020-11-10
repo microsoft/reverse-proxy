@@ -307,7 +307,7 @@ public class FirstUnsuccessfulResponseHealthPolicy : IPassiveHealthCheckPolicy
         _healthUpdater = healthUpdater;
     }
 
-    public string Name => throw new NotImplementedException();
+    public string Name => "FirstUnsuccessfulResponse";
 
     public void RequestProxied(ClusterInfo cluster, DestinationInfo destination, HttpContext context)
     {
