@@ -220,8 +220,8 @@ namespace Microsoft.ReverseProxy.Configuration
             {
                 Name = section[nameof(RouteHeader.Name)],
                 Values = section.GetSection(nameof(RouteHeader.Values)).ReadStringArray(),
-                Mode = section.ReadEnum<HeaderMatchMode>(nameof(RouteHeader.Mode)),
-                IsCaseSensitive = section.ReadBool(nameof(RouteHeader.IsCaseSensitive)),
+                Mode = section.ReadEnum<HeaderMatchMode>(nameof(RouteHeader.Mode)) ?? HeaderMatchMode.ExactHeader,
+                IsCaseSensitive = section.ReadBool(nameof(RouteHeader.IsCaseSensitive)) ?? false,
             };
 
             return routeHeader;
@@ -236,8 +236,8 @@ namespace Microsoft.ReverseProxy.Configuration
 
             return new CircuitBreakerOptions
             {
-                MaxConcurrentRequests = section.ReadInt32(nameof(CircuitBreakerOptions.MaxConcurrentRequests)),
-                MaxConcurrentRetries = section.ReadInt32(nameof(CircuitBreakerOptions.MaxConcurrentRetries)),
+                MaxConcurrentRequests = section.ReadInt32(nameof(CircuitBreakerOptions.MaxConcurrentRequests)) ?? 0,
+                MaxConcurrentRetries = section.ReadInt32(nameof(CircuitBreakerOptions.MaxConcurrentRetries)) ?? 0,
             };
         }
 
@@ -250,8 +250,8 @@ namespace Microsoft.ReverseProxy.Configuration
 
             return new QuotaOptions
             {
-                Average = section.ReadDouble(nameof(QuotaOptions.Average)),
-                Burst = section.ReadDouble(nameof(QuotaOptions.Burst)),
+                Average = section.ReadDouble(nameof(QuotaOptions.Average)) ?? 0,
+                Burst = section.ReadDouble(nameof(QuotaOptions.Burst)) ?? 0,
             };
         }
 
@@ -264,7 +264,7 @@ namespace Microsoft.ReverseProxy.Configuration
 
             return new ClusterPartitioningOptions
             {
-                PartitionCount = section.ReadInt32(nameof(ClusterPartitioningOptions.PartitionCount)),
+                PartitionCount = section.ReadInt32(nameof(ClusterPartitioningOptions.PartitionCount)) ?? 0,
                 PartitionKeyExtractor = section[nameof(ClusterPartitioningOptions.PartitionKeyExtractor)],
                 PartitioningAlgorithm = section[nameof(ClusterPartitioningOptions.PartitioningAlgorithm)],
             };
@@ -279,7 +279,7 @@ namespace Microsoft.ReverseProxy.Configuration
 
             return new LoadBalancingOptions
             {
-                Mode = section.ReadEnum<LoadBalancingMode>(nameof(LoadBalancingOptions.Mode)),
+                Mode = section.ReadEnum<LoadBalancingMode>(nameof(LoadBalancingOptions.Mode)) ?? LoadBalancingMode.PowerOfTwoChoices,
             };
         }
 
@@ -292,7 +292,7 @@ namespace Microsoft.ReverseProxy.Configuration
 
             return new SessionAffinityOptions
             {
-                Enabled = section.ReadBool(nameof(SessionAffinityOptions.Enabled)),
+                Enabled = section.ReadBool(nameof(SessionAffinityOptions.Enabled)) ?? false,
                 Mode = section[nameof(SessionAffinityOptions.Mode)],
                 FailurePolicy = section[nameof(SessionAffinityOptions.FailurePolicy)],
                 Settings = section.GetSection(nameof(SessionAffinityOptions.Settings)).ReadStringDictionary()
@@ -322,7 +322,7 @@ namespace Microsoft.ReverseProxy.Configuration
 
             return new PassiveHealthCheckOptions
             {
-                Enabled = section.ReadBool(nameof(PassiveHealthCheckOptions.Enabled)),
+                Enabled = section.ReadBool(nameof(PassiveHealthCheckOptions.Enabled)) ?? false,
                 Policy = section[nameof(PassiveHealthCheckOptions.Policy)],
                 ReactivationPeriod = section.ReadTimeSpan(nameof(PassiveHealthCheckOptions.ReactivationPeriod))
             };
@@ -337,7 +337,7 @@ namespace Microsoft.ReverseProxy.Configuration
 
             return new ActiveHealthCheckOptions
             {
-                Enabled = section.ReadBool(nameof(ActiveHealthCheckOptions.Enabled)),
+                Enabled = section.ReadBool(nameof(ActiveHealthCheckOptions.Enabled)) ?? false,
                 Interval = section.ReadTimeSpan(nameof(ActiveHealthCheckOptions.Interval)),
                 Timeout = section.ReadTimeSpan(nameof(ActiveHealthCheckOptions.Timeout)),
                 Policy = section[nameof(ActiveHealthCheckOptions.Policy)],
@@ -378,7 +378,7 @@ namespace Microsoft.ReverseProxy.Configuration
             return new ProxyHttpClientOptions
             {
                 SslProtocols = sslProtocols,
-                DangerousAcceptAnyServerCertificate = section.ReadBool(nameof(ProxyHttpClientOptions.DangerousAcceptAnyServerCertificate)),
+                DangerousAcceptAnyServerCertificate = section.ReadBool(nameof(ProxyHttpClientOptions.DangerousAcceptAnyServerCertificate)) ?? true,
                 ClientCertificate = clientCertificate,
                 MaxConnectionsPerServer = section.ReadInt32(nameof(ProxyHttpClientOptions.MaxConnectionsPerServer))
             };
