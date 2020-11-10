@@ -34,7 +34,7 @@ namespace Microsoft.Extensions.Configuration
 
         internal static Version ReadVersion(this IConfiguration configuration, string name)
         {
-            return configuration[name] is string value ? Version.Parse(value + (value.Contains('.') ? "" : ".0")) : default;
+            return configuration[name] is string value && !string.IsNullOrEmpty(value) ? Version.Parse(value + (value.Contains('.') ? "" : ".0")) : default;
         }
 
         internal static IDictionary<string, string> ReadStringDictionary(this IConfigurationSection section)
