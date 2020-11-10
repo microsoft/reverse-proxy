@@ -584,6 +584,7 @@ namespace Microsoft.ReverseProxy.Configuration
             Assert.Equal(validConfig.Clusters["cluster1"].SessionAffinity.Settings, abstractCluster1.SessionAffinity.Settings);
             Assert.Same(certificate, abstractCluster1.HttpClient.ClientCertificate);
             Assert.Equal(validConfig.Clusters["cluster1"].HttpClient.MaxConnectionsPerServer, abstractCluster1.HttpClient.MaxConnectionsPerServer);
+            Assert.Equal(validConfig.Clusters["cluster1"].HttpClient.PropagateActivityContext, abstractCluster1.HttpClient.PropagateActivityContext);
             Assert.Equal(SslProtocols.Tls11 | SslProtocols.Tls12, abstractCluster1.HttpClient.SslProtocols);
             Assert.Equal(validConfig.Clusters["cluster1"].HttpClient.DangerousAcceptAnyServerCertificate, abstractCluster1.HttpClient.DangerousAcceptAnyServerCertificate);
             Assert.Equal(validConfig.Clusters["cluster1"].Metadata, abstractCluster1.Metadata);
