@@ -154,7 +154,7 @@ namespace Microsoft.ReverseProxy.Configuration
                 HealthCheck = CreateHealthCheckOptions(section.GetSection(nameof(Cluster.HealthCheck))),
                 HttpClient = CreateProxyHttpClientOptions(section.GetSection(nameof(Cluster.HttpClient))),
                 HttpRequest = CreateProxyRequestOptions(section.GetSection(nameof(Cluster.HttpRequest))),
-                Metadata = CreateStringDictionary(section.GetSection(nameof(Cluster.Metadata)))
+                Metadata = section.GetSection(nameof(Cluster.Metadata)).ReadStringDictionary()
             };
 
             foreach (var destination in section.GetSection(nameof(Cluster.Destinations)).GetChildren())
@@ -170,11 +170,11 @@ namespace Microsoft.ReverseProxy.Configuration
             var route = new ProxyRoute
             {
                 RouteId = section[nameof(ProxyRoute.RouteId)],
-                Order = int.TryParse(section[nameof(ProxyRoute.Order)], out var order) ? order : null,
+                Order = section.ReadInt32(nameof(ProxyRoute.Order)),
                 ClusterId = section[nameof(ProxyRoute.ClusterId)],
                 AuthorizationPolicy = section[nameof(ProxyRoute.AuthorizationPolicy)],
                 CorsPolicy = section[nameof(ProxyRoute.CorsPolicy)],
-                Metadata = CreateStringDictionary(section.GetSection(nameof(ProxyRoute.Metadata))),
+                Metadata = section.GetSection(nameof(ProxyRoute.Metadata)).ReadStringDictionary(),
                 Transforms = CreateTransforms(section.GetSection(nameof(ProxyRoute.Transforms))),
             };
             InitializeProxyMatch(route.Match, section.GetSection(nameof(ProxyRoute.Match)));
@@ -198,8 +198,8 @@ namespace Microsoft.ReverseProxy.Configuration
                 return;
             }
 
-            proxyMatch.Methods = GetStringArray(section.GetSection(nameof(ProxyMatch.Methods)));
-            proxyMatch.Hosts = GetStringArray(section.GetSection(nameof(ProxyMatch.Hosts)));
+            proxyMatch.Methods = section.GetSection(nameof(ProxyMatch.Methods)).ReadStringArray();
+            proxyMatch.Hosts = section.GetSection(nameof(ProxyMatch.Hosts)).ReadStringArray();
             proxyMatch.Path = section[nameof(ProxyMatch.Path)];
             proxyMatch.Headers = CreateRouteHeaders(section.GetSection(nameof(ProxyMatch.Headers)));
         }
@@ -219,9 +219,9 @@ namespace Microsoft.ReverseProxy.Configuration
             var routeHeader = new RouteHeader()
             {
                 Name = section[nameof(RouteHeader.Name)],
-                Values = GetStringArray(section.GetSection(nameof(RouteHeader.Values))),
-                Mode = Enum.TryParse<HeaderMatchMode>(section[nameof(RouteHeader.Mode)], out var mode) ? mode : default,
-                IsCaseSensitive = bool.TryParse(section[nameof(RouteHeader.IsCaseSensitive)], out var isCaseSensitive) ? isCaseSensitive : default,
+                Values = section.GetSection(nameof(RouteHeader.Values)).ReadStringArray(),
+                Mode = section.ReadEnum<HeaderMatchMode>(nameof(RouteHeader.Mode)),
+                IsCaseSensitive = section.ReadBool(nameof(RouteHeader.IsCaseSensitive)),
             };
 
             return routeHeader;
@@ -236,8 +236,8 @@ namespace Microsoft.ReverseProxy.Configuration
 
             return new CircuitBreakerOptions
             {
-                MaxConcurrentRequests = int.TryParse(section[nameof(CircuitBreakerOptions.MaxConcurrentRequests)], out var maxConcurrentRequests) ? maxConcurrentRequests : default,
-                MaxConcurrentRetries = int.TryParse(section[nameof(CircuitBreakerOptions.MaxConcurrentRetries)], out var maxConcurrentRetries) ? maxConcurrentRetries : default,
+                MaxConcurrentRequests = section.ReadInt32(nameof(CircuitBreakerOptions.MaxConcurrentRequests)),
+                MaxConcurrentRetries = section.ReadInt32(nameof(CircuitBreakerOptions.MaxConcurrentRetries)),
             };
         }
 
@@ -250,8 +250,8 @@ namespace Microsoft.ReverseProxy.Configuration
 
             return new QuotaOptions
             {
-                Average = double.TryParse(section[nameof(QuotaOptions.Average)], out var avg) ? avg : default,
-                Burst = double.TryParse(section[nameof(QuotaOptions.Burst)], out var burst) ? burst : default,
+                Average = section.ReadDouble(nameof(QuotaOptions.Average)),
+                Burst = section.ReadDouble(nameof(QuotaOptions.Burst)),
             };
         }
 
@@ -264,7 +264,7 @@ namespace Microsoft.ReverseProxy.Configuration
 
             return new ClusterPartitioningOptions
             {
-                PartitionCount = int.TryParse(section[nameof(ClusterPartitioningOptions.PartitionCount)], out var partitionCount) ? partitionCount : default,
+                PartitionCount = section.ReadInt32(nameof(ClusterPartitioningOptions.PartitionCount)),
                 PartitionKeyExtractor = section[nameof(ClusterPartitioningOptions.PartitionKeyExtractor)],
                 PartitioningAlgorithm = section[nameof(ClusterPartitioningOptions.PartitioningAlgorithm)],
             };
@@ -279,7 +279,7 @@ namespace Microsoft.ReverseProxy.Configuration
 
             return new LoadBalancingOptions
             {
-                Mode = Enum.TryParse<LoadBalancingMode>(section[nameof(LoadBalancingOptions.Mode)], out var mode) ? mode : default,
+                Mode = section.ReadEnum<LoadBalancingMode>(nameof(LoadBalancingOptions.Mode)),
             };
         }
 
@@ -292,10 +292,10 @@ namespace Microsoft.ReverseProxy.Configuration
 
             return new SessionAffinityOptions
             {
-                Enabled = bool.TryParse(section[nameof(SessionAffinityOptions.Enabled)], out var enabled) ? enabled : default,
+                Enabled = section.ReadBool(nameof(SessionAffinityOptions.Enabled)),
                 Mode = section[nameof(SessionAffinityOptions.Mode)],
                 FailurePolicy = section[nameof(SessionAffinityOptions.FailurePolicy)],
-                Settings = CreateStringDictionary(section.GetSection(nameof(SessionAffinityOptions.Settings)))
+                Settings = section.GetSection(nameof(SessionAffinityOptions.Settings)).ReadStringDictionary()
             };
         }
 
@@ -322,9 +322,9 @@ namespace Microsoft.ReverseProxy.Configuration
 
             return new PassiveHealthCheckOptions
             {
-                Enabled = bool.TryParse(section[nameof(PassiveHealthCheckOptions.Enabled)], out var enabled) ? enabled : default,
+                Enabled = section.ReadBool(nameof(PassiveHealthCheckOptions.Enabled)),
                 Policy = section[nameof(PassiveHealthCheckOptions.Policy)],
-                ReactivationPeriod = TimeSpan.TryParse(section[nameof(PassiveHealthCheckOptions.ReactivationPeriod)], out var period) ? period : default
+                ReactivationPeriod = section.ReadTimeSpan(nameof(PassiveHealthCheckOptions.ReactivationPeriod))
             };
         }
 
@@ -337,9 +337,9 @@ namespace Microsoft.ReverseProxy.Configuration
 
             return new ActiveHealthCheckOptions
             {
-                Enabled = bool.TryParse(section[nameof(ActiveHealthCheckOptions.Enabled)], out var enabled) ? enabled : default,
-                Interval = TimeSpan.TryParse(section[nameof(ActiveHealthCheckOptions.Interval)], out var interval) ? interval : default,
-                Timeout = TimeSpan.TryParse(section[nameof(ActiveHealthCheckOptions.Timeout)], out var timeout) ? timeout : default,
+                Enabled = section.ReadBool(nameof(ActiveHealthCheckOptions.Enabled)),
+                Interval = section.ReadTimeSpan(nameof(ActiveHealthCheckOptions.Interval)),
+                Timeout = section.ReadTimeSpan(nameof(ActiveHealthCheckOptions.Timeout)),
                 Policy = section[nameof(ActiveHealthCheckOptions.Policy)],
                 Path = section[nameof(ActiveHealthCheckOptions.Path)]
             };
@@ -378,9 +378,9 @@ namespace Microsoft.ReverseProxy.Configuration
             return new ProxyHttpClientOptions
             {
                 SslProtocols = sslProtocols,
-                DangerousAcceptAnyServerCertificate = bool.TryParse(section[nameof(ProxyHttpClientOptions.DangerousAcceptAnyServerCertificate)], out var dangerousAcceptAnyCert) ? dangerousAcceptAnyCert : default,
+                DangerousAcceptAnyServerCertificate = section.ReadBool(nameof(ProxyHttpClientOptions.DangerousAcceptAnyServerCertificate)),
                 ClientCertificate = clientCertificate,
-                MaxConnectionsPerServer = int.TryParse(section[nameof(ProxyHttpClientOptions.MaxConnectionsPerServer)], out var connectionsPerServer) ? connectionsPerServer : default
+                MaxConnectionsPerServer = section.ReadInt32(nameof(ProxyHttpClientOptions.MaxConnectionsPerServer))
             };
         }
 
@@ -391,19 +391,12 @@ namespace Microsoft.ReverseProxy.Configuration
                 return null;
             }
 
-            // Parse version only if it contains any characters; otherwise, leave it null.
-            Version version = null;
-            if (section[nameof(ProxyHttpRequestOptions.Version)] is string versionString && !string.IsNullOrEmpty(versionString))
-            {
-                version = Version.Parse(versionString + (versionString.Contains('.') ? "" : ".0"));
-            }
-
             return new ProxyHttpRequestOptions
             {
-                RequestTimeout = TimeSpan.TryParse(section[nameof(ProxyHttpRequestOptions.RequestTimeout)], out var requestTimeout) ? requestTimeout : default,
-                Version = version,
+                RequestTimeout = section.ReadTimeSpan(nameof(ProxyHttpRequestOptions.RequestTimeout)),
+                Version = section.ReadVersion(nameof(ProxyHttpRequestOptions.Version)),
 #if NET
-                VersionPolicy = Enum.TryParse<HttpVersionPolicy>(section[nameof(ProxyHttpRequestOptions.VersionPolicy)], out var versionPolicy) ? versionPolicy : default,
+                VersionPolicy = section.ReadEnum<HttpVersionPolicy>(nameof(ProxyHttpRequestOptions.VersionPolicy)),
 #endif
             };
         }
@@ -419,28 +412,8 @@ namespace Microsoft.ReverseProxy.Configuration
             {
                 Address = section[nameof(Destination.Address)],
                 Health = section[nameof(Destination.Health)],
-                Metadata = CreateStringDictionary(section.GetSection(nameof(Destination.Metadata))),
+                Metadata = section.GetSection(nameof(Destination.Metadata)).ReadStringDictionary(),
             };
-        }
-
-        private static IDictionary<string, string> CreateStringDictionary(IConfigurationSection section)
-        {
-            if (section?.GetChildren() is var children && children?.Any() is false)
-            {
-                return null;
-            }
-
-            return children.ToDictionary(s => s.Key, s => s.Value, StringComparer.OrdinalIgnoreCase);
-        }
-
-        private static string[] GetStringArray(IConfigurationSection section)
-        {
-            if (section?.GetChildren() is var children && children?.Any() is false)
-            {
-                return null;
-            }
-
-            return children.Select(s => s.Value).ToArray();
         }
 
         private static class Log
