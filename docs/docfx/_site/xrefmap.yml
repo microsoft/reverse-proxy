@@ -390,6 +390,19 @@ references:
   isSpec: "True"
   fullName: Microsoft.ReverseProxy.Abstractions.Cluster.HttpClient
   nameWithType: Cluster.HttpClient
+- uid: Microsoft.ReverseProxy.Abstractions.Cluster.HttpRequest
+  name: HttpRequest
+  href: api/Microsoft.ReverseProxy.Abstractions.Cluster.html#Microsoft_ReverseProxy_Abstractions_Cluster_HttpRequest
+  commentId: P:Microsoft.ReverseProxy.Abstractions.Cluster.HttpRequest
+  fullName: Microsoft.ReverseProxy.Abstractions.Cluster.HttpRequest
+  nameWithType: Cluster.HttpRequest
+- uid: Microsoft.ReverseProxy.Abstractions.Cluster.HttpRequest*
+  name: HttpRequest
+  href: api/Microsoft.ReverseProxy.Abstractions.Cluster.html#Microsoft_ReverseProxy_Abstractions_Cluster_HttpRequest_
+  commentId: Overload:Microsoft.ReverseProxy.Abstractions.Cluster.HttpRequest
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Abstractions.Cluster.HttpRequest
+  nameWithType: Cluster.HttpRequest
 - uid: Microsoft.ReverseProxy.Abstractions.Cluster.Id
   name: Id
   href: api/Microsoft.ReverseProxy.Abstractions.Cluster.html#Microsoft_ReverseProxy_Abstractions_Cluster_Id
@@ -928,6 +941,51 @@ references:
   isSpec: "True"
   fullName: Microsoft.ReverseProxy.Abstractions.ProxyHttpClientOptions.SslProtocols
   nameWithType: ProxyHttpClientOptions.SslProtocols
+- uid: Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions
+  name: ProxyHttpRequestOptions
+  href: api/Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.html
+  commentId: T:Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions
+  fullName: Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions
+  nameWithType: ProxyHttpRequestOptions
+- uid: Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.RequestTimeout
+  name: RequestTimeout
+  href: api/Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.html#Microsoft_ReverseProxy_Abstractions_ProxyHttpRequestOptions_RequestTimeout
+  commentId: P:Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.RequestTimeout
+  fullName: Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.RequestTimeout
+  nameWithType: ProxyHttpRequestOptions.RequestTimeout
+- uid: Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.RequestTimeout*
+  name: RequestTimeout
+  href: api/Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.html#Microsoft_ReverseProxy_Abstractions_ProxyHttpRequestOptions_RequestTimeout_
+  commentId: Overload:Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.RequestTimeout
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.RequestTimeout
+  nameWithType: ProxyHttpRequestOptions.RequestTimeout
+- uid: Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.Version
+  name: Version
+  href: api/Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.html#Microsoft_ReverseProxy_Abstractions_ProxyHttpRequestOptions_Version
+  commentId: P:Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.Version
+  fullName: Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.Version
+  nameWithType: ProxyHttpRequestOptions.Version
+- uid: Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.Version*
+  name: Version
+  href: api/Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.html#Microsoft_ReverseProxy_Abstractions_ProxyHttpRequestOptions_Version_
+  commentId: Overload:Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.Version
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.Version
+  nameWithType: ProxyHttpRequestOptions.Version
+- uid: Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.VersionPolicy
+  name: VersionPolicy
+  href: api/Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.html#Microsoft_ReverseProxy_Abstractions_ProxyHttpRequestOptions_VersionPolicy
+  commentId: P:Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.VersionPolicy
+  fullName: Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.VersionPolicy
+  nameWithType: ProxyHttpRequestOptions.VersionPolicy
+- uid: Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.VersionPolicy*
+  name: VersionPolicy
+  href: api/Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.html#Microsoft_ReverseProxy_Abstractions_ProxyHttpRequestOptions_VersionPolicy_
+  commentId: Overload:Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.VersionPolicy
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.VersionPolicy
+  nameWithType: ProxyHttpRequestOptions.VersionPolicy
 - uid: Microsoft.ReverseProxy.Abstractions.ProxyMatch
   name: ProxyMatch
   href: api/Microsoft.ReverseProxy.Abstractions.ProxyMatch.html
@@ -1559,6 +1617,19 @@ references:
   isSpec: "True"
   fullName: Microsoft.ReverseProxy.Configuration.Contract.ClusterData.HttpClient
   nameWithType: ClusterData.HttpClient
+- uid: Microsoft.ReverseProxy.Configuration.Contract.ClusterData.HttpRequest
+  name: HttpRequest
+  href: api/Microsoft.ReverseProxy.Configuration.Contract.ClusterData.html#Microsoft_ReverseProxy_Configuration_Contract_ClusterData_HttpRequest
+  commentId: P:Microsoft.ReverseProxy.Configuration.Contract.ClusterData.HttpRequest
+  fullName: Microsoft.ReverseProxy.Configuration.Contract.ClusterData.HttpRequest
+  nameWithType: ClusterData.HttpRequest
+- uid: Microsoft.ReverseProxy.Configuration.Contract.ClusterData.HttpRequest*
+  name: HttpRequest
+  href: api/Microsoft.ReverseProxy.Configuration.Contract.ClusterData.html#Microsoft_ReverseProxy_Configuration_Contract_ClusterData_HttpRequest_
+  commentId: Overload:Microsoft.ReverseProxy.Configuration.Contract.ClusterData.HttpRequest
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Configuration.Contract.ClusterData.HttpRequest
+  nameWithType: ClusterData.HttpRequest
 - uid: Microsoft.ReverseProxy.Configuration.Contract.ClusterData.LoadBalancing
   name: LoadBalancing
   href: api/Microsoft.ReverseProxy.Configuration.Contract.ClusterData.html#Microsoft_ReverseProxy_Configuration_Contract_ClusterData_LoadBalancing
@@ -1900,6 +1971,51 @@ references:
   isSpec: "True"
   fullName: Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpClientData.SslProtocols
   nameWithType: ProxyHttpClientData.SslProtocols
+- uid: Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData
+  name: ProxyHttpRequestData
+  href: api/Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.html
+  commentId: T:Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData
+  fullName: Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData
+  nameWithType: ProxyHttpRequestData
+- uid: Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.RequestTimeout
+  name: RequestTimeout
+  href: api/Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.html#Microsoft_ReverseProxy_Configuration_Contract_ProxyHttpRequestData_RequestTimeout
+  commentId: P:Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.RequestTimeout
+  fullName: Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.RequestTimeout
+  nameWithType: ProxyHttpRequestData.RequestTimeout
+- uid: Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.RequestTimeout*
+  name: RequestTimeout
+  href: api/Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.html#Microsoft_ReverseProxy_Configuration_Contract_ProxyHttpRequestData_RequestTimeout_
+  commentId: Overload:Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.RequestTimeout
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.RequestTimeout
+  nameWithType: ProxyHttpRequestData.RequestTimeout
+- uid: Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.Version
+  name: Version
+  href: api/Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.html#Microsoft_ReverseProxy_Configuration_Contract_ProxyHttpRequestData_Version
+  commentId: P:Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.Version
+  fullName: Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.Version
+  nameWithType: ProxyHttpRequestData.Version
+- uid: Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.Version*
+  name: Version
+  href: api/Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.html#Microsoft_ReverseProxy_Configuration_Contract_ProxyHttpRequestData_Version_
+  commentId: Overload:Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.Version
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.Version
+  nameWithType: ProxyHttpRequestData.Version
+- uid: Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.VersionPolicy
+  name: VersionPolicy
+  href: api/Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.html#Microsoft_ReverseProxy_Configuration_Contract_ProxyHttpRequestData_VersionPolicy
+  commentId: P:Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.VersionPolicy
+  fullName: Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.VersionPolicy
+  nameWithType: ProxyHttpRequestData.VersionPolicy
+- uid: Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.VersionPolicy*
+  name: VersionPolicy
+  href: api/Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.html#Microsoft_ReverseProxy_Configuration_Contract_ProxyHttpRequestData_VersionPolicy_
+  commentId: Overload:Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.VersionPolicy
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.VersionPolicy
+  nameWithType: ProxyHttpRequestData.VersionPolicy
 - uid: Microsoft.ReverseProxy.Configuration.Contract.ProxyMatchData
   name: ProxyMatchData
   href: api/Microsoft.ReverseProxy.Configuration.Contract.ProxyMatchData.html
@@ -2446,15 +2562,15 @@ references:
   commentId: T:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig
   fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig
   nameWithType: ClusterConfig
-- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.#ctor(Microsoft.ReverseProxy.Abstractions.Cluster,Microsoft.ReverseProxy.RuntimeModel.ClusterHealthCheckOptions,Microsoft.ReverseProxy.RuntimeModel.ClusterLoadBalancingOptions,Microsoft.ReverseProxy.RuntimeModel.ClusterSessionAffinityOptions,System.Net.Http.HttpMessageInvoker,Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpClientOptions,System.Collections.Generic.IReadOnlyDictionary{System.String,System.String})
-  name: ClusterConfig(Cluster, ClusterHealthCheckOptions, ClusterLoadBalancingOptions, ClusterSessionAffinityOptions, HttpMessageInvoker, ClusterProxyHttpClientOptions, IReadOnlyDictionary<String, String>)
-  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.html#Microsoft_ReverseProxy_RuntimeModel_ClusterConfig__ctor_Microsoft_ReverseProxy_Abstractions_Cluster_Microsoft_ReverseProxy_RuntimeModel_ClusterHealthCheckOptions_Microsoft_ReverseProxy_RuntimeModel_ClusterLoadBalancingOptions_Microsoft_ReverseProxy_RuntimeModel_ClusterSessionAffinityOptions_System_Net_Http_HttpMessageInvoker_Microsoft_ReverseProxy_RuntimeModel_ClusterProxyHttpClientOptions_System_Collections_Generic_IReadOnlyDictionary_System_String_System_String__
-  commentId: M:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.#ctor(Microsoft.ReverseProxy.Abstractions.Cluster,Microsoft.ReverseProxy.RuntimeModel.ClusterHealthCheckOptions,Microsoft.ReverseProxy.RuntimeModel.ClusterLoadBalancingOptions,Microsoft.ReverseProxy.RuntimeModel.ClusterSessionAffinityOptions,System.Net.Http.HttpMessageInvoker,Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpClientOptions,System.Collections.Generic.IReadOnlyDictionary{System.String,System.String})
-  name.vb: ClusterConfig(Cluster, ClusterHealthCheckOptions, ClusterLoadBalancingOptions, ClusterSessionAffinityOptions, HttpMessageInvoker, ClusterProxyHttpClientOptions, IReadOnlyDictionary(Of String, String))
-  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterConfig(Microsoft.ReverseProxy.Abstractions.Cluster, Microsoft.ReverseProxy.RuntimeModel.ClusterHealthCheckOptions, Microsoft.ReverseProxy.RuntimeModel.ClusterLoadBalancingOptions, Microsoft.ReverseProxy.RuntimeModel.ClusterSessionAffinityOptions, System.Net.Http.HttpMessageInvoker, Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpClientOptions, System.Collections.Generic.IReadOnlyDictionary<System.String, System.String>)
-  fullName.vb: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterConfig(Microsoft.ReverseProxy.Abstractions.Cluster, Microsoft.ReverseProxy.RuntimeModel.ClusterHealthCheckOptions, Microsoft.ReverseProxy.RuntimeModel.ClusterLoadBalancingOptions, Microsoft.ReverseProxy.RuntimeModel.ClusterSessionAffinityOptions, System.Net.Http.HttpMessageInvoker, Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpClientOptions, System.Collections.Generic.IReadOnlyDictionary(Of System.String, System.String))
-  nameWithType: ClusterConfig.ClusterConfig(Cluster, ClusterHealthCheckOptions, ClusterLoadBalancingOptions, ClusterSessionAffinityOptions, HttpMessageInvoker, ClusterProxyHttpClientOptions, IReadOnlyDictionary<String, String>)
-  nameWithType.vb: ClusterConfig.ClusterConfig(Cluster, ClusterHealthCheckOptions, ClusterLoadBalancingOptions, ClusterSessionAffinityOptions, HttpMessageInvoker, ClusterProxyHttpClientOptions, IReadOnlyDictionary(Of String, String))
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.#ctor(Microsoft.ReverseProxy.Abstractions.Cluster,Microsoft.ReverseProxy.RuntimeModel.ClusterHealthCheckOptions,Microsoft.ReverseProxy.RuntimeModel.ClusterLoadBalancingOptions,Microsoft.ReverseProxy.RuntimeModel.ClusterSessionAffinityOptions,System.Net.Http.HttpMessageInvoker,Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpClientOptions,Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions,System.Collections.Generic.IReadOnlyDictionary{System.String,System.String})
+  name: ClusterConfig(Cluster, ClusterHealthCheckOptions, ClusterLoadBalancingOptions, ClusterSessionAffinityOptions, HttpMessageInvoker, ClusterProxyHttpClientOptions, ClusterProxyHttpRequestOptions, IReadOnlyDictionary<String, String>)
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.html#Microsoft_ReverseProxy_RuntimeModel_ClusterConfig__ctor_Microsoft_ReverseProxy_Abstractions_Cluster_Microsoft_ReverseProxy_RuntimeModel_ClusterHealthCheckOptions_Microsoft_ReverseProxy_RuntimeModel_ClusterLoadBalancingOptions_Microsoft_ReverseProxy_RuntimeModel_ClusterSessionAffinityOptions_System_Net_Http_HttpMessageInvoker_Microsoft_ReverseProxy_RuntimeModel_ClusterProxyHttpClientOptions_Microsoft_ReverseProxy_RuntimeModel_ClusterProxyHttpRequestOptions_System_Collections_Generic_IReadOnlyDictionary_System_String_System_String__
+  commentId: M:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.#ctor(Microsoft.ReverseProxy.Abstractions.Cluster,Microsoft.ReverseProxy.RuntimeModel.ClusterHealthCheckOptions,Microsoft.ReverseProxy.RuntimeModel.ClusterLoadBalancingOptions,Microsoft.ReverseProxy.RuntimeModel.ClusterSessionAffinityOptions,System.Net.Http.HttpMessageInvoker,Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpClientOptions,Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions,System.Collections.Generic.IReadOnlyDictionary{System.String,System.String})
+  name.vb: ClusterConfig(Cluster, ClusterHealthCheckOptions, ClusterLoadBalancingOptions, ClusterSessionAffinityOptions, HttpMessageInvoker, ClusterProxyHttpClientOptions, ClusterProxyHttpRequestOptions, IReadOnlyDictionary(Of String, String))
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterConfig(Microsoft.ReverseProxy.Abstractions.Cluster, Microsoft.ReverseProxy.RuntimeModel.ClusterHealthCheckOptions, Microsoft.ReverseProxy.RuntimeModel.ClusterLoadBalancingOptions, Microsoft.ReverseProxy.RuntimeModel.ClusterSessionAffinityOptions, System.Net.Http.HttpMessageInvoker, Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpClientOptions, Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions, System.Collections.Generic.IReadOnlyDictionary<System.String, System.String>)
+  fullName.vb: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterConfig(Microsoft.ReverseProxy.Abstractions.Cluster, Microsoft.ReverseProxy.RuntimeModel.ClusterHealthCheckOptions, Microsoft.ReverseProxy.RuntimeModel.ClusterLoadBalancingOptions, Microsoft.ReverseProxy.RuntimeModel.ClusterSessionAffinityOptions, System.Net.Http.HttpMessageInvoker, Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpClientOptions, Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions, System.Collections.Generic.IReadOnlyDictionary(Of System.String, System.String))
+  nameWithType: ClusterConfig.ClusterConfig(Cluster, ClusterHealthCheckOptions, ClusterLoadBalancingOptions, ClusterSessionAffinityOptions, HttpMessageInvoker, ClusterProxyHttpClientOptions, ClusterProxyHttpRequestOptions, IReadOnlyDictionary<String, String>)
+  nameWithType.vb: ClusterConfig.ClusterConfig(Cluster, ClusterHealthCheckOptions, ClusterLoadBalancingOptions, ClusterSessionAffinityOptions, HttpMessageInvoker, ClusterProxyHttpClientOptions, ClusterProxyHttpRequestOptions, IReadOnlyDictionary(Of String, String))
 - uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.#ctor*
   name: ClusterConfig
   href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.html#Microsoft_ReverseProxy_RuntimeModel_ClusterConfig__ctor_
@@ -2501,6 +2617,19 @@ references:
   isSpec: "True"
   fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.HttpClientOptions
   nameWithType: ClusterConfig.HttpClientOptions
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.HttpRequestOptions
+  name: HttpRequestOptions
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.html#Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_HttpRequestOptions
+  commentId: P:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.HttpRequestOptions
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.HttpRequestOptions
+  nameWithType: ClusterConfig.HttpRequestOptions
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.HttpRequestOptions*
+  name: HttpRequestOptions
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.html#Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_HttpRequestOptions_
+  commentId: Overload:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.HttpRequestOptions
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.HttpRequestOptions
+  nameWithType: ClusterConfig.HttpRequestOptions
 - uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.LoadBalancingOptions
   name: LoadBalancingOptions
   href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.html#Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_LoadBalancingOptions
@@ -2929,6 +3058,76 @@ references:
   isSpec: "True"
   fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpClientOptions.SslProtocols
   nameWithType: ClusterProxyHttpClientOptions.SslProtocols
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions
+  name: ClusterProxyHttpRequestOptions
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.html
+  commentId: T:Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions
+  nameWithType: ClusterProxyHttpRequestOptions
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.#ctor(System.Nullable{System.TimeSpan},System.Version)
+  name: ClusterProxyHttpRequestOptions(Nullable<TimeSpan>, Version)
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.html#Microsoft_ReverseProxy_RuntimeModel_ClusterProxyHttpRequestOptions__ctor_System_Nullable_System_TimeSpan__System_Version_
+  commentId: M:Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.#ctor(System.Nullable{System.TimeSpan},System.Version)
+  name.vb: ClusterProxyHttpRequestOptions(Nullable(Of TimeSpan), Version)
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.ClusterProxyHttpRequestOptions(System.Nullable<System.TimeSpan>, System.Version)
+  fullName.vb: Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.ClusterProxyHttpRequestOptions(System.Nullable(Of System.TimeSpan), System.Version)
+  nameWithType: ClusterProxyHttpRequestOptions.ClusterProxyHttpRequestOptions(Nullable<TimeSpan>, Version)
+  nameWithType.vb: ClusterProxyHttpRequestOptions.ClusterProxyHttpRequestOptions(Nullable(Of TimeSpan), Version)
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.#ctor(System.Nullable{System.TimeSpan},System.Version,System.Nullable{System.Net.Http.HttpVersionPolicy})
+  name: ClusterProxyHttpRequestOptions(Nullable<TimeSpan>, Version, Nullable<HttpVersionPolicy>)
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.html#Microsoft_ReverseProxy_RuntimeModel_ClusterProxyHttpRequestOptions__ctor_System_Nullable_System_TimeSpan__System_Version_System_Nullable_System_Net_Http_HttpVersionPolicy__
+  commentId: M:Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.#ctor(System.Nullable{System.TimeSpan},System.Version,System.Nullable{System.Net.Http.HttpVersionPolicy})
+  name.vb: ClusterProxyHttpRequestOptions(Nullable(Of TimeSpan), Version, Nullable(Of HttpVersionPolicy))
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.ClusterProxyHttpRequestOptions(System.Nullable<System.TimeSpan>, System.Version, System.Nullable<System.Net.Http.HttpVersionPolicy>)
+  fullName.vb: Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.ClusterProxyHttpRequestOptions(System.Nullable(Of System.TimeSpan), System.Version, System.Nullable(Of System.Net.Http.HttpVersionPolicy))
+  nameWithType: ClusterProxyHttpRequestOptions.ClusterProxyHttpRequestOptions(Nullable<TimeSpan>, Version, Nullable<HttpVersionPolicy>)
+  nameWithType.vb: ClusterProxyHttpRequestOptions.ClusterProxyHttpRequestOptions(Nullable(Of TimeSpan), Version, Nullable(Of HttpVersionPolicy))
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.#ctor*
+  name: ClusterProxyHttpRequestOptions
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.html#Microsoft_ReverseProxy_RuntimeModel_ClusterProxyHttpRequestOptions__ctor_
+  commentId: Overload:Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.#ctor
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.ClusterProxyHttpRequestOptions
+  nameWithType: ClusterProxyHttpRequestOptions.ClusterProxyHttpRequestOptions
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.RequestTimeout
+  name: RequestTimeout
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.html#Microsoft_ReverseProxy_RuntimeModel_ClusterProxyHttpRequestOptions_RequestTimeout
+  commentId: P:Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.RequestTimeout
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.RequestTimeout
+  nameWithType: ClusterProxyHttpRequestOptions.RequestTimeout
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.RequestTimeout*
+  name: RequestTimeout
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.html#Microsoft_ReverseProxy_RuntimeModel_ClusterProxyHttpRequestOptions_RequestTimeout_
+  commentId: Overload:Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.RequestTimeout
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.RequestTimeout
+  nameWithType: ClusterProxyHttpRequestOptions.RequestTimeout
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.Version
+  name: Version
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.html#Microsoft_ReverseProxy_RuntimeModel_ClusterProxyHttpRequestOptions_Version
+  commentId: P:Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.Version
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.Version
+  nameWithType: ClusterProxyHttpRequestOptions.Version
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.Version*
+  name: Version
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.html#Microsoft_ReverseProxy_RuntimeModel_ClusterProxyHttpRequestOptions_Version_
+  commentId: Overload:Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.Version
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.Version
+  nameWithType: ClusterProxyHttpRequestOptions.Version
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.VersionPolicy
+  name: VersionPolicy
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.html#Microsoft_ReverseProxy_RuntimeModel_ClusterProxyHttpRequestOptions_VersionPolicy
+  commentId: P:Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.VersionPolicy
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.VersionPolicy
+  nameWithType: ClusterProxyHttpRequestOptions.VersionPolicy
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.VersionPolicy*
+  name: VersionPolicy
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.html#Microsoft_ReverseProxy_RuntimeModel_ClusterProxyHttpRequestOptions_VersionPolicy_
+  commentId: Overload:Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.VersionPolicy
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.VersionPolicy
+  nameWithType: ClusterProxyHttpRequestOptions.VersionPolicy
 - uid: Microsoft.ReverseProxy.RuntimeModel.ClusterSessionAffinityOptions
   name: ClusterSessionAffinityOptions
   href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterSessionAffinityOptions.html

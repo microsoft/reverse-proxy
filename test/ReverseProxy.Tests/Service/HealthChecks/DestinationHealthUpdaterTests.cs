@@ -124,7 +124,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 new ClusterHealthCheckOptions(
                     new ClusterPassiveHealthCheckOptions(passive, "policy0", null),
                     new ClusterActiveHealthCheckOptions(active, null, null, "policy1", null)),
-                default, default, default, default, null);
+                default, default, default, default, default, null);
             return cluster;
         }
     }
