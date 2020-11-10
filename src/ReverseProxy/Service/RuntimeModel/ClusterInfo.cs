@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using System.Threading;
 using Microsoft.ReverseProxy.Service.Management;
 using Microsoft.ReverseProxy.Utilities;
 
@@ -60,12 +61,37 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         /// </summary>
         public void UpdateDynamicState()
         {
+            UpdateDynamicStateInternal(force: false);
+        }
+
+        internal void ForceUpdateDynamicState()
+        {
+            UpdateDynamicStateInternal(force: true);
+        }
+
+        private void UpdateDynamicStateInternal(bool force)
+        {
             // Prevent overlapping updates. If there are multiple signals that state needs to be updated,
             // we want to ensure that updates don't conflict with each other. E.g. if state changes
             // while an update is already in progress, the next update should wait until the current one finishes
             // to ensure they don't race to set _dynamicState and end up with the stale one overwriting the fresh one.
-            lock (_stateLock)
+            var lockTaken = false;
+            try
             {
+                if (force)
+                {
+                    Monitor.Enter(_stateLock, ref lockTaken);
+                }
+                else
+                {
+                    Monitor.TryEnter(_stateLock, ref lockTaken);
+                }
+
+                if (!lockTaken)
+                {
+                    return;
+                }
+
                 var healthChecks = _config?.HealthCheckOptions ?? default;
                 var allDestinations = DestinationManager.Items;
                 var healthyDestinations = allDestinations;
@@ -77,17 +103,24 @@ namespace Microsoft.ReverseProxy.RuntimeModel
 
                     healthyDestinations = allDestinations.Where(destination =>
                     {
-                        // Only consider the current state if those checks are enabled.
-                        var healthState = destination.Health;
+                            // Only consider the current state if those checks are enabled.
+                            var healthState = destination.Health;
                         var active = activeEnabled ? healthState.Active : DestinationHealth.Unknown;
                         var passive = passiveEnabled ? healthState.Passive : DestinationHealth.Unknown;
 
-                        // Filter out unhealthy ones. Unknown state is OK, all destinations start that way.
-                        return passive != DestinationHealth.Unhealthy && active != DestinationHealth.Unhealthy;
+                            // Filter out unhealthy ones. Unknown state is OK, all destinations start that way.
+                            return passive != DestinationHealth.Unhealthy && active != DestinationHealth.Unhealthy;
                     }).ToList().AsReadOnly();
                 }
 
                 _dynamicState = new ClusterDynamicState(allDestinations, healthyDestinations);
+            }
+            finally
+            {
+                if (lockTaken)
+                {
+                    Monitor.Exit(_stateLock);
+                }
             }
         }
     }

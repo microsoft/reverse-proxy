@@ -338,7 +338,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                             currentCluster.Config = newClusterConfig;
                         }
 
-                        currentCluster.UpdateDynamicState();
+                        currentCluster.ForceUpdateDynamicState();
                     });
             }
 
