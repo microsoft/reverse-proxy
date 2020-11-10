@@ -24,7 +24,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
             RequestTimeout = requestTimeout;
             Version = version;
 #if NET
-            VersionPolicy = HttpVersionPolicy.RequestVersionOrLower;
+            VersionPolicy = null;
 #endif
         }
 
