@@ -27,14 +27,11 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         [Fact]
         public void CreateClient_Works()
         {
-            // Arrange
             var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
 
-            // Act
             var actual1 = factory.CreateClient(new ProxyHttpClientContext());
             var actual2 = factory.CreateClient(new ProxyHttpClientContext());
 
-            // Assert
             Assert.NotNull(actual1);
             Assert.NotNull(actual2);
             Assert.NotSame(actual2, actual1);
