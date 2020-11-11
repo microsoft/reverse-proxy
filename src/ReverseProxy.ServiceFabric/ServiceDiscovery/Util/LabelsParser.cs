@@ -7,7 +7,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.ServiceFabric.Utilities;
+using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.ServiceFabric
 {
@@ -32,6 +32,10 @@ namespace Microsoft.ReverseProxy.ServiceFabric
 
         private static readonly Regex _allowedTransformNamesRegex = new Regex(@"^\[\d\d*\]$");
         private static readonly Regex _allowedPropertyNamesRegex = new Regex("^[a-zA-Z0-9_-]+$");
+        private static readonly Regex _allowedHeaderNamesRegex = new Regex(@"^\[\d\d*\]$");
+
+        private static readonly Regex _allowedHeaderMatchPropertiesRegex = new Regex(@"^(?i)\b(Name|Values|Mode|IsCaseSensitive)\b$");
+
 
         internal static TValue GetLabel<TValue>(Dictionary<string, string> labels, string key, TValue defaultValue)
         {
@@ -86,12 +90,61 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             {
                 var thisRoutePrefix = $"{RoutesLabelsPrefix}{routeName}";
                 var metadata = new Dictionary<string, string>();
+                var headerMatches = new Dictionary<string, RouteHeader>();
                 var transforms = new Dictionary<string, IDictionary<string, string>>();
                 foreach (var kvp in labels)
                 {
                     if (kvp.Key.StartsWith($"{thisRoutePrefix}.Metadata.", StringComparison.Ordinal))
                     {
                         metadata.Add(kvp.Key.Substring($"{thisRoutePrefix}.Metadata.".Length), kvp.Value);
+                    }
+                    else if (kvp.Key.StartsWith($"{thisRoutePrefix}.MatchHeaders.", StringComparison.Ordinal)) 
+                    {
+                        var suffix = kvp.Key.Substring($"{thisRoutePrefix}.MatchHeaders.".Length);
+                        var headerIndexLength = suffix.IndexOf('.');
+                        if (headerIndexLength == -1)
+                        {
+                            // No header encoded, the key is not valid. Throwing would suggest we actually check for all invalid keys, so just ignore.
+                            continue;
+                        }
+                        var headerIndex = suffix.Substring(0, headerIndexLength);
+                        if (!_allowedHeaderNamesRegex.IsMatch(headerIndex))
+                        {
+                            throw new ConfigException($"Invalid header matching index '{headerIndex}', should only contain alphanumerical characters, underscores or hyphens.");
+                        }
+                        if (!headerMatches.ContainsKey(headerIndex)) 
+                        {
+                            headerMatches.Add(headerIndex, new RouteHeader());
+                        }
+                        var propertyName = kvp.Key.Substring($"{thisRoutePrefix}.MatchHeaders.{headerIndex}.".Length);
+                        if (!_allowedHeaderMatchPropertiesRegex.IsMatch(propertyName))
+                        {
+                            throw new ConfigException($"Invalid header matching property '{propertyName}', only valid values are Name, Values and Mode.");
+                        }
+                        if (propertyName.Equals("Name", StringComparison.Ordinal)) 
+                        {
+                            headerMatches[headerIndex].Name = kvp.Value;
+                        } 
+                        else if (propertyName.Equals("Values", StringComparison.Ordinal)) 
+                        {
+                            headerMatches[headerIndex].Values = kvp.Value.SplitCSV();
+                        }
+                        else if (propertyName.Equals("IsCaseSensitive", StringComparison.Ordinal)) 
+                        {
+                            bool IsCaseSensitive;
+                            if (Enum.TryParse<bool>(kvp.Value, out IsCaseSensitive)) 
+                            {
+                                headerMatches[headerIndex].IsCaseSensitive = IsCaseSensitive;
+                            }
+                        }
+                        else if (propertyName.Equals("Mode", StringComparison.Ordinal)) 
+                        {
+                            HeaderMatchMode mode;
+                            if (Enum.TryParse<HeaderMatchMode>(kvp.Value, out mode)) 
+                            {
+                                headerMatches[headerIndex].Mode = mode;
+                            }
+                        }
                     }
                     else if (kvp.Key.StartsWith($"{thisRoutePrefix}.Transforms.", StringComparison.Ordinal)) 
                     {
@@ -119,6 +172,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                         transforms[transformName].Add(propertyName, kvp.Value);
                     }
                 }
+                
 
                 if (!labels.TryGetValue($"{thisRoutePrefix}.Hosts", out var hosts))
                 {
@@ -133,6 +187,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                     {
                         Hosts = SplitHosts(hosts),
                         Path = path,
+                        Headers = headerMatches.Count > 0 ? headerMatches.Select(hm => hm.Value).ToArray() : null
                     },
                     Order = GetLabel(labels, $"{thisRoutePrefix}.Order", DefaultRouteOrder),
                     ClusterId = backendId,
