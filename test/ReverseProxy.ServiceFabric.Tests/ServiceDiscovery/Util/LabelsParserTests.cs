@@ -185,6 +185,12 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 { "YARP.Routes.MyRoute.Hosts", "example.com" },
                 { "YARP.Routes.MyRoute.Order", "2" },
                 { "YARP.Routes.MyRoute.Metadata.Foo", "Bar" },
+                { "YARP.Routes.MyRoute.Transforms.[0].ResponseHeader", "X-Foo" },
+                { "YARP.Routes.MyRoute.Transforms.[0].Append", "Bar" },
+                { "YARP.Routes.MyRoute.Transforms.[0].When", "Always" },
+                { "YARP.Routes.MyRoute.Transforms.[1].ResponseHeader", "X-Ping" },
+                { "YARP.Routes.MyRoute.Transforms.[1].Append", "Pong" },
+                { "YARP.Routes.MyRoute.Transforms.[1].When", "Success" },
             };
 
             // Act
@@ -206,6 +212,19 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     {
                         { "Foo", "Bar" },
                     },
+                    Transforms = new List<IDictionary<string, string>>
+                    {
+                        new Dictionary<string, string>{ 
+                            {"ResponseHeader", "X-Foo"},
+                            {"Append", "Bar"},
+                            {"When", "Always"}
+                        },
+                        new Dictionary<string, string>{ 
+                            {"ResponseHeader", "X-Ping"},
+                            {"Append", "Pong"},
+                            {"When", "Success"}
+                        }
+                    }
                 },
             };
             routes.Should().BeEquivalentTo(expectedRoutes);
@@ -421,11 +440,40 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         }
 
         [Theory]
+        [InlineData("YARP.Routes.MyRoute.Transforms. .ResponseHeader", "Blank transform index")]
+        [InlineData("YARP.Routes.MyRoute.Transforms.string.ResponseHeader", "string header name not accepted.. just [num]")]
+        [InlineData("YARP.Routes.MyRoute.Transforms.1.Response", "needs square brackets")]
+        public void BuildRoutes_InvalidTransformIndex_Throws(string invalidKey, string value)
+        {
+            // Arrange
+            var labels = new Dictionary<string, string>()
+            {
+                { "YARP.Backend.BackendId", "MyCoolClusterId" },
+                { "YARP.Routes.MyRoute.Hosts", "example.com" },
+                { "YARP.Routes.MyRoute.Priority", "2" },
+                { "YARP.Routes.MyRoute.Metadata.Foo", "Bar" },
+            };
+            labels[invalidKey] = value;
+
+            // Act
+            Func<List<ProxyRoute>> func = () => LabelsParser.BuildRoutes(_testServiceName, labels);
+
+            // Assert
+            func.Should()
+                .Throw<ConfigException>()
+                .WithMessage($"Invalid transform index '*', should be transform index wrapped in square brackets.");
+        }
+
+        [Theory]
         [InlineData("", "")]
         [InlineData("NotEven.TheNamespace", "some value")]
         [InlineData("YARP.", "some value")]
         [InlineData("Routes.", "some value")]
         [InlineData("YARP.Routes.", "some value")]
+        [InlineData("YARP.Routes.MyRoute.Transforms", "some value")]
+        [InlineData("YARP.Routes.MyRoute.Transforms.", "some value")]
+        [InlineData("YARP.Routes.MyRoute...Transforms", "some value")]
+        [InlineData("YARP.Routes.MyRoute.Transform.", "some value")]
         [InlineData("YARP.Routes", "some value")]
         [InlineData("YARP..Routes.", "some value")]
         [InlineData("YARP.....Routes.", "some value")]
