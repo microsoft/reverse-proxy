@@ -14,7 +14,7 @@ namespace Microsoft.ReverseProxy.Telemetry
     /// <summary>
     /// ActivityPropagationHandler propagates the current Activity to the downstream service
     /// </summary>
-    internal sealed class ActivityPropagationHandler : DelegatingHandler
+    public sealed class ActivityPropagationHandler : DelegatingHandler
     {
         private const string RequestIdHeaderName = "Request-Id";
         private const string CorrelationContextHeaderName = "Correlation-Context";
