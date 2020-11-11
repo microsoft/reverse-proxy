@@ -39,7 +39,7 @@ namespace Microsoft.Extensions.Configuration
 
         internal static IDictionary<string, string> ReadStringDictionary(this IConfigurationSection section)
         {
-            if (section?.GetChildren() is var children && children?.Any() is false)
+            if (section.GetChildren() is var children && !children.Any())
             {
                 return null;
             }
@@ -49,7 +49,7 @@ namespace Microsoft.Extensions.Configuration
 
         internal static string[] ReadStringArray(this IConfigurationSection section)
         {
-            if (section?.GetChildren() is var children && children?.Any() is false)
+            if (section.GetChildren() is var children && !children.Any())
             {
                 return null;
             }

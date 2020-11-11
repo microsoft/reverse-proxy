@@ -183,7 +183,7 @@ namespace Microsoft.ReverseProxy.Configuration
 
         private static IList<IDictionary<string, string>> CreateTransforms(IConfigurationSection section)
         {
-            if (section?.GetChildren() is var children && children?.Any() is false)
+            if (section.GetChildren() is var children && !children.Any())
             {
                 return null;
             }
@@ -193,7 +193,7 @@ namespace Microsoft.ReverseProxy.Configuration
 
         private static void InitializeProxyMatch(ProxyMatch proxyMatch, IConfigurationSection section)
         {
-            if (section?.Exists() is false)
+            if (!section.Exists())
             {
                 return;
             }
@@ -206,7 +206,7 @@ namespace Microsoft.ReverseProxy.Configuration
 
         private static IReadOnlyList<RouteHeader> CreateRouteHeaders(IConfigurationSection section)
         {
-            if (section?.Exists() is false)
+            if (!section.Exists())
             {
                 return null;
             }
@@ -229,7 +229,7 @@ namespace Microsoft.ReverseProxy.Configuration
 
         private static CircuitBreakerOptions CreateCircuitBreakerOptions(IConfigurationSection section)
         {
-            if (section?.Exists() is false)
+            if (!section.Exists())
             {
                 return null;
             }
@@ -243,7 +243,7 @@ namespace Microsoft.ReverseProxy.Configuration
 
         private static QuotaOptions CreateQuotaOptions(IConfigurationSection section)
         {
-            if (section?.Exists() is false)
+            if (!section.Exists())
             {
                 return null;
             }
@@ -257,7 +257,7 @@ namespace Microsoft.ReverseProxy.Configuration
 
         private static ClusterPartitioningOptions CreateClusterPartitioningOptions(IConfigurationSection section)
         {
-            if (section?.Exists() is false)
+            if (!section.Exists())
             {
                 return null;
             }
@@ -272,7 +272,7 @@ namespace Microsoft.ReverseProxy.Configuration
 
         private static LoadBalancingOptions CreateLoadBalancingOptions(IConfigurationSection section)
         {
-            if (section?.Exists() is false)
+            if (!section.Exists())
             {
                 return null;
             }
@@ -285,7 +285,7 @@ namespace Microsoft.ReverseProxy.Configuration
 
         private static SessionAffinityOptions CreateSessionAffinityOptions(IConfigurationSection section)
         {
-            if (section?.Exists() is false)
+            if (!section.Exists())
             {
                 return null;
             }
@@ -301,7 +301,7 @@ namespace Microsoft.ReverseProxy.Configuration
 
         private static HealthCheckOptions CreateHealthCheckOptions(IConfigurationSection section)
         {
-            if (section?.Exists() is false)
+            if (!section.Exists())
             {
                 return null;
             }
@@ -315,7 +315,7 @@ namespace Microsoft.ReverseProxy.Configuration
 
         private static PassiveHealthCheckOptions CreatePassiveHealthCheckOptions(IConfigurationSection section)
         {
-            if (section?.Exists() is false)
+            if (!section.Exists())
             {
                 return null;
             }
@@ -330,7 +330,7 @@ namespace Microsoft.ReverseProxy.Configuration
 
         private static ActiveHealthCheckOptions CreateActiveHealthCheckOptions(IConfigurationSection section)
         {
-            if (section?.Exists() is false)
+            if (!section.Exists())
             {
                 return null;
             }
@@ -347,7 +347,7 @@ namespace Microsoft.ReverseProxy.Configuration
 
         private ProxyHttpClientOptions CreateProxyHttpClientOptions(IConfigurationSection section)
         {
-            if (section?.Exists() is false)
+            if (!section.Exists())
             {
                 return null;
             }
@@ -356,7 +356,7 @@ namespace Microsoft.ReverseProxy.Configuration
 
             X509Certificate2 clientCertificate = null;
 
-            if (certSection?.Exists() is true)
+            if (certSection.Exists())
             {
                 clientCertificate = _certificateConfigLoader.LoadCertificate(certSection);
             }
@@ -386,7 +386,7 @@ namespace Microsoft.ReverseProxy.Configuration
 
         private ProxyHttpRequestOptions CreateProxyRequestOptions(IConfigurationSection section)
         {
-            if (section?.Exists() is false)
+            if (!section.Exists())
             {
                 return null;
             }
@@ -403,7 +403,7 @@ namespace Microsoft.ReverseProxy.Configuration
 
         private static Destination CreateDestination(IConfigurationSection section)
         {
-            if (section?.Exists() is false)
+            if (!section.Exists())
             {
                 return null;
             }
