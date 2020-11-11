@@ -103,20 +103,21 @@ namespace Microsoft.ReverseProxy.ServiceFabric
         {
             _logger.LogInformation("Service Fabric discovery loop is starting");
             var first = true;
+            var cancellation = _backgroundCts.Token;
             while (true)
             {
                 try
                 {
-                    _backgroundCts.Token.ThrowIfCancellationRequested();
+                    cancellation.ThrowIfCancellationRequested();
                     if (!first)
                     {
-                        await _clock.Delay(_optionsMonitor.CurrentValue.DiscoveryPeriod, _backgroundCts.Token);
+                        await _clock.Delay(_optionsMonitor.CurrentValue.DiscoveryPeriod, cancellation);
                     }
 
-                    var result = await _discoverer.DiscoverAsync(_backgroundCts.Token);
+                    var result = await _discoverer.DiscoverAsync(cancellation);
                     UpdateSnapshot(result.Routes, result.Clusters);
                 }
-                catch (OperationCanceledException) when (_backgroundCts.Token.IsCancellationRequested)
+                catch (OperationCanceledException) when (cancellation.IsCancellationRequested)
                 {
                     // Graceful shutdown
                     _logger.LogInformation("Service Fabric discovery loop is ending gracefully");

@@ -315,21 +315,32 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         }
 
         [Fact]
-        public void BuildRoutes_MissingHost_Throws()
+        public void BuildRoutes_MissingHost_Works()
         {
             // Arrange
             var labels = new Dictionary<string, string>()
             {
-                { "YARP.Backend.BackendId", "MyCoolClusterId" },
-                { "YARP.Routes.MyRoute.Priority", "2" },
-                { "YARP.Routes.MyRoute.Metadata.Foo", "Bar" },
+                { "YARP.Routes.MyRoute.Path", "/{**catchall}" },
             };
 
             // Act
-            Func<List<ProxyRoute>> func = () => LabelsParser.BuildRoutes(_testServiceName, labels);
+            var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
             // Assert
-            func.Should().Throw<ConfigException>().WithMessage("Missing 'YARP.Routes.MyRoute.Hosts'.");
+            var expectedRoutes = new List<ProxyRoute>
+            {
+                new ProxyRoute
+                {
+                    RouteId = $"{Uri.EscapeDataString(_testServiceName.ToString())}:MyRoute",
+                    Match =
+                    {
+                        Path = "/{**catchall}",
+                    },
+                    ClusterId = _testServiceName.ToString(),
+                    Metadata = new Dictionary<string, string>(),
+                },
+            };
+            routes.Should().BeEquivalentTo(expectedRoutes);
         }
 
         [Fact]
