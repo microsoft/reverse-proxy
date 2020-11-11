@@ -22,7 +22,7 @@ namespace Microsoft.ReverseProxy.Utilities
                     list.Add("");
                 }
 
-                list.Add(curr.TrimStart(','));
+                list.Add(curr.TrimStart(',').Trim());
             }
             return list.ToArray();
         }

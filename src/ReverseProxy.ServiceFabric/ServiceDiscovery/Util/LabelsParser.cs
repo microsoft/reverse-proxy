@@ -132,7 +132,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                         else if (propertyName.Equals("IsCaseSensitive", StringComparison.Ordinal)) 
                         {
                             bool IsCaseSensitive;
-                            if (Enum.TryParse<bool>(kvp.Value, out IsCaseSensitive)) 
+                            if (bool.TryParse(kvp.Value, out IsCaseSensitive)) 
                             {
                                 headerMatches[headerIndex].IsCaseSensitive = IsCaseSensitive;
                             }
