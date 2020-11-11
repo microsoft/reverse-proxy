@@ -314,7 +314,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                                 httpClient,
                                 newClusterHttpClientOptions,
                                 new ClusterProxyHttpRequestOptions(
-                                    requestTimeout: newCluster.HttpRequest?.RequestTimeout,
+                                    timeout: newCluster.HttpRequest?.Timeout,
                                     version: newCluster.HttpRequest?.Version
 #if NET
                                     , versionPolicy: newCluster.HttpRequest?.VersionPolicy

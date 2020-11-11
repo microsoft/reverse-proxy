@@ -134,7 +134,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 // :: Step 4: Send the outgoing request using HttpClient
                 HttpResponseMessage destinationResponse;
                 var requestTimeoutSource = CancellationTokenSource.CreateLinkedTokenSource(requestAborted);
-                requestTimeoutSource.CancelAfter(proxyOptions.RequestTimeout);
+                requestTimeoutSource.CancelAfter(proxyOptions.RequestOptions.Timeout);
                 var requestTimeoutToken = requestTimeoutSource.Token;
                 try
                 {
@@ -266,9 +266,9 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             // based on VersionPolicy (for .NET 5 and higher). For example, downgrading to HTTP/1.1 if it cannot establish HTTP/2 with the target.
             // This is done without extra round-trips thanks to ALPN. We can detect a downgrade after calling HttpClient.SendAsync
             // (see Step 3 below). TBD how this will change when HTTP/3 is supported.
-            var httpVersion = isUpgradeRequest ? ProtocolHelper.Http11Version : proxyOptions.Version;
+            var httpVersion = isUpgradeRequest ? ProtocolHelper.Http11Version : proxyOptions.RequestOptions.Version;
 #if NET
-            var httpVersionPolicy = isUpgradeRequest ? HttpVersionPolicy.RequestVersionOrLower : proxyOptions.VersionPolicy;
+            var httpVersionPolicy = isUpgradeRequest ? HttpVersionPolicy.RequestVersionOrLower : proxyOptions.RequestOptions.VersionPolicy;
 #endif
 
             // TODO Perf: We could probably avoid splitting this and just append the final path and query

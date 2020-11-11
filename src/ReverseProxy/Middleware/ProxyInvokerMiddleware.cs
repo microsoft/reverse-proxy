@@ -74,23 +74,8 @@ namespace Microsoft.ReverseProxy.Middleware
             var proxyOptions = new RequestProxyOptions()
             {
                 Transforms = routeConfig.Transforms,
+                RequestOptions = reverseProxyFeature.ClusterConfig.HttpRequestOptions
             };
-
-            var requestOptions = reverseProxyFeature.ClusterConfig.HttpRequestOptions;
-            if (requestOptions.RequestTimeout.HasValue)
-            {
-                proxyOptions.RequestTimeout = requestOptions.RequestTimeout.Value;
-            }
-            if (requestOptions.Version != null)
-            {
-                proxyOptions.Version = requestOptions.Version;
-            }
-#if NET
-            if (requestOptions.VersionPolicy.HasValue)
-            {
-                proxyOptions.VersionPolicy = requestOptions.VersionPolicy.Value;
-            }
-#endif
 
             try
             {

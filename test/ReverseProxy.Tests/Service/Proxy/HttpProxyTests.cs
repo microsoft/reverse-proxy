@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Net.Http.Headers;
 using Microsoft.ReverseProxy.Common.Tests;
+using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 using Microsoft.ReverseProxy.Telemetry;
 using Microsoft.ReverseProxy.Utilities;
@@ -700,9 +701,10 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
             var options = new RequestProxyOptions()
             {
-                Version = version,
 #if NET
-                VersionPolicy = versionPolicy,
+                RequestOptions = new ClusterProxyHttpRequestOptions(timeout: null, version: version, versionPolicy: versionPolicy)
+#else
+                RequestOptions = new ClusterProxyHttpRequestOptions(timeout: null, version: version)
 #endif
             };
             await sut.ProxyAsync(httpContext, destinationPrefix, client, options);
@@ -762,10 +764,11 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
             var options = new RequestProxyOptions()
             {
-                Version = version,
                 Transforms = transforms,
 #if NET
-                VersionPolicy = versionPolicy,
+                RequestOptions = new ClusterProxyHttpRequestOptions(timeout: null, version: version, versionPolicy: versionPolicy)
+#else
+                RequestOptions = new ClusterProxyHttpRequestOptions(timeout: null, version: version)
 #endif
             };
             await sut.ProxyAsync(httpContext, destinationPrefix, client, options);
@@ -867,7 +870,12 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
             var proxyOptions = new RequestProxyOptions()
             {
-                RequestTimeout = TimeSpan.FromTicks(1), // Time out immediately
+                // Time out immediately
+#if NET
+                RequestOptions = new ClusterProxyHttpRequestOptions(timeout: TimeSpan.FromTicks(1), version: null, versionPolicy: null)
+#else
+                RequestOptions = new ClusterProxyHttpRequestOptions(timeout: TimeSpan.FromTicks(1), version: null)
+#endif
             };
 
             await sut.ProxyAsync(httpContext, destinationPrefix, client, proxyOptions);
@@ -942,7 +950,12 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
             var proxyOptions = new RequestProxyOptions()
             {
-                RequestTimeout = TimeSpan.FromTicks(1), // Time out immediately
+                // Time out immediately
+#if NET
+                RequestOptions = new ClusterProxyHttpRequestOptions(timeout: TimeSpan.FromTicks(1), version: null, versionPolicy: null)
+#else
+                RequestOptions = new ClusterProxyHttpRequestOptions(timeout: TimeSpan.FromTicks(1), version: null)
+#endif
             };
 
             await sut.ProxyAsync(httpContext, destinationPrefix, client, proxyOptions);

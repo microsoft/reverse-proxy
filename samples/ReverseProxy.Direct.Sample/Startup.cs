@@ -10,6 +10,7 @@ using Microsoft.ReverseProxy.Service.Proxy;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 using Microsoft.Net.Http.Headers;
 using System.Collections.Generic;
+using Microsoft.ReverseProxy.RuntimeModel;
 
 namespace Microsoft.ReverseProxy.Sample
 {
@@ -41,7 +42,6 @@ namespace Microsoft.ReverseProxy.Sample
             });
             var proxyOptions = new RequestProxyOptions()
             {
-                RequestTimeout = TimeSpan.FromSeconds(100),
                 // Copy all request headers except Host
                 Transforms = new Transforms(
                     copyRequestHeaders: true,
@@ -51,7 +51,8 @@ namespace Microsoft.ReverseProxy.Sample
                         { HeaderNames.Host, new RequestHeaderValueTransform(string.Empty, append: false) }
                     },
                     responseHeaderTransforms: new Dictionary<string, ResponseHeaderTransform>(),
-                    responseTrailerTransforms: new Dictionary<string, ResponseHeaderTransform>())
+                    responseTrailerTransforms: new Dictionary<string, ResponseHeaderTransform>()),
+                RequestOptions = new ClusterProxyHttpRequestOptions(timeout: TimeSpan.FromSeconds(100), null),
             };
 
             app.UseRouting();

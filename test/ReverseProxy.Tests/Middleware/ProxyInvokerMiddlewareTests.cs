@@ -80,10 +80,10 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                     It.Is<string>(uri => uri == "https://localhost:123/a/b/"),
                     httpClient,
                     It.Is<RequestProxyOptions>(options =>
-                        options.RequestTimeout == httpRequestOptions.RequestTimeout
-                        && options.Version == httpRequestOptions.Version
+                        options.RequestOptions.Timeout == httpRequestOptions.Timeout
+                        && options.RequestOptions.Version == httpRequestOptions.Version
 #if NET
-                        && options.VersionPolicy == httpRequestOptions.VersionPolicy
+                        && options.RequestOptions.VersionPolicy == httpRequestOptions.VersionPolicy
 #endif
                         )))
                 .Returns(

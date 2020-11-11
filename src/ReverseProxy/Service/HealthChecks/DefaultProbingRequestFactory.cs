@@ -18,9 +18,9 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             var probeUri = UriHelper.BuildAbsolute(destinationScheme, destinationHost, destinationPathBase, probePath, default);
             return new HttpRequestMessage(HttpMethod.Get, probeUri)
             {
-                Version = clusterConfig.HttpRequestOptions.Version ?? HttpVersion.Version20,
+                Version = clusterConfig.HttpRequestOptions.Version,
 #if NET
-                VersionPolicy = clusterConfig.HttpRequestOptions.VersionPolicy ?? HttpVersionPolicy.RequestVersionOrLower
+                VersionPolicy = clusterConfig.HttpRequestOptions.VersionPolicy
 #endif
             };
         }
