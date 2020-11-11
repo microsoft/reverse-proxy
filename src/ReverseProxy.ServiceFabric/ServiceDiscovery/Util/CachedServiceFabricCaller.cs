@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Fabric.Health;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Microsoft.ReverseProxy.ServiceFabric.Utilities;
 using Microsoft.ReverseProxy.Utilities;
 
@@ -15,7 +16,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
     {
         public static readonly TimeSpan CacheExpirationOffset = TimeSpan.FromMinutes(30);
         private static readonly TimeSpan _defaultTimeout = TimeSpan.FromSeconds(60);
-
+        private readonly ILogger<CachedServiceFabricCaller> _logger;
         private readonly IClock _clock;
         private readonly IQueryClientWrapper _queryClientWrapper;
         private readonly IServiceManagementClientWrapper _serviceManagementClientWrapper;
@@ -31,12 +32,14 @@ namespace Microsoft.ReverseProxy.ServiceFabric
         private readonly Cache<IDictionary<string, string>> _propertiesCache;
 
         public CachedServiceFabricCaller(
+            ILogger<CachedServiceFabricCaller> logger,
             IClock clock,
             IQueryClientWrapper queryClientWrapper,
             IServiceManagementClientWrapper serviceManagementClientWrapper,
             IPropertyManagementClientWrapper propertyManagementClientWrapper,
             IHealthClientWrapper healthClientWrapper)
         {
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _clock = clock ?? throw new ArgumentNullException(nameof(clock));
             _queryClientWrapper = queryClientWrapper ?? throw new ArgumentNullException(nameof(queryClientWrapper));
             _serviceManagementClientWrapper = serviceManagementClientWrapper ?? throw new ArgumentNullException(nameof(serviceManagementClientWrapper));
@@ -136,36 +139,24 @@ namespace Microsoft.ReverseProxy.ServiceFabric
 
         public void ReportHealth(HealthReport healthReport, HealthReportSendOptions sendOptions)
         {
-            // TODO: davidni: Log operation `"IslandGateway.ServiceFabric.ReportHealth"`
-            ////var operationContext = _operationLogger.Context;
-            ////operationContext.SetProperty("kind", healthReport.Kind.ToString());
-            ////operationContext.SetProperty("healthState", healthReport.HealthInformation.HealthState.ToString());
-            ////switch (healthReport)
-            ////{
-            ////    case ServiceHealthReport service:
-            ////        operationContext.SetProperty("serviceName", service.ServiceName.ToString());
-            ////        break;
-            ////    default:
-            ////        operationContext.SetProperty("type", healthReport.GetType().FullName);
-            ////        break;
-            ////}
+            Uri serviceName = null;
+            if (healthReport is ServiceHealthReport service)
+            {
+                serviceName = service.ServiceName;
+            }
+            _logger.LogInformation($"Reporting health, kind={healthReport.Kind}, healthState={healthReport.HealthInformation.HealthState}, type={healthReport.GetType().FullName}, serviceName={serviceName}");
 
             _healthClientWrapper.ReportHealth(healthReport, sendOptions);
         }
 
         private async Task<T> TryWithCacheFallbackAsync<T>(string operationName, Func<Task<T>> func, Cache<T> cache, string key, CancellationToken cancellation)
         {
-            // TODO: davidni: Log operation `operationName + ".Cache"`
-            ////var operationContext = _operationLogger.Context;
-            ////operationContext.SetProperty("key", key);
+            _logger.LogInformation($"Starting operation {operationName}.Cache, key={key}");
 
-            // TODO: trigger async cache cleanup before SF call
             var outcome = "UnhandledException";
             try
             {
-                // TODO: davidni: Log operation `operationName`
-                ////var innerOperationContext = _operationLogger.Context;
-                ////innerOperationContext.SetProperty("key", key);
+                _logger.LogInformation($"Starting inner operation {operationName}, key={key}");
                 var value = await func();
                 cache.Set(key, value);
                 outcome = "Success";
@@ -176,7 +167,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                 outcome = "Canceled";
                 throw;
             }
-            catch (Exception) // TODO: davidni: not fatal?
+            catch (Exception)
             {
                 if (cache.TryGetValue(key, out var value))
                 {
@@ -191,7 +182,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             }
             finally
             {
-                ////operationContext.SetProperty("outcome", outcome);
+                _logger.LogInformation($"Operation {operationName}.Cache completed with key={key}, outcome={outcome}");
             }
         }
     }

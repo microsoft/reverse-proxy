@@ -5,7 +5,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
 {
     /// <remarks>
     /// Three modes for endpoint (replica) selection.
-    /// See implementation in SF Reverse Proxy: <see href="https://msazure.visualstudio.com/One/_git/WindowsFabric?path=%2Fsrc%2Fprod%2Fsrc%2FManagement%2FApplicationGateway%2FHttp%2FTargetReplicaSelector.h&amp;version=GBdevelop&amp;line=14&amp;lineEnd=19&amp;lineStartColumn=1&amp;lineEndColumn=1&amp;lineStyle=plain"/>.
+    /// See implementation in SF Reverse Proxy: <see href="https://github.com/microsoft/service-fabric/blob/1e118f02294c99b61e676c07ac97283ee12197d4/src/prod/src/Management/ApplicationGateway/Http/TargetReplicaSelector.h#L14-L18"/>.
     /// </remarks>
     internal static class StatefulReplicaSelectionLabel
     {
