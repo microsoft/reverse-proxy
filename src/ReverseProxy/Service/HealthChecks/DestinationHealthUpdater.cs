@@ -84,8 +84,8 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             if (healthState.Passive == DestinationHealth.Unhealthy)
             {
                 healthState.Passive = DestinationHealth.Unknown;
-                cluster.UpdateDynamicState();
                 Log.PassiveDestinationHealthResetToUnkownState(_logger, destination.DestinationId);
+                cluster.UpdateDynamicState();
             }
 
             return Task.CompletedTask;
