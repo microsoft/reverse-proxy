@@ -10,9 +10,13 @@ namespace Microsoft.ReverseProxy.Configuration
 {
     internal class ConfigurationSnapshot : IProxyConfig
     {
-        public IReadOnlyList<ProxyRoute> Routes { get; internal set; }
+        public List<ProxyRoute> Routes { get; internal set; } = new List<ProxyRoute>();
 
-        public IReadOnlyList<Cluster> Clusters { get; internal set; }
+        public List<Cluster> Clusters { get; internal set; } = new List<Cluster>();
+
+        IReadOnlyList<ProxyRoute> IProxyConfig.Routes => Routes;
+
+        IReadOnlyList<Cluster> IProxyConfig.Clusters => Clusters;
 
         public IChangeToken ChangeToken { get; internal set; }
     }
