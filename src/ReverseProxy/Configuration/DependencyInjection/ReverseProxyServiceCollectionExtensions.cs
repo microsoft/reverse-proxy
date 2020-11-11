@@ -4,8 +4,8 @@
 using System;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 using Microsoft.ReverseProxy.Configuration;
-using Microsoft.ReverseProxy.Configuration.Contract;
 using Microsoft.ReverseProxy.Configuration.DependencyInjection;
 using Microsoft.ReverseProxy.Service;
 using Microsoft.ReverseProxy.Service.Proxy;
@@ -57,9 +57,12 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         public static IReverseProxyBuilder LoadFromConfig(this IReverseProxyBuilder builder, IConfiguration config)
         {
-            builder.Services.Configure<ConfigurationData>(config);
             builder.Services.AddSingleton<ICertificateConfigLoader, CertificateConfigLoader>();
-            builder.Services.AddSingleton<IProxyConfigProvider, ConfigurationConfigProvider>();
+            builder.Services.AddSingleton<IProxyConfigProvider>(sp =>
+            {
+                // This is required because we're capturing the configuration via a closure
+                return new ConfigurationConfigProvider(sp.GetService<ILogger<ConfigurationConfigProvider>>(), config, sp.GetService<ICertificateConfigLoader>());
+            });
 
             return builder;
         }

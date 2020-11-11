@@ -2,11 +2,13 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.ReverseProxy.Configuration.Contract;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Primitives;
 using Microsoft.ReverseProxy.Utilities.Tests;
 using Moq;
 using Xunit;
@@ -24,7 +26,7 @@ namespace Microsoft.ReverseProxy.Configuration
                 Path = TestResources.GetCertPath("aspnetdevcert.pfx"),
                 Password = "testPassword"
             };
-            var certificate = loader.LoadCertificate(options);
+            var certificate = loader.LoadCertificate(options.AsConfigurationSection());
 
             Assert.NotNull(certificate);
             Assert.Equal("7E2467E85A9FA8824F6A37469334AD1C", certificate.SerialNumber);
@@ -39,7 +41,7 @@ namespace Microsoft.ReverseProxy.Configuration
                 Path = TestResources.GetCertPath("aspnetdevcert.pfx"),
                 Password = "12341234"
             };
-            Assert.ThrowsAny<CryptographicException>(() => loader.LoadCertificate(options));
+            Assert.ThrowsAny<CryptographicException>(() => loader.LoadCertificate(options.AsConfigurationSection()));
         }
 
         [Fact]
@@ -53,11 +55,11 @@ namespace Microsoft.ReverseProxy.Configuration
             };
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
-                Assert.ThrowsAny<FileNotFoundException>(() => loader.LoadCertificate(options));
+                Assert.ThrowsAny<FileNotFoundException>(() => loader.LoadCertificate(options.AsConfigurationSection()));
             }
             else
             {
-                Assert.ThrowsAny<CryptographicException>(() => loader.LoadCertificate(options));
+                Assert.ThrowsAny<CryptographicException>(() => loader.LoadCertificate(options.AsConfigurationSection()));
             }
         }
 
@@ -71,7 +73,7 @@ namespace Microsoft.ReverseProxy.Configuration
                 Path = TestResources.GetCertPath("https-aspnet.crt"),
                 KeyPath = TestResources.GetCertPath("https-aspnet.key")
             };
-            Assert.Throws<ArgumentException>(() => loader.LoadCertificate(options));
+            Assert.Throws<ArgumentException>(() => loader.LoadCertificate(options.AsConfigurationSection()));
         }
 
         [Fact]
@@ -83,7 +85,7 @@ namespace Microsoft.ReverseProxy.Configuration
                 Path = TestResources.GetCertPath("https-aspnet.crt"),
                 KeyPath = TestResources.GetCertPath("https-ecdsa.key")
             };
-            Assert.Throws<ArgumentException>(() => loader.LoadCertificate(options));
+            Assert.Throws<ArgumentException>(() => loader.LoadCertificate(options.AsConfigurationSection()));
         }
 
         [Fact]
@@ -96,7 +98,7 @@ namespace Microsoft.ReverseProxy.Configuration
                 KeyPath = TestResources.GetCertPath("https-aspnet.key"),
                 Password = "abcde"
             };
-            Assert.ThrowsAny<CryptographicException>(() => loader.LoadCertificate(options));
+            Assert.ThrowsAny<CryptographicException>(() => loader.LoadCertificate(options.AsConfigurationSection()));
         }
 
         [Theory]
@@ -122,7 +124,7 @@ namespace Microsoft.ReverseProxy.Configuration
                 Password = password
             };
 
-            var certificate = loader.LoadCertificate(options);
+            var certificate = loader.LoadCertificate(options.AsConfigurationSection());
             Assert.Equal(expectedSN, certificate.SerialNumber);
         }
 #endif
@@ -131,6 +133,53 @@ namespace Microsoft.ReverseProxy.Configuration
             var result = new Mock<IWebHostEnvironment>();
             result.SetupGet(r => r.ContentRootPath).Returns(string.Empty);
             return result.Object;
+        }
+
+        private class CertificateConfigData
+        {
+            public string Password { get; set; }
+            public string KeyPath { get; set; }
+            public string Path { get; set; }
+
+            public IConfigurationSection AsConfigurationSection() => new ConfigurationSection(new Dictionary<string, string>()
+            {
+                { nameof(Path), Path },
+                { nameof(KeyPath), KeyPath },
+                { nameof(Password), Password }
+            });
+        }
+
+        private class ConfigurationSection : IConfigurationSection
+        {
+            private readonly IDictionary<string, string> _items;
+            public ConfigurationSection(Dictionary<string, string> items)
+            {
+                _items = items;
+                Value = "";
+            }
+
+            public string this[string key] { get => _items.TryGetValue(key, out var item) ? item : default; set => _items[key] = value; }
+
+            public string Key => null;
+
+            public string Path => null;
+
+            public string Value { get; set; }
+
+            public IEnumerable<IConfigurationSection> GetChildren()
+            {
+                yield break;
+            }
+
+            public IChangeToken GetReloadToken()
+            {
+                return null;
+            }
+
+            public IConfigurationSection GetSection(string key)
+            {
+                return null;
+            }
         }
     }
 }
