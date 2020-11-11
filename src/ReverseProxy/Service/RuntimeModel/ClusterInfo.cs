@@ -24,6 +24,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         private readonly object _stateLock = new object();
         private volatile ClusterDynamicState _dynamicState = new ClusterDynamicState(Array.Empty<DestinationInfo>(), Array.Empty<DestinationInfo>());
         private volatile ClusterConfig _config;
+        private readonly SemaphoreSlim _updateRequests = new SemaphoreSlim(2);
 
         internal ClusterInfo(string clusterId, IDestinationManager destinationManager)
         {
@@ -80,11 +81,12 @@ namespace Microsoft.ReverseProxy.RuntimeModel
             {
                 if (force)
                 {
-                    Monitor.Enter(_stateLock, ref lockTaken);
+                    lockTaken = true;
+                    _updateRequests.Wait();
                 }
                 else
                 {
-                    Monitor.TryEnter(_stateLock, ref lockTaken);
+                    lockTaken = _updateRequests.Wait(0);
                 }
 
                 if (!lockTaken)
@@ -92,34 +94,46 @@ namespace Microsoft.ReverseProxy.RuntimeModel
                     return;
                 }
 
-                var healthChecks = _config?.HealthCheckOptions ?? default;
-                var allDestinations = DestinationManager.Items;
-                var healthyDestinations = allDestinations;
-
-                if (healthChecks.Enabled)
+                lock (_stateLock)
                 {
-                    var activeEnabled = healthChecks.Active.Enabled;
-                    var passiveEnabled = healthChecks.Passive.Enabled;
-
-                    healthyDestinations = allDestinations.Where(destination =>
+                    try
                     {
+                        var healthChecks = _config?.HealthCheckOptions ?? default;
+                        var allDestinations = DestinationManager.Items;
+                        var healthyDestinations = allDestinations;
+
+                        if (healthChecks.Enabled)
+                        {
+                            var activeEnabled = healthChecks.Active.Enabled;
+                            var passiveEnabled = healthChecks.Passive.Enabled;
+
+                            healthyDestinations = allDestinations.Where(destination =>
+                            {
                             // Only consider the current state if those checks are enabled.
                             var healthState = destination.Health;
-                        var active = activeEnabled ? healthState.Active : DestinationHealth.Unknown;
-                        var passive = passiveEnabled ? healthState.Passive : DestinationHealth.Unknown;
+                                var active = activeEnabled ? healthState.Active : DestinationHealth.Unknown;
+                                var passive = passiveEnabled ? healthState.Passive : DestinationHealth.Unknown;
 
                             // Filter out unhealthy ones. Unknown state is OK, all destinations start that way.
                             return passive != DestinationHealth.Unhealthy && active != DestinationHealth.Unhealthy;
-                    }).ToList().AsReadOnly();
-                }
+                            }).ToList().AsReadOnly();
+                        }
 
-                _dynamicState = new ClusterDynamicState(allDestinations, healthyDestinations);
+                        _dynamicState = new ClusterDynamicState(allDestinations, healthyDestinations);
+                    }
+                    finally
+                    {
+                        lockTaken = false;
+                        _updateRequests.Release();
+                    }
+                }
             }
             finally
             {
+                // This releases the semaphore in case of an exception thrown by 'lock' call.
                 if (lockTaken)
                 {
-                    Monitor.Exit(_stateLock);
+                    _updateRequests.Release();
                 }
             }
         }

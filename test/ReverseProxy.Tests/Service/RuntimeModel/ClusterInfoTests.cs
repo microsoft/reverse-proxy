@@ -150,12 +150,12 @@ namespace Microsoft.ReverseProxy.RuntimeModel.Tests
         }
 
         [Fact]
-        public void UpdateDynamicState_ConcurrentCalls_OnlyOneCallMakesChanges()
+        public void UpdateDynamicState_ConcurrentCalls_FirstAndLastCallsMakeChanges()
         {
             var testTimeout = TimeSpan.FromSeconds(30);
             var destinationManager = new Mock<IDestinationManager>();
             var itemsCalled = new AutoResetEvent(false);
-            var returnItems = new AutoResetEvent(false);
+            var returnItems = new ManualResetEvent(false);
             destinationManager.SetupGet(d => d.Items).Returns(() =>
             {
                 itemsCalled.Set();
@@ -171,19 +171,31 @@ namespace Microsoft.ReverseProxy.RuntimeModel.Tests
 
             Assert.True(itemsCalled.WaitOne(testTimeout));
 
-            var concurrentTasks = Enumerable.Repeat(0, Environment.ProcessorCount * 2)
-                .Select(_ => Task.Factory.StartNew(() => cluster.UpdateDynamicState(), TaskCreationOptions.RunContinuationsAsynchronously))
+            var allTaskCount = Environment.ProcessorCount * 2;
+            var pendingTasks = allTaskCount;
+            var allButOneCompleted = new ManualResetEventSlim(false);
+            var concurrentTasks = Enumerable.Repeat(0, allTaskCount)
+                .Select(_ => Task.Factory.StartNew(() =>
+                {
+                    cluster.UpdateDynamicState();
+                    if (Interlocked.Decrement(ref pendingTasks) == 1)
+                    {
+                        allButOneCompleted.Set();
+                    }
+                }, TaskCreationOptions.RunContinuationsAsynchronously))
                 .ToArray();
+
+            Assert.True(allButOneCompleted.Wait(testTimeout));
+            returnItems.Set();
 
             // Assert all concurrent tasks complete without a call to DestinationManager.Items getter.
             Assert.True(Task.WaitAll(concurrentTasks, testTimeout));
-
-            returnItems.Set();
+            Assert.Equal(0, Volatile.Read(ref pendingTasks));
 
             // Assert the main task that acquired the ClusterInfo lock completes.
             Assert.True(mainTask.Wait(testTimeout));
 
-            destinationManager.VerifyGet(d => d.Items, Times.Once);
+            destinationManager.VerifyGet(d => d.Items, Times.Exactly(2));
             destinationManager.VerifyNoOtherCalls();
         }
 
