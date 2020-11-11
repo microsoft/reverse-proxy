@@ -51,12 +51,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Sample
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapReverseProxy(proxyPipeline =>
-                {
-                    proxyPipeline.UseAffinitizedDestinationLookup();
-                    proxyPipeline.UseProxyLoadBalancing();
-                    proxyPipeline.UseRequestAffinitizer();
-                });
+                endpoints.MapReverseProxy();
             });
         }
     }
