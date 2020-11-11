@@ -25,7 +25,7 @@ namespace Microsoft.ReverseProxy.Configuration
         /// <inheritdoc/>
         public X509Certificate2 LoadCertificate(IConfigurationSection certificateSection)
         {
-            if (certificateSection?.Exists() is false)
+            if (!certificateSection.Exists())
             {
                 return null;
             }
