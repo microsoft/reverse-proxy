@@ -10,7 +10,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Abstractions.Time;
 using Microsoft.ReverseProxy.Service;
 using Microsoft.ReverseProxy.Utilities;
 
@@ -25,7 +24,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
         private readonly object _lockObject = new object();
         private readonly TaskCompletionSource<int> _initalConfigLoadTcs = new TaskCompletionSource<int>();
         private readonly ILogger<ServiceFabricConfigProvider> _logger;
-        private readonly IMonotonicTimer _timer;
+        private readonly IClock _clock;
         private readonly IDiscoverer _discoverer;
         private readonly IOptionsMonitor<ServiceFabricDiscoveryOptions> _optionsMonitor;
 
@@ -38,12 +37,12 @@ namespace Microsoft.ReverseProxy.ServiceFabric
 
         public ServiceFabricConfigProvider(
             ILogger<ServiceFabricConfigProvider> logger,
-            IMonotonicTimer timer,
+            IClock clock,
             IDiscoverer discoverer,
             IOptionsMonitor<ServiceFabricDiscoveryOptions> optionsMonitor)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _timer = timer ?? throw new ArgumentNullException(nameof(timer));
+            _clock = clock ?? throw new ArgumentNullException(nameof(clock));
             _discoverer = discoverer ?? throw new ArgumentNullException(nameof(discoverer));
             _optionsMonitor = optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
 
@@ -111,7 +110,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                     _backgroundCts.Token.ThrowIfCancellationRequested();
                     if (!first)
                     {
-                        await _timer.Delay(_optionsMonitor.CurrentValue.DiscoveryPeriod, _backgroundCts.Token);
+                        await _clock.Delay(_optionsMonitor.CurrentValue.DiscoveryPeriod, _backgroundCts.Token);
                     }
 
                     var result = await _discoverer.DiscoverAsync(_backgroundCts.Token);

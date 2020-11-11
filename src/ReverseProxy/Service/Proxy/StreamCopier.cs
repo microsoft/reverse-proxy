@@ -44,16 +44,16 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 
             try
             {
-                long lastTime = 0;
-                long nextTransferringEvent = 0;
-                long stopwatchTicksBetweenTransferringEvents = 0;
+                var lastTime = TimeSpan.Zero;
+                var nextTransferringEvent = TimeSpan.Zero;
+                var stopwatchTicksBetweenTransferringEvents = TimeSpan.Zero;
 
                 if (telemetryEnabled)
                 {
                     ProxyTelemetry.Log.ProxyStage(isRequest ? ProxyStage.RequestContentTransferStart : ProxyStage.ResponseContentTransferStart);
 
-                    stopwatchTicksBetweenTransferringEvents = Stopwatch.Frequency; // 1 second
-                    lastTime = clock.GetStopwatchTimestamp();
+                    stopwatchTicksBetweenTransferringEvents = TimeSpan.FromSeconds(1);
+                    lastTime = clock.GetStopwatchTime();
                     nextTransferringEvent = lastTime + stopwatchTicksBetweenTransferringEvents;
                 }
 
@@ -77,8 +77,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                             contentLength += read;
                             iops++;
 
-                            var readStop = clock.GetStopwatchTimestamp();
-                            var currentReadTime = readStop - lastTime;
+                            var readStop = clock.GetStopwatchTime();
+                            var currentReadTime = (readStop - lastTime).Ticks;
                             lastTime = readStop;
                             readTime += currentReadTime;
                             if (firstReadTime == -1)
@@ -108,8 +108,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                     {
                         if (telemetryEnabled)
                         {
-                            var writeStop = clock.GetStopwatchTimestamp();
-                            writeTime += writeStop - lastTime;
+                            var writeStop = clock.GetStopwatchTime();
+                            writeTime += (writeStop - lastTime).Ticks;
                             lastTime = writeStop;
                             if (lastTime >= nextTransferringEvent)
                             {
@@ -121,7 +121,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                                     StopwatchTicksToDateTimeTicks(writeTime));
 
                                 // Avoid attributing the time taken by logging ContentTransferring to the next read call
-                                lastTime = clock.GetStopwatchTimestamp();
+                                lastTime = clock.GetStopwatchTime();
                                 nextTransferringEvent = lastTime + stopwatchTicksBetweenTransferringEvents;
                             }
                         }

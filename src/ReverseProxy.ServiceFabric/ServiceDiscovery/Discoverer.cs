@@ -220,7 +220,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             return new Destination
             {
                 Address = endpointUri.ToString(),
-                HealthAddress = healthEndpointUri?.ToString(),
+                Health = healthEndpointUri?.ToString(),
                 Metadata = null, // TODO
             };
         }

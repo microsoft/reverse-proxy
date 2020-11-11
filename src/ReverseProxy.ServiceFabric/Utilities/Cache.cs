@@ -4,24 +4,24 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.ReverseProxy.Abstractions.Time;
+using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.ServiceFabric.Utilities
 {
     public class Cache<T>
     {
         private readonly TimeSpan _expirationTimeOffset;
-        private readonly IMonotonicTimer _timer;
+        private readonly IClock _clock;
         private readonly Dictionary<string, Expirable> _cache = new Dictionary<string, Expirable>(StringComparer.Ordinal);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Cache{T}"/> class.
         /// </summary>
-        /// <param name="timer">A timer to use to track expirations.</param>
+        /// <param name="clock">A timer to use to track expirations.</param>
         /// <param name="expirationTimeOffset">The time it takes for cache values to expire.</param>
-        public Cache(IMonotonicTimer timer, TimeSpan expirationTimeOffset)
+        public Cache(IClock clock, TimeSpan expirationTimeOffset)
         {
-            _timer = timer ?? throw new ArgumentNullException(nameof(timer));
+            _clock = clock ?? throw new ArgumentNullException(nameof(clock));
             _expirationTimeOffset = expirationTimeOffset;
         }
 
@@ -44,7 +44,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Utilities
         public bool TryGetValue(string key, out T value)
         {
             var present = _cache.TryGetValue(key, out var expirable);
-            if (!present || expirable.Expired(_timer))
+            if (!present || expirable.Expired(_clock))
             {
                 value = default;
                 if (present)
@@ -65,7 +65,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Utilities
         {
             _cache[key] = new Expirable(
                 value: value,
-                expirationTime: _timer.CurrentTime.Add(_expirationTimeOffset));
+                expirationTime: _clock.GetStopwatchTime().Add(_expirationTimeOffset));
         }
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Utilities
         public void Cleanup()
         {
             var toRemove = _cache
-                .Where(pair => pair.Value.Expired(_timer))
+                .Where(pair => pair.Value.Expired(_clock))
                 .Select(pair => pair.Key)
                 .ToList();
 
@@ -93,7 +93,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Utilities
             }
             internal T Value { get; }
             internal TimeSpan ExpirationTime { get; }
-            internal bool Expired(IMonotonicTimer timer) => ExpirationTime < timer.CurrentTime;
+            internal bool Expired(IClock timer) => ExpirationTime < timer.GetStopwatchTime();
         }
     }
 }

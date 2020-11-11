@@ -1,15 +1,24 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+
 namespace Microsoft.ReverseProxy.Utilities
 {
     /// <summary>
-    /// Abstraction over time providers (Environment.TickCount64, Stopwatch.GetTimestamp)
+    /// Abstraction over monotonic time providers
+    /// (Environment.TickCount64, Stopwatch.GetTimestamp, as opposed to DateTime).
     /// </summary>
-    internal interface IClock
+    public interface IClock
     {
         long TickCount { get; }
 
-        long GetStopwatchTimestamp();
+        TimeSpan GetStopwatchTime();
+
+        Task Delay(TimeSpan delay, CancellationToken cancellationToken);
+
+        Task Delay(int millisecondsDelay, CancellationToken cancellationToken);
     }
 }

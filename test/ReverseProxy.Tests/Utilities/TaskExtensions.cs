@@ -10,12 +10,12 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Tests.Common
+namespace Microsoft.ReverseProxy.Utilities
 {
     /// <summary>
     /// Extensions for the <see cref="Task"/> class.
     /// </summary>
-    public static class TaskExtensions
+    internal static class TaskExtensions
     {
         public static TimeSpan DefaultTimeoutTimeSpan { get; } = TimeSpan.FromSeconds(5);
 

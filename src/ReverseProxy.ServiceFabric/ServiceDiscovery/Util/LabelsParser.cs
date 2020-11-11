@@ -26,7 +26,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
         internal static readonly int DefaultPartitionCount = 0;
         internal static readonly string DefaultPartitionKeyExtractor = null;
         internal static readonly string DefaultPartitioningAlgorithm = "SHA256";
-        internal static readonly int? DefaultRoutePriority = null;
+        internal static readonly int? DefaultRouteOrder = null;
 
         private static readonly Regex _allowedRouteNamesRegex = new Regex("^[a-zA-Z0-9_-]+$");
 
@@ -105,7 +105,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                         Hosts = SplitHosts(hosts),
                         Path = path,
                     },
-                    Priority = GetLabel(labels, $"{thisRoutePrefix}.Priority", DefaultRoutePriority),
+                    Order = GetLabel(labels, $"{thisRoutePrefix}.Order", DefaultRouteOrder),
                     ClusterId = backendId,
                     Metadata = metadata,
                 };
@@ -131,30 +131,16 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             var cluster = new Cluster
             {
                 Id = clusterId,
-                CircuitBreakerOptions = new CircuitBreakerOptions
-                {
-                    MaxConcurrentRequests = GetLabel(labels, "YARP.Backend.CircuitBreaker.MaxConcurrentRequests", DefaultCircuitbreakerMaxConcurrentRequests),
-                    MaxConcurrentRetries = GetLabel(labels, "YARP.Backend.CircuitBreaker.MaxConcurrentRetries", DefaultCircuitbreakerMaxConcurrentRequests),
-                },
-                QuotaOptions = new QuotaOptions
-                {
-                    Average = GetLabel(labels, "YARP.Backend.Quota.Average", DefaultQuotaAverage),
-                    Burst = GetLabel(labels, "YARP.Backend.Quota.Burst", DefaultQuotaBurst),
-                },
-                PartitioningOptions = new ClusterPartitioningOptions
-                {
-                    PartitionCount = GetLabel(labels, "YARP.Backend.Partitioning.Count", DefaultPartitionCount),
-                    PartitionKeyExtractor = GetLabel(labels, "YARP.Backend.Partitioning.KeyExtractor", DefaultPartitionKeyExtractor),
-                    PartitioningAlgorithm = GetLabel(labels, "YARP.Backend.Partitioning.Algorithm", DefaultPartitioningAlgorithm),
-                },
                 LoadBalancing = new LoadBalancingOptions(), // TODO
-                HealthCheckOptions = new HealthCheckOptions
+                HealthCheck = new HealthCheckOptions
                 {
-                    Enabled = GetLabel(labels, "YARP.Backend.Healthcheck.Enabled", false),
-                    Interval = TimeSpan.FromSeconds(GetLabel<double>(labels, "YARP.Backend.Healthcheck.Interval", 0)),
-                    Timeout = TimeSpan.FromSeconds(GetLabel<double>(labels, "YARP.Backend.Healthcheck.Timeout", 0)),
-                    Port = GetLabel<int?>(labels, "YARP.Backend.Healthcheck.Port", null),
-                    Path = GetLabel<string>(labels, "YARP.Backend.Healthcheck.Path", null),
+                    Active = new ActiveHealthCheckOptions
+                    {
+                        Enabled = GetLabel(labels, "YARP.Backend.Healthcheck.Enabled", false),
+                        Interval = TimeSpan.FromSeconds(GetLabel<double>(labels, "YARP.Backend.Healthcheck.Interval", 0)),
+                        Timeout = TimeSpan.FromSeconds(GetLabel<double>(labels, "YARP.Backend.Healthcheck.Timeout", 0)),
+                        Path = GetLabel<string>(labels, "YARP.Backend.Healthcheck.Path", null),
+                    }
                 },
                 Metadata = clusterMetadata,
             };

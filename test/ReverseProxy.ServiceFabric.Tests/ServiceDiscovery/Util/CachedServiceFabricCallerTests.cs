@@ -9,11 +9,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
-using Microsoft.ReverseProxy.Abstractions.Telemetry;
-using Microsoft.ReverseProxy.Abstractions.Time;
-using Microsoft.ReverseProxy.Telemetry;
+using Microsoft.ReverseProxy.Common.Tests;
+using Microsoft.ReverseProxy.Utilities;
 using Moq;
-using Tests.Common;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -22,14 +20,13 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
     public class CachedServiceFabricCallerTests : TestAutoMockBase
     {
         // TODO: add tests to verify the cache keys are correct (that is, different arguments are cached separately)
-        private readonly VirtualMonotonicTimer _timer;
+        private readonly ManualClock _clock;
 
         public CachedServiceFabricCallerTests(ITestOutputHelper testOutputHelper)
         {
-            _timer = new VirtualMonotonicTimer();
-            Provide<IMonotonicTimer>(_timer);
+            _clock = new ManualClock();
+            Provide<IClock>(_clock);
             Provide<ILogger>(new XunitLogger<Discoverer>(testOutputHelper));
-            Provide<IOperationLogger<CachedServiceFabricCaller>>(new NullOperationLogger<CachedServiceFabricCaller>());
         }
 
         [Fact]
@@ -174,9 +171,9 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
 
             // Act
             var firstResult = await call(); // First call is successful
-            _timer.AdvanceClockBy(almostExpirationOffset);
+            _clock.AdvanceClockBy(almostExpirationOffset);
             var secondResult = await call(); // Second call should use last result from cache
-            _timer.AdvanceClockBy(almostExpirationOffset);
+            _clock.AdvanceClockBy(almostExpirationOffset);
 
             // Assert
             secondResult.Should().BeEquivalentTo(firstResult);

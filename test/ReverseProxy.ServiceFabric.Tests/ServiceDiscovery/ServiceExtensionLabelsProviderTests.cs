@@ -7,8 +7,8 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Microsoft.ReverseProxy.Common.Tests;
 using Moq;
-using Tests.Common;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.ServiceFabric.Tests

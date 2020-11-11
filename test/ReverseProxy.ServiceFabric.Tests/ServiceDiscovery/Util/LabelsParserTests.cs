@@ -32,7 +32,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 { "YARP.Backend.Healthcheck.Enabled", "true" },
                 { "YARP.Backend.Healthcheck.Interval", "5" },
                 { "YARP.Backend.Healthcheck.Timeout", "5" },
-                { "YARP.Backend.Healthcheck.Port", "8787" },
                 { "YARP.Backend.Healthcheck.Path", "/api/health" },
                 { "YARP.Backend.Metadata.Foo", "Bar" },
             };
@@ -44,30 +43,16 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             var expectedCluster = new Cluster
             {
                 Id = "MyCoolClusterId",
-                CircuitBreakerOptions = new CircuitBreakerOptions
-                {
-                    MaxConcurrentRequests = 42,
-                    MaxConcurrentRetries = 5,
-                },
-                QuotaOptions = new QuotaOptions
-                {
-                    Average = 1.2,
-                    Burst = 2.3,
-                },
-                PartitioningOptions = new ClusterPartitioningOptions
-                {
-                    PartitionCount = 5,
-                    PartitionKeyExtractor = "Header('x-ms-organization-id')",
-                    PartitioningAlgorithm = "SHA256",
-                },
                 LoadBalancing = new LoadBalancingOptions(),
-                HealthCheckOptions = new HealthCheckOptions
+                HealthCheck = new HealthCheckOptions
                 {
-                    Enabled = true,
-                    Interval = TimeSpan.FromSeconds(5),
-                    Timeout = TimeSpan.FromSeconds(5),
-                    Port = 8787,
-                    Path = "/api/health",
+                    Active=new ActiveHealthCheckOptions
+                    {
+                        Enabled = true,
+                        Interval = TimeSpan.FromSeconds(5),
+                        Timeout = TimeSpan.FromSeconds(5),
+                        Path = "/api/health",
+                    },
                 },
                 Metadata = new Dictionary<string, string>
                 {
@@ -93,30 +78,16 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             var expectedCluster = new Cluster
             {
                 Id = "MyCoolClusterId",
-                CircuitBreakerOptions = new CircuitBreakerOptions
-                {
-                    MaxConcurrentRequests = LabelsParser.DefaultCircuitbreakerMaxConcurrentRequests,
-                    MaxConcurrentRetries = LabelsParser.DefaultCircuitbreakerMaxConcurrentRetries,
-                },
-                QuotaOptions = new QuotaOptions
-                {
-                    Average = LabelsParser.DefaultQuotaAverage,
-                    Burst = LabelsParser.DefaultQuotaBurst,
-                },
-                PartitioningOptions = new ClusterPartitioningOptions
-                {
-                    PartitionCount = LabelsParser.DefaultPartitionCount,
-                    PartitionKeyExtractor = LabelsParser.DefaultPartitionKeyExtractor,
-                    PartitioningAlgorithm = LabelsParser.DefaultPartitioningAlgorithm,
-                },
                 LoadBalancing = new LoadBalancingOptions(),
-                HealthCheckOptions = new HealthCheckOptions
+                HealthCheck = new HealthCheckOptions
                 {
-                    Enabled = false,
-                    Interval = TimeSpan.Zero,
-                    Timeout = TimeSpan.Zero,
-                    Port = null,
-                    Path = null,
+                     Active = new ActiveHealthCheckOptions
+                     {
+                         Enabled = false,
+                         Interval = TimeSpan.Zero,
+                         Timeout = TimeSpan.Zero,
+                         Path = null,
+                     },
                 },
                 Metadata = new Dictionary<string, string>(),
             };
@@ -143,7 +114,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             var cluster = LabelsParser.BuildCluster(_testServiceName, labels);
 
             // Assert
-            cluster.HealthCheckOptions.Enabled.Should().Be(expected);
+            cluster.HealthCheck.Active.Enabled.Should().Be(expected);
         }
 
         [Theory]
@@ -156,48 +127,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             {
                 { "YARP.Backend.BackendId", "MyCoolClusterId" },
                 { "YARP.Backend.Healthcheck.Enabled", label },
-            };
-
-            // Act
-            Action action = () => LabelsParser.BuildCluster(_testServiceName, labels);
-
-            // Assert
-            action.Should().Throw<ConfigException>();
-        }
-
-        [Theory]
-        [InlineData(null, null)]
-        [InlineData("", null)]
-        [InlineData("443", 443)]
-        [InlineData("0x1bc", 444)]
-        [InlineData("  80 ", 80)]
-        [InlineData("65000", 65000)]
-        public void BuildCluster_HealthCheckOptions_Port_Valid(string label, int? expected)
-        {
-            // Arrange
-            var labels = new Dictionary<string, string>()
-            {
-                { "YARP.Backend.BackendId", "MyCoolClusterId" },
-                { "YARP.Backend.Healthcheck.Port", label },
-            };
-
-            // Act
-            var cluster = LabelsParser.BuildCluster(_testServiceName, labels);
-
-            // Assert
-            cluster.HealthCheckOptions.Port.Should().Be(expected);
-        }
-
-        [Theory]
-        [InlineData("abc")]
-        [InlineData("123a")]
-        public void BuildCluster_HealthCheckOptions_Port_Invalid(string label)
-        {
-            // Arrange
-            var labels = new Dictionary<string, string>()
-            {
-                { "YARP.Backend.BackendId", "MyCoolClusterId" },
-                { "YARP.Backend.Healthcheck.Port", label },
             };
 
             // Act
@@ -228,14 +157,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         }
 
         [Theory]
-        [InlineData("YARP.Backend.CircuitBreaker.MaxConcurrentRequests", "this is no number boi")]
-        [InlineData("YARP.Backend.CircuitBreaker.MaxConcurrentRetries", "P=NP")]
-        [InlineData("YARP.Backend.Quota.Average", "average should be a double")]
-        [InlineData("YARP.Backend.Quota.Burst", "")]
-        [InlineData("YARP.Backend.Partitioning.Count", "$#%+@`~áéÉ")]
         [InlineData("YARP.Backend.Healthcheck.Interval", "1S")]
         [InlineData("YARP.Backend.Healthcheck.Timeout", "foobar")]
-        [InlineData("YARP.Backend.Healthcheck.Port", "should be an int")]
         public void BuildCluster_InvalidValues_Throws(string key, string invalidValue)
         {
             // Arrange
@@ -260,7 +183,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             {
                 { "YARP.Backend.BackendId", "MyCoolClusterId" },
                 { "YARP.Routes.MyRoute.Hosts", "example.com" },
-                { "YARP.Routes.MyRoute.Priority", "2" },
+                { "YARP.Routes.MyRoute.Order", "2" },
                 { "YARP.Routes.MyRoute.Metadata.Foo", "Bar" },
             };
 
@@ -277,7 +200,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     {
                         Hosts = new[] { "example.com" },
                     },
-                    Priority = 2,
+                    Order = 2,
                     ClusterId = "MyCoolClusterId",
                     Metadata = new Dictionary<string, string>
                     {
@@ -311,7 +234,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     {
                         Hosts = new[] { "example.com" },
                     },
-                    Priority = LabelsParser.DefaultRoutePriority,
+                    Order = LabelsParser.DefaultRouteOrder,
                     ClusterId = "MyCoolClusterId",
                     Metadata = new Dictionary<string, string>(),
                 },
@@ -345,7 +268,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     {
                         Hosts = new[] { "'this invalid thing" },
                     },
-                    Priority = LabelsParser.DefaultRoutePriority,
+                    Order = LabelsParser.DefaultRouteOrder,
                     ClusterId = "MyCoolClusterId",
                     Metadata = new Dictionary<string, string>(),
                 },
@@ -362,7 +285,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             var labels = new Dictionary<string, string>()
             {
                 { "YARP.Routes.MyRoute.Hosts", "example.com" },
-                { "YARP.Routes.MyRoute.Priority", "2" },
+                { "YARP.Routes.MyRoute.Order", "2" },
             };
 
             if (scenario == 1)
@@ -383,7 +306,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     {
                         Hosts = new[] { "example.com" },
                     },
-                    Priority = 2,
+                    Order = 2,
                     ClusterId = _testServiceName.ToString(),
                     Metadata = new Dictionary<string, string>(),
                 },
@@ -410,14 +333,14 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         }
 
         [Fact]
-        public void BuildRoutes_InvalidPriority_Throws()
+        public void BuildRoutes_InvalidOrder_Throws()
         {
             // Arrange
             var labels = new Dictionary<string, string>()
             {
                 { "YARP.Backend.BackendId", "MyCoolClusterId" },
                 { "YARP.Routes.MyRoute.Hosts", "example.com" },
-                { "YARP.Routes.MyRoute.Priority", "this is no number" },
+                { "YARP.Routes.MyRoute.Order", "this is no number" },
             };
 
             // Act
@@ -426,7 +349,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             // Assert
             func.Should()
                 .Throw<ConfigException>()
-                .WithMessage("Could not convert label YARP.Routes.MyRoute.Priority='this is no number' *");
+                .WithMessage("Could not convert label YARP.Routes.MyRoute.Order='this is no number' *");
         }
 
         [Theory]
@@ -442,7 +365,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             {
                 { "YARP.Backend.BackendId", "MyCoolClusterId" },
                 { $"YARP.Routes.{routeName}.Hosts", "example.com" },
-                { $"YARP.Routes.{routeName}.Priority", "2" },
+                { $"YARP.Routes.{routeName}.Order", "2" },
             };
 
             // Act
@@ -458,7 +381,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     {
                         Hosts = new[] { "example.com" },
                     },
-                    Priority = 2,
+                    Order = 2,
                     ClusterId = "MyCoolClusterId",
                     Metadata = new Dictionary<string, string>(),
                 },
@@ -513,7 +436,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             {
                 { "YARP.Backend.BackendId", "MyCoolClusterId" },
                 { "YARP.Routes.MyRoute.Hosts", "example.com" },
-                { "YARP.Routes.MyRoute.Priority", "2" },
+                { "YARP.Routes.MyRoute.Order", "2" },
                 { "YARP.Routes.MyRoute.Metadata.Foo", "Bar" },
             };
             labels[invalidKey] = value;
@@ -531,7 +454,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     {
                         Hosts = new[] { "example.com" },
                     },
-                    Priority = 2,
+                    Order = 2,
                     ClusterId = "MyCoolClusterId",
                     Metadata = new Dictionary<string, string>
                     {
@@ -551,12 +474,12 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 { "YARP.Backend.BackendId", "MyCoolClusterId" },
                 { "YARP.Routes.MyRoute.Hosts", "example.com" },
                 { "YARP.Routes.MyRoute.Path", "v2/{**rest}" },
-                { "YARP.Routes.MyRoute.Priority", "1" },
+                { "YARP.Routes.MyRoute.Order", "1" },
                 { "YARP.Routes.MyRoute.Metadata.Foo", "Bar" },
                 { "YARP.Routes.CoolRoute.Hosts", "example.net" },
-                { "YARP.Routes.CoolRoute.Priority", "2" },
+                { "YARP.Routes.CoolRoute.Order", "2" },
                 { "YARP.Routes.EvenCoolerRoute.Hosts", "example.org" },
-                { "YARP.Routes.EvenCoolerRoute.Priority", "3" },
+                { "YARP.Routes.EvenCoolerRoute.Order", "3" },
             };
 
             // Act
@@ -573,7 +496,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                         Hosts = new[] { "example.com" },
                         Path = "v2/{**rest}",
                     },
-                    Priority = 1,
+                    Order = 1,
                     ClusterId = "MyCoolClusterId",
                     Metadata = new Dictionary<string, string> { { "Foo", "Bar" } },
                 },
@@ -584,7 +507,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     {
                         Hosts = new[] { "example.net" },
                     },
-                    Priority = 2,
+                    Order = 2,
                     ClusterId = "MyCoolClusterId",
                     Metadata = new Dictionary<string, string>(),
                 },
@@ -595,7 +518,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     {
                         Hosts = new[] { "example.org" },
                     },
-                    Priority = 3,
+                    Order = 3,
                     ClusterId = "MyCoolClusterId",
                     Metadata = new Dictionary<string, string>(),
                 },

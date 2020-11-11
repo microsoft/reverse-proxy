@@ -98,7 +98,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 new Destination
                 {
                     Address = address,
-                    HealthAddress = healthAddressUri,
+                    Health = healthAddressUri,
                     Metadata = null,
                 });
         }

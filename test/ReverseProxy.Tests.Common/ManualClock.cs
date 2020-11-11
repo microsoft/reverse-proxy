@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -6,33 +6,39 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.ReverseProxy.Abstractions.Time;
+using Microsoft.ReverseProxy.Utilities;
 
-namespace Tests.Common
+namespace Microsoft.ReverseProxy.Common.Tests
 {
     /// <summary>
-    /// Simulation analog to MonotonicTimer, used for testing.
+    /// Simulates passage of time, used for testing.
     /// </summary>
     /// <remarks>
-    /// This timer doesn't track real time, but instead tracks virtual. Time only advances when
-    /// the <see cref="AdvanceClockBy"/> method is called.
-    /// <para/>
+    /// This timer doesn't track real time, but instead tracks virtual time.
+    /// Time only advances when any of the following methods are called:
+    /// <list type="bullet">
+    /// <item><see cref="AdvanceClockBy"/></item>
+    /// <item><see cref="AdvanceClockTo(TimeSpan)"/></item>
+    /// <item><see cref="AdvanceStep"/></item>
+    /// </list>
     /// </remarks>
-    public class VirtualMonotonicTimer : IMonotonicTimer
+    public class ManualClock : IClock
     {
         private readonly SortedList<TimeSpan, DelayItem> _delayItems = new SortedList<TimeSpan, DelayItem>();
+
+        private TimeSpan _currentTime;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="VirtualMonotonicTimer" /> class.
         /// </summary>
         /// <param name="initialTime">Initial value for current time. Zero if not specified.</param>
-        public VirtualMonotonicTimer(TimeSpan? initialTime = null)
+        public ManualClock(TimeSpan? initialTime = null)
         {
-            CurrentTime = initialTime ?? TimeSpan.Zero;
+            _currentTime = initialTime ?? TimeSpan.Zero;
         }
 
         /// <inheritdoc/>
-        public TimeSpan CurrentTime { get; private set; }
+        public long TickCount => (long)_currentTime.TotalMilliseconds;
 
         /// <summary>
         /// Advances time by the specified amount.
@@ -40,7 +46,7 @@ namespace Tests.Common
         /// <param name="howMuch">How much to advance <see cref="CurrentTime"/> by.</param>
         public void AdvanceClockBy(TimeSpan howMuch)
         {
-            AdvanceClockTo(CurrentTime + howMuch);
+            AdvanceClockTo(_currentTime + howMuch);
         }
 
         /// <summary>
@@ -49,7 +55,7 @@ namespace Tests.Common
         /// <param name="targetTime">Advances <see cref="CurrentTime"/> until it equals <paramref name="targetTime"/>.</param>
         public void AdvanceClockTo(TimeSpan targetTime)
         {
-            if (targetTime < CurrentTime)
+            if (targetTime < _currentTime)
             {
                 throw new InvalidOperationException("Time should not flow backwards");
             }
@@ -60,7 +66,47 @@ namespace Tests.Common
                 AdvanceStep();
             }
 
-            CurrentTime = targetTime;
+            _currentTime = targetTime;
+        }
+
+        public TimeSpan GetStopwatchTime() => _currentTime;
+
+        public Task Delay(TimeSpan delay, CancellationToken cancellationToken)
+        {
+            return DelayUntil(_currentTime + delay, cancellationToken);
+        }
+
+        public Task Delay(int millisecondsDelay, CancellationToken cancellationToken)
+        {
+            return DelayUntil(_currentTime + TimeSpan.FromMilliseconds(millisecondsDelay), cancellationToken);
+        }
+
+        /// <summary>
+        /// Advances time to schedule the next item of work.
+        /// </summary>
+        /// <returns>True if any timers were found and signaled.</returns>
+        public bool AdvanceStep()
+        {
+            if (_delayItems.Count > 0)
+            {
+                var next = _delayItems.ElementAt(0);
+                _currentTime = next.Key;
+
+                // Note: this will unfortunately have O(N) cost. However, this code is only used for testing right now, and the list is generally short. If that
+                // ever changes, suggest finding a priority queue / heap data structure for .Net (core libraries are lacking this data structure).
+                _delayItems.RemoveAt(0);
+
+                // Unblock the task. It's no longer asleep.
+                next.Value.Signal.TrySetResult(0);
+
+                // Note that TPL normally schedules tasks synchronously. When used with
+                // the SingleThreadedTaskScheduler, we can assume all tasks have completed by the
+                // time SetResult returns, provided that AdvanceClockTo was invoked outside of the task scheduler
+                // loop.
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -69,9 +115,9 @@ namespace Tests.Common
         /// <param name="expiryTime">Time at which the returned task will be completed.</param>
         /// <param name="cancelationToken">Cancellation token for the created task.</param>
         /// <returns>A task which completed at <paramref name="expiryTime"/>.</returns>
-        public async Task DelayUntil(TimeSpan expiryTime, CancellationToken cancelationToken)
+        private async Task DelayUntil(TimeSpan expiryTime, CancellationToken cancelationToken)
         {
-            if (expiryTime <= CurrentTime)
+            if (expiryTime <= _currentTime)
             {
                 return;
             }
@@ -96,34 +142,6 @@ namespace Tests.Common
             {
                 await task;
             }
-        }
-
-        /// <summary>
-        /// Advances time to schedule the next item of work.
-        /// </summary>
-        /// <returns>True if any timers were found and signaled.</returns>
-        public bool AdvanceStep()
-        {
-            if (_delayItems.Count > 0)
-            {
-                var next = _delayItems.ElementAt(0);
-                CurrentTime = next.Key;
-
-                // Note: this will unfortunately have O(N) cost. However, this code is only used for testing right now, and the list is generally short. If that
-                // ever changes, suggest finding a priority queue / heap data structure for .Net (core libraries are lacking this data structure).
-                _delayItems.RemoveAt(0);
-
-                // Unblock the task. It's no longer asleep.
-                next.Value.Signal.TrySetResult(0);
-
-                // Note that TPL normally schedules tasks synchronously. When used with
-                // the SingleThreadedTaskScheduler, we can assume all tasks have completed by the
-                // time SetResult returns, provided that AdvanceClockTo was invoked outside of the task scheduler
-                // loop.
-                return true;
-            }
-
-            return false;
         }
 
         private void CancelTask(DelayItem delayTask)

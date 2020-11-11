@@ -15,9 +15,9 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.ReverseProxy.Abstractions;
+using Microsoft.ReverseProxy.Common.Tests;
 using Microsoft.ReverseProxy.Service;
 using Moq;
-using Tests.Common;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -259,7 +259,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         }
 
         [Theory]
-        [InlineData("YARP.Backend.Partitioning.Count", "not a number")]
         [InlineData("YARP.Backend.Healthcheck.Interval", "not a number")]
         public async void ExecuteAsync_InvalidLabelsForCluster_NoClustersAndBadHealthReported(string keyToOverride, string value)
         {
@@ -284,10 +283,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             _healthReports.Should().HaveCount(1);
         }
 
-        [Theory]
-        [InlineData("YARP.Routes.MyRoute.Hosts", null, true)] // Hosts is mandatory
-        [InlineData("YARP.Routes.MyRoute.Priority", "not a number")]
-        public async void ExecuteAsync_InvalidLabelsForRoutes_NoRoutesAndBadHealthReported(string keyToOverride, string value = null, bool remove = false)
+        [Fact]
+        public async void ExecuteAsync_InvalidRouteOrder_NoRoutesAndBadHealthReported()
         {
             // Setup
             _scenarioOptions = new ServiceFabricDiscoveryOptions { ReportReplicasHealth = true };
@@ -296,16 +293,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 { "YARP.Enable", "true" },
                 { "YARP.Backend.BackendId", "SomeClusterId" },
                 { "YARP.Routes.MyRoute.Hosts", "example.com" },
-                { "YARP.Routes.MyRoute.Priority", "2" },
+                { "YARP.Routes.MyRoute.Order", "not a number" },
             };
-            if (remove)
-            {
-                labels.Remove(keyToOverride);
-            }
-            else
-            {
-                labels[keyToOverride] = value;
-            }
             ApplicationWrapper application;
             Mock_AppsResponse(
                 application = CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MyService", out var service, out var replica));
@@ -327,7 +316,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             clusters.Should().BeEquivalentTo(expectedClusters);
             routes.Should().BeEmpty();
             AssertServiceHealthReported(service, HealthState.Warning, (description) =>
-                description.Contains(keyToOverride)); // Check that the invalid key is mentioned in the description
+                description.Contains("Order")); // Check that the invalid key is mentioned in the description
             _healthReports.Should().HaveCount(2);
         }
 
