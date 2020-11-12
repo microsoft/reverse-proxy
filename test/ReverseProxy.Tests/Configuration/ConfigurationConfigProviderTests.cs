@@ -88,6 +88,7 @@ namespace Microsoft.ReverseProxy.Configuration
                             SslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12,
                             MaxConnectionsPerServer = 10,
                             DangerousAcceptAnyServerCertificate = true,
+                            PropagateActivityContext = true,
                         },
                         HttpRequest = new ProxyHttpRequestOptions()
                         {
@@ -227,7 +228,8 @@ namespace Microsoft.ReverseProxy.Configuration
                     ""Location"": null,
                     ""AllowInvalid"": null
                 },
-                ""MaxConnectionsPerServer"": 10
+                ""MaxConnectionsPerServer"": 10,
+                ""PropagateActivityContext"": true,
             },
             ""HttpRequest"": {
                 ""RequestTimeout"": ""00:01:00"",
@@ -618,6 +620,7 @@ namespace Microsoft.ReverseProxy.Configuration
             Assert.Equal(cluster1.SessionAffinity.Settings, abstractCluster1.SessionAffinity.Settings);
             Assert.Same(certificate, abstractCluster1.HttpClient.ClientCertificate);
             Assert.Equal(cluster1.HttpClient.MaxConnectionsPerServer, abstractCluster1.HttpClient.MaxConnectionsPerServer);
+            Assert.Equal(cluster1.HttpClient.PropagateActivityContext, abstractCluster1.HttpClient.PropagateActivityContext);
             Assert.Equal(SslProtocols.Tls11 | SslProtocols.Tls12, abstractCluster1.HttpClient.SslProtocols);
             Assert.Equal(cluster1.HttpRequest.RequestTimeout, abstractCluster1.HttpRequest.RequestTimeout);
             Assert.Equal(HttpVersion.Version10, abstractCluster1.HttpRequest.Version);

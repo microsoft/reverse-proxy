@@ -380,7 +380,8 @@ namespace Microsoft.ReverseProxy.Configuration
                 SslProtocols = sslProtocols,
                 DangerousAcceptAnyServerCertificate = section.ReadBool(nameof(ProxyHttpClientOptions.DangerousAcceptAnyServerCertificate)) ?? true,
                 ClientCertificate = clientCertificate,
-                MaxConnectionsPerServer = section.ReadInt32(nameof(ProxyHttpClientOptions.MaxConnectionsPerServer))
+                MaxConnectionsPerServer = section.ReadInt32(nameof(ProxyHttpClientOptions.MaxConnectionsPerServer)),
+                PropagateActivityContext = section.ReadBool(nameof(ProxyHttpClientOptions.PropagateActivityContext))
             };
         }
 

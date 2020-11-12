@@ -512,7 +512,8 @@ namespace Microsoft.ReverseProxy.Service.Management
                 httpClientOptions.SslProtocols,
                 httpClientOptions.DangerousAcceptAnyServerCertificate,
                 httpClientOptions.ClientCertificate,
-                httpClientOptions.MaxConnectionsPerServer);
+                httpClientOptions.MaxConnectionsPerServer,
+                httpClientOptions.PropagateActivityContext);
         }
 
         public void Dispose()
