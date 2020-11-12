@@ -32,7 +32,6 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
         {
             var events = TestEventListener.Collect();
 
-            // Arrange
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "GET";
             httpContext.Request.Scheme = "https";
@@ -97,7 +96,6 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
 
             var sut = Create<ProxyInvokerMiddleware>();
 
-            // Act
             Assert.Equal(0, cluster1.ConcurrencyCounter.Value);
             Assert.Equal(0, destination1.ConcurrencyCounter.Value);
 
@@ -108,7 +106,6 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 await task;
             }
 
-            // Assert before awaiting the task
             Mock<IHttpProxy>().Verify();
 
             await tcs1.Task; // Wait until we get to the proxying step.

@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using System.Threading;
 using Microsoft.ReverseProxy.Service.Management;
 using Microsoft.ReverseProxy.Utilities;
 
@@ -23,6 +24,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         private readonly object _stateLock = new object();
         private volatile ClusterDynamicState _dynamicState = new ClusterDynamicState(Array.Empty<DestinationInfo>(), Array.Empty<DestinationInfo>());
         private volatile ClusterConfig _config;
+        private readonly SemaphoreSlim _updateRequests = new SemaphoreSlim(2);
 
         internal ClusterInfo(string clusterId, IDestinationManager destinationManager)
         {
@@ -60,34 +62,79 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         /// </summary>
         public void UpdateDynamicState()
         {
-            // Prevent overlapping updates. If there are multiple signals that state needs to be updated,
-            // we want to ensure that updates don't conflict with each other. E.g. if state changes
-            // while an update is already in progress, the next update should wait until the current one finishes
-            // to ensure they don't race to set _dynamicState and end up with the stale one overwriting the fresh one.
+            UpdateDynamicStateInternal(force: false);
+        }
+
+        internal void ForceUpdateDynamicState()
+        {
+            UpdateDynamicStateInternal(force: true);
+        }
+
+        private void UpdateDynamicStateInternal(bool force)
+        {
+            // Prevent overlapping updates and debounce extra concurrent calls.
+            // If there are multiple concurrent calls to rebuild the dynamic state, we want to ensure that
+            // updates don't conflict with each other. Additionally, we debounce extra concurrent calls if
+            // they arrive in a quick succession to avoid spending too much CPU on frequent state rebuilds.
+            // Specifically, only up to two threads are allowed to wait here and actually execute a rebuild,
+            // all others will be debounced and the call will return without updating the _dynamicState.
+            // However, changes made by those debounced threads (e.g. destination health updates) will be
+            // taken into account by one of blocked threads after they get unblocked to run a rebuild.
+            var lockTaken = false;
+            if (force)
+            {
+                lockTaken = true;
+                _updateRequests.Wait();
+            }
+            else
+            {
+                lockTaken = _updateRequests.Wait(0);
+            }
+
+            if (!lockTaken)
+            {
+                return;
+            }
+
             lock (_stateLock)
             {
-                var healthChecks = _config?.HealthCheckOptions ?? default;
-                var allDestinations = DestinationManager.Items;
-                var healthyDestinations = allDestinations;
-
-                if (healthChecks.Enabled)
+                try
                 {
-                    var activeEnabled = healthChecks.Active.Enabled;
-                    var passiveEnabled = healthChecks.Passive.Enabled;
+                    var healthChecks = _config?.HealthCheckOptions ?? default;
+                    var allDestinations = DestinationManager.Items;
+                    var healthyDestinations = allDestinations;
 
-                    healthyDestinations = allDestinations.Where(destination =>
+                    if (healthChecks.Enabled)
                     {
-                        // Only consider the current state if those checks are enabled.
-                        var healthState = destination.Health;
-                        var active = activeEnabled ? healthState.Active : DestinationHealth.Unknown;
-                        var passive = passiveEnabled ? healthState.Passive : DestinationHealth.Unknown;
+                        var activeEnabled = healthChecks.Active.Enabled;
+                        var passiveEnabled = healthChecks.Passive.Enabled;
 
-                        // Filter out unhealthy ones. Unknown state is OK, all destinations start that way.
-                        return passive != DestinationHealth.Unhealthy && active != DestinationHealth.Unhealthy;
-                    }).ToList().AsReadOnly();
+                        healthyDestinations = allDestinations.Where(destination =>
+                        {
+                                // Only consider the current state if those checks are enabled.
+                                var healthState = destination.Health;
+                            var active = activeEnabled ? healthState.Active : DestinationHealth.Unknown;
+                            var passive = passiveEnabled ? healthState.Passive : DestinationHealth.Unknown;
+
+                                // Filter out unhealthy ones. Unknown state is OK, all destinations start that way.
+                                return passive != DestinationHealth.Unhealthy && active != DestinationHealth.Unhealthy;
+                        }).ToList().AsReadOnly();
+                    }
+
+                    _dynamicState = new ClusterDynamicState(allDestinations, healthyDestinations);
                 }
-
-                _dynamicState = new ClusterDynamicState(allDestinations, healthyDestinations);
+                finally
+                {
+                    // Semaphore is released while still holding the lock to AVOID the following case.
+                    // The first thread (T1) finished a rebuild and left the lock while still holding the semaphore. The second thread (T2)
+                    // waiting on the lock gets awaken, proceeds under the lock and begins the next rebuild. If at this exact moment
+                    // the third thread (T3) enters this method and tries to acquire the semaphore, it will be debounced because
+                    // the semaphore's count is still 0. However, T2 could have already made some progress and didnt' observe updates made
+                    // by T3.
+                    // By releasing the semaphore under the lock, we make sure that in the above situation T3 will proceed till the lock and
+                    // its updates will be observed anyways.
+                    _updateRequests.Release();
+                }
             }
         }
     }

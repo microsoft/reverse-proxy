@@ -390,6 +390,19 @@ references:
   isSpec: "True"
   fullName: Microsoft.ReverseProxy.Abstractions.Cluster.HttpClient
   nameWithType: Cluster.HttpClient
+- uid: Microsoft.ReverseProxy.Abstractions.Cluster.HttpRequest
+  name: HttpRequest
+  href: api/Microsoft.ReverseProxy.Abstractions.Cluster.html#Microsoft_ReverseProxy_Abstractions_Cluster_HttpRequest
+  commentId: P:Microsoft.ReverseProxy.Abstractions.Cluster.HttpRequest
+  fullName: Microsoft.ReverseProxy.Abstractions.Cluster.HttpRequest
+  nameWithType: Cluster.HttpRequest
+- uid: Microsoft.ReverseProxy.Abstractions.Cluster.HttpRequest*
+  name: HttpRequest
+  href: api/Microsoft.ReverseProxy.Abstractions.Cluster.html#Microsoft_ReverseProxy_Abstractions_Cluster_HttpRequest_
+  commentId: Overload:Microsoft.ReverseProxy.Abstractions.Cluster.HttpRequest
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Abstractions.Cluster.HttpRequest
+  nameWithType: Cluster.HttpRequest
 - uid: Microsoft.ReverseProxy.Abstractions.Cluster.Id
   name: Id
   href: api/Microsoft.ReverseProxy.Abstractions.Cluster.html#Microsoft_ReverseProxy_Abstractions_Cluster_Id
@@ -928,6 +941,51 @@ references:
   isSpec: "True"
   fullName: Microsoft.ReverseProxy.Abstractions.ProxyHttpClientOptions.SslProtocols
   nameWithType: ProxyHttpClientOptions.SslProtocols
+- uid: Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions
+  name: ProxyHttpRequestOptions
+  href: api/Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.html
+  commentId: T:Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions
+  fullName: Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions
+  nameWithType: ProxyHttpRequestOptions
+- uid: Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.RequestTimeout
+  name: RequestTimeout
+  href: api/Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.html#Microsoft_ReverseProxy_Abstractions_ProxyHttpRequestOptions_RequestTimeout
+  commentId: P:Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.RequestTimeout
+  fullName: Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.RequestTimeout
+  nameWithType: ProxyHttpRequestOptions.RequestTimeout
+- uid: Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.RequestTimeout*
+  name: RequestTimeout
+  href: api/Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.html#Microsoft_ReverseProxy_Abstractions_ProxyHttpRequestOptions_RequestTimeout_
+  commentId: Overload:Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.RequestTimeout
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.RequestTimeout
+  nameWithType: ProxyHttpRequestOptions.RequestTimeout
+- uid: Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.Version
+  name: Version
+  href: api/Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.html#Microsoft_ReverseProxy_Abstractions_ProxyHttpRequestOptions_Version
+  commentId: P:Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.Version
+  fullName: Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.Version
+  nameWithType: ProxyHttpRequestOptions.Version
+- uid: Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.Version*
+  name: Version
+  href: api/Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.html#Microsoft_ReverseProxy_Abstractions_ProxyHttpRequestOptions_Version_
+  commentId: Overload:Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.Version
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.Version
+  nameWithType: ProxyHttpRequestOptions.Version
+- uid: Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.VersionPolicy
+  name: VersionPolicy
+  href: api/Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.html#Microsoft_ReverseProxy_Abstractions_ProxyHttpRequestOptions_VersionPolicy
+  commentId: P:Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.VersionPolicy
+  fullName: Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.VersionPolicy
+  nameWithType: ProxyHttpRequestOptions.VersionPolicy
+- uid: Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.VersionPolicy*
+  name: VersionPolicy
+  href: api/Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.html#Microsoft_ReverseProxy_Abstractions_ProxyHttpRequestOptions_VersionPolicy_
+  commentId: Overload:Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.VersionPolicy
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.VersionPolicy
+  nameWithType: ProxyHttpRequestOptions.VersionPolicy
 - uid: Microsoft.ReverseProxy.Abstractions.ProxyMatch
   name: ProxyMatch
   href: api/Microsoft.ReverseProxy.Abstractions.ProxyMatch.html
@@ -1244,148 +1302,6 @@ references:
   isSpec: "True"
   fullName: Microsoft.ReverseProxy.Abstractions.SessionAffinityOptions.Settings
   nameWithType: SessionAffinityOptions.Settings
-- uid: Microsoft.ReverseProxy.Abstractions.Telemetry
-  name: Microsoft.ReverseProxy.Abstractions.Telemetry
-  href: api/Microsoft.ReverseProxy.Abstractions.Telemetry.html
-  commentId: N:Microsoft.ReverseProxy.Abstractions.Telemetry
-  fullName: Microsoft.ReverseProxy.Abstractions.Telemetry
-  nameWithType: Microsoft.ReverseProxy.Abstractions.Telemetry
-- uid: Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationContext
-  name: IOperationContext
-  href: api/Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationContext.html
-  commentId: T:Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationContext
-  fullName: Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationContext
-  nameWithType: IOperationContext
-- uid: Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationContext.SetProperty(System.String,System.String)
-  name: SetProperty(String, String)
-  href: api/Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationContext.html#Microsoft_ReverseProxy_Abstractions_Telemetry_IOperationContext_SetProperty_System_String_System_String_
-  commentId: M:Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationContext.SetProperty(System.String,System.String)
-  fullName: Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationContext.SetProperty(System.String, System.String)
-  nameWithType: IOperationContext.SetProperty(String, String)
-- uid: Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationContext.SetProperty*
-  name: SetProperty
-  href: api/Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationContext.html#Microsoft_ReverseProxy_Abstractions_Telemetry_IOperationContext_SetProperty_
-  commentId: Overload:Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationContext.SetProperty
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationContext.SetProperty
-  nameWithType: IOperationContext.SetProperty
-- uid: Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationLogger`1
-  name: IOperationLogger<TCategoryName>
-  href: api/Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationLogger-1.html
-  commentId: T:Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationLogger`1
-  name.vb: IOperationLogger(Of TCategoryName)
-  fullName: Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationLogger<TCategoryName>
-  fullName.vb: Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationLogger(Of TCategoryName)
-  nameWithType: IOperationLogger<TCategoryName>
-  nameWithType.vb: IOperationLogger(Of TCategoryName)
-- uid: Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationLogger`1.Context
-  name: Context
-  href: api/Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationLogger-1.html#Microsoft_ReverseProxy_Abstractions_Telemetry_IOperationLogger_1_Context
-  commentId: P:Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationLogger`1.Context
-  fullName: Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationLogger<TCategoryName>.Context
-  fullName.vb: Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationLogger(Of TCategoryName).Context
-  nameWithType: IOperationLogger<TCategoryName>.Context
-  nameWithType.vb: IOperationLogger(Of TCategoryName).Context
-- uid: Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationLogger`1.Context*
-  name: Context
-  href: api/Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationLogger-1.html#Microsoft_ReverseProxy_Abstractions_Telemetry_IOperationLogger_1_Context_
-  commentId: Overload:Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationLogger`1.Context
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationLogger<TCategoryName>.Context
-  fullName.vb: Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationLogger(Of TCategoryName).Context
-  nameWithType: IOperationLogger<TCategoryName>.Context
-  nameWithType.vb: IOperationLogger(Of TCategoryName).Context
-- uid: Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationLogger`1.Execute(System.String,System.Action)
-  name: Execute(String, Action)
-  href: api/Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationLogger-1.html#Microsoft_ReverseProxy_Abstractions_Telemetry_IOperationLogger_1_Execute_System_String_System_Action_
-  commentId: M:Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationLogger`1.Execute(System.String,System.Action)
-  fullName: Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationLogger<TCategoryName>.Execute(System.String, System.Action)
-  fullName.vb: Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationLogger(Of TCategoryName).Execute(System.String, System.Action)
-  nameWithType: IOperationLogger<TCategoryName>.Execute(String, Action)
-  nameWithType.vb: IOperationLogger(Of TCategoryName).Execute(String, Action)
-- uid: Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationLogger`1.Execute*
-  name: Execute
-  href: api/Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationLogger-1.html#Microsoft_ReverseProxy_Abstractions_Telemetry_IOperationLogger_1_Execute_
-  commentId: Overload:Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationLogger`1.Execute
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationLogger<TCategoryName>.Execute
-  fullName.vb: Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationLogger(Of TCategoryName).Execute
-  nameWithType: IOperationLogger<TCategoryName>.Execute
-  nameWithType.vb: IOperationLogger(Of TCategoryName).Execute
-- uid: Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationLogger`1.Execute``1(System.String,System.Func{``0})
-  name: Execute<TResult>(String, Func<TResult>)
-  href: api/Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationLogger-1.html#Microsoft_ReverseProxy_Abstractions_Telemetry_IOperationLogger_1_Execute__1_System_String_System_Func___0__
-  commentId: M:Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationLogger`1.Execute``1(System.String,System.Func{``0})
-  name.vb: Execute(Of TResult)(String, Func(Of TResult))
-  fullName: Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationLogger<TCategoryName>.Execute<TResult>(System.String, System.Func<TResult>)
-  fullName.vb: Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationLogger(Of TCategoryName).Execute(Of TResult)(System.String, System.Func(Of TResult))
-  nameWithType: IOperationLogger<TCategoryName>.Execute<TResult>(String, Func<TResult>)
-  nameWithType.vb: IOperationLogger(Of TCategoryName).Execute(Of TResult)(String, Func(Of TResult))
-- uid: Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationLogger`1.ExecuteAsync(System.String,System.Func{System.Threading.Tasks.Task})
-  name: ExecuteAsync(String, Func<Task>)
-  href: api/Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationLogger-1.html#Microsoft_ReverseProxy_Abstractions_Telemetry_IOperationLogger_1_ExecuteAsync_System_String_System_Func_System_Threading_Tasks_Task__
-  commentId: M:Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationLogger`1.ExecuteAsync(System.String,System.Func{System.Threading.Tasks.Task})
-  name.vb: ExecuteAsync(String, Func(Of Task))
-  fullName: Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationLogger<TCategoryName>.ExecuteAsync(System.String, System.Func<System.Threading.Tasks.Task>)
-  fullName.vb: Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationLogger(Of TCategoryName).ExecuteAsync(System.String, System.Func(Of System.Threading.Tasks.Task))
-  nameWithType: IOperationLogger<TCategoryName>.ExecuteAsync(String, Func<Task>)
-  nameWithType.vb: IOperationLogger(Of TCategoryName).ExecuteAsync(String, Func(Of Task))
-- uid: Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationLogger`1.ExecuteAsync*
-  name: ExecuteAsync
-  href: api/Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationLogger-1.html#Microsoft_ReverseProxy_Abstractions_Telemetry_IOperationLogger_1_ExecuteAsync_
-  commentId: Overload:Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationLogger`1.ExecuteAsync
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationLogger<TCategoryName>.ExecuteAsync
-  fullName.vb: Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationLogger(Of TCategoryName).ExecuteAsync
-  nameWithType: IOperationLogger<TCategoryName>.ExecuteAsync
-  nameWithType.vb: IOperationLogger(Of TCategoryName).ExecuteAsync
-- uid: Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationLogger`1.ExecuteAsync``1(System.String,System.Func{System.Threading.Tasks.Task{``0}})
-  name: ExecuteAsync<TResult>(String, Func<Task<TResult>>)
-  href: api/Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationLogger-1.html#Microsoft_ReverseProxy_Abstractions_Telemetry_IOperationLogger_1_ExecuteAsync__1_System_String_System_Func_System_Threading_Tasks_Task___0___
-  commentId: M:Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationLogger`1.ExecuteAsync``1(System.String,System.Func{System.Threading.Tasks.Task{``0}})
-  name.vb: ExecuteAsync(Of TResult)(String, Func(Of Task(Of TResult)))
-  fullName: Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationLogger<TCategoryName>.ExecuteAsync<TResult>(System.String, System.Func<System.Threading.Tasks.Task<TResult>>)
-  fullName.vb: Microsoft.ReverseProxy.Abstractions.Telemetry.IOperationLogger(Of TCategoryName).ExecuteAsync(Of TResult)(System.String, System.Func(Of System.Threading.Tasks.Task(Of TResult)))
-  nameWithType: IOperationLogger<TCategoryName>.ExecuteAsync<TResult>(String, Func<Task<TResult>>)
-  nameWithType.vb: IOperationLogger(Of TCategoryName).ExecuteAsync(Of TResult)(String, Func(Of Task(Of TResult)))
-- uid: Microsoft.ReverseProxy.Abstractions.Time
-  name: Microsoft.ReverseProxy.Abstractions.Time
-  href: api/Microsoft.ReverseProxy.Abstractions.Time.html
-  commentId: N:Microsoft.ReverseProxy.Abstractions.Time
-  fullName: Microsoft.ReverseProxy.Abstractions.Time
-  nameWithType: Microsoft.ReverseProxy.Abstractions.Time
-- uid: Microsoft.ReverseProxy.Abstractions.Time.IMonotonicTimer
-  name: IMonotonicTimer
-  href: api/Microsoft.ReverseProxy.Abstractions.Time.IMonotonicTimer.html
-  commentId: T:Microsoft.ReverseProxy.Abstractions.Time.IMonotonicTimer
-  fullName: Microsoft.ReverseProxy.Abstractions.Time.IMonotonicTimer
-  nameWithType: IMonotonicTimer
-- uid: Microsoft.ReverseProxy.Abstractions.Time.IMonotonicTimer.CurrentTime
-  name: CurrentTime
-  href: api/Microsoft.ReverseProxy.Abstractions.Time.IMonotonicTimer.html#Microsoft_ReverseProxy_Abstractions_Time_IMonotonicTimer_CurrentTime
-  commentId: P:Microsoft.ReverseProxy.Abstractions.Time.IMonotonicTimer.CurrentTime
-  fullName: Microsoft.ReverseProxy.Abstractions.Time.IMonotonicTimer.CurrentTime
-  nameWithType: IMonotonicTimer.CurrentTime
-- uid: Microsoft.ReverseProxy.Abstractions.Time.IMonotonicTimer.CurrentTime*
-  name: CurrentTime
-  href: api/Microsoft.ReverseProxy.Abstractions.Time.IMonotonicTimer.html#Microsoft_ReverseProxy_Abstractions_Time_IMonotonicTimer_CurrentTime_
-  commentId: Overload:Microsoft.ReverseProxy.Abstractions.Time.IMonotonicTimer.CurrentTime
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Abstractions.Time.IMonotonicTimer.CurrentTime
-  nameWithType: IMonotonicTimer.CurrentTime
-- uid: Microsoft.ReverseProxy.Abstractions.Time.IMonotonicTimer.DelayUntil(System.TimeSpan,System.Threading.CancellationToken)
-  name: DelayUntil(TimeSpan, CancellationToken)
-  href: api/Microsoft.ReverseProxy.Abstractions.Time.IMonotonicTimer.html#Microsoft_ReverseProxy_Abstractions_Time_IMonotonicTimer_DelayUntil_System_TimeSpan_System_Threading_CancellationToken_
-  commentId: M:Microsoft.ReverseProxy.Abstractions.Time.IMonotonicTimer.DelayUntil(System.TimeSpan,System.Threading.CancellationToken)
-  fullName: Microsoft.ReverseProxy.Abstractions.Time.IMonotonicTimer.DelayUntil(System.TimeSpan, System.Threading.CancellationToken)
-  nameWithType: IMonotonicTimer.DelayUntil(TimeSpan, CancellationToken)
-- uid: Microsoft.ReverseProxy.Abstractions.Time.IMonotonicTimer.DelayUntil*
-  name: DelayUntil
-  href: api/Microsoft.ReverseProxy.Abstractions.Time.IMonotonicTimer.html#Microsoft_ReverseProxy_Abstractions_Time_IMonotonicTimer_DelayUntil_
-  commentId: Overload:Microsoft.ReverseProxy.Abstractions.Time.IMonotonicTimer.DelayUntil
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Abstractions.Time.IMonotonicTimer.DelayUntil
-  nameWithType: IMonotonicTimer.DelayUntil
 - uid: Microsoft.ReverseProxy.Abstractions.TransportFailureRateHealthPolicyOptions
   name: TransportFailureRateHealthPolicyOptions
   href: api/Microsoft.ReverseProxy.Abstractions.TransportFailureRateHealthPolicyOptions.html
@@ -1701,6 +1617,19 @@ references:
   isSpec: "True"
   fullName: Microsoft.ReverseProxy.Configuration.Contract.ClusterData.HttpClient
   nameWithType: ClusterData.HttpClient
+- uid: Microsoft.ReverseProxy.Configuration.Contract.ClusterData.HttpRequest
+  name: HttpRequest
+  href: api/Microsoft.ReverseProxy.Configuration.Contract.ClusterData.html#Microsoft_ReverseProxy_Configuration_Contract_ClusterData_HttpRequest
+  commentId: P:Microsoft.ReverseProxy.Configuration.Contract.ClusterData.HttpRequest
+  fullName: Microsoft.ReverseProxy.Configuration.Contract.ClusterData.HttpRequest
+  nameWithType: ClusterData.HttpRequest
+- uid: Microsoft.ReverseProxy.Configuration.Contract.ClusterData.HttpRequest*
+  name: HttpRequest
+  href: api/Microsoft.ReverseProxy.Configuration.Contract.ClusterData.html#Microsoft_ReverseProxy_Configuration_Contract_ClusterData_HttpRequest_
+  commentId: Overload:Microsoft.ReverseProxy.Configuration.Contract.ClusterData.HttpRequest
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Configuration.Contract.ClusterData.HttpRequest
+  nameWithType: ClusterData.HttpRequest
 - uid: Microsoft.ReverseProxy.Configuration.Contract.ClusterData.LoadBalancing
   name: LoadBalancing
   href: api/Microsoft.ReverseProxy.Configuration.Contract.ClusterData.html#Microsoft_ReverseProxy_Configuration_Contract_ClusterData_LoadBalancing
@@ -2042,6 +1971,51 @@ references:
   isSpec: "True"
   fullName: Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpClientData.SslProtocols
   nameWithType: ProxyHttpClientData.SslProtocols
+- uid: Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData
+  name: ProxyHttpRequestData
+  href: api/Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.html
+  commentId: T:Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData
+  fullName: Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData
+  nameWithType: ProxyHttpRequestData
+- uid: Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.RequestTimeout
+  name: RequestTimeout
+  href: api/Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.html#Microsoft_ReverseProxy_Configuration_Contract_ProxyHttpRequestData_RequestTimeout
+  commentId: P:Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.RequestTimeout
+  fullName: Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.RequestTimeout
+  nameWithType: ProxyHttpRequestData.RequestTimeout
+- uid: Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.RequestTimeout*
+  name: RequestTimeout
+  href: api/Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.html#Microsoft_ReverseProxy_Configuration_Contract_ProxyHttpRequestData_RequestTimeout_
+  commentId: Overload:Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.RequestTimeout
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.RequestTimeout
+  nameWithType: ProxyHttpRequestData.RequestTimeout
+- uid: Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.Version
+  name: Version
+  href: api/Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.html#Microsoft_ReverseProxy_Configuration_Contract_ProxyHttpRequestData_Version
+  commentId: P:Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.Version
+  fullName: Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.Version
+  nameWithType: ProxyHttpRequestData.Version
+- uid: Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.Version*
+  name: Version
+  href: api/Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.html#Microsoft_ReverseProxy_Configuration_Contract_ProxyHttpRequestData_Version_
+  commentId: Overload:Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.Version
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.Version
+  nameWithType: ProxyHttpRequestData.Version
+- uid: Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.VersionPolicy
+  name: VersionPolicy
+  href: api/Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.html#Microsoft_ReverseProxy_Configuration_Contract_ProxyHttpRequestData_VersionPolicy
+  commentId: P:Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.VersionPolicy
+  fullName: Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.VersionPolicy
+  nameWithType: ProxyHttpRequestData.VersionPolicy
+- uid: Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.VersionPolicy*
+  name: VersionPolicy
+  href: api/Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.html#Microsoft_ReverseProxy_Configuration_Contract_ProxyHttpRequestData_VersionPolicy_
+  commentId: Overload:Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.VersionPolicy
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData.VersionPolicy
+  nameWithType: ProxyHttpRequestData.VersionPolicy
 - uid: Microsoft.ReverseProxy.Configuration.Contract.ProxyMatchData
   name: ProxyMatchData
   href: api/Microsoft.ReverseProxy.Configuration.Contract.ProxyMatchData.html
@@ -2588,15 +2562,15 @@ references:
   commentId: T:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig
   fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig
   nameWithType: ClusterConfig
-- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.#ctor(Microsoft.ReverseProxy.Abstractions.Cluster,Microsoft.ReverseProxy.RuntimeModel.ClusterHealthCheckOptions,Microsoft.ReverseProxy.RuntimeModel.ClusterLoadBalancingOptions,Microsoft.ReverseProxy.RuntimeModel.ClusterSessionAffinityOptions,System.Net.Http.HttpMessageInvoker,Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpClientOptions,System.Collections.Generic.IReadOnlyDictionary{System.String,System.String})
-  name: ClusterConfig(Cluster, ClusterHealthCheckOptions, ClusterLoadBalancingOptions, ClusterSessionAffinityOptions, HttpMessageInvoker, ClusterProxyHttpClientOptions, IReadOnlyDictionary<String, String>)
-  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.html#Microsoft_ReverseProxy_RuntimeModel_ClusterConfig__ctor_Microsoft_ReverseProxy_Abstractions_Cluster_Microsoft_ReverseProxy_RuntimeModel_ClusterHealthCheckOptions_Microsoft_ReverseProxy_RuntimeModel_ClusterLoadBalancingOptions_Microsoft_ReverseProxy_RuntimeModel_ClusterSessionAffinityOptions_System_Net_Http_HttpMessageInvoker_Microsoft_ReverseProxy_RuntimeModel_ClusterProxyHttpClientOptions_System_Collections_Generic_IReadOnlyDictionary_System_String_System_String__
-  commentId: M:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.#ctor(Microsoft.ReverseProxy.Abstractions.Cluster,Microsoft.ReverseProxy.RuntimeModel.ClusterHealthCheckOptions,Microsoft.ReverseProxy.RuntimeModel.ClusterLoadBalancingOptions,Microsoft.ReverseProxy.RuntimeModel.ClusterSessionAffinityOptions,System.Net.Http.HttpMessageInvoker,Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpClientOptions,System.Collections.Generic.IReadOnlyDictionary{System.String,System.String})
-  name.vb: ClusterConfig(Cluster, ClusterHealthCheckOptions, ClusterLoadBalancingOptions, ClusterSessionAffinityOptions, HttpMessageInvoker, ClusterProxyHttpClientOptions, IReadOnlyDictionary(Of String, String))
-  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterConfig(Microsoft.ReverseProxy.Abstractions.Cluster, Microsoft.ReverseProxy.RuntimeModel.ClusterHealthCheckOptions, Microsoft.ReverseProxy.RuntimeModel.ClusterLoadBalancingOptions, Microsoft.ReverseProxy.RuntimeModel.ClusterSessionAffinityOptions, System.Net.Http.HttpMessageInvoker, Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpClientOptions, System.Collections.Generic.IReadOnlyDictionary<System.String, System.String>)
-  fullName.vb: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterConfig(Microsoft.ReverseProxy.Abstractions.Cluster, Microsoft.ReverseProxy.RuntimeModel.ClusterHealthCheckOptions, Microsoft.ReverseProxy.RuntimeModel.ClusterLoadBalancingOptions, Microsoft.ReverseProxy.RuntimeModel.ClusterSessionAffinityOptions, System.Net.Http.HttpMessageInvoker, Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpClientOptions, System.Collections.Generic.IReadOnlyDictionary(Of System.String, System.String))
-  nameWithType: ClusterConfig.ClusterConfig(Cluster, ClusterHealthCheckOptions, ClusterLoadBalancingOptions, ClusterSessionAffinityOptions, HttpMessageInvoker, ClusterProxyHttpClientOptions, IReadOnlyDictionary<String, String>)
-  nameWithType.vb: ClusterConfig.ClusterConfig(Cluster, ClusterHealthCheckOptions, ClusterLoadBalancingOptions, ClusterSessionAffinityOptions, HttpMessageInvoker, ClusterProxyHttpClientOptions, IReadOnlyDictionary(Of String, String))
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.#ctor(Microsoft.ReverseProxy.Abstractions.Cluster,Microsoft.ReverseProxy.RuntimeModel.ClusterHealthCheckOptions,Microsoft.ReverseProxy.RuntimeModel.ClusterLoadBalancingOptions,Microsoft.ReverseProxy.RuntimeModel.ClusterSessionAffinityOptions,System.Net.Http.HttpMessageInvoker,Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpClientOptions,Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions,System.Collections.Generic.IReadOnlyDictionary{System.String,System.String})
+  name: ClusterConfig(Cluster, ClusterHealthCheckOptions, ClusterLoadBalancingOptions, ClusterSessionAffinityOptions, HttpMessageInvoker, ClusterProxyHttpClientOptions, ClusterProxyHttpRequestOptions, IReadOnlyDictionary<String, String>)
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.html#Microsoft_ReverseProxy_RuntimeModel_ClusterConfig__ctor_Microsoft_ReverseProxy_Abstractions_Cluster_Microsoft_ReverseProxy_RuntimeModel_ClusterHealthCheckOptions_Microsoft_ReverseProxy_RuntimeModel_ClusterLoadBalancingOptions_Microsoft_ReverseProxy_RuntimeModel_ClusterSessionAffinityOptions_System_Net_Http_HttpMessageInvoker_Microsoft_ReverseProxy_RuntimeModel_ClusterProxyHttpClientOptions_Microsoft_ReverseProxy_RuntimeModel_ClusterProxyHttpRequestOptions_System_Collections_Generic_IReadOnlyDictionary_System_String_System_String__
+  commentId: M:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.#ctor(Microsoft.ReverseProxy.Abstractions.Cluster,Microsoft.ReverseProxy.RuntimeModel.ClusterHealthCheckOptions,Microsoft.ReverseProxy.RuntimeModel.ClusterLoadBalancingOptions,Microsoft.ReverseProxy.RuntimeModel.ClusterSessionAffinityOptions,System.Net.Http.HttpMessageInvoker,Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpClientOptions,Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions,System.Collections.Generic.IReadOnlyDictionary{System.String,System.String})
+  name.vb: ClusterConfig(Cluster, ClusterHealthCheckOptions, ClusterLoadBalancingOptions, ClusterSessionAffinityOptions, HttpMessageInvoker, ClusterProxyHttpClientOptions, ClusterProxyHttpRequestOptions, IReadOnlyDictionary(Of String, String))
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterConfig(Microsoft.ReverseProxy.Abstractions.Cluster, Microsoft.ReverseProxy.RuntimeModel.ClusterHealthCheckOptions, Microsoft.ReverseProxy.RuntimeModel.ClusterLoadBalancingOptions, Microsoft.ReverseProxy.RuntimeModel.ClusterSessionAffinityOptions, System.Net.Http.HttpMessageInvoker, Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpClientOptions, Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions, System.Collections.Generic.IReadOnlyDictionary<System.String, System.String>)
+  fullName.vb: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.ClusterConfig(Microsoft.ReverseProxy.Abstractions.Cluster, Microsoft.ReverseProxy.RuntimeModel.ClusterHealthCheckOptions, Microsoft.ReverseProxy.RuntimeModel.ClusterLoadBalancingOptions, Microsoft.ReverseProxy.RuntimeModel.ClusterSessionAffinityOptions, System.Net.Http.HttpMessageInvoker, Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpClientOptions, Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions, System.Collections.Generic.IReadOnlyDictionary(Of System.String, System.String))
+  nameWithType: ClusterConfig.ClusterConfig(Cluster, ClusterHealthCheckOptions, ClusterLoadBalancingOptions, ClusterSessionAffinityOptions, HttpMessageInvoker, ClusterProxyHttpClientOptions, ClusterProxyHttpRequestOptions, IReadOnlyDictionary<String, String>)
+  nameWithType.vb: ClusterConfig.ClusterConfig(Cluster, ClusterHealthCheckOptions, ClusterLoadBalancingOptions, ClusterSessionAffinityOptions, HttpMessageInvoker, ClusterProxyHttpClientOptions, ClusterProxyHttpRequestOptions, IReadOnlyDictionary(Of String, String))
 - uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.#ctor*
   name: ClusterConfig
   href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.html#Microsoft_ReverseProxy_RuntimeModel_ClusterConfig__ctor_
@@ -2643,6 +2617,19 @@ references:
   isSpec: "True"
   fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.HttpClientOptions
   nameWithType: ClusterConfig.HttpClientOptions
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.HttpRequestOptions
+  name: HttpRequestOptions
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.html#Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_HttpRequestOptions
+  commentId: P:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.HttpRequestOptions
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.HttpRequestOptions
+  nameWithType: ClusterConfig.HttpRequestOptions
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.HttpRequestOptions*
+  name: HttpRequestOptions
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.html#Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_HttpRequestOptions_
+  commentId: Overload:Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.HttpRequestOptions
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.HttpRequestOptions
+  nameWithType: ClusterConfig.HttpRequestOptions
 - uid: Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.LoadBalancingOptions
   name: LoadBalancingOptions
   href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.html#Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_LoadBalancingOptions
@@ -3071,6 +3058,76 @@ references:
   isSpec: "True"
   fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpClientOptions.SslProtocols
   nameWithType: ClusterProxyHttpClientOptions.SslProtocols
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions
+  name: ClusterProxyHttpRequestOptions
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.html
+  commentId: T:Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions
+  nameWithType: ClusterProxyHttpRequestOptions
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.#ctor(System.Nullable{System.TimeSpan},System.Version)
+  name: ClusterProxyHttpRequestOptions(Nullable<TimeSpan>, Version)
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.html#Microsoft_ReverseProxy_RuntimeModel_ClusterProxyHttpRequestOptions__ctor_System_Nullable_System_TimeSpan__System_Version_
+  commentId: M:Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.#ctor(System.Nullable{System.TimeSpan},System.Version)
+  name.vb: ClusterProxyHttpRequestOptions(Nullable(Of TimeSpan), Version)
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.ClusterProxyHttpRequestOptions(System.Nullable<System.TimeSpan>, System.Version)
+  fullName.vb: Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.ClusterProxyHttpRequestOptions(System.Nullable(Of System.TimeSpan), System.Version)
+  nameWithType: ClusterProxyHttpRequestOptions.ClusterProxyHttpRequestOptions(Nullable<TimeSpan>, Version)
+  nameWithType.vb: ClusterProxyHttpRequestOptions.ClusterProxyHttpRequestOptions(Nullable(Of TimeSpan), Version)
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.#ctor(System.Nullable{System.TimeSpan},System.Version,System.Nullable{System.Net.Http.HttpVersionPolicy})
+  name: ClusterProxyHttpRequestOptions(Nullable<TimeSpan>, Version, Nullable<HttpVersionPolicy>)
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.html#Microsoft_ReverseProxy_RuntimeModel_ClusterProxyHttpRequestOptions__ctor_System_Nullable_System_TimeSpan__System_Version_System_Nullable_System_Net_Http_HttpVersionPolicy__
+  commentId: M:Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.#ctor(System.Nullable{System.TimeSpan},System.Version,System.Nullable{System.Net.Http.HttpVersionPolicy})
+  name.vb: ClusterProxyHttpRequestOptions(Nullable(Of TimeSpan), Version, Nullable(Of HttpVersionPolicy))
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.ClusterProxyHttpRequestOptions(System.Nullable<System.TimeSpan>, System.Version, System.Nullable<System.Net.Http.HttpVersionPolicy>)
+  fullName.vb: Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.ClusterProxyHttpRequestOptions(System.Nullable(Of System.TimeSpan), System.Version, System.Nullable(Of System.Net.Http.HttpVersionPolicy))
+  nameWithType: ClusterProxyHttpRequestOptions.ClusterProxyHttpRequestOptions(Nullable<TimeSpan>, Version, Nullable<HttpVersionPolicy>)
+  nameWithType.vb: ClusterProxyHttpRequestOptions.ClusterProxyHttpRequestOptions(Nullable(Of TimeSpan), Version, Nullable(Of HttpVersionPolicy))
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.#ctor*
+  name: ClusterProxyHttpRequestOptions
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.html#Microsoft_ReverseProxy_RuntimeModel_ClusterProxyHttpRequestOptions__ctor_
+  commentId: Overload:Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.#ctor
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.ClusterProxyHttpRequestOptions
+  nameWithType: ClusterProxyHttpRequestOptions.ClusterProxyHttpRequestOptions
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.RequestTimeout
+  name: RequestTimeout
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.html#Microsoft_ReverseProxy_RuntimeModel_ClusterProxyHttpRequestOptions_RequestTimeout
+  commentId: P:Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.RequestTimeout
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.RequestTimeout
+  nameWithType: ClusterProxyHttpRequestOptions.RequestTimeout
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.RequestTimeout*
+  name: RequestTimeout
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.html#Microsoft_ReverseProxy_RuntimeModel_ClusterProxyHttpRequestOptions_RequestTimeout_
+  commentId: Overload:Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.RequestTimeout
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.RequestTimeout
+  nameWithType: ClusterProxyHttpRequestOptions.RequestTimeout
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.Version
+  name: Version
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.html#Microsoft_ReverseProxy_RuntimeModel_ClusterProxyHttpRequestOptions_Version
+  commentId: P:Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.Version
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.Version
+  nameWithType: ClusterProxyHttpRequestOptions.Version
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.Version*
+  name: Version
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.html#Microsoft_ReverseProxy_RuntimeModel_ClusterProxyHttpRequestOptions_Version_
+  commentId: Overload:Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.Version
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.Version
+  nameWithType: ClusterProxyHttpRequestOptions.Version
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.VersionPolicy
+  name: VersionPolicy
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.html#Microsoft_ReverseProxy_RuntimeModel_ClusterProxyHttpRequestOptions_VersionPolicy
+  commentId: P:Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.VersionPolicy
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.VersionPolicy
+  nameWithType: ClusterProxyHttpRequestOptions.VersionPolicy
+- uid: Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.VersionPolicy*
+  name: VersionPolicy
+  href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.html#Microsoft_ReverseProxy_RuntimeModel_ClusterProxyHttpRequestOptions_VersionPolicy_
+  commentId: Overload:Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.VersionPolicy
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.VersionPolicy
+  nameWithType: ClusterProxyHttpRequestOptions.VersionPolicy
 - uid: Microsoft.ReverseProxy.RuntimeModel.ClusterSessionAffinityOptions
   name: ClusterSessionAffinityOptions
   href: api/Microsoft.ReverseProxy.RuntimeModel.ClusterSessionAffinityOptions.html
@@ -3650,6 +3707,41 @@ references:
   isSpec: "True"
   fullName: Microsoft.ReverseProxy.Service.HealthChecks.IActiveHealthCheckPolicy.ProbingCompleted
   nameWithType: IActiveHealthCheckPolicy.ProbingCompleted
+- uid: Microsoft.ReverseProxy.Service.HealthChecks.IDestinationHealthUpdater
+  name: IDestinationHealthUpdater
+  href: api/Microsoft.ReverseProxy.Service.HealthChecks.IDestinationHealthUpdater.html
+  commentId: T:Microsoft.ReverseProxy.Service.HealthChecks.IDestinationHealthUpdater
+  fullName: Microsoft.ReverseProxy.Service.HealthChecks.IDestinationHealthUpdater
+  nameWithType: IDestinationHealthUpdater
+- uid: Microsoft.ReverseProxy.Service.HealthChecks.IDestinationHealthUpdater.SetActive(Microsoft.ReverseProxy.RuntimeModel.ClusterInfo,System.Collections.Generic.IEnumerable{Microsoft.ReverseProxy.Service.HealthChecks.NewActiveDestinationHealth})
+  name: SetActive(ClusterInfo, IEnumerable<NewActiveDestinationHealth>)
+  href: api/Microsoft.ReverseProxy.Service.HealthChecks.IDestinationHealthUpdater.html#Microsoft_ReverseProxy_Service_HealthChecks_IDestinationHealthUpdater_SetActive_Microsoft_ReverseProxy_RuntimeModel_ClusterInfo_System_Collections_Generic_IEnumerable_Microsoft_ReverseProxy_Service_HealthChecks_NewActiveDestinationHealth__
+  commentId: M:Microsoft.ReverseProxy.Service.HealthChecks.IDestinationHealthUpdater.SetActive(Microsoft.ReverseProxy.RuntimeModel.ClusterInfo,System.Collections.Generic.IEnumerable{Microsoft.ReverseProxy.Service.HealthChecks.NewActiveDestinationHealth})
+  name.vb: SetActive(ClusterInfo, IEnumerable(Of NewActiveDestinationHealth))
+  fullName: Microsoft.ReverseProxy.Service.HealthChecks.IDestinationHealthUpdater.SetActive(Microsoft.ReverseProxy.RuntimeModel.ClusterInfo, System.Collections.Generic.IEnumerable<Microsoft.ReverseProxy.Service.HealthChecks.NewActiveDestinationHealth>)
+  fullName.vb: Microsoft.ReverseProxy.Service.HealthChecks.IDestinationHealthUpdater.SetActive(Microsoft.ReverseProxy.RuntimeModel.ClusterInfo, System.Collections.Generic.IEnumerable(Of Microsoft.ReverseProxy.Service.HealthChecks.NewActiveDestinationHealth))
+  nameWithType: IDestinationHealthUpdater.SetActive(ClusterInfo, IEnumerable<NewActiveDestinationHealth>)
+  nameWithType.vb: IDestinationHealthUpdater.SetActive(ClusterInfo, IEnumerable(Of NewActiveDestinationHealth))
+- uid: Microsoft.ReverseProxy.Service.HealthChecks.IDestinationHealthUpdater.SetActive*
+  name: SetActive
+  href: api/Microsoft.ReverseProxy.Service.HealthChecks.IDestinationHealthUpdater.html#Microsoft_ReverseProxy_Service_HealthChecks_IDestinationHealthUpdater_SetActive_
+  commentId: Overload:Microsoft.ReverseProxy.Service.HealthChecks.IDestinationHealthUpdater.SetActive
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.HealthChecks.IDestinationHealthUpdater.SetActive
+  nameWithType: IDestinationHealthUpdater.SetActive
+- uid: Microsoft.ReverseProxy.Service.HealthChecks.IDestinationHealthUpdater.SetPassive(Microsoft.ReverseProxy.RuntimeModel.ClusterInfo,Microsoft.ReverseProxy.RuntimeModel.DestinationInfo,Microsoft.ReverseProxy.RuntimeModel.DestinationHealth,System.TimeSpan)
+  name: SetPassive(ClusterInfo, DestinationInfo, DestinationHealth, TimeSpan)
+  href: api/Microsoft.ReverseProxy.Service.HealthChecks.IDestinationHealthUpdater.html#Microsoft_ReverseProxy_Service_HealthChecks_IDestinationHealthUpdater_SetPassive_Microsoft_ReverseProxy_RuntimeModel_ClusterInfo_Microsoft_ReverseProxy_RuntimeModel_DestinationInfo_Microsoft_ReverseProxy_RuntimeModel_DestinationHealth_System_TimeSpan_
+  commentId: M:Microsoft.ReverseProxy.Service.HealthChecks.IDestinationHealthUpdater.SetPassive(Microsoft.ReverseProxy.RuntimeModel.ClusterInfo,Microsoft.ReverseProxy.RuntimeModel.DestinationInfo,Microsoft.ReverseProxy.RuntimeModel.DestinationHealth,System.TimeSpan)
+  fullName: Microsoft.ReverseProxy.Service.HealthChecks.IDestinationHealthUpdater.SetPassive(Microsoft.ReverseProxy.RuntimeModel.ClusterInfo, Microsoft.ReverseProxy.RuntimeModel.DestinationInfo, Microsoft.ReverseProxy.RuntimeModel.DestinationHealth, System.TimeSpan)
+  nameWithType: IDestinationHealthUpdater.SetPassive(ClusterInfo, DestinationInfo, DestinationHealth, TimeSpan)
+- uid: Microsoft.ReverseProxy.Service.HealthChecks.IDestinationHealthUpdater.SetPassive*
+  name: SetPassive
+  href: api/Microsoft.ReverseProxy.Service.HealthChecks.IDestinationHealthUpdater.html#Microsoft_ReverseProxy_Service_HealthChecks_IDestinationHealthUpdater_SetPassive_
+  commentId: Overload:Microsoft.ReverseProxy.Service.HealthChecks.IDestinationHealthUpdater.SetPassive
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.HealthChecks.IDestinationHealthUpdater.SetPassive
+  nameWithType: IDestinationHealthUpdater.SetPassive
 - uid: Microsoft.ReverseProxy.Service.HealthChecks.IPassiveHealthCheckPolicy
   name: IPassiveHealthCheckPolicy
   href: api/Microsoft.ReverseProxy.Service.HealthChecks.IPassiveHealthCheckPolicy.html
@@ -3701,25 +3793,51 @@ references:
   isSpec: "True"
   fullName: Microsoft.ReverseProxy.Service.HealthChecks.IProbingRequestFactory.CreateRequest
   nameWithType: IProbingRequestFactory.CreateRequest
-- uid: Microsoft.ReverseProxy.Service.HealthChecks.IReactivationScheduler
-  name: IReactivationScheduler
-  href: api/Microsoft.ReverseProxy.Service.HealthChecks.IReactivationScheduler.html
-  commentId: T:Microsoft.ReverseProxy.Service.HealthChecks.IReactivationScheduler
-  fullName: Microsoft.ReverseProxy.Service.HealthChecks.IReactivationScheduler
-  nameWithType: IReactivationScheduler
-- uid: Microsoft.ReverseProxy.Service.HealthChecks.IReactivationScheduler.Schedule(Microsoft.ReverseProxy.RuntimeModel.DestinationInfo,System.TimeSpan)
-  name: Schedule(DestinationInfo, TimeSpan)
-  href: api/Microsoft.ReverseProxy.Service.HealthChecks.IReactivationScheduler.html#Microsoft_ReverseProxy_Service_HealthChecks_IReactivationScheduler_Schedule_Microsoft_ReverseProxy_RuntimeModel_DestinationInfo_System_TimeSpan_
-  commentId: M:Microsoft.ReverseProxy.Service.HealthChecks.IReactivationScheduler.Schedule(Microsoft.ReverseProxy.RuntimeModel.DestinationInfo,System.TimeSpan)
-  fullName: Microsoft.ReverseProxy.Service.HealthChecks.IReactivationScheduler.Schedule(Microsoft.ReverseProxy.RuntimeModel.DestinationInfo, System.TimeSpan)
-  nameWithType: IReactivationScheduler.Schedule(DestinationInfo, TimeSpan)
-- uid: Microsoft.ReverseProxy.Service.HealthChecks.IReactivationScheduler.Schedule*
-  name: Schedule
-  href: api/Microsoft.ReverseProxy.Service.HealthChecks.IReactivationScheduler.html#Microsoft_ReverseProxy_Service_HealthChecks_IReactivationScheduler_Schedule_
-  commentId: Overload:Microsoft.ReverseProxy.Service.HealthChecks.IReactivationScheduler.Schedule
+- uid: Microsoft.ReverseProxy.Service.HealthChecks.NewActiveDestinationHealth
+  name: NewActiveDestinationHealth
+  href: api/Microsoft.ReverseProxy.Service.HealthChecks.NewActiveDestinationHealth.html
+  commentId: T:Microsoft.ReverseProxy.Service.HealthChecks.NewActiveDestinationHealth
+  fullName: Microsoft.ReverseProxy.Service.HealthChecks.NewActiveDestinationHealth
+  nameWithType: NewActiveDestinationHealth
+- uid: Microsoft.ReverseProxy.Service.HealthChecks.NewActiveDestinationHealth.#ctor(Microsoft.ReverseProxy.RuntimeModel.DestinationInfo,Microsoft.ReverseProxy.RuntimeModel.DestinationHealth)
+  name: NewActiveDestinationHealth(DestinationInfo, DestinationHealth)
+  href: api/Microsoft.ReverseProxy.Service.HealthChecks.NewActiveDestinationHealth.html#Microsoft_ReverseProxy_Service_HealthChecks_NewActiveDestinationHealth__ctor_Microsoft_ReverseProxy_RuntimeModel_DestinationInfo_Microsoft_ReverseProxy_RuntimeModel_DestinationHealth_
+  commentId: M:Microsoft.ReverseProxy.Service.HealthChecks.NewActiveDestinationHealth.#ctor(Microsoft.ReverseProxy.RuntimeModel.DestinationInfo,Microsoft.ReverseProxy.RuntimeModel.DestinationHealth)
+  fullName: Microsoft.ReverseProxy.Service.HealthChecks.NewActiveDestinationHealth.NewActiveDestinationHealth(Microsoft.ReverseProxy.RuntimeModel.DestinationInfo, Microsoft.ReverseProxy.RuntimeModel.DestinationHealth)
+  nameWithType: NewActiveDestinationHealth.NewActiveDestinationHealth(DestinationInfo, DestinationHealth)
+- uid: Microsoft.ReverseProxy.Service.HealthChecks.NewActiveDestinationHealth.#ctor*
+  name: NewActiveDestinationHealth
+  href: api/Microsoft.ReverseProxy.Service.HealthChecks.NewActiveDestinationHealth.html#Microsoft_ReverseProxy_Service_HealthChecks_NewActiveDestinationHealth__ctor_
+  commentId: Overload:Microsoft.ReverseProxy.Service.HealthChecks.NewActiveDestinationHealth.#ctor
   isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Service.HealthChecks.IReactivationScheduler.Schedule
-  nameWithType: IReactivationScheduler.Schedule
+  fullName: Microsoft.ReverseProxy.Service.HealthChecks.NewActiveDestinationHealth.NewActiveDestinationHealth
+  nameWithType: NewActiveDestinationHealth.NewActiveDestinationHealth
+- uid: Microsoft.ReverseProxy.Service.HealthChecks.NewActiveDestinationHealth.Destination
+  name: Destination
+  href: api/Microsoft.ReverseProxy.Service.HealthChecks.NewActiveDestinationHealth.html#Microsoft_ReverseProxy_Service_HealthChecks_NewActiveDestinationHealth_Destination
+  commentId: P:Microsoft.ReverseProxy.Service.HealthChecks.NewActiveDestinationHealth.Destination
+  fullName: Microsoft.ReverseProxy.Service.HealthChecks.NewActiveDestinationHealth.Destination
+  nameWithType: NewActiveDestinationHealth.Destination
+- uid: Microsoft.ReverseProxy.Service.HealthChecks.NewActiveDestinationHealth.Destination*
+  name: Destination
+  href: api/Microsoft.ReverseProxy.Service.HealthChecks.NewActiveDestinationHealth.html#Microsoft_ReverseProxy_Service_HealthChecks_NewActiveDestinationHealth_Destination_
+  commentId: Overload:Microsoft.ReverseProxy.Service.HealthChecks.NewActiveDestinationHealth.Destination
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.HealthChecks.NewActiveDestinationHealth.Destination
+  nameWithType: NewActiveDestinationHealth.Destination
+- uid: Microsoft.ReverseProxy.Service.HealthChecks.NewActiveDestinationHealth.NewActiveHealth
+  name: NewActiveHealth
+  href: api/Microsoft.ReverseProxy.Service.HealthChecks.NewActiveDestinationHealth.html#Microsoft_ReverseProxy_Service_HealthChecks_NewActiveDestinationHealth_NewActiveHealth
+  commentId: P:Microsoft.ReverseProxy.Service.HealthChecks.NewActiveDestinationHealth.NewActiveHealth
+  fullName: Microsoft.ReverseProxy.Service.HealthChecks.NewActiveDestinationHealth.NewActiveHealth
+  nameWithType: NewActiveDestinationHealth.NewActiveHealth
+- uid: Microsoft.ReverseProxy.Service.HealthChecks.NewActiveDestinationHealth.NewActiveHealth*
+  name: NewActiveHealth
+  href: api/Microsoft.ReverseProxy.Service.HealthChecks.NewActiveDestinationHealth.html#Microsoft_ReverseProxy_Service_HealthChecks_NewActiveDestinationHealth_NewActiveHealth_
+  commentId: Overload:Microsoft.ReverseProxy.Service.HealthChecks.NewActiveDestinationHealth.NewActiveHealth
+  isSpec: "True"
+  fullName: Microsoft.ReverseProxy.Service.HealthChecks.NewActiveDestinationHealth.NewActiveHealth
+  nameWithType: NewActiveDestinationHealth.NewActiveHealth
 - uid: Microsoft.ReverseProxy.Service.IConfigValidator
   name: IConfigValidator
   href: api/Microsoft.ReverseProxy.Service.IConfigValidator.html
@@ -5384,207 +5502,6 @@ references:
   isSpec: "True"
   fullName: Microsoft.ReverseProxy.Service.SessionAffinity.ISessionAffinityProvider.Mode
   nameWithType: ISessionAffinityProvider.Mode
-- uid: Microsoft.ReverseProxy.Telemetry
-  name: Microsoft.ReverseProxy.Telemetry
-  href: api/Microsoft.ReverseProxy.Telemetry.html
-  commentId: N:Microsoft.ReverseProxy.Telemetry
-  fullName: Microsoft.ReverseProxy.Telemetry
-  nameWithType: Microsoft.ReverseProxy.Telemetry
-- uid: Microsoft.ReverseProxy.Telemetry.NullOperationContext
-  name: NullOperationContext
-  href: api/Microsoft.ReverseProxy.Telemetry.NullOperationContext.html
-  commentId: T:Microsoft.ReverseProxy.Telemetry.NullOperationContext
-  fullName: Microsoft.ReverseProxy.Telemetry.NullOperationContext
-  nameWithType: NullOperationContext
-- uid: Microsoft.ReverseProxy.Telemetry.NullOperationContext.SetProperty(System.String,System.String)
-  name: SetProperty(String, String)
-  href: api/Microsoft.ReverseProxy.Telemetry.NullOperationContext.html#Microsoft_ReverseProxy_Telemetry_NullOperationContext_SetProperty_System_String_System_String_
-  commentId: M:Microsoft.ReverseProxy.Telemetry.NullOperationContext.SetProperty(System.String,System.String)
-  fullName: Microsoft.ReverseProxy.Telemetry.NullOperationContext.SetProperty(System.String, System.String)
-  nameWithType: NullOperationContext.SetProperty(String, String)
-- uid: Microsoft.ReverseProxy.Telemetry.NullOperationContext.SetProperty*
-  name: SetProperty
-  href: api/Microsoft.ReverseProxy.Telemetry.NullOperationContext.html#Microsoft_ReverseProxy_Telemetry_NullOperationContext_SetProperty_
-  commentId: Overload:Microsoft.ReverseProxy.Telemetry.NullOperationContext.SetProperty
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Telemetry.NullOperationContext.SetProperty
-  nameWithType: NullOperationContext.SetProperty
-- uid: Microsoft.ReverseProxy.Telemetry.NullOperationLogger`1
-  name: NullOperationLogger<TCategoryName>
-  href: api/Microsoft.ReverseProxy.Telemetry.NullOperationLogger-1.html
-  commentId: T:Microsoft.ReverseProxy.Telemetry.NullOperationLogger`1
-  name.vb: NullOperationLogger(Of TCategoryName)
-  fullName: Microsoft.ReverseProxy.Telemetry.NullOperationLogger<TCategoryName>
-  fullName.vb: Microsoft.ReverseProxy.Telemetry.NullOperationLogger(Of TCategoryName)
-  nameWithType: NullOperationLogger<TCategoryName>
-  nameWithType.vb: NullOperationLogger(Of TCategoryName)
-- uid: Microsoft.ReverseProxy.Telemetry.NullOperationLogger`1.Context
-  name: Context
-  href: api/Microsoft.ReverseProxy.Telemetry.NullOperationLogger-1.html#Microsoft_ReverseProxy_Telemetry_NullOperationLogger_1_Context
-  commentId: P:Microsoft.ReverseProxy.Telemetry.NullOperationLogger`1.Context
-  fullName: Microsoft.ReverseProxy.Telemetry.NullOperationLogger<TCategoryName>.Context
-  fullName.vb: Microsoft.ReverseProxy.Telemetry.NullOperationLogger(Of TCategoryName).Context
-  nameWithType: NullOperationLogger<TCategoryName>.Context
-  nameWithType.vb: NullOperationLogger(Of TCategoryName).Context
-- uid: Microsoft.ReverseProxy.Telemetry.NullOperationLogger`1.Context*
-  name: Context
-  href: api/Microsoft.ReverseProxy.Telemetry.NullOperationLogger-1.html#Microsoft_ReverseProxy_Telemetry_NullOperationLogger_1_Context_
-  commentId: Overload:Microsoft.ReverseProxy.Telemetry.NullOperationLogger`1.Context
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Telemetry.NullOperationLogger<TCategoryName>.Context
-  fullName.vb: Microsoft.ReverseProxy.Telemetry.NullOperationLogger(Of TCategoryName).Context
-  nameWithType: NullOperationLogger<TCategoryName>.Context
-  nameWithType.vb: NullOperationLogger(Of TCategoryName).Context
-- uid: Microsoft.ReverseProxy.Telemetry.NullOperationLogger`1.Execute(System.String,System.Action)
-  name: Execute(String, Action)
-  href: api/Microsoft.ReverseProxy.Telemetry.NullOperationLogger-1.html#Microsoft_ReverseProxy_Telemetry_NullOperationLogger_1_Execute_System_String_System_Action_
-  commentId: M:Microsoft.ReverseProxy.Telemetry.NullOperationLogger`1.Execute(System.String,System.Action)
-  fullName: Microsoft.ReverseProxy.Telemetry.NullOperationLogger<TCategoryName>.Execute(System.String, System.Action)
-  fullName.vb: Microsoft.ReverseProxy.Telemetry.NullOperationLogger(Of TCategoryName).Execute(System.String, System.Action)
-  nameWithType: NullOperationLogger<TCategoryName>.Execute(String, Action)
-  nameWithType.vb: NullOperationLogger(Of TCategoryName).Execute(String, Action)
-- uid: Microsoft.ReverseProxy.Telemetry.NullOperationLogger`1.Execute*
-  name: Execute
-  href: api/Microsoft.ReverseProxy.Telemetry.NullOperationLogger-1.html#Microsoft_ReverseProxy_Telemetry_NullOperationLogger_1_Execute_
-  commentId: Overload:Microsoft.ReverseProxy.Telemetry.NullOperationLogger`1.Execute
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Telemetry.NullOperationLogger<TCategoryName>.Execute
-  fullName.vb: Microsoft.ReverseProxy.Telemetry.NullOperationLogger(Of TCategoryName).Execute
-  nameWithType: NullOperationLogger<TCategoryName>.Execute
-  nameWithType.vb: NullOperationLogger(Of TCategoryName).Execute
-- uid: Microsoft.ReverseProxy.Telemetry.NullOperationLogger`1.Execute``1(System.String,System.Func{``0})
-  name: Execute<TResult>(String, Func<TResult>)
-  href: api/Microsoft.ReverseProxy.Telemetry.NullOperationLogger-1.html#Microsoft_ReverseProxy_Telemetry_NullOperationLogger_1_Execute__1_System_String_System_Func___0__
-  commentId: M:Microsoft.ReverseProxy.Telemetry.NullOperationLogger`1.Execute``1(System.String,System.Func{``0})
-  name.vb: Execute(Of TResult)(String, Func(Of TResult))
-  fullName: Microsoft.ReverseProxy.Telemetry.NullOperationLogger<TCategoryName>.Execute<TResult>(System.String, System.Func<TResult>)
-  fullName.vb: Microsoft.ReverseProxy.Telemetry.NullOperationLogger(Of TCategoryName).Execute(Of TResult)(System.String, System.Func(Of TResult))
-  nameWithType: NullOperationLogger<TCategoryName>.Execute<TResult>(String, Func<TResult>)
-  nameWithType.vb: NullOperationLogger(Of TCategoryName).Execute(Of TResult)(String, Func(Of TResult))
-- uid: Microsoft.ReverseProxy.Telemetry.NullOperationLogger`1.ExecuteAsync(System.String,System.Func{System.Threading.Tasks.Task})
-  name: ExecuteAsync(String, Func<Task>)
-  href: api/Microsoft.ReverseProxy.Telemetry.NullOperationLogger-1.html#Microsoft_ReverseProxy_Telemetry_NullOperationLogger_1_ExecuteAsync_System_String_System_Func_System_Threading_Tasks_Task__
-  commentId: M:Microsoft.ReverseProxy.Telemetry.NullOperationLogger`1.ExecuteAsync(System.String,System.Func{System.Threading.Tasks.Task})
-  name.vb: ExecuteAsync(String, Func(Of Task))
-  fullName: Microsoft.ReverseProxy.Telemetry.NullOperationLogger<TCategoryName>.ExecuteAsync(System.String, System.Func<System.Threading.Tasks.Task>)
-  fullName.vb: Microsoft.ReverseProxy.Telemetry.NullOperationLogger(Of TCategoryName).ExecuteAsync(System.String, System.Func(Of System.Threading.Tasks.Task))
-  nameWithType: NullOperationLogger<TCategoryName>.ExecuteAsync(String, Func<Task>)
-  nameWithType.vb: NullOperationLogger(Of TCategoryName).ExecuteAsync(String, Func(Of Task))
-- uid: Microsoft.ReverseProxy.Telemetry.NullOperationLogger`1.ExecuteAsync*
-  name: ExecuteAsync
-  href: api/Microsoft.ReverseProxy.Telemetry.NullOperationLogger-1.html#Microsoft_ReverseProxy_Telemetry_NullOperationLogger_1_ExecuteAsync_
-  commentId: Overload:Microsoft.ReverseProxy.Telemetry.NullOperationLogger`1.ExecuteAsync
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Telemetry.NullOperationLogger<TCategoryName>.ExecuteAsync
-  fullName.vb: Microsoft.ReverseProxy.Telemetry.NullOperationLogger(Of TCategoryName).ExecuteAsync
-  nameWithType: NullOperationLogger<TCategoryName>.ExecuteAsync
-  nameWithType.vb: NullOperationLogger(Of TCategoryName).ExecuteAsync
-- uid: Microsoft.ReverseProxy.Telemetry.NullOperationLogger`1.ExecuteAsync``1(System.String,System.Func{System.Threading.Tasks.Task{``0}})
-  name: ExecuteAsync<TResult>(String, Func<Task<TResult>>)
-  href: api/Microsoft.ReverseProxy.Telemetry.NullOperationLogger-1.html#Microsoft_ReverseProxy_Telemetry_NullOperationLogger_1_ExecuteAsync__1_System_String_System_Func_System_Threading_Tasks_Task___0___
-  commentId: M:Microsoft.ReverseProxy.Telemetry.NullOperationLogger`1.ExecuteAsync``1(System.String,System.Func{System.Threading.Tasks.Task{``0}})
-  name.vb: ExecuteAsync(Of TResult)(String, Func(Of Task(Of TResult)))
-  fullName: Microsoft.ReverseProxy.Telemetry.NullOperationLogger<TCategoryName>.ExecuteAsync<TResult>(System.String, System.Func<System.Threading.Tasks.Task<TResult>>)
-  fullName.vb: Microsoft.ReverseProxy.Telemetry.NullOperationLogger(Of TCategoryName).ExecuteAsync(Of TResult)(System.String, System.Func(Of System.Threading.Tasks.Task(Of TResult)))
-  nameWithType: NullOperationLogger<TCategoryName>.ExecuteAsync<TResult>(String, Func<Task<TResult>>)
-  nameWithType.vb: NullOperationLogger(Of TCategoryName).ExecuteAsync(Of TResult)(String, Func(Of Task(Of TResult)))
-- uid: Microsoft.ReverseProxy.Telemetry.TextOperationLogger`1
-  name: TextOperationLogger<TCategoryName>
-  href: api/Microsoft.ReverseProxy.Telemetry.TextOperationLogger-1.html
-  commentId: T:Microsoft.ReverseProxy.Telemetry.TextOperationLogger`1
-  name.vb: TextOperationLogger(Of TCategoryName)
-  fullName: Microsoft.ReverseProxy.Telemetry.TextOperationLogger<TCategoryName>
-  fullName.vb: Microsoft.ReverseProxy.Telemetry.TextOperationLogger(Of TCategoryName)
-  nameWithType: TextOperationLogger<TCategoryName>
-  nameWithType.vb: TextOperationLogger(Of TCategoryName)
-- uid: Microsoft.ReverseProxy.Telemetry.TextOperationLogger`1.#ctor(Microsoft.Extensions.Logging.ILogger{`0})
-  name: TextOperationLogger(ILogger<TCategoryName>)
-  href: api/Microsoft.ReverseProxy.Telemetry.TextOperationLogger-1.html#Microsoft_ReverseProxy_Telemetry_TextOperationLogger_1__ctor_Microsoft_Extensions_Logging_ILogger__0__
-  commentId: M:Microsoft.ReverseProxy.Telemetry.TextOperationLogger`1.#ctor(Microsoft.Extensions.Logging.ILogger{`0})
-  name.vb: TextOperationLogger(ILogger(Of TCategoryName))
-  fullName: Microsoft.ReverseProxy.Telemetry.TextOperationLogger<TCategoryName>.TextOperationLogger(Microsoft.Extensions.Logging.ILogger<TCategoryName>)
-  fullName.vb: Microsoft.ReverseProxy.Telemetry.TextOperationLogger(Of TCategoryName).TextOperationLogger(Microsoft.Extensions.Logging.ILogger(Of TCategoryName))
-  nameWithType: TextOperationLogger<TCategoryName>.TextOperationLogger(ILogger<TCategoryName>)
-  nameWithType.vb: TextOperationLogger(Of TCategoryName).TextOperationLogger(ILogger(Of TCategoryName))
-- uid: Microsoft.ReverseProxy.Telemetry.TextOperationLogger`1.#ctor*
-  name: TextOperationLogger
-  href: api/Microsoft.ReverseProxy.Telemetry.TextOperationLogger-1.html#Microsoft_ReverseProxy_Telemetry_TextOperationLogger_1__ctor_
-  commentId: Overload:Microsoft.ReverseProxy.Telemetry.TextOperationLogger`1.#ctor
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Telemetry.TextOperationLogger<TCategoryName>.TextOperationLogger
-  fullName.vb: Microsoft.ReverseProxy.Telemetry.TextOperationLogger(Of TCategoryName).TextOperationLogger
-  nameWithType: TextOperationLogger<TCategoryName>.TextOperationLogger
-  nameWithType.vb: TextOperationLogger(Of TCategoryName).TextOperationLogger
-- uid: Microsoft.ReverseProxy.Telemetry.TextOperationLogger`1.Context
-  name: Context
-  href: api/Microsoft.ReverseProxy.Telemetry.TextOperationLogger-1.html#Microsoft_ReverseProxy_Telemetry_TextOperationLogger_1_Context
-  commentId: P:Microsoft.ReverseProxy.Telemetry.TextOperationLogger`1.Context
-  fullName: Microsoft.ReverseProxy.Telemetry.TextOperationLogger<TCategoryName>.Context
-  fullName.vb: Microsoft.ReverseProxy.Telemetry.TextOperationLogger(Of TCategoryName).Context
-  nameWithType: TextOperationLogger<TCategoryName>.Context
-  nameWithType.vb: TextOperationLogger(Of TCategoryName).Context
-- uid: Microsoft.ReverseProxy.Telemetry.TextOperationLogger`1.Context*
-  name: Context
-  href: api/Microsoft.ReverseProxy.Telemetry.TextOperationLogger-1.html#Microsoft_ReverseProxy_Telemetry_TextOperationLogger_1_Context_
-  commentId: Overload:Microsoft.ReverseProxy.Telemetry.TextOperationLogger`1.Context
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Telemetry.TextOperationLogger<TCategoryName>.Context
-  fullName.vb: Microsoft.ReverseProxy.Telemetry.TextOperationLogger(Of TCategoryName).Context
-  nameWithType: TextOperationLogger<TCategoryName>.Context
-  nameWithType.vb: TextOperationLogger(Of TCategoryName).Context
-- uid: Microsoft.ReverseProxy.Telemetry.TextOperationLogger`1.Execute(System.String,System.Action)
-  name: Execute(String, Action)
-  href: api/Microsoft.ReverseProxy.Telemetry.TextOperationLogger-1.html#Microsoft_ReverseProxy_Telemetry_TextOperationLogger_1_Execute_System_String_System_Action_
-  commentId: M:Microsoft.ReverseProxy.Telemetry.TextOperationLogger`1.Execute(System.String,System.Action)
-  fullName: Microsoft.ReverseProxy.Telemetry.TextOperationLogger<TCategoryName>.Execute(System.String, System.Action)
-  fullName.vb: Microsoft.ReverseProxy.Telemetry.TextOperationLogger(Of TCategoryName).Execute(System.String, System.Action)
-  nameWithType: TextOperationLogger<TCategoryName>.Execute(String, Action)
-  nameWithType.vb: TextOperationLogger(Of TCategoryName).Execute(String, Action)
-- uid: Microsoft.ReverseProxy.Telemetry.TextOperationLogger`1.Execute*
-  name: Execute
-  href: api/Microsoft.ReverseProxy.Telemetry.TextOperationLogger-1.html#Microsoft_ReverseProxy_Telemetry_TextOperationLogger_1_Execute_
-  commentId: Overload:Microsoft.ReverseProxy.Telemetry.TextOperationLogger`1.Execute
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Telemetry.TextOperationLogger<TCategoryName>.Execute
-  fullName.vb: Microsoft.ReverseProxy.Telemetry.TextOperationLogger(Of TCategoryName).Execute
-  nameWithType: TextOperationLogger<TCategoryName>.Execute
-  nameWithType.vb: TextOperationLogger(Of TCategoryName).Execute
-- uid: Microsoft.ReverseProxy.Telemetry.TextOperationLogger`1.Execute``1(System.String,System.Func{``0})
-  name: Execute<TResult>(String, Func<TResult>)
-  href: api/Microsoft.ReverseProxy.Telemetry.TextOperationLogger-1.html#Microsoft_ReverseProxy_Telemetry_TextOperationLogger_1_Execute__1_System_String_System_Func___0__
-  commentId: M:Microsoft.ReverseProxy.Telemetry.TextOperationLogger`1.Execute``1(System.String,System.Func{``0})
-  name.vb: Execute(Of TResult)(String, Func(Of TResult))
-  fullName: Microsoft.ReverseProxy.Telemetry.TextOperationLogger<TCategoryName>.Execute<TResult>(System.String, System.Func<TResult>)
-  fullName.vb: Microsoft.ReverseProxy.Telemetry.TextOperationLogger(Of TCategoryName).Execute(Of TResult)(System.String, System.Func(Of TResult))
-  nameWithType: TextOperationLogger<TCategoryName>.Execute<TResult>(String, Func<TResult>)
-  nameWithType.vb: TextOperationLogger(Of TCategoryName).Execute(Of TResult)(String, Func(Of TResult))
-- uid: Microsoft.ReverseProxy.Telemetry.TextOperationLogger`1.ExecuteAsync(System.String,System.Func{System.Threading.Tasks.Task})
-  name: ExecuteAsync(String, Func<Task>)
-  href: api/Microsoft.ReverseProxy.Telemetry.TextOperationLogger-1.html#Microsoft_ReverseProxy_Telemetry_TextOperationLogger_1_ExecuteAsync_System_String_System_Func_System_Threading_Tasks_Task__
-  commentId: M:Microsoft.ReverseProxy.Telemetry.TextOperationLogger`1.ExecuteAsync(System.String,System.Func{System.Threading.Tasks.Task})
-  name.vb: ExecuteAsync(String, Func(Of Task))
-  fullName: Microsoft.ReverseProxy.Telemetry.TextOperationLogger<TCategoryName>.ExecuteAsync(System.String, System.Func<System.Threading.Tasks.Task>)
-  fullName.vb: Microsoft.ReverseProxy.Telemetry.TextOperationLogger(Of TCategoryName).ExecuteAsync(System.String, System.Func(Of System.Threading.Tasks.Task))
-  nameWithType: TextOperationLogger<TCategoryName>.ExecuteAsync(String, Func<Task>)
-  nameWithType.vb: TextOperationLogger(Of TCategoryName).ExecuteAsync(String, Func(Of Task))
-- uid: Microsoft.ReverseProxy.Telemetry.TextOperationLogger`1.ExecuteAsync*
-  name: ExecuteAsync
-  href: api/Microsoft.ReverseProxy.Telemetry.TextOperationLogger-1.html#Microsoft_ReverseProxy_Telemetry_TextOperationLogger_1_ExecuteAsync_
-  commentId: Overload:Microsoft.ReverseProxy.Telemetry.TextOperationLogger`1.ExecuteAsync
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Telemetry.TextOperationLogger<TCategoryName>.ExecuteAsync
-  fullName.vb: Microsoft.ReverseProxy.Telemetry.TextOperationLogger(Of TCategoryName).ExecuteAsync
-  nameWithType: TextOperationLogger<TCategoryName>.ExecuteAsync
-  nameWithType.vb: TextOperationLogger(Of TCategoryName).ExecuteAsync
-- uid: Microsoft.ReverseProxy.Telemetry.TextOperationLogger`1.ExecuteAsync``1(System.String,System.Func{System.Threading.Tasks.Task{``0}})
-  name: ExecuteAsync<TResult>(String, Func<Task<TResult>>)
-  href: api/Microsoft.ReverseProxy.Telemetry.TextOperationLogger-1.html#Microsoft_ReverseProxy_Telemetry_TextOperationLogger_1_ExecuteAsync__1_System_String_System_Func_System_Threading_Tasks_Task___0___
-  commentId: M:Microsoft.ReverseProxy.Telemetry.TextOperationLogger`1.ExecuteAsync``1(System.String,System.Func{System.Threading.Tasks.Task{``0}})
-  name.vb: ExecuteAsync(Of TResult)(String, Func(Of Task(Of TResult)))
-  fullName: Microsoft.ReverseProxy.Telemetry.TextOperationLogger<TCategoryName>.ExecuteAsync<TResult>(System.String, System.Func<System.Threading.Tasks.Task<TResult>>)
-  fullName.vb: Microsoft.ReverseProxy.Telemetry.TextOperationLogger(Of TCategoryName).ExecuteAsync(Of TResult)(System.String, System.Func(Of System.Threading.Tasks.Task(Of TResult)))
-  nameWithType: TextOperationLogger<TCategoryName>.ExecuteAsync<TResult>(String, Func<Task<TResult>>)
-  nameWithType.vb: TextOperationLogger(Of TCategoryName).ExecuteAsync(Of TResult)(String, Func(Of Task(Of TResult)))
 - uid: Microsoft.ReverseProxy.Utilities
   name: Microsoft.ReverseProxy.Utilities
   href: api/Microsoft.ReverseProxy.Utilities.html
@@ -5610,83 +5527,6 @@ references:
   isSpec: "True"
   fullName: Microsoft.ReverseProxy.Utilities.IRandomFactory.CreateRandomInstance
   nameWithType: IRandomFactory.CreateRandomInstance
-- uid: Microsoft.ReverseProxy.Utilities.MonotonicTimer
-  name: MonotonicTimer
-  href: api/Microsoft.ReverseProxy.Utilities.MonotonicTimer.html
-  commentId: T:Microsoft.ReverseProxy.Utilities.MonotonicTimer
-  fullName: Microsoft.ReverseProxy.Utilities.MonotonicTimer
-  nameWithType: MonotonicTimer
-- uid: Microsoft.ReverseProxy.Utilities.MonotonicTimer.#ctor
-  name: MonotonicTimer()
-  href: api/Microsoft.ReverseProxy.Utilities.MonotonicTimer.html#Microsoft_ReverseProxy_Utilities_MonotonicTimer__ctor
-  commentId: M:Microsoft.ReverseProxy.Utilities.MonotonicTimer.#ctor
-  fullName: Microsoft.ReverseProxy.Utilities.MonotonicTimer.MonotonicTimer()
-  nameWithType: MonotonicTimer.MonotonicTimer()
-- uid: Microsoft.ReverseProxy.Utilities.MonotonicTimer.#ctor*
-  name: MonotonicTimer
-  href: api/Microsoft.ReverseProxy.Utilities.MonotonicTimer.html#Microsoft_ReverseProxy_Utilities_MonotonicTimer__ctor_
-  commentId: Overload:Microsoft.ReverseProxy.Utilities.MonotonicTimer.#ctor
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Utilities.MonotonicTimer.MonotonicTimer
-  nameWithType: MonotonicTimer.MonotonicTimer
-- uid: Microsoft.ReverseProxy.Utilities.MonotonicTimer.CurrentTime
-  name: CurrentTime
-  href: api/Microsoft.ReverseProxy.Utilities.MonotonicTimer.html#Microsoft_ReverseProxy_Utilities_MonotonicTimer_CurrentTime
-  commentId: P:Microsoft.ReverseProxy.Utilities.MonotonicTimer.CurrentTime
-  fullName: Microsoft.ReverseProxy.Utilities.MonotonicTimer.CurrentTime
-  nameWithType: MonotonicTimer.CurrentTime
-- uid: Microsoft.ReverseProxy.Utilities.MonotonicTimer.CurrentTime*
-  name: CurrentTime
-  href: api/Microsoft.ReverseProxy.Utilities.MonotonicTimer.html#Microsoft_ReverseProxy_Utilities_MonotonicTimer_CurrentTime_
-  commentId: Overload:Microsoft.ReverseProxy.Utilities.MonotonicTimer.CurrentTime
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Utilities.MonotonicTimer.CurrentTime
-  nameWithType: MonotonicTimer.CurrentTime
-- uid: Microsoft.ReverseProxy.Utilities.MonotonicTimer.DelayUntil(System.TimeSpan,System.Threading.CancellationToken)
-  name: DelayUntil(TimeSpan, CancellationToken)
-  href: api/Microsoft.ReverseProxy.Utilities.MonotonicTimer.html#Microsoft_ReverseProxy_Utilities_MonotonicTimer_DelayUntil_System_TimeSpan_System_Threading_CancellationToken_
-  commentId: M:Microsoft.ReverseProxy.Utilities.MonotonicTimer.DelayUntil(System.TimeSpan,System.Threading.CancellationToken)
-  fullName: Microsoft.ReverseProxy.Utilities.MonotonicTimer.DelayUntil(System.TimeSpan, System.Threading.CancellationToken)
-  nameWithType: MonotonicTimer.DelayUntil(TimeSpan, CancellationToken)
-- uid: Microsoft.ReverseProxy.Utilities.MonotonicTimer.DelayUntil*
-  name: DelayUntil
-  href: api/Microsoft.ReverseProxy.Utilities.MonotonicTimer.html#Microsoft_ReverseProxy_Utilities_MonotonicTimer_DelayUntil_
-  commentId: Overload:Microsoft.ReverseProxy.Utilities.MonotonicTimer.DelayUntil
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Utilities.MonotonicTimer.DelayUntil
-  nameWithType: MonotonicTimer.DelayUntil
-- uid: Microsoft.ReverseProxy.Utilities.MonotonicTimerExtensions
-  name: MonotonicTimerExtensions
-  href: api/Microsoft.ReverseProxy.Utilities.MonotonicTimerExtensions.html
-  commentId: T:Microsoft.ReverseProxy.Utilities.MonotonicTimerExtensions
-  fullName: Microsoft.ReverseProxy.Utilities.MonotonicTimerExtensions
-  nameWithType: MonotonicTimerExtensions
-- uid: Microsoft.ReverseProxy.Utilities.MonotonicTimerExtensions.CancelAfter(System.Threading.CancellationTokenSource,System.TimeSpan,Microsoft.ReverseProxy.Abstractions.Time.IMonotonicTimer)
-  name: CancelAfter(CancellationTokenSource, TimeSpan, IMonotonicTimer)
-  href: api/Microsoft.ReverseProxy.Utilities.MonotonicTimerExtensions.html#Microsoft_ReverseProxy_Utilities_MonotonicTimerExtensions_CancelAfter_System_Threading_CancellationTokenSource_System_TimeSpan_Microsoft_ReverseProxy_Abstractions_Time_IMonotonicTimer_
-  commentId: M:Microsoft.ReverseProxy.Utilities.MonotonicTimerExtensions.CancelAfter(System.Threading.CancellationTokenSource,System.TimeSpan,Microsoft.ReverseProxy.Abstractions.Time.IMonotonicTimer)
-  fullName: Microsoft.ReverseProxy.Utilities.MonotonicTimerExtensions.CancelAfter(System.Threading.CancellationTokenSource, System.TimeSpan, Microsoft.ReverseProxy.Abstractions.Time.IMonotonicTimer)
-  nameWithType: MonotonicTimerExtensions.CancelAfter(CancellationTokenSource, TimeSpan, IMonotonicTimer)
-- uid: Microsoft.ReverseProxy.Utilities.MonotonicTimerExtensions.CancelAfter*
-  name: CancelAfter
-  href: api/Microsoft.ReverseProxy.Utilities.MonotonicTimerExtensions.html#Microsoft_ReverseProxy_Utilities_MonotonicTimerExtensions_CancelAfter_
-  commentId: Overload:Microsoft.ReverseProxy.Utilities.MonotonicTimerExtensions.CancelAfter
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Utilities.MonotonicTimerExtensions.CancelAfter
-  nameWithType: MonotonicTimerExtensions.CancelAfter
-- uid: Microsoft.ReverseProxy.Utilities.MonotonicTimerExtensions.Delay(Microsoft.ReverseProxy.Abstractions.Time.IMonotonicTimer,System.TimeSpan,System.Threading.CancellationToken)
-  name: Delay(IMonotonicTimer, TimeSpan, CancellationToken)
-  href: api/Microsoft.ReverseProxy.Utilities.MonotonicTimerExtensions.html#Microsoft_ReverseProxy_Utilities_MonotonicTimerExtensions_Delay_Microsoft_ReverseProxy_Abstractions_Time_IMonotonicTimer_System_TimeSpan_System_Threading_CancellationToken_
-  commentId: M:Microsoft.ReverseProxy.Utilities.MonotonicTimerExtensions.Delay(Microsoft.ReverseProxy.Abstractions.Time.IMonotonicTimer,System.TimeSpan,System.Threading.CancellationToken)
-  fullName: Microsoft.ReverseProxy.Utilities.MonotonicTimerExtensions.Delay(Microsoft.ReverseProxy.Abstractions.Time.IMonotonicTimer, System.TimeSpan, System.Threading.CancellationToken)
-  nameWithType: MonotonicTimerExtensions.Delay(IMonotonicTimer, TimeSpan, CancellationToken)
-- uid: Microsoft.ReverseProxy.Utilities.MonotonicTimerExtensions.Delay*
-  name: Delay
-  href: api/Microsoft.ReverseProxy.Utilities.MonotonicTimerExtensions.html#Microsoft_ReverseProxy_Utilities_MonotonicTimerExtensions_Delay_
-  commentId: Overload:Microsoft.ReverseProxy.Utilities.MonotonicTimerExtensions.Delay
-  isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Utilities.MonotonicTimerExtensions.Delay
-  nameWithType: MonotonicTimerExtensions.Delay
 - uid: root
   name: YARP Documentation
   href: index.html
