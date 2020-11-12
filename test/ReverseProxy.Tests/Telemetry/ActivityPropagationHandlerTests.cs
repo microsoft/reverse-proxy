@@ -9,7 +9,7 @@ using Microsoft.ReverseProxy.Common.Tests;
 using Microsoft.ReverseProxy.Telemetry;
 using Xunit;
 
-namespace Microsoft.ReverseProxy.Service.Proxy.Tests
+namespace Microsoft.ReverseProxy.Telemetry.Tests
 {
     public class ActivityPropagationHandlerTests
     {
