@@ -72,10 +72,14 @@ namespace Microsoft.ReverseProxy.RuntimeModel
 
         private void UpdateDynamicStateInternal(bool force)
         {
-            // Prevent overlapping updates. If there are multiple signals that state needs to be updated,
-            // we want to ensure that updates don't conflict with each other. E.g. if state changes
-            // while an update is already in progress, the next update should wait until the current one finishes
-            // to ensure they don't race to set _dynamicState and end up with the stale one overwriting the fresh one.
+            // Prevent overlapping updates and debounce extra concurrent calls.
+            // If there are multiple concurrent calls to rebuild the dynamic state, we want to ensure that
+            // updates don't conflict with each other. Additionally, we debounce extra concurrent calls if
+            // they arrive in a quick succession to avoid spending too much CPU on frequent state rebuilds.
+            // Specifically, only up to two threads are allowed to wait here and actually execute a rebuild,
+            // all others will be debounced and the call will return without updating the _dynamicState.
+            // However, changes made by those debounced threads (e.g. destination health updates) will be
+            // taken into account by one of blocked threads after they get unblocked to run a rebuild.
             var lockTaken = false;
             if (force)
             {
