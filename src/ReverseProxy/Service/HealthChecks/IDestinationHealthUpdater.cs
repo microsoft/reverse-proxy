@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.ReverseProxy.RuntimeModel;
 
 namespace Microsoft.ReverseProxy.Service.HealthChecks
@@ -15,7 +14,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
     public interface IDestinationHealthUpdater
     {
         /// <summary>
-        /// Asynchronously sets the passive health on the given <paramref name="destination"/>.
+        /// Sets the passive health on the given <paramref name="destination"/>.
         /// </summary>
         /// <param name="cluster">Cluster.</param>
         /// <param name="destination">Destination.</param>
@@ -23,8 +22,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         /// <param name="reactivationPeriod">If <paramref name="newHealth"/> is <see cref="DestinationHealth.Unhealthy"/>,
         /// this parameter specifies a reactivation period after which the destination's <see cref="DestinationHealthState.Passive"/> value
         /// will be reset to <see cref="DestinationHealth.Unknown"/>. Otherwise, it's not used.</param>
-        /// <returns><see cref="Task"/> representing a passive health update operation.</returns>
-        Task SetPassiveAsync(ClusterInfo cluster, DestinationInfo destination, DestinationHealth newHealth, TimeSpan reactivationPeriod);
+        void SetPassive(ClusterInfo cluster, DestinationInfo destination, DestinationHealth newHealth, TimeSpan reactivationPeriod);
 
         /// <summary>
         /// Sets the active health values on the given destinations.

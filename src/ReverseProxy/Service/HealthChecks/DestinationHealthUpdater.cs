@@ -52,7 +52,12 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             }
         }
 
-        public Task SetPassiveAsync(ClusterInfo cluster, DestinationInfo destination, DestinationHealth newHealth, TimeSpan reactivationPeriod)
+        public void SetPassive(ClusterInfo cluster, DestinationInfo destination, DestinationHealth newHealth, TimeSpan reactivationPeriod)
+        {
+            _ = SetPassiveAsync(cluster, destination, newHealth, reactivationPeriod);
+        }
+
+        internal Task SetPassiveAsync(ClusterInfo cluster, DestinationInfo destination, DestinationHealth newHealth, TimeSpan reactivationPeriod)
         {
             var healthState = destination.Health;
             if (newHealth != healthState.Passive)

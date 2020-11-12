@@ -3729,19 +3729,19 @@ references:
   isSpec: "True"
   fullName: Microsoft.ReverseProxy.Service.HealthChecks.IDestinationHealthUpdater.SetActive
   nameWithType: IDestinationHealthUpdater.SetActive
-- uid: Microsoft.ReverseProxy.Service.HealthChecks.IDestinationHealthUpdater.SetPassiveAsync(Microsoft.ReverseProxy.RuntimeModel.ClusterInfo,Microsoft.ReverseProxy.RuntimeModel.DestinationInfo,Microsoft.ReverseProxy.RuntimeModel.DestinationHealth,System.TimeSpan)
-  name: SetPassiveAsync(ClusterInfo, DestinationInfo, DestinationHealth, TimeSpan)
-  href: api/Microsoft.ReverseProxy.Service.HealthChecks.IDestinationHealthUpdater.html#Microsoft_ReverseProxy_Service_HealthChecks_IDestinationHealthUpdater_SetPassiveAsync_Microsoft_ReverseProxy_RuntimeModel_ClusterInfo_Microsoft_ReverseProxy_RuntimeModel_DestinationInfo_Microsoft_ReverseProxy_RuntimeModel_DestinationHealth_System_TimeSpan_
-  commentId: M:Microsoft.ReverseProxy.Service.HealthChecks.IDestinationHealthUpdater.SetPassiveAsync(Microsoft.ReverseProxy.RuntimeModel.ClusterInfo,Microsoft.ReverseProxy.RuntimeModel.DestinationInfo,Microsoft.ReverseProxy.RuntimeModel.DestinationHealth,System.TimeSpan)
-  fullName: Microsoft.ReverseProxy.Service.HealthChecks.IDestinationHealthUpdater.SetPassiveAsync(Microsoft.ReverseProxy.RuntimeModel.ClusterInfo, Microsoft.ReverseProxy.RuntimeModel.DestinationInfo, Microsoft.ReverseProxy.RuntimeModel.DestinationHealth, System.TimeSpan)
-  nameWithType: IDestinationHealthUpdater.SetPassiveAsync(ClusterInfo, DestinationInfo, DestinationHealth, TimeSpan)
-- uid: Microsoft.ReverseProxy.Service.HealthChecks.IDestinationHealthUpdater.SetPassiveAsync*
-  name: SetPassiveAsync
-  href: api/Microsoft.ReverseProxy.Service.HealthChecks.IDestinationHealthUpdater.html#Microsoft_ReverseProxy_Service_HealthChecks_IDestinationHealthUpdater_SetPassiveAsync_
-  commentId: Overload:Microsoft.ReverseProxy.Service.HealthChecks.IDestinationHealthUpdater.SetPassiveAsync
+- uid: Microsoft.ReverseProxy.Service.HealthChecks.IDestinationHealthUpdater.SetPassive(Microsoft.ReverseProxy.RuntimeModel.ClusterInfo,Microsoft.ReverseProxy.RuntimeModel.DestinationInfo,Microsoft.ReverseProxy.RuntimeModel.DestinationHealth,System.TimeSpan)
+  name: SetPassive(ClusterInfo, DestinationInfo, DestinationHealth, TimeSpan)
+  href: api/Microsoft.ReverseProxy.Service.HealthChecks.IDestinationHealthUpdater.html#Microsoft_ReverseProxy_Service_HealthChecks_IDestinationHealthUpdater_SetPassive_Microsoft_ReverseProxy_RuntimeModel_ClusterInfo_Microsoft_ReverseProxy_RuntimeModel_DestinationInfo_Microsoft_ReverseProxy_RuntimeModel_DestinationHealth_System_TimeSpan_
+  commentId: M:Microsoft.ReverseProxy.Service.HealthChecks.IDestinationHealthUpdater.SetPassive(Microsoft.ReverseProxy.RuntimeModel.ClusterInfo,Microsoft.ReverseProxy.RuntimeModel.DestinationInfo,Microsoft.ReverseProxy.RuntimeModel.DestinationHealth,System.TimeSpan)
+  fullName: Microsoft.ReverseProxy.Service.HealthChecks.IDestinationHealthUpdater.SetPassive(Microsoft.ReverseProxy.RuntimeModel.ClusterInfo, Microsoft.ReverseProxy.RuntimeModel.DestinationInfo, Microsoft.ReverseProxy.RuntimeModel.DestinationHealth, System.TimeSpan)
+  nameWithType: IDestinationHealthUpdater.SetPassive(ClusterInfo, DestinationInfo, DestinationHealth, TimeSpan)
+- uid: Microsoft.ReverseProxy.Service.HealthChecks.IDestinationHealthUpdater.SetPassive*
+  name: SetPassive
+  href: api/Microsoft.ReverseProxy.Service.HealthChecks.IDestinationHealthUpdater.html#Microsoft_ReverseProxy_Service_HealthChecks_IDestinationHealthUpdater_SetPassive_
+  commentId: Overload:Microsoft.ReverseProxy.Service.HealthChecks.IDestinationHealthUpdater.SetPassive
   isSpec: "True"
-  fullName: Microsoft.ReverseProxy.Service.HealthChecks.IDestinationHealthUpdater.SetPassiveAsync
-  nameWithType: IDestinationHealthUpdater.SetPassiveAsync
+  fullName: Microsoft.ReverseProxy.Service.HealthChecks.IDestinationHealthUpdater.SetPassive
+  nameWithType: IDestinationHealthUpdater.SetPassive
 - uid: Microsoft.ReverseProxy.Service.HealthChecks.IPassiveHealthCheckPolicy
   name: IPassiveHealthCheckPolicy
   href: api/Microsoft.ReverseProxy.Service.HealthChecks.IPassiveHealthCheckPolicy.html

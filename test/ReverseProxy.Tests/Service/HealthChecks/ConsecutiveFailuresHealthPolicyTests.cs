@@ -159,7 +159,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 cluster.UpdateDynamicState();
             }
 
-            public Task SetPassiveAsync(ClusterInfo cluster, DestinationInfo destination, DestinationHealth newHealth, TimeSpan reactivationPeriod)
+            public void SetPassive(ClusterInfo cluster, DestinationInfo destination, DestinationHealth newHealth, TimeSpan reactivationPeriod)
             {
                 throw new NotImplementedException();
             }

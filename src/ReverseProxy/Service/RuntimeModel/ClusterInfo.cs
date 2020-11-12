@@ -77,62 +77,58 @@ namespace Microsoft.ReverseProxy.RuntimeModel
             // while an update is already in progress, the next update should wait until the current one finishes
             // to ensure they don't race to set _dynamicState and end up with the stale one overwriting the fresh one.
             var lockTaken = false;
-            try
+            if (force)
             {
-                if (force)
-                {
-                    lockTaken = true;
-                    _updateRequests.Wait();
-                }
-                else
-                {
-                    lockTaken = _updateRequests.Wait(0);
-                }
-
-                if (!lockTaken)
-                {
-                    return;
-                }
-
-                lock (_stateLock)
-                {
-                    try
-                    {
-                        var healthChecks = _config?.HealthCheckOptions ?? default;
-                        var allDestinations = DestinationManager.Items;
-                        var healthyDestinations = allDestinations;
-
-                        if (healthChecks.Enabled)
-                        {
-                            var activeEnabled = healthChecks.Active.Enabled;
-                            var passiveEnabled = healthChecks.Passive.Enabled;
-
-                            healthyDestinations = allDestinations.Where(destination =>
-                            {
-                            // Only consider the current state if those checks are enabled.
-                            var healthState = destination.Health;
-                                var active = activeEnabled ? healthState.Active : DestinationHealth.Unknown;
-                                var passive = passiveEnabled ? healthState.Passive : DestinationHealth.Unknown;
-
-                            // Filter out unhealthy ones. Unknown state is OK, all destinations start that way.
-                            return passive != DestinationHealth.Unhealthy && active != DestinationHealth.Unhealthy;
-                            }).ToList().AsReadOnly();
-                        }
-
-                        _dynamicState = new ClusterDynamicState(allDestinations, healthyDestinations);
-                    }
-                    finally
-                    {
-                        lockTaken = false;
-                        _updateRequests.Release();
-                    }
-                }
+                lockTaken = true;
+                _updateRequests.Wait();
             }
-            finally
+            else
             {
-                // This releases the semaphore in case of an exception thrown by 'lock' call.
-                if (lockTaken)
+                lockTaken = _updateRequests.Wait(0);
+            }
+
+            if (!lockTaken)
+            {
+                return;
+            }
+
+            lock (_stateLock)
+            {
+                try
                 {
+                    var healthChecks = _config?.HealthCheckOptions ?? default;
+                    var allDestinations = DestinationManager.Items;
+                    var healthyDestinations = allDestinations;
+
+                    if (healthChecks.Enabled)
+                    {
+                        var activeEnabled = healthChecks.Active.Enabled;
+                        var passiveEnabled = healthChecks.Passive.Enabled;
+
+                        healthyDestinations = allDestinations.Where(destination =>
+                        {
+                                // Only consider the current state if those checks are enabled.
+                                var healthState = destination.Health;
+                            var active = activeEnabled ? healthState.Active : DestinationHealth.Unknown;
+                            var passive = passiveEnabled ? healthState.Passive : DestinationHealth.Unknown;
+
+                                // Filter out unhealthy ones. Unknown state is OK, all destinations start that way.
+                                return passive != DestinationHealth.Unhealthy && active != DestinationHealth.Unhealthy;
+                        }).ToList().AsReadOnly();
+                    }
+
+                    _dynamicState = new ClusterDynamicState(allDestinations, healthyDestinations);
+                }
+                finally
+                {
+                    // Semaphore is released while still holding the lock to AVOID the following case.
+                    // The first thread (T1) finished a rebuild and left the lock while still holding the semaphore. The second thread (T2)
+                    // waiting on the lock gets awaken, proceeds under the lock and begins the next rebuild. If at this exact moment
+                    // the third thread (T3) enters this method and tries to acquire the semaphore, it will be debounced because
+                    // the semaphore's count is still 0. However, T2 could have already made some progress and didnt' observe updates made
+                    // by T3.
+                    // By releasing the semaphore under the lock, we make sure that in the above situation T3 will proceed till the lock and
+                    // its updates will be observed anyways.
                     _updateRequests.Release();
                 }
             }
