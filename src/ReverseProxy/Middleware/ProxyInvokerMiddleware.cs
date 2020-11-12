@@ -71,11 +71,7 @@ namespace Microsoft.ReverseProxy.Middleware
             }
 
             // TODO: Make this configurable on a route rather than create it per request?
-            var proxyOptions = new RequestProxyOptions()
-            {
-                Transforms = routeConfig.Transforms,
-                RequestOptions = reverseProxyFeature.ClusterConfig.HttpRequestOptions
-            };
+            var proxyOptions = new RequestProxyOptions(routeConfig.Transforms, reverseProxyFeature.ClusterConfig.HttpRequestOptions);
 
             try
             {

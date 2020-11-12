@@ -12,17 +12,34 @@ namespace Microsoft.ReverseProxy.Service.Proxy
     /// <summary>
     /// Options for <see cref="IHttpProxy.ProxyAsync"/>
     /// </summary>
-    public class RequestProxyOptions
+    public readonly struct RequestProxyOptions
     {
+        public RequestProxyOptions(Transforms transforms, ClusterProxyHttpRequestOptions requestOptions = default)
+        {
+            _transforms = transforms;
+            RequestOptions = requestOptions;
+        }
+
+#if NET
+        public RequestProxyOptions(TimeSpan? timeout, Version version, HttpVersionPolicy? versionPolicy)
+            : this(null, new ClusterProxyHttpRequestOptions(timeout, version, versionPolicy))
+        { }
+#endif
+
+        public RequestProxyOptions(TimeSpan? timeout, Version version)
+            : this(null, new ClusterProxyHttpRequestOptions(timeout, version))
+        { }
+
+        private readonly Transforms _transforms;
         /// <summary>
         /// Optional transforms for modifying the request and response.
         /// </summary>
-        public Transforms Transforms { get; set; } = Transforms.Empty;
+        public Transforms Transforms => _transforms ?? Transforms.Empty;
 
         /// <summary>
         /// Outgoing HTTP request options.
         /// </summary>
-        public ClusterProxyHttpRequestOptions RequestOptions { get; set; }
+        public ClusterProxyHttpRequestOptions RequestOptions { get; }
     }
 }
 

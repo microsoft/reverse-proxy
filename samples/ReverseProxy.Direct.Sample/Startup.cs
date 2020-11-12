@@ -40,10 +40,9 @@ namespace Microsoft.ReverseProxy.Sample
                 AutomaticDecompression = DecompressionMethods.None,
                 UseCookies = false
             });
-            var proxyOptions = new RequestProxyOptions()
-            {
+            var proxyOptions = new RequestProxyOptions(
                 // Copy all request headers except Host
-                Transforms = new Transforms(
+                new Transforms(
                     copyRequestHeaders: true,
                     requestTransforms: Array.Empty<RequestParametersTransform>(),
                     requestHeaderTransforms: new Dictionary<string, RequestHeaderTransform>()
@@ -52,8 +51,7 @@ namespace Microsoft.ReverseProxy.Sample
                     },
                     responseHeaderTransforms: new Dictionary<string, ResponseHeaderTransform>(),
                     responseTrailerTransforms: new Dictionary<string, ResponseHeaderTransform>()),
-                RequestOptions = new ClusterProxyHttpRequestOptions(timeout: TimeSpan.FromSeconds(100), null),
-            };
+                new ClusterProxyHttpRequestOptions(TimeSpan.FromSeconds(100), null));
 
             app.UseRouting();
             app.UseAuthorization();

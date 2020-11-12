@@ -194,10 +194,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     return response;
                 });
 
-            var proxyOptions = new RequestProxyOptions()
-            {
-                Transforms = transforms,
-            };
+            var proxyOptions = new RequestProxyOptions(transforms);
 
             await sut.ProxyAsync(httpContext, destinationPrefix, client, proxyOptions);
 
@@ -292,10 +289,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     return response;
                 });
 
-            var proxyOptions = new RequestProxyOptions()
-            {
-                Transforms = transforms,
-            };
+            var proxyOptions = new RequestProxyOptions(transforms);
 
             await sut.ProxyAsync(httpContext, destinationPrefix, client, proxyOptions);
 
@@ -373,10 +367,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     return response;
                 });
 
-            var proxyOptions = new RequestProxyOptions()
-            {
-                Transforms = transforms,
-            };
+            var proxyOptions = new RequestProxyOptions(transforms);
 
             await sut.ProxyAsync(httpContext, destinationPrefix, client, proxyOptions);
 
@@ -699,14 +690,11 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     return Task.FromResult(response);
                 });
 
-            var options = new RequestProxyOptions()
-            {
 #if NET
-                RequestOptions = new ClusterProxyHttpRequestOptions(timeout: null, version: version, versionPolicy: versionPolicy)
+            var options = new RequestProxyOptions(null, version, versionPolicy);
 #else
-                RequestOptions = new ClusterProxyHttpRequestOptions(timeout: null, version: version)
+            var options = new RequestProxyOptions(null, version);
 #endif
-            };
             await sut.ProxyAsync(httpContext, destinationPrefix, client, options);
 
             Assert.Null(httpContext.Features.Get<IProxyErrorFeature>());
@@ -762,15 +750,13 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 responseHeaderTransforms: new Dictionary<string, ResponseHeaderTransform>(StringComparer.OrdinalIgnoreCase),
                 responseTrailerTransforms: new Dictionary<string, ResponseHeaderTransform>(StringComparer.OrdinalIgnoreCase));
 
-            var options = new RequestProxyOptions()
-            {
-                Transforms = transforms,
+
 #if NET
-                RequestOptions = new ClusterProxyHttpRequestOptions(timeout: null, version: version, versionPolicy: versionPolicy)
+            var requestOptions = new ClusterProxyHttpRequestOptions(null, version, versionPolicy);
 #else
-                RequestOptions = new ClusterProxyHttpRequestOptions(timeout: null, version: version)
+            var requestOptions = new ClusterProxyHttpRequestOptions(null, version);
 #endif
-            };
+            var options = new RequestProxyOptions(transforms, requestOptions);
             await sut.ProxyAsync(httpContext, destinationPrefix, client, options);
 
             Assert.Null(httpContext.Features.Get<IProxyErrorFeature>());
@@ -868,15 +854,9 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     return Task.FromResult(new HttpResponseMessage());
                 });
 
-            var proxyOptions = new RequestProxyOptions()
-            {
-                // Time out immediately
-#if NET
-                RequestOptions = new ClusterProxyHttpRequestOptions(timeout: TimeSpan.FromTicks(1), version: null, versionPolicy: null)
-#else
-                RequestOptions = new ClusterProxyHttpRequestOptions(timeout: TimeSpan.FromTicks(1), version: null)
-#endif
-            };
+            // Time out immediately
+            var requestOptions = new ClusterProxyHttpRequestOptions(TimeSpan.FromTicks(1), null);
+            var proxyOptions = new RequestProxyOptions(null, requestOptions);
 
             await sut.ProxyAsync(httpContext, destinationPrefix, client, proxyOptions);
 
@@ -948,15 +928,9 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     return Task.FromResult(new HttpResponseMessage());
                 });
 
-            var proxyOptions = new RequestProxyOptions()
-            {
-                // Time out immediately
-#if NET
-                RequestOptions = new ClusterProxyHttpRequestOptions(timeout: TimeSpan.FromTicks(1), version: null, versionPolicy: null)
-#else
-                RequestOptions = new ClusterProxyHttpRequestOptions(timeout: TimeSpan.FromTicks(1), version: null)
-#endif
-            };
+            // Time out immediately
+            var requestOptions = new ClusterProxyHttpRequestOptions(TimeSpan.FromTicks(1), null);
+            var proxyOptions = new RequestProxyOptions(null, requestOptions);
 
             await sut.ProxyAsync(httpContext, destinationPrefix, client, proxyOptions);
 
