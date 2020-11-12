@@ -28,6 +28,12 @@ namespace Microsoft.ReverseProxy.Service.Proxy
     /// </summary>
     internal class HttpProxy : IHttpProxy
     {
+        public static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(100);
+        public static readonly Version DefaultVersion = HttpVersion.Version20;
+#if NET
+        public static readonly HttpVersionPolicy DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrLower;
+#endif
+
         private static readonly HashSet<string> _responseHeadersToSkip = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             HeaderNames.TransferEncoding
@@ -134,7 +140,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 // :: Step 4: Send the outgoing request using HttpClient
                 HttpResponseMessage destinationResponse;
                 var requestTimeoutSource = CancellationTokenSource.CreateLinkedTokenSource(requestAborted);
-                requestTimeoutSource.CancelAfter(proxyOptions.RequestOptions.Timeout);
+                requestTimeoutSource.CancelAfter(proxyOptions.RequestOptions.Timeout ?? DefaultTimeout);
                 var requestTimeoutToken = requestTimeoutSource.Token;
                 try
                 {
@@ -266,9 +272,9 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             // based on VersionPolicy (for .NET 5 and higher). For example, downgrading to HTTP/1.1 if it cannot establish HTTP/2 with the target.
             // This is done without extra round-trips thanks to ALPN. We can detect a downgrade after calling HttpClient.SendAsync
             // (see Step 3 below). TBD how this will change when HTTP/3 is supported.
-            var httpVersion = isUpgradeRequest ? ProtocolHelper.Http11Version : proxyOptions.RequestOptions.Version;
+            var httpVersion = (isUpgradeRequest ? ProtocolHelper.Http11Version : proxyOptions.RequestOptions.Version) ?? DefaultVersion;
 #if NET
-            var httpVersionPolicy = isUpgradeRequest ? HttpVersionPolicy.RequestVersionOrLower : proxyOptions.RequestOptions.VersionPolicy;
+            var httpVersionPolicy = (isUpgradeRequest ? HttpVersionPolicy.RequestVersionOrLower : proxyOptions.RequestOptions.VersionPolicy) ?? DefaultVersionPolicy;
 #endif
 
             // TODO Perf: We could probably avoid splitting this and just append the final path and query
