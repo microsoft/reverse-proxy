@@ -103,7 +103,7 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 } 
 </code></pre>
 <h2 id="configuration-contract">Configuration contract</h2>
-<p>File-based configuration is defined by the types in <a class="xref" href="../api/Microsoft.ReverseProxy.Configuration.Contract.html">Microsoft.ReverseProxy.Configuration.Contract</a> namespace. Contract types have a simple POCO-like design aimed to a convenient serialization/deserialization, but not to an efficient usage in runtime. There is another runtime-friendly abstract model living in Microsoft.ReverseProxy.Abstractions namespace that is used by the most of reverse proxy logic. The default <a class="xref" href="../api/Microsoft.ReverseProxy.Service.IProxyConfigProvider.html">IProxyConfigProvider</a> implementation converts Contracts to Abstractions on the applicaiton start and each time the configuration changes.</p>
+<p>File-based configuration is dynamically mapped to the types in <a class="xref" href="../api/Microsoft.ReverseProxy.Abstractions.html">Microsoft.ReverseProxy.Abstractions</a> namespace by an <a class="xref" href="../api/Microsoft.ReverseProxy.Service.IProxyConfigProvider.html">IProxyConfigProvider</a> implementation converts at application start and each time the configuration changes.</p>
 <h2 id="configuration-structure">Configuration Structure</h2>
 <p>The configuration consists of a named section that you specified above via <code>Configuration.GetSection(&quot;ReverseProxy&quot;)</code>, and contains subsections for routes and clusters.</p>
 <p>Example:</p>
@@ -137,11 +137,11 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 <li>ClusterId - Refers to the name of an entry in the clusters section.</li>
 <li>Match containing either a Hosts array or a Path pattern string.</li>
 </ul>
-<p><a href="header-routing.html">Headers</a>, <a href="authn-authz.html">Authorization</a>, <a href="cors.html">CORS</a>, and other route based policies can be configured on each route entry. For additional fields see <a class="xref" href="../api/Microsoft.ReverseProxy.Configuration.Contract.ProxyRouteData.html">ProxyRoute</a>.</p>
+<p><a href="header-routing.html">Headers</a>, <a href="authn-authz.html">Authorization</a>, <a href="cors.html">CORS</a>, and other route based policies can be configured on each route entry. For additional fields see <a class="xref" href="../api/Microsoft.ReverseProxy.Abstractions.ProxyRoute.html">ProxyRoute</a>.</p>
 <p>The proxy will apply the given matching criteria and policies, and then pass off the request to the specified cluster.</p>
 <h3 id="clusters">Clusters</h3>
 <p>The clusters section is an unordered collection of named clusters. A cluster primarily contains a collection of named destinations and their addresses, any of which is considered capable of handling requests for a given route. The proxy will process the request according to the route and cluster configuration in order to select a destination.</p>
-<p>For additional fields see <a class="xref" href="../api/Microsoft.ReverseProxy.Configuration.Contract.ClusterData.html">Cluster</a>.</p>
+<p>For additional fields see <a class="xref" href="../api/Microsoft.ReverseProxy.Abstractions.Cluster.html">Cluster</a>.</p>
 </article>
           </div>
           
@@ -150,7 +150,7 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
               <div class="contribution">
                 <ul class="nav">
                   <li>
-                    <a href="https://github.com/microsoft/reverse-proxy/blob/tratcher/headerroute/docs/docfx/articles/configfiles.md/#L1" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/docs/docfx/articles/configfiles.md/#L1" class="contribution-link">Improve this Doc</a>
                   </li>
                 </ul>
               </div>
