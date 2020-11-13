@@ -58,7 +58,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
         public async Task<IEnumerable<ApplicationWrapper>> GetApplicationListAsync(CancellationToken cancellation)
         {
             return await TryWithCacheFallbackAsync(
-                operationName: "IslandGateway.ServiceFabric.GetApplicationList",
+                operationName: "GetApplicationList",
                 func: () => _queryClientWrapper.GetApplicationListAsync(timeout: _defaultTimeout, cancellationToken: cancellation),
                 cache: _applicationListCache,
                 key: string.Empty,
@@ -67,7 +67,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
         public async Task<IEnumerable<ServiceWrapper>> GetServiceListAsync(Uri applicationName, CancellationToken cancellation)
         {
             return await TryWithCacheFallbackAsync(
-                operationName: "IslandGateway.ServiceFabric.GetServiceList",
+                operationName: "GetServiceList",
                 func: () => _queryClientWrapper.GetServiceListAsync(applicationName: applicationName, timeout: _defaultTimeout, cancellation),
                 cache: _serviceListCache,
                 key: applicationName.ToString(),
@@ -77,7 +77,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
         public async Task<IEnumerable<Guid>> GetPartitionListAsync(Uri serviceName, CancellationToken cancellation)
         {
             return await TryWithCacheFallbackAsync(
-                operationName: "IslandGateway.ServiceFabric.GetPartitionList",
+                operationName: "GetPartitionList",
                 func: () => _queryClientWrapper.GetPartitionListAsync(serviceName: serviceName, timeout: _defaultTimeout, cancellation),
                 cache: _partitionListCache,
                 key: serviceName.ToString(),
@@ -87,7 +87,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
         public async Task<IEnumerable<ReplicaWrapper>> GetReplicaListAsync(Guid partition, CancellationToken cancellation)
         {
             return await TryWithCacheFallbackAsync(
-                operationName: "IslandGateway.ServiceFabric.GetReplicaList",
+                operationName: "GetReplicaList",
                 func: () => _queryClientWrapper.GetReplicaListAsync(partitionId: partition, timeout: _defaultTimeout, cancellation),
                 cache: _replicaListCache,
                 key: partition.ToString(),
@@ -97,7 +97,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
         public async Task<string> GetServiceManifestAsync(string applicationTypeName, string applicationTypeVersion, string serviceManifestName, CancellationToken cancellation)
         {
             return await TryWithCacheFallbackAsync(
-                operationName: "IslandGateway.ServiceFabric.GetServiceManifest",
+                operationName: "GetServiceManifest",
                 func: () => _serviceManagementClientWrapper.GetServiceManifestAsync(
                     applicationTypeName: applicationTypeName,
                     applicationTypeVersion: applicationTypeVersion,
@@ -112,7 +112,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
         public async Task<string> GetServiceManifestName(string applicationTypeName, string applicationTypeVersion, string serviceTypeNameFilter, CancellationToken cancellation)
         {
             return await TryWithCacheFallbackAsync(
-                operationName: "IslandGateway.ServiceFabric.GetServiceManifestName",
+                operationName: "GetServiceManifestName",
                 func: () => _queryClientWrapper.GetServiceManifestName(
                     applicationTypeName: applicationTypeName,
                     applicationTypeVersion: applicationTypeVersion,
@@ -127,7 +127,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
         public async Task<IDictionary<string, string>> EnumeratePropertiesAsync(Uri parentName, CancellationToken cancellation)
         {
             return await TryWithCacheFallbackAsync(
-                operationName: "IslandGateway.ServiceFabric.EnumerateProperties",
+                operationName: "EnumerateProperties",
                 func: () => _propertyManagementClientWrapper.EnumeratePropertiesAsync(
                     parentName: parentName,
                     timeout: _defaultTimeout,
@@ -144,19 +144,19 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             {
                 serviceName = service.ServiceName;
             }
-            _logger.LogInformation($"Reporting health, kind={healthReport.Kind}, healthState={healthReport.HealthInformation.HealthState}, type={healthReport.GetType().FullName}, serviceName={serviceName}");
+            _logger.LogDebug($"Reporting health, kind={healthReport.Kind}, healthState={healthReport.HealthInformation.HealthState}, type={healthReport.GetType().FullName}, serviceName={serviceName}");
 
             _healthClientWrapper.ReportHealth(healthReport, sendOptions);
         }
 
         private async Task<T> TryWithCacheFallbackAsync<T>(string operationName, Func<Task<T>> func, Cache<T> cache, string key, CancellationToken cancellation)
         {
-            _logger.LogInformation($"Starting operation {operationName}.Cache, key={key}");
+            _logger.LogDebug($"Starting operation {operationName}.Cache, key={key}");
 
             var outcome = "UnhandledException";
             try
             {
-                _logger.LogInformation($"Starting inner operation {operationName}, key={key}");
+                _logger.LogDebug($"Starting inner operation {operationName}, key={key}");
                 var value = await func();
                 cache.Set(key, value);
                 outcome = "Success";

@@ -21,6 +21,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric
         internal static readonly XName XNameLabel = XNSFabricNoSchema + "Label";
         internal static readonly XName XNameLabels = XNSFabricNoSchema + "Labels";
 
+        private const string ExtensionName = "YARP-preview";
+
         private readonly ILogger<ServiceExtensionLabelsProvider> _logger;
         private readonly IServiceFabricCaller _serviceFabricCaller;
 
@@ -209,7 +211,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                     .Elements(XNSServiceManifest + "ServiceTypes")
                     .Elements().Where(s => (string)s.Attribute("ServiceTypeName") == targetServiceTypeName)
                     .Elements(XNSServiceManifest + "Extensions")
-                    .Elements(XNSServiceManifest + "Extension").Where(s => (string)s.Attribute("Name") == "YARP")
+                    .Elements(XNSServiceManifest + "Extension").Where(s => (string)s.Attribute("Name") == ExtensionName)
                     .Elements(XNameLabels)
                     .Elements(XNameLabel);
 

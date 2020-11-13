@@ -17,7 +17,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
     /// <![CDATA[
     /// <StatelessServiceType ServiceTypeName="ExampleServiceTypeName">
     ///   <Extensions>
-    ///     <Extension Name="YARP">
+    ///     <Extension Name="YARP-preview">
     ///       <Labels xmlns="http://schemas.microsoft.com/2015/03/fabact-no-schema">
     ///         <Label Key="YARP.Enable">true</Label>
     ///         <Label Key="YARP.Backend.BackendId">exampleId</Label>
