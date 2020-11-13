@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
@@ -19,8 +20,7 @@ using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
 namespace Microsoft.ReverseProxy.Service.Management
 {
     /// <summary>
-    /// Default implementation of <see cref="IProxyConfigManager"/>
-    /// which provides a method to apply Proxy configuration changes
+    /// Provides a method to apply Proxy configuration changes
     /// by leveraging <see cref="IDynamicConfigBuilder"/>.
     /// Also an Implementation of <see cref="EndpointDataSource"/> that supports being dynamically updated
     /// in a thread-safe manner while avoiding locks on the hot path.
@@ -28,52 +28,95 @@ namespace Microsoft.ReverseProxy.Service.Management
     /// <remarks>
     /// This takes inspiration from <a href="https://github.com/aspnet/AspNetCore/blob/master/src/Mvc/Mvc.Core/src/Routing/ActionEndpointDataSourceBase.cs"/>.
     /// </remarks>
-    internal class ProxyConfigManager : EndpointDataSource, IProxyConfigManager, IDisposable
+    internal class ProxyConfigManager : EndpointDataSource, IDisposable
     {
         private readonly object _syncRoot = new object();
         private readonly ILogger<ProxyConfigManager> _logger;
         private readonly IProxyConfigProvider _provider;
-        private readonly IRuntimeRouteBuilder _routeEndpointBuilder;
         private readonly IClusterManager _clusterManager;
         private readonly IRouteManager _routeManager;
         private readonly IEnumerable<IProxyConfigFilter> _filters;
         private readonly IConfigValidator _configValidator;
         private readonly IProxyHttpClientFactory _httpClientFactory;
+        private readonly ProxyEndpointFactory _proxyEndpointFactory;
+        private readonly ITransformBuilder _transformBuilder;
+        private readonly List<Action<EndpointBuilder>> _conventions;
         private readonly IActiveHealthCheckMonitor _activeHealthCheckMonitor;
         private IDisposable _changeSubscription;
 
-        private List<Endpoint> _endpoints = new List<Endpoint>(0);
+        private List<Endpoint> _endpoints;
         private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private IChangeToken _changeToken;
 
         public ProxyConfigManager(
             ILogger<ProxyConfigManager> logger,
             IProxyConfigProvider provider,
-            IRuntimeRouteBuilder routeEndpointBuilder,
             IClusterManager clusterManager,
             IRouteManager routeManager,
             IEnumerable<IProxyConfigFilter> filters,
             IConfigValidator configValidator,
+            ProxyEndpointFactory proxyEndpointFactory,
+            ITransformBuilder transformBuilder,
             IProxyHttpClientFactory httpClientFactory,
             IActiveHealthCheckMonitor activeHealthCheckMonitor)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _provider = provider ?? throw new ArgumentNullException(nameof(provider));
-            _routeEndpointBuilder = routeEndpointBuilder ?? throw new ArgumentNullException(nameof(routeEndpointBuilder));
             _clusterManager = clusterManager ?? throw new ArgumentNullException(nameof(clusterManager));
             _routeManager = routeManager ?? throw new ArgumentNullException(nameof(routeManager));
             _filters = filters ?? throw new ArgumentNullException(nameof(filters));
             _configValidator = configValidator ?? throw new ArgumentNullException(nameof(configValidator));
+            _proxyEndpointFactory = proxyEndpointFactory ?? throw new ArgumentNullException(nameof(proxyEndpointFactory));
+            _transformBuilder = transformBuilder ?? throw new ArgumentNullException(nameof(transformBuilder));
+            _conventions = new List<Action<EndpointBuilder>>();
             _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
             _activeHealthCheckMonitor = activeHealthCheckMonitor ?? throw new ArgumentNullException(nameof(activeHealthCheckMonitor));
 
+            DefaultBuilder = new ReverseProxyConventionBuilder(_syncRoot, _conventions);
             _changeToken = new CancellationChangeToken(_cancellationTokenSource.Token);
         }
+
+        public ReverseProxyConventionBuilder DefaultBuilder { get; }
 
         // EndpointDataSource
 
         /// <inheritdoc/>
-        public override IReadOnlyList<Endpoint> Endpoints => Volatile.Read(ref _endpoints);
+        public override IReadOnlyList<Endpoint> Endpoints
+        {
+            get
+            {
+                //The Endpoints needs to be lazy the first time to give a chance to ReverseProxyConventionBuilder to add its conventions.
+                Initialize();   
+                return _endpoints;
+            }
+        }
+
+        private void Initialize()
+        {
+            if (_endpoints == null)
+            {
+                lock (_syncRoot)
+                {
+                    if (_endpoints == null)
+                    {
+                        CreateEndpoints();
+                    }
+                }
+            }
+        }
+
+        private void CreateEndpoints()
+        {
+            var endpoints = new List<Endpoint>();
+            foreach (var existingRoute in _routeManager.GetItems())
+            {
+                var runtimeConfig = existingRoute.Config;
+                var endpoint = _proxyEndpointFactory.CreateEndpoint(runtimeConfig, _conventions);
+                endpoints.Add(endpoint);
+            }
+
+            UpdateEndpoints(endpoints);
+        }
 
         /// <inheritdoc/>
         public override IChangeToken GetChangeToken() => Volatile.Read(ref _changeToken);
@@ -129,7 +172,11 @@ namespace Microsoft.ReverseProxy.Service.Management
 
             try
             {
-                await ApplyConfigAsync(newConfig);
+                var hasChanged = await ApplyConfigAsync(newConfig);
+                if (hasChanged)
+                {
+                    CreateEndpoints();
+                }
             }
             catch (Exception ex)
             {
@@ -143,7 +190,7 @@ namespace Microsoft.ReverseProxy.Service.Management
         }
 
         // Throws for validation failures
-        private async Task ApplyConfigAsync(IProxyConfig config)
+        private async Task<bool> ApplyConfigAsync(IProxyConfig config)
         {
             var (configuredRoutes, routeErrors) = await VerifyRoutesAsync(config.Routes, cancellation: default);
             var (configuredClusters, clusterErrors) = await VerifyClustersAsync(config.Clusters, cancellation: default);
@@ -155,7 +202,8 @@ namespace Microsoft.ReverseProxy.Service.Management
 
             // Update clusters first because routes need to reference them.
             UpdateRuntimeClusters(configuredClusters);
-            UpdateRuntimeRoutes(configuredRoutes);
+            var hasChanged = UpdateRuntimeRoutes(configuredRoutes);
+            return hasChanged;
         }
 
         private async Task<(IList<ProxyRoute>, IList<Exception>)> VerifyRoutesAsync(IReadOnlyList<ProxyRoute> routes, CancellationToken cancellation)
@@ -398,7 +446,7 @@ namespace Microsoft.ReverseProxy.Service.Management
             }
         }
 
-        private void UpdateRuntimeRoutes(IList<ProxyRoute> routes)
+        private bool UpdateRuntimeRoutes(IList<ProxyRoute> routes)
         {
             var desiredRoutes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             var changed = false;
@@ -431,7 +479,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                                 Log.RouteChanged(_logger, configRoute.RouteId);
                             }
 
-                            var newConfig = _routeEndpointBuilder.Build(configRoute, cluster, route);
+                            var newConfig = BuildRouteConfig(configRoute, cluster, route);
                             route.Config = newConfig;
                         }
                     });
@@ -453,20 +501,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                 }
             }
 
-            if (changed)
-            {
-                var endpoints = new List<Endpoint>();
-                foreach (var existingRoute in _routeManager.GetItems())
-                {
-                    var runtimeConfig = existingRoute.Config;
-                    if (runtimeConfig?.Endpoints != null)
-                    {
-                        endpoints.AddRange(runtimeConfig.Endpoints);
-                    }
-                }
-
-                UpdateEndpoints(endpoints);
-            }
+            return changed;
         }
 
         /// <summary>
@@ -512,6 +547,19 @@ namespace Microsoft.ReverseProxy.Service.Management
                 httpClientOptions.ClientCertificate,
                 httpClientOptions.MaxConnectionsPerServer,
                 httpClientOptions.PropagateActivityContext);
+        }
+
+        private RouteConfig BuildRouteConfig(ProxyRoute source, ClusterInfo cluster, RouteInfo runtimeRoute)
+        {
+            var transforms = _transformBuilder.Build(source.Transforms);
+
+            var newRouteConfig = new RouteConfig(
+                runtimeRoute,
+                source,
+                cluster,
+                transforms);
+
+            return newRouteConfig;
         }
 
         public void Dispose()
