@@ -3,6 +3,7 @@
 
 using System;
 using System.IO;
+using System.IO.Pipelines;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
@@ -25,9 +26,11 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
             var sourceBytes = Enumerable.Range(0, SourceSize).Select(i => (byte)(i % 256)).ToArray();
             var source = new MemoryStream(sourceBytes);
+            var sourceReader = PipeReader.Create(source);
             var destination = new MemoryStream();
+            var destinationWriter = PipeWriter.Create(destination);
 
-            var sut = new StreamCopyHttpContent(source, autoFlushHttpClientOutgoingStream: false, new Clock(), CancellationToken.None);
+            var sut = new StreamCopyHttpContent(sourceReader, autoFlushHttpClientOutgoingStream: false, new Clock(), CancellationToken.None);
 
             // Act & Assert
             Assert.False(sut.ConsumptionTask.IsCompleted);
@@ -41,7 +44,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
         [Theory]
         [InlineData(false, 1)] // we expect to always flush at least once to trigger sending request headers
-        [InlineData(true, 2)]
+        [InlineData(true, 34)]
         public async Task CopyToAsync_AutoFlushing(bool autoFlush, int expectedFlushes)
         {
             // Arrange
@@ -49,10 +52,11 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
             var sourceBytes = Enumerable.Range(0, SourceSize).Select(i => (byte)(i % 256)).ToArray();
             var source = new MemoryStream(sourceBytes);
+            var sourceReader = PipeReader.Create(source);
             var destination = new MemoryStream();
             var flushCountingDestination = new FlushCountingStream(destination);
 
-            var sut = new StreamCopyHttpContent(source, autoFlushHttpClientOutgoingStream: autoFlush, new Clock(), CancellationToken.None);
+            var sut = new StreamCopyHttpContent(sourceReader, autoFlushHttpClientOutgoingStream: autoFlush, new Clock(), CancellationToken.None);
 
             // Act & Assert
             Assert.False(sut.ConsumptionTask.IsCompleted);
@@ -72,9 +76,10 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var tcs = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
             var source = new Mock<Stream>();
             source.Setup(s => s.ReadAsync(It.IsAny<Memory<byte>>(), It.IsAny<CancellationToken>())).Returns(() => new ValueTask<int>(tcs.Task));
+            var sourceReader = PipeReader.Create(source.Object);
             var destination = new MemoryStream();
 
-            var sut = new StreamCopyHttpContent(source.Object, autoFlushHttpClientOutgoingStream: false, new Clock(), CancellationToken.None);
+            var sut = new StreamCopyHttpContent(sourceReader, autoFlushHttpClientOutgoingStream: false, new Clock(), CancellationToken.None);
 
             // Act & Assert
             Assert.False(sut.ConsumptionTask.IsCompleted);
@@ -94,8 +99,9 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         {
             // Arrange
             var source = new MemoryStream();
+            var sourceReader = PipeReader.Create(source);
             var destination = new MemoryStream();
-            var sut = new StreamCopyHttpContent(source, autoFlushHttpClientOutgoingStream: false, new Clock(), CancellationToken.None);
+            var sut = new StreamCopyHttpContent(sourceReader, autoFlushHttpClientOutgoingStream: false, new Clock(), CancellationToken.None);
 
             // Act
             Func<Task> func = () => sut.ReadAsStreamAsync();
@@ -109,7 +115,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         {
             // Arrange
             var source = new MemoryStream();
-            var sut = new StreamCopyHttpContent(source, autoFlushHttpClientOutgoingStream: false, new Clock(), CancellationToken.None);
+            var sourceReader = PipeReader.Create(source);
+            var sut = new StreamCopyHttpContent(sourceReader, autoFlushHttpClientOutgoingStream: false, new Clock(), CancellationToken.None);
 
             // Assert
             // This is an internal property that HttpClient and friends use internally and which must be true

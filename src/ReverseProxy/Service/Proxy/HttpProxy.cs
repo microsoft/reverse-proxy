@@ -3,7 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
+using System.IO.Pipelines;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -204,7 +204,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 // and clients misbehave if the initial headers response does not indicate stream end.
 
                 // :: Step 7-B: Copy response body Client ◄-- Proxy ◄-- Destination
-                var (responseBodyCopyResult, responseBodyException) = await CopyResponseBodyAsync(destinationResponse.Content, context.Response.Body, requestAborted);
+                var (responseBodyCopyResult, responseBodyException) = await CopyResponseBodyAsync(destinationResponse.Content, context.Response.BodyWriter, requestAborted);
 
                 if (responseBodyCopyResult != StreamCopyResult.Success)
                 {
@@ -395,7 +395,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 // Future: It may be wise to set this to true for *all* http2 incoming requests,
                 // but for now, out of an abundance of caution, we only do it for requests that look like gRPC.
                 requestContent = new StreamCopyHttpContent(
-                    source: request.Body,
+                    source: request.BodyReader,
                     autoFlushHttpClientOutgoingStream: isStreamingRequest,
                     clock: _clock,
                     cancellation: cancellation);
@@ -624,8 +624,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             }
         }
 
-        private async Task<(StreamCopyResult, Exception)> CopyResponseBodyAsync(HttpContent destinationResponseContent, Stream clientResponseStream,
-            CancellationToken cancellation)
+        private async Task<(StreamCopyResult, Exception)> CopyResponseBodyAsync(HttpContent destinationResponseContent, PipeWriter clientResponseStream,
+             CancellationToken cancellation)
         {
             // SocketHttpHandler and similar transports always provide an HttpContent object, even if it's empty.
             // In 3.1 this is only likely to return null in tests.

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.Tracing;
 using System.IO;
+using System.IO.Pipelines;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,7 +21,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public async Task CopyAsync_Works(bool isRequest)
+        public async Task CopyAsync_StreamToStream_Works(bool isRequest)
         {
             var events = TestEventListener.Collect();
 
@@ -39,7 +40,47 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public async Task SourceThrows_Reported(bool isRequest)
+        public async Task CopyAsync_PipeToStream_Works(bool isRequest)
+        {
+            var events = TestEventListener.Collect();
+
+            const int SourceSize = (128 * 1024) - 3;
+            var sourceBytes = Enumerable.Range(0, SourceSize).Select(i => (byte)(i % 256)).ToArray();
+            var source = new MemoryStream(sourceBytes);
+            var sourceReader = PipeReader.Create(source);
+            var destination = new MemoryStream();
+
+            await StreamCopier.CopyAsync(isRequest, sourceReader, destination, new Clock(), CancellationToken.None);
+
+            Assert.Equal(sourceBytes, destination.ToArray());
+
+            AssertContentTransferred(events, isRequest, SourceSize);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task CopyAsync_StreamToPipe_Works(bool isRequest)
+        {
+            var events = TestEventListener.Collect();
+
+            const int SourceSize = (128 * 1024) - 3;
+            var sourceBytes = Enumerable.Range(0, SourceSize).Select(i => (byte)(i % 256)).ToArray();
+            var source = new MemoryStream(sourceBytes);
+            var destination = new MemoryStream();
+            var destinationWriter = PipeWriter.Create(destination);
+
+            await StreamCopier.CopyAsync(isRequest, source, destinationWriter, new Clock(), CancellationToken.None);
+
+            Assert.Equal(sourceBytes, destination.ToArray());
+
+            AssertContentTransferred(events, isRequest, SourceSize);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task SourceThrows_StreamToStream_Reported(bool isRequest)
         {
             var events = TestEventListener.Collect();
 
@@ -63,7 +104,57 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public async Task DestinationThrows_Reported(bool isRequest)
+        public async Task SourceThrows_PipeToStream_Reported(bool isRequest)
+        {
+            var events = TestEventListener.Collect();
+
+            var clock = new ManualClock();
+            var sourceWaitTime = TimeSpan.FromMilliseconds(12345);
+            var source = new SlowStream(new ThrowStream(), clock, sourceWaitTime);
+            var sourceReader = PipeReader.Create(source);
+            var destination = new MemoryStream();
+
+            var (result, error) = await StreamCopier.CopyAsync(isRequest, sourceReader, destination, clock, CancellationToken.None);
+            Assert.Equal(StreamCopyResult.InputError, result);
+            Assert.IsAssignableFrom<IOException>(error);
+
+            AssertContentTransferred(events, isRequest,
+                contentLength: 0,
+                iops: 1,
+                firstReadTime: sourceWaitTime,
+                readTime: sourceWaitTime,
+                writeTime: TimeSpan.Zero);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task SourceThrows_StreamToPipe_Reported(bool isRequest)
+        {
+            var events = TestEventListener.Collect();
+
+            var clock = new ManualClock();
+            var sourceWaitTime = TimeSpan.FromMilliseconds(12345);
+            var source = new SlowStream(new ThrowStream(), clock, sourceWaitTime);
+            var destination = new MemoryStream();
+            var destinationWriter = PipeWriter.Create(destination);
+
+            var (result, error) = await StreamCopier.CopyAsync(isRequest, source, destinationWriter, clock, CancellationToken.None);
+            Assert.Equal(StreamCopyResult.InputError, result);
+            Assert.IsAssignableFrom<IOException>(error);
+
+            AssertContentTransferred(events, isRequest,
+                contentLength: 0,
+                iops: 1,
+                firstReadTime: sourceWaitTime,
+                readTime: sourceWaitTime,
+                writeTime: TimeSpan.Zero);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task DestinationThrows_StreamToStream_Reported(bool isRequest)
         {
             var events = TestEventListener.Collect();
 
@@ -91,7 +182,65 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public async Task Cancelled_Reported(bool isRequest)
+        public async Task DestinationThrows_PipeToStream_Reported(bool isRequest)
+        {
+            var events = TestEventListener.Collect();
+
+            const int SourceSize = 10;
+            const int BytesPerRead = 3;
+
+            var clock = new ManualClock();
+            var sourceWaitTime = TimeSpan.FromMilliseconds(12345);
+            var destinationWaitTime = TimeSpan.FromMilliseconds(42);
+            var source = new SlowStream(new MemoryStream(new byte[SourceSize]), clock, sourceWaitTime) { MaxBytesPerRead = BytesPerRead };
+            var sourceReader = PipeReader.Create(source);
+            var destination = new SlowStream(new ThrowStream(), clock, destinationWaitTime);
+
+            var (result, error) = await StreamCopier.CopyAsync(isRequest, sourceReader, destination, clock, CancellationToken.None);
+            Assert.Equal(StreamCopyResult.OutputError, result);
+            Assert.IsAssignableFrom<IOException>(error);
+
+            AssertContentTransferred(events, isRequest,
+                contentLength: BytesPerRead,
+                iops: 1,
+                firstReadTime: sourceWaitTime,
+                readTime: sourceWaitTime,
+                writeTime: destinationWaitTime);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task DestinationThrows_StreamToPipe_Reported(bool isRequest)
+        {
+            var events = TestEventListener.Collect();
+
+            const int SourceSize = 10;
+            const int BytesPerRead = 3;
+
+            var clock = new ManualClock();
+            var sourceWaitTime = TimeSpan.FromMilliseconds(12345);
+            var destinationWaitTime = TimeSpan.FromMilliseconds(42);
+            var source = new SlowStream(new MemoryStream(new byte[SourceSize]), clock, sourceWaitTime) { MaxBytesPerRead = BytesPerRead };
+            var destination = new SlowStream(new ThrowStream(), clock, destinationWaitTime);
+            var destinationWriter = PipeWriter.Create(destination);
+
+            var (result, error) = await StreamCopier.CopyAsync(isRequest, source, destinationWriter, clock, CancellationToken.None);
+            Assert.Equal(StreamCopyResult.OutputError, result);
+            Assert.IsAssignableFrom<IOException>(error);
+
+            AssertContentTransferred(events, isRequest,
+                contentLength: BytesPerRead,
+                iops: 1,
+                firstReadTime: sourceWaitTime,
+                readTime: sourceWaitTime,
+                writeTime: destinationWaitTime);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task Cancelled_StreamToStream_Reported(bool isRequest)
         {
             var events = TestEventListener.Collect();
 
@@ -113,7 +262,53 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public async Task SlowStreams_TelemetryReportsCorrectTime(bool isRequest)
+        public async Task Cancelled_PipeToStream_Reported(bool isRequest)
+        {
+            var events = TestEventListener.Collect();
+
+            var source = new MemoryStream(new byte[10]);
+            var sourceReader = PipeReader.Create(source);
+            var destination = new MemoryStream();
+
+            var (result, error) = await StreamCopier.CopyAsync(isRequest, sourceReader, destination, new Clock(), new CancellationToken(canceled: true));
+            Assert.Equal(StreamCopyResult.Canceled, result);
+            Assert.IsAssignableFrom<OperationCanceledException>(error);
+
+            AssertContentTransferred(events, isRequest,
+                contentLength: 0,
+                iops: 0,
+                firstReadTime: TimeSpan.Zero,
+                readTime: TimeSpan.Zero,
+                writeTime: TimeSpan.Zero);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task Cancelled_StreamToPipe_Reported(bool isRequest)
+        {
+            var events = TestEventListener.Collect();
+
+            var source = new MemoryStream(new byte[10]);
+            var destination = new MemoryStream();
+            var destinationWriter = PipeWriter.Create(destination);
+
+            var (result, error) = await StreamCopier.CopyAsync(isRequest, source, destination, new Clock(), new CancellationToken(canceled: true));
+            Assert.Equal(StreamCopyResult.Canceled, result);
+            Assert.IsAssignableFrom<OperationCanceledException>(error);
+
+            AssertContentTransferred(events, isRequest,
+                contentLength: 0,
+                iops: 0,
+                firstReadTime: TimeSpan.Zero,
+                readTime: TimeSpan.Zero,
+                writeTime: TimeSpan.Zero);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task SlowStreams_StreamToStream_TelemetryReportsCorrectTime(bool isRequest)
         {
             var events = TestEventListener.Collect();
 
@@ -130,6 +325,70 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 isRequest,
                 new SlowStream(source, clock, sourceWaitTime),
                 new SlowStream(destination, clock, destinationWaitTime),
+                clock,
+                CancellationToken.None);
+
+            Assert.Equal(sourceBytes, destination.ToArray());
+
+            AssertContentTransferred(events, isRequest, SourceSize,
+                iops: SourceSize + 1,
+                firstReadTime: sourceWaitTime,
+                readTime: (SourceSize + 1) * sourceWaitTime,
+                writeTime: SourceSize * destinationWaitTime);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task SlowStreams_PipeToStream_TelemetryReportsCorrectTime(bool isRequest)
+        {
+            var events = TestEventListener.Collect();
+
+            const int SourceSize = 3;
+            var sourceBytes = new byte[SourceSize];
+            var source = new MemoryStream(sourceBytes);
+            var destination = new MemoryStream();
+
+            var clock = new ManualClock();
+            var sourceWaitTime = TimeSpan.FromMilliseconds(12345);
+            var destinationWaitTime = TimeSpan.FromMilliseconds(42);
+
+            await StreamCopier.CopyAsync(
+                isRequest,
+                PipeReader.Create(new SlowStream(source, clock, sourceWaitTime)),
+                new SlowStream(destination, clock, destinationWaitTime),
+                clock,
+                CancellationToken.None);
+
+            Assert.Equal(sourceBytes, destination.ToArray());
+
+            AssertContentTransferred(events, isRequest, SourceSize,
+                iops: SourceSize + 1,
+                firstReadTime: sourceWaitTime,
+                readTime: (SourceSize + 1) * sourceWaitTime,
+                writeTime: SourceSize * destinationWaitTime);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task SlowStreams_StreamToPipe_TelemetryReportsCorrectTime(bool isRequest)
+        {
+            var events = TestEventListener.Collect();
+
+            const int SourceSize = 3;
+            var sourceBytes = new byte[SourceSize];
+            var source = new MemoryStream(sourceBytes);
+            var destination = new MemoryStream();
+
+            var clock = new ManualClock();
+            var sourceWaitTime = TimeSpan.FromMilliseconds(12345);
+            var destinationWaitTime = TimeSpan.FromMilliseconds(42);
+
+            await StreamCopier.CopyAsync(
+                isRequest,
+                new SlowStream(source, clock, sourceWaitTime),
+                PipeWriter.Create(new SlowStream(destination, clock, destinationWaitTime)),
                 clock,
                 CancellationToken.None);
 

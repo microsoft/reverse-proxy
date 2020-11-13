@@ -1806,7 +1806,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
             public Stream Stream => this;
 
-            public PipeWriter Writer => throw new NotImplementedException();
+            public PipeWriter Writer => PipeWriter.Create(Stream);
 
             public int StatusCode { get; set; } = 200;
             public string ReasonPhrase { get; set; }

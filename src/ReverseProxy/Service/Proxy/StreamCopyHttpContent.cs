@@ -3,6 +3,7 @@
 
 using System;
 using System.IO;
+using System.IO.Pipelines;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
@@ -37,14 +38,14 @@ namespace Microsoft.ReverseProxy.Service.Proxy
     /// </remarks>
     internal class StreamCopyHttpContent : HttpContent
     {
-        private readonly Stream _source;
+        private readonly PipeReader _source;
         private readonly bool _autoFlushHttpClientOutgoingStream;
         private readonly IClock _clock;
         // Note this is the long token that should only be canceled in the event of an error, not timed out.
         private readonly CancellationToken _cancellation;
         private readonly TaskCompletionSource<(StreamCopyResult, Exception)> _tcs = new TaskCompletionSource<(StreamCopyResult, Exception)>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-        public StreamCopyHttpContent(Stream source, bool autoFlushHttpClientOutgoingStream, IClock clock, CancellationToken cancellation)
+        public StreamCopyHttpContent(PipeReader source, bool autoFlushHttpClientOutgoingStream, IClock clock, CancellationToken cancellation)
         {
             _source = source ?? throw new ArgumentNullException(nameof(source));
             _autoFlushHttpClientOutgoingStream = autoFlushHttpClientOutgoingStream;
