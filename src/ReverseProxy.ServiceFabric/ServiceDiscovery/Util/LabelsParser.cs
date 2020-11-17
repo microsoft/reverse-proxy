@@ -133,10 +133,10 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                 {
                     Active = new ActiveHealthCheckOptions
                     {
-                        Enabled = GetLabel(labels, "YARP.Backend.Healthcheck.Enabled", false),
-                        Interval = TimeSpan.FromSeconds(GetLabel<double>(labels, "YARP.Backend.Healthcheck.Interval", 0)),
-                        Timeout = TimeSpan.FromSeconds(GetLabel<double>(labels, "YARP.Backend.Healthcheck.Timeout", 0)),
-                        Path = GetLabel<string>(labels, "YARP.Backend.Healthcheck.Path", null),
+                        Enabled = GetLabel(labels, "YARP.Backend.Healthcheck.Active.Enabled", false),
+                        Interval = TimeSpan.FromSeconds(GetLabel<double>(labels, "YARP.Backend.Healthcheck.Active.Interval", 0)),
+                        Timeout = TimeSpan.FromSeconds(GetLabel<double>(labels, "YARP.Backend.Healthcheck.Active.Timeout", 0)),
+                        Path = GetLabel<string>(labels, "YARP.Backend.Healthcheck.Active.Path", null),
                     }
                 },
                 Metadata = clusterMetadata,

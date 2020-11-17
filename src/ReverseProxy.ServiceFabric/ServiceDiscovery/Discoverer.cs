@@ -259,7 +259,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             }
 
             var listenerName = serviceExtensionLabels.GetValueOrDefault("YARP.Backend.ServiceFabric.ListenerName", string.Empty);
-            var healthListenerName = serviceExtensionLabels.GetValueOrDefault("YARP.Backend.Healthcheck.ServiceFabric.ListenerName", string.Empty);
+            var healthListenerName = serviceExtensionLabels.GetValueOrDefault("YARP.Backend.Healthcheck.Active.ServiceFabric.ListenerName", string.Empty);
             var statefulReplicaSelectionMode = ParseStatefulReplicaSelectionMode(serviceExtensionLabels);
             foreach (var partition in partitions)
             {
