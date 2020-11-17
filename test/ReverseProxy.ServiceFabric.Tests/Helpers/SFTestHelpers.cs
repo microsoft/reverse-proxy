@@ -76,8 +76,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         }
 
         /// <summary>
-        /// Build an Island Gateway Endpoint from a Service Fabric ReplicaWrapper. Parameter healthListenerName is optional.
-        /// If the healthListenerName is set, function would fill in the endpoint url for healthaddress.
+        /// Build a <see cref="Destination" /> from a Service Fabric <see cref="ReplicaWrapper" />.
         /// </summary>
         /// <remarks>
         /// The address JSON of the replica is expected to have exactly one endpoint, and that one will be used.

@@ -348,7 +348,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             routes.Should().BeEquivalentTo(expectedRoutes);
             AssertServiceHealthReported(service, HealthState.Ok);
             AssertStatefulServiceReplicaHealthReported(replica, HealthState.Warning, (description) =>
-                description.StartsWith("Could not build endpoint for Island Gateway") &&
+                description.StartsWith("Could not build service endpoint") &&
                 description.Contains("UnexistingListener"));
             _healthReports.Should().HaveCount(2);
         }
@@ -381,7 +381,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             routes.Should().BeEquivalentTo(expectedRoutes);
             AssertServiceHealthReported(service, HealthState.Ok);
             AssertStatelessServiceInstanceHealthReported(replica, HealthState.Warning, (description) =>
-                description.StartsWith("Could not build endpoint for Island Gateway") &&
+                description.StartsWith("Could not build service endpoint") &&
                 description.Contains("UnexistingListener"));
             _healthReports.Should().HaveCount(2);
         }
@@ -416,7 +416,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             routes.Should().BeEquivalentTo(expectedRoutes);
             AssertServiceHealthReported(service, HealthState.Ok);
             AssertStatelessServiceInstanceHealthReported(replica, HealthState.Warning, (description) =>
-                description.StartsWith("Could not build endpoint for Island Gateway") &&
+                description.StartsWith("Could not build service endpoint") &&
                 description.Contains("ExampleTeamEndpoint"));
             _healthReports.Should().HaveCount(2);
         }

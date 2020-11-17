@@ -96,7 +96,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                     {
                         var serviceExtensionLabels = await _serviceFabricExtensionConfigProvider.GetExtensionLabelsAsync(application, service, cancellation);
 
-                        // If this service wants to use Island Gateway
+                        // If this service wants to use us as the proxy
                         if (serviceExtensionLabels.GetValueOrDefault("YARP.Enable", null) != "true")
                         {
                             // Skip this service
@@ -143,7 +143,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                         // TODO: emit Error health report once we are able to detect config issues *during* (as opposed to *after*) a target service upgrade.
                         // Proactive Error health report would trigger a rollback of the target service as desired. However, an Error report after rhe fact
                         // will NOT cause a rollback and will prevent the target service from performing subsequent monitored upgrades to mitigate, making things worse.
-                        ReportServiceHealth(options, service.ServiceName, HealthState.Warning, $"Could not load service to Island Gateway: {ex.Message}.");
+                        ReportServiceHealth(options, service.ServiceName, HealthState.Warning, $"Could not load service configuration: {ex.Message}.");
                     }
                     catch (Exception ex) // TODO: davidni: not fatal?
                     {
@@ -308,7 +308,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                         // TODO: emit Error health report once we are able to detect config issues *during* (as opposed to *after*) a target service upgrade.
                         // Proactive Error health report would trigger a rollback of the target service as desired. However, an Error report after rhe fact
                         // will NOT cause a rollback and will prevent the target service from performing subsequent monitored upgrades to mitigate, making things worse.
-                        ReportReplicaHealth(options, service, partition, replica, HealthState.Warning, $"Could not build endpoint for Island Gateway: {ex.Message}");
+                        ReportReplicaHealth(options, service, partition, replica, HealthState.Warning, $"Could not build service endpoint: {ex.Message}");
                     }
                     catch (Exception ex) // TODO: davidni: not fatal?
                     {
