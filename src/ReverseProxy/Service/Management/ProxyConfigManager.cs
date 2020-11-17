@@ -68,11 +68,12 @@ namespace Microsoft.ReverseProxy.Service.Management
             _configValidator = configValidator ?? throw new ArgumentNullException(nameof(configValidator));
             _proxyEndpointFactory = proxyEndpointFactory ?? throw new ArgumentNullException(nameof(proxyEndpointFactory));
             _transformBuilder = transformBuilder ?? throw new ArgumentNullException(nameof(transformBuilder));
-            _conventions = new List<Action<EndpointBuilder>>();
             _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
             _activeHealthCheckMonitor = activeHealthCheckMonitor ?? throw new ArgumentNullException(nameof(activeHealthCheckMonitor));
 
-            DefaultBuilder = new ReverseProxyConventionBuilder(_syncRoot, _conventions);
+            _conventions = new List<Action<EndpointBuilder>>();
+            DefaultBuilder = new ReverseProxyConventionBuilder(_conventions);
+
             _changeToken = new CancellationChangeToken(_cancellationTokenSource.Token);
         }
 
