@@ -232,29 +232,29 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             Assert.NotNull(readEndpoints2);
         }
 
-        //[Fact]
-        //public async Task LoadAsync_RequestVersionValidationError_Throws()
-        //{
-        //    const string TestAddress = "https://localhost:123/";
+        [Fact]
+        public async Task LoadAsync_RequestVersionValidationError_Throws()
+        {
+            const string TestAddress = "https://localhost:123/";
 
-        //    var cluster = new Cluster
-        //    {
-        //        Id = "cluster1",
-        //        Destinations = { { "d1", new Destination { Address = TestAddress } } },
-        //        HttpRequest = new ProxyHttpRequestOptions() { Version = new Version(1, 2) }
-        //    };
+            var cluster = new Cluster
+            {
+                Id = "cluster1",
+                Destinations = { { "d1", new Destination { Address = TestAddress } } },
+                HttpRequest = new ProxyHttpRequestOptions() { Version = new Version(1, 2) }
+            };
 
-        //    var services = CreateServices(new List<ProxyRoute>(), new List<Cluster>() { cluster });
-        //    var configManager = services.GetRequiredService<IProxyConfigManager>();
+            var services = CreateServices(new List<ProxyRoute>(), new List<Cluster>() { cluster });
+            var configManager = services.GetRequiredService<ProxyConfigManager>();
 
-        //    var ioEx = await Assert.ThrowsAsync<InvalidOperationException>(() => configManager.InitialLoadAsync());
-        //    Assert.Equal("Unable to load or apply the proxy configuration.", ioEx.Message);
-        //    var agex = Assert.IsType<AggregateException>(ioEx.InnerException);
+            var ioEx = await Assert.ThrowsAsync<InvalidOperationException>(() => configManager.InitialLoadAsync());
+            Assert.Equal("Unable to load or apply the proxy configuration.", ioEx.Message);
+            var agex = Assert.IsType<AggregateException>(ioEx.InnerException);
 
-        //    Assert.Single(agex.InnerExceptions);
-        //    var argex = Assert.IsType<ArgumentException>(agex.InnerExceptions.First());
-        //    Assert.StartsWith("Outgoing request version", argex.Message);
-        //}
+            Assert.Single(agex.InnerExceptions);
+            var argex = Assert.IsType<ArgumentException>(agex.InnerExceptions.First());
+            Assert.StartsWith("Outgoing request version", argex.Message);
+        }
 
         [Fact]
         public async Task LoadAsync_RouteValidationError_Throws()
