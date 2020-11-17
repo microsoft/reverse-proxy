@@ -75,11 +75,11 @@ You will need to add the lines indicated below. A brief explanation of labels is
 +          <Labels xmlns="http://schemas.microsoft.com/2015/03/fabact-no-schema">
 +            <Label Key="YARP.Enable">true</Label>
 +            <Label Key="YARP.Routes.route1.Hosts">example.com</Label>
-+            <!-- Optional: enable health probes -->
-+            <Label Key='YARP.Backend.Healthcheck.Enabled'>true</Label>
-+            <Label Key='YARP.Backend.Healthcheck.Path'>api/health</Label>
-+            <Label Key='YARP.Backend.Healthcheck.Timeout'>30</Label>
-+            <Label Key='YARP.Backend.Healthcheck.Interval'>10</Label>
++            <!-- Optional: enable active health probes -->
++            <Label Key='YARP.Backend.Healthcheck.Active.Enabled'>true</Label>
++            <Label Key='YARP.Backend.Healthcheck.Active.Path'>api/health</Label>
++            <Label Key='YARP.Backend.Healthcheck.Active.Timeout'>30</Label>
++            <Label Key='YARP.Backend.Healthcheck.Active.Interval'>10</Label>
 +          </Labels>
 +        </Extension>
        </Extensions>
@@ -96,7 +96,7 @@ Label|Value|Explanation
 -|-|-
 `YARP.Enable`|`true`|Opt-ins to serving traffic through YARP with Service Fabric dynamic service discovery
 `YARP.Routes.route1.Hosts`|`example.com`|Configures a route, named `route1`, that will match requests with host name `example.com`
-`YARP.Backend.Healthcheck.*`|`...`|Configures active health checks. YARP will probe each replica of the service at the configured cadence at the provided path.
+`YARP.Backend.Healthcheck.Active.*`|`...`|Configures active health checks. YARP will probe each replica of the service at the configured cadence at the provided path.
 
 
 > NOTE: Label values can use the special syntax `[AppParamName]` to reference an application parameter with the name given within square brackets. This is consistent with Service Fabric conventions, see e.g. [using parameters in Service Fabric](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-how-to-specify-port-number-using-parameters).
