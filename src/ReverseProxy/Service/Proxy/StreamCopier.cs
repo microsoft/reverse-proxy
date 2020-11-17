@@ -224,47 +224,53 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                         }
                     }
 
-                    if (!result.Buffer.IsEmpty)
+                    try
                     {
-                        foreach (var item in result.Buffer)
+                        if (!result.Buffer.IsEmpty)
                         {
-                            if (cancellation.IsCancellationRequested)
+                            foreach (var item in result.Buffer)
                             {
-                                return (StreamCopyResult.Canceled, new OperationCanceledException(cancellation));
-                            }
-                            reading = false;
-
-                            try
-                            {
-                                await output.WriteAsync(item, cancellation);
-                            }
-                            finally
-                            {
-                                if (telemetryEnabled)
+                                if (cancellation.IsCancellationRequested)
                                 {
-                                    var writeStop = clock.GetStopwatchTimestamp();
-                                    writeTime += writeStop - lastTime;
-                                    lastTime = writeStop;
-                                    if (lastTime >= nextTransferringEvent)
-                                    {
-                                        ProxyTelemetry.Log.ContentTransferring(
-                                            isRequest,
-                                            contentLength,
-                                            iops,
-                                            StopwatchTicksToDateTimeTicks(readTime),
-                                            StopwatchTicksToDateTimeTicks(writeTime));
+                                    return (StreamCopyResult.Canceled, new OperationCanceledException(cancellation));
+                                }
+                                reading = false;
 
-                                        // Avoid attributing the time taken by logging ContentTransferring to the next read call
-                                        lastTime = clock.GetStopwatchTimestamp();
-                                        nextTransferringEvent = lastTime + stopwatchTicksBetweenTransferringEvents;
+                                try
+                                {
+                                    await output.WriteAsync(item, cancellation);
+                                }
+                                finally
+                                {
+                                    if (telemetryEnabled)
+                                    {
+                                        var writeStop = clock.GetStopwatchTimestamp();
+                                        writeTime += writeStop - lastTime;
+                                        lastTime = writeStop;
+                                        if (lastTime >= nextTransferringEvent)
+                                        {
+                                            ProxyTelemetry.Log.ContentTransferring(
+                                                isRequest,
+                                                contentLength,
+                                                iops,
+                                                StopwatchTicksToDateTimeTicks(readTime),
+                                                StopwatchTicksToDateTimeTicks(writeTime));
+
+                                            // Avoid attributing the time taken by logging ContentTransferring to the next read call
+                                            lastTime = clock.GetStopwatchTimestamp();
+                                            nextTransferringEvent = lastTime + stopwatchTicksBetweenTransferringEvents;
+                                        }
                                     }
+
                                 }
                             }
                         }
                     }
-
-                    // Tell the PipeReader how much of the buffer has been consumed.
-                    input.AdvanceTo(result.Buffer.End);
+                    finally
+                    {
+                        // Tell the PipeReader how much of the buffer has been consumed.
+                        input.AdvanceTo(result.Buffer.End);
+                    }
 
 
                     // Stop reading if there's no more data coming.
@@ -273,9 +279,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                         break;
                     }
                 }
-
-                // Mark the PipeReader as complete.
-                await input.CompleteAsync();
 
                 return (StreamCopyResult.Success, null);
             }
@@ -341,21 +344,70 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                     var memory = output.GetMemory();
 
                     reading = true;
-                    var bytesRead = await input.ReadAsync(memory, cancellation);
+                    var read = 0;
+                    try
+                    {
+                        read = await input.ReadAsync(memory, cancellation);
+                    }
+                    finally
+                    {
+                        if (telemetryEnabled)
+                        {
+                            contentLength += read;
+                            iops++;
+
+                            var readStop = clock.GetStopwatchTimestamp();
+                            var currentReadTime = readStop - lastTime;
+                            lastTime = readStop;
+                            readTime += currentReadTime;
+                            if (firstReadTime == -1)
+                            {
+                                firstReadTime = currentReadTime;
+                            }
+                        }
+
+                        output.Advance(read);
+                    }
+
+                    if (cancellation.IsCancellationRequested)
+                    {
+                        return (StreamCopyResult.Canceled, new OperationCanceledException(cancellation));
+                    }
 
                     reading = false;
-                    output.Advance(bytesRead);
 
-                    var result = await output.FlushAsync();
+                    try
+                    {
+                        var result = await output.FlushAsync(cancellation);
+                    }
+                    finally
+                    {
+                        if (telemetryEnabled)
+                        {
+                            var writeStop = clock.GetStopwatchTimestamp();
+                            writeTime += writeStop - lastTime;
+                            lastTime = writeStop;
+                            if (lastTime >= nextTransferringEvent)
+                            {
+                                ProxyTelemetry.Log.ContentTransferring(
+                                    isRequest,
+                                    contentLength,
+                                    iops,
+                                    StopwatchTicksToDateTimeTicks(readTime),
+                                    StopwatchTicksToDateTimeTicks(writeTime));
 
-                    if (bytesRead == 0)
+                                // Avoid attributing the time taken by logging ContentTransferring to the next read call
+                                lastTime = clock.GetStopwatchTimestamp();
+                                nextTransferringEvent = lastTime + stopwatchTicksBetweenTransferringEvents;
+                            }
+                        }
+                    }
+
+                    if (read == 0)
                     {
                         break;
                     }
                 }
-
-                reading = false;
-                await output.CompleteAsync();
 
                 return (StreamCopyResult.Success, null);
             }

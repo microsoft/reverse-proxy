@@ -44,7 +44,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
         [Theory]
         [InlineData(false, 1)] // we expect to always flush at least once to trigger sending request headers
-        [InlineData(true, 34)]
+        [InlineData(true, 33)]
         public async Task CopyToAsync_AutoFlushing(bool autoFlush, int expectedFlushes)
         {
             // Arrange
