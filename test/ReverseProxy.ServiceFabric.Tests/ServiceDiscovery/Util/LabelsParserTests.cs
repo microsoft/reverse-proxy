@@ -475,31 +475,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         }
 
         [Theory]
-        [InlineData("YARP.Routes.MyRoute.Transforms. .ResponseHeader", "Blank transform index")]
-        [InlineData("YARP.Routes.MyRoute.Transforms.string.ResponseHeader", "string header name not accepted.. just [num]")]
-        [InlineData("YARP.Routes.MyRoute.Transforms.1.Response", "needs square brackets")]
-        public void BuildRoutes_InvalidTransformIndex_Throws(string invalidKey, string value)
-        {
-            // Arrange
-            var labels = new Dictionary<string, string>()
-            {
-                { "YARP.Backend.BackendId", "MyCoolClusterId" },
-                { "YARP.Routes.MyRoute.Hosts", "example.com" },
-                { "YARP.Routes.MyRoute.Priority", "2" },
-                { "YARP.Routes.MyRoute.Metadata.Foo", "Bar" },
-            };
-            labels[invalidKey] = value;
-
-            // Act
-            Func<List<ProxyRoute>> func = () => LabelsParser.BuildRoutes(_testServiceName, labels);
-
-            // Assert
-            func.Should()
-                .Throw<ConfigException>()
-                .WithMessage($"Invalid transform index '*', should be transform index wrapped in square brackets.");
-        }
-
-        [Theory]
         [InlineData("YARP.Routes.MyRoute.MatchHeaders. .Name", "x-header-name")]
         [InlineData("YARP.Routes.MyRoute.MatchHeaders.string.Name", "x-header-name")]
         [InlineData("YARP.Routes.MyRoute.MatchHeaders.1.Name", "x-header-name")]
@@ -571,14 +546,9 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         [InlineData("YARP.", "some value")]
         [InlineData("Routes.", "some value")]
         [InlineData("YARP.Routes.", "some value")]
-        [InlineData("YARP.Routes.MyRoute.Transforms", "some value")]
-        [InlineData("YARP.Routes.MyRoute.Transforms.", "some value")]
-        [InlineData("YARP.Routes.MyRoute...Transforms", "some value")]
-        [InlineData("YARP.Routes.MyRoute.Transform.", "some value")]
         [InlineData("YARP.Routes.MyRoute.MatchHeaders", "some value")]
         [InlineData("YARP.Routes.MyRoute.MatchHeaders.", "some value")]
         [InlineData("YARP.Routes.MyRoute...MatchHeaders", "some value")]
-        [InlineData("YARP.Routes.MyRoute.MatchHeaders.", "some value")]
         [InlineData("YARP.Routes", "some value")]
         [InlineData("YARP..Routes.", "some value")]
         [InlineData("YARP.....Routes.", "some value")]
