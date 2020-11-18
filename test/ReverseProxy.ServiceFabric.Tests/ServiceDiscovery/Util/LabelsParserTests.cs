@@ -29,10 +29,10 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 { "YARP.Backend.Partitioning.Count", "5" },
                 { "YARP.Backend.Partitioning.KeyExtractor", "Header('x-ms-organization-id')" },
                 { "YARP.Backend.Partitioning.Algorithm", "SHA256" },
-                { "YARP.Backend.Healthcheck.Enabled", "true" },
-                { "YARP.Backend.Healthcheck.Interval", "5" },
-                { "YARP.Backend.Healthcheck.Timeout", "5" },
-                { "YARP.Backend.Healthcheck.Path", "/api/health" },
+                { "YARP.Backend.Healthcheck.Active.Enabled", "true" },
+                { "YARP.Backend.Healthcheck.Active.Interval", "5" },
+                { "YARP.Backend.Healthcheck.Active.Timeout", "5" },
+                { "YARP.Backend.Healthcheck.Active.Path", "/api/health" },
                 { "YARP.Backend.Metadata.Foo", "Bar" },
             };
 
@@ -107,7 +107,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             var labels = new Dictionary<string, string>()
             {
                 { "YARP.Backend.BackendId", "MyCoolClusterId" },
-                { "YARP.Backend.Healthcheck.Enabled", label },
+                { "YARP.Backend.Healthcheck.Active.Enabled", label },
             };
 
             // Act
@@ -126,7 +126,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             var labels = new Dictionary<string, string>()
             {
                 { "YARP.Backend.BackendId", "MyCoolClusterId" },
-                { "YARP.Backend.Healthcheck.Enabled", label },
+                { "YARP.Backend.Healthcheck.Active.Enabled", label },
             };
 
             // Act
@@ -146,7 +146,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 { "YARP.Backend.Partitioning.Count", "5" },
                 { "YARP.Backend.Partitioning.KeyExtractor", "Header('x-ms-organization-id')" },
                 { "YARP.Backend.Partitioning.Algorithm", "SHA256" },
-                { "YARP.Backend.Healthcheck.Interval", "5" },
+                { "YARP.Backend.Healthcheck.Active.Interval", "5" },
             };
 
             // Act
@@ -157,8 +157,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         }
 
         [Theory]
-        [InlineData("YARP.Backend.Healthcheck.Interval", "1S")]
-        [InlineData("YARP.Backend.Healthcheck.Timeout", "foobar")]
+        [InlineData("YARP.Backend.Healthcheck.Active.Interval", "1S")]
+        [InlineData("YARP.Backend.Healthcheck.Active.Timeout", "foobar")]
         public void BuildCluster_InvalidValues_Throws(string key, string invalidValue)
         {
             // Arrange
@@ -358,21 +358,32 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         }
 
         [Fact]
-        public void BuildRoutes_MissingHost_Throws()
+        public void BuildRoutes_MissingHost_Works()
         {
             // Arrange
             var labels = new Dictionary<string, string>()
             {
-                { "YARP.Backend.BackendId", "MyCoolClusterId" },
-                { "YARP.Routes.MyRoute.Priority", "2" },
-                { "YARP.Routes.MyRoute.Metadata.Foo", "Bar" },
+                { "YARP.Routes.MyRoute.Path", "/{**catchall}" },
             };
 
             // Act
-            Func<List<ProxyRoute>> func = () => LabelsParser.BuildRoutes(_testServiceName, labels);
+            var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
             // Assert
-            func.Should().Throw<ConfigException>().WithMessage("Missing 'YARP.Routes.MyRoute.Hosts'.");
+            var expectedRoutes = new List<ProxyRoute>
+            {
+                new ProxyRoute
+                {
+                    RouteId = $"{Uri.EscapeDataString(_testServiceName.ToString())}:MyRoute",
+                    Match =
+                    {
+                        Path = "/{**catchall}",
+                    },
+                    ClusterId = _testServiceName.ToString(),
+                    Metadata = new Dictionary<string, string>(),
+                },
+            };
+            routes.Should().BeEquivalentTo(expectedRoutes);
         }
 
         [Fact]

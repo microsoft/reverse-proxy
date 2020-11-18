@@ -18,36 +18,30 @@ namespace Microsoft.ReverseProxy.Utilities.Tests
         [Fact]
         public void Increment_ThreadSafety()
         {
-            // Arrange
             const int Iterations = 100_000;
 
             var counter = new AtomicCounter();
 
-            // Act
             Parallel.For(0, Iterations, i =>
             {
                 counter.Increment();
             });
 
-            // Assert
             Assert.Equal(Iterations, counter.Value);
         }
 
         [Fact]
         public void Decrement_ThreadSafety()
         {
-            // Arrange
             const int Iterations = 100_000;
 
             var counter = new AtomicCounter();
 
-            // Act
             Parallel.For(0, Iterations, i =>
             {
                 counter.Decrement();
             });
 
-            // Assert
             Assert.Equal(-Iterations, counter.Value);
         }
     }

@@ -19,27 +19,21 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
         [Fact]
         public void TryGetItem_NonExistentItem_ReturnsNull()
         {
-            // Arrange
             var manager = new TestItemManager();
 
-            // Act
             var item = manager.TryGetItem("abc");
 
-            // Assert
             Assert.Null(item);
         }
 
         [Fact]
         public void TryGetItem_ExistingItem_Works()
         {
-            // Arrange
             var manager = new TestItemManager();
             manager.GetOrCreateItem("abc", item => item.Value = 1);
 
-            // Act
             var item = manager.TryGetItem("abc");
 
-            // Assert
             Assert.NotNull(item);
             Assert.Equal("abc", item.ItemId);
             Assert.Equal(1, item.Value);
@@ -48,17 +42,14 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
         [Fact]
         public void TryGetItem_CaseInsensitive_ReturnsSameItem()
         {
-            // Arrange
             var manager = new TestItemManager();
             var item1 = manager.GetOrCreateItem("abc", item => item.Value = 1);
             var item2 = manager.GetOrCreateItem("ABC", item => item.Value = 2);
 
-            // Act
             var actual1 = manager.TryGetItem("abc");
             var actual2 = manager.TryGetItem("ABC");
             var actual3 = manager.TryGetItem("aBc");
 
-            // Assert
             Assert.NotNull(item1);
             Assert.NotNull(item2);
 
@@ -75,14 +66,11 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
         [Fact]
         public void GetOrCreateItem_CreatesAndInitializes_NonExistentItem()
         {
-            // Arrange
             var manager = new TestItemManager();
 
-            // Act
             var item1 = manager.GetOrCreateItem("abc", item => item.Value = 1);
             var item2 = manager.GetOrCreateItem("def", item => item.Value = 2);
 
-            // Assert
             Assert.NotNull(item1);
             Assert.Equal("abc", item1.ItemId);
             Assert.Equal(1, item1.Value);
@@ -95,10 +83,8 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
         [Fact]
         public void GetOrCreateItem_ReusesAndReinitializes_ExistingItem()
         {
-            // Arrange
             var manager = new TestItemManager();
 
-            // Act
             var item1 = manager.GetOrCreateItem(
                 "abc",
                 item =>
@@ -114,7 +100,6 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
                     item.Value = 2;
                 });
 
-            // Assert
             Assert.NotNull(item1);
             Assert.Equal("abc", item1.ItemId);
             Assert.Equal(2, item1.Value);
@@ -124,10 +109,8 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
         [Fact]
         public void GetOrCreateItem_CreatesNew_PreviouslyRemovedItem()
         {
-            // Arrange
             var manager = new TestItemManager();
 
-            // Act
             var item1 = manager.GetOrCreateItem(
                 "abc",
                 item =>
@@ -144,7 +127,6 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
                     item.Value = 2;
                 });
 
-            // Assert
             Assert.NotNull(item1);
             Assert.Equal("abc", item1.ItemId);
             Assert.Equal(1, item1.Value);
@@ -157,13 +139,10 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
         [Fact]
         public void GetOrCreateItem_DoesNotAdd_WhenSetupActionThrows()
         {
-            // Arrange
             var manager = new TestItemManager();
 
-            // Act
             Action action = () => manager.GetOrCreateItem("abc", item => throw new Exception());
 
-            // Assert
             Assert.Throws<Exception>(action);
             Assert.Empty(manager.GetItems());
         }
@@ -171,17 +150,14 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
         [Fact]
         public void GetOrCreateItem_ThreadSafety()
         {
-            // Arrange
             const int Iterations = 100_000;
             var manager = new TestItemManager();
 
-            // Act
             Parallel.For(0, Iterations, i =>
             {
                 manager.GetOrCreateItem("abc", item => item.Value++);
             });
 
-            // Assert
             var item = manager.TryGetItem("abc");
             Assert.NotNull(item);
             Assert.Equal("abc", item.ItemId);
@@ -191,27 +167,21 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
         [Fact]
         public void GetItems_Works_Empty()
         {
-            // Arrange
             var manager = new TestItemManager();
 
-            // Act
             var items = manager.GetItems();
 
-            // Assert
             Assert.Empty(items);
         }
 
         [Fact]
         public void GetItems_Works_OneItem()
         {
-            // Arrange
             var manager = new TestItemManager();
 
-            // Act
             var item = manager.GetOrCreateItem("abc", item => { });
             var items = manager.GetItems();
 
-            // Assert
             Assert.Single(items);
             Assert.Same(item, items[0]);
         }
@@ -219,15 +189,12 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
         [Fact]
         public void GetItems_Works_TwoItems()
         {
-            // Arrange
             var manager = new TestItemManager();
 
-            // Act
             var item1 = manager.GetOrCreateItem("abc", item => { });
             var item2 = manager.GetOrCreateItem("def", item => { });
             var items = manager.GetItems();
 
-            // Assert
             Assert.Equal(2, items.Count);
             Assert.Contains(item1, items);
             Assert.Contains(item2, items);
@@ -236,15 +203,12 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
         [Fact]
         public void TryRemoveItem_Works()
         {
-            // Arrange
             var manager = new TestItemManager();
 
-            // Act
             var item = manager.GetOrCreateItem("abc", item => { });
             var result1 = manager.TryRemoveItem("abc");
             var result2 = manager.TryRemoveItem("abc");
 
-            // Assert
             Assert.True(result1);
             Assert.False(result2);
         }

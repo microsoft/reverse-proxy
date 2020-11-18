@@ -90,7 +90,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                 // NOTE: App Params in Service Fabric are case insensitive (verified on version 7.0.457.9590).
                 // Since this is not documented behavior, the code below tries to play it safe by ignoring
                 // duplicated app params instead of throwing and preventing such service from working at all
-                // behind Island Gateway.
+                // behind the Proxy.
                 var result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
                 foreach (var param in app.ApplicationParameters)
                 {

@@ -259,7 +259,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         }
 
         [Theory]
-        [InlineData("YARP.Backend.Healthcheck.Interval", "not a number")]
+        [InlineData("YARP.Backend.Healthcheck.Active.Interval", "not a number")]
         public async void ExecuteAsync_InvalidLabelsForCluster_NoClustersAndBadHealthReported(string keyToOverride, string value)
         {
             // Setup
@@ -348,7 +348,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             routes.Should().BeEquivalentTo(expectedRoutes);
             AssertServiceHealthReported(service, HealthState.Ok);
             AssertStatefulServiceReplicaHealthReported(replica, HealthState.Warning, (description) =>
-                description.StartsWith("Could not build endpoint for Island Gateway") &&
+                description.StartsWith("Could not build service endpoint") &&
                 description.Contains("UnexistingListener"));
             _healthReports.Should().HaveCount(2);
         }
@@ -381,7 +381,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             routes.Should().BeEquivalentTo(expectedRoutes);
             AssertServiceHealthReported(service, HealthState.Ok);
             AssertStatelessServiceInstanceHealthReported(replica, HealthState.Warning, (description) =>
-                description.StartsWith("Could not build endpoint for Island Gateway") &&
+                description.StartsWith("Could not build service endpoint") &&
                 description.Contains("UnexistingListener"));
             _healthReports.Should().HaveCount(2);
         }
@@ -416,7 +416,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             routes.Should().BeEquivalentTo(expectedRoutes);
             AssertServiceHealthReported(service, HealthState.Ok);
             AssertStatelessServiceInstanceHealthReported(replica, HealthState.Warning, (description) =>
-                description.StartsWith("Could not build endpoint for Island Gateway") &&
+                description.StartsWith("Could not build service endpoint") &&
                 description.Contains("ExampleTeamEndpoint"));
             _healthReports.Should().HaveCount(2);
         }
@@ -429,7 +429,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             const string TestClusterId = "MyService123";
             var labels = SFTestHelpers.DummyLabels(TestClusterId);
             labels["YARP.Backend.ServiceFabric.ListenerName"] = "ExampleTeamEndpoint";
-            labels["YARP.Backend.Healthcheck.ServiceFabric.ListenerName"] = "ExampleTeamHealthEndpoint";
+            labels["YARP.Backend.Healthcheck.Active.ServiceFabric.ListenerName"] = "ExampleTeamHealthEndpoint";
             ApplicationWrapper application;
             Mock_AppsResponse(
                 application = CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MyService", out var service, out var replica, serviceKind: ServiceKind.Stateless));

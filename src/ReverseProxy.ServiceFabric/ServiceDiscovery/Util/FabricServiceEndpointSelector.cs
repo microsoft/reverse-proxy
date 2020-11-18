@@ -33,7 +33,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
 
             foreach (var listenerName in fabricServiceEndpoint.ListenerNames)
             {
-                // SF Reverse Proxy endpoint selection logic: https://msazure.visualstudio.com/One/_git/WindowsFabric?path=%2Fsrc%2Fprod%2Fsrc%2FManagement%2FApplicationGateway%2FHttp%2FServiceEndpointsList.cpp&version=GBrelease_6.5&line=52&lineStyle=plain&lineEnd=53&lineStartColumn=1&lineEndColumn=1
+                // SF Reverse Proxy endpoint selection logic: https://github.com/microsoft/service-fabric/blob/1e118f02294c99b61e676c07ac97283ee12197d4/src/prod/src/Management/ApplicationGateway/Http/ServiceEndpointsList.cpp#L52
                 if (listenerName == string.Empty && fabricServiceEndpoint.EmptyStringMatchesAnyListener)
                 {
                     endpointUri = endpoints.ToReadOnlyDictionary()
