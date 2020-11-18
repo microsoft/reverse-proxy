@@ -65,10 +65,10 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 { "YARP.Backend.Partitioning.Count", "5" },
                 { "YARP.Backend.Partitioning.KeyExtractor", "Header('x-ms-organization-id')" },
                 { "YARP.Backend.Partitioning.Algorithm", "SHA256" },
-                { "YARP.Backend.Healthcheck.Interval", "5" },
-                { "YARP.Backend.Healthcheck.Timeout", "5" },
-                { "YARP.Backend.Healthcheck.Port", "8787" },
-                { "YARP.Backend.Healthcheck.Path", "/api/health" },
+                { "YARP.Backend.Healthcheck.Active.Interval", "5" },
+                { "YARP.Backend.Healthcheck.Active.Timeout", "5" },
+                { "YARP.Backend.Healthcheck.Active.Port", "8787" },
+                { "YARP.Backend.Healthcheck.Active.Path", "/api/health" },
                 { "YARP.Metadata.Foo", "Bar" },
                 { "YARP.Routes.MyRoute.Hosts", "example.com" },
                 { "YARP.Routes.MyRoute.Priority", "2" },
@@ -76,8 +76,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         }
 
         /// <summary>
-        /// Build an Island Gateway Endpoint from a Service Fabric ReplicaWrapper. Parameter healthListenerName is optional.
-        /// If the healthListenerName is set, function would fill in the endpoint url for healthaddress.
+        /// Build a <see cref="Destination" /> from a Service Fabric <see cref="ReplicaWrapper" />.
         /// </summary>
         /// <remarks>
         /// The address JSON of the replica is expected to have exactly one endpoint, and that one will be used.

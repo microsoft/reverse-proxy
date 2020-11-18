@@ -105,7 +105,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     </StatelessServiceType>
                     <StatelessServiceType ServiceTypeName='AnotherServiceType'>
                         <Extensions>
-                            <Extension Name='YARP'>
+                            <Extension Name='YARP-preview'>
                             <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
                                 <Label Key='YARP.Enable'>true</Label>
                             </Labels>
@@ -124,7 +124,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         }
 
         [Fact]
-        public async void GetExtensionLabels_NoIslandGatewayExtensions_NoLabels()
+        public async void GetExtensionLabels_NoYarpExtensions_NoLabels()
         {
             // Arrange
             _rawServiceManifest =
@@ -159,7 +159,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 <ServiceTypes>
                     <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
                         <Extensions>
-                            <Extension Name='YARP'>
+                            <Extension Name='YARP-preview'>
                             <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
                                 <Label Key='YARP.Enable'>true</Label>
                                 <Label Key='YARP.foo'>bar</Label>
@@ -192,7 +192,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                   <ServiceTypes>
                     <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
                       <Extensions>
-                        <Extension Name='YARP'>
+                        <Extension Name='YARP-preview'>
                           <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
                             <Label Key='YARP.Enable'>true</Label>
                             <Label Key='YARP.foo'>[SomeAppParam]</Label>
@@ -226,7 +226,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                   <ServiceTypes>
                     <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
                       <Extensions>
-                        <Extension Name='YARP'>
+                        <Extension Name='YARP-preview'>
                           <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
                             <Label Key='YARP.Enable'>true</Label>
                             <Label Key='YARP.foo'>[NonExistingAppParam]</Label>
@@ -250,7 +250,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         }
 
         [Fact]
-        public async void GetExtensionLabels_MultipleExtensions_OnlyIslandGatewayLabelsAreGathered()
+        public async void GetExtensionLabels_MultipleExtensions_OnlyYarpLabelsAreGathered()
         {
             // Arrange
             _rawServiceManifest =
@@ -263,7 +263,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                                 <Label Key='NotThisONe'>I said not this one</Label>
                             </Labels>
                             </Extension>
-                            <Extension Name='YARP'>
+                            <Extension Name='YARP-preview'>
                             <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
                                 <Label Key='YARP.Enable'>true</Label>
                                 <Label Key='YARP.routes.route1.Hosts'>example.com</Label>
@@ -296,7 +296,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 <ServiceTypes>
                     <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
                         <Extensions>
-                            <Extension Name='YARP'>
+                            <Extension Name='YARP-preview'>
                             <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
                                 <Label Key='YARP.EnableDynamicOverrides'>true</Label>
                             </Labels>
@@ -335,7 +335,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 <ServiceTypes>
                     <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
                         <Extensions>
-                            <Extension Name='YARP'>
+                            <Extension Name='YARP-preview'>
                             <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
                                 <Label Key='YARP.EnableDynamicOverrides'>True</Label>
                             </Labels>
@@ -366,7 +366,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         }
 
         [Fact]
-        public async void GetExtensionLabels_OverridesEnabled_OnlyIslandGatewayNamespacePropertiesGathered()
+        public async void GetExtensionLabels_OverridesEnabled_OnlyYarpNamespacePropertiesGathered()
         {
             // Arrange
             _rawServiceManifest =
@@ -374,7 +374,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 <ServiceTypes>
                     <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
                         <Extensions>
-                            <Extension Name='YARP'>
+                            <Extension Name='YARP-preview'>
                             <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
                                 <Label Key='YARP.EnableDynamicOverrides'>true</Label>
                             </Labels>
@@ -388,7 +388,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 new Dictionary<string, string>
                 {
                     { "YARP.Enable", "true" },
-                    { "ISLANDGATEWAy.enable", "false" },
+                    { "YARp.Enable", "false" },
                     { "WhatIsThisNamespace.value", "42" },
                 };
 
@@ -413,7 +413,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 <ServiceTypes>
                     <StatefulService ServiceTypeName='{ServiceTypeName}'>
                         <Extensions>
-                             <Extension Name='YARP'>
+                             <Extension Name='YARP-preview'>
                              <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
                                 <Label Key='YARP.Enable'>true</Label>
                                 <Label Key='YARP.EnableDynamicOverrides'>true</Label>
@@ -453,7 +453,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 <ServiceTypes>
                     <StatefulService ServiceTypeName='{ServiceTypeName}'>
                         <Extensions>
-                             <Extension Name='YARP'>
+                             <Extension Name='YARP-preview'>
                              <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
                                 <Label Key='YARP.Enable'>true</Label>
                                 <Label Key='YARP.EnableDynamicOverrides'>true</Label>
@@ -494,7 +494,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 <ServiceTypes>
                     <StatefulService ServiceTypeName='{ServiceTypeName}'>
                         <Extensions>
-                             <Extension Name='YARP'>
+                             <Extension Name='YARP-preview'>
                              <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
                                 <Label Key='YARP.Enable'>true</Label>
                                 <Label Key='YARP.EnableDynamicOverrides'>false</Label>
@@ -536,7 +536,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 <ServiceTypes>
                     <StatefulService ServiceTypeName='{ServiceTypeName}'>
                         <Extensions>
-                             <Extension Name='YARP'>
+                             <Extension Name='YARP-preview'>
                              <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
                                 <Label Key='YARP.Enable'>true</Label>
                                 <Label Key='YARP.EnableDynamicOverrides'>true</Label>
@@ -579,7 +579,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 <ServiceTypes>
                     <StatefulService ServiceTypeName='{ServiceTypeName}'>
                         <Extensions>
-                             <Extension Name='YARP'>
+                             <Extension Name='YARP-preview'>
                              <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
                                 <Label Key='YARP.Enable'>true</Label>
                                 <Label Key='YARP.routes.route1.host'>example.com</Label>
@@ -632,7 +632,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 <ServiceTypes>
                     <StatefulService ServiceTypeName='{ServiceTypeName}'>
                         <Extensions>
-                             <Extension Name='YARP'>
+                             <Extension Name='YARP-preview'>
                              <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
                                 <Label Key='YARP.Enable'>true</Label>
                                 <Label Key='YARP.routes.route1.host'>example.com</Label>
@@ -662,7 +662,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             <ServiceTypes>
                 <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
                     <Extensions>
-                        <Extension Name='YARP'>
+                        <Extension Name='YARP-preview'>
                         <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
                              <Label Key='YARP.foo'>'{longBadString}'</Label>
                           </Labels>
@@ -693,7 +693,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 <ServiceTypes>
                     <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
                         <Extensions>
-                            <Extension Name='YARP'>
+                            <Extension Name='YARP-preview'>
                             <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
                                 <Label Key='YARP.foo'>bar</Label>
                             </Labels>

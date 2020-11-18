@@ -19,7 +19,6 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
         [Fact]
         public void DeepClone_Works()
         {
-            // Arrange
             var options = new ProxyHttpRequestOptions
             {
                 RequestTimeout = TimeSpan.FromSeconds(60),
@@ -29,10 +28,8 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
 #endif
             };
 
-            // Act
             var clone = options.DeepClone();
 
-            // Assert
             Assert.NotSame(options, clone);
             Assert.Equal(options.RequestTimeout, clone.RequestTimeout);
             Assert.Equal(options.Version, clone.Version);
@@ -45,7 +42,6 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
         [Fact]
         public void Equals_Same_Value_Returns_True()
         {
-            // Arrange
             var options1 = new ProxyHttpRequestOptions
             {
                 RequestTimeout = TimeSpan.FromSeconds(60),
@@ -64,17 +60,14 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
 #endif
             };
 
-            // Act
             var equals = ProxyHttpRequestOptions.Equals(options1, options2);
 
-            // Assert
             Assert.True(equals);
         }
 
         [Fact]
         public void Equals_Different_Value_Returns_False()
         {
-            // Arrange
             var options1 = new ProxyHttpRequestOptions
             {
                 RequestTimeout = TimeSpan.FromSeconds(60),
@@ -102,11 +95,9 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
 #endif
             };
 
-            // Act
             var equals1 = ProxyHttpRequestOptions.Equals(options1, options2);
             var equals2 = ProxyHttpRequestOptions.Equals(options1, options3);
 
-            // Assert
             Assert.False(equals1);
 #if NET
             Assert.False(equals2);
@@ -118,7 +109,6 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
         [Fact]
         public void Equals_First_Null_Returns_False()
         {
-            // Arrange
             var options2 = new ProxyHttpRequestOptions
             {
                 RequestTimeout = TimeSpan.FromSeconds(60),
@@ -128,17 +118,14 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
 #endif
             };
 
-            // Act
             var equals = ProxyHttpRequestOptions.Equals(null, options2);
 
-            // Assert
             Assert.False(equals);
         }
 
         [Fact]
         public void Equals_Second_Null_Returns_False()
         {
-            // Arrange
             var options1 = new ProxyHttpRequestOptions
             {
                 RequestTimeout = TimeSpan.FromSeconds(60),
@@ -148,22 +135,16 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
 #endif
             };
 
-            // Act
             var equals = ProxyHttpRequestOptions.Equals(options1, null);
 
-            // Assert
             Assert.False(equals);
         }
 
         [Fact]
         public void Equals_Both_Null_Returns_True()
         {
-            // Arrange
-
-            // Act
             var equals = ProxyHttpClientOptions.Equals(null, null);
 
-            // Assert
             Assert.True(equals);
         }
     }

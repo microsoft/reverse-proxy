@@ -338,7 +338,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                             currentCluster.Config = newClusterConfig;
                         }
 
-                        currentCluster.UpdateDynamicState();
+                        currentCluster.ForceUpdateDynamicState();
                     });
             }
 
@@ -512,7 +512,8 @@ namespace Microsoft.ReverseProxy.Service.Management
                 httpClientOptions.SslProtocols,
                 httpClientOptions.DangerousAcceptAnyServerCertificate,
                 httpClientOptions.ClientCertificate,
-                httpClientOptions.MaxConnectionsPerServer);
+                httpClientOptions.MaxConnectionsPerServer,
+                httpClientOptions.PropagateActivityContext);
         }
 
         public void Dispose()

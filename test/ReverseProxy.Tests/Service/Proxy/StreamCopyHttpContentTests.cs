@@ -20,7 +20,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         [Fact]
         public async Task CopyToAsync_InvokesStreamCopier()
         {
-            // Arrange
             const int SourceSize = (128 * 1024) - 3;
 
             var sourceBytes = Enumerable.Range(0, SourceSize).Select(i => (byte)(i % 256)).ToArray();
@@ -29,7 +28,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
             var sut = new StreamCopyHttpContent(source, autoFlushHttpClientOutgoingStream: false, new Clock(), CancellationToken.None);
 
-            // Act & Assert
             Assert.False(sut.ConsumptionTask.IsCompleted);
             Assert.False(sut.Started);
             await sut.CopyToAsync(destination);
@@ -44,7 +42,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         [InlineData(true, 2)]
         public async Task CopyToAsync_AutoFlushing(bool autoFlush, int expectedFlushes)
         {
-            // Arrange
             const int SourceSize = (128 * 1024) - 3;
 
             var sourceBytes = Enumerable.Range(0, SourceSize).Select(i => (byte)(i % 256)).ToArray();
@@ -54,7 +51,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
             var sut = new StreamCopyHttpContent(source, autoFlushHttpClientOutgoingStream: autoFlush, new Clock(), CancellationToken.None);
 
-            // Act & Assert
             Assert.False(sut.ConsumptionTask.IsCompleted);
             Assert.False(sut.Started);
             await sut.CopyToAsync(flushCountingDestination);
@@ -68,7 +64,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         [Fact]
         public async Task CopyToAsync_AsyncSequencing()
         {
-            // Arrange
             var tcs = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
             var source = new Mock<Stream>();
             source.Setup(s => s.ReadAsync(It.IsAny<Memory<byte>>(), It.IsAny<CancellationToken>())).Returns(() => new ValueTask<int>(tcs.Task));
@@ -76,7 +71,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
             var sut = new StreamCopyHttpContent(source.Object, autoFlushHttpClientOutgoingStream: false, new Clock(), CancellationToken.None);
 
-            // Act & Assert
             Assert.False(sut.ConsumptionTask.IsCompleted);
             Assert.False(sut.Started);
             var task = sut.CopyToAsync(destination);
@@ -92,26 +86,21 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         [Fact]
         public Task ReadAsStreamAsync_Throws()
         {
-            // Arrange
             var source = new MemoryStream();
             var destination = new MemoryStream();
             var sut = new StreamCopyHttpContent(source, autoFlushHttpClientOutgoingStream: false, new Clock(), CancellationToken.None);
 
-            // Act
             Func<Task> func = () => sut.ReadAsStreamAsync();
 
-            // Assert
             return Assert.ThrowsAsync<NotImplementedException>(func);
         }
 
         [Fact]
         public void AllowDuplex_ReturnsTrue()
         {
-            // Arrange
             var source = new MemoryStream();
             var sut = new StreamCopyHttpContent(source, autoFlushHttpClientOutgoingStream: false, new Clock(), CancellationToken.None);
 
-            // Assert
             // This is an internal property that HttpClient and friends use internally and which must be true
             // to support duplex channels.This test helps detect regressions or changes in undocumented behavior
             // in .NET Core, and it passes as of .NET Core 3.1.

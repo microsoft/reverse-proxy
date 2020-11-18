@@ -120,10 +120,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                     }
                 }
 
-                if (!labels.TryGetValue($"{thisRoutePrefix}.Hosts", out var hosts))
-                {
-                    throw new ConfigException($"Missing '{thisRoutePrefix}.Hosts'.");
-                }
+                labels.TryGetValue($"{thisRoutePrefix}.Hosts", out var hosts);
                 labels.TryGetValue($"{thisRoutePrefix}.Path", out var path);
 
                 var route = new ProxyRoute
@@ -166,10 +163,10 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                 {
                     Active = new ActiveHealthCheckOptions
                     {
-                        Enabled = GetLabel(labels, "YARP.Backend.Healthcheck.Enabled", false),
-                        Interval = TimeSpan.FromSeconds(GetLabel<double>(labels, "YARP.Backend.Healthcheck.Interval", 0)),
-                        Timeout = TimeSpan.FromSeconds(GetLabel<double>(labels, "YARP.Backend.Healthcheck.Timeout", 0)),
-                        Path = GetLabel<string>(labels, "YARP.Backend.Healthcheck.Path", null),
+                        Enabled = GetLabel(labels, "YARP.Backend.Healthcheck.Active.Enabled", false),
+                        Interval = TimeSpan.FromSeconds(GetLabel<double>(labels, "YARP.Backend.Healthcheck.Active.Interval", 0)),
+                        Timeout = TimeSpan.FromSeconds(GetLabel<double>(labels, "YARP.Backend.Healthcheck.Active.Timeout", 0)),
+                        Path = GetLabel<string>(labels, "YARP.Backend.Healthcheck.Active.Path", null),
                     }
                 },
                 Metadata = clusterMetadata,
@@ -190,7 +187,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
 
         private static IReadOnlyList<string> SplitHosts(string hosts)
         {
-            return hosts.Split(',').Select(h => h.Trim()).Where(h => h.Length > 0).ToList();
+            return hosts?.Split(',').Select(h => h.Trim()).Where(h => h.Length > 0).ToList();
         }
     }
 }

@@ -1606,27 +1606,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             return reader.ReadToEnd();
         }
 
-        private class MockHttpHandler : HttpMessageHandler
-        {
-            private readonly Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> func;
-
-            private MockHttpHandler(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> func)
-            {
-                this.func = func ?? throw new ArgumentNullException(nameof(func));
-            }
-
-            public static HttpMessageInvoker CreateClient(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> func)
-            {
-                var handler = new MockHttpHandler(func);
-                return new HttpMessageInvoker(handler);
-            }
-
-            protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-            {
-                return func(request, cancellationToken);
-            }
-        }
-
         private class DuplexStream : Stream
         {
             public DuplexStream(Stream readStream, Stream writeStream)

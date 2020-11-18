@@ -72,9 +72,12 @@
 <p>Introduced: preview5</p>
 <h2 id="introduction">Introduction</h2>
 <p>Each <a class="xref" href="../api/Microsoft.ReverseProxy.Abstractions.Cluster.html">Cluster</a> has a dedicated <a href="https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httpmessageinvoker?view=netcore-3.1">HttpMessageInvoker</a> instance used to proxy requests to its <a class="xref" href="../api/Microsoft.ReverseProxy.Abstractions.Destination.html">Destination</a>s. The configuration is defined per cluster. On YARP startup, all <code>Clusters</code> get new <code>HttpMessageInvoker</code> instances, however if later the <code>Cluster</code> configuration gets changed the <a class="xref" href="../api/Microsoft.ReverseProxy.Service.Proxy.Infrastructure.IProxyHttpClientFactory.html">IProxyHttpClientFactory</a> will re-run and decide if it should create a new <code>HttpMessageInvoker</code> or keep using the existing one. The default <code>IProxyHttpClientFactory</code> implementation creates a new <code>HttpMessageInvoker</code> when there are changes to the <a class="xref" href="../api/Microsoft.ReverseProxy.Abstractions.ProxyHttpClientOptions.html">ProxyHttpClientOptions</a>.</p>
+<p>Properties of outgoing requests for a given cluster can be configured as well. They are defined in <a class="xref" href="../api/Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.html">ProxyHttpRequestOptions</a>.</p>
 <p>The configuration is represented differently if you're using the <a href="https://docs.microsoft.com/en-us/dotnet/api/microsoft.extensions.configuration.iconfiguration?view=dotnet-plat-ext-3.1">IConfiguration</a> model or the code-first model.</p>
 <h2 id="iconfiguration">IConfiguration</h2>
-<p>HTTP client configuration contract consists of <a class="xref" href="../api/Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpClientData.html">ProxyHttpClientData</a> and <a class="xref" href="../api/Microsoft.ReverseProxy.Configuration.Contract.CertificateConfigData.html">CertificateConfigData</a> types defining the following configuration schema. These types are focused on defining serializable configuration. The code based HTTP client configuration model is described below in the &quot;Code Configuration&quot; section.</p>
+<p>These types are focused on defining serializable configuration. The code based configuration model is described below in the &quot;Code Configuration&quot; section.</p>
+<h3 id="httpclient">HttpClient</h3>
+<p>HTTP client configuration is based on <a class="xref" href="../api/Microsoft.ReverseProxy.Abstractions.ProxyHttpClientOptions.html">ProxyHttpClientOptions</a> and represented by the following configuration schema.</p>
 <pre><code class="lang-JSON">&quot;HttpClient&quot;: {
     &quot;SslProtocols&quot;: [ &quot;&lt;protocol-names&gt;&quot; ],
     &quot;MaxConnectionsPerServer&quot;: &quot;&lt;int&gt;&quot;,
@@ -140,8 +143,22 @@
 }
 
 </code></pre>
+<h3 id="httprequest">HttpRequest</h3>
+<p>HTTP request configuration is based on <a class="xref" href="../api/Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.html">ProxyHttpRequestOptions</a> and represented by the following configuration schema.</p>
+<pre><code class="lang-JSON">&quot;HttpRequest&quot;: {
+    &quot;RequestTimeout&quot;: &quot;&lt;timespan&gt;&quot;,
+    &quot;Version&quot;: &quot;&lt;string&gt;&quot;,
+    &quot;VersionPolicy&quot;: [&quot;RequestVersionOrLower&quot;, &quot;RequestVersionOrHigher&quot;, &quot;RequestVersionExact&quot;]
+}
+</code></pre>
+<p>Configuration settings:</p>
+<ul>
+<li>RequestTimeout - the timeout for the outgoing request sent by <a href="https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httpmessageinvoker.sendasync?view=netcore-3.1">HttpMessageInvoker.SendAsync</a>. If not specified, 100 seconds is used.</li>
+<li>Version - outgoing request <a href="https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httprequestmessage.version?view=netcore-3.1">version</a>. The supported values at the moment are <code>1.0</code>, <code>1.1</code> and <code>2</code>. Default value is 2.</li>
+<li>VersionPolicy - defines how the final version is selected for the outgoing requests. This feature is available from .NET 5.0, see <a href="https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httprequestmessage.versionpolicy?view=net-5.0">HttpRequestMessage.VersionPolicy</a>. The default value is <code>RequestVersionOrLower</code>.</li>
+</ul>
 <h2 id="configuration-example">Configuration example</h2>
-<p>The below example shows 2 samples of HTTP client configurations for <code>cluster1</code> and <code>cluster2</code>.</p>
+<p>The below example shows 2 samples of HTTP client and request configurations for <code>cluster1</code> and <code>cluster2</code>.</p>
 <pre><code class="lang-JSON">{
     &quot;Clusters&quot;: {
         &quot;cluster1&quot;: {
@@ -155,6 +172,9 @@
                 ],
                 &quot;MaxConnectionsPerServer&quot;: &quot;10&quot;,
                 &quot;DangerousAcceptAnyServerCertificate&quot;: &quot;true&quot;
+            },
+            &quot;HttpRequest&quot;: {
+                &quot;RequestTimeout&quot;: &quot;00:00:30&quot;
             },
             &quot;Destinations&quot;: {
                 &quot;cluster1/destination1&quot;: {
@@ -176,6 +196,10 @@
                     &quot;Password&quot;: &quot;1234abc&quot;
                 }
             },
+            &quot;HttpRequest&quot;: {
+                &quot;Version&quot;: &quot;1.1&quot;,
+                &quot;VersionPolicy&quot;: &quot;RequestVersionExact&quot;
+            },
             &quot;Destinations&quot;: {
                 &quot;cluster2/destination1&quot;: {
                     &quot;Address&quot;: &quot;https://localhost:10001/&quot;
@@ -186,7 +210,7 @@
 }
 </code></pre>
 <h2 id="code-configuration">Code Configuration</h2>
-<p>HTTP client configuration abstraction constists of the only type <a class="xref" href="../api/Microsoft.ReverseProxy.Abstractions.ProxyHttpClientOptions.html">ProxyHttpClientOptions</a> defined as follows.</p>
+<p>HTTP client configuration abstraction consists of the only type <a class="xref" href="../api/Microsoft.ReverseProxy.Abstractions.ProxyHttpClientOptions.html">ProxyHttpClientOptions</a> defined as follows.</p>
 <pre><code class="lang-C#">public sealed class ProxyHttpClientOptions
 {
     public List&lt;SslProtocols&gt; SslProtocols { get; set; }
@@ -198,7 +222,7 @@
     public int? MaxConnectionsPerServer { get; set; }
 }
 </code></pre>
-<p>Note that instead of defining certificate location as it was in <a class="xref" href="../api/Microsoft.ReverseProxy.Configuration.Contract.CertificateConfigData.html">CertificateConfigData</a> model, this type exposes a fully constructed <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.security.cryptography.x509certificates.x509certificate">X509Certificate</a> certificate. Conversion from the configuration contract to the abstraction model is done by a <a class="xref" href="../api/Microsoft.ReverseProxy.Service.IProxyConfigProvider.html">IProxyConfigProvider</a> which loads a client certificate into memory.</p>
+<p>Note that instead of defining certificate location as it was in the config model, this type exposes a fully constructed <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.security.cryptography.x509certificates.x509certificate">X509Certificate</a> certificate. Conversion from the configuration contract to the abstraction model is done by a <a class="xref" href="../api/Microsoft.ReverseProxy.Service.IProxyConfigProvider.html">IProxyConfigProvider</a> which loads a client certificate into memory.</p>
 <p>The following is an example of <code>ProxyHttpClientOptions</code> using <a href="configproviders.html">code based</a> configuration. An instance of <code>ProxyHttpClientOptions</code> is assigned to the <a class="xref" href="../api/Microsoft.ReverseProxy.Abstractions.Cluster.html#Microsoft_ReverseProxy_Abstractions_Cluster_HttpClient">Cluster.HttpClient</a> property before passing the <code>Cluster</code> array to <code>LoadFromMemory</code> method.</p>
 <pre><code class="lang-C#">public void ConfigureServices(IServiceCollection services)
 {
@@ -235,6 +259,7 @@
 </code></pre>
 <h2 id="custom-iproxyhttpclientfactory">Custom IProxyHttpClientFactory</h2>
 <p>In case the direct control on a proxy HTTP client construction is necessary, the default <a class="xref" href="../api/Microsoft.ReverseProxy.Service.Proxy.Infrastructure.IProxyHttpClientFactory.html">IProxyHttpClientFactory</a> can be replaced with a custom one. In example, that custom logic can use <a class="xref" href="../api/Microsoft.ReverseProxy.Abstractions.Cluster.html">Cluster</a>'s metadata as an extra data source for <a href="https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httpmessageinvoker?view=netcore-3.1">HttpMessageInvoker</a> configuration. However, it's still recommended for any custom factory to set the following <code>HttpMessageInvoker</code> properties to the same values as the default factory does in order to preserve a correct reverse proxy behavior.</p>
+<p>Always return an HttpMessageInvoker instance rather than an HttpClient instance which derives from HttpMessageInvoker. HttpClient buffers responses by default which breaks streaming scenarios and increases memory usage and latency.</p>
 <pre><code class="lang-C#">new SocketsHttpHandler
 {
     UseProxy = false,
@@ -295,7 +320,7 @@
               <div class="contribution">
                 <ul class="nav">
                   <li>
-                    <a href="https://github.com/microsoft/reverse-proxy/blob/master/docs/docfx/articles/proxyhttpclientconfig.md/#L1" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/docs/docfx/articles/proxyhttpclientconfig.md/#L1" class="contribution-link">Improve this Doc</a>
                   </li>
                 </ul>
               </div>
