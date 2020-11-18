@@ -6,7 +6,7 @@ using System;
 namespace Microsoft.ReverseProxy.ServiceFabric
 {
     /// <summary>
-    /// Represents errors related to a user's configuration for the Island Gateway to use.
+    /// Represents errors related to a user's configuration.
     /// </summary>
     public sealed class ConfigException : Exception
     {

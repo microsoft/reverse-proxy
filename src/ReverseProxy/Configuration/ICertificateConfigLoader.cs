@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Security.Cryptography.X509Certificates;
-using Microsoft.ReverseProxy.Configuration.Contract;
+using Microsoft.Extensions.Configuration;
 
 namespace Microsoft.ReverseProxy.Configuration
 {
@@ -18,6 +18,6 @@ namespace Microsoft.ReverseProxy.Configuration
         /// <param name="certificateConfig">Certificate configuration.</param>
         /// <returns>An <see cref="X509Certificate2"/> instance if loading completed successfully.
         /// It never returns null, but throws an exception in case of a failure.</returns>
-        X509Certificate2 LoadCertificate(CertificateConfigData certificateConfig);
+        X509Certificate2 LoadCertificate(IConfigurationSection certificateConfig);
     }
 }

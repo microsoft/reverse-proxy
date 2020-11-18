@@ -16,14 +16,11 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
         [Fact]
         public void CreateEndpointManager_CreatesNewInstances()
         {
-            // Arrange
             var factory = new DestinationManagerFactory();
 
-            // Act
             var manager1 = factory.CreateDestinationManager();
             var manager2 = factory.CreateDestinationManager();
 
-            // Assert
             Assert.NotNull(manager1);
             Assert.NotNull(manager2);
             Assert.NotSame(manager2, manager1);

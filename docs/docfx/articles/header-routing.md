@@ -167,7 +167,7 @@ Code:
 
 ## Contract
 
-[RouteHeaderData](xref:Microsoft.ReverseProxy.Configuration.Contract.RouteHeaderData) defines the configuration contract, where [RouteHeader](xref:Microsoft.ReverseProxy.Abstractions.RouteHeader) defines the code contract. The only difference in these contracts is that RouteHeaderData defines an extra `Value` property for convenience, `Values` is preferred if specified.
+[RouteHeader](xref:Microsoft.ReverseProxy.Abstractions.RouteHeader) defines the code contract and is mapped from config.
 
 ### Name
 

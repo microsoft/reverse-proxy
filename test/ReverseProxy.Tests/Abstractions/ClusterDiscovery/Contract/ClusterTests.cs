@@ -17,7 +17,6 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
         [Fact]
         public void DeepClone_Works()
         {
-            // Arrange
             var cluster = new Cluster
             {
                 CircuitBreaker = new CircuitBreakerOptions(),
@@ -33,10 +32,8 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
                 },
             };
 
-            // Act
             var clone = cluster.DeepClone();
 
-            // Assert
             Assert.NotSame(cluster, clone);
             Assert.NotNull(clone.CircuitBreaker);
             Assert.NotSame(cluster.CircuitBreaker, clone.CircuitBreaker);
@@ -58,13 +55,10 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
         [Fact]
         public void DeepClone_Nulls_Works()
         {
-            // Arrange
             var cluster = new Cluster();
 
-            // Act
             var clone = cluster.DeepClone();
 
-            // Assert
             Assert.NotSame(cluster, clone);
             Assert.Null(clone.CircuitBreaker);
             Assert.Null(clone.Quota);
