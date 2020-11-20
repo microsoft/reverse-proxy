@@ -122,7 +122,7 @@ namespace Microsoft.ReverseProxy.Configuration
                     ClusterId = "cluster1",
                     AuthorizationPolicy = "Default",
                     CorsPolicy = "Default",
-                    Order = 1,
+                    Order = -1,
                     Match =
                     {
                         Hosts = new List<string> { "host-A" },
@@ -304,7 +304,7 @@ namespace Microsoft.ReverseProxy.Configuration
                   }
                 ]
             },
-            ""Order"": 1,
+            ""Order"": -1,
             ""ClusterId"": ""cluster1"",
             ""AuthorizationPolicy"": ""Default"",
             ""CorsPolicy"": ""Default"",
