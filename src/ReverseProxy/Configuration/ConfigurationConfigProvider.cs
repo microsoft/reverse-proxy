@@ -380,7 +380,8 @@ namespace Microsoft.ReverseProxy.Configuration
                 SslProtocols = sslProtocols,
                 DangerousAcceptAnyServerCertificate = section.ReadBool(nameof(ProxyHttpClientOptions.DangerousAcceptAnyServerCertificate)) ?? true,
                 ClientCertificate = clientCertificate,
-                MaxConnectionsPerServer = section.ReadInt32(nameof(ProxyHttpClientOptions.MaxConnectionsPerServer))
+                MaxConnectionsPerServer = section.ReadInt32(nameof(ProxyHttpClientOptions.MaxConnectionsPerServer)),
+                PropagateActivityContext = section.ReadBool(nameof(ProxyHttpClientOptions.PropagateActivityContext))
             };
         }
 
@@ -393,7 +394,7 @@ namespace Microsoft.ReverseProxy.Configuration
 
             return new ProxyHttpRequestOptions
             {
-                RequestTimeout = section.ReadTimeSpan(nameof(ProxyHttpRequestOptions.RequestTimeout)),
+                Timeout = section.ReadTimeSpan(nameof(ProxyHttpRequestOptions.Timeout)),
                 Version = section.ReadVersion(nameof(ProxyHttpRequestOptions.Version)),
 #if NET
                 VersionPolicy = section.ReadEnum<HttpVersionPolicy>(nameof(ProxyHttpRequestOptions.VersionPolicy)),

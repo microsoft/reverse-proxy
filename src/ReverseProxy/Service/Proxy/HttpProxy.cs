@@ -28,6 +28,12 @@ namespace Microsoft.ReverseProxy.Service.Proxy
     /// </summary>
     internal class HttpProxy : IHttpProxy
     {
+        private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(100);
+        private static readonly Version DefaultVersion = HttpVersion.Version20;
+#if NET
+        private static readonly HttpVersionPolicy DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrLower;
+#endif
+
         private static readonly HashSet<string> _responseHeadersToSkip = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             HeaderNames.TransferEncoding
@@ -91,12 +97,14 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             HttpContext context,
             string destinationPrefix,
             HttpMessageInvoker httpClient,
-            RequestProxyOptions proxyOptions)
+            Transforms transforms,
+            RequestProxyOptions requestOptions)
         {
             _ = context ?? throw new ArgumentNullException(nameof(context));
             _ = destinationPrefix ?? throw new ArgumentNullException(nameof(destinationPrefix));
             _ = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-            _ = proxyOptions ?? throw new ArgumentNullException(nameof(proxyOptions));
+
+            transforms ??= Transforms.Empty;
 
             // HttpClient overload for SendAsync changes response behavior to fully buffered which impacts performance
             // See discussion in https://github.com/microsoft/reverse-proxy/issues/458
@@ -116,7 +124,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                     // Mitigate https://github.com/microsoft/reverse-proxy/issues/255, IIS considers all requests upgradeable.
                     && string.Equals("WebSocket", context.Request.Headers[HeaderNames.Upgrade], StringComparison.OrdinalIgnoreCase);
 
-                var destinationRequest = CreateRequestMessage(context, destinationPrefix, isUpgradeRequest, proxyOptions);
+                var destinationRequest = CreateRequestMessage(context, destinationPrefix, isUpgradeRequest, transforms.RequestTransforms, requestOptions);
 
                 var isClientHttp2 = ProtocolHelper.IsHttp2(context.Request.Protocol);
 
@@ -129,12 +137,12 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 var requestContent = SetupRequestBodyCopy(context.Request, destinationRequest, isStreamingRequest, requestAborted);
 
                 // :: Step 3: Copy request headers Client --► Proxy --► Destination
-                CopyRequestHeaders(context, destinationRequest, proxyOptions.Transforms);
+                CopyRequestHeaders(context, destinationRequest, transforms);
 
                 // :: Step 4: Send the outgoing request using HttpClient
                 HttpResponseMessage destinationResponse;
                 var requestTimeoutSource = CancellationTokenSource.CreateLinkedTokenSource(requestAborted);
-                requestTimeoutSource.CancelAfter(proxyOptions.RequestTimeout);
+                requestTimeoutSource.CancelAfter(requestOptions.Timeout ?? DefaultTimeout);
                 var requestTimeoutToken = requestTimeoutSource.Token;
                 try
                 {
@@ -184,7 +192,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 
                 // :: Step 5: Copy response status line Client ◄-- Proxy ◄-- Destination
                 // :: Step 6: Copy response headers Client ◄-- Proxy ◄-- Destination
-                CopyResponseStatusAndHeaders(destinationResponse, context, proxyOptions.Transforms.ResponseHeaderTransforms);
+                CopyResponseStatusAndHeaders(destinationResponse, context, transforms.ResponseHeaderTransforms);
 
                 // :: Step 7-A: Check for a 101 upgrade response, this takes care of WebSockets as well as any other upgradeable protocol.
                 if (destinationResponse.StatusCode == HttpStatusCode.SwitchingProtocols)
@@ -213,7 +221,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 }
 
                 // :: Step 8: Copy response trailer headers and finish response Client ◄-- Proxy ◄-- Destination
-                CopyResponseTrailingHeaders(destinationResponse, context, proxyOptions.Transforms.ResponseTrailerTransforms);
+                CopyResponseTrailingHeaders(destinationResponse, context, transforms.ResponseTrailerTransforms);
 
                 if (isStreamingRequest)
                 {
@@ -253,7 +261,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             }
         }
 
-        private HttpRequestMessage CreateRequestMessage(HttpContext context, string destinationAddress, bool isUpgradeRequest, RequestProxyOptions proxyOptions)
+        private HttpRequestMessage CreateRequestMessage(HttpContext context, string destinationAddress, bool isUpgradeRequest,
+            IReadOnlyList<RequestParametersTransform> requestTransforms, RequestProxyOptions requestOptions)
         {
             // "http://a".Length = 8
             if (destinationAddress == null || destinationAddress.Length < 8)
@@ -266,17 +275,16 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             // based on VersionPolicy (for .NET 5 and higher). For example, downgrading to HTTP/1.1 if it cannot establish HTTP/2 with the target.
             // This is done without extra round-trips thanks to ALPN. We can detect a downgrade after calling HttpClient.SendAsync
             // (see Step 3 below). TBD how this will change when HTTP/3 is supported.
-            var httpVersion = isUpgradeRequest ? ProtocolHelper.Http11Version : proxyOptions.Version;
+            var httpVersion = isUpgradeRequest ? ProtocolHelper.Http11Version : (requestOptions.Version ?? DefaultVersion);
 #if NET
-            var httpVersionPolicy = isUpgradeRequest ? HttpVersionPolicy.RequestVersionOrLower : proxyOptions.VersionPolicy;
+            var httpVersionPolicy = isUpgradeRequest ? HttpVersionPolicy.RequestVersionOrLower : (requestOptions.VersionPolicy ?? DefaultVersionPolicy);
 #endif
 
             // TODO Perf: We could probably avoid splitting this and just append the final path and query
             UriHelper.FromAbsolute(destinationAddress, out var destinationScheme, out var destinationHost, out var destinationPathBase, out _, out _); // Query and Fragment are not supported here.
 
             var request = context.Request;
-            var transforms = proxyOptions.Transforms.RequestTransforms;
-            if (transforms.Count == 0)
+            if (requestTransforms.Count == 0)
             {
                 var url = UriHelper.BuildAbsolute(destinationScheme, destinationHost, destinationPathBase, request.Path, request.QueryString);
                 Log.Proxying(_logger, url);
@@ -302,9 +310,9 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 #endif
 
             };
-            foreach (var transform in transforms)
+            foreach (var requestTransform in requestTransforms)
             {
-                transform.Apply(transformContext);
+                requestTransform.Apply(transformContext);
             }
 
             var targetUrl = UriHelper.BuildAbsolute(destinationScheme, destinationHost, destinationPathBase, transformContext.Path, transformContext.Query.QueryString);

@@ -18,7 +18,6 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
         [Fact]
         public void DeepClone_Works()
         {
-            // Arrange
             var sut = new ProxyRoute
             {
                 RouteId = "route1",
@@ -48,10 +47,8 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
                 },
             };
 
-            // Act
             var clone = sut.DeepClone();
 
-            // Assert
             Assert.NotSame(sut, clone);
             Assert.Equal(sut.RouteId, clone.RouteId);
             Assert.NotSame(sut.Match, clone.Match);

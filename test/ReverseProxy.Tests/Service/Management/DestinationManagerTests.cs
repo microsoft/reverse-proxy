@@ -20,13 +20,10 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
         [Fact]
         public void GetOrCreateItem_NonExistentItem_CreatesNewItem()
         {
-            // Arrange
             var manager = new DestinationManager();
 
-            // Act
             var item = manager.GetOrCreateItem("abc", item => { });
 
-            // Assert
             Assert.NotNull(item);
             Assert.Equal("abc", item.DestinationId);
         }

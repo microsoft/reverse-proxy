@@ -88,10 +88,11 @@ namespace Microsoft.ReverseProxy.Configuration
                             SslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12,
                             MaxConnectionsPerServer = 10,
                             DangerousAcceptAnyServerCertificate = true,
+                            PropagateActivityContext = true,
                         },
                         HttpRequest = new ProxyHttpRequestOptions()
                         {
-                            RequestTimeout = TimeSpan.FromSeconds(60),
+                            Timeout = TimeSpan.FromSeconds(60),
                             Version = Version.Parse("1.0"),
 #if NET
                             VersionPolicy = HttpVersionPolicy.RequestVersionExact,
@@ -121,7 +122,7 @@ namespace Microsoft.ReverseProxy.Configuration
                     ClusterId = "cluster1",
                     AuthorizationPolicy = "Default",
                     CorsPolicy = "Default",
-                    Order = 1,
+                    Order = -1,
                     Match =
                     {
                         Hosts = new List<string> { "host-A" },
@@ -227,10 +228,11 @@ namespace Microsoft.ReverseProxy.Configuration
                     ""Location"": null,
                     ""AllowInvalid"": null
                 },
-                ""MaxConnectionsPerServer"": 10
+                ""MaxConnectionsPerServer"": 10,
+                ""PropagateActivityContext"": true,
             },
             ""HttpRequest"": {
-                ""RequestTimeout"": ""00:01:00"",
+                ""Timeout"": ""00:01:00"",
                 ""Version"": ""1"",
                 ""VersionPolicy"": ""RequestVersionExact""
             },
@@ -302,7 +304,7 @@ namespace Microsoft.ReverseProxy.Configuration
                   }
                 ]
             },
-            ""Order"": 1,
+            ""Order"": -1,
             ""ClusterId"": ""cluster1"",
             ""AuthorizationPolicy"": ""Default"",
             ""CorsPolicy"": ""Default"",
@@ -618,8 +620,9 @@ namespace Microsoft.ReverseProxy.Configuration
             Assert.Equal(cluster1.SessionAffinity.Settings, abstractCluster1.SessionAffinity.Settings);
             Assert.Same(certificate, abstractCluster1.HttpClient.ClientCertificate);
             Assert.Equal(cluster1.HttpClient.MaxConnectionsPerServer, abstractCluster1.HttpClient.MaxConnectionsPerServer);
+            Assert.Equal(cluster1.HttpClient.PropagateActivityContext, abstractCluster1.HttpClient.PropagateActivityContext);
             Assert.Equal(SslProtocols.Tls11 | SslProtocols.Tls12, abstractCluster1.HttpClient.SslProtocols);
-            Assert.Equal(cluster1.HttpRequest.RequestTimeout, abstractCluster1.HttpRequest.RequestTimeout);
+            Assert.Equal(cluster1.HttpRequest.Timeout, abstractCluster1.HttpRequest.Timeout);
             Assert.Equal(HttpVersion.Version10, abstractCluster1.HttpRequest.Version);
 #if NET
             Assert.Equal(cluster1.HttpRequest.VersionPolicy, abstractCluster1.HttpRequest.VersionPolicy);
