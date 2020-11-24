@@ -12,8 +12,10 @@ namespace Microsoft.ReverseProxy.ServiceFabric
     /// A wrapper class for the service fabric client SDK.
     /// See Microsoft documentation: https://docs.microsoft.com/en-us/dotnet/api/system.fabric.fabricclient.servicemanagementclient?view=azure-dotnet .
     /// </summary>
-    internal class ServiceManagementClientWrapper : IServiceManagementClientWrapper
+    internal class ServiceManagementClientWrapper : IServiceManagementClientWrapper, IDisposable
     {
+        private readonly FabricClient _fabricClient;
+
         // Represents the enabling of the services to be managed.
         private readonly FabricClient.ServiceManagementClient _serviceManagementClient;
 
@@ -23,7 +25,14 @@ namespace Microsoft.ReverseProxy.ServiceFabric
         /// </summary>
         public ServiceManagementClientWrapper()
         {
-            _serviceManagementClient = new FabricClient().ServiceManager;
+            _fabricClient = new FabricClient();
+            _serviceManagementClient = _fabricClient.ServiceManager;
+        }
+
+        /// <inheritdoc/>
+        public void Dispose()
+        {
+            _fabricClient.Dispose();
         }
 
         /// <summary>

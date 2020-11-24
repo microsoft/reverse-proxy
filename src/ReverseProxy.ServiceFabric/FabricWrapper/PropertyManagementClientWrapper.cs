@@ -14,8 +14,10 @@ namespace Microsoft.ReverseProxy.ServiceFabric
     /// A wrapper class for the service fabric client SDK.
     /// See Microsoft documentation: https://docs.microsoft.com/en-us/dotnet/api/system.fabric.fabricclient.propertymanagementclient?view=azure-dotnet .
     /// </summary>
-    internal class PropertyManagementClientWrapper : IPropertyManagementClientWrapper
+    internal class PropertyManagementClientWrapper : IPropertyManagementClientWrapper, IDisposable
     {
+        private readonly FabricClient _fabricClient;
+
         // Represents the property management client used to perform management of names and properties.
         private readonly FabricClient.PropertyManagementClient _propertyManagementClient;
 
@@ -24,7 +26,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric
         /// </summary>
         public PropertyManagementClientWrapper()
         {
-            _propertyManagementClient = new FabricClient().PropertyManager;
+            _fabricClient = new FabricClient();
+            _propertyManagementClient = _fabricClient.PropertyManager;
         }
 
         /// <summary>
@@ -85,6 +88,12 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             }
             while (previousResult.HasMoreData);
             return namedProperties;
+        }
+
+        /// <inheritdoc/>
+        public void Dispose()
+        {
+            _fabricClient.Dispose();
         }
     }
 }
