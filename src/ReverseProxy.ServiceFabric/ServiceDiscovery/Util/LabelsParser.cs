@@ -137,6 +137,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                         Interval = TimeSpan.FromSeconds(GetLabel<double>(labels, "YARP.Backend.Healthcheck.Active.Interval", 0)),
                         Timeout = TimeSpan.FromSeconds(GetLabel<double>(labels, "YARP.Backend.Healthcheck.Active.Timeout", 0)),
                         Path = GetLabel<string>(labels, "YARP.Backend.Healthcheck.Active.Path", null),
+                        Policy = GetLabel<string>(labels, "YARP.Backend.Healthcheck.Active.Policy", null),
                     }
                 },
                 Metadata = clusterMetadata,

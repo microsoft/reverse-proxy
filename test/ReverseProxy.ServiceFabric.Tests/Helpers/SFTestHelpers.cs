@@ -52,7 +52,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             };
         }
 
-        internal static Dictionary<string, string> DummyLabels(string backendId, bool enableGateway = true)
+        internal static Dictionary<string, string> DummyLabels(string backendId, bool enableGateway = true, bool activeHealthChecks = false)
         {
             return new Dictionary<string, string>()
             {
@@ -65,10 +65,12 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 { "YARP.Backend.Partitioning.Count", "5" },
                 { "YARP.Backend.Partitioning.KeyExtractor", "Header('x-ms-organization-id')" },
                 { "YARP.Backend.Partitioning.Algorithm", "SHA256" },
+                { "YARP.Backend.Healthcheck.Active.Enabled", activeHealthChecks ? "true" : "false" },
                 { "YARP.Backend.Healthcheck.Active.Interval", "5" },
                 { "YARP.Backend.Healthcheck.Active.Timeout", "5" },
                 { "YARP.Backend.Healthcheck.Active.Port", "8787" },
                 { "YARP.Backend.Healthcheck.Active.Path", "/api/health" },
+                { "YARP.Backend.Healthcheck.Active.Policy", "ConsecutiveFailures" },
                 { "YARP.Metadata.Foo", "Bar" },
                 { "YARP.Routes.MyRoute.Hosts", "example.com" },
                 { "YARP.Routes.MyRoute.Priority", "2" },

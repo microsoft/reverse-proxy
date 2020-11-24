@@ -149,6 +149,39 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         }
 
         [Fact]
+        public async void ExecuteAsync_SingleServiceWithGatewayEnabledAndActiveHealthCheck()
+        {
+            // Setup
+            _scenarioOptions = new ServiceFabricDiscoveryOptions();
+            const string TestClusterId = "MyService123";
+            var labels = SFTestHelpers.DummyLabels(TestClusterId, activeHealthChecks: true);
+            ApplicationWrapper application;
+            Mock_AppsResponse(
+                application = CreateApp_1StatelessService_2Partition_2ReplicasEach("MyApp", "MYService", out var service, out var replicas));
+            Mock_ServiceLabels(application, service, labels);
+
+            // Act
+            var (routes, clusters) = await RunScenarioAsync();
+
+            // Assert
+            var expectedClusters = new[]
+            {
+                ClusterWithDestinations(
+                    LabelsParser.BuildCluster(_testServiceName, labels),
+                    SFTestHelpers.BuildDestinationFromReplica(replicas[0]),
+                    SFTestHelpers.BuildDestinationFromReplica(replicas[1]),
+                    SFTestHelpers.BuildDestinationFromReplica(replicas[2]),
+                    SFTestHelpers.BuildDestinationFromReplica(replicas[3])),
+            };
+            var expectedRoutes = LabelsParser.BuildRoutes(_testServiceName, labels);
+
+            routes.Should().BeEquivalentTo(expectedRoutes);
+            clusters.Should().BeEquivalentTo(expectedClusters);
+            AssertServiceHealthReported(service, HealthState.Ok);
+            _healthReports.Should().HaveCount(1);
+        }
+
+        [Fact]
         public async void ExecuteAsync_MultipleServicesWithGatewayEnabled_MultipleClustersFound()
         {
             // Setup

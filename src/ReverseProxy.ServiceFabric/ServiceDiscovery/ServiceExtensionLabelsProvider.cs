@@ -88,7 +88,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             // TODO: gathering labels from multiple servicetypes within the same service would result in multiple
             // calls to the SF client and multiple XML parses. We should consider creating an instance of this class
             // per application type to reuse that data. Since this is uncommon, for now we follow the na�ve implementation.
-            var result = await ExtractLabelsAsync(rawServiceManifest, service.ServiceTypeName, cancellationToken);
+            var result = ExtractLabels(rawServiceManifest, service.ServiceTypeName);
 
             ApplyAppParamReplacements(result, application, service);
 
@@ -186,10 +186,9 @@ namespace Microsoft.ReverseProxy.ServiceFabric
         /// <summary>
         /// Gets the labels from the extensions of the provided raw service manifest.
         /// </summary>
-        private async Task<Dictionary<string, string>> ExtractLabelsAsync(
+        private Dictionary<string, string> ExtractLabels(
            string rawServiceManifest,
-           string targetServiceTypeName,
-           CancellationToken cancellationToken)
+           string targetServiceTypeName)
         {
             var result = new Dictionary<string, string>(StringComparer.Ordinal);
             using (var reader = XmlReader.Create(new StringReader(rawServiceManifest), CreateSafeXmlSetting(1024 * 1024, 1024)))
@@ -197,7 +196,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                 XDocument parsedManifest;
                 try
                 {
-                    parsedManifest = await XDocument.LoadAsync(reader, LoadOptions.None, cancellationToken);
+                    parsedManifest = XDocument.Load(reader, LoadOptions.None);
                 }
                 catch (System.Xml.XmlException ex)
                 {
