@@ -7,7 +7,20 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Include="..\TestCertificates\testCert.pfx" LinkBase="TestCertificates" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\src\ReverseProxy\Microsoft.ReverseProxy.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
+    <ProjectReference Include="..\..\src\Microsoft.ReverseProxy.TelemetryConsumption\Microsoft.ReverseProxy.Telemetry.Consumption.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\ReverseProxy.Tests\Common\ManualClock.cs" Link="Common\ManualClock.cs" />
+    <Compile Include="..\ReverseProxy.Tests\Utilities\TestResources.cs" Link="Utilities\TestResources.cs" />
   </ItemGroup>
 
 </Project>

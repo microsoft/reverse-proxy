@@ -1,20 +1,13 @@
 using System;
-using System.IO;
 using System.Net;
 using System.Net.Http;
-using System.Net.Sockets;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
-using Microsoft.ReverseProxy.Abstractions;
+using Microsoft.ReverseProxy.Common;
 using Xunit;
 
 namespace Microsoft.ReverseProxy
@@ -38,7 +31,7 @@ namespace Microsoft.ReverseProxy
         {
             var tcs = new TaskCompletionSource<StringValues>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-            using var destinationHost = CreateDestinationHost(
+            var test = new TestEnvironment(
                 context =>
                 {
                     if (context.Request.Headers.TryGetValue(HeaderNames.Cookie, out var cookieHeaders))
@@ -50,90 +43,23 @@ namespace Microsoft.ReverseProxy
                         tcs.SetException(new Exception("Missing 'Cookie' header in request"));
                     }
                     return Task.CompletedTask;
-                });
-
-            await destinationHost.StartAsync();
-            var destinationHostUrl = destinationHost.GetAddress();
-
-            using var proxyHost = CreateReverseProxyHost(HttpProtocol, destinationHostUrl);
-            await proxyHost.StartAsync();
-            var proxyHostUri = new Uri(proxyHost.GetAddress());
-
-            await ProcessHttpRequest(proxyHostUri);
-
-            Assert.True(tcs.Task.IsCompleted);
-            var cookieHeaders = await tcs.Task;
-            var cookies = Assert.Single(cookieHeaders);
-            Assert.Equal(Cookies, cookies);
-
-            await destinationHost.StopAsync();
-            await proxyHost.StopAsync();
-        }
-
-        private IHost CreateReverseProxyHost(HttpProtocols httpProtocol, string destinationHostUrl)
-        {
-            return CreateHost(httpProtocol,
-                services =>
-                {
-                    var proxyRoute = new ProxyRoute
-                    {
-                        RouteId = "route1",
-                        ClusterId = "cluster1",
-                        Match = { Path = "/{**catchall}" }
-                    };
-
-                    var cluster = new Cluster
-                    {
-                        Id = "cluster1",
-                        Destinations =
-                        {
-                            { "cluster1",  new Destination() { Address = destinationHostUrl } }
-                        }
-                    };
-
-                    services.AddReverseProxy().LoadFromMemory(new[] { proxyRoute }, new[] { cluster });
                 },
-                app =>
+                proxyBuilder => { },
+                proxyApp =>
                 {
-                    app.UseMiddleware<CheckCookieHeaderMiddleware>();
-                    app.UseRouting();
-                    app.UseEndpoints(builder =>
-                    {
-                        builder.MapReverseProxy();
-                    });
-                });
-        }
-
-        private IHost CreateDestinationHost(RequestDelegate getDelegate)
-        {
-            return CreateHost(HttpProtocols.Http1AndHttp2,
-                services =>
-                {
-                    services.AddRouting();
+                    proxyApp.UseMiddleware<CheckCookieHeaderMiddleware>();
                 },
-                app =>
-                {
-                    app.UseRouting();
-                    app.UseEndpoints(endpoints => endpoints.MapGet("/", getDelegate));
-                });
-        }
+                proxyProtocol: HttpProtocol);
 
-        private IHost CreateHost(HttpProtocols httpProtocols, Action<IServiceCollection> configureServices, Action<IApplicationBuilder> configureApp)
-        {
-            return new HostBuilder()
-               .ConfigureWebHost(webHostBuilder =>
-               {
-                   webHostBuilder
-                   .ConfigureServices(configureServices)
-                   .UseKestrel(kestrel => 
-                   {
-                       kestrel.Listen(IPAddress.Loopback, 0, listenOptions =>
-                       {
-                           listenOptions.Protocols = httpProtocols;
-                       });
-                   })
-                   .Configure(configureApp);
-               }).Build();
+            await test.Invoke(async uri =>
+            {
+                await ProcessHttpRequest(new Uri(uri));
+
+                Assert.True(tcs.Task.IsCompleted);
+                var cookieHeaders = await tcs.Task;
+                var cookies = Assert.Single(cookieHeaders);
+                Assert.Equal(Cookies, cookies);
+            });
         }
 
         private class CheckCookieHeaderMiddleware
@@ -177,7 +103,7 @@ namespace Microsoft.ReverseProxy
 
         public override async Task ProcessHttpRequest(Uri proxyHostUri)
         {
-            using var client = new HttpClient();            
+            using var client = new HttpClient();
             using var message = new HttpRequestMessage(HttpMethod.Get, proxyHostUri);
             message.Headers.Add(HeaderNames.Cookie, Cookies);
             using var response = await client.SendAsync(message);
