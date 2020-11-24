@@ -1317,8 +1317,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     {
                         Content = new StreamContent(new OnCompletedReadStream(() =>
                         {
-                            longTokenSource.Cancel();
                             waitTcs.SetResult(0);
+                            longTokenSource.Cancel();
                         }))
                     });
                 });
