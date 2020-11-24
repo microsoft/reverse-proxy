@@ -633,7 +633,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         }
 
         private async Task<(StreamCopyResult, Exception)> CopyResponseBodyAsync(HttpContent destinationResponseContent, PipeWriter clientResponseStream,
-             CancellationToken cancellation)
+            CancellationToken cancellation)
         {
             // SocketHttpHandler and similar transports always provide an HttpContent object, even if it's empty.
             // In 3.1 this is only likely to return null in tests.

@@ -155,12 +155,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             }
         }
 
-        private static long StopwatchTicksToDateTimeTicks(long stopwatchTicks)
-        {
-            var dateTimeTicksPerStopwatchTick = (double)TimeSpan.TicksPerSecond / Stopwatch.Frequency;
-            return (long)(stopwatchTicks * dateTimeTicksPerStopwatchTick);
-        }
-
         public static async Task<(StreamCopyResult, Exception)> CopyAsync(bool isRequest, PipeReader input, Stream output, IClock clock, CancellationToken cancellation)
         {
             _ = input ?? throw new ArgumentNullException(nameof(input));
@@ -432,6 +426,12 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                         StopwatchTicksToDateTimeTicks(Math.Max(0, firstReadTime)));
                 }
             }
+        }
+
+        private static long StopwatchTicksToDateTimeTicks(long stopwatchTicks)
+        {
+            var dateTimeTicksPerStopwatchTick = (double)TimeSpan.TicksPerSecond / Stopwatch.Frequency;
+            return (long)(stopwatchTicks * dateTimeTicksPerStopwatchTick);
         }
     }
 }
