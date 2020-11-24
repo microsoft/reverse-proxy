@@ -77,7 +77,6 @@ You will need to add the lines indicated below. A brief explanation of labels is
 +            <Label Key="YARP.Routes.route1.Path">{**catchall}</Label>
 +            <!-- Optional: enable active health probes -->
 +            <Label Key='YARP.Backend.Healthcheck.Active.Enabled'>true</Label>
-+            <Label Key='YARP.Backend.Healthcheck.Active.Path'>api/health</Label>
 +            <Label Key='YARP.Backend.Healthcheck.Active.Timeout'>30</Label>
 +            <Label Key='YARP.Backend.Healthcheck.Active.Interval'>10</Label>
 +            <Label Key='YARP.Backend.Healthcheck.Active.Policy'>ConsecutiveFailures</Label>
