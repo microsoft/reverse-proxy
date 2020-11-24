@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Microsoft.ReverseProxy.Abstractions;
+using Microsoft.ReverseProxy.Common.Tests;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Management;
 using Microsoft.ReverseProxy.Service.Proxy;
@@ -22,7 +23,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         {
             var options = Options.Create(
                 new TransportFailureRateHealthPolicyOptions { DefaultFailureRateLimit = 0.5, DetectionWindowSize = TimeSpan.FromSeconds(30), MinimalTotalCountThreshold = 1 });
-            var clock = new ClockStub { TickCount = 10000 };
+            var clock = new ManualClock(TimeSpan.FromMilliseconds(10000));
             var healthUpdater = new Mock<IDestinationHealthUpdater>();
             var policy = new TransportFailureRateHealthPolicy(options, clock, healthUpdater.Object);
             Assert.Equal(HealthCheckConstants.PassivePolicy.TransportFailureRate, policy.Name);
@@ -43,7 +44,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 policy.RequestProxied(cluster0, cluster0.DestinationManager.Items[1], new DefaultHttpContext());
                 policy.RequestProxied(cluster1, cluster1.DestinationManager.Items[0], new DefaultHttpContext());
                 policy.RequestProxied(cluster1, cluster1.DestinationManager.Items[1], new DefaultHttpContext());
-                clock.TickCount += 4000;
+                clock.AdvanceClockBy(TimeSpan.FromMilliseconds(4000));
             }
 
             healthUpdater.Verify(u => u.SetPassive(cluster0, cluster0.DestinationManager.Items[0], DestinationHealth.Healthy, reactivationPeriod0), Times.Exactly(3));
@@ -57,7 +58,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             {
                 policy.RequestProxied(cluster0, cluster0.DestinationManager.Items[1], GetFailedRequestContext(ProxyError.RequestTimedOut));
                 policy.RequestProxied(cluster1, cluster1.DestinationManager.Items[0], GetFailedRequestContext(ProxyError.Request));
-                clock.TickCount += 4000;
+                clock.AdvanceClockBy(TimeSpan.FromMilliseconds(4000));
             }
 
             healthUpdater.Verify(u => u.SetPassive(cluster0, cluster0.DestinationManager.Items[1], DestinationHealth.Healthy, reactivationPeriod0), Times.Exactly(5));
@@ -68,7 +69,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             // Two more failed requests
             policy.RequestProxied(cluster1, cluster1.DestinationManager.Items[0], GetFailedRequestContext(ProxyError.Request));
             // End of the detection window
-            clock.TickCount += 6000;
+            clock.AdvanceClockBy(TimeSpan.FromMilliseconds(6000));
             policy.RequestProxied(cluster1, cluster1.DestinationManager.Items[0], GetFailedRequestContext(ProxyError.Request));
 
             healthUpdater.Verify(u => u.SetPassive(cluster1, cluster1.DestinationManager.Items[0], DestinationHealth.Healthy, reactivationPeriod1), Times.Exactly(7));
@@ -81,7 +82,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         {
             var options = Options.Create(
                 new TransportFailureRateHealthPolicyOptions { DefaultFailureRateLimit = 0.5, DetectionWindowSize = TimeSpan.FromSeconds(30), MinimalTotalCountThreshold = 1 });
-            var clock = new ClockStub { TickCount = 10000 };
+            var clock = new ManualClock(TimeSpan.FromMilliseconds(10000));
             var healthUpdater = new Mock<IDestinationHealthUpdater>();
             var policy = new TransportFailureRateHealthPolicy(options, clock, healthUpdater.Object);
 
@@ -91,7 +92,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             for (var i = 0; i < 2; i++)
             {
                 policy.RequestProxied(cluster, cluster.DestinationManager.Items[1], GetFailedRequestContext(ProxyError.RequestTimedOut));
-                clock.TickCount += 1000;
+                clock.AdvanceClockBy(TimeSpan.FromMilliseconds(1000));
             }
 
             healthUpdater.Verify(u => u.SetPassive(cluster, cluster.DestinationManager.Items[1], DestinationHealth.Unhealthy, TimeSpan.FromSeconds(60)), Times.Exactly(2));
@@ -102,7 +103,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             {
                 policy.RequestProxied(cluster, cluster.DestinationManager.Items[0], new DefaultHttpContext());
                 policy.RequestProxied(cluster, cluster.DestinationManager.Items[1], new DefaultHttpContext());
-                clock.TickCount += 5000;
+                clock.AdvanceClockBy(TimeSpan.FromMilliseconds(5000));
             }
 
             healthUpdater.Verify(u => u.SetPassive(cluster, cluster.DestinationManager.Items[0], DestinationHealth.Healthy, TimeSpan.FromSeconds(60)), Times.Exactly(4));
@@ -114,7 +115,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             for (var i = 0; i < 2; i++)
             {
                 policy.RequestProxied(cluster, cluster.DestinationManager.Items[1], GetFailedRequestContext(ProxyError.RequestTimedOut));
-                clock.TickCount += 1;
+                clock.AdvanceClockBy(TimeSpan.FromMilliseconds(1));
             }
 
             healthUpdater.Verify(u => u.SetPassive(cluster, cluster.DestinationManager.Items[1], DestinationHealth.Healthy, TimeSpan.FromSeconds(60)), Times.Exactly(3));
@@ -122,7 +123,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             healthUpdater.VerifyNoOtherCalls();
 
             // Shift the detection window to the future
-            clock.TickCount += 10998;
+            clock.AdvanceClockBy(TimeSpan.FromMilliseconds(10998));
 
             // New failed request, but 2 oldest failures have moved out of the detection window
             policy.RequestProxied(cluster, cluster.DestinationManager.Items[1], GetFailedRequestContext(ProxyError.RequestTimedOut));
@@ -136,7 +137,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         {
             var options = Options.Create(
                 new TransportFailureRateHealthPolicyOptions { DefaultFailureRateLimit = 0.5, DetectionWindowSize = TimeSpan.FromSeconds(30), MinimalTotalCountThreshold = 1 });
-            var clock = new ClockStub { TickCount = 10000 };
+            var clock = new ManualClock(TimeSpan.FromMilliseconds(10000));
             var healthUpdater = new Mock<IDestinationHealthUpdater>();
             var reactivationPeriod = TimeSpan.FromSeconds(15);
             var policy = new TransportFailureRateHealthPolicy(options, clock, healthUpdater.Object);
@@ -170,7 +171,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             for (var i = 0; i < 2; i++)
             {
                 policy.RequestProxied(cluster, cluster.DestinationManager.Items[1], new DefaultHttpContext());
-                clock.TickCount += 100;
+                clock.AdvanceClockBy(TimeSpan.FromMilliseconds(100));
             }
 
             healthUpdater.Verify(u => u.SetPassive(cluster, cluster.DestinationManager.Items[1], DestinationHealth.Healthy, reactivationPeriod), Times.Exactly(5));
@@ -181,7 +182,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             for (var i = 0; i < 2; i++)
             {
                 policy.RequestProxied(cluster, cluster.DestinationManager.Items[1], GetFailedRequestContext(ProxyError.RequestTimedOut));
-                clock.TickCount += 100;
+                clock.AdvanceClockBy(TimeSpan.FromMilliseconds(100));
             }
 
             healthUpdater.Verify(u => u.SetPassive(cluster, cluster.DestinationManager.Items[1], DestinationHealth.Healthy, reactivationPeriod), Times.Exactly(6));
@@ -229,16 +230,6 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             }
 
             return clusterInfo;
-        }
-
-        private class ClockStub : IClock
-        {
-            public long TickCount { get; set; }
-
-            public long GetStopwatchTimestamp()
-            {
-                throw new NotImplementedException();
-            }
         }
     }
 }
