@@ -196,7 +196,9 @@ Example:
 | Result | `/my/v1/api/more/stuff` |
 
 #### QueryValueParameter
+
 | Key | Value | Required |
+|-----|-------|----------|
 | QueryValueParameter | Name of a query string parameter | yes |
 | Set/Append | Static value | yes |
 
@@ -224,7 +226,9 @@ Example:
 | Result | `?a=b&foo=remainder` |
 
 #### QueryRouteParameter
+
 | Key | Value | Required |
+|-----|-------|----------|
 | QueryRouteParameter | Name of a query string parameter | yes |
 | Set/Append | The name of a route value | yes |
 
@@ -254,7 +258,9 @@ Example:
 | Result | `?foo=more/stuff` |
 
 #### QueryRemoveParameter
+
 | Key | Value | Required |
+|-----|-------|----------|
 | QueryRemoveParameter | Name of a query string parameter | yes |
 
 Config:

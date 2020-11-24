@@ -39,11 +39,10 @@ namespace Microsoft.ReverseProxy.Sample
                 AutomaticDecompression = DecompressionMethods.None,
                 UseCookies = false
             });
-            var proxyOptions = new RequestProxyOptions()
-            {
-                RequestTimeout = TimeSpan.FromSeconds(100),
-                // Copy all request headers except Host
-                Transforms = new Transforms(
+
+            // Copy all request headers except Host
+            var transforms =
+                new Transforms(
                     copyRequestHeaders: true,
                     requestTransforms: Array.Empty<RequestParametersTransform>(),
                     requestHeaderTransforms: new Dictionary<string, RequestHeaderTransform>()
@@ -51,8 +50,8 @@ namespace Microsoft.ReverseProxy.Sample
                         { HeaderNames.Host, new RequestHeaderValueTransform(string.Empty, append: false) }
                     },
                     responseHeaderTransforms: new Dictionary<string, ResponseHeaderTransform>(),
-                    responseTrailerTransforms: new Dictionary<string, ResponseHeaderTransform>())
-            };
+                    responseTrailerTransforms: new Dictionary<string, ResponseHeaderTransform>());
+            var requestOptions = new RequestProxyOptions(TimeSpan.FromSeconds(100), null);
 
             app.UseRouting();
             app.UseAuthorization();
@@ -61,7 +60,7 @@ namespace Microsoft.ReverseProxy.Sample
                 endpoints.MapControllers();
                 endpoints.Map("/{**catch-all}", async httpContext =>
                 {
-                    await httpProxy.ProxyAsync(httpContext, "https://localhost:10000/", httpClient, proxyOptions);
+                    await httpProxy.ProxyAsync(httpContext, "https://localhost:10000/", httpClient, transforms, requestOptions);
                     var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
                     if (errorFeature != null)
                     {

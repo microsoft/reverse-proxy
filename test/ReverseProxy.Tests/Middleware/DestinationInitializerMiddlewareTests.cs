@@ -12,6 +12,7 @@ using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Common.Tests;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Management;
+using Microsoft.ReverseProxy.Service.Proxy;
 using Moq;
 using Xunit;
 
@@ -86,7 +87,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 new ClusterSessionAffinityOptions(),
                 httpClient,
                 new ClusterProxyHttpClientOptions(),
-                new ClusterProxyHttpRequestOptions(),
+                new RequestProxyOptions(),
                 new Dictionary<string, string>());
             var destination1 = cluster1.DestinationManager.GetOrCreateItem(
                 "destination1",

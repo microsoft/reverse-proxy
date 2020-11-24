@@ -394,7 +394,7 @@ namespace Microsoft.ReverseProxy.Configuration
 
             return new ProxyHttpRequestOptions
             {
-                RequestTimeout = section.ReadTimeSpan(nameof(ProxyHttpRequestOptions.RequestTimeout)),
+                Timeout = section.ReadTimeSpan(nameof(ProxyHttpRequestOptions.Timeout)),
                 Version = section.ReadVersion(nameof(ProxyHttpRequestOptions.Version)),
 #if NET
                 VersionPolicy = section.ReadEnum<HttpVersionPolicy>(nameof(ProxyHttpRequestOptions.VersionPolicy)),
