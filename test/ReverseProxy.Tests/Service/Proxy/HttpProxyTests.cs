@@ -512,9 +512,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         [Theory]
         [InlineData("TRACE", "HTTP/1.1", "")]
         [InlineData("TRACE", "HTTP/2", "")]
-        [InlineData("TRACE", "HTTP/1.1", "Content-Length:10")]
-        [InlineData("TRACE", "HTTP/1.1", "Transfer-Encoding:chunked")]
-        [InlineData("TRACE", "HTTP/1.1", "Expect:100-continue")]
         [InlineData("GET", "HTTP/1.1", "")]
         [InlineData("GET", "HTTP/2", "")]
         [InlineData("GET", "HTTP/1.1", "Content-Length:0")]
@@ -524,7 +521,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         [InlineData("POST", "HTTP/2", "Content-Length:0")]
         [InlineData("PATCH", "HTTP/1.1", "")]
         [InlineData("DELETE", "HTTP/1.1", "")]
-        [InlineData("Delete", "HTTP/1.1", "expect:100-continue")]
         [InlineData("Unknown", "HTTP/1.1", "")]
         // [InlineData("CONNECT", "HTTP/1.1", "")] Blocked in HttpUtilities.GetHttpMethod
         public async Task ProxyAsync_RequetsWithoutBodies_NoHttpContent(string method, string protocol, string headers)
@@ -574,7 +570,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         [InlineData("GET", "HTTP/2", "Content-Length:10")]
         [InlineData("HEAD", "HTTP/1.1", "transfer-encoding:Chunked")]
         [InlineData("HEAD", "HTTP/2", "transfer-encoding:Chunked")]
-        [InlineData("Delete", "HTTP/2", "expect:100-continue")]
         public async Task ProxyAsync_RequetsWithBodies_HasHttpContent(string method, string protocol, string headers)
         {
             var events = TestEventListener.Collect();
@@ -613,7 +608,74 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
             events.AssertContainProxyStages();
         }
+#if NET
+        [Fact]
+        public async Task ProxyAsync_BodyDetectionFeatureSaysNo_NoHttpContent()
+        {
+            var events = TestEventListener.Collect();
 
+            var httpContext = new DefaultHttpContext();
+            httpContext.Request.Method = HttpMethods.Post;
+            httpContext.Features.Set<IHttpRequestBodyDetectionFeature>(new TestBodyDetector() { CanHaveBody = false });
+
+            var destinationPrefix = "https://localhost/";
+            var sut = CreateProxy();
+            var client = MockHttpHandler.CreateClient(
+                (HttpRequestMessage request, CancellationToken cancellationToken) =>
+                {
+                    Assert.Equal(new Version(2, 0), request.Version);
+
+                    Assert.Null(request.Content);
+
+                    var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
+                    return Task.FromResult(response);
+                });
+
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, null, default);
+
+            Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
+
+            AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
+            events.AssertContainProxyStages(hasRequestContent: false);
+        }
+
+        [Fact]
+        public async Task ProxyAsync_BodyDetectionFeatureSaysYes_HasHttpContent()
+        {
+            var events = TestEventListener.Collect();
+
+            var httpContext = new DefaultHttpContext();
+            httpContext.Request.Method = HttpMethods.Get;
+            httpContext.Features.Set<IHttpRequestBodyDetectionFeature>(new TestBodyDetector() { CanHaveBody = true });
+
+            var destinationPrefix = "https://localhost/";
+            var sut = CreateProxy();
+            var client = MockHttpHandler.CreateClient(
+                async (HttpRequestMessage request, CancellationToken cancellationToken) =>
+                {
+                    Assert.Equal(new Version(2, 0), request.Version);
+
+                    Assert.NotNull(request.Content);
+
+                    // Must consume the body
+                    await request.Content.CopyToAsync(Stream.Null);
+
+                    return new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
+                });
+
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, null, default);
+
+            Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
+
+            AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
+            events.AssertContainProxyStages();
+        }
+
+        private class TestBodyDetector : IHttpRequestBodyDetectionFeature
+        {
+            public bool CanHaveBody { get; set; }
+        }
+#endif
         [Fact]
         public async Task ProxyAsync_RequestWithCookieHeaders()
         {
