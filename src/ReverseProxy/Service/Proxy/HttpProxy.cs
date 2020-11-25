@@ -337,12 +337,16 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             var hasBody = true;
             var contentLength = request.Headers.ContentLength;
             var method = request.Method;
-            // https://tools.ietf.org/html/rfc7231#section-4.3.8
-            // A client MUST NOT send a message body in a TRACE request.
-            if (HttpMethods.IsTrace(method))
+
+#if NET
+            var canHaveBodyFeature = request.HttpContext.Features.Get<IHttpRequestBodyDetectionFeature>();
+            if (canHaveBodyFeature != null)
             {
-                hasBody = false;
+                // 5.0 servers provide a definitive answer for us.
+                hasBody = canHaveBodyFeature.CanHaveBody;
             }
+            else
+#endif
             // https://tools.ietf.org/html/rfc7230#section-3.3.3
             // All HTTP/1.1 requests should have Transfer-Encoding or Content-Length.
             // Http.Sys/IIS will even add a Transfer-Encoding header to HTTP/2 requests with bodies for back-compat.
@@ -350,7 +354,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             // https://tools.ietf.org/html/rfc1945#section-7.2.2
             //
             // Transfer-Encoding overrides Content-Length per spec
-            else if (request.Headers.TryGetValue(HeaderNames.TransferEncoding, out var transferEncoding)
+            if (request.Headers.TryGetValue(HeaderNames.TransferEncoding, out var transferEncoding)
                 && transferEncoding.Count == 1
                 && string.Equals("chunked", transferEncoding.ToString(), StringComparison.OrdinalIgnoreCase))
             {
@@ -365,21 +369,16 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             {
                 hasBody = false;
             }
-            // https://tools.ietf.org/html/rfc7231#section-5.1.1
-            // A client MUST NOT generate a 100-continue expectation in a request that does not include a message body.
-            else if (request.Headers.TryGetValue(HeaderNames.Expect, out var expect)
-                && expect.Count == 1
-                && string.Equals("100-continue", expect.ToString(), StringComparison.OrdinalIgnoreCase))
-            {
-                hasBody = true;
-            }
             // https://tools.ietf.org/html/rfc7231#section-4.3.1
             // A payload within a GET/HEAD/DELETE/CONNECT request message has no defined semantics; sending a payload body on a
             // GET/HEAD/DELETE/CONNECT request might cause some existing implementations to reject the request.
+            // https://tools.ietf.org/html/rfc7231#section-4.3.8
+            // A client MUST NOT send a message body in a TRACE request.
             else if (HttpMethods.IsGet(method)
                 || HttpMethods.IsHead(method)
                 || HttpMethods.IsDelete(method)
-                || HttpMethods.IsConnect(method))
+                || HttpMethods.IsConnect(method)
+                || HttpMethods.IsTrace(method))
             {
                 hasBody = false;
             }
