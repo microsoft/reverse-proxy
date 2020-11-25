@@ -20,5 +20,7 @@
   href: session-affinity.md
 - name: Transforms
   href: transforms.md
-- name: Destinations health checks
+- name: Destinations Health Checks
   href: dests-health-checks.md
+- name: Service Fabric Integration
+  href: service-fabric-int.md
