@@ -19,7 +19,7 @@ namespace Microsoft.ReverseProxy.Utilities
         public ParsedMetadataEntry(Parser parser, ClusterInfo cluster, string metadataName)
         {
             _parser = parser ?? throw new ArgumentNullException(nameof(parser));
-            _cluster = cluster ?? throw new ArgumentNullException(nameof(parser));
+            _cluster = cluster ?? throw new ArgumentNullException(nameof(cluster));
             _metadataName = metadataName ?? throw new ArgumentNullException(nameof(metadataName));
         }
 
