@@ -1,28 +1,19 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Fabric;
 using System.Fabric.Health;
 
 namespace Microsoft.ReverseProxy.ServiceFabric
 {
     /// <inheritdoc/>
-    internal class HealthClientWrapper : IHealthClientWrapper , IDisposable
+    internal class HealthClientWrapper : IHealthClientWrapper
     {
-        private readonly FabricClient _fabricClient;
         private readonly FabricClient.HealthClient _healthClient;
 
-        public HealthClientWrapper()
+        public HealthClientWrapper(IFabricClientWrapper fabricClientWrapper)
         {
-            _fabricClient = new FabricClient();
-            _healthClient = _fabricClient.HealthManager;
-        }
-
-        /// <inheritdoc/>
-        public void Dispose()
-        {
-            _fabricClient.Dispose();
+            _healthClient = fabricClientWrapper.FabricClient.HealthManager;
         }
 
         /// <inheritdoc/>

@@ -17,21 +17,19 @@ namespace Microsoft.ReverseProxy.ServiceFabric
     /// A wrapper class for the service fabric client SDK.
     /// Microsoft documentation: https://docs.microsoft.com/en-us/dotnet/api/system.fabric.fabricclient.queryclient?view=azure-dotnet .
     /// </summary>
-    internal class QueryClientWrapper : IQueryClientWrapper, IDisposable
+    internal class QueryClientWrapper : IQueryClientWrapper
     {
         private readonly ILogger<QueryClientWrapper> _logger;
-        private readonly FabricClient _fabricClient;
         private readonly FabricClient.QueryClient _queryClient;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="QueryClientWrapper"/> class.
         /// </summary>
-        public QueryClientWrapper(ILogger<QueryClientWrapper> logger)
+        public QueryClientWrapper(ILogger<QueryClientWrapper> logger, IFabricClientWrapper fabricClientWrapper)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-            _fabricClient = new FabricClient();
-            _queryClient = _fabricClient.QueryManager;
+            _queryClient = fabricClientWrapper.FabricClient.QueryManager;
         }
 
         /// <summary>
@@ -256,12 +254,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             while (!string.IsNullOrEmpty(previousResult?.ContinuationToken));
 
             return replicaList;
-        }
-
-        /// <inheritdoc/>
-        public void Dispose()
-        {
-            _fabricClient.Dispose();
         }
     }
 }
