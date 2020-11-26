@@ -69,7 +69,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                     {
                         if (_snapshot == null)
                         {
-                            _logger.LogInformation($"Proceeding without initial Service Fabric discovery results due to {nameof(_optionsMonitor.CurrentValue.AllowStartBeforeDiscovery)} = true.");
+                            Log.StartWithoutInitialServiceFabricDiscovery(_logger);
                             UpdateSnapshot(new List<ProxyRoute>(), new List<Cluster>());
                         }
                     }
@@ -78,7 +78,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                 {
                     // NOTE: The callstack up to this point is already synchronously blocking.
                     // There isn't much we can do to avoid this blocking wait on startup.
-                    _logger.LogInformation($"Waiting for initial Service Fabric discovery results due to {nameof(_optionsMonitor.CurrentValue.AllowStartBeforeDiscovery)} = false.");
+                    Log.WaitingForInitialServiceFabricDiscovery(_logger);
                     _initalConfigLoadTcs.Task.Wait();
                 }
             }
@@ -101,7 +101,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
 
         private async Task ServiceFabricDiscoveryLoop()
         {
-            _logger.LogInformation("Service Fabric discovery loop is starting");
+            Log.StartingServiceFabricDiscoveryLoop(_logger);
             var first = true;
             var cancellation = _backgroundCts.Token;
             while (true)
@@ -120,12 +120,12 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                 catch (OperationCanceledException) when (cancellation.IsCancellationRequested)
                 {
                     // Graceful shutdown
-                    _logger.LogInformation("Service Fabric discovery loop is ending gracefully");
+                    Log.ServiceFabricDiscoveryLoopEndedGracefully(_logger);
                     return;
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Swallowing unhandled exception from Service Fabric loop...");
+                    Log.ServiceFabricDiscoveryLoopFailed(_logger, ex);
                 }
 
                 first = false;
@@ -171,14 +171,70 @@ namespace Microsoft.ReverseProxy.ServiceFabric
 
         private static class Log
         {
-            private static readonly Action<ILogger, Exception> _errorSignalingChange = LoggerMessage.Define(
-                LogLevel.Error,
-                EventIds.ErrorSignalingChange,
-                "An exception was thrown from the change notification.");
+            private static readonly Action<ILogger, Exception> _errorSignalingChange =
+                LoggerMessage.Define(
+                    LogLevel.Error,
+                    EventIds.ErrorSignalingChange,
+                    "An exception was thrown from the change notification.");
+
+            private static readonly Action<ILogger, Exception> _startWithoutInitialServiceFabricDiscovery =
+                LoggerMessage.Define(
+                    LogLevel.Information,
+                    EventIds.StartWithoutInitialServiceFabricDiscovery,
+                    $"Proceeding without initial Service Fabric discovery results due to {nameof(_optionsMonitor.CurrentValue.AllowStartBeforeDiscovery)} = true.");
+
+            private static readonly Action<ILogger, Exception> _waitingForInitialServiceFabricDiscovery =
+                LoggerMessage.Define(
+                    LogLevel.Information,
+                    EventIds.WaitingForInitialServiceFabricDiscovery,
+                    $"Waiting for initial Service Fabric discovery results due to {nameof(_optionsMonitor.CurrentValue.AllowStartBeforeDiscovery)} = false.");
+
+            private static readonly Action<ILogger, Exception> _startingServiceFabricDiscoveryLoop =
+                LoggerMessage.Define(
+                    LogLevel.Information,
+                    EventIds.StartingServiceFabricDiscoveryLoop,
+                    "Service Fabric discovery loop is starting");
+
+            private static readonly Action<ILogger, Exception> _serviceFabricDiscoveryLoopEndedGracefully =
+                LoggerMessage.Define(
+                    LogLevel.Information,
+                    EventIds.ServiceFabricDiscoveryLoopEndedGracefully,
+                    "Service Fabric discovery loop is ending gracefully");
+
+            private static readonly Action<ILogger, Exception> _serviceFabricDiscoveryLoopFailed =
+                LoggerMessage.Define(
+                    LogLevel.Error,
+                    EventIds.ServiceFabricDiscoveryLoopFailed,
+                    "Swallowing unhandled exception from Service Fabric loop...");
 
             public static void ErrorSignalingChange(ILogger logger, Exception exception)
             {
                 _errorSignalingChange(logger, exception);
+            }
+
+            public static void StartWithoutInitialServiceFabricDiscovery(ILogger<ServiceFabricConfigProvider> logger)
+            {
+                _startWithoutInitialServiceFabricDiscovery(logger, null);
+            }
+
+            public static void WaitingForInitialServiceFabricDiscovery(ILogger<ServiceFabricConfigProvider> logger)
+            {
+                _waitingForInitialServiceFabricDiscovery(logger, null);
+            }
+
+            public static void StartingServiceFabricDiscoveryLoop(ILogger<ServiceFabricConfigProvider> logger)
+            {
+                _startingServiceFabricDiscoveryLoop(logger, null);
+            }
+
+            public static void ServiceFabricDiscoveryLoopEndedGracefully(ILogger<ServiceFabricConfigProvider> logger)
+            {
+                _serviceFabricDiscoveryLoopEndedGracefully(logger, null);
+            }
+
+            public static void ServiceFabricDiscoveryLoopFailed(ILogger<ServiceFabricConfigProvider> logger, Exception exception)
+            {
+                _serviceFabricDiscoveryLoopFailed(logger, exception);
             }
         }
     }

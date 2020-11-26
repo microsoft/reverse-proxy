@@ -64,6 +64,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                 key: string.Empty,
                 cancellation);
         }
+
         public async Task<IEnumerable<ServiceWrapper>> GetServiceListAsync(Uri applicationName, CancellationToken cancellation)
         {
             return await TryWithCacheFallbackAsync(
@@ -144,19 +145,19 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             {
                 serviceName = service.ServiceName;
             }
-            _logger.LogDebug($"Reporting health, kind={healthReport.Kind}, healthState={healthReport.HealthInformation.HealthState}, type={healthReport.GetType().FullName}, serviceName={serviceName}");
+            Log.ReportHealth(_logger, healthReport.Kind, healthReport.HealthInformation.HealthState, healthReport.GetType().FullName, serviceName);
 
             _healthClientWrapper.ReportHealth(healthReport, sendOptions);
         }
 
         private async Task<T> TryWithCacheFallbackAsync<T>(string operationName, Func<Task<T>> func, Cache<T> cache, string key, CancellationToken cancellation)
         {
-            _logger.LogDebug($"Starting operation {operationName}.Cache, key={key}");
+            Log.StartCacheOperation(_logger, operationName, key);
 
             var outcome = "UnhandledException";
             try
             {
-                _logger.LogDebug($"Starting inner operation {operationName}, key={key}");
+                Log.StartInnerCacheOperation(_logger, operationName, key);
                 var value = await func();
                 cache.Set(key, value);
                 outcome = "Success";
@@ -182,7 +183,54 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             }
             finally
             {
-                _logger.LogInformation($"Operation {operationName}.Cache completed with key={key}, outcome={outcome}");
+                Log.CacheOperationCompleted(_logger, operationName, key, outcome);
+            }
+        }
+
+        private static class Log
+        {
+            private static readonly Action<ILogger, HealthReportKind, HealthState, string, Uri, Exception> _reportHealth =
+                LoggerMessage.Define<HealthReportKind, HealthState, string, Uri>(
+                    LogLevel.Debug,
+                    EventIds.ErrorSignalingChange,
+                    "Reporting health, kind='{healthReportKind}', healthState='{healthState}', type='{healthReportType}', serviceName='{serviceName}'");
+
+            private static readonly Action<ILogger, string, string, Exception> _startCacheOperation =
+                LoggerMessage.Define<string, string>(
+                    LogLevel.Debug,
+                    EventIds.StartCacheOperation,
+                    "Starting operation '{cacheOperationName}'.Cache, key='{cacheKey}'");
+
+            private static readonly Action<ILogger, string, string, Exception> _startInnerCacheOperation =
+                LoggerMessage.Define<string, string>(
+                    LogLevel.Debug,
+                    EventIds.StartInnerCacheOperation,
+                    "Starting inner operation '{cacheOperationName}', key='{cacheKey}'");
+
+            private static readonly Action<ILogger, string, string, string, Exception> _cacheOperationCompleted =
+                LoggerMessage.Define<string, string, string>(
+                    LogLevel.Information,
+                    EventIds.CacheOperationCompleted,
+                    "Operation '{cacheOperationName}'.Cache completed with key='{cacheKey}', outcome='{cacheOperationOutcome}'");
+
+            public static void ReportHealth(ILogger<CachedServiceFabricCaller> logger, HealthReportKind kind, HealthState healthState, string healthReportType, Uri serviceName)
+            {
+                _reportHealth(logger, kind, healthState, healthReportType, serviceName, null);
+            }
+
+            public static void StartCacheOperation(ILogger<CachedServiceFabricCaller> logger, string cacheOperationName, string cacheKey)
+            {
+                _startCacheOperation(logger, cacheOperationName, cacheKey, null);
+            }
+
+            public static void StartInnerCacheOperation(ILogger<CachedServiceFabricCaller> logger, string cacheOperationName, string cacheKey)
+            {
+                _startInnerCacheOperation(logger, cacheOperationName, cacheKey, null);
+            }
+
+            public static void CacheOperationCompleted(ILogger<CachedServiceFabricCaller> logger, string cacheOperationName, string cacheKey, string cacheOperationOutcome)
+            {
+                _cacheOperationCompleted(logger, cacheOperationName, cacheKey, cacheOperationOutcome, null);
             }
         }
     }
