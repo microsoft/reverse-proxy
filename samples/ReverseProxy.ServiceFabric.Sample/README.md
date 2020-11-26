@@ -76,10 +76,10 @@ You will need to add the lines indicated below. A brief explanation of labels is
 +            <Label Key="YARP.Enable">true</Label>
 +            <Label Key="YARP.Routes.route1.Path">{**catchall}</Label>
 +            <!-- Optional: enable active health probes -->
-+            <Label Key='YARP.Backend.Healthcheck.Active.Enabled'>true</Label>
-+            <Label Key='YARP.Backend.Healthcheck.Active.Timeout'>30</Label>
-+            <Label Key='YARP.Backend.Healthcheck.Active.Interval'>10</Label>
-+            <Label Key='YARP.Backend.Healthcheck.Active.Policy'>ConsecutiveFailures</Label>
++            <Label Key='YARP.Backend.HealthCheck.Active.Enabled'>true</Label>
++            <Label Key='YARP.Backend.HealthCheck.Active.Timeout'>30</Label>
++            <Label Key='YARP.Backend.HealthCheck.Active.Interval'>10</Label>
++            <Label Key='YARP.Backend.HealthCheck.Active.Policy'>ConsecutiveFailures</Label>
 +          </Labels>
 +        </Extension>
        </Extensions>
@@ -97,7 +97,7 @@ Label|Value|Explanation
 `YARP.Enable`|`true`|Opt-ins to serving traffic through YARP with Service Fabric dynamic service discovery
 `YARP.Routes.route1.Path`|`{**catchall}`|Configures a route, named `route1`, that will match requests with any path. Any [ASP .NET Core route template](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/routing?view=aspnetcore-5.0#route-template-reference) is allowed
 `YARP.Routes.route1.Hosts`|`example.com`|Configures a route, named `route1`, that will match requests with host name `example.com`. If both `Hosts` and `Path` are added, only requests matching **both** will resolve to this route.
-`YARP.Backend.Healthcheck.Active.*`|`...`|Configures active health checks. YARP will probe each replica of the service at the configured cadence at the provided path.
+`YARP.Backend.HealthCheck.Active.*`|`...`|Configures active health checks. YARP will probe each replica of the service at the configured cadence at the provided path.
 
 
 > NOTE: Label values can use the special syntax `[AppParamName]` to reference an application parameter with the name given within square brackets. This is consistent with Service Fabric conventions, see e.g. [using parameters in Service Fabric](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-how-to-specify-port-number-using-parameters).
