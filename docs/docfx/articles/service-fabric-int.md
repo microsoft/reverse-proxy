@@ -21,7 +21,12 @@ There are the following supported parameters:
 - `YARP.Enable` - indicates whether the service opt-ins to serving traffic through YARP. Default `false`
 - `YARP.Routes.<routeName>.Path` - configures path-based route matching
 - `YARP.Routes.<routeName>.Host` - configures `Host` header based route matching
-- `YARP.Backend.Healthcheck.Active.*` - configures YARP active health checks to be run against the given service. Available parameters and their meanings are provided on [the respective documentation page](xref:dests-health-checks.md)
+- `YARP.Backend.Healthcheck.Active.*` - configures YARP active health checks to be run against the given service. Available parameters and their meanings are provided on [the respective documentation page](xref:dests-health-checks.md). Optional parameter
+- `YARP.Backend.Metadata.*` - sets the cluster's metadata. Optional parameter
+- `YARP.Backend.BackendId` - overrides the cluster's Id. Default cluster's Id is the SF service name. Optional parameter
+- `YARP.Backend.ServiceFabric.ListenerName` - sets an explicit listener name controlling selection of the main service's endpoint for each replica/instance that is used to route client requests to and is stored on the `Destination.Address` property in YARP's model. Optional parameter
+- `YARP.Backend.Healthcheck.Active.ServiceFabric.ListenerName` - sets an explicit listener name controlling selection of the health probing endpoint for each replica/instance that is used to probe replica/instance health state and is stored on the `Destination.Health` property in YARP's model. Optional parameter
+- `YARP.Backend.ServiceFabric.StatefulReplicaSelectionMode` - sets statefull replica selection mode. Supported values `All`, `PrimaryOnly`, `SecondaryOnly`. Values `All` and `SecondaryOnly` mean that the active secondary replicas will also be eligible for getting all kinds of client requests including writes. Default value `All`
 
 > NOTE: Label values can use the special syntax `[AppParamName]` to reference an application parameter with the name given within square brackets. This is consistent with Service Fabric conventions, see e.g. [using parameters in Service Fabric](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-how-to-specify-port-number-using-parameters).
 
@@ -59,11 +64,31 @@ Application | n/a
 Service Type | n/a
 Named Service Instance | Cluster (ClusterId=ServiceName)
 Partition | *TBD later*
-Replica / Instance | Destination (Address=instance' or replica's endpoint)
+Replica / Instance (one endpoint only) | Destination (Address=instance' or replica's endpoint)
 YARP.Routes.<routeName>.* in ServiceManifest | ProxyRoute (id=ServiceName+routeName, Match=Hosts,Path extracted from the labels)
 
+## Known limitations
+Limitations of the current Service Fabric to YARP configuration model conversion implementation:
+- Partitioning is not supported. Partitions are enumerated to retreive all nested replicas/instances, but partioning key is not handled in any way. Specifically, depending of how YARP routing is configured, it's possible to route a request having one partion key (e.g 'A') to a replica of another partition (e.g. 'B').
+- Only one endpoint per each SF service's replica/instance is considered and gets converted to a [Destination](xref:Microsoft.ReverseProxy.Abstractions.Destination).
+- All statefull service replica roles are treated equally. No special differentiation logic is applied. Depending on the configuration, active secondary replicas can also be converted to `Destinations` and directly recieve client requests.
+- Each of named service instance get converted to separate YARP's [Clusters](xref:Microsoft.ReverseProxy.Abstractions.Cluster) which are completely unrelated to each other.
+- Naive error handling. It ignores most of the failures.
+
 ## Architecture
-The overall polling and conversion process is shown on the following diagram:
+The detailed process of SF cluster polling and model conversion looks as follows.
+
+[ServiceFabricConfigProvider](xref:Microsoft.ReverseProxy.ServiceFabric.ServiceFabricConfigProvider) invokes [IDiscoverer](xref:Microsoft.ReverseProxy.ServiceFabric.IDiscoverer) to discover the current Service Fabric topology, retreive its metadata and convert everything to YARP configuration model. `IDiscoverer` calls [IServiceFabricCaller](xref:Microsoft.ReverseProxy.ServiceFabric.IServiceFabricCaller) to fetch the following necessary SF entities from the connected SF cluster: Applications, Services, Partitions, Replicas. Basically, `IServiceFabricCaller` forwards all calls to the Service Fabric API, but it also adds a level of resiliency by caching data returned from succesfull calls which later can be served from the cache should subsequent fetches of the same entities fail. Retreived SF entities gets converted to YARP configuration model as explained futher, but it's worth noting there are limitations in SF topology variants the current YARP.ServiceFabric implementation supports which are listed in the section `Known Limitations`.
+
+TBD:
+- ~~Discovery steps~~
+- Replica role selection
+- Application properties substitution
+- Model conversion
+- Config validation
+- Health reporting
+
+The data flow is shown on the following diagram:
 ```
     ServiceFabricConfigProvider
                 |
