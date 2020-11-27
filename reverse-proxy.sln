@@ -48,7 +48,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ReverseProxy.Serv
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReverseProxy.ServiceFabric.Sample", "samples\ReverseProxy.ServiceFabric.Sample\ReverseProxy.ServiceFabric.Sample.csproj", "{46DC2693-5E60-48B4-AC15-329692E2A252}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ReverseProxy.Telemetry.Consumption", "src\Microsoft.ReverseProxy.TelemetryConsumption\Microsoft.ReverseProxy.Telemetry.Consumption.csproj", "{9EE0CBFE-54E0-4189-AF30-BE0BE3185D2A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ReverseProxy.Telemetry.Consumption", "src\ReverseProxy.TelemetryConsumption\Microsoft.ReverseProxy.Telemetry.Consumption.csproj", "{9EE0CBFE-54E0-4189-AF30-BE0BE3185D2A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
