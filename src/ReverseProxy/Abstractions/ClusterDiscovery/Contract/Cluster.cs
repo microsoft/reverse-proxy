@@ -21,21 +21,6 @@ namespace Microsoft.ReverseProxy.Abstractions
         public string Id { get; set; }
 
         /// <summary>
-        /// Circuit breaker options.
-        /// </summary>
-        public CircuitBreakerOptions CircuitBreaker { get; set; }
-
-        /// <summary>
-        /// Quota options.
-        /// </summary>
-        public QuotaOptions Quota { get; set; }
-
-        /// <summary>
-        /// Partitioning options.
-        /// </summary>
-        public ClusterPartitioningOptions Partitioning { get; set; }
-
-        /// <summary>
         /// Load balancing options.
         /// </summary>
         public LoadBalancingOptions LoadBalancing { get; set; }
@@ -76,9 +61,6 @@ namespace Microsoft.ReverseProxy.Abstractions
             return new Cluster
             {
                 Id = Id,
-                CircuitBreaker = CircuitBreaker?.DeepClone(),
-                Quota = Quota?.DeepClone(),
-                Partitioning = Partitioning?.DeepClone(),
                 LoadBalancing = LoadBalancing?.DeepClone(),
                 SessionAffinity = SessionAffinity?.DeepClone(),
                 HealthCheck = HealthCheck?.DeepClone(),
@@ -102,9 +84,6 @@ namespace Microsoft.ReverseProxy.Abstractions
             }
 
             return string.Equals(cluster1.Id, cluster2.Id, StringComparison.OrdinalIgnoreCase)
-                && CircuitBreakerOptions.Equals(cluster1.CircuitBreaker, cluster2.CircuitBreaker)
-                && QuotaOptions.Equals(cluster1.Quota, cluster2.Quota)
-                && ClusterPartitioningOptions.Equals(cluster1.Partitioning, cluster2.Partitioning)
                 && LoadBalancingOptions.Equals(cluster1.LoadBalancing, cluster2.LoadBalancing)
                 && SessionAffinityOptions.Equals(cluster1.SessionAffinity, cluster2.SessionAffinity)
                 && HealthCheckOptions.Equals(cluster1.HealthCheck, cluster2.HealthCheck)
