@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Extensions.Hosting;
 using Microsoft.ReverseProxy.Telemetry.Consumption;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -22,57 +21,43 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IReverseProxyBuilder AddProxyTelemetryListener(this IReverseProxyBuilder builder)
         {
             builder.Services.AddHttpContextAccessor();
-            builder.Services.TryAddHostedService<ProxyEventListenerService>();
+            builder.Services.AddHostedService<ProxyEventListenerService>();
             return builder;
         }
 
         public static IReverseProxyBuilder AddKestrelTelemetryListener(this IReverseProxyBuilder builder)
         {
             builder.Services.AddHttpContextAccessor();
-            builder.Services.TryAddHostedService<KestrelEventListenerService>();
+            builder.Services.AddHostedService<KestrelEventListenerService>();
             return builder;
         }
 
         public static IReverseProxyBuilder AddHttpTelemetryListener(this IReverseProxyBuilder builder)
         {
             builder.Services.AddHttpContextAccessor();
-            builder.Services.TryAddHostedService<HttpEventListenerService>();
+            builder.Services.AddHostedService<HttpEventListenerService>();
             return builder;
         }
 
         public static IReverseProxyBuilder AddNameResolutionTelemetryListener(this IReverseProxyBuilder builder)
         {
             builder.Services.AddHttpContextAccessor();
-            builder.Services.TryAddHostedService<NameResolutionEventListenerService>();
+            builder.Services.AddHostedService<NameResolutionEventListenerService>();
             return builder;
         }
 
         public static IReverseProxyBuilder AddNetSecurityTelemetryListener(this IReverseProxyBuilder builder)
         {
             builder.Services.AddHttpContextAccessor();
-            builder.Services.TryAddHostedService<NetSecurityEventListenerService>();
+            builder.Services.AddHostedService<NetSecurityEventListenerService>();
             return builder;
         }
 
         public static IReverseProxyBuilder AddSocketsTelemetryListener(this IReverseProxyBuilder builder)
         {
             builder.Services.AddHttpContextAccessor();
-            builder.Services.TryAddHostedService<SocketsEventListenerService>();
+            builder.Services.AddHostedService<SocketsEventListenerService>();
             return builder;
-        }
-
-        private static void TryAddHostedService<T>(this IServiceCollection services)
-            where T : class, IHostedService
-        {
-            foreach (var descriptor in services)
-            {
-                if (descriptor.ImplementationType == typeof(T))
-                {
-                    return;
-                }
-            }
-
-            services.AddHostedService<T>();
         }
     }
 }
