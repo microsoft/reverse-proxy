@@ -7,12 +7,28 @@ YARP can be integrated with Service Fabric as a reverse proxy managing HTTP/HTTP
 - Sophisticated load balancing algorithms
 
 ## Integration component configuration
-The following YARP.ServiceFabric parameters can be set in the configuration:
+The following YARP.ServiceFabric parameters can be set in the configuration section `ServiceFabricDiscovery`:
 - `ReportReplicasHealth` - indicates whether SF replica health report should be generated after the SF replica to YARP model conversion completed. Default `false`
 - `DiscoveryPeriod` - SF cluster topology metadata polling period. Default `00:00:30`
 - `AllowStartBeforeDiscovery` - indicates whether YARP can start before the initial SF topology to YARP runtime model conversion completes. Setting it to `true` can lead to having the proxy started with an inconsistent configuration. Default `false`
 - `DiscoverInsecureHttpDestinations` - indicates whether to discover unencrypted HTTP (i.e. non-HTTPS) endpoints. Default `false`
 - `AlwaysSendImmediateHealthReports` - indicates whether SF service health reports are always sent immediately or only when explicitly requested. This flag controls only 'healthy' reports behavior. 'Unhealthy' ones are always sent immediately. Default `false`
+
+### Config example
+The following is an example of an `appsettings.json` file with `ServiceFabricDiscovery` section.
+```JSON
+{
+  "ServiceFabricDiscovery": {
+    "DiscoveryPeriod": "00:00:05",
+    "DiscoverInsecureHttpDestinations": true,
+    "AlwaysSendImmediateHealthReports": true
+  }
+}
+```
+It can be loaded into memory on the proxy startup with the following code method called from within Asp.Net's `ConfigureServices` method:
+```C#
+services.Configure<ServiceFabricDiscoveryOptions>(_configuration.GetSection("ServiceFabricDiscovery"));
+```
 
 ## SF service enlistment
 YARP integration is enabled and configured per each SF service. The configuration is specified in the `Service Manifest` as a service extension named `YARP-preview` containing a set of labels defining specific YARP parameters. The parameter's name is set as `Key` attribute of `<Label>` element and the value is the element's content.
@@ -20,8 +36,8 @@ YARP integration is enabled and configured per each SF service. The configuratio
 These are the supported parameters:
 - `YARP.Enable` - indicates whether the service opt-ins to serving traffic through YARP. Default `false`
 - `YARP.EnableDynamicOverrides` - indicates whether application parameters replacement is enabled on the service. Default `false`
-- `YARP.Routes.<routeName>.Path` - configures path-based route matching
-- `YARP.Routes.<routeName>.Host` - configures `Host` header based route matching
+- `YARP.Routes.<routeName>.Path` - configures path-based route matching. The value directly assigned to [ProxyMatch.Path](xref:Microsoft.ReverseProxy.Abstractions.ProxyMatch) property and the standard route matching logic will be applied.
+- `YARP.Routes.<routeName>.Host` - configures `Host` header based route matching. Multiple hosts should be separated by comma `,`. The value is split into a list of host names which is then directly assigned to [ProxyMatch.Hosts](xref:Microsoft.ReverseProxy.Abstractions.ProxyMatch) property and the standard route matching logic will be applied.
 - `YARP.Backend.LoadBalancing.Mode` - configures YARP load balancing mode. Optional parameter
 - `YARP.Backend.SessionAffinity.*` - configures YARP session affinity. Available parameters and their meanings are provided on [the respective documentation page](xref:session-affinity.md). Optional parameter
 - `YARP.Backend.HttpRequest.*` - sets proxied HTTP request properties. Available parameters and their meanings are provided on [the respective documentation page](xref:proxyhttpclientconfig.md) in 'HttpRequest' section. Optional parameter
