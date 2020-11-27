@@ -25,8 +25,8 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
                 HttpRequest = new ProxyHttpRequestOptions(),
                 Metadata = new Dictionary<string, string>
                 {
-                    { "key", "value" },
-                },
+                    { "key", "value" }
+                }
             };
 
             var clone = cluster.DeepClone();
