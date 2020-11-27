@@ -55,7 +55,6 @@ namespace Microsoft.ReverseProxy.Configuration
                                 }
                             }
                         },
-                        CircuitBreaker = new CircuitBreakerOptions { MaxConcurrentRequests = 2, MaxConcurrentRetries = 3 },
                         HealthCheck = new HealthCheckOptions
                         {
                             Passive = new PassiveHealthCheckOptions
@@ -74,8 +73,6 @@ namespace Microsoft.ReverseProxy.Configuration
                             }
                         },
                         LoadBalancing = new LoadBalancingOptions { Mode =  LoadBalancingMode.Random },
-                        Partitioning = new ClusterPartitioningOptions { PartitionCount = 7, PartitioningAlgorithm = "SHA358", PartitionKeyExtractor = "partionKeyA" },
-                        Quota = new QuotaOptions { Average = 8.5, Burst = 9.1 },
                         SessionAffinity = new SessionAffinityOptions
                         {
                             Enabled = true,
@@ -174,19 +171,6 @@ namespace Microsoft.ReverseProxy.Configuration
 {
     ""Clusters"": {
         ""cluster1"": {
-            ""CircuitBreaker"": {
-                ""MaxConcurrentRequests"": 2,
-                ""MaxConcurrentRetries"": 3
-            },
-            ""Quota"": {
-                ""Average"": 8.5,
-                ""Burst"": 9.1
-            },
-            ""Partitioning"": {
-                ""PartitionCount"": 7,
-                ""PartitionKeyExtractor"": ""partionKeyA"",
-                ""PartitioningAlgorithm"": ""SHA358""
-            },
             ""LoadBalancing"": {
                 ""Mode"": ""Random""
             },
@@ -598,8 +582,6 @@ namespace Microsoft.ReverseProxy.Configuration
             Assert.Equal(cluster1.Destinations["destinationB"].Address, abstractCluster1.Destinations["destinationB"].Address);
             Assert.Equal(cluster1.Destinations["destinationB"].Health, abstractCluster1.Destinations["destinationB"].Health);
             Assert.Equal(cluster1.Destinations["destinationB"].Metadata, abstractCluster1.Destinations["destinationB"].Metadata);
-            Assert.Equal(cluster1.CircuitBreaker.MaxConcurrentRequests, abstractCluster1.CircuitBreaker.MaxConcurrentRequests);
-            Assert.Equal(cluster1.CircuitBreaker.MaxConcurrentRetries, abstractCluster1.CircuitBreaker.MaxConcurrentRetries);
             Assert.Equal(cluster1.HealthCheck.Passive.Enabled, abstractCluster1.HealthCheck.Passive.Enabled);
             Assert.Equal(cluster1.HealthCheck.Passive.Policy, abstractCluster1.HealthCheck.Passive.Policy);
             Assert.Equal(cluster1.HealthCheck.Passive.ReactivationPeriod, abstractCluster1.HealthCheck.Passive.ReactivationPeriod);
@@ -609,11 +591,6 @@ namespace Microsoft.ReverseProxy.Configuration
             Assert.Equal(cluster1.HealthCheck.Active.Policy, abstractCluster1.HealthCheck.Active.Policy);
             Assert.Equal(cluster1.HealthCheck.Active.Path, abstractCluster1.HealthCheck.Active.Path);
             Assert.Equal(LoadBalancingMode.Random, abstractCluster1.LoadBalancing.Mode);
-            Assert.Equal(cluster1.Partitioning.PartitionCount, abstractCluster1.Partitioning.PartitionCount);
-            Assert.Equal(cluster1.Partitioning.PartitioningAlgorithm, abstractCluster1.Partitioning.PartitioningAlgorithm);
-            Assert.Equal(cluster1.Partitioning.PartitionKeyExtractor, abstractCluster1.Partitioning.PartitionKeyExtractor);
-            Assert.Equal(cluster1.Quota.Average, abstractCluster1.Quota.Average);
-            Assert.Equal(cluster1.Quota.Burst, abstractCluster1.Quota.Burst);
             Assert.Equal(cluster1.SessionAffinity.Enabled, abstractCluster1.SessionAffinity.Enabled);
             Assert.Equal(cluster1.SessionAffinity.FailurePolicy, abstractCluster1.SessionAffinity.FailurePolicy);
             Assert.Equal(cluster1.SessionAffinity.Mode, abstractCluster1.SessionAffinity.Mode);

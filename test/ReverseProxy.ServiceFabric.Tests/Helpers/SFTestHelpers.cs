@@ -58,13 +58,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             {
                 { "YARP.Enable", enableGateway ? "true" : "false" },
                 { "YARP.Backend.BackendId", backendId },
-                { "YARP.Backend.CircuitBreaker.MaxConcurrentRequests", "42" },
-                { "YARP.Backend.CircuitBreaker.MaxConcurrentRetries", "5" },
-                { "YARP.Backend.Quota.Average", "1.2" },
-                { "YARP.Backend.Quota.Burst", "2.3" },
-                { "YARP.Backend.Partitioning.Count", "5" },
-                { "YARP.Backend.Partitioning.KeyExtractor", "Header('x-ms-organization-id')" },
-                { "YARP.Backend.Partitioning.Algorithm", "SHA256" },
                 { "YARP.Backend.Healthcheck.Active.Enabled", activeHealthChecks ? "true" : "false" },
                 { "YARP.Backend.Healthcheck.Active.Interval", "5" },
                 { "YARP.Backend.Healthcheck.Active.Timeout", "5" },
