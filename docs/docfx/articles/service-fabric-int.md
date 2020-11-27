@@ -102,24 +102,29 @@ The data flow is shown on the following diagram:
     (periodically requests SF topology discovery)
                 |
                 V
-           IDiscoverer <--(enumerate all Applications / Services / Partitions / Replicas)--> IServiceFabricCaller <--> FabricClient
+           IDiscoverer <--(enumerate all Applications / Services / Partitions / Replicas)--> IServiceFabricCaller <--(cache response)--> FabricClient
                 |
     (filter YARP-enabled services)
                 V
-           IDiscoverer <--(convert SF metadata and extension labels into new YARP configuration)--> LabelsParser
-            |   |  |
-            |   |  |->(validate new configuration)--> IConfigValidator
-            |   |
-            |   |--(report 'unhealthy' states for services and replicas with config validation errors)--> IServiceFabricCaller --> FabricClient
-            |
-            V
-    (return new YARP configuration)
-            |
-            V
-    ServiceFabricConfigProvider
+           IDiscoverer <--(retrieve extension labels and replace app parameters references)--> IServiceExtensionLabelsProvider <--> IServiceFabricCaller <--(cache response)--> FabricClient
                 |
-    (update IProxyConfig and notify that configuration changed)
+    (convert SF metadata and extension labels into new YARP configuration)
                 |
                 V
-        IProxyConfigManager
+           LabelsParser
+                |
+    (validate new configuration)
+                |
+                V
+          IConfigValidator --(report 'unhealthy' states for services and replicas with config validation errors)--> IServiceFabricCaller --> FabricClient
+                |
+    (assemble a complete YARP configuration)
+                |
+                V
+           IDiscoverer --(return new YARP configuration)-->ServiceFabricConfigProvider
+                                                                   |
+                                        (update IProxyConfig and notify that configuration changed)
+                                                                   |
+                                                                   V
+                                                           IProxyConfigManager
 ```
