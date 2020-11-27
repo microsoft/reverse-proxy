@@ -14,7 +14,7 @@ The configuration is represented differently if you're using the [IConfiguration
 These types are focused on defining serializable configuration. The code based configuration model is described below in the "Code Configuration" section.
 
 ### HttpClient
-HTTP client configuration contract consists of [ProxyHttpClientData](xref:Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpClientData) and [CertificateConfigData](xref:Microsoft.ReverseProxy.Configuration.Contract.CertificateConfigData) types defining the following configuration schema. 
+HTTP client configuration is based on [ProxyHttpClientOptions](xref:Microsoft.ReverseProxy.Abstractions.ProxyHttpClientOptions) and represented by the following configuration schema.
 ```JSON
 "HttpClient": {
     "SslProtocols": [ "<protocol-names>" ],
@@ -77,17 +77,17 @@ Configuration settings:
 ```
 
 ### HttpRequest
-HTTP request configuration contract is defined by [ProxyHttpRequestData](xref:Microsoft.ReverseProxy.Configuration.Contract.ProxyHttpRequestData) type defining the following configuration schema.  
+HTTP request configuration is based on [ProxyHttpRequestOptions](xref:Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions) and represented by the following configuration schema.
 ```JSON
 "HttpRequest": {
-    "RequestTimeout": "<timespan>",
+    "Timeout": "<timespan>",
     "Version": "<string>",
     "VersionPolicy": ["RequestVersionOrLower", "RequestVersionOrHigher", "RequestVersionExact"]
 }
 ```
 
 Configuration settings:
-- RequestTimeout - the timeout for the outgoing request sent by [HttpMessageInvoker.SendAsync](https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httpmessageinvoker.sendasync?view=netcore-3.1). If not specified, 100 seconds is used.
+- Timeout - the timeout for the outgoing request sent by [HttpMessageInvoker.SendAsync](https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httpmessageinvoker.sendasync?view=netcore-3.1). If not specified, 100 seconds is used.
 - Version - outgoing request [version](https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httprequestmessage.version?view=netcore-3.1). The supported values at the moment are `1.0`, `1.1` and `2`. Default value is 2.
 - VersionPolicy - defines how the final version is selected for the outgoing requests. This feature is available from .NET 5.0, see [HttpRequestMessage.VersionPolicy](https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httprequestmessage.versionpolicy?view=net-5.0). The default value is `RequestVersionOrLower`.
 
@@ -111,7 +111,7 @@ The below example shows 2 samples of HTTP client and request configurations for 
                 "DangerousAcceptAnyServerCertificate": "true"
             },
             "HttpRequest": {
-                "RequestTimeout": "00:00:30"
+                "Timeout": "00:00:30"
             },
             "Destinations": {
                 "cluster1/destination1": {
@@ -163,7 +163,7 @@ public sealed class ProxyHttpClientOptions
 }
 ```
 
-Note that instead of defining certificate location as it was in [CertificateConfigData](xref:Microsoft.ReverseProxy.Configuration.Contract.CertificateConfigData) model, this type exposes a fully constructed [X509Certificate](xref:System.Security.Cryptography.X509Certificates.X509Certificate) certificate. Conversion from the configuration contract to the abstraction model is done by a [IProxyConfigProvider](xref:Microsoft.ReverseProxy.Service.IProxyConfigProvider) which loads a client certificate into memory.
+Note that instead of defining certificate location as it was in the config model, this type exposes a fully constructed [X509Certificate](xref:System.Security.Cryptography.X509Certificates.X509Certificate) certificate. Conversion from the configuration contract to the abstraction model is done by a [IProxyConfigProvider](xref:Microsoft.ReverseProxy.Service.IProxyConfigProvider) which loads a client certificate into memory.
 
 The following is an example of `ProxyHttpClientOptions` using [code based](configproviders.md) configuration. An instance of `ProxyHttpClientOptions` is assigned to the [Cluster.HttpClient](xref:Microsoft.ReverseProxy.Abstractions.Cluster.HttpClient) property before passing the `Cluster` array to `LoadFromMemory` method.
 
@@ -204,6 +204,8 @@ public void ConfigureServices(IServiceCollection services)
 
 ## Custom IProxyHttpClientFactory
 In case the direct control on a proxy HTTP client construction is necessary, the default [IProxyHttpClientFactory](xref:Microsoft.ReverseProxy.Service.Proxy.Infrastructure.IProxyHttpClientFactory) can be replaced with a custom one. In example, that custom logic can use [Cluster](xref:Microsoft.ReverseProxy.Abstractions.Cluster)'s metadata as an extra data source for [HttpMessageInvoker](https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httpmessageinvoker?view=netcore-3.1) configuration. However, it's still recommended for any custom factory to set the following `HttpMessageInvoker` properties to the same values as the default factory does in order to preserve a correct reverse proxy behavior.
+
+Always return an HttpMessageInvoker instance rather than an HttpClient instance which derives from HttpMessageInvoker. HttpClient buffers responses by default which breaks streaming scenarios and increases memory usage and latency.
 
 ```C#
 new SocketsHttpHandler

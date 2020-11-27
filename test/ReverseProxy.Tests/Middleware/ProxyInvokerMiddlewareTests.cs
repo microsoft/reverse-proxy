@@ -14,6 +14,7 @@ using Microsoft.ReverseProxy.Common.Tests;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Management;
 using Microsoft.ReverseProxy.Service.Proxy;
+using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 using Moq;
 using Xunit;
 
@@ -40,7 +41,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             httpContext.Request.QueryString = new QueryString("?a=b&c=d");
 
             var httpClient = new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object);
-            var httpRequestOptions = new ClusterProxyHttpRequestOptions(
+            var httpRequestOptions = new RequestProxyOptions(
                 TimeSpan.FromSeconds(60),
                 HttpVersion.Version11
 #if NET
@@ -79,11 +80,12 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                     httpContext,
                     It.Is<string>(uri => uri == "https://localhost:123/a/b/"),
                     httpClient,
-                    It.Is<RequestProxyOptions>(options =>
-                        options.RequestTimeout == httpRequestOptions.RequestTimeout
-                        && options.Version == httpRequestOptions.Version
+                    It.Is<Transforms>(transforms => transforms == null),
+                    It.Is<RequestProxyOptions>(requestOptions =>
+                        requestOptions.Timeout == httpRequestOptions.Timeout
+                        && requestOptions.Version == httpRequestOptions.Version
 #if NET
-                        && options.VersionPolicy == httpRequestOptions.VersionPolicy
+                        && requestOptions.VersionPolicy == httpRequestOptions.VersionPolicy
 #endif
                         )))
                 .Returns(
@@ -159,6 +161,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                     httpContext,
                     It.IsAny<string>(),
                     httpClient,
+                    It.IsAny<Transforms>(),
                     It.IsAny<RequestProxyOptions>()))
                 .Returns(() => throw new NotImplementedException());
 

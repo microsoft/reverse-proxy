@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\ReverseProxy\Microsoft.ReverseProxy.csproj" />
+    <ProjectReference Include="..\ReverseProxy.Tests.Common\Microsoft.ReverseProxy.Tests.Common.csproj" />
   </ItemGroup>
 
 </Project>

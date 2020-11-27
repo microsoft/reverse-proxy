@@ -52,21 +52,18 @@ public void Configure(IApplicationBuilder app, IHttpProxy httpProxy)
         AutomaticDecompression = DecompressionMethods.None,
         UseCookies = false
     });
-    var proxyOptions = new RequestProxyOptions()
-    {
-        RequestTimeout = TimeSpan.FromSeconds(100),
-        // Copy all request headers except Host
-        Transforms = new Transforms(
-            copyRequestHeaders: true,
-            requestTransforms: Array.Empty<RequestParametersTransform>(),
-            requestHeaderTransforms: new Dictionary<string, RequestHeaderTransform>()
-            {
-                { HeaderNames.Host,
-                  new RequestHeaderValueTransform(string.Empty, append: false) }
-            },
-            responseHeaderTransforms: new Dictionary<string, ResponseHeaderTransform>(),
-            responseTrailerTransforms: new Dictionary<string, ResponseHeaderTransform>())
-    };
+    // Copy all request headers except Host
+    var transforms = new Transforms(
+        copyRequestHeaders: true,
+        requestTransforms: Array.Empty<RequestParametersTransform>(),
+        requestHeaderTransforms: new Dictionary<string, RequestHeaderTransform>()
+        {
+            { HeaderNames.Host,
+                new RequestHeaderValueTransform(string.Empty, append: false) }
+        },
+        responseHeaderTransforms: new Dictionary<string, ResponseHeaderTransform>(),
+        responseTrailerTransforms: new Dictionary<string, ResponseHeaderTransform>());
+    var proxyOptions = new RequestProxyOptions(TimeSpan.FromSeconds(100), null, null);
 
     app.UseRouting();
     app.UseAuthorization();
@@ -75,7 +72,7 @@ public void Configure(IApplicationBuilder app, IHttpProxy httpProxy)
         endpoints.Map("/{**catch-all}", async httpContext =>
         {
             await httpProxy.ProxyAsync(
-                httpContext, "https://localhost:10000/prefix/", httpClient, proxyOptions);
+                httpContext, "https://localhost:10000/prefix/", httpClient, transforms, proxyOptions);
 
             var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
             if (errorFeature != null)
@@ -98,7 +95,7 @@ Re-using a client for requests to the same destination is recommended for perfor
 
 ### Transforms
 
-The request and response can be modified by providing [transforms](transforms.md) on the [RequestProxyOptions](xref:Microsoft.ReverseProxy.Service.Proxy.RequestProxyOptions).
+The request and response can be modified by providing [transforms](transforms.md) as a parameter of [`ProxyAsync`](xref:Microsoft.ReverseProxy.Service.Proxy.IHttpProxy.ProxyAsync) method.
 
 ### Error handling
 

@@ -3,7 +3,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Common.Tests;
 using Microsoft.ReverseProxy.Service.Management;
@@ -144,6 +147,86 @@ namespace Microsoft.ReverseProxy.RuntimeModel.Tests
 
             Assert.Contains(destination, state4.AllDestinations);
             Assert.Contains(destination, state4.HealthyDestinations);
+        }
+
+        [Fact]
+        public void UpdateDynamicState_ConcurrentCalls_FirstAndLastCallsMakeChanges()
+        {
+            var testTimeout = TimeSpan.FromSeconds(30);
+            var destinationManager = new Mock<IDestinationManager>();
+            var itemsCalled = new AutoResetEvent(false);
+            var returnItems = new ManualResetEvent(false);
+            destinationManager.SetupGet(d => d.Items).Returns(() =>
+            {
+                itemsCalled.Set();
+                returnItems.WaitOne();
+                return new DestinationInfo[0];
+            });
+            var destManagerfactory = new Mock<IDestinationManagerFactory>();
+            destManagerfactory.Setup(f => f.CreateDestinationManager()).Returns(destinationManager.Object);
+            var clusterManager = new ClusterManager(destManagerfactory.Object, Array.Empty<IClusterChangeListener>());
+            var cluster = clusterManager.GetOrCreateItem("cluster0", c => EnableHealthChecks(c));
+
+            var mainTask = Task.Factory.StartNew(() => cluster.UpdateDynamicState(), TaskCreationOptions.RunContinuationsAsynchronously);
+
+            Assert.True(itemsCalled.WaitOne(testTimeout));
+
+            var allTaskCount = Environment.ProcessorCount * 2;
+            var pendingTasks = allTaskCount;
+            var allButOneCompleted = new ManualResetEventSlim(false);
+            var concurrentTasks = Enumerable.Repeat(0, allTaskCount)
+                .Select(_ => Task.Factory.StartNew(() =>
+                {
+                    cluster.UpdateDynamicState();
+                    if (Interlocked.Decrement(ref pendingTasks) == 1)
+                    {
+                        allButOneCompleted.Set();
+                    }
+                }, TaskCreationOptions.RunContinuationsAsynchronously))
+                .ToArray();
+
+            Assert.True(allButOneCompleted.Wait(testTimeout));
+            returnItems.Set();
+
+            // Assert all concurrent tasks complete without a call to DestinationManager.Items getter.
+            Assert.True(Task.WaitAll(concurrentTasks, testTimeout));
+            Assert.Equal(0, Volatile.Read(ref pendingTasks));
+
+            // Assert the main task that acquired the ClusterInfo lock completes.
+            Assert.True(mainTask.Wait(testTimeout));
+
+            destinationManager.VerifyGet(d => d.Items, Times.Exactly(2));
+            destinationManager.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public void ForceUpdateDynamicState_ConcurrentCalls_AllCallsMakeChanges()
+        {
+            var testTimeout = TimeSpan.FromSeconds(30);
+            var destinationManager = new Mock<IDestinationManager>();
+            var itemsCalled = new SemaphoreSlim(0);
+            destinationManager.SetupGet(d => d.Items).Returns(() =>
+            {
+                itemsCalled.Wait();
+                return new DestinationInfo[0];
+            });
+            var destManagerfactory = new Mock<IDestinationManagerFactory>();
+            destManagerfactory.Setup(f => f.CreateDestinationManager()).Returns(destinationManager.Object);
+            var clusterManager = new ClusterManager(destManagerfactory.Object, Array.Empty<IClusterChangeListener>());
+            var cluster = clusterManager.GetOrCreateItem("cluster0", c => EnableHealthChecks(c));
+
+            var taskCount = Environment.ProcessorCount * 2;
+            var concurrentTasks = Enumerable.Repeat(0, taskCount)
+                .Select(_ => Task.Factory.StartNew(() => cluster.ForceUpdateDynamicState(), TaskCreationOptions.RunContinuationsAsynchronously))
+                .ToArray();
+
+            itemsCalled.Release(taskCount);
+
+            // Assert all concurrent tasks complete without a call to DestinationManager.Items getter.
+            Assert.True(Task.WaitAll(concurrentTasks, testTimeout));
+
+            destinationManager.VerifyGet(d => d.Items, Times.Exactly(taskCount));
+            destinationManager.VerifyNoOtherCalls();
         }
 
         private static void EnableHealthChecks(ClusterInfo cluster)

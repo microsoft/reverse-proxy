@@ -19,7 +19,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\ReverseProxy.Tests\Common\ManualClock.cs" Link="Common\ManualClock.cs" />
+    <ProjectReference Include="..\ReverseProxy.Tests.Common\Microsoft.ReverseProxy.Tests.Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Include="..\ReverseProxy.Tests\Utilities\TestResources.cs" Link="Utilities\TestResources.cs" />
   </ItemGroup>
 
