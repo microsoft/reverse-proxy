@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Net.Http.Headers;
 using Microsoft.ReverseProxy.Common.Tests;
+using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 using Microsoft.ReverseProxy.Telemetry;
 using Microsoft.ReverseProxy.Utilities;
@@ -99,7 +100,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     return response;
                 });
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions());
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, null, default);
 
             Assert.Equal(234, httpContext.Response.StatusCode);
             var reasonPhrase = httpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase;
@@ -193,12 +194,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     return response;
                 });
 
-            var proxyOptions = new RequestProxyOptions()
-            {
-                Transforms = transforms,
-            };
-
-            await sut.ProxyAsync(httpContext, destinationPrefix, client, proxyOptions);
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, transforms, default);
 
             Assert.Equal(234, httpContext.Response.StatusCode);
             var reasonPhrase = httpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase;
@@ -291,12 +287,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     return response;
                 });
 
-            var proxyOptions = new RequestProxyOptions()
-            {
-                Transforms = transforms,
-            };
-
-            await sut.ProxyAsync(httpContext, destinationPrefix, client, proxyOptions);
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, transforms, default);
 
             Assert.Equal(234, httpContext.Response.StatusCode);
             var reasonPhrase = httpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase;
@@ -372,12 +363,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     return response;
                 });
 
-            var proxyOptions = new RequestProxyOptions()
-            {
-                Transforms = transforms,
-            };
-
-            await sut.ProxyAsync(httpContext, destinationPrefix, client, proxyOptions);
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, transforms, default);
 
             Assert.Equal(234, httpContext.Response.StatusCode);
 
@@ -440,7 +426,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     return response;
                 });
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions());
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, null, default);
 
             Assert.Equal(StatusCodes.Status101SwitchingProtocols, httpContext.Response.StatusCode);
             Assert.Contains("response", httpContext.Response.Headers["x-ms-response-test"].ToArray());
@@ -507,7 +493,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     return response;
                 });
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions());
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, null, default);
 
             Assert.Equal(234, httpContext.Response.StatusCode);
             var reasonPhrase = httpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase;
@@ -526,9 +512,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         [Theory]
         [InlineData("TRACE", "HTTP/1.1", "")]
         [InlineData("TRACE", "HTTP/2", "")]
-        [InlineData("TRACE", "HTTP/1.1", "Content-Length:10")]
-        [InlineData("TRACE", "HTTP/1.1", "Transfer-Encoding:chunked")]
-        [InlineData("TRACE", "HTTP/1.1", "Expect:100-continue")]
         [InlineData("GET", "HTTP/1.1", "")]
         [InlineData("GET", "HTTP/2", "")]
         [InlineData("GET", "HTTP/1.1", "Content-Length:0")]
@@ -538,7 +521,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         [InlineData("POST", "HTTP/2", "Content-Length:0")]
         [InlineData("PATCH", "HTTP/1.1", "")]
         [InlineData("DELETE", "HTTP/1.1", "")]
-        [InlineData("Delete", "HTTP/1.1", "expect:100-continue")]
         [InlineData("Unknown", "HTTP/1.1", "")]
         // [InlineData("CONNECT", "HTTP/1.1", "")] Blocked in HttpUtilities.GetHttpMethod
         public async Task ProxyAsync_RequetsWithoutBodies_NoHttpContent(string method, string protocol, string headers)
@@ -570,7 +552,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     return Task.FromResult(response);
                 });
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions());
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, null, default);
 
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
 
@@ -588,7 +570,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         [InlineData("GET", "HTTP/2", "Content-Length:10")]
         [InlineData("HEAD", "HTTP/1.1", "transfer-encoding:Chunked")]
         [InlineData("HEAD", "HTTP/2", "transfer-encoding:Chunked")]
-        [InlineData("Delete", "HTTP/2", "expect:100-continue")]
         public async Task ProxyAsync_RequetsWithBodies_HasHttpContent(string method, string protocol, string headers)
         {
             var events = TestEventListener.Collect();
@@ -620,7 +601,69 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     return new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
                 });
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions());
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, null, default);
+
+            Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
+
+            AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
+            events.AssertContainProxyStages();
+        }
+#if NET
+        [Fact]
+        public async Task ProxyAsync_BodyDetectionFeatureSaysNo_NoHttpContent()
+        {
+            var events = TestEventListener.Collect();
+
+            var httpContext = new DefaultHttpContext();
+            httpContext.Request.Method = HttpMethods.Post;
+            httpContext.Features.Set<IHttpRequestBodyDetectionFeature>(new TestBodyDetector() { CanHaveBody = false });
+
+            var destinationPrefix = "https://localhost/";
+            var sut = CreateProxy();
+            var client = MockHttpHandler.CreateClient(
+                (HttpRequestMessage request, CancellationToken cancellationToken) =>
+                {
+                    Assert.Equal(new Version(2, 0), request.Version);
+
+                    Assert.Null(request.Content);
+
+                    var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
+                    return Task.FromResult(response);
+                });
+
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, null, default);
+
+            Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
+
+            AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
+            events.AssertContainProxyStages(hasRequestContent: false);
+        }
+
+        [Fact]
+        public async Task ProxyAsync_BodyDetectionFeatureSaysYes_HasHttpContent()
+        {
+            var events = TestEventListener.Collect();
+
+            var httpContext = new DefaultHttpContext();
+            httpContext.Request.Method = HttpMethods.Get;
+            httpContext.Features.Set<IHttpRequestBodyDetectionFeature>(new TestBodyDetector() { CanHaveBody = true });
+
+            var destinationPrefix = "https://localhost/";
+            var sut = CreateProxy();
+            var client = MockHttpHandler.CreateClient(
+                async (HttpRequestMessage request, CancellationToken cancellationToken) =>
+                {
+                    Assert.Equal(new Version(2, 0), request.Version);
+
+                    Assert.NotNull(request.Content);
+
+                    // Must consume the body
+                    await request.Content.CopyToAsync(Stream.Null);
+
+                    return new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
+                });
+
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, null, default);
 
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
 
@@ -628,6 +671,11 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             events.AssertContainProxyStages();
         }
 
+        private class TestBodyDetector : IHttpRequestBodyDetectionFeature
+        {
+            public bool CanHaveBody { get; set; }
+        }
+#endif
         [Fact]
         public async Task ProxyAsync_RequestWithCookieHeaders()
         {
@@ -659,7 +707,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     return Task.FromResult(response);
                 });
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions());
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, null, default);
 
             Assert.Null(httpContext.Features.Get<IProxyErrorFeature>());
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
@@ -698,14 +746,12 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     return Task.FromResult(response);
                 });
 
-            var options = new RequestProxyOptions()
-            {
-                Version = version,
 #if NET
-                VersionPolicy = versionPolicy,
+            var options = new RequestProxyOptions(null, version, versionPolicy);
+#else
+            var options = new RequestProxyOptions(null, version);
 #endif
-            };
-            await sut.ProxyAsync(httpContext, destinationPrefix, client, options);
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, null, options);
 
             Assert.Null(httpContext.Features.Get<IProxyErrorFeature>());
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
@@ -760,15 +806,13 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 responseHeaderTransforms: new Dictionary<string, ResponseHeaderTransform>(StringComparer.OrdinalIgnoreCase),
                 responseTrailerTransforms: new Dictionary<string, ResponseHeaderTransform>(StringComparer.OrdinalIgnoreCase));
 
-            var options = new RequestProxyOptions()
-            {
-                Version = version,
-                Transforms = transforms,
+
 #if NET
-                VersionPolicy = versionPolicy,
+            var requestOptions = new RequestProxyOptions(null, version, versionPolicy);
+#else
+            var requestOptions = new RequestProxyOptions(null, version);
 #endif
-            };
-            await sut.ProxyAsync(httpContext, destinationPrefix, client, options);
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, transforms, requestOptions);
 
             Assert.Null(httpContext.Features.Get<IProxyErrorFeature>());
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
@@ -797,7 +841,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     throw new HttpRequestException("No connection could be made because the target machine actively refused it.");
                 });
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions());
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, null, default);
 
             Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
@@ -831,7 +875,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     throw new HttpRequestException("No connection could be made because the target machine actively refused it.");
                 });
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions());
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, null, default);
 
             Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
@@ -865,12 +909,10 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     return Task.FromResult(new HttpResponseMessage());
                 });
 
-            var proxyOptions = new RequestProxyOptions()
-            {
-                RequestTimeout = TimeSpan.FromTicks(1), // Time out immediately
-            };
+            // Time out immediately
+            var requestOptions = new RequestProxyOptions(TimeSpan.FromTicks(1), null);
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client, proxyOptions);
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, null, requestOptions);
 
             Assert.Equal(StatusCodes.Status504GatewayTimeout, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
@@ -904,7 +946,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     return Task.FromResult(new HttpResponseMessage());
                 });
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions());
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, null, default);
 
             Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
@@ -940,12 +982,10 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     return Task.FromResult(new HttpResponseMessage());
                 });
 
-            var proxyOptions = new RequestProxyOptions()
-            {
-                RequestTimeout = TimeSpan.FromTicks(1), // Time out immediately
-            };
+            // Time out immediately
+            var requestOptions = new RequestProxyOptions(TimeSpan.FromTicks(1), null);
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client, proxyOptions);
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, null, requestOptions);
 
             Assert.Equal(StatusCodes.Status504GatewayTimeout, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
@@ -981,7 +1021,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     return Task.FromResult(new HttpResponseMessage());
                 });
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions());
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, null, default);
 
             Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
@@ -1017,7 +1057,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     return new HttpResponseMessage();
                 });
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions());
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, null, default);
 
             Assert.Equal(StatusCodes.Status400BadRequest, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
@@ -1056,7 +1096,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     throw new HttpRequestException();
                 });
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions());
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, null, default);
 
             Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
@@ -1100,7 +1140,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     throw new HttpRequestException();
                 });
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions());
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, null, default);
 
             Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
@@ -1137,7 +1177,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     return Task.FromResult(message);
                 });
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions());
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, null, default);
 
             Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
@@ -1176,7 +1216,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     return Task.FromResult(message);
                 });
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions());
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, null, default);
 
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
             Assert.Equal(1, responseBody.InnerStream.Length);
@@ -1216,7 +1256,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     return Task.FromResult(message);
                 });
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions());
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, null, default);
 
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
             Assert.True(responseBody.Aborted);
@@ -1256,7 +1296,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     return Task.FromResult(message);
                 });
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions());
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, null, default);
 
             Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
             Assert.False(responseBody.Aborted);
@@ -1296,7 +1336,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     return Task.FromResult(message);
                 });
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions());
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, null, default);
 
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
             Assert.True(responseBody.Aborted);
@@ -1345,7 +1385,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     });
                 });
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions());
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, null, default);
 
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
@@ -1386,7 +1426,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     });
                 });
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions());
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, null, default);
 
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
@@ -1427,7 +1467,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     });
                 });
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions());
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, null, default);
 
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
@@ -1484,7 +1524,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     return Task.FromResult(response);
                 });
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions());
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, null, default);
 
             Assert.Equal(StatusCodes.Status101SwitchingProtocols, httpContext.Response.StatusCode);
             var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
@@ -1540,7 +1580,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     return Task.FromResult(response);
                 });
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions());
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, null, default);
 
             Assert.Equal(StatusCodes.Status101SwitchingProtocols, httpContext.Response.StatusCode);
             var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
@@ -1557,11 +1597,12 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var httpClient = new HttpClient();
             var httpContext = new DefaultHttpContext();
             var destinationPrefix = "";
-            var requestProxyOptions = new RequestProxyOptions();
+            var transforms = Transforms.Empty;
+            var requestOptions = default(RequestProxyOptions);
             var proxy = CreateProxy();
 
             await Assert.ThrowsAsync<ArgumentException>(() => proxy.ProxyAsync(httpContext,
-                destinationPrefix, httpClient, requestProxyOptions));
+                destinationPrefix, httpClient, transforms, requestOptions));
         }
 
         private static void AssertProxyStartStop(List<EventWrittenEventArgs> events, string destinationPrefix, int statusCode)

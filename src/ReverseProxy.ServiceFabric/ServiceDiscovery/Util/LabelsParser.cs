@@ -19,13 +19,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric
     {
         // TODO: decide which labels are needed and which default table (and to what values)
         // Also probably move these defaults to the corresponding config entities.
-        internal static readonly int DefaultCircuitbreakerMaxConcurrentRequests = 0;
-        internal static readonly int DefaultCircuitbreakerMaxConcurrentRetries = 0;
-        internal static readonly double DefaultQuotaAverage = 0;
-        internal static readonly double DefaultQuotaBurst = 0;
-        internal static readonly int DefaultPartitionCount = 0;
-        internal static readonly string DefaultPartitionKeyExtractor = null;
-        internal static readonly string DefaultPartitioningAlgorithm = "SHA256";
         internal static readonly int? DefaultRouteOrder = null;
 
         private static readonly Regex _allowedRouteNamesRegex = new Regex("^[a-zA-Z0-9_-]+$");
@@ -220,6 +213,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                         Interval = TimeSpan.FromSeconds(GetLabel<double>(labels, "YARP.Backend.Healthcheck.Active.Interval", 0)),
                         Timeout = TimeSpan.FromSeconds(GetLabel<double>(labels, "YARP.Backend.Healthcheck.Active.Timeout", 0)),
                         Path = GetLabel<string>(labels, "YARP.Backend.Healthcheck.Active.Path", null),
+                        Policy = GetLabel<string>(labels, "YARP.Backend.Healthcheck.Active.Policy", null),
                     }
                 },
                 Metadata = clusterMetadata,

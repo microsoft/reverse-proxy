@@ -146,9 +146,6 @@ namespace Microsoft.ReverseProxy.Configuration
             var cluster = new Cluster
             {
                 Id = section.Key,
-                CircuitBreaker = CreateCircuitBreakerOptions(section.GetSection(nameof(Cluster.CircuitBreaker))),
-                Quota = CreateQuotaOptions(section.GetSection(nameof(Cluster.Quota))),
-                Partitioning = CreateClusterPartitioningOptions(section.GetSection(nameof(Cluster.Partitioning))),
                 LoadBalancing = CreateLoadBalancingOptions(section.GetSection(nameof(Cluster.LoadBalancing))),
                 SessionAffinity = CreateSessionAffinityOptions(section.GetSection(nameof(Cluster.SessionAffinity))),
                 HealthCheck = CreateHealthCheckOptions(section.GetSection(nameof(Cluster.HealthCheck))),
@@ -225,49 +222,6 @@ namespace Microsoft.ReverseProxy.Configuration
             };
 
             return routeHeader;
-        }
-
-        private static CircuitBreakerOptions CreateCircuitBreakerOptions(IConfigurationSection section)
-        {
-            if (!section.Exists())
-            {
-                return null;
-            }
-
-            return new CircuitBreakerOptions
-            {
-                MaxConcurrentRequests = section.ReadInt32(nameof(CircuitBreakerOptions.MaxConcurrentRequests)) ?? 0,
-                MaxConcurrentRetries = section.ReadInt32(nameof(CircuitBreakerOptions.MaxConcurrentRetries)) ?? 0,
-            };
-        }
-
-        private static QuotaOptions CreateQuotaOptions(IConfigurationSection section)
-        {
-            if (!section.Exists())
-            {
-                return null;
-            }
-
-            return new QuotaOptions
-            {
-                Average = section.ReadDouble(nameof(QuotaOptions.Average)) ?? 0,
-                Burst = section.ReadDouble(nameof(QuotaOptions.Burst)) ?? 0,
-            };
-        }
-
-        private static ClusterPartitioningOptions CreateClusterPartitioningOptions(IConfigurationSection section)
-        {
-            if (!section.Exists())
-            {
-                return null;
-            }
-
-            return new ClusterPartitioningOptions
-            {
-                PartitionCount = section.ReadInt32(nameof(ClusterPartitioningOptions.PartitionCount)) ?? 0,
-                PartitionKeyExtractor = section[nameof(ClusterPartitioningOptions.PartitionKeyExtractor)],
-                PartitioningAlgorithm = section[nameof(ClusterPartitioningOptions.PartitioningAlgorithm)],
-            };
         }
 
         private static LoadBalancingOptions CreateLoadBalancingOptions(IConfigurationSection section)
@@ -394,7 +348,7 @@ namespace Microsoft.ReverseProxy.Configuration
 
             return new ProxyHttpRequestOptions
             {
-                RequestTimeout = section.ReadTimeSpan(nameof(ProxyHttpRequestOptions.RequestTimeout)),
+                Timeout = section.ReadTimeSpan(nameof(ProxyHttpRequestOptions.Timeout)),
                 Version = section.ReadVersion(nameof(ProxyHttpRequestOptions.Version)),
 #if NET
                 VersionPolicy = section.ReadEnum<HttpVersionPolicy>(nameof(ProxyHttpRequestOptions.VersionPolicy)),

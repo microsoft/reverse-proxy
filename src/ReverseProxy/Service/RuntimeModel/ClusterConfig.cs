@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using Microsoft.ReverseProxy.Abstractions;
+using Microsoft.ReverseProxy.Service.Proxy;
 
 namespace Microsoft.ReverseProxy.RuntimeModel
 {
@@ -29,7 +30,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
             ClusterSessionAffinityOptions sessionAffinityOptions,
             HttpMessageInvoker httpClient,
             ClusterProxyHttpClientOptions httpClientOptions,
-            ClusterProxyHttpRequestOptions httpRequestOptions,
+            RequestProxyOptions httpRequestOptions,
             IReadOnlyDictionary<string, string> metadata)
         {
             _cluster = cluster;
@@ -50,7 +51,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
 
         public ClusterProxyHttpClientOptions HttpClientOptions { get; }
 
-        public ClusterProxyHttpRequestOptions HttpRequestOptions { get; }
+        public RequestProxyOptions HttpRequestOptions { get; }
 
         /// <summary>
         /// An <see cref="HttpMessageInvoker"/> that used for proxying requests to an upstream server.
