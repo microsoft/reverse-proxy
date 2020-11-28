@@ -19,28 +19,19 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
         {
             var cluster = new Cluster
             {
-                CircuitBreaker = new CircuitBreakerOptions(),
-                Quota = new QuotaOptions(),
-                Partitioning = new ClusterPartitioningOptions(),
                 LoadBalancing = new LoadBalancingOptions(),
                 HealthCheck = new HealthCheckOptions(),
                 HttpClient = new ProxyHttpClientOptions(),
                 HttpRequest = new ProxyHttpRequestOptions(),
                 Metadata = new Dictionary<string, string>
                 {
-                    { "key", "value" },
-                },
+                    { "key", "value" }
+                }
             };
 
             var clone = cluster.DeepClone();
 
             Assert.NotSame(cluster, clone);
-            Assert.NotNull(clone.CircuitBreaker);
-            Assert.NotSame(cluster.CircuitBreaker, clone.CircuitBreaker);
-            Assert.NotNull(clone.Quota);
-            Assert.NotSame(cluster.Quota, clone.Quota);
-            Assert.NotNull(clone.Partitioning);
-            Assert.NotSame(cluster.Partitioning, clone.Partitioning);
             Assert.NotNull(clone.LoadBalancing);
             Assert.NotSame(cluster.LoadBalancing, clone.LoadBalancing);
             Assert.NotNull(clone.HealthCheck);
@@ -60,9 +51,6 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
             var clone = cluster.DeepClone();
 
             Assert.NotSame(cluster, clone);
-            Assert.Null(clone.CircuitBreaker);
-            Assert.Null(clone.Quota);
-            Assert.Null(clone.Partitioning);
             Assert.Null(clone.LoadBalancing);
             Assert.Null(clone.HealthCheck);
             Assert.Null(clone.HttpClient);

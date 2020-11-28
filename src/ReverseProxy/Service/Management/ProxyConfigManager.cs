@@ -15,6 +15,7 @@ using Microsoft.Extensions.Primitives;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.HealthChecks;
+using Microsoft.ReverseProxy.Service.Proxy;
 using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
 
 namespace Microsoft.ReverseProxy.Service.Management
@@ -313,8 +314,8 @@ namespace Microsoft.ReverseProxy.Service.Management
                                     settings: newCluster.SessionAffinity?.Settings as IReadOnlyDictionary<string, string>),
                                 httpClient,
                                 newClusterHttpClientOptions,
-                                new ClusterProxyHttpRequestOptions(
-                                    requestTimeout: newCluster.HttpRequest?.RequestTimeout,
+                                new RequestProxyOptions(
+                                    timeout: newCluster.HttpRequest?.Timeout,
                                     version: newCluster.HttpRequest?.Version
 #if NET
                                     , versionPolicy: newCluster.HttpRequest?.VersionPolicy
