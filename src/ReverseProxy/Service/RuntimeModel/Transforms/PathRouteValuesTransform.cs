@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.AspNetCore.Routing.Patterns;
+using System;
 using Microsoft.AspNetCore.Routing.Template;
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
@@ -9,33 +9,36 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
     /// <summary>
     /// Generates a new request path by plugging matched route parameters into the given pattern.
     /// </summary>
-    internal class PathRouteValuesTransform : RequestParametersTransform
+    public class PathRouteValuesTransform : RequestParametersTransform
     {
-        private readonly TemplateBinder _binder;
+        private readonly TemplateBinderFactory _binderFactory;
 
+        /// <summary>
+        /// Creates a new transform.
+        /// </summary>
+        /// <param name="pattern">The pattern used to create the new request path.</param>
+        /// <param name="binderFactory">The factory used to bind route parameters to the given path pattern.</param>
         public PathRouteValuesTransform(string pattern, TemplateBinderFactory binderFactory)
         {
-            if (pattern is null)
-            {
-                throw new System.ArgumentNullException(nameof(pattern));
-            }
-
-            if (binderFactory is null)
-            {
-                throw new System.ArgumentNullException(nameof(binderFactory));
-            }
-
-            _binder = binderFactory.Create(RoutePatternFactory.Parse(pattern));
+            _ = pattern ?? throw new ArgumentNullException(nameof(pattern));
+            _binderFactory = binderFactory ?? throw new ArgumentNullException(nameof(binderFactory));
+            Template = TemplateParser.Parse(pattern);
         }
 
+        internal RouteTemplate Template { get; }
+
+        /// <inheritdoc/>
         public override void Apply(RequestParametersTransformContext context)
         {
             if (context is null)
             {
-                throw new System.ArgumentNullException(nameof(context));
+                throw new ArgumentNullException(nameof(context));
             }
 
-            context.Path = _binder.BindValues(context.HttpContext.Request.RouteValues);
+            var routeValues = context.HttpContext.Request.RouteValues;
+            // Route values that are not considered defaults will be appended as query parameters. Make them all defaults.
+            var binder = _binderFactory.Create(Template, defaults: routeValues);
+            context.Path = binder.BindValues(acceptedValues: routeValues);
         }
     }
 }

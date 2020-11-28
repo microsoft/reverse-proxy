@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Crank.EventSources;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -20,13 +21,7 @@ namespace BenchmarkApp
 
         public void ConfigureServices(IServiceCollection services)
         {
-            var urls = _configuration["urls"];
             var clusterUrls = _configuration["clusterUrls"];
-
-            if (string.IsNullOrWhiteSpace(urls))
-            {
-                throw new ArgumentException("--urls is required");
-            }
 
             if (string.IsNullOrWhiteSpace(clusterUrls))
             {
@@ -37,7 +32,8 @@ namespace BenchmarkApp
             {
                 { "Routes:0:RouteId", "route" },
                 { "Routes:0:ClusterId", "cluster" },
-                { "Routes:0:Match:Host", new Uri(urls.Split(';', 1)[0]).Host },
+                { "Routes:0:Match:Path", "/{**catchall}" },
+                { "Clusters:cluster:HttpClient:DangerousAcceptAnyServerCertificate", "true" },
             };
 
             var clusterCount = 0;
@@ -53,6 +49,9 @@ namespace BenchmarkApp
 
         public void Configure(IApplicationBuilder app)
         {
+            BenchmarksEventSource.MeasureAspNetVersion();
+            BenchmarksEventSource.MeasureNetCoreAppVersion();
+
             app.UseRouting();
             app.UseEndpoints(endpoints =>
             {

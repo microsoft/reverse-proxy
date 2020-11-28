@@ -27,8 +27,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 
         public AutoFlushingStream(Stream stream)
         {
-            Contracts.CheckValue(stream, nameof(stream));
-            _stream = stream;
+            _stream = stream ?? throw new ArgumentNullException(nameof(stream));
         }
 
         public override bool CanRead => _stream.CanRead;

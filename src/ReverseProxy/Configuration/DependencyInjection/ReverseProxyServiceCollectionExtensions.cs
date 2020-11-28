@@ -3,9 +3,13 @@
 
 using System;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 using Microsoft.ReverseProxy.Configuration;
 using Microsoft.ReverseProxy.Configuration.DependencyInjection;
 using Microsoft.ReverseProxy.Service;
+using Microsoft.ReverseProxy.Service.Proxy;
+using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -16,24 +20,34 @@ namespace Microsoft.Extensions.DependencyInjection
     public static class ReverseProxyServiceCollectionExtensions
     {
         /// <summary>
+        /// Registers the <see cref="IHttpProxy"/> service for direct proxying scenarios.
+        /// </summary>
+        public static IServiceCollection AddHttpProxy(this IServiceCollection services)
+        {
+            services.TryAddSingleton<IClock, Clock>();
+            services.TryAddSingleton<IHttpProxy, HttpProxy>();
+            return services;
+        }
+
+        /// <summary>
         /// Adds ReverseProxy's services to Dependency Injection.
         /// </summary>
         public static IReverseProxyBuilder AddReverseProxy(this IServiceCollection services)
         {
             var builder = new ReverseProxyBuilder(services);
             builder
-                .AddTelemetryShims()
-                .AddMetrics()
-                .AddInMemoryRepos()
                 .AddConfigBuilder()
                 .AddRuntimeStateManagers()
                 .AddConfigManager()
-                .AddDynamicEndpointDataSource()
                 .AddSessionAffinityProvider()
-                .AddProxy()
-                .AddBackgroundWorkers();
+                .AddActiveHealthChecks()
+                .AddPassiveHealthCheck()
+                .AddProxy();
 
             services.AddDataProtection();
+            services.AddAuthorization();
+            services.AddCors();
+            services.AddRouting();
 
             return builder;
         }
@@ -43,17 +57,12 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         public static IReverseProxyBuilder LoadFromConfig(this IReverseProxyBuilder builder, IConfiguration config)
         {
-            builder.Services.Configure<ProxyConfigOptions>(config);
-            builder.Services.AddOptions().PostConfigure<ProxyConfigOptions>(options =>
+            builder.Services.AddSingleton<ICertificateConfigLoader, CertificateConfigLoader>();
+            builder.Services.AddSingleton<IProxyConfigProvider>(sp =>
             {
-                foreach (var (id, cluster) in options.Clusters)
-                {
-                    // The Object style config binding puts the id as the key in the dictionary, but later we want it on the
-                    // cluster object as well.
-                    cluster.Id = id;
-                }
+                // This is required because we're capturing the configuration via a closure
+                return new ConfigurationConfigProvider(sp.GetService<ILogger<ConfigurationConfigProvider>>(), config, sp.GetService<ICertificateConfigLoader>());
             });
-            builder.Services.AddHostedService<ProxyConfigLoader>();
 
             return builder;
         }

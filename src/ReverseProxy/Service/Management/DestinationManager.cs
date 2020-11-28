@@ -7,7 +7,6 @@ namespace Microsoft.ReverseProxy.Service.Management
 {
     internal sealed class DestinationManager : ItemManagerBase<DestinationInfo>, IDestinationManager
     {
-        /// <inheritdoc/>
         protected override DestinationInfo InstantiateItem(string itemId)
         {
             return new DestinationInfo(itemId);

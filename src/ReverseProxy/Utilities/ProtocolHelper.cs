@@ -8,7 +8,7 @@ namespace Microsoft.ReverseProxy
 {
     internal static class ProtocolHelper
     {
-#if NETCOREAPP5_0
+#if NET5_0
         internal static readonly Version Http2Version = HttpVersion.Version20;
         internal static readonly Version Http11Version = HttpVersion.Version11;
 #elif NETCOREAPP3_1
@@ -22,10 +22,21 @@ namespace Microsoft.ReverseProxy
 
         public static bool IsHttp2(string protocol)
         {
-#if NETCOREAPP5_0
+#if NET5_0
             return Microsoft.AspNetCore.Http.HttpProtocol.IsHttp2(protocol);
 #elif NETCOREAPP3_1
             return StringComparer.OrdinalIgnoreCase.Equals("HTTP/2", protocol);
+#else
+#error A target framework was added to the project and needs to be added to this condition.
+#endif
+        }
+
+        public static bool IsHttp2OrGreater(string protocol)
+        {
+#if NET5_0
+            return Microsoft.AspNetCore.Http.HttpProtocol.IsHttp2(protocol) || Microsoft.AspNetCore.Http.HttpProtocol.IsHttp3(protocol);
+#elif NETCOREAPP3_1
+            return StringComparer.OrdinalIgnoreCase.Equals("HTTP/2", protocol) || StringComparer.OrdinalIgnoreCase.Equals("HTTP/3", protocol);
 #else
 #error A target framework was added to the project and needs to be added to this condition.
 #endif

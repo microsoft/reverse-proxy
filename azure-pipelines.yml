@@ -48,10 +48,10 @@ stages:
         pool:
           ${{ if eq(variables['System.TeamProject'], 'public') }}:
             name: NetCorePublic-Pool
-            queue: BuildPool.Server.Amd64.VS2019.Open
+            queue: BuildPool.Windows.10.Amd64.VS2019.Pre.Open
           ${{ if ne(variables['System.TeamProject'], 'public') }}:
             name: NetCoreInternal-Pool
-            queue: BuildPool.Server.Amd64.VS2019
+            queue: BuildPool.Windows.10.Amd64.VS2019.Pre
         variables:
           
 
@@ -117,8 +117,7 @@ stages:
         - script: eng/common/cibuild.sh
             --configuration $(_BuildConfig)
             --prepareMachine
-            $(_OfficialBuildArgs)
-            /p:DotNetPublishUsingPipelines=$(_PublishUsingPipelines)
+            $(_InternalRuntimeDownloadArgs)
           displayName: Build
         - task: PublishBuildArtifacts@1
           displayName: Upload TestResults
@@ -170,6 +169,8 @@ stages:
       enableSymbolValidation: false
       # It's a private repo in github so this won't pass until we create an internal mirror
       enableSourceLinkValidation: false
+      enableSigningValidation: false
+      enableNugetValidation: false
       # This is to enable SDL runs part of Post-Build Validation Stage
       SDLValidationParameters:
         enable: true

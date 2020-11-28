@@ -4,6 +4,7 @@
 using System;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Middleware;
 using Microsoft.ReverseProxy.Service;
 
@@ -25,6 +26,7 @@ namespace Microsoft.AspNetCore.Builder
                 app.UseAffinitizedDestinationLookup();
                 app.UseProxyLoadBalancing();
                 app.UseRequestAffinitizer();
+                app.UsePassiveHealthChecks();
             });
         }
 
@@ -52,7 +54,12 @@ namespace Microsoft.AspNetCore.Builder
             var routeBuilder = endpoints.ServiceProvider.GetRequiredService<IRuntimeRouteBuilder>();
             routeBuilder.SetProxyPipeline(app);
 
-            var dataSource = (EndpointDataSource)endpoints.ServiceProvider.GetRequiredService<IProxyDynamicEndpointDataSource>();
+            var configManager = endpoints.ServiceProvider.GetRequiredService<IProxyConfigManager>();
+
+            // Config validation is async but startup is sync. We want this to block so that A) any validation errors can prevent
+            // the app from starting, and B) so that all the config is ready before the server starts accepting requests.
+            // Reloads will be async.
+            var dataSource = configManager.InitialLoadAsync().GetAwaiter().GetResult();
             endpoints.DataSources.Add(dataSource);
         }
     }

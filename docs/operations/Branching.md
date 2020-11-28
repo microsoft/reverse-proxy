@@ -6,7 +6,7 @@ We are aiming to ship YARP previews aligned with .NET 5, since we are working on
 
 1. Open development and receiving new builds of .NET 5 - Commits are going to `master` and new builds of .NET 5 are coming regularly
 2. Open development, .NET 5 builds frozen - .NET 5 branches about a month before release, so after they branch we will switch `master` to receive builds from that release branch. Our development will continue until approximately a week before release.
-3. Branch and prepare for release - Prior to the release date, we'll branch and prepare for release.
+3. Branch and prepare for release - Prior to the release date, we'll branch and prepare for release. Note: in practice we haven't needed to create the release branch until the day before we plan to release. We've also not needed to set up dependency flow in our release branches because the runtime has finished producing new builds that close to release. Master always targets the runtime channel for the next release.
 
 ## Scheduling
 
@@ -96,7 +96,7 @@ Target Branch: master
 Update Frequency: everyBuild
 Batchable: False
 Merge Policies:
-- Name: standard 
+- Name: Standard 
 ```
 
 Save and exit the editor and the subscription will be created.

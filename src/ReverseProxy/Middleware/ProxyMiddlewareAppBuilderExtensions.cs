@@ -21,7 +21,7 @@ namespace Microsoft.AspNetCore.Builder
         /// <summary>
         /// Checks if a request has an established affinity relationship and if the associated destination is available.
         /// This should be placed before load balancing and other destination selection components.
-        /// Requests without an affinity relationship will be a processed normally and have the affinity relationship
+        /// Requests without an affinity relationship will be processed normally and have the affinity relationship
         /// established by a later component. See <see cref="UseRequestAffinitizer"/>.
         /// </summary>
         public static IApplicationBuilder UseAffinitizedDestinationLookup(this IApplicationBuilder builder)
@@ -37,6 +37,14 @@ namespace Microsoft.AspNetCore.Builder
         public static IApplicationBuilder UseRequestAffinitizer(this IApplicationBuilder builder)
         {
             return builder.UseMiddleware<AffinitizeRequestMiddleware>();
+        }
+
+        /// <summary>
+        /// Passively checks destinations health by watching for successes and failures in client request proxying.
+        /// </summary>
+        public static IApplicationBuilder UsePassiveHealthChecks(this IApplicationBuilder builder)
+        {
+            return builder.UseMiddleware<PassiveHealthCheckMiddleware>();
         }
     }
 }

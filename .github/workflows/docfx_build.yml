@@ -2,7 +2,7 @@ name: DocFX Build
 on:
   push:
     branches:
-      - master
+      - release/docs
 jobs:
   build:
     name: Build
@@ -13,6 +13,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           path: source
+          ref: release/docs
       # Run a build
       - name: Build docs
         run: "& ./eng/common/build.ps1 -restore -build -projects ./docs/docfx/docfx.csproj"

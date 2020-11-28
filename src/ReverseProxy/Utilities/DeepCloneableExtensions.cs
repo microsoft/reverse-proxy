@@ -14,10 +14,15 @@ namespace Microsoft.ReverseProxy
             return item.DeepClone();
         }
 
-        public static IList<T> DeepClone<T>(this IList<T> list)
+        public static IReadOnlyList<T> DeepCloneList<T>(this IReadOnlyList<T> list)
             where T : IDeepCloneable<T>
         {
-            return list.Select(entry => entry.DeepClone()).ToList();
+            return list.Select(entry => entry.DeepClone()).ToArray();
+        }
+
+        public static List<T> CloneList<T>(this IList<T> list)
+        {
+            return list != null ? new List<T>(list) : null;
         }
 
         public static IDictionary<string, string> DeepClone(this IDictionary<string, string> dictionary, IEqualityComparer<string> comparer)

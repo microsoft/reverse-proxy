@@ -2,7 +2,23 @@
   href: getting_started.md
 - name: Supported Runtimes
   href: runtimes.md
+- name: Configuration Files
+  href: configfiles.md
+- name: Configuration Providers
+  href: configproviders.md
+- name: Direct Proxying
+  href: direct-proxying.md
+- name: Proxy HTTP client configuration
+  href: proxyhttpclientconfig.md
+- name: Header Routing
+  href: header-routing.md
+- name: Authentication and Authorization
+  href: authn-authz.md
+- name: Cross-Origin Requests (CORS)
+  href: cors.md
 - name: Session Affinity
   href: session-affinity.md
 - name: Transforms
   href: transforms.md
+- name: Destinations health checks
+  href: dests-health-checks.md

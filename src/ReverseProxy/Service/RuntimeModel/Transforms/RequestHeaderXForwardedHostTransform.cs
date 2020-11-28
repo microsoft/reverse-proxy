@@ -9,16 +9,20 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
     /// <summary>
     /// Sets or appends the X-Forwarded-Host header with the request's original Host header.
     /// </summary>
-    internal class RequestHeaderXForwardedHostTransform : RequestHeaderTransform
+    public class RequestHeaderXForwardedHostTransform : RequestHeaderTransform
     {
-        // or Set
-        private readonly bool _append;
-
+        /// <summary>
+        /// Creates a new transform.
+        /// </summary>
+        /// <param name="append">Indicates if the new value should append to or replace an existing header.</param>
         public RequestHeaderXForwardedHostTransform(bool append)
         {
-            _append = append;
+            Append = append;
         }
 
+        internal bool Append { get; }
+
+        /// <inheritdoc/>
         public override StringValues Apply(HttpContext context, StringValues values)
         {
             if (context is null)
@@ -29,11 +33,11 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             var host = context.Request.Host;
             if (!host.HasValue)
             {
-                return _append ? values : StringValues.Empty;
+                return Append ? values : StringValues.Empty;
             }
 
             var encodedHost = host.ToUriComponent();
-            return _append ? StringValues.Concat(values, encodedHost) : new StringValues(encodedHost);
+            return Append ? StringValues.Concat(values, encodedHost) : new StringValues(encodedHost);
         }
     }
 }

@@ -24,7 +24,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             string mth when HttpMethods.IsPatch(mth) => HttpMethod.Patch,
             string mth when HttpMethods.IsTrace(mth) => HttpMethod.Trace,
             // NOTE: Proxying "CONNECT" is not supported (by design!)
-            _ => throw new InvalidOperationException($"Unsupported request method '{method}'.")
+            string mth when HttpMethods.IsConnect(mth) => throw new NotSupportedException($"Unsupported request method '{method}'."),
+            _ => new HttpMethod(method)
         };
     }
 }

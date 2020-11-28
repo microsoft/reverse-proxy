@@ -9,16 +9,17 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
     /// <summary>
     /// Sets or appends the X-Forwarded-PathBase header with the request's original PathBase.
     /// </summary>
-    internal class RequestHeaderXForwardedPathBaseTransform : RequestHeaderTransform
+    public class RequestHeaderXForwardedPathBaseTransform : RequestHeaderTransform
     {
-        // or Set
-        private readonly bool _append;
 
         public RequestHeaderXForwardedPathBaseTransform(bool append)
         {
-            _append = append;
+            Append = append;
         }
 
+        internal bool Append { get; }
+
+        /// <inheritdoc/>
         public override StringValues Apply(HttpContext context, StringValues values)
         {
             if (context is null)
@@ -29,11 +30,11 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             var pathBase = context.Request.PathBase;
             if (!pathBase.HasValue)
             {
-                return _append ? values : StringValues.Empty;
+                return Append ? values : StringValues.Empty;
             }
 
             var encodedPathBase = pathBase.ToUriComponent();
-            return _append ? StringValues.Concat(values, encodedPathBase) : new StringValues(encodedPathBase);
+            return Append ? StringValues.Concat(values, encodedPathBase) : new StringValues(encodedPathBase);
         }
     }
 }

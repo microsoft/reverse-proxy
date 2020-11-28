@@ -57,20 +57,25 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.Same(HttpMethod.Trace, HttpUtilities.GetHttpMethod("TRACE"));
         }
 
+        [Fact]
+        public void GetHttpMethod_Unknown_Works()
+        {
+            Assert.Same("Unknown", HttpUtilities.GetHttpMethod("Unknown").Method);
+        }
+
+        [Fact]
+        public void GetHttpMethod_Connect_Throws()
+        {
+            Assert.Throws<NotSupportedException>(() => HttpUtilities.GetHttpMethod("CONNECT"));
+        }
+
         [Theory]
-        [InlineData(null)]
-        [InlineData("")]
         [InlineData(" GET")]
         [InlineData("GET ")]
-        [InlineData("CONNECT")]
-        [InlineData("anything")]
-        public void GetHttpMethod_Other_Throws(string method)
+        [InlineData("G;ET")]
+        public void GetHttpMethod_Invalid_Throws(string method)
         {
-            // Act
-            Action action = () => HttpUtilities.GetHttpMethod(method);
-
-            // Assert
-            Assert.Throws<InvalidOperationException>(action);
+            Assert.Throws<FormatException>(() => HttpUtilities.GetHttpMethod(method));
         }
     }
 }

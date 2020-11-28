@@ -7,7 +7,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.ReverseProxy.Abstractions.Telemetry;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.SessionAffinity;
 using Moq;
@@ -25,7 +24,7 @@ namespace Microsoft.ReverseProxy.Middleware
             const string expectedMode = "Mode-B";
             var providers = RegisterAffinityProviders(
                 false,
-                Destinations[1],
+                cluster.DestinationManager.Items[1],
                 cluster.ClusterId,
                 ("Mode-A", (AffinityStatus?)null, (DestinationInfo[])null, (Action<ISessionAffinityProvider>)(p => throw new InvalidOperationException($"Provider {p.Mode} call is not expected."))),
                 (expectedMode, (AffinityStatus?)null, (DestinationInfo[])null, (Action<ISessionAffinityProvider>)(p => invokedMode = p.Mode)));
@@ -35,11 +34,10 @@ namespace Microsoft.ReverseProxy.Middleware
                     return Task.CompletedTask;
                 },
                 providers.Select(p => p.Object),
-                GetOperationLogger(),
                 new Mock<ILogger<AffinitizeRequestMiddleware>>().Object);
             var context = new DefaultHttpContext();
             context.Features.Set(cluster);
-            var destinationFeature = GetDestinationsFeature(Destinations[1]);
+            var destinationFeature = GetDestinationsFeature(cluster.DestinationManager.Items[1], cluster.Config);
             context.Features.Set(destinationFeature);
 
             await middleware.Invoke(context);
@@ -49,18 +47,19 @@ namespace Microsoft.ReverseProxy.Middleware
             providers[0].VerifyGet(p => p.Mode, Times.Once);
             providers[0].VerifyNoOtherCalls();
             providers[1].VerifyAll();
-            Assert.Same(destinationFeature.Destinations, Destinations[1]);
+            Assert.Same(destinationFeature.AvailableDestinations, cluster.DestinationManager.Items[1]);
         }
 
         [Fact]
         public async Task Invoke_MultipleCandidateDestinations_ChooseOneAndInvokeAffinitizeRequest()
         {
             var cluster = GetCluster();
+            var endpoint = GetEndpoint(cluster);
             var invokedMode = string.Empty;
             const string expectedMode = "Mode-B";
             var providers = new[] {
-                GetProviderForRandomDestination("Mode-A", Destinations, p => throw new InvalidOperationException($"Provider {p.Mode} call is not expected.")),
-                GetProviderForRandomDestination(expectedMode, Destinations, p => invokedMode = p.Mode)
+                GetProviderForRandomDestination("Mode-A", cluster.DestinationManager.Items, p => throw new InvalidOperationException($"Provider {p.Mode} call is not expected.")),
+                GetProviderForRandomDestination(expectedMode, cluster.DestinationManager.Items, p => invokedMode = p.Mode)
             };
             var nextInvoked = false;
             var logger = AffinityTestHelper.GetLogger<AffinitizeRequestMiddleware>();
@@ -69,11 +68,10 @@ namespace Microsoft.ReverseProxy.Middleware
                 return Task.CompletedTask;
             },
                 providers.Select(p => p.Object),
-                GetOperationLogger(),
                 logger.Object);
             var context = new DefaultHttpContext();
-            context.Features.Set(cluster);
-            var destinationFeature = GetDestinationsFeature(Destinations);
+            context.SetEndpoint(endpoint);
+            var destinationFeature = GetDestinationsFeature(cluster.DestinationManager.Items, cluster.Config);
             context.Features.Set(destinationFeature);
 
             await middleware.Invoke(context);
@@ -86,9 +84,9 @@ namespace Microsoft.ReverseProxy.Middleware
             logger.Verify(
                 l => l.Log(LogLevel.Warning, EventIds.MultipleDestinationsOnClusterToEstablishRequestAffinity, It.IsAny<It.IsAnyType>(), null, (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
                 Times.Once);
-            Assert.Equal(1, destinationFeature.Destinations.Count);
-            var chosen = destinationFeature.Destinations[0];
-            var sameDestinationCount = Destinations.Count(d => chosen == d);
+            Assert.Equal(1, destinationFeature.AvailableDestinations.Count);
+            var chosen = destinationFeature.AvailableDestinations[0];
+            var sameDestinationCount = cluster.DestinationManager.Items.Count(d => chosen == d);
             Assert.Equal(1, sameDestinationCount);
         }
 
@@ -96,6 +94,7 @@ namespace Microsoft.ReverseProxy.Middleware
         public async Task Invoke_NoDestinationChosen_LogWarningAndCallNext()
         {
             var cluster = GetCluster();
+            var endpoint = GetEndpoint(cluster);
             var nextInvoked = false;
             var logger = AffinityTestHelper.GetLogger<AffinitizeRequestMiddleware>();
             var middleware = new AffinitizeRequestMiddleware(c => {
@@ -103,11 +102,10 @@ namespace Microsoft.ReverseProxy.Middleware
                     return Task.CompletedTask;
                 },
                 new ISessionAffinityProvider[0],
-                GetOperationLogger(),
                 logger.Object);
             var context = new DefaultHttpContext();
-            context.Features.Set(cluster);
-            var destinationFeature = GetDestinationsFeature(new DestinationInfo[0]);
+            context.SetEndpoint(endpoint);
+            var destinationFeature = GetDestinationsFeature(new DestinationInfo[0], cluster.Config);
             context.Features.Set(destinationFeature);
 
             await middleware.Invoke(context);
@@ -116,14 +114,7 @@ namespace Microsoft.ReverseProxy.Middleware
             logger.Verify(
                 l => l.Log(LogLevel.Warning, EventIds.NoDestinationOnClusterToEstablishRequestAffinity, It.IsAny<It.IsAnyType>(), null, (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
                 Times.Once);
-            Assert.Equal(0, destinationFeature.Destinations.Count);
-        }
-
-        private IOperationLogger<AffinitizeRequestMiddleware> GetOperationLogger()
-        {
-            var result = new Mock<IOperationLogger<AffinitizeRequestMiddleware>>(MockBehavior.Strict);
-            result.Setup(l => l.Execute(It.IsAny<string>(), It.IsAny<Action>())).Callback((string name, Action callback) => callback());
-            return result.Object;
+            Assert.Equal(0, destinationFeature.AvailableDestinations.Count);
         }
 
         private Mock<ISessionAffinityProvider> GetProviderForRandomDestination(string mode, IReadOnlyList<DestinationInfo> destinations, Action<ISessionAffinityProvider> callback)

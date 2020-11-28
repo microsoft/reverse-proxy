@@ -26,37 +26,44 @@ namespace Microsoft.ReverseProxy.Middleware
 
         public Task Invoke(HttpContext context)
         {
-            var endpoint = context.GetEndpoint()
-                ?? throw new InvalidOperationException($"Routing Endpoint wasn't set for the current request.");
-
-            var routeConfig = endpoint.Metadata.GetMetadata<RouteConfig>()
-                ?? throw new InvalidOperationException($"Routing Endpoint is missing {typeof(RouteConfig).FullName} metadata.");
+            var routeConfig = context.GetRequiredRouteConfig();
 
             var cluster = routeConfig.Cluster;
             if (cluster == null)
             {
                 Log.NoClusterFound(_logger, routeConfig.Route.RouteId);
-                context.Response.StatusCode = 503;
+                context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
                 return Task.CompletedTask;
             }
 
-            var dynamicState = cluster.DynamicState.Value;
+            var clusterConfig = cluster.Config;
+            if (clusterConfig == null)
+            {
+                Log.ClusterConfigNotAvailable(_logger, routeConfig.Route.RouteId, cluster.ClusterId);
+                context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
+                return Task.CompletedTask;
+            }
+
+            var dynamicState = cluster.DynamicState;
             if (dynamicState == null)
             {
                 Log.ClusterDataNotAvailable(_logger, routeConfig.Route.RouteId, cluster.ClusterId);
-                context.Response.StatusCode = 503;
+                context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
                 return Task.CompletedTask;
             }
 
             if (dynamicState.HealthyDestinations.Count == 0)
             {
                 Log.NoHealthyDestinations(_logger, routeConfig.Route.RouteId, cluster.ClusterId);
-                context.Response.StatusCode = 503;
+                context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
                 return Task.CompletedTask;
             }
 
-            context.Features.Set(cluster);
-            context.Features.Set<IAvailableDestinationsFeature>(new AvailableDestinationsFeature() { Destinations = dynamicState.HealthyDestinations });
+            context.Features.Set<IReverseProxyFeature>(new ReverseProxyFeature
+            {
+                ClusterConfig = clusterConfig,
+                AvailableDestinations = dynamicState.HealthyDestinations
+            });
 
             return _next(context);
         }
@@ -66,19 +73,24 @@ namespace Microsoft.ReverseProxy.Middleware
             private static readonly Action<ILogger, string, Exception> _noClusterFound = LoggerMessage.Define<string>(
                 LogLevel.Information,
                 EventIds.NoClusterFound,
-                "Route `{routeId}` has no cluster information.");
+                "Route '{routeId}' has no cluster information.");
 
             private static readonly Action<ILogger, string, string, Exception> _clusterDataNotAvailable = LoggerMessage.Define<string, string>(
                 LogLevel.Information,
                 EventIds.ClusterDataNotAvailable,
-                "Route `{routeId}` has no up to date information on its cluster '{clusterId}'. " +
+                "Route '{routeId}' has no up to date information on its cluster '{clusterId}'. " +
                 "Perhaps the cluster hasn't been probed yet? " +
                 "This can happen when a new cluster is added but isn't ready to serve traffic yet.");
+
+            private static readonly Action<ILogger, string, string, Exception> _clusterConfigNotAvailable = LoggerMessage.Define<string, string>(
+                LogLevel.Information,
+                EventIds.ClusterConfigNotAvailable,
+                "Route '{routeId}' has no config on its cluster '{clusterId}'.");
 
             private static readonly Action<ILogger, string, string, Exception> _noHealthyDestinations = LoggerMessage.Define<string, string>(
                 LogLevel.Information,
                 EventIds.NoHealthyDestinations,
-                "Route `{routeId}` has no available healthy destinations for Cluster `{clusterId}`.");
+                "Route '{routeId}' has no available healthy destinations for Cluster '{clusterId}'.");
 
             public static void NoClusterFound(ILogger logger, string routeId)
             {
@@ -88,6 +100,11 @@ namespace Microsoft.ReverseProxy.Middleware
             public static void ClusterDataNotAvailable(ILogger logger, string routeId, string clusterId)
             {
                 _clusterDataNotAvailable(logger, routeId, clusterId, null);
+            }
+
+            public static void ClusterConfigNotAvailable(ILogger logger, string routeId, string clusterId)
+            {
+                _clusterConfigNotAvailable(logger, routeId, clusterId, null);
             }
 
             public static void NoHealthyDestinations(ILogger logger, string routeId, string clusterId)

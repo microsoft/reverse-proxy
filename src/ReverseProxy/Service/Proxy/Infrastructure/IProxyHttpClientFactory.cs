@@ -15,38 +15,22 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
     /// except that this factory class is meant for direct use,
     /// which Proxy requires in order to keep separate pools for each cluster.
     /// </remarks>
-    internal interface IProxyHttpClientFactory : IDisposable
+    public interface IProxyHttpClientFactory
     {
         /// <summary>
         /// Creates and configures an <see cref="HttpMessageInvoker"/> instance
         /// that can be used for proxying requests to an upstream server.
         /// </summary>
+        /// <param name="context">An <see cref="ProxyHttpClientContext"/> carrying old and new cluster configurations.</param>
         /// <remarks>
         /// <para>
-        /// Each call to <see cref="CreateNormalClient()"/> is guaranteed
-        /// to return a new <see cref="HttpMessageInvoker"/> instance.
-        /// It is generally not necessary to dispose of the <see cref="HttpMessageInvoker"/>
-        /// as the <see cref="IProxyHttpClientFactory"/> tracks and disposes resources
-        /// used by the <see cref="HttpClient"/>.
+        /// A call to <see cref="CreateClient(ProxyHttpClientContext)"/> can return either
+        /// a new <see cref="HttpMessageInvoker"/> instance or an old one if the configuration has not changed.
+        /// If the old configuration is null, a new <see cref="HttpMessageInvoker"/> is always created.
+        /// The returned <see cref="HttpMessageInvoker"/> instance MUST NOT be disposed
+        /// because it can be used concurrently by several in-flight requests.
         /// </para>
         /// </remarks>
-        HttpMessageInvoker CreateNormalClient();
-
-        /// <summary>
-        /// Creates and configures an <see cref="HttpMessageInvoker"/> instance
-        /// that can be used for proxying upgradable requests to an upstream server.
-        /// Upgradable requests are treated differently than normal requests because
-        /// upgradable connections cannot be reused.
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// Each call to <see cref="CreateUpgradableClient()"/> is guaranteed
-        /// to return a new <see cref="HttpMessageInvoker"/> instance.
-        /// It is generally not necessary to dispose of the <see cref="HttpMessageInvoker"/>
-        /// as the <see cref="IProxyHttpClientFactory"/> tracks and disposes resources
-        /// used by the <see cref="HttpMessageInvoker"/>.
-        /// </para>
-        /// </remarks>
-        HttpMessageInvoker CreateUpgradableClient();
+        HttpMessageInvoker CreateClient(ProxyHttpClientContext context);
     }
 }

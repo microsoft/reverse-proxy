@@ -5,7 +5,6 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.ReverseProxy.Abstractions.Telemetry;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Proxy;
 
@@ -17,43 +16,37 @@ namespace Microsoft.ReverseProxy.Middleware
     internal class LoadBalancingMiddleware
     {
         private readonly ILogger _logger;
-        private readonly IOperationLogger<LoadBalancingMiddleware> _operationLogger;
         private readonly ILoadBalancer _loadBalancer;
         private readonly RequestDelegate _next;
 
         public LoadBalancingMiddleware(
             RequestDelegate next,
             ILogger<LoadBalancingMiddleware> logger,
-            IOperationLogger<LoadBalancingMiddleware> operationLogger,
             ILoadBalancer loadBalancer)
         {
             _next = next ?? throw new ArgumentNullException(nameof(next));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _operationLogger = operationLogger ?? throw new ArgumentNullException(nameof(operationLogger));
             _loadBalancer = loadBalancer ?? throw new ArgumentNullException(nameof(loadBalancer));
         }
 
         public Task Invoke(HttpContext context)
         { 
-            var cluster = context.GetRequiredCluster();
-            var destinationsFeature = context.GetRequiredDestinationFeature();
-            var destinations = destinationsFeature.Destinations;
+            var proxyFeature = context.GetRequiredProxyFeature();
+            var destinations = proxyFeature.AvailableDestinations;
 
-            var loadBalancingOptions = cluster.Config.Value?.LoadBalancingOptions
-                ?? new ClusterConfig.ClusterLoadBalancingOptions(default);
+            var loadBalancingOptions = proxyFeature.ClusterConfig.LoadBalancingOptions;
 
-            var destination = _operationLogger.Execute(
-                "ReverseProxy.PickDestination",
-                () => _loadBalancer.PickDestination(destinations, in loadBalancingOptions));
+            var destination = _loadBalancer.PickDestination(destinations, in loadBalancingOptions);
 
             if (destination == null)
             {
+                var cluster = context.GetRequiredCluster();
                 Log.NoAvailableDestinations(_logger, cluster.ClusterId);
                 context.Response.StatusCode = 503;
                 return Task.CompletedTask;
             }
 
-            destinationsFeature.Destinations = destination;
+            proxyFeature.AvailableDestinations = destination;
 
             return _next(context);
         }
@@ -63,7 +56,7 @@ namespace Microsoft.ReverseProxy.Middleware
             private static readonly Action<ILogger, string, Exception> _noAvailableDestinations = LoggerMessage.Define<string>(
                 LogLevel.Warning,
                 EventIds.NoAvailableDestinations,
-                "No available destinations after load balancing for cluster `{clusterId}`.");
+                "No available destinations after load balancing for cluster '{clusterId}'.");
 
             public static void NoAvailableDestinations(ILogger logger, string clusterId)
             {

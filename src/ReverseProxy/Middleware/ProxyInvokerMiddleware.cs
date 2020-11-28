@@ -2,14 +2,12 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.ReverseProxy.Abstractions.Telemetry;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Proxy;
+using Microsoft.ReverseProxy.Telemetry;
 using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Middleware
@@ -22,19 +20,16 @@ namespace Microsoft.ReverseProxy.Middleware
         private readonly IRandomFactory _randomFactory;
         private readonly RequestDelegate _next; // Unused, this middleware is always terminal
         private readonly ILogger _logger;
-        private readonly IOperationLogger<ProxyInvokerMiddleware> _operationLogger;
         private readonly IHttpProxy _httpProxy;
 
         public ProxyInvokerMiddleware(
             RequestDelegate next,
             ILogger<ProxyInvokerMiddleware> logger,
-            IOperationLogger<ProxyInvokerMiddleware> operationLogger,
             IHttpProxy httpProxy,
             IRandomFactory randomFactory)
         {
             _next = next ?? throw new ArgumentNullException(nameof(next));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _operationLogger = operationLogger ?? throw new ArgumentNullException(nameof(operationLogger));
             _httpProxy = httpProxy ?? throw new ArgumentNullException(nameof(httpProxy));
             _randomFactory = randomFactory ?? throw new ArgumentNullException(nameof(randomFactory));
         }
@@ -42,18 +37,20 @@ namespace Microsoft.ReverseProxy.Middleware
         /// <inheritdoc/>
         public async Task Invoke(HttpContext context)
         {
-            Contracts.CheckValue(context, nameof(context));
+            _ = context ?? throw new ArgumentNullException(nameof(context));
 
-            var cluster = context.Features.Get<ClusterInfo>() ?? throw new InvalidOperationException("Cluster unspecified.");
-            var destinations = context.Features.Get<IAvailableDestinationsFeature>()?.Destinations
-                ?? throw new InvalidOperationException("The IAvailableDestinationsFeature Destinations collection was not set.");
-            var routeConfig = context.GetEndpoint()?.Metadata.GetMetadata<RouteConfig>()
-                ?? throw new InvalidOperationException("RouteConfig unspecified.");
+            var reverseProxyFeature = context.GetRequiredProxyFeature();
+            var destinations = reverseProxyFeature.AvailableDestinations
+                ?? throw new InvalidOperationException($"The {nameof(IReverseProxyFeature)} Destinations collection was not set.");
+
+            var routeConfig = context.GetRequiredRouteConfig();
+            var cluster = routeConfig.Cluster;
 
             if (destinations.Count == 0)
             {
                 Log.NoAvailableDestinations(_logger, cluster.ClusterId);
-                context.Response.StatusCode = 503;
+                context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
+                context.Features.Set<IProxyErrorFeature>(new ProxyErrorFeature(ProxyError.NoAvailableDestinations, ex: null));
                 return;
             }
 
@@ -65,41 +62,27 @@ namespace Microsoft.ReverseProxy.Middleware
                 destination = destinations[random.Next(destinations.Count)];
             }
 
-            var destinationConfig = destination.Config.Value;
+            reverseProxyFeature.SelectedDestination = destination;
+
+            var destinationConfig = destination.Config;
             if (destinationConfig == null)
             {
                 throw new InvalidOperationException($"Chosen destination has no configs set: '{destination.DestinationId}'");
             }
 
-            using (var shortCts = CancellationTokenSource.CreateLinkedTokenSource(context.RequestAborted))
+            try
             {
-                // TODO: Configurable timeout, measure from request start, make it unit-testable
-                shortCts.CancelAfter(TimeSpan.FromSeconds(30));
+                cluster.ConcurrencyCounter.Increment();
+                destination.ConcurrencyCounter.Increment();
 
-                // TODO: Retry against other destinations
-                try
-                {
-                    // TODO: Apply caps
-                    cluster.ConcurrencyCounter.Increment();
-                    destination.ConcurrencyCounter.Increment();
+                ProxyTelemetry.Log.ProxyInvoke(cluster.ClusterId, routeConfig.Route.RouteId, destination.DestinationId);
 
-                    // TODO: Duplex channels should not have a timeout (?), but must react to Proxy force-shutdown signals.
-                    var longCancellation = context.RequestAborted;
-
-                    var proxyTelemetryContext = new ProxyTelemetryContext(
-                        clusterId: cluster.ClusterId,
-                        routeId: routeConfig.Route.RouteId,
-                        destinationId: destination.DestinationId);
-
-                    await _operationLogger.ExecuteAsync(
-                        "ReverseProxy.Proxy",
-                        () => _httpProxy.ProxyAsync(context, destinationConfig.Address, routeConfig.Transforms, cluster.ProxyHttpClientFactory, proxyTelemetryContext, shortCancellation: shortCts.Token, longCancellation: longCancellation));
-                }
-                finally
-                {
-                    destination.ConcurrencyCounter.Decrement();
-                    cluster.ConcurrencyCounter.Decrement();
-                }
+                await _httpProxy.ProxyAsync(context, destinationConfig.Address, reverseProxyFeature.ClusterConfig.HttpClient, routeConfig.Transforms, reverseProxyFeature.ClusterConfig.HttpRequestOptions);
+            }
+            finally
+            {
+                destination.ConcurrencyCounter.Decrement();
+                cluster.ConcurrencyCounter.Decrement();
             }
         }
 
@@ -108,12 +91,12 @@ namespace Microsoft.ReverseProxy.Middleware
             private static readonly Action<ILogger, string, Exception> _noAvailableDestinations = LoggerMessage.Define<string>(
                 LogLevel.Warning,
                 EventIds.NoAvailableDestinations,
-                "No available destinations after load balancing for cluster `{clusterId}`.");
+                "No available destinations after load balancing for cluster '{clusterId}'.");
 
             private static readonly Action<ILogger, string, Exception> _multipleDestinationsAvailable = LoggerMessage.Define<string>(
                 LogLevel.Warning,
                 EventIds.MultipleDestinationsAvailable,
-                "More than one destination available for cluster `{clusterId}`, load balancing may not be configured correctly. Choosing randomly.");
+                "More than one destination available for cluster '{clusterId}', load balancing may not be configured correctly. Choosing randomly.");
 
             public static void NoAvailableDestinations(ILogger logger, string clusterId)
             {

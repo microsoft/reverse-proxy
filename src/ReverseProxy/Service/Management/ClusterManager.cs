@@ -1,32 +1,52 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.ReverseProxy.RuntimeModel;
-using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
-using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Service.Management
 {
     internal sealed class ClusterManager : ItemManagerBase<ClusterInfo>, IClusterManager
     {
         private readonly IDestinationManagerFactory _destinationManagerFactory;
-        private readonly IProxyHttpClientFactoryFactory _httpClientFactoryFactory;
+        private readonly IReadOnlyList<IClusterChangeListener> _changeListeners;
 
-        public ClusterManager(IDestinationManagerFactory destinationManagerFactory, IProxyHttpClientFactoryFactory httpClientFactoryFactory)
+        public ClusterManager(IDestinationManagerFactory destinationManagerFactory, IEnumerable<IClusterChangeListener> changeListeners)
         {
-            Contracts.CheckValue(destinationManagerFactory, nameof(destinationManagerFactory));
-            Contracts.CheckValue(httpClientFactoryFactory, nameof(httpClientFactoryFactory));
+            _destinationManagerFactory = destinationManagerFactory ?? throw new ArgumentNullException(nameof(destinationManagerFactory));
+            _changeListeners = changeListeners?.ToArray() ?? Array.Empty<IClusterChangeListener>();
+        }
 
-            _destinationManagerFactory = destinationManagerFactory;
-            _httpClientFactoryFactory = httpClientFactoryFactory;
+        protected override void OnItemRemoved(ClusterInfo item)
+        {
+            foreach (var changeListener in _changeListeners)
+            {
+                changeListener.OnClusterRemoved(item);
+            }
+        }
+
+        protected override void OnItemChanged(ClusterInfo item, bool added)
+        {
+            foreach (var changeListener in _changeListeners)
+            {
+                if (added)
+                {
+                    changeListener.OnClusterAdded(item);
+                }
+                else
+                {
+                    changeListener.OnClusterChanged(item);
+                }
+            }
         }
 
         /// <inheritdoc/>
         protected override ClusterInfo InstantiateItem(string itemId)
         {
             var destinationManager = _destinationManagerFactory.CreateDestinationManager();
-            var httpClientFactory = _httpClientFactoryFactory.CreateFactory();
-            return new ClusterInfo(itemId, destinationManager, httpClientFactory);
+            return new ClusterInfo(itemId, destinationManager);
         }
     }
 }

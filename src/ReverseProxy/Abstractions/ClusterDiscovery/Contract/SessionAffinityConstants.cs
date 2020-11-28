@@ -10,16 +10,16 @@ namespace Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract
     {
         public static class Modes
         {
-            public static string Cookie => "Cookie";
+            public static string Cookie => nameof(Cookie);
 
-            public static string CustomHeader => "CustomHeader";
+            public static string CustomHeader => nameof(CustomHeader);
         }
 
         public static class AffinityFailurePolicies
         {
-            public static string Redistribute => "Redistribute";
+            public static string Redistribute => nameof(Redistribute);
 
-            public static string Return503Error => "Return503Error";
+            public static string Return503Error => nameof(Return503Error);
         }
     }
 }

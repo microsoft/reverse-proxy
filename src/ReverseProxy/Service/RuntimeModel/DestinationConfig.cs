@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.ReverseProxy.Utilities;
+using System;
 
 namespace Microsoft.ReverseProxy.RuntimeModel
 {
@@ -17,13 +17,25 @@ namespace Microsoft.ReverseProxy.RuntimeModel
     /// </remarks>
     public sealed class DestinationConfig
     {
-        public DestinationConfig(string address)
+        public DestinationConfig(string address, string health)
         {
-            Contracts.CheckNonEmpty(address, nameof(address));
+            if (string.IsNullOrEmpty(address))
+            {
+                throw new ArgumentNullException(nameof(address));
+            }
+
             Address = address;
+            Health = health;
         }
 
-        // TODO: Make this a Uri.
+        /// <summary>
+        /// Endpoint accepting proxied requests.
+        /// </summary>
         public string Address { get; }
+
+        /// <summary>
+        /// Endpoint accepting active health check probes.
+        /// </summary>
+        public string Health { get; }
     }
 }

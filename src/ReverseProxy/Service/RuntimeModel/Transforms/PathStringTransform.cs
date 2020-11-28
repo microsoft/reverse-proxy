@@ -9,17 +9,24 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
     /// <summary>
     /// Modifies the proxy request Path with the given value.
     /// </summary>
-    internal class PathStringTransform : RequestParametersTransform
+    public class PathStringTransform : RequestParametersTransform
     {
-        private readonly PathTransformMode _mode;
-        private readonly PathString _value;
-
+        /// <summary>
+        /// Creates a new transform.
+        /// </summary>
+        /// <param name="mode">A <see cref="PathTransformMode"/> indicating how the given value should update the existing path.</param>
+        /// <param name="value">The path value used to update the existing value.</param>
         public PathStringTransform(PathTransformMode mode, PathString value)
         {
-            _mode = mode;
-            _value = value;
+            Mode = mode;
+            Value = value;
         }
 
+        internal PathString Value { get; }
+
+        internal PathTransformMode Mode { get; }
+
+        /// <inheritdoc/>
         public override void Apply(RequestParametersTransformContext context)
         {
             if (context is null)
@@ -27,19 +34,19 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                 throw new ArgumentNullException(nameof(context));
             }
 
-            switch (_mode)
+            switch (Mode)
             {
                 case PathTransformMode.Set:
-                    context.Path = _value;
+                    context.Path = Value;
                     break;
                 case PathTransformMode.Prefix:
-                    context.Path = _value + context.Path;
+                    context.Path = Value + context.Path;
                     break;
                 case PathTransformMode.RemovePrefix:
-                    context.Path = context.Path.StartsWithSegments(_value, out var remainder) ? remainder : context.Path;
+                    context.Path = context.Path.StartsWithSegments(Value, out var remainder) ? remainder : context.Path;
                     break;
                 default:
-                    throw new NotImplementedException(_mode.ToString());
+                    throw new NotImplementedException(Mode.ToString());
             }
         }
 

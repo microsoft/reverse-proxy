@@ -7,9 +7,9 @@ using System.Linq;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Net.Http.Headers;
+using Microsoft.ReverseProxy.Common;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 using Microsoft.ReverseProxy.Utilities;
-using Tests.Common;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Service.Config
@@ -26,11 +26,9 @@ namespace Microsoft.ReverseProxy.Service.Config
         public void NullTransforms_Success()
         {
             var transformBuilder = CreateTransformBuilder();
-            var errorReporter = new TestConfigErrorReporter();
 
-            var valid = transformBuilder.Validate(null, "routeId", errorReporter);
-            Assert.True(valid);
-            Assert.Empty(errorReporter.Errors);
+            var errors = transformBuilder.Validate(null);
+            Assert.Empty(errors);
 
             var results = transformBuilder.Build(null);
             Assert.NotNull(results);
@@ -51,12 +49,10 @@ namespace Microsoft.ReverseProxy.Service.Config
         public void EmptyTransforms_AddsDefaults()
         {
             var transformBuilder = CreateTransformBuilder();
-            var errorReporter = new TestConfigErrorReporter();
             var transforms = new List<IDictionary<string, string>>();
 
-            var valid = transformBuilder.Validate(transforms, "routeId", errorReporter);
-            Assert.True(valid);
-            Assert.Empty(errorReporter.Errors);
+            var errors = transformBuilder.Validate(transforms);
+            Assert.Empty(errors);
 
             var results = transformBuilder.Build(transforms);
             Assert.NotNull(results);
@@ -77,7 +73,6 @@ namespace Microsoft.ReverseProxy.Service.Config
         public void DefaultsCanBeDisabled()
         {
             var transformBuilder = CreateTransformBuilder();
-            var errorReporter = new TestConfigErrorReporter();
             var transforms = new List<IDictionary<string, string>>()
             {
                 new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
@@ -90,9 +85,8 @@ namespace Microsoft.ReverseProxy.Service.Config
                 },
             };
 
-            var valid = transformBuilder.Validate(transforms, "routeId", errorReporter);
-            Assert.True(valid);
-            Assert.Empty(errorReporter.Errors);
+            var errors = transformBuilder.Validate(transforms);
+            Assert.Empty(errors);
 
             var results = transformBuilder.Build(transforms);
             Assert.NotNull(results);
@@ -107,7 +101,6 @@ namespace Microsoft.ReverseProxy.Service.Config
         public void DefaultsCanBeOverridenByForwarded()
         {
             var transformBuilder = CreateTransformBuilder();
-            var errorReporter = new TestConfigErrorReporter();
             var transforms = new List<IDictionary<string, string>>()
             {
                 new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
@@ -120,9 +113,8 @@ namespace Microsoft.ReverseProxy.Service.Config
                 },
             };
 
-            var valid = transformBuilder.Validate(transforms, "routeId", errorReporter);
-            Assert.True(valid);
-            Assert.Empty(errorReporter.Errors);
+            var errors = transformBuilder.Validate(transforms);
+            Assert.Empty(errors);
 
             var results = transformBuilder.Build(transforms);
             Assert.NotNull(results);
@@ -141,7 +133,6 @@ namespace Microsoft.ReverseProxy.Service.Config
         public void CopyRequestHeader(bool copyRequestHeaders)
         {
             var transformBuilder = CreateTransformBuilder();
-            var errorReporter = new TestConfigErrorReporter();
             var transforms = new List<IDictionary<string, string>>()
             {
                 new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
@@ -150,9 +141,8 @@ namespace Microsoft.ReverseProxy.Service.Config
                 }
             };
 
-            var valid = transformBuilder.Validate(transforms, "routeId", errorReporter);
-            Assert.True(valid);
-            Assert.Empty(errorReporter.Errors);
+            var errors = transformBuilder.Validate(transforms);
+            Assert.Empty(errors);
 
             var results = transformBuilder.Build(transforms);
             Assert.NotNull(results);
@@ -163,52 +153,45 @@ namespace Microsoft.ReverseProxy.Service.Config
         public void EmptyTransform_Error()
         {
             var transformBuilder = CreateTransformBuilder();
-            var errorReporter = new TestConfigErrorReporter();
             var transforms = new List<IDictionary<string, string>>()
             {
                 new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase), // Empty
             };
 
-            var valid = transformBuilder.Validate(transforms, "routeId", errorReporter);
-            Assert.False(valid);
-            Assert.Single(errorReporter.Errors);
-            var error = errorReporter.Errors.First();
-            Assert.Equal("routeId", error.ElementId);
+            var errors = transformBuilder.Validate(transforms);
+            var error = Assert.Single(errors);
             Assert.Equal("Unknown transform: ", error.Message);
 
-            var nie = Assert.Throws<NotSupportedException>(() => transformBuilder.Build(transforms));
-            Assert.Equal("", nie.Message);
+            var nie = Assert.Throws<ArgumentException>(() => transformBuilder.Build(transforms));
+            Assert.Equal("Unknown transform: ", nie.Message);
         }
 
         [Fact]
         public void UnknownTransforms_Error()
         {
             var transformBuilder = CreateTransformBuilder();
-            var errorReporter = new TestConfigErrorReporter();
             var transforms = new List<IDictionary<string, string>>()
             {
-                new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) // Unrecognized transform
+                new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) // Unknown transform
                 {
                     {  "string1", "value1" },
                     {  "string2", "value2" }
                 },
-                new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) // Unrecognized transform
+                new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) // Unknown transform
                 {
                     {  "string3", "value3" },
                     {  "string4", "value4" }
                 },
             };
 
-            var valid = transformBuilder.Validate(transforms, "routeId", errorReporter);
-            Assert.False(valid);
-            // All errors reported
-            Assert.Equal(2, errorReporter.Errors.Count);
-            Assert.Equal("Unknown transform: string1;string2", errorReporter.Errors.First().Message);
-            Assert.Equal("Unknown transform: string3;string4", errorReporter.Errors.Skip(1).First().Message);
-
-            var nie = Assert.Throws<NotSupportedException>(() => transformBuilder.Build(transforms));
+            var errors = transformBuilder.Validate(transforms);
+            //All errors reported
+            Assert.Equal(2, errors.Count);
+            Assert.Equal("Unknown transform: string1;string2", errors.First().Message);
+            Assert.Equal("Unknown transform: string3;string4", errors.Skip(1).First().Message);
+            var ex = Assert.Throws<ArgumentException>(() => transformBuilder.Build(transforms));
             // First error reported
-            Assert.Equal("string1;string2", nie.Message);
+            Assert.Equal("Unknown transform: string1;string2", ex.Message);
         }
 
         [Theory]
@@ -219,7 +202,6 @@ namespace Microsoft.ReverseProxy.Service.Config
         public void RequestHeader(bool append, string value)
         {
             var transformBuilder = CreateTransformBuilder();
-            var errorReporter = new TestConfigErrorReporter();
             var transforms = new List<IDictionary<string, string>>()
             {
                 new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
@@ -229,9 +211,8 @@ namespace Microsoft.ReverseProxy.Service.Config
                 }
             };
 
-            var valid = transformBuilder.Validate(transforms, "routeId", errorReporter);
-            Assert.True(valid);
-            Assert.Empty(errorReporter.Errors);
+            var errors = transformBuilder.Validate(transforms);
+            Assert.Empty(errors);
 
             var results = transformBuilder.Build(transforms);
             Assert.IsType<RequestHeaderValueTransform>(results.RequestHeaderTransforms["heaDerName"]);
@@ -243,6 +224,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddOptions();
             serviceCollection.AddRouting();
+            serviceCollection.AddLogging();
             serviceCollection.AddSingleton<ITransformBuilder, TransformBuilder>();
             serviceCollection.AddSingleton<IRandomFactory, RandomFactory>();
             using var services = serviceCollection.BuildServiceProvider();

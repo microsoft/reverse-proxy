@@ -4,7 +4,9 @@
 using System;
 using System.Net;
 using System.Net.Http;
-using System.Threading;
+using System.Security.Cryptography.X509Certificates;
+using Microsoft.Extensions.Logging;
+using Microsoft.ReverseProxy.Telemetry;
 
 namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
 {
@@ -13,123 +15,91 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
     /// </summary>
     internal class ProxyHttpClientFactory : IProxyHttpClientFactory
     {
-        /// <summary>
-        /// Handler for normal (i.e. non-upgradable) http requests.
-        /// </summary>
-        private readonly HttpMessageHandler _normalHandler;
-
-        /// <summary>
-        /// Handler for upgradable http requests.
-        /// </summary>
-        private HttpMessageHandler _upgradableHandler;
-
-        private bool _disposed;
+        private readonly ILogger<ProxyHttpClientFactory> _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ProxyHttpClientFactory"/> class.
         /// </summary>
-        public ProxyHttpClientFactory()
+        public ProxyHttpClientFactory(ILogger<ProxyHttpClientFactory> logger)
         {
-            _normalHandler = new SocketsHttpHandler
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
+
+        /// <inheritdoc/>
+        public HttpMessageInvoker CreateClient(ProxyHttpClientContext context)
+        {
+            if (CanReuseOldClient(context))
+            {
+                Log.ProxyClientReused(_logger, context.ClusterId);
+                return context.OldClient;
+            }
+
+            var newClientOptions = context.NewOptions;
+            var handler = new SocketsHttpHandler
             {
                 UseProxy = false,
                 AllowAutoRedirect = false,
                 AutomaticDecompression = DecompressionMethods.None,
-                UseCookies = false,
-                MaxConnectionsPerServer = int.MaxValue, // Proxy manages max connections
+                UseCookies = false
 
                 // NOTE: MaxResponseHeadersLength = 64, which means up to 64 KB of headers are allowed by default as of .NET Core 3.1.
             };
-        }
 
-        private HttpMessageHandler UpgradableHandler
-        {
-            get
+            if (newClientOptions.SslProtocols.HasValue)
             {
-                // NOTE: We don't use Lazy because its lock-free LazyThreadSafetyMode.PublicationOnly mode
-                // lacks proper handling of IDisposable values (suprious instances are not properly disposed).
-                var handler = Volatile.Read(ref _upgradableHandler);
-                if (handler == null)
+                handler.SslOptions.EnabledSslProtocols = newClientOptions.SslProtocols.Value;
+            }
+            if (newClientOptions.ClientCertificate != null)
+            {
+                handler.SslOptions.ClientCertificates = new X509CertificateCollection
                 {
-                    // Optimistically create a new instance hoping we will win a potential race below.
-                    // If we lose, we just dispose the spurious instance and take the one that won the race.
-                    handler = new SocketsHttpHandler
-                    {
-                        UseProxy = false,
-                        AllowAutoRedirect = false,
-                        AutomaticDecompression = DecompressionMethods.None,
-                        UseCookies = false,
-                        MaxConnectionsPerServer = int.MaxValue, // Proxy manages max connections
-                        PooledConnectionLifetime = TimeSpan.Zero, // Do not reuse connections
-                    };
-
-                    HttpMessageHandler existingHandler;
-                    if ((existingHandler = Interlocked.CompareExchange(ref _upgradableHandler, handler, null)) != null)
-                    {
-                        handler.Dispose();
-                        handler = existingHandler;
-                    }
-                }
-
-                return handler;
+                    newClientOptions.ClientCertificate
+                };
             }
-        }
-
-        /// <inheritdoc/>
-        public HttpMessageInvoker CreateNormalClient()
-        {
-            if (_disposed)
+            if (newClientOptions.MaxConnectionsPerServer != null)
             {
-                throw new ObjectDisposedException(typeof(ProxyHttpClientFactory).FullName);
+                handler.MaxConnectionsPerServer = newClientOptions.MaxConnectionsPerServer.Value;
+            }
+            if (newClientOptions.DangerousAcceptAnyServerCertificate)
+            {
+                handler.SslOptions.RemoteCertificateValidationCallback = delegate { return true; };
             }
 
-            return new HttpMessageInvoker(_normalHandler, disposeHandler: false);
-        }
+            Log.ProxyClientCreated(_logger, context.ClusterId);
 
-        /// <inheritdoc/>
-        public HttpMessageInvoker CreateUpgradableClient()
-        {
-            if (_disposed)
+            if (newClientOptions.PropagateActivityContext.GetValueOrDefault(true))
             {
-                throw new ObjectDisposedException(typeof(ProxyHttpClientFactory).FullName);
+                return new HttpMessageInvoker(new ActivityPropagationHandler(handler), disposeHandler: true);
             }
 
-            return new HttpMessageInvoker(UpgradableHandler, disposeHandler: false);
+            return new HttpMessageInvoker(handler, disposeHandler: true);
         }
 
-        /// <inheritdoc/>
-        public void Dispose()
+        private bool CanReuseOldClient(ProxyHttpClientContext context)
         {
-            Dispose(true);
+            return context.OldClient != null && context.NewOptions == context.OldOptions;
         }
 
-        /// <summary>
-        /// Disposes the current instance.
-        /// </summary>
-        /// <remarks>
-        /// This will dispose the underlying <see cref="HttpClientHandler"/>,
-        /// so it can only be called after it is no longer in use.
-        /// </remarks>
-        protected virtual void Dispose(bool disposing)
+        private static class Log
         {
-            if (!_disposed)
+            private static readonly Action<ILogger, string, Exception> _proxyClientCreated = LoggerMessage.Define<string>(
+                  LogLevel.Debug,
+                  EventIds.ProxyClientCreated,
+                  "New proxy client created for cluster '{clusterId}'.");
+
+            private static readonly Action<ILogger, string, Exception> _proxyClientReused = LoggerMessage.Define<string>(
+                LogLevel.Debug,
+                EventIds.ProxyClientReused,
+                "Existing proxy client reused for cluster '{clusterId}'.");
+
+            public static void ProxyClientCreated(ILogger logger, string clusterId)
             {
-                if (disposing)
-                {
-                    // TODO: This has high potential to cause coding defects. See if we can do better,
-                    // perhaps do something like `Microsoft.Extensions.Http.LifetimeTrackingHttpMessageHandler`.
-                    _normalHandler.Dispose();
+                _proxyClientCreated(logger, clusterId, null);
+            }
 
-                    var currentUpgradableHandler = Volatile.Read(ref _upgradableHandler);
-                    if (currentUpgradableHandler != null)
-                    {
-                        if (Interlocked.CompareExchange(ref _upgradableHandler, null, currentUpgradableHandler) == currentUpgradableHandler)
-                        {
-                        }
-                    }
-                }
-
-                _disposed = true;
+            public static void ProxyClientReused(ILogger logger, string clusterId)
+            {
+                _proxyClientReused(logger, clusterId, null);
             }
         }
     }

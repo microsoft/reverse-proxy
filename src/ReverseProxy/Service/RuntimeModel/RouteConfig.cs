@@ -1,17 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
-using Microsoft.ReverseProxy.ConfigModel;
+using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
-using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.RuntimeModel
 {
     /// <summary>
     /// Immutable representation of the portions of a route
     /// that only change in reaction to configuration changes
-    /// (e.g. rule, priority, action, etc.).
+    /// (e.g. rule, order, action, etc.).
     /// </summary>
     /// <remarks>
     /// All members must remain immutable to avoid thread safety issues.
@@ -20,30 +20,27 @@ namespace Microsoft.ReverseProxy.RuntimeModel
     /// </remarks>
     internal sealed class RouteConfig
     {
+        private readonly ProxyRoute _proxyRoute;
+
         public RouteConfig(
             RouteInfo route,
-            int configHash,
-            int? priority,
+            ProxyRoute proxyRoute,
             ClusterInfo cluster,
             IReadOnlyList<AspNetCore.Http.Endpoint> aspNetCoreEndpoints,
             Transforms transforms)
         {
-            Contracts.CheckValue(route, nameof(route));
-            Contracts.CheckValue(aspNetCoreEndpoints, nameof(aspNetCoreEndpoints));
+            Route = route ?? throw new ArgumentNullException(nameof(route));
+            Endpoints = aspNetCoreEndpoints ?? throw new ArgumentNullException(nameof(aspNetCoreEndpoints));
 
-            Route = route;
-            ConfigHash = configHash;
-            Priority = priority;
+            _proxyRoute = proxyRoute;
+            Order = proxyRoute.Order;
             Cluster = cluster;
-            Endpoints = aspNetCoreEndpoints;
             Transforms = transforms;
         }
 
         public RouteInfo Route { get; }
 
-        internal int ConfigHash { get; }
-
-        public int? Priority { get; }
+        public int? Order { get; }
 
         // May not be populated if the cluster config is missing.
         public ClusterInfo Cluster { get; }
@@ -52,10 +49,10 @@ namespace Microsoft.ReverseProxy.RuntimeModel
 
         public Transforms Transforms { get; }
 
-        public bool HasConfigChanged(ParsedRoute newConfig, ClusterInfo cluster)
+        public bool HasConfigChanged(ProxyRoute newConfig, ClusterInfo cluster)
         {
             return Cluster != cluster
-                || !ConfigHash.Equals(newConfig.GetConfigHash());
+                || !ProxyRoute.Equals(_proxyRoute, newConfig);
         }
     }
 }

@@ -2,19 +2,17 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Patterns;
-using Microsoft.ReverseProxy.Abstractions.Telemetry;
-using Microsoft.ReverseProxy.Telemetry;
 using Microsoft.ReverseProxy.Abstractions;
+using Microsoft.ReverseProxy.Common.Tests;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Management;
 using Microsoft.ReverseProxy.Service.Proxy;
-using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
 using Moq;
-using Tests.Common;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Middleware.Tests
@@ -23,7 +21,6 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
     {
         public LoadBalancerMiddlewareTests()
         {
-            Provide<IOperationLogger<LoadBalancingMiddleware>, TextOperationLogger<LoadBalancingMiddleware>>();
             Provide<RequestDelegate>(context => Task.CompletedTask);
         }
 
@@ -36,32 +33,28 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
         [Fact]
         public async Task Invoke_Works()
         {
-            var proxyHttpClientFactoryMock = new Mock<IProxyHttpClientFactory>();
+            var httpClient = new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object);
             var cluster1 = new ClusterInfo(
                 clusterId: "cluster1",
-                destinationManager: new DestinationManager(),
-                proxyHttpClientFactory: proxyHttpClientFactoryMock.Object);
-            cluster1.Config.Value = new ClusterConfig(default, new ClusterConfig.ClusterLoadBalancingOptions(LoadBalancingMode.RoundRobin), default);
+                destinationManager: new DestinationManager());
+            cluster1.Config = new ClusterConfig(default, default, new ClusterLoadBalancingOptions(LoadBalancingMode.RoundRobin), default, httpClient, default, default, new Dictionary<string, string>());
             var destination1 = cluster1.DestinationManager.GetOrCreateItem(
                 "destination1",
                 destination =>
                 {
-                    destination.Config.Value = new DestinationConfig("https://localhost:123/a/b/");
-                    destination.DynamicState.Value = new DestinationDynamicState(DestinationHealth.Healthy);
+                    destination.Config = new DestinationConfig("https://localhost:123/a/b/", null);
                 });
             var destination2 = cluster1.DestinationManager.GetOrCreateItem(
                 "destination2",
                 destination =>
                 {
-                    destination.Config.Value = new DestinationConfig("https://localhost:123/a/b/");
-                    destination.DynamicState.Value = new DestinationDynamicState(DestinationHealth.Healthy);
+                    destination.Config = new DestinationConfig("https://localhost:123/a/b/", null);
                 });
 
             var aspNetCoreEndpoints = new List<Endpoint>();
             var routeConfig = new RouteConfig(
                 route: new RouteInfo("route1"),
-                configHash: 0,
-                priority: null,
+                proxyRoute: new ProxyRoute(),
                 cluster: cluster1,
                 aspNetCoreEndpoints: aspNetCoreEndpoints.AsReadOnly(),
                 transforms: null);
@@ -71,19 +64,23 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             httpContext.SetEndpoint(aspNetCoreEndpoint);
             Provide<ILoadBalancer, LoadBalancer>();
 
-            httpContext.Features.Set<IAvailableDestinationsFeature>(
-                new AvailableDestinationsFeature() { Destinations = new List<DestinationInfo>() { destination1, destination2 }.AsReadOnly() });
+            httpContext.Features.Set<IReverseProxyFeature>(
+                new ReverseProxyFeature()
+                {
+                    AvailableDestinations = new List<DestinationInfo>() { destination1, destination2 },
+                    ClusterConfig = cluster1.Config
+                });
             httpContext.Features.Set(cluster1);
 
             var sut = Create<LoadBalancingMiddleware>();
 
             await sut.Invoke(httpContext);
 
-            var feature = httpContext.Features.Get<IAvailableDestinationsFeature>();
+            var feature = httpContext.Features.Get<IReverseProxyFeature>();
             Assert.NotNull(feature);
-            Assert.NotNull(feature.Destinations);
-            Assert.Equal(1, feature.Destinations.Count);
-            Assert.Same(destination1, feature.Destinations[0]);
+            Assert.NotNull(feature.AvailableDestinations);
+            Assert.Equal(1, feature.AvailableDestinations.Count);
+            Assert.Same(destination1, feature.AvailableDestinations[0]);
 
             Assert.Equal(200, httpContext.Response.StatusCode);
         }
@@ -91,31 +88,28 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
         [Fact]
         public async Task Invoke_ServiceReturnsNoResults_503()
         {
-            var proxyHttpClientFactoryMock = new Mock<IProxyHttpClientFactory>();
+            var httpClient = new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object);
             var cluster1 = new ClusterInfo(
                 clusterId: "cluster1",
-                destinationManager: new DestinationManager(),
-                proxyHttpClientFactory: proxyHttpClientFactoryMock.Object);
+                destinationManager: new DestinationManager());
+            cluster1.Config = new ClusterConfig(default, default, new ClusterLoadBalancingOptions(LoadBalancingMode.RoundRobin), default, httpClient, default, default, new Dictionary<string, string>());
             var destination1 = cluster1.DestinationManager.GetOrCreateItem(
                 "destination1",
                 destination =>
                 {
-                    destination.Config.Value = new DestinationConfig("https://localhost:123/a/b/");
-                    destination.DynamicState.Value = new DestinationDynamicState(DestinationHealth.Healthy);
+                    destination.Config = new DestinationConfig("https://localhost:123/a/b/", null);
                 });
             var destination2 = cluster1.DestinationManager.GetOrCreateItem(
                 "destination2",
                 destination =>
                 {
-                    destination.Config.Value = new DestinationConfig("https://localhost:123/a/b/");
-                    destination.DynamicState.Value = new DestinationDynamicState(DestinationHealth.Healthy);
+                    destination.Config = new DestinationConfig("https://localhost:123/a/b/", null);
                 });
 
             var aspNetCoreEndpoints = new List<Endpoint>();
             var routeConfig = new RouteConfig(
                 route: new RouteInfo("route1"),
-                configHash: 0,
-                priority: null,
+                proxyRoute: new ProxyRoute(),
                 cluster: cluster1,
                 aspNetCoreEndpoints: aspNetCoreEndpoints.AsReadOnly(),
                 transforms: null);
@@ -125,21 +119,25 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             httpContext.SetEndpoint(aspNetCoreEndpoint);
 
             Mock<ILoadBalancer>()
-                .Setup(l => l.PickDestination(It.IsAny<IReadOnlyList<DestinationInfo>>(), It.IsAny<ClusterConfig.ClusterLoadBalancingOptions>()))
+                .Setup(l => l.PickDestination(It.IsAny<IReadOnlyList<DestinationInfo>>(), It.IsAny<ClusterLoadBalancingOptions>()))
                 .Returns((DestinationInfo)null);
 
-            httpContext.Features.Set<IAvailableDestinationsFeature>(
-                new AvailableDestinationsFeature() { Destinations = new List<DestinationInfo>() { destination1, destination2 }.AsReadOnly() });
+            httpContext.Features.Set<IReverseProxyFeature>(
+                new ReverseProxyFeature()
+                {
+                    AvailableDestinations = new List<DestinationInfo>() { destination1, destination2 }.AsReadOnly(),
+                    ClusterConfig = cluster1.Config
+                });
             httpContext.Features.Set(cluster1);
 
             var sut = Create<LoadBalancingMiddleware>();
 
             await sut.Invoke(httpContext);
 
-            var feature = httpContext.Features.Get<IAvailableDestinationsFeature>();
+            var feature = httpContext.Features.Get<IReverseProxyFeature>();
             Assert.NotNull(feature);
-            Assert.NotNull(feature.Destinations);
-            Assert.Equal(2, feature.Destinations.Count); // Unmodified
+            Assert.NotNull(feature.AvailableDestinations);
+            Assert.Equal(2, feature.AvailableDestinations.Count); // Unmodified
 
             Assert.Equal(503, httpContext.Response.StatusCode);
         }
