@@ -4,7 +4,7 @@ YARP can be integrated with Service Fabric as a reverse proxy managing HTTP/HTTP
 ## Key YARP integration features
 - Reverse proxy supporting HTTP/2, gRPC and WebSockets
 - Advanced routing in SF cluster
-- Sophisticated load balancing algorithms
+- A variety of load balancing algorithms
 
 ## Integration component configuration
 The following YARP.ServiceFabric parameters can be set in the configuration section `ServiceFabricDiscovery`:
