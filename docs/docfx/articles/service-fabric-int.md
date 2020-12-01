@@ -6,6 +6,29 @@ YARP can be integrated with Service Fabric as a reverse proxy managing HTTP/HTTP
 - Advanced routing in SF cluster
 - A variety of load balancing algorithms
 
+## Update the project file
+Open the Project and find the `ItemGroup` referencing the YARP package, then add a reference to YARP.ServiceFabric package next to it.
+ 
+ ```XML
+<ItemGroup> 
+  <PackageReference Include="Microsoft.ReverseProxy" Version="1.0.0-preview.8.*" />
+  <PackageReference Include="Microsoft.ReverseProxy.ServiceFabric" Version="1.0.0-preview.8.*" />
+</ItemGroup> 
+```
+
+## Update Startup
+SF integration is plugged into the rest of YARP via a special `IProxyConfigProvider` and various support service. All of that can be registered in the Asp.Net Core DI container with the following code:
+```C#
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddControllers();
+    services.AddReverseProxy()
+        .LoadFromServiceFabric();
+
+    services.Configure<ServiceFabricDiscoveryOptions>(_configuration.GetSection("ServiceFabricDiscovery"));
+}
+```
+
 ## Integration component configuration
 The following YARP.ServiceFabric parameters can be set in the configuration section `ServiceFabricDiscovery`:
 - `ReportReplicasHealth` - indicates whether SF replica health report should be generated after the SF replica to YARP model conversion completed. Default `false`
