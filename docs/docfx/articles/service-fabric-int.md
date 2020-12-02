@@ -48,7 +48,7 @@ The following is an example of an `appsettings.json` file with `ServiceFabricDis
   }
 }
 ```
-It can be loaded into memory on the proxy startup with the following code method called from within Asp.Net's `ConfigureServices` method:
+It can be loaded into the ServiceFabricDiscoveryOptions at startup with the following code method called from within Asp.Net's `ConfigureServices` method:
 ```C#
 services.Configure<ServiceFabricDiscoveryOptions>(_configuration.GetSection("ServiceFabricDiscovery"));
 ```
@@ -99,7 +99,7 @@ These are the supported parameters:
 ```
 
 ## Dynamic YARP model
-YARP.ServiceFabric dynamically constructs and updates YARP runtime model based on the SF topology metadata. On start, it connects to SF cluster, enumerates the deployed entities (e.g applications, services, etc.), maps to YARP configuration model, validates and applies it. After the initial configuration has been applied, it starts a backround tasks periodically polling SF cluster for topology changes. The polling frequency can be set in the YARP configuration. The Service Fabric to YARP entities mapping is shown in the following table.
+YARP.ServiceFabric dynamically constructs and updates the YARP runtime model based on the SF topology metadata. On start, it connects to the SF cluster it's running in, enumerates the deployed entities (e.g applications, services, etc.), maps to the YARP configuration model, validates and applies it. After the initial configuration has been applied, YARP starts a background tasks periodically polling the SF cluster for topology changes. The polling frequency can be set in the YARP configuration. The Service Fabric to YARP entities mapping is shown in the following table.
 
 Service Fabric | YARP 
 :--- | :---
@@ -118,11 +118,11 @@ There is also the [step-by-step guide](https://docs.microsoft.com/en-us/azure/se
 
 ## Known limitations
 Limitations of the current Service Fabric to YARP configuration model conversion implementation:
-- Partitioning is not supported. Partitions are enumerated to retrieve all nested replicas/instances, but partioning key is not handled in any way. Specifically, depending of how YARP routing is configured, it's possible to route a request having one partion key (e.g 'A') to a replica of another partition (e.g. 'B').
+- Partitioning is not supported. Partitions are enumerated to retrieve all of the nested replicas/instances, but the partitioning key is not handled in any way. Specifically, depending on how YARP routing is configured, it's possible to route a request having one partition key (e.g 'A') to a replica of another partition (e.g. 'B').
 - Only one endpoint per each SF service's replica/instance is considered and gets converted to a [Destination](xref:Microsoft.ReverseProxy.Abstractions.Destination).
 - All statefull service replica roles are treated equally. No special differentiation logic is applied. Depending on the configuration, active secondary replicas can also be converted to `Destinations` and directly receive client requests.
-- Each of named service instance get converted to separate YARP's [Clusters](xref:Microsoft.ReverseProxy.Abstractions.Cluster) which are completely unrelated to each other.
-- Naive error handling. It ignores most of the failures.
+- Each of the named service instances get converted to separate YARP [Clusters](xref:Microsoft.ReverseProxy.Abstractions.Cluster) which are completely unrelated to each other.
+- Limited error handling. Most failures are logged and suppressed. Some errors will prevent the proxy config from being updated.
 
 ## Architecture
 The detailed process of SF cluster polling and model conversion looks as follows.
