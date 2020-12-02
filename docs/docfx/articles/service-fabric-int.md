@@ -111,6 +111,11 @@ Partition | *TBD later*
 Replica / Instance (one endpoint only) | Destination (Address=instance' or replica's endpoint)
 YARP.Routes.<routeName>.* in ServiceManifest | ProxyRoute (id=ServiceName+routeName, Match=Hosts,Path extracted from the labels)
 
+## Testing SF integration locally
+While developing a new YARP-based application with enabled SF integration, it's helpful to test how everything works locally on a dev machine before deploying it to the cloud. This can be done by following the steps explained in [Prepare your development environment on Windows](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-get-started) guide.
+
+There is also the [step-by-step guide](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-tutorial-create-dotnet-app#create-an-aspnet-web-api-service-as-a-reliable-service) on how to create a sample SF service and deploy it to the local SF cluster. Once the sample SF project is created, the 'YARP-preview' section shown in the 'Service extension example' above must be added into `ServiceManifest.xml` to enable YARP.ServiceFabric.
+
 ## Known limitations
 Limitations of the current Service Fabric to YARP configuration model conversion implementation:
 - Partitioning is not supported. Partitions are enumerated to retrieve all nested replicas/instances, but partioning key is not handled in any way. Specifically, depending of how YARP routing is configured, it's possible to route a request having one partion key (e.g 'A') to a replica of another partition (e.g. 'B').
