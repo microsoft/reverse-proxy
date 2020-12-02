@@ -10,7 +10,7 @@ YARP can be integrated with Service Fabric as a reverse proxy managing HTTP/HTTP
 - A variety of load balancing algorithms
 
 ## Update the project file
-Open the Project and find the `ItemGroup` referencing the YARP package, then add a reference to YARP.ServiceFabric package next to it.
+Open the Project and find the `ItemGroup` referencing the YARP package, then add a reference to the ServiceFabric package next to it.
  
  ```XML
 <ItemGroup> 
