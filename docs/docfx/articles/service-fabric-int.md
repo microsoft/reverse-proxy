@@ -1,4 +1,7 @@
 # Service Fabric Integration
+
+Introduced: preview8
+
 YARP can be integrated with Service Fabric as a reverse proxy managing HTTP/HTTPS traffic ingress to a Service Fabric cluster, including support for gRPC and Web Sockets. Currently, the integration module is shipped as a separate package and has a limited support of SF availability and scalability scenarios, but it will be gradually improved over time to support more advanced SF deployment schemes.
 
 ## Key YARP integration features
@@ -26,6 +29,17 @@ public void ConfigureServices(IServiceCollection services)
         .LoadFromServiceFabric();
 
     services.Configure<ServiceFabricDiscoveryOptions>(_configuration.GetSection("ServiceFabricDiscovery"));
+}
+
+public void Configure(IApplicationBuilder app)
+{
+    app.UseRouting();
+    app.UseAuthorization();
+    app.UseEndpoints(endpoints =>
+    {
+        endpoints.MapControllers();
+        endpoints.MapReverseProxy();
+    });
 }
 ```
 
@@ -59,20 +73,33 @@ YARP integration is enabled and configured per each SF service. The configuratio
 These are the supported parameters:
 - `YARP.Enable` - indicates whether the service opt-ins to serving traffic through YARP. Default `false`
 - `YARP.EnableDynamicOverrides` - indicates whether application parameters replacement is enabled on the service. Default `false`
-- `YARP.Routes.<routeName>.Path` - configures path-based route matching. The value directly assigned to [ProxyMatch.Path](xref:Microsoft.ReverseProxy.Abstractions.ProxyMatch) property and the standard route matching logic will be applied.
-- `YARP.Routes.<routeName>.Host` - configures `Host` header based route matching. Multiple hosts should be separated by comma `,`. The value is split into a list of host names which is then directly assigned to [ProxyMatch.Hosts](xref:Microsoft.ReverseProxy.Abstractions.ProxyMatch) property and the standard route matching logic will be applied.
 - `YARP.Backend.LoadBalancing.Mode` - configures YARP load balancing mode. Optional parameter
 - `YARP.Backend.SessionAffinity.*` - configures YARP session affinity. Available parameters and their meanings are provided on [the respective documentation page](xref:session-affinity.md). Optional parameter
 - `YARP.Backend.HttpRequest.*` - sets proxied HTTP request properties. Available parameters and their meanings are provided on [the respective documentation page](xref:proxyhttpclientconfig.md) in 'HttpRequest' section. Optional parameter
-- `YARP.Backend.HealthCheck.Active.*` - configures YARP active health checks to be run against the given service. Available parameters and their meanings are provided on [the respective documentation page](xref:dests-health-checks.md). Optional parameter
+- `YARP.Backend.HealthCheck.Active.*` - configures YARP active health checks to be run against the given service. Available parameters and their meanings are provided on [the respective documentation page](xref:dests-health-checks.md). There is one label in this group `YARP.Backend.HealthCheck.Active.ServiceFabric.ListenerName` which is not covered by that document because it's SF specific. Its purpose is explained below. Optional parameter
+- `YARP.Backend.HealthCheck.Active.ServiceFabric.ListenerName` - sets an explicit listener name controlling selection of the health probing endpoint for each replica/instance that is used to probe replica/instance health state and is stored on the `Destination.Health` property in YARP's model. Optional parameter
 - `YARP.Backend.HealthCheck.Passive.*` - configures YARP passive health checks to be run against the given service. Available parameters and their meanings are provided on [the respective documentation page](xref:dests-health-checks.md). Optional parameter
 - `YARP.Backend.Metadata.*` - sets the cluster's metadata. Optional parameter
 - `YARP.Backend.BackendId` - overrides the cluster's Id. Default cluster's Id is the SF service name. Optional parameter
 - `YARP.Backend.ServiceFabric.ListenerName` - sets an explicit listener name controlling selection of the main service's endpoint for each replica/instance that is used to route client requests to and is stored on the `Destination.Address` property in YARP's model. Optional parameter
-- `YARP.Backend.HealthCheck.Active.ServiceFabric.ListenerName` - sets an explicit listener name controlling selection of the health probing endpoint for each replica/instance that is used to probe replica/instance health state and is stored on the `Destination.Health` property in YARP's model. Optional parameter
 - `YARP.Backend.ServiceFabric.StatefulReplicaSelectionMode` - sets statefull replica selection mode. Supported values `All`, `PrimaryOnly`, `SecondaryOnly`. Values `All` and `SecondaryOnly` mean that the active secondary replicas will also be eligible for getting all kinds of client requests including writes. Default value `All`
 
 > NOTE: Label values can use the special syntax `[AppParamName]` to reference an application parameter with the name given within square brackets. This is consistent with Service Fabric conventions, see e.g. [using parameters in Service Fabric](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-how-to-specify-port-number-using-parameters).
+
+### Route definitions
+Multiple routes can be defined in an SF service configuration with the following parameters:
+- `YARP.Routes.<routeName>.Path` - configures path-based route matching. The value directly assigned to [ProxyMatch.Path](xref:Microsoft.ReverseProxy.Abstractions.ProxyMatch) property and the standard route matching logic will be applied. `{**catch-all}` path may be used to route all requests.
+- `YARP.Routes.<routeName>.Host` - configures `Host` header based route matching. Multiple hosts should be separated by comma `,`. The value is split into a list of host names which is then directly assigned to [ProxyMatch.Hosts](xref:Microsoft.ReverseProxy.Abstractions.ProxyMatch) property and the standard route matching logic will be applied.
+- `<routeName>` can contain an ASCII letter, a number, or '_' and '-' symbols.
+
+Each route requires a `Path` or `Host` (or both). If both of them are specified, then a request is matched to the route only when both of them are matched.
+
+Example:
+```XML
+<Label Key="YARP.Routes.route-A1.Path">/api</Label>
+<Label Key="YARP.Routes.route-B2.Path">/control-api</Label>
+<Label Key="YARP.Routes.route-B2.Host">example.com,anotherexample.com</Label>
+```
 
 ### Service extension example
 ```diff
@@ -83,7 +110,7 @@ These are the supported parameters:
 +        <Extension Name="YARP-preview">
 +          <Labels xmlns="http://schemas.microsoft.com/2015/03/fabact-no-schema">
 +            <Label Key="YARP.Enable">true</Label>
-+            <Label Key="YARP.Routes.route1.Path">{**catchall}</Label>
++            <Label Key="YARP.Routes.route1.Path">{**catch-all}</Label>
 +            <Label Key='YARP.Backend.HealthCheck.Active.Enabled'>true</Label>
 +            <Label Key='YARP.Backend.HealthCheck.Active.Timeout'>30</Label>
 +            <Label Key='YARP.Backend.HealthCheck.Active.Interval'>10</Label>
