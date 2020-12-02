@@ -76,10 +76,10 @@ You will need to add the lines indicated below. A brief explanation of labels is
 +            <Label Key="YARP.Enable">true</Label>
 +            <Label Key="YARP.Routes.route1.Path">{**catchall}</Label>
 +            <!-- Optional: enable active health probes -->
-+            <Label Key='YARP.Backend.HealthCheck.Active.Enabled'>true</Label>
-+            <Label Key='YARP.Backend.HealthCheck.Active.Timeout'>30</Label>
-+            <Label Key='YARP.Backend.HealthCheck.Active.Interval'>10</Label>
-+            <Label Key='YARP.Backend.HealthCheck.Active.Policy'>ConsecutiveFailures</Label>
++            <Label Key="YARP.Backend.HealthCheck.Active.Enabled">true</Label>
++            <Label Key="YARP.Backend.HealthCheck.Active.Timeout">30</Label>
++            <Label Key="YARP.Backend.HealthCheck.Active.Interval">10</Label>
++            <Label Key="YARP.Backend.HealthCheck.Active.Policy">ConsecutiveFailures</Label>
 +          </Labels>
 +        </Extension>
        </Extensions>
