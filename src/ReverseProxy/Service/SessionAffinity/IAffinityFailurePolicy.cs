@@ -10,7 +10,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
     /// <summary>
     /// Affinity failures handling policy.
     /// </summary>
-    internal interface IAffinityFailurePolicy
+    public interface IAffinityFailurePolicy
     {
         /// <summary>
         ///  A unique identifier for this failure policy. This will be referenced from config.
