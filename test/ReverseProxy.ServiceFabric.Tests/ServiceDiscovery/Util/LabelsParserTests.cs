@@ -185,12 +185,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 { "YARP.Routes.MyRoute.MatchHeaders.[1].Name", "x-environment" },
                 { "YARP.Routes.MyRoute.MatchHeaders.[1].Values", "dev, uat" },
                 { "YARP.Routes.MyRoute.Metadata.Foo", "Bar" },
-                { "YARP.Routes.MyRoute.Transforms.[0].ResponseHeader", "X-Foo" },
-                { "YARP.Routes.MyRoute.Transforms.[0].Append", "Bar" },
-                { "YARP.Routes.MyRoute.Transforms.[0].When", "Always" },
-                { "YARP.Routes.MyRoute.Transforms.[1].ResponseHeader", "X-Ping" },
-                { "YARP.Routes.MyRoute.Transforms.[1].Append", "Pong" },
-                { "YARP.Routes.MyRoute.Transforms.[1].When", "Success" },
             };
 
             // Act
@@ -228,19 +222,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     Metadata = new Dictionary<string, string>
                     {
                         { "Foo", "Bar" },
-                    },
-                    Transforms = new List<IDictionary<string, string>>
-                    {
-                        new Dictionary<string, string>{ 
-                            {"ResponseHeader", "X-Foo"},
-                            {"Append", "Bar"},
-                            {"When", "Always"}
-                        },
-                        new Dictionary<string, string>{ 
-                            {"ResponseHeader", "X-Ping"},
-                            {"Append", "Pong"},
-                            {"When", "Success"}
-                        }
                     }
                 },
             };
@@ -490,6 +471,29 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             func.Should()
                 .Throw<ConfigException>()
                 .WithMessage($"Invalid header matching index '*', should only contain alphanumerical characters, underscores or hyphens.");
+        }
+
+        [Theory]
+        [InlineData("YARP.Routes.MyRoute.MatchHeaders.[0].UnknownProperty", "some value")]
+        public void BuildRoutes_InvalidHeaderMatchProperty_Throws(string invalidKey, string value)
+        {
+            // Arrange
+            var labels = new Dictionary<string, string>()
+            {
+                { "YARP.Backend.BackendId", "MyCoolClusterId" },
+                { "YARP.Routes.MyRoute.Hosts", "example.com" },
+                { "YARP.Routes.MyRoute.Priority", "2" },
+                { "YARP.Routes.MyRoute.Metadata.Foo", "Bar" },
+            };
+            labels[invalidKey] = value;
+
+            // Act
+            Func<List<ProxyRoute>> func = () => LabelsParser.BuildRoutes(_testServiceName, labels);
+
+            // Assert
+            func.Should()
+                .Throw<ConfigException>()
+                .WithMessage($"Invalid header matching property '*', only valid values are Name, Values, IsCaseSensitive and Mode.");
         }
 
         [Theory]

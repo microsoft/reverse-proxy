@@ -23,10 +23,14 @@ namespace Microsoft.ReverseProxy.ServiceFabric
 
         private static readonly Regex _allowedRouteNamesRegex = new Regex("^[a-zA-Z0-9_-]+$");
 
-        private static readonly Regex _allowedTransformNamesRegex = new Regex(@"^\[\d\d*\]$");
-        private static readonly Regex _allowedPropertyNamesRegex = new Regex("^[a-zA-Z0-9_-]+$");
+        /// <summary>
+        /// Requires all header match names to follow the .[0]. pattern to simulate indexing in an array
+        /// </summary>
         private static readonly Regex _allowedHeaderNamesRegex = new Regex(@"^\[\d\d*\]$");
 
+        /// <summary>
+        /// Matches only valid header match properties
+        /// </summary>
         private static readonly Regex _allowedHeaderMatchPropertiesRegex = new Regex(@"^(?i)\b(Name|Values|Mode|IsCaseSensitive)\b$");
 
 
@@ -84,7 +88,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                 var thisRoutePrefix = $"{RoutesLabelsPrefix}{routeName}";
                 var metadata = new Dictionary<string, string>();
                 var headerMatches = new Dictionary<string, RouteHeader>();
-                var transforms = new Dictionary<string, IDictionary<string, string>>();
                 foreach (var kvp in labels)
                 {
                     if (kvp.Key.StartsWith($"{thisRoutePrefix}.Metadata.", StringComparison.Ordinal))
@@ -112,7 +115,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                         var propertyName = kvp.Key.Substring($"{thisRoutePrefix}.MatchHeaders.{headerIndex}.".Length);
                         if (!_allowedHeaderMatchPropertiesRegex.IsMatch(propertyName))
                         {
-                            throw new ConfigException($"Invalid header matching property '{propertyName}', only valid values are Name, Values and Mode.");
+                            throw new ConfigException($"Invalid header matching property '{propertyName}', only valid values are Name, Values, IsCaseSensitive and Mode.");
                         }
                         if (propertyName.Equals("Name", StringComparison.Ordinal)) 
                         {
@@ -137,31 +140,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                             }
                         }
                     }
-                    else if (kvp.Key.StartsWith($"{thisRoutePrefix}.Transforms.", StringComparison.Ordinal)) 
-                    {
-                        var suffix = kvp.Key.Substring($"{thisRoutePrefix}.Transforms.".Length);
-                        var transformNameLength = suffix.IndexOf('.');
-                        if (transformNameLength == -1)
-                        {
-                            // No transform index encoded, the key is not valid. Throwing would suggest we actually check for all invalid keys, so just ignore.
-                            continue;
-                        }
-                        var transformName = suffix.Substring(0, transformNameLength);
-                        if (!_allowedTransformNamesRegex.IsMatch(transformName))
-                        {
-                            throw new ConfigException($"Invalid transform index '{transformName}', should be transform index wrapped in square brackets.");
-                        }
-                        if (!transforms.ContainsKey(transformName)) 
-                        {
-                            transforms.Add(transformName, new Dictionary<string, string>());
-                        }
-                        var propertyName = kvp.Key.Substring($"{thisRoutePrefix}.Transforms.{transformName}.".Length);
-                        if (!_allowedPropertyNamesRegex.IsMatch(propertyName))
-                        {
-                            throw new ConfigException($"Invalid property name '{propertyName}', should only contain alphanumerical characters, underscores or hyphens.");
-                        }
-                        transforms[transformName].Add(propertyName, kvp.Value);
-                    }
                 }
                 
 
@@ -179,8 +157,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                     },
                     Order = GetLabel(labels, $"{thisRoutePrefix}.Order", DefaultRouteOrder),
                     ClusterId = backendId,
-                    Metadata = metadata,
-                    Transforms = transforms.Count > 0 ? transforms.Select(tr => tr.Value).ToList() : null
+                    Metadata = metadata
                 };
                 routes.Add(route);
             }
