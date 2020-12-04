@@ -25,11 +25,11 @@ namespace Microsoft.ReverseProxy.ServiceFabric
         /// <summary>
         /// Initializes a new instance of the <see cref="QueryClientWrapper"/> class.
         /// </summary>
-        public QueryClientWrapper(ILogger<QueryClientWrapper> logger)
+        public QueryClientWrapper(ILogger<QueryClientWrapper> logger, IFabricClientWrapper fabricClientWrapper)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-            _queryClient = new FabricClient().QueryManager;
+            _queryClient = fabricClientWrapper.FabricClient.QueryManager;
         }
 
         /// <summary>
