@@ -207,12 +207,14 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     },
                     Transforms = new List<IDictionary<string, string>>
                     {
-                        new Dictionary<string, string>{ 
+                        new Dictionary<string, string>
+                        { 
                             {"ResponseHeader", "X-Foo"},
                             {"Append", "Bar"},
                             {"When", "Always"}
                         },
-                        new Dictionary<string, string>{ 
+                        new Dictionary<string, string>
+                        { 
                             {"ResponseHeader", "X-Ping"},
                             {"Append", "Pong"},
                             {"When", "Success"}

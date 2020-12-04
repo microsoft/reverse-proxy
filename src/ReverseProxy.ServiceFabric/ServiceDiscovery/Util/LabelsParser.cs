@@ -23,8 +23,10 @@ namespace Microsoft.ReverseProxy.ServiceFabric
 
         private static readonly Regex _allowedRouteNamesRegex = new Regex("^[a-zA-Z0-9_-]+$");
 
+        /// <summary>
+        /// Requires all transform names to follow the .[0]. pattern to simulate indexing in an array
+        /// </summary>
         private static readonly Regex _allowedTransformNamesRegex = new Regex(@"^\[\d\d*\]$");
-        private static readonly Regex _allowedPropertyNamesRegex = new Regex("^[a-zA-Z0-9_-]+$");
 
         internal static TValue GetLabel<TValue>(Dictionary<string, string> labels, string key, TValue defaultValue)
         {
@@ -102,14 +104,17 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                         }
                         if (!transforms.ContainsKey(transformName)) 
                         {
-                            transforms.Add(transformName, new Dictionary<string, string>());
+                            transforms.Add(transformName, new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase));
                         }
                         var propertyName = kvp.Key.Substring($"{thisRoutePrefix}.Transforms.{transformName}.".Length);
-                        if (!_allowedPropertyNamesRegex.IsMatch(propertyName))
+                        if (!transforms[transformName].ContainsKey(propertyName)) 
                         {
-                            throw new ConfigException($"Invalid property name '{propertyName}', should only contain alphanumerical characters, underscores or hyphens.");
+                            transforms[transformName].Add(propertyName, kvp.Value);
+                        } 
+                        else 
+                        {
+                            throw new ConfigException($"A duplicate transformation property '{transformName}.{propertyName}' was found.");
                         }
-                        transforms[transformName].Add(propertyName, kvp.Value);
                     }
                 }
 
