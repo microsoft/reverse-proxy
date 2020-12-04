@@ -129,11 +129,16 @@ namespace Microsoft.ReverseProxy.ServiceFabric
 
             var clusterId = GetClusterId(serviceName, labels);
 
+            var loadBalancingModeLabel = GetLabel<string>(labels, "YARP.Backend.LoadBalancing.Mode", null);
+            var versionLabel = GetLabel<string>(labels, "YARP.Backend.HttpRequest.Version", null);
+#if NET
+            var versionPolicyLabel = GetLabel<string>(labels, "YARP.Backend.HttpRequest.VersionPolicy", null);
+#endif
             var cluster = new Cluster
             {
                 Id = clusterId,
-                LoadBalancing = Enum.TryParse(typeof(LoadBalancingMode), GetLabel<string>(labels, "YARP.Backend.LoadBalancing.Mode", null), out var parsed)
-                    ? new LoadBalancingOptions { Mode = (LoadBalancingMode)parsed }
+                LoadBalancing = !string.IsNullOrEmpty(loadBalancingModeLabel)
+                    ? new LoadBalancingOptions { Mode = (LoadBalancingMode)Enum.Parse(typeof(LoadBalancingMode), loadBalancingModeLabel) }
                     : null,
                 SessionAffinity = new SessionAffinityOptions
                 {
@@ -145,11 +150,9 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                 HttpRequest = new ProxyHttpRequestOptions
                 {
                     Timeout = ToNullableTimeSpan(GetLabel<double?>(labels, "YARP.Backend.HttpRequest.Timeout", null)),
-                    Version = Version.TryParse(GetLabel<string>(labels, "YARP.Backend.HttpRequest.Version", null), out var version) ? version : null,
+                    Version = !string.IsNullOrEmpty(versionLabel) ? Version.Parse(versionLabel + (versionLabel.Contains('.') ? "" : ".0")) : null,
 #if NET
-                    VersionPolicy = Enum.TryParse(typeof(HttpVersionPolicy), GetLabel<string>(labels, "YARP.Backend.HttpRequest.VersionPolicy", null), out var versionPolicy)
-                        ? (HttpVersionPolicy?)versionPolicy
-                        : null
+                    VersionPolicy = !string.IsNullOrEmpty(versionLabel) ? (HttpVersionPolicy)Enum.Parse(typeof(HttpVersionPolicy), versionPolicyLabel) : null
 #endif
                 },
                 HealthCheck = new HealthCheckOptions
