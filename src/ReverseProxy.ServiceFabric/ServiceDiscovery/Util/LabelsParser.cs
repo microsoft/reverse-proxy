@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Net.Http;
 using System.Text.RegularExpressions;
 using Microsoft.ReverseProxy.Abstractions;
 
@@ -106,35 +107,79 @@ namespace Microsoft.ReverseProxy.ServiceFabric
         internal static Cluster BuildCluster(Uri serviceName, Dictionary<string, string> labels)
         {
             var clusterMetadata = new Dictionary<string, string>();
+            Dictionary<string, string> sessionAffinitySettings = null;
             const string BackendMetadataKeyPrefix = "YARP.Backend.Metadata.";
+            const string SessionAffinitySettingsKeyPrefix = "YARP.Backend.SessionAffinity.Settings.";
             foreach (var item in labels)
             {
                 if (item.Key.StartsWith(BackendMetadataKeyPrefix, StringComparison.Ordinal))
                 {
                     clusterMetadata[item.Key.Substring(BackendMetadataKeyPrefix.Length)] = item.Value;
                 }
+                else if (item.Key.StartsWith(SessionAffinitySettingsKeyPrefix, StringComparison.Ordinal))
+                {
+                    if (sessionAffinitySettings == null)
+                    {
+                        sessionAffinitySettings = new Dictionary<string, string>();
+                    }
+
+                    sessionAffinitySettings[item.Key.Substring(SessionAffinitySettingsKeyPrefix.Length)] = item.Value;
+                }
             }
 
             var clusterId = GetClusterId(serviceName, labels);
 
+            var loadBalancingModeLabel = GetLabel<string>(labels, "YARP.Backend.LoadBalancing.Mode", null);
+            var versionLabel = GetLabel<string>(labels, "YARP.Backend.HttpRequest.Version", null);
+#if NET
+            var versionPolicyLabel = GetLabel<string>(labels, "YARP.Backend.HttpRequest.VersionPolicy", null);
+#endif
             var cluster = new Cluster
             {
                 Id = clusterId,
-                LoadBalancing = new LoadBalancingOptions(), // TODO
+                LoadBalancing = !string.IsNullOrEmpty(loadBalancingModeLabel)
+                    ? new LoadBalancingOptions { Mode = (LoadBalancingMode)Enum.Parse(typeof(LoadBalancingMode), loadBalancingModeLabel) }
+                    : null,
+                SessionAffinity = new SessionAffinityOptions
+                {
+                    Enabled = GetLabel(labels, "YARP.Backend.SessionAffinity.Enabled", false),
+                    Mode = GetLabel<string>(labels, "YARP.Backend.SessionAffinity.Mode", null),
+                    FailurePolicy = GetLabel<string>(labels, "YARP.Backend.SessionAffinity.FailurePolicy", null),
+                    Settings = sessionAffinitySettings
+                },
+                HttpRequest = new ProxyHttpRequestOptions
+                {
+                    Timeout = ToNullableTimeSpan(GetLabel<double?>(labels, "YARP.Backend.HttpRequest.Timeout", null)),
+                    Version = !string.IsNullOrEmpty(versionLabel) ? Version.Parse(versionLabel + (versionLabel.Contains('.') ? "" : ".0")) : null,
+#if NET
+                    VersionPolicy = !string.IsNullOrEmpty(versionLabel) ? (HttpVersionPolicy)Enum.Parse(typeof(HttpVersionPolicy), versionPolicyLabel) : null
+#endif
+                },
                 HealthCheck = new HealthCheckOptions
                 {
                     Active = new ActiveHealthCheckOptions
                     {
-                        Enabled = GetLabel(labels, "YARP.Backend.Healthcheck.Active.Enabled", false),
-                        Interval = TimeSpan.FromSeconds(GetLabel<double>(labels, "YARP.Backend.Healthcheck.Active.Interval", 0)),
-                        Timeout = TimeSpan.FromSeconds(GetLabel<double>(labels, "YARP.Backend.Healthcheck.Active.Timeout", 0)),
-                        Path = GetLabel<string>(labels, "YARP.Backend.Healthcheck.Active.Path", null),
-                        Policy = GetLabel<string>(labels, "YARP.Backend.Healthcheck.Active.Policy", null),
+                        Enabled = GetLabel(labels, "YARP.Backend.HealthCheck.Active.Enabled", false),
+                        Interval = ToNullableTimeSpan(GetLabel<double?>(labels, "YARP.Backend.HealthCheck.Active.Interval", null)),
+                        Timeout = ToNullableTimeSpan(GetLabel<double?>(labels, "YARP.Backend.HealthCheck.Active.Timeout", null)),
+                        Path = GetLabel<string>(labels, "YARP.Backend.HealthCheck.Active.Path", null),
+                        Policy = GetLabel<string>(labels, "YARP.Backend.HealthCheck.Active.Policy", null)
+                    },
+                    Passive = new PassiveHealthCheckOptions
+                    {
+                        Enabled = GetLabel(labels, "YARP.Backend.HealthCheck.Passive.Enabled", false),
+                        Policy = GetLabel<string>(labels, "YARP.Backend.HealthCheck.Passive.Policy", null),
+                        ReactivationPeriod = ToNullableTimeSpan(GetLabel<double?>(labels, "YARP.Backend.HealthCheck.Passive.ReactivationPeriod", null))
                     }
                 },
                 Metadata = clusterMetadata,
             };
             return cluster;
+        }
+
+        private static TimeSpan? ToNullableTimeSpan(double? seconds)
+        {
+            return seconds.HasValue ? (TimeSpan?)TimeSpan.FromSeconds(seconds.Value) : null;
         }
 
         private static string GetClusterId(Uri serviceName, Dictionary<string, string> labels)
