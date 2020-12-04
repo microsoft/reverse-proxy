@@ -68,7 +68,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             catch (Exception ex) // TODO: davidni: not fatal?
             {
                 // The serviceFabricCaller does their best effort to use LKG information, nothing we can do at this point
-                _logger.LogError(ex, "Could not get applications list from Service Fabric, continuing with zero applications.");
+                Log.GettingApplicationFailed(_logger, ex);
                 applications = Enumerable.Empty<ApplicationWrapper>();
             }
 
@@ -86,7 +86,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                 }
                 catch (Exception ex) // TODO: davidni: not fatal?
                 {
-                    _logger.LogError(ex, $"Could not get service list for application {application.ApplicationName}, skipping application.");
+                    Log.GettingServiceFailed(_logger, application.ApplicationName, ex);
                     continue;
                 }
 
@@ -138,7 +138,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                     catch (ConfigException ex)
                     {
                         // User error
-                        _logger.LogInformation($"Config error found when trying to load service '{service.ServiceName}', skipping. Error: {ex}.");
+                        Log.InvalidServiceConfig(_logger, service.ServiceName, ex);
 
                         // TODO: emit Error health report once we are able to detect config issues *during* (as opposed to *after*) a target service upgrade.
                         // Proactive Error health report would trigger a rollback of the target service as desired. However, an Error report after rhe fact
@@ -148,12 +148,12 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                     catch (Exception ex) // TODO: davidni: not fatal?
                     {
                         // Not user's problem
-                        _logger.LogError(ex, $"Unexpected error when trying to load service '{service.ServiceName}, skipping'.");
+                        Log.ErrorLoadingServiceConfig(_logger, service.ServiceName, ex);
                     }
                 }
             }
 
-            _logger.LogInformation($"Discovered {discoveredBackends.Count} backends, {discoveredRoutes.Count} routes.");
+            Log.ServiceDiscovered(_logger, discoveredBackends.Count, discoveredRoutes.Count);
             return (discoveredRoutes, discoveredBackends.Values.ToList());
         }
 
@@ -254,13 +254,13 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             }
             catch (Exception ex) // TODO: davidni: not fatal?
             {
-                _logger.LogError(ex, $"Could not get partition list for service {service.ServiceName}, skipping endpoints.");
+                Log.GettingPartitionFailed(_logger, service.ServiceName, ex);
                 return;
             }
 
             var listenerName = serviceExtensionLabels.GetValueOrDefault("YARP.Backend.ServiceFabric.ListenerName", string.Empty);
             var healthListenerName = serviceExtensionLabels.GetValueOrDefault("YARP.Backend.Healthcheck.Active.ServiceFabric.ListenerName", string.Empty);
-            var statefulReplicaSelectionMode = ParseStatefulReplicaSelectionMode(serviceExtensionLabels);
+            var statefulReplicaSelectionMode = ParseStatefulReplicaSelectionMode(serviceExtensionLabels, service.ServiceName);
             foreach (var partition in partitions)
             {
                 IEnumerable<ReplicaWrapper> replicas;
@@ -270,7 +270,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                 }
                 catch (Exception ex) // TODO: davidni: not fatal?
                 {
-                    _logger.LogError(ex, $"Could not get replica list for partition {partition} of service {service.ServiceName}, skipping partition.");
+                    Log.GettingReplicaFailed(_logger, partition, service.ServiceName, ex);
                     continue;
                 }
 
@@ -278,7 +278,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                 {
                     if (!IsHealthyReplica(replica))
                     {
-                        _logger.LogInformation($"Skipping unhealthy replica '{replica.Id}' from partition '{partition}', service '{service.ServiceName}': ReplicaStatus={replica.ReplicaStatus}, HealthState={replica.HealthState}.");
+                        Log.UnhealthyReplicaSkipped(_logger, replica.Id, partition, service.ServiceName, replica.ReplicaStatus, replica.HealthState);
                         continue;
                     }
 
@@ -286,7 +286,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                     if (!IsReplicaEligible(replica, statefulReplicaSelectionMode))
                     {
                         // Skip this endpoint.
-                        _logger.LogInformation($"Skipping ineligible endpoint '{replica.Id}' of service '{service.ServiceName}'. {nameof(statefulReplicaSelectionMode)}: {statefulReplicaSelectionMode}.");
+                        Log.IneligibleEndpointSkipped(_logger, replica.Id, service.ServiceName, statefulReplicaSelectionMode);
                         continue;
                     }
 
@@ -303,7 +303,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                     catch (ConfigException ex)
                     {
                         // The user's problem
-                        _logger.LogInformation($"Config error found when trying to build endpoint for replica '{replica.Id}' of service '{service.ServiceName}', skipping. Error: {ex}.");
+                        Log.InvalidReplicaConfig(_logger, replica.Id, service.ServiceName, ex);
 
                         // TODO: emit Error health report once we are able to detect config issues *during* (as opposed to *after*) a target service upgrade.
                         // Proactive Error health report would trigger a rollback of the target service as desired. However, an Error report after rhe fact
@@ -313,13 +313,13 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                     catch (Exception ex) // TODO: davidni: not fatal?
                     {
                         // Not the user's problem
-                        _logger.LogError(ex, $"Could not build endpoint for replica {replica.Id} of service {service.ServiceName}.");
+                        Log.ErrorLoadingReplicaConfig(_logger, replica.Id, service.ServiceName, ex);
                     }
                 }
             }
         }
 
-        private StatefulReplicaSelectionMode ParseStatefulReplicaSelectionMode(Dictionary<string, string> serviceExtensionLabels)
+        private StatefulReplicaSelectionMode ParseStatefulReplicaSelectionMode(Dictionary<string, string> serviceExtensionLabels, Uri serviceName)
         {
             // Parse the value for StatefulReplicaSelectionMode: case insensitive, and trim the white space.
             var statefulReplicaSelectionMode = serviceExtensionLabels.GetValueOrDefault("YARP.Backend.ServiceFabric.StatefulReplicaSelectionMode", StatefulReplicaSelectionLabel.All).Trim();
@@ -338,7 +338,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                 return StatefulReplicaSelectionMode.All;
             }
 
-            _logger.LogWarning($"Invalid replica selection mode: {statefulReplicaSelectionMode}, fallback to selection mode: All.");
+            Log.InvalidReplicaSelectionMode(_logger, statefulReplicaSelectionMode, serviceName);
             return StatefulReplicaSelectionMode.All;
         }
 
@@ -371,7 +371,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             }
             catch (Exception ex) // TODO: davidni: not fatal?
             {
-                _logger.LogError(ex, $"Failed to report health '{state}' for service '{serviceName}'.");
+                Log.ServiceHealthReportFailed(_logger, state, serviceName, ex);
             }
         }
 
@@ -414,7 +414,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                         healthInformation: healthInformation);
                     break;
                 default:
-                    _logger.LogError($"Failed to report health '{state}' for replica {replica.Id}: unexpected ServiceKind '{service.ServiceKind}'.");
+                    Log.ReplicaHealthReportFailedInvalidServiceKind(_logger, state, replica.Id, service.ServiceKind);
                     return;
             }
 
@@ -425,7 +425,176 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             }
             catch (Exception ex) // TODO: davidni: not fatal?
             {
-                _logger.LogError($"Failed to report health '{state}' for replica {replica.Id}: {ex}.");
+                Log.ReplicaHealthReportFailed(_logger, state, replica.Id, ex);
+            }
+        }
+
+        private static class Log
+        {
+            private static readonly Action<ILogger, Exception> _gettingServiceFabricApplicationFailed =
+                LoggerMessage.Define(
+                    LogLevel.Error,
+                    EventIds.GettingApplicationFailed,
+                    "Could not get applications list from Service Fabric, continuing with zero applications.");
+
+            private static readonly Action<ILogger, Uri, Exception> _gettingServiceFailed =
+                LoggerMessage.Define<Uri>(
+                    LogLevel.Error,
+                    EventIds.GettingServiceFailed,
+                    "Could not get service list for application '{applicationName}', skipping application.");
+
+            private static readonly Action<ILogger, Uri, Exception> _invalidServiceConfig =
+                LoggerMessage.Define<Uri>(
+                    LogLevel.Information,
+                    EventIds.InvalidServiceConfig,
+                    "Config error found when trying to load service '{serviceName}', skipping.");
+
+            private static readonly Action<ILogger, Uri, Exception> _errorLoadingServiceConfig =
+                LoggerMessage.Define<Uri>(
+                    LogLevel.Error,
+                    EventIds.ErrorLoadingServiceConfig,
+                    "Unexpected error when trying to load service '{serviceName}', skipping.");
+
+            private static readonly Action<ILogger, int, int, Exception> _serviceDiscovered =
+                LoggerMessage.Define<int, int>(
+                    LogLevel.Information,
+                    EventIds.ServiceDiscovered,
+                    "Discovered '{discoveredBackendsCount}' backends, '{discoveredRoutesCount}' routes.");
+
+            private static readonly Action<ILogger, Uri, Exception> _gettingPartitionFailed =
+                LoggerMessage.Define<Uri>(
+                    LogLevel.Error,
+                    EventIds.GettingPartitionFailed,
+                    "Could not get partition list for service '{serviceName}', skipping endpoints.");
+
+            private static readonly Action<ILogger, Guid, Uri, Exception> _gettingReplicaFailed =
+                LoggerMessage.Define<Guid, Uri>(
+                    LogLevel.Error,
+                    EventIds.GettingReplicaFailed,
+                    "Could not get replica list for partition '{partition}' of service '{serviceName}', skipping partition.");
+
+            private static readonly Action<ILogger, long, Guid, Uri, ServiceReplicaStatus, HealthState, Exception> _unhealthyReplicaSkipped =
+                LoggerMessage.Define<long, Guid, Uri, ServiceReplicaStatus, HealthState>(
+                    LogLevel.Information,
+                    EventIds.UnhealthyReplicaSkipped,
+                    "Skipping unhealthy replica '{replicaId}' from partition '{partition}', service '{serviceName}': ReplicaStatus={replicaStatus}, HealthState={healthState}.");
+
+            private static readonly Action<ILogger, long, Uri, StatefulReplicaSelectionMode, Exception> _ineligibleEndpointSkipped =
+                LoggerMessage.Define<long, Uri, StatefulReplicaSelectionMode>(
+                    LogLevel.Information,
+                    EventIds.IneligibleEndpointSkipped,
+                    "Skipping ineligible endpoint '{replicaId}' of service '{serviceName}'. statefulReplicaSelectionMode: {statefulReplicaSelectionMode}.");
+
+            private static readonly Action<ILogger, long, Uri, Exception> _invalidReplicaConfig =
+                LoggerMessage.Define<long, Uri>(
+                    LogLevel.Information,
+                    EventIds.InvalidReplicaConfig,
+                    "Config error found when trying to build endpoint for replica '{replicaId}' of service '{serviceName}', skipping.");
+
+            private static readonly Action<ILogger, long, Uri, Exception> _errorLoadingReplicaConfig =
+                LoggerMessage.Define<long, Uri>(
+                    LogLevel.Error,
+                    EventIds.ErrorLoadingReplicaConfig,
+                    "Could not build endpoint for replica '{replicaId}' of service '{serviceName}'.");
+
+            private static readonly Action<ILogger, string, Uri, Exception> _invalidReplicaSelectionMode =
+                LoggerMessage.Define<string, Uri>(
+                    LogLevel.Warning,
+                    EventIds.InvalidReplicaSelectionMode,
+                    "Invalid replica selection mode: '{statefulReplicaSelectionMode}' for service '{serviceName}', fallback to selection mode: All.");
+
+            private static readonly Action<ILogger, HealthState, Uri, Exception> _serviceHealthReportFailed =
+                LoggerMessage.Define<HealthState, Uri>(
+                    LogLevel.Error,
+                    EventIds.ServiceHealthReportFailed,
+                    "Failed to report health '{state}' for service '{serviceName}'.");
+
+            private static readonly Action<ILogger, HealthState, long, ServiceKind, Exception> _replicaHealthReportFailedInvalidServiceKind =
+                LoggerMessage.Define<HealthState, long, ServiceKind>(
+                    LogLevel.Error,
+                    EventIds.ReplicaHealthReportFailedInvalidServiceKind,
+                    "Failed to report health '{state}' for replica '{replicaId}': unexpected ServiceKind '{serviceKind}'.");
+
+
+            private static readonly Action<ILogger, HealthState, long, Exception> _replicaHealthReportFailed =
+                LoggerMessage.Define<HealthState, long>(
+                    LogLevel.Error,
+                    EventIds.ReplicaHealthReportFailed,
+                    "Failed to report health '{state}' for replica '{replicaId}'.");
+
+            public static void GettingApplicationFailed(ILogger logger, Exception exception)
+            {
+                _gettingServiceFabricApplicationFailed(logger, exception);
+            }
+
+            public static void GettingServiceFailed(ILogger logger, Uri application, Exception exception)
+            {
+                _gettingServiceFailed(logger, application, exception);
+            }
+
+            public static void InvalidServiceConfig(ILogger logger, Uri service, Exception exception)
+            {
+                _invalidServiceConfig(logger, service, exception);
+            }
+
+            public static void ErrorLoadingServiceConfig(ILogger logger, Uri service, Exception exception)
+            {
+                _errorLoadingServiceConfig(logger, service, exception);
+            }
+
+            public static void ServiceDiscovered(ILogger logger, int discoveredBackendsCount, int discoveredRoutesCount)
+            {
+                _serviceDiscovered(logger, discoveredBackendsCount, discoveredRoutesCount, null);
+            }
+
+            public static void GettingPartitionFailed(ILogger logger, Uri service, Exception exception)
+            {
+                _gettingPartitionFailed(logger, service, exception);
+            }
+
+            public static void GettingReplicaFailed(ILogger logger, Guid partition, Uri service, Exception exception)
+            {
+                _gettingReplicaFailed(logger, partition, service, exception);
+            }
+
+            public static void UnhealthyReplicaSkipped(ILogger logger, long replicaId, Guid partition, Uri service, ServiceReplicaStatus replicaStatus, HealthState healthState)
+            {
+                _unhealthyReplicaSkipped(logger, replicaId, partition, service, replicaStatus, healthState, null);
+            }
+
+            public static void IneligibleEndpointSkipped(ILogger<Discoverer> logger, long replicaId, Uri serviceName, StatefulReplicaSelectionMode statefulReplicaSelectionMode)
+            {
+                _ineligibleEndpointSkipped(logger, replicaId, serviceName, statefulReplicaSelectionMode, null);
+            }
+
+            public static void InvalidReplicaConfig(ILogger<Discoverer> logger, long replicaId, Uri serviceName, Exception exception)
+            {
+                _invalidReplicaConfig(logger, replicaId, serviceName, exception);
+            }
+
+            public static void ErrorLoadingReplicaConfig(ILogger<Discoverer> logger, long replicaId, Uri serviceName, Exception exception)
+            {
+                _errorLoadingReplicaConfig(logger, replicaId, serviceName, exception);
+            }
+
+            public static void InvalidReplicaSelectionMode(ILogger<Discoverer> logger, string statefulReplicaSelectionMode, Uri serviceName)
+            {
+                _invalidReplicaSelectionMode(logger, statefulReplicaSelectionMode, serviceName, null);
+            }
+
+            public static void ServiceHealthReportFailed(ILogger<Discoverer> logger, HealthState state, Uri serviceName, Exception exception)
+            {
+                _serviceHealthReportFailed(logger, state, serviceName, exception);
+            }
+
+            public static void ReplicaHealthReportFailedInvalidServiceKind(ILogger<Discoverer> logger, HealthState state, long replicaId, ServiceKind serviceKind)
+            {
+                _replicaHealthReportFailedInvalidServiceKind(logger, state, replicaId, serviceKind, null);
+            }
+
+            public static void ReplicaHealthReportFailed(ILogger<Discoverer> logger, HealthState state, long replicaId, Exception exception)
+            {
+                _replicaHealthReportFailed(logger, state, replicaId, exception);
             }
         }
     }
