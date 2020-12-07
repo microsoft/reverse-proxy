@@ -2,22 +2,28 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
 using Microsoft.ReverseProxy.RuntimeModel;
 
-namespace Microsoft.ReverseProxy.Service.Proxy
+namespace Microsoft.ReverseProxy.Service.LoadBalancing
 {
     /// <summary>
     /// Provides a method that applies a load balancing policy
     /// to select a destination.
     /// </summary>
-    internal interface ILoadBalancer
+    public interface ILoadBalancingPolicy
     {
+        /// <summary>
+        ///  A unique identifier for this load balancing policy. This will be referenced from config.
+        /// </summary>
+        public string Name { get; }
+
         /// <summary>
         /// Picks a destination to send traffic to.
         /// </summary>
         // TODO: How to ensure retries pick a different destination when available?
         DestinationInfo PickDestination(
-            IReadOnlyList<DestinationInfo> availableDestinations,
-            in ClusterLoadBalancingOptions loadBalancingOptions);
+            HttpContext context,
+            IReadOnlyList<DestinationInfo> availableDestinations);
     }
 }

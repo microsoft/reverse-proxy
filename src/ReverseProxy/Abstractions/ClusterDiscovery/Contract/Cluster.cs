@@ -21,9 +21,9 @@ namespace Microsoft.ReverseProxy.Abstractions
         public string Id { get; set; }
 
         /// <summary>
-        /// Load balancing options.
+        /// Load balancing policy.
         /// </summary>
-        public LoadBalancingOptions LoadBalancing { get; set; }
+        public string LoadBalancingPolicy { get; set; }
 
         /// <summary>
         /// Session affinity options.
@@ -61,7 +61,7 @@ namespace Microsoft.ReverseProxy.Abstractions
             return new Cluster
             {
                 Id = Id,
-                LoadBalancing = LoadBalancing?.DeepClone(),
+                LoadBalancingPolicy = LoadBalancingPolicy,
                 SessionAffinity = SessionAffinity?.DeepClone(),
                 HealthCheck = HealthCheck?.DeepClone(),
                 HttpClient = HttpClient?.DeepClone(),
@@ -84,7 +84,7 @@ namespace Microsoft.ReverseProxy.Abstractions
             }
 
             return string.Equals(cluster1.Id, cluster2.Id, StringComparison.OrdinalIgnoreCase)
-                && LoadBalancingOptions.Equals(cluster1.LoadBalancing, cluster2.LoadBalancing)
+                && string.Equals(cluster1.LoadBalancingPolicy, cluster2.LoadBalancingPolicy, StringComparison.OrdinalIgnoreCase)
                 && SessionAffinityOptions.Equals(cluster1.SessionAffinity, cluster2.SessionAffinity)
                 && HealthCheckOptions.Equals(cluster1.HealthCheck, cluster2.HealthCheck)
                 && ProxyHttpClientOptions.Equals(cluster1.HttpClient, cluster2.HttpClient)

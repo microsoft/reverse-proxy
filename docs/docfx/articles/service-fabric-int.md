@@ -73,7 +73,7 @@ YARP integration is enabled and configured per each SF service. The configuratio
 These are the supported parameters:
 - `YARP.Enable` - indicates whether the service opt-ins to serving traffic through YARP. Default `false`
 - `YARP.EnableDynamicOverrides` - indicates whether application parameters replacement is enabled on the service. Default `false`
-- `YARP.Backend.LoadBalancing.Mode` - configures YARP load balancing mode. Optional parameter
+- `YARP.Backend.LoadBalancingPolicy` - configures YARP load balancing policy. Optional parameter
 - `YARP.Backend.SessionAffinity.*` - configures YARP session affinity. Available parameters and their meanings are provided on [the respective documentation page](session-affinity.md). Optional parameter
 - `YARP.Backend.HttpRequest.*` - sets proxied HTTP request properties. Available parameters and their meanings are provided on [the respective documentation page](proxyhttpclientconfig.md) in 'HttpRequest' section. Optional parameter
 - `YARP.Backend.HealthCheck.Active.*` - configures YARP active health checks to be run against the given service. Available parameters and their meanings are provided on [the respective documentation page](dests-health-checks.md). There is one label in this group `YARP.Backend.HealthCheck.Active.ServiceFabric.ListenerName` which is not covered by that document because it's SF specific. Its purpose is explained below. Optional parameter

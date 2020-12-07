@@ -23,7 +23,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             {
                 { "YARP.Enable", "true" },
                 { "YARP.Backend.BackendId", "MyCoolClusterId" },
-                { "YARP.Backend.LoadBalancing.Mode", "LeastRequests" },
+                { "YARP.Backend.LoadBalancingPolicy", "LeastRequests" },
                 { "YARP.Backend.SessionAffinity.Enabled", "true" },
                 { "YARP.Backend.SessionAffinity.Mode", "Cookie" },
                 { "YARP.Backend.SessionAffinity.FailurePolicy", "Return503Error" },
@@ -52,10 +52,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             var expectedCluster = new Cluster
             {
                 Id = "MyCoolClusterId",
-                LoadBalancing = new LoadBalancingOptions
-                {
-                    Mode = LoadBalancingMode.LeastRequests
-                },
+                LoadBalancingPolicy = LoadBalancingConstants.Policies.LeastRequests,
                 SessionAffinity = new SessionAffinityOptions
                 {
                     Enabled = true,

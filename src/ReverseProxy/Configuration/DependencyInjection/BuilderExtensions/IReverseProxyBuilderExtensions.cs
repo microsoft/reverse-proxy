@@ -8,8 +8,8 @@ using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service;
 using Microsoft.ReverseProxy.Service.Config;
 using Microsoft.ReverseProxy.Service.HealthChecks;
+using Microsoft.ReverseProxy.Service.LoadBalancing;
 using Microsoft.ReverseProxy.Service.Management;
-using Microsoft.ReverseProxy.Service.Proxy;
 using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
 using Microsoft.ReverseProxy.Service.Routing;
 using Microsoft.ReverseProxy.Service.SessionAffinity;
@@ -48,8 +48,16 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
         {
             builder.Services.TryAddSingleton<ITransformBuilder, TransformBuilder>();
             builder.Services.TryAddSingleton<IProxyHttpClientFactory, ProxyHttpClientFactory>();
-            builder.Services.TryAddSingleton<ILoadBalancer, LoadBalancer>();
             builder.Services.TryAddSingleton<IRandomFactory, RandomFactory>();
+
+            builder.Services.TryAddEnumerable(new[] {
+                new ServiceDescriptor(typeof(ILoadBalancingPolicy), typeof(FirstLoadBalancingPolicy), ServiceLifetime.Singleton),
+                new ServiceDescriptor(typeof(ILoadBalancingPolicy), typeof(LeastRequestsLoadBalancingPolicy), ServiceLifetime.Singleton),
+                new ServiceDescriptor(typeof(ILoadBalancingPolicy), typeof(RandomLoadBalancingPolicy), ServiceLifetime.Singleton),
+                new ServiceDescriptor(typeof(ILoadBalancingPolicy), typeof(PowerOfTwoChoicesLoadBalancingPolicy), ServiceLifetime.Singleton),
+                new ServiceDescriptor(typeof(ILoadBalancingPolicy), typeof(RoundRobinLoadBalancingPolicy), ServiceLifetime.Singleton)
+            });
+
             builder.Services.AddHttpProxy();
             return builder;
         }

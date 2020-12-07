@@ -2,9 +2,13 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Linq;
+using Microsoft.AspNetCore.Http;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Common.Tests;
 using Microsoft.ReverseProxy.RuntimeModel;
+using Microsoft.ReverseProxy.Service.LoadBalancing;
+using Microsoft.ReverseProxy.Service.Management;
 using Microsoft.ReverseProxy.Utilities;
 using Xunit;
 
@@ -18,144 +22,132 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Provide<IRandomFactory>(RandomFactory);
         }
 
-        internal TestRandom RandomInstance { get; set; } = new TestRandom();
+        private TestRandom RandomInstance { get; set; } = new TestRandom();
 
-        internal TestRandomFactory RandomFactory { get; set; }
-
-        [Fact]
-        public void PickDestination_WithoutDestinations_Null()
-        {
-            var loadBalancer = Create<LoadBalancer>();
-            var destinations = new DestinationInfo[0];
-            var options = new ClusterLoadBalancingOptions((LoadBalancingMode)(-1));
-
-            var result = loadBalancer.PickDestination(destinations, in options);
-
-            Assert.Null(result);
-        }
-
-        [Fact]
-        public void PickDestination_SingleDestinations_ShortCircuit()
-        {
-            var loadBalancer = Create<LoadBalancer>();
-            var destinations = new[]
-            {
-                new DestinationInfo("d1"),
-            };
-            var options = new ClusterLoadBalancingOptions((LoadBalancingMode)(-1));
-
-            var result = loadBalancer.PickDestination(destinations, in options);
-
-            Assert.Same(destinations[0], result);
-        }
-
-        [Fact]
-        public void PickDestination_UnsupportedMode_Throws()
-        {
-            var loadBalancer = Create<LoadBalancer>();
-            var destinations = new[]
-            {
-                new DestinationInfo("d1"),
-                new DestinationInfo("d2"),
-            };
-            var options = new ClusterLoadBalancingOptions((LoadBalancingMode)(-1));
-
-            Action action = () => loadBalancer.PickDestination(destinations, in options);
-
-            // Assert
-            var ex = Assert.Throws<NotSupportedException>(action);
-            Assert.Equal("Load balancing mode '-1' is not supported.", ex.Message);
-        }
+        private TestRandomFactory RandomFactory { get; set; }
 
         [Fact]
         public void PickDestination_FirstWithDestinations_Works()
         {
-            var loadBalancer = Create<LoadBalancer>();
             var destinations = new[]
             {
                 new DestinationInfo("d1"),
                 new DestinationInfo("d2"),
+                new DestinationInfo("d3")
             };
-            var options = new ClusterLoadBalancingOptions(LoadBalancingMode.First);
 
-            var result = loadBalancer.PickDestination(destinations, in options);
+            var context = new DefaultHttpContext();
+            var loadBalancer = Create<FirstLoadBalancingPolicy>();
 
-            Assert.Same(destinations[0], result);
+            for (var i = 0; i < 10; i++)
+            {
+                var result = loadBalancer.PickDestination(context, destinations);
+                Assert.Same(destinations[0], result);
+                result.ConcurrencyCounter.Increment();
+            }
         }
 
         [Fact]
         public void PickDestination_Random_Works()
         {
-            var loadBalancer = Create<LoadBalancer>();
             var destinations = new[]
             {
                 new DestinationInfo("d1"),
                 new DestinationInfo("d2"),
+                new DestinationInfo("d3")
             };
-            RandomInstance.Sequence = new[] { 1 };
-            var options = new ClusterLoadBalancingOptions(LoadBalancingMode.Random);
 
-            var result = loadBalancer.PickDestination(destinations, in options);
+            const int Iterations = 10;
+            var random = new Random(42);
+            RandomInstance.Sequence = Enumerable.Range(0, Iterations).Select(_ => random.Next(destinations.Length)).ToArray();
 
-            Assert.Same(result, destinations[1]);
+            var context = new DefaultHttpContext();
+            var loadBalancer = Create<RandomLoadBalancingPolicy>();
+
+            for (var i = 0; i < Iterations; i++)
+            {
+                var result = loadBalancer.PickDestination(context, destinations);
+                Assert.Same(destinations[RandomInstance.Sequence[i]], result);
+                result.ConcurrencyCounter.Increment();
+            }
         }
 
         [Fact]
         public void PickDestination_PowerOfTwoChoices_Works()
         {
-            var loadBalancer = Create<LoadBalancer>();
             var destinations = new[]
             {
                 new DestinationInfo("d1"),
                 new DestinationInfo("d2"),
+                new DestinationInfo("d3")
             };
             destinations[0].ConcurrencyCounter.Increment();
-            RandomInstance.Sequence = new[] { 1, 0 };
-            var options = new ClusterLoadBalancingOptions(LoadBalancingMode.PowerOfTwoChoices);
 
-            var result = loadBalancer.PickDestination(destinations, in options);
+            const int Iterations = 10;
+            var random = new Random(42);
+            RandomInstance.Sequence = Enumerable.Range(0, Iterations * 2).Select(_ => random.Next(destinations.Length)).ToArray();
 
-            Assert.Same(result, destinations[1]);
+            var context = new DefaultHttpContext();
+            var loadBalancer = Create<PowerOfTwoChoicesLoadBalancingPolicy>();
+
+            for (var i = 0; i < Iterations; i++)
+            {
+                var result = loadBalancer.PickDestination(context, destinations);
+                var first = destinations[RandomInstance.Sequence[i * 2]];
+                var second = destinations[RandomInstance.Sequence[i * 2 + 1]];
+                var expected = first.ConcurrentRequestCount <= second.ConcurrentRequestCount ? first : second;
+                Assert.Same(expected, result);
+                result.ConcurrencyCounter.Increment();
+            }
         }
 
         [Fact]
         public void PickDestination_LeastRequests_Works()
         {
-            var loadBalancer = Create<LoadBalancer>();
             var destinations = new[]
             {
                 new DestinationInfo("d1"),
                 new DestinationInfo("d2"),
+                new DestinationInfo("d3")
             };
             destinations[0].ConcurrencyCounter.Increment();
-            var options = new ClusterLoadBalancingOptions(LoadBalancingMode.LeastRequests);
 
-            var result = loadBalancer.PickDestination(destinations, in options);
+            var context = new DefaultHttpContext();
+            var loadBalancer = Create<LeastRequestsLoadBalancingPolicy>();
 
-            Assert.Same(result, destinations[1]);
+            for (var i = 0; i < 10; i++)
+            {
+                var result = loadBalancer.PickDestination(context, destinations);
+                Assert.Same(destinations.OrderBy(d => d.ConcurrentRequestCount).First(), result);
+                result.ConcurrencyCounter.Increment();
+            }
         }
 
         [Fact]
         public void PickDestination_RoundRobin_Works()
         {
-            var loadBalancer = Create<LoadBalancer>();
             var destinations = new[]
             {
                 new DestinationInfo("d1"),
                 new DestinationInfo("d2"),
+                new DestinationInfo("d3")
             };
             destinations[0].ConcurrencyCounter.Increment();
-            var options = new ClusterLoadBalancingOptions(LoadBalancingMode.RoundRobin);
 
-            var result0 = loadBalancer.PickDestination(destinations, in options);
-            var result1 = loadBalancer.PickDestination(destinations, in options);
-            var result2 = loadBalancer.PickDestination(destinations, in options);
-            var result3 = loadBalancer.PickDestination(destinations, in options);
+            var context = new DefaultHttpContext();
 
-            Assert.Same(result0, destinations[0]);
-            Assert.Same(result1, destinations[1]);
-            Assert.Same(result2, destinations[0]);
-            Assert.Same(result3, destinations[1]);
+            var routeConfig = new RouteConfig(new RouteInfo("route-1"), new ProxyRoute(), new ClusterInfo("cluster1", new DestinationManager()), Array.Empty<Endpoint>(), transforms: null);
+            var endpoint = new Endpoint(default, new EndpointMetadataCollection(routeConfig), string.Empty);
+            context.SetEndpoint(endpoint);
+
+            var loadBalancer = Create<RoundRobinLoadBalancingPolicy>();
+
+            for (var i = 0; i < 10; i++)
+            {
+                var result = loadBalancer.PickDestination(context, destinations);
+                Assert.Same(destinations[i % destinations.Length], result);
+                result.ConcurrencyCounter.Increment();
+            }
         }
     }
 }

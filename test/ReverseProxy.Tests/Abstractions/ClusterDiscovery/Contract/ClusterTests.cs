@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Abstractions.Tests
@@ -19,7 +20,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
         {
             var cluster = new Cluster
             {
-                LoadBalancing = new LoadBalancingOptions(),
+                LoadBalancingPolicy = LoadBalancingConstants.Policies.PowerOfTwoChoices,
                 HealthCheck = new HealthCheckOptions(),
                 HttpClient = new ProxyHttpClientOptions(),
                 HttpRequest = new ProxyHttpRequestOptions(),
@@ -32,8 +33,8 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
             var clone = cluster.DeepClone();
 
             Assert.NotSame(cluster, clone);
-            Assert.NotNull(clone.LoadBalancing);
-            Assert.NotSame(cluster.LoadBalancing, clone.LoadBalancing);
+            Assert.NotNull(clone.LoadBalancingPolicy);
+            Assert.Same(cluster.LoadBalancingPolicy, clone.LoadBalancingPolicy);
             Assert.NotNull(clone.HealthCheck);
             Assert.NotSame(cluster.HealthCheck, clone.HealthCheck);
             Assert.NotNull(clone.HttpClient);
@@ -51,7 +52,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
             var clone = cluster.DeepClone();
 
             Assert.NotSame(cluster, clone);
-            Assert.Null(clone.LoadBalancing);
+            Assert.Null(clone.LoadBalancingPolicy);
             Assert.Null(clone.HealthCheck);
             Assert.Null(clone.HttpClient);
             Assert.Null(clone.Metadata);

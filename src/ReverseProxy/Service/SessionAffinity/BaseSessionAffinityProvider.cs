@@ -93,7 +93,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
         {
             if (options.Settings == null || !options.Settings.TryGetValue(key, out var value))
             {
-                throw new ArgumentException(nameof(options), $"{nameof(CookieSessionAffinityProvider)} couldn't find the required parameter {key} in session affinity settings.");
+                throw new ArgumentException($"{nameof(CookieSessionAffinityProvider)} couldn't find the required parameter {key} in session affinity settings.", nameof(options));
             }
 
             return value;
