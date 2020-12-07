@@ -144,6 +144,31 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             Assert.Equal(503, context.Response.StatusCode);
         }
 
+        [Fact]
+        public async Task Invoke_NoPolicySpecified_DefaultsToPowerOfTwoChoices()
+        {
+            var destinations = new[]
+            {
+                new DestinationInfo("destination1"),
+                new DestinationInfo("destination2")
+            };
+            var context = CreateContext(loadBalancingPolicy: null, destinations);
+
+            var policy = new Mock<ILoadBalancingPolicy>();
+            policy
+                .Setup(p => p.Name)
+                .Returns(LoadBalancingConstants.Policies.PowerOfTwoChoices);
+            policy
+                .Setup(p => p.PickDestination(It.IsAny<HttpContext>(), It.IsAny<IReadOnlyList<DestinationInfo>>()))
+                .Returns(destinations[0]);
+
+            var sut = CreateMiddleware(policy.Object);
+
+            await sut.Invoke(context);
+
+            policy.Verify(p => p.PickDestination(context, destinations), Times.Once);
+        }
+
         private static HttpContext CreateContext(string loadBalancingPolicy, IReadOnlyList<DestinationInfo> destinations)
         {
             var cluster = new ClusterInfo("cluster1", new DestinationManager())
