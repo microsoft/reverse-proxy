@@ -19,20 +19,20 @@ namespace Microsoft.ReverseProxy.Service.LoadBalancing
                 return null;
             }
 
-            var endpointCount = availableDestinations.Count;
-            var leastRequestsEndpoint = availableDestinations[0];
-            var leastRequestsCount = leastRequestsEndpoint.ConcurrencyCounter.Value;
-            for (var i = 1; i < endpointCount; i++)
+            var destinationCount = availableDestinations.Count;
+            var leastRequestsDestination = availableDestinations[0];
+            var leastRequestsCount = leastRequestsDestination.ConcurrentRequestCount;
+            for (var i = 1; i < destinationCount; i++)
             {
-                var endpoint = availableDestinations[i];
-                var endpointRequestCount = endpoint.ConcurrencyCounter.Value;
+                var destination = availableDestinations[i];
+                var endpointRequestCount = destination.ConcurrentRequestCount;
                 if (endpointRequestCount < leastRequestsCount)
                 {
-                    leastRequestsEndpoint = endpoint;
+                    leastRequestsDestination = destination;
                     leastRequestsCount = endpointRequestCount;
                 }
             }
-            return leastRequestsEndpoint;
+            return leastRequestsDestination;
         }
     }
 }

@@ -28,12 +28,12 @@ namespace Microsoft.ReverseProxy.Service.LoadBalancing
             }
 
             // Pick two, and then return the least busy. This avoids the effort of searching the whole list, but
-            // still avoids overloading a single endpoint.
-            var endpointCount = availableDestinations.Count;
+            // still avoids overloading a single destination.
+            var destinationCount = availableDestinations.Count;
             var random = _randomFactory.CreateRandomInstance();
-            var firstEndpoint = availableDestinations[random.Next(endpointCount)];
-            var secondEndpoint = availableDestinations[random.Next(endpointCount)];
-            return (firstEndpoint.ConcurrencyCounter.Value <= secondEndpoint.ConcurrencyCounter.Value) ? firstEndpoint : secondEndpoint;
+            var first = availableDestinations[random.Next(destinationCount)];
+            var second = availableDestinations[random.Next(destinationCount)];
+            return (first.ConcurrentRequestCount <= second.ConcurrentRequestCount) ? first : second;
         }
     }
 }
