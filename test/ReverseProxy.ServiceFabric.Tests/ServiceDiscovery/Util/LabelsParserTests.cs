@@ -116,12 +116,21 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             var expectedCluster = new Cluster
             {
                 Id = "MyCoolClusterId",
-                SessionAffinity = new SessionAffinityOptions(),
+                SessionAffinity = new SessionAffinityOptions
+                {
+                    Enabled = false,
+                },
                 HttpRequest = new ProxyHttpRequestOptions(),
                 HealthCheck = new HealthCheckOptions
                 {
-                    Active = new ActiveHealthCheckOptions(),
-                    Passive = new PassiveHealthCheckOptions()
+                    Active = new ActiveHealthCheckOptions
+                    {
+                        Enabled = false,
+                    },
+                    Passive = new PassiveHealthCheckOptions
+                    {
+                        Enabled = false,
+                    }
                 },
                 Metadata = new Dictionary<string, string>(),
             };
@@ -249,13 +258,13 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     Transforms = new List<IDictionary<string, string>>
                     {
                         new Dictionary<string, string>
-                        { 
+                        {
                             {"ResponseHeader", "X-Foo"},
                             {"Append", "Bar"},
                             {"When", "Always"}
                         },
                         new Dictionary<string, string>
-                        { 
+                        {
                             {"ResponseHeader", "X-Ping"},
                             {"Append", "Pong"},
                             {"When", "Success"}

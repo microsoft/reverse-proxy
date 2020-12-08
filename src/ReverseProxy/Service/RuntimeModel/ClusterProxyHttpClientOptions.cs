@@ -12,7 +12,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
     {
         public ClusterProxyHttpClientOptions(
             SslProtocols? sslProtocols,
-            bool acceptAnyServerCertificate,
+            bool? acceptAnyServerCertificate,
             X509Certificate2 clientCertificate,
             int? maxConnectionsPerServer,
             bool? propagateActivityContext)
@@ -26,7 +26,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
 
         public SslProtocols? SslProtocols { get; }
 
-        public bool DangerousAcceptAnyServerCertificate { get; }
+        public bool? DangerousAcceptAnyServerCertificate { get; }
 
         public X509Certificate2 ClientCertificate { get; }
 

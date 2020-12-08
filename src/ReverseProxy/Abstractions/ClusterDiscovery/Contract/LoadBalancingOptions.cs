@@ -8,7 +8,7 @@ namespace Microsoft.ReverseProxy.Abstractions
     /// </summary>
     public sealed class LoadBalancingOptions
     {
-        public LoadBalancingMode Mode { get; set; }
+        public LoadBalancingMode? Mode { get; set; }
 
         internal LoadBalancingOptions DeepClone()
         {
