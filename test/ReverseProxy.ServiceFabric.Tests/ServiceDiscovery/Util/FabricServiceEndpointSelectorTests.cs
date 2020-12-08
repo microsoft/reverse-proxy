@@ -14,7 +14,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         [Fact]
         public void FabricServiceEndpointSelector_SelectsNamedEndpoint()
         {
-            // Arrange
             var serviceName = new Uri("fabric:/Application/Service");
             var emptyStringMatchesAnyListener = true;
             var listenerName = "ServiceEndpoint";
@@ -37,7 +36,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 emptyStringMatchesAnyListener: emptyStringMatchesAnyListener);
             ServiceEndpointCollection.TryParseEndpointsString(endpoints, out var serviceEndpointCollection);
 
-            // Act + Assert
             FabricServiceEndpointSelector.TryGetEndpoint(fabricServiceEndpoint, serviceEndpointCollection, out var endpointUri)
                 .Should().BeTrue("There should be a matching endpoint");
             endpointUri.ToString().Should().BeEquivalentTo(endpointAddress);
@@ -46,7 +44,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         [Fact]
         public void FabricServiceEndpointSelector_SelectsEndpointInOrdinalStringOrder_EmptyListenerName()
         {
-            // Arrange
             var serviceName = new Uri("fabric:/Application/Service");
             var emptyStringMatchesAnyListener = true;
             var allowedScheme = "https";
@@ -65,7 +62,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 emptyStringMatchesAnyListener: emptyStringMatchesAnyListener);
             ServiceEndpointCollection.TryParseEndpointsString(endpoints, out var serviceEndpointCollection);
 
-            // Act + Assert
             FabricServiceEndpointSelector.TryGetEndpoint(fabricServiceEndpoint, serviceEndpointCollection, out var endpointUri)
                 .Should().BeTrue("There should be a matching endpoint");
             endpointUri.ToString().Should().BeEquivalentTo("https://localhost:123/selected");
@@ -74,7 +70,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         [Fact]
         public void FabricServiceEndpointSelector_SelectsEmptyListenerEndpoint_EmptyListenerName()
         {
-            // Arrange
             var serviceName = new Uri("fabric:/Application/Service");
             var emptyStringMatchesAnyListener = false;
             var listenerName = string.Empty;
@@ -97,7 +92,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 emptyStringMatchesAnyListener: emptyStringMatchesAnyListener);
             ServiceEndpointCollection.TryParseEndpointsString(endpoints, out var serviceEndpointCollection);
 
-            // Act + Assert
             FabricServiceEndpointSelector.TryGetEndpoint(fabricServiceEndpoint, serviceEndpointCollection, out var endpointUri)
                 .Should().BeTrue("There should be a matching endpoint");
             endpointUri.ToString().Should().BeEquivalentTo(endpointAddress);
@@ -106,7 +100,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         [Fact]
         public void FabricServiceEndpointSelector_NoMatchingListenerName()
         {
-            // Arrange
             var serviceName = new Uri("fabric:/Application/Service");
             var emptyStringMatchesAnyListener = true;
             var listenerName = "ServiceEndpoint";
@@ -127,7 +120,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 emptyStringMatchesAnyListener: emptyStringMatchesAnyListener);
             ServiceEndpointCollection.TryParseEndpointsString(endpoints, out var serviceEndpointCollection);
 
-            // Act + Assert
             FabricServiceEndpointSelector.TryGetEndpoint(fabricServiceEndpoint, serviceEndpointCollection, out var endpointUri)
                 .Should().BeFalse("No matching named endpoint.");
             endpointUri.Should().BeNull();
@@ -136,7 +128,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         [Fact]
         public void FabricServiceEndpointSelector_NoMatchingEndpointScheme()
         {
-            // Arrange
             var serviceName = new Uri("fabric:/Application/Service");
             var emptyStringMatchesAnyListener = true;
             var listenerName = "ServiceEndpoint";
@@ -159,7 +150,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 emptyStringMatchesAnyListener: emptyStringMatchesAnyListener);
             ServiceEndpointCollection.TryParseEndpointsString(endpoints, out var serviceEndpointCollection);
 
-            // Act + Assert
             FabricServiceEndpointSelector.TryGetEndpoint(fabricServiceEndpoint, serviceEndpointCollection, out var endpointUri)
                 .Should().BeFalse("No matching endpoint with specified scheme.");
             endpointUri.Should().BeNull();
@@ -168,7 +158,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         [Fact]
         public void FabricServiceEndpointSelector_NoExceptionOnMalformedUri_NamedListener()
         {
-            // Arrange
             var serviceName = new Uri("fabric:/Application/Service");
             var emptyStringMatchesAnyListener = true;
             var listenerName = "ServiceEndpoint";
@@ -191,7 +180,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 emptyStringMatchesAnyListener: emptyStringMatchesAnyListener);
             ServiceEndpointCollection.TryParseEndpointsString(endpoints, out var serviceEndpointCollection);
 
-            // Act + Assert
             FabricServiceEndpointSelector.TryGetEndpoint(fabricServiceEndpoint, serviceEndpointCollection, out var endpointUri)
                 .Should().BeTrue("There should be a matching endpoint");
             endpointUri.ToString().Should().BeEquivalentTo(endpointAddress);
@@ -200,7 +188,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         [Fact]
         public void FabricServiceEndpointSelector_NoExceptionOnMalformedUri_EmptyListener()
         {
-            // Arrange
             var serviceName = new Uri("fabric:/Application/Service");
             var emptyStringMatchesAnyListener = true;
             var listenerName = string.Empty;
@@ -223,7 +210,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 emptyStringMatchesAnyListener: emptyStringMatchesAnyListener);
             ServiceEndpointCollection.TryParseEndpointsString(endpoints, out var serviceEndpointCollection);
 
-            // Act + Assert
             FabricServiceEndpointSelector.TryGetEndpoint(fabricServiceEndpoint, serviceEndpointCollection, out var endpointUri)
                 .Should().BeTrue("There should be a matching endpoint");
             endpointUri.ToString().Should().BeEquivalentTo(endpointAddress);
@@ -232,7 +218,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         [Fact]
         public void FabricServiceEndpointSelector_SelectsEndpointBasedOnScheme_MultipleRequestedListeners()
         {
-            // Arrange
             var serviceName = new Uri("fabric:/Application/Service");
             var emptyStringMatchesAnyListener = true;
             var listenerNames = new[] { "ServiceEndpointSecure", string.Empty };
@@ -253,7 +238,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 emptyStringMatchesAnyListener: emptyStringMatchesAnyListener);
             ServiceEndpointCollection.TryParseEndpointsString(endpoints, out var serviceEndpointCollection);
 
-            // Act + Assert
             FabricServiceEndpointSelector.TryGetEndpoint(fabricServiceEndpoint, serviceEndpointCollection, out var endpointUri)
                 .Should().BeTrue("There should be a matching endpoint");
             endpointUri.ToString().Should().BeEquivalentTo(endpointAddress);
@@ -262,7 +246,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         [Fact]
         public void FabricServiceEndpointSelector_NoValidEndpointBasedOnScheme_NamedListener()
         {
-            // Arrange
             var serviceName = new Uri("fabric:/Application/Service");
             var emptyStringMatchesAnyListener = true;
             var listenerName = "ServiceEndpointSecure";
@@ -281,7 +264,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 emptyStringMatchesAnyListener: emptyStringMatchesAnyListener);
             ServiceEndpointCollection.TryParseEndpointsString(endpoints, out var serviceEndpointCollection);
 
-            // Act + Assert
             FabricServiceEndpointSelector.TryGetEndpoint(fabricServiceEndpoint, serviceEndpointCollection, out var endpointUri)
                 .Should().BeFalse("There should be no matching endpoint because of scheme mismatch.");
             endpointUri.Should().BeNull();
@@ -290,7 +272,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         [Fact]
         public void FabricServiceEndpointSelector_ReturnsFalseOnMalformedUri_NamedListener()
         {
-            // Arrange
             var serviceName = new Uri("fabric:/Application/Service");
             var emptyStringMatchesAnyListener = true;
             var listenerName = "ServiceEndpoint";
@@ -313,7 +294,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 emptyStringMatchesAnyListener: emptyStringMatchesAnyListener);
             ServiceEndpointCollection.TryParseEndpointsString(endpoints, out var serviceEndpointCollection);
 
-            // Act + Assert
             FabricServiceEndpointSelector.TryGetEndpoint(fabricServiceEndpoint, serviceEndpointCollection, out var endpointUri)
                 .Should().BeFalse("There should be no matching endpoint");
             endpointUri.Should().BeNull();
@@ -322,7 +302,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         [Fact]
         public void FabricServiceEndpointSelector_ReturnsFalseOnMalformedUri_EmptyListenerName()
         {
-            // Arrange
             var serviceName = new Uri("fabric:/Application/Service");
             var emptyStringMatchesAnyListener = true;
             var listenerName = string.Empty;
@@ -345,7 +324,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 emptyStringMatchesAnyListener: emptyStringMatchesAnyListener);
             ServiceEndpointCollection.TryParseEndpointsString(endpoints, out var serviceEndpointCollection);
 
-            // Act + Assert
             FabricServiceEndpointSelector.TryGetEndpoint(fabricServiceEndpoint, serviceEndpointCollection, out var endpointUri)
                 .Should().BeFalse("There should be no matching endpoint");
             endpointUri.Should().BeNull();
