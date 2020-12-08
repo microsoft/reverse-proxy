@@ -4,7 +4,6 @@ using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.RuntimeModel;
-using Microsoft.ReverseProxy.Service;
 
 namespace Microsoft.ReverseProxy
 {
