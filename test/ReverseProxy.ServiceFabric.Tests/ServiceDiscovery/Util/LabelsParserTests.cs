@@ -52,7 +52,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             var expectedCluster = new Cluster
             {
                 Id = "MyCoolClusterId",
-                LoadBalancingPolicy = LoadBalancingConstants.Policies.LeastRequests,
+                LoadBalancingPolicy = LoadBalancingPolicies.LeastRequests,
                 SessionAffinity = new SessionAffinityOptions
                 {
                     Enabled = true,

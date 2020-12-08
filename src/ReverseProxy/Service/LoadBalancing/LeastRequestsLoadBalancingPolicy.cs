@@ -10,7 +10,7 @@ namespace Microsoft.ReverseProxy.Service.LoadBalancing
 {
     internal sealed class LeastRequestsLoadBalancingPolicy : ILoadBalancingPolicy
     {
-        public string Name => LoadBalancingConstants.Policies.LeastRequests;
+        public string Name => LoadBalancingPolicies.LeastRequests;
 
         public DestinationInfo PickDestination(HttpContext context, IReadOnlyList<DestinationInfo> availableDestinations)
         {

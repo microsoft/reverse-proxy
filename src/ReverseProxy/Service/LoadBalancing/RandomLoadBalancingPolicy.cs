@@ -18,7 +18,7 @@ namespace Microsoft.ReverseProxy.Service.LoadBalancing
             _randomFactory = randomFactory;
         }
 
-        public string Name => LoadBalancingConstants.Policies.Random;
+        public string Name => LoadBalancingPolicies.Random;
 
         public DestinationInfo PickDestination(HttpContext context, IReadOnlyList<DestinationInfo> availableDestinations)
         {

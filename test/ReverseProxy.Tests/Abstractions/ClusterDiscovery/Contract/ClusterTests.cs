@@ -20,7 +20,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
         {
             var cluster = new Cluster
             {
-                LoadBalancingPolicy = LoadBalancingConstants.Policies.PowerOfTwoChoices,
+                LoadBalancingPolicy = LoadBalancingPolicies.PowerOfTwoChoices,
                 HealthCheck = new HealthCheckOptions(),
                 HttpClient = new ProxyHttpClientOptions(),
                 HttpRequest = new ProxyHttpRequestOptions(),

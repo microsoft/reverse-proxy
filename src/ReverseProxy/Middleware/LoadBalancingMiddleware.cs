@@ -51,7 +51,7 @@ namespace Microsoft.ReverseProxy.Middleware
             }
             else
             {
-                var currentPolicy = _loadBalancingPolicies.GetRequiredServiceById(proxyFeature.ClusterConfig.LoadBalancingPolicy, LoadBalancingConstants.Policies.PowerOfTwoChoices);
+                var currentPolicy = _loadBalancingPolicies.GetRequiredServiceById(proxyFeature.ClusterConfig.LoadBalancingPolicy, LoadBalancingPolicies.PowerOfTwoChoices);
                 destination = currentPolicy.PickDestination(context, destinations);
             }
 

@@ -73,7 +73,7 @@ namespace Microsoft.ReverseProxy.Configuration
                                 Path = "healthCheckPath"
                             }
                         },
-                        LoadBalancingPolicy = LoadBalancingConstants.Policies.Random,
+                        LoadBalancingPolicy = LoadBalancingPolicies.Random,
                         SessionAffinity = new SessionAffinityOptions
                         {
                             Enabled = true,
@@ -108,7 +108,7 @@ namespace Microsoft.ReverseProxy.Configuration
                             { "destinationC", new Destination { Address = "https://localhost:10001/destC" } },
                             { "destinationD", new Destination { Address = "https://localhost:10000/destB" } }
                         },
-                        LoadBalancingPolicy = LoadBalancingConstants.Policies.RoundRobin
+                        LoadBalancingPolicy = LoadBalancingPolicies.RoundRobin
                     }
                 }
             },
@@ -587,7 +587,7 @@ namespace Microsoft.ReverseProxy.Configuration
             Assert.Equal(cluster1.HealthCheck.Active.Timeout, abstractCluster1.HealthCheck.Active.Timeout);
             Assert.Equal(cluster1.HealthCheck.Active.Policy, abstractCluster1.HealthCheck.Active.Policy);
             Assert.Equal(cluster1.HealthCheck.Active.Path, abstractCluster1.HealthCheck.Active.Path);
-            Assert.Equal(LoadBalancingConstants.Policies.Random, abstractCluster1.LoadBalancingPolicy);
+            Assert.Equal(LoadBalancingPolicies.Random, abstractCluster1.LoadBalancingPolicy);
             Assert.Equal(cluster1.SessionAffinity.Enabled, abstractCluster1.SessionAffinity.Enabled);
             Assert.Equal(cluster1.SessionAffinity.FailurePolicy, abstractCluster1.SessionAffinity.FailurePolicy);
             Assert.Equal(cluster1.SessionAffinity.Mode, abstractCluster1.SessionAffinity.Mode);
@@ -611,7 +611,7 @@ namespace Microsoft.ReverseProxy.Configuration
             Assert.Equal(cluster2.Destinations["destinationC"].Metadata, abstractCluster2.Destinations["destinationC"].Metadata);
             Assert.Equal(cluster2.Destinations["destinationD"].Address, abstractCluster2.Destinations["destinationD"].Address);
             Assert.Equal(cluster2.Destinations["destinationD"].Metadata, abstractCluster2.Destinations["destinationD"].Metadata);
-            Assert.Equal(LoadBalancingConstants.Policies.RoundRobin, abstractCluster2.LoadBalancingPolicy);
+            Assert.Equal(LoadBalancingPolicies.RoundRobin, abstractCluster2.LoadBalancingPolicy);
 
             Assert.Equal(2, abstractConfig.Routes.Count);
 

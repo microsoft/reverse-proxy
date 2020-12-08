@@ -15,7 +15,7 @@ namespace Microsoft.ReverseProxy.Service.LoadBalancing
     {
         private readonly ConditionalWeakTable<ClusterInfo, AtomicCounter> _counters = new ();
 
-        public string Name => LoadBalancingConstants.Policies.RoundRobin;
+        public string Name => LoadBalancingPolicies.RoundRobin;
 
         public DestinationInfo PickDestination(HttpContext context, IReadOnlyList<DestinationInfo> availableDestinations)
         {

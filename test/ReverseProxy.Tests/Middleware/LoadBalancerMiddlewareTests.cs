@@ -56,7 +56,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
         [Fact]
         public async Task PickDestination_SingleDestinations_ShortCircuit()
         {
-            var context = CreateContext(LoadBalancingConstants.Policies.First, new[]
+            var context = CreateContext(LoadBalancingPolicies.First, new[]
             {
                 new DestinationInfo("destination1")
             });
@@ -77,7 +77,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
         [Fact]
         public async Task Invoke_Works()
         {
-            var context = CreateContext(LoadBalancingConstants.Policies.First, new[]
+            var context = CreateContext(LoadBalancingPolicies.First, new[]
             {
                 new DestinationInfo("destination1"),
                 new DestinationInfo("destination2")
@@ -99,7 +99,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
         [Fact]
         public async Task Invoke_WithoutDestinations_503()
         {
-            var context = CreateContext(LoadBalancingConstants.Policies.First, Array.Empty<DestinationInfo>());
+            var context = CreateContext(LoadBalancingPolicies.First, Array.Empty<DestinationInfo>());
 
             var sut = CreateMiddleware();
 
@@ -157,7 +157,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             var policy = new Mock<ILoadBalancingPolicy>();
             policy
                 .Setup(p => p.Name)
-                .Returns(LoadBalancingConstants.Policies.PowerOfTwoChoices);
+                .Returns(LoadBalancingPolicies.PowerOfTwoChoices);
             policy
                 .Setup(p => p.PickDestination(It.IsAny<HttpContext>(), It.IsAny<IReadOnlyList<DestinationInfo>>()))
                 .Returns(destinations[0]);
