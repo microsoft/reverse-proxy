@@ -196,6 +196,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             var inMemoryConfig = (InMemoryConfigProvider)services.GetRequiredService<IProxyConfigProvider>();
             var configManager = services.GetRequiredService<ProxyConfigManager>();
             var dataSource = await configManager.InitialLoadAsync();
+            _ = configManager.Endpoints; // Lazily creates endpoints the first time, activates change notifications.
 
             var signaled1 = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
             var signaled2 = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
