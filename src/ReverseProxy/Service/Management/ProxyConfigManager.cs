@@ -86,7 +86,8 @@ namespace Microsoft.ReverseProxy.Service.Management
         {
             get
             {
-                //The Endpoints needs to be lazy the first time to give a chance to ReverseProxyConventionBuilder to add its conventions.
+                // The Endpoints needs to be lazy the first time to give a chance to ReverseProxyConventionBuilder to add its conventions.
+                // Endpoints are accessed by routing on the first request.
                 Initialize();   
                 return _endpoints;
             }
@@ -112,7 +113,13 @@ namespace Microsoft.ReverseProxy.Service.Management
             foreach (var existingRoute in _routeManager.GetItems())
             {
                 var runtimeConfig = existingRoute.Config;
-                var endpoint = _proxyEndpointFactory.CreateEndpoint(runtimeConfig, _conventions);
+                // Only rebuild the endpoint for modified routes or clusters.
+                var endpoint = existingRoute.CachedEndpoint;
+                if (endpoint == null)
+                {
+                    endpoint = _proxyEndpointFactory.CreateEndpoint(runtimeConfig, _conventions);
+                    existingRoute.CachedEndpoint = endpoint;
+                }
                 endpoints.Add(endpoint);
             }
 
@@ -174,9 +181,14 @@ namespace Microsoft.ReverseProxy.Service.Management
             try
             {
                 var hasChanged = await ApplyConfigAsync(newConfig);
-                if (hasChanged)
+                lock (_syncRoot)
                 {
-                    CreateEndpoints();
+                    // Skip if changes are signaled before the endpoints are initialized for the first time.
+                    // The endpoint conventions might not be ready yet.
+                    if (hasChanged && _endpoints != null)
+                    {
+                        CreateEndpoints();
+                    }
                 }
             }
             catch (Exception ex)
@@ -321,17 +333,14 @@ namespace Microsoft.ReverseProxy.Service.Management
 
             foreach (var newCluster in newClusters)
             {
+                var clusterChanged = false;
                 desiredClusters.Add(newCluster.Id);
 
                 _clusterManager.GetOrCreateItem(
                     itemId: newCluster.Id,
                     setupAction: currentCluster =>
                     {
-                        var destinationChanged = UpdateRuntimeDestinations(newCluster.Destinations, currentCluster.DestinationManager);
-                        if (destinationChanged)
-                        {
-                            changed = true;
-                        }
+                        clusterChanged = UpdateRuntimeDestinations(newCluster.Destinations, currentCluster.DestinationManager);
 
                         var currentClusterConfig = currentCluster.Config;
                         var newClusterHttpClientOptions = ConvertProxyHttpClientOptions(newCluster.HttpClient);
@@ -378,7 +387,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                         if (currentClusterConfig == null ||
                             currentClusterConfig.HasConfigChanged(newClusterConfig))
                         {
-                            changed = true;
+                            clusterChanged = true;
                             if (currentClusterConfig == null)
                             {
                                 Log.ClusterAdded(_logger, newCluster.Id);
@@ -392,8 +401,15 @@ namespace Microsoft.ReverseProxy.Service.Management
                             currentCluster.Config = newClusterConfig;
                         }
 
+                        if (clusterChanged)
+                        {
+                            currentCluster.Revision++;
+                        }
+
                         currentCluster.ForceUpdateDynamicState();
                     });
+
+                changed |= clusterChanged;
             }
 
             foreach (var existingCluster in _clusterManager.GetItems())
@@ -489,6 +505,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                         {
                             // Config changed, so update runtime route
                             changed = true;
+                            route.CachedEndpoint = null; // Recreate
                             if (currentRouteConfig == null)
                             {
                                 Log.RouteAdded(_logger, configRoute.RouteId);
@@ -500,6 +517,15 @@ namespace Microsoft.ReverseProxy.Service.Management
 
                             var newConfig = BuildRouteConfig(configRoute, cluster, route);
                             route.Config = newConfig;
+                        }
+
+                        // Check for config changes to the cluster. We don't need a new RouteConfig, but we do need to regenerate
+                        // endpoints that may depend on cluster data.
+                        if (route.ClusterRevision != cluster?.Revision)
+                        {
+                            changed = true;
+                            route.CachedEndpoint = null; // Recreate
+                            route.ClusterRevision = cluster?.Revision;
                         }
                     });
             }
