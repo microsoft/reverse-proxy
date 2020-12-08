@@ -30,10 +30,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric
         /// </summary>
         private static readonly Regex _allowedHeaderNamesRegex = new Regex(@"^\[\d\d*\]$");
 
-        /// <summary>
-        /// Matches only valid header match properties
-        /// </summary>
-        private static readonly Regex _allowedHeaderMatchPropertiesRegex = new Regex(@"^(?i)\b(Name|Values|Mode|IsCaseSensitive)\b$");
 
         /// Requires all transform names to follow the .[0]. pattern to simulate indexing in an array
         /// </summary>
