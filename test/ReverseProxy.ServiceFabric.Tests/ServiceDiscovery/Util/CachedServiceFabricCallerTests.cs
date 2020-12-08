@@ -32,7 +32,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         [Fact]
         public async void GetApplicationListAsync_ServiceFabricFails_ResultIsCached()
         {
-            // Arrange
             var caller = Create<CachedServiceFabricCaller>();
             var originalApps = new List<ApplicationWrapper> { SFTestHelpers.FakeApp("MyApp") };
 
@@ -44,13 +43,11 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 .ThrowsAsync(new Exception("the cake is a lie"))
                 .ThrowsAsync(new Exception("the cake is still a lie"));
 
-            // Act & Assert
             await CallThreeTimesAndAssertAsync(() => caller.GetApplicationListAsync(CancellationToken.None));
         }
         [Fact]
         public async void GetServiceListAsync_ServiceFabricFails_ResultIsCached()
         {
-            // Arrange
             var caller = Create<CachedServiceFabricCaller>();
             var originalServices = new List<ServiceWrapper> { SFTestHelpers.FakeService(new Uri("http://localhost/app1/sv1"), "MyServiceType") };
             Mock<IQueryClientWrapper>()
@@ -62,13 +59,11 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 .ThrowsAsync(new Exception("the cake is a lie"))
                 .ThrowsAsync(new Exception("the cake is still a lie"));
 
-            // Act
             await CallThreeTimesAndAssertAsync(() => caller.GetServiceListAsync(new Uri("http://localhost/app1"), CancellationToken.None));
         }
         [Fact]
         public async void GetPartitionListAsync_ServiceFabricFails_ResultIsCached()
         {
-            // Arrange
             var caller = Create<CachedServiceFabricCaller>();
             var originalPartitionIds = new List<Guid> { Guid.NewGuid() };
             Mock<IQueryClientWrapper>()
@@ -80,13 +75,11 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 .ThrowsAsync(new Exception("the cake is a lie"))
                 .ThrowsAsync(new Exception("the cake is still a lie"));
 
-            // Act & Assert
             await CallThreeTimesAndAssertAsync(() => caller.GetPartitionListAsync(new Uri("http://localhost/app1/sv1"), CancellationToken.None));
         }
         [Fact]
         public async void GetReplicaListAsync_ServiceFabricFails_ResultIsCached()
         {
-            // Arrange
             var caller = Create<CachedServiceFabricCaller>();
             var partitionId = Guid.NewGuid();
             var originalReplicas = new List<ReplicaWrapper> { SFTestHelpers.FakeReplica(new Uri("http://localhost/app1/sv1"), 1) };
@@ -99,14 +92,12 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 .ThrowsAsync(new Exception("the cake is a lie"))
                 .ThrowsAsync(new Exception("the cake is still a lie"));
 
-            // Act & Assert
             await CallThreeTimesAndAssertAsync(() => caller.GetReplicaListAsync(partitionId, CancellationToken.None));
         }
 
         [Fact]
         public async void GetServiceManifestName_ServiceFabricFails_ResultIsCached()
         {
-            // Arrange
             var caller = Create<CachedServiceFabricCaller>();
             var originalServiceManifestName = "MyCoolManifest";
             Mock<IQueryClientWrapper>()
@@ -121,13 +112,11 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 .ThrowsAsync(new Exception("the cake is a lie"))
                 .ThrowsAsync(new Exception("the cake is still a lie"));
 
-            // Act & Assert
             await CallThreeTimesAndAssertAsync(() => caller.GetServiceManifestName("AppName", "1.2.3", "MyServiceType", CancellationToken.None));
         }
         [Fact]
         public async void GetServiceManifestAsync_ServiceFabricFails_ResultIsCached()
         {
-            // Arrange
             var caller = Create<CachedServiceFabricCaller>();
             var originalRawServiceManifest = "<xml> </xml>";
             Mock<IServiceManagementClientWrapper>()
@@ -142,13 +131,11 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 .ThrowsAsync(new Exception("the cake is a lie"))
                 .ThrowsAsync(new Exception("the cake is still a lie"));
 
-            // Act & Assert
             await CallThreeTimesAndAssertAsync(() => caller.GetServiceManifestAsync("AppName", "1.2.3", "MyCoolManifest", CancellationToken.None));
         }
         [Fact]
         public async void EnumeratePropertiesAsync_ServiceFabricFails_ResultIsCached()
         {
-            // Arrange
             var caller = Create<CachedServiceFabricCaller>();
             var originalProperties = new Dictionary<string, string> { { "key", "value" } };
             Mock<IPropertyManagementClientWrapper>()
@@ -161,7 +148,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 .ThrowsAsync(new Exception("the cake is a lie"))
                 .ThrowsAsync(new Exception("the cake is still a lie"));
 
-            // Act & Assert
             await CallThreeTimesAndAssertAsync(() => caller.EnumeratePropertiesAsync(new Uri("http://localhost/app1/sv1"), CancellationToken.None));
         }
 
@@ -169,13 +155,11 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         {
             var almostExpirationOffset = CachedServiceFabricCaller.CacheExpirationOffset.Subtract(TimeSpan.FromTicks(1));
 
-            // Act
             var firstResult = await call(); // First call is successful
             _clock.AdvanceClockBy(almostExpirationOffset);
             var secondResult = await call(); // Second call should use last result from cache
             _clock.AdvanceClockBy(almostExpirationOffset);
 
-            // Assert
             secondResult.Should().BeEquivalentTo(firstResult);
             await call.Should().ThrowAsync<Exception>(); // Third call fails
         }

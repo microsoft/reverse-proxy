@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using Microsoft.ReverseProxy.Abstractions;
+using Microsoft.ReverseProxy.ServiceFabric.Utilities;
 
 namespace Microsoft.ReverseProxy.ServiceFabric
 {
@@ -22,6 +23,11 @@ namespace Microsoft.ReverseProxy.ServiceFabric
         internal static readonly int? DefaultRouteOrder = null;
 
         private static readonly Regex _allowedRouteNamesRegex = new Regex("^[a-zA-Z0-9_-]+$");
+
+        /// <summary>
+        /// Requires all transform names to follow the .[0]. pattern to simulate indexing in an array
+        /// </summary>
+        private static readonly Regex _allowedTransformNamesRegex = new Regex(@"^\[\d\d*\]$");
 
         internal static TValue GetLabel<TValue>(Dictionary<string, string> labels, string key, TValue defaultValue)
         {
@@ -76,11 +82,40 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             {
                 var thisRoutePrefix = $"{RoutesLabelsPrefix}{routeName}";
                 var metadata = new Dictionary<string, string>();
+                var transforms = new Dictionary<string, IDictionary<string, string>>();
                 foreach (var kvp in labels)
                 {
                     if (kvp.Key.StartsWith($"{thisRoutePrefix}.Metadata.", StringComparison.Ordinal))
                     {
                         metadata.Add(kvp.Key.Substring($"{thisRoutePrefix}.Metadata.".Length), kvp.Value);
+                    }
+                    else if (kvp.Key.StartsWith($"{thisRoutePrefix}.Transforms.", StringComparison.Ordinal)) 
+                    {
+                        var suffix = kvp.Key.Substring($"{thisRoutePrefix}.Transforms.".Length);
+                        var transformNameLength = suffix.IndexOf('.');
+                        if (transformNameLength == -1)
+                        {
+                            // No transform index encoded, the key is not valid. Throwing would suggest we actually check for all invalid keys, so just ignore.
+                            continue;
+                        }
+                        var transformName = suffix.Substring(0, transformNameLength);
+                        if (!_allowedTransformNamesRegex.IsMatch(transformName))
+                        {
+                            throw new ConfigException($"Invalid transform index '{transformName}', should be transform index wrapped in square brackets.");
+                        }
+                        if (!transforms.ContainsKey(transformName)) 
+                        {
+                            transforms.Add(transformName, new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase));
+                        }
+                        var propertyName = kvp.Key.Substring($"{thisRoutePrefix}.Transforms.{transformName}.".Length);
+                        if (!transforms[transformName].ContainsKey(propertyName)) 
+                        {
+                            transforms[transformName].Add(propertyName, kvp.Value);
+                        } 
+                        else 
+                        {
+                            throw new ConfigException($"A duplicate transformation property '{transformName}.{propertyName}' was found.");
+                        }
                     }
                 }
 
@@ -98,6 +133,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                     Order = GetLabel(labels, $"{thisRoutePrefix}.Order", DefaultRouteOrder),
                     ClusterId = backendId,
                     Metadata = metadata,
+                    Transforms = transforms.Count > 0 ? transforms.Select(tr => tr.Value).ToList() : null
                 };
                 routes.Add(route);
             }
