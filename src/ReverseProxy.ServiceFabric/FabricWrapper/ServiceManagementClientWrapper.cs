@@ -21,9 +21,9 @@ namespace Microsoft.ReverseProxy.ServiceFabric
         /// Initializes a new instance of the <see cref="ServiceManagementClientWrapper"/> class.
         /// Wraps QueryManager, PropertyManager and ServiceManager SF SDK.
         /// </summary>
-        public ServiceManagementClientWrapper()
+        public ServiceManagementClientWrapper(IFabricClientWrapper fabricClientWrapper)
         {
-            _serviceManagementClient = new FabricClient().ServiceManager;
+            _serviceManagementClient = fabricClientWrapper.FabricClient.ServiceManager;
         }
 
         /// <summary>

@@ -5,9 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Net.Http;
 using System.Text.RegularExpressions;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Utilities;
+using Microsoft.ReverseProxy.ServiceFabric.Utilities;
 
 namespace Microsoft.ReverseProxy.ServiceFabric
 {
@@ -33,6 +35,9 @@ namespace Microsoft.ReverseProxy.ServiceFabric
         /// </summary>
         private static readonly Regex _allowedHeaderMatchPropertiesRegex = new Regex(@"^(?i)\b(Name|Values|Mode|IsCaseSensitive)\b$");
 
+        /// Requires all transform names to follow the .[0]. pattern to simulate indexing in an array
+        /// </summary>
+        private static readonly Regex _allowedTransformNamesRegex = new Regex(@"^\[\d\d*\]$");
 
         internal static TValue GetLabel<TValue>(Dictionary<string, string> labels, string key, TValue defaultValue)
         {
@@ -88,6 +93,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                 var thisRoutePrefix = $"{RoutesLabelsPrefix}{routeName}";
                 var metadata = new Dictionary<string, string>();
                 var headerMatches = new Dictionary<string, RouteHeader>();
+                var transforms = new Dictionary<string, IDictionary<string, string>>();
                 foreach (var kvp in labels)
                 {
                     if (kvp.Key.StartsWith($"{thisRoutePrefix}.Metadata.", StringComparison.Ordinal))
@@ -112,32 +118,61 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                         {
                             headerMatches.Add(headerIndex, new RouteHeader());
                         }
+
                         var propertyName = kvp.Key.Substring($"{thisRoutePrefix}.MatchHeaders.{headerIndex}.".Length);
-                        if (!_allowedHeaderMatchPropertiesRegex.IsMatch(propertyName))
-                        {
-                            throw new ConfigException($"Invalid header matching property '{propertyName}', only valid values are Name, Values, IsCaseSensitive and Mode.");
-                        }
                         if (propertyName.Equals("Name", StringComparison.Ordinal)) 
                         {
                             headerMatches[headerIndex].Name = kvp.Value;
                         } 
                         else if (propertyName.Equals("Values", StringComparison.Ordinal)) 
                         {
-                            headerMatches[headerIndex].Values = kvp.Value.SplitCSV();
+#if NET5_0
+                            headerMatches[headerIndex].Values = kvp.Value.Split(',', StringSplitOptions.TrimEntries);
+#elif NETCOREAPP3_1
+                            headerMatches[headerIndex].Values = kvp.Value.Split(',').Select(val => val.Trim()).ToList();
+#else
+#error A target framework was added to the project and needs to be added to this condition.
+#endif
                         }
                         else if (propertyName.Equals("IsCaseSensitive", StringComparison.Ordinal)) 
                         {
-                            if (bool.TryParse(kvp.Value, out var IsCaseSensitive))
-                            {
-                                headerMatches[headerIndex].IsCaseSensitive = IsCaseSensitive;
-                            }
+                            headerMatches[headerIndex].IsCaseSensitive = bool.Parse(kvp.Value);
                         }
                         else if (propertyName.Equals("Mode", StringComparison.Ordinal)) 
                         {
-                            if (Enum.TryParse<HeaderMatchMode>(kvp.Value, out var mode))
-                            {
-                                headerMatches[headerIndex].Mode = mode;
-                            }
+                            headerMatches[headerIndex].Mode = Enum.Parse<HeaderMatchMode>(kvp.Value);
+                        }
+                        else
+                        {
+                            throw new ConfigException($"Invalid header matching property '{propertyName}', only valid values are Name, Values, IsCaseSensitive and Mode.");
+                        }
+                    }
+                    else if (kvp.Key.StartsWith($"{thisRoutePrefix}.Transforms.", StringComparison.Ordinal)) 
+                    {
+                        var suffix = kvp.Key.Substring($"{thisRoutePrefix}.Transforms.".Length);
+                        var transformNameLength = suffix.IndexOf('.');
+                        if (transformNameLength == -1)
+                        {
+                            // No transform index encoded, the key is not valid. Throwing would suggest we actually check for all invalid keys, so just ignore.
+                            continue;
+                        }
+                        var transformName = suffix.Substring(0, transformNameLength);
+                        if (!_allowedTransformNamesRegex.IsMatch(transformName))
+                        {
+                            throw new ConfigException($"Invalid transform index '{transformName}', should be transform index wrapped in square brackets.");
+                        }
+                        if (!transforms.ContainsKey(transformName)) 
+                        {
+                            transforms.Add(transformName, new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase));
+                        }
+                        var propertyName = kvp.Key.Substring($"{thisRoutePrefix}.Transforms.{transformName}.".Length);
+                        if (!transforms[transformName].ContainsKey(propertyName)) 
+                        {
+                            transforms[transformName].Add(propertyName, kvp.Value);
+                        } 
+                        else 
+                        {
+                            throw new ConfigException($"A duplicate transformation property '{transformName}.{propertyName}' was found.");
                         }
                     }
                 }
@@ -157,7 +192,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                     },
                     Order = GetLabel(labels, $"{thisRoutePrefix}.Order", DefaultRouteOrder),
                     ClusterId = backendId,
-                    Metadata = metadata
+                    Metadata = metadata,
+                    Transforms = transforms.Count > 0 ? transforms.Select(tr => tr.Value).ToList() : null
                 };
                 routes.Add(route);
             }
@@ -167,35 +203,79 @@ namespace Microsoft.ReverseProxy.ServiceFabric
         internal static Cluster BuildCluster(Uri serviceName, Dictionary<string, string> labels)
         {
             var clusterMetadata = new Dictionary<string, string>();
+            Dictionary<string, string> sessionAffinitySettings = null;
             const string BackendMetadataKeyPrefix = "YARP.Backend.Metadata.";
+            const string SessionAffinitySettingsKeyPrefix = "YARP.Backend.SessionAffinity.Settings.";
             foreach (var item in labels)
             {
                 if (item.Key.StartsWith(BackendMetadataKeyPrefix, StringComparison.Ordinal))
                 {
                     clusterMetadata[item.Key.Substring(BackendMetadataKeyPrefix.Length)] = item.Value;
                 }
+                else if (item.Key.StartsWith(SessionAffinitySettingsKeyPrefix, StringComparison.Ordinal))
+                {
+                    if (sessionAffinitySettings == null)
+                    {
+                        sessionAffinitySettings = new Dictionary<string, string>();
+                    }
+
+                    sessionAffinitySettings[item.Key.Substring(SessionAffinitySettingsKeyPrefix.Length)] = item.Value;
+                }
             }
 
             var clusterId = GetClusterId(serviceName, labels);
 
+            var loadBalancingModeLabel = GetLabel<string>(labels, "YARP.Backend.LoadBalancing.Mode", null);
+            var versionLabel = GetLabel<string>(labels, "YARP.Backend.HttpRequest.Version", null);
+#if NET
+            var versionPolicyLabel = GetLabel<string>(labels, "YARP.Backend.HttpRequest.VersionPolicy", null);
+#endif
             var cluster = new Cluster
             {
                 Id = clusterId,
-                LoadBalancing = new LoadBalancingOptions(), // TODO
+                LoadBalancing = !string.IsNullOrEmpty(loadBalancingModeLabel)
+                    ? new LoadBalancingOptions { Mode = (LoadBalancingMode)Enum.Parse(typeof(LoadBalancingMode), loadBalancingModeLabel) }
+                    : null,
+                SessionAffinity = new SessionAffinityOptions
+                {
+                    Enabled = GetLabel(labels, "YARP.Backend.SessionAffinity.Enabled", false),
+                    Mode = GetLabel<string>(labels, "YARP.Backend.SessionAffinity.Mode", null),
+                    FailurePolicy = GetLabel<string>(labels, "YARP.Backend.SessionAffinity.FailurePolicy", null),
+                    Settings = sessionAffinitySettings
+                },
+                HttpRequest = new ProxyHttpRequestOptions
+                {
+                    Timeout = ToNullableTimeSpan(GetLabel<double?>(labels, "YARP.Backend.HttpRequest.Timeout", null)),
+                    Version = !string.IsNullOrEmpty(versionLabel) ? Version.Parse(versionLabel + (versionLabel.Contains('.') ? "" : ".0")) : null,
+#if NET
+                    VersionPolicy = !string.IsNullOrEmpty(versionLabel) ? (HttpVersionPolicy)Enum.Parse(typeof(HttpVersionPolicy), versionPolicyLabel) : null
+#endif
+                },
                 HealthCheck = new HealthCheckOptions
                 {
                     Active = new ActiveHealthCheckOptions
                     {
-                        Enabled = GetLabel(labels, "YARP.Backend.Healthcheck.Active.Enabled", false),
-                        Interval = TimeSpan.FromSeconds(GetLabel<double>(labels, "YARP.Backend.Healthcheck.Active.Interval", 0)),
-                        Timeout = TimeSpan.FromSeconds(GetLabel<double>(labels, "YARP.Backend.Healthcheck.Active.Timeout", 0)),
-                        Path = GetLabel<string>(labels, "YARP.Backend.Healthcheck.Active.Path", null),
-                        Policy = GetLabel<string>(labels, "YARP.Backend.Healthcheck.Active.Policy", null),
+                        Enabled = GetLabel(labels, "YARP.Backend.HealthCheck.Active.Enabled", false),
+                        Interval = ToNullableTimeSpan(GetLabel<double?>(labels, "YARP.Backend.HealthCheck.Active.Interval", null)),
+                        Timeout = ToNullableTimeSpan(GetLabel<double?>(labels, "YARP.Backend.HealthCheck.Active.Timeout", null)),
+                        Path = GetLabel<string>(labels, "YARP.Backend.HealthCheck.Active.Path", null),
+                        Policy = GetLabel<string>(labels, "YARP.Backend.HealthCheck.Active.Policy", null)
+                    },
+                    Passive = new PassiveHealthCheckOptions
+                    {
+                        Enabled = GetLabel(labels, "YARP.Backend.HealthCheck.Passive.Enabled", false),
+                        Policy = GetLabel<string>(labels, "YARP.Backend.HealthCheck.Passive.Policy", null),
+                        ReactivationPeriod = ToNullableTimeSpan(GetLabel<double?>(labels, "YARP.Backend.HealthCheck.Passive.ReactivationPeriod", null))
                     }
                 },
                 Metadata = clusterMetadata,
             };
             return cluster;
+        }
+
+        private static TimeSpan? ToNullableTimeSpan(double? seconds)
+        {
+            return seconds.HasValue ? (TimeSpan?)TimeSpan.FromSeconds(seconds.Value) : null;
         }
 
         private static string GetClusterId(Uri serviceName, Dictionary<string, string> labels)

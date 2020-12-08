@@ -25,11 +25,11 @@ namespace Microsoft.ReverseProxy.ServiceFabric
         /// <summary>
         /// Initializes a new instance of the <see cref="QueryClientWrapper"/> class.
         /// </summary>
-        public QueryClientWrapper(ILogger<QueryClientWrapper> logger)
+        public QueryClientWrapper(ILogger<QueryClientWrapper> logger, IFabricClientWrapper fabricClientWrapper)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-            _queryClient = new FabricClient().QueryManager;
+            _queryClient = fabricClientWrapper.FabricClient.QueryManager;
         }
 
         /// <summary>
@@ -96,7 +96,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                 {
                     if (!result.TryAdd(param.Name, param.Value))
                     {
-                        _logger.LogInformation($"Duplicate app parameter '{param.Name}' for application '{app.ApplicationName}'");
+                        Log.DuplicateAppParameter(_logger, param.Name, app.ApplicationName);
                     }
                 }
 
@@ -254,6 +254,20 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             while (!string.IsNullOrEmpty(previousResult?.ContinuationToken));
 
             return replicaList;
+        }
+
+        private static class Log
+        {
+            private static readonly Action<ILogger, string, Uri, Exception> _duplicateAppParameter =
+                LoggerMessage.Define<string, Uri>(
+                    LogLevel.Information,
+                    EventIds.DuplicateAppParameter,
+                    "Duplicate app parameter '{parameterName}' for application '{applicationName}'.");
+
+            public static void DuplicateAppParameter(ILogger logger, string parameterName, Uri applicationName)
+            {
+                _duplicateAppParameter(logger, parameterName, applicationName, null);
+            }
         }
     }
 }
