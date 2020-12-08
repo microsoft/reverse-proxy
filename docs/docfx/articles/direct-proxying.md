@@ -95,7 +95,7 @@ Re-using a client for requests to the same destination is recommended for perfor
 
 ### Transforms
 
-The request and response can be modified by providing [transforms](transforms.md) as a parameter of [`ProxyAsync`](xref:Microsoft.ReverseProxy.Service.Proxy.IHttpProxy.ProxyAsync) method.
+The request and response can be modified by providing [transforms](transforms.md) as a parameter of [`ProxyAsync`](xref:Microsoft.ReverseProxy.Service.Proxy.IHttpProxy) method.
 
 ### Error handling
 

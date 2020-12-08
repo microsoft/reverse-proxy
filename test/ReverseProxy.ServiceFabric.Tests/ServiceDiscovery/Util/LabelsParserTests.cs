@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using FluentAssertions;
 using Microsoft.ReverseProxy.Abstractions;
+using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.ServiceFabric.Tests
@@ -22,10 +23,25 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             {
                 { "YARP.Enable", "true" },
                 { "YARP.Backend.BackendId", "MyCoolClusterId" },
-                { "YARP.Backend.Healthcheck.Active.Enabled", "true" },
-                { "YARP.Backend.Healthcheck.Active.Interval", "5" },
-                { "YARP.Backend.Healthcheck.Active.Timeout", "5" },
-                { "YARP.Backend.Healthcheck.Active.Path", "/api/health" },
+                { "YARP.Backend.LoadBalancing.Mode", "LeastRequests" },
+                { "YARP.Backend.SessionAffinity.Enabled", "true" },
+                { "YARP.Backend.SessionAffinity.Mode", "Cookie" },
+                { "YARP.Backend.SessionAffinity.FailurePolicy", "Return503Error" },
+                { "YARP.Backend.SessionAffinity.Settings.ParameterA", "ValueA" },
+                { "YARP.Backend.SessionAffinity.Settings.ParameterB", "ValueB" },
+                { "YARP.Backend.HttpRequest.Timeout", "17" },
+                { "YARP.Backend.HttpRequest.Version", "1.1" },
+#if NET
+                { "YARP.Backend.HttpRequest.VersionPolicy", "RequestVersionExact" },
+#endif
+                { "YARP.Backend.HealthCheck.Active.Enabled", "true" },
+                { "YARP.Backend.HealthCheck.Active.Interval", "5" },
+                { "YARP.Backend.HealthCheck.Active.Timeout", "6" },
+                { "YARP.Backend.HealthCheck.Active.Policy", "MyActiveHealthPolicy" },
+                { "YARP.Backend.HealthCheck.Active.Path", "/api/health" },
+                { "YARP.Backend.HealthCheck.Passive.Enabled", "true" },
+                { "YARP.Backend.HealthCheck.Passive.Policy", "MyPassiveHealthPolicy" },
+                { "YARP.Backend.HealthCheck.Passive.ReactivationPeriod", "7" },
                 { "YARP.Backend.Metadata.Foo", "Bar" },
             };
 
@@ -36,16 +52,45 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             var expectedCluster = new Cluster
             {
                 Id = "MyCoolClusterId",
-                LoadBalancing = new LoadBalancingOptions(),
+                LoadBalancing = new LoadBalancingOptions
+                {
+                    Mode = LoadBalancingMode.LeastRequests
+                },
+                SessionAffinity = new SessionAffinityOptions
+                {
+                    Enabled = true,
+                    Mode = SessionAffinityConstants.Modes.Cookie,
+                    FailurePolicy = SessionAffinityConstants.AffinityFailurePolicies.Return503Error,
+                    Settings = new Dictionary<string, string>
+                    {
+                        { "ParameterA", "ValueA" },
+                        { "ParameterB", "ValueB" }
+                    }
+                },
+                HttpRequest = new ProxyHttpRequestOptions
+                {
+                    Timeout = TimeSpan.FromSeconds(17),
+                    Version = new Version(1, 1),
+#if NET
+                    VersionPolicy = System.Net.Http.HttpVersionPolicy.RequestVersionExact
+#endif
+                },
                 HealthCheck = new HealthCheckOptions
                 {
-                    Active=new ActiveHealthCheckOptions
+                    Active = new ActiveHealthCheckOptions
                     {
                         Enabled = true,
                         Interval = TimeSpan.FromSeconds(5),
-                        Timeout = TimeSpan.FromSeconds(5),
+                        Timeout = TimeSpan.FromSeconds(6),
                         Path = "/api/health",
+                        Policy = "MyActiveHealthPolicy"
                     },
+                    Passive = new PassiveHealthCheckOptions
+                    {
+                        Enabled = true,
+                        Policy = "MyPassiveHealthPolicy",
+                        ReactivationPeriod = TimeSpan.FromSeconds(7)
+                    }
                 },
                 Metadata = new Dictionary<string, string>
                 {
@@ -71,16 +116,12 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             var expectedCluster = new Cluster
             {
                 Id = "MyCoolClusterId",
-                LoadBalancing = new LoadBalancingOptions(),
+                SessionAffinity = new SessionAffinityOptions(),
+                HttpRequest = new ProxyHttpRequestOptions(),
                 HealthCheck = new HealthCheckOptions
                 {
-                     Active = new ActiveHealthCheckOptions
-                     {
-                         Enabled = false,
-                         Interval = TimeSpan.Zero,
-                         Timeout = TimeSpan.Zero,
-                         Path = null,
-                     },
+                    Active = new ActiveHealthCheckOptions(),
+                    Passive = new PassiveHealthCheckOptions()
                 },
                 Metadata = new Dictionary<string, string>(),
             };
@@ -100,7 +141,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             var labels = new Dictionary<string, string>()
             {
                 { "YARP.Backend.BackendId", "MyCoolClusterId" },
-                { "YARP.Backend.Healthcheck.Active.Enabled", label },
+                { "YARP.Backend.HealthCheck.Active.Enabled", label },
             };
 
             // Act
@@ -119,7 +160,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             var labels = new Dictionary<string, string>()
             {
                 { "YARP.Backend.BackendId", "MyCoolClusterId" },
-                { "YARP.Backend.Healthcheck.Active.Enabled", label },
+                { "YARP.Backend.HealthCheck.Active.Enabled", label },
             };
 
             // Act
@@ -139,7 +180,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 { "YARP.Backend.Partitioning.Count", "5" },
                 { "YARP.Backend.Partitioning.KeyExtractor", "Header('x-ms-organization-id')" },
                 { "YARP.Backend.Partitioning.Algorithm", "SHA256" },
-                { "YARP.Backend.Healthcheck.Active.Interval", "5" },
+                { "YARP.Backend.HealthCheck.Active.Interval", "5" },
             };
 
             // Act
@@ -150,8 +191,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         }
 
         [Theory]
-        [InlineData("YARP.Backend.Healthcheck.Active.Interval", "1S")]
-        [InlineData("YARP.Backend.Healthcheck.Active.Timeout", "foobar")]
+        [InlineData("YARP.Backend.HealthCheck.Active.Interval", "1S")]
+        [InlineData("YARP.Backend.HealthCheck.Active.Timeout", "foobar")]
         public void BuildCluster_InvalidValues_Throws(string key, string invalidValue)
         {
             // Arrange
@@ -178,6 +219,12 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 { "YARP.Routes.MyRoute.Hosts", "example.com" },
                 { "YARP.Routes.MyRoute.Order", "2" },
                 { "YARP.Routes.MyRoute.Metadata.Foo", "Bar" },
+                { "YARP.Routes.MyRoute.Transforms.[0].ResponseHeader", "X-Foo" },
+                { "YARP.Routes.MyRoute.Transforms.[0].Append", "Bar" },
+                { "YARP.Routes.MyRoute.Transforms.[0].When", "Always" },
+                { "YARP.Routes.MyRoute.Transforms.[1].ResponseHeader", "X-Ping" },
+                { "YARP.Routes.MyRoute.Transforms.[1].Append", "Pong" },
+                { "YARP.Routes.MyRoute.Transforms.[1].When", "Success" },
             };
 
             // Act
@@ -199,6 +246,21 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     {
                         { "Foo", "Bar" },
                     },
+                    Transforms = new List<IDictionary<string, string>>
+                    {
+                        new Dictionary<string, string>
+                        { 
+                            {"ResponseHeader", "X-Foo"},
+                            {"Append", "Bar"},
+                            {"When", "Always"}
+                        },
+                        new Dictionary<string, string>
+                        { 
+                            {"ResponseHeader", "X-Ping"},
+                            {"Append", "Pong"},
+                            {"When", "Success"}
+                        }
+                    }
                 },
             };
             routes.Should().BeEquivalentTo(expectedRoutes);
@@ -425,11 +487,40 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         }
 
         [Theory]
+        [InlineData("YARP.Routes.MyRoute.Transforms. .ResponseHeader", "Blank transform index")]
+        [InlineData("YARP.Routes.MyRoute.Transforms.string.ResponseHeader", "string header name not accepted.. just [num]")]
+        [InlineData("YARP.Routes.MyRoute.Transforms.1.Response", "needs square brackets")]
+        public void BuildRoutes_InvalidTransformIndex_Throws(string invalidKey, string value)
+        {
+            // Arrange
+            var labels = new Dictionary<string, string>()
+            {
+                { "YARP.Backend.BackendId", "MyCoolClusterId" },
+                { "YARP.Routes.MyRoute.Hosts", "example.com" },
+                { "YARP.Routes.MyRoute.Priority", "2" },
+                { "YARP.Routes.MyRoute.Metadata.Foo", "Bar" },
+            };
+            labels[invalidKey] = value;
+
+            // Act
+            Func<List<ProxyRoute>> func = () => LabelsParser.BuildRoutes(_testServiceName, labels);
+
+            // Assert
+            func.Should()
+                .Throw<ConfigException>()
+                .WithMessage($"Invalid transform index '*', should be transform index wrapped in square brackets.");
+        }
+
+        [Theory]
         [InlineData("", "")]
         [InlineData("NotEven.TheNamespace", "some value")]
         [InlineData("YARP.", "some value")]
         [InlineData("Routes.", "some value")]
         [InlineData("YARP.Routes.", "some value")]
+        [InlineData("YARP.Routes.MyRoute.Transforms", "some value")]
+        [InlineData("YARP.Routes.MyRoute.Transforms.", "some value")]
+        [InlineData("YARP.Routes.MyRoute...Transforms", "some value")]
+        [InlineData("YARP.Routes.MyRoute.Transform.", "some value")]
         [InlineData("YARP.Routes", "some value")]
         [InlineData("YARP..Routes.", "some value")]
         [InlineData("YARP.....Routes.", "some value")]

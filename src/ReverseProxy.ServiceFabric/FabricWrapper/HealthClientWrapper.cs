@@ -11,9 +11,9 @@ namespace Microsoft.ReverseProxy.ServiceFabric
     {
         private readonly FabricClient.HealthClient _healthClient;
 
-        public HealthClientWrapper()
+        public HealthClientWrapper(IFabricClientWrapper fabricClientWrapper)
         {
-            _healthClient = new FabricClient().HealthManager;
+            _healthClient = fabricClientWrapper.FabricClient.HealthManager;
         }
 
         /// <inheritdoc/>

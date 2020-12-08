@@ -18,6 +18,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
         /// </summary>
         public static IReverseProxyBuilder LoadFromServiceFabric(this IReverseProxyBuilder builder)
         {
+            builder.Services.AddSingleton<IFabricClientWrapper, FabricClientWrapper>();
             builder.Services.AddSingleton<IQueryClientWrapper, QueryClientWrapper>();
             builder.Services.AddSingleton<IPropertyManagementClientWrapper, PropertyManagementClientWrapper>();
             builder.Services.AddSingleton<IServiceManagementClientWrapper, ServiceManagementClientWrapper>();

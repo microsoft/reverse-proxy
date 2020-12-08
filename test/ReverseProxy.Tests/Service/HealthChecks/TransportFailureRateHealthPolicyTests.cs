@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Microsoft.ReverseProxy.Abstractions;
@@ -206,7 +207,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         private ClusterInfo GetClusterInfo(string id, int destinationCount, double? failureRateLimit = null, TimeSpan? reactivationPeriod = null)
         {
             var metadata = failureRateLimit != null
-                ? new Dictionary<string, string> { { TransportFailureRateHealthPolicyOptions.FailureRateLimitMetadataName, failureRateLimit.ToString() } }
+                ? new Dictionary<string, string> { { TransportFailureRateHealthPolicyOptions.FailureRateLimitMetadataName, failureRateLimit?.ToString(CultureInfo.InvariantCulture) } }
                 : null;
             var clusterConfig = new ClusterConfig(
                 new Cluster { Id = id },

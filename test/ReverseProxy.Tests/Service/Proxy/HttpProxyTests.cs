@@ -372,8 +372,10 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         }
 
         // Tests proxying an upgradeable request.
-        [Fact]
-        public async Task ProxyAsync_UpgradableRequest_Works()
+        [Theory]
+        [InlineData("WebSocket")]
+        [InlineData("SPDY/3.1")]
+        public async Task ProxyAsync_UpgradableRequest_Works(string upgradeHeader)
         {
             var events = TestEventListener.Collect();
 
@@ -388,7 +390,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             httpContext.Connection.RemoteIpAddress = IPAddress.Loopback;
 
             // TODO: https://github.com/microsoft/reverse-proxy/issues/255
-            httpContext.Request.Headers.Add("Upgrade", "WebSocket");
+            // https://github.com/microsoft/reverse-proxy/issues/467
+            httpContext.Request.Headers.Add("Upgrade", upgradeHeader);
 
             var downstreamStream = new DuplexStream(
                 readStream: StringToStream("request content"),
