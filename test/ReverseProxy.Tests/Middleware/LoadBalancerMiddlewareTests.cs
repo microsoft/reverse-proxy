@@ -38,7 +38,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
         }
 
         [Fact]
-        public async Task PickDestination_UnsupportedMode_Throws()
+        public async Task PickDestination_UnsupportedPolicy_Throws()
         {
             const string PolicyName = "NonExistentPolicy";
             var context = CreateContext(PolicyName, new[]

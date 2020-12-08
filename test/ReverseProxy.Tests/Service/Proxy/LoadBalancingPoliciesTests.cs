@@ -14,9 +14,9 @@ using Xunit;
 
 namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 {
-    public class LoadBalancerTests : TestAutoMockBase
+    public class LoadBalancingPoliciesTests : TestAutoMockBase
     {
-        public LoadBalancerTests()
+        public LoadBalancingPoliciesTests()
         {
             RandomFactory = new TestRandomFactory() { Instance = RandomInstance };
             Provide<IRandomFactory>(RandomFactory);
