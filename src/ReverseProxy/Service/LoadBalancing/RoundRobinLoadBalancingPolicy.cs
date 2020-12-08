@@ -19,6 +19,11 @@ namespace Microsoft.ReverseProxy.Service.LoadBalancing
 
         public DestinationInfo PickDestination(HttpContext context, IReadOnlyList<DestinationInfo> availableDestinations)
         {
+            if (availableDestinations.Count == 0)
+            {
+                return null;
+            }
+
             var counter = _counters.GetOrCreateValue(context.GetRequiredCluster());
 
             // Increment returns the new value and we want the first return value to be 0.

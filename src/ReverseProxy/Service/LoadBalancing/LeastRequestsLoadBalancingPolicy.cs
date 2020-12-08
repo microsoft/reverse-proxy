@@ -14,6 +14,11 @@ namespace Microsoft.ReverseProxy.Service.LoadBalancing
 
         public DestinationInfo PickDestination(HttpContext context, IReadOnlyList<DestinationInfo> availableDestinations)
         {
+            if (availableDestinations.Count == 0)
+            {
+                return null;
+            }
+
             var endpointCount = availableDestinations.Count;
             var leastRequestsEndpoint = availableDestinations[0];
             var leastRequestsCount = leastRequestsEndpoint.ConcurrencyCounter.Value;

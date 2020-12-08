@@ -14,6 +14,11 @@ namespace Microsoft.ReverseProxy.Service.LoadBalancing
 
         public DestinationInfo PickDestination(HttpContext context, IReadOnlyList<DestinationInfo> availableDestinations)
         {
+            if (availableDestinations.Count == 0)
+            {
+                return null;
+            }
+
             return availableDestinations[0];
         }
     }

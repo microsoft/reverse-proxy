@@ -22,6 +22,11 @@ namespace Microsoft.ReverseProxy.Service.LoadBalancing
 
         public DestinationInfo PickDestination(HttpContext context, IReadOnlyList<DestinationInfo> availableDestinations)
         {
+            if (availableDestinations.Count == 0)
+            {
+                return null;
+            }
+
             // Pick two, and then return the least busy. This avoids the effort of searching the whole list, but
             // still avoids overloading a single endpoint.
             var endpointCount = availableDestinations.Count;
