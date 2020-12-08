@@ -279,7 +279,7 @@ namespace Microsoft.ReverseProxy.Service
 
         private void ValidateSessionAffinity(IList<Exception> errors, Cluster cluster)
         {
-            if (cluster.SessionAffinity == null || !cluster.SessionAffinity.Enabled)
+            if (!(cluster.SessionAffinity?.Enabled ?? false))
             {
                 // Session affinity is disabled
                 return;
@@ -343,7 +343,7 @@ namespace Microsoft.ReverseProxy.Service
 
         private void ValidateActiveHealthCheck(IList<Exception> errors, Cluster cluster)
         {
-            if (cluster.HealthCheck == null || cluster.HealthCheck.Active == null || !cluster.HealthCheck.Active.Enabled)
+            if (!(cluster.HealthCheck?.Active?.Enabled ?? false))
             {
                 // Active health check is disabled
                 return;
@@ -373,7 +373,7 @@ namespace Microsoft.ReverseProxy.Service
 
         private void ValidatePassiveHealthCheck(IList<Exception> errors, Cluster cluster)
         {
-            if (cluster.HealthCheck == null || cluster.HealthCheck.Passive == null || !cluster.HealthCheck.Passive.Enabled)
+            if (!(cluster.HealthCheck?.Passive?.Enabled ?? false))
             {
                 // Passive health check is disabled
                 return;

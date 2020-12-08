@@ -15,7 +15,7 @@ namespace Microsoft.ReverseProxy.Abstractions
         /// <summary>
         /// Indicates whether session affinity is enabled.
         /// </summary>
-        public bool Enabled { get; set; }
+        public bool? Enabled { get; set; }
 
         /// <summary>
         /// Session affinity mode which is implemented by one of providers.
