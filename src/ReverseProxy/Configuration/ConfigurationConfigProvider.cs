@@ -146,7 +146,7 @@ namespace Microsoft.ReverseProxy.Configuration
             var cluster = new Cluster
             {
                 Id = section.Key,
-                LoadBalancingPolicy = CreateLoadBalancingOptions(section.GetSection(nameof(Cluster.LoadBalancingPolicy))),
+                LoadBalancingPolicy = section[nameof(Cluster.LoadBalancingPolicy)],
                 SessionAffinity = CreateSessionAffinityOptions(section.GetSection(nameof(Cluster.SessionAffinity))),
                 HealthCheck = CreateHealthCheckOptions(section.GetSection(nameof(Cluster.HealthCheck))),
                 HttpClient = CreateProxyHttpClientOptions(section.GetSection(nameof(Cluster.HttpClient))),
@@ -222,16 +222,6 @@ namespace Microsoft.ReverseProxy.Configuration
             };
 
             return routeHeader;
-        }
-
-        private static string CreateLoadBalancingOptions(IConfigurationSection section)
-        {
-            if (!section.Exists())
-            {
-                return null;
-            }
-
-            return section.Value;
         }
 
         private static SessionAffinityOptions CreateSessionAffinityOptions(IConfigurationSection section)
