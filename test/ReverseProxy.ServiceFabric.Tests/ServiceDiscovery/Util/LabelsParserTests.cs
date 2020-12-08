@@ -28,19 +28,19 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 { "YARP.Backend.SessionAffinity.FailurePolicy", "Return503Error" },
                 { "YARP.Backend.SessionAffinity.Settings.ParameterA", "ValueA" },
                 { "YARP.Backend.SessionAffinity.Settings.ParameterB", "ValueB" },
-                { "YARP.Backend.HttpRequest.Timeout", "17" },
+                { "YARP.Backend.HttpRequest.Timeout", "00:00:17" },
                 { "YARP.Backend.HttpRequest.Version", "1.1" },
 #if NET
                 { "YARP.Backend.HttpRequest.VersionPolicy", "RequestVersionExact" },
 #endif
                 { "YARP.Backend.HealthCheck.Active.Enabled", "true" },
-                { "YARP.Backend.HealthCheck.Active.Interval", "5" },
-                { "YARP.Backend.HealthCheck.Active.Timeout", "6" },
+                { "YARP.Backend.HealthCheck.Active.Interval", "00:00:05" },
+                { "YARP.Backend.HealthCheck.Active.Timeout", "00:00:06" },
                 { "YARP.Backend.HealthCheck.Active.Policy", "MyActiveHealthPolicy" },
                 { "YARP.Backend.HealthCheck.Active.Path", "/api/health" },
                 { "YARP.Backend.HealthCheck.Passive.Enabled", "true" },
                 { "YARP.Backend.HealthCheck.Passive.Policy", "MyPassiveHealthPolicy" },
-                { "YARP.Backend.HealthCheck.Passive.ReactivationPeriod", "7" },
+                { "YARP.Backend.HealthCheck.Passive.ReactivationPeriod", "00:00:07" },
                 { "YARP.Backend.Metadata.Foo", "Bar" },
             };
 

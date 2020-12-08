@@ -185,7 +185,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                 },
                 HttpRequest = new ProxyHttpRequestOptions
                 {
-                    Timeout = ToNullableTimeSpan(GetLabel<double?>(labels, "YARP.Backend.HttpRequest.Timeout", null)),
+                    Timeout = GetLabel<TimeSpan?>(labels, "YARP.Backend.HttpRequest.Timeout", null),
                     Version = !string.IsNullOrEmpty(versionLabel) ? Version.Parse(versionLabel + (versionLabel.Contains('.') ? "" : ".0")) : null,
 #if NET
                     VersionPolicy = !string.IsNullOrEmpty(versionLabel) ? (HttpVersionPolicy)Enum.Parse(typeof(HttpVersionPolicy), versionPolicyLabel) : null
@@ -196,8 +196,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                     Active = new ActiveHealthCheckOptions
                     {
                         Enabled = GetLabel(labels, "YARP.Backend.HealthCheck.Active.Enabled", false),
-                        Interval = ToNullableTimeSpan(GetLabel<double?>(labels, "YARP.Backend.HealthCheck.Active.Interval", null)),
-                        Timeout = ToNullableTimeSpan(GetLabel<double?>(labels, "YARP.Backend.HealthCheck.Active.Timeout", null)),
+                        Interval = GetLabel<TimeSpan?>(labels, "YARP.Backend.HealthCheck.Active.Interval", null),
+                        Timeout = GetLabel<TimeSpan?>(labels, "YARP.Backend.HealthCheck.Active.Timeout", null),
                         Path = GetLabel<string>(labels, "YARP.Backend.HealthCheck.Active.Path", null),
                         Policy = GetLabel<string>(labels, "YARP.Backend.HealthCheck.Active.Policy", null)
                     },
@@ -205,7 +205,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                     {
                         Enabled = GetLabel(labels, "YARP.Backend.HealthCheck.Passive.Enabled", false),
                         Policy = GetLabel<string>(labels, "YARP.Backend.HealthCheck.Passive.Policy", null),
-                        ReactivationPeriod = ToNullableTimeSpan(GetLabel<double?>(labels, "YARP.Backend.HealthCheck.Passive.ReactivationPeriod", null))
+                        ReactivationPeriod = GetLabel<TimeSpan?>(labels, "YARP.Backend.HealthCheck.Passive.ReactivationPeriod", null)
                     }
                 },
                 Metadata = clusterMetadata,
@@ -213,10 +213,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             return cluster;
         }
 
-        private static TimeSpan? ToNullableTimeSpan(double? seconds)
-        {
-            return seconds.HasValue ? (TimeSpan?)TimeSpan.FromSeconds(seconds.Value) : null;
-        }
 
         private static string GetClusterId(Uri serviceName, Dictionary<string, string> labels)
         {

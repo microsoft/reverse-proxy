@@ -112,8 +112,8 @@ Example:
 +            <Label Key="YARP.Enable">true</Label>
 +            <Label Key="YARP.Routes.route1.Path">{**catch-all}</Label>
 +            <Label Key='YARP.Backend.HealthCheck.Active.Enabled'>true</Label>
-+            <Label Key='YARP.Backend.HealthCheck.Active.Timeout'>30</Label>
-+            <Label Key='YARP.Backend.HealthCheck.Active.Interval'>10</Label>
++            <Label Key='YARP.Backend.HealthCheck.Active.Timeout'>00:00:30</Label>
++            <Label Key='YARP.Backend.HealthCheck.Active.Interval'>00:00:10</Label>
 +            <Label Key='YARP.Backend.HealthCheck.Active.Policy'>ConsecutiveFailures</Label>
 +          </Labels>
 +        </Extension>
