@@ -3,7 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
+using Microsoft.ReverseProxy.Service.Proxy;
 
 namespace Microsoft.ReverseProxy.Service
 {
@@ -21,6 +21,6 @@ namespace Microsoft.ReverseProxy.Service
         /// <summary>
         /// Builds the given transforms into executable rules.
         /// </summary>
-        Transforms Build(IList<IDictionary<string, string>> rawTransforms);
+        HttpTransforms Build(IList<IDictionary<string, string>> rawTransforms);
     }
 }

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Microsoft.ReverseProxy.Abstractions;
+using Microsoft.ReverseProxy.Service.Proxy;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 
 namespace Microsoft.ReverseProxy.RuntimeModel
@@ -25,7 +26,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
             RouteInfo route,
             ProxyRoute proxyRoute,
             ClusterInfo cluster,
-            Transforms transforms)
+            HttpTransforms transforms)
         {
             Route = route ?? throw new ArgumentNullException(nameof(route));
 
@@ -42,7 +43,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         // May not be populated if the cluster config is missing.
         public ClusterInfo Cluster { get; }
 
-        public Transforms Transforms { get; }
+        public HttpTransforms Transforms { get; }
 
         internal ProxyRoute ProxyRoute { get; }
 

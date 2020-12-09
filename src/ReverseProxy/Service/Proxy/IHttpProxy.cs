@@ -25,7 +25,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             HttpContext context,
             string destinationPrefix,
             HttpMessageInvoker httpClient,
-            Transforms transforms,
+            HttpTransforms transforms,
             RequestProxyOptions requestOptions);
     }
 }

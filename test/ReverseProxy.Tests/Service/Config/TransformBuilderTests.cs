@@ -7,7 +7,6 @@ using System.Linq;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Net.Http.Headers;
-using Microsoft.ReverseProxy.Common;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 using Microsoft.ReverseProxy.Utilities;
 using Xunit;
@@ -23,50 +22,38 @@ namespace Microsoft.ReverseProxy.Service.Config
         }
 
         [Fact]
-        public void NullTransforms_Success()
+        public void NullTransforms_AddsDefaults()
         {
-            var transformBuilder = CreateTransformBuilder();
-
-            var errors = transformBuilder.Validate(null);
-            Assert.Empty(errors);
-
-            var results = transformBuilder.Build(null);
-            Assert.NotNull(results);
-            Assert.Null(results.CopyRequestHeaders);
-            Assert.Empty(results.ResponseHeaderTransforms);
-            Assert.Empty(results.ResponseTrailerTransforms);
-            Assert.Empty(results.RequestTransforms);
-
-            Assert.Equal(5, results.RequestHeaderTransforms.Count);
-            Assert.IsType<RequestHeaderValueTransform>(results.RequestHeaderTransforms[HeaderNames.Host]);
-            Assert.IsType<RequestHeaderXForwardedForTransform>(results.RequestHeaderTransforms[ForwardedHeadersDefaults.XForwardedForHeaderName]);
-            Assert.IsType<RequestHeaderXForwardedHostTransform>(results.RequestHeaderTransforms[ForwardedHeadersDefaults.XForwardedHostHeaderName]);
-            Assert.IsType<RequestHeaderXForwardedPathBaseTransform>(results.RequestHeaderTransforms["X-Forwarded-PathBase"]);
-            Assert.IsType<RequestHeaderXForwardedProtoTransform>(results.RequestHeaderTransforms[ForwardedHeadersDefaults.XForwardedProtoHeaderName]);
+            NullOrEmptyTransforms_AddsDefaults(null);
         }
 
         [Fact]
         public void EmptyTransforms_AddsDefaults()
         {
+            NullOrEmptyTransforms_AddsDefaults(new List<IDictionary<string, string>>());
+        }
+
+        private void NullOrEmptyTransforms_AddsDefaults(List<IDictionary<string, string>> transforms)
+        {
             var transformBuilder = CreateTransformBuilder();
-            var transforms = new List<IDictionary<string, string>>();
 
             var errors = transformBuilder.Validate(transforms);
             Assert.Empty(errors);
 
-            var results = transformBuilder.Build(transforms);
-            Assert.NotNull(results);
-            Assert.Null(results.CopyRequestHeaders);
-            Assert.Empty(results.ResponseHeaderTransforms);
-            Assert.Empty(results.ResponseTrailerTransforms);
-            Assert.Empty(results.RequestTransforms);
-
+            var results = transformBuilder.BuildInternal(transforms);
             Assert.Equal(5, results.RequestHeaderTransforms.Count);
             Assert.IsType<RequestHeaderValueTransform>(results.RequestHeaderTransforms[HeaderNames.Host]);
             Assert.IsType<RequestHeaderXForwardedForTransform>(results.RequestHeaderTransforms[ForwardedHeadersDefaults.XForwardedForHeaderName]);
             Assert.IsType<RequestHeaderXForwardedHostTransform>(results.RequestHeaderTransforms[ForwardedHeadersDefaults.XForwardedHostHeaderName]);
             Assert.IsType<RequestHeaderXForwardedPathBaseTransform>(results.RequestHeaderTransforms["X-Forwarded-PathBase"]);
             Assert.IsType<RequestHeaderXForwardedProtoTransform>(results.RequestHeaderTransforms[ForwardedHeadersDefaults.XForwardedProtoHeaderName]);
+
+            var adaptedResults = transformBuilder.Build(transforms);
+            Assert.NotNull(adaptedResults);
+            Assert.False(adaptedResults.CopyRequestHeaders); // Manual copy
+            Assert.NotNull(adaptedResults.OnRequest);
+            Assert.Null(adaptedResults.OnResponse);
+            Assert.Null(adaptedResults.OnResponseTrailers);
         }
 
         [Fact]
@@ -90,11 +77,10 @@ namespace Microsoft.ReverseProxy.Service.Config
 
             var results = transformBuilder.Build(transforms);
             Assert.NotNull(results);
-            Assert.Null(results.CopyRequestHeaders);
-            Assert.Empty(results.ResponseHeaderTransforms);
-            Assert.Empty(results.ResponseTrailerTransforms);
-            Assert.Empty(results.RequestTransforms);
-            Assert.Empty(results.RequestHeaderTransforms);
+            Assert.True(results.CopyRequestHeaders);
+            Assert.Null(results.OnRequest);
+            Assert.Null(results.OnResponse);
+            Assert.Null(results.OnResponseTrailers);
         }
 
         [Fact]
@@ -116,15 +102,16 @@ namespace Microsoft.ReverseProxy.Service.Config
             var errors = transformBuilder.Validate(transforms);
             Assert.Empty(errors);
 
-            var results = transformBuilder.Build(transforms);
-            Assert.NotNull(results);
-            Assert.Null(results.CopyRequestHeaders);
-            Assert.Empty(results.ResponseHeaderTransforms);
-            Assert.Empty(results.ResponseTrailerTransforms);
-            Assert.Empty(results.RequestTransforms);
-
-            Assert.Equal(1, results.RequestHeaderTransforms.Count);
+            var results = transformBuilder.BuildInternal(transforms);
+            Assert.Single(results.RequestHeaderTransforms);
             Assert.IsType<RequestHeaderForwardedTransform>(results.RequestHeaderTransforms["Forwarded"]);
+
+            var adaptedResults = transformBuilder.Build(transforms);
+            Assert.NotNull(adaptedResults);
+            Assert.False(adaptedResults.CopyRequestHeaders);
+            Assert.NotNull(adaptedResults.OnRequest);
+            Assert.Null(adaptedResults.OnResponse);
+            Assert.Null(adaptedResults.OnResponseTrailers);
         }
 
         [Theory]
@@ -138,15 +125,24 @@ namespace Microsoft.ReverseProxy.Service.Config
                 new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                 {
                     {  "RequestHeadersCopy",  copyRequestHeaders.ToString() }
-                }
+                },
             };
 
             var errors = transformBuilder.Validate(transforms);
             Assert.Empty(errors);
 
-            var results = transformBuilder.Build(transforms);
+            var results = transformBuilder.BuildInternal(transforms);
             Assert.NotNull(results);
-            Assert.Equal(copyRequestHeaders, results.CopyRequestHeaders);
+            Assert.Equal(copyRequestHeaders, results.ShouldCopyRequestHeaders);
+
+
+            var adaptedResults = transformBuilder.Build(transforms);
+            // Only matches the input so long as there are no transforms (including defaults).
+            // Always disabled when there are transforms because the copy is managed internally.
+            Assert.False(adaptedResults.CopyRequestHeaders);
+            Assert.NotNull(adaptedResults.OnRequest);
+            Assert.Null(adaptedResults.OnResponse);
+            Assert.Null(adaptedResults.OnResponseTrailers);
         }
 
         [Fact]
@@ -214,12 +210,18 @@ namespace Microsoft.ReverseProxy.Service.Config
             var errors = transformBuilder.Validate(transforms);
             Assert.Empty(errors);
 
-            var results = transformBuilder.Build(transforms);
+            var results = transformBuilder.BuildInternal(transforms);
             Assert.IsType<RequestHeaderValueTransform>(results.RequestHeaderTransforms["heaDerName"]);
             // TODO: How to check Append/Set and the value?
+
+            var adaptedResults = transformBuilder.Build(transforms);
+            Assert.False(adaptedResults.CopyRequestHeaders);
+            Assert.NotNull(adaptedResults.OnRequest);
+            Assert.Null(adaptedResults.OnResponse);
+            Assert.Null(adaptedResults.OnResponseTrailers);
         }
 
-        private ITransformBuilder CreateTransformBuilder()
+        private TransformBuilder CreateTransformBuilder()
         {
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddOptions();
@@ -228,7 +230,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             serviceCollection.AddSingleton<ITransformBuilder, TransformBuilder>();
             serviceCollection.AddSingleton<IRandomFactory, RandomFactory>();
             using var services = serviceCollection.BuildServiceProvider();
-            return services.GetRequiredService<ITransformBuilder>();
+            return (TransformBuilder)services.GetRequiredService<ITransformBuilder>();
         }
     }
 }

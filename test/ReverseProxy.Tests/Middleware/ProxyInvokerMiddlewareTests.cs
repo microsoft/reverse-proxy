@@ -79,7 +79,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                     httpContext,
                     It.Is<string>(uri => uri == "https://localhost:123/a/b/"),
                     httpClient,
-                    It.Is<Transforms>(transforms => transforms == null),
+                    It.Is<HttpTransforms>(transforms => transforms == null),
                     It.Is<RequestProxyOptions>(requestOptions =>
                         requestOptions.Timeout == httpRequestOptions.Timeout
                         && requestOptions.Version == httpRequestOptions.Version
@@ -159,7 +159,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                     httpContext,
                     It.IsAny<string>(),
                     httpClient,
-                    It.IsAny<Transforms>(),
+                    It.IsAny<HttpTransforms>(),
                     It.IsAny<RequestProxyOptions>()))
                 .Returns(() => throw new NotImplementedException());
 

@@ -10,6 +10,7 @@ using Microsoft.ReverseProxy.Service.Proxy;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 using Microsoft.Net.Http.Headers;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Microsoft.ReverseProxy.Sample
 {
@@ -42,15 +43,14 @@ namespace Microsoft.ReverseProxy.Sample
 
             // Copy all request headers except Host
             var transforms =
-                new Transforms(
-                    copyRequestHeaders: true,
-                    requestTransforms: Array.Empty<RequestParametersTransform>(),
-                    requestHeaderTransforms: new Dictionary<string, RequestHeaderTransform>()
+                new HttpTransforms()
+                {
+                    OnRequest = (context, request, destination) =>
                     {
-                        { HeaderNames.Host, new RequestHeaderValueTransform(string.Empty, append: false) }
-                    },
-                    responseHeaderTransforms: new Dictionary<string, ResponseHeaderTransform>(),
-                    responseTrailerTransforms: new Dictionary<string, ResponseHeaderTransform>());
+                        request.Headers.Host = null;
+                        return Task.CompletedTask;
+                    }
+                };
             var requestOptions = new RequestProxyOptions(TimeSpan.FromSeconds(100), null);
 
             app.UseRouting();

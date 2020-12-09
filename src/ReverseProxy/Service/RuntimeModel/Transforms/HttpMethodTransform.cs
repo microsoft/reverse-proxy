@@ -1,8 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
+using System.Net.Http;
 using Microsoft.AspNetCore.Http;
+using Microsoft.ReverseProxy.Service.Proxy;
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
@@ -11,18 +12,18 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         public HttpMethodTransform(string fromMethod, string toMethod)
         {
             FromMethod = GetCanonicalizedValue(fromMethod);
-            ToMethod = GetCanonicalizedValue(toMethod);
+            ToMethod = HttpUtilities.GetHttpMethod(toMethod);
         }
 
-        internal string ToMethod { get; }
+        internal HttpMethod ToMethod { get; }
 
         internal string FromMethod { get; }
 
         public override void Apply(RequestParametersTransformContext context)
         {
-            if (HttpMethodEquals(FromMethod, context.Method))
+            if (HttpMethodEquals(FromMethod, context.Request.Method.Method))
             {
-                context.Method = ToMethod;
+                context.Request.Method = ToMethod;
             }
         }
 
@@ -54,7 +55,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 #if NET5_0
             return HttpMethods.Equals(methodA, methodB);
 #elif NETCOREAPP3_1
-            return object.ReferenceEquals(methodA, methodB) || StringComparer.OrdinalIgnoreCase.Equals(methodA, methodB);
+            return object.ReferenceEquals(methodA, methodB) || System.StringComparer.OrdinalIgnoreCase.Equals(methodA, methodB);
 #else
 #error A target framework was added to the project and needs to be added to this condition.
 #endif
