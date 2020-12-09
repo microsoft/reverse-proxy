@@ -23,7 +23,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             builder.Services.AddSingleton<IPropertyManagementClientWrapper, PropertyManagementClientWrapper>();
             builder.Services.AddSingleton<IServiceManagementClientWrapper, ServiceManagementClientWrapper>();
             builder.Services.AddSingleton<IHealthClientWrapper, HealthClientWrapper>();
-            builder.Services.AddSingleton<IServiceFabricCaller, CachedServiceFabricCaller>();
+            builder.Services.AddSingleton<ICachedServiceFabricCaller, CachedServiceFabricCaller>();
             builder.Services.AddSingleton<IServiceExtensionLabelsProvider, ServiceExtensionLabelsProvider>();
             builder.Services.AddSingleton<IDiscoverer, Discoverer>();
             builder.Services.AddSingleton<IProxyConfigProvider, ServiceFabricConfigProvider>();

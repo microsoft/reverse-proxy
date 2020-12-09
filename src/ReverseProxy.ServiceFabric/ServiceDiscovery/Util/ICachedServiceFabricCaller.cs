@@ -14,7 +14,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
     /// </summary>
     // TODO: think of a better name. Suggestions?
     // TODO: should we make this a singleton? Or make sure it is created just once?
-    internal interface IServiceFabricCaller
+    internal interface ICachedServiceFabricCaller
     {
         /// <summary>
         /// TODO.
@@ -55,5 +55,10 @@ namespace Microsoft.ReverseProxy.ServiceFabric
         /// Reports health on a Service Fabric entity.
         /// </summary>
         void ReportHealth(HealthReport healthReport, HealthReportSendOptions sendOptions);
+
+        /// <summary>
+        /// Cleans up the cache by removing expired entries.
+        /// </summary>
+        void CleanUpExpired();
     }
 }

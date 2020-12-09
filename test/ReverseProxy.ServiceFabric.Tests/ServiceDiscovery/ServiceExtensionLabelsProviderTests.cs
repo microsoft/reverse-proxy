@@ -27,7 +27,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
 
         public ServiceExtensionLabelsProviderTests()
         {
-            Mock<IServiceFabricCaller>()
+            Mock<ICachedServiceFabricCaller>()
                 .Setup(
                     m => m.GetServiceManifestName(
                         ApplicationTypeName,
@@ -36,7 +36,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                         It.IsAny<CancellationToken>()))
                 .ReturnsAsync(() => ServiceManifestName);
 
-            Mock<IServiceFabricCaller>()
+            Mock<ICachedServiceFabricCaller>()
                 .Setup(
                     m => m.GetServiceManifestAsync(
                         ApplicationTypeName,
@@ -45,7 +45,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                         It.IsAny<CancellationToken>()))
                 .ReturnsAsync(() => _rawServiceManifest);
 
-            Mock<IServiceFabricCaller>()
+            Mock<ICachedServiceFabricCaller>()
                 .Setup(
                     m => m.EnumeratePropertiesAsync(
                         It.Is<Uri>(name => name.ToString() == ServiceFabricName),
@@ -482,7 +482,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     { "YARP.EnableDynamicOverrides", "false" },
                 });
 
-            Mock<IServiceFabricCaller>().Verify(m => m.EnumeratePropertiesAsync(It.IsAny<Uri>(), It.IsAny<CancellationToken>()), Times.Never());
+            Mock<ICachedServiceFabricCaller>().Verify(m => m.EnumeratePropertiesAsync(It.IsAny<Uri>(), It.IsAny<CancellationToken>()), Times.Never());
         }
 
         [Fact]
@@ -559,7 +559,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     { "YARP.routes.route1.host", "example.com" },
                 });
 
-            Mock<IServiceFabricCaller>().Verify(m => m.EnumeratePropertiesAsync(It.IsAny<Uri>(), It.IsAny<CancellationToken>()), Times.Never());
+            Mock<ICachedServiceFabricCaller>().Verify(m => m.EnumeratePropertiesAsync(It.IsAny<Uri>(), It.IsAny<CancellationToken>()), Times.Never());
         }
 
         [Fact]

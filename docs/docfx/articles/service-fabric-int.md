@@ -154,7 +154,7 @@ Limitations of the current Service Fabric to YARP configuration model conversion
 ## Architecture
 The detailed process of SF cluster polling and model conversion looks as follows.
 
-`ServiceFabricConfigProvider` invokes `IDiscoverer` to discover the current Service Fabric topology, retrieve its metadata and convert everything to YARP configuration model. `IDiscoverer` calls `IServiceFabricCaller` to fetch the following necessary SF entities from the connected SF cluster: Applications, Services, Partitions, Replicas. Basically, `IServiceFabricCaller` forwards all calls to the Service Fabric API, but it also adds a level of resiliency by caching data returned from succesfull calls which later can be served from the cache should subsequent fetches of the same entities fail. Retrieved SF entities get converted to YARP configuration model as explained futher, but it's worth noting that not all of SF topology configurations are supported as it's explained in the section `Known Limitations`.
+`ServiceFabricConfigProvider` invokes `IDiscoverer` to discover the current Service Fabric topology, retrieve its metadata and convert everything to YARP configuration model. `IDiscoverer` calls `ICachedServiceFabricCaller` to fetch the following necessary SF entities from the connected SF cluster: Applications, Services, Partitions, Replicas. Basically, `ICachedServiceFabricCaller` forwards all calls to the Service Fabric API, but it also adds a level of resiliency by caching data returned from succesfull calls which later can be served from the cache should subsequent fetches of the same entities fail. Retrieved SF entities get converted to YARP configuration model as explained futher, but it's worth noting that not all of SF topology configurations are supported as it's explained in the section `Known Limitations`.
 
 Service Fabric to YARP model conversion starts by enumerating all SF applications. For each application, `IDiscoverer` retrieves all its services and calls `IServiceExtensionLabelsProvider` to fetch all extension labels defined in the service manifests. `IServiceExtensionLabelsProvider` also replaces application parameters references with their actual values if it is enabled for the service by the `YARP.EnableDynamicOverrides` label. At the next step, `IDiscoverer` filters services with enabled YARP integration (`YARP.Enable` label) and calls `LabelsParser` to build YARP's `Clusters`. Then, it begins building `Destinations` by fetching partitions and replicas for each SF service. Partitions are handled as simple replica/instance containers and they don't get converted to any YARP model entities. Replicas and instances are mapped to `Destinations`, but only those which are in `Ready` state are considered. Additionally, there is a control over which stateful service replicas are converted based on their roles as it's specified by `YARP.Backend.ServiceFabric.StatefulReplicaSelectionMode`. By default, all `Primary` and `Active Secondary` replicas are mapped to `Destinations`. A SF replica can expose several endpoints for client requests and health probes, however `IDiscoverer` picks only one of each type to set `Destination`'s `Address` and `Health` properties respectively. This selection logic is controlled by specifying listener names on the two labels `YARP.Backend.ServiceFabric.ListenerName` (for `Destination.Address` endpoint) and `YARP.Backend.HealthCheck.Active.ServiceFabric.ListenerName` (for `Destination.Health` endpoint). If any error is encountered in the conversion process, the given replica gets skipped, but all remaining replicas of the same partition will be considered. Overall, the error handling logic is now quite relaxed and might be tighten up in the future. As the last step of a replica conversion, `IDiscoverer` sends a replica health report to SF cluster. The replica is reported as 'healthy' if the conversion completed successfully, and as 'unhealthy' otherwise.
 
@@ -173,11 +173,11 @@ The data flow is shown on the following diagram:
     (periodically requests SF topology discovery)
                 |
                 V
-           IDiscoverer <--(enumerate all Applications / Services / Partitions / Replicas)--> IServiceFabricCaller <--(cache response)--> FabricClient
+           IDiscoverer <--(enumerate all Applications / Services / Partitions / Replicas)--> ICachedServiceFabricCaller <--(cache response)--> FabricClient
                 |
     (filter YARP-enabled services)
                 V
-           IDiscoverer <--(retrieve extension labels and replace app parameters references)--> IServiceExtensionLabelsProvider <--> IServiceFabricCaller <--(cache response)--> FabricClient
+           IDiscoverer <--(retrieve extension labels and replace app parameters references)--> IServiceExtensionLabelsProvider <--> ICachedServiceFabricCaller <--(cache response)--> FabricClient
                 |
     (convert SF metadata and extension labels into new YARP configuration)
                 |
@@ -187,7 +187,7 @@ The data flow is shown on the following diagram:
     (validate new configuration)
                 |
                 V
-          IConfigValidator --(report 'unhealthy' states for services and replicas with config validation errors)--> IServiceFabricCaller --> FabricClient
+          IConfigValidator --(report 'unhealthy' states for services and replicas with config validation errors)--> ICachedServiceFabricCaller --> FabricClient
                 |
     (assemble a complete YARP configuration)
                 |
