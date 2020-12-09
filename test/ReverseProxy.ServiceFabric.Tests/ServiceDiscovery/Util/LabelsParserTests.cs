@@ -176,12 +176,27 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 { "YARP.Backend.Partitioning.Count", "5" },
                 { "YARP.Backend.Partitioning.KeyExtractor", "Header('x-ms-organization-id')" },
                 { "YARP.Backend.Partitioning.Algorithm", "SHA256" },
-                { "YARP.Backend.HealthCheck.Active.Interval", "5" },
+                { "YARP.Backend.HealthCheck.Active.Interval", "00:00:5" },
             };
 
             var cluster = LabelsParser.BuildCluster(_testServiceName, labels);
 
             cluster.Id.Should().Be(_testServiceName.ToString());
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData(null)]
+        public void BuildCluster_NullTimespan(string value)
+        {
+            var labels = new Dictionary<string, string>()
+            {
+                { "YARP.Backend.HealthCheck.Active.Interval", value },
+            };
+
+            var cluster = LabelsParser.BuildCluster(_testServiceName, labels);
+
+            cluster.HealthCheck.Active.Interval.Should().BeNull();
         }
 
         [Theory]
