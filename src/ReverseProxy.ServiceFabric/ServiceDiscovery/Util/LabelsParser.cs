@@ -35,6 +35,9 @@ namespace Microsoft.ReverseProxy.ServiceFabric
         /// </summary>
         private static readonly Regex _allowedTransformNamesRegex = new Regex(@"^\[\d\d*\]$");
 
+        // Look for route IDs
+        private const string RoutesLabelsPrefix = "YARP.Routes.";
+
         internal static TValue GetLabel<TValue>(Dictionary<string, string> labels, string key, TValue defaultValue)
         {
             if (!labels.TryGetValue(key, out var value))
@@ -43,14 +46,19 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             }
             else
             {
-                try
-                {
-                    return (TValue)TypeDescriptor.GetConverter(typeof(TValue)).ConvertFromString(value);
-                }
-                catch (Exception ex) when (ex is ArgumentException || ex is FormatException || ex is NotSupportedException)
-                {
-                    throw new ConfigException($"Could not convert label {key}='{value}' to type {typeof(TValue).FullName}.", ex);
-                }
+                return ConvertLabelValue<TValue>(key, value);
+            }
+        }
+
+        private static TValue ConvertLabelValue<TValue>(string key, string value)
+        {
+            try
+            {
+                return (TValue)TypeDescriptor.GetConverter(typeof(TValue)).ConvertFromString(value);
+            }
+            catch (Exception ex) when (ex is ArgumentException || ex is FormatException || ex is NotSupportedException)
+            {
+                throw new ConfigException($"Could not convert label {key}='{value}' to type {typeof(TValue).FullName}.", ex);
             }
         }
 
@@ -59,8 +67,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric
         {
             var backendId = GetClusterId(serviceName, labels);
 
-            // Look for route IDs
-            const string RoutesLabelsPrefix = "YARP.Routes.";
             var routesNames = new HashSet<string>();
             foreach (var kvp in labels)
             {
@@ -86,15 +92,17 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             var routes = new List<ProxyRoute>();
             foreach (var routeName in routesNames)
             {
-                var thisRoutePrefix = $"{RoutesLabelsPrefix}{routeName}";
+                string hosts = null;
+                string path = null;
+                int? order = null;
                 var metadata = new Dictionary<string, string>();
                 var headerMatches = new Dictionary<string, RouteHeader>();
                 var transforms = new Dictionary<string, IDictionary<string, string>>();
                 foreach (var kvp in labels)
                 {
-                    if (kvp.Key.StartsWith($"{thisRoutePrefix}.Metadata.", StringComparison.Ordinal))
+                    if (ContainsKey(routeName, "Metadata.", kvp.Key, out var keyNameEnd))
                     {
-                        metadata.Add(kvp.Key.Substring($"{thisRoutePrefix}.Metadata.".Length), kvp.Value);
+                        metadata.Add(kvp.Key.Substring(keyNameEnd), kvp.Value);
                     }
                     else if (kvp.Key.StartsWith($"{thisRoutePrefix}.MatchHeaders.", StringComparison.Ordinal)) 
                     {
@@ -143,9 +151,9 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                             throw new ConfigException($"Invalid header matching property '{propertyName}', only valid values are Name, Values, IsCaseSensitive and Mode.");
                         }
                     }
-                    else if (kvp.Key.StartsWith($"{thisRoutePrefix}.Transforms.", StringComparison.Ordinal)) 
+                    else if (ContainsKey(routeName, "Transforms.", kvp.Key, out keyNameEnd))
                     {
-                        var suffix = kvp.Key.Substring($"{thisRoutePrefix}.Transforms.".Length);
+                        var suffix = kvp.Key.Substring(keyNameEnd);
                         var transformNameLength = suffix.IndexOf('.');
                         if (transformNameLength == -1)
                         {
@@ -157,25 +165,33 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                         {
                             throw new ConfigException($"Invalid transform index '{transformName}', should be transform index wrapped in square brackets.");
                         }
-                        if (!transforms.ContainsKey(transformName)) 
+                        if (!transforms.ContainsKey(transformName))
                         {
                             transforms.Add(transformName, new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase));
                         }
-                        var propertyName = kvp.Key.Substring($"{thisRoutePrefix}.Transforms.{transformName}.".Length);
-                        if (!transforms[transformName].ContainsKey(propertyName)) 
+                        var propertyName = kvp.Key.Substring(keyNameEnd + transformNameLength + 1);
+                        if (!transforms[transformName].ContainsKey(propertyName))
                         {
                             transforms[transformName].Add(propertyName, kvp.Value);
-                        } 
-                        else 
+                        }
+                        else
                         {
                             throw new ConfigException($"A duplicate transformation property '{transformName}.{propertyName}' was found.");
                         }
                     }
+                    else if (ContainsKey(routeName, "Hosts", kvp.Key, out keyNameEnd))
+                    {
+                        hosts = kvp.Value;
+                    }
+                    else if (ContainsKey(routeName, "Path", kvp.Key, out keyNameEnd))
+                    {
+                        path = kvp.Value;
+                    }
+                    else if (ContainsKey(routeName, "Order", kvp.Key, out keyNameEnd))
+                    {
+                        order = ConvertLabelValue<int?>(kvp.Key, kvp.Value);
+                    }
                 }
-                
-
-                labels.TryGetValue($"{thisRoutePrefix}.Hosts", out var hosts);
-                labels.TryGetValue($"{thisRoutePrefix}.Path", out var path);
 
                 var route = new ProxyRoute
                 {
@@ -186,7 +202,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                         Path = path,
                         Headers = headerMatches.Count > 0 ? headerMatches.Select(hm => hm.Value).ToArray() : null
                     },
-                    Order = GetLabel(labels, $"{thisRoutePrefix}.Order", DefaultRouteOrder),
+                    Order = order ?? DefaultRouteOrder,
                     ClusterId = backendId,
                     Metadata = metadata,
                     Transforms = transforms.Count > 0 ? transforms.Select(tr => tr.Value).ToList() : null
@@ -288,6 +304,38 @@ namespace Microsoft.ReverseProxy.ServiceFabric
         private static IReadOnlyList<string> SplitHosts(string hosts)
         {
             return hosts?.Split(',').Select(h => h.Trim()).Where(h => h.Length > 0).ToList();
+        }
+
+        private static bool ContainsKey(string routeName, string expectedKeyName, string actualKey, out int keyNameEnd)
+        {
+            keyNameEnd = -1;
+            var prefixStart = actualKey.IndexOf(RoutesLabelsPrefix, StringComparison.Ordinal);
+            if (prefixStart < 0)
+            {
+                return false;
+            }
+
+            var routeNameStart = actualKey.IndexOf(routeName, prefixStart + RoutesLabelsPrefix.Length, StringComparison.Ordinal);
+            if (routeNameStart < 0)
+            {
+                return false;
+            }
+
+            var routeNameEnd = routeNameStart + routeName.Length;
+            if (actualKey.Length == routeNameEnd || actualKey[routeNameEnd] != '.')
+            {
+                return false;
+            }
+
+            var keyNameStart = actualKey.IndexOf(expectedKeyName, routeNameEnd, StringComparison.Ordinal);
+            if (keyNameStart < 0)
+            {
+                return false;
+            }
+
+            keyNameEnd = keyNameStart + expectedKeyName.Length;
+
+            return true;
         }
     }
 }
