@@ -208,6 +208,13 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 { "YARP.Backend.BackendId", "MyCoolClusterId" },
                 { "YARP.Routes.MyRoute.Hosts", "example.com" },
                 { "YARP.Routes.MyRoute.Order", "2" },
+                { "YARP.Routes.MyRoute.MatchHeaders.[0].Mode", "ExactHeader" },
+                { "YARP.Routes.MyRoute.MatchHeaders.[0].Name", "x-company-key" },
+                { "YARP.Routes.MyRoute.MatchHeaders.[0].Values", "contoso" },
+                { "YARP.Routes.MyRoute.MatchHeaders.[0].IsCaseSensitive", "true" },
+                { "YARP.Routes.MyRoute.MatchHeaders.[1].Mode", "ExactHeader" }, 
+                { "YARP.Routes.MyRoute.MatchHeaders.[1].Name", "x-environment" },
+                { "YARP.Routes.MyRoute.MatchHeaders.[1].Values", "dev, uat" },
                 { "YARP.Routes.MyRoute.Metadata.Foo", "Bar" },
                 { "YARP.Routes.MyRoute.Transforms.[0].ResponseHeader", "X-Foo" },
                 { "YARP.Routes.MyRoute.Transforms.[0].Append", "Bar" },
@@ -227,6 +234,23 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     Match =
                     {
                         Hosts = new[] { "example.com" },
+                        Headers = new List<RouteHeader>
+                        {
+                            new RouteHeader()
+                            {
+                                Mode = HeaderMatchMode.ExactHeader,
+                                Name = "x-company-key",
+                                Values = new string[]{"contoso"},
+                                IsCaseSensitive = true
+                            },
+                            new RouteHeader()
+                            {
+                                Mode = HeaderMatchMode.ExactHeader,
+                                Name = "x-environment",
+                                Values = new string[]{"dev", "uat"},
+                                IsCaseSensitive = false
+                            }
+                        }
                     },
                     Order = 2,
                     ClusterId = "MyCoolClusterId",
@@ -476,11 +500,103 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         }
 
         [Theory]
+        [InlineData("YARP.Routes.MyRoute.MatchHeaders. .Name", "x-header-name")]
+        [InlineData("YARP.Routes.MyRoute.MatchHeaders.string.Name", "x-header-name")]
+        [InlineData("YARP.Routes.MyRoute.MatchHeaders.1.Name", "x-header-name")]
+        public void BuildRoutes_InvalidHeaderMatchIndex_Throws(string invalidKey, string value)
+        {
+            // Arrange
+            var labels = new Dictionary<string, string>()
+            {
+                { "YARP.Backend.BackendId", "MyCoolClusterId" },
+                { "YARP.Routes.MyRoute.Hosts", "example.com" },
+                { "YARP.Routes.MyRoute.Priority", "2" },
+                { "YARP.Routes.MyRoute.Metadata.Foo", "Bar" },
+            };
+            labels[invalidKey] = value;
+
+            // Act
+            Func<List<ProxyRoute>> func = () => LabelsParser.BuildRoutes(_testServiceName, labels);
+
+            // Assert
+            func.Should()
+                .Throw<ConfigException>()
+                .WithMessage($"Invalid header matching index '*', should only contain alphanumerical characters, underscores or hyphens.");
+        }
+
+        [Theory]
+        [InlineData("YARP.Routes.MyRoute.MatchHeaders.[0].UnknownProperty", "some value")]
+        public void BuildRoutes_InvalidHeaderMatchProperty_Throws(string invalidKey, string value)
+        {
+            // Arrange
+            var labels = new Dictionary<string, string>()
+            {
+                { "YARP.Backend.BackendId", "MyCoolClusterId" },
+                { "YARP.Routes.MyRoute.Hosts", "example.com" },
+                { "YARP.Routes.MyRoute.Priority", "2" },
+                { "YARP.Routes.MyRoute.Metadata.Foo", "Bar" },
+            };
+            labels[invalidKey] = value;
+
+            // Act
+            Func<List<ProxyRoute>> func = () => LabelsParser.BuildRoutes(_testServiceName, labels);
+
+            // Assert
+            func.Should()
+                .Throw<ConfigException>()
+                .WithMessage($"Invalid header matching property '*', only valid values are Name, Values, IsCaseSensitive and Mode.");
+        }
+
+        [Theory]
+        [InlineData("YARP.Routes.MyRoute0.MatchHeaders.[0].Values", "apples, oranges, grapes", new string[] {"apples", "oranges", "grapes"})]
+        [InlineData("YARP.Routes.MyRoute0.MatchHeaders.[0].Values", "apples,,oranges,grapes", new string[] {"apples", "", "oranges", "grapes"})]
+        public void BuildRoutes_MatchHeadersWithCSVs_Works(string invalidKey, string value, string[] expected)
+        {
+            // Arrange
+            var labels = new Dictionary<string, string>()
+            {
+                { "YARP.Backend.BackendId", "MyCoolClusterId" },
+                { "YARP.Routes.MyRoute0.Hosts", "example0.com" },
+                { "YARP.Routes.MyRoute0.Metadata.Foo", "bar" },
+                { "YARP.Routes.MyRoute0.MatchHeaders.[0].Name", "x-test-header" },
+                { "YARP.Routes.MyRoute0.MatchHeaders.[0].Mode", "ExactHeader" },
+            };
+            labels[invalidKey] = value;
+
+            // Act
+            var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
+
+            // Assert
+            var expectedRoutes = new List<ProxyRoute>
+            {
+                new ProxyRoute
+                {
+                    RouteId = $"MyCoolClusterId:MyRoute0",
+                    Match =
+                    {
+                        Hosts = new[] { "example0.com" },
+                        Headers = new List<RouteHeader>() {
+                            new RouteHeader(){Name = "x-test-header", Mode = HeaderMatchMode.ExactHeader, Values = expected},
+                        }
+                    },
+                    Metadata = new Dictionary<string, string>(){
+                        { "Foo", "bar"}
+                    },
+                    ClusterId = "MyCoolClusterId",
+                }
+            };
+            routes.Should().BeEquivalentTo(expectedRoutes);
+        }
+
+        [Theory]
         [InlineData("", "")]
         [InlineData("NotEven.TheNamespace", "some value")]
         [InlineData("YARP.", "some value")]
         [InlineData("Routes.", "some value")]
         [InlineData("YARP.Routes.", "some value")]
+        [InlineData("YARP.Routes.MyRoute.MatchHeaders", "some value")]
+        [InlineData("YARP.Routes.MyRoute.MatchHeaders.", "some value")]
+        [InlineData("YARP.Routes.MyRoute...MatchHeaders", "some value")]
         [InlineData("YARP.Routes.MyRoute.Transforms", "some value")]
         [InlineData("YARP.Routes.MyRoute.Transforms.", "some value")]
         [InlineData("YARP.Routes.MyRoute...Transforms", "some value")]

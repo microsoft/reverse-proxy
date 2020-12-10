@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using Microsoft.ReverseProxy.Abstractions;
+using Microsoft.ReverseProxy.Utilities;
 using Microsoft.ReverseProxy.ServiceFabric.Utilities;
 
 namespace Microsoft.ReverseProxy.ServiceFabric
@@ -25,6 +26,11 @@ namespace Microsoft.ReverseProxy.ServiceFabric
         private static readonly Regex _allowedRouteNamesRegex = new Regex("^[a-zA-Z0-9_-]+$");
 
         /// <summary>
+        /// Requires all header match names to follow the .[0]. pattern to simulate indexing in an array
+        /// </summary>
+        private static readonly Regex _allowedHeaderNamesRegex = new Regex(@"^\[\d\d*\]$");
+
+
         /// Requires all transform names to follow the .[0]. pattern to simulate indexing in an array
         /// </summary>
         private static readonly Regex _allowedTransformNamesRegex = new Regex(@"^\[\d\d*\]$");
@@ -82,12 +88,60 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             {
                 var thisRoutePrefix = $"{RoutesLabelsPrefix}{routeName}";
                 var metadata = new Dictionary<string, string>();
+                var headerMatches = new Dictionary<string, RouteHeader>();
                 var transforms = new Dictionary<string, IDictionary<string, string>>();
                 foreach (var kvp in labels)
                 {
                     if (kvp.Key.StartsWith($"{thisRoutePrefix}.Metadata.", StringComparison.Ordinal))
                     {
                         metadata.Add(kvp.Key.Substring($"{thisRoutePrefix}.Metadata.".Length), kvp.Value);
+                    }
+                    else if (kvp.Key.StartsWith($"{thisRoutePrefix}.MatchHeaders.", StringComparison.Ordinal)) 
+                    {
+                        var suffix = kvp.Key.Substring($"{thisRoutePrefix}.MatchHeaders.".Length);
+                        var headerIndexLength = suffix.IndexOf('.');
+                        if (headerIndexLength == -1)
+                        {
+                            // No header encoded, the key is not valid. Throwing would suggest we actually check for all invalid keys, so just ignore.
+                            continue;
+                        }
+                        var headerIndex = suffix.Substring(0, headerIndexLength);
+                        if (!_allowedHeaderNamesRegex.IsMatch(headerIndex))
+                        {
+                            throw new ConfigException($"Invalid header matching index '{headerIndex}', should only contain alphanumerical characters, underscores or hyphens.");
+                        }
+                        if (!headerMatches.ContainsKey(headerIndex)) 
+                        {
+                            headerMatches.Add(headerIndex, new RouteHeader());
+                        }
+
+                        var propertyName = kvp.Key.Substring($"{thisRoutePrefix}.MatchHeaders.{headerIndex}.".Length);
+                        if (propertyName.Equals("Name", StringComparison.Ordinal)) 
+                        {
+                            headerMatches[headerIndex].Name = kvp.Value;
+                        } 
+                        else if (propertyName.Equals("Values", StringComparison.Ordinal)) 
+                        {
+#if NET5_0
+                            headerMatches[headerIndex].Values = kvp.Value.Split(',', StringSplitOptions.TrimEntries);
+#elif NETCOREAPP3_1
+                            headerMatches[headerIndex].Values = kvp.Value.Split(',').Select(val => val.Trim()).ToList();
+#else
+#error A target framework was added to the project and needs to be added to this condition.
+#endif
+                        }
+                        else if (propertyName.Equals("IsCaseSensitive", StringComparison.Ordinal)) 
+                        {
+                            headerMatches[headerIndex].IsCaseSensitive = bool.Parse(kvp.Value);
+                        }
+                        else if (propertyName.Equals("Mode", StringComparison.Ordinal)) 
+                        {
+                            headerMatches[headerIndex].Mode = Enum.Parse<HeaderMatchMode>(kvp.Value);
+                        }
+                        else
+                        {
+                            throw new ConfigException($"Invalid header matching property '{propertyName}', only valid values are Name, Values, IsCaseSensitive and Mode.");
+                        }
                     }
                     else if (kvp.Key.StartsWith($"{thisRoutePrefix}.Transforms.", StringComparison.Ordinal)) 
                     {
@@ -118,6 +172,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                         }
                     }
                 }
+                
 
                 labels.TryGetValue($"{thisRoutePrefix}.Hosts", out var hosts);
                 labels.TryGetValue($"{thisRoutePrefix}.Path", out var path);
@@ -129,6 +184,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                     {
                         Hosts = SplitHosts(hosts),
                         Path = path,
+                        Headers = headerMatches.Count > 0 ? headerMatches.Select(hm => hm.Value).ToArray() : null
                     },
                     Order = GetLabel(labels, $"{thisRoutePrefix}.Order", DefaultRouteOrder),
                     ClusterId = backendId,
