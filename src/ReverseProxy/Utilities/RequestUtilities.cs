@@ -70,7 +70,9 @@ namespace Microsoft.ReverseProxy.Utilities
                 if (!request.Headers.TryAddWithoutValidation(headerName, headerValue))
                 {
                     var added = request.Content?.Headers.TryAddWithoutValidation(headerName, headerValue);
-                    Debug.Assert(added.GetValueOrDefault(), $"A header was dropped; {headerName}: {headerValue}");
+                    // TODO: Log. Today this assert fails for a POST request with Content-Length: 0 header which is valid.
+                    // https://github.com/microsoft/reverse-proxy/issues/618
+                    // Debug.Assert(added.GetValueOrDefault(), $"A header was dropped; {headerName}: {headerValue}");
                 }
             }
             else
@@ -79,7 +81,9 @@ namespace Microsoft.ReverseProxy.Utilities
                 if (!request.Headers.TryAddWithoutValidation(headerName, headerValues))
                 {
                     var added = request.Content?.Headers.TryAddWithoutValidation(headerName, headerValues);
-                    Debug.Assert(added.GetValueOrDefault(), $"A header was dropped; {headerName}: {string.Join(", ", headerValues)}");
+                    // TODO: Log. Today this assert fails for a POST request with Content-Length: 0 header which is valid.
+                    // https://github.com/microsoft/reverse-proxy/issues/618
+                    // Debug.Assert(added.GetValueOrDefault(), $"A header was dropped; {headerName}: {string.Join(", ", headerValues)}");
                 }
             }
         }

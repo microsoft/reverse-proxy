@@ -48,7 +48,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             Assert.IsType<RequestHeaderXForwardedPathBaseTransform>(results.RequestHeaderTransforms["X-Forwarded-PathBase"]);
             Assert.IsType<RequestHeaderXForwardedProtoTransform>(results.RequestHeaderTransforms[ForwardedHeadersDefaults.XForwardedProtoHeaderName]);
 
-            var adaptedResults = transformBuilder.Build(transforms);
+            var adaptedResults = results.AdaptedTransforms;
             Assert.NotNull(adaptedResults);
             Assert.False(adaptedResults.CopyRequestHeaders); // Manual copy
             Assert.NotNull(adaptedResults.OnRequest);
@@ -106,7 +106,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             Assert.Single(results.RequestHeaderTransforms);
             Assert.IsType<RequestHeaderForwardedTransform>(results.RequestHeaderTransforms["Forwarded"]);
 
-            var adaptedResults = transformBuilder.Build(transforms);
+            var adaptedResults = results.AdaptedTransforms;
             Assert.NotNull(adaptedResults);
             Assert.False(adaptedResults.CopyRequestHeaders);
             Assert.NotNull(adaptedResults.OnRequest);
@@ -136,7 +136,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             Assert.Equal(copyRequestHeaders, results.ShouldCopyRequestHeaders);
 
 
-            var adaptedResults = transformBuilder.Build(transforms);
+            var adaptedResults = results.AdaptedTransforms;
             // Only matches the input so long as there are no transforms (including defaults).
             // Always disabled when there are transforms because the copy is managed internally.
             Assert.False(adaptedResults.CopyRequestHeaders);
@@ -214,7 +214,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             Assert.IsType<RequestHeaderValueTransform>(results.RequestHeaderTransforms["heaDerName"]);
             // TODO: How to check Append/Set and the value?
 
-            var adaptedResults = transformBuilder.Build(transforms);
+            var adaptedResults = results.AdaptedTransforms;
             Assert.False(adaptedResults.CopyRequestHeaders);
             Assert.NotNull(adaptedResults.OnRequest);
             Assert.Null(adaptedResults.OnResponse);

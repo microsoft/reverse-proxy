@@ -448,7 +448,11 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         [InlineData("HEAD", "HTTP/1.1", "")]
         [InlineData("POST", "HTTP/1.1", "")]
         [InlineData("POST", "HTTP/1.1", "Content-Length:0")]
+        // https://github.com/microsoft/reverse-proxy/issues/618
+        [InlineData("POST", "HTTP/1.1", "Content-Length:0;Content-Type:text/plain")]
         [InlineData("POST", "HTTP/2", "Content-Length:0")]
+        // https://github.com/microsoft/reverse-proxy/issues/618
+        [InlineData("POST", "HTTP/2", "Content-Length:0;Content-Type:text/plain")]
         [InlineData("PATCH", "HTTP/1.1", "")]
         [InlineData("DELETE", "HTTP/1.1", "")]
         [InlineData("Unknown", "HTTP/1.1", "")]
