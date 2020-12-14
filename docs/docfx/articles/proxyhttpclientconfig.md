@@ -99,9 +99,7 @@ The below example shows 2 samples of HTTP client and request configurations for 
 {
     "Clusters": {
         "cluster1": {
-            "LoadBalancing": {
-                "Mode": "Random"
-            },
+            "LoadBalancingPolicy": "Random",
             "HttpClient": {
                 "SslProtocols": [
                     "Tls11",
