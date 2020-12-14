@@ -309,31 +309,30 @@ namespace Microsoft.ReverseProxy.ServiceFabric
         private static bool ContainsKey(string routeName, string expectedKeyName, string actualKey, out int keyNameEnd)
         {
             keyNameEnd = -1;
-            var prefixStart = actualKey.IndexOf(RoutesLabelsPrefix, StringComparison.Ordinal);
-            if (prefixStart < 0)
+            if (!actualKey.StartsWith(RoutesLabelsPrefix, StringComparison.Ordinal))
             {
                 return false;
             }
 
-            var routeNameStart = actualKey.IndexOf(routeName, prefixStart + RoutesLabelsPrefix.Length, StringComparison.Ordinal);
-            if (routeNameStart < 0)
+            var routeNamePart = actualKey.AsSpan().Slice(RoutesLabelsPrefix.Length);
+            if (!routeNamePart.StartsWith(routeName, StringComparison.Ordinal))
             {
                 return false;
             }
 
-            var routeNameEnd = routeNameStart + routeName.Length;
+            var routeNameEnd = RoutesLabelsPrefix.Length + routeName.Length;
             if (actualKey.Length == routeNameEnd || actualKey[routeNameEnd] != '.')
             {
                 return false;
             }
 
-            var keyNameStart = actualKey.IndexOf(expectedKeyName, routeNameEnd, StringComparison.Ordinal);
-            if (keyNameStart < 0)
+            var keyPart = routeNamePart.Slice(routeName.Length + 1);
+            if (!keyPart.StartsWith(expectedKeyName, StringComparison.Ordinal))
             {
                 return false;
             }
 
-            keyNameEnd = keyNameStart + expectedKeyName.Length;
+            keyNameEnd = routeNameEnd + 1 + expectedKeyName.Length;
 
             return true;
         }
