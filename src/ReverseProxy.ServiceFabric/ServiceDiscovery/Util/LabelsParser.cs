@@ -104,9 +104,9 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                     {
                         metadata.Add(kvp.Key.Substring(keyNameEnd), kvp.Value);
                     }
-                    else if (kvp.Key.StartsWith($"{thisRoutePrefix}.MatchHeaders.", StringComparison.Ordinal)) 
+                    else if (ContainsKey(routeName, "MatchHeaders.", kvp.Key, out keyNameEnd)) 
                     {
-                        var suffix = kvp.Key.Substring($"{thisRoutePrefix}.MatchHeaders.".Length);
+                        var suffix = kvp.Key.Substring(keyNameEnd);
                         var headerIndexLength = suffix.IndexOf('.');
                         if (headerIndexLength == -1)
                         {
@@ -123,7 +123,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                             headerMatches.Add(headerIndex, new RouteHeader());
                         }
 
-                        var propertyName = kvp.Key.Substring($"{thisRoutePrefix}.MatchHeaders.{headerIndex}.".Length);
+                        var propertyName = kvp.Key.Substring(keyNameEnd + headerIndexLength + 1);
                         if (propertyName.Equals("Name", StringComparison.Ordinal)) 
                         {
                             headerMatches[headerIndex].Name = kvp.Value;
