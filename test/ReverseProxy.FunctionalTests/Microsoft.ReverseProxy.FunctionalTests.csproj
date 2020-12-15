@@ -12,13 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\ReverseProxy\Microsoft.ReverseProxy.csproj" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
     <ProjectReference Include="..\..\src\ReverseProxy.TelemetryConsumption\Microsoft.ReverseProxy.Telemetry.Consumption.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\ReverseProxy.Tests.Common\Microsoft.ReverseProxy.Tests.Common.csproj" />
   </ItemGroup>
 

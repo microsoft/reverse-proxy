@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-#if NET5_0
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -12,6 +11,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Sockets;
 using System.Security.Authentication;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,6 +25,8 @@ namespace Microsoft.ReverseProxy
 {
     public class TelemetryConsumptionTests
     {
+        private static readonly AsyncLocal<object> _sharedAsyncLocal = new AsyncLocal<object>();
+
         [Fact]
         public async Task TelemetryConsumptionWorks()
         {
@@ -47,25 +49,30 @@ namespace Microsoft.ReverseProxy
                     });
                     services.AddScoped<IProxyTelemetryConsumer>(services => services.GetRequiredService<TelemetryConsumer>());
                     services.AddScoped<IKestrelTelemetryConsumer>(services => services.GetRequiredService<TelemetryConsumer>());
+#if NET5_0
                     services.AddScoped<IHttpTelemetryConsumer>(services => services.GetRequiredService<TelemetryConsumer>());
                     services.AddScoped<ISocketsTelemetryConsumer>(services => services.GetRequiredService<TelemetryConsumer>());
                     services.AddScoped<INetSecurityTelemetryConsumer>(services => services.GetRequiredService<TelemetryConsumer>());
                     services.AddScoped<INameResolutionTelemetryConsumer>(services => services.GetRequiredService<TelemetryConsumer>());
+#endif
 
                     proxyBuilder.AddTelemetryListeners();
                 },
                 proxyApp => { },
                 useHttpsOnDestination: true);
 
-            var guid = Guid.NewGuid().ToString();
+            object sharedObject = null;
 
             await test.Invoke(async uri =>
             {
-                var httpClient = new HttpClient();
-                await httpClient.GetStringAsync($"{uri}/{guid}");
+                sharedObject = _sharedAsyncLocal.Value;
+                using var httpClient = new HttpClient();
+                await httpClient.GetStringAsync(uri);
             });
 
-            var stages = Assert.Single(consumers, c => c.PathAndQuery != null && c.PathAndQuery.Contains(guid)).Stages;
+            Debug.Assert(sharedObject != null);
+
+            var stages = Assert.Single(consumers, c => ReferenceEquals(sharedObject, c.SharedObject)).Stages;
 
             var expected = new[]
             {
@@ -73,6 +80,7 @@ namespace Microsoft.ReverseProxy
                 "OnProxyInvoke",
                 "OnProxyStart",
                 "OnProxyStage-SendAsyncStart",
+#if NET5_0
                 "OnRequestStart",
                 "OnConnectStart",
                 "OnConnectStop",
@@ -84,6 +92,7 @@ namespace Microsoft.ReverseProxy
                 "OnResponseHeadersStart",
                 "OnResponseHeadersStop",
                 "OnRequestStop",
+#endif
                 "OnProxyStage-SendAsyncStop",
                 "OnProxyStage-ResponseContentTransferStart",
                 "OnContentTransferred",
@@ -101,15 +110,23 @@ namespace Microsoft.ReverseProxy
 
         private sealed class TelemetryConsumer :
             IProxyTelemetryConsumer,
-            IKestrelTelemetryConsumer,
+            IKestrelTelemetryConsumer
+#if NET5_0
+            ,
             IHttpTelemetryConsumer,
             INameResolutionTelemetryConsumer,
             INetSecurityTelemetryConsumer,
             ISocketsTelemetryConsumer
+#endif
         {
-            public readonly List<(string Stage, DateTime Timestamp)> Stages = new(16);
+            public readonly object SharedObject;
 
-            public string PathAndQuery { get; set; }
+            public TelemetryConsumer()
+            {
+                SharedObject = _sharedAsyncLocal.Value = new object();
+            }
+
+            public readonly List<(string Stage, DateTime Timestamp)> Stages = new List<(string, DateTime)>(16);
 
             private void AddStage(string stage, DateTime timestamp)
             {
@@ -126,11 +143,8 @@ namespace Microsoft.ReverseProxy
             public void OnContentTransferring(DateTime timestamp, bool isRequest, long contentLength, long iops, TimeSpan readTime, TimeSpan writeTime) => AddStage(nameof(OnContentTransferring), timestamp);
             public void OnContentTransferred(DateTime timestamp, bool isRequest, long contentLength, long iops, TimeSpan readTime, TimeSpan writeTime, TimeSpan firstReadTime) => AddStage(nameof(OnContentTransferred), timestamp);
             public void OnProxyInvoke(DateTime timestamp, string clusterId, string routeId, string destinationId) => AddStage(nameof(OnProxyInvoke), timestamp);
-            public void OnRequestStart(DateTime timestamp, string scheme, string host, int port, string pathAndQuery, int versionMajor, int versionMinor, HttpVersionPolicy versionPolicy)
-            {
-                AddStage(nameof(OnRequestStart), timestamp);
-                PathAndQuery = pathAndQuery;
-            }
+#if NET5_0
+            public void OnRequestStart(DateTime timestamp, string scheme, string host, int port, string pathAndQuery, int versionMajor, int versionMinor, HttpVersionPolicy versionPolicy) => AddStage(nameof(OnRequestStart), timestamp);
             public void OnRequestStop(DateTime timestamp) => AddStage(nameof(OnRequestStop), timestamp);
             public void OnRequestFailed(DateTime timestamp) => AddStage(nameof(OnRequestFailed), timestamp);
             public void OnConnectionEstablished(DateTime timestamp, int versionMajor, int versionMinor) => AddStage(nameof(OnConnectionEstablished), timestamp);
@@ -152,6 +166,10 @@ namespace Microsoft.ReverseProxy
             public void OnConnectFailed(DateTime timestamp, SocketError error, string exceptionMessage) => AddStage(nameof(OnConnectFailed), timestamp);
             public void OnRequestStart(DateTime timestamp, string connectionId, string requestId, string httpVersion, string path, string method) => AddStage($"{nameof(OnRequestStart)}-Kestrel", timestamp);
             public void OnRequestStop(DateTime timestamp, string connectionId, string requestId, string httpVersion, string path, string method) => AddStage($"{nameof(OnRequestStop)}-Kestrel", timestamp);
+#else
+            public void OnRequestStart(DateTime timestamp, string connectionId, string requestId) => AddStage($"{nameof(OnRequestStart)}-Kestrel", timestamp);
+            public void OnRequestStop(DateTime timestamp, string connectionId, string requestId) => AddStage($"{nameof(OnRequestStop)}-Kestrel", timestamp);
+#endif
         }
 
         [Fact]
@@ -171,11 +189,13 @@ namespace Microsoft.ReverseProxy
                     var services = proxyBuilder.Services;
 
                     services.AddSingleton<IProxyMetricsConsumer>(consumer);
+#if NET5_0
                     services.AddSingleton<IKestrelMetricsConsumer>(consumer);
                     services.AddSingleton<IHttpMetricsConsumer>(consumer);
                     services.AddSingleton<ISocketsMetricsConsumer>(consumer);
                     services.AddSingleton<INetSecurityMetricsConsumer>(consumer);
                     services.AddSingleton<INameResolutionMetricsConsumer>(consumer);
+#endif
 
                     proxyBuilder.AddTelemetryListeners();
                 },
@@ -195,20 +215,26 @@ namespace Microsoft.ReverseProxy
                 catch { }
 
                 await Task.WhenAll(
-                    WaitAsync(() => consumer.ProxyMetrics.LastOrDefault()?.RequestsStarted > 0, nameof(ProxyMetrics)),
+                    WaitAsync(() => consumer.ProxyMetrics.LastOrDefault()?.RequestsStarted > 0, nameof(ProxyMetrics))
+#if NET5_0
+                    ,
                     WaitAsync(() => consumer.KestrelMetrics.LastOrDefault()?.TotalConnections > 0, nameof(KestrelMetrics)),
                     WaitAsync(() => consumer.HttpMetrics.LastOrDefault()?.RequestsStarted > 0, nameof(HttpMetrics)),
                     WaitAsync(() => consumer.SocketsMetrics.LastOrDefault()?.OutgoingConnectionsEstablished > 0, nameof(SocketsMetrics)),
                     WaitAsync(() => consumer.NetSecurityMetrics.LastOrDefault()?.TotalTlsHandshakes > 0, nameof(NetSecurityMetrics)),
-                    WaitAsync(() => consumer.NameResolutionMetrics.LastOrDefault()?.DnsLookupsRequested > 0, nameof(NameResolutionMetrics)));
+                    WaitAsync(() => consumer.NameResolutionMetrics.LastOrDefault()?.DnsLookupsRequested > 0, nameof(NameResolutionMetrics))
+#endif
+                    );
             });
 
             VerifyTimestamp(consumer.ProxyMetrics.Last().Timestamp);
+#if NET5_0
             VerifyTimestamp(consumer.KestrelMetrics.Last().Timestamp);
             VerifyTimestamp(consumer.HttpMetrics.Last().Timestamp);
             VerifyTimestamp(consumer.SocketsMetrics.Last().Timestamp);
             VerifyTimestamp(consumer.NetSecurityMetrics.Last().Timestamp);
             VerifyTimestamp(consumer.NameResolutionMetrics.Last().Timestamp);
+#endif
 
             static void VerifyTimestamp(DateTime timestamp)
             {
@@ -231,27 +257,33 @@ namespace Microsoft.ReverseProxy
         }
 
         private sealed class MetricsConsumer :
-            IProxyMetricsConsumer,
+            IProxyMetricsConsumer
+#if NET5_0
+            ,
             IKestrelMetricsConsumer,
             IHttpMetricsConsumer,
             INameResolutionMetricsConsumer,
             INetSecurityMetricsConsumer,
             ISocketsMetricsConsumer
+#endif
         {
-            public readonly ConcurrentQueue<ProxyMetrics> ProxyMetrics = new();
+            public readonly ConcurrentQueue<ProxyMetrics> ProxyMetrics = new ConcurrentQueue<ProxyMetrics>();
+#if NET5_0
             public readonly ConcurrentQueue<KestrelMetrics> KestrelMetrics = new();
             public readonly ConcurrentQueue<HttpMetrics> HttpMetrics = new();
             public readonly ConcurrentQueue<SocketsMetrics> SocketsMetrics = new();
             public readonly ConcurrentQueue<NetSecurityMetrics> NetSecurityMetrics = new();
             public readonly ConcurrentQueue<NameResolutionMetrics> NameResolutionMetrics = new();
+#endif
 
+            public void OnProxyMetrics(ProxyMetrics oldMetrics, ProxyMetrics newMetrics) => ProxyMetrics.Enqueue(newMetrics);
+#if NET5_0
+            public void OnKestrelMetrics(KestrelMetrics oldMetrics, KestrelMetrics newMetrics) => KestrelMetrics.Enqueue(newMetrics);
             public void OnSocketsMetrics(SocketsMetrics oldMetrics, SocketsMetrics newMetrics) => SocketsMetrics.Enqueue(newMetrics);
             public void OnNetSecurityMetrics(NetSecurityMetrics oldMetrics, NetSecurityMetrics newMetrics) => NetSecurityMetrics.Enqueue(newMetrics);
             public void OnNameResolutionMetrics(NameResolutionMetrics oldMetrics, NameResolutionMetrics newMetrics) => NameResolutionMetrics.Enqueue(newMetrics);
             public void OnHttpMetrics(HttpMetrics oldMetrics, HttpMetrics newMetrics) => HttpMetrics.Enqueue(newMetrics);
-            public void OnKestrelMetrics(KestrelMetrics oldMetrics, KestrelMetrics newMetrics) => KestrelMetrics.Enqueue(newMetrics);
-            public void OnProxyMetrics(ProxyMetrics oldMetrics, ProxyMetrics newMetrics) => ProxyMetrics.Enqueue(newMetrics);
+#endif
         }
     }
 }
-#endif

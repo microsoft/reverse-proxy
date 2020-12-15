@@ -11,10 +11,12 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             builder.AddProxyTelemetryListener();
             builder.AddKestrelTelemetryListener();
+#if NET5_0
             builder.AddHttpTelemetryListener();
             builder.AddNameResolutionTelemetryListener();
             builder.AddNetSecurityTelemetryListener();
             builder.AddSocketsTelemetryListener();
+#endif
             return builder;
         }
 
@@ -32,6 +34,7 @@ namespace Microsoft.Extensions.DependencyInjection
             return builder;
         }
 
+#if NET5_0
         public static IReverseProxyBuilder AddHttpTelemetryListener(this IReverseProxyBuilder builder)
         {
             builder.Services.AddHttpContextAccessor();
@@ -59,5 +62,6 @@ namespace Microsoft.Extensions.DependencyInjection
             builder.Services.AddHostedService<SocketsEventListenerService>();
             return builder;
         }
+#endif
     }
 }

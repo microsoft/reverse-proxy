@@ -15,6 +15,7 @@ namespace Microsoft.ReverseProxy.Telemetry.Consumption
 {
     internal sealed class KestrelEventListenerService : EventListener, IHostedService
     {
+#if NET5_0
         private readonly IServiceProvider _serviceProvider;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
@@ -27,6 +28,14 @@ namespace Microsoft.ReverseProxy.Telemetry.Consumption
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
             _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         }
+#else
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        public KestrelEventListenerService(IHttpContextAccessor httpContextAccessor)
+        {
+            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+        }
+#endif
 
         public Task StartAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
@@ -48,10 +57,12 @@ namespace Microsoft.ReverseProxy.Telemetry.Consumption
 
             if (eventData.EventId < MinEventId || eventData.EventId > MaxEventId)
             {
+#if NET5_0
                 if (eventData.EventId == -1)
                 {
                     OnEventCounters(eventData);
                 }
+#endif
 
                 return;
             }
@@ -71,6 +82,7 @@ namespace Microsoft.ReverseProxy.Telemetry.Consumption
 
             var payload = eventData.Payload;
 
+#if NET5_0
             switch (eventData.EventId)
             {
                 case 3:
@@ -105,8 +117,39 @@ namespace Microsoft.ReverseProxy.Telemetry.Consumption
                     }
                     break;
             }
+#else
+            switch (eventData.EventId)
+            {
+                case 3:
+                    Debug.Assert(eventData.EventName == "RequestStart" && payload.Count == 2);
+                    {
+                        var connectionId = (string)payload[0];
+                        var requestId = (string)payload[1];
+                        do
+                        {
+                            consumers.Current.OnRequestStart(eventData.TimeStamp, connectionId, requestId);
+                        }
+                        while (consumers.MoveNext());
+                    }
+                    break;
+
+                case 4:
+                    Debug.Assert(eventData.EventName == "RequestStop" && payload.Count == 2);
+                    {
+                        var connectionId = (string)payload[0];
+                        var requestId = (string)payload[1];
+                        do
+                        {
+                            consumers.Current.OnRequestStop(eventData.TimeStamp, connectionId, requestId);
+                        }
+                        while (consumers.MoveNext());
+                    }
+                    break;
+            }
+#endif
         }
 
+#if NET5_0
         private void OnEventCounters(EventWrittenEventArgs eventData)
         {
             Debug.Assert(eventData.EventName == "EventCounters" && eventData.Payload.Count == 1);
@@ -189,5 +232,6 @@ namespace Microsoft.ReverseProxy.Telemetry.Consumption
                 }
             }
         }
+#endif
     }
 }
