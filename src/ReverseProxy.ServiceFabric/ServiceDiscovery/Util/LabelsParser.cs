@@ -81,13 +81,13 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                         continue;
                     }
 
-                    var routeNameSegment = suffix.Subsegment(0, routeNameLength);
+                    var routeNameSegment = suffix.Subsegment(0, routeNameLength + 1);
                     if (routesNames.ContainsKey(routeNameSegment))
                     {
                         continue;
                     }
 
-                    var routeName = routeNameSegment.ToString();
+                    var routeName = routeNameSegment.Subsegment(0, routeNameSegment.Length - 1).ToString();
                     if (!_allowedRouteNamesRegex.IsMatch(routeName))
                     {
                         throw new ConfigException($"Invalid route name '{routeName}', should only contain alphanumerical characters, underscores or hyphens.");
@@ -98,7 +98,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
 
             // Build the routes
             var routes = new List<ProxyRoute>();
-            foreach (var routeName in routesNames.Values)
+            foreach (var routeNamePair in routesNames)
             {
                 string hosts = null;
                 string path = null;
@@ -115,11 +115,18 @@ namespace Microsoft.ReverseProxy.ServiceFabric
 
                     var routeLabelKey = kvp.Key.AsSpan().Slice(RoutesLabelsPrefix.Length);
 
-                    if (ContainsKey(routeName, "Metadata.", routeLabelKey, out var keyRemainder))
+                    if (routeLabelKey.Length < routeNamePair.Key.Length || !routeLabelKey.StartsWith(routeNamePair.Key, StringComparison.Ordinal))
+                    {
+                        continue;
+                    }
+
+                    routeLabelKey = routeLabelKey.Slice(routeNamePair.Key.Length);
+
+                    if (ContainsKey("Metadata.", routeLabelKey, out var keyRemainder))
                     {
                         metadata.Add(keyRemainder.ToString(), kvp.Value);
                     }
-                    else if (ContainsKey(routeName, "MatchHeaders.", routeLabelKey, out keyRemainder)) 
+                    else if (ContainsKey("MatchHeaders.", routeLabelKey, out keyRemainder)) 
                     {
                         var headerIndexLength = keyRemainder.IndexOf('.');
                         if (headerIndexLength == -1)
@@ -165,7 +172,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                             throw new ConfigException($"Invalid header matching property '{propertyName.ToString()}', only valid values are Name, Values, IsCaseSensitive and Mode.");
                         }
                     }
-                    else if (ContainsKey(routeName, "Transforms.", routeLabelKey, out keyRemainder))
+                    else if (ContainsKey("Transforms.", routeLabelKey, out keyRemainder))
                     {
                         var transformNameLength = keyRemainder.IndexOf('.');
                         if (transformNameLength == -1)
@@ -192,15 +199,15 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                             throw new ConfigException($"A duplicate transformation property '{transformName}.{propertyName}' was found.");
                         }
                     }
-                    else if (ContainsKey(routeName, "Hosts", routeLabelKey, out _))
+                    else if (ContainsKey("Hosts", routeLabelKey, out _))
                     {
                         hosts = kvp.Value;
                     }
-                    else if (ContainsKey(routeName, "Path", routeLabelKey, out _))
+                    else if (ContainsKey("Path", routeLabelKey, out _))
                     {
                         path = kvp.Value;
                     }
-                    else if (ContainsKey(routeName, "Order", routeLabelKey, out _))
+                    else if (ContainsKey("Order", routeLabelKey, out _))
                     {
                         order = ConvertLabelValue<int?>(kvp.Key, kvp.Value);
                     }
@@ -208,7 +215,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
 
                 var route = new ProxyRoute
                 {
-                    RouteId = $"{Uri.EscapeDataString(backendId)}:{Uri.EscapeDataString(routeName)}",
+                    RouteId = $"{Uri.EscapeDataString(backendId)}:{Uri.EscapeDataString(routeNamePair.Value)}",
                     Match =
                     {
                         Hosts = SplitHosts(hosts),
@@ -319,28 +326,16 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             return hosts?.Split(',').Select(h => h.Trim()).Where(h => h.Length > 0).ToList();
         }
 
-        private static bool ContainsKey(string routeName, string expectedKeyName, ReadOnlySpan<char> actualKey, out ReadOnlySpan<char> keyRemainder)
+        private static bool ContainsKey(string expectedKeyName, ReadOnlySpan<char> actualKey, out ReadOnlySpan<char> keyRemainder)
         {
             keyRemainder = default;
             
-            if (!actualKey.StartsWith(routeName, StringComparison.Ordinal))
+            if (!actualKey.StartsWith(expectedKeyName, StringComparison.Ordinal))
             {
                 return false;
             }
 
-            var keyPart = actualKey.Slice(routeName.Length);
-            if (!keyPart.StartsWith(".", StringComparison.Ordinal))
-            {
-                return false;
-            }
-
-            keyPart = keyPart.Slice(1);
-            if (!keyPart.StartsWith(expectedKeyName, StringComparison.Ordinal))
-            {
-                return false;
-            }
-
-            keyRemainder = keyPart.Slice(expectedKeyName.Length);
+            keyRemainder = actualKey.Slice(expectedKeyName.Length);
             return true;
         }
     }
