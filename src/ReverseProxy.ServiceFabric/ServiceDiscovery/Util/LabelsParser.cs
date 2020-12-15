@@ -10,6 +10,7 @@ using System.Text.RegularExpressions;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Utilities;
 using Microsoft.ReverseProxy.ServiceFabric.Utilities;
+using Microsoft.Extensions.Primitives;
 
 namespace Microsoft.ReverseProxy.ServiceFabric
 {
@@ -67,30 +68,37 @@ namespace Microsoft.ReverseProxy.ServiceFabric
         {
             var backendId = GetClusterId(serviceName, labels);
 
-            var routesNames = new HashSet<string>();
+            var routesNames = new Dictionary<StringSegment, string>();
             foreach (var kvp in labels)
             {
                 if (kvp.Key.Length > RoutesLabelsPrefix.Length && kvp.Key.StartsWith(RoutesLabelsPrefix, StringComparison.Ordinal))
                 {
-                    var suffix = kvp.Key.Substring(RoutesLabelsPrefix.Length);
+                    var suffix = new StringSegment(kvp.Key, RoutesLabelsPrefix.Length, kvp.Key.Length - RoutesLabelsPrefix.Length);
                     var routeNameLength = suffix.IndexOf('.');
                     if (routeNameLength == -1)
                     {
                         // No route name encoded, the key is not valid. Throwing would suggest we actually check for all invalid keys, so just ignore.
                         continue;
                     }
-                    var routeName = suffix.Substring(0, routeNameLength);
+
+                    var routeNameSegment = suffix.Subsegment(0, routeNameLength);
+                    if (routesNames.ContainsKey(routeNameSegment))
+                    {
+                        continue;
+                    }
+
+                    var routeName = routeNameSegment.ToString();
                     if (!_allowedRouteNamesRegex.IsMatch(routeName))
                     {
                         throw new ConfigException($"Invalid route name '{routeName}', should only contain alphanumerical characters, underscores or hyphens.");
                     }
-                    routesNames.Add(routeName);
+                    routesNames.Add(routeNameSegment, routeName);
                 }
             }
 
             // Build the routes
             var routes = new List<ProxyRoute>();
-            foreach (var routeName in routesNames)
+            foreach (var routeName in routesNames.Values)
             {
                 string hosts = null;
                 string path = null;
@@ -100,20 +108,26 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                 var transforms = new Dictionary<string, IDictionary<string, string>>();
                 foreach (var kvp in labels)
                 {
-                    if (ContainsKey(routeName, "Metadata.", kvp.Key, out var keyNameEnd))
+                    if (!kvp.Key.StartsWith(RoutesLabelsPrefix, StringComparison.Ordinal))
                     {
-                        metadata.Add(kvp.Key.Substring(keyNameEnd), kvp.Value);
+                        continue;
                     }
-                    else if (ContainsKey(routeName, "MatchHeaders.", kvp.Key, out keyNameEnd)) 
+
+                    var routeLabelKey = kvp.Key.AsSpan().Slice(RoutesLabelsPrefix.Length);
+
+                    if (ContainsKey(routeName, "Metadata.", routeLabelKey, out var keyRemainder))
                     {
-                        var suffix = kvp.Key.Substring(keyNameEnd);
-                        var headerIndexLength = suffix.IndexOf('.');
+                        metadata.Add(keyRemainder.ToString(), kvp.Value);
+                    }
+                    else if (ContainsKey(routeName, "MatchHeaders.", routeLabelKey, out keyRemainder)) 
+                    {
+                        var headerIndexLength = keyRemainder.IndexOf('.');
                         if (headerIndexLength == -1)
                         {
                             // No header encoded, the key is not valid. Throwing would suggest we actually check for all invalid keys, so just ignore.
                             continue;
                         }
-                        var headerIndex = suffix.Substring(0, headerIndexLength);
+                        var headerIndex = keyRemainder.Slice(0, headerIndexLength).ToString();
                         if (!_allowedHeaderNamesRegex.IsMatch(headerIndex))
                         {
                             throw new ConfigException($"Invalid header matching index '{headerIndex}', should only contain alphanumerical characters, underscores or hyphens.");
@@ -123,7 +137,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                             headerMatches.Add(headerIndex, new RouteHeader());
                         }
 
-                        var propertyName = kvp.Key.Substring(keyNameEnd + headerIndexLength + 1);
+                        var propertyName = keyRemainder.Slice(headerIndexLength + 1);
                         if (propertyName.Equals("Name", StringComparison.Ordinal)) 
                         {
                             headerMatches[headerIndex].Name = kvp.Value;
@@ -148,19 +162,18 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                         }
                         else
                         {
-                            throw new ConfigException($"Invalid header matching property '{propertyName}', only valid values are Name, Values, IsCaseSensitive and Mode.");
+                            throw new ConfigException($"Invalid header matching property '{propertyName.ToString()}', only valid values are Name, Values, IsCaseSensitive and Mode.");
                         }
                     }
-                    else if (ContainsKey(routeName, "Transforms.", kvp.Key, out keyNameEnd))
+                    else if (ContainsKey(routeName, "Transforms.", routeLabelKey, out keyRemainder))
                     {
-                        var suffix = kvp.Key.Substring(keyNameEnd);
-                        var transformNameLength = suffix.IndexOf('.');
+                        var transformNameLength = keyRemainder.IndexOf('.');
                         if (transformNameLength == -1)
                         {
                             // No transform index encoded, the key is not valid. Throwing would suggest we actually check for all invalid keys, so just ignore.
                             continue;
                         }
-                        var transformName = suffix.Substring(0, transformNameLength);
+                        var transformName = keyRemainder.Slice(0, transformNameLength).ToString();
                         if (!_allowedTransformNamesRegex.IsMatch(transformName))
                         {
                             throw new ConfigException($"Invalid transform index '{transformName}', should be transform index wrapped in square brackets.");
@@ -169,7 +182,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                         {
                             transforms.Add(transformName, new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase));
                         }
-                        var propertyName = kvp.Key.Substring(keyNameEnd + transformNameLength + 1);
+                        var propertyName = keyRemainder.Slice(transformNameLength + 1).ToString();
                         if (!transforms[transformName].ContainsKey(propertyName))
                         {
                             transforms[transformName].Add(propertyName, kvp.Value);
@@ -179,15 +192,15 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                             throw new ConfigException($"A duplicate transformation property '{transformName}.{propertyName}' was found.");
                         }
                     }
-                    else if (ContainsKey(routeName, "Hosts", kvp.Key, out keyNameEnd))
+                    else if (ContainsKey(routeName, "Hosts", routeLabelKey, out _))
                     {
                         hosts = kvp.Value;
                     }
-                    else if (ContainsKey(routeName, "Path", kvp.Key, out keyNameEnd))
+                    else if (ContainsKey(routeName, "Path", routeLabelKey, out _))
                     {
                         path = kvp.Value;
                     }
-                    else if (ContainsKey(routeName, "Order", kvp.Key, out keyNameEnd))
+                    else if (ContainsKey(routeName, "Order", routeLabelKey, out _))
                     {
                         order = ConvertLabelValue<int?>(kvp.Key, kvp.Value);
                     }
@@ -306,34 +319,28 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             return hosts?.Split(',').Select(h => h.Trim()).Where(h => h.Length > 0).ToList();
         }
 
-        private static bool ContainsKey(string routeName, string expectedKeyName, string actualKey, out int keyNameEnd)
+        private static bool ContainsKey(string routeName, string expectedKeyName, ReadOnlySpan<char> actualKey, out ReadOnlySpan<char> keyRemainder)
         {
-            keyNameEnd = -1;
-            if (!actualKey.StartsWith(RoutesLabelsPrefix, StringComparison.Ordinal))
+            keyRemainder = default;
+            
+            if (!actualKey.StartsWith(routeName, StringComparison.Ordinal))
             {
                 return false;
             }
 
-            var routeNamePart = actualKey.AsSpan().Slice(RoutesLabelsPrefix.Length);
-            if (!routeNamePart.StartsWith(routeName, StringComparison.Ordinal))
+            var keyPart = actualKey.Slice(routeName.Length);
+            if (!keyPart.StartsWith(".", StringComparison.Ordinal))
             {
                 return false;
             }
 
-            var routeNameEnd = RoutesLabelsPrefix.Length + routeName.Length;
-            if (actualKey.Length == routeNameEnd || actualKey[routeNameEnd] != '.')
-            {
-                return false;
-            }
-
-            var keyPart = routeNamePart.Slice(routeName.Length + 1);
+            keyPart = keyPart.Slice(1);
             if (!keyPart.StartsWith(expectedKeyName, StringComparison.Ordinal))
             {
                 return false;
             }
 
-            keyNameEnd = routeNameEnd + 1 + expectedKeyName.Length;
-
+            keyRemainder = keyPart.Slice(expectedKeyName.Length);
             return true;
         }
     }
