@@ -40,7 +40,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             Provide<ILogger<Discoverer>>(new XunitLogger<Discoverer>(testOutputHelper));
 
             // Fake health report client
-            Mock<IServiceFabricCaller>()
+            Mock<ICachedServiceFabricCaller>()
                 .Setup(
                     m => m.ReportHealth(It.IsAny<HealthReport>(), It.IsAny<HealthReportSendOptions>())) // TODO: should also check for send options
                     .Callback((HealthReport report, HealthReportSendOptions sendOptions) => _healthReports.Add(report));
@@ -604,7 +604,11 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 Assert.True(false, "The scenario options for the test are not set.");
             }
             var worker = Create<Discoverer>();
-            return await worker.DiscoverAsync(CancellationToken.None);
+            var result = await worker.DiscoverAsync(CancellationToken.None);
+
+            Mock<ICachedServiceFabricCaller>().Verify(c => c.CleanUpExpired(), Times.Once);
+
+            return result;
         }
 
         // Assertion helpers
@@ -712,25 +716,25 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         }
         private void Mock_AppsResponse(params ApplicationWrapper[] apps)
         {
-            Mock<IServiceFabricCaller>()
+            Mock<ICachedServiceFabricCaller>()
                 .Setup(m => m.GetApplicationListAsync(It.IsAny<CancellationToken>()))
                 .ReturnsAsync(apps.ToList());
         }
         private void Mock_ServicesResponse(Uri applicationName, params ServiceWrapper[] services)
         {
-            Mock<IServiceFabricCaller>()
+            Mock<ICachedServiceFabricCaller>()
                 .Setup(m => m.GetServiceListAsync(applicationName, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(services.ToList());
         }
         private void Mock_PartitionsResponse(Uri serviceName, params Guid[] partitionIds)
         {
-            Mock<IServiceFabricCaller>()
+            Mock<ICachedServiceFabricCaller>()
                 .Setup(m => m.GetPartitionListAsync(serviceName, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(partitionIds.ToList());
         }
         private void Mock_ReplicasResponse(Guid partitionId, params ReplicaWrapper[] replicas)
         {
-            Mock<IServiceFabricCaller>()
+            Mock<ICachedServiceFabricCaller>()
                 .Setup(m => m.GetReplicaListAsync(partitionId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(replicas.ToList());
         }

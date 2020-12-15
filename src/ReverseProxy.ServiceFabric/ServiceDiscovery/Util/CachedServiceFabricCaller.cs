@@ -12,7 +12,7 @@ using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.ServiceFabric
 {
-    internal sealed class CachedServiceFabricCaller : IServiceFabricCaller
+    internal sealed class CachedServiceFabricCaller : ICachedServiceFabricCaller
     {
         public static readonly TimeSpan CacheExpirationOffset = TimeSpan.FromMinutes(30);
         private static readonly TimeSpan _defaultTimeout = TimeSpan.FromSeconds(60);
@@ -148,6 +148,17 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             Log.ReportHealth(_logger, healthReport.Kind, healthReport.HealthInformation.HealthState, healthReport.GetType().FullName, serviceName);
 
             _healthClientWrapper.ReportHealth(healthReport, sendOptions);
+        }
+
+        public void CleanUpExpired()
+        {
+            _applicationListCache.Cleanup();
+            _serviceListCache.Cleanup();
+            _partitionListCache.Cleanup();
+            _replicaListCache.Cleanup();
+            _serviceManifestCache.Cleanup();
+            _serviceManifestNameCache.Cleanup();
+            _propertiesCache.Cleanup();
         }
 
         private async Task<T> TryWithCacheFallbackAsync<T>(string operationName, Func<Task<T>> func, Cache<T> cache, string key, CancellationToken cancellation)
