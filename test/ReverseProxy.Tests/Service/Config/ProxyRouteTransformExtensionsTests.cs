@@ -294,7 +294,7 @@ namespace Microsoft.ReverseProxy.Service.Config
 
             var requestTransform = Assert.Single(transform.RequestTransforms);
             var httpMethodTransform = Assert.IsType<HttpMethodTransform>(requestTransform);
-            Assert.Equal(HttpMethods.Put, httpMethodTransform.FromMethod);
+            Assert.Equal(HttpMethod.Put, httpMethodTransform.FromMethod);
             Assert.Equal(HttpMethod.Post, httpMethodTransform.ToMethod);
         }
 

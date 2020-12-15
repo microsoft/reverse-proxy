@@ -28,7 +28,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         {
             if (context is null)
             {
-                throw new System.ArgumentNullException(nameof(context));
+                throw new ArgumentNullException(nameof(context));
             }
 
             if (Append)
