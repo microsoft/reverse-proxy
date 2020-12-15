@@ -332,14 +332,16 @@ namespace Microsoft.ReverseProxy.Service.Management
 
             foreach (var newCluster in newClusters)
             {
-                var clusterChanged = false;
                 desiredClusters.Add(newCluster.Id);
 
                 _clusterManager.GetOrCreateItem(
                     itemId: newCluster.Id,
                     setupAction: currentCluster =>
                     {
-                        clusterChanged = UpdateRuntimeDestinations(newCluster.Destinations, currentCluster.DestinationManager);
+                        // We intentionally do not consider destination changes when updating the cluster Revision.
+                        // Revision is used to rebuild routing endpoints which should be unrelated to destinations,
+                        // and destinations are the most likely to change.
+                        UpdateRuntimeDestinations(newCluster.Destinations, currentCluster.DestinationManager);
 
                         var currentClusterConfig = currentCluster.Config;
                         var newClusterHttpClientOptions = ConvertProxyHttpClientOptions(newCluster.HttpClient);
@@ -386,7 +388,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                         if (currentClusterConfig == null ||
                             currentClusterConfig.HasConfigChanged(newClusterConfig))
                         {
-                            clusterChanged = true;
+                            currentCluster.Revision++;
                             if (currentClusterConfig == null)
                             {
                                 Log.ClusterAdded(_logger, newCluster.Id);
@@ -398,11 +400,6 @@ namespace Microsoft.ReverseProxy.Service.Management
 
                             // Config changed, so update runtime cluster
                             currentCluster.Config = newClusterConfig;
-                        }
-
-                        if (clusterChanged)
-                        {
-                            currentCluster.Revision++;
                         }
 
                         currentCluster.ForceUpdateDynamicState();
@@ -425,10 +422,9 @@ namespace Microsoft.ReverseProxy.Service.Management
             }
         }
 
-        private bool UpdateRuntimeDestinations(IDictionary<string, Destination> newDestinations, IDestinationManager destinationManager)
+        private void UpdateRuntimeDestinations(IDictionary<string, Destination> newDestinations, IDestinationManager destinationManager)
         {
             var desiredDestinations = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            var changed = false;
 
             foreach (var newDestination in newDestinations)
             {
@@ -440,8 +436,6 @@ namespace Microsoft.ReverseProxy.Service.Management
                         var destinationConfig = destination.Config;
                         if (destinationConfig?.Address != newDestination.Value.Address || destinationConfig?.Health != newDestination.Value.Health)
                         {
-                            changed = true;
-
                             if (destinationConfig == null)
                             {
                                 Log.DestinationAdded(_logger, newDestination.Key);
@@ -459,8 +453,6 @@ namespace Microsoft.ReverseProxy.Service.Management
             {
                 if (!desiredDestinations.Contains(existingDestination.DestinationId))
                 {
-                    changed = true;
-
                     // NOTE 1: This is safe to do within the `foreach` loop
                     // because `IDestinationManager.GetItems` returns a copy of the list of destinations.
                     //
@@ -471,8 +463,6 @@ namespace Microsoft.ReverseProxy.Service.Management
                     destinationManager.TryRemoveItem(existingDestination.DestinationId);
                 }
             }
-
-            return changed;
         }
 
         private bool UpdateRuntimeRoutes(IList<ProxyRoute> routes)
