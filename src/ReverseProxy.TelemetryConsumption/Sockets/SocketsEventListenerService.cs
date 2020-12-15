@@ -44,7 +44,10 @@ namespace Microsoft.ReverseProxy.Telemetry.Consumption
 
         protected override void OnEventWritten(EventWrittenEventArgs eventData)
         {
-            if (eventData.EventId < 1)
+            const int MinEventId = 1;
+            const int MaxEventId = 3;
+
+            if (eventData.EventId < MinEventId || eventData.EventId > MaxEventId)
             {
                 if (eventData.EventId == -1)
                 {
