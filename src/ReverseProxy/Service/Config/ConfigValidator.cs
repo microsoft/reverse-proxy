@@ -16,6 +16,7 @@ using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Microsoft.ReverseProxy.Abstractions.RouteDiscovery.Contract;
 using Microsoft.ReverseProxy.Service.Config;
 using Microsoft.ReverseProxy.Service.HealthChecks;
+using Microsoft.ReverseProxy.Service.LoadBalancing;
 using Microsoft.ReverseProxy.Service.SessionAffinity;
 using Microsoft.ReverseProxy.Utilities;
 using CorsConstants = Microsoft.ReverseProxy.Abstractions.RouteDiscovery.Contract.CorsConstants;
@@ -56,6 +57,7 @@ namespace Microsoft.ReverseProxy.Service
         private readonly ITransformBuilder _transformBuilder;
         private readonly IAuthorizationPolicyProvider _authorizationPolicyProvider;
         private readonly ICorsPolicyProvider _corsPolicyProvider;
+        private readonly IDictionary<string, ILoadBalancingPolicy> _loadBalancingPolicies;
         private readonly IDictionary<string, ISessionAffinityProvider> _sessionAffinityProviders;
         private readonly IDictionary<string, IAffinityFailurePolicy> _affinityFailurePolicies;
         private readonly IDictionary<string, IActiveHealthCheckPolicy> _activeHealthCheckPolicies;
@@ -65,6 +67,7 @@ namespace Microsoft.ReverseProxy.Service
         public ConfigValidator(ITransformBuilder transformBuilder,
             IAuthorizationPolicyProvider authorizationPolicyProvider,
             ICorsPolicyProvider corsPolicyProvider,
+            IEnumerable<ILoadBalancingPolicy> loadBalancingPolicies,
             IEnumerable<ISessionAffinityProvider> sessionAffinityProviders,
             IEnumerable<IAffinityFailurePolicy> affinityFailurePolicies,
             IEnumerable<IActiveHealthCheckPolicy> activeHealthCheckPolicies,
@@ -73,6 +76,7 @@ namespace Microsoft.ReverseProxy.Service
             _transformBuilder = transformBuilder ?? throw new ArgumentNullException(nameof(transformBuilder));
             _authorizationPolicyProvider = authorizationPolicyProvider ?? throw new ArgumentNullException(nameof(authorizationPolicyProvider));
             _corsPolicyProvider = corsPolicyProvider ?? throw new ArgumentNullException(nameof(corsPolicyProvider));
+            _loadBalancingPolicies = loadBalancingPolicies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(loadBalancingPolicies));
             _sessionAffinityProviders = sessionAffinityProviders?.ToDictionaryByUniqueId(p => p.Mode) ?? throw new ArgumentNullException(nameof(sessionAffinityProviders));
             _affinityFailurePolicies = affinityFailurePolicies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(affinityFailurePolicies));
             _activeHealthCheckPolicies = activeHealthCheckPolicies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(activeHealthCheckPolicies));
@@ -117,6 +121,7 @@ namespace Microsoft.ReverseProxy.Service
                 errors.Add(new ArgumentException("Missing Cluster Id."));
             }
 
+            ValidateLoadBalancing(errors, cluster);
             ValidateSessionAffinity(errors, cluster);
             ValidateProxyHttpClient(errors, cluster);
             ValidateProxyHttpRequest(errors, cluster);
@@ -274,6 +279,21 @@ namespace Microsoft.ReverseProxy.Service
             catch (Exception ex)
             {
                 errors.Add(new ArgumentException($"Unable to retrieve the CORS policy '{corsPolicyName}' for route '{routeId}'.", ex));
+            }
+        }
+
+        private void ValidateLoadBalancing(IList<Exception> errors, Cluster cluster)
+        {
+            var loadBalancingPolicy = cluster.LoadBalancingPolicy;
+            if (string.IsNullOrEmpty(loadBalancingPolicy))
+            {
+                // The default.
+                loadBalancingPolicy = LoadBalancingPolicies.PowerOfTwoChoices;
+            }
+
+            if (!_loadBalancingPolicies.ContainsKey(loadBalancingPolicy))
+            {
+                errors.Add(new ArgumentException($"No matching {nameof(ILoadBalancingPolicy)} found for the load balancing policy '{loadBalancingPolicy}' set on the cluster '{cluster.Id}'."));
             }
         }
 

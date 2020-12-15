@@ -221,7 +221,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric
 
             var clusterId = GetClusterId(serviceName, labels);
 
-            var loadBalancingModeLabel = GetLabel<string>(labels, "YARP.Backend.LoadBalancing.Mode", null);
             var versionLabel = GetLabel<string>(labels, "YARP.Backend.HttpRequest.Version", null);
 #if NET
             var versionPolicyLabel = GetLabel<string>(labels, "YARP.Backend.HttpRequest.VersionPolicy", null);
@@ -229,9 +228,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             var cluster = new Cluster
             {
                 Id = clusterId,
-                LoadBalancing = !string.IsNullOrEmpty(loadBalancingModeLabel)
-                    ? new LoadBalancingOptions { Mode = (LoadBalancingMode)Enum.Parse(typeof(LoadBalancingMode), loadBalancingModeLabel) }
-                    : null,
+                LoadBalancingPolicy = GetLabel<string>(labels, "YARP.Backend.LoadBalancingPolicy", null),
                 SessionAffinity = new SessionAffinityOptions
                 {
                     Enabled = GetLabel(labels, "YARP.Backend.SessionAffinity.Enabled", false),

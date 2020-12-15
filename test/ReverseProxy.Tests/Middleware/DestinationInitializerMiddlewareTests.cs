@@ -83,7 +83,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             cluster1.Config = new ClusterConfig(
                 new Cluster(),
                 new ClusterHealthCheckOptions(default, new ClusterActiveHealthCheckOptions(enabled: true, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan, "Any5xxResponse", "")),
-                new ClusterLoadBalancingOptions(),
+                loadBalancingPolicy: null,
                 new ClusterSessionAffinityOptions(),
                 httpClient,
                 new ClusterProxyHttpClientOptions(),

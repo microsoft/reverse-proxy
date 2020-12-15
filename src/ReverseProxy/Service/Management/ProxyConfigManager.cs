@@ -4,8 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -305,8 +303,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                                         timeout: newCluster.HealthCheck?.Active?.Timeout,
                                         policy: newCluster.HealthCheck?.Active?.Policy,
                                         path: newCluster.HealthCheck?.Active?.Path ?? string.Empty)),
-                                new ClusterLoadBalancingOptions(
-                                    mode: newCluster.LoadBalancing?.Mode ?? default),
+                                loadBalancingPolicy: newCluster.LoadBalancingPolicy,
                                 new ClusterSessionAffinityOptions(
                                     enabled: newCluster.SessionAffinity?.Enabled ?? false,
                                     mode: newCluster.SessionAffinity?.Mode,

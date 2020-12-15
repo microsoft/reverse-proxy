@@ -15,6 +15,7 @@ using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.ReverseProxy.Abstractions;
+using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Microsoft.ReverseProxy.Service;
 using Microsoft.ReverseProxy.Utilities.Tests;
 using Moq;
@@ -72,7 +73,7 @@ namespace Microsoft.ReverseProxy.Configuration
                                 Path = "healthCheckPath"
                             }
                         },
-                        LoadBalancing = new LoadBalancingOptions { Mode =  LoadBalancingMode.Random },
+                        LoadBalancingPolicy = LoadBalancingPolicies.Random,
                         SessionAffinity = new SessionAffinityOptions
                         {
                             Enabled = true,
@@ -107,7 +108,7 @@ namespace Microsoft.ReverseProxy.Configuration
                             { "destinationC", new Destination { Address = "https://localhost:10001/destC" } },
                             { "destinationD", new Destination { Address = "https://localhost:10000/destB" } }
                         },
-                        LoadBalancing = new LoadBalancingOptions { Mode = LoadBalancingMode.RoundRobin }
+                        LoadBalancingPolicy = LoadBalancingPolicies.RoundRobin
                     }
                 }
             },
@@ -171,9 +172,7 @@ namespace Microsoft.ReverseProxy.Configuration
 {
     ""Clusters"": {
         ""cluster1"": {
-            ""LoadBalancing"": {
-                ""Mode"": ""Random""
-            },
+            ""LoadBalancingPolicy"": ""Random"",
             ""SessionAffinity"": {
                 ""Enabled"": true,
                 ""Mode"": ""Cookie"",
@@ -247,9 +246,7 @@ namespace Microsoft.ReverseProxy.Configuration
             ""CircuitBreaker"": null,
             ""Quota"": null,
             ""Partitioning"": null,
-            ""LoadBalancing"": {
-                ""Mode"": ""RoundRobin""
-            },
+            ""LoadBalancingPolicy"": ""RoundRobin"",
             ""SessionAffinity"": null,
             ""HealthCheck"": null,
             ""HttpClient"": null,
@@ -590,7 +587,7 @@ namespace Microsoft.ReverseProxy.Configuration
             Assert.Equal(cluster1.HealthCheck.Active.Timeout, abstractCluster1.HealthCheck.Active.Timeout);
             Assert.Equal(cluster1.HealthCheck.Active.Policy, abstractCluster1.HealthCheck.Active.Policy);
             Assert.Equal(cluster1.HealthCheck.Active.Path, abstractCluster1.HealthCheck.Active.Path);
-            Assert.Equal(LoadBalancingMode.Random, abstractCluster1.LoadBalancing.Mode);
+            Assert.Equal(LoadBalancingPolicies.Random, abstractCluster1.LoadBalancingPolicy);
             Assert.Equal(cluster1.SessionAffinity.Enabled, abstractCluster1.SessionAffinity.Enabled);
             Assert.Equal(cluster1.SessionAffinity.FailurePolicy, abstractCluster1.SessionAffinity.FailurePolicy);
             Assert.Equal(cluster1.SessionAffinity.Mode, abstractCluster1.SessionAffinity.Mode);
@@ -614,7 +611,7 @@ namespace Microsoft.ReverseProxy.Configuration
             Assert.Equal(cluster2.Destinations["destinationC"].Metadata, abstractCluster2.Destinations["destinationC"].Metadata);
             Assert.Equal(cluster2.Destinations["destinationD"].Address, abstractCluster2.Destinations["destinationD"].Address);
             Assert.Equal(cluster2.Destinations["destinationD"].Metadata, abstractCluster2.Destinations["destinationD"].Metadata);
-            Assert.Equal(LoadBalancingMode.RoundRobin, abstractCluster2.LoadBalancing.Mode);
+            Assert.Equal(LoadBalancingPolicies.RoundRobin, abstractCluster2.LoadBalancingPolicy);
 
             Assert.Equal(2, abstractConfig.Routes.Count);
 
