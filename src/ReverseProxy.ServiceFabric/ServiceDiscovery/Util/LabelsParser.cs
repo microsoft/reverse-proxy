@@ -8,8 +8,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Utilities;
-using Microsoft.ReverseProxy.ServiceFabric.Utilities;
 using Microsoft.Extensions.Primitives;
 
 namespace Microsoft.ReverseProxy.ServiceFabric
@@ -20,10 +18,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric
     // TODO: this is probably something that can be used in other integration modules apart from Service Fabric. Consider extracting to a general class.
     internal static class LabelsParser
     {
-        // TODO: decide which labels are needed and which default table (and to what values)
-        // Also probably move these defaults to the corresponding config entities.
-        internal static readonly int? DefaultRouteOrder = null;
-
         private static readonly Regex _allowedRouteNamesRegex = new Regex("^[a-zA-Z0-9_-]+$");
 
         /// <summary>
@@ -73,7 +67,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             {
                 if (kvp.Key.Length > RoutesLabelsPrefix.Length && kvp.Key.StartsWith(RoutesLabelsPrefix, StringComparison.Ordinal))
                 {
-                    var suffix = new StringSegment(kvp.Key, RoutesLabelsPrefix.Length, kvp.Key.Length - RoutesLabelsPrefix.Length);
+                    var suffix = new StringSegment(kvp.Key).Subsegment(RoutesLabelsPrefix.Length);
                     var routeNameLength = suffix.IndexOf('.');
                     if (routeNameLength == -1)
                     {
@@ -222,7 +216,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                         Path = path,
                         Headers = headerMatches.Count > 0 ? headerMatches.Select(hm => hm.Value).ToArray() : null
                     },
-                    Order = order ?? DefaultRouteOrder,
+                    Order = order,
                     ClusterId = backendId,
                     Metadata = metadata,
                     Transforms = transforms.Count > 0 ? transforms.Select(tr => tr.Value).ToList() : null
