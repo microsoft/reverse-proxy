@@ -21,8 +21,6 @@ namespace Microsoft.ReverseProxy.RuntimeModel
     /// </remarks>
     public sealed class ClusterConfig
     {
-        private readonly Cluster _cluster;
-
         public ClusterConfig(
             Cluster cluster,
             ClusterHealthCheckOptions healthCheckOptions,
@@ -33,7 +31,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
             RequestProxyOptions httpRequestOptions,
             IReadOnlyDictionary<string, string> metadata)
         {
-            _cluster = cluster;
+            Cluster = cluster;
             HealthCheckOptions = healthCheckOptions;
             LoadBalancingPolicy = loadBalancingPolicy;
             SessionAffinityOptions = sessionAffinityOptions;
@@ -42,6 +40,8 @@ namespace Microsoft.ReverseProxy.RuntimeModel
             HttpRequestOptions = httpRequestOptions;
             Metadata = metadata;
         }
+
+        internal Cluster Cluster { get; }
 
         public ClusterHealthCheckOptions HealthCheckOptions { get; }
 
@@ -65,7 +65,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
 
         internal bool HasConfigChanged(ClusterConfig newClusterConfig)
         {
-            return !Cluster.Equals(_cluster, newClusterConfig._cluster);
+            return !Cluster.Equals(Cluster, newClusterConfig.Cluster);
         }
     }
 }

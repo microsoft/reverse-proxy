@@ -23,7 +23,6 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
         public static IReverseProxyBuilder AddConfigBuilder(this IReverseProxyBuilder builder)
         {
             builder.Services.TryAddSingleton<IConfigValidator, ConfigValidator>();
-            builder.Services.TryAddSingleton<IRuntimeRouteBuilder, RuntimeRouteBuilder>();
             builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<MatcherPolicy, HeaderMatcherPolicy>());
             return builder;
         }
@@ -40,7 +39,7 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
 
         public static IReverseProxyBuilder AddConfigManager(this IReverseProxyBuilder builder)
         {
-            builder.Services.TryAddSingleton<IProxyConfigManager, ProxyConfigManager>();
+            builder.Services.TryAddSingleton<ProxyConfigManager>();
             return builder;
         }
 

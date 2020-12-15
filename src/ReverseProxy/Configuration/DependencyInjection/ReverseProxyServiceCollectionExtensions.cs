@@ -5,6 +5,7 @@ using System;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
+using Microsoft.ReverseProxy;
 using Microsoft.ReverseProxy.Configuration;
 using Microsoft.ReverseProxy.Configuration.DependencyInjection;
 using Microsoft.ReverseProxy.Service;
@@ -44,6 +45,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddPassiveHealthCheck()
                 .AddLoadBalancingPolicies()
                 .AddProxy();
+
+            services.TryAddSingleton<ProxyEndpointFactory>();
 
             services.AddDataProtection();
             services.AddAuthorization();

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.ReverseProxy.Middleware;
@@ -64,7 +65,8 @@ namespace Microsoft.ReverseProxy.Sample
                     proxyPipeline.UseProxyLoadBalancing();
                     proxyPipeline.UseRequestAffinitizer();
                     proxyPipeline.UsePassiveHealthChecks();
-                });
+                })
+                .ConfigureEndpoints((builder, route) => builder.WithDisplayName($"ReverseProxy {route.RouteId}-{route.ClusterId}"));
             });
         }
     }
