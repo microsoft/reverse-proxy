@@ -24,7 +24,7 @@ namespace Microsoft.ReverseProxy.DynamicEndpoint
             var conventions = new List<Action<EndpointBuilder>>();
             var builder = new ReverseProxyConventionBuilder(conventions);
 
-            builder.Configure(builder =>
+            builder.ConfigureEndpoints(builder =>
             {
                 configured = true;
             });
@@ -47,7 +47,7 @@ namespace Microsoft.ReverseProxy.DynamicEndpoint
             var conventions = new List<Action<EndpointBuilder>>();
             var builder = new ReverseProxyConventionBuilder(conventions);
 
-            builder.Configure((builder, proxy) =>
+            builder.ConfigureEndpoints((builder, proxy) =>
             {
                 configured = true;
             });
@@ -70,7 +70,7 @@ namespace Microsoft.ReverseProxy.DynamicEndpoint
             var conventions = new List<Action<EndpointBuilder>>();
             var builder = new ReverseProxyConventionBuilder(conventions);
 
-            builder.Configure((builder, proxy, cluster) =>
+            builder.ConfigureEndpoints((builder, proxy, cluster) =>
             {
                 configured = true;
             });

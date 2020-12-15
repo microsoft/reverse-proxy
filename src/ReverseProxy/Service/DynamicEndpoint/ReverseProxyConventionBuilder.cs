@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,7 +35,7 @@ namespace Microsoft.ReverseProxy
         /// </summary>
         /// <param name="convention">The convention to add to the builder.</param>
         /// <returns></returns>
-        public ReverseProxyConventionBuilder Configure(Action<IEndpointConventionBuilder> convention)
+        public ReverseProxyConventionBuilder ConfigureEndpoints(Action<IEndpointConventionBuilder> convention)
         {
             _ = convention ?? throw new ArgumentNullException(nameof(convention));
 
@@ -52,7 +55,7 @@ namespace Microsoft.ReverseProxy
         /// </summary>
         /// <param name="convention">The convention to add to the builder.</param>
         /// <returns></returns>
-        public ReverseProxyConventionBuilder Configure(Action<IEndpointConventionBuilder, ProxyRoute> convention)
+        public ReverseProxyConventionBuilder ConfigureEndpoints(Action<IEndpointConventionBuilder, ProxyRoute> convention)
         {
             _ = convention ?? throw new ArgumentNullException(nameof(convention));
 
@@ -73,7 +76,7 @@ namespace Microsoft.ReverseProxy
         /// </summary>
         /// <param name="convention">The convention to add to the builder.</param>
         /// <returns></returns>
-        public ReverseProxyConventionBuilder Configure(Action<IEndpointConventionBuilder, ProxyRoute, Cluster> convention)
+        public ReverseProxyConventionBuilder ConfigureEndpoints(Action<IEndpointConventionBuilder, ProxyRoute, Cluster> convention)
         {
             _ = convention ?? throw new ArgumentNullException(nameof(convention));
 
@@ -92,7 +95,7 @@ namespace Microsoft.ReverseProxy
             return this;
         }
 
-        internal class EndpointBuilderConventionBuilder : IEndpointConventionBuilder
+        private class EndpointBuilderConventionBuilder : IEndpointConventionBuilder
         {
             private readonly EndpointBuilder _endpointBuilder;
 

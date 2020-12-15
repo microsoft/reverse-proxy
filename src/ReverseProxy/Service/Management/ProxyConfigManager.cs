@@ -109,15 +109,15 @@ namespace Microsoft.ReverseProxy.Service.Management
 
         private void CreateEndpoints()
         {
-            var endpoints = new List<Endpoint>();
-            foreach (var existingRoute in _routeManager.GetItems())
+            var routes = _routeManager.GetItems();
+            var endpoints = new List<Endpoint>(routes.Count);
+            foreach (var existingRoute in routes)
             {
-                var runtimeConfig = existingRoute.Config;
                 // Only rebuild the endpoint for modified routes or clusters.
                 var endpoint = existingRoute.CachedEndpoint;
                 if (endpoint == null)
                 {
-                    endpoint = _proxyEndpointFactory.CreateEndpoint(runtimeConfig, _conventions);
+                    endpoint = _proxyEndpointFactory.CreateEndpoint(existingRoute.Config, _conventions);
                     existingRoute.CachedEndpoint = endpoint;
                 }
                 endpoints.Add(endpoint);
@@ -214,9 +214,9 @@ namespace Microsoft.ReverseProxy.Service.Management
             }
 
             // Update clusters first because routes need to reference them.
-            var clustersChanged = UpdateRuntimeClusters(configuredClusters);
+            UpdateRuntimeClusters(configuredClusters);
             var routesChanged = UpdateRuntimeRoutes(configuredRoutes);
-            return routesChanged || clustersChanged;
+            return routesChanged;
         }
 
         private async Task<(IList<ProxyRoute>, IList<Exception>)> VerifyRoutesAsync(IReadOnlyList<ProxyRoute> routes, CancellationToken cancellation)
@@ -326,10 +326,9 @@ namespace Microsoft.ReverseProxy.Service.Management
             return (configuredClusters, errors);
         }
 
-        private bool UpdateRuntimeClusters(IList<Cluster> newClusters)
+        private void UpdateRuntimeClusters(IList<Cluster> newClusters)
         {
             var desiredClusters = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            var changed = false;
 
             foreach (var newCluster in newClusters)
             {
@@ -408,15 +407,12 @@ namespace Microsoft.ReverseProxy.Service.Management
 
                         currentCluster.ForceUpdateDynamicState();
                     });
-
-                changed |= clusterChanged;
             }
 
             foreach (var existingCluster in _clusterManager.GetItems())
             {
                 if (!desiredClusters.Contains(existingCluster.ClusterId))
                 {
-                    changed = true;
                     // NOTE 1: This is safe to do within the `foreach` loop
                     // because `IClusterManager.GetItems` returns a copy of the list of clusters.
                     //
@@ -427,8 +423,6 @@ namespace Microsoft.ReverseProxy.Service.Management
                     _clusterManager.TryRemoveItem(existingCluster.ClusterId);
                 }
             }
-
-            return changed;
         }
 
         private bool UpdateRuntimeDestinations(IDictionary<string, Destination> newDestinations, IDestinationManager destinationManager)
