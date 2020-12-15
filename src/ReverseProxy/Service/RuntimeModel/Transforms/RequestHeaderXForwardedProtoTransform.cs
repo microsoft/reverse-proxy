@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Net.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 
@@ -20,7 +21,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         internal bool Append { get; }
 
         /// <inheritdoc/>
-        public override StringValues Apply(HttpContext context, StringValues values)
+        public override StringValues Apply(HttpContext context, HttpRequestMessage request, StringValues values)
         {
             if (context is null)
             {

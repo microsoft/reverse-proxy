@@ -127,7 +127,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                     if (RequestHeaderTransforms.TryGetValue(headerName, out var transform))
                     {
                         (transformsRun ??= new HashSet<string>(StringComparer.OrdinalIgnoreCase)).Add(headerName);
-                        headerValue = transform.Apply(context, headerValue);
+                        headerValue = transform.Apply(context, destination, headerValue);
                         if (StringValues.IsNullOrEmpty(headerValue))
                         {
                             continue;
@@ -143,7 +143,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             {
                 if (!(transformsRun?.Contains(headerName) ?? false))
                 {
-                    var headerValue = transform.Apply(context, StringValues.Empty);
+                    var headerValue = transform.Apply(context, destination, StringValues.Empty);
                     if (!StringValues.IsNullOrEmpty(headerValue))
                     {
                         RequestUtilities.AddHeader(destination, headerName, headerValue);

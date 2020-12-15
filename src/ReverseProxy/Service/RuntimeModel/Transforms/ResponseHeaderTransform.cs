@@ -17,8 +17,8 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         /// </summary>
         /// <param name="context">The current request context.</param>
         /// <param name="response">The proxied response.</param>
-        /// <param name="values">The header value to transform.</param>
-        /// <returns>The transformed value.</returns>
+        /// <param name="values">The header value from the response, or StringValues.Empty if the header was absent.</param>
+        /// <returns>The transformed result, or StringValues.Empty if the header should be suppressed.</returns>
         public abstract StringValues Apply(HttpContext context, HttpResponseMessage response, StringValues values);
     }
 }

@@ -20,8 +20,8 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         /// <summary>
         /// The outgoing proxy request. All field are initialized except for the 'RequestUri' and headers.
         /// If no value is provided then the 'RequestUri' will be initialized using the updated 'DestinationPrefix',
-        /// 'Path', 'Query' properties after the transforms have run.
-        /// The headers will be copied later when applying header transforms.
+        /// 'Path', and 'Query' properties after the transforms have run. The headers will be copied later when
+        /// applying header transforms.
         /// </summary>
         public HttpRequestMessage Request { get; internal set; }
 
