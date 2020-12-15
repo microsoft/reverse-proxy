@@ -53,7 +53,7 @@ namespace Microsoft.ReverseProxy.Telemetry.Consumption
                 return;
             }
 
-            var context = _httpContextAccessor.HttpContext;
+            var context = _httpContextAccessor?.HttpContext;
             if (context is null)
             {
                 return;
@@ -145,7 +145,7 @@ namespace Microsoft.ReverseProxy.Telemetry.Consumption
                 _previousMetrics = metrics;
                 _currentMetrics = new NameResolutionMetrics();
 
-                if (previous is null)
+                if (previous is null || _serviceProvider is null)
                 {
                     return;
                 }
