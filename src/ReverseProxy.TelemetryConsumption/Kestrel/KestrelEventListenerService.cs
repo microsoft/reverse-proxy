@@ -36,7 +36,7 @@ namespace Microsoft.ReverseProxy.Telemetry.Consumption
         {
             if (eventSource.Name == "Microsoft-AspNetCore-Server-Kestrel")
             {
-                var arguments = new Dictionary<string, string> { { "EventCounterIntervalSec", MetricsOptions.IntervalSeconds.ToString() } };
+                var arguments = new Dictionary<string, string> { { "EventCounterIntervalSec", MetricsOptions.Interval.TotalSeconds.ToString() } };
                 EnableEvents(eventSource, EventLevel.LogAlways, EventKeywords.None, arguments);
             }
         }

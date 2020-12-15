@@ -157,7 +157,7 @@ namespace Microsoft.ReverseProxy
         [Fact]
         public async Task MetricsConsumptionWorks()
         {
-            MetricsOptions.IntervalSeconds = 0.01f;
+            MetricsOptions.Interval = TimeSpan.FromMilliseconds(10);
 
             var consumer = new MetricsConsumer();
 
