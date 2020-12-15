@@ -18,7 +18,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
     /// <summary>
     /// Transforms for a given route.
     /// </summary>
-    internal class Transforms
+    internal class Transforms : HttpTransforms
     {
         /// <summary>
         /// Creates a new <see cref="Transforms"/> instance.
@@ -33,19 +33,6 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             RequestHeaderTransforms = requestHeaderTransforms ?? throw new ArgumentNullException(nameof(requestHeaderTransforms));
             ResponseHeaderTransforms = responseHeaderTransforms ?? throw new ArgumentNullException(nameof(responseHeaderTransforms));
             ResponseTrailerTransforms = responseTrailerTransforms ?? throw new ArgumentNullException(nameof(responseTrailerTransforms));
-
-            AdaptedTransforms = new HttpTransforms()
-            {
-                // Use the default copy logic only if we don't have any transforms.
-                CopyRequestHeaders = RequestHeaderTransforms.Count == 0 && (ShouldCopyRequestHeaders ?? true),
-                OnRequest = RequestTransforms.Count == 0 && RequestHeaderTransforms.Count == 0 ? null : TransformRequestAsync,
-
-                CopyResponseHeaders = ResponseHeaderTransforms.Count == 0,
-                OnResponse = ResponseHeaderTransforms.Count == 0 ? null : TransformResponseHeadersAsync,
-
-                CopyResponseTrailers = ResponseTrailerTransforms.Count == 0,
-                OnResponseTrailers = ResponseTrailerTransforms.Count == 0 ? null : TransformResponseTralersAsync
-            };
         }
 
         /// <summary>
@@ -73,12 +60,8 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         /// </summary>
         internal Dictionary<string, ResponseHeaderTransform> ResponseTrailerTransforms { get; }
 
-        /// <summary>
-        /// This is the structure used by IHttpProxy transforms.
-        /// </summary>
-        internal HttpTransforms AdaptedTransforms { get; }
-
-        private Task TransformRequestAsync(HttpContext context, HttpRequestMessage request, string destinationPrefix)
+        // These intentionally do not call base because the logic here overlaps with the default header copy logic.
+        public override Task TransformRequestAsync(HttpContext context, HttpRequestMessage request, string destinationPrefix)
         {
             var transformContext = new RequestParametersTransformContext()
             {
@@ -107,7 +90,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         {
             // Transforms that were run in the first pass.
             HashSet<string> transformsRun = null;
-            if (ShouldCopyRequestHeaders ?? true)
+            if (ShouldCopyRequestHeaders.GetValueOrDefault(true))
             {
                 foreach (var header in context.Request.Headers)
                 {
@@ -152,7 +135,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             }
         }
 
-        private Task TransformResponseHeadersAsync(HttpContext context, HttpResponseMessage source)
+        public override Task TransformResponseAsync(HttpContext context, HttpResponseMessage source)
         {
             HashSet<string> transformsRun = null;
             var responseHeaders = context.Response.Headers;
@@ -165,14 +148,16 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             return Task.CompletedTask;
         }
 
-        private Task TransformResponseTralersAsync(HttpContext context, HttpResponseMessage source)
+        public override Task TransformResponseTrailersAsync(HttpContext context, HttpResponseMessage source)
         {
-            // Trailers support was already verified by the caller.
             var responseTrailersFeature = context.Features.Get<IHttpResponseTrailersFeature>();
             var outgoingTrailers = responseTrailersFeature?.Trailers;
             HashSet<string> transformsRun = null;
-            CopyResponseHeaders(source, source.TrailingHeaders, context, outgoingTrailers, ResponseTrailerTransforms, ref transformsRun);
-            RunRemainingResponseTransforms(source, context, outgoingTrailers, ResponseTrailerTransforms, transformsRun);
+            if (outgoingTrailers != null && !outgoingTrailers.IsReadOnly)
+            {
+                CopyResponseHeaders(source, source.TrailingHeaders, context, outgoingTrailers, ResponseTrailerTransforms, ref transformsRun);
+                RunRemainingResponseTransforms(source, context, outgoingTrailers, ResponseTrailerTransforms, transformsRun);
+            }
             return Task.CompletedTask;
         }
 

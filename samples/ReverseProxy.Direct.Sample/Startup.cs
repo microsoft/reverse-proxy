@@ -4,13 +4,11 @@
 using System;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.ReverseProxy.Service.Proxy;
-using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
-using Microsoft.Net.Http.Headers;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Microsoft.ReverseProxy.Sample
 {
@@ -42,15 +40,7 @@ namespace Microsoft.ReverseProxy.Sample
             });
 
             // Copy all request headers except Host
-            var transforms =
-                new HttpTransforms()
-                {
-                    OnRequest = (context, request, destination) =>
-                    {
-                        request.Headers.Host = null;
-                        return Task.CompletedTask;
-                    }
-                };
+            var transforms = new CustomTransforms();
             var requestOptions = new RequestProxyOptions(TimeSpan.FromSeconds(100), null);
 
             app.UseRouting();
@@ -69,6 +59,16 @@ namespace Microsoft.ReverseProxy.Sample
                     }
                 });
             });
+        }
+
+        private class CustomTransforms : HttpTransforms
+        {
+            public override async Task TransformRequestAsync(HttpContext httpContext, HttpRequestMessage proxyRequest, string destinationPrefix)
+            {
+                // Copy headers normally and then remove the host.
+                await base.TransformRequestAsync(httpContext, proxyRequest, destinationPrefix);
+                proxyRequest.Headers.Host = null;
+            }
         }
     }
 }

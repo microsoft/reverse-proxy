@@ -249,7 +249,7 @@ namespace Microsoft.ReverseProxy.Service.Config
         /// <inheritdoc/>
         public HttpTransforms Build(IList<IDictionary<string, string>> rawTransforms)
         {
-            return BuildInternal(rawTransforms).AdaptedTransforms;
+            return BuildInternal(rawTransforms);
         }
 
         // This is separate from Build for testing purposes.

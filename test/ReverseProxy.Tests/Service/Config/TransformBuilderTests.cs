@@ -47,13 +47,6 @@ namespace Microsoft.ReverseProxy.Service.Config
             Assert.IsType<RequestHeaderXForwardedHostTransform>(results.RequestHeaderTransforms[ForwardedHeadersDefaults.XForwardedHostHeaderName]);
             Assert.IsType<RequestHeaderXForwardedPathBaseTransform>(results.RequestHeaderTransforms["X-Forwarded-PathBase"]);
             Assert.IsType<RequestHeaderXForwardedProtoTransform>(results.RequestHeaderTransforms[ForwardedHeadersDefaults.XForwardedProtoHeaderName]);
-
-            var adaptedResults = results.AdaptedTransforms;
-            Assert.NotNull(adaptedResults);
-            Assert.False(adaptedResults.CopyRequestHeaders); // Manual copy
-            Assert.NotNull(adaptedResults.OnRequest);
-            Assert.Null(adaptedResults.OnResponse);
-            Assert.Null(adaptedResults.OnResponseTrailers);
         }
 
         [Fact]
@@ -75,12 +68,11 @@ namespace Microsoft.ReverseProxy.Service.Config
             var errors = transformBuilder.Validate(transforms);
             Assert.Empty(errors);
 
-            var results = transformBuilder.Build(transforms);
+            var results = transformBuilder.BuildInternal(transforms);
             Assert.NotNull(results);
-            Assert.True(results.CopyRequestHeaders);
-            Assert.Null(results.OnRequest);
-            Assert.Null(results.OnResponse);
-            Assert.Null(results.OnResponseTrailers);
+            Assert.Empty(results.RequestTransforms);
+            Assert.Empty(results.ResponseHeaderTransforms);
+            Assert.Empty(results.ResponseTrailerTransforms);
         }
 
         [Fact]
@@ -105,13 +97,6 @@ namespace Microsoft.ReverseProxy.Service.Config
             var results = transformBuilder.BuildInternal(transforms);
             Assert.Single(results.RequestHeaderTransforms);
             Assert.IsType<RequestHeaderForwardedTransform>(results.RequestHeaderTransforms["Forwarded"]);
-
-            var adaptedResults = results.AdaptedTransforms;
-            Assert.NotNull(adaptedResults);
-            Assert.False(adaptedResults.CopyRequestHeaders);
-            Assert.NotNull(adaptedResults.OnRequest);
-            Assert.Null(adaptedResults.OnResponse);
-            Assert.Null(adaptedResults.OnResponseTrailers);
         }
 
         [Theory]
@@ -134,15 +119,6 @@ namespace Microsoft.ReverseProxy.Service.Config
             var results = transformBuilder.BuildInternal(transforms);
             Assert.NotNull(results);
             Assert.Equal(copyRequestHeaders, results.ShouldCopyRequestHeaders);
-
-
-            var adaptedResults = results.AdaptedTransforms;
-            // Only matches the input so long as there are no transforms (including defaults).
-            // Always disabled when there are transforms because the copy is managed internally.
-            Assert.False(adaptedResults.CopyRequestHeaders);
-            Assert.NotNull(adaptedResults.OnRequest);
-            Assert.Null(adaptedResults.OnResponse);
-            Assert.Null(adaptedResults.OnResponseTrailers);
         }
 
         [Fact]
@@ -213,12 +189,6 @@ namespace Microsoft.ReverseProxy.Service.Config
             var results = transformBuilder.BuildInternal(transforms);
             Assert.IsType<RequestHeaderValueTransform>(results.RequestHeaderTransforms["heaDerName"]);
             // TODO: How to check Append/Set and the value?
-
-            var adaptedResults = results.AdaptedTransforms;
-            Assert.False(adaptedResults.CopyRequestHeaders);
-            Assert.NotNull(adaptedResults.OnRequest);
-            Assert.Null(adaptedResults.OnResponse);
-            Assert.Null(adaptedResults.OnResponseTrailers);
         }
 
         private TransformBuilder CreateTransformBuilder()

@@ -140,7 +140,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             httpContext.Response.Body = proxyResponseStream;
 
             var destinationPrefix = "https://localhost:123/a/b/";
-            var transforms = new HttpTransforms()
+            var transforms = new DelegateHttpTransforms()
             {
                 OnRequest = (context, request, destination) =>
                 {
@@ -240,7 +240,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             httpContext.Response.Body = proxyResponseStream;
 
             var destinationPrefix = "https://localhost:123/a/b/";
-            var transforms = new HttpTransforms()
+            var transforms = new DelegateHttpTransforms()
             {
                 CopyRequestHeaders = false,
                 OnRequest = (context, request, destination) =>
@@ -726,7 +726,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     return Task.FromResult(response);
                 });
 
-            var transforms = new HttpTransforms()
+            var transforms = new DelegateHttpTransforms()
             {
                 CopyRequestHeaders = false,
                 OnRequest = (context, request, destination) =>
@@ -1530,7 +1530,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var httpClient = new HttpClient();
             var httpContext = new DefaultHttpContext();
             var destinationPrefix = "";
-            var transforms = HttpTransforms.Empty;
+            var transforms = HttpTransforms.Default;
             var requestOptions = default(RequestProxyOptions);
             var proxy = CreateProxy();
 
@@ -1832,6 +1832,39 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             {
                 OnCompleted();
                 return new ValueTask<int>(0);
+            }
+        }
+
+        private class DelegateHttpTransforms : HttpTransforms
+        {
+            public bool CopyRequestHeaders { get; set; } = true;
+
+            public Func<HttpContext, HttpRequestMessage, string, Task> OnRequest { get; set; } = (_, _, _) => Task.CompletedTask;
+            public Func<HttpContext, HttpResponseMessage, Task> OnResponse { get; set; } = (_, _) => Task.CompletedTask;
+            public Func<HttpContext, HttpResponseMessage, Task> OnResponseTrailers { get; set; } = (_, _) => Task.CompletedTask;
+
+            public override async Task TransformRequestAsync(HttpContext httpContext, HttpRequestMessage proxyRequest, string destinationPrefix)
+            {
+                if (CopyRequestHeaders)
+                {
+                    await base.TransformRequestAsync(httpContext, proxyRequest, destinationPrefix);
+                }
+
+                await OnRequest(httpContext, proxyRequest, destinationPrefix);
+            }
+
+            public override async Task TransformResponseAsync(HttpContext httpContext, HttpResponseMessage proxyResponse)
+            {
+                await base.TransformResponseAsync(httpContext, proxyResponse);
+
+                await OnResponse(httpContext, proxyResponse);
+            }
+
+            public override async Task TransformResponseTrailersAsync(HttpContext httpContext, HttpResponseMessage proxyResponse)
+            {
+                await base.TransformResponseTrailersAsync(httpContext, proxyResponse);
+
+                await OnResponseTrailers(httpContext, proxyResponse);
             }
         }
     }
