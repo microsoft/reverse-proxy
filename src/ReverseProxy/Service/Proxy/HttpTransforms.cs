@@ -26,6 +26,9 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         /// The string parameter represents the destination URI prefix that should be used when constructing the RequestUri.
         /// The headers are copied by the base implementation, excluding some protocol headers like HTTP/2 pseudo headers (":authority").
         /// </summary>
+        /// <param name="httpContext">The incoming request.</param>
+        /// <param name="proxyRequest">The outgoing proxy request.</param>
+        /// <param name="destinationPrefix">The uri prefix for the selected destination server which can be used to create the RequestUri.</param>
         public virtual Task TransformRequestAsync(HttpContext httpContext, HttpRequestMessage proxyRequest, string destinationPrefix)
         {
             foreach (var header in httpContext.Request.Headers)
@@ -55,6 +58,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         /// copied to HttpContext.Response.Headers by the base implementation, excludes certain protocol headers like
         /// `Transfer-Encoding: chunked`.
         /// </summary>
+        /// <param name="httpContext">The incoming request.</param>
+        /// <param name="proxyResponse">The response from the destination.</param>
         public virtual Task TransformResponseAsync(HttpContext httpContext, HttpResponseMessage proxyResponse)
         {
             var responseHeaders = httpContext.Response.Headers;
@@ -71,6 +76,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         /// A callback that is invoked after the response body to modify trailers, if supported. The trailers will be
         /// copied to the HttpContext.Response by the base implementation.
         /// </summary>
+        /// <param name="httpContext">The incoming request.</param>
+        /// <param name="proxyResponse">The response from the destination.</param>
         public virtual Task TransformResponseTrailersAsync(HttpContext httpContext, HttpResponseMessage proxyResponse)
         {
             // NOTE: Deliberately not using `context.Response.SupportsTrailers()`, `context.Response.AppendTrailer(...)`

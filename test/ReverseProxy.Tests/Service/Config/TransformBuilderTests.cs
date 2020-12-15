@@ -41,6 +41,12 @@ namespace Microsoft.ReverseProxy.Service.Config
             Assert.Empty(errors);
 
             var results = transformBuilder.BuildInternal(transforms);
+            Assert.NotNull(results);
+            Assert.Null(results.ShouldCopyRequestHeaders);
+            Assert.Empty(results.ResponseHeaderTransforms);
+            Assert.Empty(results.ResponseTrailerTransforms);
+            Assert.Empty(results.RequestTransforms);
+
             Assert.Equal(5, results.RequestHeaderTransforms.Count);
             Assert.IsType<RequestHeaderValueTransform>(results.RequestHeaderTransforms[HeaderNames.Host]);
             Assert.IsType<RequestHeaderXForwardedForTransform>(results.RequestHeaderTransforms[ForwardedHeadersDefaults.XForwardedForHeaderName]);
@@ -70,7 +76,9 @@ namespace Microsoft.ReverseProxy.Service.Config
 
             var results = transformBuilder.BuildInternal(transforms);
             Assert.NotNull(results);
+            Assert.Null(results.ShouldCopyRequestHeaders);
             Assert.Empty(results.RequestTransforms);
+            Assert.Empty(results.RequestHeaderTransforms);
             Assert.Empty(results.ResponseHeaderTransforms);
             Assert.Empty(results.ResponseTrailerTransforms);
         }
