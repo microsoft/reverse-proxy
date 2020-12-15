@@ -8,8 +8,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Utilities;
-using Microsoft.ReverseProxy.ServiceFabric.Utilities;
+using Microsoft.Extensions.Primitives;
 
 namespace Microsoft.ReverseProxy.ServiceFabric
 {
@@ -19,10 +18,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric
     // TODO: this is probably something that can be used in other integration modules apart from Service Fabric. Consider extracting to a general class.
     internal static class LabelsParser
     {
-        // TODO: decide which labels are needed and which default table (and to what values)
-        // Also probably move these defaults to the corresponding config entities.
-        internal static readonly int? DefaultRouteOrder = null;
-
         private static readonly Regex _allowedRouteNamesRegex = new Regex("^[a-zA-Z0-9_-]+$");
 
         /// <summary>
@@ -35,6 +30,9 @@ namespace Microsoft.ReverseProxy.ServiceFabric
         /// </summary>
         private static readonly Regex _allowedTransformNamesRegex = new Regex(@"^\[\d\d*\]$");
 
+        // Look for route IDs
+        private const string RoutesLabelsPrefix = "YARP.Routes.";
+
         internal static TValue GetLabel<TValue>(Dictionary<string, string> labels, string key, TValue defaultValue)
         {
             if (!labels.TryGetValue(key, out var value))
@@ -43,14 +41,19 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             }
             else
             {
-                try
-                {
-                    return (TValue)TypeDescriptor.GetConverter(typeof(TValue)).ConvertFromString(value);
-                }
-                catch (Exception ex) when (ex is ArgumentException || ex is FormatException || ex is NotSupportedException)
-                {
-                    throw new ConfigException($"Could not convert label {key}='{value}' to type {typeof(TValue).FullName}.", ex);
-                }
+                return ConvertLabelValue<TValue>(key, value);
+            }
+        }
+
+        private static TValue ConvertLabelValue<TValue>(string key, string value)
+        {
+            try
+            {
+                return (TValue)TypeDescriptor.GetConverter(typeof(TValue)).ConvertFromString(value);
+            }
+            catch (Exception ex) when (ex is ArgumentException || ex is FormatException || ex is NotSupportedException)
+            {
+                throw new ConfigException($"Could not convert label {key}='{value}' to type {typeof(TValue).FullName}.", ex);
             }
         }
 
@@ -59,53 +62,73 @@ namespace Microsoft.ReverseProxy.ServiceFabric
         {
             var backendId = GetClusterId(serviceName, labels);
 
-            // Look for route IDs
-            const string RoutesLabelsPrefix = "YARP.Routes.";
-            var routesNames = new HashSet<string>();
+            var routesNames = new Dictionary<StringSegment, string>();
             foreach (var kvp in labels)
             {
                 if (kvp.Key.Length > RoutesLabelsPrefix.Length && kvp.Key.StartsWith(RoutesLabelsPrefix, StringComparison.Ordinal))
                 {
-                    var suffix = kvp.Key.Substring(RoutesLabelsPrefix.Length);
+                    var suffix = new StringSegment(kvp.Key).Subsegment(RoutesLabelsPrefix.Length);
                     var routeNameLength = suffix.IndexOf('.');
                     if (routeNameLength == -1)
                     {
                         // No route name encoded, the key is not valid. Throwing would suggest we actually check for all invalid keys, so just ignore.
                         continue;
                     }
-                    var routeName = suffix.Substring(0, routeNameLength);
+
+                    var routeNameSegment = suffix.Subsegment(0, routeNameLength + 1);
+                    if (routesNames.ContainsKey(routeNameSegment))
+                    {
+                        continue;
+                    }
+
+                    var routeName = routeNameSegment.Subsegment(0, routeNameSegment.Length - 1).ToString();
                     if (!_allowedRouteNamesRegex.IsMatch(routeName))
                     {
                         throw new ConfigException($"Invalid route name '{routeName}', should only contain alphanumerical characters, underscores or hyphens.");
                     }
-                    routesNames.Add(routeName);
+                    routesNames.Add(routeNameSegment, routeName);
                 }
             }
 
             // Build the routes
             var routes = new List<ProxyRoute>();
-            foreach (var routeName in routesNames)
+            foreach (var routeNamePair in routesNames)
             {
-                var thisRoutePrefix = $"{RoutesLabelsPrefix}{routeName}";
+                string hosts = null;
+                string path = null;
+                int? order = null;
                 var metadata = new Dictionary<string, string>();
                 var headerMatches = new Dictionary<string, RouteHeader>();
                 var transforms = new Dictionary<string, IDictionary<string, string>>();
                 foreach (var kvp in labels)
                 {
-                    if (kvp.Key.StartsWith($"{thisRoutePrefix}.Metadata.", StringComparison.Ordinal))
+                    if (!kvp.Key.StartsWith(RoutesLabelsPrefix, StringComparison.Ordinal))
                     {
-                        metadata.Add(kvp.Key.Substring($"{thisRoutePrefix}.Metadata.".Length), kvp.Value);
+                        continue;
                     }
-                    else if (kvp.Key.StartsWith($"{thisRoutePrefix}.MatchHeaders.", StringComparison.Ordinal)) 
+
+                    var routeLabelKey = kvp.Key.AsSpan().Slice(RoutesLabelsPrefix.Length);
+
+                    if (routeLabelKey.Length < routeNamePair.Key.Length || !routeLabelKey.StartsWith(routeNamePair.Key, StringComparison.Ordinal))
                     {
-                        var suffix = kvp.Key.Substring($"{thisRoutePrefix}.MatchHeaders.".Length);
-                        var headerIndexLength = suffix.IndexOf('.');
+                        continue;
+                    }
+
+                    routeLabelKey = routeLabelKey.Slice(routeNamePair.Key.Length);
+
+                    if (ContainsKey("Metadata.", routeLabelKey, out var keyRemainder))
+                    {
+                        metadata.Add(keyRemainder.ToString(), kvp.Value);
+                    }
+                    else if (ContainsKey("MatchHeaders.", routeLabelKey, out keyRemainder)) 
+                    {
+                        var headerIndexLength = keyRemainder.IndexOf('.');
                         if (headerIndexLength == -1)
                         {
                             // No header encoded, the key is not valid. Throwing would suggest we actually check for all invalid keys, so just ignore.
                             continue;
                         }
-                        var headerIndex = suffix.Substring(0, headerIndexLength);
+                        var headerIndex = keyRemainder.Slice(0, headerIndexLength).ToString();
                         if (!_allowedHeaderNamesRegex.IsMatch(headerIndex))
                         {
                             throw new ConfigException($"Invalid header matching index '{headerIndex}', should only contain alphanumerical characters, underscores or hyphens.");
@@ -115,7 +138,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                             headerMatches.Add(headerIndex, new RouteHeader());
                         }
 
-                        var propertyName = kvp.Key.Substring($"{thisRoutePrefix}.MatchHeaders.{headerIndex}.".Length);
+                        var propertyName = keyRemainder.Slice(headerIndexLength + 1);
                         if (propertyName.Equals("Name", StringComparison.Ordinal)) 
                         {
                             headerMatches[headerIndex].Name = kvp.Value;
@@ -140,53 +163,60 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                         }
                         else
                         {
-                            throw new ConfigException($"Invalid header matching property '{propertyName}', only valid values are Name, Values, IsCaseSensitive and Mode.");
+                            throw new ConfigException($"Invalid header matching property '{propertyName.ToString()}', only valid values are Name, Values, IsCaseSensitive and Mode.");
                         }
                     }
-                    else if (kvp.Key.StartsWith($"{thisRoutePrefix}.Transforms.", StringComparison.Ordinal)) 
+                    else if (ContainsKey("Transforms.", routeLabelKey, out keyRemainder))
                     {
-                        var suffix = kvp.Key.Substring($"{thisRoutePrefix}.Transforms.".Length);
-                        var transformNameLength = suffix.IndexOf('.');
+                        var transformNameLength = keyRemainder.IndexOf('.');
                         if (transformNameLength == -1)
                         {
                             // No transform index encoded, the key is not valid. Throwing would suggest we actually check for all invalid keys, so just ignore.
                             continue;
                         }
-                        var transformName = suffix.Substring(0, transformNameLength);
+                        var transformName = keyRemainder.Slice(0, transformNameLength).ToString();
                         if (!_allowedTransformNamesRegex.IsMatch(transformName))
                         {
                             throw new ConfigException($"Invalid transform index '{transformName}', should be transform index wrapped in square brackets.");
                         }
-                        if (!transforms.ContainsKey(transformName)) 
+                        if (!transforms.ContainsKey(transformName))
                         {
                             transforms.Add(transformName, new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase));
                         }
-                        var propertyName = kvp.Key.Substring($"{thisRoutePrefix}.Transforms.{transformName}.".Length);
-                        if (!transforms[transformName].ContainsKey(propertyName)) 
+                        var propertyName = keyRemainder.Slice(transformNameLength + 1).ToString();
+                        if (!transforms[transformName].ContainsKey(propertyName))
                         {
                             transforms[transformName].Add(propertyName, kvp.Value);
-                        } 
-                        else 
+                        }
+                        else
                         {
                             throw new ConfigException($"A duplicate transformation property '{transformName}.{propertyName}' was found.");
                         }
                     }
+                    else if (ContainsKey("Hosts", routeLabelKey, out _))
+                    {
+                        hosts = kvp.Value;
+                    }
+                    else if (ContainsKey("Path", routeLabelKey, out _))
+                    {
+                        path = kvp.Value;
+                    }
+                    else if (ContainsKey("Order", routeLabelKey, out _))
+                    {
+                        order = ConvertLabelValue<int?>(kvp.Key, kvp.Value);
+                    }
                 }
-                
-
-                labels.TryGetValue($"{thisRoutePrefix}.Hosts", out var hosts);
-                labels.TryGetValue($"{thisRoutePrefix}.Path", out var path);
 
                 var route = new ProxyRoute
                 {
-                    RouteId = $"{Uri.EscapeDataString(backendId)}:{Uri.EscapeDataString(routeName)}",
+                    RouteId = $"{Uri.EscapeDataString(backendId)}:{Uri.EscapeDataString(routeNamePair.Value)}",
                     Match =
                     {
                         Hosts = SplitHosts(hosts),
                         Path = path,
                         Headers = headerMatches.Count > 0 ? headerMatches.Select(hm => hm.Value).ToArray() : null
                     },
-                    Order = GetLabel(labels, $"{thisRoutePrefix}.Order", DefaultRouteOrder),
+                    Order = order,
                     ClusterId = backendId,
                     Metadata = metadata,
                     Transforms = transforms.Count > 0 ? transforms.Select(tr => tr.Value).ToList() : null
@@ -285,6 +315,19 @@ namespace Microsoft.ReverseProxy.ServiceFabric
         private static IReadOnlyList<string> SplitHosts(string hosts)
         {
             return hosts?.Split(',').Select(h => h.Trim()).Where(h => h.Length > 0).ToList();
+        }
+
+        private static bool ContainsKey(string expectedKeyName, ReadOnlySpan<char> actualKey, out ReadOnlySpan<char> keyRemainder)
+        {
+            keyRemainder = default;
+            
+            if (!actualKey.StartsWith(expectedKeyName, StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            keyRemainder = actualKey.Slice(expectedKeyName.Length);
+            return true;
         }
     }
 }

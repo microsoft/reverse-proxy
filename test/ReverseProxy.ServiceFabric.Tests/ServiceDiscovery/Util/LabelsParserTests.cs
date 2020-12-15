@@ -295,7 +295,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     {
                         Hosts = new[] { "example.com" },
                     },
-                    Order = LabelsParser.DefaultRouteOrder,
                     ClusterId = "MyCoolClusterId",
                     Metadata = new Dictionary<string, string>(),
                 },
@@ -326,7 +325,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     {
                         Hosts = new[] { "'this invalid thing" },
                     },
-                    Order = LabelsParser.DefaultRouteOrder,
                     ClusterId = "MyCoolClusterId",
                     Metadata = new Dictionary<string, string>(),
                 },
