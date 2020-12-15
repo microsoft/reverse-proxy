@@ -24,7 +24,7 @@ namespace Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract
         public static string RoundRobin => nameof(RoundRobin);
 
         /// <summary>
-        /// Select the destination with the least assigned requests. This requires examining all nodes.
+        /// Select the destination with the least assigned requests. This requires examining all destinations.
         /// </summary>
         public static string LeastRequests => nameof(LeastRequests);
 

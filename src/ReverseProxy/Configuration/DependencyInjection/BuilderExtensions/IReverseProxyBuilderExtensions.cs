@@ -50,6 +50,14 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
             builder.Services.TryAddSingleton<IProxyHttpClientFactory, ProxyHttpClientFactory>();
             builder.Services.TryAddSingleton<IRandomFactory, RandomFactory>();
 
+            builder.Services.AddHttpProxy();
+            return builder;
+        }
+
+        public static IReverseProxyBuilder AddLoadBalancingPolicies(this IReverseProxyBuilder builder)
+        {
+            builder.Services.TryAddSingleton<IRandomFactory, RandomFactory>();
+
             builder.Services.TryAddEnumerable(new[] {
                 new ServiceDescriptor(typeof(ILoadBalancingPolicy), typeof(FirstLoadBalancingPolicy), ServiceLifetime.Singleton),
                 new ServiceDescriptor(typeof(ILoadBalancingPolicy), typeof(LeastRequestsLoadBalancingPolicy), ServiceLifetime.Singleton),
@@ -58,7 +66,6 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
                 new ServiceDescriptor(typeof(ILoadBalancingPolicy), typeof(RoundRobinLoadBalancingPolicy), ServiceLifetime.Singleton)
             });
 
-            builder.Services.AddHttpProxy();
             return builder;
         }
 

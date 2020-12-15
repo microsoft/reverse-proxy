@@ -7,7 +7,7 @@ Session affinity is a mechanism to bind (affinitize) a causally related request 
 
 ## Configuration
 ### Services and middleware registration
-Session affinity services are registered in the DI container via `AddSessionAffinityProvider()` method which is automatically called by `AddReverseProxy()`. The middleware `UseAffinitizedDestinationLookup()` and `UseRequestAffinitizer()` are included by default in the paramterless MapReverseProxy method. If you are customizing the proxy pipeline, place the first middleware **before** adding `LoadBalancingMiddleware` and the second **after** load balancing.
+Session affinity services are registered in the DI container via `AddSessionAffinityProvider()` method which is automatically called by `AddReverseProxy()`. The middleware `UseAffinitizedDestinationLookup()` and `UseRequestAffinitizer()` are included by default in the parameterless MapReverseProxy method. If you are customizing the proxy pipeline, place the first middleware **before** adding `LoadBalancingMiddleware` and the second **after** load balancing.
 
 Example:
 ```C#
