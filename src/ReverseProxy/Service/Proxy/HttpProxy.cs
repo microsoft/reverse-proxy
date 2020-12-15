@@ -119,12 +119,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 var requestAborted = context.RequestAborted;
 
                 // :: Step 1: Create outgoing HttpRequestMessage
-                var upgradeFeature = context.Features.Get<IHttpUpgradeFeature>();
-                var isUpgradeRequest = (upgradeFeature?.IsUpgradableRequest ?? false)
-                    // Mitigate https://github.com/microsoft/reverse-proxy/issues/255, IIS considers all requests upgradeable.
-                    && string.Equals("WebSocket", context.Request.Headers[HeaderNames.Upgrade], StringComparison.OrdinalIgnoreCase);
-
-                var destinationRequest = CreateRequestMessage(context, destinationPrefix, isUpgradeRequest, transforms.RequestTransforms, requestOptions);
+                var destinationRequest = CreateRequestMessage(context, destinationPrefix, transforms.RequestTransforms, requestOptions);
 
                 var isClientHttp2 = ProtocolHelper.IsHttp2(context.Request.Protocol);
 
@@ -197,7 +192,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 // :: Step 7-A: Check for a 101 upgrade response, this takes care of WebSockets as well as any other upgradeable protocol.
                 if (destinationResponse.StatusCode == HttpStatusCode.SwitchingProtocols)
                 {
-                    await HandleUpgradedResponse(context, upgradeFeature, destinationResponse, requestAborted);
+                    await HandleUpgradedResponse(context, destinationResponse, requestAborted);
                     return;
                 }
 
@@ -261,7 +256,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             }
         }
 
-        private HttpRequestMessage CreateRequestMessage(HttpContext context, string destinationAddress, bool isUpgradeRequest,
+        private HttpRequestMessage CreateRequestMessage(HttpContext context, string destinationAddress,
             IReadOnlyList<RequestParametersTransform> requestTransforms, RequestProxyOptions requestOptions)
         {
             // "http://a".Length = 8
@@ -269,6 +264,14 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             {
                 throw new ArgumentException(nameof(destinationAddress));
             }
+
+            var upgradeFeature = context.Features.Get<IHttpUpgradeFeature>();
+            var upgradeHeader = context.Request.Headers[HeaderNames.Upgrade].ToString();
+            var isUpgradeRequest = (upgradeFeature?.IsUpgradableRequest ?? false)
+                // Mitigate https://github.com/microsoft/reverse-proxy/issues/255, IIS considers all requests upgradeable.
+                && (string.Equals("WebSocket", upgradeHeader, StringComparison.OrdinalIgnoreCase)
+                    // https://github.com/microsoft/reverse-proxy/issues/467 for kubernetes APIs
+                    || upgradeHeader.StartsWith("SPDY/", StringComparison.OrdinalIgnoreCase));
 
             // Default to HTTP/1.1 for proxying upgradeable requests. This is already the default as of .NET Core 3.1
             // Otherwise request what's set in proxyOptions (e.g. default HTTP/2) and let HttpClient negotiate the protocol
@@ -308,7 +311,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 #if NET
                 VersionPolicy = httpVersionPolicy,
 #endif
-
             };
             foreach (var requestTransform in requestTransforms)
             {
@@ -571,7 +573,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             RunRemainingResponseTransforms(source, context, responseHeaders, transforms, transformsRun);
         }
 
-        private async Task HandleUpgradedResponse(HttpContext context, IHttpUpgradeFeature upgradeFeature, HttpResponseMessage destinationResponse,
+        private async Task HandleUpgradedResponse(HttpContext context, HttpResponseMessage destinationResponse,
             CancellationToken longCancellation)
         {
             ProxyTelemetry.Log.ProxyStage(ProxyStage.ResponseUpgrade);
@@ -585,7 +587,19 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             }
 
             // :: Step 7-A-1: Upgrade the client channel. This will also send response headers.
-            using var clientStream = await upgradeFeature.UpgradeAsync();
+            var upgradeFeature = context.Features.Get<IHttpUpgradeFeature>();
+            Stream upgradeResult;
+            try
+            {
+                upgradeResult = await upgradeFeature.UpgradeAsync();
+            }
+            catch (Exception ex)
+            {
+                destinationResponse.Dispose();
+                ReportProxyError(context, ProxyError.UpgradeResponseClient, ex);
+                return;
+            }
+            using var clientStream = upgradeResult;
 
             // :: Step 7-A-2: Copy duplex streams
             using var destinationStream = await destinationResponse.Content.ReadAsStreamAsync();

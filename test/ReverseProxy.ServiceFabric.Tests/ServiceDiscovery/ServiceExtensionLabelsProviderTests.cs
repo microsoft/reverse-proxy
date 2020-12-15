@@ -56,7 +56,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         [Fact]
         public async void GetExtensionLabels_UnexistingServiceTypeName_NoLabels()
         {
-            // Arrange
             _rawServiceManifest =
                 $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
                   <ServiceTypes>
@@ -65,18 +64,15 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                   </ServiceTypes>
                 </ServiceManifest>";
 
-            // Act
             var labels = await RunScenarioAsync();
 
             // TODO: consider throwing if the servicetypename does not exist
-            // Assert
             labels.Should().Equal(new Dictionary<string, string>());
         }
 
         [Fact]
         public async void GetExtensionLabels_NoExtensions_NoLabels()
         {
-            // Arrange
             _rawServiceManifest =
                 $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
                   <ServiceTypes>
@@ -85,17 +81,14 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                   </ServiceTypes>
                 </ServiceManifest>";
 
-            // Act
             var labels = await RunScenarioAsync();
 
-            // Assert
             labels.Should().Equal(new Dictionary<string, string>());
         }
 
         [Fact]
         public async void GetExtensionLabels_NoLabelsInExtensions_NoLabels()
         {
-            // Arrange
             _rawServiceManifest =
                 $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
                 <ServiceTypes>
@@ -116,17 +109,14 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 </ServiceManifest>
                 ";
 
-            // Act
             var labels = await RunScenarioAsync();
 
-            // Assert
             labels.Should().Equal(new Dictionary<string, string>());
         }
 
         [Fact]
         public async void GetExtensionLabels_NoYarpExtensions_NoLabels()
         {
-            // Arrange
             _rawServiceManifest =
                 $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
                 <ServiceTypes>
@@ -143,17 +133,14 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 </ServiceManifest>
                 ";
 
-            // Act
             var labels = await RunScenarioAsync();
 
-            // Assert
             labels.Should().Equal(new Dictionary<string, string>());
         }
 
         [Fact]
         public async void GetExtensionLabels_LabelsInManifestExtensions_GatheredCorrectly()
         {
-            // Arrange
             _rawServiceManifest =
                 $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
                 <ServiceTypes>
@@ -171,10 +158,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 </ServiceManifest>
                 ";
 
-            // Act
             var labels = await RunScenarioAsync();
 
-            // Assert
             labels.Should().Equal(
                 new Dictionary<string, string>
                 {
@@ -186,7 +171,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         [Fact]
         public async void GetExtensionLabels_AppParamReplacements_Replaces()
         {
-            // Arrange
             _rawServiceManifest =
                 $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
                   <ServiceTypes>
@@ -205,10 +189,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
 
             _appParams["someAppParam"] = "replaced successfully!";
 
-            // Act
             var labels = await RunScenarioAsync();
 
-            // Assert
             labels.Should().Equal(
                 new Dictionary<string, string>
                 {
@@ -220,7 +202,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         [Fact]
         public async void GetExtensionLabels_AppParamReplacements_MissingAppParams_ReplacesWithEmpty()
         {
-            // Arrange
             _rawServiceManifest =
                 $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
                   <ServiceTypes>
@@ -237,10 +218,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                   </ServiceTypes>
                 </ServiceManifest>";
 
-            // Act
             var labels = await RunScenarioAsync();
 
-            // Assert
             labels.Should().Equal(
                 new Dictionary<string, string>
                 {
@@ -252,7 +231,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         [Fact]
         public async void GetExtensionLabels_MultipleExtensions_OnlyYarpLabelsAreGathered()
         {
-            // Arrange
             _rawServiceManifest =
                 $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
                 <ServiceTypes>
@@ -275,10 +253,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 </ServiceManifest>
                 ";
 
-            // Act
             var labels = await RunScenarioAsync();
 
-            // Assert
             labels.Should().Equal(
                 new Dictionary<string, string>
                 {
@@ -290,7 +266,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         [Fact]
         public async void GetExtensionLabels_OverridesEnabled_NewLabelsFromPropertiesGatheredCorrectly()
         {
-            // Arrange
             _rawServiceManifest =
                 $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
                 <ServiceTypes>
@@ -313,10 +288,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     { "YARP.routes.route1.Hosts", "example.com" },
                 };
 
-            // Act
             var labels = await RunScenarioAsync();
 
-            // Assert
             labels.Should().Equal(
                 new Dictionary<string, string>
                 {
@@ -329,7 +302,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         [Fact]
         public async void GetExtensionLabels_OverridesEnabledValueCaseInsensitive_OverridesAreEnabled()
         {
-            // Arrange
             _rawServiceManifest =
                 $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
                 <ServiceTypes>
@@ -352,10 +324,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     { "YARP.routes.route1.Hosts", "example.com" },
                 };
 
-            // Act
             var labels = await RunScenarioAsync();
 
-            // Assert
             labels.Should().Equal(
                 new Dictionary<string, string>
                 {
@@ -368,7 +338,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         [Fact]
         public async void GetExtensionLabels_OverridesEnabled_OnlyYarpNamespacePropertiesGathered()
         {
-            // Arrange
             _rawServiceManifest =
                 $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
                 <ServiceTypes>
@@ -392,10 +361,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     { "WhatIsThisNamespace.value", "42" },
                 };
 
-            // Act
             var labels = await RunScenarioAsync();
 
-            // Assert
             labels.Should().Equal(
                 new Dictionary<string, string>
                 {
@@ -407,7 +374,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         [Fact]
         public async void GetExtensionLabels_OverridesEnabled_PropertiesOverrideManifestCorrectly()
         {
-            // Arrange
             _rawServiceManifest =
                 $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
                 <ServiceTypes>
@@ -431,10 +397,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     { "YARP.Enable", "false" },
                 };
 
-            // Act
             var labels = await RunScenarioAsync();
 
-            // Assert
             labels.Should().Equal(
                 new Dictionary<string, string>
                 {
@@ -447,7 +411,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         [Fact]
         public async void GetExtensionLabels_OverridesEnabled_LabelKeysAreCaseSensitive()
         {
-            // Arrange
             _rawServiceManifest =
                 $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
                 <ServiceTypes>
@@ -471,10 +434,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     { "YARP.Routes.route1.HOST", "another.example.com" },
                 };
 
-            // Act
             var labels = await RunScenarioAsync();
 
-            // Assert
             labels.Should().Equal(
                 new Dictionary<string, string>
                 {
@@ -488,7 +449,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         [Fact]
         public async void GetExtensionLabels_OverridesDisabiled_PropertiesNotQueried()
         {
-            // Arrange
             _rawServiceManifest =
                 $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
                 <ServiceTypes>
@@ -512,10 +472,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     { "YARP.Enable", "false" },
                 };
 
-            // Act
             var labels = await RunScenarioAsync();
 
-            // Assert
             labels.Should().Equal(
                 new Dictionary<string, string>
                 {
@@ -530,7 +488,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         [Fact]
         public async void GetExtensionLabels_CaseDifferingLabelKeys_LabelKeysAreCaseSensitive()
         {
-            // Arrange
             _rawServiceManifest =
                 $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
                 <ServiceTypes>
@@ -555,10 +512,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     { "YARP.routes.Route1.HOSTS", "etc.example.com" },
                 };
 
-            // Act
             var labels = await RunScenarioAsync();
 
-            // Assert
             labels.Should().Equal(
                 new Dictionary<string, string>
                 {
@@ -573,7 +528,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         [Fact]
         public async void GetExtensionLabels_OverridesNotExplicitlyDisabiled_PropertiesNotQueriedByDefault()
         {
-            // Arrange
             _rawServiceManifest =
                 $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
                 <ServiceTypes>
@@ -596,10 +550,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     { "YARP.Enable", "false" },
                 };
 
-            // Act
             var labels = await RunScenarioAsync();
 
-            // Assert
             labels.Should().Equal(
                 new Dictionary<string, string>
                 {
@@ -613,20 +565,16 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         [Fact]
         public async void GetExtensionLabels_InvalidManifestXml_Throws()
         {
-            // Arrange
             _rawServiceManifest = $@"<this is no xml my man";
 
-            // Act
             Func<Task> func = () => RunScenarioAsync();
 
-            // Assert
             await func.Should().ThrowAsync<ConfigException>();
         }
 
         [Fact]
         public async void GetExtensionLabels_DuplicatedLabelKeysInManifest_ShouldThrowException()
         {
-            // Arrange
             _rawServiceManifest =
                 $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
                 <ServiceTypes>
@@ -645,17 +593,14 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 </ServiceManifest>
                 ";
 
-            // Act
             Func<Task> func = () => RunScenarioAsync();
 
-            // Assert
             await func.Should().ThrowAsync<ConfigException>();
         }
 
         [Fact]
         public async void GetExtensionLabels_OverSizeLimit_ShouldThrowException()
         {
-            // Arrange
             var longBadString = new string('*', 1024 * 1024);
             _rawServiceManifest =
             $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
@@ -673,17 +618,14 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             </ServiceManifest>
             ";
 
-            // Act
             Func<Task> func = () => RunScenarioAsync();
 
-            // Assert
             await func.Should().ThrowAsync<ConfigException>();
         }
 
         [Fact]
         public async void GetExtensionLabels_WithDTD_ShouldThrowException()
         {
-            // Arrange
             _rawServiceManifest =
                 $@"
                 <!DOCTYPE xxe [
@@ -704,10 +646,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 </ServiceManifest>
                 ";
 
-            // Act
             Func<Task> func = () => RunScenarioAsync();
 
-            // Assert
             await func.Should().ThrowAsync<ConfigException>();
         }
 

@@ -11,7 +11,7 @@ namespace Microsoft.ReverseProxy.Abstractions
     {
         public SslProtocols? SslProtocols { get; set; }
 
-        public bool DangerousAcceptAnyServerCertificate { get; set; }
+        public bool? DangerousAcceptAnyServerCertificate { get; set; }
 
         public X509Certificate2 ClientCertificate { get; set; }
 

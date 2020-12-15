@@ -60,14 +60,11 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         [Fact]
         public async void ExecuteAsync_NoAppsDiscovered_NoClusters()
         {
-            // Setup
             _scenarioOptions = new ServiceFabricDiscoveryOptions { ReportReplicasHealth = true };
             Mock_AppsResponse();
 
-            // Act
             var (routes, clusters) = await RunScenarioAsync();
 
-            // Assert
             routes.Should().BeEmpty();
             clusters.Should().BeEmpty();
             _healthReports.Should().BeEmpty();
@@ -76,16 +73,13 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         [Fact]
         public async void ExecuteAsync_NoExtensions_NoClusters()
         {
-            // Setup
             _scenarioOptions = new ServiceFabricDiscoveryOptions { ReportReplicasHealth = true };
             ApplicationWrapper application;
             Mock_AppsResponse(application = CreateApp_1Service_SingletonPartition_1Replica("MyCoolApp", "MyAwesomeService", out var service, out _));
             Mock_ServiceLabels(application, service, new Dictionary<string, string>());
 
-            // Act
             var (routes, clusters) = await RunScenarioAsync();
 
-            // Assert
             routes.Should().BeEmpty();
             clusters.Should().BeEmpty();
             _healthReports.Should().BeEmpty();
@@ -94,16 +88,13 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         [Fact]
         public async void ExecuteAsync_GatewayNotEnabled_NoClusters()
         {
-            // Setup
             _scenarioOptions = new ServiceFabricDiscoveryOptions { ReportReplicasHealth = true };
             ApplicationWrapper application;
             Mock_AppsResponse(application = CreateApp_1Service_SingletonPartition_1Replica("MyCoolApp", "MyAwesomeService", out var service, out _));
             Mock_ServiceLabels(application, service, new Dictionary<string, string>() { { "YARP.Enable", "false" } });
 
-            // Act
             var (routes, clusters) = await RunScenarioAsync();
 
-            // Assert
             routes.Should().BeEmpty();
             clusters.Should().BeEmpty();
             _healthReports.Should().BeEmpty();
@@ -112,7 +103,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         [Fact]
         public async void ExecuteAsync_SingleServiceWithGatewayEnabled_OneClusterFound()
         {
-            // Setup
             _scenarioOptions = new ServiceFabricDiscoveryOptions { ReportReplicasHealth = true };
             const string TestClusterId = "MyService123";
             var labels = SFTestHelpers.DummyLabels(TestClusterId);
@@ -123,10 +113,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             Mock_ServiceLabels(application, service, labels);
             Mock_ServiceLabels(anotherApplication, anotherService, new Dictionary<string, string>());
 
-            // Act
             var (routes, clusters) = await RunScenarioAsync();
 
-            // Assert
             var expectedClusters = new[]
             {
                 ClusterWithDestinations(
@@ -151,7 +139,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         [Fact]
         public async void ExecuteAsync_SingleServiceWithGatewayEnabledAndActiveHealthCheck()
         {
-            // Setup
             _scenarioOptions = new ServiceFabricDiscoveryOptions();
             const string TestClusterId = "MyService123";
             var labels = SFTestHelpers.DummyLabels(TestClusterId, activeHealthChecks: true);
@@ -160,10 +147,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 application = CreateApp_1StatelessService_2Partition_2ReplicasEach("MyApp", "MYService", out var service, out var replicas));
             Mock_ServiceLabels(application, service, labels);
 
-            // Act
             var (routes, clusters) = await RunScenarioAsync();
 
-            // Assert
             var expectedClusters = new[]
             {
                 ClusterWithDestinations(
@@ -184,7 +169,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         [Fact]
         public async void ExecuteAsync_MultipleServicesWithGatewayEnabled_MultipleClustersFound()
         {
-            // Setup
             _scenarioOptions = new ServiceFabricDiscoveryOptions { ReportReplicasHealth = true };
             const string TestClusterIdApp1Sv1 = "MyService123";
             const string TestClusterIdApp1Sv2 = "MyService234";
@@ -201,10 +185,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             Mock_ServiceLabels(application2, service2, labels2);
             Mock_ServiceLabels(application2, service3, labels3);
 
-            // Act
             var (routes, clusters) = await RunScenarioAsync();
 
-            // Assert
             var expectedClusters = new[]
             {
                 ClusterWithDestinations(
@@ -236,7 +218,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         [Fact]
         public async void ExecuteAsync_OneServiceWithGatewayEnabledAndOneNotEnabled_OnlyTheOneEnabledFound()
         {
-            // Setup
             _scenarioOptions = new ServiceFabricDiscoveryOptions { ReportReplicasHealth = true };
             const string TestClusterIdApp1Sv1 = "MyService123";
             const string TestClusterIdApp2Sv2 = "MyService234";
@@ -250,10 +231,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             Mock_ServiceLabels(application1, service1, gatewayEnabledLabels);
             Mock_ServiceLabels(application2, service2, gatewayNotEnabledLabels);
 
-            // Act
             var (routes, clusters) = await RunScenarioAsync();
 
-            // Assert
             var expectedClusters = new[]
             {
                 ClusterWithDestinations(
@@ -273,7 +252,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         [Fact]
         public async void ExecuteAsync_GetLabelsFails_NoClustersAndBadHealthReported()
         {
-            // Setup
             _scenarioOptions = new ServiceFabricDiscoveryOptions { ReportReplicasHealth = true };
             ApplicationWrapper application;
             Mock_AppsResponse(
@@ -281,10 +259,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
 
             Mock_ServiceLabelsException(application, service, new ConfigException("foo"));
 
-            // Act
             var (routes, clusters) = await RunScenarioAsync();
 
-            // Assert
             clusters.Should().BeEmpty();
             routes.Should().BeEmpty();
             AssertServiceHealthReported(service, HealthState.Warning, (description) => description.Contains("foo"));
@@ -292,10 +268,9 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         }
 
         [Theory]
-        [InlineData("YARP.Backend.Healthcheck.Active.Interval", "not a number")]
+        [InlineData("YARP.Backend.HealthCheck.Active.Interval", "not a number")]
         public async void ExecuteAsync_InvalidLabelsForCluster_NoClustersAndBadHealthReported(string keyToOverride, string value)
         {
-            // Setup
             _scenarioOptions = new ServiceFabricDiscoveryOptions { ReportReplicasHealth = true };
             var labels = SFTestHelpers.DummyLabels("SomeClusterId");
             labels[keyToOverride] = value;
@@ -305,10 +280,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
 
             Mock_ServiceLabels(application, service, labels);
 
-            // Act
             var (routes, clusters) = await RunScenarioAsync();
 
-            // Assert
             clusters.Should().BeEmpty();
             routes.Should().BeEmpty();
             AssertServiceHealthReported(service, HealthState.Warning, (description) =>
@@ -319,7 +292,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         [Fact]
         public async void ExecuteAsync_InvalidRouteOrder_NoRoutesAndBadHealthReported()
         {
-            // Setup
             _scenarioOptions = new ServiceFabricDiscoveryOptions { ReportReplicasHealth = true };
             var labels = new Dictionary<string, string>()
             {
@@ -334,10 +306,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
 
             Mock_ServiceLabels(application, service, labels);
 
-            // Act
             var (routes, clusters) = await RunScenarioAsync();
 
-            // Assert
             var expectedClusters = new[]
             {
                 ClusterWithDestinations(
@@ -356,7 +326,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         [Fact]
         public async void ExecuteAsync_InvalidListenerNameForStatefulService_NoEndpointsAndBadHealthReported()
         {
-            // Setup
             _scenarioOptions = new ServiceFabricDiscoveryOptions { ReportReplicasHealth = true };
             const string TestClusterId = "MyService123";
             var labels = SFTestHelpers.DummyLabels(TestClusterId);
@@ -367,10 +336,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
 
             Mock_ServiceLabels(application, service, labels);
 
-            // Act
             var (routes, clusters) = await RunScenarioAsync();
 
-            // Assert
             var expectedClusters = new[]
             {
                 LabelsParser.BuildCluster(_testServiceName, labels),
@@ -389,7 +356,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         [Fact]
         public async void ExecuteAsync_InvalidListenerNameForStatelessService_NoEndpointsAndBadHealthReported()
         {
-            // Setup
             _scenarioOptions = new ServiceFabricDiscoveryOptions { ReportReplicasHealth = true };
             const string TestClusterId = "MyService123";
             var labels = SFTestHelpers.DummyLabels(TestClusterId);
@@ -400,10 +366,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
 
             Mock_ServiceLabels(application, service, labels);
 
-            // Act
             var (routes, clusters) = await RunScenarioAsync();
 
-            // Assert
             var expectedClusters = new[]
             {
                 LabelsParser.BuildCluster(_testServiceName, labels),
@@ -422,7 +386,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         [Fact]
         public async void ExecuteAsync_NotHttpsSchemeForStatelessService_NoEndpointsAndBadHealthReported()
         {
-            // Setup
             _scenarioOptions = new ServiceFabricDiscoveryOptions { ReportReplicasHealth = true };
             const string TestClusterId = "MyService123";
             const string ServiceName = "fabric:/MyApp/MyService";
@@ -435,10 +398,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             replica.ReplicaAddress = $"{{'Endpoints': {{'ExampleTeamEndpoint': '{nonHttpAddress}' }} }}".Replace("'", "\"");
             Mock_ServiceLabels(application, service, labels);
 
-            // Act
             var (routes, clusters) = await RunScenarioAsync();
 
-            // Assert
             var expectedClusters = new[]
             {
                 LabelsParser.BuildCluster(_testServiceName, labels),
@@ -457,22 +418,19 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         [Fact]
         public async void ExecuteAsync_ValidListenerNameForStatelessService_Work()
         {
-            // Setup
             _scenarioOptions = new ServiceFabricDiscoveryOptions { ReportReplicasHealth = true };
             const string TestClusterId = "MyService123";
             var labels = SFTestHelpers.DummyLabels(TestClusterId);
             labels["YARP.Backend.ServiceFabric.ListenerName"] = "ExampleTeamEndpoint";
-            labels["YARP.Backend.Healthcheck.Active.ServiceFabric.ListenerName"] = "ExampleTeamHealthEndpoint";
+            labels["YARP.Backend.HealthCheck.Active.ServiceFabric.ListenerName"] = "ExampleTeamHealthEndpoint";
             ApplicationWrapper application;
             Mock_AppsResponse(
                 application = CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MyService", out var service, out var replica, serviceKind: ServiceKind.Stateless));
             replica.ReplicaAddress = MockReplicaAdressWithListenerName("MyApp", "MyService", new string[] { "ExampleTeamEndpoint", "ExampleTeamHealthEndpoint" });
             Mock_ServiceLabels(application, service, labels);
 
-            // Act
             var (routes, clusters) = await RunScenarioAsync();
 
-            // Assert
             var expectedClusters = new[]
             {
                 ClusterWithDestinations(
@@ -492,7 +450,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         [Fact]
         public async void ExecuteAsync_SomeUnhealthyReplicas_OnlyHealthyReplicasAreUsed()
         {
-            // Setup
             _scenarioOptions = new ServiceFabricDiscoveryOptions { ReportReplicasHealth = true };
             const string TestClusterId = "MyService123";
             var labels = SFTestHelpers.DummyLabels(TestClusterId);
@@ -517,10 +474,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             replicas[3].ReplicaStatus = ServiceReplicaStatus.Down; // Should be skipped because of status
             replicas[3].HealthState = HealthState.Ok;
 
-            // Act
             var (routes, clusters) = await RunScenarioAsync();
 
-            // Assert
             var expectedClusters = new[]
             {
                 ClusterWithDestinations(
@@ -543,7 +498,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         [Fact]
         public async void ExecuteAsync_ReplicaHealthReportDisabled_ReplicasHealthIsNotReported()
         {
-            // Setup
             _scenarioOptions = new ServiceFabricDiscoveryOptions { ReportReplicasHealth = false };
             const string TestClusterId = "MyService123";
             var labels = SFTestHelpers.DummyLabels(TestClusterId);
@@ -552,10 +506,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 application = CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MYService", out var service, out var replica));
             Mock_ServiceLabels(application, service, labels);
 
-            // Act
             var (routes, clusters) = await RunScenarioAsync();
 
-            // Assert
             var expectedClusters = new[]
             {
                 ClusterWithDestinations(
@@ -580,7 +532,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         [InlineData("All", null)]
         public async void ExecuteAsync_StatefulService_SelectReplicaWork(string selectionMode, ReplicaRole? replicaRole)
         {
-            // Setup
             _scenarioOptions = new ServiceFabricDiscoveryOptions { ReportReplicasHealth = true };
             const string TestClusterId = "MyService123";
             var labels = SFTestHelpers.DummyLabels(TestClusterId);
@@ -591,10 +542,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             replica.ServiceKind = ServiceKind.Stateful;
             replica.Role = replicaRole;
 
-            // Act
             var (routes, clusters) = await RunScenarioAsync();
 
-            // Assert
             var expectedClusters = new[]
             {
                 ClusterWithDestinations(
@@ -617,7 +566,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         [InlineData("SecondaryOnly", null)]
         public async void ExecuteAsync_StatefulService_SkipReplicaWork(string selectionMode, ReplicaRole? replicaRole)
         {
-            // Setup
             _scenarioOptions = new ServiceFabricDiscoveryOptions { ReportReplicasHealth = true };
             const string TestClusterId = "MyService123";
             var labels = SFTestHelpers.DummyLabels(TestClusterId);
@@ -628,10 +576,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             replica.ServiceKind = ServiceKind.Stateful;
             replica.Role = replicaRole;
 
-            // Act
             var (routes, clusters) = await RunScenarioAsync();
 
-            // Assert
             var expectedClusters = new[]
             {
                 LabelsParser.BuildCluster(_testServiceName, labels),

@@ -169,7 +169,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                         // TODO: This should trigger a Warning or Error health report on the faulty service.
                         // This is not critical because if the absence of the setting leads to invalid configs, we *do* already report error
                         // (for example, if a route's rule were missing).
-                        _logger.LogInformation($"Application does not specify parameter referenced in a Service Manifest extension label. ApplicationName='{app.ApplicationName}', ApplicationtypeName='{app.ApplicationTypeName}', ApplicationTypeVersion='{app.ApplicationTypeVersion}', ServiceName='{service.ServiceName}', Label='{label.Key}', AppParamName='{appParamName}'.");
+                        Log.InvalidApplicationParameter(_logger, app.ApplicationName, app.ApplicationTypeName, app.ApplicationTypeVersion, service.ServiceName, label.Key, appParamName);
                         appParamValue = string.Empty;
                     }
 
@@ -224,6 +224,20 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                 }
             }
             return result;
+        }
+
+        private static class Log
+        {
+            private static readonly Action<ILogger, Uri, string, string, Uri, string, string, Exception> _invalidApplicationParameter =
+                LoggerMessage.Define<Uri, string, string, Uri, string, string>(
+                    LogLevel.Information,
+                    EventIds.InvalidApplicationParameter,
+                    "Application does not specify parameter referenced in a Service Manifest extension label. ApplicationName='{applicationName}', ApplicationtypeName='{app.ApplicationTypeName}', ApplicationTypeVersion='{applicationTypeVersion}', ServiceName='{serviceName}', Label='{label}', AppParamName='{appParamName}'.");
+
+            public static void InvalidApplicationParameter(ILogger<ServiceExtensionLabelsProvider> logger, Uri applicationName, string applicationTypeName, string applicationTypeVersion, Uri serviceName, string label, string appParamName)
+            {
+                _invalidApplicationParameter(logger, applicationName, applicationTypeName, applicationTypeVersion, serviceName, label, appParamName, null);
+            }
         }
     }
 }

@@ -22,9 +22,9 @@ namespace Microsoft.ReverseProxy.ServiceFabric
         /// <summary>
         /// Initializes a new instance of the <see cref="PropertyManagementClientWrapper"/> class.
         /// </summary>
-        public PropertyManagementClientWrapper()
+        public PropertyManagementClientWrapper(IFabricClientWrapper fabricClientWrapper)
         {
-            _propertyManagementClient = new FabricClient().PropertyManager;
+            _propertyManagementClient = fabricClientWrapper.FabricClient.PropertyManager;
         }
 
         /// <summary>
