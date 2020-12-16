@@ -21,6 +21,11 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         public static readonly HttpTransforms Default = new HttpTransforms();
 
         /// <summary>
+        /// Used to create derived instances.
+        /// </summary>
+        protected HttpTransforms() { }
+
+        /// <summary>
         /// A callback that is invoked prior to sending the proxied request. All HttpRequestMessage fields are
         /// initialized except RequestUri, which will be initialized after the callback if no value is provided.
         /// The string parameter represents the destination URI prefix that should be used when constructing the RequestUri.
