@@ -13,6 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Management;
+using Microsoft.ReverseProxy.Service.Proxy;
 using Microsoft.ReverseProxy.Service.Routing;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 using Xunit;
@@ -73,7 +74,7 @@ namespace Microsoft.ReverseProxy.Service.DynamicEndpoint
 
         private (RouteEndpoint routeEndpoint, RouteConfig routeConfig) CreateEndpoint(ProxyEndpointFactory factory, RouteInfo routeInfo, ProxyRoute proxyRoute, ClusterInfo clusterInfo)
         {
-            var routeConfig = new RouteConfig(routeInfo, proxyRoute, clusterInfo, Transforms.Empty);
+            var routeConfig = new RouteConfig(routeInfo, proxyRoute, clusterInfo, HttpTransforms.Default);
 
             var endpoint = factory.CreateEndpoint(routeConfig, Array.Empty<Action<EndpointBuilder>>());
 
