@@ -19,7 +19,7 @@ HTTP client configuration is based on [ProxyHttpClientOptions](xref:Microsoft.Re
 "HttpClient": {
     "SslProtocols": [ "<protocol-names>" ],
     "MaxConnectionsPerServer": "<int>",
-    "ValidateRemoteCertificate": "<bool>",
+    "DangerousAcceptAnyServerCertificate": "<bool>",
     "ClientCertificate": {
         "Path": "<string>",
         "KeyPath": "<string>",
