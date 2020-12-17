@@ -26,9 +26,7 @@ public void ConfigureServices(IServiceCollection services)
 {
     services.AddControllers();
     services.AddReverseProxy()
-        .LoadFromServiceFabric();
-
-    services.Configure<ServiceFabricDiscoveryOptions>(_configuration.GetSection("ServiceFabricDiscovery"));
+        .LoadFromServiceFabric(_configuration.GetSection("ServiceFabricDiscovery"));
 }
 
 public void Configure(IApplicationBuilder app)
@@ -62,9 +60,20 @@ The following is an example of an `appsettings.json` file with `ServiceFabricDis
   }
 }
 ```
-It can be loaded into the ServiceFabricDiscoveryOptions at startup with the following code method called from within Asp.Net's `ConfigureServices` method:
+It can be loaded into the ServiceFabricDiscoveryOptions at startup with the following code with passing configuration section to `LoadFromServiceFabric` method:
 ```C#
-services.Configure<ServiceFabricDiscoveryOptions>(_configuration.GetSection("ServiceFabricDiscovery"));
+services.AddReverseProxy()
+        .LoadFromServiceFabric(_configuration.GetSection("ServiceFabricDiscovery"));
+```
+Or it can be configured from code:
+```C#
+services.AddReverseProxy()
+        .LoadFromServiceFabric(options =>
+        {
+            options.DiscoveryPeriod = TimeSpan.FromSeconds(5);
+            options.DiscoverInsecureHttpDestinations = true;
+            options.AlwaysSendImmediateHealthReports = true;
+        });
 ```
 
 ## SF service enlistment
