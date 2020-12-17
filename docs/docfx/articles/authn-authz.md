@@ -73,9 +73,9 @@ See the [Authentication](https://docs.microsoft.com/en-us/aspnet/core/security/a
 
 ### Special values:
 
-There are two special values that can be specified in a route's authorization parameter: `default` and `anonymous`.
+In addition to custom policy names, there are two special values that can be specified in a route's authorization parameter: `default` and `anonymous`. ASP.NET Core also has a FallbackPolicy setting that applies to routes that do not specify a policy.
 
-### DefaultPolicy
+#### DefaultPolicy
 
 Specifying the value `default` in a route's authorization parameter means that route will use the policy defined in [AuthorizationOptions.DefaultPolicy](https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.authorization.authorizationoptions.defaultpolicy?#Microsoft_AspNetCore_Authorization_AuthorizationOptions_DefaultPolicy). That policy is pre-configured to require authenticated users.
 
@@ -83,7 +83,7 @@ Specifying the value `default` in a route's authorization parameter means that r
 
 Specifying the value `anonymous` in a route's authorization parameter means that route will not require authorization regardless of any other configuration in the application such as the FallbackPolicy.
 
-### FallbackPolicy
+#### FallbackPolicy
 
 [AuthorizationOptions.FallbackPolicy](https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.authorization.authorizationoptions.fallbackpolicy) is the policy that will be used for any request or route that was not configured with a policy. FallbackPolicy does not have a value by default, any request will be allowed.
 
