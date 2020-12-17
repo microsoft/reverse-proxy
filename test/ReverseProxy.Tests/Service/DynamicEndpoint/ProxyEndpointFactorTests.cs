@@ -261,6 +261,27 @@ namespace Microsoft.ReverseProxy.Service.DynamicEndpoint
         }
 
         [Fact]
+        public void AddEndpoint_AnonymousAuth_Works()
+        {
+            var services = CreateServices();
+            var factory = services.GetRequiredService<ProxyEndpointFactory>();
+            factory.SetProxyPipeline(context => Task.CompletedTask);
+
+            var route = new ProxyRoute
+            {
+                RouteId = "route1",
+                AuthorizationPolicy = "AnonymouS",
+                Order = 12,
+            };
+            var cluster = new ClusterInfo("cluster1", new DestinationManager());
+            var routeInfo = new RouteInfo("route1");
+
+            var (routeEndpoint, _) = CreateEndpoint(factory, routeInfo, route, cluster);
+
+            Assert.IsType<AllowAnonymousAttribute>(routeEndpoint.Metadata.GetMetadata<IAllowAnonymous>());
+        }
+
+        [Fact]
         public void AddEndpoint_CustomAuth_Works()
         {
             var services = CreateServices();

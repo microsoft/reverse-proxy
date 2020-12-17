@@ -23,6 +23,7 @@ namespace Microsoft.ReverseProxy
         private static readonly IAuthorizeData _defaultAuthorization = new AuthorizeAttribute();
         private static readonly IEnableCorsAttribute _defaultCors = new EnableCorsAttribute();
         private static readonly IDisableCorsAttribute _disableCors = new DisableCorsAttribute();
+        private static readonly IAllowAnonymous _allowAnonymous = new AllowAnonymousAttribute();
 
         private RequestDelegate _pipeline;
 
@@ -89,6 +90,10 @@ namespace Microsoft.ReverseProxy
             if (string.Equals(AuthorizationConstants.Default, proxyRoute.AuthorizationPolicy, StringComparison.OrdinalIgnoreCase))
             {
                 endpointBuilder.Metadata.Add(_defaultAuthorization);
+            }
+            else if (string.Equals(AuthorizationConstants.Anonymous, proxyRoute.AuthorizationPolicy, StringComparison.OrdinalIgnoreCase))
+            {
+                endpointBuilder.Metadata.Add(_allowAnonymous);
             }
             else if (!string.IsNullOrEmpty(proxyRoute.AuthorizationPolicy))
             {

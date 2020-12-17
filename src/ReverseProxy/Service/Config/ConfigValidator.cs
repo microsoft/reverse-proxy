@@ -236,6 +236,11 @@ namespace Microsoft.ReverseProxy.Service
                 return;
             }
 
+            if (string.Equals(AuthorizationConstants.Anonymous, authorizationPolicyName, StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
             try
             {
                 var policy = await _authorizationPolicyProvider.GetPolicyAsync(authorizationPolicyName);
