@@ -30,9 +30,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Sample
         {
             services.AddControllers();
             services.AddReverseProxy()
-                .LoadFromServiceFabric();
-
-            services.Configure<ServiceFabricDiscoveryOptions>(_configuration.GetSection("ServiceFabricDiscovery"));
+                .LoadFromServiceFabric(_configuration.GetSection("ServiceFabricDiscovery"));
         }
 
         /// <summary>
