@@ -98,7 +98,7 @@ These are the supported parameters:
 ### Route definitions
 Multiple routes can be defined in an SF service configuration with the following parameters:
 - `YARP.Routes.<routeName>.Path` - configures path-based route matching. The value directly assigned to [ProxyMatch.Path](xref:Microsoft.ReverseProxy.Abstractions.ProxyMatch) property and the standard route matching logic will be applied. `{**catch-all}` path may be used to route all requests.
-- `YARP.Routes.<routeName>.Host` - configures `Host` header based route matching. Multiple hosts should be separated by comma `,`. The value is split into a list of host names which is then directly assigned to [ProxyMatch.Hosts](xref:Microsoft.ReverseProxy.Abstractions.ProxyMatch) property and the standard route matching logic will be applied.
+- `YARP.Routes.<routeName>.Hosts` - configures `Host` header based route matching. Multiple hosts should be separated by comma `,`. The value is split into a list of host names which is then directly assigned to [ProxyMatch.Hosts](xref:Microsoft.ReverseProxy.Abstractions.ProxyMatch) property and the standard route matching logic will be applied.
 - `<routeName>` can contain an ASCII letter, a number, or '_' and '-' symbols.
 
 Each route requires a `Path` or `Host` (or both). If both of them are specified, then a request is matched to the route only when both of them are matched.
@@ -107,7 +107,7 @@ Example:
 ```XML
 <Label Key="YARP.Routes.route-A1.Path">/api</Label>
 <Label Key="YARP.Routes.route-B2.Path">/control-api</Label>
-<Label Key="YARP.Routes.route-B2.Host">example.com,anotherexample.com</Label>
+<Label Key="YARP.Routes.route-B2.Hosts">example.com,anotherexample.com</Label>
 ```
 
 ### Service extension example
