@@ -77,11 +77,11 @@ These are the supported parameters:
 - `YARP.Backend.SessionAffinity.*` - configures YARP session affinity. Available parameters and their meanings are provided on [the respective documentation page](session-affinity.md). Optional parameter
 - `YARP.Backend.HttpRequest.*` - sets proxied HTTP request properties. Available parameters and their meanings are provided on [the respective documentation page](proxyhttpclientconfig.md) in 'HttpRequest' section. Optional parameter
 - `YARP.Backend.HealthCheck.Active.*` - configures YARP active health checks to be run against the given service. Available parameters and their meanings are provided on [the respective documentation page](dests-health-checks.md). There is one label in this group `YARP.Backend.HealthCheck.Active.ServiceFabric.ListenerName` which is not covered by that document because it's SF specific. Its purpose is explained below. Optional parameter
-- `YARP.Backend.HealthCheck.Active.ServiceFabric.ListenerName` - sets an explicit listener name controlling selection of the health probing endpoint for each replica/instance that is used to probe replica/instance health state and is stored on the `Destination.Health` property in YARP's model. Optional parameter
+- `YARP.Backend.HealthCheck.Active.ServiceFabric.ListenerName` - sets an explicit listener name for the health probing endpoint for each replica/instance that is used to probe replica/instance health state and is stored on the `Destination.Health` property in YARP's model. Optional parameter
 - `YARP.Backend.HealthCheck.Passive.*` - configures YARP passive health checks to be run against the given service. Available parameters and their meanings are provided on [the respective documentation page](dests-health-checks.md). Optional parameter
 - `YARP.Backend.Metadata.*` - sets the cluster's metadata. Optional parameter
 - `YARP.Backend.BackendId` - overrides the cluster's Id. Default cluster's Id is the SF service name. Optional parameter
-- `YARP.Backend.ServiceFabric.ListenerName` - sets an explicit listener name controlling selection of the main service's endpoint for each replica/instance that is used to route client requests to and is stored on the `Destination.Address` property in YARP's model. Optional parameter
+- `YARP.Backend.ServiceFabric.ListenerName` - sets an explicit listener name for the main service's endpoint for each replica/instance that is used to route client requests to and is stored on the `Destination.Address` property in YARP's model. Optional parameter
 - `YARP.Backend.ServiceFabric.StatefulReplicaSelectionMode` - sets statefull replica selection mode. Supported values `All`, `PrimaryOnly`, `SecondaryOnly`. Values `All` and `SecondaryOnly` mean that the active secondary replicas will also be eligible for getting all kinds of client requests including writes. Default value `All`
 
 > NOTE: Label values can use the special syntax `[AppParamName]` to reference an application parameter with the name given within square brackets. This is consistent with Service Fabric conventions, see e.g. [using parameters in Service Fabric](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-how-to-specify-port-number-using-parameters).
@@ -150,6 +150,13 @@ Limitations of the current Service Fabric to YARP configuration model conversion
 - All statefull service replica roles are treated equally. No special differentiation logic is applied. Depending on the configuration, active secondary replicas can also be converted to `Destinations` and directly receive client requests.
 - Each of the named service instances get converted to separate YARP [Clusters](xref:Microsoft.ReverseProxy.Abstractions.Cluster) which are completely unrelated to each other.
 - Limited error handling. Most failures are logged and suppressed. Some errors will prevent the proxy config from being updated.
+
+## Replica/instance endpoint selection
+A SF replica/instance can expose several endpoints for client requests and health probes, however YARP.ServiceFabric currently supports only one endpoint of each respective type. The logic selecting that single endpoint is controlled by the `ListenerName` parameter. A listener name is simply a key in a key-value endpoint list published in form of an "address" string for each replica/instance. If it's specified, SF integration will find and take the respective endpoint URI identified by this key. If the listener name is not specified it will sort that key-value list by the key (i.e. by listener name) in `Ordinal` order and take the first endpoint from the sorted list. Regardless of the way an endpoint URI has been chosen, SF integration also checks that its schema is allowed for the given replica/instance as it's defined in the SF service configuration.
+
+There are several parameters specifying listener names for different endpoint types:
+- `YARP.Backend.ServiceFabric.ListenerName` - sets an explicit listener name for the main service's endpoint
+- `YARP.Backend.HealthCheck.Active.ServiceFabric.ListenerName` - sets an explicit listener name for the health probing endpoint
 
 ## Architecture
 The detailed process of SF cluster polling and model conversion looks as follows.
