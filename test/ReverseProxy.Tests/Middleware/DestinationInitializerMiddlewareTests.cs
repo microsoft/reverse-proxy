@@ -52,7 +52,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 new RouteInfo("route1"),
                 proxyRoute: new ProxyRoute(),
                 cluster1,
-                transforms: null);
+                transformer: null);
             var aspNetCoreEndpoint = CreateAspNetCoreEndpoint(routeConfig);
             aspNetCoreEndpoints.Add(aspNetCoreEndpoint);
             var httpContext = new DefaultHttpContext();
@@ -101,7 +101,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 route: new RouteInfo("route1"),
                 proxyRoute: new ProxyRoute(),
                 cluster: cluster1,
-                transforms: null);
+                transformer: null);
             var aspNetCoreEndpoint = CreateAspNetCoreEndpoint(routeConfig);
             aspNetCoreEndpoints.Add(aspNetCoreEndpoint);
             var httpContext = new DefaultHttpContext();

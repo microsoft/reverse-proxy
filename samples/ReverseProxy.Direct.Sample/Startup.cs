@@ -40,7 +40,7 @@ namespace Microsoft.ReverseProxy.Sample
             });
 
             // Copy all request headers except Host
-            var transforms = new CustomTransforms();
+            var transformer = new CustomTransformer(); // or HttpTransformer.Default;
             var requestOptions = new RequestProxyOptions(TimeSpan.FromSeconds(100), null);
 
             app.UseRouting();
@@ -50,7 +50,7 @@ namespace Microsoft.ReverseProxy.Sample
                 endpoints.MapControllers();
                 endpoints.Map("/{**catch-all}", async httpContext =>
                 {
-                    await httpProxy.ProxyAsync(httpContext, "https://localhost:10000/", httpClient, transforms, requestOptions);
+                    await httpProxy.ProxyAsync(httpContext, "https://localhost:10000/", httpClient, transformer, requestOptions);
                     var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
                     if (errorFeature != null)
                     {
@@ -61,7 +61,7 @@ namespace Microsoft.ReverseProxy.Sample
             });
         }
 
-        private class CustomTransforms : HttpTransforms
+        private class CustomTransformer : HttpTransformer
         {
             public override async Task TransformRequestAsync(HttpContext httpContext, HttpRequestMessage proxyRequest, string destinationPrefix)
             {

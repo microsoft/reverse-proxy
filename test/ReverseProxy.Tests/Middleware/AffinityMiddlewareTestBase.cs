@@ -94,7 +94,7 @@ namespace Microsoft.ReverseProxy.Middleware
         internal Endpoint GetEndpoint(ClusterInfo cluster)
         {
             var proxyRoute = new ProxyRoute();
-            var routeConfig = new RouteConfig(new RouteInfo("route-1"), proxyRoute, cluster, HttpTransforms.Default);
+            var routeConfig = new RouteConfig(new RouteInfo("route-1"), proxyRoute, cluster, HttpTransformer.Default);
             var endpoint = new Endpoint(default, new EndpointMetadataCollection(routeConfig), string.Empty);
             return endpoint;
         }

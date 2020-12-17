@@ -12,18 +12,18 @@ using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Service.Proxy
 {
-    public class HttpTransforms
+    public class HttpTransformer
     {
         /// <summary>
         /// A default set of transforms that copies all request and response fields and headers, except for some
         /// protocol specific values.
         /// </summary>
-        public static readonly HttpTransforms Default = new HttpTransforms();
+        public static readonly HttpTransformer Default = new HttpTransformer();
 
         /// <summary>
         /// Used to create derived instances.
         /// </summary>
-        protected HttpTransforms() { }
+        protected HttpTransformer() { }
 
         /// <summary>
         /// A callback that is invoked prior to sending the proxied request. All HttpRequestMessage fields are

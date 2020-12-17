@@ -96,7 +96,7 @@ namespace Microsoft.ReverseProxy.DynamicEndpoint
                 {
                     Config = new ClusterConfig(cluster, default, default, default, default, default, default, default)
                 },
-                HttpTransforms.Default);
+                HttpTransformer.Default);
 
             endpointBuilder.Metadata.Add(routeConfig);
 

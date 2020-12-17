@@ -14,7 +14,6 @@ using Microsoft.ReverseProxy.Common.Tests;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Management;
 using Microsoft.ReverseProxy.Service.Proxy;
-using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 using Moq;
 using Xunit;
 
@@ -67,7 +66,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 route: new RouteInfo("route1"),
                 proxyRoute: new ProxyRoute(),
                 cluster: cluster1,
-                transforms: null);
+                transformer: null);
             var aspNetCoreEndpoint = CreateAspNetCoreEndpoint(routeConfig);
             aspNetCoreEndpoints.Add(aspNetCoreEndpoint);
             httpContext.SetEndpoint(aspNetCoreEndpoint);
@@ -79,7 +78,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                     httpContext,
                     It.Is<string>(uri => uri == "https://localhost:123/a/b/"),
                     httpClient,
-                    It.Is<HttpTransforms>(transforms => transforms == null),
+                    It.Is<HttpTransformer>(transformer => transformer == null),
                     It.Is<RequestProxyOptions>(requestOptions =>
                         requestOptions.Timeout == httpRequestOptions.Timeout
                         && requestOptions.Version == httpRequestOptions.Version
@@ -149,7 +148,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 route: new RouteInfo("route1"),
                 proxyRoute: new ProxyRoute(),
                 cluster: cluster1,
-                transforms: null);
+                transformer: null);
             var aspNetCoreEndpoint = CreateAspNetCoreEndpoint(routeConfig);
             aspNetCoreEndpoints.Add(aspNetCoreEndpoint);
             httpContext.SetEndpoint(aspNetCoreEndpoint);
@@ -159,7 +158,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                     httpContext,
                     It.IsAny<string>(),
                     httpClient,
-                    It.IsAny<HttpTransforms>(),
+                    It.IsAny<HttpTransformer>(),
                     It.IsAny<RequestProxyOptions>()))
                 .Returns(() => throw new NotImplementedException());
 

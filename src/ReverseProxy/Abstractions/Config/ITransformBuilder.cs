@@ -21,6 +21,6 @@ namespace Microsoft.ReverseProxy.Service
         /// <summary>
         /// Builds the given transforms into executable rules.
         /// </summary>
-        HttpTransforms Build(IList<IDictionary<string, string>> rawTransforms);
+        HttpTransformer Build(IList<IDictionary<string, string>> rawTransforms);
     }
 }

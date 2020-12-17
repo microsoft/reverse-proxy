@@ -88,14 +88,14 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             HttpContext context,
             string destinationPrefix,
             HttpMessageInvoker httpClient,
-            HttpTransforms transforms,
+            HttpTransformer transformer,
             RequestProxyOptions requestOptions)
         {
             _ = context ?? throw new ArgumentNullException(nameof(context));
             _ = destinationPrefix ?? throw new ArgumentNullException(nameof(destinationPrefix));
             _ = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
 
-            transforms ??= HttpTransforms.Default;
+            transformer ??= HttpTransformer.Default;
 
             // HttpClient overload for SendAsync changes response behavior to fully buffered which impacts performance
             // See discussion in https://github.com/microsoft/reverse-proxy/issues/458
@@ -117,7 +117,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 
                 // :: Step 1-3: Create outgoing HttpRequestMessage
                 var (destinationRequest, requestContent) = await CreateRequestMessageAsync(
-                    context, destinationPrefix, transforms, requestOptions, isStreamingRequest, requestAborted);
+                    context, destinationPrefix, transformer, requestOptions, isStreamingRequest, requestAborted);
 
                 // :: Step 4: Send the outgoing request using HttpClient
                 HttpResponseMessage destinationResponse;
@@ -173,7 +173,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 
                 // :: Step 5: Copy response status line Client ◄-- Proxy ◄-- Destination
                 // :: Step 6: Copy response headers Client ◄-- Proxy ◄-- Destination
-                await CopyResponseStatusAndHeadersAsync(destinationResponse, context, transforms);
+                await CopyResponseStatusAndHeadersAsync(destinationResponse, context, transformer);
 
                 // :: Step 7-A: Check for a 101 upgrade response, this takes care of WebSockets as well as any other upgradeable protocol.
                 if (destinationResponse.StatusCode == HttpStatusCode.SwitchingProtocols)
@@ -202,7 +202,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 }
 
                 // :: Step 8: Copy response trailer headers and finish response Client ◄-- Proxy ◄-- Destination
-                await CopyResponseTrailingHeadersAsync(destinationResponse, context, transforms);
+                await CopyResponseTrailingHeadersAsync(destinationResponse, context, transformer);
 
                 if (isStreamingRequest)
                 {
@@ -243,7 +243,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         }
 
         private async Task<(HttpRequestMessage, StreamCopyHttpContent)> CreateRequestMessageAsync(HttpContext context, string destinationPrefix,
-            HttpTransforms transforms, RequestProxyOptions requestOptions, bool isStreamingRequest, CancellationToken requestAborted)
+            HttpTransformer transformer, RequestProxyOptions requestOptions, bool isStreamingRequest, CancellationToken requestAborted)
         {
             // "http://a".Length = 8
             if (destinationPrefix == null || destinationPrefix.Length < 8)
@@ -279,7 +279,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             destinationRequest.Content = requestContent;
 
             // :: Step 3: Copy request headers Client --► Proxy --► Destination
-            await transforms.TransformRequestAsync(context, destinationRequest, destinationPrefix);
+            await transformer.TransformRequestAsync(context, destinationRequest, destinationPrefix);
 
             // Allow someone to custom build the request uri, otherwise provide a default for them.
             var request = context.Request;
@@ -434,13 +434,13 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             context.Response.StatusCode = StatusCodes.Status502BadGateway;
         }
 
-        private static Task CopyResponseStatusAndHeadersAsync(HttpResponseMessage source, HttpContext context, HttpTransforms transforms)
+        private static Task CopyResponseStatusAndHeadersAsync(HttpResponseMessage source, HttpContext context, HttpTransformer transformer)
         {
             context.Response.StatusCode = (int)source.StatusCode;
             context.Features.Get<IHttpResponseFeature>().ReasonPhrase = source.ReasonPhrase;
 
             // Copies headers
-            return transforms.TransformResponseAsync(context, source);
+            return transformer.TransformResponseAsync(context, source);
         }
 
         private async Task HandleUpgradedResponse(HttpContext context, HttpResponseMessage destinationResponse,
@@ -567,10 +567,10 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             ResetOrAbort(context, isCancelled: responseBodyCopyResult == StreamCopyResult.Canceled);
         }
 
-        private static Task CopyResponseTrailingHeadersAsync(HttpResponseMessage source, HttpContext context, HttpTransforms transforms)
+        private static Task CopyResponseTrailingHeadersAsync(HttpResponseMessage source, HttpContext context, HttpTransformer transformer)
         {
             // Copies trailers
-            return transforms.TransformResponseTrailersAsync(context, source);
+            return transformer.TransformResponseTrailersAsync(context, source);
         }
 
 

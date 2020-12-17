@@ -350,7 +350,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             Assert.Equal("key", removeQueryParameterTransform.Key);
         }
 
-        private static Transforms BuildTransform(ProxyRoute proxyRoute)
+        private static StructuredTransformer BuildTransform(ProxyRoute proxyRoute)
         {
             var builder = new TransformBuilder(NullTemplateBinderFactory.Instance, new TestRandomFactory());
 

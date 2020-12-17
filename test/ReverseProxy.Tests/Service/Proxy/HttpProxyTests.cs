@@ -1530,7 +1530,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var httpClient = new HttpClient();
             var httpContext = new DefaultHttpContext();
             var destinationPrefix = "";
-            var transforms = HttpTransforms.Default;
+            var transforms = HttpTransformer.Default;
             var requestOptions = default(RequestProxyOptions);
             var proxy = CreateProxy();
 
@@ -1835,7 +1835,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             }
         }
 
-        private class DelegateHttpTransforms : HttpTransforms
+        private class DelegateHttpTransforms : HttpTransformer
         {
             public bool CopyRequestHeaders { get; set; } = true;
 

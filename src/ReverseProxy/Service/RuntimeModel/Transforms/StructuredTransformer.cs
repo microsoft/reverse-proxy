@@ -18,12 +18,12 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
     /// <summary>
     /// Transforms for a given route.
     /// </summary>
-    internal class Transforms : HttpTransforms
+    internal class StructuredTransformer : HttpTransformer
     {
         /// <summary>
-        /// Creates a new <see cref="Transforms"/> instance.
+        /// Creates a new <see cref="StructuredTransformer"/> instance.
         /// </summary>
-        internal Transforms(bool? copyRequestHeaders, IList<RequestParametersTransform> requestTransforms,
+        internal StructuredTransformer(bool? copyRequestHeaders, IList<RequestParametersTransform> requestTransforms,
             Dictionary<string, RequestHeaderTransform> requestHeaderTransforms,
             Dictionary<string, ResponseHeaderTransform> responseHeaderTransforms,
             Dictionary<string, ResponseHeaderTransform> responseTrailerTransforms)

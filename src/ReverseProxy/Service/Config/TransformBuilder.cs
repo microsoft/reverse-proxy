@@ -247,13 +247,13 @@ namespace Microsoft.ReverseProxy.Service.Config
         }
 
         /// <inheritdoc/>
-        public HttpTransforms Build(IList<IDictionary<string, string>> rawTransforms)
+        public HttpTransformer Build(IList<IDictionary<string, string>> rawTransforms)
         {
             return BuildInternal(rawTransforms);
         }
 
         // This is separate from Build for testing purposes.
-        internal Transforms BuildInternal(IList<IDictionary<string, string>> rawTransforms)
+        internal StructuredTransformer BuildInternal(IList<IDictionary<string, string>> rawTransforms)
         {
             bool? copyRequestHeaders = null;
             bool? useOriginalHost = null;
@@ -566,7 +566,7 @@ namespace Microsoft.ReverseProxy.Service.Config
                 }
             }
 
-            return new Transforms(copyRequestHeaders, requestTransforms, requestHeaderTransforms, responseHeaderTransforms, responseTrailerTransforms);
+            return new StructuredTransformer(copyRequestHeaders, requestTransforms, requestHeaderTransforms, responseHeaderTransforms, responseTrailerTransforms);
         }
 
         private void TryCheckTooManyParameters(Action<Exception> onError, IDictionary<string, string> rawTransform, int expected)

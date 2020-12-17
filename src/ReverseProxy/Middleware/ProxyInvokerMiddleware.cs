@@ -77,7 +77,7 @@ namespace Microsoft.ReverseProxy.Middleware
 
                 ProxyTelemetry.Log.ProxyInvoke(cluster.ClusterId, routeConfig.Route.RouteId, destination.DestinationId);
 
-                await _httpProxy.ProxyAsync(context, destinationConfig.Address, reverseProxyFeature.ClusterConfig.HttpClient, routeConfig.Transforms, reverseProxyFeature.ClusterConfig.HttpRequestOptions);
+                await _httpProxy.ProxyAsync(context, destinationConfig.Address, reverseProxyFeature.ClusterConfig.HttpClient, routeConfig.Transformer, reverseProxyFeature.ClusterConfig.HttpRequestOptions);
             }
             finally
             {
