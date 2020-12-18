@@ -34,9 +34,9 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                 throw new System.ArgumentNullException(nameof(context));
             }
 
-            if (response is null)
+            if (proxyResponse is null)
             {
-                throw new System.ArgumentNullException(nameof(response));
+                throw new System.ArgumentNullException(nameof(proxyResponse));
             }
 
             var result = values;
