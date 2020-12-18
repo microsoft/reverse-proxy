@@ -14,7 +14,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
     public class RequestHeaderClientCertTransform : RequestHeaderTransform
     {
         /// <inheritdoc/>
-        public override StringValues Apply(HttpContext context, HttpRequestMessage request, StringValues values)
+        public override StringValues Apply(HttpContext context, HttpRequestMessage proxyRequest, StringValues values)
         {
             if (context is null)
             {

@@ -20,6 +20,8 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
     /// </summary>
     internal class StructuredTransformer : HttpTransformer
     {
+        private static readonly HashSet<string> EmptyHash = new HashSet<string>(0);
+
         /// <summary>
         /// Creates a new <see cref="StructuredTransformer"/> instance.
         /// </summary>
@@ -61,13 +63,13 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         internal Dictionary<string, ResponseHeaderTransform> ResponseTrailerTransforms { get; }
 
         // These intentionally do not call base because the logic here overlaps with the default header copy logic.
-        public override Task TransformRequestAsync(HttpContext context, HttpRequestMessage request, string destinationPrefix)
+        public override Task TransformRequestAsync(HttpContext context, HttpRequestMessage proxyRequest, string destinationPrefix)
         {
             var transformContext = new RequestParametersTransformContext()
             {
                 DestinationPrefix = destinationPrefix,
                 HttpContext = context,
-                Request = request,
+                ProxyRequest = proxyRequest,
                 Path = context.Request.Path,
                 Query = new QueryTransformContext(context.Request),
             };
@@ -78,15 +80,15 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             }
 
             // Allow a transform to directly set a custom RequestUri.
-            request.RequestUri ??= RequestUtilities.MakeDestinationAddress(
+            proxyRequest.RequestUri ??= RequestUtilities.MakeDestinationAddress(
                 transformContext.DestinationPrefix, transformContext.Path, transformContext.Query.QueryString);
 
-            CopyRequestHeaders(context, request);
+            CopyRequestHeaders(context, proxyRequest);
 
             return Task.CompletedTask;
         }
 
-        private void CopyRequestHeaders(HttpContext context, HttpRequestMessage destination)
+        private void CopyRequestHeaders(HttpContext context, HttpRequestMessage proxyRequest)
         {
             // Transforms that were run in the first pass.
             HashSet<string> transformsRun = null;
@@ -110,53 +112,55 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                     if (RequestHeaderTransforms.TryGetValue(headerName, out var transform))
                     {
                         (transformsRun ??= new HashSet<string>(StringComparer.OrdinalIgnoreCase)).Add(headerName);
-                        headerValue = transform.Apply(context, destination, headerValue);
+                        headerValue = transform.Apply(context, proxyRequest, headerValue);
                         if (StringValues.IsNullOrEmpty(headerValue))
                         {
                             continue;
                         }
                     }
 
-                    RequestUtilities.AddHeader(destination, headerName, headerValue);
+                    RequestUtilities.AddHeader(proxyRequest, headerName, headerValue);
                 }
             }
+
+            transformsRun ??= EmptyHash;
 
             // Run any transforms that weren't run yet.
             foreach (var (headerName, transform) in RequestHeaderTransforms)
             {
-                if (!(transformsRun?.Contains(headerName) ?? false))
+                if (!transformsRun.Contains(headerName))
                 {
-                    var headerValue = transform.Apply(context, destination, StringValues.Empty);
+                    var headerValue = transform.Apply(context, proxyRequest, StringValues.Empty);
                     if (!StringValues.IsNullOrEmpty(headerValue))
                     {
-                        RequestUtilities.AddHeader(destination, headerName, headerValue);
+                        RequestUtilities.AddHeader(proxyRequest, headerName, headerValue);
                     }
                 }
             }
         }
 
-        public override Task TransformResponseAsync(HttpContext context, HttpResponseMessage source)
+        public override Task TransformResponseAsync(HttpContext context, HttpResponseMessage proxyResponse)
         {
             HashSet<string> transformsRun = null;
             var responseHeaders = context.Response.Headers;
-            CopyResponseHeaders(source, source.Headers, context, responseHeaders, ResponseHeaderTransforms, ref transformsRun);
-            if (source.Content != null)
+            CopyResponseHeaders(proxyResponse, proxyResponse.Headers, context, responseHeaders, ResponseHeaderTransforms, ref transformsRun);
+            if (proxyResponse.Content != null)
             {
-                CopyResponseHeaders(source, source.Content.Headers, context, responseHeaders, ResponseHeaderTransforms, ref transformsRun);
+                CopyResponseHeaders(proxyResponse, proxyResponse.Content.Headers, context, responseHeaders, ResponseHeaderTransforms, ref transformsRun);
             }
-            RunRemainingResponseTransforms(source, context, responseHeaders, ResponseHeaderTransforms, transformsRun);
+            RunRemainingResponseTransforms(proxyResponse, context, responseHeaders, ResponseHeaderTransforms, transformsRun);
             return Task.CompletedTask;
         }
 
-        public override Task TransformResponseTrailersAsync(HttpContext context, HttpResponseMessage source)
+        public override Task TransformResponseTrailersAsync(HttpContext context, HttpResponseMessage proxyResponse)
         {
             var responseTrailersFeature = context.Features.Get<IHttpResponseTrailersFeature>();
             var outgoingTrailers = responseTrailersFeature?.Trailers;
             HashSet<string> transformsRun = null;
             if (outgoingTrailers != null && !outgoingTrailers.IsReadOnly)
             {
-                CopyResponseHeaders(source, source.TrailingHeaders, context, outgoingTrailers, ResponseTrailerTransforms, ref transformsRun);
-                RunRemainingResponseTransforms(source, context, outgoingTrailers, ResponseTrailerTransforms, transformsRun);
+                CopyResponseHeaders(proxyResponse, proxyResponse.TrailingHeaders, context, outgoingTrailers, ResponseTrailerTransforms, ref transformsRun);
+                RunRemainingResponseTransforms(proxyResponse, context, outgoingTrailers, ResponseTrailerTransforms, transformsRun);
             }
             return Task.CompletedTask;
         }
@@ -189,10 +193,12 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         private static void RunRemainingResponseTransforms(HttpResponseMessage response, HttpContext context, IHeaderDictionary destination,
             IReadOnlyDictionary<string, ResponseHeaderTransform> transforms, HashSet<string> transformsRun)
         {
+            transformsRun ??= EmptyHash;
+
             // Run any transforms that weren't run yet.
             foreach (var (headerName, transform) in transforms) // TODO: What about multiple transforms per header? Last wins?
             {
-                if (!(transformsRun?.Contains(headerName) ?? false))
+                if (!transformsRun.Contains(headerName))
                 {
                     var headerValue = StringValues.Empty;
                     headerValue = transform.Apply(context, response, headerValue);

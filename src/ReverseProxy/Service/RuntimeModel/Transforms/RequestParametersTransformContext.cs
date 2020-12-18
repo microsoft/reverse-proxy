@@ -23,7 +23,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         /// 'Path', and 'Query' properties after the transforms have run. The headers will be copied later when
         /// applying header transforms.
         /// </summary>
-        public HttpRequestMessage Request { get; internal set; }
+        public HttpRequestMessage ProxyRequest { get; internal set; }
 
         /// <summary>
         /// The path to use for the proxy request.

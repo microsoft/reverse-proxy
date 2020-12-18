@@ -20,9 +20,9 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 
         public override void Apply(RequestParametersTransformContext context)
         {
-            if (FromMethod.Equals(context.Request.Method))
+            if (FromMethod.Equals(context.ProxyRequest.Method))
             {
-                context.Request.Method = ToMethod;
+                context.ProxyRequest.Method = ToMethod;
             }
         }
 

@@ -42,7 +42,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         internal bool Append { get; }
 
         /// <inheritdoc/>
-        public override StringValues Apply(HttpContext context, HttpRequestMessage request, StringValues values)
+        public override StringValues Apply(HttpContext context, HttpRequestMessage proxyRequest, StringValues values)
         {
             if (context is null)
             {

@@ -20,7 +20,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             var context = new RequestParametersTransformContext()
             {
                 HttpContext = httpContext,
-                Request = request,
+                ProxyRequest = request,
             };
             var transform = new HttpMethodTransform(fromMethod, toMethod);
             transform.Apply(context);
