@@ -9,6 +9,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\ReverseProxy\Utilities\ValueStopwatch.cs" Link="Utilities\ValueStopwatch.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <InternalsVisibleTo Include="DynamicProxyGenAssembly2" Key="$(MoqPublicKey)" />
     <InternalsVisibleTo Include="Microsoft.ReverseProxy.ServiceFabric.Tests" />
   </ItemGroup>
