@@ -78,14 +78,14 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                     httpContext,
                     It.Is<string>(uri => uri == "https://localhost:123/a/b/"),
                     httpClient,
-                    It.Is<HttpTransformer>(transformer => transformer == null),
                     It.Is<RequestProxyOptions>(requestOptions =>
                         requestOptions.Timeout == httpRequestOptions.Timeout
                         && requestOptions.Version == httpRequestOptions.Version
 #if NET
                         && requestOptions.VersionPolicy == httpRequestOptions.VersionPolicy
 #endif
-                        )))
+                        ),
+                    It.Is<HttpTransformer>(transformer => transformer == null)))
                 .Returns(
                     async () =>
                     {
@@ -158,8 +158,8 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                     httpContext,
                     It.IsAny<string>(),
                     httpClient,
-                    It.IsAny<HttpTransformer>(),
-                    It.IsAny<RequestProxyOptions>()))
+                    It.IsAny<RequestProxyOptions>(),
+                    It.IsAny<HttpTransformer>()))
                 .Returns(() => throw new NotImplementedException());
 
             var sut = Create<ProxyInvokerMiddleware>();

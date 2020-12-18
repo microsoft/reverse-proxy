@@ -88,8 +88,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             HttpContext context,
             string destinationPrefix,
             HttpMessageInvoker httpClient,
-            HttpTransformer transformer,
-            RequestProxyOptions requestOptions)
+            RequestProxyOptions requestOptions,
+            HttpTransformer transformer)
         {
             _ = context ?? throw new ArgumentNullException(nameof(context));
             _ = destinationPrefix ?? throw new ArgumentNullException(nameof(destinationPrefix));

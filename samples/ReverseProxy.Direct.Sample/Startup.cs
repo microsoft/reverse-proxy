@@ -50,7 +50,7 @@ namespace Microsoft.ReverseProxy.Sample
                 endpoints.MapControllers();
                 endpoints.Map("/{**catch-all}", async httpContext =>
                 {
-                    await httpProxy.ProxyAsync(httpContext, "https://localhost:10000/", httpClient, transformer, requestOptions);
+                    await httpProxy.ProxyAsync(httpContext, "https://localhost:10000/", httpClient, requestOptions, transformer);
                     var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
                     if (errorFeature != null)
                     {
