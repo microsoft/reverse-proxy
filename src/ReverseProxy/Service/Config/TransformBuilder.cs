@@ -6,8 +6,8 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Routing.Template;
-using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
+using Microsoft.ReverseProxy.Service.Proxy;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 using Microsoft.ReverseProxy.Utilities;
 
@@ -247,7 +247,13 @@ namespace Microsoft.ReverseProxy.Service.Config
         }
 
         /// <inheritdoc/>
-        public Transforms Build(IList<IDictionary<string, string>> rawTransforms)
+        public HttpTransformer Build(IList<IDictionary<string, string>> rawTransforms)
+        {
+            return BuildInternal(rawTransforms);
+        }
+
+        // This is separate from Build for testing purposes.
+        internal StructuredTransformer BuildInternal(IList<IDictionary<string, string>> rawTransforms)
         {
             bool? copyRequestHeaders = null;
             bool? useOriginalHost = null;
@@ -560,7 +566,7 @@ namespace Microsoft.ReverseProxy.Service.Config
                 }
             }
 
-            return new Transforms(copyRequestHeaders, requestTransforms, requestHeaderTransforms, responseHeaderTransforms, responseTrailerTransforms);
+            return new StructuredTransformer(copyRequestHeaders, requestTransforms, requestHeaderTransforms, responseHeaderTransforms, responseTrailerTransforms);
         }
 
         private void TryCheckTooManyParameters(Action<Exception> onError, IDictionary<string, string> rawTransform, int expected)

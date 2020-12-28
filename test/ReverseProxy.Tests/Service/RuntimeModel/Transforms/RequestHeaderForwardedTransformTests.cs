@@ -3,6 +3,7 @@
 
 using System;
 using System.Net;
+using System.Net.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.ReverseProxy.Utilities;
 using Xunit;
@@ -25,7 +26,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Scheme = scheme;
             var transform = new RequestHeaderForwardedTransform(randomFactory, forFormat: RequestHeaderForwardedTransform.NodeFormat.None, byFormat: RequestHeaderForwardedTransform.NodeFormat.None, host: false, proto: true, append);
-            var result = transform.Apply(httpContext, startValue.Split("|", System.StringSplitOptions.RemoveEmptyEntries));
+            var result = transform.Apply(httpContext, new HttpRequestMessage(), startValue.Split("|", System.StringSplitOptions.RemoveEmptyEntries));
             Assert.Equal(expected.Split("|", System.StringSplitOptions.RemoveEmptyEntries), result);
         }
 
@@ -48,7 +49,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Host = new HostString(host);
             var transform = new RequestHeaderForwardedTransform(randomFactory, forFormat: RequestHeaderForwardedTransform.NodeFormat.None, byFormat: RequestHeaderForwardedTransform.NodeFormat.None, host: true, proto: false, append);
-            var result = transform.Apply(httpContext, startValue.Split("|", System.StringSplitOptions.RemoveEmptyEntries));
+            var result = transform.Apply(httpContext, new HttpRequestMessage(), startValue.Split("|", System.StringSplitOptions.RemoveEmptyEntries));
             Assert.Equal(expected.Split("|", System.StringSplitOptions.RemoveEmptyEntries), result);
         }
 
@@ -79,7 +80,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             httpContext.Connection.RemoteIpAddress = string.IsNullOrEmpty(ip) ? null : IPAddress.Parse(ip);
             httpContext.Connection.RemotePort = port;
             var transform = new RequestHeaderForwardedTransform(randomFactory, forFormat: format, byFormat: RequestHeaderForwardedTransform.NodeFormat.None, host: false, proto: false, append);
-            var result = transform.Apply(httpContext, startValue.Split("|", System.StringSplitOptions.RemoveEmptyEntries));
+            var result = transform.Apply(httpContext, new HttpRequestMessage(), startValue.Split("|", System.StringSplitOptions.RemoveEmptyEntries));
             Assert.Equal(expected.Split("|", System.StringSplitOptions.RemoveEmptyEntries), result);
         }
 
@@ -110,7 +111,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             httpContext.Connection.LocalIpAddress = string.IsNullOrEmpty(ip) ? null : IPAddress.Parse(ip);
             httpContext.Connection.LocalPort = port;
             var transform = new RequestHeaderForwardedTransform(randomFactory, forFormat: RequestHeaderForwardedTransform.NodeFormat.None, byFormat: format, host: false, proto: false, append);
-            var result = transform.Apply(httpContext, startValue.Split("|", System.StringSplitOptions.RemoveEmptyEntries));
+            var result = transform.Apply(httpContext, new HttpRequestMessage(), startValue.Split("|", System.StringSplitOptions.RemoveEmptyEntries));
             Assert.Equal(expected.Split("|", System.StringSplitOptions.RemoveEmptyEntries), result);
         }
 
@@ -133,7 +134,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                 forFormat: RequestHeaderForwardedTransform.NodeFormat.IpAndPort,
                 byFormat: RequestHeaderForwardedTransform.NodeFormat.Random,
                 host: true, proto: true, append);
-            var result = transform.Apply(httpContext, startValue.Split("|", System.StringSplitOptions.RemoveEmptyEntries));
+            var result = transform.Apply(httpContext, new HttpRequestMessage(), startValue.Split("|", System.StringSplitOptions.RemoveEmptyEntries));
             Assert.Equal(expected.Split("|", System.StringSplitOptions.RemoveEmptyEntries), result);
         }
 

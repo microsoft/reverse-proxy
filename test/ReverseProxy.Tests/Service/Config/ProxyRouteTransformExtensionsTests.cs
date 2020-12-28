@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Patterns;
@@ -10,6 +11,7 @@ using Microsoft.AspNetCore.Routing.Template;
 using Microsoft.Net.Http.Headers;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Common.Tests;
+using Microsoft.ReverseProxy.Service.Proxy;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 using Xunit;
 
@@ -85,7 +87,7 @@ namespace Microsoft.ReverseProxy.Service.Config
 
             var transform = BuildTransform(proxyRoute);
 
-            Assert.False(transform.CopyRequestHeaders);
+            Assert.False(transform.ShouldCopyRequestHeaders);
         }
 
         [Fact]
@@ -292,8 +294,8 @@ namespace Microsoft.ReverseProxy.Service.Config
 
             var requestTransform = Assert.Single(transform.RequestTransforms);
             var httpMethodTransform = Assert.IsType<HttpMethodTransform>(requestTransform);
-            Assert.Equal(HttpMethods.Put, httpMethodTransform.FromMethod);
-            Assert.Equal(HttpMethods.Post, httpMethodTransform.ToMethod);
+            Assert.Equal(HttpMethod.Put, httpMethodTransform.FromMethod);
+            Assert.Equal(HttpMethod.Post, httpMethodTransform.ToMethod);
         }
 
         [Theory]
@@ -348,12 +350,11 @@ namespace Microsoft.ReverseProxy.Service.Config
             Assert.Equal("key", removeQueryParameterTransform.Key);
         }
 
-        private static Transforms BuildTransform(ProxyRoute proxyRoute)
+        private static StructuredTransformer BuildTransform(ProxyRoute proxyRoute)
         {
             var builder = new TransformBuilder(NullTemplateBinderFactory.Instance, new TestRandomFactory());
 
-            var transform = builder.Build(proxyRoute.Transforms);
-            return transform;
+            return builder.BuildInternal(proxyRoute.Transforms);
         }
 
         private static ProxyRoute CreateProxyRoute()

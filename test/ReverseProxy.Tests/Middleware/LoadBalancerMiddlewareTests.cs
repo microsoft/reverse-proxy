@@ -186,7 +186,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 });
             context.Features.Set(cluster);
 
-            var routeConfig = new RouteConfig(new RouteInfo("route-1"), new ProxyRoute(), cluster, transforms: null);
+            var routeConfig = new RouteConfig(new RouteInfo("route-1"), new ProxyRoute(), cluster, transformer: null);
             var endpoint = new Endpoint(default, new EndpointMetadataCollection(routeConfig), string.Empty);
             context.SetEndpoint(endpoint);
 

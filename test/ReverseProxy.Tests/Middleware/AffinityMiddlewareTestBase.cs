@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Management;
+using Microsoft.ReverseProxy.Service.Proxy;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 using Microsoft.ReverseProxy.Service.SessionAffinity;
 using Moq;
@@ -93,7 +94,7 @@ namespace Microsoft.ReverseProxy.Middleware
         internal Endpoint GetEndpoint(ClusterInfo cluster)
         {
             var proxyRoute = new ProxyRoute();
-            var routeConfig = new RouteConfig(new RouteInfo("route-1"), proxyRoute, cluster, Transforms.Empty);
+            var routeConfig = new RouteConfig(new RouteInfo("route-1"), proxyRoute, cluster, HttpTransformer.Default);
             var endpoint = new Endpoint(default, new EndpointMetadataCollection(routeConfig), string.Empty);
             return endpoint;
         }

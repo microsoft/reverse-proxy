@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Routing.Patterns;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Management;
+using Microsoft.ReverseProxy.Service.Proxy;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 using Xunit;
 
@@ -95,7 +96,7 @@ namespace Microsoft.ReverseProxy.DynamicEndpoint
                 {
                     Config = new ClusterConfig(cluster, default, default, default, default, default, default, default)
                 },
-                Transforms.Empty);
+                HttpTransformer.Default);
 
             endpointBuilder.Metadata.Add(routeConfig);
 

@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -11,13 +10,11 @@ using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Server.Kestrel.Core.Features;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
-using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 using Microsoft.ReverseProxy.Telemetry;
 using Microsoft.ReverseProxy.Utilities;
 
@@ -33,12 +30,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 #if NET
         private static readonly HttpVersionPolicy DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrLower;
 #endif
-
-        private static readonly HashSet<string> _responseHeadersToSkip = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-        {
-            HeaderNames.TransferEncoding
-        };
-
         private readonly ILogger _logger;
         private readonly IClock _clock;
 
@@ -97,14 +88,14 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             HttpContext context,
             string destinationPrefix,
             HttpMessageInvoker httpClient,
-            Transforms transforms,
-            RequestProxyOptions requestOptions)
+            RequestProxyOptions requestOptions,
+            HttpTransformer transformer)
         {
             _ = context ?? throw new ArgumentNullException(nameof(context));
             _ = destinationPrefix ?? throw new ArgumentNullException(nameof(destinationPrefix));
             _ = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
 
-            transforms ??= Transforms.Empty;
+            transformer ??= HttpTransformer.Default;
 
             // HttpClient overload for SendAsync changes response behavior to fully buffered which impacts performance
             // See discussion in https://github.com/microsoft/reverse-proxy/issues/458
@@ -118,21 +109,15 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             {
                 var requestAborted = context.RequestAborted;
 
-                // :: Step 1: Create outgoing HttpRequestMessage
-                var destinationRequest = CreateRequestMessage(context, destinationPrefix, transforms.RequestTransforms, requestOptions);
-
                 var isClientHttp2 = ProtocolHelper.IsHttp2(context.Request.Protocol);
 
                 // NOTE: We heuristically assume gRPC-looking requests may require streaming semantics.
                 // See https://github.com/microsoft/reverse-proxy/issues/118 for design discussion.
                 var isStreamingRequest = isClientHttp2 && ProtocolHelper.IsGrpcContentType(context.Request.ContentType);
 
-                // :: Step 2: Setup copy of request body (background) Client --► Proxy --► Destination
-                // Note that we must do this before step (3) because step (3) may also add headers to the HttpContent that we set up here.
-                var requestContent = SetupRequestBodyCopy(context.Request, destinationRequest, isStreamingRequest, requestAborted);
-
-                // :: Step 3: Copy request headers Client --► Proxy --► Destination
-                CopyRequestHeaders(context, destinationRequest, transforms);
+                // :: Step 1-3: Create outgoing HttpRequestMessage
+                var (destinationRequest, requestContent) = await CreateRequestMessageAsync(
+                    context, destinationPrefix, transformer, requestOptions, isStreamingRequest, requestAborted);
 
                 // :: Step 4: Send the outgoing request using HttpClient
                 HttpResponseMessage destinationResponse;
@@ -182,12 +167,13 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 if (requestContent != null && !requestContent.Started)
                 {
                     // TODO: HttpClient might not need to read the body in some scenarios, such as an early auth failure with Expect: 100-continue.
+                    // https://github.com/microsoft/reverse-proxy/issues/617
                     throw new InvalidOperationException("Proxying the Client request body to the Destination server hasn't started. This is a coding defect.");
                 }
 
                 // :: Step 5: Copy response status line Client ◄-- Proxy ◄-- Destination
                 // :: Step 6: Copy response headers Client ◄-- Proxy ◄-- Destination
-                CopyResponseStatusAndHeaders(destinationResponse, context, transforms.ResponseHeaderTransforms);
+                await CopyResponseStatusAndHeadersAsync(destinationResponse, context, transformer);
 
                 // :: Step 7-A: Check for a 101 upgrade response, this takes care of WebSockets as well as any other upgradeable protocol.
                 if (destinationResponse.StatusCode == HttpStatusCode.SwitchingProtocols)
@@ -216,7 +202,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 }
 
                 // :: Step 8: Copy response trailer headers and finish response Client ◄-- Proxy ◄-- Destination
-                CopyResponseTrailingHeaders(destinationResponse, context, transforms.ResponseTrailerTransforms);
+                await CopyResponseTrailingHeadersAsync(destinationResponse, context, transformer);
 
                 if (isStreamingRequest)
                 {
@@ -256,14 +242,18 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             }
         }
 
-        private HttpRequestMessage CreateRequestMessage(HttpContext context, string destinationAddress,
-            IReadOnlyList<RequestParametersTransform> requestTransforms, RequestProxyOptions requestOptions)
+        private async Task<(HttpRequestMessage, StreamCopyHttpContent)> CreateRequestMessageAsync(HttpContext context, string destinationPrefix,
+            HttpTransformer transformer, RequestProxyOptions requestOptions, bool isStreamingRequest, CancellationToken requestAborted)
         {
             // "http://a".Length = 8
-            if (destinationAddress == null || destinationAddress.Length < 8)
+            if (destinationPrefix == null || destinationPrefix.Length < 8)
             {
-                throw new ArgumentException(nameof(destinationAddress));
+                throw new ArgumentException(nameof(destinationPrefix));
             }
+
+            var destinationRequest = new HttpRequestMessage();
+
+            destinationRequest.Method = HttpUtilities.GetHttpMethod(context.Request.Method);
 
             var upgradeFeature = context.Features.Get<IHttpUpgradeFeature>();
             var upgradeHeader = context.Request.Headers[HeaderNames.Upgrade].ToString();
@@ -278,59 +268,30 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             // based on VersionPolicy (for .NET 5 and higher). For example, downgrading to HTTP/1.1 if it cannot establish HTTP/2 with the target.
             // This is done without extra round-trips thanks to ALPN. We can detect a downgrade after calling HttpClient.SendAsync
             // (see Step 3 below). TBD how this will change when HTTP/3 is supported.
-            var httpVersion = isUpgradeRequest ? ProtocolHelper.Http11Version : (requestOptions.Version ?? DefaultVersion);
+            destinationRequest.Version = isUpgradeRequest ? ProtocolHelper.Http11Version : (requestOptions.Version ?? DefaultVersion);
 #if NET
-            var httpVersionPolicy = isUpgradeRequest ? HttpVersionPolicy.RequestVersionOrLower : (requestOptions.VersionPolicy ?? DefaultVersionPolicy);
+            destinationRequest.VersionPolicy = isUpgradeRequest ? HttpVersionPolicy.RequestVersionOrLower : (requestOptions.VersionPolicy ?? DefaultVersionPolicy);
 #endif
 
-            // TODO Perf: We could probably avoid splitting this and just append the final path and query
-            UriHelper.FromAbsolute(destinationAddress, out var destinationScheme, out var destinationHost, out var destinationPathBase, out _, out _); // Query and Fragment are not supported here.
+            // :: Step 2: Setup copy of request body (background) Client --► Proxy --► Destination
+            // Note that we must do this before step (3) because step (3) may also add headers to the HttpContent that we set up here.
+            var requestContent = SetupRequestBodyCopy(context.Request, isStreamingRequest, requestAborted);
+            destinationRequest.Content = requestContent;
 
+            // :: Step 3: Copy request headers Client --► Proxy --► Destination
+            await transformer.TransformRequestAsync(context, destinationRequest, destinationPrefix);
+
+            // Allow someone to custom build the request uri, otherwise provide a default for them.
             var request = context.Request;
-            if (requestTransforms.Count == 0)
-            {
-                var url = UriHelper.BuildAbsolute(destinationScheme, destinationHost, destinationPathBase, request.Path, request.QueryString);
-                Log.Proxying(_logger, url);
-                var uri = new Uri(url, UriKind.Absolute);
-                return new HttpRequestMessage(HttpUtilities.GetHttpMethod(context.Request.Method), uri)
-                {
-                    Version = httpVersion,
-#if NET
-                    VersionPolicy = httpVersionPolicy,
-#endif
-                };
-            }
+            destinationRequest.RequestUri ??= RequestUtilities.MakeDestinationAddress(destinationPrefix, request.Path, request.QueryString);
+            
+            Log.Proxying(_logger, destinationRequest.RequestUri.AbsoluteUri);
 
-            var transformContext = new RequestParametersTransformContext()
-            {
-                HttpContext = context,
-                Version = httpVersion,
-                Method = request.Method,
-                Path = request.Path,
-                Query = new QueryTransformContext(request),
-#if NET
-                VersionPolicy = httpVersionPolicy,
-#endif
-            };
-            foreach (var requestTransform in requestTransforms)
-            {
-                requestTransform.Apply(transformContext);
-            }
-
-            var targetUrl = UriHelper.BuildAbsolute(destinationScheme, destinationHost, destinationPathBase, transformContext.Path, transformContext.Query.QueryString);
-            Log.Proxying(_logger, targetUrl);
-            var targetUri = new Uri(targetUrl, UriKind.Absolute);
-            return new HttpRequestMessage(HttpUtilities.GetHttpMethod(transformContext.Method), targetUri)
-            {
-                Version = transformContext.Version,
-#if NET
-                VersionPolicy = transformContext.VersionPolicy,
-#endif
-            };
+            // TODO: What if they replace the HttpContent object? That would mess with our tracking and error handling.
+            return (destinationRequest, requestContent);
         }
 
-        private StreamCopyHttpContent SetupRequestBodyCopy(HttpRequest request, HttpRequestMessage destinationRequest,
-            bool isStreamingRequest, CancellationToken cancellation)
+        private StreamCopyHttpContent SetupRequestBodyCopy(HttpRequest request, bool isStreamingRequest, CancellationToken cancellation)
         {
             // If we generate an HttpContent without a Content-Length then for HTTP/1.1 HttpClient will add a Transfer-Encoding: chunked header
             // even if it's a GET request. Some servers reject requests containing a Transfer-Encoding header if they're not expecting a body.
@@ -408,93 +369,9 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                     autoFlushHttpClientOutgoingStream: isStreamingRequest,
                     clock: _clock,
                     cancellation: cancellation);
-                destinationRequest.Content = requestContent;
             }
 
             return requestContent;
-        }
-
-        private static void CopyRequestHeaders(HttpContext context, HttpRequestMessage destination, Transforms transforms)
-        {
-            // Transforms that were run in the first pass.
-            HashSet<string> transformsRun = null;
-            if (transforms.CopyRequestHeaders ?? true)
-            {
-                foreach (var header in context.Request.Headers)
-                {
-                    var headerName = header.Key;
-                    var headerValue = header.Value;
-                    if (StringValues.IsNullOrEmpty(headerValue))
-                    {
-                        continue;
-                    }
-
-                    // Filter out HTTP/2 pseudo headers like ":method" and ":path", those go into other fields.
-                    if (headerName.Length > 0 && headerName[0] == ':')
-                    {
-                        continue;
-                    }
-
-                    if (transforms.RequestHeaderTransforms.TryGetValue(headerName, out var transform))
-                    {
-                        (transformsRun ??= new HashSet<string>(StringComparer.OrdinalIgnoreCase)).Add(headerName);
-                        headerValue = transform.Apply(context, headerValue);
-                        if (StringValues.IsNullOrEmpty(headerValue))
-                        {
-                            continue;
-                        }
-                    }
-
-                    AddHeader(destination, headerName, headerValue);
-                }
-            }
-
-            // Run any transforms that weren't run yet.
-            foreach (var (headerName, transform) in transforms.RequestHeaderTransforms)
-            {
-                if (!(transformsRun?.Contains(headerName) ?? false))
-                {
-                    var headerValue = context.Request.Headers[headerName];
-                    headerValue = transform.Apply(context, headerValue);
-                    if (!StringValues.IsNullOrEmpty(headerValue))
-                    {
-                        AddHeader(destination, headerName, headerValue);
-                    }
-                }
-            }
-
-            // Note: HttpClient.SendAsync will end up sending the union of
-            // HttpRequestMessage.Headers and HttpRequestMessage.Content.Headers.
-            // We don't really care where the proxied headers appear among those 2,
-            // as long as they appear in one (and only one, otherwise they would be duplicated).
-            static void AddHeader(HttpRequestMessage request, string headerName, StringValues value)
-            {
-                // HttpClient wrongly uses comma (",") instead of semi-colon (";") as a separator for Cookie headers.
-                // To mitigate this, we concatenate them manually and put them back as a single header value.
-                // A multi-header cookie header is invalid, but we get one because of
-                // https://github.com/dotnet/aspnetcore/issues/26461
-                if (string.Equals(headerName, HeaderNames.Cookie, StringComparison.OrdinalIgnoreCase) && value.Count > 1)
-                {
-                    value = string.Join("; ", value);
-                }
-
-                if (value.Count == 1)
-                {
-                    string headerValue = value;
-                    if (!request.Headers.TryAddWithoutValidation(headerName, headerValue))
-                    {
-                        request.Content?.Headers.TryAddWithoutValidation(headerName, headerValue);
-                    }
-                }
-                else
-                {
-                    string[] headerValues = value;
-                    if (!request.Headers.TryAddWithoutValidation(headerName, headerValues))
-                    {
-                        request.Content?.Headers.TryAddWithoutValidation(headerName, headerValues);
-                    }
-                }
-            }
         }
 
         private void HandleRequestBodyFailure(HttpContext context, StreamCopyResult requestBodyCopyResult, Exception requestBodyException, Exception additionalException)
@@ -557,20 +434,13 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             context.Response.StatusCode = StatusCodes.Status502BadGateway;
         }
 
-        private static void CopyResponseStatusAndHeaders(HttpResponseMessage source, HttpContext context, IReadOnlyDictionary<string, ResponseHeaderTransform> transforms)
+        private static Task CopyResponseStatusAndHeadersAsync(HttpResponseMessage source, HttpContext context, HttpTransformer transformer)
         {
             context.Response.StatusCode = (int)source.StatusCode;
             context.Features.Get<IHttpResponseFeature>().ReasonPhrase = source.ReasonPhrase;
 
-            // Transforms that were run in the first pass.
-            HashSet<string> transformsRun = null;
-            var responseHeaders = context.Response.Headers;
-            CopyHeaders(source, source.Headers, context, responseHeaders, transforms, ref transformsRun);
-            if (source.Content != null)
-            {
-                CopyHeaders(source, source.Content.Headers, context, responseHeaders, transforms, ref transformsRun);
-            }
-            RunRemainingResponseTransforms(source, context, responseHeaders, transforms, transformsRun);
+            // Copies headers
+            return transformer.TransformResponseAsync(context, source);
         }
 
         private async Task HandleUpgradedResponse(HttpContext context, HttpResponseMessage destinationResponse,
@@ -697,65 +567,12 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             ResetOrAbort(context, isCancelled: responseBodyCopyResult == StreamCopyResult.Canceled);
         }
 
-        private static void CopyResponseTrailingHeaders(HttpResponseMessage source, HttpContext context, IReadOnlyDictionary<string, ResponseHeaderTransform> transforms)
+        private static Task CopyResponseTrailingHeadersAsync(HttpResponseMessage source, HttpContext context, HttpTransformer transformer)
         {
-            // NOTE: Deliberately not using `context.Response.SupportsTrailers()`, `context.Response.AppendTrailer(...)`
-            // because they lookup `IHttpResponseTrailersFeature` for every call. Here we do it just once instead.
-            var responseTrailersFeature = context.Features.Get<IHttpResponseTrailersFeature>();
-            var outgoingTrailers = responseTrailersFeature?.Trailers;
-            if (outgoingTrailers != null && !outgoingTrailers.IsReadOnly)
-            {
-                // Note that trailers, if any, should already have been declared in Proxy's response
-                // by virtue of us having proxied all response headers in step 6.
-                HashSet<string> transformsRun = null;
-                CopyHeaders(source, source.TrailingHeaders, context, outgoingTrailers, transforms, ref transformsRun);
-                RunRemainingResponseTransforms(source, context, outgoingTrailers, transforms, transformsRun);
-            }
+            // Copies trailers
+            return transformer.TransformResponseTrailersAsync(context, source);
         }
 
-        private static void CopyHeaders(HttpResponseMessage response, HttpHeaders source, HttpContext context, IHeaderDictionary destination,
-            IReadOnlyDictionary<string, ResponseHeaderTransform> transforms, ref HashSet<string> transformsRun)
-        {
-            foreach (var header in source)
-            {
-                var headerName = header.Key;
-                // TODO: this list only contains "Transfer-Encoding" because that messes up Kestrel. If we don't need to add any more here then it would be more efficient to
-                // check for the single value directly.
-                if (_responseHeadersToSkip.Contains(headerName))
-                {
-                    continue;
-                }
-                var headerValue = new StringValues(header.Value.ToArray());
-
-                if (transforms.TryGetValue(headerName, out var transform))
-                {
-                    (transformsRun ??= new HashSet<string>(StringComparer.OrdinalIgnoreCase)).Add(headerName);
-                    headerValue = transform.Apply(context, response, headerValue);
-                }
-                if (!StringValues.IsNullOrEmpty(headerValue))
-                {
-                    destination.Append(headerName, headerValue);
-                }
-            }
-        }
-
-        private static void RunRemainingResponseTransforms(HttpResponseMessage response, HttpContext context, IHeaderDictionary destination,
-            IReadOnlyDictionary<string, ResponseHeaderTransform> transforms, HashSet<string> transformsRun)
-        {
-            // Run any transforms that weren't run yet.
-            foreach (var (headerName, transform) in transforms) // TODO: What about multiple transforms per header? Last wins?
-            {
-                if (!(transformsRun?.Contains(headerName) ?? false))
-                {
-                    var headerValue = StringValues.Empty;
-                    headerValue = transform.Apply(context, response, headerValue);
-                    if (!StringValues.IsNullOrEmpty(headerValue))
-                    {
-                        destination.Append(headerName, headerValue);
-                    }
-                }
-            }
-        }
 
         /// <summary>
         /// Disable some ASP .NET Core server limits so that we can handle long-running gRPC requests unconstrained.
