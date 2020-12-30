@@ -3,6 +3,7 @@
 
 using System;
 using System.Net.Http;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Xunit;
 
@@ -18,14 +19,14 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         [InlineData("existing;Header", "http", false, "http")]
         [InlineData("existing,Header", "http", true, "existing,Header;http")]
         [InlineData("existing;Header", "http", true, "existing;Header;http")]
-        public void Scheme_Added(string startValue, string scheme, bool append, string expected)
+        public async Task Scheme_Added(string startValue, string scheme, bool append, string expected)
         {
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Scheme = scheme;
             var proxyRequest = new HttpRequestMessage();
             proxyRequest.Headers.Add("name", startValue.Split(";", StringSplitOptions.RemoveEmptyEntries));
             var transform = new RequestHeaderXForwardedProtoTransform("name", append);
-            transform.Apply(new RequestTransformContext()
+            await transform.ApplyAsync(new RequestTransformContext()
             {
                 HttpContext = httpContext,
                 ProxyRequest = proxyRequest,

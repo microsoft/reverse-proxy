@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Threading.Tasks;
+
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
     /// <summary>
@@ -16,7 +18,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         internal string Key { get; }
 
         /// <inheritdoc/>
-        public override void Apply(RequestTransformContext context)
+        public override Task ApplyAsync(RequestTransformContext context)
         {
             if (context == null)
             {
@@ -24,6 +26,8 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             }
 
             context.Query.Collection.Remove(Key);
+
+            return Task.CompletedTask;
         }
     }
 }

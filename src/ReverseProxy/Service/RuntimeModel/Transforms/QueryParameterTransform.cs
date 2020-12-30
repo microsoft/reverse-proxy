@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Primitives;
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
@@ -19,7 +20,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         internal string Key { get; }
 
         /// <inheritdoc/>
-        public override void Apply(RequestTransformContext context)
+        public override Task ApplyAsync(RequestTransformContext context)
         {
             if (context == null)
             {
@@ -46,6 +47,8 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                         throw new NotImplementedException(Mode.ToString());
                 }
             }
+
+            return Task.CompletedTask;
         }
 
         protected abstract string GetValue(RequestTransformContext context);

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
@@ -27,7 +28,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         internal PathTransformMode Mode { get; }
 
         /// <inheritdoc/>
-        public override void Apply(RequestTransformContext context)
+        public override Task ApplyAsync(RequestTransformContext context)
         {
             if (context is null)
             {
@@ -48,6 +49,8 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                 default:
                     throw new NotImplementedException(Mode.ToString());
             }
+
+            return Task.CompletedTask;
         }
 
         public enum PathTransformMode

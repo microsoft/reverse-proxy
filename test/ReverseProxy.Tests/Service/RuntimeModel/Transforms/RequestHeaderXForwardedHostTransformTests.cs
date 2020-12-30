@@ -3,6 +3,7 @@
 
 using System;
 using System.Net.Http;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Xunit;
 
@@ -27,14 +28,14 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         [InlineData("existing;Header", "host", false, "host")]
         [InlineData("existing,Header", "host:80", true, "existing,Header;host:80")]
         [InlineData("existing;Header", "host", true, "existing;Header;host")]
-        public void Host_Added(string startValue, string host, bool append, string expected)
+        public async Task Host_Added(string startValue, string host, bool append, string expected)
         {
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Host = string.IsNullOrEmpty(host) ? new HostString() : new HostString(host);
             var proxyRequest = new HttpRequestMessage();
             proxyRequest.Headers.Add("name", startValue.Split(";", StringSplitOptions.RemoveEmptyEntries));
             var transform = new RequestHeaderXForwardedHostTransform("name", append);
-            transform.Apply(new RequestTransformContext()
+            await transform.ApplyAsync(new RequestTransformContext()
             {
                 HttpContext = httpContext,
                 ProxyRequest = proxyRequest,

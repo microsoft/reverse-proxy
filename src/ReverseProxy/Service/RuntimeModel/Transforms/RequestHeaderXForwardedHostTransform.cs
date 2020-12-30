@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Threading.Tasks;
 using Microsoft.Extensions.Primitives;
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
@@ -24,7 +25,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         internal bool Append { get; }
 
         /// <inheritdoc/>
-        public override void Apply(RequestTransformContext context)
+        public override Task ApplyAsync(RequestTransformContext context)
         {
             if (context is null)
             {
@@ -52,6 +53,8 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                 // Set
                 AddHeader(context, Name, host.ToUriComponent());
             }
+
+            return Task.CompletedTask;
         }
     }
 }

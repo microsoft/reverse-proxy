@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing.Template;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,7 +15,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         [InlineData("/{a}/{b}/{c}", "/6/7/8")]
         [InlineData("/{a}/foo/{b}/{c}/{d}", "/6/foo/7/8")] // Unknown value (d) dropped
         [InlineData("/{a}/foo/{b}", "/6/foo/7")] // Extra values (c) dropped
-        public void Set_PathPattern_ReplacesPathWithRouteValues(string transformValue, string expected)
+        public async Task Set_PathPattern_ReplacesPathWithRouteValues(string transformValue, string expected)
         {
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddOptions();
@@ -34,7 +35,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                 HttpContext = httpContext
             };
             var transform = new PathRouteValuesTransform(transformValue, services.GetRequiredService<TemplateBinderFactory>());
-            transform.Apply(context);
+            await transform.ApplyAsync(context);
             Assert.Equal(expected, context.Path);
         }
     }

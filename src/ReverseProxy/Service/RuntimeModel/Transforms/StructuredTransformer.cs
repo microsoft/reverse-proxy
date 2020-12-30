@@ -79,7 +79,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 
             foreach (var requestTransform in RequestTransforms)
             {
-                requestTransform.Apply(transformContext);
+                await requestTransform.ApplyAsync(transformContext);
             }
 
             // Allow a transform to directly set a custom RequestUri.

@@ -3,6 +3,7 @@
 
 using System;
 using System.Net.Http;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Xunit;
 
@@ -29,14 +30,14 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         [InlineData("existing;Header", "/base", false, "/base")]
         [InlineData("existing,Header", "/base", true, "existing,Header;/base")]
         [InlineData("existing;Header", "/base", true, "existing;Header;/base")]
-        public void PathBase_Added(string startValue, string pathBase, bool append, string expected)
+        public async Task PathBase_Added(string startValue, string pathBase, bool append, string expected)
         {
             var httpContext = new DefaultHttpContext();
             httpContext.Request.PathBase = string.IsNullOrEmpty(pathBase) ? new PathString() : new PathString(pathBase);
             var proxyRequest = new HttpRequestMessage();
             proxyRequest.Headers.Add("name", startValue.Split(";", StringSplitOptions.RemoveEmptyEntries));
             var transform = new RequestHeaderXForwardedPathBaseTransform("name", append);
-            transform.Apply(new RequestTransformContext()
+            await transform.ApplyAsync(new RequestTransformContext()
             {
                 HttpContext = httpContext,
                 ProxyRequest = proxyRequest,

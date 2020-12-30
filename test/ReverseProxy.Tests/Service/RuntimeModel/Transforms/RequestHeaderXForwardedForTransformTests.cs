@@ -4,6 +4,7 @@
 using System;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Xunit;
 
@@ -26,14 +27,14 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         [InlineData("existing;Header", "127.0.0.1", false, "127.0.0.1")]
         [InlineData("existing,Header", "127.0.0.1", true, "existing,Header;127.0.0.1")]
         [InlineData("existing;Header", "127.0.0.1", true, "existing;Header;127.0.0.1")]
-        public void RemoteIp_Added(string startValue, string remoteIp, bool append, string expected)
+        public async Task RemoteIp_Added(string startValue, string remoteIp, bool append, string expected)
         {
             var httpContext = new DefaultHttpContext();
             httpContext.Connection.RemoteIpAddress = string.IsNullOrEmpty(remoteIp) ? null : IPAddress.Parse(remoteIp);
             var proxyRequest = new HttpRequestMessage();
             proxyRequest.Headers.Add("name", startValue.Split(";", StringSplitOptions.RemoveEmptyEntries));
             var transform = new RequestHeaderXForwardedForTransform("name", append);
-            transform.Apply(new RequestTransformContext()
+            await transform.ApplyAsync(new RequestTransformContext()
             {
                 HttpContext = httpContext,
                 ProxyRequest = proxyRequest,

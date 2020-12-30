@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
@@ -19,7 +20,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         internal string Name { get; }
 
         /// <inheritdoc/>
-        public override void Apply(RequestTransformContext context)
+        public override Task ApplyAsync(RequestTransformContext context)
         {
             if (context is null)
             {
@@ -36,6 +37,8 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                 var added = proxyRequestHeaders.TryAddWithoutValidation(Name, encoded);
                 Debug.Assert(added); // Why wouldn't it be added?
             }
+
+            return Task.CompletedTask;
         }
     }
 }

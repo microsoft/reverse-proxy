@@ -4,6 +4,7 @@
 using System;
 using System.Net;
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using Microsoft.ReverseProxy.Utilities;
@@ -42,7 +43,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         internal bool Append { get; }
 
         /// <inheritdoc/>
-        public override void Apply(RequestTransformContext context)
+        public override Task ApplyAsync(RequestTransformContext context)
         {
             if (context is null)
             {
@@ -68,6 +69,8 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             {
                 AddHeader(context, ForwardedHeaderName, value);
             }
+
+            return Task.CompletedTask;
         }
 
         private void AppendProto(HttpContext context, StringBuilder builder)

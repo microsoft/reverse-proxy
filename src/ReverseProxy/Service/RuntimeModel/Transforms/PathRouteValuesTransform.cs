@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Routing.Template;
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
@@ -28,7 +29,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         internal RouteTemplate Template { get; }
 
         /// <inheritdoc/>
-        public override void Apply(RequestTransformContext context)
+        public override Task ApplyAsync(RequestTransformContext context)
         {
             if (context is null)
             {
@@ -39,6 +40,8 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             // Route values that are not considered defaults will be appended as query parameters. Make them all defaults.
             var binder = _binderFactory.Create(Template, defaults: routeValues);
             context.Path = binder.BindValues(acceptedValues: routeValues);
+
+            return Task.CompletedTask;
         }
     }
 }

@@ -3,6 +3,7 @@
 
 using System;
 using System.Net.Http;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Xunit;
 
@@ -20,13 +21,13 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         [InlineData("start", "new,value", true, "start;new,value")]
         [InlineData("start,value", "new,value", true, "start,value;new,value")]
         [InlineData("start;value", "new,value", true, "start;value;new,value")]
-        public void AddHeader_Success(string startValue, string value, bool append, string expected)
+        public async Task AddHeader_Success(string startValue, string value, bool append, string expected)
         {
             var httpContext = new DefaultHttpContext();
             var proxyRequest = new HttpRequestMessage();
             proxyRequest.Headers.Add("name", startValue.Split(";", StringSplitOptions.RemoveEmptyEntries));
             var transform = new RequestHeaderValueTransform("name", value, append);
-            transform.Apply(new RequestTransformContext()
+            await transform.ApplyAsync(new RequestTransformContext()
             {
                 HttpContext = httpContext,
                 ProxyRequest = proxyRequest,
