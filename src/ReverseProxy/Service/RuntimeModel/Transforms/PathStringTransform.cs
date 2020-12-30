@@ -9,7 +9,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
     /// <summary>
     /// Modifies the proxy request Path with the given value.
     /// </summary>
-    public class PathStringTransform : RequestParametersTransform
+    public class PathStringTransform : RequestTransform
     {
         /// <summary>
         /// Creates a new transform.
@@ -27,7 +27,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         internal PathTransformMode Mode { get; }
 
         /// <inheritdoc/>
-        public override void Apply(RequestParametersTransformContext context)
+        public override void Apply(RequestTransformContext context)
         {
             if (context is null)
             {

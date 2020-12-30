@@ -17,7 +17,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         {
             var httpContext = new DefaultHttpContext();
             var request = new HttpRequestMessage() { Method = new HttpMethod(requestMethod) };
-            var context = new RequestParametersTransformContext()
+            var context = new RequestTransformContext()
             {
                 HttpContext = httpContext,
                 ProxyRequest = request,

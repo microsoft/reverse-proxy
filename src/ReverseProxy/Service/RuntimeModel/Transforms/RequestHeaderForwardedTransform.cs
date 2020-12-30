@@ -3,7 +3,6 @@
 
 using System;
 using System.Net;
-using System.Net.Http;
 using System.Text;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
@@ -14,8 +13,9 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
     /// <summary>
     /// An implementation of the Forwarded header as defined in https://tools.ietf.org/html/rfc7239.
     /// </summary>
-    public class RequestHeaderForwardedTransform : RequestHeaderTransform
+    public class RequestHeaderForwardedTransform : RequestTransform
     {
+        private static readonly string ForwardedHeaderName = "Forwarded";
         // obfnode = "_" 1*( ALPHA / DIGIT / "." / "_" / "-")
         private static readonly string ObfChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-";
 
@@ -42,27 +42,32 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         internal bool Append { get; }
 
         /// <inheritdoc/>
-        public override StringValues Apply(HttpContext context, HttpRequestMessage proxyRequest, StringValues values)
+        public override void Apply(RequestTransformContext context)
         {
             if (context is null)
             {
                 throw new ArgumentNullException(nameof(context));
             }
 
+            var httpContext = context.HttpContext;
+
             var builder = new StringBuilder();
-            AppendProto(context, builder);
-            AppendHost(context, builder);
-            AppendFor(context, builder);
-            AppendBy(context, builder);
+            AppendProto(httpContext, builder);
+            AppendHost(httpContext, builder);
+            AppendFor(httpContext, builder);
+            AppendBy(httpContext, builder);
             var value = builder.ToString();
 
+            var existingValues = TakeHeader(context, ForwardedHeaderName);
             if (Append)
             {
-                return StringValues.Concat(values, value);
+                var values = StringValues.Concat(existingValues, value);
+                AddHeader(context, ForwardedHeaderName, values);
             }
-
-            // Set
-            return value;
+            else
+            {
+                AddHeader(context, ForwardedHeaderName, value);
+            }
         }
 
         private void AppendProto(HttpContext context, StringBuilder builder)

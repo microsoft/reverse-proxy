@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Net.Http;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
@@ -10,32 +8,47 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
     /// <summary>
     /// Sets or appends the X-Forwarded-PathBase header with the request's original PathBase.
     /// </summary>
-    public class RequestHeaderXForwardedPathBaseTransform : RequestHeaderTransform
+    public class RequestHeaderXForwardedPathBaseTransform : RequestTransform
     {
 
-        public RequestHeaderXForwardedPathBaseTransform(bool append)
+        public RequestHeaderXForwardedPathBaseTransform(string name, bool append)
         {
+            Name = name ?? throw new System.ArgumentNullException(nameof(name));
             Append = append;
         }
 
+        internal string Name { get; }
         internal bool Append { get; }
 
         /// <inheritdoc/>
-        public override StringValues Apply(HttpContext context, HttpRequestMessage proxyRequest, StringValues values)
+        public override void Apply(RequestTransformContext context)
         {
             if (context is null)
             {
                 throw new System.ArgumentNullException(nameof(context));
             }
 
-            var pathBase = context.Request.PathBase;
+            var existingValues = TakeHeader(context, Name);
+
+            var pathBase = context.HttpContext.Request.PathBase;
+
             if (!pathBase.HasValue)
             {
-                return Append ? values : StringValues.Empty;
+                if (Append && !string.IsNullOrEmpty(existingValues))
+                {
+                    AddHeader(context, Name, existingValues);
+                }
             }
-
-            var encodedPathBase = pathBase.ToUriComponent();
-            return Append ? StringValues.Concat(values, encodedPathBase) : new StringValues(encodedPathBase);
+            else if (Append)
+            {
+                var values = StringValues.Concat(existingValues, pathBase.ToUriComponent());
+                AddHeader(context, Name, values);
+            }
+            else
+            {
+                // Set
+                AddHeader(context, Name, pathBase.ToUriComponent());
+            }
         }
     }
 }

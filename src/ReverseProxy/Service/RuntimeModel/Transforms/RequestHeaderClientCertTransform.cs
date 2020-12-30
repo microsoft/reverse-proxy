@@ -2,32 +2,40 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Net.Http;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Primitives;
+using System.Diagnostics;
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
     /// <summary>
     /// Base64 encodes the client certificate (if any) and sets it as the header value.
     /// </summary>
-    public class RequestHeaderClientCertTransform : RequestHeaderTransform
+    public class RequestHeaderClientCertTransform : RequestTransform
     {
+        public RequestHeaderClientCertTransform(string name)
+        {
+            Name = name ?? throw new ArgumentNullException(nameof(name));
+        }
+
+        internal string Name { get; }
+
         /// <inheritdoc/>
-        public override StringValues Apply(HttpContext context, HttpRequestMessage proxyRequest, StringValues values)
+        public override void Apply(RequestTransformContext context)
         {
             if (context is null)
             {
                 throw new ArgumentNullException(nameof(context));
             }
 
-            var clientCert = context.Connection.ClientCertificate;
-            if (clientCert == null)
-            {
-                return StringValues.Empty;
-            }
+            var proxyRequestHeaders = context.ProxyRequest.Headers;
+            proxyRequestHeaders.Remove(Name);
 
-            return Convert.ToBase64String(clientCert.RawData);
+            var clientCert = context.HttpContext.Connection.ClientCertificate;
+            if (clientCert != null)
+            {
+                var encoded = Convert.ToBase64String(clientCert.RawData);
+                var added = proxyRequestHeaders.TryAddWithoutValidation(Name, encoded);
+                Debug.Assert(added); // Why wouldn't it be added?
+            }
         }
     }
 }

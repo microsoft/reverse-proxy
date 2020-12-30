@@ -99,7 +99,7 @@ namespace Microsoft.ReverseProxy.Service.Config
 
             var transform = BuildTransform(proxyRoute);
 
-            Assert.Empty(transform.RequestHeaderTransforms.Where(x => x.Key == HeaderNames.Host));
+            Assert.Empty(transform.RequestTransforms.OfType<RequestHeaderValueTransform>().Where(x => x.Name == HeaderNames.Host));
         }
 
         [Theory]
@@ -113,8 +113,7 @@ namespace Microsoft.ReverseProxy.Service.Config
 
             var transform = BuildTransform(proxyRoute);
 
-            var requestTransform = transform.RequestHeaderTransforms["name"];
-            var requestHeaderValueTransform = Assert.IsType<RequestHeaderValueTransform>(requestTransform);
+            var requestHeaderValueTransform = Assert.Single(transform.RequestTransforms.OfType<RequestHeaderValueTransform>().Where(x => x.Name == "name"));
             Assert.Equal("value", requestHeaderValueTransform.Value);
             Assert.Equal(append, requestHeaderValueTransform.Append);
         }
@@ -170,8 +169,8 @@ namespace Microsoft.ReverseProxy.Service.Config
 
             var transform = BuildTransform(proxyRoute);
 
-            var requestTransform = transform.RequestHeaderTransforms["name"];
-            Assert.IsType<RequestHeaderClientCertTransform>(requestTransform);
+            var certTransform = Assert.Single(transform.RequestTransforms.OfType<RequestHeaderClientCertTransform>());
+            Assert.Equal("name", certTransform.Name);
         }
 
         [Theory]
@@ -197,8 +196,7 @@ namespace Microsoft.ReverseProxy.Service.Config
 
             if (useBy || useFor || useHost || useProto)
             {
-                var requestTransform = transform.RequestHeaderTransforms["Forwarded"];
-                var requestHeaderForwardedTransform = Assert.IsType<RequestHeaderForwardedTransform>(requestTransform);
+                var requestHeaderForwardedTransform = Assert.Single(transform.RequestTransforms.OfType<RequestHeaderForwardedTransform>());
                 Assert.Equal(append, requestHeaderForwardedTransform.Append);
                 Assert.Equal(useHost, requestHeaderForwardedTransform.HostEnabled);
                 Assert.Equal(useProto, requestHeaderForwardedTransform.ProtoEnabled);
@@ -240,46 +238,46 @@ namespace Microsoft.ReverseProxy.Service.Config
 
             if (useFor)
             {
-                var requestTransform = transform.RequestHeaderTransforms["prefix-For"];
-                var requestHeaderXForwardedForTransform = Assert.IsType<RequestHeaderXForwardedForTransform>(requestTransform);
+                var requestHeaderXForwardedForTransform = Assert.Single(transform.RequestTransforms.OfType<RequestHeaderXForwardedForTransform>());
+                Assert.Equal("prefix-For", requestHeaderXForwardedForTransform.Name);
                 Assert.Equal(append, requestHeaderXForwardedForTransform.Append);
             }
             else
             {
-                Assert.False(transform.RequestHeaderTransforms.TryGetValue("prefix-For", out _));
+                Assert.Empty(transform.RequestTransforms.OfType<RequestHeaderXForwardedForTransform>());
             }
 
             if (useHost)
             {
-                var requestTransform = transform.RequestHeaderTransforms["prefix-Host"];
-                var requestHeaderXForwardedHostTransform = Assert.IsType<RequestHeaderXForwardedHostTransform>(requestTransform);
+                var requestHeaderXForwardedHostTransform = Assert.Single(transform.RequestTransforms.OfType<RequestHeaderXForwardedHostTransform>());
+                Assert.Equal("prefix-Host", requestHeaderXForwardedHostTransform.Name);
                 Assert.Equal(append, requestHeaderXForwardedHostTransform.Append);
             }
             else
             {
-                Assert.False(transform.RequestHeaderTransforms.TryGetValue("prefix-Host", out _));
+                Assert.Empty(transform.RequestTransforms.OfType<RequestHeaderXForwardedHostTransform>());
             }
 
             if (useProto)
             {
-                var requestTransform = transform.RequestHeaderTransforms["prefix-Proto"];
-                var requestHeaderXForwardedProtoTransform = Assert.IsType<RequestHeaderXForwardedProtoTransform>(requestTransform);
+                var requestHeaderXForwardedProtoTransform = Assert.Single(transform.RequestTransforms.OfType<RequestHeaderXForwardedProtoTransform>());
+                Assert.Equal("prefix-Proto", requestHeaderXForwardedProtoTransform.Name);
                 Assert.Equal(append, requestHeaderXForwardedProtoTransform.Append);
             }
             else
             {
-                Assert.False(transform.RequestHeaderTransforms.TryGetValue("prefix-Proto", out _));
+                Assert.Empty(transform.RequestTransforms.OfType<RequestHeaderXForwardedProtoTransform>());
             }
 
             if (usePathBase)
             {
-                var requestTransform = transform.RequestHeaderTransforms["prefix-PathBase"];
-                var requestHeaderXForwardedPathBaseTransform = Assert.IsType<RequestHeaderXForwardedPathBaseTransform>(requestTransform);
+                var requestHeaderXForwardedPathBaseTransform = Assert.Single(transform.RequestTransforms.OfType<RequestHeaderXForwardedPathBaseTransform>());
+                Assert.Equal("prefix-PathBase", requestHeaderXForwardedPathBaseTransform.Name);
                 Assert.Equal(append, requestHeaderXForwardedPathBaseTransform.Append);
             }
             else
             {
-                Assert.False(transform.RequestHeaderTransforms.TryGetValue("prefix-PathBase", out _));
+                Assert.Empty(transform.RequestTransforms.OfType<RequestHeaderXForwardedPathBaseTransform>());
             }
         }
 
@@ -361,7 +359,18 @@ namespace Microsoft.ReverseProxy.Service.Config
         {
             return new ProxyRoute
             {
+                // With defaults turned off.
                 Transforms = new List<IDictionary<string, string>>()
+                {
+                    new Dictionary<string, string>()
+                    {
+                        { "RequestHeaderOriginalHost", "true" }
+                    },
+                    new Dictionary<string, string>()
+                    {
+                        { "X-Forwarded", "" }
+                    }
+                }
             };
         }
 

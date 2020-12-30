@@ -2,8 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Net.Http;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
@@ -11,33 +9,41 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
     /// <summary>
     /// Sets or appends simple request header values.
     /// </summary>
-    public class RequestHeaderValueTransform : RequestHeaderTransform
+    public class RequestHeaderValueTransform : RequestTransform
     {
-        public RequestHeaderValueTransform(string value, bool append)
+        public RequestHeaderValueTransform(string name, string value, bool append)
         {
+            Name = name ?? throw new ArgumentNullException(nameof(name));
             Value = value ?? throw new ArgumentNullException(nameof(value));
             Append = append;
         }
+
+        internal string Name { get; }
 
         internal string Value { get; }
 
         internal bool Append { get; }
 
         /// <inheritdoc/>
-        public override StringValues Apply(HttpContext context, HttpRequestMessage proxyRequest, StringValues values)
+        public override void Apply(RequestTransformContext context)
         {
             if (context is null)
             {
                 throw new ArgumentNullException(nameof(context));
             }
 
+            var existingValues = TakeHeader(context, Name);
+
             if (Append)
             {
-                return StringValues.Concat(values, Value);
+                var values = StringValues.Concat(existingValues, Value);
+                AddHeader(context, Name, values);
             }
-
-            // Set
-            return Value;
+            else if (!string.IsNullOrEmpty(Value))
+            {
+                // Set
+                AddHeader(context, Name, Value);
+            }
         }
     }
 }

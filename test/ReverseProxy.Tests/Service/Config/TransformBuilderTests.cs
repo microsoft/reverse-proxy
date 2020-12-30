@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Mvc.TagHelpers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Net.Http.Headers;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
@@ -45,14 +46,19 @@ namespace Microsoft.ReverseProxy.Service.Config
             Assert.Null(results.ShouldCopyRequestHeaders);
             Assert.Empty(results.ResponseHeaderTransforms);
             Assert.Empty(results.ResponseTrailerTransforms);
-            Assert.Empty(results.RequestTransforms);
 
-            Assert.Equal(5, results.RequestHeaderTransforms.Count);
-            Assert.IsType<RequestHeaderValueTransform>(results.RequestHeaderTransforms[HeaderNames.Host]);
-            Assert.IsType<RequestHeaderXForwardedForTransform>(results.RequestHeaderTransforms[ForwardedHeadersDefaults.XForwardedForHeaderName]);
-            Assert.IsType<RequestHeaderXForwardedHostTransform>(results.RequestHeaderTransforms[ForwardedHeadersDefaults.XForwardedHostHeaderName]);
-            Assert.IsType<RequestHeaderXForwardedPathBaseTransform>(results.RequestHeaderTransforms["X-Forwarded-PathBase"]);
-            Assert.IsType<RequestHeaderXForwardedProtoTransform>(results.RequestHeaderTransforms[ForwardedHeadersDefaults.XForwardedProtoHeaderName]);
+            Assert.Equal(5, results.RequestTransforms.Count);
+            var hostTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderValueTransform>());
+            Assert.Equal(HeaderNames.Host, hostTransform.Name);
+            Assert.Equal(string.Empty, hostTransform.Value);
+            var forTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderXForwardedForTransform>());
+            Assert.Equal(ForwardedHeadersDefaults.XForwardedForHeaderName, forTransform.Name);
+            var xHostTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderXForwardedHostTransform>());
+            Assert.Equal(ForwardedHeadersDefaults.XForwardedHostHeaderName, xHostTransform.Name);
+            var pathBaseTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderXForwardedPathBaseTransform>());
+            Assert.Equal("X-Forwarded-PathBase", pathBaseTransform.Name);
+            var protoTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderXForwardedProtoTransform>());
+            Assert.Equal(ForwardedHeadersDefaults.XForwardedProtoHeaderName, protoTransform.Name);
         }
 
         [Fact]
@@ -78,7 +84,6 @@ namespace Microsoft.ReverseProxy.Service.Config
             Assert.NotNull(results);
             Assert.Null(results.ShouldCopyRequestHeaders);
             Assert.Empty(results.RequestTransforms);
-            Assert.Empty(results.RequestHeaderTransforms);
             Assert.Empty(results.ResponseHeaderTransforms);
             Assert.Empty(results.ResponseTrailerTransforms);
         }
@@ -103,8 +108,9 @@ namespace Microsoft.ReverseProxy.Service.Config
             Assert.Empty(errors);
 
             var results = transformBuilder.BuildInternal(transforms);
-            Assert.Single(results.RequestHeaderTransforms);
-            Assert.IsType<RequestHeaderForwardedTransform>(results.RequestHeaderTransforms["Forwarded"]);
+            var transform = Assert.Single(results.RequestTransforms);
+            var forwardedTransform = Assert.IsType<RequestHeaderForwardedTransform>(transform);
+            Assert.True(forwardedTransform.ProtoEnabled);
         }
 
         [Theory]
@@ -195,8 +201,9 @@ namespace Microsoft.ReverseProxy.Service.Config
             Assert.Empty(errors);
 
             var results = transformBuilder.BuildInternal(transforms);
-            Assert.IsType<RequestHeaderValueTransform>(results.RequestHeaderTransforms["heaDerName"]);
-            // TODO: How to check Append/Set and the value?
+            var headerTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderValueTransform>().Where(x => x.Name == "HeaderName"));
+            Assert.Equal(append, headerTransform.Append);
+            Assert.Equal(value, headerTransform.Value);
         }
 
         private TransformBuilder CreateTransformBuilder()

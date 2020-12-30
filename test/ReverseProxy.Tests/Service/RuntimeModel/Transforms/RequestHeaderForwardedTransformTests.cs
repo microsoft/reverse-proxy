@@ -25,9 +25,17 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             var randomFactory = new TestRandomFactory();
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Scheme = scheme;
-            var transform = new RequestHeaderForwardedTransform(randomFactory, forFormat: RequestHeaderForwardedTransform.NodeFormat.None, byFormat: RequestHeaderForwardedTransform.NodeFormat.None, host: false, proto: true, append);
-            var result = transform.Apply(httpContext, new HttpRequestMessage(), startValue.Split("|", System.StringSplitOptions.RemoveEmptyEntries));
-            Assert.Equal(expected.Split("|", System.StringSplitOptions.RemoveEmptyEntries), result);
+            var proxyRequest = new HttpRequestMessage();
+            proxyRequest.Headers.Add("Forwarded", startValue.Split("|", StringSplitOptions.RemoveEmptyEntries));
+            var transform = new RequestHeaderForwardedTransform(randomFactory, forFormat: RequestHeaderForwardedTransform.NodeFormat.None,
+                byFormat: RequestHeaderForwardedTransform.NodeFormat.None, host: false, proto: true, append);
+            transform.Apply(new RequestTransformContext()
+            {
+                HttpContext = httpContext,
+                ProxyRequest = proxyRequest,
+                HeadersCopied = true,
+            });
+            Assert.Equal(expected.Split("|", StringSplitOptions.RemoveEmptyEntries), proxyRequest.Headers.GetValues("Forwarded"));
         }
 
         [Theory]
@@ -48,9 +56,17 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             var randomFactory = new TestRandomFactory();
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Host = new HostString(host);
-            var transform = new RequestHeaderForwardedTransform(randomFactory, forFormat: RequestHeaderForwardedTransform.NodeFormat.None, byFormat: RequestHeaderForwardedTransform.NodeFormat.None, host: true, proto: false, append);
-            var result = transform.Apply(httpContext, new HttpRequestMessage(), startValue.Split("|", System.StringSplitOptions.RemoveEmptyEntries));
-            Assert.Equal(expected.Split("|", System.StringSplitOptions.RemoveEmptyEntries), result);
+            var proxyRequest = new HttpRequestMessage();
+            proxyRequest.Headers.Add("Forwarded", startValue.Split("|", StringSplitOptions.RemoveEmptyEntries));
+            var transform = new RequestHeaderForwardedTransform(randomFactory, forFormat: RequestHeaderForwardedTransform.NodeFormat.None,
+                byFormat: RequestHeaderForwardedTransform.NodeFormat.None, host: true, proto: false, append);
+            transform.Apply(new RequestTransformContext()
+            {
+                HttpContext = httpContext,
+                ProxyRequest = proxyRequest,
+                HeadersCopied = true,
+            });
+            Assert.Equal(expected.Split("|", StringSplitOptions.RemoveEmptyEntries), proxyRequest.Headers.GetValues("Forwarded"));
         }
 
         [Theory]
@@ -79,9 +95,17 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             var httpContext = new DefaultHttpContext();
             httpContext.Connection.RemoteIpAddress = string.IsNullOrEmpty(ip) ? null : IPAddress.Parse(ip);
             httpContext.Connection.RemotePort = port;
-            var transform = new RequestHeaderForwardedTransform(randomFactory, forFormat: format, byFormat: RequestHeaderForwardedTransform.NodeFormat.None, host: false, proto: false, append);
-            var result = transform.Apply(httpContext, new HttpRequestMessage(), startValue.Split("|", System.StringSplitOptions.RemoveEmptyEntries));
-            Assert.Equal(expected.Split("|", System.StringSplitOptions.RemoveEmptyEntries), result);
+            var proxyRequest = new HttpRequestMessage();
+            proxyRequest.Headers.Add("Forwarded", startValue.Split("|", StringSplitOptions.RemoveEmptyEntries));
+            var transform = new RequestHeaderForwardedTransform(randomFactory, forFormat: format,
+                byFormat: RequestHeaderForwardedTransform.NodeFormat.None, host: false, proto: false, append);
+            transform.Apply(new RequestTransformContext()
+            {
+                HttpContext = httpContext,
+                ProxyRequest = proxyRequest,
+                HeadersCopied = true,
+            });
+            Assert.Equal(expected.Split("|", StringSplitOptions.RemoveEmptyEntries), proxyRequest.Headers.GetValues("Forwarded"));
         }
 
         [Theory]
@@ -110,9 +134,17 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             var httpContext = new DefaultHttpContext();
             httpContext.Connection.LocalIpAddress = string.IsNullOrEmpty(ip) ? null : IPAddress.Parse(ip);
             httpContext.Connection.LocalPort = port;
-            var transform = new RequestHeaderForwardedTransform(randomFactory, forFormat: RequestHeaderForwardedTransform.NodeFormat.None, byFormat: format, host: false, proto: false, append);
-            var result = transform.Apply(httpContext, new HttpRequestMessage(), startValue.Split("|", System.StringSplitOptions.RemoveEmptyEntries));
-            Assert.Equal(expected.Split("|", System.StringSplitOptions.RemoveEmptyEntries), result);
+            var proxyRequest = new HttpRequestMessage();
+            proxyRequest.Headers.Add("Forwarded", startValue.Split("|", StringSplitOptions.RemoveEmptyEntries));
+            var transform = new RequestHeaderForwardedTransform(randomFactory, forFormat: RequestHeaderForwardedTransform.NodeFormat.None,
+                byFormat: format, host: false, proto: false, append);
+            transform.Apply(new RequestTransformContext()
+            {
+                HttpContext = httpContext,
+                ProxyRequest = proxyRequest,
+                HeadersCopied = true,
+            });
+            Assert.Equal(expected.Split("|", StringSplitOptions.RemoveEmptyEntries), proxyRequest.Headers.GetValues("Forwarded"));
         }
 
         [Theory]
@@ -130,12 +162,19 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             httpContext.Request.Host = new HostString("myHost", 80);
             httpContext.Connection.RemoteIpAddress = IPAddress.IPv6Loopback;
             httpContext.Connection.RemotePort = 10;
+            var proxyRequest = new HttpRequestMessage();
+            proxyRequest.Headers.Add("Forwarded", startValue.Split("|", StringSplitOptions.RemoveEmptyEntries));
             var transform = new RequestHeaderForwardedTransform(randomFactory,
                 forFormat: RequestHeaderForwardedTransform.NodeFormat.IpAndPort,
                 byFormat: RequestHeaderForwardedTransform.NodeFormat.Random,
                 host: true, proto: true, append);
-            var result = transform.Apply(httpContext, new HttpRequestMessage(), startValue.Split("|", System.StringSplitOptions.RemoveEmptyEntries));
-            Assert.Equal(expected.Split("|", System.StringSplitOptions.RemoveEmptyEntries), result);
+            transform.Apply(new RequestTransformContext()
+            {
+                HttpContext = httpContext,
+                ProxyRequest = proxyRequest,
+                HeadersCopied = true,
+            });
+            Assert.Equal(expected.Split("|", StringSplitOptions.RemoveEmptyEntries), proxyRequest.Headers.GetValues("Forwarded"));
         }
 
         internal class TestRandomFactory : IRandomFactory

@@ -25,14 +25,12 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         /// <summary>
         /// Creates a new <see cref="StructuredTransformer"/> instance.
         /// </summary>
-        internal StructuredTransformer(bool? copyRequestHeaders, IList<RequestParametersTransform> requestTransforms,
-            Dictionary<string, RequestHeaderTransform> requestHeaderTransforms,
+        internal StructuredTransformer(bool? copyRequestHeaders, IList<RequestTransform> requestTransforms,
             Dictionary<string, ResponseHeaderTransform> responseHeaderTransforms,
             Dictionary<string, ResponseHeaderTransform> responseTrailerTransforms)
         {
             ShouldCopyRequestHeaders = copyRequestHeaders;
             RequestTransforms = requestTransforms ?? throw new ArgumentNullException(nameof(requestTransforms));
-            RequestHeaderTransforms = requestHeaderTransforms ?? throw new ArgumentNullException(nameof(requestHeaderTransforms));
             ResponseHeaderTransforms = responseHeaderTransforms ?? throw new ArgumentNullException(nameof(responseHeaderTransforms));
             ResponseTrailerTransforms = responseTrailerTransforms ?? throw new ArgumentNullException(nameof(responseTrailerTransforms));
         }
@@ -43,14 +41,9 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         internal bool? ShouldCopyRequestHeaders { get; }
 
         /// <summary>
-        /// Request parameter transforms.
+        /// Request transforms.
         /// </summary>
-        internal IList<RequestParametersTransform> RequestTransforms { get; }
-
-        /// <summary>
-        /// Request header transforms.
-        /// </summary>
-        internal Dictionary<string, RequestHeaderTransform> RequestHeaderTransforms { get; }
+        internal IList<RequestTransform> RequestTransforms { get; }
 
         /// <summary>
         /// Response header transforms.
@@ -63,15 +56,25 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         internal Dictionary<string, ResponseHeaderTransform> ResponseTrailerTransforms { get; }
 
         // These intentionally do not call base because the logic here overlaps with the default header copy logic.
-        public override Task TransformRequestAsync(HttpContext context, HttpRequestMessage proxyRequest, string destinationPrefix)
+        public override async Task TransformRequestAsync(HttpContext httpContext, HttpRequestMessage proxyRequest, string destinationPrefix)
         {
-            var transformContext = new RequestParametersTransformContext()
+            if (ShouldCopyRequestHeaders.GetValueOrDefault(true))
+            {
+                await base.TransformRequestAsync(httpContext, proxyRequest, destinationPrefix);
+            }
+
+            if (RequestTransforms.Count == 0)
+            {
+                return;
+            }
+
+            var transformContext = new RequestTransformContext()
             {
                 DestinationPrefix = destinationPrefix,
-                HttpContext = context,
+                HttpContext = httpContext,
                 ProxyRequest = proxyRequest,
-                Path = context.Request.Path,
-                Query = new QueryTransformContext(context.Request),
+                Path = httpContext.Request.Path,
+                Query = new QueryTransformContext(httpContext.Request),
             };
 
             foreach (var requestTransform in RequestTransforms)
@@ -83,60 +86,6 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             proxyRequest.RequestUri ??= RequestUtilities.MakeDestinationAddress(
                 transformContext.DestinationPrefix, transformContext.Path, transformContext.Query.QueryString);
 
-            CopyRequestHeaders(context, proxyRequest);
-
-            return Task.CompletedTask;
-        }
-
-        private void CopyRequestHeaders(HttpContext context, HttpRequestMessage proxyRequest)
-        {
-            // Transforms that were run in the first pass.
-            HashSet<string> transformsRun = null;
-            if (ShouldCopyRequestHeaders.GetValueOrDefault(true))
-            {
-                foreach (var header in context.Request.Headers)
-                {
-                    var headerName = header.Key;
-                    var headerValue = header.Value;
-                    if (StringValues.IsNullOrEmpty(headerValue))
-                    {
-                        continue;
-                    }
-
-                    // Filter out HTTP/2 pseudo headers like ":method" and ":path", those go into other fields.
-                    if (headerName.Length > 0 && headerName[0] == ':')
-                    {
-                        continue;
-                    }
-
-                    if (RequestHeaderTransforms.TryGetValue(headerName, out var transform))
-                    {
-                        (transformsRun ??= new HashSet<string>(StringComparer.OrdinalIgnoreCase)).Add(headerName);
-                        headerValue = transform.Apply(context, proxyRequest, headerValue);
-                        if (StringValues.IsNullOrEmpty(headerValue))
-                        {
-                            continue;
-                        }
-                    }
-
-                    RequestUtilities.AddHeader(proxyRequest, headerName, headerValue);
-                }
-            }
-
-            transformsRun ??= EmptyHash;
-
-            // Run any transforms that weren't run yet.
-            foreach (var (headerName, transform) in RequestHeaderTransforms)
-            {
-                if (!transformsRun.Contains(headerName))
-                {
-                    var headerValue = transform.Apply(context, proxyRequest, StringValues.Empty);
-                    if (!StringValues.IsNullOrEmpty(headerValue))
-                    {
-                        RequestUtilities.AddHeader(proxyRequest, headerName, headerValue);
-                    }
-                }
-            }
         }
 
         public override Task TransformResponseAsync(HttpContext context, HttpResponseMessage proxyResponse)

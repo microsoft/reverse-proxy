@@ -1,16 +1,21 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Net.Http;
 using Microsoft.AspNetCore.Http;
+
+namespace System.Runtime.CompilerServices
+{
+    // Allows "init" properties in 3.1.
+    internal static class IsExternalInit { }
+}
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
     /// <summary>
-    /// Transform state for use with <see cref="RequestParametersTransform"/>
+    /// Transform state for use with <see cref="RequestTransform"/>
     /// </summary>
-    public class RequestParametersTransformContext
+    public class RequestTransformContext
     {
         /// <summary>
         /// The current request context.
@@ -23,7 +28,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         /// 'Path', and 'Query' properties after the transforms have run. The headers will be copied later when
         /// applying header transforms.
         /// </summary>
-        public HttpRequestMessage ProxyRequest { get; internal set; }
+        public HttpRequestMessage ProxyRequest { get; init; }
 
         /// <summary>
         /// The path to use for the proxy request.
@@ -42,6 +47,8 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         /// The URI prefix for the proxy request. This includes the scheme and host and can optionally include a
         /// port and path base. The 'Path' and 'Query' properties will be appended to this after the transforms have run.
         /// </summary>
-        public string DestinationPrefix { get; set; }
+        public string DestinationPrefix { get; init; }
+
+        public bool HeadersCopied { get; init; }
     }
 }

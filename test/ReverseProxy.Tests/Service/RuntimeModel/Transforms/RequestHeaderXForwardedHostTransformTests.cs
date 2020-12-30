@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Net.Http;
 using Microsoft.AspNetCore.Http;
 using Xunit;
@@ -30,9 +31,23 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         {
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Host = string.IsNullOrEmpty(host) ? new HostString() : new HostString(host);
-            var transform = new RequestHeaderXForwardedHostTransform(append);
-            var result = transform.Apply(httpContext, new HttpRequestMessage(), startValue.Split(";", System.StringSplitOptions.RemoveEmptyEntries));
-            Assert.Equal(expected.Split(";", System.StringSplitOptions.RemoveEmptyEntries), result);
+            var proxyRequest = new HttpRequestMessage();
+            proxyRequest.Headers.Add("name", startValue.Split(";", StringSplitOptions.RemoveEmptyEntries));
+            var transform = new RequestHeaderXForwardedHostTransform("name", append);
+            transform.Apply(new RequestTransformContext()
+            {
+                HttpContext = httpContext,
+                ProxyRequest = proxyRequest,
+                HeadersCopied = true,
+            });
+            if (string.IsNullOrEmpty(expected))
+            {
+                Assert.False(proxyRequest.Headers.TryGetValues("name", out var _));
+            }
+            else
+            {
+                Assert.Equal(expected.Split(";", StringSplitOptions.RemoveEmptyEntries), proxyRequest.Headers.GetValues("name"));
+            }
         }
     }
 }

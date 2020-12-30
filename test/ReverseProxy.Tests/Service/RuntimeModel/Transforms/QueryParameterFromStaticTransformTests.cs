@@ -12,7 +12,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         public void Append_AddsQueryStringParameterWithStaticValue()
         {
             var httpContext = new DefaultHttpContext();
-            var context = new RequestParametersTransformContext()
+            var context = new RequestTransformContext()
             {
                 Query = new QueryTransformContext(httpContext.Request),
                 HttpContext = httpContext
@@ -27,7 +27,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         {
             var httpContext = new DefaultHttpContext();
             httpContext.Request.QueryString = new QueryString("?z=1");
-            var context = new RequestParametersTransformContext()
+            var context = new RequestTransformContext()
             {
                 Query = new QueryTransformContext(httpContext.Request),
                 HttpContext = httpContext
@@ -42,7 +42,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         {
             var httpContext = new DefaultHttpContext();
             httpContext.Request.QueryString = new QueryString("?z=1");
-            var context = new RequestParametersTransformContext()
+            var context = new RequestTransformContext()
             {
                 Query = new QueryTransformContext(httpContext.Request),
                 HttpContext = httpContext
@@ -56,7 +56,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         public void Set_AddsNewQueryStringParameter()
         {
             var httpContext = new DefaultHttpContext();
-            var context = new RequestParametersTransformContext()
+            var context = new RequestTransformContext()
             {
                 Query = new QueryTransformContext(httpContext.Request),
                 HttpContext = httpContext

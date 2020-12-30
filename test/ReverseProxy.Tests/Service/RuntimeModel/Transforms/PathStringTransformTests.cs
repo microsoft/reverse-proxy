@@ -17,7 +17,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         {
             // We can't put an internal type in a public test API parameter.
             var mode = Enum.Parse<PathStringTransform.PathTransformMode>(modeString);
-            var context = new RequestParametersTransformContext() { Path = initialValue };
+            var context = new RequestTransformContext() { Path = initialValue };
             var transform = new PathStringTransform(mode, transformValue);
             transform.Apply(context);
             Assert.Equal(expected, context.Path);

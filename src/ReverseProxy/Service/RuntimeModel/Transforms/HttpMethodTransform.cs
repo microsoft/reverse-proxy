@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
-    internal class HttpMethodTransform : RequestParametersTransform
+    internal class HttpMethodTransform : RequestTransform
     {
         public HttpMethodTransform(string fromMethod, string toMethod)
         {
@@ -18,7 +18,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 
         internal HttpMethod ToMethod { get; }
 
-        public override void Apply(RequestParametersTransformContext context)
+        public override void Apply(RequestTransformContext context)
         {
             if (FromMethod.Equals(context.ProxyRequest.Method))
             {

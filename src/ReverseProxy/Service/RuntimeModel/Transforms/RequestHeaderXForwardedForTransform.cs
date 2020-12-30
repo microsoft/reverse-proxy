@@ -10,34 +10,52 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
     /// <summary>
     /// Sets or appends the X-Forwarded-For header with the previous clients's IP address.
     /// </summary>
-    public class RequestHeaderXForwardedForTransform : RequestHeaderTransform
+    public class RequestHeaderXForwardedForTransform : RequestTransform
     {
         /// <summary>
         /// Creates a new transform.
         /// </summary>
+        /// <param name="name">The header name.</param>
         /// <param name="append">Indicates if the new value should append to or replace an existing header.</param>
-        public RequestHeaderXForwardedForTransform(bool append)
+        public RequestHeaderXForwardedForTransform(string name, bool append)
         {
+            Name = name ?? throw new System.ArgumentNullException(nameof(name));
             Append = append;
         }
+
+        internal string Name { get; }
 
         internal bool Append { get; }
 
         /// <inheritdoc/>
-        public override StringValues Apply(HttpContext context, HttpRequestMessage proxyRequest, StringValues values)
+        public override void Apply(RequestTransformContext context)
         {
             if (context is null)
             {
                 throw new System.ArgumentNullException(nameof(context));
             }
 
-            var remoteIp = context.Connection.RemoteIpAddress?.ToString();
+            var existingValues = TakeHeader(context, Name);
+
+            var remoteIp = context.HttpContext.Connection.RemoteIpAddress?.ToString();
+
             if (remoteIp == null)
             {
-                return Append ? values : StringValues.Empty;
+                if (Append && !string.IsNullOrEmpty(existingValues))
+                {
+                    AddHeader(context, Name, existingValues);
+                }
             }
-
-            return Append ? StringValues.Concat(values, remoteIp) : new StringValues(remoteIp);
+            else if (Append)
+            {
+                var values = StringValues.Concat(existingValues, remoteIp);
+                AddHeader(context, Name, values);
+            }
+            else
+            {
+                // Set
+                AddHeader(context, Name, remoteIp);
+            }
         }
     }
 }

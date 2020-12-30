@@ -23,7 +23,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 
             var httpContext = new DefaultHttpContext();
             httpContext.Request.RouteValues = routeValues;
-            var context = new RequestParametersTransformContext()
+            var context = new RequestTransformContext()
             {
                 Path = path,
                 Query = new QueryTransformContext(httpContext.Request),
@@ -46,7 +46,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             var httpContext = new DefaultHttpContext();
             httpContext.Request.RouteValues = routeValues;
             httpContext.Request.QueryString = new QueryString("?z=1");
-            var context = new RequestParametersTransformContext()
+            var context = new RequestTransformContext()
             {
                 Path = path,
                 Query = new QueryTransformContext(httpContext.Request),
@@ -69,7 +69,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             var httpContext = new DefaultHttpContext();
             httpContext.Request.RouteValues = routeValues;
             httpContext.Request.QueryString = new QueryString("?z=1");
-            var context = new RequestParametersTransformContext()
+            var context = new RequestTransformContext()
             {
                 Path = path,
                 Query = new QueryTransformContext(httpContext.Request),
@@ -91,7 +91,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 
             var httpContext = new DefaultHttpContext();
             httpContext.Request.RouteValues = routeValues;
-            var context = new RequestParametersTransformContext()
+            var context = new RequestTransformContext()
             {
                 Path = path,
                 Query = new QueryTransformContext(httpContext.Request),

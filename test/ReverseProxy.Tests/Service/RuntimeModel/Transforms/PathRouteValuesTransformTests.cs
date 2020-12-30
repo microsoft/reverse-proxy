@@ -28,7 +28,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                 { "b", "7" },
                 { "c", "8" },
             };
-            var context = new RequestParametersTransformContext()
+            var context = new RequestTransformContext()
             {
                 Path = "/",
                 HttpContext = httpContext

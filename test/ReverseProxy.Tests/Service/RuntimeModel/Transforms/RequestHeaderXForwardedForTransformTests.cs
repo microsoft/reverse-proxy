@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Net;
 using System.Net.Http;
 using Microsoft.AspNetCore.Http;
@@ -29,9 +30,23 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         {
             var httpContext = new DefaultHttpContext();
             httpContext.Connection.RemoteIpAddress = string.IsNullOrEmpty(remoteIp) ? null : IPAddress.Parse(remoteIp);
-            var transform = new RequestHeaderXForwardedForTransform(append);
-            var result = transform.Apply(httpContext, new HttpRequestMessage(), startValue.Split(";", System.StringSplitOptions.RemoveEmptyEntries));
-            Assert.Equal(expected.Split(";", System.StringSplitOptions.RemoveEmptyEntries), result);
+            var proxyRequest = new HttpRequestMessage();
+            proxyRequest.Headers.Add("name", startValue.Split(";", StringSplitOptions.RemoveEmptyEntries));
+            var transform = new RequestHeaderXForwardedForTransform("name", append);
+            transform.Apply(new RequestTransformContext()
+            {
+                HttpContext = httpContext,
+                ProxyRequest = proxyRequest,
+                HeadersCopied = true,
+            });
+            if (string.IsNullOrEmpty(expected))
+            {
+                Assert.False(proxyRequest.Headers.TryGetValues("name", out var _));
+            }
+            else
+            {
+                Assert.Equal(expected.Split(";", StringSplitOptions.RemoveEmptyEntries), proxyRequest.Headers.GetValues("name"));
+            }
         }
     }
 }
