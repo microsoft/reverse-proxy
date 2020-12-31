@@ -259,8 +259,8 @@ namespace Microsoft.ReverseProxy.Service.Config
             bool? useOriginalHost = null;
             bool? forwardersSet = null;
             var requestTransforms = new List<RequestTransform>();
-            var responseHeaderTransforms = new Dictionary<string, ResponseHeaderTransform>(StringComparer.OrdinalIgnoreCase);
-            var responseTrailerTransforms = new Dictionary<string, ResponseHeaderTransform>(StringComparer.OrdinalIgnoreCase);
+            var responseTransforms = new List<ResponseTransform>();
+            var responseTrailerTransforms = new List<ResponseTransform>();
 
             if (rawTransforms?.Count > 0)
             {
@@ -364,11 +364,11 @@ namespace Microsoft.ReverseProxy.Service.Config
 
                         if (rawTransform.TryGetValue("Set", out var setValue))
                         {
-                            responseHeaderTransforms[responseHeaderName] = new ResponseHeaderValueTransform(setValue, append: false, always);
+                            responseTransforms.Add(new ResponseHeaderValueTransform(responseHeaderName, setValue, append: false, always));
                         }
                         else if (rawTransform.TryGetValue("Append", out var appendValue))
                         {
-                            responseHeaderTransforms[responseHeaderName] = new ResponseHeaderValueTransform(appendValue, append: true, always);
+                            responseTransforms.Add(new ResponseHeaderValueTransform(responseHeaderName, appendValue, append: true, always));
                         }
                         else
                         {
@@ -390,11 +390,11 @@ namespace Microsoft.ReverseProxy.Service.Config
 
                         if (rawTransform.TryGetValue("Set", out var setValue))
                         {
-                            responseTrailerTransforms[responseTrailerName] = new ResponseHeaderValueTransform(setValue, append: false, always);
+                            responseTrailerTransforms.Add(new ResponseHeaderValueTransform(responseTrailerName, setValue, append: false, always));
                         }
                         else if (rawTransform.TryGetValue("Append", out var appendValue))
                         {
-                            responseTrailerTransforms[responseTrailerName] = new ResponseHeaderValueTransform(appendValue, append: true, always);
+                            responseTrailerTransforms.Add(new ResponseHeaderValueTransform(responseTrailerName, appendValue, append: true, always));
                         }
                         else
                         {
@@ -552,7 +552,7 @@ namespace Microsoft.ReverseProxy.Service.Config
                 requestTransforms.Add(new RequestHeaderXForwardedPathBaseTransform("X-Forwarded-PathBase", append: true));
             }
 
-            return new StructuredTransformer(copyRequestHeaders, requestTransforms, responseHeaderTransforms, responseTrailerTransforms);
+            return new StructuredTransformer(copyRequestHeaders, requestTransforms, responseTransforms, responseTrailerTransforms);
         }
 
         private void TryCheckTooManyParameters(Action<Exception> onError, IDictionary<string, string> rawTransform, int expected)

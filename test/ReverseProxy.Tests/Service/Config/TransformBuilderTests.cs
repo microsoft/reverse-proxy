@@ -44,7 +44,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             var results = transformBuilder.BuildInternal(transforms);
             Assert.NotNull(results);
             Assert.Null(results.ShouldCopyRequestHeaders);
-            Assert.Empty(results.ResponseHeaderTransforms);
+            Assert.Empty(results.ResponseTransforms);
             Assert.Empty(results.ResponseTrailerTransforms);
 
             Assert.Equal(5, results.RequestTransforms.Count);
@@ -84,7 +84,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             Assert.NotNull(results);
             Assert.Null(results.ShouldCopyRequestHeaders);
             Assert.Empty(results.RequestTransforms);
-            Assert.Empty(results.ResponseHeaderTransforms);
+            Assert.Empty(results.ResponseTransforms);
             Assert.Empty(results.ResponseTrailerTransforms);
         }
 

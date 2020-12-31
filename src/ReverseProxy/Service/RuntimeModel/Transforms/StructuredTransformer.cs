@@ -26,12 +26,12 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         /// Creates a new <see cref="StructuredTransformer"/> instance.
         /// </summary>
         internal StructuredTransformer(bool? copyRequestHeaders, IList<RequestTransform> requestTransforms,
-            Dictionary<string, ResponseHeaderTransform> responseHeaderTransforms,
-            Dictionary<string, ResponseHeaderTransform> responseTrailerTransforms)
+            IList<ResponseTransform> responseTransforms,
+            IList<ResponseTransform> responseTrailerTransforms)
         {
             ShouldCopyRequestHeaders = copyRequestHeaders;
             RequestTransforms = requestTransforms ?? throw new ArgumentNullException(nameof(requestTransforms));
-            ResponseHeaderTransforms = responseHeaderTransforms ?? throw new ArgumentNullException(nameof(responseHeaderTransforms));
+            ResponseTransforms = responseTransforms ?? throw new ArgumentNullException(nameof(responseTransforms));
             ResponseTrailerTransforms = responseTrailerTransforms ?? throw new ArgumentNullException(nameof(responseTrailerTransforms));
         }
 
@@ -48,12 +48,12 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         /// <summary>
         /// Response header transforms.
         /// </summary>
-        internal Dictionary<string, ResponseHeaderTransform> ResponseHeaderTransforms { get; }
+        internal IList<ResponseTransform> ResponseTransforms { get; }
 
         /// <summary>
         /// Response trailer transforms.
         /// </summary>
-        internal Dictionary<string, ResponseHeaderTransform> ResponseTrailerTransforms { get; }
+        internal IList<ResponseTransform> ResponseTrailerTransforms { get; }
 
         // These intentionally do not call base because the logic here overlaps with the default header copy logic.
         public override async Task TransformRequestAsync(HttpContext httpContext, HttpRequestMessage proxyRequest, string destinationPrefix)
@@ -88,73 +88,28 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 
         }
 
-        public override Task TransformResponseAsync(HttpContext context, HttpResponseMessage proxyResponse)
+        public override async Task TransformResponseAsync(HttpContext context, HttpResponseMessage proxyResponse)
         {
-            HashSet<string> transformsRun = null;
-            var responseHeaders = context.Response.Headers;
-            CopyResponseHeaders(proxyResponse, proxyResponse.Headers, context, responseHeaders, ResponseHeaderTransforms, ref transformsRun);
-            if (proxyResponse.Content != null)
+            await base.TransformResponseAsync(context, proxyResponse);
+
+            foreach (var responseTransform in ResponseTransforms)
             {
-                CopyResponseHeaders(proxyResponse, proxyResponse.Content.Headers, context, responseHeaders, ResponseHeaderTransforms, ref transformsRun);
+                await responseTransform.ApplyAsync(context, proxyResponse);
             }
-            RunRemainingResponseTransforms(proxyResponse, context, responseHeaders, ResponseHeaderTransforms, transformsRun);
-            return Task.CompletedTask;
         }
 
-        public override Task TransformResponseTrailersAsync(HttpContext context, HttpResponseMessage proxyResponse)
+        public override async Task TransformResponseTrailersAsync(HttpContext context, HttpResponseMessage proxyResponse)
         {
+            await base.TransformResponseTrailersAsync(context, proxyResponse);
+
+            // Only run the transforms if trailers are actually supported by the client response.
             var responseTrailersFeature = context.Features.Get<IHttpResponseTrailersFeature>();
             var outgoingTrailers = responseTrailersFeature?.Trailers;
-            HashSet<string> transformsRun = null;
             if (outgoingTrailers != null && !outgoingTrailers.IsReadOnly)
             {
-                CopyResponseHeaders(proxyResponse, proxyResponse.TrailingHeaders, context, outgoingTrailers, ResponseTrailerTransforms, ref transformsRun);
-                RunRemainingResponseTransforms(proxyResponse, context, outgoingTrailers, ResponseTrailerTransforms, transformsRun);
-            }
-            return Task.CompletedTask;
-        }
-
-        private static void CopyResponseHeaders(HttpResponseMessage response, HttpHeaders source, HttpContext context, IHeaderDictionary destination,
-            IReadOnlyDictionary<string, ResponseHeaderTransform> transforms, ref HashSet<string> transformsRun)
-        {
-            foreach (var header in source)
-            {
-                var headerName = header.Key;
-                if (RequestUtilities.ResponseHeadersToSkip.Contains(headerName))
+                foreach (var responseTrailerTransform in ResponseTrailerTransforms)
                 {
-                    continue;
-                }
-
-                var headerValue = new StringValues(header.Value.ToArray());
-
-                if (transforms.TryGetValue(headerName, out var transform))
-                {
-                    (transformsRun ??= new HashSet<string>(StringComparer.OrdinalIgnoreCase)).Add(headerName);
-                    headerValue = transform.Apply(context, response, headerValue);
-                }
-                if (!StringValues.IsNullOrEmpty(headerValue))
-                {
-                    destination.Append(headerName, headerValue);
-                }
-            }
-        }
-
-        private static void RunRemainingResponseTransforms(HttpResponseMessage response, HttpContext context, IHeaderDictionary destination,
-            IReadOnlyDictionary<string, ResponseHeaderTransform> transforms, HashSet<string> transformsRun)
-        {
-            transformsRun ??= EmptyHash;
-
-            // Run any transforms that weren't run yet.
-            foreach (var (headerName, transform) in transforms) // TODO: What about multiple transforms per header? Last wins?
-            {
-                if (!transformsRun.Contains(headerName))
-                {
-                    var headerValue = StringValues.Empty;
-                    headerValue = transform.Apply(context, response, headerValue);
-                    if (!StringValues.IsNullOrEmpty(headerValue))
-                    {
-                        destination.Append(headerName, headerValue);
-                    }
+                    await responseTrailerTransform.ApplyAsync(context, proxyResponse);
                 }
             }
         }
