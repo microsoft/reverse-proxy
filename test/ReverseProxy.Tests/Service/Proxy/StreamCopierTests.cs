@@ -555,13 +555,13 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
             public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
             {
-                _clock.Time += _waitTime;
+                _clock.AdvanceClockBy(_waitTime);
                 return base.ReadAsync(buffer.Slice(0, Math.Min(buffer.Length, MaxBytesPerRead)), cancellationToken);
             }
 
             public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
             {
-                _clock.Time += _waitTime;
+                _clock.AdvanceClockBy(_waitTime);
                 return base.WriteAsync(buffer, cancellationToken);
             }
         }

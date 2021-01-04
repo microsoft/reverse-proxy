@@ -18,21 +18,12 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         public HttpContext HttpContext { get; set; }
 
         /// <summary>
-        /// The HTTP version to use for the proxy request.
+        /// The outgoing proxy request. All field are initialized except for the 'RequestUri' and headers.
+        /// If no value is provided then the 'RequestUri' will be initialized using the updated 'DestinationPrefix',
+        /// 'Path', and 'Query' properties after the transforms have run. The headers will be copied later when
+        /// applying header transforms.
         /// </summary>
-        public Version Version { get; set; }
-
-#if NET
-        /// <summary>
-        /// The HTTP version policy to use for the proxy request.
-        /// </summary>
-        public HttpVersionPolicy VersionPolicy { get; set; }
-#endif
-
-        /// <summary>
-        /// The HTTP method to use for the proxy request.
-        /// </summary>
-        public string Method { get; set; }
+        public HttpRequestMessage ProxyRequest { get; internal set; }
 
         /// <summary>
         /// The path to use for the proxy request.
@@ -46,5 +37,11 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         /// The query used for the proxy request.
         /// </summary>
         public QueryTransformContext Query { get; set; }
+
+        /// <summary>
+        /// The URI prefix for the proxy request. This includes the scheme and host and can optionally include a
+        /// port and path base. The 'Path' and 'Query' properties will be appended to this after the transforms have run.
+        /// </summary>
+        public string DestinationPrefix { get; set; }
     }
 }

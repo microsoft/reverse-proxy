@@ -14,7 +14,6 @@ using Microsoft.ReverseProxy.Common.Tests;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Management;
 using Microsoft.ReverseProxy.Service.Proxy;
-using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 using Moq;
 using Xunit;
 
@@ -67,8 +66,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 route: new RouteInfo("route1"),
                 proxyRoute: new ProxyRoute(),
                 cluster: cluster1,
-                aspNetCoreEndpoints: aspNetCoreEndpoints.AsReadOnly(),
-                transforms: null);
+                transformer: null);
             var aspNetCoreEndpoint = CreateAspNetCoreEndpoint(routeConfig);
             aspNetCoreEndpoints.Add(aspNetCoreEndpoint);
             httpContext.SetEndpoint(aspNetCoreEndpoint);
@@ -80,14 +78,14 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                     httpContext,
                     It.Is<string>(uri => uri == "https://localhost:123/a/b/"),
                     httpClient,
-                    It.Is<Transforms>(transforms => transforms == null),
                     It.Is<RequestProxyOptions>(requestOptions =>
                         requestOptions.Timeout == httpRequestOptions.Timeout
                         && requestOptions.Version == httpRequestOptions.Version
 #if NET
                         && requestOptions.VersionPolicy == httpRequestOptions.VersionPolicy
 #endif
-                        )))
+                        ),
+                    It.Is<HttpTransformer>(transformer => transformer == null)))
                 .Returns(
                     async () =>
                     {
@@ -150,8 +148,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 route: new RouteInfo("route1"),
                 proxyRoute: new ProxyRoute(),
                 cluster: cluster1,
-                aspNetCoreEndpoints: aspNetCoreEndpoints.AsReadOnly(),
-                transforms: null);
+                transformer: null);
             var aspNetCoreEndpoint = CreateAspNetCoreEndpoint(routeConfig);
             aspNetCoreEndpoints.Add(aspNetCoreEndpoint);
             httpContext.SetEndpoint(aspNetCoreEndpoint);
@@ -161,8 +158,8 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                     httpContext,
                     It.IsAny<string>(),
                     httpClient,
-                    It.IsAny<Transforms>(),
-                    It.IsAny<RequestProxyOptions>()))
+                    It.IsAny<RequestProxyOptions>(),
+                    It.IsAny<HttpTransformer>()))
                 .Returns(() => throw new NotImplementedException());
 
             var sut = Create<ProxyInvokerMiddleware>();

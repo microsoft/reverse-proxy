@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Net;
+using System.Net.Http;
 using Microsoft.AspNetCore.Http;
 using Xunit;
 
@@ -29,7 +30,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             var httpContext = new DefaultHttpContext();
             httpContext.Connection.RemoteIpAddress = string.IsNullOrEmpty(remoteIp) ? null : IPAddress.Parse(remoteIp);
             var transform = new RequestHeaderXForwardedForTransform(append);
-            var result = transform.Apply(httpContext, startValue.Split(";", System.StringSplitOptions.RemoveEmptyEntries));
+            var result = transform.Apply(httpContext, new HttpRequestMessage(), startValue.Split(";", System.StringSplitOptions.RemoveEmptyEntries));
             Assert.Equal(expected.Split(";", System.StringSplitOptions.RemoveEmptyEntries), result);
         }
     }

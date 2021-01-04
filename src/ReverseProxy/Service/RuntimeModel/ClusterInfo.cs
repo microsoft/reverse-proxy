@@ -58,6 +58,11 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         internal AtomicCounter ConcurrencyCounter { get; } = new AtomicCounter();
 
         /// <summary>
+        /// Tracks changes to the cluster configuration for use with rebuilding dependent endpoints.
+        /// </summary>
+        internal int Revision { get; set; }
+
+        /// <summary>
         /// Recreates the DynamicState data.
         /// </summary>
         public void UpdateDynamicState()
