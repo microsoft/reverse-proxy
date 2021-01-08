@@ -260,7 +260,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             bool? forwardersSet = null;
             var requestTransforms = new List<RequestTransform>();
             var responseTransforms = new List<ResponseTransform>();
-            var responseTrailerTransforms = new List<ResponseTrailersTransform>();
+            var responseTrailersTransforms = new List<ResponseTrailersTransform>();
 
             if (rawTransforms?.Count > 0)
             {
@@ -390,11 +390,11 @@ namespace Microsoft.ReverseProxy.Service.Config
 
                         if (rawTransform.TryGetValue("Set", out var setValue))
                         {
-                            responseTrailerTransforms.Add(new ResponseTrailerValueTransform(responseTrailerName, setValue, append: false, always));
+                            responseTrailersTransforms.Add(new ResponseTrailerValueTransform(responseTrailerName, setValue, append: false, always));
                         }
                         else if (rawTransform.TryGetValue("Append", out var appendValue))
                         {
-                            responseTrailerTransforms.Add(new ResponseTrailerValueTransform(responseTrailerName, appendValue, append: true, always));
+                            responseTrailersTransforms.Add(new ResponseTrailerValueTransform(responseTrailerName, appendValue, append: true, always));
                         }
                         else
                         {
@@ -552,7 +552,7 @@ namespace Microsoft.ReverseProxy.Service.Config
                 requestTransforms.Add(new RequestHeaderXForwardedPathBaseTransform("X-Forwarded-PathBase", append: true));
             }
 
-            return new StructuredTransformer(copyRequestHeaders, requestTransforms, responseTransforms, responseTrailerTransforms);
+            return new StructuredTransformer(copyRequestHeaders, requestTransforms, responseTransforms, responseTrailersTransforms);
         }
 
         private void TryCheckTooManyParameters(Action<Exception> onError, IDictionary<string, string> rawTransform, int expected)

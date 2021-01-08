@@ -153,7 +153,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             var transform = BuildTransform(proxyRoute);
 
             var responseTransform = Assert.Single(transform.ResponseTrailerTransforms);
-            var responseHeaderValueTransform = Assert.IsType<ResponseHeaderValueTransform>(responseTransform);
+            var responseHeaderValueTransform = Assert.IsType<ResponseTrailerValueTransform>(responseTransform);
             Assert.Equal("name", responseHeaderValueTransform.HeaderName);
             Assert.Equal("value", responseHeaderValueTransform.Value);
             Assert.Equal(append, responseHeaderValueTransform.Append);
