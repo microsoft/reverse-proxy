@@ -3,7 +3,7 @@
 Introduced: preview2
 
 ## Introduction
-When proxing a request it's common to modify parts of the request or response to adapt to the destination server's requirements or to flow additional data such as the client's original IP address. This process is implemented via Transforms. Types of transforms are defined globally for the application and then individual routes supply the parameters to enable and configure those transforms. The original request objects are not modified by these transforms, only the proxy requests.
+When proxying a request it's common to modify parts of the request or response to adapt to the destination server's requirements or to flow additional data such as the client's original IP address. This process is implemented via Transforms. Types of transforms are defined globally for the application and then individual routes supply the parameters to enable and configure those transforms. The original request objects are not modified by these transforms, only the proxy requests.
 
 ## Defaults
 The following transforms are enabled by default for all routes. They can be configured or disabled as shown later in this document.
@@ -96,16 +96,17 @@ Here is an example of common transforms:
 
 All configuration entries are treated as case-insensitive, though the destination server may treat the resulting values as case sensitive or insensitive such as the path.
 
-Transforms fall into a few categories: request parameters, request headers, response headers, and response trailers. Request and response body transforms are not supported by YARP but you can write middleware to do this. Request trailers are not supported because they are not supported by the underlying HttpClient.
+Transforms fall into a few categories: request, response, and response trailers. Request and response body transforms are not supported by YARP but you can write middleware to do this. Request trailers are not supported because they are not supported by the underlying HttpClient.
 
-### Request Parameters
+### Request
 
-Request parameters include the request path, query, HTTP version, and method. In code these are represented by the [RequestParametersTransformContext](xref:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestParametersTransformContext) object and processed by implementations of the abstract class [RequestParametersTransform](xref:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestParametersTransform).
+Request transforms include the request path, query, HTTP version, method, and headers. In code these are represented by the [RequestTransformContext](xref:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestTransformContext) object and processed by implementations of the abstract class [RequestTransform](xref:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestTransform).
 
 Notes:
-- The proxy request scheme (http/https), authority, and path base, are taken from the destination server address (`https://localhost:10001/Path/Base` in the example above) and cannot be modified by transforms.
-- The Host header can be overridden by transforms independent of the authority, see [Request Headers](#request-headers) below.
-- The request's original PathBase property is not used when constructing the proxy request, see [X-Forwarded](#x-forwarded) under [Request Headers](#request-headers).
+- The proxy request scheme (http/https), authority, and path base, are taken from the destination server address (`https://localhost:10001/Path/Base` in the example above) and should not be modified by transforms.
+- The Host header can be overridden by transforms independent of the authority, see [RequestHeader](#requestheader) below.
+- The request's original PathBase property is not used when constructing the proxy request, see [X-Forwarded](#x-forwarded).
+- All incoming request headers are copied to the proxy request by default with the exception of the Host header (see [Defaults](#defaults)). [X-Forwarded](#x-forwarded) headers are also added by default. These behaviors can be configured using the following transforms. Additional request headers can be specified, or request headers can be excluded by setting them to an empty value.
 
 The following are built in transforms identified by their primary config key. These transforms are applied in the order they are specified in the route configuration.
 
@@ -305,14 +306,6 @@ proxyRoute.AddTransformHttpMethod(fromHttpMethod: HttpMethods.Put, toHttpMethod:
 
 This will change PUT requests to POST.
 
-### Request Headers
-
-All incoming request headers are copied to the proxy request by default with the exception of the Host header (see [Defaults](#defaults)). [X-Forwarded](#x-forwarded) headers are also added by default. These behaviors can be configured using the following transforms. Additional request headers can be specified, or request headers can be excluded by setting them to an empty value.
-
-In code these are implemented as derivations of the abstract class [RequestHeaderTransform](xref:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderTransform).
-
-Only one transform per header name is supported.
-
 #### RequestHeadersCopy
 
 | Key | Value | Default | Required |
@@ -492,11 +485,28 @@ X-Client-Cert: SSdtIGEgY2VydGlmaWNhdGU...
 
 This transform causes the client certificate taken from `HttpContext.Connection.ClientCertificate` to be Base64 encoded and set as the value for the given header name. This is needed because client certificates from incoming connections are not used when making connections to the destination server. The destination server may need that certificate to authenticate the client. There is no standard that defines this header and implementations vary, check your destination server for support.
 
-### Response Headers and Trailers
+### Response and Response Trailers
 
-All response headers and trailers are copied from the proxied response to the outgoing response. Response header and trailer transforms may specify if they should be applied only for successful responses of for all responses.
+All response headers and trailers are copied from the proxied response to the outgoing client response by default. Response and response trailer transforms may specify if they should be applied only for successful responses of for all responses.
 
-In code these are implemented as derivations of the abstract class [ResponseHeaderTransform](xref:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseHeaderTransform).
+In code these are implemented as derivations of the abstract classes [ResponseTransform](xref:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseTransform) and [ResponseTrailersTransform](xref:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseTrailersTransform).
+
+#### ResponseHeadersCopy
+
+| Key | Value | Default | Required |
+|-----|-------|---------|----------|
+| ResponseHeadersCopy | true/false | true | yes |
+
+Config:
+```JSON
+{ "ResponseHeadersCopy": "false" }
+```
+Code:
+```csharp
+proxyRoute.AddTransformSuppressResponseHeaders();
+```
+
+This sets if all proxy response headers are copied to the client response. This setting is enabled by default and can by disabled by configuring the transform with a `false` value. Transforms that reference specific headers will still be run if this is disabled.
 
 #### ResponseHeader
 
@@ -526,6 +536,23 @@ HeaderName: value
 This sets or appends the value for the named header. Set replaces any existing header. Set a header to empty to remove it (e.g. `"Set": ""`). Append adds an additional header with the given value.
 
 `When` specifies if the response header should be included for successful responses or for all responses. Any response with a status code less than 400 is considered a success.
+
+#### ResponseTrailersCopy
+
+| Key | Value | Default | Required |
+|-----|-------|---------|----------|
+| ResponseTrailersCopy | true/false | true | yes |
+
+Config:
+```JSON
+{ "ResponseTrailersCopy": "false" }
+```
+Code:
+```csharp
+proxyRoute.AddTransformSuppressResponseTrailers();
+```
+
+This sets if all proxy response trailers are copied to the client response. This setting is enabled by default and can by disabled by configuring the transform with a `false` value. Transforms that reference specific headers will still be run if this is disabled.
 
 #### ResponseTrailer
 

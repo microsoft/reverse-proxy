@@ -91,6 +91,30 @@ namespace Microsoft.ReverseProxy.Service.Config
         }
 
         [Fact]
+        public void AddTransformSuppressResponseHeaders()
+        {
+            var proxyRoute = CreateProxyRoute();
+
+            proxyRoute.AddTransformSuppressResponseHeaders();
+
+            var transform = BuildTransform(proxyRoute);
+
+            Assert.False(transform.ShouldCopyResponseHeaders);
+        }
+
+        [Fact]
+        public void AddTransformSuppressResponseTrailers()
+        {
+            var proxyRoute = CreateProxyRoute();
+
+            proxyRoute.AddTransformSuppressResponseTrailers();
+
+            var transform = BuildTransform(proxyRoute);
+
+            Assert.False(transform.ShouldCopyResponseTrailers);
+        }
+
+        [Fact]
         public void AddTransformUseOriginalHostHeader()
         {
             var proxyRoute = CreateProxyRoute();

@@ -256,6 +256,8 @@ namespace Microsoft.ReverseProxy.Service.Config
         internal StructuredTransformer BuildInternal(IList<IDictionary<string, string>> rawTransforms)
         {
             bool? copyRequestHeaders = null;
+            bool? copyResponseHeaders = null;
+            bool? copyResponseTrailers = null;
             bool? useOriginalHost = null;
             bool? forwardersSet = null;
             var requestTransforms = new List<RequestTransform>();
@@ -327,6 +329,16 @@ namespace Microsoft.ReverseProxy.Service.Config
                     {
                         CheckTooManyParameters(rawTransform, expected: 1);
                         copyRequestHeaders = string.Equals("True", copyHeaders, StringComparison.OrdinalIgnoreCase);
+                    }
+                    else if (rawTransform.TryGetValue("ResponseHeadersCopy", out copyHeaders))
+                    {
+                        CheckTooManyParameters(rawTransform, expected: 1);
+                        copyResponseHeaders = string.Equals("True", copyHeaders, StringComparison.OrdinalIgnoreCase);
+                    }
+                    else if (rawTransform.TryGetValue("ResponseTrailersCopy", out copyHeaders))
+                    {
+                        CheckTooManyParameters(rawTransform, expected: 1);
+                        copyResponseTrailers = string.Equals("True", copyHeaders, StringComparison.OrdinalIgnoreCase);
                     }
                     else if (rawTransform.TryGetValue("RequestHeaderOriginalHost", out var originalHost))
                     {
@@ -552,7 +564,8 @@ namespace Microsoft.ReverseProxy.Service.Config
                 requestTransforms.Add(new RequestHeaderXForwardedPathBaseTransform("X-Forwarded-PathBase", append: true));
             }
 
-            return new StructuredTransformer(copyRequestHeaders, requestTransforms, responseTransforms, responseTrailersTransforms);
+            return new StructuredTransformer(copyRequestHeaders, copyResponseHeaders, copyResponseTrailers,
+                requestTransforms, responseTransforms, responseTrailersTransforms);
         }
 
         private void TryCheckTooManyParameters(Action<Exception> onError, IDictionary<string, string> rawTransform, int expected)

@@ -20,16 +20,17 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
     /// </summary>
     internal class StructuredTransformer : HttpTransformer
     {
-        private static readonly HashSet<string> EmptyHash = new HashSet<string>(0);
-
         /// <summary>
         /// Creates a new <see cref="StructuredTransformer"/> instance.
         /// </summary>
-        internal StructuredTransformer(bool? copyRequestHeaders, IList<RequestTransform> requestTransforms,
+        internal StructuredTransformer(bool? copyRequestHeaders, bool? copyResponseHeaders, bool? copyResponseTrailers,
+            IList<RequestTransform> requestTransforms,
             IList<ResponseTransform> responseTransforms,
             IList<ResponseTrailersTransform> responseTrailerTransforms)
         {
             ShouldCopyRequestHeaders = copyRequestHeaders;
+            ShouldCopyResponseHeaders = copyResponseHeaders;
+            ShouldCopyResponseTrailers = copyResponseTrailers;
             RequestTransforms = requestTransforms ?? throw new ArgumentNullException(nameof(requestTransforms));
             ResponseTransforms = responseTransforms ?? throw new ArgumentNullException(nameof(responseTransforms));
             ResponseTrailerTransforms = responseTrailerTransforms ?? throw new ArgumentNullException(nameof(responseTrailerTransforms));
