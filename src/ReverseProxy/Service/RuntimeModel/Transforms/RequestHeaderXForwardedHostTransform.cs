@@ -15,13 +15,13 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         /// Creates a new transform.
         /// </summary>
         /// <param name="append">Indicates if the new value should append to or replace an existing header.</param>
-        public RequestHeaderXForwardedHostTransform(string name, bool append)
+        public RequestHeaderXForwardedHostTransform(string headerName, bool append)
         {
-            Name = name ?? throw new System.ArgumentNullException(nameof(name));
+            HeaderName = headerName ?? throw new System.ArgumentNullException(nameof(headerName));
             Append = append;
         }
 
-        internal string Name { get; }
+        internal string HeaderName { get; }
         internal bool Append { get; }
 
         /// <inheritdoc/>
@@ -32,7 +32,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                 throw new System.ArgumentNullException(nameof(context));
             }
 
-            var existingValues = TakeHeader(context, Name);
+            var existingValues = TakeHeader(context, HeaderName);
 
             var host = context.HttpContext.Request.Host;
 
@@ -40,18 +40,18 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             {
                 if (Append && !string.IsNullOrEmpty(existingValues))
                 {
-                    AddHeader(context, Name, existingValues);
+                    AddHeader(context, HeaderName, existingValues);
                 }
             }
             else if (Append)
             {
                 var values = StringValues.Concat(existingValues, host.ToUriComponent());
-                AddHeader(context, Name, values);
+                AddHeader(context, HeaderName, values);
             }
             else
             {
                 // Set
-                AddHeader(context, Name, host.ToUriComponent());
+                AddHeader(context, HeaderName, host.ToUriComponent());
             }
 
             return Task.CompletedTask;

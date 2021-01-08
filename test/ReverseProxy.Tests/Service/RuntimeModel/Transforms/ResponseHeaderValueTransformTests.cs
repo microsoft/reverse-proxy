@@ -36,10 +36,15 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         {
             var httpContext = new DefaultHttpContext();
             httpContext.Response.Headers["name"] = startValue.Split(";", System.StringSplitOptions.RemoveEmptyEntries);
-            var response = new HttpResponseMessage();
             httpContext.Response.StatusCode = status;
+            var transformContext = new ResponseTransformContext()
+            {
+                HttpContext = httpContext,
+                ProxyResponse = new HttpResponseMessage(),
+                HeadersCopied = true,
+            };
             var transform = new ResponseHeaderValueTransform("name", value, append, always);
-            await transform.ApplyAsync(httpContext, response);
+            await transform.ApplyAsync(transformContext);
             Assert.Equal(expected.Split(";", System.StringSplitOptions.RemoveEmptyEntries), httpContext.Response.Headers["name"]);
         }
     }

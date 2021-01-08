@@ -1,9 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
@@ -16,15 +14,15 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         /// <summary>
         /// Creates a new transform.
         /// </summary>
-        /// <param name="name">The header name.</param>
+        /// <param name="headerName">The header name.</param>
         /// <param name="append">Indicates if the new value should append to or replace an existing header.</param>
-        public RequestHeaderXForwardedForTransform(string name, bool append)
+        public RequestHeaderXForwardedForTransform(string headerName, bool append)
         {
-            Name = name ?? throw new System.ArgumentNullException(nameof(name));
+            HeaderName = headerName ?? throw new System.ArgumentNullException(nameof(headerName));
             Append = append;
         }
 
-        internal string Name { get; }
+        internal string HeaderName { get; }
 
         internal bool Append { get; }
 
@@ -36,7 +34,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                 throw new System.ArgumentNullException(nameof(context));
             }
 
-            var existingValues = TakeHeader(context, Name);
+            var existingValues = TakeHeader(context, HeaderName);
 
             var remoteIp = context.HttpContext.Connection.RemoteIpAddress?.ToString();
 
@@ -44,18 +42,18 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             {
                 if (Append && !string.IsNullOrEmpty(existingValues))
                 {
-                    AddHeader(context, Name, existingValues);
+                    AddHeader(context, HeaderName, existingValues);
                 }
             }
             else if (Append)
             {
                 var values = StringValues.Concat(existingValues, remoteIp);
-                AddHeader(context, Name, values);
+                AddHeader(context, HeaderName, values);
             }
             else
             {
                 // Set
-                AddHeader(context, Name, remoteIp);
+                AddHeader(context, HeaderName, remoteIp);
             }
 
             return Task.CompletedTask;

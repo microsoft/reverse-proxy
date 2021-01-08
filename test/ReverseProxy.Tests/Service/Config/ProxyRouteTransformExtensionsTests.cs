@@ -99,7 +99,7 @@ namespace Microsoft.ReverseProxy.Service.Config
 
             var transform = BuildTransform(proxyRoute);
 
-            Assert.Empty(transform.RequestTransforms.OfType<RequestHeaderValueTransform>().Where(x => x.Name == HeaderNames.Host));
+            Assert.Empty(transform.RequestTransforms.OfType<RequestHeaderValueTransform>().Where(x => x.HeaderName == HeaderNames.Host));
         }
 
         [Theory]
@@ -113,7 +113,7 @@ namespace Microsoft.ReverseProxy.Service.Config
 
             var transform = BuildTransform(proxyRoute);
 
-            var requestHeaderValueTransform = Assert.Single(transform.RequestTransforms.OfType<RequestHeaderValueTransform>().Where(x => x.Name == "name"));
+            var requestHeaderValueTransform = Assert.Single(transform.RequestTransforms.OfType<RequestHeaderValueTransform>().Where(x => x.HeaderName == "name"));
             Assert.Equal("value", requestHeaderValueTransform.Value);
             Assert.Equal(append, requestHeaderValueTransform.Append);
         }
@@ -133,7 +133,7 @@ namespace Microsoft.ReverseProxy.Service.Config
 
             var responseTransform = Assert.Single(transform.ResponseTransforms);
             var responseHeaderValueTransform = Assert.IsType<ResponseHeaderValueTransform>(responseTransform);
-            Assert.Equal("name", responseHeaderValueTransform.Name);
+            Assert.Equal("name", responseHeaderValueTransform.HeaderName);
             Assert.Equal("value", responseHeaderValueTransform.Value);
             Assert.Equal(append, responseHeaderValueTransform.Append);
             Assert.Equal(always, responseHeaderValueTransform.Always);
@@ -154,7 +154,7 @@ namespace Microsoft.ReverseProxy.Service.Config
 
             var responseTransform = Assert.Single(transform.ResponseTrailerTransforms);
             var responseHeaderValueTransform = Assert.IsType<ResponseHeaderValueTransform>(responseTransform);
-            Assert.Equal("name", responseHeaderValueTransform.Name);
+            Assert.Equal("name", responseHeaderValueTransform.HeaderName);
             Assert.Equal("value", responseHeaderValueTransform.Value);
             Assert.Equal(append, responseHeaderValueTransform.Append);
             Assert.Equal(always, responseHeaderValueTransform.Always);
@@ -170,7 +170,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             var transform = BuildTransform(proxyRoute);
 
             var certTransform = Assert.Single(transform.RequestTransforms.OfType<RequestHeaderClientCertTransform>());
-            Assert.Equal("name", certTransform.Name);
+            Assert.Equal("name", certTransform.HeaderName);
         }
 
         [Theory]
@@ -239,7 +239,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             if (useFor)
             {
                 var requestHeaderXForwardedForTransform = Assert.Single(transform.RequestTransforms.OfType<RequestHeaderXForwardedForTransform>());
-                Assert.Equal("prefix-For", requestHeaderXForwardedForTransform.Name);
+                Assert.Equal("prefix-For", requestHeaderXForwardedForTransform.HeaderName);
                 Assert.Equal(append, requestHeaderXForwardedForTransform.Append);
             }
             else
@@ -250,7 +250,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             if (useHost)
             {
                 var requestHeaderXForwardedHostTransform = Assert.Single(transform.RequestTransforms.OfType<RequestHeaderXForwardedHostTransform>());
-                Assert.Equal("prefix-Host", requestHeaderXForwardedHostTransform.Name);
+                Assert.Equal("prefix-Host", requestHeaderXForwardedHostTransform.HeaderName);
                 Assert.Equal(append, requestHeaderXForwardedHostTransform.Append);
             }
             else
@@ -261,7 +261,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             if (useProto)
             {
                 var requestHeaderXForwardedProtoTransform = Assert.Single(transform.RequestTransforms.OfType<RequestHeaderXForwardedProtoTransform>());
-                Assert.Equal("prefix-Proto", requestHeaderXForwardedProtoTransform.Name);
+                Assert.Equal("prefix-Proto", requestHeaderXForwardedProtoTransform.HeaderName);
                 Assert.Equal(append, requestHeaderXForwardedProtoTransform.Append);
             }
             else
@@ -272,7 +272,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             if (usePathBase)
             {
                 var requestHeaderXForwardedPathBaseTransform = Assert.Single(transform.RequestTransforms.OfType<RequestHeaderXForwardedPathBaseTransform>());
-                Assert.Equal("prefix-PathBase", requestHeaderXForwardedPathBaseTransform.Name);
+                Assert.Equal("prefix-PathBase", requestHeaderXForwardedPathBaseTransform.HeaderName);
                 Assert.Equal(append, requestHeaderXForwardedPathBaseTransform.Append);
             }
             else

@@ -11,13 +11,13 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
     /// </summary>
     public class RequestHeaderXForwardedProtoTransform : RequestTransform
     {
-        public RequestHeaderXForwardedProtoTransform(string name, bool append)
+        public RequestHeaderXForwardedProtoTransform(string headerName, bool append)
         {
-            Name = name ?? throw new System.ArgumentNullException(nameof(name));
+            HeaderName = headerName ?? throw new System.ArgumentNullException(nameof(headerName));
             Append = append;
         }
 
-        internal string Name { get; }
+        internal string HeaderName { get; }
         internal bool Append { get; }
 
         /// <inheritdoc/>
@@ -28,19 +28,19 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                 throw new System.ArgumentNullException(nameof(context));
             }
 
-            var existingValues = TakeHeader(context, Name);
+            var existingValues = TakeHeader(context, HeaderName);
 
             var scheme = context.HttpContext.Request.Scheme;
 
             if (Append)
             {
                 var values = StringValues.Concat(existingValues, scheme);
-                AddHeader(context, Name, values);
+                AddHeader(context, HeaderName, values);
             }
             else
             {
                 // Set
-                AddHeader(context, Name, scheme);
+                AddHeader(context, HeaderName, scheme);
             }
 
             return Task.CompletedTask;

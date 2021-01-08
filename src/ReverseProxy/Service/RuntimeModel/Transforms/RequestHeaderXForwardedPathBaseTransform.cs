@@ -11,14 +11,13 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
     /// </summary>
     public class RequestHeaderXForwardedPathBaseTransform : RequestTransform
     {
-
-        public RequestHeaderXForwardedPathBaseTransform(string name, bool append)
+        public RequestHeaderXForwardedPathBaseTransform(string headerName, bool append)
         {
-            Name = name ?? throw new System.ArgumentNullException(nameof(name));
+            HeaderName = headerName ?? throw new System.ArgumentNullException(nameof(headerName));
             Append = append;
         }
 
-        internal string Name { get; }
+        internal string HeaderName { get; }
         internal bool Append { get; }
 
         /// <inheritdoc/>
@@ -29,7 +28,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                 throw new System.ArgumentNullException(nameof(context));
             }
 
-            var existingValues = TakeHeader(context, Name);
+            var existingValues = TakeHeader(context, HeaderName);
 
             var pathBase = context.HttpContext.Request.PathBase;
 
@@ -37,18 +36,18 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             {
                 if (Append && !string.IsNullOrEmpty(existingValues))
                 {
-                    AddHeader(context, Name, existingValues);
+                    AddHeader(context, HeaderName, existingValues);
                 }
             }
             else if (Append)
             {
                 var values = StringValues.Concat(existingValues, pathBase.ToUriComponent());
-                AddHeader(context, Name, values);
+                AddHeader(context, HeaderName, values);
             }
             else
             {
                 // Set
-                AddHeader(context, Name, pathBase.ToUriComponent());
+                AddHeader(context, HeaderName, pathBase.ToUriComponent());
             }
 
             return Task.CompletedTask;

@@ -12,14 +12,14 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
     /// </summary>
     public class RequestHeaderValueTransform : RequestTransform
     {
-        public RequestHeaderValueTransform(string name, string value, bool append)
+        public RequestHeaderValueTransform(string headerName, string value, bool append)
         {
-            Name = name ?? throw new ArgumentNullException(nameof(name));
+            HeaderName = headerName ?? throw new ArgumentNullException(nameof(headerName));
             Value = value ?? throw new ArgumentNullException(nameof(value));
             Append = append;
         }
 
-        internal string Name { get; }
+        internal string HeaderName { get; }
 
         internal string Value { get; }
 
@@ -33,17 +33,17 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                 throw new ArgumentNullException(nameof(context));
             }
 
-            var existingValues = TakeHeader(context, Name);
+            var existingValues = TakeHeader(context, HeaderName);
 
             if (Append)
             {
                 var values = StringValues.Concat(existingValues, Value);
-                AddHeader(context, Name, values);
+                AddHeader(context, HeaderName, values);
             }
             else if (!string.IsNullOrEmpty(Value))
             {
                 // Set
-                AddHeader(context, Name, Value);
+                AddHeader(context, HeaderName, Value);
             }
 
             return Task.CompletedTask;

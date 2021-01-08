@@ -3,17 +3,16 @@
 
 using System;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
     /// <summary>
-    /// Sets or appends simple response header values.
+    /// Sets or appends simple response trailer values.
     /// </summary>
-    public class ResponseHeaderValueTransform : ResponseTransform
+    public class ResponseTrailerValueTransform : ResponseTrailersTransform
     {
-        public ResponseHeaderValueTransform(string headerName, string value, bool append, bool always)
+        public ResponseTrailerValueTransform(string headerName, string value, bool append, bool always)
         {
             HeaderName = headerName ?? throw new System.ArgumentNullException(nameof(headerName));
             Value = value ?? throw new System.ArgumentNullException(nameof(value));
@@ -31,7 +30,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 
         // Assumes the response status code has been set on the HttpContext already.
         /// <inheritdoc/>
-        public override Task ApplyAsync(ResponseTransformContext context)
+        public override Task ApplyAsync(ResponseTrailersTransformContext context)
         {
             if (context is null)
             {
@@ -56,7 +55,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             return Task.CompletedTask;
         }
 
-        private static bool Success(ResponseTransformContext context)
+        private static bool Success(ResponseTrailersTransformContext context)
         {
             // TODO: How complex should this get? Compare with http://nginx.org/en/docs/http/ngx_http_headers_module.html#add_header
             return context.HttpContext.Response.StatusCode < 400;

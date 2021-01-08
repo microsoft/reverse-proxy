@@ -19,37 +19,40 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         public abstract Task ApplyAsync(RequestTransformContext context);
 
         /// <summary>
-        /// Gets the current header value by first checking the HttpRequestMessage,
+        /// Removes and returns the current header value by first checking the HttpRequestMessage,
         /// then the HttpContent, and falling back to the HttpContext only if
         /// <see cref="RequestTransformContext.HeadersCopied"/> is not set.
         /// This ordering allows multiple transforms to mutate the same header.
         /// </summary>
-        /// <param name="name">The name of the header to take.</param>
+        /// <param name="headerName">The name of the header to take.</param>
         /// <returns>The requested header value, or StringValues.Empty if none.</returns>
-        protected internal static StringValues TakeHeader(RequestTransformContext context, string name)
+        public static StringValues TakeHeader(RequestTransformContext context, string headerName)
         {
             var existingValues = StringValues.Empty;
-            if (context.ProxyRequest.Headers.TryGetValues(name, out var values))
+            if (context.ProxyRequest.Headers.TryGetValues(headerName, out var values))
             {
-                context.ProxyRequest.Headers.Remove(name);
+                context.ProxyRequest.Headers.Remove(headerName);
                 existingValues = values.ToArray();
             }
-            else if (context.ProxyRequest.Content?.Headers.TryGetValues(name, out values) ?? false)
+            else if (context.ProxyRequest.Content?.Headers.TryGetValues(headerName, out values) ?? false)
             {
-                context.ProxyRequest.Content.Headers.Remove(name);
+                context.ProxyRequest.Content.Headers.Remove(headerName);
                 existingValues = values.ToArray();
             }
             else if (!context.HeadersCopied)
             {
-                existingValues = context.HttpContext.Request.Headers[name];
+                existingValues = context.HttpContext.Request.Headers[headerName];
             }
 
             return existingValues;
         }
 
-        protected internal static void AddHeader(RequestTransformContext context, string name, StringValues values)
+        /// <summary>
+        /// Adds the given header to the HttpRequestMessage or HttpContent where applicable.
+        /// </summary>
+        public static void AddHeader(RequestTransformContext context, string headerName, StringValues values)
         {
-            RequestUtilities.AddHeader(context.ProxyRequest, name, values);
+            RequestUtilities.AddHeader(context.ProxyRequest, headerName, values);
         }
     }
 }

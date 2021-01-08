@@ -260,7 +260,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             bool? forwardersSet = null;
             var requestTransforms = new List<RequestTransform>();
             var responseTransforms = new List<ResponseTransform>();
-            var responseTrailerTransforms = new List<ResponseTransform>();
+            var responseTrailerTransforms = new List<ResponseTrailersTransform>();
 
             if (rawTransforms?.Count > 0)
             {
@@ -390,11 +390,11 @@ namespace Microsoft.ReverseProxy.Service.Config
 
                         if (rawTransform.TryGetValue("Set", out var setValue))
                         {
-                            responseTrailerTransforms.Add(new ResponseHeaderValueTransform(responseTrailerName, setValue, append: false, always));
+                            responseTrailerTransforms.Add(new ResponseTrailerValueTransform(responseTrailerName, setValue, append: false, always));
                         }
                         else if (rawTransform.TryGetValue("Append", out var appendValue))
                         {
-                            responseTrailerTransforms.Add(new ResponseHeaderValueTransform(responseTrailerName, appendValue, append: true, always));
+                            responseTrailerTransforms.Add(new ResponseTrailerValueTransform(responseTrailerName, appendValue, append: true, always));
                         }
                         else
                         {

@@ -12,12 +12,12 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
     /// </summary>
     public class RequestHeaderClientCertTransform : RequestTransform
     {
-        public RequestHeaderClientCertTransform(string name)
+        public RequestHeaderClientCertTransform(string headerName)
         {
-            Name = name ?? throw new ArgumentNullException(nameof(name));
+            HeaderName = headerName ?? throw new ArgumentNullException(nameof(headerName));
         }
 
-        internal string Name { get; }
+        internal string HeaderName { get; }
 
         /// <inheritdoc/>
         public override Task ApplyAsync(RequestTransformContext context)
@@ -28,14 +28,13 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             }
 
             var proxyRequestHeaders = context.ProxyRequest.Headers;
-            proxyRequestHeaders.Remove(Name);
+            proxyRequestHeaders.Remove(HeaderName);
 
             var clientCert = context.HttpContext.Connection.ClientCertificate;
             if (clientCert != null)
             {
                 var encoded = Convert.ToBase64String(clientCert.RawData);
-                var added = proxyRequestHeaders.TryAddWithoutValidation(Name, encoded);
-                Debug.Assert(added); // Why wouldn't it be added?
+                AddHeader(context, HeaderName, encoded);
             }
 
             return Task.CompletedTask;
