@@ -3,7 +3,6 @@
 
 using System;
 using System.Buffers;
-using System.Diagnostics;
 using System.IO;
 using System.IO.Pipelines;
 using System.Threading;
@@ -154,6 +153,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 }
             }
         }
+
         public static async Task<(StreamCopyResult, Exception)> CopyAsync(bool isRequest, PipeReader input, Stream output, IClock clock, CancellationToken cancellation)
         {
             _ = input ?? throw new ArgumentNullException(nameof(input));
@@ -216,45 +216,48 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                         }
                     }
 
+					// End of the source pipe reader.
+                    if (result.Buffer.IsEmpty)
+                    {
+                        return (StreamCopyResult.Success, null);
+                    }
+
+                    if (cancellation.IsCancellationRequested)
+                    {
+                        return (StreamCopyResult.Canceled, new OperationCanceledException(cancellation));
+                    }
+
+                    reading = false;
                     try
                     {
-                        if (!result.Buffer.IsEmpty)
+                        foreach (var item in result.Buffer)
                         {
-                            foreach (var item in result.Buffer)
+                            try
                             {
-                                if (cancellation.IsCancellationRequested)
+                                await output.WriteAsync(item, cancellation);
+                            }
+                            finally
+                            {
+                                if (telemetryEnabled)
                                 {
-                                    return (StreamCopyResult.Canceled, new OperationCanceledException(cancellation));
-                                }
-                                reading = false;
-
-                                try
-                                {
-                                    await output.WriteAsync(item, cancellation);
-                                }
-                                finally
-                                {
-                                    if (telemetryEnabled)
+                                    var writeStop = clock.GetStopwatchTime();
+                                    writeTime += writeStop - lastTime;
+                                    lastTime = writeStop;
+                                    if (lastTime >= nextTransferringEvent)
                                     {
-                                        var writeStop = clock.GetStopwatchTime();
-                                        writeTime += writeStop - lastTime;
-                                        lastTime = writeStop;
-                                        if (lastTime >= nextTransferringEvent)
-                                        {
-                                            ProxyTelemetry.Log.ContentTransferring(
-                                                isRequest,
-                                                contentLength,
-                                                iops,
-                                                readTime.Ticks,
-                                                writeTime.Ticks);
+                                        ProxyTelemetry.Log.ContentTransferring(
+                                            isRequest,
+                                            contentLength,
+                                            iops,
+                                            readTime.Ticks,
+                                            writeTime.Ticks);
 
-                                            // Avoid attributing the time taken by logging ContentTransferring to the next read call
-                                            lastTime = clock.GetStopwatchTime();
-                                            nextTransferringEvent = lastTime + TimeBetweenTransferringEvents;
-                                        }
+                                        // Avoid attributing the time taken by logging ContentTransferring to the next read call
+                                        lastTime = clock.GetStopwatchTime();
+                                        nextTransferringEvent = lastTime + TimeBetweenTransferringEvents;
                                     }
-
                                 }
+
                             }
                         }
                     }
@@ -359,6 +362,12 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                         output.Advance(read);
                     }
 
+                    // End of the source stream.
+                    if (read == 0)
+                    {
+                        return (StreamCopyResult.Success, null);
+                    }
+
                     if (cancellation.IsCancellationRequested)
                     {
                         return (StreamCopyResult.Canceled, new OperationCanceledException(cancellation));
@@ -367,7 +376,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                     reading = false;
                     try
                     {
-                        var result = await output.FlushAsync(cancellation);
+                        await output.FlushAsync(cancellation);
                     }
                     finally
                     {
@@ -391,14 +400,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                             }
                         }
                     }
-
-                    if (read == 0)
-                    {
-                        break;
-                    }
                 }
-
-                return (StreamCopyResult.Success, null);
             }
             catch (OperationCanceledException oex)
             {
