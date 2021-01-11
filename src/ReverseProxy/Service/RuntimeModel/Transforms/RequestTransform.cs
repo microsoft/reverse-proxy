@@ -32,12 +32,12 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             if (context.ProxyRequest.Headers.TryGetValues(headerName, out var values))
             {
                 context.ProxyRequest.Headers.Remove(headerName);
-                existingValues = values.ToArray();
+                existingValues = (string[])values;
             }
             else if (context.ProxyRequest.Content?.Headers.TryGetValues(headerName, out values) ?? false)
             {
                 context.ProxyRequest.Content.Headers.Remove(headerName);
-                existingValues = values.ToArray();
+                existingValues = (string[])values;
             }
             else if (!context.HeadersCopied)
             {

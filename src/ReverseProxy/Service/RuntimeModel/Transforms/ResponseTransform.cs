@@ -39,7 +39,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                 && (context.ProxyResponse.Headers.TryGetValues(headerName, out var values)
                     || context.ProxyResponse.Content.Headers.TryGetValues(headerName, out values)))
             {
-                existingValues = values.ToArray();
+                existingValues = (string[])values;
             }
 
             return existingValues;

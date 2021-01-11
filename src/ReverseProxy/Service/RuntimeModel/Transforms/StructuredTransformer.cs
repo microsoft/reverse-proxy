@@ -3,13 +3,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
-using Microsoft.Extensions.Primitives;
 using Microsoft.ReverseProxy.Service.Proxy;
 using Microsoft.ReverseProxy.Utilities;
 
@@ -66,7 +63,6 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         /// </summary>
         internal IList<ResponseTrailersTransform> ResponseTrailerTransforms { get; }
 
-        // These intentionally do not call base because the logic here overlaps with the default header copy logic.
         public override async Task TransformRequestAsync(HttpContext httpContext, HttpRequestMessage proxyRequest, string destinationPrefix)
         {
             if (ShouldCopyRequestHeaders.GetValueOrDefault(true))
@@ -99,11 +95,11 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                 transformContext.DestinationPrefix, transformContext.Path, transformContext.Query.QueryString);
         }
 
-        public override async Task TransformResponseAsync(HttpContext context, HttpResponseMessage proxyResponse)
+        public override async Task TransformResponseAsync(HttpContext httpContext, HttpResponseMessage proxyResponse)
         {
             if (ShouldCopyResponseHeaders.GetValueOrDefault(true))
             {
-                await base.TransformResponseAsync(context, proxyResponse);
+                await base.TransformResponseAsync(httpContext, proxyResponse);
             }
 
             if (ResponseTransforms.Count == 0)
@@ -113,7 +109,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 
             var transformContext = new ResponseTransformContext()
             {
-                HttpContext = context,
+                HttpContext = httpContext,
                 ProxyResponse = proxyResponse,
                 HeadersCopied = ShouldCopyResponseHeaders.GetValueOrDefault(true),
             };
@@ -124,11 +120,11 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             }
         }
 
-        public override async Task TransformResponseTrailersAsync(HttpContext context, HttpResponseMessage proxyResponse)
+        public override async Task TransformResponseTrailersAsync(HttpContext httpContext, HttpResponseMessage proxyResponse)
         {
             if (ShouldCopyResponseTrailers.GetValueOrDefault(true))
             {
-                await base.TransformResponseTrailersAsync(context, proxyResponse);
+                await base.TransformResponseTrailersAsync(httpContext, proxyResponse);
             }
 
             if (ResponseTrailerTransforms.Count == 0)
@@ -137,13 +133,13 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             }
 
             // Only run the transforms if trailers are actually supported by the client response.
-            var responseTrailersFeature = context.Features.Get<IHttpResponseTrailersFeature>();
+            var responseTrailersFeature = httpContext.Features.Get<IHttpResponseTrailersFeature>();
             var outgoingTrailers = responseTrailersFeature?.Trailers;
             if (outgoingTrailers != null && !outgoingTrailers.IsReadOnly)
             {
                 var transformContext = new ResponseTrailersTransformContext()
                 {
-                    HttpContext = context,
+                    HttpContext = httpContext,
                     ProxyResponse = proxyResponse,
                     HeadersCopied = ShouldCopyResponseTrailers.GetValueOrDefault(true),
                 };
