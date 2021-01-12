@@ -14,11 +14,26 @@ namespace Microsoft.ReverseProxy.Utilities
 {
     internal static class RequestUtilities
     {
-        // TODO: this list only contains "Transfer-Encoding" because that messes up Kestrel. If we don't need to add any more here then it would be more efficient to
-        // check for the single value directly. What about connection headers?
-        internal static readonly HashSet<string> ResponseHeadersToSkip = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        internal static bool ShouldSkipResponseHeader(string headerName, bool isHttp2OrGreater)
         {
-            HeaderNames.TransferEncoding
+            if (isHttp2OrGreater)
+            {
+                // This check can be dropped in .NET 6.0+ as these headers will be removed by Kestrel
+                return _invalidH2H3ResponseHeaders.Contains(headerName);
+            }
+            else
+            {
+                return headerName.Equals(HeaderNames.TransferEncoding, StringComparison.OrdinalIgnoreCase);
+            }
+        }
+
+        private static readonly HashSet<string> _invalidH2H3ResponseHeaders = new(StringComparer.OrdinalIgnoreCase)
+        {
+            HeaderNames.Connection,
+            HeaderNames.TransferEncoding,
+            HeaderNames.KeepAlive,
+            HeaderNames.Upgrade,
+            "Proxy-Connection"
         };
 
         /// <summary>

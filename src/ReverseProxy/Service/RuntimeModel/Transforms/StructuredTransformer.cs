@@ -168,10 +168,12 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         private static void CopyResponseHeaders(HttpResponseMessage response, HttpHeaders source, HttpContext context, IHeaderDictionary destination,
             IReadOnlyDictionary<string, ResponseHeaderTransform> transforms, ref HashSet<string> transformsRun)
         {
+            var isHttp2OrGreater = ProtocolHelper.IsHttp2OrGreater(context.Request.Protocol);
+
             foreach (var header in source)
             {
                 var headerName = header.Key;
-                if (RequestUtilities.ResponseHeadersToSkip.Contains(headerName))
+                if (RequestUtilities.ShouldSkipResponseHeader(headerName, isHttp2OrGreater))
                 {
                     continue;
                 }
