@@ -222,57 +222,41 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             };
 
             var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
-
-            var expectedRoutes = new List<ProxyRoute>
+            var route = Assert.Single(routes);
+            Assert.Equal("MyCoolClusterId:MyRoute", route.RouteId);
+            Assert.Equal(new[] { "example.com" }, route.Match.Hosts);
+            Assert.Equal(2, route.Match.Headers.Count);
+            var header0 = route.Match.Headers[0];
+            Assert.Equal("x-company-key", header0.Name);
+            Assert.Equal(HeaderMatchMode.ExactHeader, header0.Mode);
+            Assert.Equal(new string[] { "contoso" }, header0.Values);
+            Assert.True(header0.IsCaseSensitive);
+            var header1 = route.Match.Headers[1];
+            Assert.Equal("x-environment", header1.Name);
+            Assert.Equal(HeaderMatchMode.ExactHeader, header1.Mode);
+            Assert.Equal(new string[] { "dev", "uat" }, header1.Values);
+            Assert.False(header1.IsCaseSensitive);
+            Assert.Equal(2, route.Order);
+            Assert.Equal("MyCoolClusterId", route.ClusterId);
+            Assert.Equal(new Dictionary<string, string>
             {
-                new ProxyRoute
+                { "Foo", "Bar" },
+            }, route.Metadata);
+            Assert.Equal(new List<IDictionary<string, string>>
+            {
+                new Dictionary<string, string>
                 {
-                    RouteId = "MyCoolClusterId:MyRoute",
-                    Match =
-                    {
-                        Hosts = new[] { "example.com" },
-                        Headers = new List<RouteHeader>
-                        {
-                            new RouteHeader()
-                            {
-                                Mode = HeaderMatchMode.ExactHeader,
-                                Name = "x-company-key",
-                                Values = new string[]{"contoso"},
-                                IsCaseSensitive = true
-                            },
-                            new RouteHeader()
-                            {
-                                Mode = HeaderMatchMode.ExactHeader,
-                                Name = "x-environment",
-                                Values = new string[]{"dev", "uat"},
-                                IsCaseSensitive = false
-                            }
-                        }
-                    },
-                    Order = 2,
-                    ClusterId = "MyCoolClusterId",
-                    Metadata = new Dictionary<string, string>
-                    {
-                        { "Foo", "Bar" },
-                    },
-                    Transforms = new List<IDictionary<string, string>>
-                    {
-                        new Dictionary<string, string>
-                        {
-                            {"ResponseHeader", "X-Foo"},
-                            {"Append", "Bar"},
-                            {"When", "Always"}
-                        },
-                        new Dictionary<string, string>
-                        {
-                            {"ResponseHeader", "X-Ping"},
-                            {"Append", "Pong"},
-                            {"When", "Success"}
-                        }
-                    }
+                    {"ResponseHeader", "X-Foo"},
+                    {"Append", "Bar"},
+                    {"When", "Always"}
                 },
-            };
-            routes.Should().BeEquivalentTo(expectedRoutes);
+                new Dictionary<string, string>
+                {
+                    {"ResponseHeader", "X-Ping"},
+                    {"Append", "Pong"},
+                    {"When", "Success"}
+                }
+            }, route.Transforms);
         }
 
         [Fact]
@@ -547,7 +531,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
         [InlineData("YARP.Routes.MyRoute0.MatchHeaders.[0].Values", "apples,,oranges,grapes", new string[] {"apples", "", "oranges", "grapes"})]
         public void BuildRoutes_MatchHeadersWithCSVs_Works(string invalidKey, string value, string[] expected)
         {
-            // Arrange
             var labels = new Dictionary<string, string>()
             {
                 { "YARP.Backend.BackendId", "MyCoolClusterId" },
@@ -558,29 +541,19 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             };
             labels[invalidKey] = value;
 
-            // Act
             var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
-
-            // Assert
-            var expectedRoutes = new List<ProxyRoute>
+            var route = Assert.Single(routes);
+            Assert.Equal("MyCoolClusterId:MyRoute0", route.RouteId);
+            Assert.Equal(new[] { "example0.com" }, route.Match.Hosts);
+            var header = Assert.Single(route.Match.Headers);
+            Assert.Equal("x-test-header", header.Name);
+            Assert.Equal(HeaderMatchMode.ExactHeader, header.Mode);
+            Assert.Equal(expected, header.Values);
+            Assert.Equal(new Dictionary<string, string>()
             {
-                new ProxyRoute
-                {
-                    RouteId = $"MyCoolClusterId:MyRoute0",
-                    Match =
-                    {
-                        Hosts = new[] { "example0.com" },
-                        Headers = new List<RouteHeader>() {
-                            new RouteHeader(){Name = "x-test-header", Mode = HeaderMatchMode.ExactHeader, Values = expected},
-                        }
-                    },
-                    Metadata = new Dictionary<string, string>(){
-                        { "Foo", "bar"}
-                    },
-                    ClusterId = "MyCoolClusterId",
-                }
-            };
-            routes.Should().BeEquivalentTo(expectedRoutes);
+                { "Foo", "bar"}
+            }, route.Metadata);
+            Assert.Equal("MyCoolClusterId", route.ClusterId);
         }
 
         [Theory]

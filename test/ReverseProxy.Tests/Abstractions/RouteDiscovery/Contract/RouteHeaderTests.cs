@@ -15,41 +15,45 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
         }
 
         [Fact]
-        public void DeepClone_Works()
+        public void Equals_Positive()
         {
-            var sut = new RouteHeader
+            var a = new RouteHeader()
             {
-                Name = "header1",
-                Values = new[] { "value1", "value2" },
-                Mode = HeaderMatchMode.HeaderPrefix,
+                Name = "foo",
+                Mode = HeaderMatchMode.Exists,
+                Values = new[] { "v1", "v2" },
                 IsCaseSensitive = true,
             };
-
-            var clone = sut.DeepClone();
-
-            Assert.NotSame(sut, clone);
-            Assert.Equal(sut.Name, clone.Name);
-            Assert.NotSame(sut.Values, clone.Values);
-            Assert.Equal(sut.Values, clone.Values);
-            Assert.Equal(sut.Mode, clone.Mode);
-            Assert.Equal(sut.IsCaseSensitive, clone.IsCaseSensitive);
-
-            Assert.True(RouteHeader.Equals(sut, clone));
+            var b = new RouteHeader()
+            {
+                Name = "foo",
+                Mode = HeaderMatchMode.Exists,
+                Values = new[] { "v1", "v2" },
+                IsCaseSensitive = true,
+            };
+            var c = a with { }; // Clone
+            Assert.True(RouteHeader.Equals(a, b));
+            Assert.True(RouteHeader.Equals(a, c));
         }
 
         [Fact]
-        public void DeepClone_Nulls_Works()
+        public void Equals_Negative()
         {
-            var sut = new RouteHeader();
-            var clone = sut.DeepClone();
-
-            Assert.NotSame(sut, clone);
-            Assert.Null(clone.Name);
-            Assert.Null(clone.Values);
-            Assert.Equal(HeaderMatchMode.ExactHeader, clone.Mode);
-            Assert.False(clone.IsCaseSensitive);
-
-            Assert.True(RouteHeader.Equals(sut, clone));
+            var a = new RouteHeader()
+            {
+                Name = "foo",
+                Mode = HeaderMatchMode.Exists,
+                Values = new[] { "v1", "v2" },
+                IsCaseSensitive = true,
+            };
+            var b = a with { Name = "bar" };
+            var c = a with { Mode = HeaderMatchMode.ExactHeader };
+            var d = a with { Values = new[] { "v1", "v3" } };
+            var e = a with { IsCaseSensitive = false };
+            Assert.False(RouteHeader.Equals(a, b));
+            Assert.False(RouteHeader.Equals(a, c));
+            Assert.False(RouteHeader.Equals(a, d));
+            Assert.False(RouteHeader.Equals(a, e));
         }
     }
 }

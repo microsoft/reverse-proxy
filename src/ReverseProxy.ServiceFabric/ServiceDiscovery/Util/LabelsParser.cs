@@ -98,7 +98,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                 string path = null;
                 int? order = null;
                 var metadata = new Dictionary<string, string>();
-                var headerMatches = new Dictionary<string, RouteHeader>();
+                var headerMatches = new Dictionary<string, RouteHeaderFields>();
                 var transforms = new Dictionary<string, IDictionary<string, string>>();
                 foreach (var kvp in labels)
                 {
@@ -135,7 +135,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                         }
                         if (!headerMatches.ContainsKey(headerIndex)) 
                         {
-                            headerMatches.Add(headerIndex, new RouteHeader());
+                            headerMatches.Add(headerIndex, new RouteHeaderFields());
                         }
 
                         var propertyName = keyRemainder.Slice(headerIndexLength + 1);
@@ -214,7 +214,14 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                     {
                         Hosts = SplitHosts(hosts),
                         Path = path,
-                        Headers = headerMatches.Count > 0 ? headerMatches.Select(hm => hm.Value).ToArray() : null
+                        Headers = headerMatches.Count > 0 ? headerMatches.Select(hm => new RouteHeader()
+                        {
+                            Name = hm.Value.Name,
+                            Values = hm.Value.Values,
+                            Mode = hm.Value.Mode,
+                            IsCaseSensitive = hm.Value.IsCaseSensitive,
+                        }).ToArray() : null
+
                     },
                     Order = order,
                     ClusterId = backendId,
@@ -328,6 +335,14 @@ namespace Microsoft.ReverseProxy.ServiceFabric
 
             keyRemainder = actualKey.Slice(expectedKeyName.Length);
             return true;
+        }
+
+        private class RouteHeaderFields
+        {
+            public string Name { get; internal set; }
+            public IReadOnlyList<string> Values { get; internal set; }
+            public bool IsCaseSensitive { get; internal set; }
+            public HeaderMatchMode Mode { get; internal set; }
         }
     }
 }

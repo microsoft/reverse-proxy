@@ -311,11 +311,8 @@ namespace Microsoft.ReverseProxy.Service.Tests
             {
                 Name = name,
                 Mode = mode,
+                Values = value == null ? null : new[] { value },
             };
-            if (value != null)
-            {
-                routeHeader.Values = new[] { value };
-            }
 
             var route = new ProxyRoute
             {

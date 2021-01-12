@@ -46,7 +46,7 @@ namespace Microsoft.ReverseProxy.Abstractions
                 Methods = Methods?.ToArray(),
                 Hosts = Hosts?.ToArray(),
                 Path = Path,
-                Headers = Headers?.DeepCloneList(),
+                Headers = Headers?.ToArray(),
             };
         }
 
