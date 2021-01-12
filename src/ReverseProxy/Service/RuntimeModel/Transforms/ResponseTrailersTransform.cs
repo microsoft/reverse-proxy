@@ -46,7 +46,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             else if (!context.HeadersCopied
                 && context.ProxyResponse.TrailingHeaders.TryGetValues(headerName, out var values))
             {
-                existingValues = values.ToArray();
+                existingValues = (string[])values;
             }
 
             return existingValues;

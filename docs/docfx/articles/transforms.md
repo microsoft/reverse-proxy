@@ -487,7 +487,7 @@ This transform causes the client certificate taken from `HttpContext.Connection.
 
 ### Response and Response Trailers
 
-All response headers and trailers are copied from the proxied response to the outgoing client response by default. Response and response trailer transforms may specify if they should be applied only for successful responses of for all responses.
+All response headers and trailers are copied from the proxied response to the outgoing client response by default. Response and response trailer transforms may specify if they should be applied only for successful responses or for all responses.
 
 In code these are implemented as derivations of the abstract classes [ResponseTransform](xref:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseTransform) and [ResponseTrailersTransform](xref:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseTrailersTransform).
 
@@ -506,7 +506,7 @@ Code:
 proxyRoute.AddTransformSuppressResponseHeaders();
 ```
 
-This sets if all proxy response headers are copied to the client response. This setting is enabled by default and can by disabled by configuring the transform with a `false` value. Transforms that reference specific headers will still be run if this is disabled.
+This sets if all proxy response headers are copied to the client response. This setting is enabled by default and can be disabled by configuring the transform with a `false` value. Transforms that reference specific headers will still be run if this is disabled.
 
 #### ResponseHeader
 
@@ -552,7 +552,7 @@ Code:
 proxyRoute.AddTransformSuppressResponseTrailers();
 ```
 
-This sets if all proxy response trailers are copied to the client response. This setting is enabled by default and can by disabled by configuring the transform with a `false` value. Transforms that reference specific headers will still be run if this is disabled.
+This sets if all proxy response trailers are copied to the client response. This setting is enabled by default and can be disabled by configuring the transform with a `false` value. Transforms that reference specific headers will still be run if this is disabled.
 
 #### ResponseTrailer
 
