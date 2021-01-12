@@ -19,7 +19,7 @@ namespace Microsoft.ReverseProxy.Abstractions
         /// </summary>
         public string RouteId { get; set; }
 
-        public ProxyMatch Match { get; private set; } = new ProxyMatch();
+        public ProxyMatch Match { get; set; } = new ProxyMatch();
 
         /// <summary>
         /// Optionally, an order value for this route. Routes with lower numbers take precedence over higher numbers.
@@ -64,7 +64,7 @@ namespace Microsoft.ReverseProxy.Abstractions
             return new ProxyRoute
             {
                 RouteId = RouteId,
-                Match = Match.DeepClone(),
+                Match = Match,
                 Order = Order,
                 ClusterId = ClusterId,
                 AuthorizationPolicy = AuthorizationPolicy,
@@ -74,7 +74,7 @@ namespace Microsoft.ReverseProxy.Abstractions
             };
         }
 
-        internal static bool Equals(ProxyRoute proxyRoute1, ProxyRoute proxyRoute2)
+        public static bool Equals(ProxyRoute proxyRoute1, ProxyRoute proxyRoute2)
         {
             if (proxyRoute1 == null && proxyRoute2 == null)
             {

@@ -126,7 +126,10 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             };
             var expectedRoutes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
-            routes.Should().BeEquivalentTo(expectedRoutes);
+            var route = Assert.Single(routes);
+            var expectedRoute = Assert.Single(expectedRoutes);
+            Assert.True(ProxyRoute.Equals(expectedRoute, route));
+
             clusters.Should().BeEquivalentTo(expectedClusters);
             AssertServiceHealthReported(service, HealthState.Ok);
             foreach (var replica in replicas)
@@ -160,7 +163,10 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             };
             var expectedRoutes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
-            routes.Should().BeEquivalentTo(expectedRoutes);
+            var route = Assert.Single(routes);
+            var expectedRoute = Assert.Single(expectedRoutes);
+            Assert.True(ProxyRoute.Equals(expectedRoute, route));
+
             clusters.Should().BeEquivalentTo(expectedClusters);
             AssertServiceHealthReported(service, HealthState.Ok);
             _healthReports.Should().HaveCount(1);
@@ -199,13 +205,15 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     LabelsParser.BuildCluster(_testServiceName, labels3),
                     SFTestHelpers.BuildDestinationFromReplica(replica3)),
             };
-            var expectedRoutes = new List<ProxyRoute>();
-            expectedRoutes.AddRange(LabelsParser.BuildRoutes(_testServiceName, labels1));
-            expectedRoutes.AddRange(LabelsParser.BuildRoutes(_testServiceName, labels2));
-            expectedRoutes.AddRange(LabelsParser.BuildRoutes(_testServiceName, labels3));
+
+            var expectedRoute1 = Assert.Single(LabelsParser.BuildRoutes(_testServiceName, labels1));
+            var expectedRoute2 = Assert.Single(LabelsParser.BuildRoutes(_testServiceName, labels2));
+            var expectedRoute3 = Assert.Single(LabelsParser.BuildRoutes(_testServiceName, labels3));
+            Assert.True(ProxyRoute.Equals(expectedRoute1, routes[0]));
+            Assert.True(ProxyRoute.Equals(expectedRoute2, routes[1]));
+            Assert.True(ProxyRoute.Equals(expectedRoute3, routes[2]));
 
             clusters.Should().BeEquivalentTo(expectedClusters);
-            routes.Should().BeEquivalentTo(expectedRoutes);
             AssertServiceHealthReported(service1, HealthState.Ok);
             AssertServiceHealthReported(service2, HealthState.Ok);
             AssertServiceHealthReported(service3, HealthState.Ok);
@@ -239,11 +247,14 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     LabelsParser.BuildCluster(_testServiceName, gatewayEnabledLabels),
                     SFTestHelpers.BuildDestinationFromReplica(replica1)),
             };
-            var expectedRoutes = new List<ProxyRoute>();
-            expectedRoutes.AddRange(LabelsParser.BuildRoutes(_testServiceName, gatewayEnabledLabels));
+
+            var expectedRoutes = LabelsParser.BuildRoutes(_testServiceName, gatewayEnabledLabels);
+
+            var route = Assert.Single(routes);
+            var expectedRoute = Assert.Single(expectedRoutes);
+            Assert.True(ProxyRoute.Equals(expectedRoute, route));
 
             clusters.Should().BeEquivalentTo(expectedClusters);
-            routes.Should().BeEquivalentTo(expectedRoutes);
             AssertServiceHealthReported(service1, HealthState.Ok);
             AssertStatelessServiceInstanceHealthReported(replica1, HealthState.Ok);
             _healthReports.Should().HaveCount(2);
@@ -344,8 +355,11 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             };
             var expectedRoutes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
+            var route = Assert.Single(routes);
+            var expectedRoute = Assert.Single(expectedRoutes);
+            Assert.True(ProxyRoute.Equals(expectedRoute, route));
+
             clusters.Should().BeEquivalentTo(expectedClusters);
-            routes.Should().BeEquivalentTo(expectedRoutes);
             AssertServiceHealthReported(service, HealthState.Ok);
             AssertStatefulServiceReplicaHealthReported(replica, HealthState.Warning, (description) =>
                 description.StartsWith("Could not build service endpoint") &&
@@ -374,8 +388,11 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             };
             var expectedRoutes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
+            var route = Assert.Single(routes);
+            var expectedRoute = Assert.Single(expectedRoutes);
+            Assert.True(ProxyRoute.Equals(expectedRoute, route));
+
             clusters.Should().BeEquivalentTo(expectedClusters);
-            routes.Should().BeEquivalentTo(expectedRoutes);
             AssertServiceHealthReported(service, HealthState.Ok);
             AssertStatelessServiceInstanceHealthReported(replica, HealthState.Warning, (description) =>
                 description.StartsWith("Could not build service endpoint") &&
@@ -406,8 +423,11 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             };
             var expectedRoutes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
+            var route = Assert.Single(routes);
+            var expectedRoute = Assert.Single(expectedRoutes);
+            Assert.True(ProxyRoute.Equals(expectedRoute, route));
+
             clusters.Should().BeEquivalentTo(expectedClusters);
-            routes.Should().BeEquivalentTo(expectedRoutes);
             AssertServiceHealthReported(service, HealthState.Ok);
             AssertStatelessServiceInstanceHealthReported(replica, HealthState.Warning, (description) =>
                 description.StartsWith("Could not build service endpoint") &&
@@ -439,8 +459,11 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             };
             var expectedRoutes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
+            var route = Assert.Single(routes);
+            var expectedRoute = Assert.Single(expectedRoutes);
+            Assert.True(ProxyRoute.Equals(expectedRoute, route));
+
             clusters.Should().BeEquivalentTo(expectedClusters);
-            routes.Should().BeEquivalentTo(expectedRoutes);
             AssertServiceHealthReported(service, HealthState.Ok);
             AssertStatelessServiceInstanceHealthReported(replica, HealthState.Ok, (description) =>
                 description.StartsWith("Successfully built"));
@@ -486,8 +509,11 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             };
             var expectedRoutes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
+            var route = Assert.Single(routes);
+            var expectedRoute = Assert.Single(expectedRoutes);
+            Assert.True(ProxyRoute.Equals(expectedRoute, route));
+
             clusters.Should().BeEquivalentTo(expectedClusters);
-            routes.Should().BeEquivalentTo(expectedRoutes);
             AssertServiceHealthReported(service, HealthState.Ok);
             AssertStatelessServiceInstanceHealthReported(replicas[0], HealthState.Ok);
             AssertStatelessServiceInstanceHealthReported(replicas[1], HealthState.Ok);
@@ -515,8 +541,12 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     SFTestHelpers.BuildDestinationFromReplica(replica)),
             };
             var expectedRoutes = LabelsParser.BuildRoutes(_testServiceName, labels);
+
+            var route = Assert.Single(routes);
+            var expectedRoute = Assert.Single(expectedRoutes);
+            Assert.True(ProxyRoute.Equals(expectedRoute, route));
+
             clusters.Should().BeEquivalentTo(expectedClusters);
-            routes.Should().BeEquivalentTo(expectedRoutes);
             AssertServiceHealthReported(service, HealthState.Ok);
             _healthReports.Should().HaveCount(1);
         }

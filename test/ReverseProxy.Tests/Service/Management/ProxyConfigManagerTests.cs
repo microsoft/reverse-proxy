@@ -304,7 +304,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
 
             public Task ConfigureRouteAsync(ProxyRoute route, CancellationToken cancel)
             {
-                route.Match.Hosts = new[] { "example.com" };
+                route.Match = route.Match with { Hosts = new[] { "example.com" } };
                 return Task.CompletedTask;
             }
         }

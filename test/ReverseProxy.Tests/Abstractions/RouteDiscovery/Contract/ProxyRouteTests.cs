@@ -51,13 +51,10 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
 
             Assert.NotSame(sut, clone);
             Assert.Equal(sut.RouteId, clone.RouteId);
-            Assert.NotSame(sut.Match, clone.Match);
-            Assert.NotSame(sut.Match.Methods, clone.Match.Methods);
-            Assert.NotSame(sut.Match.Hosts, clone.Match.Hosts);
-            Assert.NotSame(sut.Match.Headers, clone.Match.Headers);
-            Assert.Equal(sut.Match.Methods, clone.Match.Methods);
-            Assert.Equal(sut.Match.Hosts, clone.Match.Hosts);
-            Assert.Equal(sut.Match.Headers.Count, clone.Match.Headers.Count); // These types don't implement the standard Object.Equals
+            Assert.Same(sut.Match, clone.Match);
+            Assert.Same(sut.Match.Methods, clone.Match.Methods);
+            Assert.Same(sut.Match.Hosts, clone.Match.Hosts);
+            Assert.Same(sut.Match.Headers, clone.Match.Headers);
             Assert.Equal(sut.Match.Path, clone.Match.Path);
             Assert.Equal(sut.Order, clone.Order);
             Assert.Equal(sut.ClusterId, clone.ClusterId);

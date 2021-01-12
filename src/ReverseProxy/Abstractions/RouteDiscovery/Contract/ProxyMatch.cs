@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Abstractions
@@ -11,44 +10,33 @@ namespace Microsoft.ReverseProxy.Abstractions
     /// <summary>
     /// Describes the matching criteria for a route.
     /// </summary>
-    public class ProxyMatch : IDeepCloneable<ProxyMatch>
+    public record ProxyMatch
     {
         /// <summary>
         /// Only match requests that use these optional HTTP methods. E.g. GET, POST.
         /// </summary>
-        public IReadOnlyList<string> Methods { get; set; }
+        public IReadOnlyList<string> Methods { get; init; }
 
         /// <summary>
         /// Only match requests with the given Host header.
         /// </summary>
-        public IReadOnlyList<string> Hosts { get; set; }
+        public IReadOnlyList<string> Hosts { get; init; }
 
         /// <summary>
         /// Only match requests with the given Path pattern.
         /// </summary>
-        public string Path { get; set; }
+        public string Path { get; init; }
 
         // TODO:
         /// <summary>
         /// Only match requests that contain all of these query parameters.
         /// </summary>
-        // public ICollection<KeyValuePair<string, string>> QueryParameters { get; set; }
+        // public ICollection<KeyValuePair<string, string>> QueryParameters { get; init; }
 
         /// <summary>
         /// Only match requests that contain all of these headers.
         /// </summary>
-        public IReadOnlyList<RouteHeader> Headers { get; set; }
-
-        ProxyMatch IDeepCloneable<ProxyMatch>.DeepClone()
-        {
-            return new ProxyMatch()
-            {
-                Methods = Methods?.ToArray(),
-                Hosts = Hosts?.ToArray(),
-                Path = Path,
-                Headers = Headers?.ToArray(),
-            };
-        }
+        public IReadOnlyList<RouteHeader> Headers { get; init; }
 
         internal static bool Equals(ProxyMatch proxyMatch1, ProxyMatch proxyMatch2)
         {

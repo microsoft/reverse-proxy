@@ -164,7 +164,7 @@ namespace Microsoft.ReverseProxy.Configuration
 
         private static ProxyRoute CreateRoute(IConfigurationSection section)
         {
-            var route = new ProxyRoute
+            return new ProxyRoute
             {
                 RouteId = section[nameof(ProxyRoute.RouteId)],
                 Order = section.ReadInt32(nameof(ProxyRoute.Order)),
@@ -173,9 +173,8 @@ namespace Microsoft.ReverseProxy.Configuration
                 CorsPolicy = section[nameof(ProxyRoute.CorsPolicy)],
                 Metadata = section.GetSection(nameof(ProxyRoute.Metadata)).ReadStringDictionary(),
                 Transforms = CreateTransforms(section.GetSection(nameof(ProxyRoute.Transforms))),
+                Match = CreateProxyMatch(section.GetSection(nameof(ProxyRoute.Match))),
             };
-            InitializeProxyMatch(route.Match, section.GetSection(nameof(ProxyRoute.Match)));
-            return route;
         }
 
         private static IList<IDictionary<string, string>> CreateTransforms(IConfigurationSection section)
@@ -188,17 +187,20 @@ namespace Microsoft.ReverseProxy.Configuration
             return children.Select(s => s.GetChildren().ToDictionary(d => d.Key, d => d.Value, StringComparer.OrdinalIgnoreCase)).ToList<IDictionary<string, string>>();
         }
 
-        private static void InitializeProxyMatch(ProxyMatch proxyMatch, IConfigurationSection section)
+        private static ProxyMatch CreateProxyMatch(IConfigurationSection section)
         {
             if (!section.Exists())
             {
-                return;
+                return new ProxyMatch();
             }
 
-            proxyMatch.Methods = section.GetSection(nameof(ProxyMatch.Methods)).ReadStringArray();
-            proxyMatch.Hosts = section.GetSection(nameof(ProxyMatch.Hosts)).ReadStringArray();
-            proxyMatch.Path = section[nameof(ProxyMatch.Path)];
-            proxyMatch.Headers = CreateRouteHeaders(section.GetSection(nameof(ProxyMatch.Headers)));
+            return new ProxyMatch()
+            {
+                Methods = section.GetSection(nameof(ProxyMatch.Methods)).ReadStringArray(),
+                Hosts = section.GetSection(nameof(ProxyMatch.Hosts)).ReadStringArray(),
+                Path = section[nameof(ProxyMatch.Path)],
+                Headers = CreateRouteHeaders(section.GetSection(nameof(ProxyMatch.Headers))),
+            };
         }
 
         private static IReadOnlyList<RouteHeader> CreateRouteHeaders(IConfigurationSection section)
