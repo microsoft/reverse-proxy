@@ -31,7 +31,7 @@ namespace Microsoft.ReverseProxy.Service.Config
         }
 
         /// <inheritdoc/>
-        public IList<Exception> Validate(IList<IDictionary<string, string>> rawTransforms)
+        public IList<Exception> Validate(IReadOnlyList<IReadOnlyDictionary<string, string>> rawTransforms)
         {
             var errors = new List<Exception>();
 
@@ -247,13 +247,13 @@ namespace Microsoft.ReverseProxy.Service.Config
         }
 
         /// <inheritdoc/>
-        public HttpTransformer Build(IList<IDictionary<string, string>> rawTransforms)
+        public HttpTransformer Build(IReadOnlyList<IReadOnlyDictionary<string, string>> rawTransforms)
         {
             return BuildInternal(rawTransforms);
         }
 
         // This is separate from Build for testing purposes.
-        internal StructuredTransformer BuildInternal(IList<IDictionary<string, string>> rawTransforms)
+        internal StructuredTransformer BuildInternal(IReadOnlyList<IReadOnlyDictionary<string, string>> rawTransforms)
         {
             bool? copyRequestHeaders = null;
             bool? copyResponseHeaders = null;
@@ -576,7 +576,20 @@ namespace Microsoft.ReverseProxy.Service.Config
             }
         }
 
+        private void TryCheckTooManyParameters(Action<Exception> onError, IReadOnlyDictionary<string, string> rawTransform, int expected)
+        {
+            if (rawTransform.Count > expected)
+            {
+                onError(new InvalidOperationException("The transform contains more parameters than expected: " + string.Join(';', rawTransform.Keys)));
+            }
+        }
+
         private void CheckTooManyParameters(IDictionary<string, string> rawTransform, int expected)
+        {
+            TryCheckTooManyParameters(ex => throw ex, rawTransform, expected);
+        }
+
+        private void CheckTooManyParameters(IReadOnlyDictionary<string, string> rawTransform, int expected)
         {
             TryCheckTooManyParameters(ex => throw ex, rawTransform, expected);
         }

@@ -16,77 +16,116 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
         }
 
         [Fact]
-        public void DeepClone_Works()
+        public void Equals_Positive()
         {
-            var sut = new ProxyRoute
+            var a = new ProxyRoute()
             {
-                RouteId = "route1",
-                Match =
+                AuthorizationPolicy = "a",
+                ClusterId = "c",
+                CorsPolicy = "co",
+                Match = new ProxyMatch()
                 {
-                    Methods = new[] { "GET", "POST" },
-                    Hosts = new[] { "example.com" },
-                    Path = "/",
                     Headers = new[]
                     {
                         new RouteHeader()
                         {
-                            Name = "header1",
-                            Values = new[] { "value1", "value2" },
-                            Mode = HeaderMatchMode.HeaderPrefix,
+                            Name = "Hi",
+                            Values = new[] { "v1", "v2" },
                             IsCaseSensitive = true,
+                            Mode = HeaderMatchMode.HeaderPrefix,
                         }
                     },
+                    Hosts = new[] { "foo:90" },
+                    Methods = new[] { "GET", "POST" },
+                    Path = "/p",
                 },
-                Order = 2,
-                ClusterId = "cluster1",
-                AuthorizationPolicy = "policy1",
-                CorsPolicy = "policy2",
-                Metadata = new Dictionary<string, string>
+                Metadata = new Dictionary<string, string>()
                 {
-                    { "key", "value" },
+                    { "m", "m1" }
                 },
+                Order = 1,
+                RouteId = "R",
             };
+            var b = new ProxyRoute()
+            {
+                AuthorizationPolicy = "a",
+                ClusterId = "c",
+                CorsPolicy = "co",
+                Match = new ProxyMatch()
+                {
+                    Headers = new[]
+                    {
+                        new RouteHeader()
+                        {
+                            Name = "Hi",
+                            Values = new[] { "v1", "v2" },
+                            IsCaseSensitive = true,
+                            Mode = HeaderMatchMode.HeaderPrefix,
+                        }
+                    },
+                    Hosts = new[] { "foo:90" },
+                    Methods = new[] { "GET", "POST" },
+                    Path = "/p"
+                },
+                Metadata = new Dictionary<string, string>()
+                {
+                    { "m", "m1" }
+                },
+                Order = 1,
+                RouteId = "R",
+            };
+            var c = b with { }; // Clone
 
-            var clone = sut.DeepClone();
-
-            Assert.NotSame(sut, clone);
-            Assert.Equal(sut.RouteId, clone.RouteId);
-            Assert.Same(sut.Match, clone.Match);
-            Assert.Same(sut.Match.Methods, clone.Match.Methods);
-            Assert.Same(sut.Match.Hosts, clone.Match.Hosts);
-            Assert.Same(sut.Match.Headers, clone.Match.Headers);
-            Assert.Equal(sut.Match.Path, clone.Match.Path);
-            Assert.Equal(sut.Order, clone.Order);
-            Assert.Equal(sut.ClusterId, clone.ClusterId);
-            Assert.Equal(sut.AuthorizationPolicy, clone.AuthorizationPolicy);
-            Assert.Equal(sut.CorsPolicy, clone.CorsPolicy);
-            Assert.NotNull(clone.Metadata);
-            Assert.NotSame(sut.Metadata, clone.Metadata);
-            Assert.Equal("value", clone.Metadata["key"]);
-
-            Assert.True(ProxyRoute.Equals(sut, clone));
+            Assert.True(ProxyRoute.Equals(a, b));
+            Assert.True(ProxyRoute.Equals(a, c));
         }
 
         [Fact]
-        public void DeepClone_Nulls_Works()
+        public void Equals_Negative()
         {
-            var sut = new ProxyRoute();
+            var a = new ProxyRoute()
+            {
+                AuthorizationPolicy = "a",
+                ClusterId = "c",
+                CorsPolicy = "co",
+                Match = new ProxyMatch()
+                {
+                    Headers = new[]
+                    {
+                        new RouteHeader()
+                        {
+                            Name = "Hi",
+                            Values = new[] { "v1", "v2" },
+                            IsCaseSensitive = true,
+                            Mode = HeaderMatchMode.HeaderPrefix,
+                        }
+                    },
+                    Hosts = new[] { "foo:90" },
+                    Methods = new[] { "GET", "POST" },
+                    Path = "/p",
+                },
+                Metadata = new Dictionary<string, string>()
+                {
+                    { "m", "m1" }
+                },
+                Order = 1,
+                RouteId = "R",
+            };
+            var b = a with { AuthorizationPolicy = "b" };
+            var c = a with { ClusterId = "d" };
+            var d = a with { CorsPolicy = "p" };
+            var e = a with { Match = new ProxyMatch() };
+            var f = a with { Metadata = new Dictionary<string, string>() { { "f", "f1" } } };
+            var g = a with { Order = null };
+            var h = a with { RouteId = "h" };
 
-            var clone = sut.DeepClone();
-
-            Assert.NotSame(sut, clone);
-            Assert.Null(clone.RouteId);
-            Assert.Null(clone.Match.Methods);
-            Assert.Null(clone.Match.Hosts);
-            Assert.Null(clone.Match.Headers);
-            Assert.Null(clone.Match.Path);
-            Assert.Null(clone.Order);
-            Assert.Null(clone.ClusterId);
-            Assert.Null(clone.AuthorizationPolicy);
-            Assert.Null(clone.CorsPolicy);
-            Assert.Null(clone.Metadata);
-
-            Assert.True(ProxyRoute.Equals(sut, clone));
+            Assert.False(ProxyRoute.Equals(a, b));
+            Assert.False(ProxyRoute.Equals(a, c));
+            Assert.False(ProxyRoute.Equals(a, d));
+            Assert.False(ProxyRoute.Equals(a, e));
+            Assert.False(ProxyRoute.Equals(a, f));
+            Assert.False(ProxyRoute.Equals(a, g));
+            Assert.False(ProxyRoute.Equals(a, h));
         }
     }
 }

@@ -238,14 +238,13 @@ namespace Microsoft.ReverseProxy.Service.Management
                     continue;
                 }
 
-                // Don't modify the original
-                var route = r.DeepClone();
+                var route = r;
 
                 try
                 {
                     foreach (var filter in _filters)
                     {
-                        await filter.ConfigureRouteAsync(route, cancellation);
+                        route = await filter.ConfigureRouteAsync(route, cancellation);
                     }
                 }
                 catch (Exception ex)

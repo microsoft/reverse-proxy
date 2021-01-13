@@ -302,10 +302,12 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
                 return Task.CompletedTask;
             }
 
-            public Task ConfigureRouteAsync(ProxyRoute route, CancellationToken cancel)
+            public Task<ProxyRoute> ConfigureRouteAsync(ProxyRoute route, CancellationToken cancel)
             {
-                route.Match = route.Match with { Hosts = new[] { "example.com" } };
-                return Task.CompletedTask;
+                return Task.FromResult(route with
+                {
+                    Match = route.Match with { Hosts = new[] { "example.com" } }
+                });
             }
         }
 
@@ -317,10 +319,9 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
                 return Task.CompletedTask;
             }
 
-            public Task ConfigureRouteAsync(ProxyRoute route, CancellationToken cancel)
+            public Task<ProxyRoute> ConfigureRouteAsync(ProxyRoute route, CancellationToken cancel)
             {
-                route.Order = 12;
-                return Task.CompletedTask;
+                return Task.FromResult(route with { Order = 12 });
             }
         }
 
@@ -354,7 +355,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
                 throw new NotFiniteNumberException("Test exception");
             }
 
-            public Task ConfigureRouteAsync(ProxyRoute route, CancellationToken cancel)
+            public Task<ProxyRoute> ConfigureRouteAsync(ProxyRoute route, CancellationToken cancel)
             {
                 throw new NotFiniteNumberException("Test exception");
             }

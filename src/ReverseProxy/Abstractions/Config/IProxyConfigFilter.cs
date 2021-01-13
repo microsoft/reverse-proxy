@@ -23,6 +23,6 @@ namespace Microsoft.ReverseProxy.Service
         /// Allows modification of a route configuration.
         /// </summary>
         /// <param name="route">The ProxyRoute instance to configure.</param>
-        Task ConfigureRouteAsync(ProxyRoute route, CancellationToken cancel);
+        Task<ProxyRoute> ConfigureRouteAsync(ProxyRoute route, CancellationToken cancel);
     }
 }

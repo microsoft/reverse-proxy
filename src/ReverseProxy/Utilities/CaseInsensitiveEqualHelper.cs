@@ -36,7 +36,7 @@ namespace Microsoft.ReverseProxy.Utilities
             return true;
         }
 
-        internal static bool Equals(IList<IDictionary<string, string>> dictionaryList1, IList<IDictionary<string, string>> dictionaryList2)
+        internal static bool Equals(IReadOnlyList<IReadOnlyDictionary<string, string>> dictionaryList1, IReadOnlyList<IReadOnlyDictionary<string, string>> dictionaryList2)
         {
             if (ReferenceEquals(dictionaryList1, dictionaryList2))
             {
@@ -69,12 +69,57 @@ namespace Microsoft.ReverseProxy.Utilities
             return Equals(dictionary1, dictionary2, StringEquals);
         }
 
+        internal static bool Equals(IReadOnlyDictionary<string, string> dictionary1, IReadOnlyDictionary<string, string> dictionary2)
+        {
+            return Equals(dictionary1, dictionary2, StringEquals);
+        }
+
         private static bool StringEquals(string value1, string value2)
         {
             return string.Equals(value1, value2, StringComparison.OrdinalIgnoreCase);
         }
 
         internal static bool Equals<T>(IDictionary<string, T> dictionary1, IDictionary<string, T> dictionary2, Func<T, T, bool> comparer)
+        {
+            if (ReferenceEquals(dictionary1, dictionary2))
+            {
+                return true;
+            }
+
+            if (dictionary1 == null || dictionary2 == null)
+            {
+                return false;
+            }
+
+            if (dictionary1.Count != dictionary2.Count)
+            {
+                return false;
+            }
+
+            if (dictionary1.Count == 0)
+            {
+                return true;
+            }
+
+            foreach (var (key, value1) in dictionary1)
+            {
+                if (dictionary2.TryGetValue(key, out var value2))
+                {
+                    if (!comparer(value1, value2))
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        internal static bool Equals<T>(IReadOnlyDictionary<string, T> dictionary1, IReadOnlyDictionary<string, T> dictionary2, Func<T, T, bool> comparer)
         {
             if (ReferenceEquals(dictionary1, dictionary2))
             {

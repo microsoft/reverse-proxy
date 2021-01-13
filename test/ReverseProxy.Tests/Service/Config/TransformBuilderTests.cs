@@ -31,10 +31,10 @@ namespace Microsoft.ReverseProxy.Service.Config
         [Fact]
         public void EmptyTransforms_AddsDefaults()
         {
-            NullOrEmptyTransforms_AddsDefaults(new List<IDictionary<string, string>>());
+            NullOrEmptyTransforms_AddsDefaults(new List<IReadOnlyDictionary<string, string>>());
         }
 
-        private void NullOrEmptyTransforms_AddsDefaults(List<IDictionary<string, string>> transforms)
+        private void NullOrEmptyTransforms_AddsDefaults(IReadOnlyList<IReadOnlyDictionary<string, string>> transforms)
         {
             var transformBuilder = CreateTransformBuilder();
 
@@ -65,7 +65,7 @@ namespace Microsoft.ReverseProxy.Service.Config
         public void DefaultsCanBeDisabled()
         {
             var transformBuilder = CreateTransformBuilder();
-            var transforms = new List<IDictionary<string, string>>()
+            var transforms = new[]
             {
                 new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                 {
@@ -92,7 +92,7 @@ namespace Microsoft.ReverseProxy.Service.Config
         public void DefaultsCanBeOverridenByForwarded()
         {
             var transformBuilder = CreateTransformBuilder();
-            var transforms = new List<IDictionary<string, string>>()
+            var transforms = new[]
             {
                 new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                 {
@@ -119,7 +119,7 @@ namespace Microsoft.ReverseProxy.Service.Config
         public void CopyRequestHeader(bool copyRequestHeaders)
         {
             var transformBuilder = CreateTransformBuilder();
-            var transforms = new List<IDictionary<string, string>>()
+            var transforms = new[]
             {
                 new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                 {
@@ -139,7 +139,7 @@ namespace Microsoft.ReverseProxy.Service.Config
         public void EmptyTransform_Error()
         {
             var transformBuilder = CreateTransformBuilder();
-            var transforms = new List<IDictionary<string, string>>()
+            var transforms = new[]
             {
                 new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase), // Empty
             };
@@ -156,7 +156,7 @@ namespace Microsoft.ReverseProxy.Service.Config
         public void UnknownTransforms_Error()
         {
             var transformBuilder = CreateTransformBuilder();
-            var transforms = new List<IDictionary<string, string>>()
+            var transforms = new[]
             {
                 new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) // Unknown transform
                 {
@@ -188,7 +188,7 @@ namespace Microsoft.ReverseProxy.Service.Config
         public void RequestHeader(bool append, string value)
         {
             var transformBuilder = CreateTransformBuilder();
-            var transforms = new List<IDictionary<string, string>>()
+            var transforms = new[]
             {
                 new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                 {

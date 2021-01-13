@@ -243,7 +243,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             {
                 { "Foo", "Bar" },
             }, route.Metadata);
-            Assert.Equal(new List<IDictionary<string, string>>
+            Assert.Equal(new[]
             {
                 new Dictionary<string, string>
                 {
@@ -354,22 +354,20 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 { "YARP.Routes.MyRoute.Path", "/{**catchall}" },
             };
 
-            var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
+            var route = LabelsParser.BuildRoutes(_testServiceName, labels).Single();
 
-            var expectedRoutes = new List<ProxyRoute>
+            var expectedRoute = new ProxyRoute
             {
-                new ProxyRoute
+                RouteId = $"{Uri.EscapeDataString(_testServiceName.ToString())}:MyRoute",
+                Match =
                 {
-                    RouteId = $"{Uri.EscapeDataString(_testServiceName.ToString())}:MyRoute",
-                    Match =
-                    {
-                        Path = "/{**catchall}",
-                    },
-                    ClusterId = _testServiceName.ToString(),
-                    Metadata = new Dictionary<string, string>(),
+                    Path = "/{**catchall}",
                 },
+                ClusterId = _testServiceName.ToString(),
+                Metadata = new Dictionary<string, string>(),
             };
-            routes.Should().BeEquivalentTo(expectedRoutes);
+
+            Assert.True(ProxyRoute.Equals(expectedRoute, route));
         }
 
         [Fact]

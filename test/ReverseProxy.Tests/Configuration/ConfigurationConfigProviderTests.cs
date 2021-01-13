@@ -137,7 +137,7 @@ namespace Microsoft.ReverseProxy.Configuration
                             }
                         }
                     },
-                    Transforms = new List<IDictionary<string, string>>
+                    Transforms = new[]
                     {
                         new Dictionary<string, string> { { "RequestHeadersCopy", "true" }, { "PathRemovePrefix", "/apis" } }, new Dictionary<string, string> { { "PathPrefix", "/apis" } }
                     },

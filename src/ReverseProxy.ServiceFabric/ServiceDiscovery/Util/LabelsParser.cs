@@ -7,8 +7,8 @@ using System.ComponentModel;
 using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
-using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.Extensions.Primitives;
+using Microsoft.ReverseProxy.Abstractions;
 
 namespace Microsoft.ReverseProxy.ServiceFabric
 {
@@ -99,7 +99,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                 int? order = null;
                 var metadata = new Dictionary<string, string>();
                 var headerMatches = new Dictionary<string, RouteHeaderFields>();
-                var transforms = new Dictionary<string, IDictionary<string, string>>();
+                var transforms = new Dictionary<string, Dictionary<string, string>>();
                 foreach (var kvp in labels)
                 {
                     if (!kvp.Key.StartsWith(RoutesLabelsPrefix, StringComparison.Ordinal))
@@ -226,7 +226,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                     Order = order,
                     ClusterId = backendId,
                     Metadata = metadata,
-                    Transforms = transforms.Count > 0 ? transforms.Select(tr => tr.Value).ToList() : null
+                    Transforms = transforms.Count > 0 ? transforms.Select(tr => tr.Value).ToList().AsReadOnly() : null
                 };
                 routes.Add(route);
             }

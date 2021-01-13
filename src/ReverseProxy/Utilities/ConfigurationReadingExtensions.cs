@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 
@@ -45,6 +46,16 @@ namespace Microsoft.Extensions.Configuration
             }
 
             return children.ToDictionary(s => s.Key, s => s.Value, StringComparer.OrdinalIgnoreCase);
+        }
+
+        internal static IReadOnlyDictionary<string, string> ReadOnlyStringDictionary(this IConfigurationSection section)
+        {
+            if (section.GetChildren() is var children && !children.Any())
+            {
+                return null;
+            }
+
+            return new ReadOnlyDictionary<string, string>(children.ToDictionary(s => s.Key, s => s.Value, StringComparer.OrdinalIgnoreCase));
         }
 
         internal static string[] ReadStringArray(this IConfigurationSection section)

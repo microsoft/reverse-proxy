@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net.Http;
 using System.Security.Authentication;
@@ -171,20 +172,21 @@ namespace Microsoft.ReverseProxy.Configuration
                 ClusterId = section[nameof(ProxyRoute.ClusterId)],
                 AuthorizationPolicy = section[nameof(ProxyRoute.AuthorizationPolicy)],
                 CorsPolicy = section[nameof(ProxyRoute.CorsPolicy)],
-                Metadata = section.GetSection(nameof(ProxyRoute.Metadata)).ReadStringDictionary(),
+                Metadata = section.GetSection(nameof(ProxyRoute.Metadata)).ReadOnlyStringDictionary(),
                 Transforms = CreateTransforms(section.GetSection(nameof(ProxyRoute.Transforms))),
                 Match = CreateProxyMatch(section.GetSection(nameof(ProxyRoute.Match))),
             };
         }
 
-        private static IList<IDictionary<string, string>> CreateTransforms(IConfigurationSection section)
+        private static IReadOnlyList<IReadOnlyDictionary<string, string>> CreateTransforms(IConfigurationSection section)
         {
             if (section.GetChildren() is var children && !children.Any())
             {
                 return null;
             }
 
-            return children.Select(s => s.GetChildren().ToDictionary(d => d.Key, d => d.Value, StringComparer.OrdinalIgnoreCase)).ToList<IDictionary<string, string>>();
+            return children.Select(s => new ReadOnlyDictionary<string, string>(s.GetChildren().ToDictionary(d => d.Key, d => d.Value, StringComparer.OrdinalIgnoreCase)))
+                .ToList<IReadOnlyDictionary<string, string>>().AsReadOnly();
         }
 
         private static ProxyMatch CreateProxyMatch(IConfigurationSection section)
