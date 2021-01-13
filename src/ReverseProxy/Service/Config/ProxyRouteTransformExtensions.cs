@@ -59,7 +59,7 @@ namespace Microsoft.ReverseProxy.Service
         }
 
         /// <summary>
-        /// Adds a transform to the route which will prevent adding reqesut headers to the proxy request.
+        /// Adds a transform to the route which will prevent adding request headers to the proxy request.
         /// </summary>
         public static void AddTransformSuppressRequestHeaders(this ProxyRoute proxyRoute)
         {
@@ -68,6 +68,32 @@ namespace Microsoft.ReverseProxy.Service
             proxyRoute.Transforms.Add(new Dictionary<string, string>
             {
                 ["RequestHeadersCopy"] = "False",
+            });
+        }
+
+        /// <summary>
+        /// Adds a transform to the route which will prevent adding response headers to the client response.
+        /// </summary>
+        public static void AddTransformSuppressResponseHeaders(this ProxyRoute proxyRoute)
+        {
+            proxyRoute.Transforms ??= new List<IDictionary<string, string>>();
+
+            proxyRoute.Transforms.Add(new Dictionary<string, string>
+            {
+                ["ResponseHeadersCopy"] = "False",
+            });
+        }
+
+        /// <summary>
+        /// Adds a transform to the route which will prevent adding response trailers to the client response.
+        /// </summary>
+        public static void AddTransformSuppressResponseTrailers(this ProxyRoute proxyRoute)
+        {
+            proxyRoute.Transforms ??= new List<IDictionary<string, string>>();
+
+            proxyRoute.Transforms.Add(new Dictionary<string, string>
+            {
+                ["ResponseTrailersCopy"] = "False",
             });
         }
 

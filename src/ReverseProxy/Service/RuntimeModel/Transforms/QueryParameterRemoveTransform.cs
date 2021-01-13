@@ -1,12 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Threading.Tasks;
+
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
     /// <summary>
     /// A request transform that removes the given query parameter.
     /// </summary>
-    public class QueryParameterRemoveTransform : RequestParametersTransform
+    public class QueryParameterRemoveTransform : RequestTransform
     {
         public QueryParameterRemoveTransform(string key)
         {
@@ -16,7 +18,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         internal string Key { get; }
 
         /// <inheritdoc/>
-        public override void Apply(RequestParametersTransformContext context)
+        public override Task ApplyAsync(RequestTransformContext context)
         {
             if (context == null)
             {
@@ -24,6 +26,8 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             }
 
             context.Query.Collection.Remove(Key);
+
+            return Task.CompletedTask;
         }
     }
 }

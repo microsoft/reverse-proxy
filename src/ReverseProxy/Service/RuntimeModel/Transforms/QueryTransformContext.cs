@@ -11,7 +11,7 @@ using Microsoft.Extensions.Primitives;
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
     /// <summary>
-    /// Transform state for use with <see cref="RequestParametersTransform"/>
+    /// Transform state for use with <see cref="RequestTransform"/>
     /// </summary>
     public class QueryTransformContext
     {
