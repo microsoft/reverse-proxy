@@ -17,8 +17,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy
     /// </summary>
     internal static class StreamCopier
     {
-        // Taken from https://github.com/aspnet/Proxy/blob/816f65429b29d98e3ca98dd6b4d5e990f5cc7c02/src/Microsoft.AspNetCore.Proxy/ProxyAdvancedExtensions.cs#L19
-        private const int DefaultBufferSize = 81920;
+        // Based on performance investigations, see https://github.com/microsoft/reverse-proxy/pull/330#issuecomment-758851852.
+        private const int DefaultBufferSize = 65536;
 
         private static readonly TimeSpan TimeBetweenTransferringEvents = TimeSpan.FromSeconds(1);
 
