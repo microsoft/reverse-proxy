@@ -17,7 +17,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
     /// </summary>
     internal static class StreamCopier
     {
-        // Based on performance investigations.
+        // Based on performance investigations, see https://github.com/microsoft/reverse-proxy/pull/330#issuecomment-758851852.
         private const int DefaultBufferSize = 65536;
 
         private static readonly TimeSpan TimeBetweenTransferringEvents = TimeSpan.FromSeconds(1);
