@@ -2,11 +2,12 @@
 // Licensed under the MIT License.
 
 using System.Net.Http;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
-    internal class HttpMethodTransform : RequestParametersTransform
+    internal class HttpMethodTransform : RequestTransform
     {
         public HttpMethodTransform(string fromMethod, string toMethod)
         {
@@ -18,12 +19,14 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 
         internal HttpMethod ToMethod { get; }
 
-        public override void Apply(RequestParametersTransformContext context)
+        public override Task ApplyAsync(RequestTransformContext context)
         {
             if (FromMethod.Equals(context.ProxyRequest.Method))
             {
                 context.ProxyRequest.Method = ToMethod;
             }
+
+            return Task.CompletedTask;
         }
 
         private static HttpMethod GetCanonicalizedValue(string method)

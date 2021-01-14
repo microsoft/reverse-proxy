@@ -14,7 +14,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         internal string RouteValueKey { get; }
 
         /// <inheritdoc/>
-        protected override string GetValue(RequestParametersTransformContext context)
+        protected override string GetValue(RequestTransformContext context)
         {
             var routeValues = context.HttpContext.Request.RouteValues;
             if (!routeValues.TryGetValue(RouteValueKey, out var value))
