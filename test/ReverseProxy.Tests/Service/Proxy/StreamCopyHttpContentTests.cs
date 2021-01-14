@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Buffers;
 using System.IO;
 using System.IO.Pipelines;
 using System.Linq;
@@ -46,18 +47,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         [InlineData(true)]
         public async Task CopyToAsync_AutoFlushing(bool autoFlush)
         {
-            // Must be same as StreamCopier constant.
-            const int DefaultBufferSize = 65536;
             const int SourceSize = (128 * 1024) - 3;
-
-            var expectedFlushes = 0;
-            if (autoFlush)
-            {
-                // How many buffers is needed to send the source rounded up.
-                expectedFlushes = (SourceSize - 1) / DefaultBufferSize + 1;
-            }
-            // Explicit flush after headers are sent.
-            expectedFlushes++;
 
             var sourceBytes = Enumerable.Range(0, SourceSize).Select(i => (byte)(i % 256)).ToArray();
             var source = new MemoryStream(sourceBytes);
@@ -65,7 +55,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var destination = new MemoryStream();
             var flushCountingDestination = new FlushCountingStream(destination);
 
-            var sut = new StreamCopyHttpContent(sourceReader, autoFlushHttpClientOutgoingStream: autoFlush, new Clock(), CancellationToken.None);
+            var sut = new StreamCopyHttpContent(sourceReader, autoFlush, new Clock(), CancellationToken.None);
 
             Assert.False(sut.ConsumptionTask.IsCompleted);
             Assert.False(sut.Started);
@@ -74,7 +64,14 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.True(sut.Started);
             Assert.True(sut.ConsumptionTask.IsCompleted);
             Assert.Equal(sourceBytes, destination.ToArray());
-            Assert.Equal(expectedFlushes, flushCountingDestination.NumFlushes);
+            if (autoFlush)
+            {
+                Assert.True(flushCountingDestination.NumFlushes > 1, $"Expected more than 1 flush from auto-flush, got: {flushCountingDestination.NumFlushes}");
+            }
+            else
+            {
+                Assert.Equal(1, flushCountingDestination.NumFlushes);
+            }
         }
 
         [Fact]
