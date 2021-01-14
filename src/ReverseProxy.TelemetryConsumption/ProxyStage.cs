@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Microsoft.ReverseProxy.Telemetry
+namespace Microsoft.ReverseProxy.Telemetry.Consumption
 {
-    internal enum ProxyStage : int
+    public enum ProxyStage : int
     {
         SendAsyncStart = 1,
         SendAsyncStop,

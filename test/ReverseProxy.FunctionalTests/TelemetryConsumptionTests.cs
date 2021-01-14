@@ -11,13 +11,11 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Sockets;
 using System.Security.Authentication;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.ReverseProxy.Common;
 using Microsoft.ReverseProxy.Service.Proxy;
-using Microsoft.ReverseProxy.Telemetry;
 using Microsoft.ReverseProxy.Telemetry.Consumption;
 using Xunit;
 
@@ -25,8 +23,6 @@ namespace Microsoft.ReverseProxy
 {
     public class TelemetryConsumptionTests
     {
-        private static readonly AsyncLocal<object> _sharedAsyncLocal = new AsyncLocal<object>();
-
         [Fact]
         public async Task TelemetryConsumptionWorks()
         {
@@ -61,18 +57,15 @@ namespace Microsoft.ReverseProxy
                 proxyApp => { },
                 useHttpsOnDestination: true);
 
-            object sharedObject = null;
+            test.ClusterId = Guid.NewGuid().ToString();
 
             await test.Invoke(async uri =>
             {
-                sharedObject = _sharedAsyncLocal.Value;
                 using var httpClient = new HttpClient();
                 await httpClient.GetStringAsync(uri);
             });
 
-            Debug.Assert(sharedObject != null);
-
-            var stages = Assert.Single(consumers, c => ReferenceEquals(sharedObject, c.SharedObject)).Stages;
+            var stages = Assert.Single(consumers, c => c.ClusterId == test.ClusterId).Stages;
 
             var expected = new[]
             {
@@ -119,12 +112,7 @@ namespace Microsoft.ReverseProxy
             ISocketsTelemetryConsumer
 #endif
         {
-            public readonly object SharedObject;
-
-            public TelemetryConsumer()
-            {
-                SharedObject = _sharedAsyncLocal.Value = new object();
-            }
+            public string ClusterId { get; set; }
 
             public readonly List<(string Stage, DateTime Timestamp)> Stages = new List<(string, DateTime)>(16);
 
@@ -139,10 +127,14 @@ namespace Microsoft.ReverseProxy
             public void OnProxyStart(DateTime timestamp, string destinationPrefix) => AddStage(nameof(OnProxyStart), timestamp);
             public void OnProxyStop(DateTime timestamp, int statusCode) => AddStage(nameof(OnProxyStop), timestamp);
             public void OnProxyFailed(DateTime timestamp, ProxyError error) => AddStage(nameof(OnProxyFailed), timestamp);
-            public void OnProxyStage(DateTime timestamp, ProxyStage stage) => AddStage($"{nameof(OnProxyStage)}-{stage}", timestamp);
+            public void OnProxyStage(DateTime timestamp, Telemetry.Consumption.ProxyStage stage) => AddStage($"{nameof(OnProxyStage)}-{stage}", timestamp);
             public void OnContentTransferring(DateTime timestamp, bool isRequest, long contentLength, long iops, TimeSpan readTime, TimeSpan writeTime) => AddStage(nameof(OnContentTransferring), timestamp);
             public void OnContentTransferred(DateTime timestamp, bool isRequest, long contentLength, long iops, TimeSpan readTime, TimeSpan writeTime, TimeSpan firstReadTime) => AddStage(nameof(OnContentTransferred), timestamp);
-            public void OnProxyInvoke(DateTime timestamp, string clusterId, string routeId, string destinationId) => AddStage(nameof(OnProxyInvoke), timestamp);
+            public void OnProxyInvoke(DateTime timestamp, string clusterId, string routeId, string destinationId)
+            {
+                ClusterId = clusterId;
+                AddStage(nameof(OnProxyInvoke), timestamp);
+            }
 #if NET5_0
             public void OnRequestStart(DateTime timestamp, string scheme, string host, int port, string pathAndQuery, int versionMajor, int versionMinor, HttpVersionPolicy versionPolicy) => AddStage(nameof(OnRequestStart), timestamp);
             public void OnRequestStop(DateTime timestamp) => AddStage(nameof(OnRequestStop), timestamp);

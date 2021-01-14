@@ -25,6 +25,8 @@ namespace Microsoft.ReverseProxy.Common
         private readonly HttpProtocols _proxyProtocol;
         private readonly bool _useHttpsOnDestination;
 
+        public string ClusterId { get; set; } = "cluster1";
+
         public TestEnvironment(
             RequestDelegate destinationGetDelegate,
             Action<IReverseProxyBuilder> configureProxy, Action<IApplicationBuilder> configureProxyApp,
@@ -65,13 +67,13 @@ namespace Microsoft.ReverseProxy.Common
                     var proxyRoute = new ProxyRoute
                     {
                         RouteId = "route1",
-                        ClusterId = "cluster1",
+                        ClusterId = ClusterId,
                         Match = { Path = "/{**catchall}" }
                     };
 
                     var cluster = new Cluster
                     {
-                        Id = "cluster1",
+                        Id = ClusterId,
                         Destinations =
                         {
                             { "destination1",  new Destination() { Address = destination.GetAddress() } }
