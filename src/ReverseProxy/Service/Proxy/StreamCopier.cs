@@ -334,7 +334,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                         return (StreamCopyResult.Canceled, new OperationCanceledException(cancellation));
                     }
 
-                    var memory = output.GetMemory(DefaultBufferSize);
+                    var memory = output.GetMemory();
 
                     reading = true;
                     var read = 0;
