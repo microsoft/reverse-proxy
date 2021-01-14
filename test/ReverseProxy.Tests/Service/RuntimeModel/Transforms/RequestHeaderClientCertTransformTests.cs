@@ -3,10 +3,11 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Primitives;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
@@ -14,43 +15,59 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
     public class RequestHeaderClientCertTransformTests
     {
         [Fact]
-        public void NoCert_NoOp()
+        public async Task NoCert_NoOp()
         {
             var httpContext = new DefaultHttpContext();
-            var transform = new RequestHeaderClientCertTransform();
-            var result = transform.Apply(httpContext, new HttpRequestMessage(), StringValues.Empty);
-            Assert.Equal(StringValues.Empty, result);
+            var proxyRequest = new HttpRequestMessage();
+            var transform = new RequestHeaderClientCertTransform("Name");
+            await transform.ApplyAsync(new RequestTransformContext() { HttpContext = httpContext, ProxyRequest = proxyRequest });
+            Assert.Empty(proxyRequest.Headers);
         }
 
         [Fact]
-        public void Cert_Encoded()
+        public async Task Cert_Encoded()
+        {
+            var httpContext = new DefaultHttpContext();
+            var proxyRequest = new HttpRequestMessage();
+            httpContext.Connection.ClientCertificate = Certificates.SelfSignedValidWithClientEku;
+            var transform = new RequestHeaderClientCertTransform("Name");
+            await transform.ApplyAsync(new RequestTransformContext() { HttpContext = httpContext, ProxyRequest = proxyRequest });
+            var expected = Convert.ToBase64String(Certificates.SelfSignedValidWithClientEku.RawData);
+            Assert.Equal(expected, proxyRequest.Headers.GetValues("Name").Single());
+        }
+
+        [Fact]
+        public async Task ExistingHeader_NoCert_RemovesHeader()
+        {
+            var httpContext = new DefaultHttpContext();
+            var proxyRequest = new HttpRequestMessage();
+            proxyRequest.Headers.Add("Name", "OtherValue");
+            var transform = new RequestHeaderClientCertTransform("Name");
+            await transform.ApplyAsync(new RequestTransformContext()
+            {
+                HttpContext = httpContext,
+                ProxyRequest = proxyRequest,
+                HeadersCopied = true
+            });
+            Assert.Empty(proxyRequest.Headers);
+        }
+
+        [Fact]
+        public async Task ExistingHeader_Replaced()
         {
             var httpContext = new DefaultHttpContext();
             httpContext.Connection.ClientCertificate = Certificates.SelfSignedValidWithClientEku;
-            var transform = new RequestHeaderClientCertTransform();
-            var result = transform.Apply(httpContext, new HttpRequestMessage(), StringValues.Empty);
+            var proxyRequest = new HttpRequestMessage();
+            proxyRequest.Headers.Add("Name", "OtherValue");
+            var transform = new RequestHeaderClientCertTransform("Name");
+            await transform.ApplyAsync(new RequestTransformContext()
+            {
+                HttpContext = httpContext,
+                ProxyRequest = proxyRequest,
+                HeadersCopied = true
+            });
             var expected = Convert.ToBase64String(Certificates.SelfSignedValidWithClientEku.RawData);
-            Assert.Equal(expected, result);
-        }
-
-        [Fact]
-        public void ExistingHeader_NoCert_ReturnsEmpty()
-        {
-            var httpContext = new DefaultHttpContext();
-            var transform = new RequestHeaderClientCertTransform();
-            var result = transform.Apply(httpContext, new HttpRequestMessage(), "OtherValue");
-            Assert.Equal(StringValues.Empty, result);
-        }
-
-        [Fact]
-        public void ExistingHeader_Replaced()
-        {
-            var httpContext = new DefaultHttpContext();
-            httpContext.Connection.ClientCertificate = Certificates.SelfSignedValidWithClientEku;
-            var transform = new RequestHeaderClientCertTransform();
-            var result = transform.Apply(httpContext, new HttpRequestMessage(), "OtherValue");
-            var expected = Convert.ToBase64String(Certificates.SelfSignedValidWithClientEku.RawData);
-            Assert.Equal(expected, result);
+            Assert.Equal(expected, proxyRequest.Headers.GetValues("Name").Single());
         }
 
         private static class Certificates

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Xunit;
 
@@ -9,44 +10,44 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
     public class QueryParameterRemoveTransformTests
     {
         [Fact]
-        public void RemovesExistingQueryParameter()
+        public async Task RemovesExistingQueryParameter()
         {
             var httpContext = new DefaultHttpContext();
             httpContext.Request.QueryString = new QueryString("?z=1");
-            var context = new RequestParametersTransformContext()
+            var context = new RequestTransformContext()
             {
                 Query = new QueryTransformContext(httpContext.Request)
             };
             var transform = new QueryParameterRemoveTransform("z");
-            transform.Apply(context);
+            await transform.ApplyAsync(context);
             Assert.False(context.Query.QueryString.HasValue);
         }
 
         [Fact]
-        public void LeavesOtherQueryParameters()
+        public async Task LeavesOtherQueryParameters()
         {
             var httpContext = new DefaultHttpContext();
             httpContext.Request.QueryString = new QueryString("?z=1&a=2");
-            var context = new RequestParametersTransformContext()
+            var context = new RequestTransformContext()
             {
                 Query = new QueryTransformContext(httpContext.Request),
             };
             var transform = new QueryParameterRemoveTransform("z");
-            transform.Apply(context);
+            await transform.ApplyAsync(context);
             Assert.Equal("?a=2", context.Query.QueryString.Value);
         }
 
         [Fact]
-        public void DoesNotFailOnNonExistingQueryParameter()
+        public async Task DoesNotFailOnNonExistingQueryParameter()
         {
             var httpContext = new DefaultHttpContext();
             httpContext.Request.QueryString = new QueryString("?z=1");
-            var context = new RequestParametersTransformContext()
+            var context = new RequestTransformContext()
             {
                 Query = new QueryTransformContext(httpContext.Request),
             };
             var transform = new QueryParameterRemoveTransform("a");
-            transform.Apply(context);
+            await transform.ApplyAsync(context);
             Assert.Equal("?z=1", context.Query.QueryString.Value);
         }
     }
