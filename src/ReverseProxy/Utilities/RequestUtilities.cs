@@ -18,7 +18,6 @@ namespace Microsoft.ReverseProxy.Utilities
         {
             if (isHttp2OrGreater)
             {
-                // This check can be dropped in .NET 6.0+ as these headers will be removed by Kestrel
                 return _invalidH2H3ResponseHeaders.Contains(headerName);
             }
             else
