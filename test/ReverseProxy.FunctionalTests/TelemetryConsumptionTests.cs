@@ -52,7 +52,7 @@ namespace Microsoft.ReverseProxy
                     services.AddScoped<INameResolutionTelemetryConsumer>(services => services.GetRequiredService<TelemetryConsumer>());
 #endif
 
-                    proxyBuilder.AddTelemetryListeners();
+                    services.AddTelemetryListeners();
                 },
                 proxyApp => { },
                 useHttpsOnDestination: true);
@@ -189,7 +189,7 @@ namespace Microsoft.ReverseProxy
                     services.AddSingleton<INameResolutionMetricsConsumer>(consumer);
 #endif
 
-                    proxyBuilder.AddTelemetryListeners();
+                    services.AddTelemetryListeners();
                 },
                 proxyApp => { },
                 useHttpsOnDestination: true);
