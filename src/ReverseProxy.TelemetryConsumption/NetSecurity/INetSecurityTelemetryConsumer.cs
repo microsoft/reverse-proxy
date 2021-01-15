@@ -7,7 +7,7 @@ using System.Security.Authentication;
 namespace Microsoft.ReverseProxy.Telemetry.Consumption
 {
     /// <summary>
-    /// A consumer of System.Net.NameResolution EventSource events.
+    /// A consumer of System.Net.Security EventSource events.
     /// </summary>
     public interface INetSecurityTelemetryConsumer
     {
