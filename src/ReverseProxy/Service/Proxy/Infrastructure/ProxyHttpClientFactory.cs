@@ -60,7 +60,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
             {
                 handler.MaxConnectionsPerServer = newClientOptions.MaxConnectionsPerServer.Value;
             }
-            if (newClientOptions.DangerousAcceptAnyServerCertificate)
+            if (newClientOptions.DangerousAcceptAnyServerCertificate ?? false)
             {
                 handler.SslOptions.RemoteCertificateValidationCallback = delegate { return true; };
             }

@@ -21,7 +21,7 @@ namespace Microsoft.ReverseProxy.Utilities
             {
                 if (!result.TryAdd(idSelector(service), service))
                 {
-                    throw new ArgumentException(nameof(services), $"More than one {typeof(T)} found with the same identifier.");
+                    throw new ArgumentException($"More than one {typeof(T)} found with the same identifier.", nameof(services));
                 }
             }
 
@@ -30,7 +30,7 @@ namespace Microsoft.ReverseProxy.Utilities
 
         public static T GetRequiredServiceById<T>(this IDictionary<string, T> services, string id)
         {
-            return services.GetRequiredServiceById<T>(id, id);
+            return services.GetRequiredServiceById(id, id);
         }
 
         public static T GetRequiredServiceById<T>(this IDictionary<string, T> services, string id, string defaultId)
@@ -43,7 +43,7 @@ namespace Microsoft.ReverseProxy.Utilities
 
             if (!services.TryGetValue(lookup, out var result))
             {
-                throw new ArgumentException(nameof(id), $"No {typeof(T)} was found for the id {lookup}.");
+                throw new ArgumentException($"No {typeof(T)} was found for the id {lookup}.", nameof(id));
             }
             return result;
         }

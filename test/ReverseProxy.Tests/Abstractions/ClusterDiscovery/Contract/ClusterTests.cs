@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Abstractions.Tests
@@ -19,30 +20,21 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
         {
             var cluster = new Cluster
             {
-                CircuitBreaker = new CircuitBreakerOptions(),
-                Quota = new QuotaOptions(),
-                Partitioning = new ClusterPartitioningOptions(),
-                LoadBalancing = new LoadBalancingOptions(),
+                LoadBalancingPolicy = LoadBalancingPolicies.PowerOfTwoChoices,
                 HealthCheck = new HealthCheckOptions(),
                 HttpClient = new ProxyHttpClientOptions(),
                 HttpRequest = new ProxyHttpRequestOptions(),
                 Metadata = new Dictionary<string, string>
                 {
-                    { "key", "value" },
-                },
+                    { "key", "value" }
+                }
             };
 
             var clone = cluster.DeepClone();
 
             Assert.NotSame(cluster, clone);
-            Assert.NotNull(clone.CircuitBreaker);
-            Assert.NotSame(cluster.CircuitBreaker, clone.CircuitBreaker);
-            Assert.NotNull(clone.Quota);
-            Assert.NotSame(cluster.Quota, clone.Quota);
-            Assert.NotNull(clone.Partitioning);
-            Assert.NotSame(cluster.Partitioning, clone.Partitioning);
-            Assert.NotNull(clone.LoadBalancing);
-            Assert.NotSame(cluster.LoadBalancing, clone.LoadBalancing);
+            Assert.NotNull(clone.LoadBalancingPolicy);
+            Assert.Same(cluster.LoadBalancingPolicy, clone.LoadBalancingPolicy);
             Assert.NotNull(clone.HealthCheck);
             Assert.NotSame(cluster.HealthCheck, clone.HealthCheck);
             Assert.NotNull(clone.HttpClient);
@@ -60,10 +52,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
             var clone = cluster.DeepClone();
 
             Assert.NotSame(cluster, clone);
-            Assert.Null(clone.CircuitBreaker);
-            Assert.Null(clone.Quota);
-            Assert.Null(clone.Partitioning);
-            Assert.Null(clone.LoadBalancing);
+            Assert.Null(clone.LoadBalancingPolicy);
             Assert.Null(clone.HealthCheck);
             Assert.Null(clone.HttpClient);
             Assert.Null(clone.Metadata);

@@ -1,12 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
+using System.Net.Http;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
-    internal class HttpMethodTransform : RequestParametersTransform
+    internal class HttpMethodTransform : RequestTransform
     {
         public HttpMethodTransform(string fromMethod, string toMethod)
         {
@@ -14,50 +15,34 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             ToMethod = GetCanonicalizedValue(toMethod);
         }
 
-        internal string ToMethod { get; }
+        internal HttpMethod FromMethod { get; }
 
-        internal string FromMethod { get; }
+        internal HttpMethod ToMethod { get; }
 
-        public override void Apply(RequestParametersTransformContext context)
+        public override Task ApplyAsync(RequestTransformContext context)
         {
-            if (HttpMethodEquals(FromMethod, context.Method))
+            if (FromMethod.Equals(context.ProxyRequest.Method))
             {
-                context.Method = ToMethod;
+                context.ProxyRequest.Method = ToMethod;
             }
+
+            return Task.CompletedTask;
         }
 
-        private static string GetCanonicalizedValue(string method)
+        private static HttpMethod GetCanonicalizedValue(string method)
         {
-#if NET5_0
-            return HttpMethods.GetCanonicalizedValue(method);
-#elif NETCOREAPP3_1
             return method switch
             {
-                string _ when HttpMethods.IsGet(method) => HttpMethods.Get,
-                string _ when HttpMethods.IsPost(method) => HttpMethods.Post,
-                string _ when HttpMethods.IsPut(method) => HttpMethods.Put,
-                string _ when HttpMethods.IsDelete(method) => HttpMethods.Delete,
-                string _ when HttpMethods.IsOptions(method) => HttpMethods.Options,
-                string _ when HttpMethods.IsHead(method) => HttpMethods.Head,
-                string _ when HttpMethods.IsPatch(method) => HttpMethods.Patch,
-                string _ when HttpMethods.IsTrace(method) => HttpMethods.Trace,
-                string _ when HttpMethods.IsConnect(method) => HttpMethods.Connect,
-                string _ => method
+                string _ when HttpMethods.IsGet(method) => HttpMethod.Get,
+                string _ when HttpMethods.IsPost(method) => HttpMethod.Post,
+                string _ when HttpMethods.IsPut(method) => HttpMethod.Put,
+                string _ when HttpMethods.IsDelete(method) => HttpMethod.Delete,
+                string _ when HttpMethods.IsOptions(method) => HttpMethod.Options,
+                string _ when HttpMethods.IsHead(method) => HttpMethod.Head,
+                string _ when HttpMethods.IsPatch(method) => HttpMethod.Patch,
+                string _ when HttpMethods.IsTrace(method) => HttpMethod.Trace,
+                string _ => new HttpMethod(method),
             };
-#else
-#error A target framework was added to the project and needs to be added to this condition.
-#endif
-        }
-
-        private static bool HttpMethodEquals(string methodA, string methodB)
-        {
-#if NET5_0
-            return HttpMethods.Equals(methodA, methodB);
-#elif NETCOREAPP3_1
-            return object.ReferenceEquals(methodA, methodB) || StringComparer.OrdinalIgnoreCase.Equals(methodA, methodB);
-#else
-#error A target framework was added to the project and needs to be added to this condition.
-#endif
         }
     }
 }

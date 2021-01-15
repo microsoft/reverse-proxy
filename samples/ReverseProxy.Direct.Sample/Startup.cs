@@ -4,12 +4,11 @@
 using System;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.ReverseProxy.Service.Proxy;
-using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
-using Microsoft.Net.Http.Headers;
-using System.Collections.Generic;
 
 namespace Microsoft.ReverseProxy.Sample
 {
@@ -39,20 +38,10 @@ namespace Microsoft.ReverseProxy.Sample
                 AutomaticDecompression = DecompressionMethods.None,
                 UseCookies = false
             });
-            var proxyOptions = new RequestProxyOptions()
-            {
-                RequestTimeout = TimeSpan.FromSeconds(100),
-                // Copy all request headers except Host
-                Transforms = new Transforms(
-                    copyRequestHeaders: true,
-                    requestTransforms: Array.Empty<RequestParametersTransform>(),
-                    requestHeaderTransforms: new Dictionary<string, RequestHeaderTransform>()
-                    {
-                        { HeaderNames.Host, new RequestHeaderValueTransform(string.Empty, append: false) }
-                    },
-                    responseHeaderTransforms: new Dictionary<string, ResponseHeaderTransform>(),
-                    responseTrailerTransforms: new Dictionary<string, ResponseHeaderTransform>())
-            };
+
+            // Copy all request headers except Host
+            var transformer = new CustomTransformer(); // or HttpTransformer.Default;
+            var requestOptions = new RequestProxyOptions(TimeSpan.FromSeconds(100), null);
 
             app.UseRouting();
             app.UseAuthorization();
@@ -61,7 +50,7 @@ namespace Microsoft.ReverseProxy.Sample
                 endpoints.MapControllers();
                 endpoints.Map("/{**catch-all}", async httpContext =>
                 {
-                    await httpProxy.ProxyAsync(httpContext, "https://localhost:10000/", httpClient, proxyOptions);
+                    await httpProxy.ProxyAsync(httpContext, "https://localhost:10000/", httpClient, requestOptions, transformer);
                     var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
                     if (errorFeature != null)
                     {
@@ -70,6 +59,17 @@ namespace Microsoft.ReverseProxy.Sample
                     }
                 });
             });
+        }
+
+        private class CustomTransformer : HttpTransformer
+        {
+            public override async Task TransformRequestAsync(HttpContext httpContext, HttpRequestMessage proxyRequest, string destinationPrefix)
+            {
+                // Copy headers normally and then remove the host.
+                // Use the destination host from proxyRequest.RequestUri instead.
+                await base.TransformRequestAsync(httpContext, proxyRequest, destinationPrefix);
+                proxyRequest.Headers.Host = null;
+            }
         }
     }
 }

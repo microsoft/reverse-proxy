@@ -1,6 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.Net.Http;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Xunit;
 
@@ -18,12 +21,19 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         [InlineData("start", "new,value", true, "start;new,value")]
         [InlineData("start,value", "new,value", true, "start,value;new,value")]
         [InlineData("start;value", "new,value", true, "start;value;new,value")]
-        public void AddHeader_Success(string startValue, string value, bool append, string expected)
+        public async Task AddHeader_Success(string startValue, string value, bool append, string expected)
         {
             var httpContext = new DefaultHttpContext();
-            var transform = new RequestHeaderValueTransform(value, append);
-            var result = transform.Apply(httpContext, startValue.Split(";", System.StringSplitOptions.RemoveEmptyEntries));
-            Assert.Equal(expected.Split(";", System.StringSplitOptions.RemoveEmptyEntries), result);
+            var proxyRequest = new HttpRequestMessage();
+            proxyRequest.Headers.Add("name", startValue.Split(";", StringSplitOptions.RemoveEmptyEntries));
+            var transform = new RequestHeaderValueTransform("name", value, append);
+            await transform.ApplyAsync(new RequestTransformContext()
+            {
+                HttpContext = httpContext,
+                ProxyRequest = proxyRequest,
+                HeadersCopied = true,
+            });
+            Assert.Equal(expected.Split(";", StringSplitOptions.RemoveEmptyEntries), proxyRequest.Headers.GetValues("name"));
         }
     }
 }

@@ -70,28 +70,6 @@ namespace Microsoft.ReverseProxy.Middleware
                 throw new InvalidOperationException($"Chosen destination has no configs set: '{destination.DestinationId}'");
             }
 
-            // TODO: Make this configurable on a route rather than create it per request?
-            var proxyOptions = new RequestProxyOptions()
-            {
-                Transforms = routeConfig.Transforms,
-            };
-
-            var requestOptions = reverseProxyFeature.ClusterConfig.HttpRequestOptions;
-            if (requestOptions.RequestTimeout.HasValue)
-            {
-                proxyOptions.RequestTimeout = requestOptions.RequestTimeout.Value;
-            }
-            if (requestOptions.Version != null)
-            {
-                proxyOptions.Version = requestOptions.Version;
-            }
-#if NET
-            if (requestOptions.VersionPolicy.HasValue)
-            {
-                proxyOptions.VersionPolicy = requestOptions.VersionPolicy.Value;
-            }
-#endif
-
             try
             {
                 cluster.ConcurrencyCounter.Increment();
@@ -99,7 +77,7 @@ namespace Microsoft.ReverseProxy.Middleware
 
                 ProxyTelemetry.Log.ProxyInvoke(cluster.ClusterId, routeConfig.Route.RouteId, destination.DestinationId);
 
-                await _httpProxy.ProxyAsync(context, destinationConfig.Address, reverseProxyFeature.ClusterConfig.HttpClient, proxyOptions);
+                await _httpProxy.ProxyAsync(context, destinationConfig.Address, reverseProxyFeature.ClusterConfig.HttpClient, reverseProxyFeature.ClusterConfig.HttpRequestOptions, routeConfig.Transformer);
             }
             finally
             {

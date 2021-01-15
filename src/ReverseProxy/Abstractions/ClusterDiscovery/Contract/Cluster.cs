@@ -21,24 +21,9 @@ namespace Microsoft.ReverseProxy.Abstractions
         public string Id { get; set; }
 
         /// <summary>
-        /// Circuit breaker options.
+        /// Load balancing policy.
         /// </summary>
-        public CircuitBreakerOptions CircuitBreaker { get; set; }
-
-        /// <summary>
-        /// Quota options.
-        /// </summary>
-        public QuotaOptions Quota { get; set; }
-
-        /// <summary>
-        /// Partitioning options.
-        /// </summary>
-        public ClusterPartitioningOptions Partitioning { get; set; }
-
-        /// <summary>
-        /// Load balancing options.
-        /// </summary>
-        public LoadBalancingOptions LoadBalancing { get; set; }
+        public string LoadBalancingPolicy { get; set; }
 
         /// <summary>
         /// Session affinity options.
@@ -76,10 +61,7 @@ namespace Microsoft.ReverseProxy.Abstractions
             return new Cluster
             {
                 Id = Id,
-                CircuitBreaker = CircuitBreaker?.DeepClone(),
-                Quota = Quota?.DeepClone(),
-                Partitioning = Partitioning?.DeepClone(),
-                LoadBalancing = LoadBalancing?.DeepClone(),
+                LoadBalancingPolicy = LoadBalancingPolicy,
                 SessionAffinity = SessionAffinity?.DeepClone(),
                 HealthCheck = HealthCheck?.DeepClone(),
                 HttpClient = HttpClient?.DeepClone(),
@@ -102,10 +84,7 @@ namespace Microsoft.ReverseProxy.Abstractions
             }
 
             return string.Equals(cluster1.Id, cluster2.Id, StringComparison.OrdinalIgnoreCase)
-                && CircuitBreakerOptions.Equals(cluster1.CircuitBreaker, cluster2.CircuitBreaker)
-                && QuotaOptions.Equals(cluster1.Quota, cluster2.Quota)
-                && ClusterPartitioningOptions.Equals(cluster1.Partitioning, cluster2.Partitioning)
-                && LoadBalancingOptions.Equals(cluster1.LoadBalancing, cluster2.LoadBalancing)
+                && string.Equals(cluster1.LoadBalancingPolicy, cluster2.LoadBalancingPolicy, StringComparison.OrdinalIgnoreCase)
                 && SessionAffinityOptions.Equals(cluster1.SessionAffinity, cluster2.SessionAffinity)
                 && HealthCheckOptions.Equals(cluster1.HealthCheck, cluster2.HealthCheck)
                 && ProxyHttpClientOptions.Equals(cluster1.HttpClient, cluster2.HttpClient)

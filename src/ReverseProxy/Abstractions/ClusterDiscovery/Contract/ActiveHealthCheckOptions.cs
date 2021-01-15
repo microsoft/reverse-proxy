@@ -13,7 +13,7 @@ namespace Microsoft.ReverseProxy.Abstractions
         /// <summary>
         /// Whether active health checks are enabled.
         /// </summary>
-        public bool Enabled { get; set; }
+        public bool? Enabled { get; set; }
 
         /// <summary>
         /// Health probe interval.

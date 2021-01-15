@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing.Template;
 using Xunit;
@@ -13,7 +14,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         [InlineData("/{a}/{b}/{c}", "a", "?z=6")]
         [InlineData("/{a}/{b}/{c}", "c", "?z=8")]
         [InlineData("/{a}/{*remainder}", "remainder", "?z=7%2F8")]
-        public void Append_AddsQueryParameterWithRouteValue(string pattern, string routeValueKey, string expected)
+        public async Task Append_AddsQueryParameterWithRouteValue(string pattern, string routeValueKey, string expected)
         {
             const string path = "/6/7/8";
 
@@ -23,14 +24,14 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 
             var httpContext = new DefaultHttpContext();
             httpContext.Request.RouteValues = routeValues;
-            var context = new RequestParametersTransformContext()
+            var context = new RequestTransformContext()
             {
                 Path = path,
                 Query = new QueryTransformContext(httpContext.Request),
                 HttpContext = httpContext
             };
             var transform = new QueryParameterRouteTransform(QueryStringTransformMode.Append, "z", routeValueKey);
-            transform.Apply(context);
+            await transform.ApplyAsync(context);
             Assert.Equal(expected, context.Query.QueryString.Value);
         }
 
@@ -46,14 +47,14 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             var httpContext = new DefaultHttpContext();
             httpContext.Request.RouteValues = routeValues;
             httpContext.Request.QueryString = new QueryString("?z=1");
-            var context = new RequestParametersTransformContext()
+            var context = new RequestTransformContext()
             {
                 Path = path,
                 Query = new QueryTransformContext(httpContext.Request),
                 HttpContext = httpContext
             };
             var transform = new QueryParameterRouteTransform(QueryStringTransformMode.Append, "z", "a");
-            transform.Apply(context);
+            transform.ApplyAsync(context);
             Assert.Equal("?z=1&z=6", context.Query.QueryString.Value);
         }
 
@@ -69,14 +70,14 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             var httpContext = new DefaultHttpContext();
             httpContext.Request.RouteValues = routeValues;
             httpContext.Request.QueryString = new QueryString("?z=1");
-            var context = new RequestParametersTransformContext()
+            var context = new RequestTransformContext()
             {
                 Path = path,
                 Query = new QueryTransformContext(httpContext.Request),
                 HttpContext = httpContext
             };
             var transform = new QueryParameterRouteTransform(QueryStringTransformMode.Set, "z", "a");
-            transform.Apply(context);
+            transform.ApplyAsync(context);
             Assert.Equal("?z=6", context.Query.QueryString.Value);
         }
 
@@ -91,14 +92,14 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 
             var httpContext = new DefaultHttpContext();
             httpContext.Request.RouteValues = routeValues;
-            var context = new RequestParametersTransformContext()
+            var context = new RequestTransformContext()
             {
                 Path = path,
                 Query = new QueryTransformContext(httpContext.Request),
                 HttpContext = httpContext
             };
             var transform = new QueryParameterRouteTransform(QueryStringTransformMode.Set, "z", "a");
-            transform.Apply(context);
+            transform.ApplyAsync(context);
             Assert.Equal("?z=6", context.Query.QueryString.Value);
         }
     }

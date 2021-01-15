@@ -1,19 +1,21 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Net.Http;
+using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
     /// <summary>
-    /// Sets or appends simple response header or trailer values.
+    /// Sets or appends simple response header values.
     /// </summary>
-    public class ResponseHeaderValueTransform : ResponseHeaderTransform
+    public class ResponseHeaderValueTransform : ResponseTransform
     {
-        public ResponseHeaderValueTransform(string value, bool append, bool always)
+        public ResponseHeaderValueTransform(string headerName, string value, bool append, bool always)
         {
+            HeaderName = headerName ?? throw new System.ArgumentNullException(nameof(headerName));
             Value = value ?? throw new System.ArgumentNullException(nameof(value));
             Append = append;
             Always = always;
@@ -23,42 +25,41 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 
         internal bool Append { get; }
 
+        internal string HeaderName { get; }
+
         internal string Value { get; }
 
         // Assumes the response status code has been set on the HttpContext already.
         /// <inheritdoc/>
-        public override StringValues Apply(HttpContext context, HttpResponseMessage response, StringValues values)
+        public override Task ApplyAsync(ResponseTransformContext context)
         {
             if (context is null)
             {
-                throw new System.ArgumentNullException(nameof(context));
+                throw new ArgumentNullException(nameof(context));
             }
 
-            if (response is null)
-            {
-                throw new System.ArgumentNullException(nameof(response));
-            }
-
-            var result = values;
             if (Always || Success(context))
             {
+                var existingHeader = TakeHeader(context, HeaderName);
                 if (Append)
                 {
-                    result = StringValues.Concat(values, Value);
+                    var value = StringValues.Concat(existingHeader, Value);
+                    SetHeader(context, HeaderName, value);
                 }
-                else
+                else if (!string.IsNullOrEmpty(Value))
                 {
-                    result = Value;
+                    SetHeader(context, HeaderName, Value);
                 }
+                // If the given value is empty, any existing header is removed.
             }
 
-            return result;
+            return Task.CompletedTask;
         }
 
-        private bool Success(HttpContext context)
+        private static bool Success(ResponseTransformContext context)
         {
             // TODO: How complex should this get? Compare with http://nginx.org/en/docs/http/ngx_http_headers_module.html#add_header
-            return context.Response.StatusCode < 400;
+            return context.HttpContext.Response.StatusCode < 400;
         }
     }
 }

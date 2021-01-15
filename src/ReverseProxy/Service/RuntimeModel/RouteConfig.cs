@@ -3,7 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
 using Microsoft.ReverseProxy.Abstractions;
+using Microsoft.ReverseProxy.Service.Proxy;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 
 namespace Microsoft.ReverseProxy.RuntimeModel
@@ -20,22 +22,18 @@ namespace Microsoft.ReverseProxy.RuntimeModel
     /// </remarks>
     internal sealed class RouteConfig
     {
-        private readonly ProxyRoute _proxyRoute;
-
         public RouteConfig(
             RouteInfo route,
             ProxyRoute proxyRoute,
             ClusterInfo cluster,
-            IReadOnlyList<AspNetCore.Http.Endpoint> aspNetCoreEndpoints,
-            Transforms transforms)
+            HttpTransformer transformer)
         {
             Route = route ?? throw new ArgumentNullException(nameof(route));
-            Endpoints = aspNetCoreEndpoints ?? throw new ArgumentNullException(nameof(aspNetCoreEndpoints));
 
-            _proxyRoute = proxyRoute;
+            ProxyRoute = proxyRoute;
             Order = proxyRoute.Order;
             Cluster = cluster;
-            Transforms = transforms;
+            Transformer = transformer;
         }
 
         public RouteInfo Route { get; }
@@ -45,14 +43,14 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         // May not be populated if the cluster config is missing.
         public ClusterInfo Cluster { get; }
 
-        public IReadOnlyList<AspNetCore.Http.Endpoint> Endpoints { get; }
+        public HttpTransformer Transformer { get; }
 
-        public Transforms Transforms { get; }
+        internal ProxyRoute ProxyRoute { get; }
 
         public bool HasConfigChanged(ProxyRoute newConfig, ClusterInfo cluster)
         {
             return Cluster != cluster
-                || !ProxyRoute.Equals(_proxyRoute, newConfig);
+                || !ProxyRoute.Equals(ProxyRoute, newConfig);
         }
     }
 }

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.ReverseProxy.Abstractions;
+using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Microsoft.ReverseProxy.Service.HealthChecks;
 using Moq;
 using Xunit;
@@ -495,6 +496,41 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var errors = await validator.ValidateClusterAsync(cluster);
 
             Assert.Empty(errors);
+        }
+
+        [Fact]
+        public async Task LoadBalancingPolicy_KnownPolicy_Works()
+        {
+            var services = CreateServices();
+            var validator = services.GetRequiredService<IConfigValidator>();
+
+            var cluster = new Cluster
+            {
+                Id = "cluster1",
+                LoadBalancingPolicy = LoadBalancingPolicies.RoundRobin
+            };
+
+            var errors = await validator.ValidateClusterAsync(cluster);
+
+            Assert.Empty(errors);
+        }
+
+        [Fact]
+        public async Task LoadBalancingPolicy_UnknownPolicy_Fails()
+        {
+            var services = CreateServices();
+            var validator = services.GetRequiredService<IConfigValidator>();
+
+            var cluster = new Cluster
+            {
+                Id = "cluster1",
+                LoadBalancingPolicy = "MyCustomPolicy"
+            };
+
+            var errors = await validator.ValidateClusterAsync(cluster);
+
+            var ex = Assert.Single(errors);
+            Assert.Equal("No matching ILoadBalancingPolicy found for the load balancing policy 'MyCustomPolicy' set on the cluster 'cluster1'.", ex.Message);
         }
 
         [Fact]

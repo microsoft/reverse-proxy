@@ -35,7 +35,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             serviceCollection.AddSingleton(activeHealthPolicy.Object);
             configureProxy?.Invoke(proxyBuilder);
             var services = serviceCollection.BuildServiceProvider();
-            var routeBuilder = services.GetRequiredService<IRuntimeRouteBuilder>();
+            var routeBuilder = services.GetRequiredService<ProxyEndpointFactory>();
             routeBuilder.SetProxyPipeline(context => Task.CompletedTask);
             return services;
         }
@@ -44,14 +44,14 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
         public void Constructor_Works()
         {
             var services = CreateServices(new List<ProxyRoute>(), new List<Cluster>());
-            _ = services.GetRequiredService<IProxyConfigManager>();
+            _ = services.GetRequiredService<ProxyConfigManager>();
         }
 
         [Fact]
         public async Task NullRoutes_StartsEmpty()
         {
             var services = CreateServices(null, new List<Cluster>());
-            var manager = services.GetRequiredService<IProxyConfigManager>();
+            var manager = services.GetRequiredService<ProxyConfigManager>();
             var dataSource = await manager.InitialLoadAsync();
             Assert.NotNull(dataSource);
             var endpoints = dataSource.Endpoints;
@@ -62,7 +62,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
         public async Task NullClusters_StartsEmpty()
         {
             var services = CreateServices(new List<ProxyRoute>(), null);
-            var manager = services.GetRequiredService<IProxyConfigManager>();
+            var manager = services.GetRequiredService<ProxyConfigManager>();
             var dataSource = await manager.InitialLoadAsync();
             Assert.NotNull(dataSource);
             var endpoints = dataSource.Endpoints;
@@ -73,7 +73,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
         public async Task Endpoints_StartsEmpty()
         {
             var services = CreateServices(new List<ProxyRoute>(), new List<Cluster>());
-            var manager = services.GetRequiredService<IProxyConfigManager>();
+            var manager = services.GetRequiredService<ProxyConfigManager>();
             var dataSource = await manager.InitialLoadAsync();
             Assert.NotNull(dataSource);
             var endpoints = dataSource.Endpoints;
@@ -84,7 +84,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
         public async Task GetChangeToken_InitialValue()
         {
             var services = CreateServices(new List<ProxyRoute>(), new List<Cluster>());
-            var manager = services.GetRequiredService<IProxyConfigManager>();
+            var manager = services.GetRequiredService<ProxyConfigManager>();
             var dataSource = await manager.InitialLoadAsync();
             Assert.NotNull(dataSource);
             var changeToken = dataSource.GetChangeToken();
@@ -114,7 +114,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
 
             var services = CreateServices(new List<ProxyRoute>() { route }, new List<Cluster>() { cluster });
 
-            var manager = services.GetRequiredService<IProxyConfigManager>();
+            var manager = services.GetRequiredService<ProxyConfigManager>();
             var dataSource = await manager.InitialLoadAsync();
 
             Assert.NotNull(dataSource);
@@ -168,7 +168,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
 
             var services = CreateServices(new List<ProxyRoute>() { route }, new List<Cluster>() { cluster });
 
-            var manager = services.GetRequiredService<IProxyConfigManager>();
+            var manager = services.GetRequiredService<ProxyConfigManager>();
             var dataSource = await manager.InitialLoadAsync();
 
             Assert.NotNull(dataSource);
@@ -194,8 +194,9 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
         {
             var services = CreateServices(new List<ProxyRoute>(), new List<Cluster>());
             var inMemoryConfig = (InMemoryConfigProvider)services.GetRequiredService<IProxyConfigProvider>();
-            var configManager = services.GetRequiredService<IProxyConfigManager>();
+            var configManager = services.GetRequiredService<ProxyConfigManager>();
             var dataSource = await configManager.InitialLoadAsync();
+            _ = configManager.Endpoints; // Lazily creates endpoints the first time, activates change notifications.
 
             var signaled1 = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
             var signaled2 = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -245,7 +246,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             };
 
             var services = CreateServices(new List<ProxyRoute>(), new List<Cluster>() { cluster });
-            var configManager = services.GetRequiredService<IProxyConfigManager>();
+            var configManager = services.GetRequiredService<ProxyConfigManager>();
 
             var ioEx = await Assert.ThrowsAsync<InvalidOperationException>(() => configManager.InitialLoadAsync());
             Assert.Equal("Unable to load or apply the proxy configuration.", ioEx.Message);
@@ -261,7 +262,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
         {
             var route1 = new ProxyRoute { RouteId = "route1", Match = { Hosts = new[] { "invalid host name" } }, ClusterId = "cluster1" };
             var services = CreateServices(new List<ProxyRoute>() { route1 }, new List<Cluster>());
-            var configManager = services.GetRequiredService<IProxyConfigManager>();
+            var configManager = services.GetRequiredService<ProxyConfigManager>();
 
             var ioEx = await Assert.ThrowsAsync<InvalidOperationException>(() => configManager.InitialLoadAsync());
             Assert.Equal("Unable to load or apply the proxy configuration.", ioEx.Message);
@@ -280,7 +281,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             {
                 proxyBuilder.AddProxyConfigFilter<FixRouteHostFilter>();
             });
-            var configManager = services.GetRequiredService<IProxyConfigManager>();
+            var configManager = services.GetRequiredService<ProxyConfigManager>();
 
             var dataSource = await configManager.InitialLoadAsync();
             var endpoints = dataSource.Endpoints;
@@ -331,7 +332,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             {
                 proxyBuilder.AddProxyConfigFilter<ClusterAndRouteFilter>();
             });
-            var configManager = services.GetRequiredService<IProxyConfigManager>();
+            var configManager = services.GetRequiredService<ProxyConfigManager>();
             var clusterManager = services.GetRequiredService<IClusterManager>();
 
             var dataSource = await configManager.InitialLoadAsync();
@@ -368,7 +369,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
                 proxyBuilder.AddProxyConfigFilter<ClusterAndRouteThrows>();
                 proxyBuilder.AddProxyConfigFilter<ClusterAndRouteThrows>();
             });
-            var configManager = services.GetRequiredService<IProxyConfigManager>();
+            var configManager = services.GetRequiredService<ProxyConfigManager>();
 
             var ioEx = await Assert.ThrowsAsync<InvalidOperationException>(() => configManager.InitialLoadAsync());
             Assert.Equal("Unable to load or apply the proxy configuration.", ioEx.Message);
@@ -389,7 +390,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
                 proxyBuilder.AddProxyConfigFilter<ClusterAndRouteThrows>();
                 proxyBuilder.AddProxyConfigFilter<ClusterAndRouteThrows>();
             });
-            var configManager = services.GetRequiredService<IProxyConfigManager>();
+            var configManager = services.GetRequiredService<ProxyConfigManager>();
 
             var ioEx = await Assert.ThrowsAsync<InvalidOperationException>(() => configManager.InitialLoadAsync());
             Assert.Equal("Unable to load or apply the proxy configuration.", ioEx.Message);

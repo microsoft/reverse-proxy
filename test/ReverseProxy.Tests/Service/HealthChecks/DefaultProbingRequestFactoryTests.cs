@@ -8,6 +8,7 @@ using System.Net;
 using System.Net.Http;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.RuntimeModel;
+using Microsoft.ReverseProxy.Service.Proxy;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Service.HealthChecks
@@ -67,7 +68,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 default,
                 null,
                 default,
-                new ClusterProxyHttpRequestOptions(
+                new RequestProxyOptions(
                     TimeSpan.FromSeconds(60),
                     version
 #if NET

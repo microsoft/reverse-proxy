@@ -9,7 +9,7 @@ namespace Microsoft.Extensions.Configuration
     {
         internal static int? ReadInt32(this IConfiguration configuration, string name)
         {
-            return configuration[name] is string value ? int.Parse(value, NumberStyles.None, CultureInfo.InvariantCulture) : null;
+            return configuration[name] is string value ? int.Parse(value, NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture) : null;
         }
 
         internal static double? ReadDouble(this IConfiguration configuration, string name)

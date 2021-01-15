@@ -9,22 +9,20 @@ namespace Microsoft.ReverseProxy.Abstractions
     public sealed class ProxyHttpRequestOptions
     {
         /// <summary>
-        /// Timeout for the outgoing request.
-        /// Default is 100 seconds.
+        /// The time allowed to send the request and receive the response headers. This may include
+        /// the time needed to send the request body.
         /// </summary>
-        public TimeSpan? RequestTimeout { get; set; }
+        public TimeSpan? Timeout { get; set; }
 
         /// <summary>
-        /// HTTP version for the outgoing request.
-        /// Default is HTTP/2.
+        /// Preferred version of the outgoing request.
         /// </summary>
         public Version Version { get; set; }
 
 #if NET
         /// <summary>
-        /// Version policy for the outgoing request.
-        /// Defines whether to upgrade or downgrade HTTP version if possible.
-        /// Default is <c>RequestVersionOrLower</c>.
+        /// The policy applied to version selection, e.g. whether to prefer downgrades, upgrades or
+        /// request an exact version.
         /// </summary>
         public HttpVersionPolicy? VersionPolicy { get; set; }
 #endif
@@ -33,7 +31,7 @@ namespace Microsoft.ReverseProxy.Abstractions
         {
             return new ProxyHttpRequestOptions
             {
-                RequestTimeout = RequestTimeout,
+                Timeout = Timeout,
                 Version = Version,
 #if NET
                 VersionPolicy = VersionPolicy,
@@ -53,7 +51,7 @@ namespace Microsoft.ReverseProxy.Abstractions
                 return false;
             }
 
-            return options1.RequestTimeout == options2.RequestTimeout
+            return options1.Timeout == options2.Timeout
                    && options1.Version == options2.Version
 #if NET
                    && options1.VersionPolicy == options2.VersionPolicy

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using Microsoft.AspNetCore.Http;
 
 namespace Microsoft.ReverseProxy.RuntimeModel
 {
@@ -37,5 +38,15 @@ namespace Microsoft.ReverseProxy.RuntimeModel
             get => _config;
             set => _config = value ?? throw new ArgumentNullException(nameof(value));
         }
+
+        /// <summary>
+        /// Tracks changes to the cluster configuration for use with rebuilding the route endpoint.
+        /// </summary>
+        internal int? ClusterRevision { get; set; }
+
+        /// <summary>
+        /// A cached Endpoint that will be cleared and rebuilt if the RouteConfig or cluster config change.
+        /// </summary>
+        internal Endpoint CachedEndpoint { get; set; }
     }
 }
