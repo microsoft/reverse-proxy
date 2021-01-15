@@ -6,5 +6,6 @@ namespace Microsoft.ReverseProxy.Abstractions.RouteDiscovery.Contract
     internal static class AuthorizationConstants
     {
         internal const string Default = "Default";
+        internal const string Anonymous = "Anonymous";
     }
 }

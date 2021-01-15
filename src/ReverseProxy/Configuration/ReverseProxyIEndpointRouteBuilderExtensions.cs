@@ -2,11 +2,12 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Linq;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.ReverseProxy.Abstractions;
+using Microsoft.ReverseProxy;
 using Microsoft.ReverseProxy.Middleware;
-using Microsoft.ReverseProxy.Service;
+using Microsoft.ReverseProxy.Service.Management;
 
 namespace Microsoft.AspNetCore.Builder
 {
@@ -34,7 +35,7 @@ namespace Microsoft.AspNetCore.Builder
         /// Adds Reverse Proxy routes to the route table with the customized processing pipeline. The pipeline includes
         /// by default the initialization step and the final proxy step, but not LoadBalancingMiddleware or other intermediate components.
         /// </summary>
-        public static void MapReverseProxy(this IEndpointRouteBuilder endpoints, Action<IApplicationBuilder> configureApp)
+        public static ReverseProxyConventionBuilder MapReverseProxy(this IEndpointRouteBuilder endpoints, Action<IApplicationBuilder> configureApp)
         {
             if (endpoints is null)
             {
@@ -51,16 +52,27 @@ namespace Microsoft.AspNetCore.Builder
             appBuilder.UseMiddleware<ProxyInvokerMiddleware>();
             var app = appBuilder.Build();
 
-            var routeBuilder = endpoints.ServiceProvider.GetRequiredService<IRuntimeRouteBuilder>();
-            routeBuilder.SetProxyPipeline(app);
+            var proxyEndpointFactory = endpoints.ServiceProvider.GetRequiredService<ProxyEndpointFactory>();
+            proxyEndpointFactory.SetProxyPipeline(app);
 
-            var configManager = endpoints.ServiceProvider.GetRequiredService<IProxyConfigManager>();
+            return GetOrCreateDataSource(endpoints).DefaultBuilder;
+        }
 
-            // Config validation is async but startup is sync. We want this to block so that A) any validation errors can prevent
-            // the app from starting, and B) so that all the config is ready before the server starts accepting requests.
-            // Reloads will be async.
-            var dataSource = configManager.InitialLoadAsync().GetAwaiter().GetResult();
-            endpoints.DataSources.Add(dataSource);
+        private static ProxyConfigManager GetOrCreateDataSource(IEndpointRouteBuilder endpoints)
+        {
+            var dataSource = endpoints.DataSources.OfType<ProxyConfigManager>().FirstOrDefault();
+            if (dataSource == null)
+            {
+                dataSource = endpoints.ServiceProvider.GetRequiredService<ProxyConfigManager>();
+                endpoints.DataSources.Add(dataSource);
+
+                // Config validation is async but startup is sync. We want this to block so that A) any validation errors can prevent
+                // the app from starting, and B) so that all the config is ready before the server starts accepting requests.
+                // Reloads will be async.
+                dataSource.InitialLoadAsync().GetAwaiter().GetResult();
+            }
+
+            return dataSource;
         }
     }
 }

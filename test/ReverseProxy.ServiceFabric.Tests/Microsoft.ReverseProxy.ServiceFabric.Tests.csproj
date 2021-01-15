@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net5.0;netcoreapp3.1</TargetFrameworks>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Microsoft.ReverseProxy.ServiceFabric</RootNamespace>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Autofac" Version="4.9.4" />
+    <PackageReference Include="Autofac.Extras.Moq" Version="4.3.0" />
+    <PackageReference Include="coverlet.collector" Version="1.0.1" />
+    <PackageReference Include="FluentAssertions" Version="5.10.3" />
+    <PackageReference Include="Moq" Version="4.13.1" /> 
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\ReverseProxy.ServiceFabric\Microsoft.ReverseProxy.ServiceFabric.csproj" />
+    <ProjectReference Include="..\ReverseProxy.Tests.Common\Microsoft.ReverseProxy.Tests.Common.csproj" />
+  </ItemGroup>
+
+</Project>

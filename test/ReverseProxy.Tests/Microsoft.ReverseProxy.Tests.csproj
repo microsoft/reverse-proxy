@@ -4,6 +4,7 @@
     <TargetFrameworks>net5.0;netcoreapp3.1</TargetFrameworks>
     <OutputType>Library</OutputType>
     <RootNamespace>Microsoft.ReverseProxy</RootNamespace>
+    <LangVersion>9.0</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,6 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\ReverseProxy\Microsoft.ReverseProxy.csproj" />
+    <ProjectReference Include="..\ReverseProxy.Tests.Common\Microsoft.ReverseProxy.Tests.Common.csproj" />
   </ItemGroup>
 
 </Project>

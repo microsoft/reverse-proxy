@@ -40,7 +40,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             httpContext.Request.QueryString = new QueryString("?a=b&c=d");
 
             var httpClient = new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object);
-            var httpRequestOptions = new ClusterProxyHttpRequestOptions(
+            var httpRequestOptions = new RequestProxyOptions(
                 TimeSpan.FromSeconds(60),
                 HttpVersion.Version11
 #if NET
@@ -66,8 +66,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 route: new RouteInfo("route1"),
                 proxyRoute: new ProxyRoute(),
                 cluster: cluster1,
-                aspNetCoreEndpoints: aspNetCoreEndpoints.AsReadOnly(),
-                transforms: null);
+                transformer: null);
             var aspNetCoreEndpoint = CreateAspNetCoreEndpoint(routeConfig);
             aspNetCoreEndpoints.Add(aspNetCoreEndpoint);
             httpContext.SetEndpoint(aspNetCoreEndpoint);
@@ -79,13 +78,14 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                     httpContext,
                     It.Is<string>(uri => uri == "https://localhost:123/a/b/"),
                     httpClient,
-                    It.Is<RequestProxyOptions>(options =>
-                        options.RequestTimeout == httpRequestOptions.RequestTimeout
-                        && options.Version == httpRequestOptions.Version
+                    It.Is<RequestProxyOptions>(requestOptions =>
+                        requestOptions.Timeout == httpRequestOptions.Timeout
+                        && requestOptions.Version == httpRequestOptions.Version
 #if NET
-                        && options.VersionPolicy == httpRequestOptions.VersionPolicy
+                        && requestOptions.VersionPolicy == httpRequestOptions.VersionPolicy
 #endif
-                        )))
+                        ),
+                    It.Is<HttpTransformer>(transformer => transformer == null)))
                 .Returns(
                     async () =>
                     {
@@ -148,8 +148,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 route: new RouteInfo("route1"),
                 proxyRoute: new ProxyRoute(),
                 cluster: cluster1,
-                aspNetCoreEndpoints: aspNetCoreEndpoints.AsReadOnly(),
-                transforms: null);
+                transformer: null);
             var aspNetCoreEndpoint = CreateAspNetCoreEndpoint(routeConfig);
             aspNetCoreEndpoints.Add(aspNetCoreEndpoint);
             httpContext.SetEndpoint(aspNetCoreEndpoint);
@@ -159,7 +158,8 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                     httpContext,
                     It.IsAny<string>(),
                     httpClient,
-                    It.IsAny<RequestProxyOptions>()))
+                    It.IsAny<RequestProxyOptions>(),
+                    It.IsAny<HttpTransformer>()))
                 .Returns(() => throw new NotImplementedException());
 
             var sut = Create<ProxyInvokerMiddleware>();

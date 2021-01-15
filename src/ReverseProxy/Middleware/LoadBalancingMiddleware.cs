@@ -2,11 +2,14 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Microsoft.ReverseProxy.RuntimeModel;
-using Microsoft.ReverseProxy.Service.Proxy;
+using Microsoft.ReverseProxy.Service.LoadBalancing;
+using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Middleware
 {
@@ -16,27 +19,41 @@ namespace Microsoft.ReverseProxy.Middleware
     internal class LoadBalancingMiddleware
     {
         private readonly ILogger _logger;
-        private readonly ILoadBalancer _loadBalancer;
+        private readonly IDictionary<string, ILoadBalancingPolicy> _loadBalancingPolicies;
         private readonly RequestDelegate _next;
 
         public LoadBalancingMiddleware(
             RequestDelegate next,
             ILogger<LoadBalancingMiddleware> logger,
-            ILoadBalancer loadBalancer)
+            IEnumerable<ILoadBalancingPolicy> loadBalancingPolicies)
         {
             _next = next ?? throw new ArgumentNullException(nameof(next));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _loadBalancer = loadBalancer ?? throw new ArgumentNullException(nameof(loadBalancer));
+            _loadBalancingPolicies = loadBalancingPolicies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(loadBalancingPolicies));
         }
 
         public Task Invoke(HttpContext context)
-        { 
+        {
             var proxyFeature = context.GetRequiredProxyFeature();
+
             var destinations = proxyFeature.AvailableDestinations;
+            var destinationCount = destinations.Count;
 
-            var loadBalancingOptions = proxyFeature.ClusterConfig.LoadBalancingOptions;
+            DestinationInfo destination;
 
-            var destination = _loadBalancer.PickDestination(destinations, in loadBalancingOptions);
+            if (destinationCount == 0)
+            {
+                destination = null;
+            }
+            else if (destinationCount == 1)
+            {
+                destination = destinations[0];
+            }
+            else
+            {
+                var currentPolicy = _loadBalancingPolicies.GetRequiredServiceById(proxyFeature.ClusterConfig.LoadBalancingPolicy, LoadBalancingPolicies.PowerOfTwoChoices);
+                destination = currentPolicy.PickDestination(context, destinations);
+            }
 
             if (destination == null)
             {

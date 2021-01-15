@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using Microsoft.ReverseProxy.Abstractions;
+using Microsoft.ReverseProxy.Service.Proxy;
 
 namespace Microsoft.ReverseProxy.RuntimeModel
 {
@@ -20,21 +21,19 @@ namespace Microsoft.ReverseProxy.RuntimeModel
     /// </remarks>
     public sealed class ClusterConfig
     {
-        private readonly Cluster _cluster;
-
         public ClusterConfig(
             Cluster cluster,
             ClusterHealthCheckOptions healthCheckOptions,
-            ClusterLoadBalancingOptions loadBalancingOptions,
+            string loadBalancingPolicy,
             ClusterSessionAffinityOptions sessionAffinityOptions,
             HttpMessageInvoker httpClient,
             ClusterProxyHttpClientOptions httpClientOptions,
-            ClusterProxyHttpRequestOptions httpRequestOptions,
+            RequestProxyOptions httpRequestOptions,
             IReadOnlyDictionary<string, string> metadata)
         {
-            _cluster = cluster;
+            Cluster = cluster;
             HealthCheckOptions = healthCheckOptions;
-            LoadBalancingOptions = loadBalancingOptions;
+            LoadBalancingPolicy = loadBalancingPolicy;
             SessionAffinityOptions = sessionAffinityOptions;
             HttpClient = httpClient;
             HttpClientOptions = httpClientOptions;
@@ -42,15 +41,17 @@ namespace Microsoft.ReverseProxy.RuntimeModel
             Metadata = metadata;
         }
 
+        internal Cluster Cluster { get; }
+
         public ClusterHealthCheckOptions HealthCheckOptions { get; }
 
-        public ClusterLoadBalancingOptions LoadBalancingOptions { get; }
+        public string LoadBalancingPolicy { get; }
 
         public ClusterSessionAffinityOptions SessionAffinityOptions { get; }
 
         public ClusterProxyHttpClientOptions HttpClientOptions { get; }
 
-        public ClusterProxyHttpRequestOptions HttpRequestOptions { get; }
+        public RequestProxyOptions HttpRequestOptions { get; }
 
         /// <summary>
         /// An <see cref="HttpMessageInvoker"/> that used for proxying requests to an upstream server.
@@ -64,7 +65,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
 
         internal bool HasConfigChanged(ClusterConfig newClusterConfig)
         {
-            return !Cluster.Equals(_cluster, newClusterConfig._cluster);
+            return !Cluster.Equals(Cluster, newClusterConfig.Cluster);
         }
     }
 }
