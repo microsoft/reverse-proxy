@@ -79,11 +79,17 @@
   <div class="inheritance">
     <h5>Inheritance</h5>
     <div class="level0"><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object">Object</a></div>
-    <div class="level1"><a class="xref" href="Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderTransform.html">RequestHeaderTransform</a></div>
+    <div class="level1"><a class="xref" href="Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestTransform.html">RequestTransform</a></div>
     <div class="level2"><span class="xref">RequestHeaderClientCertTransform</span></div>
   </div>
   <div class="inheritedMembers">
     <h5>Inherited Members</h5>
+    <div>
+      <a class="xref" href="Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestTransform_TakeHeader_Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestTransformContext_System_String_">RequestTransform.TakeHeader(RequestTransformContext, String)</a>
+    </div>
+    <div>
+      <a class="xref" href="Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestTransform_AddHeader_Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestTransformContext_System_String_Microsoft_Extensions_Primitives_StringValues_">RequestTransform.AddHeader(RequestTransformContext, String, StringValues)</a>
+    </div>
     <div>
       <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.equals#System_Object_Equals_System_Object_">Object.Equals(Object)</a>
     </div>
@@ -110,25 +116,24 @@
   <h6><strong>Assembly</strong>: Microsoft.ReverseProxy.dll</h6>
   <h5 id="Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestHeaderClientCertTransform_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public class RequestHeaderClientCertTransform : RequestHeaderTransform</code></pre>
+    <pre><code class="lang-csharp hljs">public class RequestHeaderClientCertTransform : RequestTransform</code></pre>
   </div>
-  <h3 id="methods">Methods
+  <h3 id="constructors">Constructors
   </h3>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/microsoft/reverse-proxy/new/release/docs/apiSpec/new?filename=Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestHeaderClientCertTransform_Apply_Microsoft_AspNetCore_Http_HttpContext_Microsoft_Extensions_Primitives_StringValues_.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderClientCertTransform.Apply(Microsoft.AspNetCore.Http.HttpContext%2CMicrosoft.Extensions.Primitives.StringValues)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/docs/apiSpec/new?filename=Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestHeaderClientCertTransform__ctor_System_String_.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderClientCertTransform.%23ctor(System.String)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/src/ReverseProxy/Service/RuntimeModel/Transforms/RequestHeaderClientCertTransform.cs/#L16">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/src/ReverseProxy/Service/RuntimeModel/Transforms/RequestHeaderClientCertTransform.cs/#L15">View Source</a>
   </span>
-  <a id="Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestHeaderClientCertTransform_Apply_" data-uid="Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderClientCertTransform.Apply*"></a>
-  <h4 id="Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestHeaderClientCertTransform_Apply_Microsoft_AspNetCore_Http_HttpContext_Microsoft_Extensions_Primitives_StringValues_" data-uid="Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderClientCertTransform.Apply(Microsoft.AspNetCore.Http.HttpContext,Microsoft.Extensions.Primitives.StringValues)">Apply(HttpContext, StringValues)</h4>
-  <div class="markdown level1 summary"><p>Transforms the given value and returns the result.</p>
-</div>
+  <a id="Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestHeaderClientCertTransform__ctor_" data-uid="Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderClientCertTransform.#ctor*"></a>
+  <h4 id="Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestHeaderClientCertTransform__ctor_System_String_" data-uid="Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderClientCertTransform.#ctor(System.String)">RequestHeaderClientCertTransform(String)</h4>
+  <div class="markdown level1 summary"></div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override StringValues Apply(HttpContext context, StringValues values)</code></pre>
+    <pre><code class="lang-csharp hljs">public RequestHeaderClientCertTransform(string headerName)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -141,16 +146,44 @@
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.http.httpcontext">HttpContext</a></td>
-        <td><span class="parametername">context</span></td>
-        <td><p>The original <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.http.httpcontext">HttpContext</a> for accessing other state.</p>
-</td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.string">String</a></td>
+        <td><span class="parametername">headerName</span></td>
+        <td></td>
       </tr>
+    </tbody>
+  </table>
+  <h3 id="methods">Methods
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/docs/apiSpec/new?filename=Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestHeaderClientCertTransform_ApplyAsync_Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestTransformContext_.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderClientCertTransform.ApplyAsync(Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestTransformContext)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/src/ReverseProxy/Service/RuntimeModel/Transforms/RequestHeaderClientCertTransform.cs/#L23">View Source</a>
+  </span>
+  <a id="Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestHeaderClientCertTransform_ApplyAsync_" data-uid="Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderClientCertTransform.ApplyAsync*"></a>
+  <h4 id="Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestHeaderClientCertTransform_ApplyAsync_Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestTransformContext_" data-uid="Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderClientCertTransform.ApplyAsync(Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestTransformContext)">ApplyAsync(RequestTransformContext)</h4>
+  <div class="markdown level1 summary"><p>Transforms any of the available fields before building the outgoing request.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override Task ApplyAsync(RequestTransformContext context)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.extensions.primitives.stringvalues">StringValues</a></td>
-        <td><span class="parametername">values</span></td>
-        <td><p>The original header value(s).</p>
-</td>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestTransformContext.html">RequestTransformContext</a></td>
+        <td><span class="parametername">context</span></td>
+        <td></td>
       </tr>
     </tbody>
   </table>
@@ -164,14 +197,13 @@
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.extensions.primitives.stringvalues">StringValues</a></td>
-        <td><p>The transformed result.</p>
-</td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.threading.tasks.task">Task</a></td>
+        <td></td>
       </tr>
     </tbody>
   </table>
   <h5 class="overrides">Overrides</h5>
-  <div><a class="xref" href="Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestHeaderTransform_Apply_Microsoft_AspNetCore_Http_HttpContext_Microsoft_Extensions_Primitives_StringValues_">RequestHeaderTransform.Apply(HttpContext, StringValues)</a></div>
+  <div><a class="xref" href="Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestTransform.html#Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestTransform_ApplyAsync_Microsoft_ReverseProxy_Service_RuntimeModel_Transforms_RequestTransformContext_">RequestTransform.ApplyAsync(RequestTransformContext)</a></div>
 </article>
           </div>
           

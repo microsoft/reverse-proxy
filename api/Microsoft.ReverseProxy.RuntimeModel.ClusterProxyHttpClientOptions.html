@@ -104,18 +104,18 @@
   </h3>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/microsoft/reverse-proxy/new/release/docs/apiSpec/new?filename=Microsoft_ReverseProxy_RuntimeModel_ClusterProxyHttpClientOptions__ctor_System_Nullable_System_Security_Authentication_SslProtocols__System_Boolean_System_Security_Cryptography_X509Certificates_X509Certificate2_System_Nullable_System_Int32__System_Nullable_System_Boolean__.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpClientOptions.%23ctor(System.Nullable%7BSystem.Security.Authentication.SslProtocols%7D%2CSystem.Boolean%2CSystem.Security.Cryptography.X509Certificates.X509Certificate2%2CSystem.Nullable%7BSystem.Int32%7D%2CSystem.Nullable%7BSystem.Boolean%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/docs/apiSpec/new?filename=Microsoft_ReverseProxy_RuntimeModel_ClusterProxyHttpClientOptions__ctor_System_Nullable_System_Security_Authentication_SslProtocols__System_Nullable_System_Boolean__System_Security_Cryptography_X509Certificates_X509Certificate2_System_Nullable_System_Int32__System_Nullable_System_Boolean__.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpClientOptions.%23ctor(System.Nullable%7BSystem.Security.Authentication.SslProtocols%7D%2CSystem.Nullable%7BSystem.Boolean%7D%2CSystem.Security.Cryptography.X509Certificates.X509Certificate2%2CSystem.Nullable%7BSystem.Int32%7D%2CSystem.Nullable%7BSystem.Boolean%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
     <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/src/ReverseProxy/Service/RuntimeModel/ClusterProxyHttpClientOptions.cs/#L13">View Source</a>
   </span>
   <a id="Microsoft_ReverseProxy_RuntimeModel_ClusterProxyHttpClientOptions__ctor_" data-uid="Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpClientOptions.#ctor*"></a>
-  <h4 id="Microsoft_ReverseProxy_RuntimeModel_ClusterProxyHttpClientOptions__ctor_System_Nullable_System_Security_Authentication_SslProtocols__System_Boolean_System_Security_Cryptography_X509Certificates_X509Certificate2_System_Nullable_System_Int32__System_Nullable_System_Boolean__" data-uid="Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpClientOptions.#ctor(System.Nullable{System.Security.Authentication.SslProtocols},System.Boolean,System.Security.Cryptography.X509Certificates.X509Certificate2,System.Nullable{System.Int32},System.Nullable{System.Boolean})">ClusterProxyHttpClientOptions(Nullable&lt;SslProtocols&gt;, Boolean, X509Certificate2, Nullable&lt;Int32&gt;, Nullable&lt;Boolean&gt;)</h4>
+  <h4 id="Microsoft_ReverseProxy_RuntimeModel_ClusterProxyHttpClientOptions__ctor_System_Nullable_System_Security_Authentication_SslProtocols__System_Nullable_System_Boolean__System_Security_Cryptography_X509Certificates_X509Certificate2_System_Nullable_System_Int32__System_Nullable_System_Boolean__" data-uid="Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpClientOptions.#ctor(System.Nullable{System.Security.Authentication.SslProtocols},System.Nullable{System.Boolean},System.Security.Cryptography.X509Certificates.X509Certificate2,System.Nullable{System.Int32},System.Nullable{System.Boolean})">ClusterProxyHttpClientOptions(Nullable&lt;SslProtocols&gt;, Nullable&lt;Boolean&gt;, X509Certificate2, Nullable&lt;Int32&gt;, Nullable&lt;Boolean&gt;)</h4>
   <div class="markdown level1 summary"></div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public ClusterProxyHttpClientOptions(SslProtocols? sslProtocols, bool acceptAnyServerCertificate, X509Certificate2 clientCertificate, int? maxConnectionsPerServer, bool? propagateActivityContext)</code></pre>
+    <pre><code class="lang-csharp hljs">public ClusterProxyHttpClientOptions(SslProtocols? sslProtocols, bool? acceptAnyServerCertificate, X509Certificate2 clientCertificate, int? maxConnectionsPerServer, bool? propagateActivityContext)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -133,7 +133,7 @@
         <td></td>
       </tr>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.boolean">Boolean</a></td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.nullable-1">Nullable</a>&lt;<a class="xref" href="https://docs.microsoft.com/dotnet/api/system.boolean">Boolean</a>&gt;</td>
         <td><span class="parametername">acceptAnyServerCertificate</span></td>
         <td></td>
       </tr>
@@ -199,7 +199,7 @@
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public bool DangerousAcceptAnyServerCertificate { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">public bool? DangerousAcceptAnyServerCertificate { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -211,7 +211,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.boolean">Boolean</a></td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.nullable-1">Nullable</a>&lt;<a class="xref" href="https://docs.microsoft.com/dotnet/api/system.boolean">Boolean</a>&gt;</td>
         <td></td>
       </tr>
     </tbody>

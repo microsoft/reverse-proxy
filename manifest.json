@@ -21,7 +21,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.AspNetCore.Builder.ReverseProxyIEndpointRouteBuilderExtensions.html",
-          "hash": "vu0SWtxVl/Xd7baGZYqTrA=="
+          "hash": "Vs18EE8+H6MQBZF+fqyQEg=="
         }
       },
       "is_incremental": false,
@@ -45,7 +45,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.Extensions.DependencyInjection.IReverseProxyBuilder.html",
-          "hash": "QET45Jt/j2WzQdcMnZ7oyw=="
+          "hash": "6+c47YmRjzKLz61e/QU5KA=="
         }
       },
       "is_incremental": false,
@@ -57,7 +57,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.html",
-          "hash": "Xx0BGvn16J7TQmoIu+3EEA=="
+          "hash": "uD9BGib3jRDiGWncmbaA4A=="
         }
       },
       "is_incremental": false,
@@ -93,19 +93,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Abstractions.ActiveHealthCheckOptions.html",
-          "hash": "0LVHPxVt7QsSp2AdNUJJVw=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.ReverseProxy.Abstractions.CircuitBreakerOptions.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.ReverseProxy.Abstractions.CircuitBreakerOptions.html",
-          "hash": "OyOFnTzK7lBaK9KXjd3qHQ=="
+          "hash": "gmrICKtSlr0LQXVKh5FfmA=="
         }
       },
       "is_incremental": false,
@@ -117,7 +105,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Abstractions.Cluster.html",
-          "hash": "qEjZe4+gEHSkMIc8GeZT6g=="
+          "hash": "drq/I/fnaNhoA8pos2VspQ=="
         }
       },
       "is_incremental": false,
@@ -130,6 +118,18 @@
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.CookieSessionAffinityProviderOptions.html",
           "hash": "ju86q+Y8jl5HRlUzV93FuA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.LoadBalancingPolicies.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.LoadBalancingPolicies.html",
+          "hash": "FQ6EZ/A9wLmiV9wye9dC4Q=="
         }
       },
       "is_incremental": false,
@@ -177,19 +177,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract.html",
-          "hash": "UgjCXTg+QYPEDvl7cmhjsw=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.ReverseProxy.Abstractions.ClusterPartitioningOptions.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.ReverseProxy.Abstractions.ClusterPartitioningOptions.html",
-          "hash": "sPE9zt4GRQahgWzz4CRp/g=="
+          "hash": "tgbHzBbYqhuWqo0MUq/Gbg=="
         }
       },
       "is_incremental": false,
@@ -281,35 +269,11 @@
     },
     {
       "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.ReverseProxy.Abstractions.LoadBalancingMode.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.ReverseProxy.Abstractions.LoadBalancingMode.html",
-          "hash": "D5kkmMy6fRGmUwYWnj60eA=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.ReverseProxy.Abstractions.LoadBalancingOptions.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.ReverseProxy.Abstractions.LoadBalancingOptions.html",
-          "hash": "FIun7TLUoYOh+q/YPiMrjA=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
       "source_relative_path": "api/Microsoft.ReverseProxy.Abstractions.PassiveHealthCheckOptions.yml",
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Abstractions.PassiveHealthCheckOptions.html",
-          "hash": "VFf57ZdcMbGyIBVGutpoVA=="
+          "hash": "fdLROvZWfmI9bvBV8q36wQ=="
         }
       },
       "is_incremental": false,
@@ -321,7 +285,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Abstractions.ProxyHttpClientOptions.html",
-          "hash": "oN1ymO5IO3DvfQoAT+pX3A=="
+          "hash": "OFZ0FnIH1Ul59OwWFg0wGg=="
         }
       },
       "is_incremental": false,
@@ -333,7 +297,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.html",
-          "hash": "tsUnWRB71m2NOUR7f5bhqg=="
+          "hash": "2tcaQul7576xWV/o4hxHZg=="
         }
       },
       "is_incremental": false,
@@ -357,19 +321,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Abstractions.ProxyRoute.html",
-          "hash": "XGzuYqa0ZyQpOaOfijqLCw=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.ReverseProxy.Abstractions.QuotaOptions.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.ReverseProxy.Abstractions.QuotaOptions.html",
-          "hash": "f/L3siYk9Ykm8wVRpczaWw=="
+          "hash": "WRrBiJqg89xSjtfxL3chsQ=="
         }
       },
       "is_incremental": false,
@@ -393,7 +345,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Abstractions.SessionAffinityOptions.html",
-          "hash": "+1N9NrLwpYVvMvhB574DuA=="
+          "hash": "Qt7Lxn/DsfLd/JpsOtnS8w=="
         }
       },
       "is_incremental": false,
@@ -417,7 +369,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Abstractions.html",
-          "hash": "GYUtBGiz1oMnu3s0ka4s9w=="
+          "hash": "UDe3V6qf0wkqwkiLb3nB0g=="
         }
       },
       "is_incremental": false,
@@ -473,6 +425,18 @@
     },
     {
       "type": "ManagedReference",
+      "source_relative_path": "api/Microsoft.ReverseProxy.ReverseProxyConventionBuilder.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Microsoft.ReverseProxy.ReverseProxyConventionBuilder.html",
+          "hash": "2T9k2immQ2pfieVbT69r3A=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
       "source_relative_path": "api/Microsoft.ReverseProxy.RuntimeModel.ClusterActiveHealthCheckOptions.yml",
       "output": {
         ".html": {
@@ -489,7 +453,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.html",
-          "hash": "GAj+X6FPpb4DNMRMsFwU1w=="
+          "hash": "gfaMQi6HA+MbFW+QTuf62A=="
         }
       },
       "is_incremental": false,
@@ -525,19 +489,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.RuntimeModel.ClusterInfo.html",
-          "hash": "vkYCtXdnf9MKaN6/W6Qp0Q=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.ReverseProxy.RuntimeModel.ClusterLoadBalancingOptions.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.ReverseProxy.RuntimeModel.ClusterLoadBalancingOptions.html",
-          "hash": "YGeJpb2w+F6O8DD8UcXH1A=="
+          "hash": "K6haeR4ELJyNEO999HKhcg=="
         }
       },
       "is_incremental": false,
@@ -561,19 +513,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpClientOptions.html",
-          "hash": "Geen3WKhjjrEDYfXzhu1mg=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpRequestOptions.html",
-          "hash": "2u4XJD9wI4PjYdRuoeUaXQ=="
+          "hash": "DShjHB3fnF15U+cJ9Fzp6Q=="
         }
       },
       "is_incremental": false,
@@ -669,7 +609,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.RuntimeModel.html",
-          "hash": "PMxHMpnwCdk/gQNwePqtrA=="
+          "hash": "9zxCSIU2UyYhm6GcxtE1tQ=="
         }
       },
       "is_incremental": false,
@@ -825,7 +765,43 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Service.ITransformBuilder.html",
-          "hash": "Y/U5Z+n1uFFNMdLP9xcguA=="
+          "hash": "Q4nrE41npUitBgkB8XAREw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Microsoft.ReverseProxy.Service.LoadBalancing.ILoadBalancingPolicy.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Microsoft.ReverseProxy.Service.LoadBalancing.ILoadBalancingPolicy.html",
+          "hash": "nX6SHRMHa+6fHBNZwI4f7g=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Microsoft.ReverseProxy.Service.LoadBalancing.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Microsoft.ReverseProxy.Service.LoadBalancing.html",
+          "hash": "Lg2UAZ6d9qU0fTJt5q9eTw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Microsoft.ReverseProxy.Service.Proxy.HttpTransformer.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Microsoft.ReverseProxy.Service.Proxy.HttpTransformer.html",
+          "hash": "psd0SjBMLHDH7V4x7hgp8A=="
         }
       },
       "is_incremental": false,
@@ -837,7 +813,19 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Service.Proxy.IHttpProxy.html",
-          "hash": "tpRBAGMnk8P+A+sdahwlIQ=="
+          "hash": "F/OAY9LU6bGTmSnMS8Tj1Q=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Microsoft.ReverseProxy.Service.Proxy.IHttpProxyExtensions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Microsoft.ReverseProxy.Service.Proxy.IHttpProxyExtensions.html",
+          "hash": "mVG0UveF/dPwOdHDyn5bYw=="
         }
       },
       "is_incremental": false,
@@ -909,7 +897,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Service.Proxy.RequestProxyOptions.html",
-          "hash": "ipcmcuq531dzd+yfQjcG+A=="
+          "hash": "TWVT4LQlgaf1/d68cPO44g=="
         }
       },
       "is_incremental": false,
@@ -921,7 +909,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Service.Proxy.html",
-          "hash": "APwE9zTmNZpnzJnkzFyzrQ=="
+          "hash": "Uwaq+Dyv7etcXG+lzy9S6g=="
         }
       },
       "is_incremental": false,
@@ -933,7 +921,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.html",
-          "hash": "qXYx4A4y8J8Xp/k0twR67A=="
+          "hash": "iRwK4lhNEI983t8usFa/Ww=="
         }
       },
       "is_incremental": false,
@@ -945,7 +933,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathRouteValuesTransform.html",
-          "hash": "/+df3Gn6CvbpO4OKBJpiwQ=="
+          "hash": "08KElUTTnyoZyxVkU9hf6Q=="
         }
       },
       "is_incremental": false,
@@ -957,7 +945,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathStringTransform.PathTransformMode.html",
-          "hash": "FcYfO6TylKoECEu74wUBLA=="
+          "hash": "EzQajHudyqYFSmmHH+QUzg=="
         }
       },
       "is_incremental": false,
@@ -969,7 +957,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathStringTransform.html",
-          "hash": "tJz+xhZlP3WS5idmJfJcJg=="
+          "hash": "MBgBTTv39lYBWfe+9TICOw=="
         }
       },
       "is_incremental": false,
@@ -981,7 +969,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterFromStaticTransform.html",
-          "hash": "G/G7xKkv4lCeE/iXjp9PnA=="
+          "hash": "iv9+fxcJHHGUXoI4fi3t6A=="
         }
       },
       "is_incremental": false,
@@ -993,7 +981,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterRemoveTransform.html",
-          "hash": "x36aVYHTWfGdMV+BwHxp9g=="
+          "hash": "OehG3l1gh5kPaSnfwDX3EA=="
         }
       },
       "is_incremental": false,
@@ -1005,7 +993,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterRouteTransform.html",
-          "hash": "KmgjdjBhC04qBIm+u9WQPQ=="
+          "hash": "ZuUwViqZUurAr08J73S/jQ=="
         }
       },
       "is_incremental": false,
@@ -1017,7 +1005,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterTransform.html",
-          "hash": "TEKMELI4Sjud8qnAJhuUqQ=="
+          "hash": "SnEpd6K87WvRMwAGfTp/Nw=="
         }
       },
       "is_incremental": false,
@@ -1029,7 +1017,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryStringTransformMode.html",
-          "hash": "MdOmPdx/sdRuM4+H7v/tvg=="
+          "hash": "UMdAdi1V06nOkdOctAiyVw=="
         }
       },
       "is_incremental": false,
@@ -1041,7 +1029,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryTransformContext.html",
-          "hash": "0RBeEMTuUELg/NaveFnxjg=="
+          "hash": "m4+k2E+MBpcZCZTcIq9xXA=="
         }
       },
       "is_incremental": false,
@@ -1053,7 +1041,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderClientCertTransform.html",
-          "hash": "nUXNGDAIb+Jsk1UC+VRiqQ=="
+          "hash": "GZZV1Lt6t/I9SY15vJLT7A=="
         }
       },
       "is_incremental": false,
@@ -1065,7 +1053,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.NodeFormat.html",
-          "hash": "X5ytQkAoyIDfKGT0KEiQ9g=="
+          "hash": "o1kMbRB8qfGDbqW2/kosJQ=="
         }
       },
       "is_incremental": false,
@@ -1077,19 +1065,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.html",
-          "hash": "RMVzKMnBZhnDU9EMCQE4dg=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderTransform.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderTransform.html",
-          "hash": "zcTCfKQ+SMX+Dhf9a9WzvQ=="
+          "hash": "hdmZkz6R1nwxzNpYdAp4CA=="
         }
       },
       "is_incremental": false,
@@ -1101,7 +1077,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderValueTransform.html",
-          "hash": "QgkLqPrNaYvaoupJw90+PQ=="
+          "hash": "KcK1Ii0P4VMQdLODVixY8Q=="
         }
       },
       "is_incremental": false,
@@ -1113,7 +1089,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedForTransform.html",
-          "hash": "quSAlHsyAIap3NFiPlEjLg=="
+          "hash": "CoefIR265LIO+1uLsZu43Q=="
         }
       },
       "is_incremental": false,
@@ -1125,7 +1101,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedHostTransform.html",
-          "hash": "qvlDIdfAvvV5WyTkZ6bAlg=="
+          "hash": "MJH5Y3Km3cRdz0grsZ+Jxw=="
         }
       },
       "is_incremental": false,
@@ -1137,7 +1113,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedPathBaseTransform.html",
-          "hash": "0TShXNlIxbQTlLn0vyMS5g=="
+          "hash": "ux5QaFiHCr6LTt6sfebEUA=="
         }
       },
       "is_incremental": false,
@@ -1149,7 +1125,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderXForwardedProtoTransform.html",
-          "hash": "usG/UL69TLziNOJUeT+Uyg=="
+          "hash": "rP2rHuftEAd5/aBfZ6t2YA=="
         }
       },
       "is_incremental": false,
@@ -1157,11 +1133,11 @@
     },
     {
       "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestParametersTransform.yml",
+      "source_relative_path": "api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestTransform.yml",
       "output": {
         ".html": {
-          "relative_path": "api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestParametersTransform.html",
-          "hash": "xxaYuTpZyDfFaKsOiarSuw=="
+          "relative_path": "api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestTransform.html",
+          "hash": "1HyFETRQ2XCB4DbcnNPfIA=="
         }
       },
       "is_incremental": false,
@@ -1169,23 +1145,11 @@
     },
     {
       "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestParametersTransformContext.yml",
+      "source_relative_path": "api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestTransformContext.yml",
       "output": {
         ".html": {
-          "relative_path": "api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestParametersTransformContext.html",
-          "hash": "2IyuvHt0pnbSt9NfA3JLSQ=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseHeaderTransform.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseHeaderTransform.html",
-          "hash": "UUXrD94N6IoO/cyJcz9XDw=="
+          "relative_path": "api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestTransformContext.html",
+          "hash": "HzVcKVGeFwfUztK+aVam7w=="
         }
       },
       "is_incremental": false,
@@ -1197,7 +1161,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseHeaderValueTransform.html",
-          "hash": "3gxV25H3i7Gc/3UFg5zXJg=="
+          "hash": "LA1gmUULtvf7fdgu3ZmuVQ=="
         }
       },
       "is_incremental": false,
@@ -1205,11 +1169,59 @@
     },
     {
       "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.Transforms.yml",
+      "source_relative_path": "api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseTrailerValueTransform.yml",
       "output": {
         ".html": {
-          "relative_path": "api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.Transforms.html",
-          "hash": "lreJLss4icj8rRkr5OipnA=="
+          "relative_path": "api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseTrailerValueTransform.html",
+          "hash": "N27+qxcFGfrZxTOCXeqtKg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseTrailersTransform.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseTrailersTransform.html",
+          "hash": "wWJyT76+32Ye9e7Xv8Pc1g=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseTrailersTransformContext.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseTrailersTransformContext.html",
+          "hash": "Ueu7GAsEMDmWdE5zUpC7zA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseTransform.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseTransform.html",
+          "hash": "lGRTEy2WitZPvSPsS1Dp4Q=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseTransformContext.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseTransformContext.html",
+          "hash": "0giJIhqSNRAZ+rGXzs2NrA=="
         }
       },
       "is_incremental": false,
@@ -1221,7 +1233,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.html",
-          "hash": "MvcSAi9ovkrYZQQIhRwMOA=="
+          "hash": "rJRiPq34WyccMcqVgsHPVg=="
         }
       },
       "is_incremental": false,
@@ -1253,6 +1265,18 @@
     },
     {
       "type": "ManagedReference",
+      "source_relative_path": "api/Microsoft.ReverseProxy.Service.SessionAffinity.IAffinityFailurePolicy.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Microsoft.ReverseProxy.Service.SessionAffinity.IAffinityFailurePolicy.html",
+          "hash": "agyAGpJRjn3LxxSQZEr9qg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
       "source_relative_path": "api/Microsoft.ReverseProxy.Service.SessionAffinity.ISessionAffinityProvider.yml",
       "output": {
         ".html": {
@@ -1269,7 +1293,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Service.SessionAffinity.html",
-          "hash": "i5QjI9j578T+3G6t4boBMg=="
+          "hash": "yJVn7xv4sJyZ19h5B7YKsA=="
         }
       },
       "is_incremental": false,
@@ -1282,6 +1306,90 @@
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Service.html",
           "hash": "RcujYnz8UjLl5VMaqjJhDA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Microsoft.ReverseProxy.ServiceFabric.ConfigException.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Microsoft.ReverseProxy.ServiceFabric.ConfigException.html",
+          "hash": "Uhwx4q0cI4jrYGaz+vVUEQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Microsoft.ReverseProxy.ServiceFabric.ServiceFabricDiscoveryOptions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Microsoft.ReverseProxy.ServiceFabric.ServiceFabricDiscoveryOptions.html",
+          "hash": "onGz3/yxZqecWqbkeeoAOA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Microsoft.ReverseProxy.ServiceFabric.ServiceFabricIntegrationException.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Microsoft.ReverseProxy.ServiceFabric.ServiceFabricIntegrationException.html",
+          "hash": "Wa+np+IolHAXw411OCS56g=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Microsoft.ReverseProxy.ServiceFabric.ServiceFabricServiceCollectionExtensions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Microsoft.ReverseProxy.ServiceFabric.ServiceFabricServiceCollectionExtensions.html",
+          "hash": "BfpT4A2CRiObiL/zQYD5yg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Microsoft.ReverseProxy.ServiceFabric.Utilities.Cache-1.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Microsoft.ReverseProxy.ServiceFabric.Utilities.Cache-1.html",
+          "hash": "SrilSRIWMtswbo281ZtPKA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Microsoft.ReverseProxy.ServiceFabric.Utilities.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Microsoft.ReverseProxy.ServiceFabric.Utilities.html",
+          "hash": "340wtvigXPu9v32ZMhZVvA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Microsoft.ReverseProxy.ServiceFabric.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Microsoft.ReverseProxy.ServiceFabric.html",
+          "hash": "4Ytlpfe9aWkEEnZXc02Bsg=="
         }
       },
       "is_incremental": false,
@@ -1313,6 +1421,18 @@
     },
     {
       "type": "ManagedReference",
+      "source_relative_path": "api/Microsoft.ReverseProxy.Utilities.IClock.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Microsoft.ReverseProxy.Utilities.IClock.html",
+          "hash": "nrcQGEAeo9tcsezdRzqT7w=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
       "source_relative_path": "api/Microsoft.ReverseProxy.Utilities.IRandomFactory.yml",
       "output": {
         ".html": {
@@ -1329,7 +1449,19 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.ReverseProxy.Utilities.html",
-          "hash": "J3UhWzw02tgQdWqpfcLu9g=="
+          "hash": "P1g2iB5vj0TclFX5mwpClg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Microsoft.ReverseProxy.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Microsoft.ReverseProxy.html",
+          "hash": "xVMwit460JzKWdLP+5Stug=="
         }
       },
       "is_incremental": false,
@@ -1353,7 +1485,7 @@
       "output": {
         ".html": {
           "relative_path": "api/toc.html",
-          "hash": "B4KnwTGzMMoBQDbmZkmhhg=="
+          "hash": "tD0YfxpOEECzj5/CCMXn0w=="
         }
       },
       "is_incremental": false,
@@ -1365,7 +1497,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/authn-authz.html",
-          "hash": "3E7vQTCSFn7xpKAnps25vg=="
+          "hash": "qHN32bS/vk1dPuYtL68C9g=="
         }
       },
       "is_incremental": false,
@@ -1425,7 +1557,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/direct-proxying.html",
-          "hash": "l7mYYKRvlrLMGXZsSUf5pg=="
+          "hash": "XKXtaNzt+J8aqyXsAgNjDA=="
         }
       },
       "is_incremental": false,
@@ -1437,7 +1569,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/getting_started.html",
-          "hash": "tESbJYps9XSY6qw34CcqiQ=="
+          "hash": "/XomzALltvkc4xKQzsCCoA=="
         }
       },
       "is_incremental": false,
@@ -1469,11 +1601,23 @@
     },
     {
       "type": "Conceptual",
+      "source_relative_path": "articles/load-balancing.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/load-balancing.html",
+          "hash": "8e7N3xsKVkw6KC2gFKlgRg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
       "source_relative_path": "articles/proxyhttpclientconfig.md",
       "output": {
         ".html": {
           "relative_path": "articles/proxyhttpclientconfig.html",
-          "hash": "kJVChM+/LmfqfqJytgtbKA=="
+          "hash": "mEM3OUwNbiaSmObj9dG/Qg=="
         }
       },
       "is_incremental": false,
@@ -1493,11 +1637,23 @@
     },
     {
       "type": "Conceptual",
+      "source_relative_path": "articles/service-fabric-int.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/service-fabric-int.html",
+          "hash": "Q/lA+O1ZKag0inNzwjpZoA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
       "source_relative_path": "articles/session-affinity.md",
       "output": {
         ".html": {
           "relative_path": "articles/session-affinity.html",
-          "hash": "eCaQC+7MsaXsCi7TkUW0pA=="
+          "hash": "L8nzZGgBKQ24aLjtAOnF2g=="
         }
       },
       "is_incremental": false,
@@ -1509,7 +1665,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/toc.html",
-          "hash": "VJTjSuBsiz+JTL4HowNdqQ=="
+          "hash": "PKPw1NPl1VdiELwFwAaXXg=="
         }
       },
       "is_incremental": false,
@@ -1521,7 +1677,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/transforms.html",
-          "hash": "KS/6AcaVnnVzqNieuDz4BA=="
+          "hash": "I7ABBZU/Dzp3MqYiqhGBSg=="
         }
       },
       "is_incremental": false,
@@ -1578,13 +1734,13 @@
         "ConceptualDocumentProcessor": {
           "can_incremental": false,
           "incrementalPhase": "build",
-          "total_file_count": 16,
+          "total_file_count": 18,
           "skipped_file_count": 0
         },
         "ManagedReferenceDocumentProcessor": {
           "can_incremental": false,
           "incrementalPhase": "build",
-          "total_file_count": 111,
+          "total_file_count": 122,
           "skipped_file_count": 0
         },
         "TocDocumentProcessor": {

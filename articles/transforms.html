@@ -71,7 +71,7 @@
 
 <p>Introduced: preview2</p>
 <h2 id="introduction">Introduction</h2>
-<p>When proxing a request it's common to modify parts of the request or response to adapt to the destination server's requirements or to flow additional data such as the client's original IP address. This process is implemented via Transforms. Types of transforms are defined globally for the application and then individual routes supply the parameters to enable and configure those transforms. The original request objects are not modified by these transforms, only the proxy requests.</p>
+<p>When proxying a request it's common to modify parts of the request or response to adapt to the destination server's requirements or to flow additional data such as the client's original IP address. This process is implemented via Transforms. Types of transforms are defined globally for the application and then individual routes supply the parameters to enable and configure those transforms. The original request objects are not modified by these transforms, only the proxy requests.</p>
 <h2 id="defaults">Defaults</h2>
 <p>The following transforms are enabled by default for all routes. They can be configured or disabled as shown later in this document.</p>
 <ul>
@@ -157,14 +157,15 @@ X-Forwarded-Host: IncomingHost:5000
 }
 </code></pre>
 <p>All configuration entries are treated as case-insensitive, though the destination server may treat the resulting values as case sensitive or insensitive such as the path.</p>
-<p>Transforms fall into a few categories: request parameters, request headers, response headers, and response trailers. Request and response body transforms are not supported by YARP but you can write middleware to do this. Request trailers are not supported because they are not supported by the underlying HttpClient.</p>
-<h3 id="request-parameters">Request Parameters</h3>
-<p>Request parameters include the request path, query, HTTP version, and method. In code these are represented by the <a class="xref" href="../api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestParametersTransformContext.html">RequestParametersTransformContext</a> object and processed by implementations of the abstract class <a class="xref" href="../api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestParametersTransform.html">RequestParametersTransform</a>.</p>
+<p>Transforms fall into a few categories: request, response, and response trailers. Request and response body transforms are not supported by YARP but you can write middleware to do this. Request trailers are not supported because they are not supported by the underlying HttpClient.</p>
+<h3 id="request">Request</h3>
+<p>Request transforms include the request path, query, HTTP version, method, and headers. In code these are represented by the <a class="xref" href="../api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestTransformContext.html">RequestTransformContext</a> object and processed by implementations of the abstract class <a class="xref" href="../api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestTransform.html">RequestTransform</a>.</p>
 <p>Notes:</p>
 <ul>
-<li>The proxy request scheme (http/https), authority, and path base, are taken from the destination server address (<code>https://localhost:10001/Path/Base</code> in the example above) and cannot be modified by transforms.</li>
-<li>The Host header can be overridden by transforms independent of the authority, see <a href="#request-headers">Request Headers</a> below.</li>
-<li>The request's original PathBase property is not used when constructing the proxy request, see <a href="#x-forwarded">X-Forwarded</a> under <a href="#request-headers">Request Headers</a>.</li>
+<li>The proxy request scheme (http/https), authority, and path base, are taken from the destination server address (<code>https://localhost:10001/Path/Base</code> in the example above) and should not be modified by transforms.</li>
+<li>The Host header can be overridden by transforms independent of the authority, see <a href="#requestheader">RequestHeader</a> below.</li>
+<li>The request's original PathBase property is not used when constructing the proxy request, see <a href="#x-forwarded">X-Forwarded</a>.</li>
+<li>All incoming request headers are copied to the proxy request by default with the exception of the Host header (see <a href="#defaults">Defaults</a>). <a href="#x-forwarded">X-Forwarded</a> headers are also added by default. These behaviors can be configured using the following transforms. Additional request headers can be specified, or request headers can be excluded by setting them to an empty value.</li>
 </ul>
 <p>The following are built in transforms identified by their primary config key. These transforms are applied in the order they are specified in the route configuration.</p>
 <h4 id="pathprefix">PathPrefix</h4>
@@ -512,10 +513,6 @@ X-Forwarded-Host: IncomingHost:5000
 <pre><code class="lang-csharp">proxyRoute.AddTransformHttpMethod(fromHttpMethod: HttpMethods.Put, toHttpMethod: HttpMethods.Post);
 </code></pre>
 <p>This will change PUT requests to POST.</p>
-<h3 id="request-headers">Request Headers</h3>
-<p>All incoming request headers are copied to the proxy request by default with the exception of the Host header (see <a href="#defaults">Defaults</a>). <a href="#x-forwarded">X-Forwarded</a> headers are also added by default. These behaviors can be configured using the following transforms. Additional request headers can be specified, or request headers can be excluded by setting them to an empty value.</p>
-<p>In code these are implemented as derivations of the abstract class <a class="xref" href="../api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderTransform.html">RequestHeaderTransform</a>.</p>
-<p>Only one transform per header name is supported.</p>
 <h4 id="requestheaderscopy">RequestHeadersCopy</h4>
 <table>
 <thead>
@@ -786,9 +783,35 @@ X-Forwarded-PathBase: /path/base
 <pre><code>X-Client-Cert: SSdtIGEgY2VydGlmaWNhdGU...
 </code></pre>
 <p>This transform causes the client certificate taken from <code>HttpContext.Connection.ClientCertificate</code> to be Base64 encoded and set as the value for the given header name. This is needed because client certificates from incoming connections are not used when making connections to the destination server. The destination server may need that certificate to authenticate the client. There is no standard that defines this header and implementations vary, check your destination server for support.</p>
-<h3 id="response-headers-and-trailers">Response Headers and Trailers</h3>
-<p>All response headers and trailers are copied from the proxied response to the outgoing response. Response header and trailer transforms may specify if they should be applied only for successful responses of for all responses.</p>
-<p>In code these are implemented as derivations of the abstract class <a class="xref" href="../api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseHeaderTransform.html">ResponseHeaderTransform</a>.</p>
+<h3 id="response-and-response-trailers">Response and Response Trailers</h3>
+<p>All response headers and trailers are copied from the proxied response to the outgoing client response by default. Response and response trailer transforms may specify if they should be applied only for successful responses or for all responses.</p>
+<p>In code these are implemented as derivations of the abstract classes <a class="xref" href="../api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseTransform.html">ResponseTransform</a> and <a class="xref" href="../api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseTrailersTransform.html">ResponseTrailersTransform</a>.</p>
+<h4 id="responseheaderscopy">ResponseHeadersCopy</h4>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+<th>Default</th>
+<th>Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ResponseHeadersCopy</td>
+<td>true/false</td>
+<td>true</td>
+<td>yes</td>
+</tr>
+</tbody>
+</table>
+<p>Config:</p>
+<pre><code class="lang-JSON">{ &quot;ResponseHeadersCopy&quot;: &quot;false&quot; }
+</code></pre>
+<p>Code:</p>
+<pre><code class="lang-csharp">proxyRoute.AddTransformSuppressResponseHeaders();
+</code></pre>
+<p>This sets if all proxy response headers are copied to the client response. This setting is enabled by default and can be disabled by configuring the transform with a <code>false</code> value. Transforms that reference specific headers will still be run if this is disabled.</p>
 <h4 id="responseheader">ResponseHeader</h4>
 <table>
 <thead>
@@ -835,6 +858,32 @@ X-Forwarded-PathBase: /path/base
 </code></pre>
 <p>This sets or appends the value for the named header. Set replaces any existing header. Set a header to empty to remove it (e.g. <code>&quot;Set&quot;: &quot;&quot;</code>). Append adds an additional header with the given value.</p>
 <p><code>When</code> specifies if the response header should be included for successful responses or for all responses. Any response with a status code less than 400 is considered a success.</p>
+<h4 id="responsetrailerscopy">ResponseTrailersCopy</h4>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+<th>Default</th>
+<th>Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ResponseTrailersCopy</td>
+<td>true/false</td>
+<td>true</td>
+<td>yes</td>
+</tr>
+</tbody>
+</table>
+<p>Config:</p>
+<pre><code class="lang-JSON">{ &quot;ResponseTrailersCopy&quot;: &quot;false&quot; }
+</code></pre>
+<p>Code:</p>
+<pre><code class="lang-csharp">proxyRoute.AddTransformSuppressResponseTrailers();
+</code></pre>
+<p>This sets if all proxy response trailers are copied to the client response. This setting is enabled by default and can be disabled by configuring the transform with a <code>false</code> value. Transforms that reference specific headers will still be run if this is disabled.</p>
 <h4 id="responsetrailer">ResponseTrailer</h4>
 <table>
 <thead>

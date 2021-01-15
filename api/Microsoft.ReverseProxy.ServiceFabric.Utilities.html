@@ -5,10 +5,10 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Enum LoadBalancingMode
+    <title>Namespace Microsoft.ReverseProxy.ServiceFabric.Utilities
    </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="Enum LoadBalancingMode
+    <meta name="title" content="Namespace Microsoft.ReverseProxy.ServiceFabric.Utilities
    ">
     <meta name="generator" content="docfx 2.52.0.0">
     
@@ -68,58 +68,17 @@
         </div>
         <div class="article row grid-right">
           <div class="col-md-10">
-            <article class="content wrap" id="_content" data-uid="Microsoft.ReverseProxy.Abstractions.LoadBalancingMode">
+            <article class="content wrap" id="_content" data-uid="Microsoft.ReverseProxy.ServiceFabric.Utilities">
   
-  
-  <h1 id="Microsoft_ReverseProxy_Abstractions_LoadBalancingMode" data-uid="Microsoft.ReverseProxy.Abstractions.LoadBalancingMode" class="text-break">Enum LoadBalancingMode
+  <h1 id="Microsoft_ReverseProxy_ServiceFabric_Utilities" data-uid="Microsoft.ReverseProxy.ServiceFabric.Utilities" class="text-break">Namespace Microsoft.ReverseProxy.ServiceFabric.Utilities
   </h1>
-  <div class="markdown level0 summary"><p>Load balancing strategies for endpoint selection.</p>
-</div>
+  <div class="markdown level0 summary"></div>
   <div class="markdown level0 conceptual"></div>
-  <h6><strong>Namespace</strong>: <a class="xref" href="Microsoft.ReverseProxy.Abstractions.html">Microsoft.ReverseProxy.Abstractions</a></h6>
-  <h6><strong>Assembly</strong>: Microsoft.ReverseProxy.dll</h6>
-  <h5 id="Microsoft_ReverseProxy_Abstractions_LoadBalancingMode_syntax">Syntax</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public enum LoadBalancingMode</code></pre>
-  </div>
-  <h3 id="fields">Fields
+  <div class="markdown level0 remarks"></div>
+    <h3 id="classes">Classes
   </h3>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Description</th>
-      </tr>
-    <thead>
-    <tbody>
-      <tr>
-        <td id="Microsoft_ReverseProxy_Abstractions_LoadBalancingMode_First">First</td>
-        <td><p>Select the first endpoint without considering load. This is useful for dual endpoint fail-over systems.</p>
-</td>
-      </tr>
-      <tr>
-        <td id="Microsoft_ReverseProxy_Abstractions_LoadBalancingMode_LeastRequests">LeastRequests</td>
-        <td><p>Select the endpoint with the least assigned requests. This requires examining all nodes.</p>
-</td>
-      </tr>
-      <tr>
-        <td id="Microsoft_ReverseProxy_Abstractions_LoadBalancingMode_PowerOfTwoChoices">PowerOfTwoChoices</td>
-        <td><p>Select two random endpoints and then select the one with the least assigned requests.
-This avoids the overhead of LeastRequests and the worst case for Random where it selects a busy endpoint.</p>
-</td>
-      </tr>
-      <tr>
-        <td id="Microsoft_ReverseProxy_Abstractions_LoadBalancingMode_Random">Random</td>
-        <td><p>Select an endpoint randomly.</p>
-</td>
-      </tr>
-      <tr>
-        <td id="Microsoft_ReverseProxy_Abstractions_LoadBalancingMode_RoundRobin">RoundRobin</td>
-        <td><p>Selects an endpoint by cycling through them in order.</p>
-</td>
-      </tr>
-    </tbody>
-  </thead></thead></table>
+      <h4><a class="xref" href="Microsoft.ReverseProxy.ServiceFabric.Utilities.Cache-1.html">Cache&lt;T&gt;</a></h4>
+      <section></section>
 </article>
           </div>
           
@@ -127,12 +86,6 @@ This avoids the overhead of LeastRequests and the worst case for Random where it
             <div class="sideaffix">
               <div class="contribution">
                 <ul class="nav">
-                  <li>
-                    <a href="https://github.com/microsoft/reverse-proxy/new/release/docs/apiSpec/new?filename=Microsoft_ReverseProxy_Abstractions_LoadBalancingMode.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Abstractions.LoadBalancingMode%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
-                  </li>
-                  <li>
-                    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/src/ReverseProxy/Abstractions/ClusterDiscovery/Contract/LoadBalancingMode.cs/#L9" class="contribution-link">View Source</a>
-                  </li>
                 </ul>
               </div>
               <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">

@@ -77,6 +77,10 @@
   <div class="markdown level0 remarks"></div>
     <h3 id="interfaces">Interfaces
   </h3>
+      <h4><a class="xref" href="Microsoft.ReverseProxy.Utilities.IClock.html">IClock</a></h4>
+      <section><p>Abstraction over monotonic time providers
+(Environment.TickCount64, Stopwatch.GetTimestamp, as opposed to DateTime).</p>
+</section>
       <h4><a class="xref" href="Microsoft.ReverseProxy.Utilities.IRandomFactory.html">IRandomFactory</a></h4>
       <section><p>Factory for creating random class. This factory let us able to inject random class into other class.
 So that we can mock the random class for unit test.</p>

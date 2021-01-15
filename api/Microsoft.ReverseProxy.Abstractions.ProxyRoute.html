@@ -119,13 +119,14 @@ and proxies matching requests to the cluster identified by its <a class="xref" h
     <a href="https://github.com/microsoft/reverse-proxy/new/release/docs/apiSpec/new?filename=Microsoft_ReverseProxy_Abstractions_ProxyRoute_AuthorizationPolicy.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Abstractions.ProxyRoute.AuthorizationPolicy%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/src/ReverseProxy/Abstractions/RouteDiscovery/Contract/ProxyRoute.cs/#L40">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/src/ReverseProxy/Abstractions/RouteDiscovery/Contract/ProxyRoute.cs/#L41">View Source</a>
   </span>
   <a id="Microsoft_ReverseProxy_Abstractions_ProxyRoute_AuthorizationPolicy_" data-uid="Microsoft.ReverseProxy.Abstractions.ProxyRoute.AuthorizationPolicy*"></a>
   <h4 id="Microsoft_ReverseProxy_Abstractions_ProxyRoute_AuthorizationPolicy" data-uid="Microsoft.ReverseProxy.Abstractions.ProxyRoute.AuthorizationPolicy">AuthorizationPolicy</h4>
   <div class="markdown level1 summary"><p>The name of the AuthorizationPolicy to apply to this route.
 If not set then only the FallbackPolicy will apply.
-Set to &quot;Default&quot; to enable authorization with the applications default policy.</p>
+Set to &quot;Default&quot; to enable authorization with the applications default policy.
+Set to &quot;Anonymous&quot; to disable all authorization checks for this route.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
@@ -184,7 +185,7 @@ should be proxied to.</p>
     <a href="https://github.com/microsoft/reverse-proxy/new/release/docs/apiSpec/new?filename=Microsoft_ReverseProxy_Abstractions_ProxyRoute_CorsPolicy.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Abstractions.ProxyRoute.CorsPolicy%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/src/ReverseProxy/Abstractions/RouteDiscovery/Contract/ProxyRoute.cs/#L48">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/src/ReverseProxy/Abstractions/RouteDiscovery/Contract/ProxyRoute.cs/#L49">View Source</a>
   </span>
   <a id="Microsoft_ReverseProxy_Abstractions_ProxyRoute_CorsPolicy_" data-uid="Microsoft.ReverseProxy.Abstractions.ProxyRoute.CorsPolicy*"></a>
   <h4 id="Microsoft_ReverseProxy_Abstractions_ProxyRoute_CorsPolicy" data-uid="Microsoft.ReverseProxy.Abstractions.ProxyRoute.CorsPolicy">CorsPolicy</h4>
@@ -248,7 +249,7 @@ Set to &quot;Disable&quot; to refuses cors requests for this route.</p>
     <a href="https://github.com/microsoft/reverse-proxy/new/release/docs/apiSpec/new?filename=Microsoft_ReverseProxy_Abstractions_ProxyRoute_Metadata.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Abstractions.ProxyRoute.Metadata%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/src/ReverseProxy/Abstractions/RouteDiscovery/Contract/ProxyRoute.cs/#L53">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/src/ReverseProxy/Abstractions/RouteDiscovery/Contract/ProxyRoute.cs/#L54">View Source</a>
   </span>
   <a id="Microsoft_ReverseProxy_Abstractions_ProxyRoute_Metadata_" data-uid="Microsoft.ReverseProxy.Abstractions.ProxyRoute.Metadata*"></a>
   <h4 id="Microsoft_ReverseProxy_Abstractions_ProxyRoute_Metadata" data-uid="Microsoft.ReverseProxy.Abstractions.ProxyRoute.Metadata">Metadata</h4>
@@ -341,7 +342,7 @@ Set to &quot;Disable&quot; to refuses cors requests for this route.</p>
     <a href="https://github.com/microsoft/reverse-proxy/new/release/docs/apiSpec/new?filename=Microsoft_ReverseProxy_Abstractions_ProxyRoute_Transforms.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Abstractions.ProxyRoute.Transforms%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/src/ReverseProxy/Abstractions/RouteDiscovery/Contract/ProxyRoute.cs/#L58">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/src/ReverseProxy/Abstractions/RouteDiscovery/Contract/ProxyRoute.cs/#L59">View Source</a>
   </span>
   <a id="Microsoft_ReverseProxy_Abstractions_ProxyRoute_Transforms_" data-uid="Microsoft.ReverseProxy.Abstractions.ProxyRoute.Transforms*"></a>
   <h4 id="Microsoft_ReverseProxy_Abstractions_ProxyRoute_Transforms" data-uid="Microsoft.ReverseProxy.Abstractions.ProxyRoute.Transforms">Transforms</h4>
@@ -382,6 +383,12 @@ Set to &quot;Disable&quot; to refuses cors requests for this route.</p>
   </div>
   <div>
       <a class="xref" href="Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.html#Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformSuppressRequestHeaders_Microsoft_ReverseProxy_Abstractions_ProxyRoute_">ProxyRouteTransformExtensions.AddTransformSuppressRequestHeaders(ProxyRoute)</a>
+  </div>
+  <div>
+      <a class="xref" href="Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.html#Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformSuppressResponseHeaders_Microsoft_ReverseProxy_Abstractions_ProxyRoute_">ProxyRouteTransformExtensions.AddTransformSuppressResponseHeaders(ProxyRoute)</a>
+  </div>
+  <div>
+      <a class="xref" href="Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.html#Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformSuppressResponseTrailers_Microsoft_ReverseProxy_Abstractions_ProxyRoute_">ProxyRouteTransformExtensions.AddTransformSuppressResponseTrailers(ProxyRoute)</a>
   </div>
   <div>
       <a class="xref" href="Microsoft.ReverseProxy.Service.ProxyRouteTransformExtensions.html#Microsoft_ReverseProxy_Service_ProxyRouteTransformExtensions_AddTransformUseOriginalHostHeader_Microsoft_ReverseProxy_Abstractions_ProxyRoute_">ProxyRouteTransformExtensions.AddTransformUseOriginalHostHeader(ProxyRoute)</a>

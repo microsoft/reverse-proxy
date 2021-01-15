@@ -127,9 +127,13 @@
 }
 </code></pre>
 <p>See the <a href="https://docs.microsoft.com/en-us/aspnet/core/security/authentication/">Authentication</a> docs for setting up your preferred kind of authentication.</p>
-<h3 id="defaultpolicy">DefaultPolicy</h3>
+<h3 id="special-values">Special values:</h3>
+<p>In addition to custom policy names, there are two special values that can be specified in a route's authorization parameter: <code>default</code> and <code>anonymous</code>. ASP.NET Core also has a FallbackPolicy setting that applies to routes that do not specify a policy.</p>
+<h4 id="defaultpolicy">DefaultPolicy</h4>
 <p>Specifying the value <code>default</code> in a route's authorization parameter means that route will use the policy defined in <a href="https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.authorization.authorizationoptions.defaultpolicy?#Microsoft_AspNetCore_Authorization_AuthorizationOptions_DefaultPolicy">AuthorizationOptions.DefaultPolicy</a>. That policy is pre-configured to require authenticated users.</p>
-<h3 id="fallbackpolicy">FallbackPolicy</h3>
+<h4 id="anonymous">Anonymous</h4>
+<p>Specifying the value <code>anonymous</code> in a route's authorization parameter means that route will not require authorization regardless of any other configuration in the application such as the FallbackPolicy.</p>
+<h4 id="fallbackpolicy">FallbackPolicy</h4>
 <p><a href="https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.authorization.authorizationoptions.fallbackpolicy">AuthorizationOptions.FallbackPolicy</a> is the policy that will be used for any request or route that was not configured with a policy. FallbackPolicy does not have a value by default, any request will be allowed.</p>
 <h2 id="flowing-credentials">Flowing Credentials</h2>
 <p>Even after a request has been authorized in the proxy, the destination server may still need to know who the user is (authentication) and what they're allowed to do (authorization). How you flow that information will depend on the type of authentication being used.</p>

@@ -75,8 +75,9 @@
 <p><a class="xref" href="../api/Microsoft.ReverseProxy.Service.Proxy.IHttpProxy.html">IHttpProxy</a> serves as the core proxy adapter between incoming AspNetCore and outgoing System.Net.Http requests. It handles the mechanics of creating a HttpRequestMessage from a HttpContext, sending it, and relaying the response.</p>
 <p>IHttpProxy supports:</p>
 <ul>
-<li>Dynamic destination selection, you specify the destination for each request.</li>
-<li>Http client customization, you provide the HttpMessageInvoker.</li>
+<li>Dynamic destination selection, you specify the destination for each request</li>
+<li>Http client customization, you provide the HttpMessageInvoker</li>
+<li>Request and response customization (except bodies)</li>
 <li>Streaming protocols like gRPC and WebSockets</li>
 <li>Error handling</li>
 </ul>
@@ -107,21 +108,8 @@ public void Configure(IApplicationBuilder app, IHttpProxy httpProxy)
         AutomaticDecompression = DecompressionMethods.None,
         UseCookies = false
     });
-    var proxyOptions = new RequestProxyOptions()
-    {
-        RequestTimeout = TimeSpan.FromSeconds(100),
-        // Copy all request headers except Host
-        Transforms = new Transforms(
-            copyRequestHeaders: true,
-            requestTransforms: Array.Empty&lt;RequestParametersTransform&gt;(),
-            requestHeaderTransforms: new Dictionary&lt;string, RequestHeaderTransform&gt;()
-            {
-                { HeaderNames.Host,
-                  new RequestHeaderValueTransform(string.Empty, append: false) }
-            },
-            responseHeaderTransforms: new Dictionary&lt;string, ResponseHeaderTransform&gt;(),
-            responseTrailerTransforms: new Dictionary&lt;string, ResponseHeaderTransform&gt;())
-    };
+    var transformer = new CustomTransformer(); // or HttpTransformer.Default;
+    var requestOptions = new RequestProxyOptions(TimeSpan.FromSeconds(100), null);
 
     app.UseRouting();
     app.UseAuthorization();
@@ -129,8 +117,8 @@ public void Configure(IApplicationBuilder app, IHttpProxy httpProxy)
     {
         endpoints.Map(&quot;/{**catch-all}&quot;, async httpContext =&gt;
         {
-            await httpProxy.ProxyAsync(
-                httpContext, &quot;https://localhost:10000/prefix/&quot;, httpClient, proxyOptions);
+            await httpProxy.ProxyAsync(httpContext, &quot;https://localhost:10000/&quot;, httpClient,
+                requestOptions, transformer);
 
             var errorFeature = httpContext.Features.Get&lt;IProxyErrorFeature&gt;();
             if (errorFeature != null)
@@ -142,12 +130,25 @@ public void Configure(IApplicationBuilder app, IHttpProxy httpProxy)
     });
 }
 </code></pre>
+<p>C#</p>
+<pre><code>private class CustomTransformer : HttpTransformer
+{
+    public override async Task TransformRequestAsync(HttpContext httpContext,
+        HttpRequestMessage proxyRequest, string destinationPrefix)
+    {
+        // Copy headers normally and then remove the original host.
+        // Use the destination host from proxyRequest.RequestUri instead.
+        await base.TransformRequestAsync(httpContext, proxyRequest, destinationPrefix);
+        proxyRequest.Headers.Host = null;
+    }
+}
+</code></pre>
 <h3 id="the-http-client">The HTTP Client</h3>
 <p>The http client may be customized, but the above example is recommended for common proxy scenarios.</p>
 <p>Always use HttpMessageInvoker rather than HttpClient, HttpClient buffers responses by default. Buffering breaks streaming scenarios and increases memory usage and latency.</p>
 <p>Re-using a client for requests to the same destination is recommended for performance reasons as it allows you to re-use pooled connections. A client may also be re-used for requests to different destinations if the configuration is the same.</p>
 <h3 id="transforms">Transforms</h3>
-<p>The request and response can be modified by providing <a href="transforms.html">transforms</a> on the <a class="xref" href="../api/Microsoft.ReverseProxy.Service.Proxy.RequestProxyOptions.html">RequestProxyOptions</a>.</p>
+<p>The request and response can be modified by providing a derived <a class="xref" href="../api/Microsoft.ReverseProxy.Service.Proxy.HttpTransformer.html">HttpTransformer</a> as a parameter to <a class="xref" href="../api/Microsoft.ReverseProxy.Service.Proxy.IHttpProxy.html"><code>ProxyAsync</code></a> method.</p>
 <h3 id="error-handling">Error handling</h3>
 <p>IHttpProxy catches exceptions and timeouts from the HTTP client, logs them, and converts them to 5xx status codes or aborts the response. The error details, if any, can be accessed from the <a class="xref" href="../api/Microsoft.ReverseProxy.Service.Proxy.IProxyErrorFeature.html">IProxyErrorFeature</a> as shown above.</p>
 </article>

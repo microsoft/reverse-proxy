@@ -146,14 +146,14 @@
 <h3 id="httprequest">HttpRequest</h3>
 <p>HTTP request configuration is based on <a class="xref" href="../api/Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions.html">ProxyHttpRequestOptions</a> and represented by the following configuration schema.</p>
 <pre><code class="lang-JSON">&quot;HttpRequest&quot;: {
-    &quot;RequestTimeout&quot;: &quot;&lt;timespan&gt;&quot;,
+    &quot;Timeout&quot;: &quot;&lt;timespan&gt;&quot;,
     &quot;Version&quot;: &quot;&lt;string&gt;&quot;,
     &quot;VersionPolicy&quot;: [&quot;RequestVersionOrLower&quot;, &quot;RequestVersionOrHigher&quot;, &quot;RequestVersionExact&quot;]
 }
 </code></pre>
 <p>Configuration settings:</p>
 <ul>
-<li>RequestTimeout - the timeout for the outgoing request sent by <a href="https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httpmessageinvoker.sendasync?view=netcore-3.1">HttpMessageInvoker.SendAsync</a>. If not specified, 100 seconds is used.</li>
+<li>Timeout - the timeout for the outgoing request sent by <a href="https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httpmessageinvoker.sendasync?view=netcore-3.1">HttpMessageInvoker.SendAsync</a>. If not specified, 100 seconds is used.</li>
 <li>Version - outgoing request <a href="https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httprequestmessage.version?view=netcore-3.1">version</a>. The supported values at the moment are <code>1.0</code>, <code>1.1</code> and <code>2</code>. Default value is 2.</li>
 <li>VersionPolicy - defines how the final version is selected for the outgoing requests. This feature is available from .NET 5.0, see <a href="https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httprequestmessage.versionpolicy?view=net-5.0">HttpRequestMessage.VersionPolicy</a>. The default value is <code>RequestVersionOrLower</code>.</li>
 </ul>
@@ -162,9 +162,7 @@
 <pre><code class="lang-JSON">{
     &quot;Clusters&quot;: {
         &quot;cluster1&quot;: {
-            &quot;LoadBalancing&quot;: {
-                &quot;Mode&quot;: &quot;Random&quot;
-            },
+            &quot;LoadBalancingPolicy&quot;: &quot;Random&quot;,
             &quot;HttpClient&quot;: {
                 &quot;SslProtocols&quot;: [
                     &quot;Tls11&quot;,
@@ -174,7 +172,7 @@
                 &quot;DangerousAcceptAnyServerCertificate&quot;: &quot;true&quot;
             },
             &quot;HttpRequest&quot;: {
-                &quot;RequestTimeout&quot;: &quot;00:00:30&quot;
+                &quot;Timeout&quot;: &quot;00:00:30&quot;
             },
             &quot;Destinations&quot;: {
                 &quot;cluster1/destination1&quot;: {
