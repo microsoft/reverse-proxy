@@ -3,6 +3,9 @@
 
 namespace Microsoft.ReverseProxy.Telemetry.Consumption
 {
+    /// <summary>
+    /// Stages of proxying a request.
+    /// </summary>
     public enum ProxyStage : int
     {
         SendAsyncStart = 1,
