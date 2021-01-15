@@ -1538,6 +1538,47 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 destinationPrefix, httpClient, requestOptions, transforms));
         }
 
+        [Theory]
+        [InlineData("Foo", "HTTP/1.1", false)]
+        [InlineData("Foo", "HTTP/2", false)]
+        [InlineData("Transfer-Encoding", "HTTP/1.1", true)]
+        [InlineData("Transfer-Encoding", "HTTP/2", true)]
+        [InlineData("Connection", "HTTP/1.1", false)]
+        [InlineData("Connection", "HTTP/2", true)]
+        [InlineData("Keep-Alive", "HTTP/1.1", false)]
+        [InlineData("Keep-Alive", "HTTP/2", true)]
+        [InlineData("Upgrade", "HTTP/1.1", false)]
+        [InlineData("Upgrade", "HTTP/2", true)]
+        [InlineData("Proxy-Connection", "HTTP/1.1", false)]
+        [InlineData("Proxy-Connection", "HTTP/2", true)]
+        public async Task ProxyAsync_DropsInvalidResponseHeaders(string responseHeaderName, string requestProtocol, bool shouldDrop)
+        {
+            var events = TestEventListener.Collect();
+
+            var httpContext = new DefaultHttpContext();
+            httpContext.Request.Method = "GET";
+            httpContext.Request.Protocol = requestProtocol;
+
+            var destinationPrefix = "https://localhost:123/a/b/";
+            var sut = CreateProxy();
+            var client = MockHttpHandler.CreateClient(
+                async (HttpRequestMessage request, CancellationToken cancellationToken) =>
+                {
+                    await Task.Yield();
+                    var response = new HttpResponseMessage(HttpStatusCode.OK);
+                    response.Content = new StringContent("Foo");
+                    response.Headers.Add(responseHeaderName, "Bar");
+                    return response;
+                });
+
+            await sut.ProxyAsync(httpContext, destinationPrefix, client);
+
+            Assert.Equal(!shouldDrop, httpContext.Response.Headers.ContainsKey(responseHeaderName));
+
+            AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
+            events.AssertContainProxyStages(hasRequestContent: false);
+        }
+
         private static void AssertProxyStartStop(List<EventWrittenEventArgs> events, string destinationPrefix, int statusCode)
         {
             AssertProxyStartFailedStop(events, destinationPrefix, statusCode, error: null);

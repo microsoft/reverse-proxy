@@ -68,10 +68,10 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         public virtual Task TransformResponseAsync(HttpContext httpContext, HttpResponseMessage proxyResponse)
         {
             var responseHeaders = httpContext.Response.Headers;
-            CopyResponseHeaders(proxyResponse.Headers, responseHeaders);
+            CopyResponseHeaders(httpContext, proxyResponse.Headers, responseHeaders);
             if (proxyResponse.Content != null)
             {
-                CopyResponseHeaders(proxyResponse.Content.Headers, responseHeaders);
+                CopyResponseHeaders(httpContext, proxyResponse.Content.Headers, responseHeaders);
             }
 
             return Task.CompletedTask;
@@ -93,22 +93,25 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             {
                 // Note that trailers, if any, should already have been declared in Proxy's response
                 // by virtue of us having proxied all response headers in step 6.
-                CopyResponseHeaders(proxyResponse.TrailingHeaders, outgoingTrailers);
+                CopyResponseHeaders(httpContext, proxyResponse.TrailingHeaders, outgoingTrailers);
             }
 
             return Task.CompletedTask;
         }
 
 
-        private static void CopyResponseHeaders(HttpHeaders source, IHeaderDictionary destination)
+        private static void CopyResponseHeaders(HttpContext httpContext, HttpHeaders source, IHeaderDictionary destination)
         {
+            var isHttp2OrGreater = ProtocolHelper.IsHttp2OrGreater(httpContext.Request.Protocol);
+
             foreach (var header in source)
             {
                 var headerName = header.Key;
-                if (RequestUtilities.ResponseHeadersToSkip.Contains(headerName))
+                if (RequestUtilities.ShouldSkipResponseHeader(headerName, isHttp2OrGreater))
                 {
                     continue;
                 }
+
                 destination.Append(headerName, header.Value.ToArray());
             }
         }
