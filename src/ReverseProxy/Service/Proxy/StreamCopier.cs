@@ -34,7 +34,6 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 
             var telemetryEnabled = ProxyTelemetry.Log.IsEnabled();
 
-            // TODO: Consider System.IO.Pipelines for better perf (e.g. reads during writes)
             var buffer = ArrayPool<byte>.Shared.Rent(DefaultBufferSize);
             var reading = true;
 
