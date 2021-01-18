@@ -18,6 +18,8 @@
   href: cors.md
 - name: Session Affinity
   href: session-affinity.md
+- name: Load Balancing
+  href: load-balancing.md
 - name: Transforms
   href: transforms.md
 - name: Destinations Health Checks
