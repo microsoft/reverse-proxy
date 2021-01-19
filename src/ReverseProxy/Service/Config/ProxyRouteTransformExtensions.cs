@@ -16,9 +16,21 @@ namespace Microsoft.ReverseProxy.Service
         /// <returns>The cloned route with the new transform.</returns>
         public static ProxyRoute WithTransform(this ProxyRoute proxyRoute, IReadOnlyDictionary<string, string> transform)
         {
-            var transforms = proxyRoute.Transforms == null ?
-                new List<IReadOnlyDictionary<string, string>>()
-                : new List<IReadOnlyDictionary<string, string>>(proxyRoute.Transforms);
+            if (transform is null)
+            {
+                throw new ArgumentNullException(nameof(transform));
+            }
+
+            List<IReadOnlyDictionary<string, string>> transforms;
+            if (proxyRoute.Transforms == null)
+            {
+                transforms = new List<IReadOnlyDictionary<string, string>>();
+            }
+            else
+            {
+                transforms = new List<IReadOnlyDictionary<string, string>>(proxyRoute.Transforms.Count + 1);
+                transforms.AddRange(proxyRoute.Transforms);
+            }
 
             transforms.Add(transform);
 

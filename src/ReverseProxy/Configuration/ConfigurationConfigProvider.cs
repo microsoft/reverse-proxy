@@ -185,7 +185,8 @@ namespace Microsoft.ReverseProxy.Configuration
                 return null;
             }
 
-            return children.Select(s => new ReadOnlyDictionary<string, string>(s.GetChildren().ToDictionary(d => d.Key, d => d.Value, StringComparer.OrdinalIgnoreCase)))
+            return children.Select(subSection => new ReadOnlyDictionary<string, string>(
+                    subSection.GetChildren().ToDictionary(d => d.Key, d => d.Value, StringComparer.OrdinalIgnoreCase)))
                 .ToList<IReadOnlyDictionary<string, string>>().AsReadOnly();
         }
 
@@ -193,7 +194,7 @@ namespace Microsoft.ReverseProxy.Configuration
         {
             if (!section.Exists())
             {
-                return new ProxyMatch();
+                return null;
             }
 
             return new ProxyMatch()
@@ -217,15 +218,13 @@ namespace Microsoft.ReverseProxy.Configuration
 
         private static RouteHeader CreateRouteHeader(IConfigurationSection section)
         {
-            var routeHeader = new RouteHeader()
+            return new RouteHeader()
             {
                 Name = section[nameof(RouteHeader.Name)],
                 Values = section.GetSection(nameof(RouteHeader.Values)).ReadStringArray(),
                 Mode = section.ReadEnum<HeaderMatchMode>(nameof(RouteHeader.Mode)) ?? HeaderMatchMode.ExactHeader,
                 IsCaseSensitive = section.ReadBool(nameof(RouteHeader.IsCaseSensitive)) ?? false,
             };
-
-            return routeHeader;
         }
 
         private static SessionAffinityOptions CreateSessionAffinityOptions(IConfigurationSection section)
