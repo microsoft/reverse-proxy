@@ -1,13 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Cors.Infrastructure;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.ReverseProxy.Abstractions;
@@ -15,7 +12,6 @@ using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Management;
 using Microsoft.ReverseProxy.Service.Proxy;
 using Microsoft.ReverseProxy.Service.Routing;
-using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Service.DynamicEndpoint
@@ -59,7 +55,6 @@ namespace Microsoft.ReverseProxy.Service.DynamicEndpoint
             var (routeEndpoint, routeConfig) = CreateEndpoint(factory, routeInfo, route, cluster);
 
             Assert.Same(cluster, routeConfig.Cluster);
-            Assert.Equal(12, routeConfig.Order);
             Assert.Equal("route1", routeEndpoint.DisplayName);
             Assert.Same(routeConfig, routeEndpoint.Metadata.GetMetadata<RouteConfig>());
             Assert.Equal("/a", routeEndpoint.RoutePattern.RawText);
@@ -105,7 +100,6 @@ namespace Microsoft.ReverseProxy.Service.DynamicEndpoint
             var (routeEndpoint, routeConfig) = CreateEndpoint(factory, routeInfo, route, cluster);
 
             Assert.Same(cluster, routeConfig.Cluster);
-            Assert.Equal(12, routeConfig.Order);
             Assert.Equal("route1", routeEndpoint.DisplayName);
             Assert.Same(routeConfig, routeEndpoint.Metadata.GetMetadata<RouteConfig>());
             Assert.Equal("/{**catchall}", routeEndpoint.RoutePattern.RawText);
@@ -140,7 +134,6 @@ namespace Microsoft.ReverseProxy.Service.DynamicEndpoint
             var (routeEndpoint, routeConfig) = CreateEndpoint(factory, routeInfo, route, cluster);
 
             Assert.Same(cluster, routeConfig.Cluster);
-            Assert.Equal(12, routeConfig.Order);
             Assert.Equal("route1", routeEndpoint.DisplayName);
             Assert.Same(routeConfig, routeEndpoint.Metadata.GetMetadata<RouteConfig>());
             Assert.Equal("/{**catchall}", routeEndpoint.RoutePattern.RawText);
@@ -175,7 +168,6 @@ namespace Microsoft.ReverseProxy.Service.DynamicEndpoint
             var (routeEndpoint, routeConfig) = CreateEndpoint(factory, routeInfo, route, cluster);
 
             Assert.Same(cluster, routeConfig.Cluster);
-            Assert.Equal(12, routeConfig.Order);
             Assert.Equal("route1", routeEndpoint.DisplayName);
             Assert.Same(routeConfig, routeEndpoint.Metadata.GetMetadata<RouteConfig>());
             Assert.Equal("/a", routeEndpoint.RoutePattern.RawText);
@@ -205,7 +197,6 @@ namespace Microsoft.ReverseProxy.Service.DynamicEndpoint
             var (routeEndpoint, routeConfig) = CreateEndpoint(factory, routeInfo, route, cluster);
 
             Assert.Same(cluster, routeConfig.Cluster);
-            Assert.Equal(12, routeConfig.Order);
             Assert.Equal("route1", routeEndpoint.DisplayName);
             Assert.Same(routeConfig, routeEndpoint.Metadata.GetMetadata<RouteConfig>());
             Assert.Equal("/{**catchall}", routeEndpoint.RoutePattern.RawText);

@@ -30,14 +30,11 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         {
             Route = route ?? throw new ArgumentNullException(nameof(route));
             ProxyRoute = proxyRoute ?? throw new ArgumentNullException(nameof(proxyRoute));
-            Order = proxyRoute.Order;
             Cluster = cluster;
             Transformer = transformer;
         }
 
         public RouteInfo Route { get; }
-
-        public int? Order { get; }
 
         // May not be populated if the cluster config is missing.
         public ClusterInfo Cluster { get; }
