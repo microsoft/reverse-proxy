@@ -109,7 +109,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             {
                 RouteId = "route1",
                 ClusterId = "cluster1",
-                Match = { Path = "/" }
+                Match = new ProxyMatch { Path = "/" }
             };
 
             var services = CreateServices(new List<ProxyRoute>() { route }, new List<Cluster>() { cluster });
@@ -163,7 +163,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             {
                 RouteId = "route1",
                 ClusterId = "cluster1",
-                Match = { Path = "/" }
+                Match = new ProxyMatch { Path = "/" }
             };
 
             var services = CreateServices(new List<ProxyRoute>() { route }, new List<Cluster>() { cluster });
@@ -213,7 +213,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
 
             // updating should signal the current change token
             Assert.False(signaled1.Task.IsCompleted);
-            inMemoryConfig.Update(new List<ProxyRoute>() { new ProxyRoute() { RouteId = "r1", Match = { Path = "/" } } }, new List<Cluster>());
+            inMemoryConfig.Update(new List<ProxyRoute>() { new ProxyRoute() { RouteId = "r1", Match = new ProxyMatch { Path = "/" } } }, new List<Cluster>());
             await signaled1.Task.DefaultTimeout();
 
             var changeToken2 = dataSource.GetChangeToken();
@@ -226,7 +226,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
 
             // updating again should only signal the new change token
             Assert.False(signaled2.Task.IsCompleted);
-            inMemoryConfig.Update(new List<ProxyRoute>() { new ProxyRoute() { RouteId = "r2", Match = { Path = "/" } } }, new List<Cluster>());
+            inMemoryConfig.Update(new List<ProxyRoute>() { new ProxyRoute() { RouteId = "r2", Match = new ProxyMatch { Path = "/" } } }, new List<Cluster>());
             await signaled2.Task.DefaultTimeout();
 
             Assert.NotNull(readEndpoints1);
@@ -260,7 +260,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
         [Fact]
         public async Task LoadAsync_RouteValidationError_Throws()
         {
-            var route1 = new ProxyRoute { RouteId = "route1", Match = { Hosts = new[] { "invalid host name" } }, ClusterId = "cluster1" };
+            var route1 = new ProxyRoute { RouteId = "route1", Match = new ProxyMatch { Hosts = new[] { "invalid host name" } }, ClusterId = "cluster1" };
             var services = CreateServices(new List<ProxyRoute>() { route1 }, new List<Cluster>());
             var configManager = services.GetRequiredService<ProxyConfigManager>();
 
@@ -276,7 +276,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
         [Fact]
         public async Task LoadAsync_ConfigFilterRouteActions_CanFixBrokenRoute()
         {
-            var route1 = new ProxyRoute { RouteId = "route1", Match = { Hosts = new[] { "invalid host name" } }, Order = 1, ClusterId = "cluster1" };
+            var route1 = new ProxyRoute { RouteId = "route1", Match = new ProxyMatch { Hosts = new[] { "invalid host name" } }, Order = 1, ClusterId = "cluster1" };
             var services = CreateServices(new List<ProxyRoute>() { route1 }, new List<Cluster>(), proxyBuilder =>
             {
                 proxyBuilder.AddProxyConfigFilter<FixRouteHostFilter>();
@@ -302,9 +302,9 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
                 return Task.CompletedTask;
             }
 
-            public Task<ProxyRoute> ConfigureRouteAsync(ProxyRoute route, CancellationToken cancel)
+            public ValueTask<ProxyRoute> ConfigureRouteAsync(ProxyRoute route, CancellationToken cancel)
             {
-                return Task.FromResult(route with
+                return new ValueTask<ProxyRoute>(route with
                 {
                     Match = route.Match with { Hosts = new[] { "example.com" } }
                 });
@@ -319,9 +319,9 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
                 return Task.CompletedTask;
             }
 
-            public Task<ProxyRoute> ConfigureRouteAsync(ProxyRoute route, CancellationToken cancel)
+            public ValueTask<ProxyRoute> ConfigureRouteAsync(ProxyRoute route, CancellationToken cancel)
             {
-                return Task.FromResult(route with { Order = 12 });
+                return new ValueTask<ProxyRoute>(route with { Order = 12 });
             }
         }
 
@@ -355,7 +355,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
                 throw new NotFiniteNumberException("Test exception");
             }
 
-            public Task<ProxyRoute> ConfigureRouteAsync(ProxyRoute route, CancellationToken cancel)
+            public ValueTask<ProxyRoute> ConfigureRouteAsync(ProxyRoute route, CancellationToken cancel)
             {
                 throw new NotFiniteNumberException("Test exception");
             }
@@ -384,8 +384,8 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
         [Fact]
         public async Task LoadAsync_ConfigFilterRouteActionThrows_Throws()
         {
-            var route1 = new ProxyRoute { RouteId = "route1", Match = { Hosts = new[] { "example.com" } }, Order = 1, ClusterId = "cluster1" };
-            var route2 = new ProxyRoute { RouteId = "route2", Match = { Hosts = new[] { "example2.com" } }, Order = 1, ClusterId = "cluster2" };
+            var route1 = new ProxyRoute { RouteId = "route1", Match = new ProxyMatch { Hosts = new[] { "example.com" } }, Order = 1, ClusterId = "cluster1" };
+            var route2 = new ProxyRoute { RouteId = "route2", Match = new ProxyMatch { Hosts = new[] { "example2.com" } }, Order = 1, ClusterId = "cluster2" };
             var services = CreateServices(new List<ProxyRoute>() { route1, route2 }, new List<Cluster>(), proxyBuilder =>
             {
                 proxyBuilder.AddProxyConfigFilter<ClusterAndRouteThrows>();

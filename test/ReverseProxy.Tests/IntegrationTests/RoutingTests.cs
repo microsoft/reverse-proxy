@@ -28,7 +28,7 @@ namespace Microsoft.ReverseProxy.IntegrationTests
                 {
                     RouteId = "route1",
                     ClusterId = "cluster1",
-                    Match = { Path = "/api/{**catchall}" }
+                    Match = new ProxyMatch { Path = "/api/{**catchall}" }
                 }
             };
 
@@ -54,7 +54,7 @@ namespace Microsoft.ReverseProxy.IntegrationTests
                 {
                     RouteId = "route1",
                     ClusterId = "cluster1",
-                    Match = { Hosts = new[] { "*.example.com" } }
+                    Match = new ProxyMatch { Hosts = new[] { "*.example.com" } }
                 }
             };
 
@@ -80,7 +80,7 @@ namespace Microsoft.ReverseProxy.IntegrationTests
                 {
                     RouteId = "route1",
                     ClusterId = "cluster1",
-                    Match =
+                    Match = new ProxyMatch
                     {
                         Path = "/{**catchall}",
                         Headers = new[]
@@ -134,7 +134,7 @@ namespace Microsoft.ReverseProxy.IntegrationTests
                 {
                     RouteId = "route1",
                     ClusterId = "cluster1",
-                    Match =
+                    Match = new ProxyMatch
                     {
                         Path = "/{**catchall}",
                         Headers = new[]
@@ -151,7 +151,7 @@ namespace Microsoft.ReverseProxy.IntegrationTests
                 {
                     RouteId = "route2",
                     ClusterId = "cluster1",
-                    Match =
+                    Match = new ProxyMatch
                     {
                         Path = "/{**catchall}",
                         Headers = new[]
@@ -168,7 +168,7 @@ namespace Microsoft.ReverseProxy.IntegrationTests
                 {
                     RouteId = "route3",
                     ClusterId = "cluster1",
-                    Match =
+                    Match = new ProxyMatch
                     {
                         Path = "/{**catchall}",
                         Headers = new[]
@@ -245,13 +245,13 @@ namespace Microsoft.ReverseProxy.IntegrationTests
                 {
                     RouteId = "route1",
                     ClusterId = "cluster1",
-                    Match = { Path = "/route1" }
+                    Match = new ProxyMatch { Path = "/route1" }
                 },
                 new ProxyRoute()
                 {
                     RouteId = "route2",
                     ClusterId = "cluster1",
-                    Match =
+                    Match = new ProxyMatch
                     {
                         Path = "/{**catchall}",
                         Methods = new[] { "GET" },
@@ -261,7 +261,7 @@ namespace Microsoft.ReverseProxy.IntegrationTests
                 {
                     RouteId = "route3",
                     ClusterId = "cluster1",
-                    Match =
+                    Match = new ProxyMatch
                     {
                         Hosts = new[] { "localhost" }
                     }
@@ -270,7 +270,7 @@ namespace Microsoft.ReverseProxy.IntegrationTests
                 {
                     RouteId = "route4",
                     ClusterId = "cluster1",
-                    Match =
+                    Match = new ProxyMatch
                     {
                         Path = "/{**catchall}",
                         Headers = new[]

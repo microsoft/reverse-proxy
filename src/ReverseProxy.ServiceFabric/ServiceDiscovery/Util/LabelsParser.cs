@@ -210,7 +210,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                 var route = new ProxyRoute
                 {
                     RouteId = $"{Uri.EscapeDataString(backendId)}:{Uri.EscapeDataString(routeNamePair.Value)}",
-                    Match =
+                    Match = new ProxyMatch
                     {
                         Hosts = SplitHosts(hosts),
                         Path = path,

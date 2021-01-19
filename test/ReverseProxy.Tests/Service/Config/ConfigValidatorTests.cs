@@ -54,7 +54,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var route = new ProxyRoute
             {
                 RouteId = "route1",
-                Match =
+                Match = new ProxyMatch
                 {
                     Hosts = host?.Split(",") ?? Array.Empty<string>(),
                     Path = path,
@@ -87,6 +87,24 @@ namespace Microsoft.ReverseProxy.Service.Tests
             Assert.Contains(result, err => err.Message.Equals("Missing Route Id."));
         }
 
+        [Fact]
+        public async Task Rejects_MissingMatch()
+        {
+            var route = new ProxyRoute
+            {
+                RouteId = "route1",
+                ClusterId = "cluster1",
+            };
+
+            var services = CreateServices();
+            var validator = services.GetRequiredService<IConfigValidator>();
+
+            var result = await validator.ValidateRouteAsync(route);
+
+            Assert.NotEmpty(result);
+            Assert.Contains(result, err => err.Message.Equals("Route 'route1' did not set any match criteria, it requires Hosts or Path specified. Set the Path to '/{**catchall}' to match all requests."));
+        }
+
         [Theory]
         [InlineData(null)]
         [InlineData("")]
@@ -97,7 +115,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             {
                 RouteId = "route1",
                 ClusterId = "cluster1",
-                Match =
+                Match = new ProxyMatch
                 {
                     Hosts = host?.Split(",")
                 },
@@ -130,7 +148,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var route = new ProxyRoute
             {
                 RouteId = "route1",
-                Match =
+                Match = new ProxyMatch
                 {
                     Hosts = host.Split(","),
                 },
@@ -156,7 +174,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var route = new ProxyRoute
             {
                 RouteId = "route1",
-                Match =
+                Match = new ProxyMatch()
                 {
                     Path = path,
                 },
@@ -180,7 +198,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var route = new ProxyRoute
             {
                 RouteId = "route1",
-                Match =
+                Match = new ProxyMatch
                 {
                     Methods = methods.Split(","),
                 },
@@ -204,7 +222,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var route = new ProxyRoute
             {
                 RouteId = "route1",
-                Match =
+                Match = new ProxyMatch
                 {
                     Methods = methods.Split(","),
                 },
@@ -226,7 +244,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var route = new ProxyRoute
             {
                 RouteId = "route1",
-                Match =
+                Match = new ProxyMatch
                 {
                     Path = "/",
                     Headers = new[]
@@ -255,7 +273,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var route = new ProxyRoute
             {
                 RouteId = "route1",
-                Match =
+                Match = new ProxyMatch
                 {
                     Path = "/",
                     Headers = new[]
@@ -284,7 +302,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var route = new ProxyRoute
             {
                 RouteId = "route1",
-                Match =
+                Match = new ProxyMatch
                 {
                     Path = "/",
                     Headers = new RouteHeader[] { null },
@@ -317,7 +335,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var route = new ProxyRoute
             {
                 RouteId = "route1",
-                Match =
+                Match = new ProxyMatch
                 {
                     Path = "/",
                     Headers = new[] { routeHeader },
@@ -344,7 +362,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             {
                 RouteId = "route1",
                 AuthorizationPolicy = policy,
-                Match =
+                Match = new ProxyMatch
                 {
                     Hosts = new[] { "localhost" },
                 },
@@ -366,7 +384,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             {
                 RouteId = "route1",
                 AuthorizationPolicy = "custom",
-                Match =
+                Match = new ProxyMatch
                 {
                     Hosts = new[] { "localhost" },
                 },
@@ -395,6 +413,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
                 RouteId = "route1",
                 AuthorizationPolicy = "unknown",
                 ClusterId = "cluster1",
+                Match = new ProxyMatch(),
             };
 
             var services = CreateServices();
@@ -417,7 +436,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             {
                 RouteId = "route1",
                 CorsPolicy = policy,
-                Match =
+                Match = new ProxyMatch
                 {
                     Hosts = new[] { "localhost" },
                 },
@@ -439,7 +458,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             {
                 RouteId = "route1",
                 CorsPolicy = "custom",
-                Match =
+                Match = new ProxyMatch
                 {
                     Hosts = new[] { "localhost" },
                 },
@@ -468,6 +487,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
                 RouteId = "route1",
                 CorsPolicy = "unknown",
                 ClusterId = "cluster1",
+                Match = new ProxyMatch(),
             };
 
             var services = CreateServices();

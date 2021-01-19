@@ -1,19 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.ReverseProxy.Service.Routing;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Abstractions.Tests
 {
     public class RouteHeaderTests
     {
-        [Fact]
-        public void Constructor_Works()
-        {
-            new RouteHeader();
-        }
-
         [Fact]
         public void Equals_Positive()
         {
@@ -32,8 +25,8 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
                 IsCaseSensitive = true,
             };
             var c = a with { }; // Clone
-            Assert.True(RouteHeader.Equals(a, b));
-            Assert.True(RouteHeader.Equals(a, c));
+            Assert.True(a.Equals(b));
+            Assert.True(a.Equals(c));
         }
 
         [Fact]
@@ -50,10 +43,10 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
             var c = a with { Mode = HeaderMatchMode.ExactHeader };
             var d = a with { Values = new[] { "v1", "v3" } };
             var e = a with { IsCaseSensitive = false };
-            Assert.False(RouteHeader.Equals(a, b));
-            Assert.False(RouteHeader.Equals(a, c));
-            Assert.False(RouteHeader.Equals(a, d));
-            Assert.False(RouteHeader.Equals(a, e));
+            Assert.False(a.Equals(b));
+            Assert.False(a.Equals(c));
+            Assert.False(a.Equals(d));
+            Assert.False(a.Equals(e));
         }
     }
 }

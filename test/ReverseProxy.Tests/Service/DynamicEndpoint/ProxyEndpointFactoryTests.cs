@@ -20,7 +20,7 @@ using Xunit;
 
 namespace Microsoft.ReverseProxy.Service.DynamicEndpoint
 {
-    public class ProxyEndpointFactorTests
+    public class ProxyEndpointFactoryTests
     {
         private IServiceProvider CreateServices()
         {
@@ -46,7 +46,7 @@ namespace Microsoft.ReverseProxy.Service.DynamicEndpoint
             var route = new ProxyRoute
             {
                 RouteId = "route1",
-                Match =
+                Match = new ProxyMatch
                 {
                     Hosts = new[] { "example.com" },
                     Path = "/a",
@@ -93,7 +93,7 @@ namespace Microsoft.ReverseProxy.Service.DynamicEndpoint
             var route = new ProxyRoute
             {
                 RouteId = "route1",
-                Match =
+                Match = new ProxyMatch
                 {
                     Hosts = new[] { "example.com" },
                 },
@@ -128,7 +128,7 @@ namespace Microsoft.ReverseProxy.Service.DynamicEndpoint
             var route = new ProxyRoute
             {
                 RouteId = "route1",
-                Match =
+                Match = new ProxyMatch
                 {
                     Hosts = new[] { "*.example.com" },
                 },
@@ -163,7 +163,7 @@ namespace Microsoft.ReverseProxy.Service.DynamicEndpoint
             var route = new ProxyRoute
             {
                 RouteId = "route1",
-                Match =
+                Match = new ProxyMatch
                 {
                     Path = "/a",
                 },
@@ -197,6 +197,7 @@ namespace Microsoft.ReverseProxy.Service.DynamicEndpoint
             {
                 RouteId = "route1",
                 Order = 12,
+                Match = new ProxyMatch()
             };
             var cluster = new ClusterInfo("cluster1", new DestinationManager());
             var routeInfo = new RouteInfo("route1");
@@ -225,7 +226,7 @@ namespace Microsoft.ReverseProxy.Service.DynamicEndpoint
             var route = new ProxyRoute
             {
                 RouteId = "route1",
-                Match =
+                Match = new ProxyMatch
                 {
                     Path = "/{invalid",
                 },
@@ -251,6 +252,7 @@ namespace Microsoft.ReverseProxy.Service.DynamicEndpoint
                 RouteId = "route1",
                 AuthorizationPolicy = "defaulT",
                 Order = 12,
+                Match = new ProxyMatch(),
             };
             var cluster = new ClusterInfo("cluster1", new DestinationManager());
             var routeInfo = new RouteInfo("route1");
@@ -273,6 +275,7 @@ namespace Microsoft.ReverseProxy.Service.DynamicEndpoint
                 RouteId = "route1",
                 AuthorizationPolicy = "AnonymouS",
                 Order = 12,
+                Match = new ProxyMatch(),
             };
             var cluster = new ClusterInfo("cluster1", new DestinationManager());
             var routeInfo = new RouteInfo("route1");
@@ -294,6 +297,7 @@ namespace Microsoft.ReverseProxy.Service.DynamicEndpoint
                 RouteId = "route1",
                 AuthorizationPolicy = "custom",
                 Order = 12,
+                Match = new ProxyMatch(),
             };
             var cluster = new ClusterInfo("cluster1", new DestinationManager());
             var routeInfo = new RouteInfo("route1");
@@ -315,6 +319,7 @@ namespace Microsoft.ReverseProxy.Service.DynamicEndpoint
             {
                 RouteId = "route1",
                 Order = 12,
+                Match = new ProxyMatch(),
             };
             var cluster = new ClusterInfo("cluster1", new DestinationManager());
             var routeInfo = new RouteInfo("route1");
@@ -337,6 +342,7 @@ namespace Microsoft.ReverseProxy.Service.DynamicEndpoint
                 RouteId = "route1",
                 CorsPolicy = "defaulT",
                 Order = 12,
+                Match = new ProxyMatch(),
             };
             var cluster = new ClusterInfo("cluster1", new DestinationManager());
             var routeInfo = new RouteInfo("route1");
@@ -360,6 +366,7 @@ namespace Microsoft.ReverseProxy.Service.DynamicEndpoint
                 RouteId = "route1",
                 CorsPolicy = "custom",
                 Order = 12,
+                Match = new ProxyMatch(),
             };
             var cluster = new ClusterInfo("cluster1", new DestinationManager());
             var routeInfo = new RouteInfo("route1");
@@ -383,6 +390,7 @@ namespace Microsoft.ReverseProxy.Service.DynamicEndpoint
                 RouteId = "route1",
                 CorsPolicy = "disAble",
                 Order = 12,
+                Match = new ProxyMatch(),
             };
             var cluster = new ClusterInfo("cluster1", new DestinationManager());
             var routeInfo = new RouteInfo("route1");
@@ -404,6 +412,7 @@ namespace Microsoft.ReverseProxy.Service.DynamicEndpoint
             {
                 RouteId = "route1",
                 Order = 12,
+                Match = new ProxyMatch(),
             };
             var cluster = new ClusterInfo("cluster1", new DestinationManager());
             var routeInfo = new RouteInfo("route1");
@@ -424,7 +433,7 @@ namespace Microsoft.ReverseProxy.Service.DynamicEndpoint
             var route = new ProxyRoute
             {
                 RouteId = "route1",
-                Match =
+                Match = new ProxyMatch
                 {
                     Path = "/",
                     Headers = new[]
@@ -469,7 +478,7 @@ namespace Microsoft.ReverseProxy.Service.DynamicEndpoint
             var route = new ProxyRoute
             {
                 RouteId = "route1",
-                Match =
+                Match = new ProxyMatch
                 {
                     Path = "/",
                     Headers = new[]

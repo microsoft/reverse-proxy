@@ -38,22 +38,17 @@ namespace Microsoft.ReverseProxy.Abstractions
         /// </summary>
         public IReadOnlyList<RouteHeader> Headers { get; init; }
 
-        internal static bool Equals(ProxyMatch proxyMatch1, ProxyMatch proxyMatch2)
+        public virtual bool Equals(ProxyMatch other)
         {
-            if (proxyMatch1 == null && proxyMatch2 == null)
-            {
-                return true;
-            }
-
-            if (proxyMatch1 == null || proxyMatch2 == null)
+            if (other == null)
             {
                 return false;
             }
 
-            return string.Equals(proxyMatch1.Path, proxyMatch2.Path, StringComparison.OrdinalIgnoreCase)
-                && CaseInsensitiveEqualHelper.Equals(proxyMatch1.Hosts, proxyMatch2.Hosts)
-                && CaseInsensitiveEqualHelper.Equals(proxyMatch1.Methods, proxyMatch2.Methods)
-                && HeadersEqual(proxyMatch1.Headers, proxyMatch2.Headers);
+            return string.Equals(Path, other.Path, StringComparison.OrdinalIgnoreCase)
+                && CaseInsensitiveEqualHelper.Equals(Hosts, other.Hosts)
+                && CaseInsensitiveEqualHelper.Equals(Methods, other.Methods)
+                && HeadersEqual(Headers, other.Headers);
         }
 
         // Order sensitive to reduce complexity
@@ -76,7 +71,7 @@ namespace Microsoft.ReverseProxy.Abstractions
 
             for (var i = 0; i < headers1.Count; i++)
             {
-                if (!RouteHeader.Equals(headers1[i], headers2[i]))
+                if (!headers1[i].Equals(headers2[i]))
                 {
                     return false;
                 }

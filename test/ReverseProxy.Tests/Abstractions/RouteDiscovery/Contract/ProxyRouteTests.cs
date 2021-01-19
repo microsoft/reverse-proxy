@@ -2,19 +2,12 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using Microsoft.ReverseProxy.Service.Routing;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Abstractions.Tests
 {
     public class ProxyRouteTests
     {
-        [Fact]
-        public void Constructor_Works()
-        {
-            new ProxyRoute();
-        }
-
         [Fact]
         public void Equals_Positive()
         {
@@ -76,8 +69,8 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
             };
             var c = b with { }; // Clone
 
-            Assert.True(ProxyRoute.Equals(a, b));
-            Assert.True(ProxyRoute.Equals(a, c));
+            Assert.True(a.Equals(b));
+            Assert.True(a.Equals(c));
         }
 
         [Fact]
@@ -119,13 +112,13 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
             var g = a with { Order = null };
             var h = a with { RouteId = "h" };
 
-            Assert.False(ProxyRoute.Equals(a, b));
-            Assert.False(ProxyRoute.Equals(a, c));
-            Assert.False(ProxyRoute.Equals(a, d));
-            Assert.False(ProxyRoute.Equals(a, e));
-            Assert.False(ProxyRoute.Equals(a, f));
-            Assert.False(ProxyRoute.Equals(a, g));
-            Assert.False(ProxyRoute.Equals(a, h));
+            Assert.False(a.Equals(b));
+            Assert.False(a.Equals(c));
+            Assert.False(a.Equals(d));
+            Assert.False(a.Equals(e));
+            Assert.False(a.Equals(f));
+            Assert.False(a.Equals(g));
+            Assert.False(a.Equals(h));
         }
     }
 }

@@ -274,7 +274,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             var expectedRoute = new ProxyRoute
             {
                 RouteId = "MyCoolClusterId:MyRoute",
-                Match =
+                Match = new ProxyMatch
                 {
                     Hosts = new[] { "example.com" },
                 },
@@ -282,7 +282,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 Metadata = new Dictionary<string, string>(),
             };
 
-            Assert.True(ProxyRoute.Equals(expectedRoute, route));
+            Assert.True(expectedRoute.Equals(route));
         }
 
         /// <summary>
@@ -302,7 +302,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             var expectedRoute = new ProxyRoute
             {
                 RouteId = "MyCoolClusterId:MyRoute",
-                Match =
+                Match = new ProxyMatch
                 {
                     Hosts = new[] { "'this invalid thing" },
                 },
@@ -310,7 +310,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 Metadata = new Dictionary<string, string>(),
             };
 
-            Assert.True(ProxyRoute.Equals(expectedRoute, route));
+            Assert.True(expectedRoute.Equals(route));
         }
 
         [Theory]
@@ -334,7 +334,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             var expectedRoute = new ProxyRoute
             {
                 RouteId = $"{Uri.EscapeDataString(_testServiceName.ToString())}:MyRoute",
-                Match =
+                Match = new ProxyMatch
                 {
                     Hosts = new[] { "example.com" },
                 },
@@ -343,7 +343,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 Metadata = new Dictionary<string, string>(),
             };
 
-            Assert.True(ProxyRoute.Equals(expectedRoute, route));
+            Assert.True(expectedRoute.Equals(route));
         }
 
         [Fact]
@@ -359,7 +359,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             var expectedRoute = new ProxyRoute
             {
                 RouteId = $"{Uri.EscapeDataString(_testServiceName.ToString())}:MyRoute",
-                Match =
+                Match = new ProxyMatch
                 {
                     Path = "/{**catchall}",
                 },
@@ -367,7 +367,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 Metadata = new Dictionary<string, string>(),
             };
 
-            Assert.True(ProxyRoute.Equals(expectedRoute, route));
+            Assert.True(expectedRoute.Equals(route));
         }
 
         [Fact]
@@ -407,7 +407,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             var expectedRoute = new ProxyRoute
             {
                 RouteId = $"MyCoolClusterId:{routeName}",
-                Match =
+                Match = new ProxyMatch
                 {
                     Hosts = new[] { "example.com" },
                 },
@@ -416,7 +416,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 Metadata = new Dictionary<string, string>(),
             };
 
-            Assert.True(ProxyRoute.Equals(expectedRoute, route));
+            Assert.True(expectedRoute.Equals(route));
         }
 
         [Theory]
@@ -579,7 +579,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             var expectedRoute = new ProxyRoute
             {
                 RouteId = "MyCoolClusterId:MyRoute",
-                Match =
+                Match = new ProxyMatch
                 {
                     Hosts = new[] { "example.com" },
                 },
@@ -591,7 +591,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 },
             };
 
-            Assert.True(ProxyRoute.Equals(expectedRoute, route));
+            Assert.True(expectedRoute.Equals(route));
         }
 
         [Fact]
@@ -616,7 +616,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             var expected0 = new ProxyRoute
             {
                 RouteId = "MyCoolClusterId:MyRoute",
-                Match =
+                Match = new ProxyMatch
                 {
                     Hosts = new[] { "example.com" },
                     Path = "v2/{**rest}",
@@ -628,10 +628,10 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             var expected1 = new ProxyRoute
             {
                 RouteId = "MyCoolClusterId:CoolRoute",
-                Match =
-                    {
-                        Hosts = new[] { "example.net" },
-                    },
+                Match = new ProxyMatch
+                {
+                    Hosts = new[] { "example.net" },
+                },
                 Order = 2,
                 ClusterId = "MyCoolClusterId",
                 Metadata = new Dictionary<string, string>(),
@@ -639,7 +639,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             var expected2 = new ProxyRoute
             {
                 RouteId = "MyCoolClusterId:EvenCoolerRoute",
-                Match =
+                Match = new ProxyMatch
                 {
                     Hosts = new[] { "example.org" },
                 },
@@ -648,9 +648,9 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 Metadata = new Dictionary<string, string>(),
             };
 
-            Assert.True(ProxyRoute.Equals(expected0, routes[0]));
-            Assert.True(ProxyRoute.Equals(expected1, routes[1]));
-            Assert.True(ProxyRoute.Equals(expected2, routes[2]));
+            Assert.True(expected0.Equals(routes[0]));
+            Assert.True(expected1.Equals(routes[1]));
+            Assert.True(expected2.Equals(routes[2]));
         }
     }
 }

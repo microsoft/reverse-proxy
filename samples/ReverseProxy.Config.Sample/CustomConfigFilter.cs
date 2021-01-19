@@ -35,16 +35,16 @@ namespace Microsoft.ReverseProxy.Sample
             return Task.CompletedTask;
         }
 
-        public Task<ProxyRoute> ConfigureRouteAsync(ProxyRoute route, CancellationToken cancel)
+        public ValueTask<ProxyRoute> ConfigureRouteAsync(ProxyRoute route, CancellationToken cancel)
         {
             // Do not let config based routes take priority over code based routes.
             // Lower numbers are higher priority. Code routes default to 0.
             if (route.Order.HasValue && route.Order.Value < 1)
             {
-                return Task.FromResult(route with { Order = 1 });
+                return new ValueTask<ProxyRoute>(route with { Order = 1 });
             }
 
-            return Task.FromResult(route);
+            return new ValueTask<ProxyRoute>(route);
         }
     }
 }

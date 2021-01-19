@@ -94,6 +94,16 @@ namespace Microsoft.ReverseProxy.Service
                 errors.Add(new ArgumentException("Missing Route Id."));
             }
 
+            errors.AddRange(_transformBuilder.Validate(route.Transforms));
+            await ValidateAuthorizationPolicyAsync(errors, route.AuthorizationPolicy, route.RouteId);
+            await ValidateCorsPolicyAsync(errors, route.CorsPolicy, route.RouteId);
+
+            if (route.Match == null)
+            {
+                errors.Add(new ArgumentException($"Route '{route.RouteId}' did not set any match criteria, it requires Hosts or Path specified. Set the Path to '/{{**catchall}}' to match all requests."));
+                return errors;
+            }
+
             if ((route.Match.Hosts == null || route.Match.Hosts.Count == 0 || route.Match.Hosts.Any(host => string.IsNullOrEmpty(host))) && string.IsNullOrEmpty(route.Match.Path))
             {
                 errors.Add(new ArgumentException($"Route '{route.RouteId}' requires Hosts or Path specified. Set the Path to '/{{**catchall}}' to match all requests."));
@@ -103,9 +113,6 @@ namespace Microsoft.ReverseProxy.Service
             ValidatePath(errors, route.Match.Path, route.RouteId);
             ValidateMethods(errors, route.Match.Methods, route.RouteId);
             ValidateHeaders(errors, route.Match.Headers, route.RouteId);
-            errors.AddRange(_transformBuilder.Validate(route.Transforms));
-            await ValidateAuthorizationPolicyAsync(errors, route.AuthorizationPolicy, route.RouteId);
-            await ValidateCorsPolicyAsync(errors, route.CorsPolicy, route.RouteId);
 
             return errors;
         }

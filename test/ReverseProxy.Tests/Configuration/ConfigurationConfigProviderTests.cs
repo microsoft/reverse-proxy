@@ -121,7 +121,7 @@ namespace Microsoft.ReverseProxy.Configuration
                     AuthorizationPolicy = "Default",
                     CorsPolicy = "Default",
                     Order = -1,
-                    Match =
+                    Match = new ProxyMatch
                     {
                         Hosts = new List<string> { "host-A" },
                         Methods = new List<string> { "GET", "POST", "DELETE" },
@@ -148,7 +148,7 @@ namespace Microsoft.ReverseProxy.Configuration
                     RouteId = "routeB",
                     ClusterId = "cluster2",
                     Order = 2,
-                    Match =
+                    Match = new ProxyMatch
                     {
                         Hosts = new List<string> { "host-B" },
                         Methods = new List<string> { "GET" },

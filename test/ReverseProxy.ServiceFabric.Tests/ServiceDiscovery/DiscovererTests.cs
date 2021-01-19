@@ -128,7 +128,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
 
             var route = Assert.Single(routes);
             var expectedRoute = Assert.Single(expectedRoutes);
-            Assert.True(ProxyRoute.Equals(expectedRoute, route));
+            Assert.True(expectedRoute.Equals(route));
 
             clusters.Should().BeEquivalentTo(expectedClusters);
             AssertServiceHealthReported(service, HealthState.Ok);
@@ -165,7 +165,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
 
             var route = Assert.Single(routes);
             var expectedRoute = Assert.Single(expectedRoutes);
-            Assert.True(ProxyRoute.Equals(expectedRoute, route));
+            Assert.True(expectedRoute.Equals(route));
 
             clusters.Should().BeEquivalentTo(expectedClusters);
             AssertServiceHealthReported(service, HealthState.Ok);
@@ -209,9 +209,9 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             var expectedRoute1 = Assert.Single(LabelsParser.BuildRoutes(_testServiceName, labels1));
             var expectedRoute2 = Assert.Single(LabelsParser.BuildRoutes(_testServiceName, labels2));
             var expectedRoute3 = Assert.Single(LabelsParser.BuildRoutes(_testServiceName, labels3));
-            Assert.True(ProxyRoute.Equals(expectedRoute1, routes[0]));
-            Assert.True(ProxyRoute.Equals(expectedRoute2, routes[1]));
-            Assert.True(ProxyRoute.Equals(expectedRoute3, routes[2]));
+            Assert.True(expectedRoute1.Equals(routes[0]));
+            Assert.True(expectedRoute2.Equals(routes[1]));
+            Assert.True(expectedRoute3.Equals(routes[2]));
 
             clusters.Should().BeEquivalentTo(expectedClusters);
             AssertServiceHealthReported(service1, HealthState.Ok);
@@ -252,7 +252,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
 
             var route = Assert.Single(routes);
             var expectedRoute = Assert.Single(expectedRoutes);
-            Assert.True(ProxyRoute.Equals(expectedRoute, route));
+            Assert.True(expectedRoute.Equals(route));
 
             clusters.Should().BeEquivalentTo(expectedClusters);
             AssertServiceHealthReported(service1, HealthState.Ok);
@@ -357,7 +357,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
 
             var route = Assert.Single(routes);
             var expectedRoute = Assert.Single(expectedRoutes);
-            Assert.True(ProxyRoute.Equals(expectedRoute, route));
+            Assert.True(expectedRoute.Equals(route));
 
             clusters.Should().BeEquivalentTo(expectedClusters);
             AssertServiceHealthReported(service, HealthState.Ok);
@@ -390,7 +390,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
 
             var route = Assert.Single(routes);
             var expectedRoute = Assert.Single(expectedRoutes);
-            Assert.True(ProxyRoute.Equals(expectedRoute, route));
+            Assert.True(expectedRoute.Equals(route));
 
             clusters.Should().BeEquivalentTo(expectedClusters);
             AssertServiceHealthReported(service, HealthState.Ok);
@@ -425,7 +425,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
 
             var route = Assert.Single(routes);
             var expectedRoute = Assert.Single(expectedRoutes);
-            Assert.True(ProxyRoute.Equals(expectedRoute, route));
+            Assert.True(expectedRoute.Equals(route));
 
             clusters.Should().BeEquivalentTo(expectedClusters);
             AssertServiceHealthReported(service, HealthState.Ok);
@@ -461,7 +461,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
 
             var route = Assert.Single(routes);
             var expectedRoute = Assert.Single(expectedRoutes);
-            Assert.True(ProxyRoute.Equals(expectedRoute, route));
+            Assert.True(expectedRoute.Equals(route));
 
             clusters.Should().BeEquivalentTo(expectedClusters);
             AssertServiceHealthReported(service, HealthState.Ok);
@@ -511,7 +511,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
 
             var route = Assert.Single(routes);
             var expectedRoute = Assert.Single(expectedRoutes);
-            Assert.True(ProxyRoute.Equals(expectedRoute, route));
+            Assert.True(expectedRoute.Equals(route));
 
             clusters.Should().BeEquivalentTo(expectedClusters);
             AssertServiceHealthReported(service, HealthState.Ok);
@@ -544,7 +544,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
 
             var route = Assert.Single(routes);
             var expectedRoute = Assert.Single(expectedRoutes);
-            Assert.True(ProxyRoute.Equals(expectedRoute, route));
+            Assert.True(expectedRoute.Equals(route));
 
             clusters.Should().BeEquivalentTo(expectedClusters);
             AssertServiceHealthReported(service, HealthState.Ok);

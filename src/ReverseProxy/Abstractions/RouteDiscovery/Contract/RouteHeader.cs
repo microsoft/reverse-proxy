@@ -37,24 +37,22 @@ namespace Microsoft.ReverseProxy.Abstractions
         /// </summary>
         public bool IsCaseSensitive { get; init; }
 
-        internal static bool Equals(RouteHeader header1, RouteHeader header2)
+        /// <summary>
+        /// Checks if this instance is equal to the given one.
+        /// </summary>
+        public virtual bool Equals(RouteHeader other)
         {
-            if (header1 == null && header2 == null)
-            {
-                return true;
-            }
-
-            if (header1 == null || header2 == null)
+            if (other == null)
             {
                 return false;
             }
 
-            return string.Equals(header1.Name, header2.Name, StringComparison.OrdinalIgnoreCase)
-                && header1.Mode == header2.Mode
-                && header1.IsCaseSensitive == header2.IsCaseSensitive
-                && (header1.IsCaseSensitive
-                    ? CaseSensitiveEqualHelper.Equals(header1.Values, header2.Values)
-                    : CaseInsensitiveEqualHelper.Equals(header1.Values, header2.Values));
+            return string.Equals(Name, other.Name, StringComparison.OrdinalIgnoreCase)
+                && Mode == other.Mode
+                && IsCaseSensitive == other.IsCaseSensitive
+                && (IsCaseSensitive
+                    ? CaseSensitiveEqualHelper.Equals(Values, other.Values)
+                    : CaseInsensitiveEqualHelper.Equals(Values, other.Values));
         }
     }
 }
