@@ -6,6 +6,7 @@
     <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
     <PackageIcon></PackageIcon>
     <PackageIconFullPath></PackageIconFullPath>
+    <LangVersion>9.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>

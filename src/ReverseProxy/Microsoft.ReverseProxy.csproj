@@ -6,7 +6,6 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Microsoft.ReverseProxy</RootNamespace>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <LangVersion>9.0</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
