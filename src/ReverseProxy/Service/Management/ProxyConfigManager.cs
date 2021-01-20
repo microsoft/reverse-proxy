@@ -295,11 +295,11 @@ namespace Microsoft.ReverseProxy.Service.Management
                     seenClusterIds.Add(c.Id);
 
                     // Don't modify the original
-                    var cluster = c.DeepClone();
+                    var cluster = c;
 
                     foreach (var filter in _filters)
                     {
-                        await filter.ConfigureClusterAsync(cluster, cancellation);
+                        cluster = await filter.ConfigureClusterAsync(cluster, cancellation);
                     }
 
                     var clusterErrors = await _configValidator.ValidateClusterAsync(cluster);
@@ -421,7 +421,7 @@ namespace Microsoft.ReverseProxy.Service.Management
             }
         }
 
-        private void UpdateRuntimeDestinations(IDictionary<string, Destination> newDestinations, IDestinationManager destinationManager)
+        private void UpdateRuntimeDestinations(IReadOnlyDictionary<string, Destination> newDestinations, IDestinationManager destinationManager)
         {
             var desiredDestinations = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 

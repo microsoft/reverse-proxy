@@ -8,43 +8,5 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
 {
     public class DestinationTests
     {
-        [Fact]
-        public void Constructor_Works()
-        {
-            new Destination();
-        }
-
-        [Fact]
-        public void DeepClone_Works()
-        {
-            var sut = new Destination
-            {
-                Address = "https://127.0.0.1:123/a",
-                Metadata = new Dictionary<string, string>
-                {
-                    { "key", "value" },
-                },
-            };
-
-            var clone = sut.DeepClone();
-
-            Assert.NotSame(sut, clone);
-            Assert.Equal(sut.Address, clone.Address);
-            Assert.NotNull(clone.Metadata);
-            Assert.NotSame(sut.Metadata, clone.Metadata);
-            Assert.Equal("value", clone.Metadata["key"]);
-        }
-
-        [Fact]
-        public void DeepClone_Nulls_Works()
-        {
-            var sut = new Destination();
-
-            var clone = sut.DeepClone();
-
-            Assert.NotSame(sut, clone);
-            Assert.Null(clone.Address);
-            Assert.Null(clone.Metadata);
-        }
     }
 }

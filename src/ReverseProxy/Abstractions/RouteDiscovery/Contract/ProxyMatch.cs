@@ -10,7 +10,7 @@ namespace Microsoft.ReverseProxy.Abstractions
     /// <summary>
     /// Describes the matching criteria for a route.
     /// </summary>
-    public record ProxyMatch
+    public sealed record ProxyMatch : IEquatable<ProxyMatch>
     {
         /// <summary>
         /// Only match requests that use these optional HTTP methods. E.g. GET, POST.
@@ -38,7 +38,7 @@ namespace Microsoft.ReverseProxy.Abstractions
         /// </summary>
         public IReadOnlyList<RouteHeader> Headers { get; init; }
 
-        public virtual bool Equals(ProxyMatch other)
+        public bool Equals(ProxyMatch other)
         {
             if (other == null)
             {

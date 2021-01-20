@@ -101,7 +101,8 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             var cluster = new Cluster
             {
                 Id = "cluster1",
-                Destinations = {
+                Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
+                {
                     { "d1", new Destination { Address = TestAddress } }
                 }
             };
@@ -152,7 +153,10 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             var cluster = new Cluster
             {
                 Id = "cluster1",
-                Destinations = { { "d1", new Destination { Address = TestAddress } } },
+                Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
+                {
+                    { "d1", new Destination { Address = TestAddress } }
+                },
                 HttpClient = new ProxyHttpClientOptions {
                     SslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12,
                     MaxConnectionsPerServer = 10,
@@ -241,7 +245,10 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             var cluster = new Cluster
             {
                 Id = "cluster1",
-                Destinations = { { "d1", new Destination { Address = TestAddress } } },
+                Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
+                {
+                    { "d1", new Destination { Address = TestAddress } }
+                },
                 HttpRequest = new ProxyHttpRequestOptions() { Version = new Version(1, 2) }
             };
 
@@ -297,9 +304,9 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
 
         private class FixRouteHostFilter : IProxyConfigFilter
         {
-            public Task ConfigureClusterAsync(Cluster cluster, CancellationToken cancel)
+            public ValueTask<Cluster> ConfigureClusterAsync(Cluster cluster, CancellationToken cancel)
             {
-                return Task.CompletedTask;
+                return new ValueTask<Cluster>(cluster);
             }
 
             public ValueTask<ProxyRoute> ConfigureRouteAsync(ProxyRoute route, CancellationToken cancel)
@@ -313,10 +320,15 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
 
         private class ClusterAndRouteFilter : IProxyConfigFilter
         {
-            public Task ConfigureClusterAsync(Cluster cluster, CancellationToken cancel)
+            public ValueTask<Cluster> ConfigureClusterAsync(Cluster cluster, CancellationToken cancel)
             {
-                cluster.HealthCheck = new HealthCheckOptions() { Active = new ActiveHealthCheckOptions { Enabled = true, Interval = TimeSpan.FromSeconds(12), Policy = "activePolicyA" } };
-                return Task.CompletedTask;
+                return new ValueTask<Cluster>(cluster with
+                {
+                    HealthCheck = new HealthCheckOptions()
+                    {
+                        Active = new ActiveHealthCheckOptions { Enabled = true, Interval = TimeSpan.FromSeconds(12), Policy = "activePolicyA" }
+                    }
+                });
             }
 
             public ValueTask<ProxyRoute> ConfigureRouteAsync(ProxyRoute route, CancellationToken cancel)
@@ -328,7 +340,14 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
         [Fact]
         public async Task LoadAsync_ConfigFilterConfiguresCluster_Works()
         {
-            var cluster = new Cluster() { Id = "cluster1", Destinations = { { "d1", new Destination() { Address = "http://localhost" } } } };
+            var cluster = new Cluster()
+            {
+                Id = "cluster1",
+                Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
+                {
+                    { "d1", new Destination() { Address = "http://localhost" } }
+                }
+            };
             var services = CreateServices(new List<ProxyRoute>(), new List<Cluster>() { cluster }, proxyBuilder =>
             {
                 proxyBuilder.AddProxyConfigFilter<ClusterAndRouteFilter>();
@@ -350,7 +369,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
 
         private class ClusterAndRouteThrows : IProxyConfigFilter
         {
-            public Task ConfigureClusterAsync(Cluster cluster, CancellationToken cancel)
+            public ValueTask<Cluster> ConfigureClusterAsync(Cluster cluster, CancellationToken cancel)
             {
                 throw new NotFiniteNumberException("Test exception");
             }
@@ -364,7 +383,14 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
         [Fact]
         public async Task LoadAsync_ConfigFilterClusterActionThrows_Throws()
         {
-            var cluster = new Cluster() { Id = "cluster1", Destinations = { { "d1", new Destination() { Address = "http://localhost" } } } };
+            var cluster = new Cluster()
+            {
+                Id = "cluster1",
+                Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
+                {
+                    { "d1", new Destination() { Address = "http://localhost" } }
+                }
+            };
             var services = CreateServices(new List<ProxyRoute>(), new List<Cluster>() { cluster }, proxyBuilder =>
             {
                 proxyBuilder.AddProxyConfigFilter<ClusterAndRouteThrows>();

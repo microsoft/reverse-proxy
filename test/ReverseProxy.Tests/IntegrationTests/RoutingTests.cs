@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -326,7 +327,7 @@ namespace Microsoft.ReverseProxy.IntegrationTests
                 new Cluster()
                 {
                     Id = "cluster1",
-                    Destinations =
+                    Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
                     {
                         { "d1", new Destination() { Address = "http://localhost/" }  }
                     }

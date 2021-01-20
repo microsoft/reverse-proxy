@@ -7,54 +7,36 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace Microsoft.ReverseProxy.Abstractions
 {
-    public sealed class ProxyHttpClientOptions
+    public sealed record ProxyHttpClientOptions : IEquatable<ProxyHttpClientOptions>
     {
-        public SslProtocols? SslProtocols { get; set; }
+        public SslProtocols? SslProtocols { get; init; }
 
-        public bool? DangerousAcceptAnyServerCertificate { get; set; }
+        public bool? DangerousAcceptAnyServerCertificate { get; init; }
 
-        public X509Certificate2 ClientCertificate { get; set; }
+        public X509Certificate2 ClientCertificate { get; init; }
 
-        public int? MaxConnectionsPerServer { get; set; }
+        public int? MaxConnectionsPerServer { get; init; }
 
-        public bool? PropagateActivityContext { get; set; }
+        public bool? PropagateActivityContext { get; init; }
 
         // TODO: Add this property once we have migrated to SDK version that supports it.
-        //public bool? EnableMultipleHttp2Connections { get; set; }
+        //public bool? EnableMultipleHttp2Connections { get; init; }
 
-        internal ProxyHttpClientOptions DeepClone()
+        public bool Equals(ProxyHttpClientOptions other)
         {
-            return new ProxyHttpClientOptions
-            {
-                SslProtocols = SslProtocols,
-                DangerousAcceptAnyServerCertificate = DangerousAcceptAnyServerCertificate,
-                // TODO: Clone certificate?
-                ClientCertificate = ClientCertificate,
-                MaxConnectionsPerServer = MaxConnectionsPerServer,
-                PropagateActivityContext = PropagateActivityContext,
-            };
-        }
-
-        internal static bool Equals(ProxyHttpClientOptions options1, ProxyHttpClientOptions options2)
-        {
-            if (options1 == null && options2 == null)
-            {
-                return true;
-            }
-
-            if (options1 == null || options2 == null)
+            if (other == null)
             {
                 return false;
             }
 
-            return options1.SslProtocols == options2.SslProtocols
-                && Equals(options1.ClientCertificate, options2.ClientCertificate)
-                && options1.DangerousAcceptAnyServerCertificate == options2.DangerousAcceptAnyServerCertificate
-                && options1.MaxConnectionsPerServer == options2.MaxConnectionsPerServer
-                && options1.PropagateActivityContext == options2.PropagateActivityContext;
+            return SslProtocols == other.SslProtocols
+                && CertEquals(ClientCertificate, other.ClientCertificate)
+                && DangerousAcceptAnyServerCertificate == other.DangerousAcceptAnyServerCertificate
+                && MaxConnectionsPerServer == other.MaxConnectionsPerServer
+                && PropagateActivityContext == other.PropagateActivityContext;
         }
 
-        private static bool Equals(X509Certificate2 certificate1, X509Certificate2 certificate2)
+        private static bool CertEquals(X509Certificate2 certificate1, X509Certificate2 certificate2)
         {
             if (certificate1 == null && certificate2 == null)
             {

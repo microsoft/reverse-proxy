@@ -35,7 +35,7 @@ namespace Microsoft.ReverseProxy.Configuration
                     new Cluster
                     {
                         Id = "cluster1",
-                        Destinations =
+                        Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
                         {
                             {
                                 "destinationA",
@@ -103,7 +103,7 @@ namespace Microsoft.ReverseProxy.Configuration
                     new Cluster
                     {
                         Id = "cluster2",
-                        Destinations =
+                        Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
                         {
                             { "destinationC", new Destination { Address = "https://localhost:10001/destC" } },
                             { "destinationD", new Destination { Address = "https://localhost:10000/destB" } }

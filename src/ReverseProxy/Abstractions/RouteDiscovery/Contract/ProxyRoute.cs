@@ -11,7 +11,7 @@ namespace Microsoft.ReverseProxy.Abstractions
     /// Describes a route that matches incoming requests based on a the <see cref="Match"/> criteria
     /// and proxies matching requests to the cluster identified by its <see cref="ClusterId"/>.
     /// </summary>
-    public record ProxyRoute
+    public sealed record ProxyRoute : IEquatable<ProxyRoute>
     {
         /// <summary>
         /// Globally unique identifier of the route.
@@ -60,7 +60,7 @@ namespace Microsoft.ReverseProxy.Abstractions
         /// </summary>
         public IReadOnlyList<IReadOnlyDictionary<string, string>> Transforms { get; init; }
 
-        public virtual bool Equals(ProxyRoute other)
+        public bool Equals(ProxyRoute other)
         {
             if (other == null)
             {
@@ -72,7 +72,7 @@ namespace Microsoft.ReverseProxy.Abstractions
                 && string.Equals(ClusterId, other.ClusterId, StringComparison.OrdinalIgnoreCase)
                 && string.Equals(AuthorizationPolicy, other.AuthorizationPolicy, StringComparison.OrdinalIgnoreCase)
                 && string.Equals(CorsPolicy, other.CorsPolicy, StringComparison.OrdinalIgnoreCase)
-                && (Match?.Equals(other.Match) ?? other.Match == null)
+                && Match == other.Match
                 && CaseInsensitiveEqualHelper.Equals(Metadata, other.Metadata)
                 && CaseInsensitiveEqualHelper.Equals(Transforms, other.Transforms);
         }

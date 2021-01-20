@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -74,7 +75,7 @@ namespace Microsoft.ReverseProxy.Common
                     var cluster = new Cluster
                     {
                         Id = ClusterId,
-                        Destinations =
+                        Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
                         {
                             { "destination1",  new Destination() { Address = destination.GetAddress() } }
                         },

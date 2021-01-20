@@ -8,30 +8,6 @@ namespace Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract
     public class SessionAffinityOptionsTests
     {
         [Fact]
-        public void Constructor_Works()
-        {
-            new SessionAffinityOptions();
-        }
-
-        [Fact]
-        public void DeepClone_Works()
-        {
-            var sut = new SessionAffinityOptions
-            {
-                Enabled = true,
-                FailurePolicy = "policy1",
-                Mode = "mode1"
-            };
-
-            var clone = sut.DeepClone();
-
-            Assert.NotSame(sut, clone);
-            Assert.Equal(sut.Enabled, clone.Enabled);
-            Assert.Equal(sut.FailurePolicy, clone.FailurePolicy);
-            Assert.Equal(sut.Mode, clone.Mode);
-        }
-
-        [Fact]
         public void Equals_Same_Value_Returns_True()
         {
             var options1 = new SessionAffinityOptions

@@ -8,41 +8,26 @@ namespace Microsoft.ReverseProxy.Abstractions
     /// <summary>
     /// All health check options.
     /// </summary>
-    public sealed class HealthCheckOptions
+    public sealed record HealthCheckOptions : IEquatable<HealthCheckOptions>
     {
         /// <summary>
         /// Passive health check options.
         /// </summary>
-        public PassiveHealthCheckOptions Passive { get; set; }
+        public PassiveHealthCheckOptions Passive { get; init; }
 
         /// <summary>
         /// Active health check options.
         /// </summary>
-        public ActiveHealthCheckOptions Active { get; set; }
+        public ActiveHealthCheckOptions Active { get; init; }
 
-        internal HealthCheckOptions DeepClone()
+        public bool Equals(HealthCheckOptions other)
         {
-            return new HealthCheckOptions
-            {
-                Passive = Passive?.DeepClone(),
-                Active = Active?.DeepClone()
-            };
-        }
-
-        internal static bool Equals(HealthCheckOptions options1, HealthCheckOptions options2)
-        {
-            if (options1 == null && options2 == null)
-            {
-                return true;
-            }
-
-            if (options1 == null || options2 == null)
+            if (other == null)
             {
                 return false;
             }
 
-            return PassiveHealthCheckOptions.Equals(options1.Passive, options2.Passive)
-                && ActiveHealthCheckOptions.Equals(options1.Active, options2.Active);
+            return Passive == other.Passive && Active == other.Active;
         }
     }
 }

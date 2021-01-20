@@ -117,8 +117,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
 
             var expectedClusters = new[]
             {
-                ClusterWithDestinations(
-                    LabelsParser.BuildCluster(_testServiceName, labels),
+                ClusterWithDestinations(_testServiceName, labels,
                     SFTestHelpers.BuildDestinationFromReplica(replicas[0]),
                     SFTestHelpers.BuildDestinationFromReplica(replicas[1]),
                     SFTestHelpers.BuildDestinationFromReplica(replicas[2]),
@@ -154,8 +153,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
 
             var expectedClusters = new[]
             {
-                ClusterWithDestinations(
-                    LabelsParser.BuildCluster(_testServiceName, labels),
+                ClusterWithDestinations(_testServiceName, labels,
                     SFTestHelpers.BuildDestinationFromReplica(replicas[0]),
                     SFTestHelpers.BuildDestinationFromReplica(replicas[1]),
                     SFTestHelpers.BuildDestinationFromReplica(replicas[2]),
@@ -195,14 +193,11 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
 
             var expectedClusters = new[]
             {
-                ClusterWithDestinations(
-                    LabelsParser.BuildCluster(_testServiceName, labels1),
+                ClusterWithDestinations(_testServiceName, labels1,
                     SFTestHelpers.BuildDestinationFromReplica(replica1)),
-                ClusterWithDestinations(
-                    LabelsParser.BuildCluster(_testServiceName, labels2),
+                ClusterWithDestinations(_testServiceName, labels2,
                     SFTestHelpers.BuildDestinationFromReplica(replica2)),
-                ClusterWithDestinations(
-                    LabelsParser.BuildCluster(_testServiceName, labels3),
+                ClusterWithDestinations(_testServiceName, labels3,
                     SFTestHelpers.BuildDestinationFromReplica(replica3)),
             };
 
@@ -243,8 +238,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
 
             var expectedClusters = new[]
             {
-                ClusterWithDestinations(
-                    LabelsParser.BuildCluster(_testServiceName, gatewayEnabledLabels),
+                ClusterWithDestinations(_testServiceName, gatewayEnabledLabels,
                     SFTestHelpers.BuildDestinationFromReplica(replica1)),
             };
 
@@ -297,7 +291,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             routes.Should().BeEmpty();
             AssertServiceHealthReported(service, HealthState.Warning, (description) =>
                 description.Contains(keyToOverride)); // Check that the invalid key is mentioned in the description
-            _healthReports.Should().HaveCount(1);
+            _healthReports.Where(report => report.HealthInformation.HealthState == HealthState.Warning).Should().HaveCount(1);
         }
 
         [Fact]
@@ -321,8 +315,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
 
             var expectedClusters = new[]
             {
-                ClusterWithDestinations(
-                    LabelsParser.BuildCluster(_testServiceName, labels),
+                ClusterWithDestinations(_testServiceName, labels,
                     SFTestHelpers.BuildDestinationFromReplica(replica)),
             };
             var expectedRoutes = new List<ProxyRoute>();
@@ -351,7 +344,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
 
             var expectedClusters = new[]
             {
-                LabelsParser.BuildCluster(_testServiceName, labels),
+                LabelsParser.BuildCluster(_testServiceName, labels, new Dictionary<string, Destination>()),
             };
             var expectedRoutes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
@@ -384,7 +377,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
 
             var expectedClusters = new[]
             {
-                LabelsParser.BuildCluster(_testServiceName, labels),
+                LabelsParser.BuildCluster(_testServiceName, labels, new Dictionary<string, Destination>()),
             };
             var expectedRoutes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
@@ -419,7 +412,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
 
             var expectedClusters = new[]
             {
-                LabelsParser.BuildCluster(_testServiceName, labels),
+                LabelsParser.BuildCluster(_testServiceName, labels, new Dictionary<string, Destination>()),
             };
             var expectedRoutes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
@@ -453,8 +446,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
 
             var expectedClusters = new[]
             {
-                ClusterWithDestinations(
-                    LabelsParser.BuildCluster(_testServiceName, labels),
+                ClusterWithDestinations(_testServiceName, labels,
                     SFTestHelpers.BuildDestinationFromReplica(replica, "ExampleTeamHealthEndpoint")),
             };
             var expectedRoutes = LabelsParser.BuildRoutes(_testServiceName, labels);
@@ -501,8 +493,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
 
             var expectedClusters = new[]
             {
-                ClusterWithDestinations(
-                    LabelsParser.BuildCluster(_testServiceName, labels),
+                ClusterWithDestinations(_testServiceName, labels,
                     SFTestHelpers.BuildDestinationFromReplica(replicas[0]),
                     SFTestHelpers.BuildDestinationFromReplica(replicas[1]),
                     SFTestHelpers.BuildDestinationFromReplica(replicas[2])),
@@ -536,8 +527,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
 
             var expectedClusters = new[]
             {
-                ClusterWithDestinations(
-                    LabelsParser.BuildCluster(_testServiceName, labels),
+                ClusterWithDestinations(_testServiceName, labels,
                     SFTestHelpers.BuildDestinationFromReplica(replica)),
             };
             var expectedRoutes = LabelsParser.BuildRoutes(_testServiceName, labels);
@@ -572,12 +562,11 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             replica.ServiceKind = ServiceKind.Stateful;
             replica.Role = replicaRole;
 
-            var (routes, clusters) = await RunScenarioAsync();
+            var (_, clusters) = await RunScenarioAsync();
 
             var expectedClusters = new[]
             {
-                ClusterWithDestinations(
-                    LabelsParser.BuildCluster(_testServiceName, labels),
+                ClusterWithDestinations(_testServiceName, labels,
                     SFTestHelpers.BuildDestinationFromReplica(replica)),
             };
 
@@ -610,21 +599,23 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
 
             var expectedClusters = new[]
             {
-                LabelsParser.BuildCluster(_testServiceName, labels),
+                LabelsParser.BuildCluster(_testServiceName, labels, new Dictionary<string, Destination>()),
             };
 
             clusters.Should().BeEquivalentTo(expectedClusters);
             _healthReports.Should().HaveCount(1);
         }
 
-        private static Cluster ClusterWithDestinations(Cluster cluster, params KeyValuePair<string, Destination>[] destinations)
+        private static Cluster ClusterWithDestinations(Uri serviceName, Dictionary<string, string> labels,
+            params KeyValuePair<string, Destination>[] destinations)
         {
+            var newDestinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase);
             foreach (var destination in destinations)
             {
-                cluster.Destinations.Add(destination.Key, destination.Value);
+                newDestinations.Add(destination.Key, destination.Value);
             }
 
-            return cluster;
+            return LabelsParser.BuildCluster(serviceName, labels, newDestinations);
         }
 
         private async Task<(IReadOnlyList<ProxyRoute> Routes, IReadOnlyList<Cluster> Clusters)> RunScenarioAsync()

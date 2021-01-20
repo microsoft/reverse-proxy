@@ -144,7 +144,13 @@ namespace Microsoft.ReverseProxy.Configuration
 
         private Cluster CreateCluster(IConfigurationSection section)
         {
-            var cluster = new Cluster
+            var destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase);
+            foreach (var destination in section.GetSection(nameof(Cluster.Destinations)).GetChildren())
+            {
+                destinations.Add(destination.Key, CreateDestination(destination));
+            }
+
+            return new Cluster
             {
                 Id = section.Key,
                 LoadBalancingPolicy = section[nameof(Cluster.LoadBalancingPolicy)],
@@ -152,15 +158,9 @@ namespace Microsoft.ReverseProxy.Configuration
                 HealthCheck = CreateHealthCheckOptions(section.GetSection(nameof(Cluster.HealthCheck))),
                 HttpClient = CreateProxyHttpClientOptions(section.GetSection(nameof(Cluster.HttpClient))),
                 HttpRequest = CreateProxyRequestOptions(section.GetSection(nameof(Cluster.HttpRequest))),
-                Metadata = section.GetSection(nameof(Cluster.Metadata)).ReadStringDictionary()
+                Metadata = section.GetSection(nameof(Cluster.Metadata)).ReadOnlyStringDictionary(),
+                Destinations = destinations,
             };
-
-            foreach (var destination in section.GetSection(nameof(Cluster.Destinations)).GetChildren())
-            {
-                cluster.Destinations.Add(destination.Key, CreateDestination(destination));
-            }
-
-            return cluster;
         }
 
         private static ProxyRoute CreateRoute(IConfigurationSection section)
@@ -239,7 +239,7 @@ namespace Microsoft.ReverseProxy.Configuration
                 Enabled = section.ReadBool(nameof(SessionAffinityOptions.Enabled)) ?? false,
                 Mode = section[nameof(SessionAffinityOptions.Mode)],
                 FailurePolicy = section[nameof(SessionAffinityOptions.FailurePolicy)],
-                Settings = section.GetSection(nameof(SessionAffinityOptions.Settings)).ReadStringDictionary()
+                Settings = section.GetSection(nameof(SessionAffinityOptions.Settings)).ReadOnlyStringDictionary()
             };
         }
 
@@ -357,7 +357,7 @@ namespace Microsoft.ReverseProxy.Configuration
             {
                 Address = section[nameof(Destination.Address)],
                 Health = section[nameof(Destination.Health)],
-                Metadata = section.GetSection(nameof(Destination.Metadata)).ReadStringDictionary(),
+                Metadata = section.GetSection(nameof(Destination.Metadata)).ReadOnlyStringDictionary(),
             };
         }
 

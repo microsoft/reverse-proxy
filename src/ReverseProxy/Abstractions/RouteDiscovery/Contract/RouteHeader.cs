@@ -10,7 +10,7 @@ namespace Microsoft.ReverseProxy.Abstractions
     /// <summary>
     /// Route criteria for a header that must be present on the incoming request.
     /// </summary>
-    public record RouteHeader
+    public sealed record RouteHeader : IEquatable<RouteHeader>
     {
         /// <summary>
         /// Name of the header to look for.
@@ -40,7 +40,7 @@ namespace Microsoft.ReverseProxy.Abstractions
         /// <summary>
         /// Checks if this instance is equal to the given one.
         /// </summary>
-        public virtual bool Equals(RouteHeader other)
+        public bool Equals(RouteHeader other)
         {
             if (other == null)
             {

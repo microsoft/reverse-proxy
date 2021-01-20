@@ -11,35 +11,6 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
     public class ProxyHttpRequestOptionsTests
     {
         [Fact]
-        public void Constructor_Works()
-        {
-            new ProxyHttpRequestOptions();
-        }
-
-        [Fact]
-        public void DeepClone_Works()
-        {
-            var options = new ProxyHttpRequestOptions
-            {
-                Timeout = TimeSpan.FromSeconds(60),
-                Version = HttpVersion.Version11,
-#if NET
-                VersionPolicy = HttpVersionPolicy.RequestVersionOrHigher
-#endif
-            };
-
-            var clone = options.DeepClone();
-
-            Assert.NotSame(options, clone);
-            Assert.Equal(options.Timeout, clone.Timeout);
-            Assert.Equal(options.Version, clone.Version);
-#if NET
-            Assert.Equal(options.VersionPolicy, clone.VersionPolicy);
-#endif
-        }
-
-
-        [Fact]
         public void Equals_Same_Value_Returns_True()
         {
             var options1 = new ProxyHttpRequestOptions

@@ -45,7 +45,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 { "YARP.Backend.Metadata.Foo", "Bar" },
             };
 
-            var cluster = LabelsParser.BuildCluster(_testServiceName, labels);
+            var cluster = LabelsParser.BuildCluster(_testServiceName, labels, null);
 
             var expectedCluster = new Cluster
             {
@@ -103,7 +103,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 { "YARP.Backend.BackendId", "MyCoolClusterId" },
             };
 
-            var cluster = LabelsParser.BuildCluster(_testServiceName, labels);
+            var cluster = LabelsParser.BuildCluster(_testServiceName, labels, null);
 
             var expectedCluster = new Cluster
             {
@@ -144,7 +144,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 { "YARP.Backend.HealthCheck.Active.Enabled", label },
             };
 
-            var cluster = LabelsParser.BuildCluster(_testServiceName, labels);
+            var cluster = LabelsParser.BuildCluster(_testServiceName, labels, null);
 
             cluster.HealthCheck.Active.Enabled.Should().Be(expected);
         }
@@ -160,7 +160,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 { "YARP.Backend.HealthCheck.Active.Enabled", label },
             };
 
-            Action action = () => LabelsParser.BuildCluster(_testServiceName, labels);
+            Action action = () => LabelsParser.BuildCluster(_testServiceName, labels, null);
 
             action.Should().Throw<ConfigException>();
         }
@@ -177,7 +177,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 { "YARP.Backend.HealthCheck.Active.Interval", "5" },
             };
 
-            var cluster = LabelsParser.BuildCluster(_testServiceName, labels);
+            var cluster = LabelsParser.BuildCluster(_testServiceName, labels, null);
 
             cluster.Id.Should().Be(_testServiceName.ToString());
         }
@@ -193,7 +193,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 { key, invalidValue },
             };
 
-            Func<Cluster> func = () => LabelsParser.BuildCluster(_testServiceName, labels);
+            Func<Cluster> func = () => LabelsParser.BuildCluster(_testServiceName, labels, null);
 
             func.Should().Throw<ConfigException>().WithMessage($"Could not convert label {key}='{invalidValue}' *");
         }

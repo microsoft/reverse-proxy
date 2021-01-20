@@ -10,49 +10,33 @@ namespace Microsoft.ReverseProxy.Abstractions
     /// <summary>
     /// Describes a destination of a cluster.
     /// </summary>
-    public sealed class Destination : IDeepCloneable<Destination>
+    public sealed record Destination
     {
         /// <summary>
         /// Address of this destination. E.g. <c>https://127.0.0.1:123/abcd1234/</c>.
         /// </summary>
-        public string Address { get; set; }
+        public string Address { get; init; }
 
         /// <summary>
         /// Endpoint accepting active health check probes. E.g. <c>http://127.0.0.1:1234/</c>.
         /// </summary>
-        public string Health { get; set; }
+        public string Health { get; init; }
 
         /// <summary>
         /// Arbitrary key-value pairs that further describe this destination.
         /// </summary>
-        public IDictionary<string, string> Metadata { get; set; }
+        public IReadOnlyDictionary<string, string> Metadata { get; init; }
 
-        /// <inheritdoc/>
-        Destination IDeepCloneable<Destination>.DeepClone()
+        public bool Equals(Destination other)
         {
-            return new Destination
-            {
-                Address = Address,
-                Health = Health,
-                Metadata = Metadata?.DeepClone(StringComparer.OrdinalIgnoreCase),
-            };
-        }
-
-        internal static bool Equals(Destination destination1, Destination destination2)
-        {
-            if (destination1 == null && destination2 == null)
-            {
-                return true;
-            }
-
-            if (destination1 == null || destination2 == null)
+            if (other == null)
             {
                 return false;
             }
 
-            return string.Equals(destination1.Address, destination2.Address, StringComparison.OrdinalIgnoreCase)
-                && string.Equals(destination1.Health, destination2.Health, StringComparison.OrdinalIgnoreCase)
-                && CaseInsensitiveEqualHelper.Equals(destination1.Metadata, destination2.Metadata);
+            return string.Equals(Address, other.Address, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(Health, other.Health, StringComparison.OrdinalIgnoreCase)
+                && CaseInsensitiveEqualHelper.Equals(Metadata, other.Metadata);
         }
     }
 }

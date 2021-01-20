@@ -233,7 +233,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             return routes;
         }
 
-        internal static Cluster BuildCluster(Uri serviceName, Dictionary<string, string> labels)
+        internal static Cluster BuildCluster(Uri serviceName, Dictionary<string, string> labels, IReadOnlyDictionary<string, Destination> destinations)
         {
             var clusterMetadata = new Dictionary<string, string>();
             Dictionary<string, string> sessionAffinitySettings = null;
@@ -299,6 +299,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                     }
                 },
                 Metadata = clusterMetadata,
+                Destinations = destinations,
             };
             return cluster;
         }

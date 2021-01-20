@@ -17,7 +17,7 @@ namespace Microsoft.ReverseProxy.Service
         /// </summary>
         /// <param name="id">The id for the cluster.</param>
         /// <param name="cluster">The Cluster instance to configure.</param>
-        Task ConfigureClusterAsync(Cluster cluster, CancellationToken cancel);
+        ValueTask<Cluster> ConfigureClusterAsync(Cluster cluster, CancellationToken cancel);
 
         /// <summary>
         /// Allows modification of a route configuration.

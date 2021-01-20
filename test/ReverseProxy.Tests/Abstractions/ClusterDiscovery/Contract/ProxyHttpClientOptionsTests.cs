@@ -10,33 +10,6 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
     public class ProxyHttpClientOptionsTests
     {
         [Fact]
-        public void Constructor_Works()
-        {
-            new ProxyHttpClientOptions();
-        }
-
-        [Fact]
-        public void DeepClone_Works()
-        {
-            var options = new ProxyHttpClientOptions
-            {
-                SslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13,
-                DangerousAcceptAnyServerCertificate = true,
-                ClientCertificate = TestResources.GetTestCertificate(),
-                MaxConnectionsPerServer = 10
-            };
-
-            var clone = options.DeepClone();
-
-            Assert.NotSame(options, clone);
-            Assert.Equal(options.SslProtocols, clone.SslProtocols);
-            Assert.Equal(options.DangerousAcceptAnyServerCertificate, clone.DangerousAcceptAnyServerCertificate);
-            Assert.Same(options.ClientCertificate, clone.ClientCertificate);
-            Assert.Equal(options.MaxConnectionsPerServer, clone.MaxConnectionsPerServer);
-        }
-
-
-        [Fact]
         public void Equals_Same_Value_Returns_True()
         {
             var options1 = new ProxyHttpClientOptions

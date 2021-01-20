@@ -6,57 +6,39 @@ namespace Microsoft.ReverseProxy.Abstractions
     /// <summary>
     /// Outgoing request configuration.
     /// </summary>
-    public sealed class ProxyHttpRequestOptions
+    public sealed record ProxyHttpRequestOptions : IEquatable<ProxyHttpRequestOptions>
     {
         /// <summary>
         /// The time allowed to send the request and receive the response headers. This may include
         /// the time needed to send the request body.
         /// </summary>
-        public TimeSpan? Timeout { get; set; }
+        public TimeSpan? Timeout { get; init; }
 
         /// <summary>
         /// Preferred version of the outgoing request.
         /// </summary>
-        public Version Version { get; set; }
+        public Version Version { get; init; }
 
 #if NET
         /// <summary>
         /// The policy applied to version selection, e.g. whether to prefer downgrades, upgrades or
         /// request an exact version.
         /// </summary>
-        public HttpVersionPolicy? VersionPolicy { get; set; }
+        public HttpVersionPolicy? VersionPolicy { get; init; }
 #endif
 
-        internal ProxyHttpRequestOptions DeepClone()
+        public bool Equals(ProxyHttpRequestOptions other)
         {
-            return new ProxyHttpRequestOptions
-            {
-                Timeout = Timeout,
-                Version = Version,
-#if NET
-                VersionPolicy = VersionPolicy,
-#endif
-            };
-        }
-
-        internal static bool Equals(ProxyHttpRequestOptions options1, ProxyHttpRequestOptions options2)
-        {
-            if (options1 == null && options2 == null)
-            {
-                return true;
-            }
-
-            if (options1 == null || options2 == null)
+            if (other == null)
             {
                 return false;
             }
 
-            return options1.Timeout == options2.Timeout
-                   && options1.Version == options2.Version
+            return Timeout == other.Timeout
 #if NET
-                   && options1.VersionPolicy == options2.VersionPolicy
+                && VersionPolicy == other.VersionPolicy
 #endif
-                ;
+                && Version == other.Version;
         }
     }
 }

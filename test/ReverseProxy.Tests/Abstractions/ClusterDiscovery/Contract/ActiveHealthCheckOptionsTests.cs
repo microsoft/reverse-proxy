@@ -9,34 +9,6 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
     public class ActiveHealthCheckOptionsTests
     {
         [Fact]
-        public void Constructor_Works()
-        {
-            new ActiveHealthCheckOptions();
-        }
-
-        [Fact]
-        public void DeepClone_Works()
-        {
-            var sut = new ActiveHealthCheckOptions
-            {
-                Enabled = true,
-                Interval = TimeSpan.FromSeconds(2),
-                Timeout = TimeSpan.FromSeconds(1),
-                Policy = "Any5xxResponse",
-                Path = "/a",
-            };
-
-            var clone = sut.DeepClone();
-
-            Assert.NotSame(sut, clone);
-            Assert.Equal(sut.Enabled, clone.Enabled);
-            Assert.Equal(sut.Interval, clone.Interval);
-            Assert.Equal(sut.Timeout, clone.Timeout);
-            Assert.Equal(sut.Policy, clone.Policy);
-            Assert.Equal(sut.Path, clone.Path);
-        }
-
-        [Fact]
         public void Equals_Same_Value_Returns_True()
         {
             var options1 = new ActiveHealthCheckOptions
