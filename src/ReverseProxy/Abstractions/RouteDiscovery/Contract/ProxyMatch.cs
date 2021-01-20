@@ -38,6 +38,7 @@ namespace Microsoft.ReverseProxy.Abstractions
         /// </summary>
         public IReadOnlyList<RouteHeader> Headers { get; init; }
 
+        /// <inheritdoc />
         public bool Equals(ProxyMatch other)
         {
             if (other == null)
@@ -78,6 +79,16 @@ namespace Microsoft.ReverseProxy.Abstractions
             }
 
             return true;
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(
+                Path?.GetHashCode(StringComparison.OrdinalIgnoreCase),
+                CaseInsensitiveEqualHelper.GetHashCode(Hosts),
+                CaseInsensitiveEqualHelper.GetHashCode(Methods),
+                Headers);
         }
     }
 }

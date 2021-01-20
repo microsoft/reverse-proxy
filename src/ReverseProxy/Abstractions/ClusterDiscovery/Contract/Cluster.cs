@@ -55,6 +55,7 @@ namespace Microsoft.ReverseProxy.Abstractions
         /// </summary>
         public IReadOnlyDictionary<string, string> Metadata { get; init; }
 
+        /// <inheritdoc />
         public bool Equals(Cluster other)
         {
             if (other == null)
@@ -71,6 +72,20 @@ namespace Microsoft.ReverseProxy.Abstractions
                 && HttpRequest == other.HttpRequest
                 && CaseInsensitiveEqualHelper.Equals(Destinations, other.Destinations, (a, b) => a == b)
                 && CaseInsensitiveEqualHelper.Equals(Metadata, other.Metadata);
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(
+                Id?.GetHashCode(StringComparison.OrdinalIgnoreCase),
+                LoadBalancingPolicy?.GetHashCode(StringComparison.OrdinalIgnoreCase),
+                SessionAffinity,
+                HealthCheck,
+                HttpClient,
+                HttpRequest,
+                Destinations,
+                Metadata);
         }
     }
 }

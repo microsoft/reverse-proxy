@@ -60,6 +60,7 @@ namespace Microsoft.ReverseProxy.Abstractions
         /// </summary>
         public IReadOnlyList<IReadOnlyDictionary<string, string>> Transforms { get; init; }
 
+        /// <inheritdoc />
         public bool Equals(ProxyRoute other)
         {
             if (other == null)
@@ -75,6 +76,19 @@ namespace Microsoft.ReverseProxy.Abstractions
                 && Match == other.Match
                 && CaseInsensitiveEqualHelper.Equals(Metadata, other.Metadata)
                 && CaseInsensitiveEqualHelper.Equals(Transforms, other.Transforms);
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Order,
+                RouteId?.GetHashCode(StringComparison.OrdinalIgnoreCase),
+                ClusterId?.GetHashCode(StringComparison.OrdinalIgnoreCase),
+                AuthorizationPolicy?.GetHashCode(StringComparison.OrdinalIgnoreCase),
+                CorsPolicy?.GetHashCode(StringComparison.OrdinalIgnoreCase),
+                Match,
+                Metadata,
+                Transforms);
         }
     }
 }

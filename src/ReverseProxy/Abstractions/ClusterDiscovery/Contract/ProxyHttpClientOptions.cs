@@ -36,6 +36,7 @@ namespace Microsoft.ReverseProxy.Abstractions
                 && PropagateActivityContext == other.PropagateActivityContext;
         }
 
+        /// <inheritdoc />
         private static bool CertEquals(X509Certificate2 certificate1, X509Certificate2 certificate2)
         {
             if (certificate1 == null && certificate2 == null)
@@ -49,6 +50,16 @@ namespace Microsoft.ReverseProxy.Abstractions
             }
 
             return string.Equals(certificate1.Thumbprint, certificate2.Thumbprint, StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(SslProtocols,
+                ClientCertificate?.Thumbprint,
+                DangerousAcceptAnyServerCertificate,
+                MaxConnectionsPerServer,
+                PropagateActivityContext);
         }
     }
 }

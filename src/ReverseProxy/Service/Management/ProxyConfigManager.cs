@@ -562,7 +562,7 @@ namespace Microsoft.ReverseProxy.Service.Management
             }
         }
 
-        private ClusterProxyHttpClientOptions ConvertProxyHttpClientOptions(ProxyHttpClientOptions httpClientOptions)
+        private static ClusterProxyHttpClientOptions ConvertProxyHttpClientOptions(ProxyHttpClientOptions httpClientOptions)
         {
             if (httpClientOptions == null)
             {

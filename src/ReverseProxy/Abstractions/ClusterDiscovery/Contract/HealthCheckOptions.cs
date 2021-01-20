@@ -20,6 +20,7 @@ namespace Microsoft.ReverseProxy.Abstractions
         /// </summary>
         public ActiveHealthCheckOptions Active { get; init; }
 
+        /// <inheritdoc />
         public bool Equals(HealthCheckOptions other)
         {
             if (other == null)
@@ -27,7 +28,14 @@ namespace Microsoft.ReverseProxy.Abstractions
                 return false;
             }
 
-            return Passive == other.Passive && Active == other.Active;
+            return Passive == other.Passive
+                && Active == other.Active;
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Passive, Active);
         }
     }
 }

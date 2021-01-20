@@ -27,6 +27,7 @@ namespace Microsoft.ReverseProxy.Abstractions
         public HttpVersionPolicy? VersionPolicy { get; init; }
 #endif
 
+        /// <inheritdoc />
         public bool Equals(ProxyHttpRequestOptions other)
         {
             if (other == null)
@@ -39,6 +40,16 @@ namespace Microsoft.ReverseProxy.Abstractions
                 && VersionPolicy == other.VersionPolicy
 #endif
                 && Version == other.Version;
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Timeout,
+#if NET
+                VersionPolicy,
+#endif
+                Version);
         }
     }
 }

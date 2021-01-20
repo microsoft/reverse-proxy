@@ -158,5 +158,15 @@ namespace Microsoft.ReverseProxy.Utilities
 
             return true;
         }
+
+        internal static int GetHashCode(IReadOnlyList<string> values)
+        {
+            var hashCode = new HashCode();
+            foreach (var value in values)
+            {
+                hashCode.Add(value, StringComparer.OrdinalIgnoreCase);
+            }
+            return hashCode.ToHashCode();
+        }
     }
 }

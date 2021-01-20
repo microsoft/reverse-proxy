@@ -32,6 +32,7 @@ namespace Microsoft.ReverseProxy.Abstractions
         /// </summary>
         public IReadOnlyDictionary<string, string> Settings { get; init; }
 
+        /// <inheritdoc />
         public bool Equals(SessionAffinityOptions other)
         {
             if (other == null)
@@ -43,6 +44,15 @@ namespace Microsoft.ReverseProxy.Abstractions
                 && string.Equals(Mode, other.Mode, StringComparison.OrdinalIgnoreCase)
                 && string.Equals(FailurePolicy, other.FailurePolicy, StringComparison.OrdinalIgnoreCase)
                 && CaseInsensitiveEqualHelper.Equals(Settings, other.Settings);
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Enabled,
+                Mode?.GetHashCode(StringComparison.OrdinalIgnoreCase),
+                FailurePolicy?.GetHashCode(StringComparison.OrdinalIgnoreCase),
+                Settings);
         }
     }
 }

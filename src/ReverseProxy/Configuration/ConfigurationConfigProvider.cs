@@ -329,7 +329,7 @@ namespace Microsoft.ReverseProxy.Configuration
             };
         }
 
-        private ProxyHttpRequestOptions CreateProxyRequestOptions(IConfigurationSection section)
+        private static ProxyHttpRequestOptions CreateProxyRequestOptions(IConfigurationSection section)
         {
             if (!section.Exists())
             {

@@ -25,6 +25,7 @@ namespace Microsoft.ReverseProxy.Abstractions
         /// </summary>
         public TimeSpan? ReactivationPeriod { get; init; }
 
+        /// <inheritdoc />
         public bool Equals(PassiveHealthCheckOptions other)
         {
             if (other == null)
@@ -35,6 +36,14 @@ namespace Microsoft.ReverseProxy.Abstractions
             return Enabled == other.Enabled
                 && string.Equals(Policy, other.Policy, StringComparison.OrdinalIgnoreCase)
                 && ReactivationPeriod == other.ReactivationPeriod;
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Enabled,
+                Policy?.GetHashCode(StringComparison.OrdinalIgnoreCase),
+                ReactivationPeriod);
         }
     }
 }

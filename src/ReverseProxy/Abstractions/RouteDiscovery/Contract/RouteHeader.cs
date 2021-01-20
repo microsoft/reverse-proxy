@@ -37,9 +37,7 @@ namespace Microsoft.ReverseProxy.Abstractions
         /// </summary>
         public bool IsCaseSensitive { get; init; }
 
-        /// <summary>
-        /// Checks if this instance is equal to the given one.
-        /// </summary>
+        /// <inheritdoc />
         public bool Equals(RouteHeader other)
         {
             if (other == null)
@@ -53,6 +51,15 @@ namespace Microsoft.ReverseProxy.Abstractions
                 && (IsCaseSensitive
                     ? CaseSensitiveEqualHelper.Equals(Values, other.Values)
                     : CaseInsensitiveEqualHelper.Equals(Values, other.Values));
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Mode, IsCaseSensitive,
+                IsCaseSensitive
+                    ? CaseSensitiveEqualHelper.GetHashCode(Values)
+                    : CaseInsensitiveEqualHelper.GetHashCode(Values));
         }
     }
 }
