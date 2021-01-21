@@ -230,10 +230,19 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             VerifySentProbeAndResult(cluster0, httpClient0, policy0, new[] { ("https://localhost:20000/cluster0/api/health/", 1), ("https://localhost:20001/cluster0/api/health/", 1) }, policyCallTimes: 1);
             VerifySentProbeAndResult(cluster2, httpClient2, policy1, new[] { ("https://localhost:20000/cluster2/api/health/", 1), ("https://localhost:20001/cluster2/api/health/", 1) }, policyCallTimes: 1);
 
-            var healthCheckConfig = new ClusterHealthCheckOptions(
-                new ClusterPassiveHealthCheckOptions(true, "passive0", null),
-                new ClusterActiveHealthCheckOptions(false, null, null, cluster2.Config.HealthCheckOptions.Active.Policy, null));
-            cluster2.Config = new ClusterConfig(new Cluster { Id = cluster2.ClusterId }, healthCheckConfig, default, default, cluster2.Config.HttpClient, default, default, null);
+            var healthCheckConfig = new HealthCheckOptions
+            {
+                Passive = new PassiveHealthCheckOptions
+                {
+                    Enabled = true,
+                    Policy = "passive0",
+                },
+                Active = new ActiveHealthCheckOptions
+                {
+                    Policy = cluster2.Config.Options.HealthCheck.Active.Policy,
+                }
+            };
+            cluster2.Config = new ClusterConfig(new Cluster { Id = cluster2.ClusterId, HealthCheck = healthCheckConfig }, default, default, cluster2.Config.HttpClient, default, default, null);
 
             monitor.OnClusterChanged(cluster2);
 
@@ -366,8 +375,21 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         private ClusterInfo GetClusterInfo(string id, string policy, bool activeCheckEnabled, HttpMessageInvoker httpClient, TimeSpan? interval = null, TimeSpan? timeout = null, int destinationCount = 2)
         {
             var clusterConfig = new ClusterConfig(
-                new Cluster { Id = id },
-                new ClusterHealthCheckOptions(default, new ClusterActiveHealthCheckOptions(activeCheckEnabled, interval, timeout, policy, "/api/health/")),
+                new Cluster
+                {
+                    Id = id,
+                    HealthCheck = new HealthCheckOptions
+                    {
+                        Active = new ActiveHealthCheckOptions
+                        {
+                            Enabled = activeCheckEnabled,
+                            Interval = interval,
+                            Timeout = timeout,
+                            Policy = policy,
+                            Path = "/api/health/",
+                        }
+                    }
+                },
                 default,
                 default,
                 httpClient,

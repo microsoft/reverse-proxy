@@ -124,8 +124,19 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 ? new Dictionary<string, string> { { ConsecutiveFailuresHealthPolicyOptions.ThresholdMetadataName, failureThreshold.ToString() } }
                 : null;
             var clusterConfig = new ClusterConfig(
-                new Cluster { Id = id },
-                new ClusterHealthCheckOptions(default, new ClusterActiveHealthCheckOptions(true, null, null, "policy", "/api/health/")),
+                new Cluster
+                {
+                    Id = id,
+                    HealthCheck = new HealthCheckOptions()
+                    {
+                        Active = new ActiveHealthCheckOptions
+                        {
+                            Enabled = true,
+                            Policy = "policy",
+                            Path = "/api/health/",
+                        },
+                    }
+                },
                 default,
                 default,
                 null,

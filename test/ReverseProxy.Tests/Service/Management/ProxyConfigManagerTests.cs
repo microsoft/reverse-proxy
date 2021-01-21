@@ -361,8 +361,8 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             var clusterInfo = clusterManager.TryGetItem("cluster1");
 
             Assert.NotNull(clusterInfo);
-            Assert.True(clusterInfo.Config.HealthCheckOptions.Enabled);
-            Assert.Equal(TimeSpan.FromSeconds(12), clusterInfo.Config.HealthCheckOptions.Active.Interval);
+            Assert.True(clusterInfo.Config.Options.HealthCheck.Enabled);
+            Assert.Equal(TimeSpan.FromSeconds(12), clusterInfo.Config.Options.HealthCheck.Active.Interval);
             var destination = Assert.Single(clusterInfo.DynamicState.AllDestinations);
             Assert.Equal("http://localhost", destination.Config.Address);
         }

@@ -20,6 +20,9 @@ namespace Microsoft.ReverseProxy.Abstractions
         /// </summary>
         public ActiveHealthCheckOptions Active { get; init; }
 
+        public bool Enabled => (Passive?.Enabled).GetValueOrDefault()
+            || (Active?.Enabled).GetValueOrDefault();
+
         /// <inheritdoc />
         public bool Equals(HealthCheckOptions other)
         {

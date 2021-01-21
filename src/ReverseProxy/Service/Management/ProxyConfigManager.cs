@@ -351,28 +351,17 @@ namespace Microsoft.ReverseProxy.Service.Management
                             OldMetadata = currentClusterConfig?.Metadata,
                             OldClient = currentClusterConfig?.HttpClient,
                             NewOptions = newClusterHttpClientOptions,
-                            NewMetadata = (IReadOnlyDictionary<string, string>)newCluster.Metadata
+                            NewMetadata = newCluster.Metadata
                         });
 
                         var newClusterConfig = new ClusterConfig(
                                 newCluster,
-                                new ClusterHealthCheckOptions(
-                                    passive: new ClusterPassiveHealthCheckOptions(
-                                        enabled: newCluster.HealthCheck?.Passive?.Enabled ?? false,
-                                        policy: newCluster.HealthCheck?.Passive?.Policy,
-                                        reactivationPeriod: newCluster.HealthCheck?.Passive?.ReactivationPeriod),
-                                    active: new ClusterActiveHealthCheckOptions(
-                                        enabled: newCluster.HealthCheck?.Active?.Enabled ?? false,
-                                        interval: newCluster.HealthCheck?.Active?.Interval,
-                                        timeout: newCluster.HealthCheck?.Active?.Timeout,
-                                        policy: newCluster.HealthCheck?.Active?.Policy,
-                                        path: newCluster.HealthCheck?.Active?.Path ?? string.Empty)),
                                 loadBalancingPolicy: newCluster.LoadBalancingPolicy,
                                 new ClusterSessionAffinityOptions(
                                     enabled: newCluster.SessionAffinity?.Enabled ?? false,
                                     mode: newCluster.SessionAffinity?.Mode,
                                     failurePolicy: newCluster.SessionAffinity?.FailurePolicy,
-                                    settings: newCluster.SessionAffinity?.Settings as IReadOnlyDictionary<string, string>),
+                                    settings: newCluster.SessionAffinity?.Settings),
                                 httpClient,
                                 newClusterHttpClientOptions,
                                 new RequestProxyOptions(
@@ -382,7 +371,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                                     , versionPolicy: newCluster.HttpRequest?.VersionPolicy
 #endif
                                     ),
-                                (IReadOnlyDictionary<string, string>)newCluster.Metadata);
+                                newCluster.Metadata);
 
                         if (currentClusterConfig == null ||
                             currentClusterConfig.HasConfigChanged(newClusterConfig))

@@ -105,14 +105,14 @@ namespace Microsoft.ReverseProxy.RuntimeModel
             {
                 try
                 {
-                    var healthChecks = _config?.HealthCheckOptions ?? default;
+                    var healthChecks = _config?.Options.HealthCheck;
                     var allDestinations = DestinationManager.Items;
                     var healthyDestinations = allDestinations;
 
-                    if (healthChecks.Enabled)
+                    if ((healthChecks?.Enabled).GetValueOrDefault())
                     {
-                        var activeEnabled = healthChecks.Active.Enabled;
-                        var passiveEnabled = healthChecks.Passive.Enabled;
+                        var activeEnabled = (healthChecks.Active?.Enabled).GetValueOrDefault();
+                        var passiveEnabled = (healthChecks.Passive?.Enabled).GetValueOrDefault();
 
                         healthyDestinations = allDestinations.Where(destination =>
                         {

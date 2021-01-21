@@ -210,8 +210,19 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 ? new Dictionary<string, string> { { TransportFailureRateHealthPolicyOptions.FailureRateLimitMetadataName, failureRateLimit?.ToString(CultureInfo.InvariantCulture) } }
                 : null;
             var clusterConfig = new ClusterConfig(
-                new Cluster { Id = id },
-                new ClusterHealthCheckOptions(new ClusterPassiveHealthCheckOptions(true, "policy", reactivationPeriod), default),
+                new Cluster
+                {
+                    Id = id,
+                    HealthCheck = new HealthCheckOptions
+                    {
+                        Passive = new PassiveHealthCheckOptions
+                        {
+                            Enabled = true,
+                            Policy = "policy",
+                            ReactivationPeriod = reactivationPeriod,
+                        }
+                    }
+                },
                 default,
                 default,
                 null,
