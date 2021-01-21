@@ -9,6 +9,8 @@ namespace Microsoft.ReverseProxy.Abstractions
 {
     public sealed record ProxyHttpClientOptions : IEquatable<ProxyHttpClientOptions>
     {
+        public static readonly ProxyHttpClientOptions Empty = new();
+
         public SslProtocols? SslProtocols { get; init; }
 
         public bool? DangerousAcceptAnyServerCertificate { get; init; }

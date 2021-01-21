@@ -138,7 +138,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                         },
                     },
                 },
-                default, default, null);
+                default, null);
             return cluster;
         }
     }

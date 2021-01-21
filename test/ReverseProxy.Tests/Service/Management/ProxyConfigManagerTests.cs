@@ -184,9 +184,9 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             Assert.Equal("cluster1", actualClusters[0].ClusterId);
             var clusterConfig = actualClusters[0].Config;
             Assert.NotNull(clusterConfig.HttpClient);
-            Assert.Equal(SslProtocols.Tls11 | SslProtocols.Tls12, clusterConfig.HttpClientOptions.SslProtocols);
-            Assert.Equal(10, clusterConfig.HttpClientOptions.MaxConnectionsPerServer);
-            Assert.Same(clientCertificate, clusterConfig.HttpClientOptions.ClientCertificate);
+            Assert.Equal(SslProtocols.Tls11 | SslProtocols.Tls12, clusterConfig.Options.HttpClient.SslProtocols);
+            Assert.Equal(10, clusterConfig.Options.HttpClient.MaxConnectionsPerServer);
+            Assert.Same(clientCertificate, clusterConfig.Options.HttpClient.ClientCertificate);
 
             var handler = Proxy.Tests.ProxyHttpClientFactoryTests.GetHandler(clusterConfig.HttpClient);
             Assert.Equal(SslProtocols.Tls11 | SslProtocols.Tls12, handler.SslOptions.EnabledSslProtocols);

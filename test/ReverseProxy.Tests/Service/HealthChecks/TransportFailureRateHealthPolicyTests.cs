@@ -224,7 +224,6 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                     }
                 },
                 null,
-                default,
                 metadata);
             var clusterInfo = new ClusterInfo(id, new DestinationManager());
             clusterInfo.Config = clusterConfig;

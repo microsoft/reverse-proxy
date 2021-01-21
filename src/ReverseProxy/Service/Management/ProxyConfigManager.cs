@@ -343,21 +343,19 @@ namespace Microsoft.ReverseProxy.Service.Management
                         UpdateRuntimeDestinations(newCluster.Destinations, currentCluster.DestinationManager);
 
                         var currentClusterConfig = currentCluster.Config;
-                        var newClusterHttpClientOptions = ConvertProxyHttpClientOptions(newCluster.HttpClient);
 
                         var httpClient = _httpClientFactory.CreateClient(new ProxyHttpClientContext {
                             ClusterId = currentCluster.ClusterId,
-                            OldOptions = currentClusterConfig?.HttpClientOptions ?? default,
+                            OldOptions = currentClusterConfig?.Options.HttpClient ?? ProxyHttpClientOptions.Empty,
                             OldMetadata = currentClusterConfig?.Metadata,
                             OldClient = currentClusterConfig?.HttpClient,
-                            NewOptions = newClusterHttpClientOptions,
+                            NewOptions = newCluster.HttpClient ?? ProxyHttpClientOptions.Empty,
                             NewMetadata = newCluster.Metadata
                         });
 
                         var newClusterConfig = new ClusterConfig(
                                 newCluster,
                                 httpClient,
-                                newClusterHttpClientOptions,
                                 newCluster.Metadata);
 
                         if (currentClusterConfig == null ||
@@ -536,21 +534,6 @@ namespace Microsoft.ReverseProxy.Service.Management
                 // Step 4 - trigger old token
                 oldCancellationTokenSource?.Cancel();
             }
-        }
-
-        private static ClusterProxyHttpClientOptions ConvertProxyHttpClientOptions(ProxyHttpClientOptions httpClientOptions)
-        {
-            if (httpClientOptions == null)
-            {
-                return new ClusterProxyHttpClientOptions();
-            }
-
-            return new ClusterProxyHttpClientOptions(
-                httpClientOptions.SslProtocols,
-                httpClientOptions.DangerousAcceptAnyServerCertificate,
-                httpClientOptions.ClientCertificate,
-                httpClientOptions.MaxConnectionsPerServer,
-                httpClientOptions.PropagateActivityContext);
         }
 
         private RouteConfig BuildRouteConfig(ProxyRoute source, ClusterInfo cluster, RouteInfo runtimeRoute)
