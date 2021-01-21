@@ -94,7 +94,7 @@ namespace Microsoft.ReverseProxy.DynamicEndpoint
                 proxyRoute,
                 new ClusterInfo("cluster-1", new DestinationManager())
                 {
-                    Config = new ClusterConfig(cluster, default, default, default, default, default)
+                    Config = new ClusterConfig(cluster, default, default, default, default)
                 },
                 HttpTransformer.Default);
 

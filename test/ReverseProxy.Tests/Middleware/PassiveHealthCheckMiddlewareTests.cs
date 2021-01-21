@@ -134,7 +134,6 @@ namespace Microsoft.ReverseProxy.Middleware
                         }
                     }
                 },
-                default,
                 null,
                 default,
                 default,

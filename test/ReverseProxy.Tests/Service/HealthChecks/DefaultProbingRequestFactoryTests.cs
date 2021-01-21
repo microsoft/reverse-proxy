@@ -82,7 +82,6 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                         Active = healthCheckOptions,
                     },
                 },
-                default,
                 null,
                 default,
                 new RequestProxyOptions(
