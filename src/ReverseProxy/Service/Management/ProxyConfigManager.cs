@@ -347,16 +347,13 @@ namespace Microsoft.ReverseProxy.Service.Management
                         var httpClient = _httpClientFactory.CreateClient(new ProxyHttpClientContext {
                             ClusterId = currentCluster.ClusterId,
                             OldOptions = currentClusterConfig?.Options.HttpClient ?? ProxyHttpClientOptions.Empty,
-                            OldMetadata = currentClusterConfig?.Metadata,
+                            OldMetadata = currentClusterConfig?.Options.Metadata,
                             OldClient = currentClusterConfig?.HttpClient,
                             NewOptions = newCluster.HttpClient ?? ProxyHttpClientOptions.Empty,
                             NewMetadata = newCluster.Metadata
                         });
 
-                        var newClusterConfig = new ClusterConfig(
-                                newCluster,
-                                httpClient,
-                                newCluster.Metadata);
+                        var newClusterConfig = new ClusterConfig(newCluster, httpClient);
 
                         if (currentClusterConfig == null ||
                             currentClusterConfig.HasConfigChanged(newClusterConfig))

@@ -2,10 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.Net.Http;
 using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Service.Proxy;
 
 namespace Microsoft.ReverseProxy.RuntimeModel
 {
@@ -23,12 +21,10 @@ namespace Microsoft.ReverseProxy.RuntimeModel
     {
         public ClusterConfig(
             Cluster cluster,
-            HttpMessageInvoker httpClient,
-            IReadOnlyDictionary<string, string> metadata)
+            HttpMessageInvoker httpClient)
         {
             Options = cluster ?? throw new ArgumentNullException(nameof(cluster));
             HttpClient = httpClient;
-            Metadata = metadata;
         }
 
         public Cluster Options { get; }
@@ -37,11 +33,6 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         /// An <see cref="HttpMessageInvoker"/> that used for proxying requests to an upstream server.
         /// </summary>
         public HttpMessageInvoker HttpClient { get; }
-
-        /// <summary>
-        /// Arbitrary key-value pairs that further describe this cluster.
-        /// </summary>
-        public IReadOnlyDictionary<string, string> Metadata { get; }
 
         internal bool HasConfigChanged(ClusterConfig newClusterConfig)
         {

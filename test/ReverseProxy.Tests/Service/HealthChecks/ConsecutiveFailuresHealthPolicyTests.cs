@@ -135,10 +135,10 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                             Policy = "policy",
                             Path = "/api/health/",
                         },
-                    }
+                    },
+                    Metadata = metadata,
                 },
-                null,
-                metadata);
+                null);
             var clusterInfo = new ClusterInfo(id, new DestinationManager());
             clusterInfo.Config = clusterConfig;
             for (var i = 0; i < destinationCount; i++)

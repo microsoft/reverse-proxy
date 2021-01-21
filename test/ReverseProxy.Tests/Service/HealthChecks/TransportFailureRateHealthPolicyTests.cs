@@ -11,7 +11,6 @@ using Microsoft.ReverseProxy.Common.Tests;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Management;
 using Microsoft.ReverseProxy.Service.Proxy;
-using Microsoft.ReverseProxy.Utilities;
 using Moq;
 using Xunit;
 
@@ -221,10 +220,10 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                             Policy = "policy",
                             ReactivationPeriod = reactivationPeriod,
                         }
-                    }
+                    },
+                    Metadata = metadata,
                 },
-                null,
-                metadata);
+                null);
             var clusterInfo = new ClusterInfo(id, new DestinationManager());
             clusterInfo.Config = clusterConfig;
             for (var i = 0; i < destinationCount; i++)
