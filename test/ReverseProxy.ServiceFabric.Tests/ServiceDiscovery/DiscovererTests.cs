@@ -505,11 +505,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             };
             var expectedRoutes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
-            var route = Assert.Single(routes);
-            var expectedRoute = Assert.Single(expectedRoutes);
-            Assert.True(expectedRoute.Equals(route));
-
             clusters.Should().BeEquivalentTo(expectedClusters);
+            routes.Should().BeEquivalentTo(expectedRoutes);
             AssertServiceHealthReported(service, HealthState.Ok);
             _healthReports.Should().HaveCount(1);
         }

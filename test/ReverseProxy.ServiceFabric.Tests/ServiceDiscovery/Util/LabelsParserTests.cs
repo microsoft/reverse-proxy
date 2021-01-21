@@ -298,9 +298,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     },
                     ClusterId = "MyCoolClusterId",
                     Metadata = new Dictionary<string, string>(),
-                }
+                },
             };
-
             routes.Should().BeEquivalentTo(expectedRoutes);
         }
 
@@ -329,9 +328,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     },
                     ClusterId = "MyCoolClusterId",
                     Metadata = new Dictionary<string, string>(),
-                }
+                },
             };
-
             routes.Should().BeEquivalentTo(expectedRoutes);
         }
 
@@ -365,9 +363,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     Order = 2,
                     ClusterId = _testServiceName.ToString(),
                     Metadata = new Dictionary<string, string>(),
-                }
+                },
             };
-
             routes.Should().BeEquivalentTo(expectedRoutes);
         }
 
@@ -392,9 +389,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     },
                     ClusterId = _testServiceName.ToString(),
                     Metadata = new Dictionary<string, string>(),
-                }
+                },
             };
-
             routes.Should().BeEquivalentTo(expectedRoutes);
         }
 
@@ -444,9 +440,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     Order = 2,
                     ClusterId = "MyCoolClusterId",
                     Metadata = new Dictionary<string, string>(),
-                }
+                },
             };
-
             routes.Should().BeEquivalentTo(expectedRoutes);
         }
 
@@ -573,9 +568,9 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     Match = new ProxyMatch
                     {
                         Hosts = new[] { "example0.com" },
-                         Headers = new List<RouteHeader>() {
-                             new RouteHeader(){Name = "x-test-header", Mode = HeaderMatchMode.ExactHeader, Values = expected},
-                         }
+                        Headers = new List<RouteHeader>() {
+                            new RouteHeader(){Name = "x-test-header", Mode = HeaderMatchMode.ExactHeader, Values = expected},
+                        }
                     },
                     Metadata = new Dictionary<string, string>(){
                         { "Foo", "bar"}
@@ -630,7 +625,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     {
                         { "Foo", "Bar" },
                     },
-                }
+                },
             };
             routes.Should().BeEquivalentTo(expectedRoutes);
         }
@@ -688,7 +683,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     Order = 3,
                     ClusterId = "MyCoolClusterId",
                     Metadata = new Dictionary<string, string>(),
-                }
+                },
             };
             routes.Should().BeEquivalentTo(expectedRoutes);
         }
