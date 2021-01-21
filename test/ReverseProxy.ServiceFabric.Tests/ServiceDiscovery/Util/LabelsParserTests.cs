@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using FluentAssertions;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
@@ -224,41 +223,57 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             };
 
             var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
-            var route = Assert.Single(routes);
-            Assert.Equal("MyCoolClusterId:MyRoute", route.RouteId);
-            Assert.Equal(new[] { "example.com" }, route.Match.Hosts);
-            Assert.Equal(2, route.Match.Headers.Count);
-            var header0 = route.Match.Headers[0];
-            Assert.Equal("x-company-key", header0.Name);
-            Assert.Equal(HeaderMatchMode.ExactHeader, header0.Mode);
-            Assert.Equal(new string[] { "contoso" }, header0.Values);
-            Assert.True(header0.IsCaseSensitive);
-            var header1 = route.Match.Headers[1];
-            Assert.Equal("x-environment", header1.Name);
-            Assert.Equal(HeaderMatchMode.ExactHeader, header1.Mode);
-            Assert.Equal(new string[] { "dev", "uat" }, header1.Values);
-            Assert.False(header1.IsCaseSensitive);
-            Assert.Equal(2, route.Order);
-            Assert.Equal("MyCoolClusterId", route.ClusterId);
-            Assert.Equal(new Dictionary<string, string>
+
+            var expectedRoutes = new List<ProxyRoute>
             {
-                { "Foo", "Bar" },
-            }, route.Metadata);
-            Assert.Equal(new[]
-            {
-                new Dictionary<string, string>
+                new ProxyRoute
                 {
-                    {"ResponseHeader", "X-Foo"},
-                    {"Append", "Bar"},
-                    {"When", "Always"}
-                },
-                new Dictionary<string, string>
-                {
-                    {"ResponseHeader", "X-Ping"},
-                    {"Append", "Pong"},
-                    {"When", "Success"}
+                    RouteId = "MyCoolClusterId:MyRoute",
+                    Match = new ProxyMatch
+                    {
+                        Hosts = new[] { "example.com" },
+                        Headers = new List<RouteHeader>
+                        {
+                            new RouteHeader()
+                            {
+                                Mode = HeaderMatchMode.ExactHeader,
+                                Name = "x-company-key",
+                                Values = new string[]{"contoso"},
+                                IsCaseSensitive = true
+                            },
+                            new RouteHeader()
+                            {
+                                Mode = HeaderMatchMode.ExactHeader,
+                                Name = "x-environment",
+                                Values = new string[]{"dev", "uat"},
+                                IsCaseSensitive = false
+                            }
+                        }
+                    },
+                    Order = 2,
+                    ClusterId = "MyCoolClusterId",
+                    Metadata = new Dictionary<string, string>
+                    {
+                        { "Foo", "Bar" },
+                    },
+                    Transforms = new List<IReadOnlyDictionary<string, string>>
+                    {
+                        new Dictionary<string, string>
+                        {
+                            {"ResponseHeader", "X-Foo"},
+                            {"Append", "Bar"},
+                            {"When", "Always"}
+                        },
+                        new Dictionary<string, string>
+                        {
+                            {"ResponseHeader", "X-Ping"},
+                            {"Append", "Pong"},
+                            {"When", "Success"}
+                        }
+                    }
                 }
-            }, route.Transforms);
+            };
+            routes.Should().BeEquivalentTo(expectedRoutes);
         }
 
         [Fact]
@@ -270,20 +285,23 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 { "YARP.Routes.MyRoute.Hosts", "example.com" },
             };
 
-            var route = LabelsParser.BuildRoutes(_testServiceName, labels).Single();
+            var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
-            var expectedRoute = new ProxyRoute
+            var expectedRoutes = new List<ProxyRoute>
             {
-                RouteId = "MyCoolClusterId:MyRoute",
-                Match = new ProxyMatch
+                new ProxyRoute
                 {
-                    Hosts = new[] { "example.com" },
-                },
-                ClusterId = "MyCoolClusterId",
-                Metadata = new Dictionary<string, string>(),
+                    RouteId = "MyCoolClusterId:MyRoute",
+                    Match = new ProxyMatch
+                    {
+                        Hosts = new[] { "example.com" },
+                    },
+                    ClusterId = "MyCoolClusterId",
+                    Metadata = new Dictionary<string, string>(),
+                }
             };
 
-            Assert.True(expectedRoute.Equals(route));
+            routes.Should().BeEquivalentTo(expectedRoutes);
         }
 
         /// <summary>
@@ -298,20 +316,23 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 { "YARP.Routes.MyRoute.Hosts", "'this invalid thing" },
             };
 
-            var route = LabelsParser.BuildRoutes(_testServiceName, labels).Single();
+            var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
-            var expectedRoute = new ProxyRoute
+            var expectedRoutes = new List<ProxyRoute>
             {
-                RouteId = "MyCoolClusterId:MyRoute",
-                Match = new ProxyMatch
+                new ProxyRoute
                 {
-                    Hosts = new[] { "'this invalid thing" },
-                },
-                ClusterId = "MyCoolClusterId",
-                Metadata = new Dictionary<string, string>(),
+                    RouteId = "MyCoolClusterId:MyRoute",
+                    Match = new ProxyMatch
+                    {
+                        Hosts = new[] { "'this invalid thing" },
+                    },
+                    ClusterId = "MyCoolClusterId",
+                    Metadata = new Dictionary<string, string>(),
+                }
             };
 
-            Assert.True(expectedRoute.Equals(route));
+            routes.Should().BeEquivalentTo(expectedRoutes);
         }
 
         [Theory]
@@ -330,21 +351,24 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 labels.Add("YARP.Backend.BackendId", string.Empty);
             }
 
-            var route = LabelsParser.BuildRoutes(_testServiceName, labels).Single();
+            var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
-            var expectedRoute = new ProxyRoute
+            var expectedRoutes = new List<ProxyRoute>
             {
-                RouteId = $"{Uri.EscapeDataString(_testServiceName.ToString())}:MyRoute",
-                Match = new ProxyMatch
+                new ProxyRoute
                 {
-                    Hosts = new[] { "example.com" },
-                },
-                Order = 2,
-                ClusterId = _testServiceName.ToString(),
-                Metadata = new Dictionary<string, string>(),
+                    RouteId = $"{Uri.EscapeDataString(_testServiceName.ToString())}:MyRoute",
+                    Match = new ProxyMatch
+                    {
+                        Hosts = new[] { "example.com" },
+                    },
+                    Order = 2,
+                    ClusterId = _testServiceName.ToString(),
+                    Metadata = new Dictionary<string, string>(),
+                }
             };
 
-            Assert.True(expectedRoute.Equals(route));
+            routes.Should().BeEquivalentTo(expectedRoutes);
         }
 
         [Fact]
@@ -355,20 +379,23 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 { "YARP.Routes.MyRoute.Path", "/{**catchall}" },
             };
 
-            var route = LabelsParser.BuildRoutes(_testServiceName, labels).Single();
+            var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
-            var expectedRoute = new ProxyRoute
+            var expectedRoutes = new List<ProxyRoute>
             {
-                RouteId = $"{Uri.EscapeDataString(_testServiceName.ToString())}:MyRoute",
-                Match = new ProxyMatch
+                new ProxyRoute
                 {
-                    Path = "/{**catchall}",
-                },
-                ClusterId = _testServiceName.ToString(),
-                Metadata = new Dictionary<string, string>(),
+                    RouteId = $"{Uri.EscapeDataString(_testServiceName.ToString())}:MyRoute",
+                    Match = new ProxyMatch
+                    {
+                        Path = "/{**catchall}",
+                    },
+                    ClusterId = _testServiceName.ToString(),
+                    Metadata = new Dictionary<string, string>(),
+                }
             };
 
-            Assert.True(expectedRoute.Equals(route));
+            routes.Should().BeEquivalentTo(expectedRoutes);
         }
 
         [Fact]
@@ -403,21 +430,24 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 { $"YARP.Routes.{routeName}.Order", "2" },
             };
 
-            var route = LabelsParser.BuildRoutes(_testServiceName, labels).Single();
+            var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
-            var expectedRoute = new ProxyRoute
+            var expectedRoutes = new List<ProxyRoute>
             {
-                RouteId = $"MyCoolClusterId:{routeName}",
-                Match = new ProxyMatch
+                new ProxyRoute
                 {
-                    Hosts = new[] { "example.com" },
-                },
-                Order = 2,
-                ClusterId = "MyCoolClusterId",
-                Metadata = new Dictionary<string, string>(),
+                    RouteId = $"MyCoolClusterId:{routeName}",
+                    Match = new ProxyMatch
+                    {
+                        Hosts = new[] { "example.com" },
+                    },
+                    Order = 2,
+                    ClusterId = "MyCoolClusterId",
+                    Metadata = new Dictionary<string, string>(),
+                }
             };
 
-            Assert.True(expectedRoute.Equals(route));
+            routes.Should().BeEquivalentTo(expectedRoutes);
         }
 
         [Theory]
@@ -534,18 +564,26 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             labels[invalidKey] = value;
 
             var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
-            var route = Assert.Single(routes);
-            Assert.Equal("MyCoolClusterId:MyRoute0", route.RouteId);
-            Assert.Equal(new[] { "example0.com" }, route.Match.Hosts);
-            var header = Assert.Single(route.Match.Headers);
-            Assert.Equal("x-test-header", header.Name);
-            Assert.Equal(HeaderMatchMode.ExactHeader, header.Mode);
-            Assert.Equal(expected, header.Values);
-            Assert.Equal(new Dictionary<string, string>()
+
+            var expectedRoutes = new List<ProxyRoute>
             {
-                { "Foo", "bar"}
-            }, route.Metadata);
-            Assert.Equal("MyCoolClusterId", route.ClusterId);
+                new ProxyRoute
+                {
+                    RouteId = $"MyCoolClusterId:MyRoute0",
+                    Match = new ProxyMatch
+                    {
+                        Hosts = new[] { "example0.com" },
+                         Headers = new List<RouteHeader>() {
+                             new RouteHeader(){Name = "x-test-header", Mode = HeaderMatchMode.ExactHeader, Values = expected},
+                         }
+                    },
+                    Metadata = new Dictionary<string, string>(){
+                        { "Foo", "bar"}
+                    },
+                    ClusterId = "MyCoolClusterId",
+                }
+            };
+            routes.Should().BeEquivalentTo(expectedRoutes);
         }
 
         [Theory]
@@ -575,24 +613,26 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             };
             labels[invalidKey] = value;
 
-            var route = LabelsParser.BuildRoutes(_testServiceName, labels).Single();
+            var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
-            var expectedRoute = new ProxyRoute
+            var expectedRoutes = new List<ProxyRoute>
             {
-                RouteId = "MyCoolClusterId:MyRoute",
-                Match = new ProxyMatch
+                new ProxyRoute
                 {
-                    Hosts = new[] { "example.com" },
-                },
-                Order = 2,
-                ClusterId = "MyCoolClusterId",
-                Metadata = new Dictionary<string, string>
-                {
-                    { "Foo", "Bar" },
-                },
+                    RouteId = "MyCoolClusterId:MyRoute",
+                    Match = new ProxyMatch
+                    {
+                        Hosts = new[] { "example.com" },
+                    },
+                    Order = 2,
+                    ClusterId = "MyCoolClusterId",
+                    Metadata = new Dictionary<string, string>
+                    {
+                        { "Foo", "Bar" },
+                    },
+                }
             };
-
-            Assert.True(expectedRoute.Equals(route));
+            routes.Should().BeEquivalentTo(expectedRoutes);
         }
 
         [Fact]
@@ -612,46 +652,45 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
             };
 
             var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
-            Assert.Equal(3, routes.Count);
 
-            var expected0 = new ProxyRoute
+            var expectedRoutes = new List<ProxyRoute>
             {
-                RouteId = "MyCoolClusterId:MyRoute",
-                Match = new ProxyMatch
+                new ProxyRoute
                 {
-                    Hosts = new[] { "example.com" },
-                    Path = "v2/{**rest}",
+                    RouteId = "MyCoolClusterId:MyRoute",
+                    Match = new ProxyMatch
+                    {
+                        Hosts = new[] { "example.com" },
+                        Path = "v2/{**rest}",
+                    },
+                    Order = 1,
+                    ClusterId = "MyCoolClusterId",
+                    Metadata = new Dictionary<string, string> { { "Foo", "Bar" } },
                 },
-                Order = 1,
-                ClusterId = "MyCoolClusterId",
-                Metadata = new Dictionary<string, string> { { "Foo", "Bar" } },
-            };
-            var expected1 = new ProxyRoute
-            {
-                RouteId = "MyCoolClusterId:CoolRoute",
-                Match = new ProxyMatch
+                new ProxyRoute
                 {
-                    Hosts = new[] { "example.net" },
+                    RouteId = "MyCoolClusterId:CoolRoute",
+                    Match = new ProxyMatch
+                    {
+                        Hosts = new[] { "example.net" },
+                    },
+                    Order = 2,
+                    ClusterId = "MyCoolClusterId",
+                    Metadata = new Dictionary<string, string>(),
                 },
-                Order = 2,
-                ClusterId = "MyCoolClusterId",
-                Metadata = new Dictionary<string, string>(),
-            };
-            var expected2 = new ProxyRoute
-            {
-                RouteId = "MyCoolClusterId:EvenCoolerRoute",
-                Match = new ProxyMatch
+                new ProxyRoute
                 {
-                    Hosts = new[] { "example.org" },
-                },
-                Order = 3,
-                ClusterId = "MyCoolClusterId",
-                Metadata = new Dictionary<string, string>(),
+                    RouteId = "MyCoolClusterId:EvenCoolerRoute",
+                    Match = new ProxyMatch
+                    {
+                        Hosts = new[] { "example.org" },
+                    },
+                    Order = 3,
+                    ClusterId = "MyCoolClusterId",
+                    Metadata = new Dictionary<string, string>(),
+                }
             };
-
-            Assert.True(expected0.Equals(routes[0]));
-            Assert.True(expected1.Equals(routes[1]));
-            Assert.True(expected2.Equals(routes[2]));
+            routes.Should().BeEquivalentTo(expectedRoutes);
         }
     }
 }
