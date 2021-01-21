@@ -358,13 +358,6 @@ namespace Microsoft.ReverseProxy.Service.Management
                                 newCluster,
                                 httpClient,
                                 newClusterHttpClientOptions,
-                                new RequestProxyOptions(
-                                    timeout: newCluster.HttpRequest?.Timeout,
-                                    version: newCluster.HttpRequest?.Version
-#if NET
-                                    , versionPolicy: newCluster.HttpRequest?.VersionPolicy
-#endif
-                                    ),
                                 newCluster.Metadata);
 
                         if (currentClusterConfig == null ||

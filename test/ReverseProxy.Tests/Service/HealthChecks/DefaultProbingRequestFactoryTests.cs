@@ -81,16 +81,18 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                     {
                         Active = healthCheckOptions,
                     },
+                    HttpRequest = new RequestProxyOptions
+                    {
+                        Timeout = TimeSpan.FromSeconds(60),
+                        Version = version,
+#if NET
+                        VersionPolicy = versionPolicy,
+#endif
+                    }
                 },
                 null,
                 default,
-                new RequestProxyOptions(
-                    TimeSpan.FromSeconds(60),
-                    version
-#if NET
-                    , versionPolicy
-#endif
-                    ), null);
+                null);
         }
     }
 }

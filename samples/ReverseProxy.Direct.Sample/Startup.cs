@@ -41,7 +41,7 @@ namespace Microsoft.ReverseProxy.Sample
 
             // Copy all request headers except Host
             var transformer = new CustomTransformer(); // or HttpTransformer.Default;
-            var requestOptions = new RequestProxyOptions(TimeSpan.FromSeconds(100), null);
+            var requestOptions = new RequestProxyOptions { Timeout = TimeSpan.FromSeconds(100) };
 
             app.UseRouting();
             app.UseAuthorization();

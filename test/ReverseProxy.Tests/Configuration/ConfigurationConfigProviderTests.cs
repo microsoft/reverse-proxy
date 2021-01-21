@@ -17,6 +17,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Microsoft.ReverseProxy.Service;
+using Microsoft.ReverseProxy.Service.Proxy;
 using Microsoft.ReverseProxy.Utilities.Tests;
 using Moq;
 using Xunit;
@@ -88,7 +89,7 @@ namespace Microsoft.ReverseProxy.Configuration
                             DangerousAcceptAnyServerCertificate = true,
                             PropagateActivityContext = true,
                         },
-                        HttpRequest = new ProxyHttpRequestOptions()
+                        HttpRequest = new RequestProxyOptions()
                         {
                             Timeout = TimeSpan.FromSeconds(60),
                             Version = Version.Parse("1.0"),

@@ -122,7 +122,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 // :: Step 4: Send the outgoing request using HttpClient
                 HttpResponseMessage destinationResponse;
                 var requestTimeoutSource = CancellationTokenSource.CreateLinkedTokenSource(requestAborted);
-                requestTimeoutSource.CancelAfter(requestOptions.Timeout ?? DefaultTimeout);
+                requestTimeoutSource.CancelAfter(requestOptions?.Timeout ?? DefaultTimeout);
                 var requestTimeoutToken = requestTimeoutSource.Token;
                 try
                 {
@@ -268,9 +268,9 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             // based on VersionPolicy (for .NET 5 and higher). For example, downgrading to HTTP/1.1 if it cannot establish HTTP/2 with the target.
             // This is done without extra round-trips thanks to ALPN. We can detect a downgrade after calling HttpClient.SendAsync
             // (see Step 3 below). TBD how this will change when HTTP/3 is supported.
-            destinationRequest.Version = isUpgradeRequest ? ProtocolHelper.Http11Version : (requestOptions.Version ?? DefaultVersion);
+            destinationRequest.Version = isUpgradeRequest ? ProtocolHelper.Http11Version : (requestOptions?.Version ?? DefaultVersion);
 #if NET
-            destinationRequest.VersionPolicy = isUpgradeRequest ? HttpVersionPolicy.RequestVersionOrLower : (requestOptions.VersionPolicy ?? DefaultVersionPolicy);
+            destinationRequest.VersionPolicy = isUpgradeRequest ? HttpVersionPolicy.RequestVersionOrLower : (requestOptions?.VersionPolicy ?? DefaultVersionPolicy);
 #endif
 
             // :: Step 2: Setup copy of request body (background) Client --► Proxy --► Destination

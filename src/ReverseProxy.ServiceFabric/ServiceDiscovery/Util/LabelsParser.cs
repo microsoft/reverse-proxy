@@ -9,6 +9,7 @@ using System.Net.Http;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Primitives;
 using Microsoft.ReverseProxy.Abstractions;
+using Microsoft.ReverseProxy.Service.Proxy;
 
 namespace Microsoft.ReverseProxy.ServiceFabric
 {
@@ -273,7 +274,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                     FailurePolicy = GetLabel<string>(labels, "YARP.Backend.SessionAffinity.FailurePolicy", null),
                     Settings = sessionAffinitySettings
                 },
-                HttpRequest = new ProxyHttpRequestOptions
+                HttpRequest = new RequestProxyOptions
                 {
                     Timeout = ToNullableTimeSpan(GetLabel<double?>(labels, "YARP.Backend.HttpRequest.Timeout", null)),
                     Version = !string.IsNullOrEmpty(versionLabel) ? Version.Parse(versionLabel + (versionLabel.Contains('.') ? "" : ".0")) : null,

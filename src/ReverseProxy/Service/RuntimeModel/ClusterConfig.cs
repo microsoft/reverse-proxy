@@ -25,21 +25,17 @@ namespace Microsoft.ReverseProxy.RuntimeModel
             Cluster cluster,
             HttpMessageInvoker httpClient,
             ClusterProxyHttpClientOptions httpClientOptions,
-            RequestProxyOptions httpRequestOptions,
             IReadOnlyDictionary<string, string> metadata)
         {
             Options = cluster ?? throw new ArgumentNullException(nameof(cluster));
             HttpClient = httpClient;
             HttpClientOptions = httpClientOptions;
-            HttpRequestOptions = httpRequestOptions;
             Metadata = metadata;
         }
 
         public Cluster Options { get; }
 
         public ClusterProxyHttpClientOptions HttpClientOptions { get; }
-
-        public RequestProxyOptions HttpRequestOptions { get; }
 
         /// <summary>
         /// An <see cref="HttpMessageInvoker"/> that used for proxying requests to an upstream server.

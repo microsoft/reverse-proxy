@@ -14,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Configuration;
 using Microsoft.ReverseProxy.Service.HealthChecks;
+using Microsoft.ReverseProxy.Service.Proxy;
 using Microsoft.ReverseProxy.Utilities;
 using Microsoft.ReverseProxy.Utilities.Tests;
 using Moq;
@@ -249,7 +250,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
                 {
                     { "d1", new Destination { Address = TestAddress } }
                 },
-                HttpRequest = new ProxyHttpRequestOptions() { Version = new Version(1, 2) }
+                HttpRequest = new RequestProxyOptions() { Version = new Version(1, 2) }
             };
 
             var services = CreateServices(new List<ProxyRoute>(), new List<Cluster>() { cluster });

@@ -28,7 +28,7 @@ namespace Microsoft.ReverseProxy.Middleware
                 }
             },
             new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object),
-            default, default, new Dictionary<string, string>());
+            default, new Dictionary<string, string>());
 
         internal ClusterInfo GetCluster()
         {

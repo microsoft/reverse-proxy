@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.ReverseProxy.Service.Proxy;
 using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Abstractions
@@ -43,7 +44,7 @@ namespace Microsoft.ReverseProxy.Abstractions
         /// <summary>
         /// Options of an outgoing HTTP request.
         /// </summary>
-        public ProxyHttpRequestOptions HttpRequest { get; init; }
+        public RequestProxyOptions HttpRequest { get; init; }
 
         /// <summary>
         /// The set of destinations associated with this cluster.

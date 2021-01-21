@@ -14,6 +14,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Service;
+using Microsoft.ReverseProxy.Service.Proxy;
 
 namespace Microsoft.ReverseProxy.Configuration
 {
@@ -329,19 +330,19 @@ namespace Microsoft.ReverseProxy.Configuration
             };
         }
 
-        private static ProxyHttpRequestOptions CreateProxyRequestOptions(IConfigurationSection section)
+        private static RequestProxyOptions CreateProxyRequestOptions(IConfigurationSection section)
         {
             if (!section.Exists())
             {
                 return null;
             }
 
-            return new ProxyHttpRequestOptions
+            return new RequestProxyOptions
             {
-                Timeout = section.ReadTimeSpan(nameof(ProxyHttpRequestOptions.Timeout)),
-                Version = section.ReadVersion(nameof(ProxyHttpRequestOptions.Version)),
+                Timeout = section.ReadTimeSpan(nameof(RequestProxyOptions.Timeout)),
+                Version = section.ReadVersion(nameof(RequestProxyOptions.Version)),
 #if NET
-                VersionPolicy = section.ReadEnum<HttpVersionPolicy>(nameof(ProxyHttpRequestOptions.VersionPolicy)),
+                VersionPolicy = section.ReadEnum<HttpVersionPolicy>(nameof(RequestProxyOptions.VersionPolicy)),
 #endif
             };
         }

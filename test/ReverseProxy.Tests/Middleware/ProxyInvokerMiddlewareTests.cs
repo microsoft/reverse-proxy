@@ -40,17 +40,19 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             httpContext.Request.QueryString = new QueryString("?a=b&c=d");
 
             var httpClient = new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object);
-            var httpRequestOptions = new RequestProxyOptions(
-                TimeSpan.FromSeconds(60),
-                HttpVersion.Version11
+            var httpRequestOptions = new RequestProxyOptions
+            {
+                Timeout = TimeSpan.FromSeconds(60),
+                Version = HttpVersion.Version11,
 #if NET
-                , HttpVersionPolicy.RequestVersionExact
+                VersionPolicy = HttpVersionPolicy.RequestVersionExact,
 #endif
-            );
+            };
             var cluster1 = new ClusterInfo(
                 clusterId: "cluster1",
                 destinationManager: new DestinationManager());
-            var clusterConfig = new ClusterConfig(new Cluster(), httpClient, default, httpRequestOptions, new Dictionary<string, string>());
+            var clusterConfig = new ClusterConfig(new Cluster() { HttpRequest = httpRequestOptions },
+                httpClient, default, new Dictionary<string, string>());
             var destination1 = cluster1.DestinationManager.GetOrCreateItem(
                 "destination1",
                 destination =>
@@ -138,7 +140,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             var cluster1 = new ClusterInfo(
                 clusterId: "cluster1",
                 destinationManager: new DestinationManager());
-            var clusterConfig = new ClusterConfig(new Cluster(), httpClient, default, default, new Dictionary<string, string>());
+            var clusterConfig = new ClusterConfig(new Cluster(), httpClient, default, new Dictionary<string, string>());
             httpContext.Features.Set<IReverseProxyFeature>(
                 new ReverseProxyFeature() { AvailableDestinations = Array.Empty<DestinationInfo>(), ClusterConfig = clusterConfig });
             httpContext.Features.Set(cluster1);

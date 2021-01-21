@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Microsoft.ReverseProxy.Service.HealthChecks;
+using Microsoft.ReverseProxy.Service.Proxy;
 using Moq;
 using Xunit;
 
@@ -623,7 +624,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var cluster = new Cluster
             {
                 Id = "cluster1",
-                HttpRequest = new ProxyHttpRequestOptions()
+                HttpRequest = new RequestProxyOptions
                 {
                     Version = null,
                 }
@@ -647,7 +648,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var cluster = new Cluster
             {
                 Id = "cluster1",
-                HttpRequest = new ProxyHttpRequestOptions()
+                HttpRequest = new RequestProxyOptions
                 {
                     Version = version,
                 }
@@ -671,7 +672,7 @@ namespace Microsoft.ReverseProxy.Service.Tests
             var cluster = new Cluster
             {
                 Id = "cluster1",
-                HttpRequest = new ProxyHttpRequestOptions()
+                HttpRequest = new RequestProxyOptions
                 {
                     Version = version,
                 }

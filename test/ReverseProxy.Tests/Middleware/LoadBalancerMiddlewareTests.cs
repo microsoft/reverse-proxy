@@ -173,7 +173,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
         {
             var cluster = new ClusterInfo("cluster1", new DestinationManager())
             {
-                Config = new ClusterConfig(new Cluster { LoadBalancingPolicy = loadBalancingPolicy }, default, default, default, default)
+                Config = new ClusterConfig(new Cluster { LoadBalancingPolicy = loadBalancingPolicy }, default, default, default)
             };
 
             var context = new DefaultHttpContext();

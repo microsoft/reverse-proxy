@@ -8,6 +8,7 @@ using System.Linq;
 using FluentAssertions;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
+using Microsoft.ReverseProxy.Service.Proxy;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.ServiceFabric.Tests
@@ -62,7 +63,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                         { "ParameterB", "ValueB" }
                     }
                 },
-                HttpRequest = new ProxyHttpRequestOptions
+                HttpRequest = new RequestProxyOptions
                 {
                     Timeout = TimeSpan.FromSeconds(17),
                     Version = new Version(1, 1),
@@ -112,7 +113,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 {
                     Enabled = false,
                 },
-                HttpRequest = new ProxyHttpRequestOptions(),
+                HttpRequest = new RequestProxyOptions(),
                 HealthCheck = new HealthCheckOptions
                 {
                     Active = new ActiveHealthCheckOptions
