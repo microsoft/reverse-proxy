@@ -120,5 +120,11 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
             Assert.False(a.Equals(g));
             Assert.False(a.Equals(h));
         }
+
+        [Fact]
+        public void Equals_Null_False()
+        {
+            Assert.False(new ProxyRoute().Equals(null));
+        }
     }
 }

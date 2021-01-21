@@ -271,7 +271,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                             {"When", "Success"}
                         }
                     }
-                }
+                },
             };
             routes.Should().BeEquivalentTo(expectedRoutes);
         }

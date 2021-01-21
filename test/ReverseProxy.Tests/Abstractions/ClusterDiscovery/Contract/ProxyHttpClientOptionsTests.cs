@@ -28,7 +28,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
                 MaxConnectionsPerServer = 20
             };
 
-            var equals = ProxyHttpClientOptions.Equals(options1, options2);
+            var equals = options1.Equals(options2);
 
             Assert.True(equals);
         }
@@ -52,23 +52,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
                 MaxConnectionsPerServer = 20
             };
 
-            var equals = ProxyHttpClientOptions.Equals(options1, options2);
-
-            Assert.False(equals);
-        }
-
-        [Fact]
-        public void Equals_First_Null_Returns_False()
-        {
-            var options2 = new ProxyHttpClientOptions
-            {
-                SslProtocols = SslProtocols.Tls12,
-                DangerousAcceptAnyServerCertificate = true,
-                ClientCertificate = TestResources.GetTestCertificate(),
-                MaxConnectionsPerServer = 20
-            };
-
-            var equals = ProxyHttpClientOptions.Equals(null, options2);
+            var equals = options1.Equals(options2);
 
             Assert.False(equals);
         }
@@ -84,17 +68,9 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
                 MaxConnectionsPerServer = 20
             };
 
-            var equals = ProxyHttpClientOptions.Equals(options1, null);
+            var equals = options1.Equals(null);
 
             Assert.False(equals);
-        }
-
-        [Fact]
-        public void Equals_Both_Null_Returns_True()
-        {
-            var equals = ProxyHttpClientOptions.Equals(null, null);
-
-            Assert.True(equals);
         }
     }
 }

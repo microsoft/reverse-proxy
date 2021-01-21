@@ -48,5 +48,11 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
             Assert.False(a.Equals(d));
             Assert.False(a.Equals(e));
         }
+
+        [Fact]
+        public void Equals_Null_False()
+        {
+            Assert.False(new RouteHeader().Equals(null));
+        }
     }
 }
