@@ -138,7 +138,6 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                     }
                 },
                 default,
-                default,
                 null,
                 default,
                 default,

@@ -23,7 +23,6 @@ namespace Microsoft.ReverseProxy.RuntimeModel
     {
         public ClusterConfig(
             Cluster cluster,
-            string loadBalancingPolicy,
             ClusterSessionAffinityOptions sessionAffinityOptions,
             HttpMessageInvoker httpClient,
             ClusterProxyHttpClientOptions httpClientOptions,
@@ -31,7 +30,6 @@ namespace Microsoft.ReverseProxy.RuntimeModel
             IReadOnlyDictionary<string, string> metadata)
         {
             Options = cluster ?? throw new ArgumentNullException(nameof(cluster));
-            LoadBalancingPolicy = loadBalancingPolicy;
             SessionAffinityOptions = sessionAffinityOptions;
             HttpClient = httpClient;
             HttpClientOptions = httpClientOptions;
@@ -40,8 +38,6 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         }
 
         public Cluster Options { get; }
-
-        public string LoadBalancingPolicy { get; }
 
         public ClusterSessionAffinityOptions SessionAffinityOptions { get; }
 

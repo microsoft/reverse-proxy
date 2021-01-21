@@ -356,7 +356,6 @@ namespace Microsoft.ReverseProxy.Service.Management
 
                         var newClusterConfig = new ClusterConfig(
                                 newCluster,
-                                loadBalancingPolicy: newCluster.LoadBalancingPolicy,
                                 new ClusterSessionAffinityOptions(
                                     enabled: newCluster.SessionAffinity?.Enabled ?? false,
                                     mode: newCluster.SessionAffinity?.Mode,
