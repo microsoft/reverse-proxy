@@ -24,6 +24,7 @@ namespace Microsoft.ReverseProxy.Abstractions
         // TODO: Add this property once we have migrated to SDK version that supports it.
         //public bool? EnableMultipleHttp2Connections { get; init; }
 
+        /// <inheritdoc />
         public bool Equals(ProxyHttpClientOptions other)
         {
             if (other == null)
@@ -38,7 +39,6 @@ namespace Microsoft.ReverseProxy.Abstractions
                 && PropagateActivityContext == other.PropagateActivityContext;
         }
 
-        /// <inheritdoc />
         private static bool CertEquals(X509Certificate2 certificate1, X509Certificate2 certificate2)
         {
             if (certificate1 == null && certificate2 == null)

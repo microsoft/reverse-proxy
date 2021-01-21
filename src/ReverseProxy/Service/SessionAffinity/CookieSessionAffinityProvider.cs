@@ -32,13 +32,13 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
             return destination.DestinationId;
         }
 
-        protected override (string Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, in SessionAffinityOptions options)
+        protected override (string Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, SessionAffinityOptions options)
         {
             var encryptedRequestKey = context.Request.Cookies.TryGetValue(_providerOptions.Cookie.Name, out var keyInCookie) ? keyInCookie : null;
             return Unprotect(encryptedRequestKey);
         }
 
-        protected override void SetAffinityKey(HttpContext context, in SessionAffinityOptions options, string unencryptedKey)
+        protected override void SetAffinityKey(HttpContext context, SessionAffinityOptions options, string unencryptedKey)
         {
             var affinityCookieOptions = _providerOptions.Cookie.Build(context);
             context.Response.Cookies.Append(_providerOptions.Cookie.Name, Protect(unencryptedKey), affinityCookieOptions);

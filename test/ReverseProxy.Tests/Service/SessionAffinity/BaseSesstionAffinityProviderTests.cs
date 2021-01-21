@@ -208,7 +208,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
                 return destination.DestinationId;
             }
 
-            protected override (string Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, in SessionAffinityOptions options)
+            protected override (string Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, SessionAffinityOptions options)
             {
                 Assert.Equal(Mode, options.Mode);
                 var keyName = GetSettingValue(KeyNameSetting, options);
@@ -218,7 +218,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
                 return Unprotect((string)encryptedKey);
             }
 
-            protected override void SetAffinityKey(HttpContext context, in SessionAffinityOptions options, string unencryptedKey)
+            protected override void SetAffinityKey(HttpContext context, SessionAffinityOptions options, string unencryptedKey)
             {
                 var keyName = GetSettingValue(KeyNameSetting, options);
                 var encryptedKey = Protect(unencryptedKey);

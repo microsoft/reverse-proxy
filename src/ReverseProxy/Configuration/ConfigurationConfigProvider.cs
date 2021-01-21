@@ -159,7 +159,7 @@ namespace Microsoft.ReverseProxy.Configuration
                 HealthCheck = CreateHealthCheckOptions(section.GetSection(nameof(Cluster.HealthCheck))),
                 HttpClient = CreateProxyHttpClientOptions(section.GetSection(nameof(Cluster.HttpClient))),
                 HttpRequest = CreateProxyRequestOptions(section.GetSection(nameof(Cluster.HttpRequest))),
-                Metadata = section.GetSection(nameof(Cluster.Metadata)).ReadOnlyStringDictionary(),
+                Metadata = section.GetSection(nameof(Cluster.Metadata)).ReadStringDictionary(),
                 Destinations = destinations,
             };
         }
@@ -173,7 +173,7 @@ namespace Microsoft.ReverseProxy.Configuration
                 ClusterId = section[nameof(ProxyRoute.ClusterId)],
                 AuthorizationPolicy = section[nameof(ProxyRoute.AuthorizationPolicy)],
                 CorsPolicy = section[nameof(ProxyRoute.CorsPolicy)],
-                Metadata = section.GetSection(nameof(ProxyRoute.Metadata)).ReadOnlyStringDictionary(),
+                Metadata = section.GetSection(nameof(ProxyRoute.Metadata)).ReadStringDictionary(),
                 Transforms = CreateTransforms(section.GetSection(nameof(ProxyRoute.Transforms))),
                 Match = CreateProxyMatch(section.GetSection(nameof(ProxyRoute.Match))),
             };
@@ -240,7 +240,7 @@ namespace Microsoft.ReverseProxy.Configuration
                 Enabled = section.ReadBool(nameof(SessionAffinityOptions.Enabled)) ?? false,
                 Mode = section[nameof(SessionAffinityOptions.Mode)],
                 FailurePolicy = section[nameof(SessionAffinityOptions.FailurePolicy)],
-                Settings = section.GetSection(nameof(SessionAffinityOptions.Settings)).ReadOnlyStringDictionary()
+                Settings = section.GetSection(nameof(SessionAffinityOptions.Settings)).ReadStringDictionary()
             };
         }
 
@@ -358,7 +358,7 @@ namespace Microsoft.ReverseProxy.Configuration
             {
                 Address = section[nameof(Destination.Address)],
                 Health = section[nameof(Destination.Health)],
-                Metadata = section.GetSection(nameof(Destination.Metadata)).ReadOnlyStringDictionary(),
+                Metadata = section.GetSection(nameof(Destination.Metadata)).ReadStringDictionary(),
             };
         }
 

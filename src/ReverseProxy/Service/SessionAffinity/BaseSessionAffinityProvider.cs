@@ -26,7 +26,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
 
         public abstract string Mode { get; }
 
-        public virtual void AffinitizeRequest(HttpContext context, in SessionAffinityOptions options, DestinationInfo destination)
+        public virtual void AffinitizeRequest(HttpContext context, SessionAffinityOptions options, DestinationInfo destination)
         {
             if (!options.Enabled.GetValueOrDefault())
             {
@@ -41,7 +41,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
             }
         }
 
-        public virtual AffinityResult FindAffinitizedDestinations(HttpContext context, IReadOnlyList<DestinationInfo> destinations, string clusterId, in SessionAffinityOptions options)
+        public virtual AffinityResult FindAffinitizedDestinations(HttpContext context, IReadOnlyList<DestinationInfo> destinations, string clusterId, SessionAffinityOptions options)
         {
             if (!options.Enabled.GetValueOrDefault())
             {
@@ -102,9 +102,9 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
 
         protected abstract T GetDestinationAffinityKey(DestinationInfo destination);
 
-        protected abstract (T Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, in SessionAffinityOptions options);
+        protected abstract (T Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, SessionAffinityOptions options);
 
-        protected abstract void SetAffinityKey(HttpContext context, in SessionAffinityOptions options, T unencryptedKey);
+        protected abstract void SetAffinityKey(HttpContext context, SessionAffinityOptions options, T unencryptedKey);
 
         protected string Protect(string unencryptedKey)
         {

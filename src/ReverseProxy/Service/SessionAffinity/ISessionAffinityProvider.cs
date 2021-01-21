@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using System.Net.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.RuntimeModel;
@@ -27,7 +26,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
         /// <param name="clusterId">Target cluster ID.</param>
         /// <param name="options">Affinity options.</param>
         /// <returns><see cref="AffinityResult"/> carrying the found affinitized destinations if any and the <see cref="AffinityStatus"/>.</returns>
-        public AffinityResult FindAffinitizedDestinations(HttpContext context, IReadOnlyList<DestinationInfo> destinations, string clusterId, in SessionAffinityOptions options);
+        public AffinityResult FindAffinitizedDestinations(HttpContext context, IReadOnlyList<DestinationInfo> destinations, string clusterId, SessionAffinityOptions options);
 
         /// <summary>
         /// Affinitize the current request to the given <see cref="DestinationInfo"/> by setting the affinity key extracted from <see cref="DestinationInfo"/>.
@@ -35,6 +34,6 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
         /// <param name="context">Current request's context.</param>
         /// <param name="options">Affinity options.</param>
         /// <param name="destination"><see cref="DestinationInfo"/> to which request is to be affinitized.</param>
-        public void AffinitizeRequest(HttpContext context, in SessionAffinityOptions options, DestinationInfo destination);
+        public void AffinitizeRequest(HttpContext context, SessionAffinityOptions options, DestinationInfo destination);
     }
 }

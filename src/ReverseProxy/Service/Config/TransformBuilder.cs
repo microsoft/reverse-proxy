@@ -568,25 +568,12 @@ namespace Microsoft.ReverseProxy.Service.Config
                 requestTransforms, responseTransforms, responseTrailersTransforms);
         }
 
-        private void TryCheckTooManyParameters(Action<Exception> onError, IDictionary<string, string> rawTransform, int expected)
-        {
-            if (rawTransform.Count > expected)
-            {
-                onError(new InvalidOperationException("The transform contains more parameters than expected: " + string.Join(';', rawTransform.Keys)));
-            }
-        }
-
         private void TryCheckTooManyParameters(Action<Exception> onError, IReadOnlyDictionary<string, string> rawTransform, int expected)
         {
             if (rawTransform.Count > expected)
             {
                 onError(new InvalidOperationException("The transform contains more parameters than expected: " + string.Join(';', rawTransform.Keys)));
             }
-        }
-
-        private void CheckTooManyParameters(IDictionary<string, string> rawTransform, int expected)
-        {
-            TryCheckTooManyParameters(ex => throw ex, rawTransform, expected);
         }
 
         private void CheckTooManyParameters(IReadOnlyDictionary<string, string> rawTransform, int expected)

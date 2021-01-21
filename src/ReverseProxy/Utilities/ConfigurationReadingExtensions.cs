@@ -38,17 +38,7 @@ namespace Microsoft.Extensions.Configuration
             return configuration[name] is string value && !string.IsNullOrEmpty(value) ? Version.Parse(value + (value.Contains('.') ? "" : ".0")) : null;
         }
 
-        internal static IDictionary<string, string> ReadStringDictionary(this IConfigurationSection section)
-        {
-            if (section.GetChildren() is var children && !children.Any())
-            {
-                return null;
-            }
-
-            return children.ToDictionary(s => s.Key, s => s.Value, StringComparer.OrdinalIgnoreCase);
-        }
-
-        internal static IReadOnlyDictionary<string, string> ReadOnlyStringDictionary(this IConfigurationSection section)
+        internal static IReadOnlyDictionary<string, string> ReadStringDictionary(this IConfigurationSection section)
         {
             if (section.GetChildren() is var children && !children.Any())
             {
