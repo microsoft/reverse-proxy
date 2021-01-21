@@ -8,7 +8,7 @@ namespace Microsoft.ReverseProxy.Abstractions
     /// <summary>
     /// Active health check options.
     /// </summary>
-    public sealed record ActiveHealthCheckOptions : IEquatable<ActiveHealthCheckOptions>
+    public sealed record ActiveHealthCheckOptions
     {
         /// <summary>
         /// Whether active health checks are enabled.

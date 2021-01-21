@@ -11,7 +11,7 @@ namespace Microsoft.ReverseProxy.Abstractions
     /// Describes a route that matches incoming requests based on a the <see cref="Match"/> criteria
     /// and proxies matching requests to the cluster identified by its <see cref="ClusterId"/>.
     /// </summary>
-    public sealed record ProxyRoute : IEquatable<ProxyRoute>
+    public sealed record ProxyRoute
     {
         /// <summary>
         /// Globally unique identifier of the route.

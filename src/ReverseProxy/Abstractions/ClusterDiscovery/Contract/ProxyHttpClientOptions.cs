@@ -7,7 +7,7 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace Microsoft.ReverseProxy.Abstractions
 {
-    public sealed record ProxyHttpClientOptions : IEquatable<ProxyHttpClientOptions>
+    public sealed record ProxyHttpClientOptions
     {
         public static readonly ProxyHttpClientOptions Empty = new();
 

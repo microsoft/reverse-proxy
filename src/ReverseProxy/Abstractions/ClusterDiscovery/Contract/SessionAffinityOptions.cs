@@ -10,7 +10,7 @@ namespace Microsoft.ReverseProxy.Abstractions
     /// <summary>
     /// Session affinity options.
     /// </summary>
-    public sealed record SessionAffinityOptions : IEquatable<SessionAffinityOptions>
+    public sealed record SessionAffinityOptions
     {
         /// <summary>
         /// Indicates whether session affinity is enabled.

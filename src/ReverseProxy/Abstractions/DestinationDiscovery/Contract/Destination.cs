@@ -10,7 +10,7 @@ namespace Microsoft.ReverseProxy.Abstractions
     /// <summary>
     /// Describes a destination of a cluster.
     /// </summary>
-    public sealed record Destination : IEquatable<Destination>
+    public sealed record Destination
     {
         /// <summary>
         /// Address of this destination. E.g. <c>https://127.0.0.1:123/abcd1234/</c>.

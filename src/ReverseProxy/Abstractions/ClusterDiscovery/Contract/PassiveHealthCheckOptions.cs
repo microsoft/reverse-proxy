@@ -8,7 +8,7 @@ namespace Microsoft.ReverseProxy.Abstractions
     /// <summary>
     /// Passive health check options.
     /// </summary>
-    public sealed record PassiveHealthCheckOptions : IEquatable<PassiveHealthCheckOptions>
+    public sealed record PassiveHealthCheckOptions
     {
         /// <summary>
         /// Whether passive health checks are enabled.

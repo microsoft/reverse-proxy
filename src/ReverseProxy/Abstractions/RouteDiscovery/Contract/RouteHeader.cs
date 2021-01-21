@@ -10,7 +10,7 @@ namespace Microsoft.ReverseProxy.Abstractions
     /// <summary>
     /// Route criteria for a header that must be present on the incoming request.
     /// </summary>
-    public sealed record RouteHeader : IEquatable<RouteHeader>
+    public sealed record RouteHeader
     {
         /// <summary>
         /// Name of the header to look for.

@@ -14,7 +14,7 @@ namespace Microsoft.ReverseProxy.Abstractions
     /// by proxying to any endpoint within the matching cluster,
     /// honoring load balancing and partitioning policies when applicable.
     /// </summary>
-    public sealed record Cluster : IEquatable<Cluster>
+    public sealed record Cluster
     {
         /// <summary>
         /// The Id for this cluster. This needs to be globally unique.
