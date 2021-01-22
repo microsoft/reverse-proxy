@@ -22,7 +22,7 @@ Example:
         "ClusterId": "cluster1",
         "CorsPolicy": "customPolicy",
         "Match": {
-          "Host": "localhost"
+          "Hosts": [ "localhost" ]
         },
       }
     ],
