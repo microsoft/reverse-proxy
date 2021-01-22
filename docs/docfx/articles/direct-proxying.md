@@ -54,7 +54,7 @@ public void Configure(IApplicationBuilder app, IHttpProxy httpProxy)
         UseCookies = false
     });
     var transformer = new CustomTransformer(); // or HttpTransformer.Default;
-    var requestOptions = new RequestProxyOptions(TimeSpan.FromSeconds(100), null);
+    var requestOptions = new RequestProxyOptions { Timeout = TimeSpan.FromSeconds(100) };
 
     app.UseRouting();
     app.UseAuthorization();

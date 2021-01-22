@@ -124,7 +124,7 @@ public void ConfigureServices(IServiceCollection services)
         {
             RouteId = "route1",
             ClusterId = "cluster1",
-            Match =
+            Match = new ProxyMatch
             {
                 Path = "{**catch-all}"
             }
@@ -135,7 +135,7 @@ public void ConfigureServices(IServiceCollection services)
         new Cluster()
         {
             Id = "cluster1",
-            Destinations =
+            Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
             {
                 { "destination1", new Destination() { Address = "https://example.com" } }
             }

@@ -39,7 +39,7 @@ namespace Microsoft.ReverseProxy.Sample
                 {
                     RouteId = "route1",
                     ClusterId = "cluster1",
-                    Match =
+                    Match = new ProxyMatch
                     {
                         Path = "{**catch-all}"
                     }
