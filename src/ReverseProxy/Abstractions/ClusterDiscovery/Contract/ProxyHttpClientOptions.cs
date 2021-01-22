@@ -7,18 +7,40 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace Microsoft.ReverseProxy.Abstractions
 {
+    /// <summary>
+    /// Options used for communicating with the destination servers.
+    /// </summary>
     public sealed record ProxyHttpClientOptions
     {
+        /// <summary>
+        /// An empty options instance.
+        /// </summary>
         public static readonly ProxyHttpClientOptions Empty = new();
 
+        /// <summary>
+        /// What TLS protocols to use.
+        /// </summary>
         public SslProtocols? SslProtocols { get; init; }
 
+        /// <summary>
+        /// Indicates if destination server https certificate errors should be ignored.
+        /// This should only be done when using self-signed certificates.
+        /// </summary>
         public bool? DangerousAcceptAnyServerCertificate { get; init; }
 
+        /// <summary>
+        /// A client certificate used to authenticate to the destination server.
+        /// </summary>
         public X509Certificate2 ClientCertificate { get; init; }
 
+        /// <summary>
+        /// Limits the number of connections used when communicating with the destination server.
+        /// </summary>
         public int? MaxConnectionsPerServer { get; init; }
 
+        /// <summary>
+        /// Enables or disables the activity correlation headers for outgoing requests.
+        /// </summary>
         public bool? PropagateActivityContext { get; init; }
 
         // TODO: Add this property once we have migrated to SDK version that supports it.
