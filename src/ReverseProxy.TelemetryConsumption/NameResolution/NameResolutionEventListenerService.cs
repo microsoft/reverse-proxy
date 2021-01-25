@@ -10,11 +10,13 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.ReverseProxy.Telemetry.Consumption
 {
     internal sealed class NameResolutionEventListenerService : EventListener, IHostedService
     {
+        private readonly ILogger<NameResolutionEventListenerService> _logger;
         private readonly IServiceProvider _serviceProvider;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
@@ -22,8 +24,9 @@ namespace Microsoft.ReverseProxy.Telemetry.Consumption
         private NameResolutionMetrics _currentMetrics = new();
         private int _eventCountersCount;
 
-        public NameResolutionEventListenerService(IServiceProvider serviceProvider, IHttpContextAccessor httpContextAccessor)
+        public NameResolutionEventListenerService(ILogger<NameResolutionEventListenerService> logger, IServiceProvider serviceProvider, IHttpContextAccessor httpContextAccessor)
         {
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
             _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         }
@@ -153,9 +156,17 @@ namespace Microsoft.ReverseProxy.Telemetry.Consumption
                     return;
                 }
 
-                foreach (var consumer in _serviceProvider.GetServices<INameResolutionMetricsConsumer>())
+                try
                 {
-                    consumer.OnNameResolutionMetrics(previous, metrics);
+                    foreach (var consumer in _serviceProvider.GetServices<INameResolutionMetricsConsumer>())
+                    {
+                        consumer.OnNameResolutionMetrics(previous, metrics);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // We can't let an uncaught exception propagate as that would crash the process
+                    _logger.LogError(ex, $"Uncaught exception occured while processing {nameof(NameResolutionMetrics)}.");
                 }
             }
         }

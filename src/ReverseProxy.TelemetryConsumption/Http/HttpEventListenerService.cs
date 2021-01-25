@@ -11,11 +11,13 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.ReverseProxy.Telemetry.Consumption
 {
     internal sealed class HttpEventListenerService : EventListener, IHostedService
     {
+        private readonly ILogger<HttpEventListenerService> _logger;
         private readonly IServiceProvider _serviceProvider;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
@@ -23,8 +25,9 @@ namespace Microsoft.ReverseProxy.Telemetry.Consumption
         private HttpMetrics _currentMetrics = new();
         private int _eventCountersCount;
 
-        public HttpEventListenerService(IServiceProvider serviceProvider, IHttpContextAccessor httpContextAccessor)
+        public HttpEventListenerService(ILogger<HttpEventListenerService> logger, IServiceProvider serviceProvider, IHttpContextAccessor httpContextAccessor)
         {
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
             _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         }
@@ -286,9 +289,17 @@ namespace Microsoft.ReverseProxy.Telemetry.Consumption
                     return;
                 }
 
-                foreach (var consumer in _serviceProvider.GetServices<IHttpMetricsConsumer>())
+                try
                 {
-                    consumer.OnHttpMetrics(previous, metrics);
+                    foreach (var consumer in _serviceProvider.GetServices<IHttpMetricsConsumer>())
+                    {
+                        consumer.OnHttpMetrics(previous, metrics);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // We can't let an uncaught exception propagate as that would crash the process
+                    _logger.LogError(ex, $"Uncaught exception occured while processing {nameof(HttpMetrics)}.");
                 }
             }
         }
