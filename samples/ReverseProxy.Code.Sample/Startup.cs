@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Middleware;
+using Microsoft.ReverseProxy.Telemetry.Consumption;
 
 namespace Microsoft.ReverseProxy.Sample
 {
@@ -58,6 +59,11 @@ namespace Microsoft.ReverseProxy.Sample
             services.AddReverseProxy()
                 .LoadFromMemory(routes, clusters)
                 .AddProxyConfigFilter<CustomConfigFilter>();
+
+            services.AddHttpContextAccessor();
+            services.AddSingleton<IProxyMetricsConsumer, ProxyMetricsConsumer>();
+            services.AddScoped<IProxyTelemetryConsumer, ProxyTelemetryConsumer>();
+            services.AddProxyTelemetryListener();
         }
 
         /// <summary>
