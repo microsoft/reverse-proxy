@@ -186,9 +186,8 @@ namespace Microsoft.ReverseProxy.Configuration
                 return null;
             }
 
-            return children.Select(subSection => new ReadOnlyDictionary<string, string>(
-                    subSection.GetChildren().ToDictionary(d => d.Key, d => d.Value, StringComparer.OrdinalIgnoreCase)))
-                .ToList<IReadOnlyDictionary<string, string>>().AsReadOnly();
+            return children.Select(subSection =>
+                    subSection.GetChildren().ToDictionary(d => d.Key, d => d.Value, StringComparer.OrdinalIgnoreCase)).ToList();
         }
 
         private static ProxyMatch CreateProxyMatch(IConfigurationSection section)
