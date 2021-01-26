@@ -69,7 +69,7 @@ namespace Microsoft.ReverseProxy.Common
                     {
                         RouteId = "route1",
                         ClusterId = ClusterId,
-                        Match = { Path = "/{**catchall}" }
+                        Match = new ProxyMatch { Path = "/{**catchall}" }
                     };
 
                     var cluster = new Cluster
