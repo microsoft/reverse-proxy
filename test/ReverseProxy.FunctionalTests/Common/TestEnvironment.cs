@@ -14,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Utilities.Tests;
+using System.Text;
 
 namespace Microsoft.ReverseProxy.Common
 {
@@ -25,13 +26,14 @@ namespace Microsoft.ReverseProxy.Common
         private readonly Action<IApplicationBuilder> _configureProxyApp;
         private readonly HttpProtocols _proxyProtocol;
         private readonly bool _useHttpsOnDestination;
+        private readonly Encoding _headerEncoding;
 
         public string ClusterId { get; set; } = "cluster1";
 
         public TestEnvironment(
             RequestDelegate destinationGetDelegate,
             Action<IReverseProxyBuilder> configureProxy, Action<IApplicationBuilder> configureProxyApp,
-            HttpProtocols proxyProtocol = HttpProtocols.Http1AndHttp2, bool useHttpsOnDestination = false)
+            HttpProtocols proxyProtocol = HttpProtocols.Http1AndHttp2, bool useHttpsOnDestination = false, Encoding headerEncoding = null)
             : this(
                   destinationServices => { },
                   destinationApp =>
@@ -41,13 +43,14 @@ namespace Microsoft.ReverseProxy.Common
                   configureProxy,
                   configureProxyApp,
                   proxyProtocol,
-                  useHttpsOnDestination)
+                  useHttpsOnDestination,
+                  headerEncoding)
         { }
 
         public TestEnvironment(
             Action<IServiceCollection> configureDestinationServices, Action<IApplicationBuilder> configureDestinationApp,
             Action<IReverseProxyBuilder> configureProxy, Action<IApplicationBuilder> configureProxyApp,
-            HttpProtocols proxyProtocol = HttpProtocols.Http1AndHttp2, bool useHttpsOnDestination = false)
+            HttpProtocols proxyProtocol = HttpProtocols.Http1AndHttp2, bool useHttpsOnDestination = false, Encoding headerEncoding = null)
         {
             _configureDestinationServices = configureDestinationServices;
             _configureDestinationApp = configureDestinationApp;
@@ -55,14 +58,15 @@ namespace Microsoft.ReverseProxy.Common
             _configureProxyApp = configureProxyApp;
             _proxyProtocol = proxyProtocol;
             _useHttpsOnDestination = useHttpsOnDestination;
+            _headerEncoding = headerEncoding;
         }
 
         public async Task Invoke(Func<string, Task> clientFunc, CancellationToken cancellationToken = default)
         {
-            using var destination = CreateHost(HttpProtocols.Http1AndHttp2, _useHttpsOnDestination, _configureDestinationServices, _configureDestinationApp);
+            using var destination = CreateHost(HttpProtocols.Http1AndHttp2, _useHttpsOnDestination, _headerEncoding, _configureDestinationServices, _configureDestinationApp);
             await destination.StartAsync(cancellationToken);
 
-            using var proxy = CreateHost(_proxyProtocol, false,
+            using var proxy = CreateHost(_proxyProtocol, false, _headerEncoding,
                 services =>
                 {
                     var proxyRoute = new ProxyRoute
@@ -110,26 +114,32 @@ namespace Microsoft.ReverseProxy.Common
             }
         }
 
-        private static IHost CreateHost(HttpProtocols protocols, bool useHttps, Action<IServiceCollection> configureServices, Action<IApplicationBuilder> configureApp)
+        private static IHost CreateHost(HttpProtocols protocols, bool useHttps, Encoding headerEncoding, Action<IServiceCollection> configureServices, Action<IApplicationBuilder> configureApp)
         {
             return new HostBuilder()
-               .ConfigureWebHost(webHostBuilder =>
-               {
-                   webHostBuilder
-                       .ConfigureServices(configureServices)
-                       .UseKestrel(kestrel =>
-                       {
-                           kestrel.Listen(IPAddress.Loopback, 0, listenOptions =>
-                           {
-                               listenOptions.Protocols = protocols;
-                               if (useHttps)
-                               {
-                                   listenOptions.UseHttps(TestResources.GetTestCertificate());
-                               }
-                           });
-                       })
-                       .Configure(configureApp);
-               }).Build();
+                .ConfigureWebHost(webHostBuilder =>
+                {
+                    webHostBuilder
+                        .ConfigureServices(configureServices)
+                        .UseKestrel(kestrel =>
+                        {
+#if NET
+                            if (headerEncoding != null)
+                            {
+                                kestrel.RequestHeaderEncodingSelector = _ => headerEncoding;
+                            }
+#endif
+                            kestrel.Listen(IPAddress.Loopback, 0, listenOptions =>
+                            {
+                                listenOptions.Protocols = protocols;
+                                if (useHttps)
+                                {
+                                    listenOptions.UseHttps(TestResources.GetTestCertificate());
+                                }
+                            });
+                        })
+                        .Configure(configureApp);
+                }).Build();
         }
     }
 }
