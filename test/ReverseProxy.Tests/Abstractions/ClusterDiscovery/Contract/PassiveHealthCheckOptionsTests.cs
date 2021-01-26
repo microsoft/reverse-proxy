@@ -1,27 +1,28 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using Xunit;
 
-namespace Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract
+namespace Microsoft.ReverseProxy.Abstractions.Tests
 {
-    public class SessionAffinityOptionsTests
+    public class PassiveHealthCheckOptionsTests
     {
         [Fact]
         public void Equals_Same_Value_Returns_True()
         {
-            var options1 = new SessionAffinityOptions
+            var options1 = new PassiveHealthCheckOptions
             {
                 Enabled = true,
-                FailurePolicy = "policy1",
-                Mode = "mode1"
+                Policy = "Passive",
+                ReactivationPeriod = TimeSpan.FromSeconds(5),
             };
 
-            var options2 = new SessionAffinityOptions
+            var options2 = new PassiveHealthCheckOptions
             {
                 Enabled = true,
-                FailurePolicy = "policy1",
-                Mode = "mode1"
+                Policy = "Passive",
+                ReactivationPeriod = TimeSpan.FromSeconds(5),
             };
 
             var equals = options1.Equals(options2);
@@ -32,18 +33,18 @@ namespace Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract
         [Fact]
         public void Equals_Different_Value_Returns_False()
         {
-            var options1 = new SessionAffinityOptions
+            var options1 = new PassiveHealthCheckOptions
             {
                 Enabled = true,
-                FailurePolicy = "policy1",
-                Mode = "mode1"
+                Policy = "Passive",
+                ReactivationPeriod = TimeSpan.FromSeconds(5),
             };
 
-            var options2 = new SessionAffinityOptions
+            var options2 = new PassiveHealthCheckOptions
             {
                 Enabled = false,
-                FailurePolicy = "policy2",
-                Mode = "mode2"
+                Policy = "Passive",
+                ReactivationPeriod = TimeSpan.FromSeconds(1),
             };
 
             var equals = options1.Equals(options2);
@@ -54,12 +55,7 @@ namespace Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract
         [Fact]
         public void Equals_Second_Null_Returns_False()
         {
-            var options1 = new SessionAffinityOptions
-            {
-                Enabled = true,
-                FailurePolicy = "policy1",
-                Mode = "mode1"
-            };
+            var options1 = new PassiveHealthCheckOptions();
 
             var equals = options1.Equals(null);
 

@@ -238,14 +238,13 @@ namespace Microsoft.ReverseProxy.Service.Management
                     continue;
                 }
 
-                // Don't modify the original
-                var route = r.DeepClone();
+                var route = r;
 
                 try
                 {
                     foreach (var filter in _filters)
                     {
-                        await filter.ConfigureRouteAsync(route, cancellation);
+                        route = await filter.ConfigureRouteAsync(route, cancellation);
                     }
                 }
                 catch (Exception ex)
@@ -296,11 +295,11 @@ namespace Microsoft.ReverseProxy.Service.Management
                     seenClusterIds.Add(c.Id);
 
                     // Don't modify the original
-                    var cluster = c.DeepClone();
+                    var cluster = c;
 
                     foreach (var filter in _filters)
                     {
-                        await filter.ConfigureClusterAsync(cluster, cancellation);
+                        cluster = await filter.ConfigureClusterAsync(cluster, cancellation);
                     }
 
                     var clusterErrors = await _configValidator.ValidateClusterAsync(cluster);
@@ -344,46 +343,17 @@ namespace Microsoft.ReverseProxy.Service.Management
                         UpdateRuntimeDestinations(newCluster.Destinations, currentCluster.DestinationManager);
 
                         var currentClusterConfig = currentCluster.Config;
-                        var newClusterHttpClientOptions = ConvertProxyHttpClientOptions(newCluster.HttpClient);
 
                         var httpClient = _httpClientFactory.CreateClient(new ProxyHttpClientContext {
                             ClusterId = currentCluster.ClusterId,
-                            OldOptions = currentClusterConfig?.HttpClientOptions ?? default,
-                            OldMetadata = currentClusterConfig?.Metadata,
+                            OldOptions = currentClusterConfig?.Options.HttpClient ?? ProxyHttpClientOptions.Empty,
+                            OldMetadata = currentClusterConfig?.Options.Metadata,
                             OldClient = currentClusterConfig?.HttpClient,
-                            NewOptions = newClusterHttpClientOptions,
-                            NewMetadata = (IReadOnlyDictionary<string, string>)newCluster.Metadata
+                            NewOptions = newCluster.HttpClient ?? ProxyHttpClientOptions.Empty,
+                            NewMetadata = newCluster.Metadata
                         });
 
-                        var newClusterConfig = new ClusterConfig(
-                                newCluster,
-                                new ClusterHealthCheckOptions(
-                                    passive: new ClusterPassiveHealthCheckOptions(
-                                        enabled: newCluster.HealthCheck?.Passive?.Enabled ?? false,
-                                        policy: newCluster.HealthCheck?.Passive?.Policy,
-                                        reactivationPeriod: newCluster.HealthCheck?.Passive?.ReactivationPeriod),
-                                    active: new ClusterActiveHealthCheckOptions(
-                                        enabled: newCluster.HealthCheck?.Active?.Enabled ?? false,
-                                        interval: newCluster.HealthCheck?.Active?.Interval,
-                                        timeout: newCluster.HealthCheck?.Active?.Timeout,
-                                        policy: newCluster.HealthCheck?.Active?.Policy,
-                                        path: newCluster.HealthCheck?.Active?.Path ?? string.Empty)),
-                                loadBalancingPolicy: newCluster.LoadBalancingPolicy,
-                                new ClusterSessionAffinityOptions(
-                                    enabled: newCluster.SessionAffinity?.Enabled ?? false,
-                                    mode: newCluster.SessionAffinity?.Mode,
-                                    failurePolicy: newCluster.SessionAffinity?.FailurePolicy,
-                                    settings: newCluster.SessionAffinity?.Settings as IReadOnlyDictionary<string, string>),
-                                httpClient,
-                                newClusterHttpClientOptions,
-                                new RequestProxyOptions(
-                                    timeout: newCluster.HttpRequest?.Timeout,
-                                    version: newCluster.HttpRequest?.Version
-#if NET
-                                    , versionPolicy: newCluster.HttpRequest?.VersionPolicy
-#endif
-                                    ),
-                                (IReadOnlyDictionary<string, string>)newCluster.Metadata);
+                        var newClusterConfig = new ClusterConfig(newCluster, httpClient);
 
                         if (currentClusterConfig == null ||
                             currentClusterConfig.HasConfigChanged(newClusterConfig))
@@ -422,7 +392,7 @@ namespace Microsoft.ReverseProxy.Service.Management
             }
         }
 
-        private void UpdateRuntimeDestinations(IDictionary<string, Destination> newDestinations, IDestinationManager destinationManager)
+        private void UpdateRuntimeDestinations(IReadOnlyDictionary<string, Destination> newDestinations, IDestinationManager destinationManager)
         {
             var desiredDestinations = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
@@ -561,21 +531,6 @@ namespace Microsoft.ReverseProxy.Service.Management
                 // Step 4 - trigger old token
                 oldCancellationTokenSource?.Cancel();
             }
-        }
-
-        private ClusterProxyHttpClientOptions ConvertProxyHttpClientOptions(ProxyHttpClientOptions httpClientOptions)
-        {
-            if (httpClientOptions == null)
-            {
-                return new ClusterProxyHttpClientOptions();
-            }
-
-            return new ClusterProxyHttpClientOptions(
-                httpClientOptions.SslProtocols,
-                httpClientOptions.DangerousAcceptAnyServerCertificate,
-                httpClientOptions.ClientCertificate,
-                httpClientOptions.MaxConnectionsPerServer,
-                httpClientOptions.PropagateActivityContext);
         }
 
         private RouteConfig BuildRouteConfig(ProxyRoute source, ClusterInfo cluster, RouteInfo runtimeRoute)

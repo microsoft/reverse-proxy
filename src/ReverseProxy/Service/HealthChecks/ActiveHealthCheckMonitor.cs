@@ -47,7 +47,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                     var probeClusterTasks = new List<Task>();
                     foreach (var cluster in clusters)
                     {
-                        if (cluster.Config.HealthCheckOptions.Active.Enabled)
+                        if ((cluster.Config.Options.HealthCheck?.Active?.Enabled).GetValueOrDefault())
                         {
                             probeClusterTasks.Add(ProbeCluster(cluster));
                         }
@@ -66,8 +66,8 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 
         public void OnClusterAdded(ClusterInfo cluster)
         {
-            var activeHealthCheckOptions = cluster.Config.HealthCheckOptions.Active;
-            if (activeHealthCheckOptions.Enabled)
+            var activeHealthCheckOptions = cluster.Config.Options.HealthCheck?.Active;
+            if ((activeHealthCheckOptions?.Enabled).GetValueOrDefault())
             {
                 _scheduler.ScheduleEntity(cluster, activeHealthCheckOptions.Interval ?? _monitorOptions.DefaultInterval);
             }
@@ -75,8 +75,8 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 
         public void OnClusterChanged(ClusterInfo cluster)
         {
-            var activeHealthCheckOptions = cluster.Config.HealthCheckOptions.Active;
-            if (activeHealthCheckOptions.Enabled)
+            var activeHealthCheckOptions = cluster.Config.Options.HealthCheck?.Active;
+            if ((activeHealthCheckOptions?.Enabled).GetValueOrDefault())
             {
                 _scheduler.ChangePeriod(cluster, activeHealthCheckOptions.Interval ?? _monitorOptions.DefaultInterval);
             }
@@ -99,7 +99,8 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         private async Task ProbeCluster(ClusterInfo cluster)
         {
             var clusterConfig = cluster.Config;
-            if (!clusterConfig.HealthCheckOptions.Active.Enabled)
+            var activeHealthOptions = clusterConfig.Options.HealthCheck?.Active;
+            if (!(activeHealthOptions?.Enabled).GetValueOrDefault())
             {
                 return;
             }
@@ -108,14 +109,14 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 
             // Policy must always be present if the active health check is enabled for a cluster.
             // It's validated and ensured by a configuration validator.
-            var policy = _policies.GetRequiredServiceById(clusterConfig.HealthCheckOptions.Active.Policy);
+            var policy = _policies.GetRequiredServiceById(activeHealthOptions.Policy);
             var allDestinations = cluster.DynamicState.AllDestinations;
             var probeTasks = new List<(Task<HttpResponseMessage> Task, CancellationTokenSource Cts)>(allDestinations.Count);
             try
             {
                 foreach (var destination in allDestinations)
                 {
-                    var timeout = clusterConfig.HealthCheckOptions.Active.Timeout ?? _monitorOptions.DefaultTimeout;
+                    var timeout = activeHealthOptions.Timeout ?? _monitorOptions.DefaultTimeout;
                     var cts = new CancellationTokenSource(timeout);
                     try
                     {

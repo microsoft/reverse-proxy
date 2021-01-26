@@ -8,62 +8,56 @@ namespace Microsoft.ReverseProxy.Abstractions
     /// <summary>
     /// Active health check options.
     /// </summary>
-    public sealed class ActiveHealthCheckOptions
+    public sealed record ActiveHealthCheckOptions
     {
         /// <summary>
         /// Whether active health checks are enabled.
         /// </summary>
-        public bool? Enabled { get; set; }
+        public bool? Enabled { get; init; }
 
         /// <summary>
         /// Health probe interval.
         /// </summary>
-        public TimeSpan? Interval { get; set; }
+        public TimeSpan? Interval { get; init; }
 
         /// <summary>
         /// Health probe timeout, after which a destination is considered unhealthy.
         /// </summary>
-        public TimeSpan? Timeout { get; set; }
+        public TimeSpan? Timeout { get; init; }
 
         /// <summary>
         /// Active health check policy.
         /// </summary>
-        public string Policy { get; set; }
+        public string Policy { get; init; }
 
         /// <summary>
         /// HTTP health check endpoint path.
         /// </summary>
-        public string Path { get; set; }
+        public string Path { get; init; }
 
-        internal ActiveHealthCheckOptions DeepClone()
+        /// <inheritdoc />
+        public bool Equals(ActiveHealthCheckOptions other)
         {
-            return new ActiveHealthCheckOptions
-            {
-                Enabled = Enabled,
-                Interval = Interval,
-                Timeout = Timeout,
-                Policy = Policy,
-                Path = Path,
-            };
-        }
-
-        internal static bool Equals(ActiveHealthCheckOptions options1, ActiveHealthCheckOptions options2)
-        {
-            if (options1 == null && options2 == null)
-            {
-                return true;
-            }
-
-            if (options1 == null || options2 == null)
+            if (other == null)
             {
                 return false;
             }
 
-            return options1.Enabled == options2.Enabled
-                && options1.Interval == options2.Interval
-                && options1.Timeout == options2.Timeout
-                && string.Equals(options1.Policy, options2.Policy, StringComparison.OrdinalIgnoreCase)
-                && string.Equals(options1.Path, options2.Path, StringComparison.OrdinalIgnoreCase);
+            return Enabled == other.Enabled
+                && Interval == other.Interval
+                && Timeout == other.Timeout
+                && string.Equals(Policy, other.Policy, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(Path, other.Path, StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Enabled,
+                Interval,
+                Timeout,
+                Policy?.GetHashCode(StringComparison.OrdinalIgnoreCase),
+                Path?.GetHashCode(StringComparison.OrdinalIgnoreCase));
         }
     }
 }

@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -37,7 +39,7 @@ namespace Microsoft.ReverseProxy.Sample
                 {
                     RouteId = "route1",
                     ClusterId = "cluster1",
-                    Match =
+                    Match = new ProxyMatch
                     {
                         Path = "{**catch-all}"
                     }
@@ -49,7 +51,7 @@ namespace Microsoft.ReverseProxy.Sample
                 {
                     Id = "cluster1",
                     SessionAffinity = new SessionAffinityOptions { Enabled = true, Mode = "Cookie" },
-                    Destinations =
+                    Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
                     {
                         { "destination1", new Destination() { Address = "https://localhost:10000" } }
                     }
@@ -57,8 +59,7 @@ namespace Microsoft.ReverseProxy.Sample
             };
 
             services.AddReverseProxy()
-                .LoadFromMemory(routes, clusters)
-                .AddProxyConfigFilter<CustomConfigFilter>();
+                .LoadFromMemory(routes, clusters);
 
             services.AddHttpContextAccessor();
             services.AddSingleton<IProxyMetricsConsumer, ProxyMetricsConsumer>();

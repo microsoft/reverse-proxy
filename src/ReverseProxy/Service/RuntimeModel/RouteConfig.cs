@@ -29,16 +29,12 @@ namespace Microsoft.ReverseProxy.RuntimeModel
             HttpTransformer transformer)
         {
             Route = route ?? throw new ArgumentNullException(nameof(route));
-
-            ProxyRoute = proxyRoute;
-            Order = proxyRoute.Order;
+            ProxyRoute = proxyRoute ?? throw new ArgumentNullException(nameof(proxyRoute));
             Cluster = cluster;
             Transformer = transformer;
         }
 
         public RouteInfo Route { get; }
-
-        public int? Order { get; }
 
         // May not be populated if the cluster config is missing.
         public ClusterInfo Cluster { get; }
@@ -49,8 +45,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
 
         public bool HasConfigChanged(ProxyRoute newConfig, ClusterInfo cluster)
         {
-            return Cluster != cluster
-                || !ProxyRoute.Equals(ProxyRoute, newConfig);
+            return Cluster != cluster || !ProxyRoute.Equals(newConfig);
         }
     }
 }

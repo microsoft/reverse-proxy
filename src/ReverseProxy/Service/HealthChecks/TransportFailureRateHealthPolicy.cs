@@ -49,7 +49,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         {
             var error = context.Features.Get<IProxyErrorFeature>();
             var newHealth = EvaluateProxiedRequest(cluster, destination, error != null);
-            var reactivationPeriod = cluster.Config.HealthCheckOptions.Passive.ReactivationPeriod ?? _defaultReactivationPeriod;
+            var reactivationPeriod = cluster.Config.Options.HealthCheck.Passive.ReactivationPeriod ?? _defaultReactivationPeriod;
             _healthUpdater.SetPassive(cluster, destination, newHealth, reactivationPeriod);
         }
 

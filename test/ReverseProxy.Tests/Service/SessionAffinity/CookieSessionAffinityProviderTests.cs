@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
+using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Xunit;
@@ -14,7 +15,12 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
     public class CookieSessionAffinityProviderTests
     {
         private readonly CookieSessionAffinityProviderOptions _defaultProviderOptions = new CookieSessionAffinityProviderOptions();
-        private readonly ClusterSessionAffinityOptions _defaultOptions = new ClusterSessionAffinityOptions(true, "Cookie", "Return503", null);
+        private readonly SessionAffinityOptions _defaultOptions = new SessionAffinityOptions
+        {
+            Enabled = true,
+            Mode = "Cookie",
+            FailurePolicy = "Return503",
+        };
         private readonly IReadOnlyList<DestinationInfo> _destinations = new[] { new DestinationInfo("dest-A"), new DestinationInfo("dest-B"), new DestinationInfo("dest-C") };
 
         [Fact]

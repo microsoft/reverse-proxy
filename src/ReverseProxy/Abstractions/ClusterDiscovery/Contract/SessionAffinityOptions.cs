@@ -8,57 +8,51 @@ using Microsoft.ReverseProxy.Utilities;
 namespace Microsoft.ReverseProxy.Abstractions
 {
     /// <summary>
-    /// Session affinitity options.
+    /// Session affinity options.
     /// </summary>
-    public sealed class SessionAffinityOptions
+    public sealed record SessionAffinityOptions
     {
         /// <summary>
         /// Indicates whether session affinity is enabled.
         /// </summary>
-        public bool? Enabled { get; set; }
+        public bool? Enabled { get; init; }
 
         /// <summary>
         /// Session affinity mode which is implemented by one of providers.
         /// </summary>
-        public string Mode { get; set; }
+        public string Mode { get; init; }
 
         /// <summary>
         /// Strategy handling missing destination for an affinitized request.
         /// </summary>
-        public string FailurePolicy { get; set; }
+        public string FailurePolicy { get; init; }
 
         /// <summary>
         /// Key-value pair collection holding extra settings specific to different affinity modes.
         /// </summary>
-        public IDictionary<string, string> Settings { get; set; }
+        public IReadOnlyDictionary<string, string> Settings { get; init; }
 
-        internal SessionAffinityOptions DeepClone()
+        /// <inheritdoc />
+        public bool Equals(SessionAffinityOptions other)
         {
-            return new SessionAffinityOptions
-            {
-                Enabled = Enabled,
-                Mode = Mode,
-                FailurePolicy = FailurePolicy,
-                Settings = Settings?.DeepClone(StringComparer.OrdinalIgnoreCase)
-            };
-        }
-
-        internal static bool Equals(SessionAffinityOptions options1, SessionAffinityOptions options2)
-        {
-            if (options1 == null && options2 == null)
-            {
-                return true;
-            }
-
-            if (options1 == null || options2 == null)
+            if (other == null)
             {
                 return false;
             }
 
-            return options1.Enabled == options2.Enabled
-                && string.Equals(options1.Mode, options2.Mode, StringComparison.OrdinalIgnoreCase)
-                && string.Equals(options1.FailurePolicy, options2.FailurePolicy, StringComparison.OrdinalIgnoreCase)
-                && CaseInsensitiveEqualHelper.Equals(options1.Settings, options2.Settings);
+            return Enabled == other.Enabled
+                && string.Equals(Mode, other.Mode, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(FailurePolicy, other.FailurePolicy, StringComparison.OrdinalIgnoreCase)
+                && CaseInsensitiveEqualHelper.Equals(Settings, other.Settings);
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Enabled,
+                Mode?.GetHashCode(StringComparison.OrdinalIgnoreCase),
+                FailurePolicy?.GetHashCode(StringComparison.OrdinalIgnoreCase),
+                Settings);
         }
     }
 }

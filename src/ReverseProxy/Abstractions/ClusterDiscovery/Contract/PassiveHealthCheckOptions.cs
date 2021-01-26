@@ -8,48 +8,42 @@ namespace Microsoft.ReverseProxy.Abstractions
     /// <summary>
     /// Passive health check options.
     /// </summary>
-    public sealed class PassiveHealthCheckOptions
+    public sealed record PassiveHealthCheckOptions
     {
         /// <summary>
         /// Whether passive health checks are enabled.
         /// </summary>
-        public bool? Enabled { get; set; }
+        public bool? Enabled { get; init; }
 
         /// <summary>
         /// Passive health check policy.
         /// </summary>
-        public string Policy { get; set; }
+        public string Policy { get; init; }
 
         /// <summary>
         /// Destination reactivation period after which an unhealthy destination is considered healthy again.
         /// </summary>
-        public TimeSpan? ReactivationPeriod { get; set; }
+        public TimeSpan? ReactivationPeriod { get; init; }
 
-        internal PassiveHealthCheckOptions DeepClone()
+        /// <inheritdoc />
+        public bool Equals(PassiveHealthCheckOptions other)
         {
-            return new PassiveHealthCheckOptions
-            {
-                Enabled = Enabled,
-                Policy = Policy,
-                ReactivationPeriod = ReactivationPeriod,
-            };
-        }
-
-        internal static bool Equals(PassiveHealthCheckOptions options1, PassiveHealthCheckOptions options2)
-        {
-            if (options1 == null && options2 == null)
-            {
-                return true;
-            }
-
-            if (options1 == null || options2 == null)
+            if (other == null)
             {
                 return false;
             }
 
-            return options1.Enabled == options2.Enabled
-                && string.Equals(options1.Policy, options2.Policy, StringComparison.OrdinalIgnoreCase)
-                && options1.ReactivationPeriod == options2.ReactivationPeriod;
+            return Enabled == other.Enabled
+                && string.Equals(Policy, other.Policy, StringComparison.OrdinalIgnoreCase)
+                && ReactivationPeriod == other.ReactivationPeriod;
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Enabled,
+                Policy?.GetHashCode(StringComparison.OrdinalIgnoreCase),
+                ReactivationPeriod);
         }
     }
 }

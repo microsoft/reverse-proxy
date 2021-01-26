@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -68,13 +69,13 @@ namespace Microsoft.ReverseProxy.Common
                     {
                         RouteId = "route1",
                         ClusterId = ClusterId,
-                        Match = { Path = "/{**catchall}" }
+                        Match = new ProxyMatch { Path = "/{**catchall}" }
                     };
 
                     var cluster = new Cluster
                     {
                         Id = ClusterId,
-                        Destinations =
+                        Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
                         {
                             { "destination1",  new Destination() { Address = destination.GetAddress() } }
                         },

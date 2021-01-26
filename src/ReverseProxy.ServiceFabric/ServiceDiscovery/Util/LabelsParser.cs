@@ -7,8 +7,9 @@ using System.ComponentModel;
 using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
-using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.Extensions.Primitives;
+using Microsoft.ReverseProxy.Abstractions;
+using Microsoft.ReverseProxy.Service.Proxy;
 
 namespace Microsoft.ReverseProxy.ServiceFabric
 {
@@ -98,8 +99,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                 string path = null;
                 int? order = null;
                 var metadata = new Dictionary<string, string>();
-                var headerMatches = new Dictionary<string, RouteHeader>();
-                var transforms = new Dictionary<string, IDictionary<string, string>>();
+                var headerMatches = new Dictionary<string, RouteHeaderFields>();
+                var transforms = new Dictionary<string, Dictionary<string, string>>();
                 foreach (var kvp in labels)
                 {
                     if (!kvp.Key.StartsWith(RoutesLabelsPrefix, StringComparison.Ordinal))
@@ -135,7 +136,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                         }
                         if (!headerMatches.ContainsKey(headerIndex)) 
                         {
-                            headerMatches.Add(headerIndex, new RouteHeader());
+                            headerMatches.Add(headerIndex, new RouteHeaderFields());
                         }
 
                         var propertyName = keyRemainder.Slice(headerIndexLength + 1);
@@ -210,23 +211,30 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                 var route = new ProxyRoute
                 {
                     RouteId = $"{Uri.EscapeDataString(backendId)}:{Uri.EscapeDataString(routeNamePair.Value)}",
-                    Match =
+                    Match = new ProxyMatch
                     {
                         Hosts = SplitHosts(hosts),
                         Path = path,
-                        Headers = headerMatches.Count > 0 ? headerMatches.Select(hm => hm.Value).ToArray() : null
+                        Headers = headerMatches.Count > 0 ? headerMatches.Select(hm => new RouteHeader()
+                        {
+                            Name = hm.Value.Name,
+                            Values = hm.Value.Values,
+                            Mode = hm.Value.Mode,
+                            IsCaseSensitive = hm.Value.IsCaseSensitive,
+                        }).ToArray() : null
+
                     },
                     Order = order,
                     ClusterId = backendId,
                     Metadata = metadata,
-                    Transforms = transforms.Count > 0 ? transforms.Select(tr => tr.Value).ToList() : null
+                    Transforms = transforms.Count > 0 ? transforms.Select(tr => tr.Value).ToList().AsReadOnly() : null
                 };
                 routes.Add(route);
             }
             return routes;
         }
 
-        internal static Cluster BuildCluster(Uri serviceName, Dictionary<string, string> labels)
+        internal static Cluster BuildCluster(Uri serviceName, Dictionary<string, string> labels, IReadOnlyDictionary<string, Destination> destinations)
         {
             var clusterMetadata = new Dictionary<string, string>();
             Dictionary<string, string> sessionAffinitySettings = null;
@@ -266,7 +274,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                     FailurePolicy = GetLabel<string>(labels, "YARP.Backend.SessionAffinity.FailurePolicy", null),
                     Settings = sessionAffinitySettings
                 },
-                HttpRequest = new ProxyHttpRequestOptions
+                HttpRequest = new RequestProxyOptions
                 {
                     Timeout = ToNullableTimeSpan(GetLabel<double?>(labels, "YARP.Backend.HttpRequest.Timeout", null)),
                     Version = !string.IsNullOrEmpty(versionLabel) ? Version.Parse(versionLabel + (versionLabel.Contains('.') ? "" : ".0")) : null,
@@ -292,6 +300,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                     }
                 },
                 Metadata = clusterMetadata,
+                Destinations = destinations,
             };
             return cluster;
         }
@@ -328,6 +337,14 @@ namespace Microsoft.ReverseProxy.ServiceFabric
 
             keyRemainder = actualKey.Slice(expectedKeyName.Length);
             return true;
+        }
+
+        private class RouteHeaderFields
+        {
+            public string Name { get; internal set; }
+            public IReadOnlyList<string> Values { get; internal set; }
+            public bool IsCaseSensitive { get; internal set; }
+            public HeaderMatchMode Mode { get; internal set; }
         }
     }
 }
