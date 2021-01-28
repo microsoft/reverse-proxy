@@ -19,17 +19,17 @@ namespace Microsoft.ReverseProxy.ServiceFabric
     // TODO: this is probably something that can be used in other integration modules apart from Service Fabric. Consider extracting to a general class.
     internal static class LabelsParser
     {
-        private static readonly Regex _allowedRouteNamesRegex = new Regex("^[a-zA-Z0-9_-]+$");
+        private static readonly Regex _allowedRouteNamesRegex = new Regex("^[a-zA-Z0-9_-]+$", RegexOptions.Compiled);
 
         /// <summary>
         /// Requires all header match names to follow the .[0]. pattern to simulate indexing in an array
         /// </summary>
-        private static readonly Regex _allowedHeaderNamesRegex = new Regex(@"^\[\d\d*\]$");
+        private static readonly Regex _allowedHeaderNamesRegex = new Regex(@"^\[\d\d*\]$", RegexOptions.Compiled);
 
 
         /// Requires all transform names to follow the .[0]. pattern to simulate indexing in an array
         /// </summary>
-        private static readonly Regex _allowedTransformNamesRegex = new Regex(@"^\[\d\d*\]$");
+        private static readonly Regex _allowedTransformNamesRegex = new Regex(@"^\[\d\d*\]$", RegexOptions.Compiled);
 
         // Look for route IDs
         private const string RoutesLabelsPrefix = "YARP.Routes.";
