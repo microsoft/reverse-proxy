@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.AspNetCore.Http;
 using Microsoft.ReverseProxy.Abstractions;
 
 namespace Microsoft.ReverseProxy.Service
@@ -14,11 +13,11 @@ namespace Microsoft.ReverseProxy.Service
         /// Clones the ProxyRoute and adds the transform.
         /// </summary>
         /// <returns>The cloned route with the new transform.</returns>
-        public static ProxyRoute WithTransform(this ProxyRoute proxyRoute, IReadOnlyDictionary<string, string> transform)
+        public static ProxyRoute WithTransform(this ProxyRoute proxyRoute, Action<IDictionary<string, string>> createTransform)
         {
-            if (transform is null)
+            if (createTransform is null)
             {
-                throw new ArgumentNullException(nameof(transform));
+                throw new ArgumentNullException(nameof(createTransform));
             }
 
             List<IReadOnlyDictionary<string, string>> transforms;
@@ -32,53 +31,11 @@ namespace Microsoft.ReverseProxy.Service
                 transforms.AddRange(proxyRoute.Transforms);
             }
 
+            var transform = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            createTransform(transform);
             transforms.Add(transform);
 
             return proxyRoute with { Transforms = transforms };
-        }
-
-        /// <summary>
-        /// Clones the route and adds the transform which sets the request path with the given value.
-        /// </summary>
-        public static ProxyRoute WithTransformPathSet(this ProxyRoute proxyRoute, PathString path)
-        {
-            return proxyRoute.WithTransform(new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-            {
-                ["PathSet"] = path.Value,
-            });
-        }
-
-        /// <summary>
-        /// Clones the route and adds the transform which will prefix the request path with the given value.
-        /// </summary>
-        public static ProxyRoute WithTransformPathPrefix(this ProxyRoute proxyRoute, PathString prefix)
-        {
-            return proxyRoute.WithTransform(new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-            {
-                ["PathPrefix"] = prefix.Value,
-            });
-        }
-
-        /// <summary>
-        /// Clones the route and adds the transform which will remove the matching prefix from the request path.
-        /// </summary>
-        public static ProxyRoute WithTransformPathRemovePrefix(this ProxyRoute proxyRoute, PathString prefix)
-        {
-            return proxyRoute.WithTransform(new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-            {
-                ["PathRemovePrefix"] = prefix.Value,
-            });
-        }
-
-        /// <summary>
-        /// Clones the route and adds the transform which will set the request path with the given value.
-        /// </summary>
-        public static ProxyRoute WithTransformPathRouteValues(this ProxyRoute proxyRoute, PathString pattern)
-        {
-            return proxyRoute.WithTransform(new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-            {
-                ["PathPattern"] = pattern.Value,
-            });
         }
 
         /// <summary>
@@ -86,9 +43,9 @@ namespace Microsoft.ReverseProxy.Service
         /// </summary>
         public static ProxyRoute WithTransformSuppressRequestHeaders(this ProxyRoute proxyRoute)
         {
-            return proxyRoute.WithTransform(new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            return proxyRoute.WithTransform(transform =>
             {
-                ["RequestHeadersCopy"] = "False",
+                transform["RequestHeadersCopy"] = "False";
             });
         }
 
@@ -97,9 +54,9 @@ namespace Microsoft.ReverseProxy.Service
         /// </summary>
         public static ProxyRoute WithTransformSuppressResponseHeaders(this ProxyRoute proxyRoute)
         {
-            return proxyRoute.WithTransform(new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            return proxyRoute.WithTransform(transform =>
             {
-                ["ResponseHeadersCopy"] = "False",
+                transform["ResponseHeadersCopy"] = "False";
             });
         }
 
@@ -108,9 +65,9 @@ namespace Microsoft.ReverseProxy.Service
         /// </summary>
         public static ProxyRoute WithTransformSuppressResponseTrailers(this ProxyRoute proxyRoute)
         {
-            return proxyRoute.WithTransform(new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            return proxyRoute.WithTransform(transform =>
             {
-                ["ResponseTrailersCopy"] = "False",
+                transform["ResponseTrailersCopy"] = "False";
             });
         }
 
@@ -119,9 +76,9 @@ namespace Microsoft.ReverseProxy.Service
         /// </summary>
         public static ProxyRoute WithTransformUseOriginalHostHeader(this ProxyRoute proxyRoute)
         {
-            return proxyRoute.WithTransform(new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            return proxyRoute.WithTransform(transform =>
             {
-                ["RequestHeaderOriginalHost"] = "True",
+                transform["RequestHeaderOriginalHost"] = "True";
             });
         }
 
@@ -131,10 +88,10 @@ namespace Microsoft.ReverseProxy.Service
         public static ProxyRoute WithTransformRequestHeader(this ProxyRoute proxyRoute, string headerName, string value, bool append = true)
         {
             var type = append ? "Append" : "Set";
-            return proxyRoute.WithTransform(new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            return proxyRoute.WithTransform(transform =>
             {
-                ["RequestHeader"] = headerName,
-                [type] = value
+                transform["RequestHeader"] = headerName;
+                transform[type] = value;
             });
         }
 
@@ -145,11 +102,11 @@ namespace Microsoft.ReverseProxy.Service
         {
             var type = append ? "Append" : "Set";
             var when = always ? "always" : "success";
-            return proxyRoute.WithTransform(new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            return proxyRoute.WithTransform(transform =>
             {
-                ["ResponseHeader"] = headerName,
-                [type] = value,
-                ["When"] = when
+                transform["ResponseHeader"] = headerName;
+                transform[type] = value;
+                transform["When"] = when;
             });
         }
 
@@ -160,11 +117,11 @@ namespace Microsoft.ReverseProxy.Service
         {
             var type = append ? "Append" : "Set";
             var when = always ? "always" : "success";
-            return proxyRoute.WithTransform(new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            return proxyRoute.WithTransform(transform =>
             {
-                ["ResponseTrailer"] = headerName,
-                [type] = value,
-                ["When"] = when
+                transform["ResponseTrailer"] = headerName;
+                transform[type] = value;
+                transform["When"] = when;
             });
         }
 
@@ -173,9 +130,9 @@ namespace Microsoft.ReverseProxy.Service
         /// </summary>
         public static ProxyRoute WithTransformClientCert(this ProxyRoute proxyRoute, string headerName)
         {
-            return proxyRoute.WithTransform(new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            return proxyRoute.WithTransform(transform =>
             {
-                ["ClientCert"] = headerName
+                transform["ClientCert"] = headerName;
             });
         }
 
@@ -206,11 +163,11 @@ namespace Microsoft.ReverseProxy.Service
                 headers.Add("Proto");
             }
 
-            return proxyRoute.WithTransform(new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            return proxyRoute.WithTransform(transform =>
             {
-                ["X-Forwarded"] = string.Join(',', headers),
-                ["Append"] = append.ToString(),
-                ["Prefix"] = headerPrefix
+                transform["X-Forwarded"] = string.Join(',', headers);
+                transform["Append"] = append.ToString();
+                transform["Prefix"] = headerPrefix;
             });
         }
 
@@ -241,23 +198,21 @@ namespace Microsoft.ReverseProxy.Service
                 headers.Add("Proto");
             }
 
-            var transform = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            return proxyRoute.WithTransform(transform =>
             {
-                ["Forwarded"] = string.Join(',', headers),
-                ["Append"] = append.ToString()
-            };
+                transform["Forwarded"] = string.Join(',', headers);
+                transform["Append"] = append.ToString();
 
-            if (useFor)
-            {
-                transform.Add("ForFormat", forFormat);
-            }
+                if (useFor)
+                {
+                    transform.Add("ForFormat", forFormat);
+                }
 
-            if (useBy)
-            {
-                transform.Add("ByFormat", byFormat);
-            }
-
-            return proxyRoute.WithTransform(transform);
+                if (useBy)
+                {
+                    transform.Add("ByFormat", byFormat);
+                }
+            });
         }
 
         /// <summary>
@@ -265,10 +220,10 @@ namespace Microsoft.ReverseProxy.Service
         /// </summary>
         public static ProxyRoute WithTransformHttpMethod(this ProxyRoute proxyRoute, string fromHttpMethod, string toHttpMethod)
         {
-            return proxyRoute.WithTransform(new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            return proxyRoute.WithTransform(transform =>
             {
-                ["HttpMethod"] = fromHttpMethod,
-                ["Set"] = toHttpMethod
+                transform["HttpMethod"] = fromHttpMethod;
+                transform["Set"] = toHttpMethod;
             });
         }
 
@@ -278,10 +233,10 @@ namespace Microsoft.ReverseProxy.Service
         public static ProxyRoute WithTransformQueryRouteParameter(this ProxyRoute proxyRoute, string queryKey, string routeValueKey, bool append = true)
         {
             var type = append ? "Append" : "Set";
-            return proxyRoute.WithTransform(new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            return proxyRoute.WithTransform(transform =>
             {
-                ["QueryRouteParameter"] = queryKey,
-                [type] = routeValueKey
+                transform["QueryRouteParameter"] = queryKey;
+                transform[type] = routeValueKey;
             });
         }
 
@@ -291,10 +246,10 @@ namespace Microsoft.ReverseProxy.Service
         public static ProxyRoute WithTransformQueryValueParameter(this ProxyRoute proxyRoute, string queryKey, string value, bool append = true)
         {
             var type = append ? "Append" : "Set";
-            return proxyRoute.WithTransform(new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            return proxyRoute.WithTransform(transform =>
             {
-                ["QueryValueParameter"] = queryKey,
-                [type] = value
+                transform["QueryValueParameter"] = queryKey;
+                transform[type] = value;
             });
         }
 
@@ -303,9 +258,9 @@ namespace Microsoft.ReverseProxy.Service
         /// </summary>
         public static ProxyRoute WithTransformRemoveQueryParameter(this ProxyRoute proxyRoute, string queryKey)
         {
-            return proxyRoute.WithTransform(new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            return proxyRoute.WithTransform(transform =>
             {
-                ["QueryRemoveParameter"] = queryKey
+                transform["QueryRemoveParameter"] = queryKey;
             });
         }
     }

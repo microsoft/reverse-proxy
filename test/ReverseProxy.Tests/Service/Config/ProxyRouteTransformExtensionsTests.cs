@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -8,8 +9,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Patterns;
 using Microsoft.AspNetCore.Routing.Template;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Net.Http.Headers;
 using Microsoft.ReverseProxy.Abstractions;
+using Microsoft.ReverseProxy.Abstractions.Config;
 using Microsoft.ReverseProxy.Common.Tests;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 using Xunit;
@@ -374,9 +377,10 @@ namespace Microsoft.ReverseProxy.Service.Config
 
         private static StructuredTransformer BuildTransform(ProxyRoute proxyRoute)
         {
-            var builder = new TransformBuilder(NullTemplateBinderFactory.Instance, new TestRandomFactory());
+            var builder = new TransformBuilder(new ServiceCollection().BuildServiceProvider(),
+                new TestRandomFactory(), Array.Empty<ITransformFactory>(), Array.Empty<ITransformFilter>());
 
-            return builder.BuildInternal(proxyRoute.Transforms);
+            return builder.BuildInternal(proxyRoute);
         }
 
         private static ProxyRoute CreateProxyRoute()

@@ -94,7 +94,7 @@ namespace Microsoft.ReverseProxy.Service
                 errors.Add(new ArgumentException("Missing Route Id."));
             }
 
-            errors.AddRange(_transformBuilder.Validate(route.Transforms));
+            errors.AddRange(_transformBuilder.Validate(route));
             await ValidateAuthorizationPolicyAsync(errors, route.AuthorizationPolicy, route.RouteId);
             await ValidateCorsPolicyAsync(errors, route.CorsPolicy, route.RouteId);
 

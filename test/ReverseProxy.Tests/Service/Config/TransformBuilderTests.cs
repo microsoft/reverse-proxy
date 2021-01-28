@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc.TagHelpers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Net.Http.Headers;
+using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 using Microsoft.ReverseProxy.Utilities;
 using Xunit;
@@ -38,10 +39,11 @@ namespace Microsoft.ReverseProxy.Service.Config
         {
             var transformBuilder = CreateTransformBuilder();
 
-            var errors = transformBuilder.Validate(transforms);
+            var route = new ProxyRoute { Transforms = transforms };
+            var errors = transformBuilder.Validate(route);
             Assert.Empty(errors);
 
-            var results = transformBuilder.BuildInternal(transforms);
+            var results = transformBuilder.BuildInternal(route);
             Assert.NotNull(results);
             Assert.Null(results.ShouldCopyRequestHeaders);
             Assert.Empty(results.ResponseTransforms);
@@ -77,10 +79,11 @@ namespace Microsoft.ReverseProxy.Service.Config
                 },
             };
 
-            var errors = transformBuilder.Validate(transforms);
+            var route = new ProxyRoute() { Transforms = transforms };
+            var errors = transformBuilder.Validate(route);
             Assert.Empty(errors);
 
-            var results = transformBuilder.BuildInternal(transforms);
+            var results = transformBuilder.BuildInternal(route);
             Assert.NotNull(results);
             Assert.Null(results.ShouldCopyRequestHeaders);
             Assert.Empty(results.RequestTransforms);
@@ -104,10 +107,11 @@ namespace Microsoft.ReverseProxy.Service.Config
                 },
             };
 
-            var errors = transformBuilder.Validate(transforms);
+            var route = new ProxyRoute() { Transforms = transforms };
+            var errors = transformBuilder.Validate(route);
             Assert.Empty(errors);
 
-            var results = transformBuilder.BuildInternal(transforms);
+            var results = transformBuilder.BuildInternal(route);
             var transform = Assert.Single(results.RequestTransforms);
             var forwardedTransform = Assert.IsType<RequestHeaderForwardedTransform>(transform);
             Assert.True(forwardedTransform.ProtoEnabled);
@@ -127,10 +131,11 @@ namespace Microsoft.ReverseProxy.Service.Config
                 },
             };
 
-            var errors = transformBuilder.Validate(transforms);
+            var route = new ProxyRoute() { Transforms = transforms };
+            var errors = transformBuilder.Validate(route);
             Assert.Empty(errors);
 
-            var results = transformBuilder.BuildInternal(transforms);
+            var results = transformBuilder.BuildInternal(route);
             Assert.NotNull(results);
             Assert.Equal(copyRequestHeaders, results.ShouldCopyRequestHeaders);
         }
@@ -144,11 +149,12 @@ namespace Microsoft.ReverseProxy.Service.Config
                 new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase), // Empty
             };
 
-            var errors = transformBuilder.Validate(transforms);
+            var route = new ProxyRoute() { Transforms = transforms };
+            var errors = transformBuilder.Validate(route);
             var error = Assert.Single(errors);
             Assert.Equal("Unknown transform: ", error.Message);
 
-            var nie = Assert.Throws<ArgumentException>(() => transformBuilder.Build(transforms));
+            var nie = Assert.Throws<ArgumentException>(() => transformBuilder.BuildInternal(route));
             Assert.Equal("Unknown transform: ", nie.Message);
         }
 
@@ -170,12 +176,13 @@ namespace Microsoft.ReverseProxy.Service.Config
                 },
             };
 
-            var errors = transformBuilder.Validate(transforms);
+            var route = new ProxyRoute() { Transforms = transforms };
+            var errors = transformBuilder.Validate(route);
             //All errors reported
             Assert.Equal(2, errors.Count);
             Assert.Equal("Unknown transform: string1;string2", errors.First().Message);
             Assert.Equal("Unknown transform: string3;string4", errors.Skip(1).First().Message);
-            var ex = Assert.Throws<ArgumentException>(() => transformBuilder.Build(transforms));
+            var ex = Assert.Throws<ArgumentException>(() => transformBuilder.BuildInternal(route));
             // First error reported
             Assert.Equal("Unknown transform: string1;string2", ex.Message);
         }
@@ -197,10 +204,11 @@ namespace Microsoft.ReverseProxy.Service.Config
                 }
             };
 
-            var errors = transformBuilder.Validate(transforms);
+            var route = new ProxyRoute() { Transforms = transforms };
+            var errors = transformBuilder.Validate(route);
             Assert.Empty(errors);
 
-            var results = transformBuilder.BuildInternal(transforms);
+            var results = transformBuilder.BuildInternal(route);
             var headerTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderValueTransform>().Where(x => x.HeaderName == "HeaderName"));
             Assert.Equal(append, headerTransform.Append);
             Assert.Equal(value, headerTransform.Value);

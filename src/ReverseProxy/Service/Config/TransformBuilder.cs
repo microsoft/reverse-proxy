@@ -3,10 +3,11 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.AspNetCore.Http;
+using System.Linq;
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.AspNetCore.Routing.Template;
 using Microsoft.Net.Http.Headers;
+using Microsoft.ReverseProxy.Abstractions;
+using Microsoft.ReverseProxy.Abstractions.Config;
 using Microsoft.ReverseProxy.Service.Proxy;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 using Microsoft.ReverseProxy.Utilities;
@@ -18,48 +19,61 @@ namespace Microsoft.ReverseProxy.Service.Config
     /// </summary>
     internal class TransformBuilder : ITransformBuilder
     {
-        private readonly TemplateBinderFactory _binderFactory;
+        private readonly IServiceProvider _services;
         private readonly IRandomFactory _randomFactory;
+        private readonly List<ITransformFactory> _factories;
+        private readonly List<ITransformFilter> _filters;
 
         /// <summary>
         /// Creates a new <see cref="TransformBuilder"/>
         /// </summary>
-        public TransformBuilder(TemplateBinderFactory binderFactory, IRandomFactory randomFactory)
+        public TransformBuilder(IServiceProvider services, IRandomFactory randomFactory, IEnumerable<ITransformFactory> factories, IEnumerable<ITransformFilter> filters)
         {
-            _binderFactory = binderFactory ?? throw new ArgumentNullException(nameof(binderFactory));
+            _services = services ?? throw new ArgumentNullException(nameof(services));
             _randomFactory = randomFactory ?? throw new ArgumentNullException(nameof(randomFactory));
+            _factories = factories?.ToList() ?? throw new ArgumentNullException(nameof(factories));
+            _filters = filters?.ToList() ?? throw new ArgumentNullException(nameof(filters));
         }
 
         /// <inheritdoc/>
-        public IList<Exception> Validate(IReadOnlyList<IReadOnlyDictionary<string, string>> rawTransforms)
+        public IList<Exception> Validate(ProxyRoute route)
         {
             var errors = new List<Exception>();
+            var rawTransforms = route?.Transforms;
 
             if (rawTransforms == null || rawTransforms.Count == 0)
             {
                 return errors;
             }
 
+            var context = new TransformValidationContext()
+            {
+                Services = _services,
+                Route = route,
+                Errors = errors,
+            };
+
             foreach (var rawTransform in rawTransforms)
             {
-                if (rawTransform.TryGetValue("PathSet", out var pathSet))
+                var handled = false;
+                foreach (var factory in _factories)
                 {
-                    TryCheckTooManyParameters(errors.Add, rawTransform, expected: 1);
+                    if (factory.Validate(context, rawTransform))
+                    {
+                        handled = true;
+                        break;
+                    }
                 }
-                else if (rawTransform.TryGetValue("PathPrefix", out var pathPrefix))
+
+                if (!handled)
                 {
-                    TryCheckTooManyParameters(errors.Add, rawTransform, expected: 1);
+                    throw new ArgumentException($"Unknown transform: {string.Join(';', rawTransform.Keys)}");
                 }
-                else if (rawTransform.TryGetValue("PathRemovePrefix", out var pathRemovePrefix))
-                {
-                    TryCheckTooManyParameters(errors.Add, rawTransform, expected: 1);
-                }
-                else if (rawTransform.TryGetValue("PathPattern", out var pathPattern))
-                {
-                    TryCheckTooManyParameters(errors.Add, rawTransform, expected: 1);
-                    // TODO: Validate the pattern format. Does it build?
-                }
-                else if (rawTransform.TryGetValue("QueryValueParameter", out var queryValueParameter))
+            }
+
+            foreach (var rawTransform in rawTransforms)
+            {
+                if (rawTransform.TryGetValue("QueryValueParameter", out var queryValueParameter))
                 {
                     TryCheckTooManyParameters(errors.Add, rawTransform, expected: 2);
                     if (!rawTransform.TryGetValue("Append", out var _) && !rawTransform.TryGetValue("Set", out var _))
@@ -247,14 +261,16 @@ namespace Microsoft.ReverseProxy.Service.Config
         }
 
         /// <inheritdoc/>
-        public HttpTransformer Build(IReadOnlyList<IReadOnlyDictionary<string, string>> rawTransforms)
+        public HttpTransformer Build(ProxyRoute route)
         {
-            return BuildInternal(rawTransforms);
+            return BuildInternal(route);
         }
 
         // This is separate from Build for testing purposes.
-        internal StructuredTransformer BuildInternal(IReadOnlyList<IReadOnlyDictionary<string, string>> rawTransforms)
+        internal StructuredTransformer BuildInternal(ProxyRoute route)
         {
+            var rawTransforms = route.Transforms;
+
             bool? copyRequestHeaders = null;
             bool? copyResponseHeaders = null;
             bool? copyResponseTrailers = null;
@@ -268,31 +284,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             {
                 foreach (var rawTransform in rawTransforms)
                 {
-                    if (rawTransform.TryGetValue("PathSet", out var pathSet))
-                    {
-                        CheckTooManyParameters(rawTransform, expected: 1);
-                        var path = MakePathString(pathSet);
-                        requestTransforms.Add(new PathStringTransform(PathStringTransform.PathTransformMode.Set, path));
-                    }
-                    else if (rawTransform.TryGetValue("PathPrefix", out var pathPrefix))
-                    {
-                        CheckTooManyParameters(rawTransform, expected: 1);
-                        var path = MakePathString(pathPrefix);
-                        requestTransforms.Add(new PathStringTransform(PathStringTransform.PathTransformMode.Prefix, path));
-                    }
-                    else if (rawTransform.TryGetValue("PathRemovePrefix", out var pathRemovePrefix))
-                    {
-                        CheckTooManyParameters(rawTransform, expected: 1);
-                        var path = MakePathString(pathRemovePrefix);
-                        requestTransforms.Add(new PathStringTransform(PathStringTransform.PathTransformMode.RemovePrefix, path));
-                    }
-                    else if (rawTransform.TryGetValue("PathPattern", out var pathPattern))
-                    {
-                        CheckTooManyParameters(rawTransform, expected: 1);
-                        var path = MakePathString(pathPattern);
-                        requestTransforms.Add(new PathRouteValuesTransform(path.Value, _binderFactory));
-                    }
-                    else if (rawTransform.TryGetValue("QueryValueParameter", out var queryValueParameter))
+                    if (rawTransform.TryGetValue("QueryValueParameter", out var queryValueParameter))
                     {
                         CheckTooManyParameters(rawTransform, expected: 2);
                         if (rawTransform.TryGetValue("Append", out var appendValue))
@@ -549,14 +541,55 @@ namespace Microsoft.ReverseProxy.Service.Config
                 }
             }
 
+            var transformBuilderContext = new TransformBuilderContext
+            {
+                Services = _services,
+                Route = route,
+                CopyRequestHeaders = copyRequestHeaders,
+                CopyResponseHeaders = copyResponseHeaders,
+                CopyResponseTrailers = copyResponseTrailers,
+                UseOriginalHost = useOriginalHost,
+                UseDefaultForwarders = !forwardersSet,
+                RequestTransforms = requestTransforms,
+                ResponseTransforms = responseTransforms,
+                ResponseTrailersTransforms = responseTrailersTransforms,
+            };
+
+            if (rawTransforms?.Count > 0)
+            {
+                foreach (var rawTransform in rawTransforms)
+                {
+                    var handled = false;
+                    foreach (var factory in _factories)
+                    {
+                        if (factory.Build(transformBuilderContext, rawTransform))
+                        {
+                            handled = true;
+                            break;
+                        }
+                    }
+
+                    if (!handled)
+                    {
+                        throw new ArgumentException($"Unknown transform: {string.Join(';', rawTransform.Keys)}");
+                    }
+                }
+            }
+
+            // Let the app add any more transforms it wants.
+            foreach (var transformFitler in _filters)
+            {
+                transformFitler.Apply(transformBuilderContext);
+            }
+
             // Suppress the host by default
-            if (!useOriginalHost ?? true)
+            if (transformBuilderContext.UseOriginalHost ?? true)
             {
                 requestTransforms.Add(new RequestHeaderValueTransform(HeaderNames.Host, string.Empty, append: false));
             }
 
             // Add default forwarders
-            if (!forwardersSet.GetValueOrDefault())
+            if (transformBuilderContext.UseDefaultForwarders.GetValueOrDefault(true))
             {
                 requestTransforms.Add(new RequestHeaderXForwardedProtoTransform(ForwardedHeadersDefaults.XForwardedProtoHeaderName, append: true));
                 requestTransforms.Add(new RequestHeaderXForwardedHostTransform(ForwardedHeadersDefaults.XForwardedHostHeaderName, append: true));
@@ -564,8 +597,13 @@ namespace Microsoft.ReverseProxy.Service.Config
                 requestTransforms.Add(new RequestHeaderXForwardedPathBaseTransform("X-Forwarded-PathBase", append: true));
             }
 
-            return new StructuredTransformer(copyRequestHeaders, copyResponseHeaders, copyResponseTrailers,
-                requestTransforms, responseTransforms, responseTrailersTransforms);
+            return new StructuredTransformer(
+                transformBuilderContext.CopyRequestHeaders,
+                transformBuilderContext.CopyResponseHeaders,
+                transformBuilderContext.CopyResponseTrailers,
+                requestTransforms,
+                responseTransforms,
+                responseTrailersTransforms);
         }
 
         private void TryCheckTooManyParameters(Action<Exception> onError, IReadOnlyDictionary<string, string> rawTransform, int expected)
@@ -579,15 +617,6 @@ namespace Microsoft.ReverseProxy.Service.Config
         private void CheckTooManyParameters(IReadOnlyDictionary<string, string> rawTransform, int expected)
         {
             TryCheckTooManyParameters(ex => throw ex, rawTransform, expected);
-        }
-
-        private PathString MakePathString(string path)
-        {
-            if (!string.IsNullOrEmpty(path) && !path.StartsWith("/", StringComparison.Ordinal))
-            {
-                path = "/" + path;
-            }
-            return new PathString(path);
         }
     }
 }
