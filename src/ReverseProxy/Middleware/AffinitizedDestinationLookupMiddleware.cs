@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.SessionAffinity;
@@ -39,9 +40,9 @@ namespace Microsoft.ReverseProxy.Middleware
         {
             var proxyFeature = context.GetRequiredProxyFeature();
 
-            var options = proxyFeature.ClusterConfig.SessionAffinityOptions;
+            var options = proxyFeature.ClusterConfig.Options.SessionAffinity;
 
-            if (!options.Enabled)
+            if (!(options?.Enabled).GetValueOrDefault())
             {
                 return _next(context);
             }
@@ -50,7 +51,7 @@ namespace Microsoft.ReverseProxy.Middleware
             return InvokeInternal(context, proxyFeature, options, cluster.ClusterId);
         }
 
-        private async Task InvokeInternal(HttpContext context, IReverseProxyFeature proxyFeature, ClusterSessionAffinityOptions options, string clusterId)
+        private async Task InvokeInternal(HttpContext context, IReverseProxyFeature proxyFeature, SessionAffinityOptions options, string clusterId)
         {
             var destinations = proxyFeature.AvailableDestinations;
 

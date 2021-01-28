@@ -9,42 +9,59 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
     public class DestinationTests
     {
         [Fact]
-        public void Constructor_Works()
+        public void Equals_Same_Value_Returns_True()
         {
-            new Destination();
-        }
-
-        [Fact]
-        public void DeepClone_Works()
-        {
-            var sut = new Destination
+            var options1 = new Destination
             {
-                Address = "https://127.0.0.1:123/a",
-                Metadata = new Dictionary<string, string>
-                {
-                    { "key", "value" },
-                },
+                Address = "https://localhost:10000/destA",
+                Health = "https://localhost:20000/destA",
+                Metadata = new Dictionary<string, string> { { "destA-K1", "destA-V1" }, { "destA-K2", "destA-V2" } }
             };
 
-            var clone = sut.DeepClone();
+            var options2 = new Destination
+            {
+                Address = "https://localhost:10000/destA",
+                Health = "https://localhost:20000/destA",
+                Metadata = new Dictionary<string, string> { { "destA-K1", "destA-V1" }, { "destA-K2", "destA-V2" } }
+            };
 
-            Assert.NotSame(sut, clone);
-            Assert.Equal(sut.Address, clone.Address);
-            Assert.NotNull(clone.Metadata);
-            Assert.NotSame(sut.Metadata, clone.Metadata);
-            Assert.Equal("value", clone.Metadata["key"]);
+            var equals = options1.Equals(options2);
+
+            Assert.True(equals);
+
+            Assert.True(options1.Equals(options1 with { })); // Clone
         }
 
         [Fact]
-        public void DeepClone_Nulls_Works()
+        public void Equals_Different_Value_Returns_False()
         {
-            var sut = new Destination();
 
-            var clone = sut.DeepClone();
+            var options1 = new Destination
+            {
+                Address = "https://localhost:10000/destA",
+                Health = "https://localhost:20000/destA",
+                Metadata = new Dictionary<string, string> { { "destA-K1", "destA-V1" }, { "destA-K2", "destA-V2" } }
+            };
 
-            Assert.NotSame(sut, clone);
-            Assert.Null(clone.Address);
-            Assert.Null(clone.Metadata);
+            Assert.False(options1.Equals(options1 with { Address = "different" }));
+            Assert.False(options1.Equals(options1 with { Health = null }));
+            Assert.False(options1.Equals(options1 with
+            {
+                Metadata = new Dictionary<string, string>
+                {
+                    { "destB-K1", "destB-V1" }, { "destB-K2", "destB-V2" }
+                }
+            }));
+        }
+
+        [Fact]
+        public void Equals_Second_Null_Returns_False()
+        {
+            var options1 = new Destination();
+
+            var equals = options1.Equals(null);
+
+            Assert.False(equals);
         }
     }
 }

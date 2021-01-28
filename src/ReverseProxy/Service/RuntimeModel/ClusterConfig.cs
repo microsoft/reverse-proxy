@@ -2,10 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.Net.Http;
 using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Service.Proxy;
 
 namespace Microsoft.ReverseProxy.RuntimeModel
 {
@@ -23,49 +21,22 @@ namespace Microsoft.ReverseProxy.RuntimeModel
     {
         public ClusterConfig(
             Cluster cluster,
-            ClusterHealthCheckOptions healthCheckOptions,
-            string loadBalancingPolicy,
-            ClusterSessionAffinityOptions sessionAffinityOptions,
-            HttpMessageInvoker httpClient,
-            ClusterProxyHttpClientOptions httpClientOptions,
-            RequestProxyOptions httpRequestOptions,
-            IReadOnlyDictionary<string, string> metadata)
+            HttpMessageInvoker httpClient)
         {
-            Cluster = cluster;
-            HealthCheckOptions = healthCheckOptions;
-            LoadBalancingPolicy = loadBalancingPolicy;
-            SessionAffinityOptions = sessionAffinityOptions;
+            Options = cluster ?? throw new ArgumentNullException(nameof(cluster));
             HttpClient = httpClient;
-            HttpClientOptions = httpClientOptions;
-            HttpRequestOptions = httpRequestOptions;
-            Metadata = metadata;
         }
 
-        internal Cluster Cluster { get; }
-
-        public ClusterHealthCheckOptions HealthCheckOptions { get; }
-
-        public string LoadBalancingPolicy { get; }
-
-        public ClusterSessionAffinityOptions SessionAffinityOptions { get; }
-
-        public ClusterProxyHttpClientOptions HttpClientOptions { get; }
-
-        public RequestProxyOptions HttpRequestOptions { get; }
+        public Cluster Options { get; }
 
         /// <summary>
         /// An <see cref="HttpMessageInvoker"/> that used for proxying requests to an upstream server.
         /// </summary>
         public HttpMessageInvoker HttpClient { get; }
 
-        /// <summary>
-        /// Arbitrary key-value pairs that further describe this cluster.
-        /// </summary>
-        public IReadOnlyDictionary<string, string> Metadata { get; }
-
         internal bool HasConfigChanged(ClusterConfig newClusterConfig)
         {
-            return !Cluster.Equals(Cluster, newClusterConfig.Cluster);
+            return !Options.Equals(newClusterConfig.Options);
         }
     }
 }

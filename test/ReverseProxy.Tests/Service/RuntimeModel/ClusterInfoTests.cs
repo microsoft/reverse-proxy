@@ -83,8 +83,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel.Tests
             Assert.NotNull(state2);
             Assert.Empty(state2.AllDestinations);
 
-            cluster.Config = new ClusterConfig(cluster: default, healthCheckOptions: default, loadBalancingPolicy: default, sessionAffinityOptions: default,
-                httpClient: new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object), httpClientOptions: default, httpRequestOptions: default, metadata: new Dictionary<string, string>());
+            cluster.Config = new ClusterConfig(new Cluster(), httpClient: new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object));
             Assert.Same(state2, cluster.DynamicState);
 
             cluster.UpdateDynamicState();
@@ -233,24 +232,27 @@ namespace Microsoft.ReverseProxy.RuntimeModel.Tests
         {
             // Pretend that health checks are enabled so that destination health states are honored
             cluster.Config = new ClusterConfig(
-                new Cluster(),
-                healthCheckOptions: new ClusterHealthCheckOptions(
-                    new ClusterPassiveHealthCheckOptions(
-                        enabled: true,
-                        policy: "FailureRate",
-                        reactivationPeriod: TimeSpan.FromMinutes(5)),
-                    new ClusterActiveHealthCheckOptions(
-                        enabled: true,
-                        interval: TimeSpan.FromSeconds(5),
-                        timeout: TimeSpan.FromSeconds(30),
-                        policy: "Any5xxResponse",
-                        path: "/")),
-                loadBalancingPolicy: default,
-                sessionAffinityOptions: default,
-                httpClient: new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object),
-                httpClientOptions: default,
-                httpRequestOptions: default,
-                metadata: new Dictionary<string, string>());
+                new Cluster
+                {
+                    HealthCheck = new HealthCheckOptions
+                    {
+                        Passive = new PassiveHealthCheckOptions
+                        {
+                            Enabled = true,
+                            Policy = "FailureRate",
+                            ReactivationPeriod = TimeSpan.FromMinutes(5),
+                        },
+                        Active = new ActiveHealthCheckOptions
+                        {
+                            Enabled = true,
+                            Interval = TimeSpan.FromSeconds(5),
+                            Timeout = TimeSpan.FromSeconds(30),
+                            Policy = "Any5xxResponse",
+                            Path = "/",
+                        }
+                    }
+                },
+                httpClient: new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object));
         }
     }
 }

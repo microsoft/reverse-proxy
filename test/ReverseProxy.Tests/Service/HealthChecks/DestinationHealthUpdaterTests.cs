@@ -4,6 +4,7 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Management;
 using Microsoft.ReverseProxy.Utilities;
@@ -120,11 +121,24 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             destinationManager.SetupGet(m => m.Items).Returns(destinations);
             var cluster = new ClusterInfo("cluster0", destinationManager.Object);
             cluster.Config = new ClusterConfig(
-                new Abstractions.Cluster { Id = cluster.ClusterId },
-                new ClusterHealthCheckOptions(
-                    new ClusterPassiveHealthCheckOptions(passive, "policy0", null),
-                    new ClusterActiveHealthCheckOptions(active, null, null, "policy1", null)),
-                default, default, default, default, default, null);
+                new Cluster
+                {
+                    Id = cluster.ClusterId,
+                    HealthCheck = new HealthCheckOptions()
+                    {
+                        Passive = new PassiveHealthCheckOptions()
+                        {
+                            Policy = "policy0",
+                            Enabled = passive,
+                        },
+                        Active = new ActiveHealthCheckOptions()
+                        {
+                            Enabled = active,
+                            Policy = "policy1",
+                        },
+                    },
+                },
+                default);
             return cluster;
         }
     }

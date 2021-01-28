@@ -27,10 +27,10 @@ namespace Microsoft.ReverseProxy.Middleware
             await _next(context);
 
             var proxyFeature = context.GetRequiredProxyFeature();
-            var options = proxyFeature.ClusterConfig.HealthCheckOptions.Passive;
+            var options = proxyFeature.ClusterConfig.Options.HealthCheck?.Passive;
 
             // Do nothing if no target destination has been chosen for the request.
-            if (!options.Enabled || proxyFeature.SelectedDestination == null)
+            if (!(options?.Enabled).GetValueOrDefault() || proxyFeature.SelectedDestination == null)
             {
                 return;
             }

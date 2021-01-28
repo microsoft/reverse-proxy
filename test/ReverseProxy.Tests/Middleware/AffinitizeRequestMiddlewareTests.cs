@@ -121,7 +121,7 @@ namespace Microsoft.ReverseProxy.Middleware
         {
             var provider = new Mock<ISessionAffinityProvider>(MockBehavior.Strict);
             provider.SetupGet(p => p.Mode).Returns(mode);
-            provider.Setup(p => p.AffinitizeRequest(It.IsAny<HttpContext>(), ClusterConfig.SessionAffinityOptions, It.Is<DestinationInfo>(d => destinations.Contains(d))))
+            provider.Setup(p => p.AffinitizeRequest(It.IsAny<HttpContext>(), ClusterConfig.Options.SessionAffinity, It.Is<DestinationInfo>(d => destinations.Contains(d))))
                 .Callback(() => callback(provider.Object));
             return provider;
         }

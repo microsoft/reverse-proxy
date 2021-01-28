@@ -17,6 +17,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Microsoft.ReverseProxy.Service;
+using Microsoft.ReverseProxy.Service.Proxy;
 using Microsoft.ReverseProxy.Utilities.Tests;
 using Moq;
 using Xunit;
@@ -35,7 +36,7 @@ namespace Microsoft.ReverseProxy.Configuration
                     new Cluster
                     {
                         Id = "cluster1",
-                        Destinations =
+                        Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
                         {
                             {
                                 "destinationA",
@@ -88,7 +89,7 @@ namespace Microsoft.ReverseProxy.Configuration
                             DangerousAcceptAnyServerCertificate = true,
                             PropagateActivityContext = true,
                         },
-                        HttpRequest = new ProxyHttpRequestOptions()
+                        HttpRequest = new RequestProxyOptions()
                         {
                             Timeout = TimeSpan.FromSeconds(60),
                             Version = Version.Parse("1.0"),
@@ -103,7 +104,7 @@ namespace Microsoft.ReverseProxy.Configuration
                     new Cluster
                     {
                         Id = "cluster2",
-                        Destinations =
+                        Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
                         {
                             { "destinationC", new Destination { Address = "https://localhost:10001/destC" } },
                             { "destinationD", new Destination { Address = "https://localhost:10000/destB" } }
@@ -121,7 +122,7 @@ namespace Microsoft.ReverseProxy.Configuration
                     AuthorizationPolicy = "Default",
                     CorsPolicy = "Default",
                     Order = -1,
-                    Match =
+                    Match = new ProxyMatch
                     {
                         Hosts = new List<string> { "host-A" },
                         Methods = new List<string> { "GET", "POST", "DELETE" },
@@ -137,7 +138,7 @@ namespace Microsoft.ReverseProxy.Configuration
                             }
                         }
                     },
-                    Transforms = new List<IDictionary<string, string>>
+                    Transforms = new[]
                     {
                         new Dictionary<string, string> { { "RequestHeadersCopy", "true" }, { "PathRemovePrefix", "/apis" } }, new Dictionary<string, string> { { "PathPrefix", "/apis" } }
                     },
@@ -148,7 +149,7 @@ namespace Microsoft.ReverseProxy.Configuration
                     RouteId = "routeB",
                     ClusterId = "cluster2",
                     Order = 2,
-                    Match =
+                    Match = new ProxyMatch
                     {
                         Hosts = new List<string> { "host-B" },
                         Methods = new List<string> { "GET" },

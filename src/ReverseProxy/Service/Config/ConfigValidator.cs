@@ -94,6 +94,16 @@ namespace Microsoft.ReverseProxy.Service
                 errors.Add(new ArgumentException("Missing Route Id."));
             }
 
+            errors.AddRange(_transformBuilder.Validate(route.Transforms));
+            await ValidateAuthorizationPolicyAsync(errors, route.AuthorizationPolicy, route.RouteId);
+            await ValidateCorsPolicyAsync(errors, route.CorsPolicy, route.RouteId);
+
+            if (route.Match == null)
+            {
+                errors.Add(new ArgumentException($"Route '{route.RouteId}' did not set any match criteria, it requires Hosts or Path specified. Set the Path to '/{{**catchall}}' to match all requests."));
+                return errors;
+            }
+
             if ((route.Match.Hosts == null || route.Match.Hosts.Count == 0 || route.Match.Hosts.Any(host => string.IsNullOrEmpty(host))) && string.IsNullOrEmpty(route.Match.Path))
             {
                 errors.Add(new ArgumentException($"Route '{route.RouteId}' requires Hosts or Path specified. Set the Path to '/{{**catchall}}' to match all requests."));
@@ -103,9 +113,6 @@ namespace Microsoft.ReverseProxy.Service
             ValidatePath(errors, route.Match.Path, route.RouteId);
             ValidateMethods(errors, route.Match.Methods, route.RouteId);
             ValidateHeaders(errors, route.Match.Headers, route.RouteId);
-            errors.AddRange(_transformBuilder.Validate(route.Transforms));
-            await ValidateAuthorizationPolicyAsync(errors, route.AuthorizationPolicy, route.RouteId);
-            await ValidateCorsPolicyAsync(errors, route.CorsPolicy, route.RouteId);
 
             return errors;
         }
@@ -131,7 +138,7 @@ namespace Microsoft.ReverseProxy.Service
             return new ValueTask<IList<Exception>>(errors);
         }
 
-        private void ValidateHost(IList<Exception> errors, IReadOnlyList<string> hosts, string routeId)
+        private static void ValidateHost(IList<Exception> errors, IReadOnlyList<string> hosts, string routeId)
         {
             // Host is optional when Path is specified
             if (hosts == null || hosts.Count == 0)
@@ -148,7 +155,7 @@ namespace Microsoft.ReverseProxy.Service
             }
         }
 
-        private void ValidatePath(IList<Exception> errors, string path, string routeId)
+        private static void ValidatePath(IList<Exception> errors, string path, string routeId)
         {
             // Path is optional when Host is specified
             if (string.IsNullOrEmpty(path))
@@ -166,7 +173,7 @@ namespace Microsoft.ReverseProxy.Service
             }
         }
 
-        private void ValidateMethods(IList<Exception> errors, IReadOnlyList<string> methods, string routeId)
+        private static void ValidateMethods(IList<Exception> errors, IReadOnlyList<string> methods, string routeId)
         {
             // Methods are optional
             if (methods == null)
@@ -190,7 +197,7 @@ namespace Microsoft.ReverseProxy.Service
             }
         }
 
-        private void ValidateHeaders(List<Exception> errors, IReadOnlyList<RouteHeader> headers, string routeId)
+        private static void ValidateHeaders(List<Exception> errors, IReadOnlyList<RouteHeader> headers, string routeId)
         {
             // Headers are optional
             if (headers == null)
@@ -335,7 +342,7 @@ namespace Microsoft.ReverseProxy.Service
             }
         }
 
-        private void ValidateProxyHttpClient(IList<Exception> errors, Cluster cluster)
+        private static void ValidateProxyHttpClient(IList<Exception> errors, Cluster cluster)
         {
             if (cluster.HttpClient == null)
             {
@@ -349,7 +356,7 @@ namespace Microsoft.ReverseProxy.Service
             }
         }
 
-        private void ValidateProxyHttpRequest(IList<Exception> errors, Cluster cluster)
+        private static void ValidateProxyHttpRequest(IList<Exception> errors, Cluster cluster)
         {
             if (cluster.HttpRequest == null)
             {
@@ -396,7 +403,7 @@ namespace Microsoft.ReverseProxy.Service
             }
         }
 
-        private void ValidatePassiveHealthCheck(IList<Exception> errors, Cluster cluster)
+        private static void ValidatePassiveHealthCheck(IList<Exception> errors, Cluster cluster)
         {
             if (!(cluster.HealthCheck?.Passive?.Enabled ?? false))
             {

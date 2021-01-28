@@ -11,7 +11,6 @@ using Microsoft.ReverseProxy.Common.Tests;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Management;
 using Microsoft.ReverseProxy.Service.Proxy;
-using Microsoft.ReverseProxy.Utilities;
 using Moq;
 using Xunit;
 
@@ -210,14 +209,21 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 ? new Dictionary<string, string> { { TransportFailureRateHealthPolicyOptions.FailureRateLimitMetadataName, failureRateLimit?.ToString(CultureInfo.InvariantCulture) } }
                 : null;
             var clusterConfig = new ClusterConfig(
-                new Cluster { Id = id },
-                new ClusterHealthCheckOptions(new ClusterPassiveHealthCheckOptions(true, "policy", reactivationPeriod), default),
-                default,
-                default,
-                null,
-                default,
-                default,
-                metadata);
+                new Cluster
+                {
+                    Id = id,
+                    HealthCheck = new HealthCheckOptions
+                    {
+                        Passive = new PassiveHealthCheckOptions
+                        {
+                            Enabled = true,
+                            Policy = "policy",
+                            ReactivationPeriod = reactivationPeriod,
+                        }
+                    },
+                    Metadata = metadata,
+                },
+                null);
             var clusterInfo = new ClusterInfo(id, new DestinationManager());
             clusterInfo.Config = clusterConfig;
             for (var i = 0; i < destinationCount; i++)

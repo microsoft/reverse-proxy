@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Net.Http;
+using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.RuntimeModel;
 
 namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
@@ -18,11 +19,11 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
         public string ClusterId { get; set; }
 
         /// <summary>
-        /// Old <see cref="ClusterProxyHttpClientOptions"/> instance
+        /// Old <see cref="ProxyHttpClientOptions"/> instance
         /// from which the <see cref="OldClient"/> was created.
         /// Can be null if a client is getting constructed for the first time.
         /// </summary>
-        public ClusterProxyHttpClientOptions OldOptions { get; set; }
+        public ProxyHttpClientOptions OldOptions { get; set; }
 
         /// <summary>
         /// Old metadata instance from which the <see cref="OldClient"/> was created.
@@ -37,11 +38,11 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
         public HttpMessageInvoker OldClient { get; set; }
 
         /// <summary>
-        /// New <see cref="ClusterProxyHttpClientOptions"/> instance
+        /// New <see cref="ProxyHttpClientOptions"/> instance
         /// specifying the settings for a new client.
         /// CANNOT be null.
         /// </summary>
-        public ClusterProxyHttpClientOptions NewOptions { get; set; }
+        public ProxyHttpClientOptions NewOptions { get; set; }
 
         /// <summary>
         /// New metadata instance used for a new client construction.

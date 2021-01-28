@@ -35,5 +35,10 @@ namespace Microsoft.ReverseProxy.Utilities
 
             return true;
         }
+
+        internal static int GetHashCode(IReadOnlyList<string> values)
+        {
+            return values?.GetHashCode() ?? 0;
+        }
     }
 }

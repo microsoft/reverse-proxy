@@ -24,7 +24,13 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         [InlineData("https://localhost:10000/", "https://localhost:20000/api", "/health/", "https://localhost:20000/api/health/")]
         public void CreateRequest_HealthEndpointIsNotDefined_UseDestinationAddress(string address, string health, string healthPath, string expectedRequestUri)
         {
-            var clusterConfig = GetClusterConfig("cluster0", new ClusterActiveHealthCheckOptions(true, null, null, "policy", healthPath), HttpVersion.Version20);
+            var clusterConfig = GetClusterConfig("cluster0",
+                new ActiveHealthCheckOptions()
+                {
+                    Enabled = true,
+                    Policy = "policy",
+                    Path = healthPath,
+                }, HttpVersion.Version20);
             var destinationConfig = new DestinationConfig(address, health);
             var factory = new DefaultProbingRequestFactory();
 
@@ -39,7 +45,13 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         public void CreateRequest_RequestVersionProperties(string versionString)
         {
             var version = versionString != null ? Version.Parse(versionString) : null;
-            var clusterConfig = GetClusterConfig("cluster0", new ClusterActiveHealthCheckOptions(true, null, null, "policy", null), version
+            var clusterConfig = GetClusterConfig("cluster0",
+                new ActiveHealthCheckOptions()
+                {
+                    Enabled = true,
+                    Policy = "policy",
+                },
+                version
 #if NET
                 , HttpVersionPolicy.RequestVersionExact
 #endif
@@ -55,26 +67,30 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 #endif
         }
 
-        private ClusterConfig GetClusterConfig(string id, ClusterActiveHealthCheckOptions healthCheckOptions, Version version
+        private ClusterConfig GetClusterConfig(string id, ActiveHealthCheckOptions healthCheckOptions, Version version
 #if NET
             , HttpVersionPolicy versionPolicy = HttpVersionPolicy.RequestVersionExact
 #endif
             )
         {
             return new ClusterConfig(
-                new Cluster { Id = id },
-                new ClusterHealthCheckOptions(default, healthCheckOptions),
-                default,
-                default,
-                null,
-                default,
-                new RequestProxyOptions(
-                    TimeSpan.FromSeconds(60),
-                    version
+                new Cluster
+                {
+                    Id = id,
+                    HealthCheck = new HealthCheckOptions()
+                    {
+                        Active = healthCheckOptions,
+                    },
+                    HttpRequest = new RequestProxyOptions
+                    {
+                        Timeout = TimeSpan.FromSeconds(60),
+                        Version = version,
 #if NET
-                    , versionPolicy
+                        VersionPolicy = versionPolicy,
 #endif
-                    ), null);
+                    }
+                },
+                null);
         }
     }
 }

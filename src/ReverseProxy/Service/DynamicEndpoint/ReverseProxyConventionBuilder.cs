@@ -63,7 +63,7 @@ namespace Microsoft.ReverseProxy
             {
                 var routeConfig = endpointBuilder.Metadata.OfType<RouteConfig>().Single();
                 var conventionBuilder = new EndpointBuilderConventionBuilder(endpointBuilder);
-                convention(conventionBuilder, routeConfig.ProxyRoute.DeepClone());
+                convention(conventionBuilder, routeConfig.ProxyRoute);
             }
 
             Add(Action);
@@ -84,10 +84,10 @@ namespace Microsoft.ReverseProxy
             {
                 var routeConfig = endpointBuilder.Metadata.OfType<RouteConfig>().Single();
 
-                var cluster = routeConfig.Cluster?.Config.Cluster;
+                var cluster = routeConfig.Cluster?.Config.Options;
                 var proxyRoute = routeConfig.ProxyRoute;
                 var conventionBuilder = new EndpointBuilderConventionBuilder(endpointBuilder);
-                convention(conventionBuilder, proxyRoute.DeepClone(), cluster?.DeepClone());
+                convention(conventionBuilder, proxyRoute, cluster);
             }
 
             Add(Action);

@@ -680,11 +680,14 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     return Task.FromResult(response);
                 });
 
+            var options = new RequestProxyOptions
+            {
+                Version = version,
 #if NET
-            var options = new RequestProxyOptions(null, version, versionPolicy);
-#else
-            var options = new RequestProxyOptions(null, version);
+                VersionPolicy = versionPolicy,
 #endif
+            };
+
             await sut.ProxyAsync(httpContext, destinationPrefix, client, options);
 
             Assert.Null(httpContext.Features.Get<IProxyErrorFeature>());
@@ -740,11 +743,15 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                     return Task.CompletedTask;
                 }
             };
+
+            var requestOptions = new RequestProxyOptions
+            {
+                Version = version,
 #if NET
-            var requestOptions = new RequestProxyOptions(null, version, versionPolicy);
-#else
-            var requestOptions = new RequestProxyOptions(null, version);
+                VersionPolicy = versionPolicy,
 #endif
+            };
+
             await sut.ProxyAsync(httpContext, destinationPrefix, client, requestOptions, transforms);
 
             Assert.Null(httpContext.Features.Get<IProxyErrorFeature>());
@@ -843,7 +850,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 });
 
             // Time out immediately
-            var requestOptions = new RequestProxyOptions(TimeSpan.FromTicks(1), null);
+            var requestOptions = new RequestProxyOptions { Timeout = TimeSpan.FromTicks(1) };
 
             await sut.ProxyAsync(httpContext, destinationPrefix, client, requestOptions);
 
@@ -916,7 +923,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 });
 
             // Time out immediately
-            var requestOptions = new RequestProxyOptions(TimeSpan.FromTicks(1), null);
+            var requestOptions = new RequestProxyOptions { Timeout = TimeSpan.FromTicks(1) };
 
             await sut.ProxyAsync(httpContext, destinationPrefix, client, requestOptions);
 
