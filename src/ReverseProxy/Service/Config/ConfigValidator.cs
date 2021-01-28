@@ -47,7 +47,7 @@ namespace Microsoft.ReverseProxy.Service
             @"(?:" + DnsLabelRegexPattern + @"\.)*" +
             DnsLabelRegexPattern +
             @"$";
-        private static readonly Regex _hostNameRegex = new Regex(HostNameRegexPattern);
+        private static readonly Regex _hostNameRegex = new Regex(HostNameRegexPattern, RegexOptions.Compiled);
 
         private static readonly HashSet<string> _validMethods = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
