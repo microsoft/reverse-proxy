@@ -39,9 +39,9 @@ namespace Microsoft.ReverseProxy.Abstractions
         public int? MaxConnectionsPerServer { get; init; }
 
         /// <summary>
-        /// Enables or disables the activity correlation headers for outgoing requests.
+        /// Specifies the activity correlation headers for outgoing requests.
         /// </summary>
-        public bool? PropagateActivityContext { get; init; }
+        public ActivityContextHeaders? ActivityContextHeaders { get; init; }
 
         // TODO: Add this property once we have migrated to SDK version that supports it.
         //public bool? EnableMultipleHttp2Connections { get; init; }
@@ -58,7 +58,7 @@ namespace Microsoft.ReverseProxy.Abstractions
                 && CertEquals(ClientCertificate, other.ClientCertificate)
                 && DangerousAcceptAnyServerCertificate == other.DangerousAcceptAnyServerCertificate
                 && MaxConnectionsPerServer == other.MaxConnectionsPerServer
-                && PropagateActivityContext == other.PropagateActivityContext;
+                && ActivityContextHeaders == other.ActivityContextHeaders;
         }
 
         private static bool CertEquals(X509Certificate2 certificate1, X509Certificate2 certificate2)
@@ -83,7 +83,7 @@ namespace Microsoft.ReverseProxy.Abstractions
                 ClientCertificate?.Thumbprint,
                 DangerousAcceptAnyServerCertificate,
                 MaxConnectionsPerServer,
-                PropagateActivityContext);
+                ActivityContextHeaders);
         }
     }
 }

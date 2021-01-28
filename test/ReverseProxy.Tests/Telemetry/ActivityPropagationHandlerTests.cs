@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Common.Tests;
 using Microsoft.ReverseProxy.Telemetry;
 using Xunit;
@@ -14,14 +15,16 @@ namespace Microsoft.ReverseProxy.Telemetry.Tests
     public class ActivityPropagationHandlerTests
     {
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public async Task SendAsync_CurrentActivitySet_RequestHeadersSet(bool useW3CFormat)
+        [InlineData(false, ActivityContextHeaders.BaggageAndCorrelationContext)]
+        [InlineData(true, ActivityContextHeaders.BaggageAndCorrelationContext)]
+        [InlineData(true, ActivityContextHeaders.Baggage)]
+        [InlineData(true, ActivityContextHeaders.CorrelationContext)]
+        public async Task SendAsync_CurrentActivitySet_RequestHeadersSet(bool useW3CFormat, ActivityContextHeaders activityContextHeaders)
         {
             const string TraceStateString = "CustomTraceStateString";
             string expectedId = null;
 
-            var invoker = new HttpMessageInvoker(new ActivityPropagationHandler(new MockHttpHandler(
+            var invoker = new HttpMessageInvoker(new ActivityPropagationHandler(activityContextHeaders, new MockHttpHandler(
                 (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
                     var headers = request.Headers;
@@ -35,8 +38,17 @@ namespace Microsoft.ReverseProxy.Telemetry.Tests
                         Assert.Equal(TraceStateString, Assert.Single(values));
                     }
 
-                    Assert.True(headers.TryGetValues("Correlation-Context", out values));
-                    Assert.Equal("foo=bar", Assert.Single(values));
+                    if (activityContextHeaders.HasFlag(ActivityContextHeaders.Baggage))
+                    {
+                        Assert.True(headers.TryGetValues("Baggage", out values));
+                        Assert.Equal("foo=bar", Assert.Single(values));
+                    }
+
+                    if (activityContextHeaders.HasFlag(ActivityContextHeaders.CorrelationContext))
+                    {
+                        Assert.True(headers.TryGetValues("Correlation-Context", out values));
+                        Assert.Equal("foo=bar", Assert.Single(values));
+                    }
 
                     return Task.FromResult<HttpResponseMessage>(null);
                 })));
