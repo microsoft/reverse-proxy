@@ -192,7 +192,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 { "YARP.Backend.HealthCheck.Active.Interval", value },
             };
 
-            var cluster = LabelsParser.BuildCluster(_testServiceName, labels);
+            var cluster = LabelsParser.BuildCluster(_testServiceName, labels, null);
 
             cluster.HealthCheck.Active.Interval.Should().BeNull();
         }
