@@ -92,7 +92,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             }
 
             // Build the routes
-            var routes = new List<ProxyRoute>();
+            var routes = new List<ProxyRoute>(routesNames.Count);
             foreach (var routeNamePair in routesNames)
             {
                 string hosts = null;
