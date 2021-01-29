@@ -6,7 +6,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
     /// <summary>
     /// Enables the implementor to inspect each route and conditionally add transforms.
     /// </summary>
-    public interface ITransformFilter
+    public interface ITransformProvider
     {
         /// <summary>
         /// Inspect the given route and conditionally add transforms.

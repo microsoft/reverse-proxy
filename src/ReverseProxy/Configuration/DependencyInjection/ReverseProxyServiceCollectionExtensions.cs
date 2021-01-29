@@ -95,19 +95,17 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         public static IReverseProxyBuilder AddTransforms(this IReverseProxyBuilder builder, Action<TransformBuilderContext> action)
         {
-            builder.Services.AddSingleton<ITransformFilter>(new CustomTransformFilter(action));
+            builder.Services.AddSingleton<ITransformProvider>(new CustomTransformProvider(action));
             return builder;
         }
 
         /// <summary>
-        /// Provides a <see cref="ITransformFilter"/> implementation that will be run for each route to conditionally add transforms.
+        /// Provides a <see cref="ITransformProvider"/> implementation that will be run for each route to conditionally add transforms.
         /// <see cref="AddTransforms{T}(IReverseProxyBuilder)"/> can be called multiple times to provide multiple distinct types.
         /// </summary>
-        public static IReverseProxyBuilder AddTransforms<T>(this IReverseProxyBuilder builder) where T : ITransformFilter
+        public static IReverseProxyBuilder AddTransforms<T>(this IReverseProxyBuilder builder) where T : ITransformProvider
         {
-            builder.Services.TryAddEnumerable(new[] {
-                new ServiceDescriptor(typeof(ITransformFilter), typeof(T), ServiceLifetime.Singleton),
-            });
+            builder.Services.TryAddEnumerable(new ServiceDescriptor(typeof(ITransformProvider), typeof(T), ServiceLifetime.Singleton));
             return builder;
         }
 
@@ -118,9 +116,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         public static IReverseProxyBuilder AddTransformFactory<T>(this IReverseProxyBuilder builder) where T : ITransformFactory
         {
-            builder.Services.TryAddEnumerable(new[] {
-                new ServiceDescriptor(typeof(ITransformFactory), typeof(T), ServiceLifetime.Singleton),
-            });
+            builder.Services.TryAddEnumerable(new ServiceDescriptor(typeof(ITransformFactory), typeof(T), ServiceLifetime.Singleton));
             return builder;
         }
     }

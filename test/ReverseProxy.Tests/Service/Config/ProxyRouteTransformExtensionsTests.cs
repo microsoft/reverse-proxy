@@ -378,7 +378,7 @@ namespace Microsoft.ReverseProxy.Service.Config
         private static StructuredTransformer BuildTransform(ProxyRoute proxyRoute)
         {
             var builder = new TransformBuilder(new ServiceCollection().BuildServiceProvider(),
-                new TestRandomFactory(), Array.Empty<ITransformFactory>(), Array.Empty<ITransformFilter>());
+                new TestRandomFactory(), Array.Empty<ITransformFactory>(), Array.Empty<ITransformProvider>());
 
             return builder.BuildInternal(proxyRoute);
         }

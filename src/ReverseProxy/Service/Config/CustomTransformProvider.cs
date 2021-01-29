@@ -6,11 +6,11 @@ using Microsoft.ReverseProxy.Abstractions.Config;
 
 namespace Microsoft.ReverseProxy.Service.Config
 {
-    internal class CustomTransformFilter : ITransformFilter
+    internal class CustomTransformProvider : ITransformProvider
     {
         private readonly Action<TransformBuilderContext> _action;
 
-        public CustomTransformFilter(Action<TransformBuilderContext> action)
+        public CustomTransformProvider(Action<TransformBuilderContext> action)
         {
             _action = action ?? throw new ArgumentNullException(nameof(action));
         }

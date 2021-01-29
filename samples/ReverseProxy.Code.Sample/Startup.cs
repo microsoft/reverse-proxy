@@ -65,7 +65,7 @@ namespace Microsoft.ReverseProxy.Sample
             services.AddReverseProxy()
                 .LoadFromMemory(routes, clusters)
                 .AddTransformFactory<MyTransformFactory>()
-                .AddTransforms<MyTransformFilter>()
+                .AddTransforms<MyTransformProvider>()
                 .AddTransforms(transformBuilderContext =>
                 {
                     // For each route+cluster pair decide if we want to add transforms, and if so, which?

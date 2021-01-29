@@ -22,17 +22,17 @@ namespace Microsoft.ReverseProxy.Service.Config
         private readonly IServiceProvider _services;
         private readonly IRandomFactory _randomFactory;
         private readonly List<ITransformFactory> _factories;
-        private readonly List<ITransformFilter> _filters;
+        private readonly List<ITransformProvider> _providers;
 
         /// <summary>
         /// Creates a new <see cref="TransformBuilder"/>
         /// </summary>
-        public TransformBuilder(IServiceProvider services, IRandomFactory randomFactory, IEnumerable<ITransformFactory> factories, IEnumerable<ITransformFilter> filters)
+        public TransformBuilder(IServiceProvider services, IRandomFactory randomFactory, IEnumerable<ITransformFactory> factories, IEnumerable<ITransformProvider> providers)
         {
             _services = services ?? throw new ArgumentNullException(nameof(services));
             _randomFactory = randomFactory ?? throw new ArgumentNullException(nameof(randomFactory));
             _factories = factories?.ToList() ?? throw new ArgumentNullException(nameof(factories));
-            _filters = filters?.ToList() ?? throw new ArgumentNullException(nameof(filters));
+            _providers = providers?.ToList() ?? throw new ArgumentNullException(nameof(providers));
         }
 
         /// <inheritdoc/>
@@ -524,13 +524,13 @@ namespace Microsoft.ReverseProxy.Service.Config
             }
 
             // Let the app add any more transforms it wants.
-            foreach (var transformFitler in _filters)
+            foreach (var transformProvider in _providers)
             {
-                transformFitler.Apply(transformBuilderContext);
+                transformProvider.Apply(transformBuilderContext);
             }
 
             // Suppress the host by default
-            if (transformBuilderContext.UseOriginalHost ?? true)
+            if (!transformBuilderContext.UseOriginalHost ?? true)
             {
                 requestTransforms.Add(new RequestHeaderValueTransform(HeaderNames.Host, string.Empty, append: false));
             }
@@ -553,7 +553,7 @@ namespace Microsoft.ReverseProxy.Service.Config
                 responseTrailersTransforms);
         }
 
-        private void TryCheckTooManyParameters(Action<Exception> onError, IReadOnlyDictionary<string, string> rawTransform, int expected)
+        private static void TryCheckTooManyParameters(Action<Exception> onError, IReadOnlyDictionary<string, string> rawTransform, int expected)
         {
             if (rawTransform.Count > expected)
             {
@@ -561,7 +561,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             }
         }
 
-        private void CheckTooManyParameters(IReadOnlyDictionary<string, string> rawTransform, int expected)
+        private static void CheckTooManyParameters(IReadOnlyDictionary<string, string> rawTransform, int expected)
         {
             TryCheckTooManyParameters(ex => throw ex, rawTransform, expected);
         }
