@@ -73,47 +73,7 @@ namespace Microsoft.ReverseProxy.Service.Config
 
             foreach (var rawTransform in rawTransforms)
             {
-                if (rawTransform.TryGetValue("ResponseHeader", out var _))
-                {
-                    if (rawTransform.TryGetValue("When", out var whenValue))
-                    {
-                        TryCheckTooManyParameters(errors.Add, rawTransform, expected: 3);
-                        if (!string.Equals("Always", whenValue, StringComparison.OrdinalIgnoreCase) && !string.Equals("Success", whenValue, StringComparison.OrdinalIgnoreCase))
-                        {
-                            errors.Add(new ArgumentException($"Unexpected value for ResponseHeader:When: {whenValue}. Expected 'Always' or 'Success'"));
-                        }
-                    }
-                    else
-                    {
-                        TryCheckTooManyParameters(errors.Add, rawTransform, expected: 2);
-                    }
-
-                    if (!rawTransform.TryGetValue("Set", out var _) && !rawTransform.TryGetValue("Append", out var _))
-                    {
-                        errors.Add(new ArgumentException($"Unexpected parameters for ResponseHeader: {string.Join(';', rawTransform.Keys)}. Expected 'Set' or 'Append'"));
-                    }
-                }
-                else if (rawTransform.TryGetValue("ResponseTrailer", out var _))
-                {
-                    if (rawTransform.TryGetValue("When", out var whenValue))
-                    {
-                        TryCheckTooManyParameters(errors.Add, rawTransform, expected: 3);
-                        if (!string.Equals("Always", whenValue, StringComparison.OrdinalIgnoreCase) && !string.Equals("Success", whenValue, StringComparison.OrdinalIgnoreCase))
-                        {
-                            errors.Add(new ArgumentException($"Unexpected value for ResponseTrailer:When: {whenValue}. Expected 'Always' or 'Success'"));
-                        }
-                    }
-                    else
-                    {
-                        TryCheckTooManyParameters(errors.Add, rawTransform, expected: 2);
-                    }
-
-                    if (!rawTransform.TryGetValue("Set", out var _) && !rawTransform.TryGetValue("Append", out var _))
-                    {
-                        errors.Add(new ArgumentException($"Unexpected parameters for ResponseTrailer: {string.Join(';', rawTransform.Keys)}. Expected 'Set' or 'Append'"));
-                    }
-                }
-                else if (rawTransform.TryGetValue("X-Forwarded", out var xforwardedHeaders))
+                if (rawTransform.TryGetValue("X-Forwarded", out var xforwardedHeaders))
                 {
                     var expected = 1;
 
@@ -240,69 +200,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             {
                 foreach (var rawTransform in rawTransforms)
                 {
-                    if (rawTransform.TryGetValue("ResponseHeadersCopy", out var copyHeaders))
-                    {
-                        TransformHelpers.CheckTooManyParameters(rawTransform, expected: 1);
-                        copyResponseHeaders = string.Equals("True", copyHeaders, StringComparison.OrdinalIgnoreCase);
-                    }
-                    else if (rawTransform.TryGetValue("ResponseTrailersCopy", out copyHeaders))
-                    {
-                        TransformHelpers.CheckTooManyParameters(rawTransform, expected: 1);
-                        copyResponseTrailers = string.Equals("True", copyHeaders, StringComparison.OrdinalIgnoreCase);
-                    }
-                    else if (rawTransform.TryGetValue("ResponseHeader", out var responseHeaderName))
-                    {
-                        var always = false;
-                        if (rawTransform.TryGetValue("When", out var whenValue))
-                        {
-                            CheckTooManyParameters(rawTransform, expected: 3);
-                            always = string.Equals("always", whenValue, StringComparison.OrdinalIgnoreCase);
-                        }
-                        else
-                        {
-                            CheckTooManyParameters(rawTransform, expected: 2);
-                        }
-
-                        if (rawTransform.TryGetValue("Set", out var setValue))
-                        {
-                            responseTransforms.Add(new ResponseHeaderValueTransform(responseHeaderName, setValue, append: false, always));
-                        }
-                        else if (rawTransform.TryGetValue("Append", out var appendValue))
-                        {
-                            responseTransforms.Add(new ResponseHeaderValueTransform(responseHeaderName, appendValue, append: true, always));
-                        }
-                        else
-                        {
-                            throw new ArgumentException($"Unexpected parameters for ResponseHeader: {string.Join(';', rawTransform.Keys)}. Expected 'Set' or 'Append'");
-                        }
-                    }
-                    else if (rawTransform.TryGetValue("ResponseTrailer", out var responseTrailerName))
-                    {
-                        var always = false;
-                        if (rawTransform.TryGetValue("When", out var whenValue))
-                        {
-                            CheckTooManyParameters(rawTransform, expected: 3);
-                            always = string.Equals("always", whenValue, StringComparison.OrdinalIgnoreCase);
-                        }
-                        else
-                        {
-                            CheckTooManyParameters(rawTransform, expected: 2);
-                        }
-
-                        if (rawTransform.TryGetValue("Set", out var setValue))
-                        {
-                            responseTrailersTransforms.Add(new ResponseTrailerValueTransform(responseTrailerName, setValue, append: false, always));
-                        }
-                        else if (rawTransform.TryGetValue("Append", out var appendValue))
-                        {
-                            responseTrailersTransforms.Add(new ResponseTrailerValueTransform(responseTrailerName, appendValue, append: true, always));
-                        }
-                        else
-                        {
-                            throw new ArgumentException($"Unexpected parameters for ResponseTrailer: {string.Join(';', rawTransform.Keys)}. Expected 'Set' or 'Append'");
-                        }
-                    }
-                    else if (rawTransform.TryGetValue("X-Forwarded", out var xforwardedHeaders))
+                    if (rawTransform.TryGetValue("X-Forwarded", out var xforwardedHeaders))
                     {
                         forwardersSet = true;
                         var expected = 1;

@@ -25,7 +25,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         /// <summary>
         /// Adds the transform which will prevent copying request headers to the proxy request.
         /// </summary>
-        public static TransformBuilderContext AddSuppressRequestHeaders(this TransformBuilderContext context, bool suppress = true)
+        public static TransformBuilderContext SuppressRequestHeaders(this TransformBuilderContext context, bool suppress = true)
         {
             context.CopyRequestHeaders = !suppress;
             return context;

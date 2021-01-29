@@ -6,6 +6,9 @@ using System.Collections.Generic;
 
 namespace Microsoft.ReverseProxy.Abstractions.Config
 {
+    /// <summary>
+    /// Extensions for adding transforms to ProxyRoute.
+    /// </summary>
     public static class ProxyRouteTransformExtensions
     {
         /// <summary>
@@ -35,58 +38,6 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
             transforms.Add(transform);
 
             return proxyRoute with { Transforms = transforms };
-        }
-
-        /// <summary>
-        /// Clones the route and adds the transform which will prevent adding response headers to the client response.
-        /// </summary>
-        public static ProxyRoute WithTransformSuppressResponseHeaders(this ProxyRoute proxyRoute)
-        {
-            return proxyRoute.WithTransform(transform =>
-            {
-                transform["ResponseHeadersCopy"] = "False";
-            });
-        }
-
-        /// <summary>
-        /// Clones the route and adds the transform which will prevent adding response trailers to the client response.
-        /// </summary>
-        public static ProxyRoute WithTransformSuppressResponseTrailers(this ProxyRoute proxyRoute)
-        {
-            return proxyRoute.WithTransform(transform =>
-            {
-                transform["ResponseTrailersCopy"] = "False";
-            });
-        }
-
-        /// <summary>
-        /// Clones the route and adds the transform which will append or set response header.
-        /// </summary>
-        public static ProxyRoute WithTransformResponseHeader(this ProxyRoute proxyRoute, string headerName, string value, bool append = true, bool always = true)
-        {
-            var type = append ? "Append" : "Set";
-            var when = always ? "always" : "success";
-            return proxyRoute.WithTransform(transform =>
-            {
-                transform["ResponseHeader"] = headerName;
-                transform[type] = value;
-                transform["When"] = when;
-            });
-        }
-
-        /// <summary>
-        /// Clones the route and adds the transform which will append or set response trailer header.
-        /// </summary>
-        public static ProxyRoute WithTransformResponseTrailer(this ProxyRoute proxyRoute, string headerName, string value, bool append = true, bool always = true)
-        {
-            var type = append ? "Append" : "Set";
-            var when = always ? "always" : "success";
-            return proxyRoute.WithTransform(transform =>
-            {
-                transform["ResponseTrailer"] = headerName;
-                transform[type] = value;
-                transform["When"] = when;
-            });
         }
 
         /// <summary>
