@@ -27,6 +27,8 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
             builder.Services.TryAddSingleton<ITransformBuilder, TransformBuilder>();
             builder.Services.TryAddSingleton<IRandomFactory, RandomFactory>();
             builder.AddTransformFactory<PathTransformFactory>();
+            builder.AddTransformFactory<QueryTransformFactory>();
+            builder.AddTransformFactory<RequestHeadersTransformFactory>();
             builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<MatcherPolicy, HeaderMatcherPolicy>());
             return builder;
         }

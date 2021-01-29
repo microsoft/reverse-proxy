@@ -73,31 +73,7 @@ namespace Microsoft.ReverseProxy.Service.Config
 
             foreach (var rawTransform in rawTransforms)
             {
-                if (rawTransform.TryGetValue("RequestHeadersCopy", out var copyHeaders))
-                {
-                    TryCheckTooManyParameters(errors.Add, rawTransform, expected: 1);
-                    if (!string.Equals("True", copyHeaders, StringComparison.OrdinalIgnoreCase) && !string.Equals("False", copyHeaders, StringComparison.OrdinalIgnoreCase))
-                    {
-                        errors.Add(new ArgumentException($"Unexpected value for RequestHeaderCopy: {copyHeaders}. Expected 'true' or 'false'"));
-                    }
-                }
-                else if (rawTransform.TryGetValue("RequestHeaderOriginalHost", out var originalHost))
-                {
-                    TryCheckTooManyParameters(errors.Add, rawTransform, expected: 1);
-                    if (!string.Equals("True", originalHost, StringComparison.OrdinalIgnoreCase) && !string.Equals("False", originalHost, StringComparison.OrdinalIgnoreCase))
-                    {
-                        errors.Add(new ArgumentException($"Unexpected value for RequestHeaderOriginalHost: {originalHost}. Expected 'true' or 'false'"));
-                    }
-                }
-                else if (rawTransform.TryGetValue("RequestHeader", out var headerName))
-                {
-                    TryCheckTooManyParameters(errors.Add, rawTransform, expected: 2);
-                    if (!rawTransform.TryGetValue("Set", out var _) && !rawTransform.TryGetValue("Append", out var _))
-                    {
-                        errors.Add(new ArgumentException($"Unexpected parameters for RequestHeader: {string.Join(';', rawTransform.Keys)}. Expected 'Set' or 'Append'"));
-                    }
-                }
-                else if (rawTransform.TryGetValue("ResponseHeader", out var _))
+                if (rawTransform.TryGetValue("ResponseHeader", out var _))
                 {
                     if (rawTransform.TryGetValue("When", out var whenValue))
                     {
@@ -264,41 +240,15 @@ namespace Microsoft.ReverseProxy.Service.Config
             {
                 foreach (var rawTransform in rawTransforms)
                 {
-                    if (rawTransform.TryGetValue("RequestHeadersCopy", out var copyHeaders))
+                    if (rawTransform.TryGetValue("ResponseHeadersCopy", out var copyHeaders))
                     {
-                        CheckTooManyParameters(rawTransform, expected: 1);
-                        copyRequestHeaders = string.Equals("True", copyHeaders, StringComparison.OrdinalIgnoreCase);
-                    }
-                    else if (rawTransform.TryGetValue("ResponseHeadersCopy", out copyHeaders))
-                    {
-                        CheckTooManyParameters(rawTransform, expected: 1);
+                        TransformHelpers.CheckTooManyParameters(rawTransform, expected: 1);
                         copyResponseHeaders = string.Equals("True", copyHeaders, StringComparison.OrdinalIgnoreCase);
                     }
                     else if (rawTransform.TryGetValue("ResponseTrailersCopy", out copyHeaders))
                     {
-                        CheckTooManyParameters(rawTransform, expected: 1);
+                        TransformHelpers.CheckTooManyParameters(rawTransform, expected: 1);
                         copyResponseTrailers = string.Equals("True", copyHeaders, StringComparison.OrdinalIgnoreCase);
-                    }
-                    else if (rawTransform.TryGetValue("RequestHeaderOriginalHost", out var originalHost))
-                    {
-                        CheckTooManyParameters(rawTransform, expected: 1);
-                        useOriginalHost = string.Equals("True", originalHost, StringComparison.OrdinalIgnoreCase);
-                    }
-                    else if (rawTransform.TryGetValue("RequestHeader", out var headerName))
-                    {
-                        CheckTooManyParameters(rawTransform, expected: 2);
-                        if (rawTransform.TryGetValue("Set", out var setValue))
-                        {
-                            requestTransforms.Add(new RequestHeaderValueTransform(headerName, setValue, append: false));
-                        }
-                        else if (rawTransform.TryGetValue("Append", out var appendValue))
-                        {
-                            requestTransforms.Add(new RequestHeaderValueTransform(headerName, appendValue, append: true));
-                        }
-                        else
-                        {
-                            throw new ArgumentException($"Unexpected parameters for RequestHeader: {string.Join(';', rawTransform.Keys)}. Expected 'Set' or 'Append'");
-                        }
                     }
                     else if (rawTransform.TryGetValue("ResponseHeader", out var responseHeaderName))
                     {
@@ -529,8 +479,10 @@ namespace Microsoft.ReverseProxy.Service.Config
                 transformProvider.Apply(transformBuilderContext);
             }
 
+            // TODO: UseOriginalHost doesn't work as expected when the value is true and CopyRequestHeaders is false.
+
             // Suppress the host by default
-            if (!transformBuilderContext.UseOriginalHost ?? true)
+            if (!transformBuilderContext.UseOriginalHost.GetValueOrDefault())
             {
                 requestTransforms.Add(new RequestHeaderValueTransform(HeaderNames.Host, string.Empty, append: false));
             }

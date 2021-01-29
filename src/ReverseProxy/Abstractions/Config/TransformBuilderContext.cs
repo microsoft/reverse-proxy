@@ -25,28 +25,28 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         /// <summary>
         /// Indicates if request headers should all be copied to the proxy request before transforms are applied.
         /// </summary>
-        public bool? CopyRequestHeaders { get; init; }
+        public bool? CopyRequestHeaders { get; set; }
 
         /// <summary>
         /// Indicates if response headers should all be copied to the client response before transforms are applied.
         /// </summary>
-        public bool? CopyResponseHeaders { get; init; }
+        public bool? CopyResponseHeaders { get; set; }
 
         /// <summary>
         /// Indicates if response trailers should all be copied to the client response before transforms are applied.
         /// </summary>
-        public bool? CopyResponseTrailers { get; init; }
+        public bool? CopyResponseTrailers { get; set; }
 
         /// <summary>
         /// Indicates if the proxy request should use the host header from the client request or from the destination url.
         /// </summary>
-        public bool? UseOriginalHost { get; init; }
+        public bool? UseOriginalHost { get; set; }
 
         /// <summary>
         /// Indicates if default x-fowarded-* transforms should be added to this route. Disable this if you do not want
         /// x-forwarded-* headers or have configured your own.
         /// </summary>
-        public bool? UseDefaultForwarders { get; init; }
+        public bool? UseDefaultForwarders { get; set; }
 
         /// <summary>
         /// Add request transforms here for the given route.

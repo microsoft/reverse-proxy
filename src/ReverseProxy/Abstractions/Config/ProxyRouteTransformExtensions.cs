@@ -3,9 +3,8 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.ReverseProxy.Abstractions;
 
-namespace Microsoft.ReverseProxy.Service
+namespace Microsoft.ReverseProxy.Abstractions.Config
 {
     public static class ProxyRouteTransformExtensions
     {
@@ -39,17 +38,6 @@ namespace Microsoft.ReverseProxy.Service
         }
 
         /// <summary>
-        /// Clones the route and adds the transform which will prevent adding request headers to the proxy request.
-        /// </summary>
-        public static ProxyRoute WithTransformSuppressRequestHeaders(this ProxyRoute proxyRoute)
-        {
-            return proxyRoute.WithTransform(transform =>
-            {
-                transform["RequestHeadersCopy"] = "False";
-            });
-        }
-
-        /// <summary>
         /// Clones the route and adds the transform which will prevent adding response headers to the client response.
         /// </summary>
         public static ProxyRoute WithTransformSuppressResponseHeaders(this ProxyRoute proxyRoute)
@@ -68,30 +56,6 @@ namespace Microsoft.ReverseProxy.Service
             return proxyRoute.WithTransform(transform =>
             {
                 transform["ResponseTrailersCopy"] = "False";
-            });
-        }
-
-        /// <summary>
-        /// Clones the route and adds the transform which will copy the incoming request Host header to the proxy request.
-        /// </summary>
-        public static ProxyRoute WithTransformUseOriginalHostHeader(this ProxyRoute proxyRoute)
-        {
-            return proxyRoute.WithTransform(transform =>
-            {
-                transform["RequestHeaderOriginalHost"] = "True";
-            });
-        }
-
-        /// <summary>
-        /// Clones the route and adds the transform which will append or set request header.
-        /// </summary>
-        public static ProxyRoute WithTransformRequestHeader(this ProxyRoute proxyRoute, string headerName, string value, bool append = true)
-        {
-            var type = append ? "Append" : "Set";
-            return proxyRoute.WithTransform(transform =>
-            {
-                transform["RequestHeader"] = headerName;
-                transform[type] = value;
             });
         }
 
