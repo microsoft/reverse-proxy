@@ -7,19 +7,19 @@ using System.Threading.Tasks;
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
     /// <summary>
-    /// A request transform that runs the given Func.
+    /// A response trailers transform that runs the given Func.
     /// </summary>
-    public class RequestFuncTransform : RequestTransform
+    public class ResponseTrailersFuncTransform : ResponseTrailersTransform
     {
-        private readonly Func<RequestTransformContext, Task> _func;
+        private readonly Func<ResponseTrailersTransformContext, Task> _func;
 
-        public RequestFuncTransform(Func<RequestTransformContext, Task> func)
+        public ResponseTrailersFuncTransform(Func<ResponseTrailersTransformContext, Task> func)
         {
             _func = func ?? throw new ArgumentNullException(nameof(func));
         }
 
         /// <inheritdoc/>
-        public override Task ApplyAsync(RequestTransformContext context)
+        public override Task ApplyAsync(ResponseTrailersTransformContext context)
         {
             return _func(context);
         }

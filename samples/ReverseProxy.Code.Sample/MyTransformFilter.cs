@@ -5,7 +5,7 @@ using Microsoft.ReverseProxy.Abstractions.Config;
 
 namespace Microsoft.ReverseProxy.Sample
 {
-    internal class MyTransformFitler : ITransformFilter
+    internal class MyTransformFilter : ITransformFilter
     {
         public void Apply(TransformBuilderContext transformBuildContext)
         {
