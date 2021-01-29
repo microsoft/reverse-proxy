@@ -73,27 +73,7 @@ namespace Microsoft.ReverseProxy.Service.Config
 
             foreach (var rawTransform in rawTransforms)
             {
-                if (rawTransform.TryGetValue("QueryValueParameter", out var queryValueParameter))
-                {
-                    TryCheckTooManyParameters(errors.Add, rawTransform, expected: 2);
-                    if (!rawTransform.TryGetValue("Append", out var _) && !rawTransform.TryGetValue("Set", out var _))
-                    {
-                        errors.Add(new ArgumentException($"Unexpected parameters for QueryValueParameter: {string.Join(';', rawTransform.Keys)}. Expected 'Append' or 'Set'."));
-                    }
-                }
-                else if (rawTransform.TryGetValue("QueryRouteParameter", out var queryRouteParameter))
-                {
-                    TryCheckTooManyParameters(errors.Add, rawTransform, expected: 2);
-                    if (!rawTransform.TryGetValue("Append", out var _) && !rawTransform.TryGetValue("Set", out var _))
-                    {
-                        errors.Add(new ArgumentException($"Unexpected parameters for QueryRouteParameter: {string.Join(';', rawTransform.Keys)}. Expected 'Append' or 'Set'."));
-                    }
-                }
-                else if (rawTransform.TryGetValue("QueryRemoveParameter", out var removeQueryParameter))
-                {
-                    TryCheckTooManyParameters(errors.Add, rawTransform, expected: 1);
-                }
-                else if (rawTransform.TryGetValue("RequestHeadersCopy", out var copyHeaders))
+                if (rawTransform.TryGetValue("RequestHeadersCopy", out var copyHeaders))
                 {
                     TryCheckTooManyParameters(errors.Add, rawTransform, expected: 1);
                     if (!string.Equals("True", copyHeaders, StringComparison.OrdinalIgnoreCase) && !string.Equals("False", copyHeaders, StringComparison.OrdinalIgnoreCase))
@@ -284,40 +264,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             {
                 foreach (var rawTransform in rawTransforms)
                 {
-                    if (rawTransform.TryGetValue("QueryValueParameter", out var queryValueParameter))
-                    {
-                        CheckTooManyParameters(rawTransform, expected: 2);
-                        if (rawTransform.TryGetValue("Append", out var appendValue))
-                        {
-                            requestTransforms.Add(new QueryParameterFromStaticTransform(QueryStringTransformMode.Append, queryValueParameter, appendValue));
-                        }
-                        else if (rawTransform.TryGetValue("Set", out var setValue))
-                        {
-                            requestTransforms.Add(new QueryParameterFromStaticTransform(QueryStringTransformMode.Set, queryValueParameter, setValue));
-                        }
-                    }
-                    else if (rawTransform.TryGetValue("QueryRouteParameter", out var queryRouteParameter))
-                    {
-                        CheckTooManyParameters(rawTransform, expected: 2);
-                        if (rawTransform.TryGetValue("Append", out var routeValueKeyAppend))
-                        {
-                            requestTransforms.Add(new QueryParameterRouteTransform(QueryStringTransformMode.Append, queryRouteParameter, routeValueKeyAppend));
-                        }
-                        else if (rawTransform.TryGetValue("Set", out var routeValueKeySet))
-                        {
-                            requestTransforms.Add(new QueryParameterRouteTransform(QueryStringTransformMode.Set, queryRouteParameter, routeValueKeySet));
-                        }
-                        else
-                        {
-                            throw new NotSupportedException(string.Join(";", rawTransform.Keys));
-                        }
-                    }
-                    else if (rawTransform.TryGetValue("QueryRemoveParameter", out var removeQueryParameter))
-                    {
-                        CheckTooManyParameters(rawTransform, expected: 1);
-                        requestTransforms.Add(new QueryParameterRemoveTransform(removeQueryParameter));
-                    }
-                    else if (rawTransform.TryGetValue("RequestHeadersCopy", out var copyHeaders))
+                    if (rawTransform.TryGetValue("RequestHeadersCopy", out var copyHeaders))
                     {
                         CheckTooManyParameters(rawTransform, expected: 1);
                         copyRequestHeaders = string.Equals("True", copyHeaders, StringComparison.OrdinalIgnoreCase);

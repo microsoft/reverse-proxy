@@ -330,7 +330,7 @@ namespace Microsoft.ReverseProxy.Service.Config
         {
             var proxyRoute = CreateProxyRoute();
 
-            proxyRoute = proxyRoute.WithTransformQueryRouteParameter("key", "value", append);
+            proxyRoute = proxyRoute.WithTransformQueryRouteValue("key", "value", append);
 
             var transform = BuildTransform(proxyRoute);
 
@@ -349,7 +349,7 @@ namespace Microsoft.ReverseProxy.Service.Config
         {
             var proxyRoute = CreateProxyRoute();
 
-            proxyRoute = proxyRoute.WithTransformQueryValueParameter("key", "value", append);
+            proxyRoute = proxyRoute.WithTransformQueryValue("key", "value", append);
 
             var transform = BuildTransform(proxyRoute);
 
@@ -366,7 +366,7 @@ namespace Microsoft.ReverseProxy.Service.Config
         {
             var proxyRoute = CreateProxyRoute();
 
-            proxyRoute = proxyRoute.WithTransformRemoveQueryParameter("key");
+            proxyRoute = proxyRoute.WithTransformQueryRemoveKey("key");
 
             var transform = BuildTransform(proxyRoute);
 

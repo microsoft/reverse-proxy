@@ -226,42 +226,5 @@ namespace Microsoft.ReverseProxy.Service
                 transform["Set"] = toHttpMethod;
             });
         }
-
-        /// <summary>
-        /// Clones the route and adds the transform that will append or set query from route value.
-        /// </summary>
-        public static ProxyRoute WithTransformQueryRouteParameter(this ProxyRoute proxyRoute, string queryKey, string routeValueKey, bool append = true)
-        {
-            var type = append ? "Append" : "Set";
-            return proxyRoute.WithTransform(transform =>
-            {
-                transform["QueryRouteParameter"] = queryKey;
-                transform[type] = routeValueKey;
-            });
-        }
-
-        /// <summary>
-        /// Clones the route and adds the transform that will append or set query from the given value.
-        /// </summary>
-        public static ProxyRoute WithTransformQueryValueParameter(this ProxyRoute proxyRoute, string queryKey, string value, bool append = true)
-        {
-            var type = append ? "Append" : "Set";
-            return proxyRoute.WithTransform(transform =>
-            {
-                transform["QueryValueParameter"] = queryKey;
-                transform[type] = value;
-            });
-        }
-
-        /// <summary>
-        /// Clones the route and adds the transform that will remove the given query key.
-        /// </summary>
-        public static ProxyRoute WithTransformRemoveQueryParameter(this ProxyRoute proxyRoute, string queryKey)
-        {
-            return proxyRoute.WithTransform(transform =>
-            {
-                transform["QueryRemoveParameter"] = queryKey;
-            });
-        }
     }
 }
