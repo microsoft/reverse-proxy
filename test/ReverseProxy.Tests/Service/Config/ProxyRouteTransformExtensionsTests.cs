@@ -192,7 +192,7 @@ namespace Microsoft.ReverseProxy.Service.Config
         {
             var proxyRoute = CreateProxyRoute();
 
-            proxyRoute = proxyRoute.WithTransformClientCert("name");
+            proxyRoute = proxyRoute.WithTransformClientCertHeader("name");
 
             var transform = BuildTransform(proxyRoute);
 

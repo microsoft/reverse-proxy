@@ -2,8 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing.Template;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.ReverseProxy.Service.Config;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
@@ -135,6 +133,26 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
                 var random = context.Services.GetRequiredService<IRandomFactory>();
                 context.RequestTransforms.Add(new RequestHeaderForwardedTransform(random, forFormat, byFormat, useHost, useProto, append));
             }
+            return context;
+        }
+
+        /// <summary>
+        /// Clones the route and adds the transform which will set the given header with the Base64 encoded client certificate.
+        /// </summary>
+        public static ProxyRoute WithTransformClientCertHeader(this ProxyRoute proxyRoute, string headerName)
+        {
+            return proxyRoute.WithTransform(transform =>
+            {
+                transform[ForwardedTransformFactory.ClientCertKey] = headerName;
+            });
+        }
+
+        /// <summary>
+        /// Adds the transform which will set the given header with the Base64 encoded client certificate.
+        /// </summary>
+        public static TransformBuilderContext AddClientCertHeader(this TransformBuilderContext context, string headerName)
+        {
+            context.RequestTransforms.Add(new RequestHeaderClientCertTransform(headerName));
             return context;
         }
     }

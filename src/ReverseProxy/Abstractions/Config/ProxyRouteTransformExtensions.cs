@@ -39,28 +39,5 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
 
             return proxyRoute with { Transforms = transforms };
         }
-
-        /// <summary>
-        /// Clones the route and adds the transform which will add Base64 encoded client certificate to the given header name.
-        /// </summary>
-        public static ProxyRoute WithTransformClientCert(this ProxyRoute proxyRoute, string headerName)
-        {
-            return proxyRoute.WithTransform(transform =>
-            {
-                transform["ClientCert"] = headerName;
-            });
-        }
-
-        /// <summary>
-        /// Clones the route and adds the transform that will replace the HTTP method if it matches.
-        /// </summary>
-        public static ProxyRoute WithTransformHttpMethod(this ProxyRoute proxyRoute, string fromHttpMethod, string toHttpMethod)
-        {
-            return proxyRoute.WithTransform(transform =>
-            {
-                transform["HttpMethod"] = fromHttpMethod;
-                transform["Set"] = toHttpMethod;
-            });
-        }
     }
 }

@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Net.Http.Headers;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Abstractions.Config;
@@ -68,26 +67,6 @@ namespace Microsoft.ReverseProxy.Service.Config
                 }
             }
 
-            foreach (var rawTransform in rawTransforms)
-            {
-                if (rawTransform.TryGetValue("ClientCert", out var clientCertHeader))
-                {
-                    TryCheckTooManyParameters(errors.Add, rawTransform, expected: 1);
-                }
-                else if (rawTransform.TryGetValue("HttpMethod", out var fromHttpMethod))
-                {
-                    CheckTooManyParameters(rawTransform, expected: 2);
-                    if (!rawTransform.TryGetValue("Set", out var _))
-                    {
-                        errors.Add(new ArgumentException($"Unexpected parameters for HttpMethod: {string.Join(';', rawTransform.Keys)}. Expected 'Set'"));
-                    }
-                }
-                else
-                {
-                    errors.Add(new ArgumentException($"Unknown transform: {string.Join(';', rawTransform.Keys)}"));
-                }
-            }
-
             return errors;
         }
 
@@ -102,51 +81,13 @@ namespace Microsoft.ReverseProxy.Service.Config
         {
             var rawTransforms = route.Transforms;
 
-            bool? copyRequestHeaders = null;
-            bool? copyResponseHeaders = null;
-            bool? copyResponseTrailers = null;
-            bool? useOriginalHost = null;
-            bool? forwardersSet = null;
-            var requestTransforms = new List<RequestTransform>();
-            var responseTransforms = new List<ResponseTransform>();
-            var responseTrailersTransforms = new List<ResponseTrailersTransform>();
-
-            if (rawTransforms?.Count > 0)
-            {
-                foreach (var rawTransform in rawTransforms)
-                {
-                    if (rawTransform.TryGetValue("ClientCert", out var clientCertHeader))
-                    {
-                        CheckTooManyParameters(rawTransform, expected: 1);
-                        requestTransforms.Add(new RequestHeaderClientCertTransform(clientCertHeader));
-                    }
-                    else if (rawTransform.TryGetValue("HttpMethod", out var fromHttpMethod))
-                    {
-                        CheckTooManyParameters(rawTransform, expected: 2);
-                        if (rawTransform.TryGetValue("Set", out var toHttpMethod))
-                        {
-                            requestTransforms.Add(new HttpMethodTransform(fromHttpMethod, toHttpMethod));
-                        }
-                    }
-                    else
-                    {
-                        throw new ArgumentException($"Unknown transform: {string.Join(';', rawTransform.Keys)}");
-                    }
-                }
-            }
-
             var transformBuilderContext = new TransformBuilderContext
             {
                 Services = _services,
                 Route = route,
-                CopyRequestHeaders = copyRequestHeaders,
-                CopyResponseHeaders = copyResponseHeaders,
-                CopyResponseTrailers = copyResponseTrailers,
-                UseOriginalHost = useOriginalHost,
-                UseDefaultForwarders = !forwardersSet,
-                RequestTransforms = requestTransforms,
-                ResponseTransforms = responseTransforms,
-                ResponseTrailersTransforms = responseTrailersTransforms,
+                RequestTransforms = new List<RequestTransform>(),
+                ResponseTransforms = new List<ResponseTransform>(),
+                ResponseTrailersTransforms = new List<ResponseTrailersTransform>(),
             };
 
             if (rawTransforms?.Count > 0)
@@ -181,38 +122,22 @@ namespace Microsoft.ReverseProxy.Service.Config
             // Suppress the host by default
             if (!transformBuilderContext.UseOriginalHost.GetValueOrDefault())
             {
-                requestTransforms.Add(new RequestHeaderValueTransform(HeaderNames.Host, string.Empty, append: false));
+                transformBuilderContext.RequestTransforms.Add(new RequestHeaderValueTransform(HeaderNames.Host, string.Empty, append: false));
             }
 
-            // Add default forwarders
+            // Add default forwarders only if they haven't already been added or disabled.
             if (transformBuilderContext.UseDefaultForwarders.GetValueOrDefault(true))
             {
-                requestTransforms.Add(new RequestHeaderXForwardedProtoTransform(ForwardedHeadersDefaults.XForwardedProtoHeaderName, append: true));
-                requestTransforms.Add(new RequestHeaderXForwardedHostTransform(ForwardedHeadersDefaults.XForwardedHostHeaderName, append: true));
-                requestTransforms.Add(new RequestHeaderXForwardedForTransform(ForwardedHeadersDefaults.XForwardedForHeaderName, append: true));
-                requestTransforms.Add(new RequestHeaderXForwardedPathBaseTransform("X-Forwarded-PathBase", append: true));
+                transformBuilderContext.AddXForwarded();
             }
 
             return new StructuredTransformer(
                 transformBuilderContext.CopyRequestHeaders,
                 transformBuilderContext.CopyResponseHeaders,
                 transformBuilderContext.CopyResponseTrailers,
-                requestTransforms,
-                responseTransforms,
-                responseTrailersTransforms);
-        }
-
-        private static void TryCheckTooManyParameters(Action<Exception> onError, IReadOnlyDictionary<string, string> rawTransform, int expected)
-        {
-            if (rawTransform.Count > expected)
-            {
-                onError(new InvalidOperationException("The transform contains more parameters than expected: " + string.Join(';', rawTransform.Keys)));
-            }
-        }
-
-        private static void CheckTooManyParameters(IReadOnlyDictionary<string, string> rawTransform, int expected)
-        {
-            TryCheckTooManyParameters(ex => throw ex, rawTransform, expected);
+                transformBuilderContext.RequestTransforms,
+                transformBuilderContext.ResponseTransforms,
+                transformBuilderContext.ResponseTrailersTransforms);
         }
     }
 }

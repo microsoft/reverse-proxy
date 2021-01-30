@@ -31,6 +31,7 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
             builder.AddTransformFactory<RequestHeadersTransformFactory>();
             builder.AddTransformFactory<ResponseTransformFactory>();
             builder.AddTransformFactory<ForwardedTransformFactory>();
+            builder.AddTransformFactory<HttpMethodTransformFactory>();
             builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<MatcherPolicy, HeaderMatcherPolicy>());
             return builder;
         }

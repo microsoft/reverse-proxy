@@ -22,6 +22,7 @@ namespace Microsoft.ReverseProxy.Service.Config
         internal static readonly string PathBaseKey = "PathBase";
         internal static readonly string ForFormatKey = "ForFormat";
         internal static readonly string ByFormatKey = "ByFormat";
+        internal static readonly string ClientCertKey = "ClientCert";
 
         private readonly IRandomFactory _randomFactory;
 
@@ -113,6 +114,10 @@ namespace Microsoft.ReverseProxy.Service.Config
                         context.Errors.Add(new ArgumentException($"Unexpected value for X-Forwarded: {token}. Expected 'for', 'host', 'proto', or 'by'"));
                     }
                 }
+            }
+            else if (transformValues.TryGetValue(ClientCertKey, out var clientCertHeader))
+            {
+                TransformHelpers.TryCheckTooManyParameters(context.Errors.Add, transformValues, expected: 1);
             }
             else
             {
@@ -242,6 +247,11 @@ namespace Microsoft.ReverseProxy.Service.Config
                     // Not using the extension to avoid resolving the random factory each time.
                     context.RequestTransforms.Add(new RequestHeaderForwardedTransform(_randomFactory, forFormat, byFormat, useHost, useProto, append));
                 }
+            }
+            else if (transformValues.TryGetValue(ClientCertKey, out var clientCertHeader))
+            {
+                TransformHelpers.CheckTooManyParameters(transformValues, expected: 1);
+                context.AddClientCertHeader(clientCertHeader);
             }
             else
             {
