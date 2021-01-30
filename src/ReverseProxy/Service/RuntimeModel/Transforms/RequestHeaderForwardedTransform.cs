@@ -94,7 +94,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                 // Quoted because of the ':' when there's a port.
                 builder.Append("host=\"");
                 builder.Append(context.Request.Host.ToUriComponent());
-                builder.Append("\"");
+                builder.Append('"');
             }
         }
 
@@ -137,7 +137,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 
             if (quote)
             {
-                builder.Append("\"");
+                builder.Append('"');
             }
 
             switch (format)
@@ -148,12 +148,12 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                     {
                         if (ipv6)
                         {
-                            builder.Append("[");
+                            builder.Append('[');
                         }
                         builder.Append(ipAddress.ToString());
                         if (ipv6)
                         {
-                            builder.Append("]");
+                            builder.Append(']');
                         }
                         break;
                     }
@@ -173,13 +173,13 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 
             if (addPort)
             {
-                builder.Append(":");
+                builder.Append(':');
                 builder.Append(port);
             }
 
             if (quote)
             {
-                builder.Append("\"");
+                builder.Append('"');
             }
         }
 

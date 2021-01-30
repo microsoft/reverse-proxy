@@ -5,13 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Abstractions.Config;
 using Microsoft.ReverseProxy.Middleware;
-using Microsoft.ReverseProxy.Service;
-using Microsoft.ReverseProxy.Service.Config;
 using Microsoft.ReverseProxy.Telemetry.Consumption;
 
 namespace Microsoft.ReverseProxy.Sample
@@ -21,16 +18,6 @@ namespace Microsoft.ReverseProxy.Sample
     /// </summary>
     public class Startup
     {
-        private readonly IConfiguration _configuration;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Startup" /> class.
-        /// </summary>
-        public Startup(IConfiguration configuration)
-        {
-            _configuration = configuration;
-        }
-
         /// <summary>
         /// This method gets called by the runtime. Use this method to add services to the container.
         /// </summary>
