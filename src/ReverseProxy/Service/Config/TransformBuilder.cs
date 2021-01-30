@@ -63,7 +63,7 @@ namespace Microsoft.ReverseProxy.Service.Config
 
                 if (!handled)
                 {
-                    throw new ArgumentException($"Unknown transform: {string.Join(';', rawTransform.Keys)}");
+                    errors.Add(new ArgumentException($"Unknown transform: {string.Join(';', rawTransform.Keys)}"));
                 }
             }
 

@@ -217,11 +217,7 @@ namespace Microsoft.ReverseProxy.Service.Config
         private TransformBuilder CreateTransformBuilder()
         {
             var serviceCollection = new ServiceCollection();
-            serviceCollection.AddOptions();
-            serviceCollection.AddRouting();
-            serviceCollection.AddLogging();
-            serviceCollection.AddSingleton<ITransformBuilder, TransformBuilder>();
-            serviceCollection.AddSingleton<IRandomFactory, RandomFactory>();
+            serviceCollection.AddReverseProxy();
             using var services = serviceCollection.BuildServiceProvider();
             return (TransformBuilder)services.GetRequiredService<ITransformBuilder>();
         }
