@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http.Headers;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.ReverseProxy.Abstractions;
@@ -65,9 +66,10 @@ namespace Microsoft.ReverseProxy.Sample
                     {
                         transformBuilderContext.AddRequestTransform(async transformContext =>
                         {
-                            var user = transformContext.HttpContext.User;
+                            // AuthN and AuthZ will have already been completed after request routing.
+                            var ticket = await transformContext.HttpContext.AuthenticateAsync("token");
                             var tokenService = transformContext.HttpContext.RequestServices.GetRequiredService<TokenService>();
-                            var token = await tokenService.GetAuthTokenAsync(user);
+                            var token = await tokenService.GetAuthTokenAsync(ticket.Principal);
                             transformContext.ProxyRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
                         });
                     }
