@@ -26,7 +26,7 @@ namespace Microsoft.ReverseProxy.Service.Config
 
         private readonly IRandomFactory _randomFactory;
 
-        internal ForwardedTransformFactory(IRandomFactory randomFactory)
+        public ForwardedTransformFactory(IRandomFactory randomFactory)
         {
             _randomFactory = randomFactory ?? throw new ArgumentNullException(nameof(randomFactory));
         }

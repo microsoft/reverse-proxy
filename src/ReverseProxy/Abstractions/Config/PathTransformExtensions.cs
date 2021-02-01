@@ -77,21 +77,21 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         /// <summary>
         /// Clones the route and adds the transform which will set the request path with the given value.
         /// </summary>
-        public static ProxyRoute WithTransformPathRouteValues(this ProxyRoute proxyRoute, string pattern)
+        public static ProxyRoute WithTransformPathRouteValues(this ProxyRoute proxyRoute, PathString pattern)
         {
             return proxyRoute.WithTransform(transform =>
             {
-                transform[PathTransformFactory.PathPatternKey] = pattern;
+                transform[PathTransformFactory.PathPatternKey] = pattern.Value;
             });
         }
 
         /// <summary>
         /// Clones the route and adds the transform which will set the request path with the given value.
         /// </summary>
-        public static TransformBuilderContext AddPathRouteValues(this TransformBuilderContext context, string pattern)
+        public static TransformBuilderContext AddPathRouteValues(this TransformBuilderContext context, PathString pattern)
         {
             var binder = context.Services.GetRequiredService<TemplateBinderFactory>();
-            context.RequestTransforms.Add(new PathRouteValuesTransform(pattern, binder));
+            context.RequestTransforms.Add(new PathRouteValuesTransform(pattern.Value, binder));
             return context;
         }
     }
