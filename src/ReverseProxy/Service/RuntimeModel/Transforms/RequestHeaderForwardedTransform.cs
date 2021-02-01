@@ -194,17 +194,5 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                 builder.Append(ObfChars[random.Next(ObfChars.Length)]);
             }
         }
-
-        // For and By entries
-        public enum NodeFormat
-        {
-            None,
-            Random,
-            RandomAndPort,
-            Unknown,
-            UnknownAndPort,
-            Ip,
-            IpAndPort,
-        }
     }
 }

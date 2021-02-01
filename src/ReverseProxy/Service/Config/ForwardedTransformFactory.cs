@@ -84,7 +84,7 @@ namespace Microsoft.ReverseProxy.Service.Config
                 if (transformValues.TryGetValue(ForFormatKey, out var forFormat))
                 {
                     expected++;
-                    if (!Enum.TryParse<RequestHeaderForwardedTransform.NodeFormat>(forFormat, ignoreCase: true, out var _))
+                    if (!Enum.TryParse<NodeFormat>(forFormat, ignoreCase: true, out var _))
                     {
                         context.Errors.Add(new ArgumentException($"Unexpected value for Forwarded:ForFormat: {forFormat}. Expected: {enumValues}"));
                     }
@@ -93,7 +93,7 @@ namespace Microsoft.ReverseProxy.Service.Config
                 if (transformValues.TryGetValue(ByFormatKey, out var byFormat))
                 {
                     expected++;
-                    if (!Enum.TryParse<RequestHeaderForwardedTransform.NodeFormat>(byFormat, ignoreCase: true, out var _))
+                    if (!Enum.TryParse<NodeFormat>(byFormat, ignoreCase: true, out var _))
                     {
                         context.Errors.Add(new ArgumentException($"Unexpected value for Forwarded:ByFormat: {byFormat}. Expected: {enumValues}"));
                     }
@@ -186,8 +186,8 @@ namespace Microsoft.ReverseProxy.Service.Config
                 var useProto = false;
                 var useFor = false;
                 var useBy = false;
-                var forFormat = RequestHeaderForwardedTransform.NodeFormat.None;
-                var byFormat = RequestHeaderForwardedTransform.NodeFormat.None;
+                var forFormat = NodeFormat.None;
+                var byFormat = NodeFormat.None;
 
                 // for, host, proto, PathBase
                 var tokens = forwardedHeader.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
@@ -197,12 +197,12 @@ namespace Microsoft.ReverseProxy.Service.Config
                     if (string.Equals(token, ForKey, StringComparison.OrdinalIgnoreCase))
                     {
                         useFor = true;
-                        forFormat = RequestHeaderForwardedTransform.NodeFormat.Random; // RFC Default
+                        forFormat = NodeFormat.Random; // RFC Default
                     }
                     else if (string.Equals(token, ByKey, StringComparison.OrdinalIgnoreCase))
                     {
                         useBy = true;
-                        byFormat = RequestHeaderForwardedTransform.NodeFormat.Random; // RFC Default
+                        byFormat = NodeFormat.Random; // RFC Default
                     }
                     else if (string.Equals(token, HostKey, StringComparison.OrdinalIgnoreCase))
                     {
@@ -230,13 +230,13 @@ namespace Microsoft.ReverseProxy.Service.Config
                 if (useFor && transformValues.TryGetValue(ForFormatKey, out var forFormatString))
                 {
                     expected++;
-                    forFormat = Enum.Parse<RequestHeaderForwardedTransform.NodeFormat>(forFormatString, ignoreCase: true);
+                    forFormat = Enum.Parse<NodeFormat>(forFormatString, ignoreCase: true);
                 }
 
                 if (useBy && transformValues.TryGetValue(ByFormatKey, out var byFormatString))
                 {
                     expected++;
-                    byFormat = Enum.Parse<RequestHeaderForwardedTransform.NodeFormat>(byFormatString, ignoreCase: true);
+                    byFormat = Enum.Parse<NodeFormat>(byFormatString, ignoreCase: true);
                 }
 
                 TransformHelpers.CheckTooManyParameters(transformValues, expected);

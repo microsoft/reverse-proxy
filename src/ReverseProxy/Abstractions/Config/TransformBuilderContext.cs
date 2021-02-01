@@ -51,16 +51,16 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         /// <summary>
         /// Add request transforms here for the given route.
         /// </summary>
-        public IList<RequestTransform> RequestTransforms { get; init; }
+        public IList<RequestTransform> RequestTransforms { get; } = new List<RequestTransform>();
 
         /// <summary>
         /// Add response transforms here for the given route.
         /// </summary>
-        public IList<ResponseTransform> ResponseTransforms { get; init; }
+        public IList<ResponseTransform> ResponseTransforms { get; } = new List<ResponseTransform>();
 
         /// <summary>
         /// Add response trailers transforms here for the given route.
         /// </summary>
-        public IList<ResponseTrailersTransform> ResponseTrailersTransforms { get; init; }
+        public IList<ResponseTrailersTransform> ResponseTrailersTransforms { get; } = new List<ResponseTrailersTransform>();
     }
 }

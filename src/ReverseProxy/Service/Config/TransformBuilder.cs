@@ -85,9 +85,6 @@ namespace Microsoft.ReverseProxy.Service.Config
             {
                 Services = _services,
                 Route = route,
-                RequestTransforms = new List<RequestTransform>(),
-                ResponseTransforms = new List<ResponseTransform>(),
-                ResponseTrailersTransforms = new List<ResponseTrailersTransform>(),
             };
 
             if (rawTransforms?.Count > 0)

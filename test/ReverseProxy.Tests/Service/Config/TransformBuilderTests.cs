@@ -5,12 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.AspNetCore.Mvc.TagHelpers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Net.Http.Headers;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
-using Microsoft.ReverseProxy.Utilities;
 using Xunit;
 
 namespace Microsoft.ReverseProxy.Service.Config

@@ -17,7 +17,8 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         /// <summary>
         /// Clones the route and adds the transform which will add X-Forwarded-* headers.
         /// </summary>
-        public static ProxyRoute WithTransformXForwarded(this ProxyRoute proxyRoute, string headerPrefix = "X-Forwarded-", bool useFor = true, bool useHost = true, bool useProto = true, bool usePathBase = true, bool append = true)
+        public static ProxyRoute WithTransformXForwarded(this ProxyRoute proxyRoute, string headerPrefix = "X-Forwarded-", bool useFor = true,
+            bool useHost = true, bool useProto = true, bool usePathBase = true, bool append = true)
         {
             var headers = new List<string>();
 
@@ -78,7 +79,8 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         /// <summary>
         /// Clones the route and adds the transform which will add the Forwarded header as defined by [RFC 7239](https://tools.ietf.org/html/rfc7239).
         /// </summary>
-        public static ProxyRoute WithTransformForwarded(this ProxyRoute proxyRoute, bool useFor = true, bool useHost = true, bool useProto = true, bool useBy = true, bool append = true, string forFormat = "Random", string byFormat = "Random")
+        public static ProxyRoute WithTransformForwarded(this ProxyRoute proxyRoute, bool useFor = true, bool useHost = true, bool useProto = true,
+            bool useBy = true, bool append = true, NodeFormat forFormat = NodeFormat.Random, NodeFormat byFormat = NodeFormat.Random)
         {
             var headers = new List<string>();
 
@@ -109,12 +111,12 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
 
                 if (useFor)
                 {
-                    transform.Add(ForwardedTransformFactory.ForFormatKey, forFormat);
+                    transform.Add(ForwardedTransformFactory.ForFormatKey, forFormat.ToString());
                 }
 
                 if (useBy)
                 {
-                    transform.Add(ForwardedTransformFactory.ByFormatKey, byFormat);
+                    transform.Add(ForwardedTransformFactory.ByFormatKey, byFormat.ToString());
                 }
             });
         }
@@ -124,14 +126,16 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         /// </summary>
         public static TransformBuilderContext AddForwarded(this TransformBuilderContext context,
             bool useFor = true, bool useHost = true, bool useProto = true, bool useBy = true, bool append = true,
-            RequestHeaderForwardedTransform.NodeFormat forFormat = RequestHeaderForwardedTransform.NodeFormat.Random,
-            RequestHeaderForwardedTransform.NodeFormat byFormat = RequestHeaderForwardedTransform.NodeFormat.Random)
+            NodeFormat forFormat = NodeFormat.Random, NodeFormat byFormat = NodeFormat.Random)
         {
             context.UseDefaultForwarders = false;
             if (useBy || useFor || useHost || useProto)
             {
                 var random = context.Services.GetRequiredService<IRandomFactory>();
-                context.RequestTransforms.Add(new RequestHeaderForwardedTransform(random, forFormat, byFormat, useHost, useProto, append));
+                context.RequestTransforms.Add(new RequestHeaderForwardedTransform(random,
+                    useFor ? forFormat : NodeFormat.None,
+                    useBy ? byFormat : NodeFormat.None,
+                    useHost, useProto, append));
             }
             return context;
         }

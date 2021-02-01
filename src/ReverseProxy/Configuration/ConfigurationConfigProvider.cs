@@ -313,7 +313,7 @@ namespace Microsoft.ReverseProxy.Configuration
             SslProtocols? sslProtocols = null;
             if (section.GetSection(nameof(ProxyHttpClientOptions.SslProtocols)) is IConfigurationSection sslProtocolsSection)
             {
-                foreach (var protocolConfig in sslProtocolsSection.GetChildren().Select(s => Enum.Parse<SslProtocols>(s.Value)))
+                foreach (var protocolConfig in sslProtocolsSection.GetChildren().Select(s => Enum.Parse<SslProtocols>(s.Value, ignoreCase: true)))
                 {
                     sslProtocols = sslProtocols == null ? protocolConfig : sslProtocols | protocolConfig;
                 }
