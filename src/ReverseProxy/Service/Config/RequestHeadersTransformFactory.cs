@@ -67,11 +67,11 @@ namespace Microsoft.ReverseProxy.Service.Config
                 TransformHelpers.CheckTooManyParameters(transformValues, expected: 2);
                 if (transformValues.TryGetValue(SetKey, out var setValue))
                 {
-                    context.RequestTransforms.Add(new RequestHeaderValueTransform(headerName, setValue, append: false));
+                    context.AddRequestHeader(headerName, setValue, append: false);
                 }
                 else if (transformValues.TryGetValue(AppendKey, out var appendValue))
                 {
-                    context.RequestTransforms.Add(new RequestHeaderValueTransform(headerName, appendValue, append: true));
+                    context.AddRequestHeader(headerName, appendValue, append: true);
                 }
                 else
                 {

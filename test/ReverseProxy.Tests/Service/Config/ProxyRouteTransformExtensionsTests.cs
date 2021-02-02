@@ -18,18 +18,6 @@ namespace Microsoft.ReverseProxy.Service.Config
     public class ProxyRouteTransformExtensionsTests
     {
         [Fact]
-        public void WithTransformSuppressRequestHeaders()
-        {
-            var proxyRoute = CreateProxyRoute();
-
-            proxyRoute = proxyRoute.WithTransformSuppressRequestHeaders();
-
-            var transform = BuildTransform(proxyRoute);
-
-            Assert.False(transform.ShouldCopyRequestHeaders);
-        }
-
-        [Fact]
         public void WithTransformSuppressResponseHeaders()
         {
             var proxyRoute = CreateProxyRoute();
@@ -51,35 +39,6 @@ namespace Microsoft.ReverseProxy.Service.Config
             var transform = BuildTransform(proxyRoute);
 
             Assert.False(transform.ShouldCopyResponseTrailers);
-        }
-
-        [Fact]
-        public void WithTransformUseOriginalHostHeader()
-
-        {
-            var proxyRoute = CreateProxyRoute();
-
-            proxyRoute = proxyRoute.WithTransformUseOriginalHostHeader();
-
-            var transform = BuildTransform(proxyRoute);
-
-            Assert.Empty(transform.RequestTransforms.OfType<RequestHeaderValueTransform>().Where(x => x.HeaderName == HeaderNames.Host));
-        }
-
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void WithTransformRequestHeader(bool append)
-        {
-            var proxyRoute = CreateProxyRoute();
-
-            proxyRoute = proxyRoute.WithTransformRequestHeader("name", "value", append);
-
-            var transform = BuildTransform(proxyRoute);
-
-            var requestHeaderValueTransform = Assert.Single(transform.RequestTransforms.OfType<RequestHeaderValueTransform>().Where(x => x.HeaderName == "name"));
-            Assert.Equal("value", requestHeaderValueTransform.Value);
-            Assert.Equal(append, requestHeaderValueTransform.Append);
         }
 
         [Theory]
@@ -152,21 +111,6 @@ namespace Microsoft.ReverseProxy.Service.Config
                     }
                 }
             };
-        }
-
-        private class NullTemplateBinderFactory : TemplateBinderFactory
-        {
-            public static TemplateBinderFactory Instance = new NullTemplateBinderFactory();
-
-            public override TemplateBinder Create(RoutePattern pattern)
-            {
-                return null;
-            }
-
-            public override TemplateBinder Create(RouteTemplate template, RouteValueDictionary defaults)
-            {
-                return null;
-            }
         }
     }
 }

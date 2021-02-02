@@ -14,11 +14,11 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         /// <summary>
         /// Clones the route and adds the transform which will prevent copying request headers to the proxy request.
         /// </summary>
-        public static ProxyRoute WithTransformSuppressRequestHeaders(this ProxyRoute proxyRoute)
+        public static ProxyRoute WithTransformSuppressRequestHeaders(this ProxyRoute proxyRoute, bool suppress = true)
         {
             return proxyRoute.WithTransform(transform =>
             {
-                transform[RequestHeadersTransformFactory.RequestHeadersCopyKey] = "false";
+                transform[RequestHeadersTransformFactory.RequestHeadersCopyKey] = suppress ? bool.FalseString : bool.TrueString;
             });
         }
 
@@ -38,7 +38,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         {
             return proxyRoute.WithTransform(transform =>
             {
-                transform[RequestHeadersTransformFactory.RequestHeaderOriginalHostKey] = useOriginal ? "true" : "false";
+                transform[RequestHeadersTransformFactory.RequestHeaderOriginalHostKey] = useOriginal ? bool.TrueString : bool.FalseString;
             });
         }
 
@@ -67,7 +67,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         /// <summary>
         /// Adds the transform which will append or set the request header.
         /// </summary>
-        public static TransformBuilderContext AddOriginalHostHeader(this TransformBuilderContext context, string headerName, string value, bool append = true)
+        public static TransformBuilderContext AddRequestHeader(this TransformBuilderContext context, string headerName, string value, bool append = true)
         {
             context.RequestTransforms.Add(new RequestHeaderValueTransform(headerName, value, append));
             return context;
