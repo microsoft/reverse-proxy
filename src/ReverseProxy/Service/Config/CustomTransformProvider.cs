@@ -19,5 +19,9 @@ namespace Microsoft.ReverseProxy.Service.Config
         {
             _action(transformBuildContext);
         }
+
+        public void Validate(TransformValidationContext context)
+        {
+        }
     }
 }

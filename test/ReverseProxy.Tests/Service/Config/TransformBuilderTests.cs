@@ -4,10 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Net.Http.Headers;
 using Microsoft.ReverseProxy.Abstractions;
+using Microsoft.ReverseProxy.Abstractions.Config;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 using Xunit;
 
@@ -64,6 +66,57 @@ namespace Microsoft.ReverseProxy.Service.Config
         }
 
         [Fact]
+        public void CallsTransformFactories()
+        {
+            var factory1 = new TestTransformFactory("1");
+            var factory2 = new TestTransformFactory("2");
+            var factory3 = new TestTransformFactory("3");
+            var builder = new TransformBuilder(new ServiceCollection().BuildServiceProvider(),
+                new[] { factory1, factory2, factory3 }, Array.Empty<ITransformProvider>());
+
+            var route = new ProxyRoute().WithTransform(transform =>
+            {
+                transform["2"] = "B";
+            });
+            var errors = builder.Validate(route);
+            Assert.Empty(errors);
+            Assert.Equal(1, factory1.ValidationCalls);
+            Assert.Equal(1, factory2.ValidationCalls);
+            Assert.Equal(0, factory3.ValidationCalls);
+
+            var transforms = builder.BuildInternal(route);
+            Assert.Equal(1, factory1.BuildCalls);
+            Assert.Equal(1, factory2.BuildCalls);
+            Assert.Equal(0, factory3.BuildCalls);
+
+            Assert.Single(transforms.ResponseTrailerTransforms);
+        }
+
+        [Fact]
+        public void CallsTransformProviders()
+        {
+            var provider1 = new TestTransformProvider();
+            var provider2 = new TestTransformProvider();
+            var provider3 = new TestTransformProvider();
+            var builder = new TransformBuilder(new ServiceCollection().BuildServiceProvider(),
+                Array.Empty<ITransformFactory>(), new[] { provider1, provider2, provider3 });
+
+            var route = new ProxyRoute();
+            var errors = builder.Validate(route);
+            Assert.Empty(errors);
+            Assert.Equal(1, provider1.ValidationCalls);
+            Assert.Equal(1, provider2.ValidationCalls);
+            Assert.Equal(1, provider3.ValidationCalls);
+
+            var transforms = builder.BuildInternal(route);
+            Assert.Equal(1, provider1.ApplyCalls);
+            Assert.Equal(1, provider2.ApplyCalls);
+            Assert.Equal(1, provider3.ApplyCalls);
+
+            Assert.Equal(3, transforms.ResponseTrailerTransforms.Count);
+        }
+
+        [Fact]
         public void DefaultsCanBeDisabled()
         {
             var transformBuilder = CreateTransformBuilder();
@@ -117,29 +170,6 @@ namespace Microsoft.ReverseProxy.Service.Config
             Assert.True(forwardedTransform.ProtoEnabled);
         }
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void CopyRequestHeader(bool copyRequestHeaders)
-        {
-            var transformBuilder = CreateTransformBuilder();
-            var transforms = new[]
-            {
-                new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-                {
-                    {  "RequestHeadersCopy",  copyRequestHeaders.ToString() }
-                },
-            };
-
-            var route = new ProxyRoute() { Transforms = transforms };
-            var errors = transformBuilder.Validate(route);
-            Assert.Empty(errors);
-
-            var results = transformBuilder.BuildInternal(route);
-            Assert.NotNull(results);
-            Assert.Equal(copyRequestHeaders, results.ShouldCopyRequestHeaders);
-        }
-
         [Fact]
         public void EmptyTransform_Error()
         {
@@ -187,39 +217,70 @@ namespace Microsoft.ReverseProxy.Service.Config
             Assert.Equal("Unknown transform: string1;string2", ex.Message);
         }
 
-        [Theory]
-        [InlineData(false, "")]
-        [InlineData(true, "")]
-        [InlineData(false, "value")]
-        [InlineData(true, "value")]
-        public void RequestHeader(bool append, string value)
-        {
-            var transformBuilder = CreateTransformBuilder();
-            var transforms = new[]
-            {
-                new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-                {
-                    {  "RequestHeader",  "HeaderName" },
-                    {  append ? "Append" : "Set",  value }
-                }
-            };
-
-            var route = new ProxyRoute() { Transforms = transforms };
-            var errors = transformBuilder.Validate(route);
-            Assert.Empty(errors);
-
-            var results = transformBuilder.BuildInternal(route);
-            var headerTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderValueTransform>().Where(x => x.HeaderName == "HeaderName"));
-            Assert.Equal(append, headerTransform.Append);
-            Assert.Equal(value, headerTransform.Value);
-        }
-
         private static TransformBuilder CreateTransformBuilder()
         {
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddReverseProxy();
             using var services = serviceCollection.BuildServiceProvider();
             return (TransformBuilder)services.GetRequiredService<ITransformBuilder>();
+        }
+
+        private class TestTransformFactory : ITransformFactory
+        {
+            private readonly string _v;
+
+            public int ValidationCalls { get; set; }
+            public int BuildCalls { get; set; }
+
+            public TestTransformFactory(string v)
+            {
+                _v = v;
+            }
+
+            public bool Validate(TransformValidationContext context, IReadOnlyDictionary<string, string> transformValues)
+            {
+                Assert.NotNull(context.Services);
+                Assert.NotNull(context.Route);
+                Assert.NotNull(context.Errors);
+                ValidationCalls++;
+                return transformValues.TryGetValue(_v, out var _);
+            }
+
+            public bool Build(TransformBuilderContext context, IReadOnlyDictionary<string, string> transformValues)
+            {
+                Assert.NotNull(context.Services);
+                Assert.NotNull(context.Route);
+                BuildCalls++;
+                if (transformValues.TryGetValue(_v, out var _))
+                {
+                    context.AddResponseTrailersTransform(context => Task.CompletedTask);
+                    return true;
+                }
+
+                return false;
+            }
+        }
+
+        private class TestTransformProvider : ITransformProvider
+        {
+            public int ValidationCalls { get; set; }
+            public int ApplyCalls { get; set; }
+
+            public void Validate(TransformValidationContext context)
+            {
+                Assert.NotNull(context.Services);
+                Assert.NotNull(context.Route);
+                Assert.NotNull(context.Errors);
+                ValidationCalls++;
+            }
+
+            public void Apply(TransformBuilderContext context)
+            {
+                Assert.NotNull(context.Services);
+                Assert.NotNull(context.Route);
+                ApplyCalls++;
+                context.AddResponseTrailer("key", "value");
+            }
         }
     }
 }

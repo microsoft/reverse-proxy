@@ -34,35 +34,38 @@ namespace Microsoft.ReverseProxy.Service.Config
         /// <inheritdoc/>
         public IReadOnlyList<Exception> Validate(ProxyRoute route)
         {
-            var rawTransforms = route?.Transforms;
-
-            if (rawTransforms == null || rawTransforms.Count == 0)
-            {
-                return Array.Empty<Exception>();
-            }
-
             var context = new TransformValidationContext()
             {
                 Services = _services,
                 Route = route,
             };
 
-            foreach (var rawTransform in rawTransforms)
+            var rawTransforms = route?.Transforms;
+            if (rawTransforms?.Count > 0)
             {
-                var handled = false;
-                foreach (var factory in _factories)
+                foreach (var rawTransform in rawTransforms)
                 {
-                    if (factory.Validate(context, rawTransform))
+                    var handled = false;
+                    foreach (var factory in _factories)
                     {
-                        handled = true;
-                        break;
+                        if (factory.Validate(context, rawTransform))
+                        {
+                            handled = true;
+                            break;
+                        }
+                    }
+
+                    if (!handled)
+                    {
+                        context.Errors.Add(new ArgumentException($"Unknown transform: {string.Join(';', rawTransform.Keys)}"));
                     }
                 }
+            }
 
-                if (!handled)
-                {
-                    context.Errors.Add(new ArgumentException($"Unknown transform: {string.Join(';', rawTransform.Keys)}"));
-                }
+            // Let the app add any more validation it wants.
+            foreach (var transformProvider in _providers)
+            {
+                transformProvider.Validate(context);
             }
 
             return context.Errors.ToList();
@@ -79,7 +82,7 @@ namespace Microsoft.ReverseProxy.Service.Config
         {
             var rawTransforms = route.Transforms;
 
-            var transformBuilderContext = new TransformBuilderContext
+            var context = new TransformBuilderContext
             {
                 Services = _services,
                 Route = route,
@@ -92,7 +95,7 @@ namespace Microsoft.ReverseProxy.Service.Config
                     var handled = false;
                     foreach (var factory in _factories)
                     {
-                        if (factory.Build(transformBuilderContext, rawTransform))
+                        if (factory.Build(context, rawTransform))
                         {
                             handled = true;
                             break;
@@ -109,30 +112,30 @@ namespace Microsoft.ReverseProxy.Service.Config
             // Let the app add any more transforms it wants.
             foreach (var transformProvider in _providers)
             {
-                transformProvider.Apply(transformBuilderContext);
+                transformProvider.Apply(context);
             }
 
             // TODO: UseOriginalHost doesn't work as expected when the value is true and CopyRequestHeaders is false.
 
             // Suppress the host by default
-            if (!transformBuilderContext.UseOriginalHost.GetValueOrDefault())
+            if (!context.UseOriginalHost.GetValueOrDefault())
             {
-                transformBuilderContext.RequestTransforms.Add(new RequestHeaderValueTransform(HeaderNames.Host, string.Empty, append: false));
+                context.RequestTransforms.Add(new RequestHeaderValueTransform(HeaderNames.Host, string.Empty, append: false));
             }
 
             // Add default forwarders only if they haven't already been added or disabled.
-            if (transformBuilderContext.UseDefaultForwarders.GetValueOrDefault(true))
+            if (context.UseDefaultForwarders.GetValueOrDefault(true))
             {
-                transformBuilderContext.AddXForwarded();
+                context.AddXForwarded();
             }
 
             return new StructuredTransformer(
-                transformBuilderContext.CopyRequestHeaders,
-                transformBuilderContext.CopyResponseHeaders,
-                transformBuilderContext.CopyResponseTrailers,
-                transformBuilderContext.RequestTransforms,
-                transformBuilderContext.ResponseTransforms,
-                transformBuilderContext.ResponseTrailersTransforms);
+                context.CopyRequestHeaders,
+                context.CopyResponseHeaders,
+                context.CopyResponseTrailers,
+                context.RequestTransforms,
+                context.ResponseTransforms,
+                context.ResponseTrailersTransforms);
         }
     }
 }

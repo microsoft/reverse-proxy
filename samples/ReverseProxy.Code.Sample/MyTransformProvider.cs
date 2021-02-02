@@ -10,19 +10,32 @@ namespace Microsoft.ReverseProxy.Sample
 {
     internal class MyTransformProvider : ITransformProvider
     {
+        public void Validate(TransformValidationContext context)
+        {
+            // Check all routes for a custom property and validate the associated transform data.
+            string value = null;
+            if (context.Route.Metadata?.TryGetValue("CustomMetadata", out value) ?? false)
+            {
+                if (string.IsNullOrEmpty(value))
+                {
+                    context.Errors.Add(new ArgumentException("A non-empty CustomMetadata value is required"));
+                }
+            }
+        }
+
         public void Apply(TransformBuilderContext transformBuildContext)
         {
             // Check all routes for a custom property and add the associated transform.
             string value = null;
             if (transformBuildContext.Route.Metadata?.TryGetValue("CustomMetadata", out value) ?? false)
             {
+                if (string.IsNullOrEmpty(value))
+                {
+                    throw new ArgumentException("A non-empty CustomMetadata value is required");
+                }
+
                 transformBuildContext.AddRequestTransform(transformContext =>
                 {
-                    if (string.IsNullOrEmpty(value))
-                    {
-                        throw new ArgumentException("A non-empty CustomTransform value is required");
-                    }
-
 #if NET
                     transformContext.ProxyRequest.Options.Set(new HttpRequestOptionsKey<string>("CustomMetadata"), value);
 #else

@@ -9,9 +9,15 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
     public interface ITransformProvider
     {
         /// <summary>
+        /// Validates any route data needed for transforms.
+        /// </summary>
+        /// <param name="context">The context to add any generated errors to.</param>
+        void Validate(TransformValidationContext context);
+
+        /// <summary>
         /// Inspect the given route and conditionally add transforms.
         /// This is called for every route, each time that route is built.
         /// </summary>
-        void Apply(TransformBuilderContext transformBuildContext);
+        void Apply(TransformBuilderContext context);
     }
 }
