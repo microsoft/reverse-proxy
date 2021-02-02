@@ -124,58 +124,6 @@ namespace Microsoft.ReverseProxy.Service.Config
             Assert.Equal(always, responseHeaderValueTransform.Always);
         }
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void WithTransformQueryRouteParameter(bool append)
-        {
-            var proxyRoute = CreateProxyRoute();
-
-            proxyRoute = proxyRoute.WithTransformQueryRouteValue("key", "value", append);
-
-            var transform = BuildTransform(proxyRoute);
-
-            var requestTransform = Assert.Single(transform.RequestTransforms);
-            var queryParameterRouteTransform = Assert.IsType<QueryParameterRouteTransform>(requestTransform);
-            Assert.Equal("key", queryParameterRouteTransform.Key);
-            Assert.Equal("value", queryParameterRouteTransform.RouteValueKey);
-            var expectedMode = append ? QueryStringTransformMode.Append : QueryStringTransformMode.Set;
-            Assert.Equal(expectedMode, queryParameterRouteTransform.Mode);
-        }
-
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void WithTransformQueryValueParameter(bool append)
-        {
-            var proxyRoute = CreateProxyRoute();
-
-            proxyRoute = proxyRoute.WithTransformQueryValue("key", "value", append);
-
-            var transform = BuildTransform(proxyRoute);
-
-            var requestTransform = Assert.Single(transform.RequestTransforms);
-            var queryParameterFromStaticTransform = Assert.IsType<QueryParameterFromStaticTransform>(requestTransform);
-            Assert.Equal("key", queryParameterFromStaticTransform.Key);
-            Assert.Equal("value", queryParameterFromStaticTransform.Value);
-            var expectedMode = append ? QueryStringTransformMode.Append : QueryStringTransformMode.Set;
-            Assert.Equal(expectedMode, queryParameterFromStaticTransform.Mode);
-        }
-
-        [Fact]
-        public void WithTransformRemoveQueryParameter()
-        {
-            var proxyRoute = CreateProxyRoute();
-
-            proxyRoute = proxyRoute.WithTransformQueryRemoveKey("key");
-
-            var transform = BuildTransform(proxyRoute);
-
-            var requestTransform = Assert.Single(transform.RequestTransforms);
-            var removeQueryParameterTransform = Assert.IsType<QueryParameterRemoveTransform>(requestTransform);
-            Assert.Equal("key", removeQueryParameterTransform.Key);
-        }
-
         private static StructuredTransformer BuildTransform(ProxyRoute proxyRoute)
         {
             var serviceCollection = new ServiceCollection();
