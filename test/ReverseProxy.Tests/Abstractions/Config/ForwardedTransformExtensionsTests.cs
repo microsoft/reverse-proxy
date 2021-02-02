@@ -28,11 +28,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
             var proxyRoute = CreateProxyRoute();
             proxyRoute = proxyRoute.WithTransformXForwarded("prefix-", useFor, useHost, useProto, usePathBase, append);
 
-            var transformValues = Assert.Single(proxyRoute.Transforms);
-            Validate(_factory, proxyRoute, transformValues);
-
-            var builderContext = CreateBuilderContext(proxyRoute);
-            Assert.True(_factory.Build(builderContext, transformValues));
+            var builderContext = ValidateAndBuild(proxyRoute, _factory);
 
             ValidateXForwarded(builderContext, useFor, useHost, useProto, usePathBase, append);
         }
@@ -120,11 +116,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
             var proxyRoute = CreateProxyRoute();
             proxyRoute = proxyRoute.WithTransformForwarded(useFor, useHost, useProto, useBy, append, forFormat, byFormat);
 
-            var transformValues = Assert.Single(proxyRoute.Transforms);
-            Validate(_factory, proxyRoute, transformValues);
-
-            var builderContext = CreateBuilderContext(proxyRoute, CreateServices());
-            Assert.True(_factory.Build(builderContext, transformValues));
+            var builderContext = ValidateAndBuild(proxyRoute, _factory, CreateServices());
 
             ValidateForwarded(builderContext, useFor, useHost, useProto, useBy, append, forFormat, byFormat);
         }
@@ -178,13 +170,9 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
             var proxyRoute = CreateProxyRoute();
             proxyRoute = proxyRoute.WithTransformClientCertHeader("name");
 
-            var transformValues = Assert.Single(proxyRoute.Transforms);
-            Validate(_factory, proxyRoute, transformValues);
+            var builderContext = ValidateAndBuild(proxyRoute, _factory);
 
-            var builderContext = CreateBuilderContext(proxyRoute);
-            Assert.True(_factory.Build(builderContext, transformValues));
             var transform = Assert.Single(builderContext.RequestTransforms);
-
             var certTransform = Assert.IsType<RequestHeaderClientCertTransform>(transform);
             Assert.Equal("name", certTransform.HeaderName);
         }

@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Linq;
-using Microsoft.Net.Http.Headers;
 using Microsoft.ReverseProxy.Service.Config;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 using Xunit;
@@ -21,11 +20,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
             var proxyRoute = CreateProxyRoute();
             proxyRoute = proxyRoute.WithTransformSuppressRequestHeaders(suppress);
 
-            var transformValues = Assert.Single(proxyRoute.Transforms);
-            Validate(_factory, proxyRoute, transformValues);
-
-            var builderContext = CreateBuilderContext(proxyRoute);
-            Assert.True(_factory.Build(builderContext, transformValues));
+            var builderContext = ValidateAndBuild(proxyRoute, _factory);
 
             Assert.Equal(suppress, !builderContext.CopyRequestHeaders);
         }
@@ -50,11 +45,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
             var proxyRoute = CreateProxyRoute();
             proxyRoute = proxyRoute.WithTransformUseOriginalHostHeader(useOriginal);
 
-            var transformValues = Assert.Single(proxyRoute.Transforms);
-            Validate(_factory, proxyRoute, transformValues);
-
-            var builderContext = CreateBuilderContext(proxyRoute);
-            Assert.True(_factory.Build(builderContext, transformValues));
+            var builderContext = ValidateAndBuild(proxyRoute, _factory);
 
             Assert.Equal(useOriginal, builderContext.UseOriginalHost);
         }
@@ -79,11 +70,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
             var proxyRoute = CreateProxyRoute();
             proxyRoute = proxyRoute.WithTransformRequestHeader("name", "value", append);
 
-            var transformValues = Assert.Single(proxyRoute.Transforms);
-            Validate(_factory, proxyRoute, transformValues);
-
-            var builderContext = CreateBuilderContext(proxyRoute);
-            Assert.True(_factory.Build(builderContext, transformValues));
+            var builderContext = ValidateAndBuild(proxyRoute, _factory);
 
             ValidateRequestHeader(append, builderContext);
         }

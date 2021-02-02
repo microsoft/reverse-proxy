@@ -19,11 +19,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
             var proxyRoute = CreateProxyRoute();
             proxyRoute = proxyRoute.WithTransformHttpMethod(HttpMethods.Put, HttpMethods.Post);
 
-            var transformValues = Assert.Single(proxyRoute.Transforms);
-            Validate(_factory, proxyRoute, transformValues);
-
-            var builderContext = CreateBuilderContext(proxyRoute);
-            Assert.True(_factory.Build(builderContext, transformValues));
+            var builderContext = ValidateAndBuild(proxyRoute, _factory);
 
             ValidateHttpMethod(builderContext);
         }

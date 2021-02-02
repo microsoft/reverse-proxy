@@ -30,11 +30,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
             var proxyRoute = CreateProxyRoute();
             proxyRoute = proxyRoute.WithTransformPathSet(new PathString("/path#"));
 
-            var transformValues = Assert.Single(proxyRoute.Transforms);
-            Validate(_factory, proxyRoute, transformValues);
-
-            var builderContext = CreateBuilderContext(proxyRoute);
-            Assert.True(_factory.Build(builderContext, transformValues));
+            var builderContext = ValidateAndBuild(proxyRoute, _factory);
 
             ValidatePathSet(builderContext);
         }
@@ -63,11 +59,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
             var proxyRoute = CreateProxyRoute();
             proxyRoute = proxyRoute.WithTransformPathRemovePrefix(new PathString("/path#"));
 
-            var transformValues = Assert.Single(proxyRoute.Transforms);
-            Validate(_factory, proxyRoute, transformValues);
-
-            var builderContext = CreateBuilderContext(proxyRoute);
-            Assert.True(_factory.Build(builderContext, transformValues));
+            var builderContext = ValidateAndBuild(proxyRoute, _factory);
 
             ValidatePathRemovePrefix(builderContext);
         }
@@ -96,11 +88,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
             var proxyRoute = CreateProxyRoute();
             proxyRoute = proxyRoute.WithTransformPathPrefix(new PathString("/path#"));
 
-            var transformValues = Assert.Single(proxyRoute.Transforms);
-            Validate(_factory, proxyRoute, transformValues);
-
-            var builderContext = CreateBuilderContext(proxyRoute);
-            Assert.True(_factory.Build(builderContext, transformValues));
+            var builderContext = ValidateAndBuild(proxyRoute, _factory);
 
             ValidatePathPrefix(builderContext);
         }
@@ -129,11 +117,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
             var proxyRoute = CreateProxyRoute();
             proxyRoute = proxyRoute.WithTransformPathRouteValues(new PathString("/path#"));
 
-            var transformValues = Assert.Single(proxyRoute.Transforms);
-            Validate(_factory, proxyRoute, transformValues);
-
-            var builderContext = CreateBuilderContext(proxyRoute);
-            Assert.True(_factory.Build(builderContext, transformValues));
+            var builderContext = ValidateAndBuild(proxyRoute, _factory);
 
             ValidatePathRouteValues(builderContext);
         }

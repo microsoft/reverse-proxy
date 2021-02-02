@@ -55,5 +55,16 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
             Assert.True(factory.Validate(validationContext, transformValues));
             Assert.Empty(validationContext.Errors);
         }
+
+        protected TransformBuilderContext ValidateAndBuild(ProxyRoute proxyRoute, ITransformFactory factory, IServiceProvider serviceProvider = null)
+        {
+            var transformValues = Assert.Single(proxyRoute.Transforms);
+            Validate(factory, proxyRoute, transformValues);
+
+            var builderContext = CreateBuilderContext(proxyRoute, serviceProvider);
+            Assert.True(factory.Build(builderContext, transformValues));
+
+            return builderContext;
+        }
     }
 }

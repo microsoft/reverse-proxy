@@ -19,11 +19,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
             var proxyRoute = CreateProxyRoute();
             proxyRoute = proxyRoute.WithTransformQueryRouteValue("key", "value", append);
 
-            var transformValues = Assert.Single(proxyRoute.Transforms);
-            Validate(_factory, proxyRoute, transformValues);
-
-            var builderContext = CreateBuilderContext(proxyRoute);
-            Assert.True(_factory.Build(builderContext, transformValues));
+            var builderContext = ValidateAndBuild(proxyRoute, _factory);
 
             ValidateQueryRouteParameter(append, builderContext);
         }
@@ -58,11 +54,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
             var proxyRoute = CreateProxyRoute();
             proxyRoute = proxyRoute.WithTransformQueryValue("key", "value", append);
 
-            var transformValues = Assert.Single(proxyRoute.Transforms);
-            Validate(_factory, proxyRoute, transformValues);
-
-            var builderContext = CreateBuilderContext(proxyRoute);
-            Assert.True(_factory.Build(builderContext, transformValues));
+            var builderContext = ValidateAndBuild(proxyRoute, _factory);
 
             ValidateQueryValue(append, builderContext);
         }
@@ -95,11 +87,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
             var proxyRoute = CreateProxyRoute();
             proxyRoute = proxyRoute.WithTransformQueryRemoveKey("key");
 
-            var transformValues = Assert.Single(proxyRoute.Transforms);
-            Validate(_factory, proxyRoute, transformValues);
-
-            var builderContext = CreateBuilderContext(proxyRoute);
-            Assert.True(_factory.Build(builderContext, transformValues));
+            var builderContext = ValidateAndBuild(proxyRoute, _factory);
 
             ValidateQueryRemoveKey(builderContext);
         }
