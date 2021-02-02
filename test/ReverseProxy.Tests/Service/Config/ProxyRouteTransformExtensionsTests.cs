@@ -1,11 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Patterns;
 using Microsoft.AspNetCore.Routing.Template;
@@ -13,7 +10,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Net.Http.Headers;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Abstractions.Config;
-using Microsoft.ReverseProxy.Common.Tests;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 using Xunit;
 
@@ -21,65 +17,6 @@ namespace Microsoft.ReverseProxy.Service.Config
 {
     public class ProxyRouteTransformExtensionsTests
     {
-        [Fact]
-        public void WithTransformPathSet()
-        {
-            var proxyRoute = CreateProxyRoute();
-
-            proxyRoute = proxyRoute.WithTransformPathSet(new PathString("/path#"));
-
-            var transform = BuildTransform(proxyRoute);
-
-            var requestTransform = Assert.Single(transform.RequestTransforms);
-            var pathStringTransform = Assert.IsType<PathStringTransform>(requestTransform);
-            Assert.Equal(PathStringTransform.PathTransformMode.Set, pathStringTransform.Mode);
-            Assert.Equal("/path#", pathStringTransform.Value.Value);
-        }
-
-        [Fact]
-        public void WithTransformPathRemovePrefix()
-        {
-            var proxyRoute = CreateProxyRoute();
-
-            proxyRoute = proxyRoute.WithTransformPathRemovePrefix(new PathString("/path#"));
-
-            var transform = BuildTransform(proxyRoute);
-
-            var requestTransform = Assert.Single(transform.RequestTransforms);
-            var pathStringTransform = Assert.IsType<PathStringTransform>(requestTransform);
-            Assert.Equal(PathStringTransform.PathTransformMode.RemovePrefix, pathStringTransform.Mode);
-            Assert.Equal("/path#", pathStringTransform.Value.Value);
-        }
-
-        [Fact]
-        public void WithTransformPathPrefix()
-        {
-            var proxyRoute = CreateProxyRoute();
-
-            proxyRoute = proxyRoute.WithTransformPathPrefix(new PathString("/path#"));
-
-            var transform = BuildTransform(proxyRoute);
-
-            var requestTransform = Assert.Single(transform.RequestTransforms);
-            var pathStringTransform = Assert.IsType<PathStringTransform>(requestTransform);
-            Assert.Equal(PathStringTransform.PathTransformMode.Prefix, pathStringTransform.Mode);
-            Assert.Equal("/path#", pathStringTransform.Value.Value);
-        }
-
-        [Fact]
-        public void WithTransformPathRouteValues()
-        {
-            var proxyRoute = CreateProxyRoute();
-
-            proxyRoute = proxyRoute.WithTransformPathRouteValues(new PathString("/path#"));
-
-            var transform = BuildTransform(proxyRoute);
-
-            var requestTransform = Assert.Single(transform.RequestTransforms);
-            var pathRouteValuesTransform = Assert.IsType<PathRouteValuesTransform>(requestTransform);
-            Assert.Equal("/path#", pathRouteValuesTransform.Template.TemplateText);
-        }
-
         [Fact]
         public void WithTransformSuppressRequestHeaders()
         {
