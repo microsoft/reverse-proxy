@@ -14,10 +14,10 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         private readonly HttpMethodTransformFactory _factory = new HttpMethodTransformFactory();
 
         [Fact]
-        public void WithTransformHttpMethod()
+        public void WithTransformHttpMethodChange()
         {
             var proxyRoute = new ProxyRoute();
-            proxyRoute = proxyRoute.WithTransformHttpMethod(HttpMethods.Put, HttpMethods.Post);
+            proxyRoute = proxyRoute.WithTransformHttpMethodChange(HttpMethods.Put, HttpMethods.Post);
 
             var builderContext = ValidateAndBuild(proxyRoute, _factory);
 
@@ -36,7 +36,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         private static void ValidateHttpMethod(TransformBuilderContext builderContext)
         {
             var requestTransform = Assert.Single(builderContext.RequestTransforms);
-            var httpMethodTransform = Assert.IsType<HttpMethodTransform>(requestTransform);
+            var httpMethodTransform = Assert.IsType<HttpMethodChangeTransform>(requestTransform);
             Assert.Equal(HttpMethod.Put, httpMethodTransform.FromMethod);
             Assert.Equal(HttpMethod.Post, httpMethodTransform.ToMethod);
         }

@@ -8,13 +8,13 @@ using Xunit;
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
-    public class HttpMethodTransformTests
+    public class HttpMethodChangeTransformTests
     {
         [Theory]
         [InlineData("PUT", "POST", "PUT", "POST")]
         [InlineData("PUT", "POST", "POST", "POST")]
         [InlineData("PUT", "POST", "GET", "GET")]
-        public async Task HttpMethod_Works(string fromMethod, string toMethod, string requestMethod, string expected)
+        public async Task HttpMethodChange_Works(string fromMethod, string toMethod, string requestMethod, string expected)
         {
             var httpContext = new DefaultHttpContext();
             var request = new HttpRequestMessage() { Method = new HttpMethod(requestMethod) };
@@ -23,7 +23,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                 HttpContext = httpContext,
                 ProxyRequest = request,
             };
-            var transform = new HttpMethodTransform(fromMethod, toMethod);
+            var transform = new HttpMethodChangeTransform(fromMethod, toMethod);
             await transform.ApplyAsync(context);
             Assert.Equal(expected, request.Method.Method);
         }

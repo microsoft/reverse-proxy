@@ -14,11 +14,11 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         /// <summary>
         /// Clones the route and adds the transform that will replace the HTTP method if it matches.
         /// </summary>
-        public static ProxyRoute WithTransformHttpMethod(this ProxyRoute proxyRoute, string fromHttpMethod, string toHttpMethod)
+        public static ProxyRoute WithTransformHttpMethodChange(this ProxyRoute proxyRoute, string fromHttpMethod, string toHttpMethod)
         {
             return proxyRoute.WithTransform(transform =>
             {
-                transform[HttpMethodTransformFactory.HttpMethodKey] = fromHttpMethod;
+                transform[HttpMethodTransformFactory.HttpMethodChangeKey] = fromHttpMethod;
                 transform[HttpMethodTransformFactory.SetKey] = toHttpMethod;
             });
         }
@@ -28,7 +28,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         /// </summary>
         public static TransformBuilderContext AddHttpMethodChange(this TransformBuilderContext context, string fromHttpMethod, string toHttpMethod)
         {
-            context.RequestTransforms.Add(new HttpMethodTransform(fromHttpMethod, toHttpMethod));
+            context.RequestTransforms.Add(new HttpMethodChangeTransform(fromHttpMethod, toHttpMethod));
             return context;
         }
     }
