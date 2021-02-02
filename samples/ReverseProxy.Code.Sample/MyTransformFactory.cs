@@ -29,13 +29,13 @@ namespace Microsoft.ReverseProxy.Sample
         {
             if (transformValues.TryGetValue("CustomTransform", out var value))
             {
+                if (string.IsNullOrEmpty(value))
+                {
+                    throw new ArgumentException("A non-empty CustomTransform value is required");
+                }
+
                 context.AddRequestTransform(transformContext =>
                 {
-                    if (string.IsNullOrEmpty(value))
-                    {
-                        throw new ArgumentException("A non-empty CustomTransform value is required");
-                    }
-
 #if NET
                     transformContext.ProxyRequest.Options.Set(new HttpRequestOptionsKey<string>("CustomTransform"), value);
 #else
@@ -43,6 +43,7 @@ namespace Microsoft.ReverseProxy.Sample
 #endif
                     return Task.CompletedTask;
                 });
+
                 return true;
             }
 

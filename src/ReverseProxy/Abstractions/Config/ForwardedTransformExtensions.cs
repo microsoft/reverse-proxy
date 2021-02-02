@@ -79,17 +79,17 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         /// <summary>
         /// Clones the route and adds the transform which will add the Forwarded header as defined by [RFC 7239](https://tools.ietf.org/html/rfc7239).
         /// </summary>
-        public static ProxyRoute WithTransformForwarded(this ProxyRoute proxyRoute, bool useFor = true, bool useHost = true, bool useProto = true,
-            bool useBy = true, bool append = true, NodeFormat forFormat = NodeFormat.Random, NodeFormat byFormat = NodeFormat.Random)
+        public static ProxyRoute WithTransformForwarded(this ProxyRoute proxyRoute, bool useHost = true, bool useProto = true,
+            NodeFormat forFormat = NodeFormat.Random, NodeFormat byFormat = NodeFormat.Random, bool append = true)
         {
             var headers = new List<string>();
 
-            if (useFor)
+            if (forFormat != NodeFormat.None)
             {
                 headers.Add(ForwardedTransformFactory.ForKey);
             }
 
-            if (useBy)
+            if (byFormat != NodeFormat.None)
             {
                 headers.Add(ForwardedTransformFactory.ByKey);
             }
@@ -109,12 +109,12 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
                 transform[ForwardedTransformFactory.ForwardedKey] = string.Join(',', headers);
                 transform[ForwardedTransformFactory.AppendKey] = append.ToString();
 
-                if (useFor)
+                if (forFormat != NodeFormat.None)
                 {
                     transform.Add(ForwardedTransformFactory.ForFormatKey, forFormat.ToString());
                 }
 
-                if (useBy)
+                if (byFormat != NodeFormat.None)
                 {
                     transform.Add(ForwardedTransformFactory.ByFormatKey, byFormat.ToString());
                 }
@@ -125,17 +125,15 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         /// Adds the transform which will add the Forwarded header as defined by [RFC 7239](https://tools.ietf.org/html/rfc7239).
         /// </summary>
         public static TransformBuilderContext AddForwarded(this TransformBuilderContext context,
-            bool useFor = true, bool useHost = true, bool useProto = true, bool useBy = true, bool append = true,
-            NodeFormat forFormat = NodeFormat.Random, NodeFormat byFormat = NodeFormat.Random)
+            bool useHost = true, bool useProto = true, NodeFormat forFormat = NodeFormat.Random,
+            NodeFormat byFormat = NodeFormat.Random, bool append = true)
         {
             context.UseDefaultForwarders = false;
-            if (useBy || useFor || useHost || useProto)
+            if (byFormat != NodeFormat.None || forFormat != NodeFormat.None || useHost || useProto)
             {
                 var random = context.Services.GetRequiredService<IRandomFactory>();
                 context.RequestTransforms.Add(new RequestHeaderForwardedTransform(random,
-                    useFor ? forFormat : NodeFormat.None,
-                    useBy ? byFormat : NodeFormat.None,
-                    useHost, useProto, append));
+                    forFormat, byFormat, useHost, useProto, append));
             }
             return context;
         }

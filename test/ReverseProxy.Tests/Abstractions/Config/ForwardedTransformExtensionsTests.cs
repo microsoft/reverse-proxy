@@ -98,63 +98,63 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         }
 
         [Theory]
-        [InlineData(true, true, true, true, true, NodeFormat.Random, NodeFormat.Random)]
-        [InlineData(true, true, true, true, false, NodeFormat.Random, NodeFormat.Random)]
-        [InlineData(false, false, false, false, true, NodeFormat.Random, NodeFormat.Random)]
-        [InlineData(false, false, false, false, false, NodeFormat.Random, NodeFormat.Random)]
-        [InlineData(false, false, true, true, true, NodeFormat.Random, NodeFormat.Random)]
-        [InlineData(false, false, true, true, false, NodeFormat.Random, NodeFormat.Random)]
-        [InlineData(false, false, true, true, false, NodeFormat.None, NodeFormat.None)]
-        [InlineData(false, false, true, true, false, NodeFormat.RandomAndPort, NodeFormat.RandomAndPort)]
-        [InlineData(false, false, true, true, false, NodeFormat.Unknown, NodeFormat.Unknown)]
-        [InlineData(false, false, true, true, false, NodeFormat.UnknownAndPort, NodeFormat.UnknownAndPort)]
-        [InlineData(false, false, true, true, false, NodeFormat.Ip, NodeFormat.Ip)]
-        [InlineData(false, false, true, true, false, NodeFormat.IpAndPort, NodeFormat.IpAndPort)]
-        public void WithTransformForwarded(bool useFor, bool useHost, bool useProto, bool useBy, bool append, NodeFormat forFormat, NodeFormat byFormat)
+        [InlineData(NodeFormat.Random, true, true, NodeFormat.Random, true)]
+        [InlineData(NodeFormat.RandomAndPort, true, true, NodeFormat.Random, false)]
+        [InlineData(NodeFormat.None, false, false, NodeFormat.None, true)]
+        [InlineData(NodeFormat.None, false, false, NodeFormat.None, false)]
+        [InlineData(NodeFormat.None, false, true, NodeFormat.Random, true)]
+        [InlineData(NodeFormat.None, false, true, NodeFormat.Random, false)]
+        [InlineData(NodeFormat.None, false, true, NodeFormat.None, false)]
+        [InlineData(NodeFormat.None, false, true, NodeFormat.RandomAndPort, false)]
+        [InlineData(NodeFormat.None, false, true, NodeFormat.Unknown, false)]
+        [InlineData(NodeFormat.None, false, true, NodeFormat.UnknownAndPort, false)]
+        [InlineData(NodeFormat.None, false, true, NodeFormat.Ip, false)]
+        [InlineData(NodeFormat.None, false, true, NodeFormat.IpAndPort, false)]
+        public void WithTransformForwarded(NodeFormat forFormat, bool useHost, bool useProto, NodeFormat byFormat, bool append)
         {
             var proxyRoute = new ProxyRoute();
-            proxyRoute = proxyRoute.WithTransformForwarded(useFor, useHost, useProto, useBy, append, forFormat, byFormat);
+            proxyRoute = proxyRoute.WithTransformForwarded(useHost, useProto, forFormat, byFormat, append);
 
             var builderContext = ValidateAndBuild(proxyRoute, _factory, CreateServices());
 
-            ValidateForwarded(builderContext, useFor, useHost, useProto, useBy, append, forFormat, byFormat);
+            ValidateForwarded(builderContext, useHost, useProto, forFormat, byFormat, append);
         }
 
         [Theory]
-        [InlineData(true, true, true, true, true, NodeFormat.Random, NodeFormat.Random)]
-        [InlineData(true, true, true, true, false, NodeFormat.Random, NodeFormat.Random)]
-        [InlineData(false, false, false, false, true, NodeFormat.Random, NodeFormat.Random)]
-        [InlineData(false, false, false, false, false, NodeFormat.Random, NodeFormat.Random)]
-        [InlineData(false, false, true, true, true, NodeFormat.Random, NodeFormat.Random)]
-        [InlineData(false, false, true, true, false, NodeFormat.Random, NodeFormat.Random)]
-        [InlineData(false, false, true, true, false, NodeFormat.None, NodeFormat.None)]
-        [InlineData(false, false, true, true, false, NodeFormat.RandomAndPort, NodeFormat.RandomAndPort)]
-        [InlineData(false, false, true, true, false, NodeFormat.Unknown, NodeFormat.Unknown)]
-        [InlineData(false, false, true, true, false, NodeFormat.UnknownAndPort, NodeFormat.UnknownAndPort)]
-        [InlineData(false, false, true, true, false, NodeFormat.Ip, NodeFormat.Ip)]
-        [InlineData(false, false, true, true, false, NodeFormat.IpAndPort, NodeFormat.IpAndPort)]
-        public void AddForwarded(bool useFor, bool useHost, bool useProto, bool useBy, bool append, NodeFormat forFormat, NodeFormat byFormat)
+        [InlineData(NodeFormat.Random, true, true, NodeFormat.Random, true)]
+        [InlineData(NodeFormat.RandomAndPort, true, true, NodeFormat.Random, false)]
+        [InlineData(NodeFormat.None, false, false, NodeFormat.None, true)]
+        [InlineData(NodeFormat.None, false, false, NodeFormat.None, false)]
+        [InlineData(NodeFormat.None, false, true, NodeFormat.Random, true)]
+        [InlineData(NodeFormat.None, false, true, NodeFormat.Random, false)]
+        [InlineData(NodeFormat.None, false, true, NodeFormat.None, false)]
+        [InlineData(NodeFormat.None, false, true, NodeFormat.RandomAndPort, false)]
+        [InlineData(NodeFormat.None, false, true, NodeFormat.Unknown, false)]
+        [InlineData(NodeFormat.None, false, true, NodeFormat.UnknownAndPort, false)]
+        [InlineData(NodeFormat.None, false, true, NodeFormat.Ip, false)]
+        [InlineData(NodeFormat.None, false, true, NodeFormat.IpAndPort, false)]
+        public void AddForwarded(NodeFormat forFormat, bool useHost, bool useProto, NodeFormat byFormat, bool append)
         {
             var builderContext = CreateBuilderContext(services: CreateServices());
-            builderContext.AddForwarded(useFor, useHost, useProto, useBy, append, forFormat, byFormat);
+            builderContext.AddForwarded(useHost, useProto, forFormat, byFormat, append);
 
-            ValidateForwarded(builderContext, useFor, useHost, useProto, useBy, append, forFormat, byFormat);
+            ValidateForwarded(builderContext, useHost, useProto, forFormat, byFormat, append);
         }
 
-        private static void ValidateForwarded(TransformBuilderContext builderContext, bool useFor, bool useHost, bool useProto, bool useBy,
-            bool append, NodeFormat forFormat, NodeFormat byFormat)
+        private static void ValidateForwarded(TransformBuilderContext builderContext, bool useHost, bool useProto,
+            NodeFormat forFormat, NodeFormat byFormat, bool append)
         {
             Assert.False(builderContext.UseDefaultForwarders);
 
-            if (useBy || useFor || useHost || useProto)
+            if (byFormat != NodeFormat.None|| forFormat != NodeFormat.None || useHost || useProto)
             {
                 var transform = Assert.Single(builderContext.RequestTransforms);
                 var requestHeaderForwardedTransform = Assert.IsType<RequestHeaderForwardedTransform>(transform);
                 Assert.Equal(append, requestHeaderForwardedTransform.Append);
                 Assert.Equal(useHost, requestHeaderForwardedTransform.HostEnabled);
                 Assert.Equal(useProto, requestHeaderForwardedTransform.ProtoEnabled);
-                Assert.Equal(useBy ? byFormat : NodeFormat.None, requestHeaderForwardedTransform.ByFormat);
-                Assert.Equal(useFor ? forFormat : NodeFormat.None, requestHeaderForwardedTransform.ForFormat);
+                Assert.Equal(byFormat, requestHeaderForwardedTransform.ByFormat);
+                Assert.Equal(forFormat, requestHeaderForwardedTransform.ForFormat);
             }
             else
             {
