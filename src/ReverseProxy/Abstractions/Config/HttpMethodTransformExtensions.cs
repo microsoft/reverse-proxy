@@ -26,7 +26,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         /// <summary>
         /// Adds the transform that will replace the HTTP method if it matches.
         /// </summary>
-        public static TransformBuilderContext ChangeHttpMethod(this TransformBuilderContext context, string fromHttpMethod, string toHttpMethod)
+        public static TransformBuilderContext AddHttpMethodChange(this TransformBuilderContext context, string fromHttpMethod, string toHttpMethod)
         {
             context.RequestTransforms.Add(new HttpMethodTransform(fromHttpMethod, toHttpMethod));
             return context;

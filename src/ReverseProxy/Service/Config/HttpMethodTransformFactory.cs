@@ -37,7 +37,7 @@ namespace Microsoft.ReverseProxy.Service.Config
                 TransformHelpers.CheckTooManyParameters(transformValues, expected: 2);
                 if (transformValues.TryGetValue(SetKey, out var toHttpMethod))
                 {
-                    context.ChangeHttpMethod(fromHttpMethod, toHttpMethod);
+                    context.AddHttpMethodChange(fromHttpMethod, toHttpMethod);
                 }
             }
             else

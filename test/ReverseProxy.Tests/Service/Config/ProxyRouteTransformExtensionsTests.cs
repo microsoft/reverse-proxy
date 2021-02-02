@@ -187,21 +187,6 @@ namespace Microsoft.ReverseProxy.Service.Config
             Assert.Equal(always, responseHeaderValueTransform.Always);
         }
 
-        [Fact]
-        public void WithTransformHttpMethod()
-        {
-            var proxyRoute = CreateProxyRoute();
-
-            proxyRoute = proxyRoute.WithTransformHttpMethod(HttpMethods.Put, HttpMethods.Post);
-
-            var transform = BuildTransform(proxyRoute);
-
-            var requestTransform = Assert.Single(transform.RequestTransforms);
-            var httpMethodTransform = Assert.IsType<HttpMethodTransform>(requestTransform);
-            Assert.Equal(HttpMethod.Put, httpMethodTransform.FromMethod);
-            Assert.Equal(HttpMethod.Post, httpMethodTransform.ToMethod);
-        }
-
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
