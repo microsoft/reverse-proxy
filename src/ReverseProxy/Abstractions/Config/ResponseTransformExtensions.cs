@@ -18,7 +18,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         {
             return proxyRoute.WithTransform(transform =>
             {
-                transform[ResponseTransformFactory.ResponseHeadersCopyKey] = suppress ? "false" : "true";
+                transform[ResponseTransformFactory.ResponseHeadersCopyKey] = suppress ? bool.FalseString : bool.TrueString;
             });
         }
 
@@ -38,7 +38,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         {
             return proxyRoute.WithTransform(transform =>
             {
-                transform[ResponseTransformFactory.ResponseTrailersCopyKey] = suppress ? "false" : "true";
+                transform[ResponseTransformFactory.ResponseTrailersCopyKey] = suppress ? bool.FalseString : bool.TrueString;
             });
         }
 
