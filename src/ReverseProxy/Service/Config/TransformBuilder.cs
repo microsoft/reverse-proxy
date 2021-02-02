@@ -115,12 +115,16 @@ namespace Microsoft.ReverseProxy.Service.Config
                 transformProvider.Apply(context);
             }
 
-            // TODO: UseOriginalHost doesn't work as expected when the value is true and CopyRequestHeaders is false.
-
             // Suppress the host by default
-            if (!context.UseOriginalHost.GetValueOrDefault())
+            if (context.CopyRequestHeaders.GetValueOrDefault(true) && !context.UseOriginalHost.GetValueOrDefault())
             {
+                // Headers were automatically copied, remove the Host header afterwards.
                 context.RequestTransforms.Add(new RequestHeaderValueTransform(HeaderNames.Host, string.Empty, append: false));
+            }
+            else if (!context.CopyRequestHeaders.GetValueOrDefault(true) && context.UseOriginalHost.GetValueOrDefault())
+            {
+                // Headers were not copied, copy the Host manually.
+                context.RequestTransforms.Add(RequestCopyHostTransform.Instance);
             }
 
             // Add default forwarders only if they haven't already been added or disabled.

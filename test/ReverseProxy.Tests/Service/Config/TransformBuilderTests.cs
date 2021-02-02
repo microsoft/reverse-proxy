@@ -66,6 +66,53 @@ namespace Microsoft.ReverseProxy.Service.Config
         }
 
         [Fact]
+        public void EmptyTransform_Error()
+        {
+            var transformBuilder = CreateTransformBuilder();
+            var transforms = new[]
+            {
+                new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase), // Empty
+            };
+
+            var route = new ProxyRoute() { Transforms = transforms };
+            var errors = transformBuilder.Validate(route);
+            var error = Assert.Single(errors);
+            Assert.Equal("Unknown transform: ", error.Message);
+
+            var nie = Assert.Throws<ArgumentException>(() => transformBuilder.BuildInternal(route));
+            Assert.Equal("Unknown transform: ", nie.Message);
+        }
+
+        [Fact]
+        public void UnknownTransforms_Error()
+        {
+            var transformBuilder = CreateTransformBuilder();
+            var transforms = new[]
+            {
+                new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) // Unknown transform
+                {
+                    {  "string1", "value1" },
+                    {  "string2", "value2" }
+                },
+                new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) // Unknown transform
+                {
+                    {  "string3", "value3" },
+                    {  "string4", "value4" }
+                },
+            };
+
+            var route = new ProxyRoute() { Transforms = transforms };
+            var errors = transformBuilder.Validate(route);
+            //All errors reported
+            Assert.Equal(2, errors.Count);
+            Assert.Equal("Unknown transform: string1;string2", errors.First().Message);
+            Assert.Equal("Unknown transform: string3;string4", errors.Skip(1).First().Message);
+            var ex = Assert.Throws<ArgumentException>(() => transformBuilder.BuildInternal(route));
+            // First error reported
+            Assert.Equal("Unknown transform: string1;string2", ex.Message);
+        }
+
+        [Fact]
         public void CallsTransformFactories()
         {
             var factory1 = new TestTransformFactory("1");
@@ -144,6 +191,59 @@ namespace Microsoft.ReverseProxy.Service.Config
             Assert.Empty(results.ResponseTrailerTransforms);
         }
 
+        [Theory]
+        [InlineData(true, true)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(false, false)]
+        public void UseOriginalHost(bool useOriginalHost, bool copyHeaders)
+        {
+            var transformBuilder = CreateTransformBuilder();
+            var transforms = new[]
+            {
+                new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    {  "RequestHeaderOriginalHost", useOriginalHost.ToString() }
+                },
+                new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    {  "RequestHeadersCopy", copyHeaders.ToString() }
+                },
+                new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    {  "X-Forwarded", "" }
+                },
+            };
+
+            var route = new ProxyRoute() { Transforms = transforms };
+            var errors = transformBuilder.Validate(route);
+            Assert.Empty(errors);
+
+            var results = transformBuilder.BuildInternal(route);
+            Assert.NotNull(results);
+            Assert.Equal(copyHeaders, results.ShouldCopyRequestHeaders);
+            Assert.Empty(results.ResponseTransforms);
+            Assert.Empty(results.ResponseTrailerTransforms);
+
+            if (useOriginalHost && !copyHeaders)
+            {
+                var transform = Assert.Single(results.RequestTransforms);
+                Assert.IsType<RequestCopyHostTransform>(transform);
+            }
+            else if (!useOriginalHost && copyHeaders)
+            {
+                var transform = Assert.Single(results.RequestTransforms);
+                var headerTransform = Assert.IsType<RequestHeaderValueTransform>(transform);
+                Assert.Equal(HeaderNames.Host, headerTransform.HeaderName);
+                Assert.Equal(string.Empty, headerTransform.Value);
+                Assert.False(headerTransform.Append);
+            }
+            else
+            {
+                Assert.Empty(results.RequestTransforms);
+            }
+        }
+
         [Fact]
         public void DefaultsCanBeOverridenByForwarded()
         {
@@ -168,53 +268,6 @@ namespace Microsoft.ReverseProxy.Service.Config
             var transform = Assert.Single(results.RequestTransforms);
             var forwardedTransform = Assert.IsType<RequestHeaderForwardedTransform>(transform);
             Assert.True(forwardedTransform.ProtoEnabled);
-        }
-
-        [Fact]
-        public void EmptyTransform_Error()
-        {
-            var transformBuilder = CreateTransformBuilder();
-            var transforms = new[]
-            {
-                new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase), // Empty
-            };
-
-            var route = new ProxyRoute() { Transforms = transforms };
-            var errors = transformBuilder.Validate(route);
-            var error = Assert.Single(errors);
-            Assert.Equal("Unknown transform: ", error.Message);
-
-            var nie = Assert.Throws<ArgumentException>(() => transformBuilder.BuildInternal(route));
-            Assert.Equal("Unknown transform: ", nie.Message);
-        }
-
-        [Fact]
-        public void UnknownTransforms_Error()
-        {
-            var transformBuilder = CreateTransformBuilder();
-            var transforms = new[]
-            {
-                new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) // Unknown transform
-                {
-                    {  "string1", "value1" },
-                    {  "string2", "value2" }
-                },
-                new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) // Unknown transform
-                {
-                    {  "string3", "value3" },
-                    {  "string4", "value4" }
-                },
-            };
-
-            var route = new ProxyRoute() { Transforms = transforms };
-            var errors = transformBuilder.Validate(route);
-            //All errors reported
-            Assert.Equal(2, errors.Count);
-            Assert.Equal("Unknown transform: string1;string2", errors.First().Message);
-            Assert.Equal("Unknown transform: string3;string4", errors.Skip(1).First().Message);
-            var ex = Assert.Throws<ArgumentException>(() => transformBuilder.BuildInternal(route));
-            // First error reported
-            Assert.Equal("Unknown transform: string1;string2", ex.Message);
         }
 
         private static TransformBuilder CreateTransformBuilder()
