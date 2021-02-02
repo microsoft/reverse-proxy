@@ -17,7 +17,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         [InlineData(false)]
         public void WithTransformSuppressRequestHeaders(bool suppress)
         {
-            var proxyRoute = CreateProxyRoute();
+            var proxyRoute = new ProxyRoute();
             proxyRoute = proxyRoute.WithTransformSuppressRequestHeaders(suppress);
 
             var builderContext = ValidateAndBuild(proxyRoute, _factory);
@@ -30,8 +30,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         [InlineData(false)]
         public void SuppressRequestHeaders(bool suppress)
         {
-            var proxyRoute = CreateProxyRoute();
-            var builderContext = CreateBuilderContext(proxyRoute);
+            var builderContext = CreateBuilderContext();
             builderContext.SuppressRequestHeaders(suppress);
 
             Assert.Equal(suppress, !builderContext.CopyRequestHeaders);
@@ -42,7 +41,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         [InlineData(false)]
         public void WithTransformUseOriginalHostHeader(bool useOriginal)
         {
-            var proxyRoute = CreateProxyRoute();
+            var proxyRoute = new ProxyRoute();
             proxyRoute = proxyRoute.WithTransformUseOriginalHostHeader(useOriginal);
 
             var builderContext = ValidateAndBuild(proxyRoute, _factory);
@@ -55,8 +54,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         [InlineData(false)]
         public void AddOriginalHostHeader(bool useOriginal)
         {
-            var proxyRoute = CreateProxyRoute();
-            var builderContext = CreateBuilderContext(proxyRoute);
+            var builderContext = CreateBuilderContext();
             builderContext.AddOriginalHostHeader(useOriginal);
 
             Assert.Equal(useOriginal, builderContext.UseOriginalHost);
@@ -67,7 +65,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         [InlineData(false)]
         public void WithTransformRequestHeader(bool append)
         {
-            var proxyRoute = CreateProxyRoute();
+            var proxyRoute = new ProxyRoute();
             proxyRoute = proxyRoute.WithTransformRequestHeader("name", "value", append);
 
             var builderContext = ValidateAndBuild(proxyRoute, _factory);
@@ -80,8 +78,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         [InlineData(false)]
         public void AddRequestHeader(bool append)
         {
-            var proxyRoute = CreateProxyRoute();
-            var builderContext = CreateBuilderContext(proxyRoute);
+            var builderContext = CreateBuilderContext();
             builderContext.AddRequestHeader("name", "value", append);
 
             ValidateRequestHeader(append, builderContext);

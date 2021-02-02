@@ -16,7 +16,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         [Fact]
         public void WithTransformHttpMethod()
         {
-            var proxyRoute = CreateProxyRoute();
+            var proxyRoute = new ProxyRoute();
             proxyRoute = proxyRoute.WithTransformHttpMethod(HttpMethods.Put, HttpMethods.Post);
 
             var builderContext = ValidateAndBuild(proxyRoute, _factory);
@@ -27,8 +27,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         [Fact]
         public void AddHttpMethodChange()
         {
-            var proxyRoute = CreateProxyRoute();
-            var builderContext = CreateBuilderContext(proxyRoute);
+            var builderContext = CreateBuilderContext();
             builderContext.AddHttpMethodChange(HttpMethods.Put, HttpMethods.Post);
 
             ValidateHttpMethod(builderContext);

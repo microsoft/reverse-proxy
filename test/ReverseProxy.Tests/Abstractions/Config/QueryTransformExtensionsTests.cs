@@ -16,7 +16,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         [InlineData(true)]
         public void WithTransformQueryRouteValue(bool append)
         {
-            var proxyRoute = CreateProxyRoute();
+            var proxyRoute = new ProxyRoute();
             proxyRoute = proxyRoute.WithTransformQueryRouteValue("key", "value", append);
 
             var builderContext = ValidateAndBuild(proxyRoute, _factory);
@@ -29,8 +29,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         [InlineData(true)]
         public void AddQueryRouteValue(bool append)
         {
-            var proxyRoute = CreateProxyRoute();
-            var builderContext = CreateBuilderContext(proxyRoute);
+            var builderContext = CreateBuilderContext();
             builderContext.AddQueryRouteValue("key", "value", append);
 
             ValidateQueryRouteParameter(append, builderContext);
@@ -51,7 +50,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         [InlineData(true)]
         public void WithTransformQueryValue(bool append)
         {
-            var proxyRoute = CreateProxyRoute();
+            var proxyRoute = new ProxyRoute();
             proxyRoute = proxyRoute.WithTransformQueryValue("key", "value", append);
 
             var builderContext = ValidateAndBuild(proxyRoute, _factory);
@@ -64,8 +63,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         [InlineData(true)]
         public void AddQueryValue(bool append)
         {
-            var proxyRoute = CreateProxyRoute();
-            var builderContext = CreateBuilderContext(proxyRoute);
+            var builderContext = CreateBuilderContext();
             builderContext.AddQueryValue("key", "value", append);
 
             ValidateQueryValue(append, builderContext);
@@ -84,7 +82,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         [Fact]
         public void WithTransformQueryRemoveKey()
         {
-            var proxyRoute = CreateProxyRoute();
+            var proxyRoute = new ProxyRoute();
             proxyRoute = proxyRoute.WithTransformQueryRemoveKey("key");
 
             var builderContext = ValidateAndBuild(proxyRoute, _factory);
@@ -95,8 +93,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         [Fact]
         public void AddQueryRemoveKey()
         {
-            var proxyRoute = CreateProxyRoute();
-            var builderContext = CreateBuilderContext(proxyRoute);
+            var builderContext = CreateBuilderContext();
             builderContext.AddQueryRemoveKey("key");
 
             ValidateQueryRemoveKey(builderContext);

@@ -25,7 +25,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         [InlineData(true, true, false, false, false)]
         public void WithTransformXForwarded(bool useFor, bool useHost, bool useProto, bool usePathBase, bool append)
         {
-            var proxyRoute = CreateProxyRoute();
+            var proxyRoute = new ProxyRoute();
             proxyRoute = proxyRoute.WithTransformXForwarded("prefix-", useFor, useHost, useProto, usePathBase, append);
 
             var builderContext = ValidateAndBuild(proxyRoute, _factory);
@@ -42,14 +42,13 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         [InlineData(true, true, false, false, false)]
         public void AddXForwarded(bool useFor, bool useHost, bool useProto, bool usePathBase, bool append)
         {
-            var proxyRoute = CreateProxyRoute();
-            var builderContext = CreateBuilderContext(proxyRoute);
+            var builderContext = CreateBuilderContext();
             builderContext.AddXForwarded("prefix-", useFor, useHost, useProto, usePathBase, append);
 
             ValidateXForwarded(builderContext, useFor, useHost, useProto, usePathBase, append);
         }
 
-        private void ValidateXForwarded(TransformBuilderContext builderContext, bool useFor, bool useHost, bool useProto, bool usePathBase, bool append)
+        private static void ValidateXForwarded(TransformBuilderContext builderContext, bool useFor, bool useHost, bool useProto, bool usePathBase, bool append)
         {
             Assert.False(builderContext.UseDefaultForwarders);
 
@@ -113,7 +112,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         [InlineData(false, false, true, true, false, NodeFormat.IpAndPort, NodeFormat.IpAndPort)]
         public void WithTransformForwarded(bool useFor, bool useHost, bool useProto, bool useBy, bool append, NodeFormat forFormat, NodeFormat byFormat)
         {
-            var proxyRoute = CreateProxyRoute();
+            var proxyRoute = new ProxyRoute();
             proxyRoute = proxyRoute.WithTransformForwarded(useFor, useHost, useProto, useBy, append, forFormat, byFormat);
 
             var builderContext = ValidateAndBuild(proxyRoute, _factory, CreateServices());
@@ -136,14 +135,13 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         [InlineData(false, false, true, true, false, NodeFormat.IpAndPort, NodeFormat.IpAndPort)]
         public void AddForwarded(bool useFor, bool useHost, bool useProto, bool useBy, bool append, NodeFormat forFormat, NodeFormat byFormat)
         {
-            var proxyRoute = CreateProxyRoute();
-            var builderContext = CreateBuilderContext(proxyRoute, CreateServices());
+            var builderContext = CreateBuilderContext(services: CreateServices());
             builderContext.AddForwarded(useFor, useHost, useProto, useBy, append, forFormat, byFormat);
 
             ValidateForwarded(builderContext, useFor, useHost, useProto, useBy, append, forFormat, byFormat);
         }
 
-        private void ValidateForwarded(TransformBuilderContext builderContext, bool useFor, bool useHost, bool useProto, bool useBy,
+        private static void ValidateForwarded(TransformBuilderContext builderContext, bool useFor, bool useHost, bool useProto, bool useBy,
             bool append, NodeFormat forFormat, NodeFormat byFormat)
         {
             Assert.False(builderContext.UseDefaultForwarders);
@@ -167,7 +165,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         [Fact]
         public void WithTransformClientCertHeader()
         {
-            var proxyRoute = CreateProxyRoute();
+            var proxyRoute = new ProxyRoute();
             proxyRoute = proxyRoute.WithTransformClientCertHeader("name");
 
             var builderContext = ValidateAndBuild(proxyRoute, _factory);
@@ -180,8 +178,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         [Fact]
         public void AddClientCertHeader()
         {
-            var proxyRoute = CreateProxyRoute();
-            var builderContext = CreateBuilderContext(proxyRoute);
+            var builderContext = CreateBuilderContext();
             builderContext.AddClientCertHeader("name");
 
             var transform = Assert.Single(builderContext.RequestTransforms);
@@ -189,7 +186,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
             Assert.Equal("name", certTransform.HeaderName);
         }
 
-        private IServiceProvider CreateServices()
+        private static IServiceProvider CreateServices()
         {
             var collection = new ServiceCollection();
             collection.AddSingleton<IRandomFactory, TestRandomFactory>();

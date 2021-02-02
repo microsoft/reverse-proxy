@@ -25,6 +25,6 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         /// The accumulated list of validation errors for this route.
         /// Add transform validation errors here.
         /// </summary>
-        public IList<Exception> Errors { get; init; }
+        public IList<Exception> Errors { get; } = new List<Exception>();
     }
 }

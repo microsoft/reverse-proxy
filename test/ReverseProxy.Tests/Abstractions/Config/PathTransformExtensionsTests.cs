@@ -27,7 +27,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         [Fact]
         public void WithTransformPathSet()
         {
-            var proxyRoute = CreateProxyRoute();
+            var proxyRoute = new ProxyRoute();
             proxyRoute = proxyRoute.WithTransformPathSet(new PathString("/path#"));
 
             var builderContext = ValidateAndBuild(proxyRoute, _factory);
@@ -38,8 +38,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         [Fact]
         public void AddPathSet()
         {
-            var proxyRoute = CreateProxyRoute();
-            var builderContext = CreateBuilderContext(proxyRoute);
+            var builderContext = CreateBuilderContext();
             builderContext.AddPathSet(new PathString("/path#"));
 
             ValidatePathSet(builderContext);
@@ -56,7 +55,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         [Fact]
         public void WithTransformPathRemovePrefix()
         {
-            var proxyRoute = CreateProxyRoute();
+            var proxyRoute = new ProxyRoute();
             proxyRoute = proxyRoute.WithTransformPathRemovePrefix(new PathString("/path#"));
 
             var builderContext = ValidateAndBuild(proxyRoute, _factory);
@@ -67,8 +66,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         [Fact]
         public void AddPathRemovePrefix()
         {
-            var proxyRoute = CreateProxyRoute();
-            var builderContext = CreateBuilderContext(proxyRoute);
+            var builderContext = CreateBuilderContext();
             builderContext.AddPathRemovePrefix(new PathString("/path#"));
 
             ValidatePathRemovePrefix(builderContext);
@@ -85,7 +83,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         [Fact]
         public void WithTransformPathPrefix()
         {
-            var proxyRoute = CreateProxyRoute();
+            var proxyRoute = new ProxyRoute();
             proxyRoute = proxyRoute.WithTransformPathPrefix(new PathString("/path#"));
 
             var builderContext = ValidateAndBuild(proxyRoute, _factory);
@@ -96,8 +94,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         [Fact]
         public void AddPathPrefix()
         {
-            var proxyRoute = CreateProxyRoute();
-            var builderContext = CreateBuilderContext(proxyRoute);
+            var builderContext = CreateBuilderContext();
             builderContext.AddPathPrefix(new PathString("/path#"));
 
             ValidatePathPrefix(builderContext);
@@ -114,7 +111,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         [Fact]
         public void WithTransformPathRouteValues()
         {
-            var proxyRoute = CreateProxyRoute();
+            var proxyRoute = new ProxyRoute();
             proxyRoute = proxyRoute.WithTransformPathRouteValues(new PathString("/path#"));
 
             var builderContext = ValidateAndBuild(proxyRoute, _factory);
@@ -130,8 +127,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
             serviceCollection.AddRouting();
             var services = serviceCollection.BuildServiceProvider();
 
-            var proxyRoute = CreateProxyRoute();
-            var builderContext = CreateBuilderContext(proxyRoute, services);
+            var builderContext = CreateBuilderContext(services: services);
             builderContext.AddPathRouteValues(new PathString("/path#"));
 
             ValidatePathRouteValues(builderContext);

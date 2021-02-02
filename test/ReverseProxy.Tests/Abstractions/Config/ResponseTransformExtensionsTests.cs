@@ -16,7 +16,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         [InlineData(false)]
         public void WithTransformSuppressResponseHeaders(bool suppress)
         {
-            var proxyRoute = CreateProxyRoute();
+            var proxyRoute = new ProxyRoute();
             proxyRoute = proxyRoute.WithTransformSuppressResponseHeaders(suppress);
 
             var builderContext = ValidateAndBuild(proxyRoute, _factory);
@@ -29,8 +29,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         [InlineData(false)]
         public void SuppressResponseHeaders(bool suppress)
         {
-            var proxyRoute = CreateProxyRoute();
-            var builderContext = CreateBuilderContext(proxyRoute);
+            var builderContext = CreateBuilderContext();
             builderContext.SuppressResponseHeaders(suppress);
 
             Assert.Equal(suppress, !builderContext.CopyResponseHeaders);
@@ -41,7 +40,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         [InlineData(false)]
         public void WithTransformSuppressResponseTrailers(bool suppress)
         {
-            var proxyRoute = CreateProxyRoute();
+            var proxyRoute = new ProxyRoute();
             proxyRoute = proxyRoute.WithTransformSuppressResponseTrailers(suppress);
 
             var builderContext = ValidateAndBuild(proxyRoute, _factory);
@@ -54,8 +53,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         [InlineData(false)]
         public void SuppressResponseTrailers(bool suppress)
         {
-            var proxyRoute = CreateProxyRoute();
-            var builderContext = CreateBuilderContext(proxyRoute);
+            var builderContext = CreateBuilderContext();
             builderContext.SuppressResponseTrailers(suppress);
 
             Assert.Equal(suppress, !builderContext.CopyResponseTrailers);
@@ -68,7 +66,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         [InlineData(true, true)]
         public void WithTransformResponseHeader(bool append, bool always)
         {
-            var proxyRoute = CreateProxyRoute();
+            var proxyRoute = new ProxyRoute();
             proxyRoute = proxyRoute.WithTransformResponseHeader("name", "value", append, always);
 
             var builderContext = ValidateAndBuild(proxyRoute, _factory);
@@ -83,8 +81,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         [InlineData(true, true)]
         public void AddResponseHeader(bool append, bool always)
         {
-            var proxyRoute = CreateProxyRoute();
-            var builderContext = CreateBuilderContext(proxyRoute);
+            var builderContext = CreateBuilderContext();
             builderContext.AddResponseHeader("name", "value", append, always);
 
             ValidateResponseHeader(builderContext, append, always);
@@ -107,7 +104,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         [InlineData(true, true)]
         public void WithTransformResponseTrailer(bool append, bool always)
         {
-            var proxyRoute = CreateProxyRoute();
+            var proxyRoute = new ProxyRoute();
             proxyRoute = proxyRoute.WithTransformResponseTrailer("name", "value", append, always);
 
             var builderContext = ValidateAndBuild(proxyRoute, _factory);
@@ -122,8 +119,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         [InlineData(true, true)]
         public void AddResponseTrailer(bool append, bool always)
         {
-            var proxyRoute = CreateProxyRoute();
-            var builderContext = CreateBuilderContext(proxyRoute);
+            var builderContext = CreateBuilderContext();
             builderContext.AddResponseTrailer("name", "value", append, always);
 
             ValidateResponseTrailer(builderContext, append, always);

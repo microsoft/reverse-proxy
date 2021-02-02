@@ -32,21 +32,19 @@ namespace Microsoft.ReverseProxy.Service.Config
         }
 
         /// <inheritdoc/>
-        public IList<Exception> Validate(ProxyRoute route)
+        public IReadOnlyList<Exception> Validate(ProxyRoute route)
         {
-            var errors = new List<Exception>();
             var rawTransforms = route?.Transforms;
 
             if (rawTransforms == null || rawTransforms.Count == 0)
             {
-                return errors;
+                return Array.Empty<Exception>();
             }
 
             var context = new TransformValidationContext()
             {
                 Services = _services,
                 Route = route,
-                Errors = errors,
             };
 
             foreach (var rawTransform in rawTransforms)
@@ -63,11 +61,11 @@ namespace Microsoft.ReverseProxy.Service.Config
 
                 if (!handled)
                 {
-                    errors.Add(new ArgumentException($"Unknown transform: {string.Join(';', rawTransform.Keys)}"));
+                    context.Errors.Add(new ArgumentException($"Unknown transform: {string.Join(';', rawTransform.Keys)}"));
                 }
             }
 
-            return errors;
+            return context.Errors.ToList();
         }
 
         /// <inheritdoc/>

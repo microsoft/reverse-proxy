@@ -44,6 +44,8 @@ namespace Microsoft.ReverseProxy.Service.Config
             var results = transformBuilder.BuildInternal(route);
             Assert.NotNull(results);
             Assert.Null(results.ShouldCopyRequestHeaders);
+            Assert.Null(results.ShouldCopyResponseHeaders);
+            Assert.Null(results.ShouldCopyResponseTrailers);
             Assert.Empty(results.ResponseTransforms);
             Assert.Empty(results.ResponseTrailerTransforms);
 
@@ -212,7 +214,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             Assert.Equal(value, headerTransform.Value);
         }
 
-        private TransformBuilder CreateTransformBuilder()
+        private static TransformBuilder CreateTransformBuilder()
         {
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddReverseProxy();

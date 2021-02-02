@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Threading.Tasks;
-using Microsoft.ReverseProxy.Service.Config;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 using Xunit;
 
@@ -13,8 +12,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         [Fact]
         public void AddRequestTransform()
         {
-            var proxyRoute = CreateProxyRoute();
-            var builderContext = CreateBuilderContext(proxyRoute);
+            var builderContext = CreateBuilderContext();
             builderContext.AddRequestTransform(context =>
             {
                 return Task.CompletedTask;
@@ -27,8 +25,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         [Fact]
         public void AddResponseTransform()
         {
-            var proxyRoute = CreateProxyRoute();
-            var builderContext = CreateBuilderContext(proxyRoute);
+            var builderContext = CreateBuilderContext();
             builderContext.AddResponseTransform(context =>
             {
                 return Task.CompletedTask;
@@ -41,8 +38,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         [Fact]
         public void AddResponseTrailersTransform()
         {
-            var proxyRoute = CreateProxyRoute();
-            var builderContext = CreateBuilderContext(proxyRoute);
+            var builderContext = CreateBuilderContext();
             builderContext.AddResponseTrailersTransform(context =>
             {
                 return Task.CompletedTask;
