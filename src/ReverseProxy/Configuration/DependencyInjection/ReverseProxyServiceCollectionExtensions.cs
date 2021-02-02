@@ -84,7 +84,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 throw new ArgumentNullException(nameof(builder));
             }
 
-            builder.Services.AddSingleton<IProxyConfigFilter, TService>();
+            builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IProxyConfigFilter, TService>());
             return builder;
         }
 
@@ -103,9 +103,9 @@ namespace Microsoft.Extensions.DependencyInjection
         /// Provides a <see cref="ITransformProvider"/> implementation that will be run for each route to conditionally add transforms.
         /// <see cref="AddTransforms{T}(IReverseProxyBuilder)"/> can be called multiple times to provide multiple distinct types.
         /// </summary>
-        public static IReverseProxyBuilder AddTransforms<T>(this IReverseProxyBuilder builder) where T : ITransformProvider
+        public static IReverseProxyBuilder AddTransforms<T>(this IReverseProxyBuilder builder) where T : class, ITransformProvider
         {
-            builder.Services.TryAddEnumerable(new ServiceDescriptor(typeof(ITransformProvider), typeof(T), ServiceLifetime.Singleton));
+            builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<ITransformProvider, T>());
             return builder;
         }
 
@@ -114,9 +114,9 @@ namespace Microsoft.Extensions.DependencyInjection
         /// the associated transform actions. <see cref="AddTransformFactory{T}(IReverseProxyBuilder)"/> can be called multiple
         /// times to provide multiple distinct types.
         /// </summary>
-        public static IReverseProxyBuilder AddTransformFactory<T>(this IReverseProxyBuilder builder) where T : ITransformFactory
+        public static IReverseProxyBuilder AddTransformFactory<T>(this IReverseProxyBuilder builder) where T : class, ITransformFactory
         {
-            builder.Services.TryAddEnumerable(new ServiceDescriptor(typeof(ITransformFactory), typeof(T), ServiceLifetime.Singleton));
+            builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<ITransformFactory, T>());
             return builder;
         }
     }
