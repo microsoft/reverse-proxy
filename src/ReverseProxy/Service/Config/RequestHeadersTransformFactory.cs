@@ -33,7 +33,7 @@ namespace Microsoft.ReverseProxy.Service.Config
                     context.Errors.Add(new ArgumentException($"Unexpected value for RequestHeaderOriginalHost: {originalHost}. Expected 'true' or 'false'"));
                 }
             }
-            else if (transformValues.TryGetValue(RequestHeaderKey, out var headerName))
+            else if (transformValues.TryGetValue(RequestHeaderKey, out var _))
             {
                 TransformHelpers.TryCheckTooManyParameters(context, transformValues, expected: 2);
                 if (!transformValues.TryGetValue(SetKey, out var _) && !transformValues.TryGetValue(AppendKey, out var _))

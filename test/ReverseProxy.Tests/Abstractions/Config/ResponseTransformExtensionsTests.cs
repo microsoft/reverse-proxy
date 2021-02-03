@@ -14,27 +14,27 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public void WithTransformSuppressResponseHeaders(bool suppress)
+        public void WithTransformCopyResponseHeaders(bool copy)
         {
             var proxyRoute = new ProxyRoute();
-            proxyRoute = proxyRoute.WithTransformCopyResponseHeaders(suppress);
+            proxyRoute = proxyRoute.WithTransformCopyResponseHeaders(copy);
 
             var builderContext = ValidateAndBuild(proxyRoute, _factory);
 
-            Assert.Equal(suppress, !builderContext.CopyResponseHeaders);
+            Assert.Equal(copy, builderContext.CopyResponseHeaders);
         }
 
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public void WithTransformSuppressResponseTrailers(bool suppress)
+        public void WithTransformCopyResponseTrailers(bool copy)
         {
             var proxyRoute = new ProxyRoute();
-            proxyRoute = proxyRoute.WithTransformCopyResponseTrailers(suppress);
+            proxyRoute = proxyRoute.WithTransformCopyResponseTrailers(copy);
 
             var builderContext = ValidateAndBuild(proxyRoute, _factory);
 
-            Assert.Equal(suppress, !builderContext.CopyResponseTrailers);
+            Assert.Equal(copy, builderContext.CopyResponseTrailers);
         }
 
         [Theory]
