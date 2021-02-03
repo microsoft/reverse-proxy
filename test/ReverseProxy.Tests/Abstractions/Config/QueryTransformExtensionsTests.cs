@@ -9,7 +9,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
 {
     public class QueryTransformExtensionsTests : TransformExtentionsTestsBase
     {
-        private readonly QueryTransformFactory _factory = new QueryTransformFactory();
+        private readonly QueryTransformFactory _factory = new();
 
         [Theory]
         [InlineData(false)]

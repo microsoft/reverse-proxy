@@ -11,7 +11,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
 {
     public class HttpMethodTransformExtensionsTests : TransformExtentionsTestsBase
     {
-        private readonly HttpMethodTransformFactory _factory = new HttpMethodTransformFactory();
+        private readonly HttpMethodTransformFactory _factory = new();
 
         [Fact]
         public void WithTransformHttpMethodChange()

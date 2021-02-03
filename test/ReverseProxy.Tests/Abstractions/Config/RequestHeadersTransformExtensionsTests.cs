@@ -10,30 +10,19 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
 {
     public class RequestHeadersTransformExtensionsTests : TransformExtentionsTestsBase
     {
-        private readonly RequestHeadersTransformFactory _factory = new RequestHeadersTransformFactory();
+        private readonly RequestHeadersTransformFactory _factory = new();
 
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public void WithTransformSuppressRequestHeaders(bool suppress)
+        public void WithTransformCopyRequestHeaders(bool copy)
         {
             var proxyRoute = new ProxyRoute();
-            proxyRoute = proxyRoute.WithTransformSuppressRequestHeaders(suppress);
+            proxyRoute = proxyRoute.WithTransformCopyRequestHeaders(copy);
 
             var builderContext = ValidateAndBuild(proxyRoute, _factory);
 
-            Assert.Equal(suppress, !builderContext.CopyRequestHeaders);
-        }
-
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void SuppressRequestHeaders(bool suppress)
-        {
-            var builderContext = CreateBuilderContext();
-            builderContext.SuppressRequestHeaders(suppress);
-
-            Assert.Equal(suppress, !builderContext.CopyRequestHeaders);
+            Assert.Equal(copy, builderContext.CopyRequestHeaders);
         }
 
         [Theory]
@@ -45,17 +34,6 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
             proxyRoute = proxyRoute.WithTransformUseOriginalHostHeader(useOriginal);
 
             var builderContext = ValidateAndBuild(proxyRoute, _factory);
-
-            Assert.Equal(useOriginal, builderContext.UseOriginalHost);
-        }
-
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void AddOriginalHostHeader(bool useOriginal)
-        {
-            var builderContext = CreateBuilderContext();
-            builderContext.AddOriginalHostHeader(useOriginal);
 
             Assert.Equal(useOriginal, builderContext.UseOriginalHost);
         }

@@ -9,7 +9,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
 {
     public class ResponseTransformExtensionsTests : TransformExtentionsTestsBase
     {
-        private readonly ResponseTransformFactory _factory = new ResponseTransformFactory();
+        private readonly ResponseTransformFactory _factory = new();
 
         [Theory]
         [InlineData(true)]
@@ -17,20 +17,9 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         public void WithTransformSuppressResponseHeaders(bool suppress)
         {
             var proxyRoute = new ProxyRoute();
-            proxyRoute = proxyRoute.WithTransformSuppressResponseHeaders(suppress);
+            proxyRoute = proxyRoute.WithTransformCopyResponseHeaders(suppress);
 
             var builderContext = ValidateAndBuild(proxyRoute, _factory);
-
-            Assert.Equal(suppress, !builderContext.CopyResponseHeaders);
-        }
-
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void SuppressResponseHeaders(bool suppress)
-        {
-            var builderContext = CreateBuilderContext();
-            builderContext.SuppressResponseHeaders(suppress);
 
             Assert.Equal(suppress, !builderContext.CopyResponseHeaders);
         }
@@ -41,20 +30,9 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         public void WithTransformSuppressResponseTrailers(bool suppress)
         {
             var proxyRoute = new ProxyRoute();
-            proxyRoute = proxyRoute.WithTransformSuppressResponseTrailers(suppress);
+            proxyRoute = proxyRoute.WithTransformCopyResponseTrailers(suppress);
 
             var builderContext = ValidateAndBuild(proxyRoute, _factory);
-
-            Assert.Equal(suppress, !builderContext.CopyResponseTrailers);
-        }
-
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void SuppressResponseTrailers(bool suppress)
-        {
-            var builderContext = CreateBuilderContext();
-            builderContext.SuppressResponseTrailers(suppress);
 
             Assert.Equal(suppress, !builderContext.CopyResponseTrailers);
         }

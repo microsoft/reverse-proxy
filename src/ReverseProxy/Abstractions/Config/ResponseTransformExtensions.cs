@@ -12,43 +12,25 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
     public static class ResponseTransformExtensions
     {
         /// <summary>
-        /// Clones the route and adds the transform which will prevent copying response headers to the client response.
+        /// Clones the route and adds the transform which will enable or suppress copying response headers to the client response.
         /// </summary>
-        public static ProxyRoute WithTransformSuppressResponseHeaders(this ProxyRoute proxyRoute, bool suppress = true)
+        public static ProxyRoute WithTransformCopyResponseHeaders(this ProxyRoute proxyRoute, bool copy = true)
         {
             return proxyRoute.WithTransform(transform =>
             {
-                transform[ResponseTransformFactory.ResponseHeadersCopyKey] = suppress ? bool.FalseString : bool.TrueString;
+                transform[ResponseTransformFactory.ResponseHeadersCopyKey] = copy ? bool.TrueString : bool.FalseString;
             });
         }
 
         /// <summary>
-        /// Adds the transform which will prevent copying response headers to the client response.
+        /// Clones the route and adds the transform which will enable or suppress copying response trailers to the client response.
         /// </summary>
-        public static TransformBuilderContext SuppressResponseHeaders(this TransformBuilderContext context, bool suppress = true)
-        {
-            context.CopyResponseHeaders = !suppress;
-            return context;
-        }
-
-        /// <summary>
-        /// Clones the route and adds the transform which will prevent copying response trailers to the client response.
-        /// </summary>
-        public static ProxyRoute WithTransformSuppressResponseTrailers(this ProxyRoute proxyRoute, bool suppress = true)
+        public static ProxyRoute WithTransformCopyResponseTrailers(this ProxyRoute proxyRoute, bool copy = true)
         {
             return proxyRoute.WithTransform(transform =>
             {
-                transform[ResponseTransformFactory.ResponseTrailersCopyKey] = suppress ? bool.FalseString : bool.TrueString;
+                transform[ResponseTransformFactory.ResponseTrailersCopyKey] = copy ? bool.TrueString : bool.FalseString;
             });
-        }
-
-        /// <summary>
-        /// Adds the transform which will prevent copying response trailers to the client response.
-        /// </summary>
-        public static TransformBuilderContext SuppressResponseTrailers(this TransformBuilderContext context, bool suppress = true)
-        {
-            context.CopyResponseTrailers = !suppress;
-            return context;
         }
 
         /// <summary>

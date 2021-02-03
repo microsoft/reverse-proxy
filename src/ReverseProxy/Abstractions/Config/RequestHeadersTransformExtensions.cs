@@ -12,23 +12,14 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
     public static class RequestHeadersTransformExtensions
     {
         /// <summary>
-        /// Clones the route and adds the transform which will prevent copying request headers to the proxy request.
+        /// Clones the route and adds the transform which will enable or suppress copying request headers to the proxy request.
         /// </summary>
-        public static ProxyRoute WithTransformSuppressRequestHeaders(this ProxyRoute proxyRoute, bool suppress = true)
+        public static ProxyRoute WithTransformCopyRequestHeaders(this ProxyRoute proxyRoute, bool copy = true)
         {
             return proxyRoute.WithTransform(transform =>
             {
-                transform[RequestHeadersTransformFactory.RequestHeadersCopyKey] = suppress ? bool.FalseString : bool.TrueString;
+                transform[RequestHeadersTransformFactory.RequestHeadersCopyKey] = copy ? bool.TrueString : bool.FalseString;
             });
-        }
-
-        /// <summary>
-        /// Adds the transform which will prevent copying request headers to the proxy request.
-        /// </summary>
-        public static TransformBuilderContext SuppressRequestHeaders(this TransformBuilderContext context, bool suppress = true)
-        {
-            context.CopyRequestHeaders = !suppress;
-            return context;
         }
 
         /// <summary>
@@ -40,15 +31,6 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
             {
                 transform[RequestHeadersTransformFactory.RequestHeaderOriginalHostKey] = useOriginal ? bool.TrueString : bool.FalseString;
             });
-        }
-
-        /// <summary>
-        /// Adds the transform which will copy the incoming request Host header to the proxy request.
-        /// </summary>
-        public static TransformBuilderContext AddOriginalHostHeader(this TransformBuilderContext context, bool useOriginal = true)
-        {
-            context.UseOriginalHost = useOriginal;
-            return context;
         }
 
         /// <summary>

@@ -18,6 +18,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         /// Inspect the given route and conditionally add transforms.
         /// This is called for every route, each time that route is built.
         /// </summary>
+        /// <param name="context">The context to add any generated transforms to.</param>
         void Apply(TransformBuilderContext context);
     }
 }
