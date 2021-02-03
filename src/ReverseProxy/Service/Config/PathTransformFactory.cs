@@ -28,19 +28,19 @@ namespace Microsoft.ReverseProxy.Service.Config
         {
             if (transformValues.TryGetValue(PathSetKey, out var pathSet))
             {
-                TransformHelpers.TryCheckTooManyParameters(context.Errors.Add, transformValues, expected: 1);
+                TransformHelpers.TryCheckTooManyParameters(context, transformValues, expected: 1);
             }
             else if (transformValues.TryGetValue(PathPrefixKey, out var pathPrefix))
             {
-                TransformHelpers.TryCheckTooManyParameters(context.Errors.Add, transformValues, expected: 1);
+                TransformHelpers.TryCheckTooManyParameters(context, transformValues, expected: 1);
             }
             else if (transformValues.TryGetValue(PathRemovePrefixKey, out var pathRemovePrefix))
             {
-                TransformHelpers.TryCheckTooManyParameters(context.Errors.Add, transformValues, expected: 1);
+                TransformHelpers.TryCheckTooManyParameters(context, transformValues, expected: 1);
             }
             else if (transformValues.TryGetValue(PathPatternKey, out var pathPattern))
             {
-                TransformHelpers.TryCheckTooManyParameters(context.Errors.Add, transformValues, expected: 1);
+                TransformHelpers.TryCheckTooManyParameters(context, transformValues, expected: 1);
                 // TODO: Validate the pattern format. Does it build?
             }
             else

@@ -19,7 +19,7 @@ namespace Microsoft.ReverseProxy.Service.Config
         {
             if (transformValues.TryGetValue(QueryValueParameterKey, out var queryValueParameter))
             {
-                TransformHelpers.TryCheckTooManyParameters(context.Errors.Add, transformValues, expected: 2);
+                TransformHelpers.TryCheckTooManyParameters(context, transformValues, expected: 2);
                 if (!transformValues.TryGetValue(AppendKey, out var _) && !transformValues.TryGetValue(SetKey, out var _))
                 {
                     context.Errors.Add(new ArgumentException($"Unexpected parameters for QueryValueParameter: {string.Join(';', transformValues.Keys)}. Expected 'Append' or 'Set'."));
@@ -27,7 +27,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             }
             else if (transformValues.TryGetValue(QueryRouteParameterKey, out var queryRouteParameter))
             {
-                TransformHelpers.TryCheckTooManyParameters(context.Errors.Add, transformValues, expected: 2);
+                TransformHelpers.TryCheckTooManyParameters(context, transformValues, expected: 2);
                 if (!transformValues.TryGetValue(AppendKey, out var _) && !transformValues.TryGetValue(SetKey, out var _))
                 {
                     context.Errors.Add(new ArgumentException($"Unexpected parameters for QueryRouteParameter: {string.Join(';', transformValues.Keys)}. Expected 'Append' or 'Set'."));
@@ -35,7 +35,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             }
             else if (transformValues.TryGetValue(QueryRemoveParameterKey, out var removeQueryParameter))
             {
-                TransformHelpers.TryCheckTooManyParameters(context.Errors.Add, transformValues, expected: 1);
+                TransformHelpers.TryCheckTooManyParameters(context, transformValues, expected: 1);
             }
             else
             {
@@ -57,6 +57,10 @@ namespace Microsoft.ReverseProxy.Service.Config
                 else if (transformValues.TryGetValue(SetKey, out var setValue))
                 {
                     context.AddQueryValue(queryValueParameter, setValue, append: false);
+                }
+                else
+                {
+                    throw new NotSupportedException(string.Join(";", transformValues.Keys));
                 }
             }
             else if (transformValues.TryGetValue(QueryRouteParameterKey, out var queryRouteParameter))

@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.ReverseProxy.Abstractions.Config;
-using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 
 namespace Microsoft.ReverseProxy.Service.Config
 {
@@ -24,7 +23,7 @@ namespace Microsoft.ReverseProxy.Service.Config
         {
             if (transformValues.TryGetValue(ResponseHeadersCopyKey, out var copyHeaders))
             {
-                TransformHelpers.TryCheckTooManyParameters(context.Errors.Add, transformValues, expected: 1);
+                TransformHelpers.TryCheckTooManyParameters(context, transformValues, expected: 1);
                 if (!bool.TryParse(copyHeaders, out var _))
                 {
                     context.Errors.Add(new ArgumentException($"Unexpected value for ResponseHeadersCopy: {copyHeaders}. Expected 'true' or 'false'"));
@@ -32,7 +31,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             }
             else if (transformValues.TryGetValue(ResponseTrailersCopyKey, out copyHeaders))
             {
-                TransformHelpers.TryCheckTooManyParameters(context.Errors.Add, transformValues, expected: 1);
+                TransformHelpers.TryCheckTooManyParameters(context, transformValues, expected: 1);
                 if (!bool.TryParse(copyHeaders, out var _))
                 {
                     context.Errors.Add(new ArgumentException($"Unexpected value for ResponseTrailersCopy: {copyHeaders}. Expected 'true' or 'false'"));
@@ -42,7 +41,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             {
                 if (transformValues.TryGetValue(WhenKey, out var whenValue))
                 {
-                    TransformHelpers.TryCheckTooManyParameters(context.Errors.Add, transformValues, expected: 3);
+                    TransformHelpers.TryCheckTooManyParameters(context, transformValues, expected: 3);
                     if (!string.Equals(AlwaysValue, whenValue, StringComparison.OrdinalIgnoreCase) && !string.Equals(SuccessValue, whenValue, StringComparison.OrdinalIgnoreCase))
                     {
                         context.Errors.Add(new ArgumentException($"Unexpected value for ResponseHeader:When: {whenValue}. Expected 'Always' or 'Success'"));
@@ -50,7 +49,7 @@ namespace Microsoft.ReverseProxy.Service.Config
                 }
                 else
                 {
-                    TransformHelpers.TryCheckTooManyParameters(context.Errors.Add, transformValues, expected: 2);
+                    TransformHelpers.TryCheckTooManyParameters(context, transformValues, expected: 2);
                 }
 
                 if (!transformValues.TryGetValue(SetKey, out var _) && !transformValues.TryGetValue(AppendKey, out var _))
@@ -62,7 +61,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             {
                 if (transformValues.TryGetValue(WhenKey, out var whenValue))
                 {
-                    TransformHelpers.TryCheckTooManyParameters(context.Errors.Add, transformValues, expected: 3);
+                    TransformHelpers.TryCheckTooManyParameters(context, transformValues, expected: 3);
                     if (!string.Equals(AlwaysValue, whenValue, StringComparison.OrdinalIgnoreCase) && !string.Equals(SuccessValue, whenValue, StringComparison.OrdinalIgnoreCase))
                     {
                         context.Errors.Add(new ArgumentException($"Unexpected value for ResponseTrailer:When: {whenValue}. Expected 'Always' or 'Success'"));
@@ -70,7 +69,7 @@ namespace Microsoft.ReverseProxy.Service.Config
                 }
                 else
                 {
-                    TransformHelpers.TryCheckTooManyParameters(context.Errors.Add, transformValues, expected: 2);
+                    TransformHelpers.TryCheckTooManyParameters(context, transformValues, expected: 2);
                 }
 
                 if (!transformValues.TryGetValue(SetKey, out var _) && !transformValues.TryGetValue(AppendKey, out var _))

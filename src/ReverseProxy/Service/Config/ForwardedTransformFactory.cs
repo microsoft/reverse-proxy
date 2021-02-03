@@ -51,7 +51,7 @@ namespace Microsoft.ReverseProxy.Service.Config
                     expected++;
                 }
 
-                TransformHelpers.TryCheckTooManyParameters(context.Errors.Add, transformValues, expected);
+                TransformHelpers.TryCheckTooManyParameters(context, transformValues, expected);
 
                 // for, host, proto, PathBase
                 var tokens = xforwardedHeaders.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
@@ -99,7 +99,7 @@ namespace Microsoft.ReverseProxy.Service.Config
                     }
                 }
 
-                TransformHelpers.TryCheckTooManyParameters(context.Errors.Add, transformValues, expected);
+                TransformHelpers.TryCheckTooManyParameters(context, transformValues, expected);
 
                 // for, host, proto, by
                 var tokens = forwardedHeader.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
@@ -117,7 +117,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             }
             else if (transformValues.TryGetValue(ClientCertKey, out var clientCertHeader))
             {
-                TransformHelpers.TryCheckTooManyParameters(context.Errors.Add, transformValues, expected: 1);
+                TransformHelpers.TryCheckTooManyParameters(context, transformValues, expected: 1);
             }
             else
             {

@@ -5,7 +5,6 @@ using System.Linq;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.ReverseProxy.Abstractions.Config;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service;
 using Microsoft.ReverseProxy.Service.Config;
@@ -26,12 +25,12 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
             builder.Services.TryAddSingleton<IConfigValidator, ConfigValidator>();
             builder.Services.TryAddSingleton<ITransformBuilder, TransformBuilder>();
             builder.Services.TryAddSingleton<IRandomFactory, RandomFactory>();
+            builder.AddTransformFactory<ForwardedTransformFactory>();
+            builder.AddTransformFactory<HttpMethodTransformFactory>();
             builder.AddTransformFactory<PathTransformFactory>();
             builder.AddTransformFactory<QueryTransformFactory>();
             builder.AddTransformFactory<RequestHeadersTransformFactory>();
             builder.AddTransformFactory<ResponseTransformFactory>();
-            builder.AddTransformFactory<ForwardedTransformFactory>();
-            builder.AddTransformFactory<HttpMethodTransformFactory>();
             builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<MatcherPolicy, HeaderMatcherPolicy>());
             return builder;
         }

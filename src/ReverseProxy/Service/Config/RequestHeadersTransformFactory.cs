@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.ReverseProxy.Abstractions.Config;
-using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 
 namespace Microsoft.ReverseProxy.Service.Config
 {
@@ -20,7 +19,7 @@ namespace Microsoft.ReverseProxy.Service.Config
         {
             if (transformValues.TryGetValue(RequestHeadersCopyKey, out var copyHeaders))
             {
-                TransformHelpers.TryCheckTooManyParameters(context.Errors.Add, transformValues, expected: 1);
+                TransformHelpers.TryCheckTooManyParameters(context, transformValues, expected: 1);
                 if (!bool.TryParse(copyHeaders, out var _))
                 {
                     context.Errors.Add(new ArgumentException($"Unexpected value for RequestHeaderCopy: {copyHeaders}. Expected 'true' or 'false'"));
@@ -28,7 +27,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             }
             else if (transformValues.TryGetValue(RequestHeaderOriginalHostKey, out var originalHost))
             {
-                TransformHelpers.TryCheckTooManyParameters(context.Errors.Add, transformValues, expected: 1);
+                TransformHelpers.TryCheckTooManyParameters(context, transformValues, expected: 1);
                 if (!bool.TryParse(originalHost, out var _))
                 {
                     context.Errors.Add(new ArgumentException($"Unexpected value for RequestHeaderOriginalHost: {originalHost}. Expected 'true' or 'false'"));
@@ -36,7 +35,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             }
             else if (transformValues.TryGetValue(RequestHeaderKey, out var headerName))
             {
-                TransformHelpers.TryCheckTooManyParameters(context.Errors.Add, transformValues, expected: 2);
+                TransformHelpers.TryCheckTooManyParameters(context, transformValues, expected: 2);
                 if (!transformValues.TryGetValue(SetKey, out var _) && !transformValues.TryGetValue(AppendKey, out var _))
                 {
                     context.Errors.Add(new ArgumentException($"Unexpected parameters for RequestHeader: {string.Join(';', transformValues.Keys)}. Expected 'Set' or 'Append'"));

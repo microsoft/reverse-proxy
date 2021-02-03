@@ -95,7 +95,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         public static IReverseProxyBuilder AddTransforms(this IReverseProxyBuilder builder, Action<TransformBuilderContext> action)
         {
-            builder.Services.AddSingleton<ITransformProvider>(new CustomTransformProvider(action));
+            builder.Services.AddSingleton<ITransformProvider>(new ActionTransformProvider(action));
             return builder;
         }
 
