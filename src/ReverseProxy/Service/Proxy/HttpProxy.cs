@@ -643,7 +643,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 "Proxying to {targetUrl}");
 
             private static readonly Action<ILogger, ProxyError, string, Exception> _proxyError = LoggerMessage.Define<ProxyError, string>(
-                LogLevel.Information,
+                LogLevel.Error,
                 EventIds.ProxyError,
                 "{error}: {message}");
 
