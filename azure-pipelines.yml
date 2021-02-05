@@ -22,6 +22,7 @@ trigger:
   branches:
     include:
     - master
+    - main
     - release/*
 
 pr:
@@ -53,7 +54,7 @@ stages:
             name: NetCoreInternal-Pool
             queue: BuildPool.Windows.10.Amd64.VS2019.Pre
         variables:
-          
+
 
         # Only enable publishing in official builds.
         - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
@@ -72,7 +73,7 @@ stages:
             value: ''
           - name: _SignType
             value: test
-                
+
         steps:
         - checkout: self
           clean: true
@@ -103,7 +104,7 @@ stages:
         variables:
         - name: _SignType
           value: none
-          
+
         - ${{ if and(eq(variables['System.TeamProject'], 'internal'), notin(variables['Build.Reason'], 'PullRequest')) }}:
           - name: _OfficialBuildArgs
             value: -p:OfficialBuildId=$(Build.BuildNumber)
