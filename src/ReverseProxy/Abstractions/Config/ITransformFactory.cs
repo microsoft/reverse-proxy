@@ -6,7 +6,7 @@ using System.Collections.Generic;
 namespace Microsoft.ReverseProxy.Abstractions.Config
 {
     /// <summary>
-    /// Used to validate and build transforms from the given parameters.
+    /// Validates and builds transforms from the given parameters
     /// </summary>
     public interface ITransformFactory
     {
