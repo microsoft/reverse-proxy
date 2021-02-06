@@ -698,15 +698,15 @@ ResponseTrailer follows the same structure and guidance as ResponseHeader.
 
 ### RequestTransform
 
-All request transforms must derive from the abstract base class [RequestTransform](xref:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestTransform). These can freely modify the proxy `HttpRequestMessage`. Avoid reading or modifying the request body as this may disrupt the proxying flow.
+All request transforms must derive from the abstract base class [RequestTransform](xref:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestTransform). These can freely modify the proxy `HttpRequestMessage`. Avoid reading or modifying the request body as this may disrupt the proxying flow. Consider also adding a parametrized extension method on `TransformBuilderContext` for discoverability and easy of use.
 
 ### ResponseTransform
 
-All response transforms must derive from the abstract base class [ResponseTransform](xref:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseTransform). These can freely modify the client `HttpResponse`. Avoid reading or modifying the response body as this may disrupt the proxying flow.
+All response transforms must derive from the abstract base class [ResponseTransform](xref:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseTransform). These can freely modify the client `HttpResponse`. Avoid reading or modifying the response body as this may disrupt the proxying flow. Consider also adding a parametrized extension method on `TransformBuilderContext` for discoverability and easy of use.
 
 ### ResponseTrailersTransform
 
-All response trailers transforms must derive from the abstract base class [ResponseTrailersTransform](xref:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseTrailersTransform). These can freely modify the client HttpResponse trailers. These run after the response body and should not attempt to modify the response headers or body.
+All response trailers transforms must derive from the abstract base class [ResponseTrailersTransform](xref:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseTrailersTransform). These can freely modify the client HttpResponse trailers. These run after the response body and should not attempt to modify the response headers or body. Consider also adding a parametrized extension method on `TransformBuilderContext` for discoverability and easy of use.
 
 ### ITransformProvider
 
@@ -822,3 +822,17 @@ services.AddReverseProxy()
 ```
 
 `Validate` and `Build` return `true` if they've identified the given transform configuration as one that they own. A `ITransformFactory` may implement multiple transforms. Any `ProxyRoute.Transforms` entries not handled by any `ITransformFactory` will be considered configuration errors and prevent the configuration from being applied.
+
+Consider also adding parametrized extension methods on `ProxyRoute` like `WithTransformQueryValue` to facilitate programmatic route construction.
+
+```C#
+        public static ProxyRoute WithTransformQueryValue(this ProxyRoute proxyRoute, string queryKey, string value, bool append = true)
+        {
+            var type = append ? QueryTransformFactory.AppendKey : QueryTransformFactory.SetKey;
+            return proxyRoute.WithTransform(transform =>
+            {
+                transform[QueryTransformFactory.QueryValueParameterKey] = queryKey;
+                transform[type] = value;
+            });
+        }
+```
