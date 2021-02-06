@@ -34,7 +34,7 @@ X-Forwarded-Host: IncomingHost:5000
 Transforms fall into a few categories: request, response, and response trailers. Request and response body transforms are not supported by YARP but you can write middleware to do this. Request trailers are not supported because they are not supported by the underlying HttpClient.
 
 
-Transforms can be added to routes either through configuration or pragmatically.
+Transforms can be added to routes either through configuration or programmatically.
 
 ## From Configuration
 
