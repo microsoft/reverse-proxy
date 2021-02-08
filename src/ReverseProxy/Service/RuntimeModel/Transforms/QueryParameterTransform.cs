@@ -20,7 +20,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         internal string Key { get; }
 
         /// <inheritdoc/>
-        public override Task ApplyAsync(RequestTransformContext context)
+        public override ValueTask ApplyAsync(RequestTransformContext context)
         {
             if (context == null)
             {
@@ -48,7 +48,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                 }
             }
 
-            return Task.CompletedTask;
+            return default;
         }
 
         protected abstract string GetValue(RequestTransformContext context);

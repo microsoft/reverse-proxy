@@ -306,7 +306,7 @@ namespace Microsoft.ReverseProxy.Service.Config
                 BuildCalls++;
                 if (transformValues.TryGetValue(_v, out var _))
                 {
-                    context.AddResponseTrailersTransform(context => Task.CompletedTask);
+                    context.AddResponseTrailersTransform(context => default);
                     return true;
                 }
 

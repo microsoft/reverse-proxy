@@ -41,7 +41,7 @@ namespace Microsoft.ReverseProxy.Sample
 #else
                     transformContext.ProxyRequest.Properties["CustomMetadata"] = value;
 #endif
-                    return Task.CompletedTask;
+                    return default;
                 });
             }
         }

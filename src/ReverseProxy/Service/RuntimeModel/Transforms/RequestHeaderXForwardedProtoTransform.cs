@@ -21,7 +21,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         internal bool Append { get; }
 
         /// <inheritdoc/>
-        public override Task ApplyAsync(RequestTransformContext context)
+        public override ValueTask ApplyAsync(RequestTransformContext context)
         {
             if (context is null)
             {
@@ -43,7 +43,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                 AddHeader(context, HeaderName, scheme);
             }
 
-            return Task.CompletedTask;
+            return default;
         }
     }
 }
