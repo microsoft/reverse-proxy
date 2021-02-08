@@ -19,7 +19,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         /// Transforms the given response trailers. The trailers will have (optionally) already been
         /// copied to the <see cref="HttpResponse"/> and any changes should be made there.
         /// </summary>
-        public abstract Task ApplyAsync(ResponseTrailersTransformContext context);
+        public abstract ValueTask ApplyAsync(ResponseTrailersTransformContext context);
 
         /// <summary>
         /// Removes and returns the current trailer value by first checking the HttpResponse

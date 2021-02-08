@@ -41,7 +41,7 @@ namespace Microsoft.ReverseProxy.Sample
 #else
                     transformContext.ProxyRequest.Properties["CustomTransform"] = value;
 #endif
-                    return Task.CompletedTask;
+                    return default;
                 });
 
                 return true;

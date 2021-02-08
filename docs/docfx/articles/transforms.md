@@ -686,15 +686,15 @@ ResponseTrailer follows the same structure and guidance as ResponseHeader.
 
 ### AddRequestTransform
 
-[AddRequestTransform](xref:Microsoft.ReverseProxy.Abstractions.Config.TransformBuilderContextFuncExtensions) is a `TransformBuilderContext` extension method that defines a request transform as a `Func<RequestTransformContext, Task>`. This allows creating a custom request transform without implementing a `RequestTransform` derived class.
+[AddRequestTransform](xref:Microsoft.ReverseProxy.Abstractions.Config.TransformBuilderContextFuncExtensions) is a `TransformBuilderContext` extension method that defines a request transform as a `Func<RequestTransformContext, ValueTask>`. This allows creating a custom request transform without implementing a `RequestTransform` derived class.
 
 ### AddResponseTransform
 
-[AddResponseTransform](xref:Microsoft.ReverseProxy.Abstractions.Config.TransformBuilderContextFuncExtensions) is a `TransformBuilderContext` extension method that defines a response transform as a `Func<ResponseTransformContext, Task>`. This allows creating a custom response transform without implementing a `ResponseTransform` derived class.
+[AddResponseTransform](xref:Microsoft.ReverseProxy.Abstractions.Config.TransformBuilderContextFuncExtensions) is a `TransformBuilderContext` extension method that defines a response transform as a `Func<ResponseTransformContext, ValueTask>`. This allows creating a custom response transform without implementing a `ResponseTransform` derived class.
 
 ### AddResponseTrailersTransform
 
-[AddResponseTrailersTransform](xref:Microsoft.ReverseProxy.Abstractions.Config.TransformBuilderContextFuncExtensions) is a `TransformBuilderContext` extension method that defines a response trailers transform as a `Func<ResponseTrailersTransformContext, Task>`. This allows creating a custom response trailers transform without implementing a `ResponseTrailersTransform` derived class.
+[AddResponseTrailersTransform](xref:Microsoft.ReverseProxy.Abstractions.Config.TransformBuilderContextFuncExtensions) is a `TransformBuilderContext` extension method that defines a response trailers transform as a `Func<ResponseTrailersTransformContext, ValueTask>`. This allows creating a custom response trailers transform without implementing a `ResponseTrailersTransform` derived class.
 
 ### RequestTransform
 
@@ -755,7 +755,7 @@ services.AddReverseProxy()
                 transformBuildContext.AddRequestTransform(transformContext =>
                 {
                     transformContext.ProxyRequest.Headers.Add("CustomHeader", value);
-                    return Task.CompletedTask;
+                    return default;
                 });
             }
         }
@@ -810,7 +810,7 @@ services.AddReverseProxy()
                 context.AddRequestTransform(transformContext =>
                 {
                     transformContext.ProxyRequest.Headers.Add("CustomHeader", value);
-                    return Task.CompletedTask;
+                    return default;
                 });
 
                 return true; // Matched

@@ -28,14 +28,14 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         internal HttpMethod ToMethod { get; }
 
         /// <inheritdoc/>
-        public override Task ApplyAsync(RequestTransformContext context)
+        public override ValueTask ApplyAsync(RequestTransformContext context)
         {
             if (FromMethod.Equals(context.ProxyRequest.Method))
             {
                 context.ProxyRequest.Method = ToMethod;
             }
 
-            return Task.CompletedTask;
+            return default;
         }
 
         private static HttpMethod GetCanonicalizedValue(string method)

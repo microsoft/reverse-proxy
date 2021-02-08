@@ -17,7 +17,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         /// Transforms the given response. The status and headers will have (optionally) already been
         /// copied to the <see cref="HttpResponse"/> and any changes should be made there.
         /// </summary>
-        public abstract Task ApplyAsync(ResponseTransformContext context);
+        public abstract ValueTask ApplyAsync(ResponseTransformContext context);
 
         /// <summary>
         /// Removes and returns the current header value by first checking the HttpResponse

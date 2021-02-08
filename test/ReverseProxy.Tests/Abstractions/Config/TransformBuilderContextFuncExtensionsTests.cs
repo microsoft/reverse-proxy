@@ -15,7 +15,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
             var builderContext = CreateBuilderContext();
             builderContext.AddRequestTransform(context =>
             {
-                return Task.CompletedTask;
+                return default;
             });
 
             var requestTransform = Assert.Single(builderContext.RequestTransforms);
@@ -28,7 +28,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
             var builderContext = CreateBuilderContext();
             builderContext.AddResponseTransform(context =>
             {
-                return Task.CompletedTask;
+                return default;
             });
 
             var responseTransform = Assert.Single(builderContext.ResponseTransforms);
@@ -41,7 +41,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
             var builderContext = CreateBuilderContext();
             builderContext.AddResponseTrailersTransform(context =>
             {
-                return Task.CompletedTask;
+                return default;
             });
 
             var responseTrailersTransform = Assert.Single(builderContext.ResponseTrailersTransforms);
