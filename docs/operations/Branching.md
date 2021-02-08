@@ -1,12 +1,12 @@
 # Branching Tasks
 
-*This documentation is primarily for project maintainers, though contributers are welcome to read and learn about our process!*
+*This documentation is primarily for project maintainers, though contributors are welcome to read and learn about our process!*
 
 We are aiming to ship YARP previews aligned with .NET 5, since we are working on changes to the runtime that will improve the experience for YARP. As part of that, our schedule for a preview milestone has three phases:
 
-1. Open development and receiving new builds of .NET 5 - Commits are going to `master` and new builds of .NET 5 are coming regularly
-2. Open development, .NET 5 builds frozen - .NET 5 branches about a month before release, so after they branch we will switch `master` to receive builds from that release branch. Our development will continue until approximately a week before release.
-3. Branch and prepare for release - Prior to the release date, we'll branch and prepare for release. Note: in practice we haven't needed to create the release branch until the day before we plan to release. We've also not needed to set up dependency flow in our release branches because the runtime has finished producing new builds that close to release. Master always targets the runtime channel for the next release.
+1. Open development and receiving new builds of .NET 5 - Commits are going to `main` and new builds of .NET 5 are coming regularly
+2. Open development, .NET 5 builds frozen - .NET 5 branches about a month before release, so after they branch we will switch `main` to receive builds from that release branch. Our development will continue until approximately a week before release.
+3. Branch and prepare for release - Prior to the release date, we'll branch and prepare for release. Note: in practice we haven't needed to create the release branch until the day before we plan to release. We've also not needed to set up dependency flow in our release branches because the runtime has finished producing new builds that close to release. Main always targets the runtime channel for the next release.
 
 ## Scheduling
 
@@ -28,7 +28,7 @@ Running `darc` with no args will show a list of commands. The `darc help [comman
 
 Repositories can be configured to publish builds automatically to a certain channel, based on the branch. For example, most .NET repos are set up like this:
 
-* Builds out of `master` are auto-published to the `.NET 5 Dev` channel
+* Builds out of `main` are auto-published to the `.NET 5 Dev` channel
 * Builds out of `release/5.0.0-preview.X` are auto-published to the `.NET 5 Preview X` channel (where `X` is some preview number)
 
 To see the current mappings for a repository, you can run `darc get-default-channels --source-repo [repo]`, where `[repo]` is any substring that matches a full GitHub URL for a repo in the system. The easiest way to use `[repo]` is to just specify the `[owner]/[name]` form for a repo. For example:
@@ -36,7 +36,7 @@ To see the current mappings for a repository, you can run `darc get-default-chan
 ```shell
 > darc get-default-channels --source-repo dotnet/aspnetcore
 (912)  https://github.com/dotnet/aspnetcore @ release/3.1 -> .NET Core 3.1 Release
-(913)  https://github.com/dotnet/aspnetcore @ master -> .NET 5 Dev
+(913)  https://github.com/dotnet/aspnetcore @ main -> .NET 5 Dev
 (1160) https://github.com/dotnet/aspnetcore @ faster-publishing -> General Testing
 (1003) https://github.com/dotnet/aspnetcore @ wtgodbe/NonStablev2 -> General Testing
 (1089) https://github.com/dotnet/aspnetcore @ generate-akams-links -> General Testing
@@ -58,14 +58,14 @@ Subscriptions are managed using the `get-subscriptions`, `add-subscription` and 
 
 ```shell
 > darc get-subscriptions --target-repo microsoft/reverse-proxy
-https://github.com/dotnet/arcade (.NET Eng - Latest) ==> 'https://github.com/microsoft/reverse-proxy' ('master')
+https://github.com/dotnet/arcade (.NET Eng - Latest) ==> 'https://github.com/microsoft/reverse-proxy' ('main')
   - Id: 642e03bf-3679-4569-fcfc-08d7d0f045ee
   - Update Frequency: EveryWeek
   - Enabled: True
   - Batchable: False
   - Merge Policies:
     Standard
-https://github.com/dotnet/runtime (.NET 5 Preview 4) ==> 'https://github.com/microsoft/reverse-proxy' ('master')
+https://github.com/dotnet/runtime (.NET 5 Preview 4) ==> 'https://github.com/microsoft/reverse-proxy' ('main')
   - Id: 763f49c1-8016-44b6-8810-08d7e1727af8
   - Update Frequency: EveryBuild
   - Enabled: True
@@ -92,7 +92,7 @@ A number of comments will also be present, describing available values and what 
 Channel: .NET 5 Dev
 Source Repository URL: https://github.com/dotnet/runtime
 Target Repository URL: https://github.com/microsoft/reverse-proxy
-Target Branch: master
+Target Branch: main
 Update Frequency: everyBuild
 Batchable: False
 Merge Policies:
@@ -126,7 +126,7 @@ To do this, run the following commands:
 
 When we are ready to branch our code, we first need to create the branch:
 
-1. In a local clone, run `git checkout master` and `git pull origin master` to make sure you have the latest `master`
+1. In a local clone, run `git checkout main` and `git pull origin main` to make sure you have the latest `main`
 2. Run `git checkout -b release/1.0.0-previewX` where `X` is the YARP preview number.
 3. Run `git push origin release/1.0.0-previewX` to push the branch to the server.
 
@@ -149,7 +149,7 @@ Merge Policies:
 
 3. Save and close the editor window.
 
-Restore the `master` branch to pulling the latest bits from .NET 5:
+Restore the `main` branch to pulling the latest bits from .NET 5:
 
 1. Run `darc get-subscriptions --target-repo microsoft/reverse-proxy --source-repo dotnet/runtime` to get the subscription from `dotnet/runtime` to `microsoft/reverse-proxy`
 2. Copy the `Id` value
@@ -160,7 +160,7 @@ Restore the `master` branch to pulling the latest bits from .NET 5:
 6. Answer `y` to `Trigger this subscription immediately?` and a PR will be opened to update versions to the latest ones in that channel.
 7. Merge the PR as soon as feasible.
 
-Finally, update branding in `master`:
+Finally, update branding in `main`:
 
 1. Edit the file [`eng/Version.props`](../../eng/Version.props)
 2. Set `PreReleaseVersionLabel` to `preview.X` (where `X` is the next preview number)
