@@ -26,7 +26,7 @@ namespace Microsoft.ReverseProxy.Service.Management
     /// in a thread-safe manner while avoiding locks on the hot path.
     /// </summary>
     /// <remarks>
-    /// This takes inspiration from <a href="https://github.com/dotnet/aspnetcore/blob/main/src/Mvc/Mvc.Core/src/Routing/ActionEndpointDataSourceBase.cs"/>.
+    /// This takes inspiration from <a https://github.com/dotnet/aspnetcore/blob/cbe16474ce9db7ff588aed89596ff4df5c3f62e1/src/Mvc/Mvc.Core/src/Routing/ActionEndpointDataSourceBase.cs"/>.
     /// </remarks>
     internal class ProxyConfigManager : EndpointDataSource, IDisposable
     {
