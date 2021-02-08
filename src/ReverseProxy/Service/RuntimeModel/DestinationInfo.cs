@@ -39,7 +39,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         public DestinationConfig Config
         {
             get => _config;
-            internal set => _config = value ?? throw new ArgumentNullException(nameof(value));
+            set => _config = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         /// <summary>

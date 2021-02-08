@@ -5,7 +5,7 @@ using Microsoft.ReverseProxy.RuntimeModel;
 
 namespace Microsoft.ReverseProxy.Service.Management
 {
-    internal sealed class DestinationManager : ItemManagerBase<DestinationInfo>, IDestinationManager
+    public sealed class DestinationManager : ItemManagerBase<DestinationInfo>, IDestinationManager
     {
         protected override DestinationInfo InstantiateItem(string itemId)
         {

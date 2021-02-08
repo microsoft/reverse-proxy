@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace Microsoft.ReverseProxy.Service.Management
 {
-    internal abstract class ItemManagerBase<T> : IItemManager<T>
+    public abstract class ItemManagerBase<T> : IItemManager<T>
         where T : class
     {
         private readonly object _lockObject = new object();

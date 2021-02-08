@@ -10,7 +10,7 @@ namespace Microsoft.ReverseProxy.Service.Management
     /// Manages the runtime state of items.
     /// </summary>
     /// <typeparam name="T">Item type.</typeparam>
-    internal interface IItemManager<T>
+    public interface IItemManager<T>
         where T : class
     {
         /// <summary>

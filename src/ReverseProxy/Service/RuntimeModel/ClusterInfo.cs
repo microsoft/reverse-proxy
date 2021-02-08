@@ -26,7 +26,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         private volatile ClusterConfig _config;
         private readonly SemaphoreSlim _updateRequests = new SemaphoreSlim(2);
 
-        internal ClusterInfo(string clusterId, IDestinationManager destinationManager)
+        public ClusterInfo(string clusterId, IDestinationManager destinationManager)
         {
             ClusterId = clusterId ?? throw new ArgumentNullException(nameof(clusterId));
             DestinationManager = destinationManager ?? throw new ArgumentNullException(nameof(destinationManager));
@@ -41,10 +41,10 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         public ClusterConfig Config
         {
             get => _config;
-            internal set => _config = value ?? throw new ArgumentNullException(nameof(value));
+            set => _config = value ?? throw new ArgumentNullException(nameof(value));
         }
 
-        internal IDestinationManager DestinationManager { get; }
+        public IDestinationManager DestinationManager { get; }
 
         /// <summary>
         /// Encapsulates parts of a cluster that can change atomically
