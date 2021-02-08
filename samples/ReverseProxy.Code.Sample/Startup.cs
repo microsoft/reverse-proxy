@@ -3,10 +3,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net.Http.Headers;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.ReverseProxy.Abstractions;
+using Microsoft.ReverseProxy.Abstractions.Config;
 using Microsoft.ReverseProxy.Middleware;
 using Microsoft.ReverseProxy.Telemetry.Consumption;
 
@@ -17,16 +19,6 @@ namespace Microsoft.ReverseProxy.Sample
     /// </summary>
     public class Startup
     {
-        private readonly IConfiguration _configuration;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Startup" /> class.
-        /// </summary>
-        public Startup(IConfiguration configuration)
-        {
-            _configuration = configuration;
-        }
-
         /// <summary>
         /// This method gets called by the runtime. Use this method to add services to the container.
         /// </summary>
@@ -59,7 +51,29 @@ namespace Microsoft.ReverseProxy.Sample
             };
 
             services.AddReverseProxy()
-                .LoadFromMemory(routes, clusters);
+                .LoadFromMemory(routes, clusters)
+                .AddTransformFactory<MyTransformFactory>()
+                .AddTransforms<MyTransformProvider>()
+                .AddTransforms(transformBuilderContext =>
+                {
+                    // For each route+cluster pair decide if we want to add transforms, and if so, which?
+                    // This logic is re-run each time a route is rebuilt.
+
+                    transformBuilderContext.AddPathPrefix("/prefix");
+
+                    // Only do this for routes that require auth.
+                    if (string.Equals("token", transformBuilderContext.Route.AuthorizationPolicy))
+                    {
+                        transformBuilderContext.AddRequestTransform(async transformContext =>
+                        {
+                            // AuthN and AuthZ will have already been completed after request routing.
+                            var ticket = await transformContext.HttpContext.AuthenticateAsync("token");
+                            var tokenService = transformContext.HttpContext.RequestServices.GetRequiredService<TokenService>();
+                            var token = await tokenService.GetAuthTokenAsync(ticket.Principal);
+                            transformContext.ProxyRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                        });
+                    }
+                });
 
             services.AddHttpContextAccessor();
             services.AddSingleton<IProxyMetricsConsumer, ProxyMetricsConsumer>();

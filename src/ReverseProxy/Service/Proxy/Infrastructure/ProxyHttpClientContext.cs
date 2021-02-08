@@ -19,7 +19,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
         public string ClusterId { get; set; }
 
         /// <summary>
-        /// Old <see cref="ProxyHttpClientOptions"/> instance
+        /// Old ProxyHttpClientOptions instance
         /// from which the <see cref="OldClient"/> was created.
         /// Can be null if a client is getting constructed for the first time.
         /// </summary>
@@ -38,7 +38,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
         public HttpMessageInvoker OldClient { get; set; }
 
         /// <summary>
-        /// New <see cref="ProxyHttpClientOptions"/> instance
+        /// New ProxyHttpClientOptions instance
         /// specifying the settings for a new client.
         /// CANNOT be null.
         /// </summary>

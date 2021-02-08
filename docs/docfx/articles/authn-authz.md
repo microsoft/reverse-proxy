@@ -9,7 +9,7 @@ The reverse proxy can be used to authenticate and authorize requests before they
 No authentication or authorization is performed on requests unless enabled in the route or application configuration.
 
 ## Configuration
-Authorization policies can be specified per route via [ProxyRoute.AuthorizationPolicy](xref:Microsoft.ReverseProxy.Abstractions.ProxyRoute.AuthorizationPolicy) and can be bound from the `Routes` sections of the config file. As with other route properties, this can be modified and reloaded without restarting the proxy. Policy names are case insensitive.
+Authorization policies can be specified per route via [ProxyRoute.AuthorizationPolicy](xref:Microsoft.ReverseProxy.Abstractions.ProxyRoute) and can be bound from the `Routes` sections of the config file. As with other route properties, this can be modified and reloaded without restarting the proxy. Policy names are case insensitive.
 
 Example:
 ```JSON
@@ -101,12 +101,14 @@ These protocols are commonly used with remote identity providers. The authentica
 
 ### Windows, Negotiate, NTLM, Kerbereos
 
-These authentication types are often bound to a specific connection. They are not supported as means of authenticating a user in a destination server behind the YARP proxy (see [#166](https://github.com/microsoft/reverse-proxy/issues/166). They can be used to authenticate an incoming request to the proxy, but that identity information will have to be communicated to the destination server in another form.
+These authentication types are often bound to a specific connection. They are not supported as means of authenticating a user in a destination server behind the YARP proxy (see [#166](https://github.com/microsoft/reverse-proxy/issues/166). They can be used to authenticate an incoming request to the proxy, but that identity information will have to be communicated to the destination server in another form. They can also be used to authenticate the proxy to the destination servers, but only as the proxy's own user, impersonating the client is not supported.
 
 ### Client Certificates
 
-Client certificates are a TLS feature and are negotiated as part of a connection. See [these docs](https://docs.microsoft.com/en-us/aspnet/core/security/authentication/certauth) for additional information. The certificate can be forwarded to the destination server as an HTTP header using the [ClientCert](/articles/transforms.html#clientcert) transform.
+Client certificates are a TLS feature and are negotiated as part of a connection. See [these docs](https://docs.microsoft.com/en-us/aspnet/core/security/authentication/certauth) for additional information. The certificate can be forwarded to the destination server as an HTTP header using the [ClientCert](transforms.md#clientcert) transform.
 
 ### Swapping authentication types
 
-Authentication types like Windows that don't flow naturally to the destination server will need to be converted in the proxy to an alternate form. For example a JWT bearer token can be created with the user information and set on the request. Detailed examples can be developed for this scenario if there is significant interest. We need more community feedback on how you want to convert and flow identity information.
+Authentication types like Windows that don't flow naturally to the destination server will need to be converted in the proxy to an alternate form. For example a JWT bearer token can be created with the user information and set on the proxy request.
+
+These swaps can be performed using [custom request transforms](transforms.md#from-code). Detailed examples can be developed for specific scenarios if there is enough community interest. We need more community feedback on how you want to convert and flow identity information.
