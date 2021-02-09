@@ -527,7 +527,7 @@ namespace Microsoft.ReverseProxy.Service.Management
 
         private RouteConfig BuildRouteConfig(ProxyRoute source, ClusterInfo cluster, RouteInfo runtimeRoute)
         {
-            var transforms = _transformBuilder.Build(source, cluster.Config.Options);
+            var transforms = _transformBuilder.Build(source, cluster?.Config?.Options);
 
             var newRouteConfig = new RouteConfig(
                 runtimeRoute,

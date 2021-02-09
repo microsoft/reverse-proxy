@@ -26,6 +26,10 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
         public void ValidateCluster(TransformValidationContext context)
         {
             // Other affinity validation logic is covered by ConfigValidator.ValidateSessionAffinity.
+            if (!(context.Cluster.SessionAffinity?.Enabled ?? false))
+            {
+                return;
+            }
 
             var affinityMode = context.Cluster.SessionAffinity.Mode;
             if (string.IsNullOrEmpty(affinityMode))
@@ -42,8 +46,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
 
         public void Apply(TransformBuilderContext context)
         {
-            var cluster = context.Cluster;
-            var options = cluster.SessionAffinity;
+            var options = context.Cluster?.SessionAffinity;
 
             if ((options?.Enabled).GetValueOrDefault())
             {
