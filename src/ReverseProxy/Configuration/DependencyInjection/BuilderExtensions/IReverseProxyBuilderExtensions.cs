@@ -84,6 +84,7 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
                 new ServiceDescriptor(typeof(ISessionAffinityProvider), typeof(CookieSessionAffinityProvider), ServiceLifetime.Singleton),
                 new ServiceDescriptor(typeof(ISessionAffinityProvider), typeof(CustomHeaderSessionAffinityProvider), ServiceLifetime.Singleton)
             });
+            builder.AddTransforms<AffinitizeTransformProvider>();
 
             return builder;
         }
