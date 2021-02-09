@@ -17,7 +17,12 @@ namespace Microsoft.ReverseProxy.Service
         /// Validates that each transform for the given route is known and has the expected parameters. All transforms are validated
         /// so all errors can be reported.
         /// </summary>
-        IReadOnlyList<Exception> Validate(ProxyRoute route);
+        IReadOnlyList<Exception> ValidateRoute(ProxyRoute route);
+
+        /// <summary>
+        /// Validates that any cluster data needed for transforms is valid.
+        /// </summary>
+        IReadOnlyList<Exception> ValidateCluster(Cluster cluster);
 
         /// <summary>
         /// Builds the transforms for the given route into executable rules.

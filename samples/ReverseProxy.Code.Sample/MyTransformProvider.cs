@@ -10,7 +10,7 @@ namespace Microsoft.ReverseProxy.Sample
 {
     internal class MyTransformProvider : ITransformProvider
     {
-        public void Validate(TransformValidationContext context)
+        public void ValidateRoute(TransformValidationContext context)
         {
             // Check all routes for a custom property and validate the associated transform data.
             string value = null;

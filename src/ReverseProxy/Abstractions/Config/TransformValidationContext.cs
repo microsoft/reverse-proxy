@@ -22,6 +22,11 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         public ProxyRoute Route { get; init; }
 
         /// <summary>
+        /// The cluster configuration that may be used when creating transforms.
+        /// </summary>
+        public Cluster Cluster { get; init; }
+
+        /// <summary>
         /// The accumulated list of validation errors for this route.
         /// Add transform validation errors here.
         /// </summary>

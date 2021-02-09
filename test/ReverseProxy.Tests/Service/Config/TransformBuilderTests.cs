@@ -40,7 +40,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             var transformBuilder = CreateTransformBuilder();
 
             var route = new ProxyRoute { Transforms = transforms };
-            var errors = transformBuilder.Validate(route);
+            var errors = transformBuilder.ValidateRoute(route);
             Assert.Empty(errors);
 
             var results = transformBuilder.BuildInternal(route);
@@ -75,7 +75,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             };
 
             var route = new ProxyRoute() { Transforms = transforms };
-            var errors = transformBuilder.Validate(route);
+            var errors = transformBuilder.ValidateRoute(route);
             var error = Assert.Single(errors);
             Assert.Equal("Unknown transform: ", error.Message);
 
@@ -102,7 +102,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             };
 
             var route = new ProxyRoute() { Transforms = transforms };
-            var errors = transformBuilder.Validate(route);
+            var errors = transformBuilder.ValidateRoute(route);
             //All errors reported
             Assert.Equal(2, errors.Count);
             Assert.Equal("Unknown transform: string1;string2", errors.First().Message);
@@ -125,7 +125,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             {
                 transform["2"] = "B";
             });
-            var errors = builder.Validate(route);
+            var errors = builder.ValidateRoute(route);
             Assert.Empty(errors);
             Assert.Equal(1, factory1.ValidationCalls);
             Assert.Equal(1, factory2.ValidationCalls);
@@ -149,7 +149,7 @@ namespace Microsoft.ReverseProxy.Service.Config
                 Array.Empty<ITransformFactory>(), new[] { provider1, provider2, provider3 });
 
             var route = new ProxyRoute();
-            var errors = builder.Validate(route);
+            var errors = builder.ValidateRoute(route);
             Assert.Empty(errors);
             Assert.Equal(1, provider1.ValidationCalls);
             Assert.Equal(1, provider2.ValidationCalls);
@@ -180,7 +180,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             };
 
             var route = new ProxyRoute() { Transforms = transforms };
-            var errors = transformBuilder.Validate(route);
+            var errors = transformBuilder.ValidateRoute(route);
             Assert.Empty(errors);
 
             var results = transformBuilder.BuildInternal(route);
@@ -216,7 +216,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             };
 
             var route = new ProxyRoute() { Transforms = transforms };
-            var errors = transformBuilder.Validate(route);
+            var errors = transformBuilder.ValidateRoute(route);
             Assert.Empty(errors);
 
             var results = transformBuilder.BuildInternal(route);
@@ -261,7 +261,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             };
 
             var route = new ProxyRoute() { Transforms = transforms };
-            var errors = transformBuilder.Validate(route);
+            var errors = transformBuilder.ValidateRoute(route);
             Assert.Empty(errors);
 
             var results = transformBuilder.BuildInternal(route);
@@ -319,7 +319,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             public int ValidationCalls { get; set; }
             public int ApplyCalls { get; set; }
 
-            public void Validate(TransformValidationContext context)
+            public void ValidateRoute(TransformValidationContext context)
             {
                 Assert.NotNull(context.Services);
                 Assert.NotNull(context.Route);

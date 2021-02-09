@@ -12,7 +12,13 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         /// Validates any route data needed for transforms.
         /// </summary>
         /// <param name="context">The context to add any generated errors to.</param>
-        void Validate(TransformValidationContext context);
+        void ValidateRoute(TransformValidationContext context);
+
+        /// <summary>
+        /// Validates any cluster data needed for transforms.
+        /// </summary>
+        /// <param name="context">The context to add any generated errors to.</param>
+        void ValidateCluster(TransformValidationContext context);
 
         /// <summary>
         /// Inspect the given route and conditionally add transforms.

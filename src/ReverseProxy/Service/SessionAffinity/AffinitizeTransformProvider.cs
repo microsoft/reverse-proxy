@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Microsoft.ReverseProxy.Abstractions.Config;
 using Microsoft.ReverseProxy.Utilities;
@@ -16,12 +15,29 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
 
         public AffinitizeTransformProvider(IEnumerable<ISessionAffinityProvider> sessionAffinityProviders)
         {
-            _sessionAffinityProviders = sessionAffinityProviders?.ToDictionaryByUniqueId(p => p.Mode) ?? throw new ArgumentNullException(nameof(sessionAffinityProviders));
+            _sessionAffinityProviders = sessionAffinityProviders?.ToDictionaryByUniqueId(p => p.Mode)
+                ?? throw new ArgumentNullException(nameof(sessionAffinityProviders));
         }
 
-        public void Validate(TransformValidationContext context)
+        public void ValidateRoute(TransformValidationContext context)
         {
-            throw new NotImplementedException();
+        }
+
+        public void ValidateCluster(TransformValidationContext context)
+        {
+            // Other affinity validation logic is covered by ConfigValidator.ValidateSessionAffinity.
+
+            var affinityMode = context.Cluster.SessionAffinity.Mode;
+            if (string.IsNullOrEmpty(affinityMode))
+            {
+                // The default.
+                affinityMode = SessionAffinityConstants.Modes.Cookie;
+            }
+
+            if (!_sessionAffinityProviders.ContainsKey(affinityMode))
+            {
+                context.Errors.Add(new ArgumentException($"No matching {nameof(ISessionAffinityProvider)} found for the session affinity mode '{affinityMode}' set on the cluster '{context.Cluster.Id}'."));
+            }
         }
 
         public void Apply(TransformBuilderContext context)

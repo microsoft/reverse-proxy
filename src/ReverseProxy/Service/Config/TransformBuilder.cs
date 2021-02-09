@@ -32,7 +32,7 @@ namespace Microsoft.ReverseProxy.Service.Config
         }
 
         /// <inheritdoc/>
-        public IReadOnlyList<Exception> Validate(ProxyRoute route)
+        public IReadOnlyList<Exception> ValidateRoute(ProxyRoute route)
         {
             var context = new TransformValidationContext()
             {
@@ -65,7 +65,25 @@ namespace Microsoft.ReverseProxy.Service.Config
             // Let the app add any more validation it wants.
             foreach (var transformProvider in _providers)
             {
-                transformProvider.Validate(context);
+                transformProvider.ValidateRoute(context);
+            }
+
+            return context.Errors.ToList();
+        }
+
+        /// <inheritdoc/>
+        public IReadOnlyList<Exception> ValidateCluster(Cluster cluster)
+        {
+            var context = new TransformValidationContext()
+            {
+                Services = _services,
+                Cluster = cluster,
+            };
+
+            // Let the app add any more validation it wants.
+            foreach (var transformProvider in _providers)
+            {
+                transformProvider.ValidateCluster(context);
             }
 
             return context.Errors.ToList();
