@@ -155,7 +155,14 @@ namespace Microsoft.ReverseProxy.Service.Config
             Assert.Equal(1, provider2.ValidateRouteCalls);
             Assert.Equal(1, provider3.ValidateRouteCalls);
 
-            var transforms = builder.BuildInternal(route, new Cluster());
+            var cluster = new Cluster();
+            errors = builder.ValidateCluster(cluster);
+            Assert.Empty(errors);
+            Assert.Equal(1, provider1.ValidateClusterCalls);
+            Assert.Equal(1, provider2.ValidateClusterCalls);
+            Assert.Equal(1, provider3.ValidateClusterCalls);
+
+            var transforms = builder.BuildInternal(route, cluster);
             Assert.Equal(1, provider1.ApplyCalls);
             Assert.Equal(1, provider2.ApplyCalls);
             Assert.Equal(1, provider3.ApplyCalls);
@@ -343,6 +350,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             {
                 Assert.NotNull(context.Services);
                 Assert.NotNull(context.Route);
+                Assert.NotNull(context.Cluster);
                 ApplyCalls++;
                 context.AddResponseTrailer("key", "value");
             }
