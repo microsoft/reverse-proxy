@@ -572,28 +572,6 @@ namespace Microsoft.ReverseProxy.Service.Tests
         }
 
         [Fact]
-        public async Task EnableSession_InvalidMode_Fails()
-        {
-            var services = CreateServices();
-            var validator = services.GetRequiredService<IConfigValidator>();
-
-            var cluster = new Cluster
-            {
-                Id = "cluster1",
-                SessionAffinity = new SessionAffinityOptions()
-                {
-                    Enabled = true,
-                    Mode = "Invalid"
-                }
-            };
-
-            var errors = await validator.ValidateClusterAsync(cluster);
-
-            var ex = Assert.Single(errors);
-            Assert.Equal("No matching ISessionAffinityProvider found for the session affinity mode 'Invalid' set on the cluster 'cluster1'.", ex.Message);
-        }
-
-        [Fact]
         public async Task EnableSession_InvalidPolicy_Fails()
         {
             var services = CreateServices();

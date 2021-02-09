@@ -3,7 +3,6 @@
 
 using System;
 using System.Net.Http;
-using System.Threading.Tasks;
 using Microsoft.ReverseProxy.Abstractions.Config;
 
 namespace Microsoft.ReverseProxy.Sample

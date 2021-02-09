@@ -43,7 +43,7 @@ namespace Microsoft.ReverseProxy.Utilities
 
             if (!services.TryGetValue(lookup, out var result))
             {
-                throw new ArgumentException($"No {typeof(T)} was found for the id {lookup}.", nameof(id));
+                throw new ArgumentException($"No {typeof(T)} was found for the id '{lookup}'.", nameof(id));
             }
             return result;
         }

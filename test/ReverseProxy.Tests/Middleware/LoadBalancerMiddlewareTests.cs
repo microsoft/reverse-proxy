@@ -50,7 +50,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             var sut = CreateMiddleware();
 
             var ex = await Assert.ThrowsAsync<ArgumentException>(async () => await sut.Invoke(context));
-            Assert.Equal($"No {typeof(ILoadBalancingPolicy)} was found for the id {PolicyName}. (Parameter 'id')", ex.Message);
+            Assert.Equal($"No {typeof(ILoadBalancingPolicy)} was found for the id '{PolicyName}'. (Parameter 'id')", ex.Message);
         }
 
         [Fact]
