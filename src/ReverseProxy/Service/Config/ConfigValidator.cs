@@ -47,7 +47,7 @@ namespace Microsoft.ReverseProxy.Service
             @"(?:" + DnsLabelRegexPattern + @"\.)*" +
             DnsLabelRegexPattern +
             @"$";
-        private static readonly Regex _hostNameRegex = new Regex(HostNameRegexPattern);
+        private static readonly Regex _hostNameRegex = new Regex(HostNameRegexPattern, RegexOptions.Compiled);
 
         private static readonly HashSet<string> _validMethods = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
@@ -94,7 +94,7 @@ namespace Microsoft.ReverseProxy.Service
                 errors.Add(new ArgumentException("Missing Route Id."));
             }
 
-            errors.AddRange(_transformBuilder.Validate(route.Transforms));
+            errors.AddRange(_transformBuilder.Validate(route));
             await ValidateAuthorizationPolicyAsync(errors, route.AuthorizationPolicy, route.RouteId);
             await ValidateCorsPolicyAsync(errors, route.CorsPolicy, route.RouteId);
 

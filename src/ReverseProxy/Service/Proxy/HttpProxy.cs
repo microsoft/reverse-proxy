@@ -285,7 +285,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             var request = context.Request;
             destinationRequest.RequestUri ??= RequestUtilities.MakeDestinationAddress(destinationPrefix, request.Path, request.QueryString);
             
-            Log.Proxying(_logger, destinationRequest.RequestUri.AbsoluteUri);
+            Log.Proxying(_logger, destinationRequest.RequestUri);
 
             // TODO: What if they replace the HttpContent object? That would mess with our tracking and error handling.
             return (destinationRequest, requestContent);
@@ -652,9 +652,13 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 _httpDowngradeDetected(logger, null);
             }
 
-            public static void Proxying(ILogger logger, string targetUrl)
+            public static void Proxying(ILogger logger, Uri targetUrl)
             {
-                _proxying(logger, targetUrl, null);
+                // Avoid computing the AbsoluteUri unless logging is enabled
+                if (logger.IsEnabled(LogLevel.Information))
+                {
+                    _proxying(logger, targetUrl.AbsoluteUri, null);
+                }
             }
 
             public static void ErrorProxying(ILogger logger, ProxyError error, Exception ex)

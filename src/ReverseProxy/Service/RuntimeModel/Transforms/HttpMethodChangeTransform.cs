@@ -7,9 +7,17 @@ using Microsoft.AspNetCore.Http;
 
 namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 {
-    internal class HttpMethodTransform : RequestTransform
+    /// <summary>
+    /// Replaces the HTTP method if it matches.
+    /// </summary>
+    public class HttpMethodChangeTransform : RequestTransform
     {
-        public HttpMethodTransform(string fromMethod, string toMethod)
+        /// <summary>
+        /// Creates a new transform.
+        /// </summary>
+        /// <param name="fromMethod">The method to match.</param>
+        /// <param name="toMethod">The method to it change to.</param>
+        public HttpMethodChangeTransform(string fromMethod, string toMethod)
         {
             FromMethod = GetCanonicalizedValue(fromMethod);
             ToMethod = GetCanonicalizedValue(toMethod);
@@ -19,14 +27,15 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 
         internal HttpMethod ToMethod { get; }
 
-        public override Task ApplyAsync(RequestTransformContext context)
+        /// <inheritdoc/>
+        public override ValueTask ApplyAsync(RequestTransformContext context)
         {
             if (FromMethod.Equals(context.ProxyRequest.Method))
             {
                 context.ProxyRequest.Method = ToMethod;
             }
 
-            return Task.CompletedTask;
+            return default;
         }
 
         private static HttpMethod GetCanonicalizedValue(string method)

@@ -19,17 +19,17 @@ namespace Microsoft.ReverseProxy.ServiceFabric
     // TODO: this is probably something that can be used in other integration modules apart from Service Fabric. Consider extracting to a general class.
     internal static class LabelsParser
     {
-        private static readonly Regex _allowedRouteNamesRegex = new Regex("^[a-zA-Z0-9_-]+$");
+        private static readonly Regex _allowedRouteNamesRegex = new Regex("^[a-zA-Z0-9_-]+$", RegexOptions.Compiled);
 
         /// <summary>
         /// Requires all header match names to follow the .[0]. pattern to simulate indexing in an array
         /// </summary>
-        private static readonly Regex _allowedHeaderNamesRegex = new Regex(@"^\[\d\d*\]$");
+        private static readonly Regex _allowedHeaderNamesRegex = new Regex(@"^\[\d\d*\]$", RegexOptions.Compiled);
 
 
         /// Requires all transform names to follow the .[0]. pattern to simulate indexing in an array
         /// </summary>
-        private static readonly Regex _allowedTransformNamesRegex = new Regex(@"^\[\d\d*\]$");
+        private static readonly Regex _allowedTransformNamesRegex = new Regex(@"^\[\d\d*\]$", RegexOptions.Compiled);
 
         // Look for route IDs
         private const string RoutesLabelsPrefix = "YARP.Routes.";
@@ -92,7 +92,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             }
 
             // Build the routes
-            var routes = new List<ProxyRoute>();
+            var routes = new List<ProxyRoute>(routesNames.Count);
             foreach (var routeNamePair in routesNames)
             {
                 string hosts = null;
@@ -276,7 +276,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                 },
                 HttpRequest = new RequestProxyOptions
                 {
-                    Timeout = ToNullableTimeSpan(GetLabel<double?>(labels, "YARP.Backend.HttpRequest.Timeout", null)),
+                    Timeout = GetLabel<TimeSpan?>(labels, "YARP.Backend.HttpRequest.Timeout", null),
                     Version = !string.IsNullOrEmpty(versionLabel) ? Version.Parse(versionLabel + (versionLabel.Contains('.') ? "" : ".0")) : null,
 #if NET
                     VersionPolicy = !string.IsNullOrEmpty(versionLabel) ? (HttpVersionPolicy)Enum.Parse(typeof(HttpVersionPolicy), versionPolicyLabel) : null
@@ -287,8 +287,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                     Active = new ActiveHealthCheckOptions
                     {
                         Enabled = GetLabel(labels, "YARP.Backend.HealthCheck.Active.Enabled", false),
-                        Interval = ToNullableTimeSpan(GetLabel<double?>(labels, "YARP.Backend.HealthCheck.Active.Interval", null)),
-                        Timeout = ToNullableTimeSpan(GetLabel<double?>(labels, "YARP.Backend.HealthCheck.Active.Timeout", null)),
+                        Interval = GetLabel<TimeSpan?>(labels, "YARP.Backend.HealthCheck.Active.Interval", null),
+                        Timeout = GetLabel<TimeSpan?>(labels, "YARP.Backend.HealthCheck.Active.Timeout", null),
                         Path = GetLabel<string>(labels, "YARP.Backend.HealthCheck.Active.Path", null),
                         Policy = GetLabel<string>(labels, "YARP.Backend.HealthCheck.Active.Policy", null)
                     },
@@ -296,7 +296,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                     {
                         Enabled = GetLabel(labels, "YARP.Backend.HealthCheck.Passive.Enabled", false),
                         Policy = GetLabel<string>(labels, "YARP.Backend.HealthCheck.Passive.Policy", null),
-                        ReactivationPeriod = ToNullableTimeSpan(GetLabel<double?>(labels, "YARP.Backend.HealthCheck.Passive.ReactivationPeriod", null))
+                        ReactivationPeriod = GetLabel<TimeSpan?>(labels, "YARP.Backend.HealthCheck.Passive.ReactivationPeriod", null)
                     }
                 },
                 Metadata = clusterMetadata,
@@ -305,10 +305,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             return cluster;
         }
 
-        private static TimeSpan? ToNullableTimeSpan(double? seconds)
-        {
-            return seconds.HasValue ? (TimeSpan?)TimeSpan.FromSeconds(seconds.Value) : null;
-        }
 
         private static string GetClusterId(Uri serviceName, Dictionary<string, string> labels)
         {

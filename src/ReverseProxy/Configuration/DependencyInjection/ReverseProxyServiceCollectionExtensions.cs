@@ -6,9 +6,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.ReverseProxy;
+using Microsoft.ReverseProxy.Abstractions.Config;
 using Microsoft.ReverseProxy.Configuration;
 using Microsoft.ReverseProxy.Configuration.DependencyInjection;
 using Microsoft.ReverseProxy.Service;
+using Microsoft.ReverseProxy.Service.Config;
 using Microsoft.ReverseProxy.Service.Proxy;
 using Microsoft.ReverseProxy.Utilities;
 
@@ -82,7 +84,39 @@ namespace Microsoft.Extensions.DependencyInjection
                 throw new ArgumentNullException(nameof(builder));
             }
 
-            builder.Services.AddSingleton<IProxyConfigFilter, TService>();
+            builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IProxyConfigFilter, TService>());
+            return builder;
+        }
+
+        /// <summary>
+        /// Provides a callback that will be run for each route to conditionally add transforms.
+        /// <see cref="AddTransforms(IReverseProxyBuilder, Action{TransformBuilderContext})"/> can be called multiple times to
+        /// provide multiple callbacks.
+        /// </summary>
+        public static IReverseProxyBuilder AddTransforms(this IReverseProxyBuilder builder, Action<TransformBuilderContext> action)
+        {
+            builder.Services.AddSingleton<ITransformProvider>(new ActionTransformProvider(action));
+            return builder;
+        }
+
+        /// <summary>
+        /// Provides a <see cref="ITransformProvider"/> implementation that will be run for each route to conditionally add transforms.
+        /// <see cref="AddTransforms{T}(IReverseProxyBuilder)"/> can be called multiple times to provide multiple distinct types.
+        /// </summary>
+        public static IReverseProxyBuilder AddTransforms<T>(this IReverseProxyBuilder builder) where T : class, ITransformProvider
+        {
+            builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<ITransformProvider, T>());
+            return builder;
+        }
+
+        /// <summary>
+        /// Adds a <see cref="ITransformFactory"/> implementation that will be used to read route transform config and generate
+        /// the associated transform actions. <see cref="AddTransformFactory{T}(IReverseProxyBuilder)"/> can be called multiple
+        /// times to provide multiple distinct types.
+        /// </summary>
+        public static IReverseProxyBuilder AddTransformFactory<T>(this IReverseProxyBuilder builder) where T : class, ITransformFactory
+        {
+            builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<ITransformFactory, T>());
             return builder;
         }
     }
