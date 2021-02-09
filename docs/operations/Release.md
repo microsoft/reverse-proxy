@@ -68,7 +68,11 @@ The packages will be pushed and when the "NuGet.org" stage turns green, the pack
 
 ## Tag the commit
 
-Create and push a git tag for the commit associated with the final build (not necessarily the HEAD of the current release branch). See prior tags for the preferred format. Use a lightweight tag, not annotated, e.g.: `git tag v1.0.0-preview6`.
+Create and push a git tag for the commit associated with the final build (not necessarily the HEAD of the current release branch). See prior tags for the preferred format. Use a lightweight tag, not annotated.
+
+`git tag v1.0.0-previewX`
+
+`git push origin --tags`
 
 ## Draft release notes
 
