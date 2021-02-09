@@ -22,6 +22,6 @@ namespace Microsoft.ReverseProxy.Service
         /// <summary>
         /// Builds the transforms for the given route into executable rules.
         /// </summary>
-        HttpTransformer Build(ProxyRoute route);
+        HttpTransformer Build(ProxyRoute route, Cluster cluster);
     }
 }

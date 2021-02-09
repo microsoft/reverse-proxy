@@ -72,13 +72,13 @@ namespace Microsoft.ReverseProxy.Service.Config
         }
 
         /// <inheritdoc/>
-        public HttpTransformer Build(ProxyRoute route)
+        public HttpTransformer Build(ProxyRoute route, Cluster cluster)
         {
-            return BuildInternal(route);
+            return BuildInternal(route, cluster);
         }
 
         // This is separate from Build for testing purposes.
-        internal StructuredTransformer BuildInternal(ProxyRoute route)
+        internal StructuredTransformer BuildInternal(ProxyRoute route, Cluster cluster)
         {
             var rawTransforms = route.Transforms;
 
@@ -86,6 +86,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             {
                 Services = _services,
                 Route = route,
+                Cluster = cluster,
             };
 
             if (rawTransforms?.Count > 0)
