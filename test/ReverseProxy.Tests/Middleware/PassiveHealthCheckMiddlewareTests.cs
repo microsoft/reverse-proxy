@@ -134,7 +134,7 @@ namespace Microsoft.ReverseProxy.Middleware
                         }
                     }
                 },
-                null);
+                null, null);
             var clusterInfo = new ClusterInfo(id, new DestinationManager());
             clusterInfo.Config = clusterConfig;
             clusterInfo.DestinationManager.GetOrCreateItem("destination0", d => { });

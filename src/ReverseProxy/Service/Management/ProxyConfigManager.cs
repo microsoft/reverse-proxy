@@ -12,10 +12,13 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Microsoft.ReverseProxy.Abstractions;
+using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.HealthChecks;
+using Microsoft.ReverseProxy.Service.LoadBalancing;
 using Microsoft.ReverseProxy.Service.Proxy;
 using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
+using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Service.Management
 {
@@ -42,6 +45,7 @@ namespace Microsoft.ReverseProxy.Service.Management
         private readonly ITransformBuilder _transformBuilder;
         private readonly List<Action<EndpointBuilder>> _conventions;
         private readonly IActiveHealthCheckMonitor _activeHealthCheckMonitor;
+        private readonly IDictionary<string, ILoadBalancingPolicy> _loadBalancingPolicies;
         private IDisposable _changeSubscription;
 
         private List<Endpoint> _endpoints;
@@ -58,7 +62,8 @@ namespace Microsoft.ReverseProxy.Service.Management
             ProxyEndpointFactory proxyEndpointFactory,
             ITransformBuilder transformBuilder,
             IProxyHttpClientFactory httpClientFactory,
-            IActiveHealthCheckMonitor activeHealthCheckMonitor)
+            IActiveHealthCheckMonitor activeHealthCheckMonitor,
+            IEnumerable<ILoadBalancingPolicy> loadBalancingPolicies)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _provider = provider ?? throw new ArgumentNullException(nameof(provider));
@@ -70,6 +75,7 @@ namespace Microsoft.ReverseProxy.Service.Management
             _transformBuilder = transformBuilder ?? throw new ArgumentNullException(nameof(transformBuilder));
             _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
             _activeHealthCheckMonitor = activeHealthCheckMonitor ?? throw new ArgumentNullException(nameof(activeHealthCheckMonitor));
+            _loadBalancingPolicies = loadBalancingPolicies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(loadBalancingPolicies));
 
             _conventions = new List<Action<EndpointBuilder>>();
             DefaultBuilder = new ReverseProxyConventionBuilder(_conventions);
@@ -88,7 +94,7 @@ namespace Microsoft.ReverseProxy.Service.Management
             {
                 // The Endpoints needs to be lazy the first time to give a chance to ReverseProxyConventionBuilder to add its conventions.
                 // Endpoints are accessed by routing on the first request.
-                Initialize();   
+                Initialize();
                 return _endpoints;
             }
         }
@@ -344,7 +350,8 @@ namespace Microsoft.ReverseProxy.Service.Management
 
                         var currentClusterConfig = currentCluster.Config;
 
-                        var httpClient = _httpClientFactory.CreateClient(new ProxyHttpClientContext {
+                        var httpClient = _httpClientFactory.CreateClient(new ProxyHttpClientContext
+                        {
                             ClusterId = currentCluster.ClusterId,
                             OldOptions = currentClusterConfig?.Options.HttpClient ?? ProxyHttpClientOptions.Empty,
                             OldMetadata = currentClusterConfig?.Options.Metadata,
@@ -353,7 +360,17 @@ namespace Microsoft.ReverseProxy.Service.Management
                             NewMetadata = newCluster.Metadata
                         });
 
-                        var newClusterConfig = new ClusterConfig(newCluster, httpClient);
+                        ILoadBalancingPolicy loadBalancingPolicy;
+                        if (newCluster.Destinations.Count <= 1)
+                        {
+                            loadBalancingPolicy = _loadBalancingPolicies.GetRequiredServiceById(LoadBalancingPolicies.First);
+                        }
+                        else
+                        {
+                            loadBalancingPolicy = _loadBalancingPolicies.GetRequiredServiceById(newCluster.LoadBalancingPolicy, LoadBalancingPolicies.PowerOfTwoChoices);
+                        }
+
+                        var newClusterConfig = new ClusterConfig(newCluster, httpClient, loadBalancingPolicy);
 
                         if (currentClusterConfig == null ||
                             currentClusterConfig.HasConfigChanged(newClusterConfig))

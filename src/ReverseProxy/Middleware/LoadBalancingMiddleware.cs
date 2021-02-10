@@ -19,17 +19,14 @@ namespace Microsoft.ReverseProxy.Middleware
     internal class LoadBalancingMiddleware
     {
         private readonly ILogger _logger;
-        private readonly IDictionary<string, ILoadBalancingPolicy> _loadBalancingPolicies;
         private readonly RequestDelegate _next;
 
         public LoadBalancingMiddleware(
             RequestDelegate next,
-            ILogger<LoadBalancingMiddleware> logger,
-            IEnumerable<ILoadBalancingPolicy> loadBalancingPolicies)
+            ILogger<LoadBalancingMiddleware> logger)
         {
             _next = next ?? throw new ArgumentNullException(nameof(next));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _loadBalancingPolicies = loadBalancingPolicies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(loadBalancingPolicies));
         }
 
         public Task Invoke(HttpContext context)
@@ -37,29 +34,14 @@ namespace Microsoft.ReverseProxy.Middleware
             var proxyFeature = context.GetRequiredProxyFeature();
 
             var destinations = proxyFeature.AvailableDestinations;
-            var destinationCount = destinations.Count;
 
-            DestinationInfo destination;
-
-            if (destinationCount == 0)
-            {
-                destination = null;
-            }
-            else if (destinationCount == 1)
-            {
-                destination = destinations[0];
-            }
-            else
-            {
-                var currentPolicy = _loadBalancingPolicies.GetRequiredServiceById(proxyFeature.ClusterConfig.Options.LoadBalancingPolicy, LoadBalancingPolicies.PowerOfTwoChoices);
-                destination = currentPolicy.PickDestination(context, destinations);
-            }
+            var destination = proxyFeature.ClusterConfig.LoadBalancingPolicy.PickDestination(context, destinations);
 
             if (destination == null)
             {
                 var cluster = context.GetRequiredCluster();
                 Log.NoAvailableDestinations(_logger, cluster.ClusterId);
-                context.Response.StatusCode = 503;
+                context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
                 return Task.CompletedTask;
             }
 

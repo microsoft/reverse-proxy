@@ -27,7 +27,8 @@ namespace Microsoft.ReverseProxy.Middleware
                     FailurePolicy = "Policy-1",
                 }
             },
-            new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object));
+            new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object),
+            default);
 
         internal ClusterInfo GetCluster()
         {

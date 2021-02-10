@@ -223,7 +223,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                     },
                     Metadata = metadata,
                 },
-                null);
+                null, null);
             var clusterInfo = new ClusterInfo(id, new DestinationManager());
             clusterInfo.Config = clusterConfig;
             for (var i = 0; i < destinationCount; i++)

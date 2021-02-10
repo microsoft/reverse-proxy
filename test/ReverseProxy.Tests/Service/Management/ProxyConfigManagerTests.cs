@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Security.Authentication;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Configuration;
 using Microsoft.ReverseProxy.Service.HealthChecks;
+using Microsoft.ReverseProxy.Service.LoadBalancing;
 using Microsoft.ReverseProxy.Service.Proxy;
 using Microsoft.ReverseProxy.Utilities;
 using Microsoft.ReverseProxy.Utilities.Tests;
@@ -158,7 +160,8 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
                 {
                     { "d1", new Destination { Address = TestAddress } }
                 },
-                HttpClient = new ProxyHttpClientOptions {
+                HttpClient = new ProxyHttpClientOptions
+                {
                     SslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12,
                     MaxConnectionsPerServer = 10,
                     ClientCertificate = clientCertificate
@@ -427,6 +430,89 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             Assert.Equal(2, agex.InnerExceptions.Count);
             Assert.IsType<NotFiniteNumberException>(agex.InnerExceptions.First().InnerException);
             Assert.IsType<NotFiniteNumberException>(agex.InnerExceptions.Skip(1).First().InnerException);
+        }
+
+        [Fact]
+        public async Task LoadAsync_NoPolicySpecified_DefaultsToPowerOfTwoChoices()
+        {
+            var cluster = new Cluster()
+            {
+                Id = "cluster1",
+                Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["d1"] = new Destination() { Address = "http://localhost" },
+                    ["d2"] = new Destination() { Address = "http://localhost" }
+                }
+            };
+            var services = CreateServices(new List<ProxyRoute>(), new List<Cluster>() { cluster }, proxyBuilder =>
+            {
+                proxyBuilder.AddProxyConfigFilter<ClusterAndRouteFilter>();
+            });
+            var configManager = services.GetRequiredService<ProxyConfigManager>();
+            var clusterManager = services.GetRequiredService<IClusterManager>();
+
+            var dataSource = await configManager.InitialLoadAsync();
+            var endpoints = dataSource.Endpoints;
+
+            var clusterInfo = clusterManager.TryGetItem("cluster1");
+
+            Assert.NotNull(clusterInfo);
+            Assert.IsType<PowerOfTwoChoicesLoadBalancingPolicy>(clusterInfo.Config.LoadBalancingPolicy);
+        }
+
+        [Fact]
+        public async Task LoadAsync_OneDestination_IgnorePolicy_DefaultsToFirst()
+        {
+            var cluster = new Cluster()
+            {
+                Id = "cluster1",
+                LoadBalancingPolicy = "Random",
+                Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["d1"] = new Destination() { Address = "http://localhost" }
+                }
+            };
+            var services = CreateServices(new List<ProxyRoute>(), new List<Cluster>() { cluster }, proxyBuilder =>
+            {
+                proxyBuilder.AddProxyConfigFilter<ClusterAndRouteFilter>();
+            });
+            var configManager = services.GetRequiredService<ProxyConfigManager>();
+            var clusterManager = services.GetRequiredService<IClusterManager>();
+
+            var dataSource = await configManager.InitialLoadAsync();
+            var endpoints = dataSource.Endpoints;
+
+            var clusterInfo = clusterManager.TryGetItem("cluster1");
+
+            Assert.NotNull(clusterInfo);
+            Assert.IsType<FirstLoadBalancingPolicy>(clusterInfo.Config.LoadBalancingPolicy);
+        }
+
+        [Fact]
+        public async Task LoadAsync_UnsupportedPolicy_Throws()
+        {
+            const string PolicyName = "NonExistentPolicy";
+
+            var cluster = new Cluster()
+            {
+                Id = "cluster1",
+                LoadBalancingPolicy = PolicyName,
+                Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["d1"] = new Destination() { Address = "http://localhost" },
+                    ["d2"] = new Destination() { Address = "http://localhost" }
+                }
+            };
+            var services = CreateServices(new List<ProxyRoute>(), new List<Cluster>() { cluster }, proxyBuilder =>
+            {
+                proxyBuilder.AddProxyConfigFilter<ClusterAndRouteFilter>();
+            });
+
+            var configManager = services.GetRequiredService<ProxyConfigManager>();
+
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(configManager.InitialLoadAsync);
+            var argumentException = Assert.IsType<ArgumentException>(ex.InnerException.InnerException);
+            Assert.Equal($"No matching {nameof(ILoadBalancingPolicy)} found for the load balancing policy '{PolicyName}' set on the cluster '{cluster.Id}'.", argumentException.Message);
         }
     }
 }

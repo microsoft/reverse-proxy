@@ -138,7 +138,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                     },
                     Metadata = metadata,
                 },
-                null);
+                null, null);
             var clusterInfo = new ClusterInfo(id, new DestinationManager());
             clusterInfo.Config = clusterConfig;
             for (var i = 0; i < destinationCount; i++)
@@ -158,7 +158,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         {
             public void SetActive(ClusterInfo cluster, IEnumerable<NewActiveDestinationHealth> newHealthStates)
             {
-                foreach(var newHealthState in newHealthStates)
+                foreach (var newHealthState in newHealthStates)
                 {
                     newHealthState.Destination.Health.Active = newHealthState.NewActiveHealth;
                 }

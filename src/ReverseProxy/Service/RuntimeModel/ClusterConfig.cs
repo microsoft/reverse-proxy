@@ -4,6 +4,7 @@
 using System;
 using System.Net.Http;
 using Microsoft.ReverseProxy.Abstractions;
+using Microsoft.ReverseProxy.Service.LoadBalancing;
 
 namespace Microsoft.ReverseProxy.RuntimeModel
 {
@@ -21,10 +22,12 @@ namespace Microsoft.ReverseProxy.RuntimeModel
     {
         public ClusterConfig(
             Cluster cluster,
-            HttpMessageInvoker httpClient)
+            HttpMessageInvoker httpClient,
+            ILoadBalancingPolicy loadBalancingPolicy)
         {
             Options = cluster ?? throw new ArgumentNullException(nameof(cluster));
             HttpClient = httpClient;
+            LoadBalancingPolicy = loadBalancingPolicy;
         }
 
         public Cluster Options { get; }
@@ -33,6 +36,11 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         /// An <see cref="HttpMessageInvoker"/> that used for proxying requests to an upstream server.
         /// </summary>
         public HttpMessageInvoker HttpClient { get; }
+
+        /// <summary>
+        /// An <see cref="ILoadBalancingPolicy"/> that used for picking the destination for the cluster.
+        /// </summary>
+        public ILoadBalancingPolicy LoadBalancingPolicy { get; }
 
         internal bool HasConfigChanged(ClusterConfig newClusterConfig)
         {

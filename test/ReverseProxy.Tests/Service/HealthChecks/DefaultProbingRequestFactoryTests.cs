@@ -90,7 +90,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 #endif
                     }
                 },
-                null);
+                null, null);
         }
     }
 }

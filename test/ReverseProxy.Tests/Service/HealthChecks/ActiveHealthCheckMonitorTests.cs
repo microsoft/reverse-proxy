@@ -243,7 +243,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 }
             };
             cluster2.Config = new ClusterConfig(new Cluster { Id = cluster2.ClusterId, HealthCheck = healthCheckConfig },
-                cluster2.Config.HttpClient);
+                cluster2.Config.HttpClient, default);
 
             monitor.OnClusterChanged(cluster2);
 
@@ -391,7 +391,8 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                         }
                     }
                 },
-                httpClient);
+                httpClient,
+                default);
             var clusterInfo = new ClusterInfo(id, new DestinationManager());
             clusterInfo.Config = clusterConfig;
             for (var i = 0; i < destinationCount; i++)
