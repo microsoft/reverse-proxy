@@ -17,5 +17,5 @@ Backporting changes is very similar to a regular release. Changes are made on th
   **While still on the preview branch:**
   - `git tag -d v1.0.0-previewX` (delete the current tag)
   - `git tag v1.0.0-previewX` (re-create the tag on the current commit)
-  - `git push origin --tags --force` (force push the tag change to the remote server)
+  - `git push upstream --tags --force` (force push the tag change to the upstream repo (**not your fork**))
 - Update the description of the [release](https://github.com/microsoft/reverse-proxy/releases) if necessary. The associated tag/commit will be automatically updated by the previous step.

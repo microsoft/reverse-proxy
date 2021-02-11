@@ -72,7 +72,9 @@ Create and push a git tag for the commit associated with the final build (not ne
 
 `git tag v1.0.0-previewX`
 
-`git push origin --tags`
+Push the tag change to the upstream repo (**not your fork**)
+
+`git push upstream --tags`
 
 ## Draft release notes
 
