@@ -7,9 +7,9 @@ using System.Collections.Generic;
 namespace Microsoft.ReverseProxy.Abstractions.Config
 {
     /// <summary>
-    /// State used when validating transforms for the given route.
+    /// State used when validating transforms for the given cluster.
     /// </summary>
-    public class TransformValidationContext
+    public class TransformClusterValidationContext
     {
         /// <summary>
         /// Application services that can be used to validate transforms.
@@ -17,18 +17,13 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         public IServiceProvider Services { get; init; }
 
         /// <summary>
-        /// The route these transforms are associated with.
-        /// </summary>
-        public ProxyRoute Route { get; init; }
-
-        /// <summary>
         /// The cluster configuration that may be used when creating transforms.
         /// </summary>
         public Cluster Cluster { get; init; }
 
         /// <summary>
-        /// The accumulated list of validation errors for this route.
-        /// Add transform validation errors here.
+        /// The accumulated list of validation errors for this cluster.
+        /// Add validation errors here.
         /// </summary>
         public IList<Exception> Errors { get; } = new List<Exception>();
     }

@@ -298,7 +298,7 @@ namespace Microsoft.ReverseProxy.Service.Config
                 _v = v;
             }
 
-            public bool Validate(TransformValidationContext context, IReadOnlyDictionary<string, string> transformValues)
+            public bool Validate(TransformRouteValidationContext context, IReadOnlyDictionary<string, string> transformValues)
             {
                 Assert.NotNull(context.Services);
                 Assert.NotNull(context.Route);
@@ -328,19 +328,17 @@ namespace Microsoft.ReverseProxy.Service.Config
             public int ValidateClusterCalls { get; set; }
             public int ApplyCalls { get; set; }
 
-            public void ValidateRoute(TransformValidationContext context)
+            public void ValidateRoute(TransformRouteValidationContext context)
             {
                 Assert.NotNull(context.Services);
                 Assert.NotNull(context.Route);
-                Assert.Null(context.Cluster);
                 Assert.NotNull(context.Errors);
                 ValidateRouteCalls++;
             }
 
-            public void ValidateCluster(TransformValidationContext context)
+            public void ValidateCluster(TransformClusterValidationContext context)
             {
                 Assert.NotNull(context.Services);
-                Assert.Null(context.Route);
                 Assert.NotNull(context.Cluster);
                 Assert.NotNull(context.Errors);
                 ValidateClusterCalls++;

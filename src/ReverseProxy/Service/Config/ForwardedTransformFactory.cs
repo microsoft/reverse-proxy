@@ -31,7 +31,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             _randomFactory = randomFactory ?? throw new ArgumentNullException(nameof(randomFactory));
         }
 
-        public bool Validate(TransformValidationContext context, IReadOnlyDictionary<string, string> transformValues)
+        public bool Validate(TransformRouteValidationContext context, IReadOnlyDictionary<string, string> transformValues)
         {
             if (transformValues.TryGetValue(XForwardedKey, out var xforwardedHeaders))
             {

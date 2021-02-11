@@ -34,7 +34,7 @@ namespace Microsoft.ReverseProxy.Service.Config
         /// <inheritdoc/>
         public IReadOnlyList<Exception> ValidateRoute(ProxyRoute route)
         {
-            var context = new TransformValidationContext()
+            var context = new TransformRouteValidationContext()
             {
                 Services = _services,
                 Route = route,
@@ -74,7 +74,7 @@ namespace Microsoft.ReverseProxy.Service.Config
         /// <inheritdoc/>
         public IReadOnlyList<Exception> ValidateCluster(Cluster cluster)
         {
-            var context = new TransformValidationContext()
+            var context = new TransformClusterValidationContext()
             {
                 Services = _services,
                 Cluster = cluster,

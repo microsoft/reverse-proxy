@@ -30,7 +30,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
                 }
             };
 
-            var validationContext = new TransformValidationContext()
+            var validationContext = new TransformClusterValidationContext()
             {
                 Cluster = cluster,
             };
@@ -65,7 +65,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
                 }
             };
 
-            var validationContext = new TransformValidationContext()
+            var validationContext = new TransformClusterValidationContext()
             {
                 Cluster = cluster,
             };

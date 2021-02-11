@@ -9,7 +9,7 @@ namespace Microsoft.ReverseProxy.Sample
 {
     internal class MyTransformProvider : ITransformProvider
     {
-        public void ValidateRoute(TransformValidationContext context)
+        public void ValidateRoute(TransformRouteValidationContext context)
         {
             // Check all routes for a custom property and validate the associated transform data.
             string value = null;
@@ -22,7 +22,7 @@ namespace Microsoft.ReverseProxy.Sample
             }
         }
 
-        public void ValidateCluster(TransformValidationContext context)
+        public void ValidateCluster(TransformClusterValidationContext context)
         {
             // Check all clusters for a custom property and validate the associated transform data.
             string value = null;

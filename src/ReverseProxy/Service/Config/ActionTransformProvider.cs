@@ -20,11 +20,11 @@ namespace Microsoft.ReverseProxy.Service.Config
             _action(transformBuildContext);
         }
 
-        public void ValidateRoute(TransformValidationContext context)
+        public void ValidateRoute(TransformRouteValidationContext context)
         {
         }
 
-        public void ValidateCluster(TransformValidationContext context)
+        public void ValidateCluster(TransformClusterValidationContext context)
         {
         }
     }

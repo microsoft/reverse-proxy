@@ -11,7 +11,7 @@ namespace Microsoft.ReverseProxy.Sample
 {
     internal class MyTransformFactory : ITransformFactory
     {
-        public bool Validate(TransformValidationContext context, IReadOnlyDictionary<string, string> transformValues)
+        public bool Validate(TransformRouteValidationContext context, IReadOnlyDictionary<string, string> transformValues)
         {
             if (transformValues.TryGetValue("CustomTransform", out var value))
             {

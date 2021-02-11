@@ -19,11 +19,11 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
                 ?? throw new ArgumentNullException(nameof(sessionAffinityProviders));
         }
 
-        public void ValidateRoute(TransformValidationContext context)
+        public void ValidateRoute(TransformRouteValidationContext context)
         {
         }
 
-        public void ValidateCluster(TransformValidationContext context)
+        public void ValidateCluster(TransformClusterValidationContext context)
         {
             // Other affinity validation logic is covered by ConfigValidator.ValidateSessionAffinity.
             if (!(context.Cluster.SessionAffinity?.Enabled ?? false))
