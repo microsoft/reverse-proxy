@@ -68,7 +68,8 @@ namespace Microsoft.ReverseProxy.Service.Config
                 transformProvider.ValidateRoute(context);
             }
 
-            return context.Errors.ToList();
+            // We promise not to modify the list after we return it.
+            return (IReadOnlyList<Exception>)context.Errors;
         }
 
         /// <inheritdoc/>
@@ -86,7 +87,8 @@ namespace Microsoft.ReverseProxy.Service.Config
                 transformProvider.ValidateCluster(context);
             }
 
-            return context.Errors.ToList();
+            // We promise not to modify the list after we return it.
+            return (IReadOnlyList<Exception>)context.Errors;
         }
 
         /// <inheritdoc/>

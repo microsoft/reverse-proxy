@@ -40,7 +40,7 @@ namespace Microsoft.ReverseProxy.Sample
             // Check all routes for a custom property and add the associated transform.
             string value = null;
             if ((transformBuildContext.Route.Metadata?.TryGetValue("CustomMetadata", out value) ?? false)
-                || (transformBuildContext.Cluster.Metadata?.TryGetValue("CustomMetadata", out value) ?? false))
+                || (transformBuildContext.Cluster?.Metadata?.TryGetValue("CustomMetadata", out value) ?? false))
             {
                 if (string.IsNullOrEmpty(value))
                 {
