@@ -24,7 +24,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             _binderFactory = binderFactory ?? throw new ArgumentNullException(nameof(binderFactory));
         }
 
-        public bool Validate(TransformValidationContext context, IReadOnlyDictionary<string, string> transformValues)
+        public bool Validate(TransformRouteValidationContext context, IReadOnlyDictionary<string, string> transformValues)
         {
             if (transformValues.TryGetValue(PathSetKey, out var pathSet))
             {

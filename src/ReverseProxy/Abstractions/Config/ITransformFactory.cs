@@ -16,7 +16,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         /// <param name="context">The context to add any generated errors to.</param>
         /// <param name="transformValues">The transform values to validate.</param>
         /// <returns>True if this factory matches the given transform, otherwise false.</returns>
-        bool Validate(TransformValidationContext context, IReadOnlyDictionary<string, string> transformValues);
+        bool Validate(TransformRouteValidationContext context, IReadOnlyDictionary<string, string> transformValues);
 
         /// <summary>
         /// Checks if the given transform values match a known transform, and if so, generates a transform and

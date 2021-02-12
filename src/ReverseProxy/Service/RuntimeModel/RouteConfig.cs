@@ -45,7 +45,7 @@ namespace Microsoft.ReverseProxy.RuntimeModel
 
         public bool HasConfigChanged(ProxyRoute newConfig, ClusterInfo cluster)
         {
-            return Cluster != cluster || !ProxyRoute.Equals(newConfig);
+            return Cluster != cluster || Route.ClusterRevision != cluster?.Revision || !ProxyRoute.Equals(newConfig);
         }
     }
 }

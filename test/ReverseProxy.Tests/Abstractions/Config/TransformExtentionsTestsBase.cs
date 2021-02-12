@@ -18,7 +18,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         {
             var transformValues = Assert.Single(proxyRoute.Transforms);
 
-            var validationContext = new TransformValidationContext { Route = proxyRoute };
+            var validationContext = new TransformRouteValidationContext { Route = proxyRoute };
             Assert.True(factory.Validate(validationContext, transformValues));
             Assert.Empty(validationContext.Errors);
 

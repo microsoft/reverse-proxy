@@ -40,10 +40,10 @@ namespace Microsoft.ReverseProxy.Service.Config
             var transformBuilder = CreateTransformBuilder();
 
             var route = new ProxyRoute { Transforms = transforms };
-            var errors = transformBuilder.Validate(route);
+            var errors = transformBuilder.ValidateRoute(route);
             Assert.Empty(errors);
 
-            var results = transformBuilder.BuildInternal(route);
+            var results = transformBuilder.BuildInternal(route, new Cluster());
             Assert.NotNull(results);
             Assert.Null(results.ShouldCopyRequestHeaders);
             Assert.Null(results.ShouldCopyResponseHeaders);
@@ -75,11 +75,11 @@ namespace Microsoft.ReverseProxy.Service.Config
             };
 
             var route = new ProxyRoute() { Transforms = transforms };
-            var errors = transformBuilder.Validate(route);
+            var errors = transformBuilder.ValidateRoute(route);
             var error = Assert.Single(errors);
             Assert.Equal("Unknown transform: ", error.Message);
 
-            var nie = Assert.Throws<ArgumentException>(() => transformBuilder.BuildInternal(route));
+            var nie = Assert.Throws<ArgumentException>(() => transformBuilder.BuildInternal(route, new Cluster()));
             Assert.Equal("Unknown transform: ", nie.Message);
         }
 
@@ -102,12 +102,12 @@ namespace Microsoft.ReverseProxy.Service.Config
             };
 
             var route = new ProxyRoute() { Transforms = transforms };
-            var errors = transformBuilder.Validate(route);
+            var errors = transformBuilder.ValidateRoute(route);
             //All errors reported
             Assert.Equal(2, errors.Count);
             Assert.Equal("Unknown transform: string1;string2", errors.First().Message);
             Assert.Equal("Unknown transform: string3;string4", errors.Skip(1).First().Message);
-            var ex = Assert.Throws<ArgumentException>(() => transformBuilder.BuildInternal(route));
+            var ex = Assert.Throws<ArgumentException>(() => transformBuilder.BuildInternal(route, new Cluster()));
             // First error reported
             Assert.Equal("Unknown transform: string1;string2", ex.Message);
         }
@@ -125,13 +125,13 @@ namespace Microsoft.ReverseProxy.Service.Config
             {
                 transform["2"] = "B";
             });
-            var errors = builder.Validate(route);
+            var errors = builder.ValidateRoute(route);
             Assert.Empty(errors);
             Assert.Equal(1, factory1.ValidationCalls);
             Assert.Equal(1, factory2.ValidationCalls);
             Assert.Equal(0, factory3.ValidationCalls);
 
-            var transforms = builder.BuildInternal(route);
+            var transforms = builder.BuildInternal(route, new Cluster());
             Assert.Equal(1, factory1.BuildCalls);
             Assert.Equal(1, factory2.BuildCalls);
             Assert.Equal(0, factory3.BuildCalls);
@@ -149,13 +149,20 @@ namespace Microsoft.ReverseProxy.Service.Config
                 Array.Empty<ITransformFactory>(), new[] { provider1, provider2, provider3 });
 
             var route = new ProxyRoute();
-            var errors = builder.Validate(route);
+            var errors = builder.ValidateRoute(route);
             Assert.Empty(errors);
-            Assert.Equal(1, provider1.ValidationCalls);
-            Assert.Equal(1, provider2.ValidationCalls);
-            Assert.Equal(1, provider3.ValidationCalls);
+            Assert.Equal(1, provider1.ValidateRouteCalls);
+            Assert.Equal(1, provider2.ValidateRouteCalls);
+            Assert.Equal(1, provider3.ValidateRouteCalls);
 
-            var transforms = builder.BuildInternal(route);
+            var cluster = new Cluster();
+            errors = builder.ValidateCluster(cluster);
+            Assert.Empty(errors);
+            Assert.Equal(1, provider1.ValidateClusterCalls);
+            Assert.Equal(1, provider2.ValidateClusterCalls);
+            Assert.Equal(1, provider3.ValidateClusterCalls);
+
+            var transforms = builder.BuildInternal(route, cluster);
             Assert.Equal(1, provider1.ApplyCalls);
             Assert.Equal(1, provider2.ApplyCalls);
             Assert.Equal(1, provider3.ApplyCalls);
@@ -180,10 +187,10 @@ namespace Microsoft.ReverseProxy.Service.Config
             };
 
             var route = new ProxyRoute() { Transforms = transforms };
-            var errors = transformBuilder.Validate(route);
+            var errors = transformBuilder.ValidateRoute(route);
             Assert.Empty(errors);
 
-            var results = transformBuilder.BuildInternal(route);
+            var results = transformBuilder.BuildInternal(route, new Cluster());
             Assert.NotNull(results);
             Assert.Null(results.ShouldCopyRequestHeaders);
             Assert.Empty(results.RequestTransforms);
@@ -216,10 +223,10 @@ namespace Microsoft.ReverseProxy.Service.Config
             };
 
             var route = new ProxyRoute() { Transforms = transforms };
-            var errors = transformBuilder.Validate(route);
+            var errors = transformBuilder.ValidateRoute(route);
             Assert.Empty(errors);
 
-            var results = transformBuilder.BuildInternal(route);
+            var results = transformBuilder.BuildInternal(route, new Cluster());
             Assert.NotNull(results);
             Assert.Equal(copyHeaders, results.ShouldCopyRequestHeaders);
             Assert.Empty(results.ResponseTransforms);
@@ -261,10 +268,10 @@ namespace Microsoft.ReverseProxy.Service.Config
             };
 
             var route = new ProxyRoute() { Transforms = transforms };
-            var errors = transformBuilder.Validate(route);
+            var errors = transformBuilder.ValidateRoute(route);
             Assert.Empty(errors);
 
-            var results = transformBuilder.BuildInternal(route);
+            var results = transformBuilder.BuildInternal(route, new Cluster());
             var transform = Assert.Single(results.RequestTransforms);
             var forwardedTransform = Assert.IsType<RequestHeaderForwardedTransform>(transform);
             Assert.True(forwardedTransform.ProtoEnabled);
@@ -273,6 +280,7 @@ namespace Microsoft.ReverseProxy.Service.Config
         private static TransformBuilder CreateTransformBuilder()
         {
             var serviceCollection = new ServiceCollection();
+            serviceCollection.AddLogging();
             serviceCollection.AddReverseProxy();
             using var services = serviceCollection.BuildServiceProvider();
             return (TransformBuilder)services.GetRequiredService<ITransformBuilder>();
@@ -290,7 +298,7 @@ namespace Microsoft.ReverseProxy.Service.Config
                 _v = v;
             }
 
-            public bool Validate(TransformValidationContext context, IReadOnlyDictionary<string, string> transformValues)
+            public bool Validate(TransformRouteValidationContext context, IReadOnlyDictionary<string, string> transformValues)
             {
                 Assert.NotNull(context.Services);
                 Assert.NotNull(context.Route);
@@ -316,21 +324,31 @@ namespace Microsoft.ReverseProxy.Service.Config
 
         private class TestTransformProvider : ITransformProvider
         {
-            public int ValidationCalls { get; set; }
+            public int ValidateRouteCalls { get; set; }
+            public int ValidateClusterCalls { get; set; }
             public int ApplyCalls { get; set; }
 
-            public void Validate(TransformValidationContext context)
+            public void ValidateRoute(TransformRouteValidationContext context)
             {
                 Assert.NotNull(context.Services);
                 Assert.NotNull(context.Route);
                 Assert.NotNull(context.Errors);
-                ValidationCalls++;
+                ValidateRouteCalls++;
+            }
+
+            public void ValidateCluster(TransformClusterValidationContext context)
+            {
+                Assert.NotNull(context.Services);
+                Assert.NotNull(context.Cluster);
+                Assert.NotNull(context.Errors);
+                ValidateClusterCalls++;
             }
 
             public void Apply(TransformBuilderContext context)
             {
                 Assert.NotNull(context.Services);
                 Assert.NotNull(context.Route);
+                Assert.NotNull(context.Cluster);
                 ApplyCalls++;
                 context.AddResponseTrailer("key", "value");
             }

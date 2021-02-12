@@ -23,6 +23,11 @@ namespace Microsoft.ReverseProxy.Abstractions.Config
         public ProxyRoute Route { get; init; }
 
         /// <summary>
+        /// The cluster config the route is associated with.
+        /// </summary>
+        public Cluster Cluster { get; init; }
+
+        /// <summary>
         /// Indicates if request headers should all be copied to the proxy request before transforms are applied.
         /// </summary>
         public bool? CopyRequestHeaders { get; set; }

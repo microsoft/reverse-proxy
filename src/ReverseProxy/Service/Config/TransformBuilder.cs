@@ -32,9 +32,9 @@ namespace Microsoft.ReverseProxy.Service.Config
         }
 
         /// <inheritdoc/>
-        public IReadOnlyList<Exception> Validate(ProxyRoute route)
+        public IReadOnlyList<Exception> ValidateRoute(ProxyRoute route)
         {
-            var context = new TransformValidationContext()
+            var context = new TransformRouteValidationContext()
             {
                 Services = _services,
                 Route = route,
@@ -65,20 +65,40 @@ namespace Microsoft.ReverseProxy.Service.Config
             // Let the app add any more validation it wants.
             foreach (var transformProvider in _providers)
             {
-                transformProvider.Validate(context);
+                transformProvider.ValidateRoute(context);
             }
 
-            return context.Errors.ToList();
+            // We promise not to modify the list after we return it.
+            return (IReadOnlyList<Exception>)context.Errors;
         }
 
         /// <inheritdoc/>
-        public HttpTransformer Build(ProxyRoute route)
+        public IReadOnlyList<Exception> ValidateCluster(Cluster cluster)
         {
-            return BuildInternal(route);
+            var context = new TransformClusterValidationContext()
+            {
+                Services = _services,
+                Cluster = cluster,
+            };
+
+            // Let the app add any more validation it wants.
+            foreach (var transformProvider in _providers)
+            {
+                transformProvider.ValidateCluster(context);
+            }
+
+            // We promise not to modify the list after we return it.
+            return (IReadOnlyList<Exception>)context.Errors;
+        }
+
+        /// <inheritdoc/>
+        public HttpTransformer Build(ProxyRoute route, Cluster cluster)
+        {
+            return BuildInternal(route, cluster);
         }
 
         // This is separate from Build for testing purposes.
-        internal StructuredTransformer BuildInternal(ProxyRoute route)
+        internal StructuredTransformer BuildInternal(ProxyRoute route, Cluster cluster)
         {
             var rawTransforms = route.Transforms;
 
@@ -86,6 +106,7 @@ namespace Microsoft.ReverseProxy.Service.Config
             {
                 Services = _services,
                 Route = route,
+                Cluster = cluster,
             };
 
             if (rawTransforms?.Count > 0)
