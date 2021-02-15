@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Http;
-using System.Text;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
@@ -43,23 +42,16 @@ namespace Microsoft.ReverseProxy.Utilities
         /// <param name="query">The query to append</param>
         internal static Uri MakeDestinationAddress(string destinationPrefix, PathString path, QueryString query)
         {
-            var builder = new StringBuilder(destinationPrefix);
-            if (path.HasValue)
+            ReadOnlySpan<char> prefixSpan = destinationPrefix;
+
+            if (path.HasValue && destinationPrefix.EndsWith('/'))
             {
                 // When PathString has a value it always starts with a '/'. Avoid double slashes when concatenating.
-                if (builder.Length > 0 && builder[^1] == '/')
-                {
-                    builder.Length--;
-                }
-
-                builder.Append(path.ToUriComponent());
-            }
-            if (query.HasValue)
-            {
-                builder.Append(query.ToUriComponent());
+                prefixSpan = prefixSpan[0..^1];
             }
 
-            var targetAddress = builder.ToString();
+            var targetAddress = string.Concat(prefixSpan, path.ToUriComponent(), query.ToUriComponent());
+
             return new Uri(targetAddress, UriKind.Absolute);
         }
 
