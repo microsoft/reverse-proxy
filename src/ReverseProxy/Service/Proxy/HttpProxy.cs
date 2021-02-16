@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Server.Kestrel.Core.Features;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
@@ -437,7 +438,12 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         private static Task CopyResponseStatusAndHeadersAsync(HttpResponseMessage source, HttpContext context, HttpTransformer transformer)
         {
             context.Response.StatusCode = (int)source.StatusCode;
-            context.Features.Get<IHttpResponseFeature>().ReasonPhrase = source.ReasonPhrase;
+
+            // Don't explicitly set the field if the default reason phrase is used
+            if (source.ReasonPhrase != ReasonPhrases.GetReasonPhrase((int)source.StatusCode))
+            {
+                context.Features.Get<IHttpResponseFeature>().ReasonPhrase = source.ReasonPhrase;
+            }
 
             // Copies headers
             return transformer.TransformResponseAsync(context, source);
