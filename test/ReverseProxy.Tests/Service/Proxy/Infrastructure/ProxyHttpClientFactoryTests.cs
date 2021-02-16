@@ -52,7 +52,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
             var options = new ProxyHttpClientOptions
             {
-                SslProtocols =  SslProtocols.Tls12 | SslProtocols.Tls13,
+                SslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13,
             };
             var client = factory.CreateClient(new ProxyHttpClientContext { NewOptions = options });
 
@@ -144,6 +144,22 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.Equal(newOptions, oldOptions);
             Assert.Same(oldClient, actualClient);
         }
+
+#if NET
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void CreateClient_ApplyEnableMultipleHttp2Connections_Success(bool enableMultipleHttp2Connections)
+        {
+            var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
+            var options = new ProxyHttpClientOptions {  EnableMultipleHttp2Connections = enableMultipleHttp2Connections };
+            var client = factory.CreateClient(new ProxyHttpClientContext { NewOptions = options });
+
+            var handler = GetHandler(client);
+
+            Assert.Equal(enableMultipleHttp2Connections, handler.EnableMultipleHttp2Connections);
+        }
+#endif
 
         [Theory]
         [MemberData(nameof(GetChangedHttpClientOptions))]
@@ -343,7 +359,29 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                         MaxConnectionsPerServer = 10,
                         ActivityContextHeaders = ActivityContextHeaders.BaggageAndCorrelationContext,
                     },
+                },
+#if NET
+                new object[] {
+                    new ProxyHttpClientOptions
+                    {
+                        SslProtocols = SslProtocols.Tls11,
+                        DangerousAcceptAnyServerCertificate = true,
+                        ClientCertificate = null,
+                        MaxConnectionsPerServer = 10,
+                        ActivityContextHeaders = ActivityContextHeaders.Baggage,
+                        EnableMultipleHttp2Connections = true
+                    },
+                    new ProxyHttpClientOptions
+                    {
+                        SslProtocols = SslProtocols.Tls11,
+                        DangerousAcceptAnyServerCertificate = true,
+                        ClientCertificate = null,
+                        MaxConnectionsPerServer = 10,
+                        ActivityContextHeaders = ActivityContextHeaders.Baggage,
+                        EnableMultipleHttp2Connections = false
+                    },
                 }
+#endif
             };
         }
 
