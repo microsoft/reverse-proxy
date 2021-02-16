@@ -65,6 +65,12 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
             {
                 handler.SslOptions.RemoteCertificateValidationCallback = delegate { return true; };
             }
+#if NET
+            if (newClientOptions.EnableMultipleHttp2Connections.HasValue)
+            {
+                handler.EnableMultipleHttp2Connections = newClientOptions.EnableMultipleHttp2Connections.Value;
+            }
+#endif
 
             Log.ProxyClientCreated(_logger, context.ClusterId);
 

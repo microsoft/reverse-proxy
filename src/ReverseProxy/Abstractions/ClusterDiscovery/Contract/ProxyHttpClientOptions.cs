@@ -43,8 +43,14 @@ namespace Microsoft.ReverseProxy.Abstractions
         /// </summary>
         public ActivityContextHeaders? ActivityContextHeaders { get; init; }
 
-        // TODO: Add this property once we have migrated to SDK version that supports it.
-        //public bool? EnableMultipleHttp2Connections { get; init; }
+#if NET
+        /// <summary>
+        /// Gets or sets a value that indicates whether additional HTTP/2 connections can
+        //  be established to the same server when the maximum number of concurrent streams
+        //  is reached on all existing connections.
+        /// </summary>
+        public bool? EnableMultipleHttp2Connections { get; init; }
+#endif
 
         /// <inheritdoc />
         public bool Equals(ProxyHttpClientOptions other)
@@ -58,6 +64,9 @@ namespace Microsoft.ReverseProxy.Abstractions
                 && CertEquals(ClientCertificate, other.ClientCertificate)
                 && DangerousAcceptAnyServerCertificate == other.DangerousAcceptAnyServerCertificate
                 && MaxConnectionsPerServer == other.MaxConnectionsPerServer
+#if NET
+                && EnableMultipleHttp2Connections == other.EnableMultipleHttp2Connections
+#endif
                 && ActivityContextHeaders == other.ActivityContextHeaders;
         }
 
@@ -83,6 +92,9 @@ namespace Microsoft.ReverseProxy.Abstractions
                 ClientCertificate?.Thumbprint,
                 DangerousAcceptAnyServerCertificate,
                 MaxConnectionsPerServer,
+#if NET
+                EnableMultipleHttp2Connections,
+#endif
                 ActivityContextHeaders);
         }
     }

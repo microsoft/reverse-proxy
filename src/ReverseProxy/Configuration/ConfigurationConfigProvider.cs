@@ -325,6 +325,9 @@ namespace Microsoft.ReverseProxy.Configuration
                 DangerousAcceptAnyServerCertificate = section.ReadBool(nameof(ProxyHttpClientOptions.DangerousAcceptAnyServerCertificate)),
                 ClientCertificate = clientCertificate,
                 MaxConnectionsPerServer = section.ReadInt32(nameof(ProxyHttpClientOptions.MaxConnectionsPerServer)),
+#if NET
+                EnableMultipleHttp2Connections = section.ReadBool(nameof(ProxyHttpClientOptions.EnableMultipleHttp2Connections)),
+#endif
                 ActivityContextHeaders = section.ReadEnum<ActivityContextHeaders>(nameof(ProxyHttpClientOptions.ActivityContextHeaders))
             };
         }

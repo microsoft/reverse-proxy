@@ -87,7 +87,10 @@ namespace Microsoft.ReverseProxy.Configuration
                             SslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12,
                             MaxConnectionsPerServer = 10,
                             DangerousAcceptAnyServerCertificate = true,
-                            ActivityContextHeaders = ActivityContextHeaders.Baggage
+                            ActivityContextHeaders = ActivityContextHeaders.Baggage,
+#if NET
+                            EnableMultipleHttp2Connections = true,
+#endif
                         },
                         HttpRequest = new RequestProxyOptions()
                         {
@@ -213,7 +216,7 @@ namespace Microsoft.ReverseProxy.Configuration
                     ""AllowInvalid"": null
                 },
                 ""MaxConnectionsPerServer"": 10,
-                ""PropagateActivityContext"": true,
+                ""EnableMultipleHttp2Connections"": true,
                 ""ActivityContextHeaders"": ""Baggage""
             },
             ""HttpRequest"": {
@@ -596,6 +599,9 @@ namespace Microsoft.ReverseProxy.Configuration
             Assert.Equal(cluster1.SessionAffinity.Settings, abstractCluster1.SessionAffinity.Settings);
             Assert.Same(certificate, abstractCluster1.HttpClient.ClientCertificate);
             Assert.Equal(cluster1.HttpClient.MaxConnectionsPerServer, abstractCluster1.HttpClient.MaxConnectionsPerServer);
+#if NET
+            Assert.Equal(cluster1.HttpClient.EnableMultipleHttp2Connections, abstractCluster1.HttpClient.EnableMultipleHttp2Connections);
+#endif
             Assert.Equal(cluster1.HttpClient.ActivityContextHeaders, abstractCluster1.HttpClient.ActivityContextHeaders);
             Assert.Equal(SslProtocols.Tls11 | SslProtocols.Tls12, abstractCluster1.HttpClient.SslProtocols);
             Assert.Equal(cluster1.HttpRequest.Timeout, abstractCluster1.HttpRequest.Timeout);
