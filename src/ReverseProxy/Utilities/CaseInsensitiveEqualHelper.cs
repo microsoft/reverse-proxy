@@ -36,7 +36,7 @@ namespace Microsoft.ReverseProxy.Utilities
             return true;
         }
 
-        internal static bool Equals(IList<IDictionary<string, string>> dictionaryList1, IList<IDictionary<string, string>> dictionaryList2)
+        internal static bool Equals(IReadOnlyList<IReadOnlyDictionary<string, string>> dictionaryList1, IReadOnlyList<IReadOnlyDictionary<string, string>> dictionaryList2)
         {
             if (ReferenceEquals(dictionaryList1, dictionaryList2))
             {
@@ -64,7 +64,7 @@ namespace Microsoft.ReverseProxy.Utilities
             return true;
         }
 
-        internal static bool Equals(IDictionary<string, string> dictionary1, IDictionary<string, string> dictionary2)
+        internal static bool Equals(IReadOnlyDictionary<string, string> dictionary1, IReadOnlyDictionary<string, string> dictionary2)
         {
             return Equals(dictionary1, dictionary2, StringEquals);
         }
@@ -74,7 +74,7 @@ namespace Microsoft.ReverseProxy.Utilities
             return string.Equals(value1, value2, StringComparison.OrdinalIgnoreCase);
         }
 
-        internal static bool Equals<T>(IDictionary<string, T> dictionary1, IDictionary<string, T> dictionary2, Func<T, T, bool> comparer)
+        internal static bool Equals<T>(IReadOnlyDictionary<string, T> dictionary1, IReadOnlyDictionary<string, T> dictionary2, Func<T, T, bool> comparer)
         {
             if (ReferenceEquals(dictionary1, dictionary2))
             {
@@ -112,6 +112,16 @@ namespace Microsoft.ReverseProxy.Utilities
             }
 
             return true;
+        }
+
+        internal static int GetHashCode(IReadOnlyList<string> values)
+        {
+            var hashCode = new HashCode();
+            foreach (var value in values)
+            {
+                hashCode.Add(value, StringComparer.OrdinalIgnoreCase);
+            }
+            return hashCode.ToHashCode();
         }
     }
 }

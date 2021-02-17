@@ -7,54 +7,70 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace Microsoft.ReverseProxy.Abstractions
 {
-    public sealed class ProxyHttpClientOptions
+    /// <summary>
+    /// Options used for communicating with the destination servers.
+    /// </summary>
+    public sealed record ProxyHttpClientOptions
     {
-        public SslProtocols? SslProtocols { get; set; }
+        /// <summary>
+        /// An empty options instance.
+        /// </summary>
+        public static readonly ProxyHttpClientOptions Empty = new();
 
-        public bool? DangerousAcceptAnyServerCertificate { get; set; }
+        /// <summary>
+        /// What TLS protocols to use.
+        /// </summary>
+        public SslProtocols? SslProtocols { get; init; }
 
-        public X509Certificate2 ClientCertificate { get; set; }
+        /// <summary>
+        /// Indicates if destination server https certificate errors should be ignored.
+        /// This should only be done when using self-signed certificates.
+        /// </summary>
+        public bool? DangerousAcceptAnyServerCertificate { get; init; }
 
-        public int? MaxConnectionsPerServer { get; set; }
+        /// <summary>
+        /// A client certificate used to authenticate to the destination server.
+        /// </summary>
+        public X509Certificate2 ClientCertificate { get; init; }
 
-        public bool? PropagateActivityContext { get; set; }
+        /// <summary>
+        /// Limits the number of connections used when communicating with the destination server.
+        /// </summary>
+        public int? MaxConnectionsPerServer { get; init; }
 
-        // TODO: Add this property once we have migrated to SDK version that supports it.
-        //public bool? EnableMultipleHttp2Connections { get; set; }
+        /// <summary>
+        /// Specifies the activity correlation headers for outgoing requests.
+        /// </summary>
+        public ActivityContextHeaders? ActivityContextHeaders { get; init; }
 
-        internal ProxyHttpClientOptions DeepClone()
+#if NET
+        /// <summary>
+        /// Gets or sets a value that indicates whether additional HTTP/2 connections can
+        //  be established to the same server when the maximum number of concurrent streams
+        //  is reached on all existing connections.
+        /// </summary>
+        public bool? EnableMultipleHttp2Connections { get; init; }
+#endif
+
+        /// <inheritdoc />
+        public bool Equals(ProxyHttpClientOptions other)
         {
-            return new ProxyHttpClientOptions
-            {
-                SslProtocols = SslProtocols,
-                DangerousAcceptAnyServerCertificate = DangerousAcceptAnyServerCertificate,
-                // TODO: Clone certificate?
-                ClientCertificate = ClientCertificate,
-                MaxConnectionsPerServer = MaxConnectionsPerServer,
-                PropagateActivityContext = PropagateActivityContext,
-            };
-        }
-
-        internal static bool Equals(ProxyHttpClientOptions options1, ProxyHttpClientOptions options2)
-        {
-            if (options1 == null && options2 == null)
-            {
-                return true;
-            }
-
-            if (options1 == null || options2 == null)
+            if (other == null)
             {
                 return false;
             }
 
-            return options1.SslProtocols == options2.SslProtocols
-                && Equals(options1.ClientCertificate, options2.ClientCertificate)
-                && options1.DangerousAcceptAnyServerCertificate == options2.DangerousAcceptAnyServerCertificate
-                && options1.MaxConnectionsPerServer == options2.MaxConnectionsPerServer
-                && options1.PropagateActivityContext == options2.PropagateActivityContext;
+            return SslProtocols == other.SslProtocols
+                && CertEquals(ClientCertificate, other.ClientCertificate)
+                && DangerousAcceptAnyServerCertificate == other.DangerousAcceptAnyServerCertificate
+                && MaxConnectionsPerServer == other.MaxConnectionsPerServer
+#if NET
+                && EnableMultipleHttp2Connections == other.EnableMultipleHttp2Connections
+#endif
+                && ActivityContextHeaders == other.ActivityContextHeaders;
         }
 
-        private static bool Equals(X509Certificate2 certificate1, X509Certificate2 certificate2)
+        private static bool CertEquals(X509Certificate2 certificate1, X509Certificate2 certificate2)
         {
             if (certificate1 == null && certificate2 == null)
             {
@@ -67,6 +83,19 @@ namespace Microsoft.ReverseProxy.Abstractions
             }
 
             return string.Equals(certificate1.Thumbprint, certificate2.Thumbprint, StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(SslProtocols,
+                ClientCertificate?.Thumbprint,
+                DangerousAcceptAnyServerCertificate,
+                MaxConnectionsPerServer,
+#if NET
+                EnableMultipleHttp2Connections,
+#endif
+                ActivityContextHeaders);
         }
     }
 }

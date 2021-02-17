@@ -232,7 +232,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                 LoggerMessage.Define<Uri, string, string, Uri, string, string>(
                     LogLevel.Information,
                     EventIds.InvalidApplicationParameter,
-                    "Application does not specify parameter referenced in a Service Manifest extension label. ApplicationName='{applicationName}', ApplicationtypeName='{app.ApplicationTypeName}', ApplicationTypeVersion='{applicationTypeVersion}', ServiceName='{serviceName}', Label='{label}', AppParamName='{appParamName}'.");
+                    "Application does not specify parameter referenced in a Service Manifest extension label. ApplicationName='{applicationName}', ApplicationtypeName='{applicationTypeName}', ApplicationTypeVersion='{applicationTypeVersion}', ServiceName='{serviceName}', Label='{label}', AppParamName='{appParamName}'.");
 
             public static void InvalidApplicationParameter(ILogger<ServiceExtensionLabelsProvider> logger, Uri applicationName, string applicationTypeName, string applicationTypeVersion, Uri serviceName, string label, string appParamName)
             {

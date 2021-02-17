@@ -105,8 +105,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                             continue;
                         }
 
-                        var cluster = LabelsParser.BuildCluster(service.ServiceName, serviceExtensionLabels);
-                        await DiscoverDestinationsAsync(cluster, options, service, serviceExtensionLabels, cancellation);
+                        var destinations = await DiscoverDestinationsAsync(options, service, serviceExtensionLabels, cancellation);
+                        var cluster = LabelsParser.BuildCluster(service.ServiceName, serviceExtensionLabels, destinations);
                         var clusterValidationErrors = await _configValidator.ValidateClusterAsync(cluster);
                         if (clusterValidationErrors.Count > 0)
                         {
@@ -242,8 +242,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
         /// and populates the specified <paramref name="cluster"/>'s <see cref="Cluster.Destinations"/> accordingly.
         /// </summary>
         /// <remarks>All non-fatal exceptions are caught and logged.</remarks>
-        private async Task DiscoverDestinationsAsync(
-            Cluster cluster,
+        private async Task<IReadOnlyDictionary<string, Destination>> DiscoverDestinationsAsync(
             ServiceFabricDiscoveryOptions options,
             ServiceWrapper service,
             Dictionary<string, string> serviceExtensionLabels,
@@ -257,8 +256,10 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             catch (Exception ex) // TODO: davidni: not fatal?
             {
                 Log.GettingPartitionFailed(_logger, service.ServiceName, ex);
-                return;
+                return null;
             }
+
+            var destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase);
 
             var listenerName = serviceExtensionLabels.GetValueOrDefault("YARP.Backend.ServiceFabric.ListenerName", string.Empty);
             var healthListenerName = serviceExtensionLabels.GetValueOrDefault("YARP.Backend.HealthCheck.Active.ServiceFabric.ListenerName", string.Empty);
@@ -297,9 +298,9 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                         var destination = BuildDestination(replica, listenerName, healthListenerName);
 
                         ReportReplicaHealth(options, service, partition, replica, HealthState.Ok, $"Successfully built the endpoint from listener '{listenerName}'.");
-                        if (!cluster.Destinations.TryAdd(replica.Id.ToString(), destination))
+                        if (!destinations.TryAdd(replica.Id.ToString(), destination))
                         {
-                            throw new ConfigException($"Duplicated endpoint id '{replica.Id}'. Skipping repeated definition, service '{service.ServiceName}', backend id '{cluster.Id}'");
+                            throw new ConfigException($"Duplicated endpoint id '{replica.Id}'. Skipping repeated definition for service '{service.ServiceName}'.");
                         }
                     }
                     catch (ConfigException ex)
@@ -319,6 +320,8 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                     }
                 }
             }
+
+            return destinations;
         }
 
         private StatefulReplicaSelectionMode ParseStatefulReplicaSelectionMode(Dictionary<string, string> serviceExtensionLabels, Uri serviceName)

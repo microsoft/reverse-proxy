@@ -18,8 +18,16 @@ namespace Microsoft.ReverseProxy.Middleware
     public abstract class AffinityMiddlewareTestBase
     {
         protected const string AffinitizedDestinationName = "dest-B";
-        protected readonly ClusterConfig ClusterConfig = new ClusterConfig(default, default, default, new ClusterSessionAffinityOptions(true, "Mode-B", "Policy-1", null),
-            new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object), default, default, new Dictionary<string, string>());
+        protected readonly ClusterConfig ClusterConfig = new ClusterConfig(new Cluster
+            {
+                SessionAffinity = new SessionAffinityOptions
+                {
+                    Enabled = true,
+                    Mode = "Mode-B",
+                    FailurePolicy = "Policy-1",
+                }
+            },
+            new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object));
 
         internal ClusterInfo GetCluster()
         {
@@ -51,7 +59,7 @@ namespace Microsoft.ReverseProxy.Middleware
                         It.IsAny<HttpContext>(),
                         expectedDestinations,
                         expectedCluster,
-                        ClusterConfig.SessionAffinityOptions))
+                        ClusterConfig.Options.SessionAffinity))
                     .Returns(new AffinityResult(destinations, status.Value))
                     .Callback(() => callback(provider.Object));
                 }
@@ -59,7 +67,7 @@ namespace Microsoft.ReverseProxy.Middleware
                 {
                     provider.Setup(p => p.AffinitizeRequest(
                         It.IsAny<HttpContext>(),
-                        ClusterConfig.SessionAffinityOptions,
+                        ClusterConfig.Options.SessionAffinity,
                         expectedDestinations[0]))
                     .Callback(() => callback(provider.Object));
                 }
@@ -75,7 +83,7 @@ namespace Microsoft.ReverseProxy.Middleware
             {
                 var policy = new Mock<IAffinityFailurePolicy>(MockBehavior.Strict);
                 policy.SetupGet(p => p.Name).Returns(name);
-                policy.Setup(p => p.Handle(It.IsAny<HttpContext>(), It.Is<ClusterSessionAffinityOptions>(o => o.FailurePolicy == name), expectedStatus))
+                policy.Setup(p => p.Handle(It.IsAny<HttpContext>(), It.Is<SessionAffinityOptions>(o => o.FailurePolicy == name), expectedStatus))
                     .ReturnsAsync(handled)
                     .Callback(() => callback(policy.Object));
                 result.Add(policy);

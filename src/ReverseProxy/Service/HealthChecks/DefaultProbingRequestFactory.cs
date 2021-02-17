@@ -13,14 +13,14 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         public HttpRequestMessage CreateRequest(ClusterConfig clusterConfig, DestinationConfig destinationConfig)
         {
             var probeAddress = !string.IsNullOrEmpty(destinationConfig.Health) ? destinationConfig.Health : destinationConfig.Address;
-            var probePath = clusterConfig.HealthCheckOptions.Active.Path;
+            var probePath = clusterConfig.Options.HealthCheck.Active.Path;
             UriHelper.FromAbsolute(probeAddress, out var destinationScheme, out var destinationHost, out var destinationPathBase, out _, out _);
             var probeUri = UriHelper.BuildAbsolute(destinationScheme, destinationHost, destinationPathBase, probePath, default);
             return new HttpRequestMessage(HttpMethod.Get, probeUri)
             {
-                Version = clusterConfig.HttpRequestOptions.Version ?? HttpVersion.Version20,
+                Version = clusterConfig.Options.HttpRequest?.Version ?? HttpVersion.Version20,
 #if NET
-                VersionPolicy = clusterConfig.HttpRequestOptions.VersionPolicy ?? HttpVersionPolicy.RequestVersionOrLower
+                VersionPolicy = clusterConfig.Options.HttpRequest?.VersionPolicy ?? HttpVersionPolicy.RequestVersionOrLower
 #endif
             };
         }

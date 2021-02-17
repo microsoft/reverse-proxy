@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Server.Kestrel.Core.Features;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
@@ -122,7 +123,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 // :: Step 4: Send the outgoing request using HttpClient
                 HttpResponseMessage destinationResponse;
                 var requestTimeoutSource = CancellationTokenSource.CreateLinkedTokenSource(requestAborted);
-                requestTimeoutSource.CancelAfter(requestOptions.Timeout ?? DefaultTimeout);
+                requestTimeoutSource.CancelAfter(requestOptions?.Timeout ?? DefaultTimeout);
                 var requestTimeoutToken = requestTimeoutSource.Token;
                 try
                 {
@@ -268,9 +269,9 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             // based on VersionPolicy (for .NET 5 and higher). For example, downgrading to HTTP/1.1 if it cannot establish HTTP/2 with the target.
             // This is done without extra round-trips thanks to ALPN. We can detect a downgrade after calling HttpClient.SendAsync
             // (see Step 3 below). TBD how this will change when HTTP/3 is supported.
-            destinationRequest.Version = isUpgradeRequest ? ProtocolHelper.Http11Version : (requestOptions.Version ?? DefaultVersion);
+            destinationRequest.Version = isUpgradeRequest ? ProtocolHelper.Http11Version : (requestOptions?.Version ?? DefaultVersion);
 #if NET
-            destinationRequest.VersionPolicy = isUpgradeRequest ? HttpVersionPolicy.RequestVersionOrLower : (requestOptions.VersionPolicy ?? DefaultVersionPolicy);
+            destinationRequest.VersionPolicy = isUpgradeRequest ? HttpVersionPolicy.RequestVersionOrLower : (requestOptions?.VersionPolicy ?? DefaultVersionPolicy);
 #endif
 
             // :: Step 2: Setup copy of request body (background) Client --► Proxy --► Destination
@@ -285,7 +286,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             var request = context.Request;
             destinationRequest.RequestUri ??= RequestUtilities.MakeDestinationAddress(destinationPrefix, request.Path, request.QueryString);
             
-            Log.Proxying(_logger, destinationRequest.RequestUri.AbsoluteUri);
+            Log.Proxying(_logger, destinationRequest.RequestUri);
 
             // TODO: What if they replace the HttpContent object? That would mess with our tracking and error handling.
             return (destinationRequest, requestContent);
@@ -437,7 +438,12 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         private static Task CopyResponseStatusAndHeadersAsync(HttpResponseMessage source, HttpContext context, HttpTransformer transformer)
         {
             context.Response.StatusCode = (int)source.StatusCode;
-            context.Features.Get<IHttpResponseFeature>().ReasonPhrase = source.ReasonPhrase;
+
+            // Don't explicitly set the field if the default reason phrase is used
+            if (source.ReasonPhrase != ReasonPhrases.GetReasonPhrase((int)source.StatusCode))
+            {
+                context.Features.Get<IHttpResponseFeature>().ReasonPhrase = source.ReasonPhrase;
+            }
 
             // Copies headers
             return transformer.TransformResponseAsync(context, source);
@@ -652,9 +658,13 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 _httpDowngradeDetected(logger, null);
             }
 
-            public static void Proxying(ILogger logger, string targetUrl)
+            public static void Proxying(ILogger logger, Uri targetUrl)
             {
-                _proxying(logger, targetUrl, null);
+                // Avoid computing the AbsoluteUri unless logging is enabled
+                if (logger.IsEnabled(LogLevel.Information))
+                {
+                    _proxying(logger, targetUrl.AbsoluteUri, null);
+                }
             }
 
             public static void ErrorProxying(ILogger logger, ProxyError error, Exception ex)

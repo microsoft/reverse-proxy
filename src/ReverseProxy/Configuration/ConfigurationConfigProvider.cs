@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net.Http;
 using System.Security.Authentication;
@@ -13,6 +14,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Service;
+using Microsoft.ReverseProxy.Service.Proxy;
 
 namespace Microsoft.ReverseProxy.Configuration
 {
@@ -143,7 +145,13 @@ namespace Microsoft.ReverseProxy.Configuration
 
         private Cluster CreateCluster(IConfigurationSection section)
         {
-            var cluster = new Cluster
+            var destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase);
+            foreach (var destination in section.GetSection(nameof(Cluster.Destinations)).GetChildren())
+            {
+                destinations.Add(destination.Key, CreateDestination(destination));
+            }
+
+            return new Cluster
             {
                 Id = section.Key,
                 LoadBalancingPolicy = section[nameof(Cluster.LoadBalancingPolicy)],
@@ -151,20 +159,14 @@ namespace Microsoft.ReverseProxy.Configuration
                 HealthCheck = CreateHealthCheckOptions(section.GetSection(nameof(Cluster.HealthCheck))),
                 HttpClient = CreateProxyHttpClientOptions(section.GetSection(nameof(Cluster.HttpClient))),
                 HttpRequest = CreateProxyRequestOptions(section.GetSection(nameof(Cluster.HttpRequest))),
-                Metadata = section.GetSection(nameof(Cluster.Metadata)).ReadStringDictionary()
+                Metadata = section.GetSection(nameof(Cluster.Metadata)).ReadStringDictionary(),
+                Destinations = destinations,
             };
-
-            foreach (var destination in section.GetSection(nameof(Cluster.Destinations)).GetChildren())
-            {
-                cluster.Destinations.Add(destination.Key, CreateDestination(destination));
-            }
-
-            return cluster;
         }
 
         private static ProxyRoute CreateRoute(IConfigurationSection section)
         {
-            var route = new ProxyRoute
+            return new ProxyRoute
             {
                 RouteId = section[nameof(ProxyRoute.RouteId)],
                 Order = section.ReadInt32(nameof(ProxyRoute.Order)),
@@ -173,32 +175,35 @@ namespace Microsoft.ReverseProxy.Configuration
                 CorsPolicy = section[nameof(ProxyRoute.CorsPolicy)],
                 Metadata = section.GetSection(nameof(ProxyRoute.Metadata)).ReadStringDictionary(),
                 Transforms = CreateTransforms(section.GetSection(nameof(ProxyRoute.Transforms))),
+                Match = CreateProxyMatch(section.GetSection(nameof(ProxyRoute.Match))),
             };
-            InitializeProxyMatch(route.Match, section.GetSection(nameof(ProxyRoute.Match)));
-            return route;
         }
 
-        private static IList<IDictionary<string, string>> CreateTransforms(IConfigurationSection section)
+        private static IReadOnlyList<IReadOnlyDictionary<string, string>> CreateTransforms(IConfigurationSection section)
         {
             if (section.GetChildren() is var children && !children.Any())
             {
                 return null;
             }
 
-            return children.Select(s => s.GetChildren().ToDictionary(d => d.Key, d => d.Value, StringComparer.OrdinalIgnoreCase)).ToList<IDictionary<string, string>>();
+            return children.Select(subSection =>
+                    subSection.GetChildren().ToDictionary(d => d.Key, d => d.Value, StringComparer.OrdinalIgnoreCase)).ToList();
         }
 
-        private static void InitializeProxyMatch(ProxyMatch proxyMatch, IConfigurationSection section)
+        private static ProxyMatch CreateProxyMatch(IConfigurationSection section)
         {
             if (!section.Exists())
             {
-                return;
+                return null;
             }
 
-            proxyMatch.Methods = section.GetSection(nameof(ProxyMatch.Methods)).ReadStringArray();
-            proxyMatch.Hosts = section.GetSection(nameof(ProxyMatch.Hosts)).ReadStringArray();
-            proxyMatch.Path = section[nameof(ProxyMatch.Path)];
-            proxyMatch.Headers = CreateRouteHeaders(section.GetSection(nameof(ProxyMatch.Headers)));
+            return new ProxyMatch()
+            {
+                Methods = section.GetSection(nameof(ProxyMatch.Methods)).ReadStringArray(),
+                Hosts = section.GetSection(nameof(ProxyMatch.Hosts)).ReadStringArray(),
+                Path = section[nameof(ProxyMatch.Path)],
+                Headers = CreateRouteHeaders(section.GetSection(nameof(ProxyMatch.Headers))),
+            };
         }
 
         private static IReadOnlyList<RouteHeader> CreateRouteHeaders(IConfigurationSection section)
@@ -213,15 +218,13 @@ namespace Microsoft.ReverseProxy.Configuration
 
         private static RouteHeader CreateRouteHeader(IConfigurationSection section)
         {
-            var routeHeader = new RouteHeader()
+            return new RouteHeader()
             {
                 Name = section[nameof(RouteHeader.Name)],
                 Values = section.GetSection(nameof(RouteHeader.Values)).ReadStringArray(),
                 Mode = section.ReadEnum<HeaderMatchMode>(nameof(RouteHeader.Mode)) ?? HeaderMatchMode.ExactHeader,
                 IsCaseSensitive = section.ReadBool(nameof(RouteHeader.IsCaseSensitive)) ?? false,
             };
-
-            return routeHeader;
         }
 
         private static SessionAffinityOptions CreateSessionAffinityOptions(IConfigurationSection section)
@@ -310,7 +313,7 @@ namespace Microsoft.ReverseProxy.Configuration
             SslProtocols? sslProtocols = null;
             if (section.GetSection(nameof(ProxyHttpClientOptions.SslProtocols)) is IConfigurationSection sslProtocolsSection)
             {
-                foreach (var protocolConfig in sslProtocolsSection.GetChildren().Select(s => Enum.Parse<SslProtocols>(s.Value)))
+                foreach (var protocolConfig in sslProtocolsSection.GetChildren().Select(s => Enum.Parse<SslProtocols>(s.Value, ignoreCase: true)))
                 {
                     sslProtocols = sslProtocols == null ? protocolConfig : sslProtocols | protocolConfig;
                 }
@@ -322,23 +325,26 @@ namespace Microsoft.ReverseProxy.Configuration
                 DangerousAcceptAnyServerCertificate = section.ReadBool(nameof(ProxyHttpClientOptions.DangerousAcceptAnyServerCertificate)),
                 ClientCertificate = clientCertificate,
                 MaxConnectionsPerServer = section.ReadInt32(nameof(ProxyHttpClientOptions.MaxConnectionsPerServer)),
-                PropagateActivityContext = section.ReadBool(nameof(ProxyHttpClientOptions.PropagateActivityContext))
+#if NET
+                EnableMultipleHttp2Connections = section.ReadBool(nameof(ProxyHttpClientOptions.EnableMultipleHttp2Connections)),
+#endif
+                ActivityContextHeaders = section.ReadEnum<ActivityContextHeaders>(nameof(ProxyHttpClientOptions.ActivityContextHeaders))
             };
         }
 
-        private ProxyHttpRequestOptions CreateProxyRequestOptions(IConfigurationSection section)
+        private static RequestProxyOptions CreateProxyRequestOptions(IConfigurationSection section)
         {
             if (!section.Exists())
             {
                 return null;
             }
 
-            return new ProxyHttpRequestOptions
+            return new RequestProxyOptions
             {
-                Timeout = section.ReadTimeSpan(nameof(ProxyHttpRequestOptions.Timeout)),
-                Version = section.ReadVersion(nameof(ProxyHttpRequestOptions.Version)),
+                Timeout = section.ReadTimeSpan(nameof(RequestProxyOptions.Timeout)),
+                Version = section.ReadVersion(nameof(RequestProxyOptions.Version)),
 #if NET
-                VersionPolicy = section.ReadEnum<HttpVersionPolicy>(nameof(ProxyHttpRequestOptions.VersionPolicy)),
+                VersionPolicy = section.ReadEnum<HttpVersionPolicy>(nameof(RequestProxyOptions.VersionPolicy)),
 #endif
             };
         }

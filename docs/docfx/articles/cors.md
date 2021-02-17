@@ -10,7 +10,7 @@ The reverse proxy can handle cross-origin requests before they are proxied to th
 The requests won't be automatically matched for cors preflight requests unless enabled in the route or application configuration.
 
 ## Configuration
-CORS policies can be specified per route via [ProxyRoute.CorsPolicy](xref:Microsoft.ReverseProxy.Abstractions.ProxyRoute.CorsPolicy) and can be bound from the `Routes` sections of the config file. As with other route properties, this can be modified and reloaded without restarting the proxy. Policy names are case insensitive.
+CORS policies can be specified per route via [ProxyRoute.CorsPolicy](xref:Microsoft.ReverseProxy.Abstractions.ProxyRoute) and can be bound from the `Routes` sections of the config file. As with other route properties, this can be modified and reloaded without restarting the proxy. Policy names are case insensitive.
 
 Example:
 ```JSON
@@ -22,7 +22,7 @@ Example:
         "ClusterId": "cluster1",
         "CorsPolicy": "customPolicy",
         "Match": {
-          "Host": "localhost"
+          "Hosts": [ "localhost" ]
         },
       }
     ],

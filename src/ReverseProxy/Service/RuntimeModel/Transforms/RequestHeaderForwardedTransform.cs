@@ -43,7 +43,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         internal bool Append { get; }
 
         /// <inheritdoc/>
-        public override Task ApplyAsync(RequestTransformContext context)
+        public override ValueTask ApplyAsync(RequestTransformContext context)
         {
             if (context is null)
             {
@@ -70,7 +70,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                 AddHeader(context, ForwardedHeaderName, value);
             }
 
-            return Task.CompletedTask;
+            return default;
         }
 
         private void AppendProto(HttpContext context, StringBuilder builder)
@@ -94,7 +94,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                 // Quoted because of the ':' when there's a port.
                 builder.Append("host=\"");
                 builder.Append(context.Request.Host.ToUriComponent());
-                builder.Append("\"");
+                builder.Append('"');
             }
         }
 
@@ -137,7 +137,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 
             if (quote)
             {
-                builder.Append("\"");
+                builder.Append('"');
             }
 
             switch (format)
@@ -148,12 +148,12 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                     {
                         if (ipv6)
                         {
-                            builder.Append("[");
+                            builder.Append('[');
                         }
                         builder.Append(ipAddress.ToString());
                         if (ipv6)
                         {
-                            builder.Append("]");
+                            builder.Append(']');
                         }
                         break;
                     }
@@ -173,13 +173,13 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 
             if (addPort)
             {
-                builder.Append(":");
+                builder.Append(':');
                 builder.Append(port);
             }
 
             if (quote)
             {
-                builder.Append("\"");
+                builder.Append('"');
             }
         }
 
@@ -193,18 +193,6 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             {
                 builder.Append(ObfChars[random.Next(ObfChars.Length)]);
             }
-        }
-
-        // For and By entries
-        public enum NodeFormat
-        {
-            None,
-            Random,
-            RandomAndPort,
-            Unknown,
-            UnknownAndPort,
-            Ip,
-            IpAndPort,
         }
     }
 }

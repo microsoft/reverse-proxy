@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>Microsoft.ReverseProxy extension package for in-process telemtry consumption</Description>
+    <TargetFrameworks>net5.0;netcoreapp3.1</TargetFrameworks>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Microsoft.ReverseProxy.Telemetry.Consumption</RootNamespace>
+    <LangVersion>9.0</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ReverseProxy\Microsoft.ReverseProxy.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Microsoft.ReverseProxy.FunctionalTests" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+    <Compile Remove="Http/*" />
+    <Compile Remove="Sockets/*" />
+    <Compile Remove="NetSecurity/*" />
+    <Compile Remove="NameResolution/*" />
+    <Compile Remove="Kestrel/KestrelMetrics.cs" />
+    <Compile Remove="Kestrel/IKestrelMetricsConsumer.cs" />
+  </ItemGroup>
+
+</Project>

@@ -17,6 +17,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Microsoft.ReverseProxy.Service;
+using Microsoft.ReverseProxy.Service.Proxy;
 using Microsoft.ReverseProxy.Utilities.Tests;
 using Moq;
 using Xunit;
@@ -35,7 +36,7 @@ namespace Microsoft.ReverseProxy.Configuration
                     new Cluster
                     {
                         Id = "cluster1",
-                        Destinations =
+                        Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
                         {
                             {
                                 "destinationA",
@@ -86,9 +87,12 @@ namespace Microsoft.ReverseProxy.Configuration
                             SslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12,
                             MaxConnectionsPerServer = 10,
                             DangerousAcceptAnyServerCertificate = true,
-                            PropagateActivityContext = true,
+                            ActivityContextHeaders = ActivityContextHeaders.Baggage,
+#if NET
+                            EnableMultipleHttp2Connections = true,
+#endif
                         },
-                        HttpRequest = new ProxyHttpRequestOptions()
+                        HttpRequest = new RequestProxyOptions()
                         {
                             Timeout = TimeSpan.FromSeconds(60),
                             Version = Version.Parse("1.0"),
@@ -103,7 +107,7 @@ namespace Microsoft.ReverseProxy.Configuration
                     new Cluster
                     {
                         Id = "cluster2",
-                        Destinations =
+                        Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
                         {
                             { "destinationC", new Destination { Address = "https://localhost:10001/destC" } },
                             { "destinationD", new Destination { Address = "https://localhost:10000/destB" } }
@@ -121,7 +125,7 @@ namespace Microsoft.ReverseProxy.Configuration
                     AuthorizationPolicy = "Default",
                     CorsPolicy = "Default",
                     Order = -1,
-                    Match =
+                    Match = new ProxyMatch
                     {
                         Hosts = new List<string> { "host-A" },
                         Methods = new List<string> { "GET", "POST", "DELETE" },
@@ -137,7 +141,7 @@ namespace Microsoft.ReverseProxy.Configuration
                             }
                         }
                     },
-                    Transforms = new List<IDictionary<string, string>>
+                    Transforms = new[]
                     {
                         new Dictionary<string, string> { { "RequestHeadersCopy", "true" }, { "PathRemovePrefix", "/apis" } }, new Dictionary<string, string> { { "PathPrefix", "/apis" } }
                     },
@@ -148,7 +152,7 @@ namespace Microsoft.ReverseProxy.Configuration
                     RouteId = "routeB",
                     ClusterId = "cluster2",
                     Order = 2,
-                    Match =
+                    Match = new ProxyMatch
                     {
                         Hosts = new List<string> { "host-B" },
                         Methods = new List<string> { "GET" },
@@ -212,7 +216,8 @@ namespace Microsoft.ReverseProxy.Configuration
                     ""AllowInvalid"": null
                 },
                 ""MaxConnectionsPerServer"": 10,
-                ""PropagateActivityContext"": true,
+                ""EnableMultipleHttp2Connections"": true,
+                ""ActivityContextHeaders"": ""Baggage""
             },
             ""HttpRequest"": {
                 ""Timeout"": ""00:01:00"",
@@ -594,7 +599,10 @@ namespace Microsoft.ReverseProxy.Configuration
             Assert.Equal(cluster1.SessionAffinity.Settings, abstractCluster1.SessionAffinity.Settings);
             Assert.Same(certificate, abstractCluster1.HttpClient.ClientCertificate);
             Assert.Equal(cluster1.HttpClient.MaxConnectionsPerServer, abstractCluster1.HttpClient.MaxConnectionsPerServer);
-            Assert.Equal(cluster1.HttpClient.PropagateActivityContext, abstractCluster1.HttpClient.PropagateActivityContext);
+#if NET
+            Assert.Equal(cluster1.HttpClient.EnableMultipleHttp2Connections, abstractCluster1.HttpClient.EnableMultipleHttp2Connections);
+#endif
+            Assert.Equal(cluster1.HttpClient.ActivityContextHeaders, abstractCluster1.HttpClient.ActivityContextHeaders);
             Assert.Equal(SslProtocols.Tls11 | SslProtocols.Tls12, abstractCluster1.HttpClient.SslProtocols);
             Assert.Equal(cluster1.HttpRequest.Timeout, abstractCluster1.HttpRequest.Timeout);
             Assert.Equal(HttpVersion.Version10, abstractCluster1.HttpRequest.Version);

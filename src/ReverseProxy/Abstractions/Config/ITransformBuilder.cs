@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Service.Proxy;
 
 namespace Microsoft.ReverseProxy.Service
@@ -13,14 +14,19 @@ namespace Microsoft.ReverseProxy.Service
     public interface ITransformBuilder
     {
         /// <summary>
-        /// Validates that each transform is known and has the expected parameters. All transforms are validated and
+        /// Validates that each transform for the given route is known and has the expected parameters. All transforms are validated
         /// so all errors can be reported.
         /// </summary>
-        IList<Exception> Validate(IList<IDictionary<string, string>> transforms);
+        IReadOnlyList<Exception> ValidateRoute(ProxyRoute route);
 
         /// <summary>
-        /// Builds the given transforms into executable rules.
+        /// Validates that any cluster data needed for transforms is valid.
         /// </summary>
-        HttpTransformer Build(IList<IDictionary<string, string>> rawTransforms);
+        IReadOnlyList<Exception> ValidateCluster(Cluster cluster);
+
+        /// <summary>
+        /// Builds the transforms for the given route into executable rules.
+        /// </summary>
+        HttpTransformer Build(ProxyRoute route, Cluster cluster);
     }
 }

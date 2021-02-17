@@ -63,7 +63,6 @@ namespace Microsoft.ReverseProxy.Sample
                     });
                     proxyPipeline.UseAffinitizedDestinationLookup();
                     proxyPipeline.UseProxyLoadBalancing();
-                    proxyPipeline.UseRequestAffinitizer();
                     proxyPipeline.UsePassiveHealthChecks();
                 })
                 .ConfigureEndpoints((builder, route) => builder.WithDisplayName($"ReverseProxy {route.RouteId}-{route.ClusterId}"));

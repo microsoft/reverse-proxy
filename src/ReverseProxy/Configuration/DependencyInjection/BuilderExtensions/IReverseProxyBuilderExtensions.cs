@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Linq;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -14,7 +15,6 @@ using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
 using Microsoft.ReverseProxy.Service.Routing;
 using Microsoft.ReverseProxy.Service.SessionAffinity;
 using Microsoft.ReverseProxy.Utilities;
-using System.Linq;
 
 namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
 {
@@ -23,6 +23,14 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
         public static IReverseProxyBuilder AddConfigBuilder(this IReverseProxyBuilder builder)
         {
             builder.Services.TryAddSingleton<IConfigValidator, ConfigValidator>();
+            builder.Services.TryAddSingleton<ITransformBuilder, TransformBuilder>();
+            builder.Services.TryAddSingleton<IRandomFactory, RandomFactory>();
+            builder.AddTransformFactory<ForwardedTransformFactory>();
+            builder.AddTransformFactory<HttpMethodTransformFactory>();
+            builder.AddTransformFactory<PathTransformFactory>();
+            builder.AddTransformFactory<QueryTransformFactory>();
+            builder.AddTransformFactory<RequestHeadersTransformFactory>();
+            builder.AddTransformFactory<ResponseTransformFactory>();
             builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<MatcherPolicy, HeaderMatcherPolicy>());
             return builder;
         }
@@ -45,9 +53,7 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
 
         public static IReverseProxyBuilder AddProxy(this IReverseProxyBuilder builder)
         {
-            builder.Services.TryAddSingleton<ITransformBuilder, TransformBuilder>();
             builder.Services.TryAddSingleton<IProxyHttpClientFactory, ProxyHttpClientFactory>();
-            builder.Services.TryAddSingleton<IRandomFactory, RandomFactory>();
 
             builder.Services.AddHttpProxy();
             return builder;
@@ -78,6 +84,7 @@ namespace Microsoft.ReverseProxy.Configuration.DependencyInjection
                 new ServiceDescriptor(typeof(ISessionAffinityProvider), typeof(CookieSessionAffinityProvider), ServiceLifetime.Singleton),
                 new ServiceDescriptor(typeof(ISessionAffinityProvider), typeof(CustomHeaderSessionAffinityProvider), ServiceLifetime.Singleton)
             });
+            builder.AddTransforms<AffinitizeTransformProvider>();
 
             return builder;
         }

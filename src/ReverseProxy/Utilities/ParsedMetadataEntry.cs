@@ -26,7 +26,7 @@ namespace Microsoft.ReverseProxy.Utilities
         public T GetParsedOrDefault(T defaultValue)
         {
             var currentValue = _value;
-            if (_cluster.Config.Metadata != null && _cluster.Config.Metadata.TryGetValue(_metadataName, out var stringValue))
+            if (_cluster.Config.Options.Metadata != null && _cluster.Config.Options.Metadata.TryGetValue(_metadataName, out var stringValue))
             {
                 if (currentValue == null || currentValue.Item1 != stringValue)
                 {

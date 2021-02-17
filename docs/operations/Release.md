@@ -2,17 +2,17 @@
 
 This document provides a guide on how to release a preview of YARP.
 
+To keep track of the process, open a [release checklist issue](https://github.com/microsoft/reverse-proxy/issues/new?title=Preview%20X%20release%20checklist&body=-%20%5B%20%5D%20Ensure%20there%27s%20a%20release%20branch%20created%20%28see%20%5BBranching%5D%28https%3A%2F%2Fgithub.com%2Fmicrosoft%2Freverse-proxy%2Fblob%2Fmain%2Fdocs%2Foperations%2FBranching.md%29%29%0A-%20%5B%20%5D%20Ensure%20the%20%60Version.props%60%20has%20the%20%60PreReleaseVersionLabel%60%20updated%20to%20the%20next%20preview%0A-%20%5B%20%5D%20Identify%20and%20validate%20the%20build%20on%20the%20%60microsoft-reverse-proxy-official%60%20pipeline%0A-%20%5B%20%5D%20Release%20the%20build%0A-%20%5B%20%5D%20Tag%20the%20commit%0A-%20%5B%20%5D%20Draft%20release%20notes%0A-%20%5B%20%5D%20Publish%20the%20docs%0A-%20%5B%20%5D%20Publish%20release%20notes%0A-%20%5B%20%5D%20Close%20the%20%5Bold%20milestone%5D%28https%3A%2F%2Fgithub.com%2Fmicrosoft%2Freverse-proxy%2Fmilestones%29%0A-%20%5B%20%5D%20Announce%20on%20social%20media%0A-%20%5B%20%5D%20Set%20the%20preview%20branch%20to%20protected%0A-%20%5B%20%5D%20Delete%20the%20%5Bprevious%20preview%20branch%5D%28https%3A%2F%2Fgithub.com%2Fmicrosoft%2Freverse-proxy%2Fbranches%29).
+
 ## Ensure there's a release branch created.
 
 See [Branching](Branching.md).
 
 ## Identify the Final Build
 
-First, identify the final build of the [`microsoft-reverse-proxy-official` Azure Pipeline](https://dev.azure.com/dnceng/internal/_build?definitionId=809&_a=summary) (on dnceng/internal). The final build will be the latest successful build **in the relevant `release/x` branch**. Use the "Branches" tab on Azure DevOps to help identify it. If the branch hasn't been mirrored yet (see [code-mirror pipeline](https://dev.azure.com/dnceng/internal/_build?definitionId=16&keywordFilter=microsoft%20reverse-proxy)) and there are no outstanding changesets in the branch, the build of the correspoding commit from the master branch can be used.
+First, identify the final build of the [`microsoft-reverse-proxy-official` Azure Pipeline](https://dev.azure.com/dnceng/internal/_build?definitionId=809&_a=summary) (on dnceng/internal). The final build will be the latest successful build **in the relevant `release/x` branch**. Use the "Branches" tab on Azure DevOps to help identify it. If the branch hasn't been mirrored yet (see [code-mirror pipeline](https://dev.azure.com/dnceng/internal/_build?definitionId=16&keywordFilter=microsoft%20reverse-proxy)) and there are no outstanding changesets in the branch, the build of the corresponding commit from the main branch can be used.
 
 Once you've identified that build, click in to the build details.
-
-
 
 ## Validate the Final Build
 
@@ -68,7 +68,13 @@ The packages will be pushed and when the "NuGet.org" stage turns green, the pack
 
 ## Tag the commit
 
-Create and push a git tag for the commit associated with the final build (not necessarily the HEAD of the current release branch). See prior tags for the preferred format. Use a lightweight tag, not annotated, e.g.: `git tag v1.0.0-preview6`.
+Create and push a git tag for the commit associated with the final build (not necessarily the HEAD of the current release branch). See prior tags for the preferred format. Use a lightweight tag, not annotated.
+
+`git tag v1.0.0-previewX`
+
+Push the tag change to the upstream repo (**not your fork**)
+
+`git push upstream --tags`
 
 ## Draft release notes
 
@@ -90,12 +96,13 @@ It should be empty now. If it's not, move the outstanding issues to the next one
 
 David Fowler has a lot of twitter followers interested in YARP. Tweet a link to the release notes and let him retweet it.
 
-## Complete any outstanding branching tasks.
+## Set the preview branch to protected
 
-See [Branching](Branching.md).
-- Make sure the versions in master have been updated for the next milestone.
-- Update the runtime dependency flow with DARC
-- Update the SDK
+This is to avoid accidental pushes to/deletions of the preview branch.
+
+## Delete the previous preview branch
+
+There should only be one [preview branch on the repo](https://github.com/microsoft/reverse-proxy/branches) after this point.
 
 ## Troubleshooting
 

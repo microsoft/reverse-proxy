@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -112,7 +113,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                     continue;
                 }
 
-                destination.Append(headerName, header.Value.ToArray());
+                Debug.Assert(header.Value is string[]);
+                destination.Append(headerName, header.Value as string[] ?? header.Value.ToArray());
             }
         }
     }

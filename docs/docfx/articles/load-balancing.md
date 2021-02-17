@@ -50,7 +50,7 @@ var clusters = new[]
     {
         Id = "cluster1",
         LoadBalancingPolicy = LoadBalancingPolicies.RoundRobin,
-        Destinations =
+        Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
         {
             { "destination1", new Destination() { Address = "https://localhost:10000" } },
             { "destination2", new Destination() { Address = "https://localhost:10010" } }

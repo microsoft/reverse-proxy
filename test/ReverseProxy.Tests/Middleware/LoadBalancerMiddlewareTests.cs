@@ -50,7 +50,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             var sut = CreateMiddleware();
 
             var ex = await Assert.ThrowsAsync<ArgumentException>(async () => await sut.Invoke(context));
-            Assert.Equal($"No {typeof(ILoadBalancingPolicy)} was found for the id {PolicyName}. (Parameter 'id')", ex.Message);
+            Assert.Equal($"No {typeof(ILoadBalancingPolicy)} was found for the id '{PolicyName}'. (Parameter 'id')", ex.Message);
         }
 
         [Fact]
@@ -173,7 +173,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
         {
             var cluster = new ClusterInfo("cluster1", new DestinationManager())
             {
-                Config = new ClusterConfig(default, default, loadBalancingPolicy, default, default, default, default, default)
+                Config = new ClusterConfig(new Cluster { LoadBalancingPolicy = loadBalancingPolicy }, default)
             };
 
             var context = new DefaultHttpContext();

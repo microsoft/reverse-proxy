@@ -28,8 +28,8 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             httpContext.Request.Scheme = scheme;
             var proxyRequest = new HttpRequestMessage();
             proxyRequest.Headers.Add("Forwarded", startValue.Split("|", StringSplitOptions.RemoveEmptyEntries));
-            var transform = new RequestHeaderForwardedTransform(randomFactory, forFormat: RequestHeaderForwardedTransform.NodeFormat.None,
-                byFormat: RequestHeaderForwardedTransform.NodeFormat.None, host: false, proto: true, append);
+            var transform = new RequestHeaderForwardedTransform(randomFactory, forFormat: NodeFormat.None,
+                byFormat: NodeFormat.None, host: false, proto: true, append);
             await transform.ApplyAsync(new RequestTransformContext()
             {
                 HttpContext = httpContext,
@@ -59,8 +59,8 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             httpContext.Request.Host = new HostString(host);
             var proxyRequest = new HttpRequestMessage();
             proxyRequest.Headers.Add("Forwarded", startValue.Split("|", StringSplitOptions.RemoveEmptyEntries));
-            var transform = new RequestHeaderForwardedTransform(randomFactory, forFormat: RequestHeaderForwardedTransform.NodeFormat.None,
-                byFormat: RequestHeaderForwardedTransform.NodeFormat.None, host: true, proto: false, append);
+            var transform = new RequestHeaderForwardedTransform(randomFactory, forFormat: NodeFormat.None,
+                byFormat: NodeFormat.None, host: true, proto: false, append);
             await transform.ApplyAsync(new RequestTransformContext()
             {
                 HttpContext = httpContext,
@@ -72,25 +72,23 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 
         [Theory]
         // Using "|" to represent multi-line headers
-        [InlineData("", "", 2, "ip", false, "for=unknown")] // Missing IP falls back to Unknown
-        [InlineData("", "", 0, "ipandport", true, "for=unknown")] // Missing port excluded
-        [InlineData("", "", 2, "ipandport", true, "for=\"unknown:2\"")]
-        [InlineData("", "::1", 2, "unknown", false, "for=unknown")]
-        [InlineData("", "::1", 2, "unknownandport", true, "for=\"unknown:2\"")]
-        [InlineData("", "::1", 2, "ip", false, "for=\"[::1]\"")]
-        [InlineData("", "::1", 0, "ipandport", true, "for=\"[::1]\"")]
-        [InlineData("", "::1", 2, "ipandport", true, "for=\"[::1]:2\"")]
-        [InlineData("", "127.0.0.1", 2, "ip", false, "for=127.0.0.1")]
-        [InlineData("", "127.0.0.1", 2, "ipandport", true, "for=\"127.0.0.1:2\"")]
-        [InlineData("", "::1", 2, "random", false, "for=_abcdefghi")]
-        [InlineData("", "::1", 2, "randomandport", true, "for=\"_abcdefghi:2\"")]
-        [InlineData("existing,header", "::1", 2, "random", false, "for=_abcdefghi")]
-        [InlineData("existing,header", "::1", 2, "randomandport", true, "existing,header|for=\"_abcdefghi:2\"")]
-        [InlineData("existing|header", "::1", 2, "randomandport", true, "existing|header|for=\"_abcdefghi:2\"")]
-        public async Task For_Added(string startValue, string ip, int port, string formatString, bool append, string expected)
+        [InlineData("", "", 2, NodeFormat.Ip, false, "for=unknown")] // Missing IP falls back to Unknown
+        [InlineData("", "", 0, NodeFormat.IpAndPort, true, "for=unknown")] // Missing port excluded
+        [InlineData("", "", 2, NodeFormat.IpAndPort, true, "for=\"unknown:2\"")]
+        [InlineData("", "::1", 2, NodeFormat.Unknown, false, "for=unknown")]
+        [InlineData("", "::1", 2, NodeFormat.UnknownAndPort, true, "for=\"unknown:2\"")]
+        [InlineData("", "::1", 2, NodeFormat.Ip, false, "for=\"[::1]\"")]
+        [InlineData("", "::1", 0, NodeFormat.IpAndPort, true, "for=\"[::1]\"")]
+        [InlineData("", "::1", 2, NodeFormat.IpAndPort, true, "for=\"[::1]:2\"")]
+        [InlineData("", "127.0.0.1", 2, NodeFormat.Ip, false, "for=127.0.0.1")]
+        [InlineData("", "127.0.0.1", 2, NodeFormat.IpAndPort, true, "for=\"127.0.0.1:2\"")]
+        [InlineData("", "::1", 2, NodeFormat.Random, false, "for=_abcdefghi")]
+        [InlineData("", "::1", 2, NodeFormat.RandomAndPort, true, "for=\"_abcdefghi:2\"")]
+        [InlineData("existing,header", "::1", 2, NodeFormat.Random, false, "for=_abcdefghi")]
+        [InlineData("existing,header", "::1", 2, NodeFormat.RandomAndPort, true, "existing,header|for=\"_abcdefghi:2\"")]
+        [InlineData("existing|header", "::1", 2, NodeFormat.RandomAndPort, true, "existing|header|for=\"_abcdefghi:2\"")]
+        public async Task For_Added(string startValue, string ip, int port, NodeFormat format, bool append, string expected)
         {
-            // NodeFormat is on an internal type so we can't put it in a test's public signature.
-            var format = Enum.Parse<RequestHeaderForwardedTransform.NodeFormat>(formatString, ignoreCase: true);
             var randomFactory = new TestRandomFactory();
             randomFactory.Instance = new TestRandom() { Sequence = new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8 } }; 
             var httpContext = new DefaultHttpContext();
@@ -99,7 +97,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             var proxyRequest = new HttpRequestMessage();
             proxyRequest.Headers.Add("Forwarded", startValue.Split("|", StringSplitOptions.RemoveEmptyEntries));
             var transform = new RequestHeaderForwardedTransform(randomFactory, forFormat: format,
-                byFormat: RequestHeaderForwardedTransform.NodeFormat.None, host: false, proto: false, append);
+                byFormat: NodeFormat.None, host: false, proto: false, append);
             await transform.ApplyAsync(new RequestTransformContext()
             {
                 HttpContext = httpContext,
@@ -111,25 +109,23 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 
         [Theory]
         // Using "|" to represent multi-line headers
-        [InlineData("", "", 2, "ip", false, "by=unknown")] // Missing IP falls back to Unknown
-        [InlineData("", "", 0, "ipandport", true, "by=unknown")] // Missing port excluded
-        [InlineData("", "", 2, "ipandport", true, "by=\"unknown:2\"")]
-        [InlineData("", "::1", 2, "unknown", false, "by=unknown")]
-        [InlineData("", "::1", 2, "unknownandport", true, "by=\"unknown:2\"")]
-        [InlineData("", "::1", 2, "ip", false, "by=\"[::1]\"")]
-        [InlineData("", "::1", 0, "ipandport", true, "by=\"[::1]\"")]
-        [InlineData("", "::1", 2, "ipandport", true, "by=\"[::1]:2\"")]
-        [InlineData("", "127.0.0.1", 2, "ip", false, "by=127.0.0.1")]
-        [InlineData("", "127.0.0.1", 2, "ipandport", true, "by=\"127.0.0.1:2\"")]
-        [InlineData("", "::1", 2, "random", false, "by=_abcdefghi")]
-        [InlineData("", "::1", 2, "randomandport", true, "by=\"_abcdefghi:2\"")]
-        [InlineData("existing,header", "::1", 2, "random", false, "by=_abcdefghi")]
-        [InlineData("existing,header", "::1", 2, "randomandport", true, "existing,header|by=\"_abcdefghi:2\"")]
-        [InlineData("existing|header", "::1", 2, "randomandport", true, "existing|header|by=\"_abcdefghi:2\"")]
-        public async Task By_Added(string startValue, string ip, int port, string formatString, bool append, string expected)
+        [InlineData("", "", 2, NodeFormat.Ip, false, "by=unknown")] // Missing IP falls back to Unknown
+        [InlineData("", "", 0, NodeFormat.IpAndPort, true, "by=unknown")] // Missing port excluded
+        [InlineData("", "", 2, NodeFormat.IpAndPort, true, "by=\"unknown:2\"")]
+        [InlineData("", "::1", 2, NodeFormat.Unknown, false, "by=unknown")]
+        [InlineData("", "::1", 2, NodeFormat.UnknownAndPort, true, "by=\"unknown:2\"")]
+        [InlineData("", "::1", 2, NodeFormat.Ip, false, "by=\"[::1]\"")]
+        [InlineData("", "::1", 0, NodeFormat.IpAndPort, true, "by=\"[::1]\"")]
+        [InlineData("", "::1", 2, NodeFormat.IpAndPort, true, "by=\"[::1]:2\"")]
+        [InlineData("", "127.0.0.1", 2, NodeFormat.Ip, false, "by=127.0.0.1")]
+        [InlineData("", "127.0.0.1", 2, NodeFormat.IpAndPort, true, "by=\"127.0.0.1:2\"")]
+        [InlineData("", "::1", 2, NodeFormat.Random, false, "by=_abcdefghi")]
+        [InlineData("", "::1", 2, NodeFormat.RandomAndPort, true, "by=\"_abcdefghi:2\"")]
+        [InlineData("existing,header", "::1", 2, NodeFormat.Random, false, "by=_abcdefghi")]
+        [InlineData("existing,header", "::1", 2, NodeFormat.RandomAndPort, true, "existing,header|by=\"_abcdefghi:2\"")]
+        [InlineData("existing|header", "::1", 2, NodeFormat.RandomAndPort, true, "existing|header|by=\"_abcdefghi:2\"")]
+        public async Task By_Added(string startValue, string ip, int port, NodeFormat format, bool append, string expected)
         {
-            // NodeFormat is on an internal type so we can't put it in a test's public signature.
-            var format = Enum.Parse<RequestHeaderForwardedTransform.NodeFormat>(formatString, ignoreCase: true);
             var randomFactory = new TestRandomFactory();
             randomFactory.Instance = new TestRandom() { Sequence = new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8 } };
             var httpContext = new DefaultHttpContext();
@@ -137,7 +133,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             httpContext.Connection.LocalPort = port;
             var proxyRequest = new HttpRequestMessage();
             proxyRequest.Headers.Add("Forwarded", startValue.Split("|", StringSplitOptions.RemoveEmptyEntries));
-            var transform = new RequestHeaderForwardedTransform(randomFactory, forFormat: RequestHeaderForwardedTransform.NodeFormat.None,
+            var transform = new RequestHeaderForwardedTransform(randomFactory, forFormat: NodeFormat.None,
                 byFormat: format, host: false, proto: false, append);
             await transform.ApplyAsync(new RequestTransformContext()
             {
@@ -166,8 +162,8 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             var proxyRequest = new HttpRequestMessage();
             proxyRequest.Headers.Add("Forwarded", startValue.Split("|", StringSplitOptions.RemoveEmptyEntries));
             var transform = new RequestHeaderForwardedTransform(randomFactory,
-                forFormat: RequestHeaderForwardedTransform.NodeFormat.IpAndPort,
-                byFormat: RequestHeaderForwardedTransform.NodeFormat.Random,
+                forFormat: NodeFormat.IpAndPort,
+                byFormat: NodeFormat.Random,
                 host: true, proto: true, append);
             await transform.ApplyAsync(new RequestTransformContext()
             {
