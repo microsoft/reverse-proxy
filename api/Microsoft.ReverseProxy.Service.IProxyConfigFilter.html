@@ -86,19 +86,19 @@
   </h3>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/microsoft/reverse-proxy/new/release/docs/apiSpec/new?filename=Microsoft_ReverseProxy_Service_IProxyConfigFilter_ConfigureClusterAsync_Microsoft_ReverseProxy_Abstractions_Cluster_System_Threading_CancellationToken_.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Service.IProxyConfigFilter.ConfigureClusterAsync(Microsoft.ReverseProxy.Abstractions.Cluster%2CSystem.Threading.CancellationToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/docs/apiSpec/new?filename=Microsoft_ReverseProxy_Service_IProxyConfigFilter_ConfigureClusterAsync_Cluster_System_Threading_CancellationToken_.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Service.IProxyConfigFilter.ConfigureClusterAsync(Cluster%2CSystem.Threading.CancellationToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
     <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/src/ReverseProxy/Abstractions/Config/IProxyConfigFilter.cs/#L20">View Source</a>
   </span>
   <a id="Microsoft_ReverseProxy_Service_IProxyConfigFilter_ConfigureClusterAsync_" data-uid="Microsoft.ReverseProxy.Service.IProxyConfigFilter.ConfigureClusterAsync*"></a>
-  <h4 id="Microsoft_ReverseProxy_Service_IProxyConfigFilter_ConfigureClusterAsync_Microsoft_ReverseProxy_Abstractions_Cluster_System_Threading_CancellationToken_" data-uid="Microsoft.ReverseProxy.Service.IProxyConfigFilter.ConfigureClusterAsync(Microsoft.ReverseProxy.Abstractions.Cluster,System.Threading.CancellationToken)">ConfigureClusterAsync(Cluster, CancellationToken)</h4>
+  <h4 id="Microsoft_ReverseProxy_Service_IProxyConfigFilter_ConfigureClusterAsync_Cluster_System_Threading_CancellationToken_" data-uid="Microsoft.ReverseProxy.Service.IProxyConfigFilter.ConfigureClusterAsync(Cluster,System.Threading.CancellationToken)">ConfigureClusterAsync(Cluster, CancellationToken)</h4>
   <div class="markdown level1 summary"><p>Allows modification of a Cluster configuration.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">Task ConfigureClusterAsync(Cluster cluster, CancellationToken cancel)</code></pre>
+    <pre><code class="lang-csharp hljs">ValueTask&lt;Cluster&gt; ConfigureClusterAsync(Cluster cluster, CancellationToken cancel)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -111,7 +111,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="Microsoft.ReverseProxy.Abstractions.Cluster.html">Cluster</a></td>
+        <td><span class="xref">Cluster</span></td>
         <td><span class="parametername">cluster</span></td>
         <td><p>The Cluster instance to configure.</p>
 </td>
@@ -133,26 +133,26 @@
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.threading.tasks.task">Task</a></td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.threading.tasks.valuetask-1">ValueTask</a>&lt;<span class="xref">Cluster</span>&gt;</td>
         <td></td>
       </tr>
     </tbody>
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/microsoft/reverse-proxy/new/release/docs/apiSpec/new?filename=Microsoft_ReverseProxy_Service_IProxyConfigFilter_ConfigureRouteAsync_Microsoft_ReverseProxy_Abstractions_ProxyRoute_System_Threading_CancellationToken_.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Service.IProxyConfigFilter.ConfigureRouteAsync(Microsoft.ReverseProxy.Abstractions.ProxyRoute%2CSystem.Threading.CancellationToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/docs/apiSpec/new?filename=Microsoft_ReverseProxy_Service_IProxyConfigFilter_ConfigureRouteAsync_ProxyRoute_System_Threading_CancellationToken_.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Service.IProxyConfigFilter.ConfigureRouteAsync(ProxyRoute%2CSystem.Threading.CancellationToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
     <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/src/ReverseProxy/Abstractions/Config/IProxyConfigFilter.cs/#L26">View Source</a>
   </span>
   <a id="Microsoft_ReverseProxy_Service_IProxyConfigFilter_ConfigureRouteAsync_" data-uid="Microsoft.ReverseProxy.Service.IProxyConfigFilter.ConfigureRouteAsync*"></a>
-  <h4 id="Microsoft_ReverseProxy_Service_IProxyConfigFilter_ConfigureRouteAsync_Microsoft_ReverseProxy_Abstractions_ProxyRoute_System_Threading_CancellationToken_" data-uid="Microsoft.ReverseProxy.Service.IProxyConfigFilter.ConfigureRouteAsync(Microsoft.ReverseProxy.Abstractions.ProxyRoute,System.Threading.CancellationToken)">ConfigureRouteAsync(ProxyRoute, CancellationToken)</h4>
+  <h4 id="Microsoft_ReverseProxy_Service_IProxyConfigFilter_ConfigureRouteAsync_ProxyRoute_System_Threading_CancellationToken_" data-uid="Microsoft.ReverseProxy.Service.IProxyConfigFilter.ConfigureRouteAsync(ProxyRoute,System.Threading.CancellationToken)">ConfigureRouteAsync(ProxyRoute, CancellationToken)</h4>
   <div class="markdown level1 summary"><p>Allows modification of a route configuration.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">Task ConfigureRouteAsync(ProxyRoute route, CancellationToken cancel)</code></pre>
+    <pre><code class="lang-csharp hljs">ValueTask&lt;ProxyRoute&gt; ConfigureRouteAsync(ProxyRoute route, CancellationToken cancel)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -165,7 +165,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="Microsoft.ReverseProxy.Abstractions.ProxyRoute.html">ProxyRoute</a></td>
+        <td><span class="xref">ProxyRoute</span></td>
         <td><span class="parametername">route</span></td>
         <td><p>The ProxyRoute instance to configure.</p>
 </td>
@@ -187,7 +187,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.threading.tasks.task">Task</a></td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.threading.tasks.valuetask-1">ValueTask</a>&lt;<span class="xref">ProxyRoute</span>&gt;</td>
         <td></td>
       </tr>
     </tbody>

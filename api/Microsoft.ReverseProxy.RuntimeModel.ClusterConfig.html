@@ -122,18 +122,18 @@ in their entirety when values need to change.</p>
   </h3>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/microsoft/reverse-proxy/new/release/docs/apiSpec/new?filename=Microsoft_ReverseProxy_RuntimeModel_ClusterConfig__ctor_Microsoft_ReverseProxy_Abstractions_Cluster_Microsoft_ReverseProxy_RuntimeModel_ClusterHealthCheckOptions_System_String_Microsoft_ReverseProxy_RuntimeModel_ClusterSessionAffinityOptions_System_Net_Http_HttpMessageInvoker_Microsoft_ReverseProxy_RuntimeModel_ClusterProxyHttpClientOptions_Microsoft_ReverseProxy_Service_Proxy_RequestProxyOptions_System_Collections_Generic_IReadOnlyDictionary_System_String_System_String__.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.%23ctor(Microsoft.ReverseProxy.Abstractions.Cluster%2CMicrosoft.ReverseProxy.RuntimeModel.ClusterHealthCheckOptions%2CSystem.String%2CMicrosoft.ReverseProxy.RuntimeModel.ClusterSessionAffinityOptions%2CSystem.Net.Http.HttpMessageInvoker%2CMicrosoft.ReverseProxy.RuntimeModel.ClusterProxyHttpClientOptions%2CMicrosoft.ReverseProxy.Service.Proxy.RequestProxyOptions%2CSystem.Collections.Generic.IReadOnlyDictionary%7BSystem.String%2CSystem.String%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/docs/apiSpec/new?filename=Microsoft_ReverseProxy_RuntimeModel_ClusterConfig__ctor_Cluster_System_Net_Http_HttpMessageInvoker_.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.%23ctor(Cluster%2CSystem.Net.Http.HttpMessageInvoker)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/src/ReverseProxy/Service/RuntimeModel/ClusterConfig.cs/#L24">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/src/ReverseProxy/Service/RuntimeModel/ClusterConfig.cs/#L22">View Source</a>
   </span>
   <a id="Microsoft_ReverseProxy_RuntimeModel_ClusterConfig__ctor_" data-uid="Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.#ctor*"></a>
-  <h4 id="Microsoft_ReverseProxy_RuntimeModel_ClusterConfig__ctor_Microsoft_ReverseProxy_Abstractions_Cluster_Microsoft_ReverseProxy_RuntimeModel_ClusterHealthCheckOptions_System_String_Microsoft_ReverseProxy_RuntimeModel_ClusterSessionAffinityOptions_System_Net_Http_HttpMessageInvoker_Microsoft_ReverseProxy_RuntimeModel_ClusterProxyHttpClientOptions_Microsoft_ReverseProxy_Service_Proxy_RequestProxyOptions_System_Collections_Generic_IReadOnlyDictionary_System_String_System_String__" data-uid="Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.#ctor(Microsoft.ReverseProxy.Abstractions.Cluster,Microsoft.ReverseProxy.RuntimeModel.ClusterHealthCheckOptions,System.String,Microsoft.ReverseProxy.RuntimeModel.ClusterSessionAffinityOptions,System.Net.Http.HttpMessageInvoker,Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpClientOptions,Microsoft.ReverseProxy.Service.Proxy.RequestProxyOptions,System.Collections.Generic.IReadOnlyDictionary{System.String,System.String})">ClusterConfig(Cluster, ClusterHealthCheckOptions, String, ClusterSessionAffinityOptions, HttpMessageInvoker, ClusterProxyHttpClientOptions, RequestProxyOptions, IReadOnlyDictionary&lt;String, String&gt;)</h4>
+  <h4 id="Microsoft_ReverseProxy_RuntimeModel_ClusterConfig__ctor_Cluster_System_Net_Http_HttpMessageInvoker_" data-uid="Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.#ctor(Cluster,System.Net.Http.HttpMessageInvoker)">ClusterConfig(Cluster, HttpMessageInvoker)</h4>
   <div class="markdown level1 summary"></div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public ClusterConfig(Cluster cluster, ClusterHealthCheckOptions healthCheckOptions, string loadBalancingPolicy, ClusterSessionAffinityOptions sessionAffinityOptions, HttpMessageInvoker httpClient, ClusterProxyHttpClientOptions httpClientOptions, RequestProxyOptions httpRequestOptions, IReadOnlyDictionary&lt;string, string&gt; metadata)</code></pre>
+    <pre><code class="lang-csharp hljs">public ClusterConfig(Cluster cluster, HttpMessageInvoker httpClient)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -146,43 +146,13 @@ in their entirety when values need to change.</p>
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="Microsoft.ReverseProxy.Abstractions.Cluster.html">Cluster</a></td>
+        <td><span class="xref">Cluster</span></td>
         <td><span class="parametername">cluster</span></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td><a class="xref" href="Microsoft.ReverseProxy.RuntimeModel.ClusterHealthCheckOptions.html">ClusterHealthCheckOptions</a></td>
-        <td><span class="parametername">healthCheckOptions</span></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.string">String</a></td>
-        <td><span class="parametername">loadBalancingPolicy</span></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td><a class="xref" href="Microsoft.ReverseProxy.RuntimeModel.ClusterSessionAffinityOptions.html">ClusterSessionAffinityOptions</a></td>
-        <td><span class="parametername">sessionAffinityOptions</span></td>
         <td></td>
       </tr>
       <tr>
         <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.net.http.httpmessageinvoker">HttpMessageInvoker</a></td>
         <td><span class="parametername">httpClient</span></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td><a class="xref" href="Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpClientOptions.html">ClusterProxyHttpClientOptions</a></td>
-        <td><span class="parametername">httpClientOptions</span></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td><a class="xref" href="Microsoft.ReverseProxy.Service.Proxy.RequestProxyOptions.html">RequestProxyOptions</a></td>
-        <td><span class="parametername">httpRequestOptions</span></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.collections.generic.ireadonlydictionary-2">IReadOnlyDictionary</a>&lt;<a class="xref" href="https://docs.microsoft.com/dotnet/api/system.string">String</a>, <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.string">String</a>&gt;</td>
-        <td><span class="parametername">metadata</span></td>
         <td></td>
       </tr>
     </tbody>
@@ -191,40 +161,10 @@ in their entirety when values need to change.</p>
   </h3>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/microsoft/reverse-proxy/new/release/docs/apiSpec/new?filename=Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_HealthCheckOptions.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.HealthCheckOptions%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
-  </span>
-  <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/src/ReverseProxy/Service/RuntimeModel/ClusterConfig.cs/#L46">View Source</a>
-  </span>
-  <a id="Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_HealthCheckOptions_" data-uid="Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.HealthCheckOptions*"></a>
-  <h4 id="Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_HealthCheckOptions" data-uid="Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.HealthCheckOptions">HealthCheckOptions</h4>
-  <div class="markdown level1 summary"></div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public ClusterHealthCheckOptions HealthCheckOptions { get; }</code></pre>
-  </div>
-  <h5 class="propertyValue">Property Value</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><a class="xref" href="Microsoft.ReverseProxy.RuntimeModel.ClusterHealthCheckOptions.html">ClusterHealthCheckOptions</a></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  <span class="small pull-right mobile-hide">
-    <span class="divider">|</span>
     <a href="https://github.com/microsoft/reverse-proxy/new/release/docs/apiSpec/new?filename=Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_HttpClient.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.HttpClient%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/src/ReverseProxy/Service/RuntimeModel/ClusterConfig.cs/#L59">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/src/ReverseProxy/Service/RuntimeModel/ClusterConfig.cs/#L35">View Source</a>
   </span>
   <a id="Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_HttpClient_" data-uid="Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.HttpClient*"></a>
   <h4 id="Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_HttpClient" data-uid="Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.HttpClient">HttpClient</h4>
@@ -252,18 +192,18 @@ in their entirety when values need to change.</p>
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/microsoft/reverse-proxy/new/release/docs/apiSpec/new?filename=Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_HttpClientOptions.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.HttpClientOptions%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/docs/apiSpec/new?filename=Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_Options.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.Options%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/src/ReverseProxy/Service/RuntimeModel/ClusterConfig.cs/#L52">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/src/ReverseProxy/Service/RuntimeModel/ClusterConfig.cs/#L30">View Source</a>
   </span>
-  <a id="Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_HttpClientOptions_" data-uid="Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.HttpClientOptions*"></a>
-  <h4 id="Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_HttpClientOptions" data-uid="Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.HttpClientOptions">HttpClientOptions</h4>
+  <a id="Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_Options_" data-uid="Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.Options*"></a>
+  <h4 id="Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_Options" data-uid="Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.Options">Options</h4>
   <div class="markdown level1 summary"></div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public ClusterProxyHttpClientOptions HttpClientOptions { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">public Cluster Options { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -275,128 +215,7 @@ in their entirety when values need to change.</p>
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="Microsoft.ReverseProxy.RuntimeModel.ClusterProxyHttpClientOptions.html">ClusterProxyHttpClientOptions</a></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  <span class="small pull-right mobile-hide">
-    <span class="divider">|</span>
-    <a href="https://github.com/microsoft/reverse-proxy/new/release/docs/apiSpec/new?filename=Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_HttpRequestOptions.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.HttpRequestOptions%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
-  </span>
-  <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/src/ReverseProxy/Service/RuntimeModel/ClusterConfig.cs/#L54">View Source</a>
-  </span>
-  <a id="Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_HttpRequestOptions_" data-uid="Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.HttpRequestOptions*"></a>
-  <h4 id="Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_HttpRequestOptions" data-uid="Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.HttpRequestOptions">HttpRequestOptions</h4>
-  <div class="markdown level1 summary"></div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public RequestProxyOptions HttpRequestOptions { get; }</code></pre>
-  </div>
-  <h5 class="propertyValue">Property Value</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><a class="xref" href="Microsoft.ReverseProxy.Service.Proxy.RequestProxyOptions.html">RequestProxyOptions</a></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  <span class="small pull-right mobile-hide">
-    <span class="divider">|</span>
-    <a href="https://github.com/microsoft/reverse-proxy/new/release/docs/apiSpec/new?filename=Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_LoadBalancingPolicy.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.LoadBalancingPolicy%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
-  </span>
-  <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/src/ReverseProxy/Service/RuntimeModel/ClusterConfig.cs/#L48">View Source</a>
-  </span>
-  <a id="Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_LoadBalancingPolicy_" data-uid="Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.LoadBalancingPolicy*"></a>
-  <h4 id="Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_LoadBalancingPolicy" data-uid="Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.LoadBalancingPolicy">LoadBalancingPolicy</h4>
-  <div class="markdown level1 summary"></div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public string LoadBalancingPolicy { get; }</code></pre>
-  </div>
-  <h5 class="propertyValue">Property Value</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.string">String</a></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  <span class="small pull-right mobile-hide">
-    <span class="divider">|</span>
-    <a href="https://github.com/microsoft/reverse-proxy/new/release/docs/apiSpec/new?filename=Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_Metadata.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.Metadata%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
-  </span>
-  <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/src/ReverseProxy/Service/RuntimeModel/ClusterConfig.cs/#L64">View Source</a>
-  </span>
-  <a id="Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_Metadata_" data-uid="Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.Metadata*"></a>
-  <h4 id="Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_Metadata" data-uid="Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.Metadata">Metadata</h4>
-  <div class="markdown level1 summary"><p>Arbitrary key-value pairs that further describe this cluster.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IReadOnlyDictionary&lt;string, string&gt; Metadata { get; }</code></pre>
-  </div>
-  <h5 class="propertyValue">Property Value</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.collections.generic.ireadonlydictionary-2">IReadOnlyDictionary</a>&lt;<a class="xref" href="https://docs.microsoft.com/dotnet/api/system.string">String</a>, <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.string">String</a>&gt;</td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  <span class="small pull-right mobile-hide">
-    <span class="divider">|</span>
-    <a href="https://github.com/microsoft/reverse-proxy/new/release/docs/apiSpec/new?filename=Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_SessionAffinityOptions.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.SessionAffinityOptions%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
-  </span>
-  <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/src/ReverseProxy/Service/RuntimeModel/ClusterConfig.cs/#L50">View Source</a>
-  </span>
-  <a id="Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_SessionAffinityOptions_" data-uid="Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.SessionAffinityOptions*"></a>
-  <h4 id="Microsoft_ReverseProxy_RuntimeModel_ClusterConfig_SessionAffinityOptions" data-uid="Microsoft.ReverseProxy.RuntimeModel.ClusterConfig.SessionAffinityOptions">SessionAffinityOptions</h4>
-  <div class="markdown level1 summary"></div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public ClusterSessionAffinityOptions SessionAffinityOptions { get; }</code></pre>
-  </div>
-  <h5 class="propertyValue">Property Value</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><a class="xref" href="Microsoft.ReverseProxy.RuntimeModel.ClusterSessionAffinityOptions.html">ClusterSessionAffinityOptions</a></td>
+        <td><span class="xref">Cluster</span></td>
         <td></td>
       </tr>
     </tbody>
@@ -412,7 +231,7 @@ in their entirety when values need to change.</p>
                     <a href="https://github.com/microsoft/reverse-proxy/new/release/docs/apiSpec/new?filename=Microsoft_ReverseProxy_RuntimeModel_ClusterConfig.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.RuntimeModel.ClusterConfig%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
                   </li>
                   <li>
-                    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/src/ReverseProxy/Service/RuntimeModel/ClusterConfig.cs/#L22" class="contribution-link">View Source</a>
+                    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/src/ReverseProxy/Service/RuntimeModel/ClusterConfig.cs/#L20" class="contribution-link">View Source</a>
                   </li>
                 </ul>
               </div>

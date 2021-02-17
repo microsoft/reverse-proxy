@@ -86,19 +86,19 @@
   </h3>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/microsoft/reverse-proxy/new/release/docs/apiSpec/new?filename=Microsoft_ReverseProxy_Service_ITransformBuilder_Build_System_Collections_Generic_IList_System_Collections_Generic_IDictionary_System_String_System_String___.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Service.ITransformBuilder.Build(System.Collections.Generic.IList%7BSystem.Collections.Generic.IDictionary%7BSystem.String%2CSystem.String%7D%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/docs/apiSpec/new?filename=Microsoft_ReverseProxy_Service_ITransformBuilder_Build_ProxyRoute_Cluster_.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Service.ITransformBuilder.Build(ProxyRoute%2CCluster)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/src/ReverseProxy/Abstractions/Config/ITransformBuilder.cs/#L24">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/src/ReverseProxy/Abstractions/Config/ITransformBuilder.cs/#L30">View Source</a>
   </span>
   <a id="Microsoft_ReverseProxy_Service_ITransformBuilder_Build_" data-uid="Microsoft.ReverseProxy.Service.ITransformBuilder.Build*"></a>
-  <h4 id="Microsoft_ReverseProxy_Service_ITransformBuilder_Build_System_Collections_Generic_IList_System_Collections_Generic_IDictionary_System_String_System_String___" data-uid="Microsoft.ReverseProxy.Service.ITransformBuilder.Build(System.Collections.Generic.IList{System.Collections.Generic.IDictionary{System.String,System.String}})">Build(IList&lt;IDictionary&lt;String, String&gt;&gt;)</h4>
-  <div class="markdown level1 summary"><p>Builds the given transforms into executable rules.</p>
+  <h4 id="Microsoft_ReverseProxy_Service_ITransformBuilder_Build_ProxyRoute_Cluster_" data-uid="Microsoft.ReverseProxy.Service.ITransformBuilder.Build(ProxyRoute,Cluster)">Build(ProxyRoute, Cluster)</h4>
+  <div class="markdown level1 summary"><p>Builds the transforms for the given route into executable rules.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">HttpTransformer Build(IList&lt;IDictionary&lt;string, string&gt;&gt; rawTransforms)</code></pre>
+    <pre><code class="lang-csharp hljs">HttpTransformer Build(ProxyRoute route, Cluster cluster)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -111,8 +111,13 @@
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.collections.generic.ilist-1">IList</a>&lt;<a class="xref" href="https://docs.microsoft.com/dotnet/api/system.collections.generic.idictionary-2">IDictionary</a>&lt;<a class="xref" href="https://docs.microsoft.com/dotnet/api/system.string">String</a>, <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.string">String</a>&gt;&gt;</td>
-        <td><span class="parametername">rawTransforms</span></td>
+        <td><span class="xref">ProxyRoute</span></td>
+        <td><span class="parametername">route</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">Cluster</span></td>
+        <td><span class="parametername">cluster</span></td>
         <td></td>
       </tr>
     </tbody>
@@ -134,20 +139,19 @@
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/microsoft/reverse-proxy/new/release/docs/apiSpec/new?filename=Microsoft_ReverseProxy_Service_ITransformBuilder_Validate_System_Collections_Generic_IList_System_Collections_Generic_IDictionary_System_String_System_String___.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Service.ITransformBuilder.Validate(System.Collections.Generic.IList%7BSystem.Collections.Generic.IDictionary%7BSystem.String%2CSystem.String%7D%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/docs/apiSpec/new?filename=Microsoft_ReverseProxy_Service_ITransformBuilder_ValidateCluster_Cluster_.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Service.ITransformBuilder.ValidateCluster(Cluster)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/src/ReverseProxy/Abstractions/Config/ITransformBuilder.cs/#L19">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/src/ReverseProxy/Abstractions/Config/ITransformBuilder.cs/#L25">View Source</a>
   </span>
-  <a id="Microsoft_ReverseProxy_Service_ITransformBuilder_Validate_" data-uid="Microsoft.ReverseProxy.Service.ITransformBuilder.Validate*"></a>
-  <h4 id="Microsoft_ReverseProxy_Service_ITransformBuilder_Validate_System_Collections_Generic_IList_System_Collections_Generic_IDictionary_System_String_System_String___" data-uid="Microsoft.ReverseProxy.Service.ITransformBuilder.Validate(System.Collections.Generic.IList{System.Collections.Generic.IDictionary{System.String,System.String}})">Validate(IList&lt;IDictionary&lt;String, String&gt;&gt;)</h4>
-  <div class="markdown level1 summary"><p>Validates that each transform is known and has the expected parameters. All transforms are validated and
-so all errors can be reported.</p>
+  <a id="Microsoft_ReverseProxy_Service_ITransformBuilder_ValidateCluster_" data-uid="Microsoft.ReverseProxy.Service.ITransformBuilder.ValidateCluster*"></a>
+  <h4 id="Microsoft_ReverseProxy_Service_ITransformBuilder_ValidateCluster_Cluster_" data-uid="Microsoft.ReverseProxy.Service.ITransformBuilder.ValidateCluster(Cluster)">ValidateCluster(Cluster)</h4>
+  <div class="markdown level1 summary"><p>Validates that any cluster data needed for transforms is valid.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">IList&lt;Exception&gt; Validate(IList&lt;IDictionary&lt;string, string&gt;&gt; transforms)</code></pre>
+    <pre><code class="lang-csharp hljs">IReadOnlyList&lt;Exception&gt; ValidateCluster(Cluster cluster)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -160,8 +164,8 @@ so all errors can be reported.</p>
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.collections.generic.ilist-1">IList</a>&lt;<a class="xref" href="https://docs.microsoft.com/dotnet/api/system.collections.generic.idictionary-2">IDictionary</a>&lt;<a class="xref" href="https://docs.microsoft.com/dotnet/api/system.string">String</a>, <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.string">String</a>&gt;&gt;</td>
-        <td><span class="parametername">transforms</span></td>
+        <td><span class="xref">Cluster</span></td>
+        <td><span class="parametername">cluster</span></td>
         <td></td>
       </tr>
     </tbody>
@@ -176,7 +180,56 @@ so all errors can be reported.</p>
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.collections.generic.ilist-1">IList</a>&lt;<a class="xref" href="https://docs.microsoft.com/dotnet/api/system.exception">Exception</a>&gt;</td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist-1">IReadOnlyList</a>&lt;<a class="xref" href="https://docs.microsoft.com/dotnet/api/system.exception">Exception</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/docs/apiSpec/new?filename=Microsoft_ReverseProxy_Service_ITransformBuilder_ValidateRoute_ProxyRoute_.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Service.ITransformBuilder.ValidateRoute(ProxyRoute)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/src/ReverseProxy/Abstractions/Config/ITransformBuilder.cs/#L20">View Source</a>
+  </span>
+  <a id="Microsoft_ReverseProxy_Service_ITransformBuilder_ValidateRoute_" data-uid="Microsoft.ReverseProxy.Service.ITransformBuilder.ValidateRoute*"></a>
+  <h4 id="Microsoft_ReverseProxy_Service_ITransformBuilder_ValidateRoute_ProxyRoute_" data-uid="Microsoft.ReverseProxy.Service.ITransformBuilder.ValidateRoute(ProxyRoute)">ValidateRoute(ProxyRoute)</h4>
+  <div class="markdown level1 summary"><p>Validates that each transform for the given route is known and has the expected parameters. All transforms are validated
+so all errors can be reported.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IReadOnlyList&lt;Exception&gt; ValidateRoute(ProxyRoute route)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">ProxyRoute</span></td>
+        <td><span class="parametername">route</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist-1">IReadOnlyList</a>&lt;<a class="xref" href="https://docs.microsoft.com/dotnet/api/system.exception">Exception</a>&gt;</td>
         <td></td>
       </tr>
     </tbody>
@@ -192,7 +245,7 @@ so all errors can be reported.</p>
                     <a href="https://github.com/microsoft/reverse-proxy/new/release/docs/apiSpec/new?filename=Microsoft_ReverseProxy_Service_ITransformBuilder.md&amp;value=---%0Auid%3A%20Microsoft.ReverseProxy.Service.ITransformBuilder%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
                   </li>
                   <li>
-                    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/src/ReverseProxy/Abstractions/Config/ITransformBuilder.cs/#L13" class="contribution-link">View Source</a>
+                    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/src/ReverseProxy/Abstractions/Config/ITransformBuilder.cs/#L14" class="contribution-link">View Source</a>
                   </li>
                 </ul>
               </div>

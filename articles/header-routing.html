@@ -145,7 +145,7 @@
         {
             RouteId = &quot;route1&quot;,
             ClusterId = &quot;cluster1&quot;,
-            Match =
+            Match = new ProxyMatch
             {
                 Path = &quot;{**catch-all}&quot;,
                 Headers = new[]
@@ -163,7 +163,7 @@
         {
             RouteId = &quot;route2&quot;,
             ClusterId = &quot;cluster1&quot;,
-            Match =
+            Match = new ProxyMatch
             {
                 Path = &quot;{**catch-all}&quot;,
                 Headers = new[]
@@ -181,7 +181,7 @@
         {
             RouteId = &quot;route3&quot;,
             ClusterId = &quot;cluster1&quot;,
-            Match =
+            Match = new ProxyMatch
             {
                 Path = &quot;{**catch-all}&quot;,
                 Headers = new[]
@@ -198,7 +198,7 @@
         {
             RouteId = &quot;route4&quot;,
             ClusterId = &quot;cluster1&quot;,
-            Match =
+            Match = new ProxyMatch
             {
                 Path = &quot;{**catch-all}&quot;,
                 Headers = new[]
@@ -220,7 +220,7 @@
     };
 </code></pre>
 <h2 id="contract">Contract</h2>
-<p><a class="xref" href="../api/Microsoft.ReverseProxy.Abstractions.RouteHeader.html">RouteHeader</a> defines the code contract and is mapped from config.</p>
+<p><a href="xref:Microsoft.ReverseProxy.Abstractions.RouteHeader">RouteHeader</a> defines the code contract and is mapped from config.</p>
 <h3 id="name">Name</h3>
 <p>The header name to check for on the request. A non-empty value is required. This field is case-insensitive per the HTTP RFCs.</p>
 <h3 id="values">Values</h3>

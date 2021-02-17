@@ -81,11 +81,11 @@
 <li>ClusterId - Refers to the name of an entry in the clusters section.</li>
 <li>Match containing either a Hosts array or a Path pattern string.</li>
 </ul>
-<p><a href="header-routing.html">Headers</a>, <a href="authn-authz.html">Authorization</a>, <a href="cors.html">CORS</a>, and other route based policies can be configured on each route entry. For additional fields see <a class="xref" href="../api/Microsoft.ReverseProxy.Abstractions.ProxyRoute.html">ProxyRoute</a>.</p>
+<p><a href="header-routing.html">Headers</a>, <a href="authn-authz.html">Authorization</a>, <a href="cors.html">CORS</a>, and other route based policies can be configured on each route entry. For additional fields see <a href="xref:Microsoft.ReverseProxy.Abstractions.ProxyRoute">ProxyRoute</a>.</p>
 <p>The proxy will apply the given matching criteria and policies, and then pass off the request to the specified cluster.</p>
 <h3 id="clusters">Clusters</h3>
 <p>The clusters section is an unordered collection of named clusters. A cluster primarily contains a collection of named destinations and their addresses, any of which is considered capable of handling requests for a given route. The proxy will process the request according to the route and cluster configuration in order to select a destination.</p>
-<p>For additional fields see <a class="xref" href="../api/Microsoft.ReverseProxy.Abstractions.Cluster.html">Cluster</a>.</p>
+<p>For additional fields see <a href="xref:Microsoft.ReverseProxy.Abstractions.Cluster">Cluster</a>.</p>
 <h2 id="lifecycle">Lifecycle</h2>
 <h3 id="startup">Startup</h3>
 <p>The <code>IProxyConfigProvider</code> should be registered in the DI container as a singleton. At startup the proxy will resolve this instance and call <code>GetConfig()</code>. On this first call the provider may choose to:</p>
@@ -180,7 +180,7 @@ namespace Microsoft.ReverseProxy.Configuration
         {
             RouteId = &quot;route1&quot;,
             ClusterId = &quot;cluster1&quot;,
-            Match =
+            Match = new ProxyMatch
             {
                 Path = &quot;{**catch-all}&quot;
             }
@@ -191,7 +191,7 @@ namespace Microsoft.ReverseProxy.Configuration
         new Cluster()
         {
             Id = &quot;cluster1&quot;,
-            Destinations =
+            Destinations = new Dictionary&lt;string, Destination&gt;(StringComparer.OrdinalIgnoreCase)
             {
                 { &quot;destination1&quot;, new Destination() { Address = &quot;https://example.com&quot; } }
             }

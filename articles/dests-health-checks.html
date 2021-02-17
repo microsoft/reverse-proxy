@@ -128,7 +128,7 @@
 <h3 id="configuration">Configuration</h3>
 <p>All but one of active health check settings are specified on the cluster level in <code>Cluster/HealthCheck/Active</code> section. The only exception is an optional <code>Destination/Health</code> element specifying a separate active health check endpoint. The actual health probing URI is constructed as <code>Destination/Address</code> (or <code>Destination/Health</code> when it's set) + <code>Cluster/HealthCheck/Active/Path</code>.</p>
 <p>Active health check settings can also be defined in code via the corresponding types in <a class="xref" href="../api/Microsoft.ReverseProxy.Abstractions.html">Microsoft.ReverseProxy.Abstractions</a> namespace mirroring the configuration contract.</p>
-<p><code>Cluster/HealthCheck/Active</code> section and <a class="xref" href="../api/Microsoft.ReverseProxy.Abstractions.ActiveHealthCheckOptions.html">ActiveHealthCheckOptions</a>:</p>
+<p><code>Cluster/HealthCheck/Active</code> section and <a href="xref:Microsoft.ReverseProxy.Abstractions.ActiveHealthCheckOptions">ActiveHealthCheckOptions</a>:</p>
 <ul>
 <li><code>Enabled</code> - flag indicating whether active health check is enabled for a cluster. Default <code>false</code></li>
 <li><code>Interval</code> - period of sending health probing requests. Default <code>00:00:15</code></li>
@@ -136,7 +136,7 @@
 <li><code>Policy</code> - name of a policy evaluating destinations' active health states. Mandatory parameter</li>
 <li><code>Path</code> -  health check path on all cluster's destinations. Default <code>null</code>.</li>
 </ul>
-<p><code>Destination</code> section and <a class="xref" href="../api/Microsoft.ReverseProxy.Abstractions.Destination.html">Destination</a>.</p>
+<p><code>Destination</code> section and <a href="xref:Microsoft.ReverseProxy.Abstractions.Destination">Destination</a>.</p>
 <ul>
 <li><code>Health</code> - A dedicated health probing endpoint such as <code>http://destination:12345/</code>. Defaults <code>null</code> and falls back to <code>Destination/Address</code>.</li>
 </ul>
@@ -145,7 +145,7 @@
 The policy parameters are set in the cluster's metadata as follows:</p>
 <p><code>ConsecutiveFailuresHealthPolicy.Threshold</code> - number of consecutively failed active health probing requests required to mark a destination as unhealthy. Default <code>2</code>.</p>
 <h3 id="design">Design</h3>
-<p>The main service in this process is <a class="xref" href="../api/Microsoft.ReverseProxy.Service.HealthChecks.IActiveHealthCheckMonitor.html">IActiveHealthCheckMonitor</a> that periodically creates probing requests via <a class="xref" href="../api/Microsoft.ReverseProxy.Service.HealthChecks.IProbingRequestFactory.html">IProbingRequestFactory</a>, sends them to all <a class="xref" href="../api/Microsoft.ReverseProxy.Abstractions.Destination.html">Destinations</a> of each <a class="xref" href="../api/Microsoft.ReverseProxy.Abstractions.Cluster.html">Cluster</a> with enabled active health checks and then passes all the responses down to a <a class="xref" href="../api/Microsoft.ReverseProxy.Service.HealthChecks.IActiveHealthCheckPolicy.html">IActiveHealthCheckPolicy</a> specified for a cluster. <code>IActiveHealthCheckMonitor</code> doesn't make the actual decision on whether a destination is healthy or not, but delegates this duty to an <code>IActiveHealthCheckPolicy</code> specified for a cluster. A policy is called to evaluate the new health states once all probing of all cluster's destination completed. It takes in a <a class="xref" href="../api/Microsoft.ReverseProxy.RuntimeModel.ClusterInfo.html">ClusterInfo</a> representing the cluster's dynamic state and a set of <a class="xref" href="../api/Microsoft.ReverseProxy.Service.HealthChecks.DestinationProbingResult.html">DestinationProbingResult</a> storing cluster's destinations' probing results. Having evaluated a new health state for each destination, the policy calls <a class="xref" href="../api/Microsoft.ReverseProxy.Service.HealthChecks.IDestinationHealthUpdater.html">IDestinationHealthUpdater</a> to actually update <a class="xref" href="../api/Microsoft.ReverseProxy.RuntimeModel.DestinationHealthState.html#Microsoft_ReverseProxy_RuntimeModel_DestinationHealthState_Active">DestinationHealthState.Active</a> values.</p>
+<p>The main service in this process is <a class="xref" href="../api/Microsoft.ReverseProxy.Service.HealthChecks.IActiveHealthCheckMonitor.html">IActiveHealthCheckMonitor</a> that periodically creates probing requests via <a class="xref" href="../api/Microsoft.ReverseProxy.Service.HealthChecks.IProbingRequestFactory.html">IProbingRequestFactory</a>, sends them to all <a href="xref:Microsoft.ReverseProxy.Abstractions.Destination">Destinations</a> of each <a href="xref:Microsoft.ReverseProxy.Abstractions.Cluster">Cluster</a> with enabled active health checks and then passes all the responses down to a <a class="xref" href="../api/Microsoft.ReverseProxy.Service.HealthChecks.IActiveHealthCheckPolicy.html">IActiveHealthCheckPolicy</a> specified for a cluster. <code>IActiveHealthCheckMonitor</code> doesn't make the actual decision on whether a destination is healthy or not, but delegates this duty to an <code>IActiveHealthCheckPolicy</code> specified for a cluster. A policy is called to evaluate the new health states once all probing of all cluster's destination completed. It takes in a <a class="xref" href="../api/Microsoft.ReverseProxy.RuntimeModel.ClusterInfo.html">ClusterInfo</a> representing the cluster's dynamic state and a set of <a class="xref" href="../api/Microsoft.ReverseProxy.Service.HealthChecks.DestinationProbingResult.html">DestinationProbingResult</a> storing cluster's destinations' probing results. Having evaluated a new health state for each destination, the policy calls <a class="xref" href="../api/Microsoft.ReverseProxy.Service.HealthChecks.IDestinationHealthUpdater.html">IDestinationHealthUpdater</a> to actually update <a class="xref" href="../api/Microsoft.ReverseProxy.RuntimeModel.DestinationHealthState.html#Microsoft_ReverseProxy_RuntimeModel_DestinationHealthState_Active">DestinationHealthState.Active</a> values.</p>
 <pre><code>-{For each cluster's destination}-
 IActiveHealthCheckMonitor &lt;--(Create probing request)--&gt; IProbingRequestFactory
         |
@@ -274,7 +274,7 @@ IActiveHealthCheckPolicy --(New active health states)--&gt; IDestinationHealthUp
     proxyPipeline.UsePassiveHealthChecks();
 });
 </code></pre>
-<p><code>Cluster/HealthCheck/Passive</code> section and <a class="xref" href="../api/Microsoft.ReverseProxy.Abstractions.PassiveHealthCheckOptions.html">PassiveHealthCheckOptions</a>:</p>
+<p><code>Cluster/HealthCheck/Passive</code> section and <a href="xref:Microsoft.ReverseProxy.Abstractions.PassiveHealthCheckOptions">PassiveHealthCheckOptions</a>:</p>
 <ul>
 <li><code>Enabled</code> - flag indicating whether passive health check is enabled for a cluster. Default <code>false</code></li>
 <li><code>Policy</code> - name of a policy evaluating destinations' passive health states. Mandatory parameter</li>

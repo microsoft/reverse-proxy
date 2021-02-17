@@ -96,8 +96,10 @@ X-Forwarded-For: 5.5.5.5
 X-Forwarded-Proto: http
 X-Forwarded-Host: IncomingHost:5000
 </code></pre>
-<h2 id="configuration">Configuration</h2>
-<p>Transforms are defined on <a class="xref" href="../api/Microsoft.ReverseProxy.Abstractions.ProxyRoute.html#Microsoft_ReverseProxy_Abstractions_ProxyRoute_Transforms">ProxyRoute.Transforms</a> and can be bound from the <code>Routes</code> sections of the config file. As with other route properties, these can be modified and reloaded without restarting the proxy. A transform is configured using one or more key-value string pairs.</p>
+<p>Transforms fall into a few categories: request, response, and response trailers. Request and response body transforms are not supported by YARP but you can write middleware to do this. Request trailers are not supported because they are not supported by the underlying HttpClient.</p>
+<p>Transforms can be added to routes either through configuration or programmatically.</p>
+<h2 id="from-configuration">From Configuration</h2>
+<p>Transforms can be configured on <a href="xref:Microsoft.ReverseProxy.Abstractions.ProxyRoute">ProxyRoute.Transforms</a> and can be bound from the <code>Routes</code> sections of the config file. These can be modified and reloaded without restarting the proxy. A transform is configured using one or more key-value string pairs.</p>
 <p>Here is an example of common transforms:</p>
 <pre><code class="lang-JSON">{
   &quot;ReverseProxy&quot;: {
@@ -157,8 +159,32 @@ X-Forwarded-Host: IncomingHost:5000
 }
 </code></pre>
 <p>All configuration entries are treated as case-insensitive, though the destination server may treat the resulting values as case sensitive or insensitive such as the path.</p>
-<p>Transforms fall into a few categories: request, response, and response trailers. Request and response body transforms are not supported by YARP but you can write middleware to do this. Request trailers are not supported because they are not supported by the underlying HttpClient.</p>
-<h3 id="request">Request</h3>
+<p>The details for these transforms are covered later in this document.</p>
+<p>Developers that want to integrate their custom transforms with the <code>Transforms</code> section of configuration can do so using <a href="#itransformfactory">ITransformFactory</a> described below.</p>
+<h2 id="from-code">From Code</h2>
+<p>Transforms can be added to routes programmatically by calling the <a class="xref" href="../api/Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.html">AddTransforms</a> method.</p>
+<p><code>AddTransforms</code> can be called from <code>Startup.ConfigureServices</code> to provide a callback for configuring transforms. This callback is invoked each time a route is built or rebuilt and allows the developer to inspect the <a href="xref:Microsoft.ReverseProxy.Abstractions.ProxyRoute">ProxyRoute</a> information and conditionally add transforms for it.</p>
+<p>The <code>AddTransforms</code> callback provides a <a class="xref" href="../api/Microsoft.ReverseProxy.Abstractions.Config.TransformBuilderContext.html">TransformBuilderContext</a> where transforms can be added or configured. Most transforms provide <code>TransformBuilderContext</code> extension methods to make them easier to add. These are extensions documented below with the individual transform descriptions.</p>
+<p>The <code>TransformBuilderContext</code> also includes an <code>IServiceProvider</code> for access to any needed services.</p>
+<pre><code class="lang-C#">services.AddReverseProxy()
+    .LoadFromConfig(_configuration.GetSection(&quot;ReverseProxy&quot;))
+    .AddTransforms(builderContext =&gt;
+    {
+        // Added to all routes.
+        builderContext.AddPathPrefix(&quot;/prefix&quot;);
+
+        // Conditionally add a transform for routes that require auth.
+        if (!string.IsNullOrEmpty(builderContext.Route.AuthorizationPolicy))
+        {
+            builderContext.AddRequestTransform(async transformContext =&gt;
+            {
+                transformContext.ProxyRequest.Headers.Add(&quot;CustomHeader&quot;, &quot;CustomValue&quot;);
+            });
+        }
+    });
+</code></pre>
+<p>For more advanced control see <a href="#itransformprovider">ITransformProvider</a> described below.</p>
+<h2 id="request-transforms">Request transforms</h2>
 <p>Request transforms include the request path, query, HTTP version, method, and headers. In code these are represented by the <a class="xref" href="../api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestTransformContext.html">RequestTransformContext</a> object and processed by implementations of the abstract class <a class="xref" href="../api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestTransform.html">RequestTransform</a>.</p>
 <p>Notes:</p>
 <ul>
@@ -168,7 +194,7 @@ X-Forwarded-Host: IncomingHost:5000
 <li>All incoming request headers are copied to the proxy request by default with the exception of the Host header (see <a href="#defaults">Defaults</a>). <a href="#x-forwarded">X-Forwarded</a> headers are also added by default. These behaviors can be configured using the following transforms. Additional request headers can be specified, or request headers can be excluded by setting them to an empty value.</li>
 </ul>
 <p>The following are built in transforms identified by their primary config key. These transforms are applied in the order they are specified in the route configuration.</p>
-<h4 id="pathprefix">PathPrefix</h4>
+<h3 id="pathprefix">PathPrefix</h3>
 <table>
 <thead>
 <tr>
@@ -189,12 +215,14 @@ X-Forwarded-Host: IncomingHost:5000
 <pre><code class="lang-JSON">{ &quot;PathPrefix&quot;: &quot;/prefix&quot; }
 </code></pre>
 <p>Code:</p>
-<pre><code class="lang-csharp">proxyRoute.AddTransformPathPrefix(prefix: &quot;/prefix&quot;);
+<pre><code class="lang-csharp">proxyRoute = proxyRoute.WithTransformPathPrefix(prefix: &quot;/prefix&quot;);
+</code></pre>
+<pre><code class="lang-C#">transformBuilderContext.AddPathPrefix(prefix: &quot;/prefix&quot;);
 </code></pre>
 <p>Example:<br>
 <code>/request/path</code> becomes <code>/prefix/request/path</code></p>
 <p>This will prefix the request path with the given value.</p>
-<h4 id="pathremoveprefix">PathRemovePrefix</h4>
+<h3 id="pathremoveprefix">PathRemovePrefix</h3>
 <table>
 <thead>
 <tr>
@@ -215,13 +243,15 @@ X-Forwarded-Host: IncomingHost:5000
 <pre><code class="lang-JSON">{ &quot;PathRemovePrefix&quot;: &quot;/prefix&quot; }
 </code></pre>
 <p>Code:</p>
-<pre><code class="lang-csharp">proxyRoute.AddTransformPathRemovePrefix(prefix: &quot;/prefix&quot;);
+<pre><code class="lang-csharp">proxyRoute = proxyRoute.WithTransformPathRemovePrefix(prefix: &quot;/prefix&quot;);
+</code></pre>
+<pre><code class="lang-csharp">transformBuilderContext.AddPathRemovePrefix(prefix: &quot;/prefix&quot;);
 </code></pre>
 <p>Example:<br>
 <code>/prefix/request/path</code> becomes <code>/request/path</code><br>
 <code>/prefix2/request/path</code> is not modified<br></p>
 <p>This will remove the matching prefix from the request path. Matches are made on path segment boundaries (<code>/</code>). If the prefix does not match then no changes are made.</p>
-<h4 id="pathset">PathSet</h4>
+<h3 id="pathset">PathSet</h3>
 <table>
 <thead>
 <tr>
@@ -242,12 +272,14 @@ X-Forwarded-Host: IncomingHost:5000
 <pre><code class="lang-JSON">{ &quot;PathSet&quot;: &quot;/newpath&quot; }
 </code></pre>
 <p>Code:</p>
-<pre><code class="lang-csharp">proxyRoute.AddTransformPathSet(path: &quot;/newpath&quot;);
+<pre><code class="lang-csharp">proxyRoute = proxyRoute.WithTransformPathSet(path: &quot;/newpath&quot;);
+</code></pre>
+<pre><code class="lang-C#">transformBuilderContext.AddPathSet(path: &quot;/newpath&quot;);
 </code></pre>
 <p>Example:<br>
 <code>/request/path</code> becomes <code>/newpath</code></p>
 <p>This will set the request path with the given value.</p>
-<h4 id="pathpattern">PathPattern</h4>
+<h3 id="pathpattern">PathPattern</h3>
 <table>
 <thead>
 <tr>
@@ -268,7 +300,9 @@ X-Forwarded-Host: IncomingHost:5000
 <pre><code class="lang-JSON">{ &quot;PathPattern&quot;: &quot;/my/{plugin}/api/{remainder}&quot; }
 </code></pre>
 <p>Code:</p>
-<pre><code class="lang-csharp">proxyRoute.AddTransformPathRouteValues(pattern: &quot;/my/{plugin}/api/{remainder}&quot;);
+<pre><code class="lang-csharp">proxyRoute = proxyRoute.WithTransformPathRouteValues(pattern: new PathString(&quot;/my/{plugin}/api/{remainder}&quot;));
+</code></pre>
+<pre><code class="lang-C#">transformBuilderContext.AddPathRouteValues(pattern: new PathString(&quot;/my/{plugin}/api/{remainder}&quot;));
 </code></pre>
 <p>This will set the request path with the given value and replace any <code>{}</code> segments with the associated route value. <code>{}</code> segments without a matching route value are removed. See ASP.NET Core's <a href="https://docs.microsoft.com/en-us/aspnet/core/fundamentals/routing?view=aspnetcore-3.1#route-template-reference">routing docs</a> for more information about route templates.</p>
 <p>Example:</p>
@@ -306,7 +340,7 @@ X-Forwarded-Host: IncomingHost:5000
 </tr>
 </tbody>
 </table>
-<h4 id="queryvalueparameter">QueryValueParameter</h4>
+<h3 id="queryvalueparameter">QueryValueParameter</h3>
 <table>
 <thead>
 <tr>
@@ -335,7 +369,9 @@ X-Forwarded-Host: IncomingHost:5000
 }
 </code></pre>
 <p>Code:</p>
-<pre><code class="lang-csharp">proxyRoute.AddTransformQueryValueParameter(queryKey: &quot;foo&quot;, value: &quot;bar&quot;, append: true);
+<pre><code class="lang-csharp">proxyRoute = proxyRoute.WithTransformQueryValue(queryKey: &quot;foo&quot;, value: &quot;bar&quot;, append: true);
+</code></pre>
+<pre><code class="lang-C#">transformBuilderContext.AddQueryValue(queryKey: &quot;foo&quot;, value: &quot;bar&quot;, append: true);
 </code></pre>
 <p>This will add a query string parameter with the name <code>foo</code> and sets it to the static value <code>bar</code>.</p>
 <p>Example:</p>
@@ -365,7 +401,7 @@ X-Forwarded-Host: IncomingHost:5000
 </tr>
 </tbody>
 </table>
-<h4 id="queryrouteparameter">QueryRouteParameter</h4>
+<h3 id="queryrouteparameter">QueryRouteParameter</h3>
 <table>
 <thead>
 <tr>
@@ -394,7 +430,9 @@ X-Forwarded-Host: IncomingHost:5000
 }
 </code></pre>
 <p>Code:</p>
-<pre><code class="lang-csharp">proxyRoute.AddTransformQueryRouteParameter(queryKey: &quot;foo&quot;, routeValueKey: &quot;remainder&quot;, append: true);
+<pre><code class="lang-csharp">proxyRoute = proxyRoute.WithTransformQueryRouteValue(queryKey: &quot;foo&quot;, routeValueKey: &quot;remainder&quot;, append: true);
+</code></pre>
+<pre><code class="lang-C#">transformBuilderContext.AddQueryRouteValue(queryKey: &quot;foo&quot;, routeValueKey: &quot;remainder&quot;, append: true);
 </code></pre>
 <p>This will add a query string parameter with the name <code>foo</code> and sets it to the value of the associated route value.</p>
 <p>Example:</p>
@@ -432,7 +470,7 @@ X-Forwarded-Host: IncomingHost:5000
 </tr>
 </tbody>
 </table>
-<h4 id="queryremoveparameter">QueryRemoveParameter</h4>
+<h3 id="queryremoveparameter">QueryRemoveParameter</h3>
 <table>
 <thead>
 <tr>
@@ -450,12 +488,12 @@ X-Forwarded-Host: IncomingHost:5000
 </tbody>
 </table>
 <p>Config:</p>
-<pre><code class="lang-JSON">{
-  &quot;QueryRemoveParameter&quot;: &quot;foo&quot;
-}
+<pre><code class="lang-JSON">{ &quot;QueryRemoveParameter&quot;: &quot;foo&quot; }
 </code></pre>
 <p>Code:</p>
-<pre><code class="lang-csharp">proxyRoute.AddTransformRemoveQueryParameter(queryKey: &quot;foo&quot;);
+<pre><code class="lang-csharp">proxyRoute = proxyRoute.WithTransformQueryRemoveKey(queryKey: &quot;foo&quot;);
+</code></pre>
+<pre><code class="lang-C#">transformBuilderContext.AddQueryRemoveKey(queryKey: &quot;foo&quot;);
 </code></pre>
 <p>This will remove a query string parameter with the name <code>foo</code> if present on the request.</p>
 <p>Example:</p>
@@ -481,7 +519,7 @@ X-Forwarded-Host: IncomingHost:5000
 </tr>
 </tbody>
 </table>
-<h4 id="httpmethod">HttpMethod</h4>
+<h3 id="httpmethod">HttpMethod</h3>
 <table>
 <thead>
 <tr>
@@ -510,10 +548,12 @@ X-Forwarded-Host: IncomingHost:5000
 }
 </code></pre>
 <p>Code:</p>
-<pre><code class="lang-csharp">proxyRoute.AddTransformHttpMethod(fromHttpMethod: HttpMethods.Put, toHttpMethod: HttpMethods.Post);
+<pre><code class="lang-csharp">proxyRoute = proxyRoute.WithTransformHttpMethodChange(fromHttpMethod: HttpMethods.Put, toHttpMethod: HttpMethods.Post);
+</code></pre>
+<pre><code class="lang-C#">transformBuilderContext.AddHttpMethodChange(fromHttpMethod: HttpMethods.Put, toHttpMethod: HttpMethods.Post);
 </code></pre>
 <p>This will change PUT requests to POST.</p>
-<h4 id="requestheaderscopy">RequestHeadersCopy</h4>
+<h3 id="requestheaderscopy">RequestHeadersCopy</h3>
 <table>
 <thead>
 <tr>
@@ -536,10 +576,12 @@ X-Forwarded-Host: IncomingHost:5000
 <pre><code class="lang-JSON">{ &quot;RequestHeadersCopy&quot;: &quot;false&quot; }
 </code></pre>
 <p>Code:</p>
-<pre><code class="lang-csharp">proxyRoute.AddTransformSuppressRequestHeaders();
+<pre><code class="lang-csharp">proxyRoute = proxyRoute.WithTransformCopyRequestHeaders(copy: false);
+</code></pre>
+<pre><code class="lang-C#">transformBuilderContext.CopyRequestHeaders = false;
 </code></pre>
 <p>This sets if all incoming request headers are copied to the proxy request. This setting is enabled by default and can by disabled by configuring the transform with a <code>false</code> value. Transforms that reference specific headers will still be run if this is disabled.</p>
-<h4 id="requestheaderoriginalhost">RequestHeaderOriginalHost</h4>
+<h3 id="requestheaderoriginalhost">RequestHeaderOriginalHost</h3>
 <table>
 <thead>
 <tr>
@@ -559,10 +601,14 @@ X-Forwarded-Host: IncomingHost:5000
 </tbody>
 </table>
 <p>Config:</p>
-<pre><code class="lang-JSON">{ &quot;RequestHeaderOriginalHost&quot;: &quot;false&quot; }
+<pre><code class="lang-JSON">{ &quot;RequestHeaderOriginalHost&quot;: &quot;true&quot; }
+</code></pre>
+<pre><code class="lang-csharp">proxyRoute = proxyRoute.WithTransformUseOriginalHostHeader(useOriginal: true);
+</code></pre>
+<pre><code class="lang-C#">transformBuilderContext.UseOriginalHost = true;
 </code></pre>
 <p>This specifies if the incoming request Host header should be copied to the proxy request. This setting is disabled by default and can be enabled by configuring the transform with a <code>true</code> value. Transforms that directly reference the <code>Host</code> header will override this transform.</p>
-<h4 id="requestheader">RequestHeader</h4>
+<h3 id="requestheader">RequestHeader</h3>
 <table>
 <thead>
 <tr>
@@ -591,13 +637,15 @@ X-Forwarded-Host: IncomingHost:5000
 }
 </code></pre>
 <p>Code:</p>
-<pre><code class="lang-csharp">proxyRoute.AddTransformRequestHeader(headerName: &quot;MyHeader&quot;, value: &quot;MyValue&quot;, append: false);
+<pre><code class="lang-csharp">proxyRoute = proxyRoute.WithTransformRequestHeader(headerName: &quot;MyHeader&quot;, value: &quot;MyValue&quot;, append: false);
+</code></pre>
+<pre><code class="lang-C#">transformBuilderContext.AddRequestHeader(headerName: &quot;MyHeader&quot;, value: &quot;MyValue&quot;, append: false);
 </code></pre>
 <p>Example:</p>
 <pre><code>MyHeader: MyValue
 </code></pre>
 <p>This sets or appends the value for the named header. Set replaces any existing header. Set a header to empty to remove it (e.g. <code>&quot;Set&quot;: &quot;&quot;</code>). Append adds an additional header with the given value.</p>
-<h4 id="x-forwarded">X-Forwarded</h4>
+<h3 id="x-forwarded">X-Forwarded</h3>
 <table>
 <thead>
 <tr>
@@ -636,7 +684,9 @@ X-Forwarded-Host: IncomingHost:5000
 }
 </code></pre>
 <p>Code:</p>
-<pre><code class="lang-csharp">proxyRoute.AddTransformXForwarded(headerPrefix: &quot;X-Forwarded-&quot;, useFor: true, useHost: true, useProto: true, usePathBase: true, append: true);
+<pre><code class="lang-csharp">proxyRoute = proxyRoute.WithTransformXForwarded(headerPrefix: &quot;X-Forwarded-&quot;, useFor: true, useHost: true, useProto: true, usePathBase: true, append: true);
+</code></pre>
+<pre><code class="lang-C#">transformBuilderContext.AddXForwarded(headerPrefix: &quot;X-Forwarded-&quot;, useFor: true, useHost: true, useProto: true, usePathBase: true, append: true);
 </code></pre>
 <p>Example:</p>
 <pre><code>X-Forwarded-For: 5.5.5.5
@@ -645,7 +695,9 @@ X-Forwarded-Host: IncomingHost:5000
 X-Forwarded-PathBase: /path/base
 </code></pre>
 <p>Disable default headers:</p>
-<pre><code>{ &quot;X-Forwarded&quot;: &quot;&quot; }
+<pre><code class="lang-JSON">{ &quot;X-Forwarded&quot;: &quot;&quot; }
+</code></pre>
+<pre><code class="lang-C#">transformBuilderContext.UseDefaultForwarders = false;
 </code></pre>
 <p>X-Forwarded-* headers are a common way to forward information to the destination server that may otherwise be obscured by the use of a proxy. The destination server likely needs this information for security checks and to properly generate absolute URIs for links and redirects. There is no standard that defines these headers and implementations vary, check your destination server for support.</p>
 <p>This transform is enabled by default even if not specified in the route config.</p>
@@ -656,7 +708,7 @@ X-Forwarded-PathBase: /path/base
 <p>The {Prefix}Proto header value is taken from <code>HttpContext.Request.Scheme</code> indicating if the prior caller used HTTP or HTTPS.</p>
 <p>The {Prefix}Host header value is taken from the incoming request's Host header. This is independent of RequestHeaderOriginalHost specified above. Unicode/IDN hosts are punycode encoded.</p>
 <p>The {Prefix}PathBase header value is taken from <code>HttpContext.Request.PathBase</code>. The PathBase property is not used when generating the proxy request so the destination server will need the original value to correctly generate links and directs. The value is in the percent encoded Uri format.</p>
-<h4 id="forwarded">Forwarded</h4>
+<h3 id="forwarded">Forwarded</h3>
 <table>
 <thead>
 <tr>
@@ -701,7 +753,9 @@ X-Forwarded-PathBase: /path/base
 },
 </code></pre>
 <p>Code:</p>
-<pre><code class="lang-csharp">proxyRoute.AddTransformForwarded(useFor: true, useHost: true, useProto: true, useBy: true, append: true, forFormat: &quot;IpAndPort&quot;, ByFormat: &quot;Random&quot;);
+<pre><code class="lang-csharp">proxyRoute = proxyRoute.WithTransformForwarded(useHost: true, useProto: true, forFormat: NodeFormat.IpAndPort, ByFormat: NodeFormat.Random, append: true);
+</code></pre>
+<pre><code class="lang-C#">transformBuilderContext.AddForwarded(useHost: true, useProto: true, forFormat: NodeFormat.IpAndPort, ByFormat: NodeFormat.Random, append: true);
 </code></pre>
 <p>Example:</p>
 <pre><code>Forwarded: proto=https;host=&quot;localhost:5001&quot;;for=&quot;[::1]:20173&quot;;by=_YQuN68tm6
@@ -756,7 +810,7 @@ X-Forwarded-PathBase: /path/base
 </tr>
 </tbody>
 </table>
-<h4 id="clientcert">ClientCert</h4>
+<h3 id="clientcert">ClientCert</h3>
 <table>
 <thead>
 <tr>
@@ -777,16 +831,18 @@ X-Forwarded-PathBase: /path/base
 <pre><code class="lang-JSON">{ &quot;ClientCert&quot;: &quot;X-Client-Cert&quot; }
 </code></pre>
 <p>Code:</p>
-<pre><code class="lang-csharp">proxyRoute.AddTransformClientCert(headerName: &quot;X-Client-Cert&quot;);
+<pre><code class="lang-csharp">proxyRoute = proxyRoute.WithTransformClientCertHeader(headerName: &quot;X-Client-Cert&quot;);
+</code></pre>
+<pre><code class="lang-C#">transformBuilderContext.AddClientCertHeader(headerName: &quot;X-Client-Cert&quot;);
 </code></pre>
 <p>Example:</p>
 <pre><code>X-Client-Cert: SSdtIGEgY2VydGlmaWNhdGU...
 </code></pre>
 <p>This transform causes the client certificate taken from <code>HttpContext.Connection.ClientCertificate</code> to be Base64 encoded and set as the value for the given header name. This is needed because client certificates from incoming connections are not used when making connections to the destination server. The destination server may need that certificate to authenticate the client. There is no standard that defines this header and implementations vary, check your destination server for support.</p>
-<h3 id="response-and-response-trailers">Response and Response Trailers</h3>
+<h2 id="response-and-response-trailers">Response and Response Trailers</h2>
 <p>All response headers and trailers are copied from the proxied response to the outgoing client response by default. Response and response trailer transforms may specify if they should be applied only for successful responses or for all responses.</p>
 <p>In code these are implemented as derivations of the abstract classes <a class="xref" href="../api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseTransform.html">ResponseTransform</a> and <a class="xref" href="../api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseTrailersTransform.html">ResponseTrailersTransform</a>.</p>
-<h4 id="responseheaderscopy">ResponseHeadersCopy</h4>
+<h3 id="responseheaderscopy">ResponseHeadersCopy</h3>
 <table>
 <thead>
 <tr>
@@ -809,10 +865,12 @@ X-Forwarded-PathBase: /path/base
 <pre><code class="lang-JSON">{ &quot;ResponseHeadersCopy&quot;: &quot;false&quot; }
 </code></pre>
 <p>Code:</p>
-<pre><code class="lang-csharp">proxyRoute.AddTransformSuppressResponseHeaders();
+<pre><code class="lang-csharp">proxyRoute = proxyRoute.WithTransformCopyResponseHeaders(copy: false);
+</code></pre>
+<pre><code class="lang-C#">transformBuilderContext.CopyResponseHeaders = false;
 </code></pre>
 <p>This sets if all proxy response headers are copied to the client response. This setting is enabled by default and can be disabled by configuring the transform with a <code>false</code> value. Transforms that reference specific headers will still be run if this is disabled.</p>
-<h4 id="responseheader">ResponseHeader</h4>
+<h3 id="responseheader">ResponseHeader</h3>
 <table>
 <thead>
 <tr>
@@ -851,14 +909,16 @@ X-Forwarded-PathBase: /path/base
 }
 </code></pre>
 <p>Code:</p>
-<pre><code class="lang-csharp">proxyRoute.AddTransformResponseHeader(headerName: &quot;HeaderName&quot;, value: &quot;value&quot;, append: true, always: false);
+<pre><code class="lang-csharp">proxyRoute = proxyRoute.WithTransformResponseHeader(headerName: &quot;HeaderName&quot;, value: &quot;value&quot;, append: true, always: false);
+</code></pre>
+<pre><code class="lang-C#">transformBuilderContext.AddResponseHeader(headerName: &quot;HeaderName&quot;, value: &quot;value&quot;, append: true, always: false);
 </code></pre>
 <p>Example:</p>
 <pre><code>HeaderName: value
 </code></pre>
 <p>This sets or appends the value for the named header. Set replaces any existing header. Set a header to empty to remove it (e.g. <code>&quot;Set&quot;: &quot;&quot;</code>). Append adds an additional header with the given value.</p>
 <p><code>When</code> specifies if the response header should be included for successful responses or for all responses. Any response with a status code less than 400 is considered a success.</p>
-<h4 id="responsetrailerscopy">ResponseTrailersCopy</h4>
+<h3 id="responsetrailerscopy">ResponseTrailersCopy</h3>
 <table>
 <thead>
 <tr>
@@ -881,10 +941,12 @@ X-Forwarded-PathBase: /path/base
 <pre><code class="lang-JSON">{ &quot;ResponseTrailersCopy&quot;: &quot;false&quot; }
 </code></pre>
 <p>Code:</p>
-<pre><code class="lang-csharp">proxyRoute.AddTransformSuppressResponseTrailers();
+<pre><code class="lang-csharp">proxyRoute = proxyRoute.WithTransformCopyResponseTrailers(copy: false);
+</code></pre>
+<pre><code class="lang-C#">transformBuilderContext.CopyResponseTrailers = false;
 </code></pre>
 <p>This sets if all proxy response trailers are copied to the client response. This setting is enabled by default and can be disabled by configuring the transform with a <code>false</code> value. Transforms that reference specific headers will still be run if this is disabled.</p>
-<h4 id="responsetrailer">ResponseTrailer</h4>
+<h3 id="responsetrailer">ResponseTrailer</h3>
 <table>
 <thead>
 <tr>
@@ -923,7 +985,9 @@ X-Forwarded-PathBase: /path/base
 }
 </code></pre>
 <p>Code:</p>
-<pre><code class="lang-csharp">proxyRoute.AddTransformResponseTrailer(headerName: &quot;HeaderName&quot;, value: &quot;value&quot;, append: true, always: false);
+<pre><code class="lang-csharp">proxyRoute = proxyRoute.WithTransformResponseTrailer(headerName: &quot;HeaderName&quot;, value: &quot;value&quot;, append: true, always: false);
+</code></pre>
+<pre><code class="lang-C#">transformBuilderContext.AddResponseTrailer(headerName: &quot;HeaderName&quot;, value: &quot;value&quot;, append: true, always: false);
 </code></pre>
 <p>Example:</p>
 <pre><code>HeaderName: value
@@ -931,7 +995,128 @@ X-Forwarded-PathBase: /path/base
 <p>Response trailers are headers sent at the end of the response body. Support for trailers is uncommon in HTTP/1.1 implementations but is becoming common in HTTP/2 implementations. Check your client and server for support.</p>
 <p>ResponseTrailer follows the same structure and guidance as ResponseHeader.</p>
 <h2 id="extensibility">Extensibility</h2>
-<p>To be continued, see <a href="https://github.com/microsoft/reverse-proxy/issues/60">#60</a>.</p>
+<h3 id="addrequesttransform">AddRequestTransform</h3>
+<p><a class="xref" href="../api/Microsoft.ReverseProxy.Abstractions.Config.TransformBuilderContextFuncExtensions.html">AddRequestTransform</a> is a <code>TransformBuilderContext</code> extension method that defines a request transform as a <code>Func&lt;RequestTransformContext, ValueTask&gt;</code>. This allows creating a custom request transform without implementing a <code>RequestTransform</code> derived class.</p>
+<h3 id="addresponsetransform">AddResponseTransform</h3>
+<p><a class="xref" href="../api/Microsoft.ReverseProxy.Abstractions.Config.TransformBuilderContextFuncExtensions.html">AddResponseTransform</a> is a <code>TransformBuilderContext</code> extension method that defines a response transform as a <code>Func&lt;ResponseTransformContext, ValueTask&gt;</code>. This allows creating a custom response transform without implementing a <code>ResponseTransform</code> derived class.</p>
+<h3 id="addresponsetrailerstransform">AddResponseTrailersTransform</h3>
+<p><a class="xref" href="../api/Microsoft.ReverseProxy.Abstractions.Config.TransformBuilderContextFuncExtensions.html">AddResponseTrailersTransform</a> is a <code>TransformBuilderContext</code> extension method that defines a response trailers transform as a <code>Func&lt;ResponseTrailersTransformContext, ValueTask&gt;</code>. This allows creating a custom response trailers transform without implementing a <code>ResponseTrailersTransform</code> derived class.</p>
+<h3 id="requesttransform">RequestTransform</h3>
+<p>All request transforms must derive from the abstract base class <a class="xref" href="../api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestTransform.html">RequestTransform</a>. These can freely modify the proxy <code>HttpRequestMessage</code>. Avoid reading or modifying the request body as this may disrupt the proxying flow. Consider also adding a parametrized extension method on <code>TransformBuilderContext</code> for discoverability and easy of use.</p>
+<h3 id="responsetransform">ResponseTransform</h3>
+<p>All response transforms must derive from the abstract base class <a class="xref" href="../api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseTransform.html">ResponseTransform</a>. These can freely modify the client <code>HttpResponse</code>. Avoid reading or modifying the response body as this may disrupt the proxying flow. Consider also adding a parametrized extension method on <code>TransformBuilderContext</code> for discoverability and easy of use.</p>
+<h3 id="responsetrailerstransform">ResponseTrailersTransform</h3>
+<p>All response trailers transforms must derive from the abstract base class <a class="xref" href="../api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseTrailersTransform.html">ResponseTrailersTransform</a>. These can freely modify the client HttpResponse trailers. These run after the response body and should not attempt to modify the response headers or body. Consider also adding a parametrized extension method on <code>TransformBuilderContext</code> for discoverability and easy of use.</p>
+<h3 id="itransformprovider">ITransformProvider</h3>
+<p><a class="xref" href="../api/Microsoft.ReverseProxy.Abstractions.Config.ITransformProvider.html">ITransformProvider</a> provides the functionality of <code>AddTransforms</code> described above as well as DI integration and validation support.</p>
+<p><code>ITransformProvider</code>'s can be registered in DI by calling <a class="xref" href="../api/Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.html">AddTransforms&lt;T&gt;()</a>. Multiple <code>ITransformProvider</code> implementations can be registered and all will be run.</p>
+<p><code>ITransformProvider</code> has two methods, <code>Validate</code> and <code>Apply</code>. <code>Validate</code> gives you the opportunity to inspect the route for any parameters that are needed to configure a transform, such as custom metadata, and to return validation errors on the context if any needed values are missing or invalid. The <code>Apply</code> method provides the same functionality as AddTransform as discussed above, adding and configuring transforms per route.</p>
+<pre><code class="lang-C#">services.AddReverseProxy()
+    .LoadFromConfig(_configuration.GetSection(&quot;ReverseProxy&quot;))
+    .AddTransforms&lt;MyTransformProvider&gt;();
+</code></pre>
+<pre><code class="lang-C#">    internal class MyTransformProvider : ITransformProvider
+    {
+        public void Validate(TransformValidationContext context)
+        {
+            // Check all routes for a custom property and validate the associated
+            // transform data.
+            string value = null;
+            if (context.Route.Metadata?.TryGetValue(&quot;CustomMetadata&quot;, out value) ?? false)
+            {
+                if (string.IsNullOrEmpty(value))
+                {
+                    context.Errors.Add(new ArgumentException(
+                        &quot;A non-empty CustomMetadata value is required&quot;));
+                }
+            }
+        }
+
+        public void Apply(TransformBuilderContext transformBuildContext)
+        {
+            // Check all routes for a custom property and add the associated transform.
+            string value = null;
+            if (transformBuildContext.Route.Metadata?.TryGetValue(&quot;CustomMetadata&quot;, out value)
+                ?? false)
+            {
+                if (string.IsNullOrEmpty(value))
+                {
+                    throw new ArgumentException(
+                        &quot;A non-empty CustomMetadata value is required&quot;);
+                }
+
+                transformBuildContext.AddRequestTransform(transformContext =&gt;
+                {
+                    transformContext.ProxyRequest.Headers.Add(&quot;CustomHeader&quot;, value);
+                    return default;
+                });
+            }
+        }
+    }
+</code></pre>
+<h3 id="itransformfactory">ITransformFactory</h3>
+<p>Developers that want to integrate their custom transforms with the <code>Transforms</code> section of configuration can implement an <a class="xref" href="../api/Microsoft.ReverseProxy.Abstractions.Config.ITransformFactory.html">ITransformFactory</a>. This should be registered in DI using the <code>AddTransformFactory&lt;T&gt;()</code> method. Multiple factories can be registered and all will be used.</p>
+<p><code>ITransformFactory</code> provides two methods, <code>Validate</code> and <code>Build</code>. These process one set of transform values at a time, represented by a <code>IReadOnlyDictionary&lt;string, string&gt;</code>.</p>
+<p>The <code>Validate</code> method is called when loading a configuration to verify the contents and report all errors. Any reported errors will prevent the configuration from being applied.</p>
+<p>The <code>Build</code> method takes the given configuration and produces the associated transform instances for the route.</p>
+<pre><code class="lang-C#">services.AddReverseProxy()
+    .LoadFromConfig(_configuration.GetSection(&quot;ReverseProxy&quot;))
+    .AddTransformFactory&lt;MyTransformFactory&gt;();
+</code></pre>
+<pre><code class="lang-C#">    internal class MyTransformFactory : ITransformFactory
+    {
+        public bool Validate(TransformValidationContext context,
+            IReadOnlyDictionary&lt;string, string&gt; transformValues)
+        {
+            if (transformValues.TryGetValue(&quot;CustomTransform&quot;, out var value))
+            {
+                if (string.IsNullOrEmpty(value))
+                {
+                    context.Errors.Add(new ArgumentException(
+                        &quot;A non-empty CustomTransform value is required&quot;));
+                }
+
+                return true; // Matched
+            }
+            return false;
+        }
+
+        public bool Build(TransformBuilderContext context,
+            IReadOnlyDictionary&lt;string, string&gt; transformValues)
+        {
+            if (transformValues.TryGetValue(&quot;CustomTransform&quot;, out var value))
+            {
+                if (string.IsNullOrEmpty(value))
+                {
+                    throw new ArgumentException(
+                        &quot;A non-empty CustomTransform value is required&quot;);
+                }
+
+                context.AddRequestTransform(transformContext =&gt;
+                {
+                    transformContext.ProxyRequest.Headers.Add(&quot;CustomHeader&quot;, value);
+                    return default;
+                });
+
+                return true; // Matched
+            }
+
+            return false;
+        }
+    }
+</code></pre>
+<p><code>Validate</code> and <code>Build</code> return <code>true</code> if they've identified the given transform configuration as one that they own. A <code>ITransformFactory</code> may implement multiple transforms. Any <code>ProxyRoute.Transforms</code> entries not handled by any <code>ITransformFactory</code> will be considered configuration errors and prevent the configuration from being applied.</p>
+<p>Consider also adding parametrized extension methods on <code>ProxyRoute</code> like <code>WithTransformQueryValue</code> to facilitate programmatic route construction.</p>
+<pre><code class="lang-C#">        public static ProxyRoute WithTransformQueryValue(this ProxyRoute proxyRoute, string queryKey, string value, bool append = true)
+        {
+            var type = append ? QueryTransformFactory.AppendKey : QueryTransformFactory.SetKey;
+            return proxyRoute.WithTransform(transform =&gt;
+            {
+                transform[QueryTransformFactory.QueryValueParameterKey] = queryKey;
+                transform[type] = value;
+            });
+        }
+</code></pre>
 </article>
           </div>
           

@@ -80,10 +80,13 @@
     <h5>Inheritance</h5>
     <div class="level0"><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object">Object</a></div>
     <div class="level1"><span class="xref">RequestTransform</span></div>
+      <div class="level2"><a class="xref" href="Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.HttpMethodChangeTransform.html">HttpMethodChangeTransform</a></div>
       <div class="level2"><a class="xref" href="Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathRouteValuesTransform.html">PathRouteValuesTransform</a></div>
       <div class="level2"><a class="xref" href="Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.PathStringTransform.html">PathStringTransform</a></div>
       <div class="level2"><a class="xref" href="Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterRemoveTransform.html">QueryParameterRemoveTransform</a></div>
       <div class="level2"><a class="xref" href="Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.QueryParameterTransform.html">QueryParameterTransform</a></div>
+      <div class="level2"><a class="xref" href="Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestCopyHostTransform.html">RequestCopyHostTransform</a></div>
+      <div class="level2"><a class="xref" href="Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestFuncTransform.html">RequestFuncTransform</a></div>
       <div class="level2"><a class="xref" href="Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderClientCertTransform.html">RequestHeaderClientCertTransform</a></div>
       <div class="level2"><a class="xref" href="Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderForwardedTransform.html">RequestHeaderForwardedTransform</a></div>
       <div class="level2"><a class="xref" href="Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestHeaderValueTransform.html">RequestHeaderValueTransform</a></div>
@@ -181,7 +184,7 @@
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public abstract Task ApplyAsync(RequestTransformContext context)</code></pre>
+    <pre><code class="lang-csharp hljs">public abstract ValueTask ApplyAsync(RequestTransformContext context)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -210,7 +213,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.threading.tasks.task">Task</a></td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.threading.tasks.valuetask">ValueTask</a></td>
         <td></td>
       </tr>
     </tbody>
