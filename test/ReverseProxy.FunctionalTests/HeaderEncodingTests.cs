@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,6 +30,8 @@ namespace Microsoft.ReverseProxy
             var tcs = new TaskCompletionSource<StringValues>(TaskCreationOptions.RunContinuationsAsynchronously);
 
             IProxyErrorFeature proxyError = null;
+            IExceptionHandlerFeature kestrelError = null;
+
             var test = new TestEnvironment(
                 context =>
                 {
@@ -48,7 +51,15 @@ namespace Microsoft.ReverseProxy
                 },
                 proxyApp =>
                 {
-                    proxyApp.UseMiddleware<CheckHeaderMiddleware>(headerValue, encoding);
+                    proxyApp.UseExceptionHandler(new ExceptionHandlerOptions
+                    {
+                        ExceptionHandler = context =>
+                        {
+                            kestrelError = context.Features.Get<IExceptionHandlerFeature>();
+                            return Task.CompletedTask;
+                        }
+                    });
+                    proxyApp.UseMiddleware<CheckHeaderMiddleware>(HeaderNames.Referer, headerValue);
                     proxyApp.Use(async (context, next) =>
                     {
                         await next();
@@ -85,35 +96,129 @@ namespace Microsoft.ReverseProxy
                 var response = responseBuilder.ToString();
 
                 Assert.Null(proxyError);
+                Assert.Null(kestrelError);
 
                 Assert.StartsWith("HTTP/1.1 200 OK", response);
 
                 Assert.True(tcs.Task.IsCompleted);
                 var refererHeader = await tcs.Task;
                 var referer = Assert.Single(refererHeader);
-                //Assert.Equal(Utf8HeaderValue, referer);
+                Assert.Equal(headerValue, referer);
             });
+        }
+
+        [Theory]
+        [InlineData("http://www.ěščřžýáíé.com", "utf-8")]
+        [InlineData("http://www.çáéôîèñøæ.com", "iso-8859-1")]
+        public async Task ProxyAsync_ResponseWithEncodedHeaderValue(string headerValue, string encodingName)
+        {
+            var encoding = Encoding.GetEncoding(encodingName);
+
+            var tcpListener = new TcpListener(IPAddress.Loopback, 0);
+            tcpListener.Start();
+            var destinationTask = Task.Run(async () =>
+            {
+                using var tcpClient = await tcpListener.AcceptTcpClientAsync();
+                await using var stream = tcpClient.GetStream();
+                var buffer = new byte[4096];
+                var requestBuilder = new StringBuilder();
+                while (true)
+                {
+                    var count = await stream.ReadAsync(buffer);
+                    if (count == 0)
+                    {
+                        break;
+                    }
+
+                    requestBuilder.Append(encoding.GetString(buffer, 0, count));
+
+                    // End of the request
+                    if (requestBuilder.Length >= 4 &&
+                        requestBuilder[^4] == '\r' && requestBuilder[^3] == '\n' &&
+                        requestBuilder[^2] == '\r' && requestBuilder[^1] == '\n')
+                    {
+                        break;
+                    }
+                }
+
+                await stream.WriteAsync(Encoding.ASCII.GetBytes($"HTTP/1.1 200 OK\r\n"));
+                await stream.WriteAsync(Encoding.ASCII.GetBytes($"Content-Length: 0\r\n"));
+                await stream.WriteAsync(Encoding.ASCII.GetBytes($"Connection: close\r\n"));
+                await stream.WriteAsync(Encoding.ASCII.GetBytes($"Location: "));
+                await stream.WriteAsync(encoding.GetBytes(headerValue));
+                await stream.WriteAsync(Encoding.ASCII.GetBytes("\r\n"));
+                await stream.WriteAsync(Encoding.ASCII.GetBytes("\r\n"));
+            });
+
+            IProxyErrorFeature proxyError = null;
+            IExceptionHandlerFeature kestrelError = null;
+
+            using var proxy = TestEnvironment.CreateProxy(HttpProtocols.Http1, false, encoding, "cluster1", $"http://{tcpListener.LocalEndpoint}",
+                proxyBuilder =>
+                {
+                    proxyBuilder.Services.AddSingleton<IProxyHttpClientFactory>(new HeaderEncodingClientFactory(encoding));
+                },
+                proxyApp =>
+                {
+                    proxyApp.UseExceptionHandler(new ExceptionHandlerOptions
+                    {
+                        ExceptionHandler = context =>
+                        {
+                            kestrelError = context.Features.Get<IExceptionHandlerFeature>();
+                            return Task.CompletedTask;
+                        }
+                    });
+                    proxyApp.Use(async (context, next) =>
+                    {
+                        await next();
+                        proxyError = context.Features.Get<IProxyErrorFeature>();
+                    });
+                });
+
+            await proxy.StartAsync();
+
+            try
+            {
+                using var httpClient = new HttpClient();
+                using var response = await httpClient.GetAsync(proxy.GetAddress());
+
+                Assert.Null(proxyError);
+                Assert.Null(kestrelError);
+
+                response.EnsureSuccessStatusCode();
+
+                Assert.True(response.Headers.TryGetValues(HeaderNames.Location, out var refererHeader));
+                var referer = Assert.Single(refererHeader);
+                Assert.Equal(headerValue, referer);
+
+                Assert.True(destinationTask.IsCompleted);
+                await destinationTask;
+            }
+            finally
+            {
+                await proxy.StopAsync();
+                tcpListener.Stop();
+            }
         }
 
         private class CheckHeaderMiddleware
         {
             private readonly RequestDelegate _next;
+            private readonly string _headerName;
             private readonly string _headerValue;
-            private readonly Encoding _encoding;
 
-            public CheckHeaderMiddleware(RequestDelegate next, string headerValue, Encoding encoding)
+            public CheckHeaderMiddleware(RequestDelegate next, string headerName, string headerValue)
             {
                 _next = next;
+                _headerName = headerName;
                 _headerValue = headerValue;
-                _encoding = encoding;
             }
 
             public async Task Invoke(HttpContext context)
             {
-                // Ensure that Referer header has an expected value
-                Assert.True(context.Request.Headers.TryGetValue(HeaderNames.Referer, out var refererHeader));
-                var referer = Assert.Single(refererHeader);
-                Assert.Equal(_headerValue, referer);
+                Assert.True(context.Request.Headers.TryGetValue(_headerName, out var header));
+                var value = Assert.Single(header);
+                Assert.Equal(_headerValue, value);
 
                 await _next.Invoke(context);
             }
@@ -143,7 +248,8 @@ namespace Microsoft.ReverseProxy
                     AllowAutoRedirect = false,
                     AutomaticDecompression = DecompressionMethods.None,
                     UseCookies = false,
-                    RequestHeaderEncodingSelector = (_, _) => _encoding
+                    RequestHeaderEncodingSelector = (_, _) => _encoding,
+                    ResponseHeaderEncodingSelector = (_, _) => _encoding
 
                     // NOTE: MaxResponseHeadersLength = 64, which means up to 64 KB of headers are allowed by default as of .NET Core 3.1.
                 };

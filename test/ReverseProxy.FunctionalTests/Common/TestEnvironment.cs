@@ -66,41 +66,7 @@ namespace Microsoft.ReverseProxy.Common
             using var destination = CreateHost(HttpProtocols.Http1AndHttp2, _useHttpsOnDestination, _headerEncoding, _configureDestinationServices, _configureDestinationApp);
             await destination.StartAsync(cancellationToken);
 
-            using var proxy = CreateHost(_proxyProtocol, false, _headerEncoding,
-                services =>
-                {
-                    var proxyRoute = new ProxyRoute
-                    {
-                        RouteId = "route1",
-                        ClusterId = ClusterId,
-                        Match = new ProxyMatch { Path = "/{**catchall}" }
-                    };
-
-                    var cluster = new Cluster
-                    {
-                        Id = ClusterId,
-                        Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
-                        {
-                            { "destination1",  new Destination() { Address = destination.GetAddress() } }
-                        },
-                        HttpClient = new ProxyHttpClientOptions
-                        {
-                            DangerousAcceptAnyServerCertificate = _useHttpsOnDestination
-                        }
-                    };
-
-                    var proxyBuilder = services.AddReverseProxy().LoadFromMemory(new[] { proxyRoute }, new[] { cluster });
-                    _configureProxy(proxyBuilder);
-                },
-                app =>
-                {
-                    _configureProxyApp(app);
-                    app.UseRouting();
-                    app.UseEndpoints(builder =>
-                    {
-                        builder.MapReverseProxy();
-                    });
-                });
+            using var proxy = CreateProxy(_proxyProtocol, _useHttpsOnDestination, _headerEncoding, ClusterId, destination.GetAddress(), _configureProxy, _configureProxyApp);
             await proxy.StartAsync(cancellationToken);
 
             try
@@ -114,7 +80,48 @@ namespace Microsoft.ReverseProxy.Common
             }
         }
 
-        private static IHost CreateHost(HttpProtocols protocols, bool useHttps, Encoding headerEncoding, Action<IServiceCollection> configureServices, Action<IApplicationBuilder> configureApp)
+        public static IHost CreateProxy(HttpProtocols protocols, bool useHttps, Encoding headerEncoding, string clusterId, string destinationAddress,
+            Action<IReverseProxyBuilder> configureProxy, Action<IApplicationBuilder> configureProxyApp)
+        {
+            return CreateHost(protocols, false, headerEncoding,
+                services =>
+                {
+                    var proxyRoute = new ProxyRoute
+                    {
+                        RouteId = "route1",
+                        ClusterId = clusterId,
+                        Match = new ProxyMatch { Path = "/{**catchall}" }
+                    };
+
+                    var cluster = new Cluster
+                    {
+                        Id = clusterId,
+                        Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
+                        {
+                            { "destination1",  new Destination() { Address = destinationAddress } }
+                        },
+                        HttpClient = new ProxyHttpClientOptions
+                        {
+                            DangerousAcceptAnyServerCertificate = useHttps
+                        }
+                    };
+
+                    var proxyBuilder = services.AddReverseProxy().LoadFromMemory(new[] { proxyRoute }, new[] { cluster });
+                    configureProxy(proxyBuilder);
+                },
+                app =>
+                {
+                    configureProxyApp(app);
+                    app.UseRouting();
+                    app.UseEndpoints(builder =>
+                    {
+                        builder.MapReverseProxy();
+                    });
+                });
+        }
+
+        private static IHost CreateHost(HttpProtocols protocols, bool useHttps, Encoding headerEncoding,
+            Action<IServiceCollection> configureServices, Action<IApplicationBuilder> configureApp)
         {
             return new HostBuilder()
                 .ConfigureWebHost(webHostBuilder =>
