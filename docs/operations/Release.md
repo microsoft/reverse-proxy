@@ -6,7 +6,10 @@ To keep track of the process, open a [release checklist issue](https://github.co
 
 ## Ensure there's a release branch created.
 
-See [Branching](Branching.md).
+See [Branching](Branching.md):
+- Make the next preview branch.
+- Update the branding in main.
+- Update the global.json runtime and SDK versions in main.
 
 ## Identify the Final Build
 
