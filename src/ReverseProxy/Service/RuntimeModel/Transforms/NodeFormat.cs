@@ -11,9 +11,12 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         None,
         Random,
         RandomAndPort,
+        RandomAndRandomPort,
         Unknown,
         UnknownAndPort,
+        UnknownAndRandomPort,
         Ip,
         IpAndPort,
+        IpAndRandomPort,
     }
 }
