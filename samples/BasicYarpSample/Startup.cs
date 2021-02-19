@@ -6,10 +6,10 @@ using Microsoft.Extensions.Hosting;
 
 namespace BasicYARPSample
 {
-    // Provides a configuration for the kestrel server with reverse proxy middleware
-    public class MyStartup
+    // Sets up the ASP.NET application with the reverse proxy enabled.
+    public class Startup
     {
-        public MyStartup(IConfiguration configuration)
+        public Startup(IConfiguration configuration)
         {
             // Default configuration comes from AppSettings.json file in project/output
             Configuration = configuration;
@@ -18,16 +18,17 @@ namespace BasicYARPSample
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add capabilities to
-        // the web server via services in the DI container.
+        // the web application via services in the DI container.
         public void ConfigureServices(IServiceCollection services)
         {
             // Add the reverse proxy to capability to the server
-            var ProxyBuilder = services.AddReverseProxy();
+            var proxyBuilder = services.AddReverseProxy();
             // Initialize the reverse proxy from the "ReverseProxy" section of configuration
-            ProxyBuilder.LoadFromConfig(Configuration.GetSection("ReverseProxy"));
+            proxyBuilder.LoadFromConfig(Configuration.GetSection("ReverseProxy"));
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline for each request
+        // This method gets called by the runtime. Use this method to configure the HTTP request 
+        // pipeline that handles requests
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
@@ -36,10 +37,7 @@ namespace BasicYARPSample
             }
             // Enable endpoint routing, required for the reverse proxy
             app.UseRouting();
-            
-            // TODO: should this be removed: app.UseAuthorization();
-
-            // Configure EndPoints to use the reverse proxy
+            // Register the reverse proxy routes
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapReverseProxy();

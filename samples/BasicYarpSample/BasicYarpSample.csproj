@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.ReverseProxy" Version="1.0.0-preview.*" />
+    <PackageReference Include="Microsoft.ReverseProxy" Version="1.0.0-preview.9.*" />
   </ItemGroup>
 
 </Project>

@@ -3,9 +3,8 @@
   "profiles": {
     "YARP Proxy Sample": {
       "commandName": "Project",
-      "launchBrowser": true,
+      "launchBrowser": false,
       "launchUrl": "",
-
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

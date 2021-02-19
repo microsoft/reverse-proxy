@@ -15,7 +15,7 @@ namespace BasicYARPSample
             var myHostBuilder = Host.CreateDefaultBuilder(args);
             myHostBuilder.ConfigureWebHostDefaults(webHostBuilder =>
                 {
-                    webHostBuilder.UseStartup<MyStartup>();
+                    webHostBuilder.UseStartup<Startup>();
                 });
             var myHost = myHostBuilder.Build();
             myHost.Run();
