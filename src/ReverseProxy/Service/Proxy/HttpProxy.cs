@@ -243,7 +243,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             }
         }
 
-        private async Task<(HttpRequestMessage, StreamCopyHttpContent)> CreateRequestMessageAsync(HttpContext context, string destinationPrefix,
+        private async ValueTask<(HttpRequestMessage, StreamCopyHttpContent)> CreateRequestMessageAsync(HttpContext context, string destinationPrefix,
             HttpTransformer transformer, RequestProxyOptions requestOptions, bool isStreamingRequest, CancellationToken requestAborted)
         {
             // "http://a".Length = 8
@@ -482,8 +482,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy
 
             using var abortTokenSource = CancellationTokenSource.CreateLinkedTokenSource(longCancellation);
 
-            var requestTask = StreamCopier.CopyAsync(isRequest: true, clientStream, destinationStream, _clock, abortTokenSource.Token);
-            var responseTask = StreamCopier.CopyAsync(isRequest: false, destinationStream, clientStream, _clock, abortTokenSource.Token);
+            var requestTask = StreamCopier.CopyAsync(isRequest: true, clientStream, destinationStream, _clock, abortTokenSource.Token).AsTask();
+            var responseTask = StreamCopier.CopyAsync(isRequest: false, destinationStream, clientStream, _clock, abortTokenSource.Token).AsTask();
 
             // Make sure we report the first failure.
             var firstTask = await Task.WhenAny(requestTask, responseTask);
@@ -521,7 +521,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             }
         }
 
-        private async Task<(StreamCopyResult, Exception)> CopyResponseBodyAsync(HttpContent destinationResponseContent, Stream clientResponseStream,
+        private async ValueTask<(StreamCopyResult, Exception)> CopyResponseBodyAsync(HttpContent destinationResponseContent, Stream clientResponseStream,
             CancellationToken cancellation)
         {
             // SocketHttpHandler and similar transports always provide an HttpContent object, even if it's empty.
