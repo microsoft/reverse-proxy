@@ -1,7 +1,7 @@
 # Basic YARP Sample
 
 This sample shows how to consume the YARP Library to produce a simple reverse proxy server. 
-The proxy server is implemented as middleware for the ASP.NET Core "Kestrel" web server. Kestrel provides the front end for the proxy, which listens for http requests, and then passes them to the proxy for paths that the proxy has registered for. The proxy handles the requests by:
+The proxy server is implemented a plugin component for ASP.NET Core applications. ASP.NET Core servers like Kestrel provide the front end for the proxy by listening for http requests and then passing them to the proxy for paths that the proxy has registered. The proxy handles the requests by:
 - Mapping the request URL path to a route in proxy configuration.
 - Routes are mapped to clusters which are a collection of destination endpoints.
 - The destinations are filtered based on health status, and session affinity (not used in this sample).
@@ -24,11 +24,11 @@ The proxy will listen to HTTP requests on port 5000, and HTTPS on port 5001. The
 
 ## Files
 - [BasicYarpSample.csproj](BasicYarpSample.csproj) - A C# project file (conceptually similar to a make file) that tells it to target the .NET 5 runtime, and to reference the proxy library from [nuget](https://www.nuget.org/packages/Microsoft.ReverseProxy/) (.NET's package manager).
-- [Program.cs](Program.cs) - Provides the main entrypoint for .NET which uses an WebHostBuilder to initialize the Kestrel server which listens for http requests. Typically, this file does not need to be modified for any proxy scenarios.
-- [Startup.cs](Startup.cs) - Provides a class that is used to configure and control how http requests are handled by Kestrel. In this sample, it does the bare minimum of:
-  - Adding proxy functionality to the service.
+- [Program.cs](Program.cs) - Provides the main entrypoint for .NET which uses an WebHostBuilder to initialize the server which listens for http requests. Typically, this file does not need to be modified for any proxy scenarios.
+- [Startup.cs](Startup.cs) - Provides a class that is used to configure and control how http requests are handled by the server. In this sample, it does the bare minimum of:
+  - Adding proxy functionality to the services collection.
   - Specifying that the proxy configuration will come from the config file (altrenatively it could be specified via code).
-  - Telling Kestrel to use its routing service, to register the routes from YARP into its routing table, and use YARP to handle those requests.
+  - Telling ASP.NET to use its routing service, to register the routes from YARP into its routing table, and use YARP to handle those requests.
 - [appsettings.json](appsettings.json) - The configuration file for the .NET app, including sections for Kestrel, logging and the YARP proxy configuration. 
 - [Properties/launchsettings.json](Properties/launchsettings.json) - A configuration file used by Visual Studio to tell it how to start the app when debugging.
 
@@ -39,7 +39,7 @@ The proxy will listen to HTTP requests on port 5000, and HTTPS on port 5001. The
 * Download and install the .NET SDK (free) from https://dotnet.microsoft.com/download if not already installed. Versions are available for Windows, Linux and MacOS.
 * Clone or extract a zip of the sample files.
 * Use ```dotnet run``` either within the sample folder or passing in the path to the .csproj file to start the server.
-* File change notification is used for the appsettings.config file so changes can be made on the fly.
+* File change notification is used for the appsettings.json file so changes can be made on the fly.
 
 
 ### Visual Studio Code
