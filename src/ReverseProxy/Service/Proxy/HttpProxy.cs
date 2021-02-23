@@ -439,10 +439,13 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         {
             context.Response.StatusCode = (int)source.StatusCode;
 
-            // Don't explicitly set the field if the default reason phrase is used
-            if (source.ReasonPhrase != ReasonPhrases.GetReasonPhrase((int)source.StatusCode))
+            if (!ProtocolHelper.IsHttp2OrGreater(context.Request.Protocol))
             {
-                context.Features.Get<IHttpResponseFeature>().ReasonPhrase = source.ReasonPhrase;
+                // Don't explicitly set the field if the default reason phrase is used
+                if (source.ReasonPhrase != ReasonPhrases.GetReasonPhrase((int)source.StatusCode))
+                {
+                    context.Features.Get<IHttpResponseFeature>().ReasonPhrase = source.ReasonPhrase;
+                }
             }
 
             // Copies headers
