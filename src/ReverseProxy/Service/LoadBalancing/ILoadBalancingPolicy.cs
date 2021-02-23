@@ -16,7 +16,7 @@ namespace Microsoft.ReverseProxy.Service.LoadBalancing
         /// <summary>
         ///  A unique identifier for this load balancing policy. This will be referenced from config.
         /// </summary>
-        public string Name { get; }
+        string Name { get; }
 
         /// <summary>
         /// Picks a destination to send traffic to.
