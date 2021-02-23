@@ -74,6 +74,10 @@ Create and push a git tag for the commit associated with the final build (not ne
 
 Create a draft release at https://github.com/microsoft/reverse-proxy/releases using the new tag. See prior releases for the recommended content and format.
 
+## Update references to the package version
+Some samples may include the package version as part of the references in the project file, which makes it easier to clone and run. Those should be updated to the new package version that has just been published. Locations include:
+1. [BasicYarpSample.csproj](../../samples/BasicYarpSample/BasicYarpSample.csproj)
+
 ## Publish the docs
 
 Reset the `release/docs` branch to the head of the current preview branch to publish the latest docs. See [docs](../docfx/readme.md).
