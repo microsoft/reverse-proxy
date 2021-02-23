@@ -7,7 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.ReverseProxy" Version="1.0.0-preview.9.*" />
+    <ProjectReference Include="..\..\src\ReverseProxy.TelemetryConsumption\Microsoft.ReverseProxy.Telemetry.Consumption.csproj" />
+    <ProjectReference Include="..\..\src\ReverseProxy\Microsoft.ReverseProxy.csproj" />
   </ItemGroup>
 
   <ItemGroup>

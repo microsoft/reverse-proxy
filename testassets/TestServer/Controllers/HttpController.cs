@@ -71,5 +71,53 @@ namespace SampleServer.Controllers
                 Response.Headers.Add(key, value);
             }
         }
+
+        /// <summary>
+        /// Returns a 200 response after <paramref name="delay" /> milliseconds
+        /// and containing with <paramref name="responseSize" /> bytes in the response body.
+        /// </summary>
+        [HttpGet]
+        [HttpPut]
+        [HttpPost]
+        [HttpPatch]
+        [Route("/api/stress")]
+        public async Task Stress([FromQuery] int delay, [FromQuery] int responseSize)
+        {
+            var bodyReader = Request.BodyReader;
+            if (bodyReader != null)
+            {
+                while (true)
+                {
+                    var a = await Request.BodyReader.ReadAsync();
+                    if (a.IsCompleted)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            if (delay > 0)
+            {
+                await Task.Delay(delay);
+            }
+
+            var bodyWriter = Response.BodyWriter;
+            if (bodyWriter != null && responseSize > 0)
+            {
+                const int WriteBufferSize = 4096;
+
+                var remaining = responseSize;
+                var buffer = new byte[WriteBufferSize];
+
+                while (remaining > 0)
+                {
+                    buffer[0] = (byte)(remaining * 17); // Make the output not all zeros
+                    var toWrite = Math.Min(buffer.Length, remaining);
+                    await bodyWriter.WriteAsync(new ReadOnlyMemory<byte>(buffer, 0, toWrite),
+                        HttpContext.RequestAborted);
+                    remaining -= toWrite;
+                }
+            }
+        }
     }
 }

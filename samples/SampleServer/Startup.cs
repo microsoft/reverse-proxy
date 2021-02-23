@@ -26,10 +26,6 @@ namespace SampleServer
         /// </summary>
         public void Configure(IApplicationBuilder app)
         {
-            // Disabling https redirection behind the proxy. Forwarders are not currently set up so we can't tell if the external connection used https.
-            // Nor do we know the correct port to redirect to.
-            // app.UseHttpsRedirection();
-
             app.UseWebSockets();
 
             app.UseRouting();

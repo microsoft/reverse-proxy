@@ -3,12 +3,11 @@
   <PropertyGroup>
     <TargetFrameworks>net5.0;netcoreapp3.1</TargetFrameworks>
     <OutputType>Exe</OutputType>
-    <RootNamespace>Microsoft.ReverseProxy.ServiceFabric.Sample</RootNamespace>
-    <PlatformTarget>x64</PlatformTarget>
+    <RootNamespace>Microsoft.ReverseProxy.Sample</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\ReverseProxy.ServiceFabric\Microsoft.ReverseProxy.ServiceFabric.csproj" />
+    <ProjectReference Include="..\..\src\ReverseProxy.TelemetryConsumption\Microsoft.ReverseProxy.Telemetry.Consumption.csproj" />
   </ItemGroup>
 
   <ItemGroup>
