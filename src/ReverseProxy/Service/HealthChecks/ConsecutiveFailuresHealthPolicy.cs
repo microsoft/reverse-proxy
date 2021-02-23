@@ -56,7 +56,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             return thresholdEntry.GetParsedOrDefault(_options.DefaultThreshold);
         }
 
-        private DestinationHealth EvaluateHealthState(double threshold, HttpResponseMessage response, AtomicCounter count)
+        private static DestinationHealth EvaluateHealthState(double threshold, HttpResponseMessage response, AtomicCounter count)
         {
             DestinationHealth newHealth;
             if (response != null && response.IsSuccessStatusCode)
