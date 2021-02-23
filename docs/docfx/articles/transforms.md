@@ -497,8 +497,8 @@ The {Prefix}PathBase header value is taken from `HttpContext.Request.PathBase`. 
 | Key | Value | Default | Required |
 |-----|-------|---------|----------|
 | Forwarded | A comma separated list containing any of these values: for,by,proto,host | (none) | yes |
-| ForFormat | Random/RandomAndPort/Unknown/UnknownAndPort/Ip/IpAndPort | Random | no |
-| ByFormat | Random/RandomAndPort/Unknown/UnknownAndPort/Ip/IpAndPort | Random | no |
+| ForFormat | Random/RandomAndPort/RandomAndRandomPort/Unknown/UnknownAndPort/UnknownAndRandomPort/Ip/IpAndPort/IpAndRandomPort | Random | no |
+| ByFormat | Random/RandomAndPort/RandomAndRandomPort/Unknown/UnknownAndPort/UnknownAndRandomPort/Ip/IpAndPort/IpAndRandomPort | Random | no |
 | Append | true/false | true | no |
 
 Config:
@@ -543,10 +543,13 @@ The RFC allows a [variety of formats](https://tools.ietf.org/html/rfc7239#sectio
 |--------|-------------|---------|
 | Random | An obfuscated identifier that is generated randomly per request. This allows for diagnostic tracing scenarios while limiting the flow of uniquely identifying information for privacy reasons. | `by=_YQuN68tm6` |
 | RandomAndPort | The Random identifier plus the port. | `by="_YQuN68tm6:80"` |
+| RandomAndRandomPort | The Random identifier plus another random identifier for the port. | `by="_YQuN68tm6:_jDw5Cf3tQ"` |
 | Unknown | This can be used when the identity of the preceding entity is not known, but the proxy server still wants to signal that the request was forwarded. | `by=unknown` |
 | UnknownAndPort | The Unknown identifier plus the port if available. | `by="unknown:80"` |
+| UnknownAndRandomPort | The Unknown identifier plus random identifier for the port. | `by="unknown:_jDw5Cf3tQ"` |
 | Ip | An IPv4 address or an IPv6 address including brackets. | `by="[::1]"` |
 | IpAndPort | The IP address plus the port. | `by="[::1]:80"` |
+| IpAndRandomPort | The IP address plus random identifier for the port. | `by="[::1]:_jDw5Cf3tQ"` |
 
 ### ClientCert
 

@@ -77,20 +77,26 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         [InlineData("", "", 2, NodeFormat.IpAndPort, true, "for=\"unknown:2\"")]
         [InlineData("", "::1", 2, NodeFormat.Unknown, false, "for=unknown")]
         [InlineData("", "::1", 2, NodeFormat.UnknownAndPort, true, "for=\"unknown:2\"")]
+        [InlineData("", "::1", 2, NodeFormat.UnknownAndRandomPort, true, "for=\"unknown:_abcdefghi\"")]
         [InlineData("", "::1", 2, NodeFormat.Ip, false, "for=\"[::1]\"")]
         [InlineData("", "::1", 0, NodeFormat.IpAndPort, true, "for=\"[::1]\"")]
         [InlineData("", "::1", 2, NodeFormat.IpAndPort, true, "for=\"[::1]:2\"")]
+        [InlineData("", "::1", 2, NodeFormat.IpAndRandomPort, true, "for=\"[::1]:_abcdefghi\"")]
         [InlineData("", "127.0.0.1", 2, NodeFormat.Ip, false, "for=127.0.0.1")]
         [InlineData("", "127.0.0.1", 2, NodeFormat.IpAndPort, true, "for=\"127.0.0.1:2\"")]
+        [InlineData("", "127.0.0.1", 2, NodeFormat.IpAndRandomPort, true, "for=\"127.0.0.1:_abcdefghi\"")]
         [InlineData("", "::1", 2, NodeFormat.Random, false, "for=_abcdefghi")]
         [InlineData("", "::1", 2, NodeFormat.RandomAndPort, true, "for=\"_abcdefghi:2\"")]
+        [InlineData("", "::1", 2, NodeFormat.RandomAndRandomPort, true, "for=\"_abcdefghi:_jklmnopqr\"")]
         [InlineData("existing,header", "::1", 2, NodeFormat.Random, false, "for=_abcdefghi")]
         [InlineData("existing,header", "::1", 2, NodeFormat.RandomAndPort, true, "existing,header|for=\"_abcdefghi:2\"")]
         [InlineData("existing|header", "::1", 2, NodeFormat.RandomAndPort, true, "existing|header|for=\"_abcdefghi:2\"")]
+        [InlineData("existing,header", "::1", 2, NodeFormat.RandomAndRandomPort, true, "existing,header|for=\"_abcdefghi:_jklmnopqr\"")]
+        [InlineData("existing|header", "::1", 2, NodeFormat.RandomAndRandomPort, true, "existing|header|for=\"_abcdefghi:_jklmnopqr\"")]
         public async Task For_Added(string startValue, string ip, int port, NodeFormat format, bool append, string expected)
         {
             var randomFactory = new TestRandomFactory();
-            randomFactory.Instance = new TestRandom() { Sequence = new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8 } }; 
+            randomFactory.Instance = new TestRandom() { Sequence = new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17 } };
             var httpContext = new DefaultHttpContext();
             httpContext.Connection.RemoteIpAddress = string.IsNullOrEmpty(ip) ? null : IPAddress.Parse(ip);
             httpContext.Connection.RemotePort = port;
@@ -112,22 +118,29 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         [InlineData("", "", 2, NodeFormat.Ip, false, "by=unknown")] // Missing IP falls back to Unknown
         [InlineData("", "", 0, NodeFormat.IpAndPort, true, "by=unknown")] // Missing port excluded
         [InlineData("", "", 2, NodeFormat.IpAndPort, true, "by=\"unknown:2\"")]
+        [InlineData("", "", 2, NodeFormat.IpAndRandomPort, true, "by=\"unknown:_abcdefghi\"")]
         [InlineData("", "::1", 2, NodeFormat.Unknown, false, "by=unknown")]
         [InlineData("", "::1", 2, NodeFormat.UnknownAndPort, true, "by=\"unknown:2\"")]
+        [InlineData("", "::1", 2, NodeFormat.UnknownAndRandomPort, true, "by=\"unknown:_abcdefghi\"")]
         [InlineData("", "::1", 2, NodeFormat.Ip, false, "by=\"[::1]\"")]
         [InlineData("", "::1", 0, NodeFormat.IpAndPort, true, "by=\"[::1]\"")]
         [InlineData("", "::1", 2, NodeFormat.IpAndPort, true, "by=\"[::1]:2\"")]
+        [InlineData("", "::1", 2, NodeFormat.IpAndRandomPort, true, "by=\"[::1]:_abcdefghi\"")]
         [InlineData("", "127.0.0.1", 2, NodeFormat.Ip, false, "by=127.0.0.1")]
         [InlineData("", "127.0.0.1", 2, NodeFormat.IpAndPort, true, "by=\"127.0.0.1:2\"")]
+        [InlineData("", "127.0.0.1", 2, NodeFormat.IpAndRandomPort, true, "by=\"127.0.0.1:_abcdefghi\"")]
         [InlineData("", "::1", 2, NodeFormat.Random, false, "by=_abcdefghi")]
         [InlineData("", "::1", 2, NodeFormat.RandomAndPort, true, "by=\"_abcdefghi:2\"")]
+        [InlineData("", "::1", 2, NodeFormat.RandomAndRandomPort, true, "by=\"_abcdefghi:_jklmnopqr\"")]
         [InlineData("existing,header", "::1", 2, NodeFormat.Random, false, "by=_abcdefghi")]
         [InlineData("existing,header", "::1", 2, NodeFormat.RandomAndPort, true, "existing,header|by=\"_abcdefghi:2\"")]
         [InlineData("existing|header", "::1", 2, NodeFormat.RandomAndPort, true, "existing|header|by=\"_abcdefghi:2\"")]
+        [InlineData("existing,header", "::1", 2, NodeFormat.RandomAndRandomPort, true, "existing,header|by=\"_abcdefghi:_jklmnopqr\"")]
+        [InlineData("existing|header", "::1", 2, NodeFormat.RandomAndRandomPort, true, "existing|header|by=\"_abcdefghi:_jklmnopqr\"")]
         public async Task By_Added(string startValue, string ip, int port, NodeFormat format, bool append, string expected)
         {
             var randomFactory = new TestRandomFactory();
-            randomFactory.Instance = new TestRandom() { Sequence = new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8 } };
+            randomFactory.Instance = new TestRandom() { Sequence = new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17 } };
             var httpContext = new DefaultHttpContext();
             httpContext.Connection.LocalIpAddress = string.IsNullOrEmpty(ip) ? null : IPAddress.Parse(ip);
             httpContext.Connection.LocalPort = port;
@@ -153,7 +166,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         public async Task AllValues_Added(string startValue, bool append, string expected)
         {
             var randomFactory = new TestRandomFactory();
-            randomFactory.Instance = new TestRandom() { Sequence = new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8 } };
+            randomFactory.Instance = new TestRandom() { Sequence = new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17 } };
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Scheme = "https";
             httpContext.Request.Host = new HostString("myHost", 80);

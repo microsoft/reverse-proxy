@@ -131,9 +131,10 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             // node-port specified MUST be quoted, since ":" is not an allowed
             // character in "token"."
             var addPort = port != 0 && (format == NodeFormat.IpAndPort || format == NodeFormat.UnknownAndPort || format == NodeFormat.RandomAndPort);
-            var ipv6 = (format == NodeFormat.Ip || format == NodeFormat.IpAndPort)
+            var addRandomPort = (format == NodeFormat.IpAndRandomPort || format == NodeFormat.UnknownAndRandomPort || format == NodeFormat.RandomAndRandomPort);
+            var ipv6 = (format == NodeFormat.Ip || format == NodeFormat.IpAndPort || format == NodeFormat.IpAndRandomPort)
                 && ipAddress != null && ipAddress.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6;
-            var quote = addPort || ipv6;
+            var quote = addPort || addRandomPort || ipv6;
 
             if (quote)
             {
@@ -144,6 +145,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             {
                 case NodeFormat.Ip:
                 case NodeFormat.IpAndPort:
+                case NodeFormat.IpAndRandomPort:
                     if (ipAddress != null)
                     {
                         if (ipv6)
@@ -161,10 +163,12 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                     goto case NodeFormat.Unknown;
                 case NodeFormat.Unknown:
                 case NodeFormat.UnknownAndPort:
+                case NodeFormat.UnknownAndRandomPort:
                     builder.Append("unknown");
                     break;
                 case NodeFormat.Random:
                 case NodeFormat.RandomAndPort:
+                case NodeFormat.RandomAndRandomPort:
                     AppendRandom(builder);
                     break;
                 default:
@@ -175,6 +179,11 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             {
                 builder.Append(':');
                 builder.Append(port);
+            }
+            else if (addRandomPort)
+            {
+                builder.Append(':');
+                AppendRandom(builder);
             }
 
             if (quote)
