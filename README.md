@@ -8,7 +8,7 @@ We expect YARP to ship as a library and project template that together provide a
 
 # Current Status
 
-For the latest status updates, see our [Status Report thread](https://github.com/microsoft/reverse-proxy/issues/97). Subscribe to notifications on that issue and we'll comment regularly with status updates.
+For the latest status updates, see our [Releases page](https://github.com/microsoft/reverse-proxy/releases).
 
 # Build
 
