@@ -30,7 +30,7 @@ namespace Microsoft.ReverseProxy
             var tcs = new TaskCompletionSource<StringValues>(TaskCreationOptions.RunContinuationsAsynchronously);
 
             IProxyErrorFeature proxyError = null;
-            IExceptionHandlerFeature kestrelError = null;
+            Exception unhandledError = null;
 
             var test = new TestEnvironment(
                 context =>
@@ -51,19 +51,22 @@ namespace Microsoft.ReverseProxy
                 },
                 proxyApp =>
                 {
-                    proxyApp.UseExceptionHandler(new ExceptionHandlerOptions
-                    {
-                        ExceptionHandler = context =>
-                        {
-                            kestrelError = context.Features.Get<IExceptionHandlerFeature>();
-                            return Task.CompletedTask;
-                        }
-                    });
-                    proxyApp.UseMiddleware<CheckHeaderMiddleware>(HeaderNames.Referer, headerValue);
                     proxyApp.Use(async (context, next) =>
                     {
-                        await next();
-                        proxyError = context.Features.Get<IProxyErrorFeature>();
+                        try
+                        {
+                            Assert.True(context.Request.Headers.TryGetValue(HeaderNames.Referer, out var header));
+                            var value = Assert.Single(header);
+                            Assert.Equal(headerValue, value);
+
+                            await next();
+                            proxyError = context.Features.Get<IProxyErrorFeature>();
+                        }
+                        catch (Exception ex)
+                        {
+                            unhandledError = ex;
+                            throw;
+                        }
                     });
                 },
                 proxyProtocol: HttpProtocols.Http1, headerEncoding: encoding);
@@ -96,7 +99,7 @@ namespace Microsoft.ReverseProxy
                 var response = responseBuilder.ToString();
 
                 Assert.Null(proxyError);
-                Assert.Null(kestrelError);
+                Assert.Null(unhandledError);
 
                 Assert.StartsWith("HTTP/1.1 200 OK", response);
 
@@ -151,7 +154,7 @@ namespace Microsoft.ReverseProxy
             });
 
             IProxyErrorFeature proxyError = null;
-            IExceptionHandlerFeature kestrelError = null;
+            Exception unhandledError = null;
 
             using var proxy = TestEnvironment.CreateProxy(HttpProtocols.Http1, false, encoding, "cluster1", $"http://{tcpListener.LocalEndpoint}",
                 proxyBuilder =>
@@ -160,18 +163,18 @@ namespace Microsoft.ReverseProxy
                 },
                 proxyApp =>
                 {
-                    proxyApp.UseExceptionHandler(new ExceptionHandlerOptions
-                    {
-                        ExceptionHandler = context =>
-                        {
-                            kestrelError = context.Features.Get<IExceptionHandlerFeature>();
-                            return Task.CompletedTask;
-                        }
-                    });
                     proxyApp.Use(async (context, next) =>
                     {
-                        await next();
-                        proxyError = context.Features.Get<IProxyErrorFeature>();
+                        try
+                        {
+                            await next();
+                            proxyError = context.Features.Get<IProxyErrorFeature>();
+                        }
+                        catch (Exception ex)
+                        {
+                            unhandledError = ex;
+                            throw;
+                        }
                     });
                 });
 
@@ -183,7 +186,7 @@ namespace Microsoft.ReverseProxy
                 using var response = await httpClient.GetAsync(proxy.GetAddress());
 
                 Assert.Null(proxyError);
-                Assert.Null(kestrelError);
+                Assert.Null(unhandledError);
 
                 response.EnsureSuccessStatusCode();
 
@@ -198,29 +201,6 @@ namespace Microsoft.ReverseProxy
             {
                 await proxy.StopAsync();
                 tcpListener.Stop();
-            }
-        }
-
-        private class CheckHeaderMiddleware
-        {
-            private readonly RequestDelegate _next;
-            private readonly string _headerName;
-            private readonly string _headerValue;
-
-            public CheckHeaderMiddleware(RequestDelegate next, string headerName, string headerValue)
-            {
-                _next = next;
-                _headerName = headerName;
-                _headerValue = headerValue;
-            }
-
-            public async Task Invoke(HttpContext context)
-            {
-                Assert.True(context.Request.Headers.TryGetValue(_headerName, out var header));
-                var value = Assert.Single(header);
-                Assert.Equal(_headerValue, value);
-
-                await _next.Invoke(context);
             }
         }
 
