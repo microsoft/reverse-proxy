@@ -36,14 +36,14 @@ The proxy will listen to HTTP requests on port 5000, and HTTPS on port 5001. The
 
 ### Command line
 
-* Download and install the .NET SDK (free) from https://dotnet.microsoft.com/download if not already installed. Editions are available for Windows, Linux and MacOS.
+* Download and install the .NET SDK (free) from https://dotnet.microsoft.com/download if not already installed. Versions are available for Windows, Linux and MacOS.
 * Clone or extract a zip of the sample files.
 * Use ```dotnet run``` either within the sample folder or passing in the path to the .csproj file to start the server.
 * File change notification is used for the appsettings.config file so changes can be made on the fly.
 
 
 ### Visual Studio Code
-* Download and install Visual Studio Code (free) from https://code.visualstudio.com/. Versions are available for Windows, Linux and MacOS.
+* Download and install Visual Studio Code (free) from https://code.visualstudio.com/ - versions are available for Windows, Linux and MacOS.
 * Download and install the .NET SDK from https://dotnet.microsoft.com/download if not already installed. Versions are available for Windows, Linux and MacOS.
 * Open the folder for the sample in VS Code (File->Open Folder).
 * Press F5 to debug, or Ctrl + F5 to run the sample without debugging.
@@ -58,4 +58,5 @@ The proxy will listen to HTTP requests on port 5000, and HTTPS on port 5001. The
  * Change the ports the proxy listens on using the URLs property in configuration or on the cmd line
  * Change the routes and destinations used by the proxy
  * A web server sample is available in the [sampleserver](../sampleserver) folder. It will output the request headers as part of the response body so they can be examined with a browser. 
-   * The urls the server listens to can be changed on the cmd line, so that multiple instances can be run. eg ```dotnet run ../SampleServer --Urls "http://localhost:10000;https://localhost:100010"```
+   * The urls the server listens to can be changed on the cmd line, so that multiple instances can be run. 
+     eg ```dotnet run ../SampleServer --Urls "http://localhost:10000;https://localhost:10010"```
