@@ -370,7 +370,12 @@ namespace Microsoft.ReverseProxy.Service
 
             var activeOptions = cluster.HealthCheck.Active;
             var policy = activeOptions.Policy;
-            if (!string.IsNullOrEmpty(policy) && !_activeHealthCheckPolicies.ContainsKey(policy))
+            if (string.IsNullOrEmpty(policy))
+            {
+                // default policy
+                policy = HealthCheckConstants.ActivePolicy.ConsecutiveFailures;
+            }
+            if (!_activeHealthCheckPolicies.ContainsKey(policy))
             {
                 errors.Add(new ArgumentException($"No matching {nameof(IActiveHealthCheckPolicy)} found for the active health check policy name '{policy}' set on the cluster '{cluster.Id}'."));
             }
@@ -396,7 +401,12 @@ namespace Microsoft.ReverseProxy.Service
 
             var passiveOptions = cluster.HealthCheck.Passive;
             var policy = passiveOptions.Policy;
-            if (!string.IsNullOrEmpty(policy) && !_passiveHealthCheckPolicies.ContainsKey(policy))
+            if (string.IsNullOrEmpty(policy))
+            {
+                // default policy
+                policy = HealthCheckConstants.PassivePolicy.TransportFailureRate;
+            }
+            if (!_passiveHealthCheckPolicies.ContainsKey(policy))
             {
                 errors.Add(new ArgumentException($"No matching {nameof(IPassiveHealthCheckPolicy)} found for the passive health check policy name '{policy}' set on the cluster '{cluster.Id}'."));
             }
