@@ -370,11 +370,7 @@ namespace Microsoft.ReverseProxy.Service
 
             var activeOptions = cluster.HealthCheck.Active;
             var policy = activeOptions.Policy;
-            if (string.IsNullOrEmpty(policy))
-            {
-                errors.Add(new ArgumentException($"Active health policy name is not set on the cluster '{cluster.Id}'"));
-            }
-            else if (!_activeHealthCheckPolicies.ContainsKey(policy))
+            if (!string.IsNullOrEmpty(policy) && !_activeHealthCheckPolicies.ContainsKey(policy))
             {
                 errors.Add(new ArgumentException($"No matching {nameof(IActiveHealthCheckPolicy)} found for the active health check policy name '{policy}' set on the cluster '{cluster.Id}'."));
             }
@@ -390,7 +386,7 @@ namespace Microsoft.ReverseProxy.Service
             }
         }
 
-        private static void ValidatePassiveHealthCheck(IList<Exception> errors, Cluster cluster)
+        private void ValidatePassiveHealthCheck(IList<Exception> errors, Cluster cluster)
         {
             if (!(cluster.HealthCheck?.Passive?.Enabled ?? false))
             {
@@ -400,9 +396,9 @@ namespace Microsoft.ReverseProxy.Service
 
             var passiveOptions = cluster.HealthCheck.Passive;
             var policy = passiveOptions.Policy;
-            if (string.IsNullOrEmpty(policy))
+            if (!string.IsNullOrEmpty(policy) && !_passiveHealthCheckPolicies.ContainsKey(policy))
             {
-                errors.Add(new ArgumentException($"Passive health policy name is not set on the cluster '{cluster.Id}'"));
+                errors.Add(new ArgumentException($"No matching {nameof(IPassiveHealthCheckPolicy)} found for the passive health check policy name '{policy}' set on the cluster '{cluster.Id}'."));
             }
 
             if (passiveOptions.ReactivationPeriod != null && passiveOptions.ReactivationPeriod <= TimeSpan.Zero)

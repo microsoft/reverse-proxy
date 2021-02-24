@@ -614,9 +614,9 @@ namespace Microsoft.ReverseProxy.Service.Tests
         }
 
         [Theory]
-        [InlineData(1,0)]
-        [InlineData(1,1)]
-        [InlineData(2,0)]
+        [InlineData(1, 0)]
+        [InlineData(1, 1)]
+        [InlineData(2, 0)]
         public async Task Accepts_RequestVersion(int major, int minor)
         {
             var version = new Version(major, minor);
@@ -638,9 +638,9 @@ namespace Microsoft.ReverseProxy.Service.Tests
         }
 
         [Theory]
-        [InlineData(1,9)]
-        [InlineData(2,5)]
-        [InlineData(3,0)]
+        [InlineData(1, 9)]
+        [InlineData(2, 5)]
+        [InlineData(3, 0)]
         public async Task Rejects_RequestVersion(int major, int minor)
         {
             var version = new Version(major, minor);
@@ -664,6 +664,8 @@ namespace Microsoft.ReverseProxy.Service.Tests
         }
 
         [Theory]
+        [InlineData(null, null, null, null)]
+        [InlineData(null, null, null, "")]
         [InlineData(null, null, null, "ConsecutiveFailures")]
         [InlineData(25, null, null, "ConsecutiveFailures")]
         [InlineData(25, 10, null, "ConsecutiveFailures")]
@@ -678,7 +680,8 @@ namespace Microsoft.ReverseProxy.Service.Tests
                 Id = "cluster1",
                 HealthCheck = new HealthCheckOptions
                 {
-                    Active = new ActiveHealthCheckOptions {
+                    Active = new ActiveHealthCheckOptions
+                    {
                         Enabled = true,
                         Interval = interval != null ? TimeSpan.FromSeconds(interval.Value) : (TimeSpan?)null,
                         Path = path,
@@ -694,9 +697,9 @@ namespace Microsoft.ReverseProxy.Service.Tests
         }
 
         [Theory]
-        [InlineData(null, null, null, "Active health policy name is not set")]
         [InlineData(-1, null, "ConsecutiveFailures", "Destination probing interval")]
         [InlineData(null, -1, "ConsecutiveFailures", "Destination probing timeout")]
+        [InlineData(null, null, "NonExistingPolicy", "No matching IActiveHealthCheckPolicy found for the active health check policy")]
         public async Task EnableActiveHealthCheck_InvalidParameter_ErrorReturned(int? interval, int? timeout, string policy, string expectedError)
         {
             var services = CreateServices();
@@ -725,6 +728,8 @@ namespace Microsoft.ReverseProxy.Service.Tests
         }
 
         [Theory]
+        [InlineData(null, null)]
+        [InlineData(null, "")]
         [InlineData(null, "passive0")]
         [InlineData(25, "passive0")]
         public async Task EnablePassiveHealthCheck_Works(int? reactivationPeriod, string policy)
@@ -739,7 +744,9 @@ namespace Microsoft.ReverseProxy.Service.Tests
                 {
                     Passive = new PassiveHealthCheckOptions
                     {
-                        Enabled = true, Policy = policy, ReactivationPeriod = reactivationPeriod != null ? TimeSpan.FromSeconds(reactivationPeriod.Value) : (TimeSpan?)null
+                        Enabled = true,
+                        Policy = policy,
+                        ReactivationPeriod = reactivationPeriod != null ? TimeSpan.FromSeconds(reactivationPeriod.Value) : (TimeSpan?)null
                     }
                 }
             };
@@ -750,8 +757,8 @@ namespace Microsoft.ReverseProxy.Service.Tests
         }
 
         [Theory]
-        [InlineData(null, null, "Passive health policy name is not set")]
         [InlineData(-1, "passive0", "Unhealthy destination reactivation period")]
+        [InlineData(1, "NonExistingPolicy", "No matching IPassiveHealthCheckPolicy found for the passive health check policy")]
         public async Task EnablePassiveHealthCheck_InvalidParameter_ErrorReturned(int? reactivationPeriod, string policy, string expectedError)
         {
             var services = CreateServices();
