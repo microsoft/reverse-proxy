@@ -83,7 +83,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
             return new HttpMessageInvoker(handler, disposeHandler: true);
         }
 
-        private bool CanReuseOldClient(ProxyHttpClientContext context)
+        private static bool CanReuseOldClient(ProxyHttpClientContext context)
         {
             return context.OldClient != null && context.NewOptions == context.OldOptions;
         }

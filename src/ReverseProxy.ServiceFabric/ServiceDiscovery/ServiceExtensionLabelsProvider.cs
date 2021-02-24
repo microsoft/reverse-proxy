@@ -186,7 +186,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
         /// <summary>
         /// Gets the labels from the extensions of the provided raw service manifest.
         /// </summary>
-        private Dictionary<string, string> ExtractLabels(
+        private static Dictionary<string, string> ExtractLabels(
            string rawServiceManifest,
            string targetServiceTypeName)
         {
