@@ -4,6 +4,7 @@
 using System;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 
 namespace Microsoft.ReverseProxy.Abstractions
 {
@@ -46,6 +47,13 @@ namespace Microsoft.ReverseProxy.Abstractions
         // TODO: Add this property once we have migrated to SDK version that supports it.
         //public bool? EnableMultipleHttp2Connections { get; init; }
 
+#if NET
+        /// <summary>
+        /// Enables non-ASCII header encoding for outgoing requests.
+        /// </summary>
+        public Encoding RequestHeaderEncoding { get; init; }
+#endif
+
         /// <inheritdoc />
         public bool Equals(ProxyHttpClientOptions other)
         {
@@ -55,10 +63,15 @@ namespace Microsoft.ReverseProxy.Abstractions
             }
 
             return SslProtocols == other.SslProtocols
-                && CertEquals(ClientCertificate, other.ClientCertificate)
-                && DangerousAcceptAnyServerCertificate == other.DangerousAcceptAnyServerCertificate
-                && MaxConnectionsPerServer == other.MaxConnectionsPerServer
-                && PropagateActivityContext == other.PropagateActivityContext;
+                   && CertEquals(ClientCertificate, other.ClientCertificate)
+                   && DangerousAcceptAnyServerCertificate == other.DangerousAcceptAnyServerCertificate
+                   && MaxConnectionsPerServer == other.MaxConnectionsPerServer
+                   && PropagateActivityContext == other.PropagateActivityContext
+#if NET
+                   // Comparing by reference is fine here since Encoding.GetEncoding returns the same instance for each encoding.
+                   && RequestHeaderEncoding == other.RequestHeaderEncoding
+#endif
+                ;
         }
 
         private static bool CertEquals(X509Certificate2 certificate1, X509Certificate2 certificate2)
@@ -83,7 +96,11 @@ namespace Microsoft.ReverseProxy.Abstractions
                 ClientCertificate?.Thumbprint,
                 DangerousAcceptAnyServerCertificate,
                 MaxConnectionsPerServer,
-                PropagateActivityContext);
+                PropagateActivityContext
+#if NET
+                , RequestHeaderEncoding
+#endif
+                );
         }
     }
 }

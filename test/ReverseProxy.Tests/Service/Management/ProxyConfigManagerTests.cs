@@ -5,7 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Authentication;
+using System.Text;
 using System.Threading;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Routing;
@@ -158,10 +160,14 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
                 {
                     { "d1", new Destination { Address = TestAddress } }
                 },
-                HttpClient = new ProxyHttpClientOptions {
+                HttpClient = new ProxyHttpClientOptions
+                {
                     SslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12,
                     MaxConnectionsPerServer = 10,
-                    ClientCertificate = clientCertificate
+                    ClientCertificate = clientCertificate,
+#if NET
+                    RequestHeaderEncoding = Encoding.UTF8
+#endif
                 }
             };
             var route = new ProxyRoute
@@ -187,11 +193,17 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             Assert.Equal(SslProtocols.Tls11 | SslProtocols.Tls12, clusterConfig.Options.HttpClient.SslProtocols);
             Assert.Equal(10, clusterConfig.Options.HttpClient.MaxConnectionsPerServer);
             Assert.Same(clientCertificate, clusterConfig.Options.HttpClient.ClientCertificate);
+#if NET
+            Assert.Equal(Encoding.UTF8, clusterConfig.Options.HttpClient.RequestHeaderEncoding);
+#endif
 
             var handler = Proxy.Tests.ProxyHttpClientFactoryTests.GetHandler(clusterConfig.HttpClient);
             Assert.Equal(SslProtocols.Tls11 | SslProtocols.Tls12, handler.SslOptions.EnabledSslProtocols);
             Assert.Equal(10, handler.MaxConnectionsPerServer);
             Assert.Single(handler.SslOptions.ClientCertificates, clientCertificate);
+#if NET
+            Assert.Equal(Encoding.UTF8, handler.RequestHeaderEncodingSelector(default, default));
+#endif
         }
 
         [Fact]

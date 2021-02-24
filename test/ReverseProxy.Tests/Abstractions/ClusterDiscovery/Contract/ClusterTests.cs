@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Security.Authentication;
+using System.Text;
 using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Microsoft.ReverseProxy.Service.Proxy;
 using Xunit;
@@ -71,6 +72,9 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
                     MaxConnectionsPerServer = 10,
                     DangerousAcceptAnyServerCertificate = true,
                     PropagateActivityContext = true,
+#if NET
+                    RequestHeaderEncoding = Encoding.UTF8
+#endif
                 },
                 HttpRequest = new RequestProxyOptions
                 {
@@ -138,6 +142,9 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
                     MaxConnectionsPerServer = 10,
                     DangerousAcceptAnyServerCertificate = true,
                     PropagateActivityContext = true,
+#if NET
+                    RequestHeaderEncoding = Encoding.UTF8
+#endif
                 },
                 HttpRequest = new RequestProxyOptions
                 {

@@ -80,10 +80,10 @@ namespace Microsoft.ReverseProxy.Common
             }
         }
 
-        public static IHost CreateProxy(HttpProtocols protocols, bool useHttps, Encoding headerEncoding, string clusterId, string destinationAddress,
+        public static IHost CreateProxy(HttpProtocols protocols, bool useHttps, Encoding requestHeaderEncoding, string clusterId, string destinationAddress,
             Action<IReverseProxyBuilder> configureProxy, Action<IApplicationBuilder> configureProxyApp)
         {
-            return CreateHost(protocols, false, headerEncoding,
+            return CreateHost(protocols, false, requestHeaderEncoding,
                 services =>
                 {
                     var proxyRoute = new ProxyRoute
@@ -102,7 +102,10 @@ namespace Microsoft.ReverseProxy.Common
                         },
                         HttpClient = new ProxyHttpClientOptions
                         {
-                            DangerousAcceptAnyServerCertificate = useHttps
+                            DangerousAcceptAnyServerCertificate = useHttps,
+#if NET
+                            RequestHeaderEncoding = requestHeaderEncoding,
+#endif
                         }
                     };
 
@@ -120,7 +123,7 @@ namespace Microsoft.ReverseProxy.Common
                 });
         }
 
-        private static IHost CreateHost(HttpProtocols protocols, bool useHttps, Encoding headerEncoding,
+        private static IHost CreateHost(HttpProtocols protocols, bool useHttps, Encoding requestHeaderEncoding,
             Action<IServiceCollection> configureServices, Action<IApplicationBuilder> configureApp)
         {
             return new HostBuilder()
@@ -131,9 +134,9 @@ namespace Microsoft.ReverseProxy.Common
                         .UseKestrel(kestrel =>
                         {
 #if NET
-                            if (headerEncoding != null)
+                            if (requestHeaderEncoding != null)
                             {
-                                kestrel.RequestHeaderEncodingSelector = _ => headerEncoding;
+                                kestrel.RequestHeaderEncodingSelector = _ => requestHeaderEncoding;
                             }
 #endif
                             kestrel.Listen(IPAddress.Loopback, 0, listenOptions =>

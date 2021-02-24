@@ -45,10 +45,7 @@ namespace Microsoft.ReverseProxy
                     }
                     return Task.CompletedTask;
                 },
-                proxyBuilder =>
-                {
-                    proxyBuilder.Services.AddSingleton<IProxyHttpClientFactory>(new HeaderEncodingClientFactory(encoding));
-                },
+                proxyBuilder => { },
                 proxyApp =>
                 {
                     proxyApp.Use(async (context, next) =>
@@ -157,10 +154,7 @@ namespace Microsoft.ReverseProxy
             Exception unhandledError = null;
 
             using var proxy = TestEnvironment.CreateProxy(HttpProtocols.Http1, false, encoding, "cluster1", $"http://{tcpListener.LocalEndpoint}",
-                proxyBuilder =>
-                {
-                    proxyBuilder.Services.AddSingleton<IProxyHttpClientFactory>(new HeaderEncodingClientFactory(encoding));
-                },
+                proxyBuilder => { },
                 proxyApp =>
                 {
                     proxyApp.Use(async (context, next) =>
@@ -201,54 +195,6 @@ namespace Microsoft.ReverseProxy
             {
                 await proxy.StopAsync();
                 tcpListener.Stop();
-            }
-        }
-
-        private class HeaderEncodingClientFactory : IProxyHttpClientFactory
-        {
-            private Encoding _encoding;
-
-            public HeaderEncodingClientFactory(Encoding encoding)
-            {
-                _encoding = encoding;
-            }
-
-            // Partial kopypasta of ProxyHttpClientFactory
-            public HttpMessageInvoker CreateClient(ProxyHttpClientContext context)
-            {
-                if (CanReuseOldClient(context))
-                {
-                    return context.OldClient;
-                }
-
-                var newClientOptions = context.NewOptions;
-                var handler = new SocketsHttpHandler
-                {
-                    UseProxy = false,
-                    AllowAutoRedirect = false,
-                    AutomaticDecompression = DecompressionMethods.None,
-                    UseCookies = false,
-                    RequestHeaderEncodingSelector = (_, _) => _encoding,
-                    ResponseHeaderEncodingSelector = (_, _) => _encoding
-
-                    // NOTE: MaxResponseHeadersLength = 64, which means up to 64 KB of headers are allowed by default as of .NET Core 3.1.
-                };
-
-                if (newClientOptions.MaxConnectionsPerServer != null)
-                {
-                    handler.MaxConnectionsPerServer = newClientOptions.MaxConnectionsPerServer.Value;
-                }
-                if (newClientOptions.DangerousAcceptAnyServerCertificate ?? false)
-                {
-                    handler.SslOptions.RemoteCertificateValidationCallback = delegate { return true; };
-                }
-
-                return new HttpMessageInvoker(handler, disposeHandler: true);
-            }
-
-            private bool CanReuseOldClient(ProxyHttpClientContext context)
-            {
-                return context.OldClient != null && context.NewOptions == context.OldOptions;
             }
         }
     }

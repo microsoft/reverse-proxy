@@ -88,6 +88,9 @@ namespace Microsoft.ReverseProxy.Configuration
                             MaxConnectionsPerServer = 10,
                             DangerousAcceptAnyServerCertificate = true,
                             PropagateActivityContext = true,
+#if NET
+                            RequestHeaderEncoding = Encoding.UTF8
+#endif
                         },
                         HttpRequest = new RequestProxyOptions()
                         {
@@ -214,6 +217,7 @@ namespace Microsoft.ReverseProxy.Configuration
                 },
                 ""MaxConnectionsPerServer"": 10,
                 ""PropagateActivityContext"": true,
+                ""RequestHeaderEncoding"": ""utf-8"",
             },
             ""HttpRequest"": {
                 ""Timeout"": ""00:01:00"",
@@ -597,6 +601,9 @@ namespace Microsoft.ReverseProxy.Configuration
             Assert.Equal(cluster1.HttpClient.MaxConnectionsPerServer, abstractCluster1.HttpClient.MaxConnectionsPerServer);
             Assert.Equal(cluster1.HttpClient.PropagateActivityContext, abstractCluster1.HttpClient.PropagateActivityContext);
             Assert.Equal(SslProtocols.Tls11 | SslProtocols.Tls12, abstractCluster1.HttpClient.SslProtocols);
+#if NET
+            Assert.Equal(Encoding.UTF8, abstractCluster1.HttpClient.RequestHeaderEncoding);
+#endif
             Assert.Equal(cluster1.HttpRequest.Timeout, abstractCluster1.HttpRequest.Timeout);
             Assert.Equal(HttpVersion.Version10, abstractCluster1.HttpRequest.Version);
 #if NET

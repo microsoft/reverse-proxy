@@ -64,6 +64,12 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
             {
                 handler.SslOptions.RemoteCertificateValidationCallback = delegate { return true; };
             }
+#if NET
+            if (newClientOptions.RequestHeaderEncoding != null)
+            {
+                handler.RequestHeaderEncodingSelector = (_, _) => newClientOptions.RequestHeaderEncoding;
+            }
+#endif
 
             Log.ProxyClientCreated(_logger, context.ClusterId);
 
