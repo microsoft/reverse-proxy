@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.ReverseProxy.Telemetry.Consumption;
 
-namespace Microsoft.ReverseProxy.ServiceFabric.Sample
+namespace Microsoft.ReverseProxy.Sample
 {
     /// <summary>
     /// ASP .NET Core pipeline initialization.
@@ -29,8 +29,14 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Sample
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+
             services.AddReverseProxy()
-                .LoadFromServiceFabric(_configuration.GetSection("ServiceFabricDiscovery"));
+                .LoadFromConfig(_configuration.GetSection("ReverseProxy"));
+
+            services.AddHttpContextAccessor();
+            services.AddSingleton<IProxyMetricsConsumer, ProxyMetricsConsumer>();
+            services.AddScoped<IProxyTelemetryConsumer, ProxyTelemetryConsumer>();
+            services.AddProxyTelemetryListener();
         }
 
         /// <summary>
@@ -41,7 +47,6 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Sample
             app.UseRouting();
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();
                 endpoints.MapReverseProxy();
             });
         }
