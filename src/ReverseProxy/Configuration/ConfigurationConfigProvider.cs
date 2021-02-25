@@ -326,10 +326,11 @@ namespace Microsoft.ReverseProxy.Configuration
                 DangerousAcceptAnyServerCertificate = section.ReadBool(nameof(ProxyHttpClientOptions.DangerousAcceptAnyServerCertificate)),
                 ClientCertificate = clientCertificate,
                 MaxConnectionsPerServer = section.ReadInt32(nameof(ProxyHttpClientOptions.MaxConnectionsPerServer)),
-                PropagateActivityContext = section.ReadBool(nameof(ProxyHttpClientOptions.PropagateActivityContext)),
 #if NET
-                RequestHeaderEncoding = section[nameof(ProxyHttpClientOptions.RequestHeaderEncoding)] is string encoding ? Encoding.GetEncoding(encoding) : null
+                EnableMultipleHttp2Connections = section.ReadBool(nameof(ProxyHttpClientOptions.EnableMultipleHttp2Connections)),
+                RequestHeaderEncoding = section[nameof(ProxyHttpClientOptions.RequestHeaderEncoding)] is string encoding ? Encoding.GetEncoding(encoding) : null,
 #endif
+                ActivityContextHeaders = section.ReadEnum<ActivityContextHeaders>(nameof(ProxyHttpClientOptions.ActivityContextHeaders))
             };
         }
 

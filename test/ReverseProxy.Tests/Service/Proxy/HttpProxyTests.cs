@@ -203,7 +203,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
             Assert.Equal(234, httpContext.Response.StatusCode);
             var reasonPhrase = httpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase;
-            Assert.Equal("Test Reason Phrase", reasonPhrase);
+            Assert.Null(reasonPhrase); // We don't set the ReasonPhrase for HTTP/2+
             Assert.Equal(new[] { "response", "value" }, httpContext.Response.Headers["x-ms-response-test"].ToArray());
             Assert.Contains("responseLanguage", httpContext.Response.Headers["Content-Language"].ToArray());
             Assert.Contains("value", httpContext.Response.Headers["transformHeader"].ToArray());

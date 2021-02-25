@@ -2,10 +2,8 @@
 // Licensed under the MIT License.
 
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.ReverseProxy.Middleware;
 
 namespace Microsoft.ReverseProxy.Sample
 {
@@ -41,32 +39,9 @@ namespace Microsoft.ReverseProxy.Sample
         public void Configure(IApplicationBuilder app)
         {
             app.UseRouting();
-            app.UseAuthorization();
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();
-                endpoints.MapReverseProxy(proxyPipeline =>
-                {
-                    // Custom endpoint selection
-                    proxyPipeline.Use((context, next) =>
-                    {
-                        var someCriteria = false; // MeetsCriteria(context);
-                        if (someCriteria)
-                        {
-                            var availableDestinationsFeature = context.Features.Get<IReverseProxyFeature>();
-                            var destination = availableDestinationsFeature.AvailableDestinations[0]; // PickDestination(availableDestinationsFeature.Destinations);
-                            // Load balancing will no-op if we've already reduced the list of available destinations to 1.
-                            availableDestinationsFeature.AvailableDestinations = destination;
-                        }
-
-                        return next();
-                    });
-                    proxyPipeline.UseAffinitizedDestinationLookup();
-                    proxyPipeline.UseProxyLoadBalancing();
-                    proxyPipeline.UseRequestAffinitizer();
-                    proxyPipeline.UsePassiveHealthChecks();
-                })
-                .ConfigureEndpoints((builder, route) => builder.WithDisplayName($"ReverseProxy {route.RouteId}-{route.ClusterId}"));
+                endpoints.MapReverseProxy();
             });
         }
     }

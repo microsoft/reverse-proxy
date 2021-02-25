@@ -40,14 +40,18 @@ namespace Microsoft.ReverseProxy.Abstractions
         public int? MaxConnectionsPerServer { get; init; }
 
         /// <summary>
-        /// Enables or disables the activity correlation headers for outgoing requests.
+        /// Specifies the activity correlation headers for outgoing requests.
         /// </summary>
-        public bool? PropagateActivityContext { get; init; }
-
-        // TODO: Add this property once we have migrated to SDK version that supports it.
-        //public bool? EnableMultipleHttp2Connections { get; init; }
+        public ActivityContextHeaders? ActivityContextHeaders { get; init; }
 
 #if NET
+        /// <summary>
+        /// Gets or sets a value that indicates whether additional HTTP/2 connections can
+        //  be established to the same server when the maximum number of concurrent streams
+        //  is reached on all existing connections.
+        /// </summary>
+        public bool? EnableMultipleHttp2Connections { get; init; }
+
         /// <summary>
         /// Enables non-ASCII header encoding for outgoing requests.
         /// </summary>
@@ -66,12 +70,12 @@ namespace Microsoft.ReverseProxy.Abstractions
                    && CertEquals(ClientCertificate, other.ClientCertificate)
                    && DangerousAcceptAnyServerCertificate == other.DangerousAcceptAnyServerCertificate
                    && MaxConnectionsPerServer == other.MaxConnectionsPerServer
-                   && PropagateActivityContext == other.PropagateActivityContext
 #if NET
+                   && EnableMultipleHttp2Connections == other.EnableMultipleHttp2Connections
                    // Comparing by reference is fine here since Encoding.GetEncoding returns the same instance for each encoding.
                    && RequestHeaderEncoding == other.RequestHeaderEncoding
 #endif
-                ;
+                   && ActivityContextHeaders == other.ActivityContextHeaders;
         }
 
         private static bool CertEquals(X509Certificate2 certificate1, X509Certificate2 certificate2)
@@ -96,11 +100,11 @@ namespace Microsoft.ReverseProxy.Abstractions
                 ClientCertificate?.Thumbprint,
                 DangerousAcceptAnyServerCertificate,
                 MaxConnectionsPerServer,
-                PropagateActivityContext
 #if NET
-                , RequestHeaderEncoding
+                EnableMultipleHttp2Connections,
+                RequestHeaderEncoding,
 #endif
-                );
+                ActivityContextHeaders);
         }
     }
 }

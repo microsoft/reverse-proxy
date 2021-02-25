@@ -16,7 +16,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         /// <summary>
         /// Transforms any of the available fields before building the outgoing request.
         /// </summary>
-        public abstract Task ApplyAsync(RequestTransformContext context);
+        public abstract ValueTask ApplyAsync(RequestTransformContext context);
 
         /// <summary>
         /// Removes and returns the current header value by first checking the HttpRequestMessage,

@@ -11,15 +11,15 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
     /// </summary>
     public class ResponseTrailersFuncTransform : ResponseTrailersTransform
     {
-        private readonly Func<ResponseTrailersTransformContext, Task> _func;
+        private readonly Func<ResponseTrailersTransformContext, ValueTask> _func;
 
-        public ResponseTrailersFuncTransform(Func<ResponseTrailersTransformContext, Task> func)
+        public ResponseTrailersFuncTransform(Func<ResponseTrailersTransformContext, ValueTask> func)
         {
             _func = func ?? throw new ArgumentNullException(nameof(func));
         }
 
         /// <inheritdoc/>
-        public override Task ApplyAsync(ResponseTrailersTransformContext context)
+        public override ValueTask ApplyAsync(ResponseTrailersTransformContext context)
         {
             return _func(context);
         }

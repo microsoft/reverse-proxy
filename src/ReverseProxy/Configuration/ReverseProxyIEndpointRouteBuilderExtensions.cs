@@ -26,7 +26,6 @@ namespace Microsoft.AspNetCore.Builder
             {
                 app.UseAffinitizedDestinationLookup();
                 app.UseProxyLoadBalancing();
-                app.UseRequestAffinitizer();
                 app.UsePassiveHealthChecks();
             });
         }

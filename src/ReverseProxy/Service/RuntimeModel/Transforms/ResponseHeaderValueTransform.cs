@@ -31,7 +31,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 
         // Assumes the response status code has been set on the HttpContext already.
         /// <inheritdoc/>
-        public override Task ApplyAsync(ResponseTransformContext context)
+        public override ValueTask ApplyAsync(ResponseTransformContext context)
         {
             if (context is null)
             {
@@ -53,7 +53,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                 // If the given value is empty, any existing header is removed.
             }
 
-            return Task.CompletedTask;
+            return default;
         }
 
         private static bool Success(ResponseTransformContext context)

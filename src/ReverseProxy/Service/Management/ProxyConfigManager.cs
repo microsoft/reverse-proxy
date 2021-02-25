@@ -471,14 +471,6 @@ namespace Microsoft.ReverseProxy.Service.Management
 
                             var newConfig = BuildRouteConfig(configRoute, cluster, route);
                             route.Config = newConfig;
-                        }
-
-                        // Check for config changes to the cluster. We don't need a new RouteConfig, but we do need to regenerate
-                        // endpoints that may depend on cluster data.
-                        if (route.ClusterRevision != cluster?.Revision)
-                        {
-                            changed = true;
-                            route.CachedEndpoint = null; // Recreate
                             route.ClusterRevision = cluster?.Revision;
                         }
                     });
@@ -535,7 +527,7 @@ namespace Microsoft.ReverseProxy.Service.Management
 
         private RouteConfig BuildRouteConfig(ProxyRoute source, ClusterInfo cluster, RouteInfo runtimeRoute)
         {
-            var transforms = _transformBuilder.Build(source);
+            var transforms = _transformBuilder.Build(source, cluster?.Config?.Options);
 
             var newRouteConfig = new RouteConfig(
                 runtimeRoute,

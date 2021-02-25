@@ -12,7 +12,7 @@ namespace Microsoft.ReverseProxy.Service.Config
         internal static readonly string HttpMethodChangeKey = "HttpMethodChange";
         internal static readonly string SetKey = "Set";
 
-        public bool Validate(TransformValidationContext context, IReadOnlyDictionary<string, string> transformValues)
+        public bool Validate(TransformRouteValidationContext context, IReadOnlyDictionary<string, string> transformValues)
         {
             if (transformValues.TryGetValue(HttpMethodChangeKey, out var _))
             {

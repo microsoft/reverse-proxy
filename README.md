@@ -6,9 +6,9 @@ YARP is a reverse proxy toolkit for building fast proxy servers in .NET using th
 
 We expect YARP to ship as a library and project template that together provide a robust, performant proxy server. Its pipeline and modules are designed so that you can then customize the functionality for your needs. For example, while YARP supports configuration files, we expect that many users will want to manage the configuration programmatically based on their own backend configuration management system, YARP will provide a configuration API to enable that customization in-proc.  YARP is designed with customizability as a primary scenario, rather than requiring you to break out to script or having to rebuild from source.
 
-# Current Status
+# Updates
 
-For the latest status updates, see our [Status Report thread](https://github.com/microsoft/reverse-proxy/issues/97). Subscribe to notifications on that issue and we'll comment regularly with status updates.
+For regular updates, see our [releases page](https://github.com/microsoft/reverse-proxy/releases). Subscribe to release notifications on this repository to be notified of future updates (Watch -> Custom -> Releases).
 
 # Build
 

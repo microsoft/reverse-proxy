@@ -18,7 +18,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         }
 
         /// <inheritdoc/>
-        public override Task ApplyAsync(RequestTransformContext context)
+        public override ValueTask ApplyAsync(RequestTransformContext context)
         {
             if (context is null)
             {
@@ -27,7 +27,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
 
             // Always override the proxy request host with the original request host.
             context.ProxyRequest.Headers.Host = context.HttpContext.Request.Host.Value;
-            return Task.CompletedTask;
+            return default;
         }
     }
 }

@@ -38,14 +38,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Sample
         /// </summary>
         public void Configure(IApplicationBuilder app)
         {
-            app.Use((context, next) =>
-            {
-                context.Response.Headers.Add("x-yarp-sf", Environment.MachineName);
-                return next();
-            });
-
             app.UseRouting();
-            app.UseAuthorization();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

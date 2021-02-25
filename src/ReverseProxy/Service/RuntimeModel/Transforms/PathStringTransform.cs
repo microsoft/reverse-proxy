@@ -28,7 +28,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         internal PathTransformMode Mode { get; }
 
         /// <inheritdoc/>
-        public override Task ApplyAsync(RequestTransformContext context)
+        public override ValueTask ApplyAsync(RequestTransformContext context)
         {
             if (context is null)
             {
@@ -50,7 +50,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                     throw new NotImplementedException(Mode.ToString());
             }
 
-            return Task.CompletedTask;
+            return default;
         }
 
         public enum PathTransformMode

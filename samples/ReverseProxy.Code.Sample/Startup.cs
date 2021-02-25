@@ -3,14 +3,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Net.Http.Headers;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Abstractions.Config;
 using Microsoft.ReverseProxy.Middleware;
-using Microsoft.ReverseProxy.Telemetry.Consumption;
 
 namespace Microsoft.ReverseProxy.Sample
 {
@@ -24,7 +20,7 @@ namespace Microsoft.ReverseProxy.Sample
         /// </summary>
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            // Manually create routes and cluster configs. This allows loading the data from an arbitrary source.
             var routes = new[]
             {
                 new ProxyRoute()
@@ -33,6 +29,7 @@ namespace Microsoft.ReverseProxy.Sample
                     ClusterId = "cluster1",
                     Match = new ProxyMatch
                     {
+                        // Path or Hosts are required for each route. This catch-all pattern matches all request paths.
                         Path = "{**catch-all}"
                     }
                 }
@@ -45,40 +42,14 @@ namespace Microsoft.ReverseProxy.Sample
                     SessionAffinity = new SessionAffinityOptions { Enabled = true, Mode = "Cookie" },
                     Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
                     {
-                        { "destination1", new Destination() { Address = "https://localhost:10000" } }
+                        { "destination1", new Destination() { Address = "https://example.com" } }
                     }
                 }
             };
 
             services.AddReverseProxy()
-                .LoadFromMemory(routes, clusters)
-                .AddTransformFactory<MyTransformFactory>()
-                .AddTransforms<MyTransformProvider>()
-                .AddTransforms(transformBuilderContext =>
-                {
-                    // For each route+cluster pair decide if we want to add transforms, and if so, which?
-                    // This logic is re-run each time a route is rebuilt.
-
-                    transformBuilderContext.AddPathPrefix("/prefix");
-
-                    // Only do this for routes that require auth.
-                    if (string.Equals("token", transformBuilderContext.Route.AuthorizationPolicy))
-                    {
-                        transformBuilderContext.AddRequestTransform(async transformContext =>
-                        {
-                            // AuthN and AuthZ will have already been completed after request routing.
-                            var ticket = await transformContext.HttpContext.AuthenticateAsync("token");
-                            var tokenService = transformContext.HttpContext.RequestServices.GetRequiredService<TokenService>();
-                            var token = await tokenService.GetAuthTokenAsync(ticket.Principal);
-                            transformContext.ProxyRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-                        });
-                    }
-                });
-
-            services.AddHttpContextAccessor();
-            services.AddSingleton<IProxyMetricsConsumer, ProxyMetricsConsumer>();
-            services.AddScoped<IProxyTelemetryConsumer, ProxyTelemetryConsumer>();
-            services.AddProxyTelemetryListener();
+                // See InMemoryConfigProvider.cs
+                .LoadFromMemory(routes, clusters);
         }
 
         /// <summary>
@@ -87,18 +58,17 @@ namespace Microsoft.ReverseProxy.Sample
         public void Configure(IApplicationBuilder app)
         {
             app.UseRouting();
-            app.UseAuthorization();
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();
                 endpoints.MapReverseProxy(proxyPipeline =>
                 {
-                    // Custom endpoint selection
+                    // Custom proxy middleware
                     proxyPipeline.Use((context, next) =>
                     {
                         var someCriteria = false; // MeetsCriteria(context);
                         if (someCriteria)
                         {
+                            // Here we check available destinations for the current cluster and pick one using custom criteria.
                             var availableDestinationsFeature = context.Features.Get<IReverseProxyFeature>();
                             var destination = availableDestinationsFeature.AvailableDestinations[0]; // PickDestination(availableDestinationsFeature.Destinations);
                             // Load balancing will no-op if we've already reduced the list of available destinations to 1.
@@ -107,9 +77,9 @@ namespace Microsoft.ReverseProxy.Sample
 
                         return next();
                     });
+                    // Don't forget to include these two middleware when you make a custom proxy pipeline (if you need them).
                     proxyPipeline.UseAffinitizedDestinationLookup();
                     proxyPipeline.UseProxyLoadBalancing();
-                    proxyPipeline.UseRequestAffinitizer();
                 });
             });
         }

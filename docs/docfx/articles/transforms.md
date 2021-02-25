@@ -497,8 +497,8 @@ The {Prefix}PathBase header value is taken from `HttpContext.Request.PathBase`. 
 | Key | Value | Default | Required |
 |-----|-------|---------|----------|
 | Forwarded | A comma separated list containing any of these values: for,by,proto,host | (none) | yes |
-| ForFormat | Random/RandomAndPort/Unknown/UnknownAndPort/Ip/IpAndPort | Random | no |
-| ByFormat | Random/RandomAndPort/Unknown/UnknownAndPort/Ip/IpAndPort | Random | no |
+| ForFormat | Random/RandomAndPort/RandomAndRandomPort/Unknown/UnknownAndPort/UnknownAndRandomPort/Ip/IpAndPort/IpAndRandomPort | Random | no |
+| ByFormat | Random/RandomAndPort/RandomAndRandomPort/Unknown/UnknownAndPort/UnknownAndRandomPort/Ip/IpAndPort/IpAndRandomPort | Random | no |
 | Append | true/false | true | no |
 
 Config:
@@ -543,10 +543,13 @@ The RFC allows a [variety of formats](https://tools.ietf.org/html/rfc7239#sectio
 |--------|-------------|---------|
 | Random | An obfuscated identifier that is generated randomly per request. This allows for diagnostic tracing scenarios while limiting the flow of uniquely identifying information for privacy reasons. | `by=_YQuN68tm6` |
 | RandomAndPort | The Random identifier plus the port. | `by="_YQuN68tm6:80"` |
+| RandomAndRandomPort | The Random identifier plus another random identifier for the port. | `by="_YQuN68tm6:_jDw5Cf3tQ"` |
 | Unknown | This can be used when the identity of the preceding entity is not known, but the proxy server still wants to signal that the request was forwarded. | `by=unknown` |
 | UnknownAndPort | The Unknown identifier plus the port if available. | `by="unknown:80"` |
+| UnknownAndRandomPort | The Unknown identifier plus random identifier for the port. | `by="unknown:_jDw5Cf3tQ"` |
 | Ip | An IPv4 address or an IPv6 address including brackets. | `by="[::1]"` |
 | IpAndPort | The IP address plus the port. | `by="[::1]:80"` |
+| IpAndRandomPort | The IP address plus random identifier for the port. | `by="[::1]:_jDw5Cf3tQ"` |
 
 ### ClientCert
 
@@ -686,15 +689,15 @@ ResponseTrailer follows the same structure and guidance as ResponseHeader.
 
 ### AddRequestTransform
 
-[AddRequestTransform](xref:Microsoft.ReverseProxy.Abstractions.Config.TransformBuilderContextFuncExtensions) is a `TransformBuilderContext` extension method that defines a request transform as a `Func<RequestTransformContext, Task>`. This allows creating a custom request transform without implementing a `RequestTransform` derived class.
+[AddRequestTransform](xref:Microsoft.ReverseProxy.Abstractions.Config.TransformBuilderContextFuncExtensions) is a `TransformBuilderContext` extension method that defines a request transform as a `Func<RequestTransformContext, ValueTask>`. This allows creating a custom request transform without implementing a `RequestTransform` derived class.
 
 ### AddResponseTransform
 
-[AddResponseTransform](xref:Microsoft.ReverseProxy.Abstractions.Config.TransformBuilderContextFuncExtensions) is a `TransformBuilderContext` extension method that defines a response transform as a `Func<ResponseTransformContext, Task>`. This allows creating a custom response transform without implementing a `ResponseTransform` derived class.
+[AddResponseTransform](xref:Microsoft.ReverseProxy.Abstractions.Config.TransformBuilderContextFuncExtensions) is a `TransformBuilderContext` extension method that defines a response transform as a `Func<ResponseTransformContext, ValueTask>`. This allows creating a custom response transform without implementing a `ResponseTransform` derived class.
 
 ### AddResponseTrailersTransform
 
-[AddResponseTrailersTransform](xref:Microsoft.ReverseProxy.Abstractions.Config.TransformBuilderContextFuncExtensions) is a `TransformBuilderContext` extension method that defines a response trailers transform as a `Func<ResponseTrailersTransformContext, Task>`. This allows creating a custom response trailers transform without implementing a `ResponseTrailersTransform` derived class.
+[AddResponseTrailersTransform](xref:Microsoft.ReverseProxy.Abstractions.Config.TransformBuilderContextFuncExtensions) is a `TransformBuilderContext` extension method that defines a response trailers transform as a `Func<ResponseTrailersTransformContext, ValueTask>`. This allows creating a custom response trailers transform without implementing a `ResponseTrailersTransform` derived class.
 
 ### RequestTransform
 
@@ -755,7 +758,7 @@ services.AddReverseProxy()
                 transformBuildContext.AddRequestTransform(transformContext =>
                 {
                     transformContext.ProxyRequest.Headers.Add("CustomHeader", value);
-                    return Task.CompletedTask;
+                    return default;
                 });
             }
         }
@@ -810,7 +813,7 @@ services.AddReverseProxy()
                 context.AddRequestTransform(transformContext =>
                 {
                     transformContext.ProxyRequest.Headers.Add("CustomHeader", value);
-                    return Task.CompletedTask;
+                    return default;
                 });
 
                 return true; // Matched

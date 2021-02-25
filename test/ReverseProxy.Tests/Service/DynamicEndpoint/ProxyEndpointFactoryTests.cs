@@ -69,6 +69,7 @@ namespace Microsoft.ReverseProxy.Service.DynamicEndpoint
 
         private (RouteEndpoint routeEndpoint, RouteConfig routeConfig) CreateEndpoint(ProxyEndpointFactory factory, RouteInfo routeInfo, ProxyRoute proxyRoute, ClusterInfo clusterInfo)
         {
+            routeInfo.ClusterRevision = clusterInfo.Revision;
             var routeConfig = new RouteConfig(routeInfo, proxyRoute, clusterInfo, HttpTransformer.Default);
 
             var endpoint = factory.CreateEndpoint(routeConfig, Array.Empty<Action<EndpointBuilder>>());

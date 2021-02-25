@@ -71,7 +71,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
                     SslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12,
                     MaxConnectionsPerServer = 10,
                     DangerousAcceptAnyServerCertificate = true,
-                    PropagateActivityContext = true,
+                    ActivityContextHeaders = ActivityContextHeaders.CorrelationContext,
 #if NET
                     RequestHeaderEncoding = Encoding.UTF8
 #endif
@@ -141,7 +141,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
                     SslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12,
                     MaxConnectionsPerServer = 10,
                     DangerousAcceptAnyServerCertificate = true,
-                    PropagateActivityContext = true,
+                    ActivityContextHeaders = ActivityContextHeaders.CorrelationContext,
 #if NET
                     RequestHeaderEncoding = Encoding.UTF8
 #endif
@@ -221,7 +221,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
                     SslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12,
                     MaxConnectionsPerServer = 10,
                     DangerousAcceptAnyServerCertificate = true,
-                    PropagateActivityContext = true,
+                    ActivityContextHeaders = ActivityContextHeaders.CorrelationContext,
                 },
                 HttpRequest = new RequestProxyOptions
                 {
@@ -255,7 +255,7 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
                     SslProtocols = SslProtocols.Tls12,
                     MaxConnectionsPerServer = 10,
                     DangerousAcceptAnyServerCertificate = true,
-                    PropagateActivityContext = true,
+                    ActivityContextHeaders = ActivityContextHeaders.CorrelationContext,
                 }
             }));
             Assert.False(options1.Equals(options1 with { HttpRequest = new RequestProxyOptions() { } }));

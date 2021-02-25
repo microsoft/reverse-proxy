@@ -87,9 +87,9 @@ namespace Microsoft.ReverseProxy.Configuration
                             SslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12,
                             MaxConnectionsPerServer = 10,
                             DangerousAcceptAnyServerCertificate = true,
-                            PropagateActivityContext = true,
+                            ActivityContextHeaders = ActivityContextHeaders.Baggage,
 #if NET
-                            RequestHeaderEncoding = Encoding.UTF8
+                            EnableMultipleHttp2Connections = true,
 #endif
                         },
                         HttpRequest = new RequestProxyOptions()
@@ -216,8 +216,9 @@ namespace Microsoft.ReverseProxy.Configuration
                     ""AllowInvalid"": null
                 },
                 ""MaxConnectionsPerServer"": 10,
-                ""PropagateActivityContext"": true,
-                ""RequestHeaderEncoding"": ""utf-8"",
+                ""EnableMultipleHttp2Connections"": true,
+                ""ActivityContextHeaders"": ""Baggage"",
+                ""RequestHeaderEncoding"": ""utf-8""
             },
             ""HttpRequest"": {
                 ""Timeout"": ""00:01:00"",
@@ -599,11 +600,12 @@ namespace Microsoft.ReverseProxy.Configuration
             Assert.Equal(cluster1.SessionAffinity.Settings, abstractCluster1.SessionAffinity.Settings);
             Assert.Same(certificate, abstractCluster1.HttpClient.ClientCertificate);
             Assert.Equal(cluster1.HttpClient.MaxConnectionsPerServer, abstractCluster1.HttpClient.MaxConnectionsPerServer);
-            Assert.Equal(cluster1.HttpClient.PropagateActivityContext, abstractCluster1.HttpClient.PropagateActivityContext);
-            Assert.Equal(SslProtocols.Tls11 | SslProtocols.Tls12, abstractCluster1.HttpClient.SslProtocols);
 #if NET
+            Assert.Equal(cluster1.HttpClient.EnableMultipleHttp2Connections, abstractCluster1.HttpClient.EnableMultipleHttp2Connections);
             Assert.Equal(Encoding.UTF8, abstractCluster1.HttpClient.RequestHeaderEncoding);
 #endif
+            Assert.Equal(cluster1.HttpClient.ActivityContextHeaders, abstractCluster1.HttpClient.ActivityContextHeaders);
+            Assert.Equal(SslProtocols.Tls11 | SslProtocols.Tls12, abstractCluster1.HttpClient.SslProtocols);
             Assert.Equal(cluster1.HttpRequest.Timeout, abstractCluster1.HttpRequest.Timeout);
             Assert.Equal(HttpVersion.Version10, abstractCluster1.HttpRequest.Version);
 #if NET

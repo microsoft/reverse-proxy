@@ -29,7 +29,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         internal RouteTemplate Template { get; }
 
         /// <inheritdoc/>
-        public override Task ApplyAsync(RequestTransformContext context)
+        public override ValueTask ApplyAsync(RequestTransformContext context)
         {
             if (context is null)
             {
@@ -41,7 +41,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             var binder = _binderFactory.Create(Template, defaults: routeValues);
             context.Path = binder.BindValues(acceptedValues: routeValues);
 
-            return Task.CompletedTask;
+            return default;
         }
     }
 }

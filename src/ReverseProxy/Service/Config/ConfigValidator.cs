@@ -14,7 +14,6 @@ using Microsoft.AspNetCore.Routing.Patterns;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Microsoft.ReverseProxy.Abstractions.RouteDiscovery.Contract;
-using Microsoft.ReverseProxy.Service.Config;
 using Microsoft.ReverseProxy.Service.HealthChecks;
 using Microsoft.ReverseProxy.Service.LoadBalancing;
 using Microsoft.ReverseProxy.Service.SessionAffinity;
@@ -58,7 +57,6 @@ namespace Microsoft.ReverseProxy.Service
         private readonly IAuthorizationPolicyProvider _authorizationPolicyProvider;
         private readonly ICorsPolicyProvider _corsPolicyProvider;
         private readonly IDictionary<string, ILoadBalancingPolicy> _loadBalancingPolicies;
-        private readonly IDictionary<string, ISessionAffinityProvider> _sessionAffinityProviders;
         private readonly IDictionary<string, IAffinityFailurePolicy> _affinityFailurePolicies;
         private readonly IDictionary<string, IActiveHealthCheckPolicy> _activeHealthCheckPolicies;
         private readonly IDictionary<string, IPassiveHealthCheckPolicy> _passiveHealthCheckPolicies;
@@ -68,7 +66,6 @@ namespace Microsoft.ReverseProxy.Service
             IAuthorizationPolicyProvider authorizationPolicyProvider,
             ICorsPolicyProvider corsPolicyProvider,
             IEnumerable<ILoadBalancingPolicy> loadBalancingPolicies,
-            IEnumerable<ISessionAffinityProvider> sessionAffinityProviders,
             IEnumerable<IAffinityFailurePolicy> affinityFailurePolicies,
             IEnumerable<IActiveHealthCheckPolicy> activeHealthCheckPolicies,
             IEnumerable<IPassiveHealthCheckPolicy> passiveHealthCheckPolicies)
@@ -77,7 +74,6 @@ namespace Microsoft.ReverseProxy.Service
             _authorizationPolicyProvider = authorizationPolicyProvider ?? throw new ArgumentNullException(nameof(authorizationPolicyProvider));
             _corsPolicyProvider = corsPolicyProvider ?? throw new ArgumentNullException(nameof(corsPolicyProvider));
             _loadBalancingPolicies = loadBalancingPolicies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(loadBalancingPolicies));
-            _sessionAffinityProviders = sessionAffinityProviders?.ToDictionaryByUniqueId(p => p.Mode) ?? throw new ArgumentNullException(nameof(sessionAffinityProviders));
             _affinityFailurePolicies = affinityFailurePolicies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(affinityFailurePolicies));
             _activeHealthCheckPolicies = activeHealthCheckPolicies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(activeHealthCheckPolicies));
             _passiveHealthCheckPolicies = passiveHealthCheckPolicies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(passiveHealthCheckPolicies));
@@ -94,7 +90,7 @@ namespace Microsoft.ReverseProxy.Service
                 errors.Add(new ArgumentException("Missing Route Id."));
             }
 
-            errors.AddRange(_transformBuilder.Validate(route));
+            errors.AddRange(_transformBuilder.ValidateRoute(route));
             await ValidateAuthorizationPolicyAsync(errors, route.AuthorizationPolicy, route.RouteId);
             await ValidateCorsPolicyAsync(errors, route.CorsPolicy, route.RouteId);
 
@@ -128,6 +124,7 @@ namespace Microsoft.ReverseProxy.Service
                 errors.Add(new ArgumentException("Missing Cluster Id."));
             }
 
+            errors.AddRange(_transformBuilder.ValidateCluster(cluster));
             ValidateLoadBalancing(errors, cluster);
             ValidateSessionAffinity(errors, cluster);
             ValidateProxyHttpClient(errors, cluster);
@@ -317,17 +314,7 @@ namespace Microsoft.ReverseProxy.Service
                 return;
             }
 
-            var affinityMode = cluster.SessionAffinity.Mode;
-            if (string.IsNullOrEmpty(affinityMode))
-            {
-                // The default.
-                affinityMode = SessionAffinityConstants.Modes.Cookie;
-            }
-
-            if (!_sessionAffinityProviders.ContainsKey(affinityMode))
-            {
-                errors.Add(new ArgumentException($"No matching {nameof(ISessionAffinityProvider)} found for the session affinity mode '{affinityMode}' set on the cluster '{cluster.Id}'."));
-            }
+            // Note some affinity validation takes place in AffinitizeTransformProvider.ValidateCluster.
 
             var affinityFailurePolicy = cluster.SessionAffinity.FailurePolicy;
             if (string.IsNullOrEmpty(affinityFailurePolicy))

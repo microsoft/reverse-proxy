@@ -53,7 +53,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
             var options = new ProxyHttpClientOptions
             {
-                SslProtocols =  SslProtocols.Tls12 | SslProtocols.Tls13,
+                SslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13,
             };
             var client = factory.CreateClient(new ProxyHttpClientContext { NewOptions = options });
 
@@ -113,7 +113,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         public void CreateClient_ApplyPropagateActivityContext_Success()
         {
             var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
-            var options = new ProxyHttpClientOptions { PropagateActivityContext = false };
+            var options = new ProxyHttpClientOptions { ActivityContextHeaders = ActivityContextHeaders.None };
             var client = factory.CreateClient(new ProxyHttpClientContext { NewOptions = options });
 
             var handler = GetHandler(client, expectActivityPropagationHandler: false);
@@ -153,7 +153,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 DangerousAcceptAnyServerCertificate = true,
                 ClientCertificate = clientCertificate,
                 MaxConnectionsPerServer = 10,
-                PropagateActivityContext = true,
+                ActivityContextHeaders = ActivityContextHeaders.CorrelationContext,
 #if NET
                 RequestHeaderEncoding = Encoding.Latin1,
 #endif
@@ -168,6 +168,22 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.Equal(newOptions, oldOptions);
             Assert.Same(oldClient, actualClient);
         }
+
+#if NET
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void CreateClient_ApplyEnableMultipleHttp2Connections_Success(bool enableMultipleHttp2Connections)
+        {
+            var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
+            var options = new ProxyHttpClientOptions {  EnableMultipleHttp2Connections = enableMultipleHttp2Connections };
+            var client = factory.CreateClient(new ProxyHttpClientContext { NewOptions = options });
+
+            var handler = GetHandler(client);
+
+            Assert.Equal(enableMultipleHttp2Connections, handler.EnableMultipleHttp2Connections);
+        }
+#endif
 
         [Theory]
         [MemberData(nameof(GetChangedHttpClientOptions))]
@@ -195,7 +211,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                         DangerousAcceptAnyServerCertificate = true,
                         ClientCertificate = clientCertificate,
                         MaxConnectionsPerServer = null,
-                        PropagateActivityContext = false,
+                        ActivityContextHeaders = ActivityContextHeaders.None,
                     },
                     new ProxyHttpClientOptions
                     {
@@ -203,7 +219,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                         DangerousAcceptAnyServerCertificate = true,
                         ClientCertificate = clientCertificate,
                         MaxConnectionsPerServer = null,
-                        PropagateActivityContext = false,
+                        ActivityContextHeaders = ActivityContextHeaders.None,
                     },
                 },
                 new object[] {
@@ -213,7 +229,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                         DangerousAcceptAnyServerCertificate = true,
                         ClientCertificate = clientCertificate,
                         MaxConnectionsPerServer = null,
-                        PropagateActivityContext = false,
+                        ActivityContextHeaders = ActivityContextHeaders.None,
                     },
                     new ProxyHttpClientOptions
                     {
@@ -221,7 +237,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                         DangerousAcceptAnyServerCertificate = false,
                         ClientCertificate = clientCertificate,
                         MaxConnectionsPerServer = null,
-                        PropagateActivityContext = false,
+                        ActivityContextHeaders = ActivityContextHeaders.None,
                     },
                 },
                 new object[] {
@@ -231,7 +247,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                         DangerousAcceptAnyServerCertificate = true,
                         ClientCertificate = clientCertificate,
                         MaxConnectionsPerServer = null,
-                        PropagateActivityContext = false,
+                        ActivityContextHeaders = ActivityContextHeaders.None,
                     },
                     new ProxyHttpClientOptions
                     {
@@ -239,25 +255,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                         DangerousAcceptAnyServerCertificate = false,
                         ClientCertificate = null,
                         MaxConnectionsPerServer = null,
-                        PropagateActivityContext = false,
-                    },
-                },
-                new object[] {
-                    new ProxyHttpClientOptions
-                    {
-                        SslProtocols = SslProtocols.Tls11,
-                        DangerousAcceptAnyServerCertificate = true,
-                        ClientCertificate = null,
-                        MaxConnectionsPerServer = null,
-                        PropagateActivityContext = false,
-                    },
-                    new ProxyHttpClientOptions
-                    {
-                        SslProtocols = SslProtocols.Tls11,
-                        DangerousAcceptAnyServerCertificate = false,
-                        ClientCertificate = clientCertificate,
-                        MaxConnectionsPerServer = null,
-                        PropagateActivityContext = false,
+                        ActivityContextHeaders = ActivityContextHeaders.None,
                     },
                 },
                 new object[] {
@@ -267,7 +265,25 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                         DangerousAcceptAnyServerCertificate = true,
                         ClientCertificate = null,
                         MaxConnectionsPerServer = null,
-                        PropagateActivityContext = false,
+                        ActivityContextHeaders = ActivityContextHeaders.None,
+                    },
+                    new ProxyHttpClientOptions
+                    {
+                        SslProtocols = SslProtocols.Tls11,
+                        DangerousAcceptAnyServerCertificate = false,
+                        ClientCertificate = clientCertificate,
+                        MaxConnectionsPerServer = null,
+                        ActivityContextHeaders = ActivityContextHeaders.None,
+                    },
+                },
+                new object[] {
+                    new ProxyHttpClientOptions
+                    {
+                        SslProtocols = SslProtocols.Tls11,
+                        DangerousAcceptAnyServerCertificate = true,
+                        ClientCertificate = null,
+                        MaxConnectionsPerServer = null,
+                        ActivityContextHeaders = ActivityContextHeaders.None,
                     },
                     new ProxyHttpClientOptions
                     {
@@ -275,25 +291,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                         DangerousAcceptAnyServerCertificate = true,
                         ClientCertificate = clientCertificate,
                         MaxConnectionsPerServer = 10,
-                        PropagateActivityContext = false,
-                    },
-                },
-                new object[] {
-                    new ProxyHttpClientOptions
-                    {
-                        SslProtocols = SslProtocols.Tls11,
-                        DangerousAcceptAnyServerCertificate = true,
-                        ClientCertificate = null,
-                        MaxConnectionsPerServer = 10,
-                        PropagateActivityContext = false,
-                    },
-                    new ProxyHttpClientOptions
-                    {
-                        SslProtocols = SslProtocols.Tls11,
-                        DangerousAcceptAnyServerCertificate = true,
-                        ClientCertificate = clientCertificate,
-                        MaxConnectionsPerServer = null,
-                        PropagateActivityContext = false,
+                        ActivityContextHeaders = ActivityContextHeaders.None,
                     },
                 },
                 new object[] {
@@ -303,7 +301,25 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                         DangerousAcceptAnyServerCertificate = true,
                         ClientCertificate = null,
                         MaxConnectionsPerServer = 10,
-                        PropagateActivityContext = false,
+                        ActivityContextHeaders = ActivityContextHeaders.None,
+                    },
+                    new ProxyHttpClientOptions
+                    {
+                        SslProtocols = SslProtocols.Tls11,
+                        DangerousAcceptAnyServerCertificate = true,
+                        ClientCertificate = clientCertificate,
+                        MaxConnectionsPerServer = null,
+                        ActivityContextHeaders = ActivityContextHeaders.None,
+                    },
+                },
+                new object[] {
+                    new ProxyHttpClientOptions
+                    {
+                        SslProtocols = SslProtocols.Tls11,
+                        DangerousAcceptAnyServerCertificate = true,
+                        ClientCertificate = null,
+                        MaxConnectionsPerServer = 10,
+                        ActivityContextHeaders = ActivityContextHeaders.None,
                     },
                     new ProxyHttpClientOptions
                     {
@@ -311,7 +327,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                         DangerousAcceptAnyServerCertificate = true,
                         ClientCertificate = clientCertificate,
                         MaxConnectionsPerServer = 20,
-                        PropagateActivityContext = false,
+                        ActivityContextHeaders = ActivityContextHeaders.None,
                     },
                 },
                 new object[] {
@@ -321,7 +337,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                         DangerousAcceptAnyServerCertificate = true,
                         ClientCertificate = null,
                         MaxConnectionsPerServer = 10,
-                        PropagateActivityContext = true,
+                        ActivityContextHeaders = ActivityContextHeaders.CorrelationContext,
                     },
                     new ProxyHttpClientOptions
                     {
@@ -329,7 +345,43 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                         DangerousAcceptAnyServerCertificate = true,
                         ClientCertificate = null,
                         MaxConnectionsPerServer = 10,
-                        PropagateActivityContext = false,
+                        ActivityContextHeaders = ActivityContextHeaders.None,
+                    },
+                },
+                new object[] {
+                    new ProxyHttpClientOptions
+                    {
+                        SslProtocols = SslProtocols.Tls11,
+                        DangerousAcceptAnyServerCertificate = true,
+                        ClientCertificate = null,
+                        MaxConnectionsPerServer = 10,
+                        ActivityContextHeaders = ActivityContextHeaders.Baggage,
+                    },
+                    new ProxyHttpClientOptions
+                    {
+                        SslProtocols = SslProtocols.Tls11,
+                        DangerousAcceptAnyServerCertificate = true,
+                        ClientCertificate = null,
+                        MaxConnectionsPerServer = 10,
+                        ActivityContextHeaders = ActivityContextHeaders.CorrelationContext,
+                    },
+                },
+                new object[] {
+                    new ProxyHttpClientOptions
+                    {
+                        SslProtocols = SslProtocols.Tls11,
+                        DangerousAcceptAnyServerCertificate = true,
+                        ClientCertificate = null,
+                        MaxConnectionsPerServer = 10,
+                        ActivityContextHeaders = ActivityContextHeaders.CorrelationContext,
+                    },
+                    new ProxyHttpClientOptions
+                    {
+                        SslProtocols = SslProtocols.Tls11,
+                        DangerousAcceptAnyServerCertificate = true,
+                        ClientCertificate = null,
+                        MaxConnectionsPerServer = 10,
+                        ActivityContextHeaders = ActivityContextHeaders.BaggageAndCorrelationContext,
                     },
                 },
 #if NET
@@ -340,7 +392,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                         DangerousAcceptAnyServerCertificate = true,
                         ClientCertificate = null,
                         MaxConnectionsPerServer = 10,
-                        PropagateActivityContext = true,
+                        ActivityContextHeaders = ActivityContextHeaders.Baggage,
+                        EnableMultipleHttp2Connections = true
                     },
                     new ProxyHttpClientOptions
                     {
@@ -348,7 +401,26 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                         DangerousAcceptAnyServerCertificate = true,
                         ClientCertificate = null,
                         MaxConnectionsPerServer = 10,
-                        PropagateActivityContext = false,
+                        ActivityContextHeaders = ActivityContextHeaders.Baggage,
+                        EnableMultipleHttp2Connections = false
+                    },
+                },
+                new object[] {
+                    new ProxyHttpClientOptions
+                    {
+                        SslProtocols = SslProtocols.Tls11,
+                        DangerousAcceptAnyServerCertificate = true,
+                        ClientCertificate = null,
+                        MaxConnectionsPerServer = 10,
+                        ActivityContextHeaders = ActivityContextHeaders.None,
+                    },
+                    new ProxyHttpClientOptions
+                    {
+                        SslProtocols = SslProtocols.Tls11,
+                        DangerousAcceptAnyServerCertificate = true,
+                        ClientCertificate = null,
+                        MaxConnectionsPerServer = 10,
+                        ActivityContextHeaders = ActivityContextHeaders.None,
                         RequestHeaderEncoding = Encoding.UTF8,
                     },
                 },
@@ -359,7 +431,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                         DangerousAcceptAnyServerCertificate = true,
                         ClientCertificate = null,
                         MaxConnectionsPerServer = 10,
-                        PropagateActivityContext = true,
+                        ActivityContextHeaders = ActivityContextHeaders.None,
                         RequestHeaderEncoding = Encoding.UTF8,
                     },
                     new ProxyHttpClientOptions
@@ -368,7 +440,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                         DangerousAcceptAnyServerCertificate = true,
                         ClientCertificate = null,
                         MaxConnectionsPerServer = 10,
-                        PropagateActivityContext = false,
+                        ActivityContextHeaders = ActivityContextHeaders.None,
                         RequestHeaderEncoding = Encoding.Latin1,
                     },
                 }
@@ -395,7 +467,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         {
             var skippedSet = new HashSet<string>(skippedExtractors);
             var defaultHandler = new SocketsHttpHandler();
-            foreach(var extractor in GetAllExtractors().Where(e => !skippedSet.Contains(e.name)).Select(e => e.extractor))
+            foreach (var extractor in GetAllExtractors().Where(e => !skippedSet.Contains(e.name)).Select(e => e.extractor))
             {
                 Assert.Equal(extractor(defaultHandler), extractor(actualHandler));
             }

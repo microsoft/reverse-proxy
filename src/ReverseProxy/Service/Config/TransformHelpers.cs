@@ -9,7 +9,7 @@ namespace Microsoft.ReverseProxy.Service.Config
 {
     public static class TransformHelpers
     {
-        public static void TryCheckTooManyParameters(TransformValidationContext context, IReadOnlyDictionary<string, string> rawTransform, int expected)
+        public static void TryCheckTooManyParameters(TransformRouteValidationContext context, IReadOnlyDictionary<string, string> rawTransform, int expected)
         {
             if (rawTransform.Count > expected)
             {
