@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Security.Authentication;
 using FluentAssertions;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
@@ -43,6 +44,14 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 { "YARP.Backend.HealthCheck.Passive.Policy", "MyPassiveHealthPolicy" },
                 { "YARP.Backend.HealthCheck.Passive.ReactivationPeriod", "00:00:07" },
                 { "YARP.Backend.Metadata.Foo", "Bar" },
+
+                { "YARP.Backend.HttpClient.DangerousAcceptAnyServerCertificate", "true" },
+                { "YARP.Backend.HttpClient.MaxConnectionsPerServer", "1000" },
+                { "YARP.Backend.HttpClient.SslProtocols", "Tls12" },
+                { "YARP.Backend.HttpClient.ActivityContextHeaders", "BaggageAndCorrelationContext" },
+#if NET
+                { "YARP.Backend.HttpClient.EnableMultipleHttp2Connections", "false" },
+#endif
             };
 
             var cluster = LabelsParser.BuildCluster(_testServiceName, labels, null);
@@ -91,6 +100,16 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 {
                     { "Foo", "Bar" },
                 },
+                HttpClient = new ProxyHttpClientOptions
+                {
+                    ActivityContextHeaders = ActivityContextHeaders.BaggageAndCorrelationContext,
+                    DangerousAcceptAnyServerCertificate = true,
+#if NET
+                    EnableMultipleHttp2Connections = false,
+#endif
+                    MaxConnectionsPerServer = 1000,
+                    SslProtocols = SslProtocols.Tls12
+                }
             };
             cluster.Should().BeEquivalentTo(expectedCluster);
         }
@@ -125,6 +144,10 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     }
                 },
                 Metadata = new Dictionary<string, string>(),
+                HttpClient = new ProxyHttpClientOptions
+                {
+
+                }
             };
             cluster.Should().BeEquivalentTo(expectedCluster);
         }
