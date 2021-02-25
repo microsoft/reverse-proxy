@@ -21,13 +21,15 @@ namespace Microsoft.ReverseProxy.Auth.Sample.Controllers
             return View();
         }
 
+        // Processes input from the Login.cshtml page to authenticate the user
         [HttpPost]
-        public IActionResult Login(string name, string claim, string returnUrl)
+        public IActionResult Login(string name, string myClaimValue, string returnUrl)
         {
+            // Create a new identity with 2 claims based on the fields in the form
             var identity = new ClaimsIdentity(new[]
             {
                 new Claim(ClaimTypes.Name, name),
-                new Claim("CustomClaim", claim)
+                new Claim("myCustomClaim", myClaimValue)
             }, CookieAuthenticationDefaults.AuthenticationScheme);
             var principal = new ClaimsPrincipal(identity);
 

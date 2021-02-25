@@ -29,6 +29,7 @@ namespace Microsoft.ReverseProxy.Auth.Sample
         /// </summary>
         public void ConfigureServices(IServiceCollection services)
         {
+            // Required to supply the authentication UI in Views/*
             services.AddRazorPages();
 
             services.AddReverseProxy()
@@ -39,13 +40,19 @@ namespace Microsoft.ReverseProxy.Auth.Sample
 
             services.AddAuthorization(options =>
             {
-                options.AddPolicy("CustomClaims", builder => builder
-                    // See AccountController.Login
-                    .RequireClaim("CustomClaim", "My Value")
+                // Creates a policy called "myPolicy" that depends on having a claim "myCustomClaim" with the value "green".
+                // See AccountController.Login method for where this claim is applied to the user identity
+                // This policy can then be used by routes in the proxy, see "ClaimsAuthRoute" in appsettings.json
+                options.AddPolicy("myPolicy", builder => builder
+                    .RequireClaim("myCustomClaim", "green")
                     .RequireAuthenticatedUser());
 
-                // Require authentication for all requests that do not specify another policy
-                options.FallbackPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+                // The default policy is to require authentication, but no additional claims
+                //Uncommenting the following would have no effect
+                options.DefaultPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+
+                // Require no authentication for all requests that do not specify another policy
+                options.FallbackPolicy = null; 
             });
         }
 
@@ -54,6 +61,7 @@ namespace Microsoft.ReverseProxy.Auth.Sample
         /// </summary>
         public void Configure(IApplicationBuilder app)
         {
+            // The order of these is important as it defines the steps that will be used to handle each request
             app.UseDeveloperExceptionPage();
             app.UseStaticFiles();
 
