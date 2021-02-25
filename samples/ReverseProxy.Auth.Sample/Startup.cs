@@ -48,11 +48,13 @@ namespace Microsoft.ReverseProxy.Auth.Sample
                     .RequireAuthenticatedUser());
 
                 // The default policy is to require authentication, but no additional claims
-                //Uncommenting the following would have no effect
-                options.DefaultPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+                // Uncommenting the following would have no effect
+                // options.DefaultPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
 
-                // Require no authentication for all requests that do not specify another policy
+                // FallbackPolicy is used for routes that do not specify a policy in config 
+                // Make all routes that do not specify a policy to be anonymous
                 options.FallbackPolicy = null; 
+            
             });
         }
 

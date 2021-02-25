@@ -14,12 +14,15 @@ The sample includes the following parts:
 - ### [appsettings.json](appsettings.json)
   Defines the routes used by the reverse proxy including:
   - /default - requires authentication to access
-  - /claim - uses the "myPolicy" authorization policy which requires authentication and a myCustomClaim value of "green"
-  - \* - which uses an empty fallback policy so no authentication is required
+  - /custom - uses the "myPolicy" authorization policy which requires authentication and a myCustomClaim value of "green"
+  - /open - which uses "Anonymous" as the authorization policy so its always open regardless of the default
+  - \* - which uses the built-in FallbackPolicy which is configured in Startup.cs to not require authentication
 
 - ### Login UI
-  The Razor pages in [Views/Account](Views/Account) provide the UI to login, logout and be shown when access is denied.
+  The Razor pages in [Views/Account](Views/Account) provide the pages to login, logout and be shown when access is denied.
 
 ## Usage
-Start the sample with ```dotnet run``` which by default will bind to http://localhost:5000 and https://localhost:5001. Try accessing the urls "/", "/default" and "/claim". When shown the login ui, pick a value for myCustomClaim. Using "green" will allow access to content under "/claim", using other values will prevent access.
+Start the sample with ```dotnet run``` which by default will bind to http://localhost:5000 and https://localhost:5001. Try accessing the urls "/", "/default" and "/custom". 
+
+When shown the login ui, pick a value for myCustomClaim. Using "green" will allow access to content under "/custom", using other values will deny access.
 
