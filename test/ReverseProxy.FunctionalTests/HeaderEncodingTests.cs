@@ -144,6 +144,7 @@ namespace Microsoft.ReverseProxy
                 await stream.WriteAsync(Encoding.ASCII.GetBytes($"HTTP/1.1 200 OK\r\n"));
                 await stream.WriteAsync(Encoding.ASCII.GetBytes($"Content-Length: 0\r\n"));
                 await stream.WriteAsync(Encoding.ASCII.GetBytes($"Connection: close\r\n"));
+                await stream.WriteAsync(Encoding.ASCII.GetBytes($"Test-Extra: pingu\r\n"));
                 await stream.WriteAsync(Encoding.ASCII.GetBytes($"Location: "));
                 await stream.WriteAsync(encoding.GetBytes(headerValue));
                 await stream.WriteAsync(Encoding.ASCII.GetBytes("\r\n"));
@@ -179,14 +180,13 @@ namespace Microsoft.ReverseProxy
                 using var httpClient = new HttpClient();
                 using var response = await httpClient.GetAsync(proxy.GetAddress());
 
-                Assert.Null(proxyError);
+                Assert.NotNull(proxyError);
                 Assert.Null(unhandledError);
 
-                response.EnsureSuccessStatusCode();
+                Assert.Equal(HttpStatusCode.BadGateway, response.StatusCode);
 
-                Assert.True(response.Headers.TryGetValues(HeaderNames.Location, out var refererHeader));
-                var referer = Assert.Single(refererHeader);
-                Assert.Equal(headerValue, referer);
+                Assert.False(response.Headers.TryGetValues(HeaderNames.Location, out _));
+                Assert.False(response.Headers.TryGetValues("Test-Extra", out _));
 
                 Assert.True(destinationTask.IsCompleted);
                 await destinationTask;
