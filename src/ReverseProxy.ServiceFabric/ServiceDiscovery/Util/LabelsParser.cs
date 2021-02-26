@@ -262,14 +262,12 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             var clusterId = GetClusterId(serviceName, labels);
 
             var versionLabel = GetLabel<string>(labels, "YARP.Backend.HttpRequest.Version", null);
-#if NET
-            var versionPolicyLabel = GetLabel<string>(labels, "YARP.Backend.HttpRequest.VersionPolicy", null);
-#endif
 
             var activityContextHeadersLabel = GetLabel<string>(labels, "YARP.Backend.HttpClient.ActivityContextHeaders", null);
             var sslProtocolsLabel = GetLabel<string>(labels, "YARP.Backend.HttpClient.SslProtocols", null);
 
 #if NET
+            var versionPolicyLabel = GetLabel<string>(labels, "YARP.Backend.HttpRequest.VersionPolicy", null);
             var requestHeaderEncodingLabel = GetLabel<string>(labels, "YARP.Backend.HttpClient.RequestHeaderEncoding", null);
 #endif
 
