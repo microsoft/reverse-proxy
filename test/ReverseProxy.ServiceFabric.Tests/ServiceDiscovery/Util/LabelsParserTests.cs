@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Security.Authentication;
+using System.Text;
 using FluentAssertions;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
@@ -51,6 +52,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 { "YARP.Backend.HttpClient.ActivityContextHeaders", "BaggageAndCorrelationContext" },
 #if NET
                 { "YARP.Backend.HttpClient.EnableMultipleHttp2Connections", "false" },
+                { "YARP.Backend.HttpClient.RequestHeaderEncoding", "utf-8" },
 #endif
             };
 
@@ -106,6 +108,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     DangerousAcceptAnyServerCertificate = true,
 #if NET
                     EnableMultipleHttp2Connections = false,
+                    RequestHeaderEncoding = Encoding.GetEncoding("utf-8"),
 #endif
                     MaxConnectionsPerServer = 1000,
                     SslProtocols = SslProtocols.Tls12
