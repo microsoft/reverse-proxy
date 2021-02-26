@@ -44,6 +44,11 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         RequestBodyDestination,
 
         /// <summary>
+        /// Failed to copy response headers.
+        /// </summary>
+        ResponseHeaders,
+
+        /// <summary>
         /// Canceled while copying the response body.
         /// </summary>
         ResponseBodyCanceled,

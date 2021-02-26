@@ -457,7 +457,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         [InlineData("DELETE", "HTTP/1.1", "")]
         [InlineData("Unknown", "HTTP/1.1", "")]
         // [InlineData("CONNECT", "HTTP/1.1", "")] Blocked in HttpUtilities.GetHttpMethod
-        public async Task ProxyAsync_RequetsWithoutBodies_NoHttpContent(string method, string protocol, string headers)
+        public async Task ProxyAsync_RequestWithoutBodies_NoHttpContent(string method, string protocol, string headers)
         {
             var events = TestEventListener.Collect();
 
@@ -504,7 +504,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         [InlineData("GET", "HTTP/2", "Content-Length:10")]
         [InlineData("HEAD", "HTTP/1.1", "transfer-encoding:Chunked")]
         [InlineData("HEAD", "HTTP/2", "transfer-encoding:Chunked")]
-        public async Task ProxyAsync_RequetsWithBodies_HasHttpContent(string method, string protocol, string headers)
+        public async Task ProxyAsync_RequestWithBodies_HasHttpContent(string method, string protocol, string headers)
         {
             var events = TestEventListener.Collect();
 
@@ -542,6 +542,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
             events.AssertContainProxyStages();
         }
+
 #if NET
         [Fact]
         public async Task ProxyAsync_BodyDetectionFeatureSaysNo_NoHttpContent()
@@ -610,6 +611,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             public bool CanHaveBody { get; set; }
         }
 #endif
+
         [Fact]
         public async Task ProxyAsync_RequestWithCookieHeaders()
         {
