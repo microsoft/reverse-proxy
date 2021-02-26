@@ -80,27 +80,35 @@ Configuration settings:
 ```JSON
 "RequestHeaderEncoding": "utf-8"
 ```
-If you're using an encoding other than "ascii" (or "utf-8" for Kestrel) you also need to set your server to accept requests with such headers. For example, use [`KestrelServerOptions.RequestHeaderEncodingSelector`](https://docs.microsoft.com/en-us/dotnet/api/Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerOptions.RequestHeaderEncodingSelector?view=aspnetcore-5.0) to set up Kestrel to accept Latin1 ("iso-8859-1") headers:
+If you're using an encoding other than ASCII (or UTF-8 for Kestrel) you also need to set your server to accept requests with such headers. For example, use [`KestrelServerOptions.RequestHeaderEncodingSelector`](https://docs.microsoft.com/en-us/dotnet/api/Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerOptions.RequestHeaderEncodingSelector?view=aspnetcore-5.0) to set up Kestrel to accept Latin1 ("iso-8859-1") headers:
 ```C#
 private static IHostBuilder CreateHostBuilder(string[] args) =>
     Host.CreateDefaultBuilder(args)
         .ConfigureWebHostDefaults(webBuilder =>
         {
-            webBuilder.UseStartup<Startup>();
-        })
-        .ConfigureWebHost(webBuilder => webBuilder.UseKestrel(kestrel =>
-        {
-            kestrel.RequestHeaderEncodingSelector = _ => Encoding.Latin1;
-        }));
+            webBuilder.UseStartup<Startup>()
+                      .ConfigureKestrel(kestrel =>
+                      {
+                          kestrel.RequestHeaderEncodingSelector = _ => Encoding.Latin1;
+                      });
+        );
 ```
 
-For .NET Core 3.1, Latin1 ("iso-8859-1") is the only non-ASCII header encoding that can be accepted and only via application wide switch:
+For .NET Core 3.1, Latin1 ("iso-8859-1") is the only non-ASCII header encoding that can be accepted and only via `appsettings.json`:
+```JSON
+{
+    "Kestrel":
+    {
+        "Latin1RequestHeaders": true
+    }
+}
+```
+together with an application wide switch:
 ```C#
 AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.AllowLatin1Headers", true);
-AppContext.SetSwitch("Microsoft.AspNetCore.Server.Kestrel.Latin1RequestHeaders", true);
 ```
 
-At the moment, there is no solution for changing encoding for response headers, only ASCII is accepted.
+At the moment, there is no solution for changing encoding for response headers in Kestrel (see [aspnetcore#26334](https://github.com/dotnet/aspnetcore/issues/26334)), only ASCII is accepted.
 
 
 ### HttpRequest
