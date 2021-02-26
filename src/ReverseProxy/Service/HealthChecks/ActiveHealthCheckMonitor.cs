@@ -107,9 +107,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 
             Log.StartingActiveHealthProbingOnCluster(_logger, cluster.ClusterId);
 
-            // Policy must always be present if the active health check is enabled for a cluster.
-            // It's validated and ensured by a configuration validator.
-            var policy = _policies.GetRequiredServiceById(activeHealthOptions.Policy);
+            var policy = _policies.GetRequiredServiceById(activeHealthOptions.Policy, HealthCheckConstants.ActivePolicy.ConsecutiveFailures);
             var allDestinations = cluster.DynamicState.AllDestinations;
             var probeTasks = new List<(Task<HttpResponseMessage> Task, CancellationTokenSource Cts)>(allDestinations.Count);
             try

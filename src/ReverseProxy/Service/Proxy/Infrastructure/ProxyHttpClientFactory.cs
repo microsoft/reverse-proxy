@@ -70,6 +70,10 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
             {
                 handler.EnableMultipleHttp2Connections = newClientOptions.EnableMultipleHttp2Connections.Value;
             }
+            if (newClientOptions.RequestHeaderEncoding != null)
+            {
+                handler.RequestHeaderEncodingSelector = (_, _) => newClientOptions.RequestHeaderEncoding;
+            }
 #endif
 
             Log.ProxyClientCreated(_logger, context.ClusterId);

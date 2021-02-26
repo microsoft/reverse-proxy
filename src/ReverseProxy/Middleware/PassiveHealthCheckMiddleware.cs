@@ -5,8 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Service.HealthChecks;
-using Microsoft.ReverseProxy.Service.Proxy;
 using Microsoft.ReverseProxy.Utilities;
 
 namespace Microsoft.ReverseProxy.Middleware
@@ -35,9 +35,7 @@ namespace Microsoft.ReverseProxy.Middleware
                 return;
             }
 
-            // Policy must always be present if the passive health check is enabled for a cluster.
-            // It's validated and ensured by a configuration validator.
-            var policy = _policies.GetRequiredServiceById(options.Policy);
+            var policy = _policies.GetRequiredServiceById(options.Policy, HealthCheckConstants.PassivePolicy.TransportFailureRate);
             var cluster = context.GetRequiredRouteConfig().Cluster;
             policy.RequestProxied(cluster, proxyFeature.SelectedDestination, context);
         }

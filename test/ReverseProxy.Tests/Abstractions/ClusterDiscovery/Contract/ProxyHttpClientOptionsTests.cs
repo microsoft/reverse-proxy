@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Security.Authentication;
+using System.Text;
 using Microsoft.ReverseProxy.Utilities.Tests;
 using Xunit;
 
@@ -17,7 +18,10 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
                 SslProtocols = SslProtocols.Tls11,
                 DangerousAcceptAnyServerCertificate = false,
                 ClientCertificate = TestResources.GetTestCertificate(),
-                MaxConnectionsPerServer = 20
+                MaxConnectionsPerServer = 20,
+#if NET
+                RequestHeaderEncoding = Encoding.UTF8
+#endif
             };
 
             var options2 = new ProxyHttpClientOptions
@@ -25,7 +29,10 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
                 SslProtocols = SslProtocols.Tls11,
                 DangerousAcceptAnyServerCertificate = false,
                 ClientCertificate = TestResources.GetTestCertificate(),
-                MaxConnectionsPerServer = 20
+                MaxConnectionsPerServer = 20,
+#if NET
+                RequestHeaderEncoding = Encoding.UTF8
+#endif
             };
 
             var equals = options1.Equals(options2);
@@ -41,7 +48,10 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
                 SslProtocols = SslProtocols.Tls11,
                 DangerousAcceptAnyServerCertificate = false,
                 ClientCertificate = TestResources.GetTestCertificate(),
-                MaxConnectionsPerServer = 20
+                MaxConnectionsPerServer = 20,
+#if NET
+                RequestHeaderEncoding = Encoding.UTF8
+#endif
             };
 
             var options2 = new ProxyHttpClientOptions
@@ -49,7 +59,10 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
                 SslProtocols = SslProtocols.Tls12,
                 DangerousAcceptAnyServerCertificate = true,
                 ClientCertificate = TestResources.GetTestCertificate(),
-                MaxConnectionsPerServer = 20
+                MaxConnectionsPerServer = 20,
+#if NET
+                RequestHeaderEncoding = Encoding.Latin1
+#endif
             };
 
             var equals = options1.Equals(options2);
