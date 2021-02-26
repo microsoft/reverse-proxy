@@ -404,7 +404,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                     setupAction: destination =>
                     {
                         var destinationConfig = destination.Config;
-                        if (destinationConfig?.Address != newDestination.Value.Address || destinationConfig?.Health != newDestination.Value.Health)
+                        if (destinationConfig == null || destinationConfig.HasChanged(newDestination.Value))
                         {
                             if (destinationConfig == null)
                             {
@@ -414,7 +414,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                             {
                                 Log.DestinationChanged(_logger, newDestination.Key);
                             }
-                            destination.Config = new DestinationConfig(newDestination.Value.Address, newDestination.Value.Health);
+                            destination.Config = new DestinationConfig(newDestination.Value);
                         }
                     });
             }

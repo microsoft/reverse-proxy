@@ -187,7 +187,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 
             foreach (var destination in cluster2.DestinationManager.Items)
             {
-                var newDestinationConfig = new DestinationConfig(destination.Config.Address, null);
+                var newDestinationConfig = new DestinationConfig(new Destination { Address = destination.Config.Address });
                 cluster2.DestinationManager.GetOrCreateItem(destination.DestinationId, d =>
                 {
                     d.Config = newDestinationConfig;
@@ -313,7 +313,8 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 
             var httpClient = new Mock<HttpMessageInvoker>(() => new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object));
             httpClient.Setup(c => c.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((HttpRequestMessage m, CancellationToken t) => {
+                .ReturnsAsync((HttpRequestMessage m, CancellationToken t) =>
+                {
                     switch (m.RequestUri.AbsoluteUri)
                     {
                         case "https://localhost:20001/cluster0/api/health/":
@@ -359,7 +360,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 
         private static void VerifySentProbeAndResult(ClusterInfo cluster, Mock<HttpMessageInvoker> httpClient, Mock<IActiveHealthCheckPolicy> policy, (string RequestUri, int Times)[] probes, int policyCallTimes = 1)
         {
-            foreach(var probe in probes)
+            foreach (var probe in probes)
             {
                 httpClient.Verify(c => c.SendAsync(It.Is<HttpRequestMessage>(m => m.RequestUri.AbsoluteUri == probe.RequestUri), It.IsAny<CancellationToken>()), Times.Exactly(probe.Times));
             }
@@ -396,7 +397,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             clusterInfo.Config = clusterConfig;
             for (var i = 0; i < destinationCount; i++)
             {
-                var destinationConfig = new DestinationConfig($"https://localhost:1000{i}/{id}/", $"https://localhost:2000{i}/{id}/");
+                var destinationConfig = new DestinationConfig(new Destination { Address = $"https://localhost:1000{i}/{id}/", Health = $"https://localhost:2000{i}/{id}/" });
                 var destinationId = $"destination{i}";
                 clusterInfo.DestinationManager.GetOrCreateItem(destinationId, d =>
                 {

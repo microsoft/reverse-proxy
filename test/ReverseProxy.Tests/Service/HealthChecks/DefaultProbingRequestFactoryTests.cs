@@ -31,7 +31,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                     Policy = "policy",
                     Path = healthPath,
                 }, HttpVersion.Version20);
-            var destinationConfig = new DestinationConfig(address, health);
+            var destinationConfig = new DestinationConfig(new Destination { Address = address, Health = health });
             var factory = new DefaultProbingRequestFactory();
 
             var request = factory.CreateRequest(clusterConfig, destinationConfig);
@@ -56,7 +56,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 , HttpVersionPolicy.RequestVersionExact
 #endif
                 );
-            var destinationConfig = new DestinationConfig("https://localhost:10000/", null);
+            var destinationConfig = new DestinationConfig(new Destination { Address = "https://localhost:10000/" });
             var factory = new DefaultProbingRequestFactory();
 
             var request = factory.CreateRequest(clusterConfig, destinationConfig);

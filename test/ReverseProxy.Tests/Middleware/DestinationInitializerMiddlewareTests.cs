@@ -43,7 +43,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 "destination1",
                 destination =>
                 {
-                    destination.Config = new DestinationConfig("https://localhost:123/a/b/", null);
+                    destination.Config = new DestinationConfig(new Destination { Address = "https://localhost:123/a/b/" });
                 });
             cluster1.UpdateDynamicState();
 
@@ -98,7 +98,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 "destination1",
                 destination =>
                 {
-                    destination.Config = new DestinationConfig("https://localhost:123/a/b/", null);
+                    destination.Config = new DestinationConfig(new Destination { Address = "https://localhost:123/a/b/" });
                     destination.Health.Passive = DestinationHealth.Unhealthy;
                 });
 

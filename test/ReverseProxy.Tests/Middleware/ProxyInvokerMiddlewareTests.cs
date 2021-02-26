@@ -57,7 +57,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 "destination1",
                 destination =>
                 {
-                    destination.Config = new DestinationConfig("https://localhost:123/a/b/", null);
+                    destination.Config = new DestinationConfig(new Destination { Address = "https://localhost:123/a/b/" });
                 });
             httpContext.Features.Set<IReverseProxyFeature>(
                 new ReverseProxyFeature() { AvailableDestinations = new List<DestinationInfo>() { destination1 }.AsReadOnly(), ClusterConfig = clusterConfig });
