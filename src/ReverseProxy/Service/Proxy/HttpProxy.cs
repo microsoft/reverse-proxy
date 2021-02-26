@@ -180,6 +180,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                 }
                 catch (Exception ex)
                 {
+                    destinationResponse.Dispose();
                     ReportProxyError(context, ProxyError.ResponseHeaders, ex);
                     // Clear the response since status code, reason and some headers might have already been copied and we want clean 502 response.
                     context.Response.Clear();

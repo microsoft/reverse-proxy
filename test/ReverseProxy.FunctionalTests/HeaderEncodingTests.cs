@@ -181,6 +181,9 @@ namespace Microsoft.ReverseProxy
                 using var response = await httpClient.GetAsync(proxy.GetAddress());
 
                 Assert.NotNull(proxyError);
+                Assert.Equal(ProxyError.ResponseHeaders, proxyError.Error);
+                var ioe = Assert.IsType<InvalidOperationException>(proxyError.Exception);
+                Assert.StartsWith("Invalid non-ASCII or control character in header: ", ioe.Message);
                 Assert.Null(unhandledError);
 
                 Assert.Equal(HttpStatusCode.BadGateway, response.StatusCode);
