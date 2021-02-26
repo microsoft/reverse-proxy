@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Net.Http;
 using System.Security.Authentication;
+using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Primitives;
 using Microsoft.ReverseProxy.Abstractions;
@@ -268,6 +269,10 @@ namespace Microsoft.ReverseProxy.ServiceFabric
             var activityContextHeadersLabel = GetLabel<string>(labels, "YARP.Backend.HttpClient.ActivityContextHeaders", null);
             var sslProtocolsLabel = GetLabel<string>(labels, "YARP.Backend.HttpClient.SslProtocols", null);
 
+#if NET
+            var requestHeaderEncodingLabel = GetLabel<string>(labels, "YARP.Backend.HttpClient.RequestHeaderEncoding", null);
+#endif
+
             var cluster = new Cluster
             {
                 Id = clusterId,
@@ -312,6 +317,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric
                     SslProtocols = !string.IsNullOrEmpty(sslProtocolsLabel) ? Enum.Parse<SslProtocols>(sslProtocolsLabel) : null,
 #if NET
                     EnableMultipleHttp2Connections = GetLabel<bool?>(labels, "YARP.Backend.HttpClient.EnableMultipleHttp2Connections", null),
+                    RequestHeaderEncoding = !string.IsNullOrEmpty(requestHeaderEncodingLabel) ? Encoding.GetEncoding(requestHeaderEncodingLabel) : null,
 #endif
                     //TODO: ClientCertificate = 
                 },
