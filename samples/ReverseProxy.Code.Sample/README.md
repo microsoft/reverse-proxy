@@ -35,7 +35,7 @@ The following files are key to implementing the features described above:
 
   ```ConfigureServices``` is called once and sets up the proxy passing in the InMemoryConfig provider instance. The sample routes and clusters definitions are created as part of this initialization. The config provider instance is used for the lifetime of the proxy.
 
-  ```Configure``` is called for each request to setup the request pipeline. As an additional step is added, the proxy pipeline is configured here. 
+  ```Configure``` is called once at startup to setup the request pipeline. As an additional step is added, the proxy pipeline is configured here. 
   
   ```MyCustomProxyStep``` is the implementation of the additional step. It finds the proxy functionality via features added to the HttpContext, and then filters the destinations based on the presence of a "Debug" header in the request.
 
