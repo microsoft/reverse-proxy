@@ -172,9 +172,21 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                     throw new InvalidOperationException("Proxying the Client request body to the Destination server hasn't started. This is a coding defect.");
                 }
 
-                // :: Step 5: Copy response status line Client ◄-- Proxy ◄-- Destination
-                // :: Step 6: Copy response headers Client ◄-- Proxy ◄-- Destination
-                await CopyResponseStatusAndHeadersAsync(destinationResponse, context, transformer);
+                try
+                {
+                    // :: Step 5: Copy response status line Client ◄-- Proxy ◄-- Destination
+                    // :: Step 6: Copy response headers Client ◄-- Proxy ◄-- Destination
+                    await CopyResponseStatusAndHeadersAsync(destinationResponse, context, transformer);
+                }
+                catch (Exception ex)
+                {
+                    destinationResponse.Dispose();
+                    ReportProxyError(context, ProxyError.ResponseHeaders, ex);
+                    // Clear the response since status code, reason and some headers might have already been copied and we want clean 502 response.
+                    context.Response.Clear();
+                    context.Response.StatusCode = StatusCodes.Status502BadGateway;
+                    return;
+                }
 
                 // :: Step 7-A: Check for a 101 upgrade response, this takes care of WebSockets as well as any other upgradeable protocol.
                 if (destinationResponse.StatusCode == HttpStatusCode.SwitchingProtocols)
@@ -285,7 +297,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
             // Allow someone to custom build the request uri, otherwise provide a default for them.
             var request = context.Request;
             destinationRequest.RequestUri ??= RequestUtilities.MakeDestinationAddress(destinationPrefix, request.Path, request.QueryString);
-            
+
             Log.Proxying(_logger, destinationRequest.RequestUri);
 
             // TODO: What if they replace the HttpContent object? That would mess with our tracking and error handling.
@@ -439,10 +451,13 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         {
             context.Response.StatusCode = (int)source.StatusCode;
 
-            // Don't explicitly set the field if the default reason phrase is used
-            if (source.ReasonPhrase != ReasonPhrases.GetReasonPhrase((int)source.StatusCode))
+            if (!ProtocolHelper.IsHttp2OrGreater(context.Request.Protocol))
             {
-                context.Features.Get<IHttpResponseFeature>().ReasonPhrase = source.ReasonPhrase;
+                // Don't explicitly set the field if the default reason phrase is used
+                if (source.ReasonPhrase != ReasonPhrases.GetReasonPhrase((int)source.StatusCode))
+                {
+                    context.Features.Get<IHttpResponseFeature>().ReasonPhrase = source.ReasonPhrase;
+                }
             }
 
             // Copies headers
@@ -686,6 +701,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
                     ProxyError.ResponseBodyCanceled => "Copying the response body was canceled.",
                     ProxyError.ResponseBodyClient => "The client reported an error when copying the response body.",
                     ProxyError.ResponseBodyDestination => "The destination reported an error when copying the response body.",
+                    ProxyError.ResponseHeaders => "The destination returned a response that cannot be proxied back to the client.",
                     ProxyError.UpgradeRequestCanceled => "Copying the upgraded request body was canceled.",
                     ProxyError.UpgradeRequestClient => "The client reported an error when copying the upgraded request body.",
                     ProxyError.UpgradeRequestDestination => "The destination reported an error when copying the upgraded request body.",

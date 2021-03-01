@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Security.Authentication;
+using System.Text;
 using Microsoft.Extensions.Logging;
 using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Common.Tests;
@@ -120,6 +121,26 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             Assert.NotNull(handler);
         }
 
+#if NET
+        [Fact]
+        public void CreateClient_ApplyRequestHeaderEncoding_Success()
+        {
+            var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
+            var options = new ProxyHttpClientOptions
+            {
+                RequestHeaderEncoding = Encoding.Latin1
+            };
+            var client = factory.CreateClient(new ProxyHttpClientContext { NewOptions = options });
+
+            var handler = GetHandler(client);
+
+            Assert.NotNull(handler);
+            Assert.NotNull(handler.RequestHeaderEncodingSelector);
+            Assert.Equal(Encoding.Latin1, handler.RequestHeaderEncodingSelector(default, default));
+            VerifyDefaultValues(handler, nameof(SocketsHttpHandler.RequestHeaderEncodingSelector));
+        }
+#endif
+
         [Fact]
         public void CreateClient_OldClientExistsNoConfigChange_ReturnsOldInstance()
         {
@@ -133,6 +154,9 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                 ClientCertificate = clientCertificate,
                 MaxConnectionsPerServer = 10,
                 ActivityContextHeaders = ActivityContextHeaders.CorrelationContext,
+#if NET
+                RequestHeaderEncoding = Encoding.Latin1,
+#endif
             };
             var newOptions = oldOptions with { }; // Clone
             var oldMetadata = new Dictionary<string, string> { { "key1", "value1" }, { "key2", "value2" } };
@@ -379,6 +403,45 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
                         MaxConnectionsPerServer = 10,
                         ActivityContextHeaders = ActivityContextHeaders.Baggage,
                         EnableMultipleHttp2Connections = false
+                    },
+                },
+                new object[] {
+                    new ProxyHttpClientOptions
+                    {
+                        SslProtocols = SslProtocols.Tls11,
+                        DangerousAcceptAnyServerCertificate = true,
+                        ClientCertificate = null,
+                        MaxConnectionsPerServer = 10,
+                        ActivityContextHeaders = ActivityContextHeaders.None,
+                    },
+                    new ProxyHttpClientOptions
+                    {
+                        SslProtocols = SslProtocols.Tls11,
+                        DangerousAcceptAnyServerCertificate = true,
+                        ClientCertificate = null,
+                        MaxConnectionsPerServer = 10,
+                        ActivityContextHeaders = ActivityContextHeaders.None,
+                        RequestHeaderEncoding = Encoding.UTF8,
+                    },
+                },
+                new object[] {
+                    new ProxyHttpClientOptions
+                    {
+                        SslProtocols = SslProtocols.Tls11,
+                        DangerousAcceptAnyServerCertificate = true,
+                        ClientCertificate = null,
+                        MaxConnectionsPerServer = 10,
+                        ActivityContextHeaders = ActivityContextHeaders.None,
+                        RequestHeaderEncoding = Encoding.UTF8,
+                    },
+                    new ProxyHttpClientOptions
+                    {
+                        SslProtocols = SslProtocols.Tls11,
+                        DangerousAcceptAnyServerCertificate = true,
+                        ClientCertificate = null,
+                        MaxConnectionsPerServer = 10,
+                        ActivityContextHeaders = ActivityContextHeaders.None,
+                        RequestHeaderEncoding = Encoding.Latin1,
                     },
                 }
 #endif

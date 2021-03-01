@@ -51,10 +51,11 @@ namespace Microsoft.ReverseProxy.Auth.Sample
                 // Uncommenting the following would have no effect
                 // options.DefaultPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
 
-                // FallbackPolicy is used for routes that do not specify a policy in config 
-                // Make all routes that do not specify a policy to be anonymous
+                // FallbackPolicy is used for routes that do not specify a policy in config
+                // Make all routes that do not specify a policy to be anonymous (this is the default).
                 options.FallbackPolicy = null; 
-            
+                // Or make all routes that do not specify a policy require some auth:
+                // options.FallbackPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();            
             });
         }
 

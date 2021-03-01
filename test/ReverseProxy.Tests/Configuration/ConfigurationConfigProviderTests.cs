@@ -217,7 +217,8 @@ namespace Microsoft.ReverseProxy.Configuration
                 },
                 ""MaxConnectionsPerServer"": 10,
                 ""EnableMultipleHttp2Connections"": true,
-                ""ActivityContextHeaders"": ""Baggage""
+                ""ActivityContextHeaders"": ""Baggage"",
+                ""RequestHeaderEncoding"": ""utf-8""
             },
             ""HttpRequest"": {
                 ""Timeout"": ""00:01:00"",
@@ -601,6 +602,7 @@ namespace Microsoft.ReverseProxy.Configuration
             Assert.Equal(cluster1.HttpClient.MaxConnectionsPerServer, abstractCluster1.HttpClient.MaxConnectionsPerServer);
 #if NET
             Assert.Equal(cluster1.HttpClient.EnableMultipleHttp2Connections, abstractCluster1.HttpClient.EnableMultipleHttp2Connections);
+            Assert.Equal(Encoding.UTF8, abstractCluster1.HttpClient.RequestHeaderEncoding);
 #endif
             Assert.Equal(cluster1.HttpClient.ActivityContextHeaders, abstractCluster1.HttpClient.ActivityContextHeaders);
             Assert.Equal(SslProtocols.Tls11 | SslProtocols.Tls12, abstractCluster1.HttpClient.SslProtocols);
