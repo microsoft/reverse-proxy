@@ -14,8 +14,8 @@ using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 namespace YARP.Sample
 {
     /// <summary>
-    /// ASP.NET Core pipeline initialization showing how to use IHttpProxy to directly handle proxying requests
-    /// skipping the intermediary stages of YARP.
+    /// ASP.NET Core pipeline initialization showing how to use IHttpProxy to directly handle proxying requests.
+    /// With this approach you are responsible for destination discovery, load balancing, and related concerns.
     /// </summary>
     public class Startup
     {
@@ -41,17 +41,15 @@ namespace YARP.Sample
                 UseCookies = false
             });
 
-            // Setup our own Header transform class
+            // Setup our own request transform class
             var transformer = new CustomTransformer(); // or HttpTransformer.Default;
             var requestOptions = new RequestProxyOptions { Timeout = TimeSpan.FromSeconds(100) };
 
             app.UseRouting();
             app.UseEndpoints(endpoints =>
             {
-                // Normally for YARP we would call endpoints.MapReverseProxy() which would use YARP's pipeline to figure out a destination based
-                // on configuration and the stages in the pipeline.
-                // If you have alternatives to those steps, you can skip them and just tell the proxy which destination endpoint to use. It uses the 
-                // HttpClient to forward the request and response, calling into the supplied header transformer. 
+                // When using IHttpProxy for direct proxying you are responsible for routing, destination discovery, load balancing, affinity, etc..
+                // For an alternate example that includes those features see BasicYarpSample.
                 endpoints.Map("/{**catch-all}", async httpContext =>
                 {
                     await httpProxy.ProxyAsync(httpContext, "https://example.com", httpClient, requestOptions, transformer);
@@ -68,7 +66,7 @@ namespace YARP.Sample
         }
 
         /// <summary>
-        /// Custom Header transformation
+        /// Custom request transformation
         /// </summary>
         private class CustomTransformer : HttpTransformer
         {

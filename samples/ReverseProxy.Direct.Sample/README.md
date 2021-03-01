@@ -39,9 +39,9 @@ Normal proxying comprises the following steps:
 | 9 | Copy response trailer headers and finish response | Client ◄-- Proxy ◄-- Destination |
 | 10 | Wait for completion of step 2: copying request body | Client --► Proxy --► Destination |
 
-To enable control over steps 4 and 7, the HttpProxy operation takes a HttpTransformer which controls which headers are copied from the request to the response and vice-versa. Your implementation can decide which headers are copied, modify them, or insert additional headers as required.
+To enable control over mapping request and response fields and headers between the client and destination, the HttpProxy.ProxyAsync method takes a HttpTransformer. Your implementation can modify the request url, method, protocol version, response status code, or decide which headers are copied, modify them, or insert additional headers as required.
 
-**Note:** When using the YARP pipeline, YARP has some [default header transforms](https://microsoft.github.io/reverse-proxy/articles/transforms.html), such as adding ```X-Forwarded-For```, when using the HttpProxy class directly these transforms are not performed. You have full control of the transforms performed, and need to account for this in your HttpTransformer implementation.
+**Note:** When using the HttpProxy class directly there are no transforms included by default, you have full control of the transforms in your HttpTransformer implementation. The alternate YARP pipeline model (see BasicYarpSample), has some [default header transforms](https://microsoft.github.io/reverse-proxy/articles/transforms.html), such as adding ```X-Forwarded-For``` and removing the original Host header.
 
 ## Files
 
