@@ -28,7 +28,8 @@ HTTP client configuration is based on [ProxyHttpClientOptions](xref:Microsoft.Re
         "Store": "<string>",
         "Location": "<string>",
         "AllowInvalid": "<bool>"
-    }
+    },
+    "RequestHeaderEncoding": "<encoding-name>"
 }
 ```
 
@@ -75,6 +76,40 @@ Configuration settings:
 }
 
 ```
+- RequestHeaderEncoding - enables other than ASCII encoding for outgoing request headers. Setting this value will leverage [`SocketsHttpHandler.RequestHeaderEncodingSelector`](https://docs.microsoft.com/en-us/dotnet/api/system.net.http.socketshttphandler.requestheaderencodingselector?view=net-5.0) and use the selected encoding for all headers. If you need more granular approach, please use custom `IProxyHttpClientFactory`. The value is then parsed by [`Encoding.GetEncoding`](https://docs.microsoft.com/en-us/dotnet/api/system.text.encoding.getencoding?view=net-5.0#System_Text_Encoding_GetEncoding_System_String_), use values like: "utf-8", "iso-8859-1", etc. **This setting is only available for .NET 5.0.**
+```JSON
+"RequestHeaderEncoding": "utf-8"
+```
+If you're using an encoding other than ASCII (or UTF-8 for Kestrel) you also need to set your server to accept requests with such headers. For example, use [`KestrelServerOptions.RequestHeaderEncodingSelector`](https://docs.microsoft.com/en-us/dotnet/api/Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerOptions.RequestHeaderEncodingSelector?view=aspnetcore-5.0) to set up Kestrel to accept Latin1 ("iso-8859-1") headers:
+```C#
+private static IHostBuilder CreateHostBuilder(string[] args) =>
+    Host.CreateDefaultBuilder(args)
+        .ConfigureWebHostDefaults(webBuilder =>
+        {
+            webBuilder.UseStartup<Startup>()
+                      .ConfigureKestrel(kestrel =>
+                      {
+                          kestrel.RequestHeaderEncodingSelector = _ => Encoding.Latin1;
+                      });
+        );
+```
+
+For .NET Core 3.1, Latin1 ("iso-8859-1") is the only non-ASCII header encoding that can be accepted and only via `appsettings.json`:
+```JSON
+{
+    "Kestrel":
+    {
+        "Latin1RequestHeaders": true
+    }
+}
+```
+together with an application wide switch:
+```C#
+AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.AllowLatin1Headers", true);
+```
+
+At the moment, there is no solution for changing encoding for response headers in Kestrel (see [aspnetcore#26334](https://github.com/dotnet/aspnetcore/issues/26334)), only ASCII is accepted.
+
 
 ### HttpRequest
 HTTP request configuration is based on [ProxyHttpRequestOptions](xref:Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions) and represented by the following configuration schema.
@@ -256,6 +291,12 @@ public class CustomProxyHttpClientFactory : IProxyHttpClientFactory
         {
             handler.SslOptions.RemoteCertificateValidationCallback = (sender, cert, chain, errors) => cert.Subject == "dev.mydomain";
         }
+#if NET
+        if (newClientOptions.RequestHeaderEncoding != null)
+        {
+            handler.RequestHeaderEncodingSelector = (_, _) => newClientOptions.RequestHeaderEncoding;
+        }
+#endif
 
         return new HttpMessageInvoker(handler, disposeHandler: true);
     }

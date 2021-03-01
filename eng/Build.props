@@ -3,10 +3,8 @@
     <ItemGroup>
         <ProjectToBuild Include="$(RepoRoot)src\**\*.csproj" />
         <ProjectToBuild Include="$(RepoRoot)test\**\*.csproj" />
-<!--    
         <ProjectToBuild Include="$(RepoRoot)samples\**\*.csproj" />
         <ProjectToBuild Include="$(RepoRoot)testassets\**\*.csproj" />
--->
         <ProjectToBuild Include="$(RepoRoot)docs\docfx\docfx.csproj" Condition="'$(OS)' == 'Windows_NT'" />
     </ItemGroup>
 </Project>

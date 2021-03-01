@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using System.Threading;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -327,6 +328,7 @@ namespace Microsoft.ReverseProxy.Configuration
                 MaxConnectionsPerServer = section.ReadInt32(nameof(ProxyHttpClientOptions.MaxConnectionsPerServer)),
 #if NET
                 EnableMultipleHttp2Connections = section.ReadBool(nameof(ProxyHttpClientOptions.EnableMultipleHttp2Connections)),
+                RequestHeaderEncoding = section[nameof(ProxyHttpClientOptions.RequestHeaderEncoding)] is string encoding ? Encoding.GetEncoding(encoding) : null,
 #endif
                 ActivityContextHeaders = section.ReadEnum<ActivityContextHeaders>(nameof(ProxyHttpClientOptions.ActivityContextHeaders))
             };
