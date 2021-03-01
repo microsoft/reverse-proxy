@@ -28,6 +28,8 @@ It does not include:
 
 ## Example
 
+See [ReverseProxy.Direct.Sample](https://github.com/microsoft/reverse-proxy/tree/main/samples/ReverseProxy.Direct.Sample) as a pre-built sample, or use the steps below.
+
 ### Create a new project
 
 Follow the [Getting Started](xref:getting_started) guide to create a project and add the Microsoft.ReverseProxy nuget dependency.
