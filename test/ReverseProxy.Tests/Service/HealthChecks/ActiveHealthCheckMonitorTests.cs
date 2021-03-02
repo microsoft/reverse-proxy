@@ -45,7 +45,11 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             var cluster2 = GetClusterInfo("cluster2", "policy1", true, httpClient2.Object);
             clusters.Add(cluster2);
 
+            Assert.False(monitor.InitialDestinationsProbed);
+
             await monitor.CheckHealthAsync(clusters);
+
+            Assert.True(monitor.InitialDestinationsProbed);
 
             VerifySentProbeAndResult(cluster0, httpClient0, policy0, new[] { ("https://localhost:20000/cluster0/api/health/", 1), ("https://localhost:20001/cluster0/api/health/", 1) });
 
@@ -72,7 +76,11 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             var cluster2 = GetClusterInfo("cluster2", "policy1", true, httpClient2.Object, TimeSpan.FromMilliseconds(Interval1));
             monitor.OnClusterAdded(cluster2);
 
+            Assert.False(monitor.InitialDestinationsProbed);
+
             await monitor.CheckHealthAsync(new ClusterInfo[0]);
+
+            Assert.True(monitor.InitialDestinationsProbed);
 
             timerFactory.FireAll();
 
@@ -101,7 +109,11 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             var cluster2 = GetClusterInfo("cluster2", "policy1", true, httpClient2.Object, interval: TimeSpan.FromMilliseconds(Interval1));
             monitor.OnClusterAdded(cluster2);
 
+            Assert.False(monitor.InitialDestinationsProbed);
+
             await monitor.CheckHealthAsync(new ClusterInfo[0]);
+
+            Assert.True(monitor.InitialDestinationsProbed);
 
             timerFactory.FireAll();
 
@@ -136,7 +148,11 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             var cluster0 = GetClusterInfo("cluster0", "policy0", true, httpClient0.Object, interval: TimeSpan.FromMilliseconds(Interval0));
             monitor.OnClusterAdded(cluster0);
 
+            Assert.False(monitor.InitialDestinationsProbed);
+
             await monitor.CheckHealthAsync(new ClusterInfo[0]);
+
+            Assert.True(monitor.InitialDestinationsProbed);
 
             timerFactory.FireAll();
 
@@ -175,7 +191,11 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             var cluster2 = GetClusterInfo("cluster2", "policy1", true, httpClient2.Object, interval: TimeSpan.FromMilliseconds(Interval1));
             monitor.OnClusterAdded(cluster2);
 
+            Assert.False(monitor.InitialDestinationsProbed);
+
             await monitor.CheckHealthAsync(new ClusterInfo[0]);
+
+            Assert.True(monitor.InitialDestinationsProbed);
 
             timerFactory.FireAll();
 
@@ -223,7 +243,11 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             var cluster2 = GetClusterInfo("cluster2", "policy1", true, httpClient2.Object, interval: TimeSpan.FromMilliseconds(Interval1));
             monitor.OnClusterAdded(cluster2);
 
+            Assert.False(monitor.InitialDestinationsProbed);
+
             await monitor.CheckHealthAsync(new ClusterInfo[0]);
+
+            Assert.True(monitor.InitialDestinationsProbed);
 
             timerFactory.FireAll();
 
@@ -268,7 +292,11 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             var cluster = GetClusterInfo("cluster0", "policy0", true, httpClient.Object, destinationCount: 3);
             clusters.Add(cluster);
 
+            Assert.False(monitor.InitialDestinationsProbed);
+
             await monitor.CheckHealthAsync(clusters);
+
+            Assert.True(monitor.InitialDestinationsProbed);
 
             policy.Verify(
                 p => p.ProbingCompleted(
@@ -325,7 +353,11 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             var cluster = GetClusterInfo("cluster0", "policy0", true, httpClient.Object, destinationCount: 3);
             clusters.Add(cluster);
 
+            Assert.False(monitor.InitialDestinationsProbed);
+
             await monitor.CheckHealthAsync(clusters);
+
+            Assert.True(monitor.InitialDestinationsProbed);
 
             policy.Verify(
                 p => p.ProbingCompleted(
@@ -350,9 +382,225 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             var cluster = GetClusterInfo("cluster0", "policy0", true, httpClient.Object);
             clusters.Add(cluster);
 
+            Assert.False(monitor.InitialDestinationsProbed);
+
             await monitor.CheckHealthAsync(clusters);
 
+            Assert.True(monitor.InitialDestinationsProbed);
+
             policy.Verify(p => p.ProbingCompleted(It.IsAny<ClusterInfo>(), It.IsAny<IReadOnlyList<DestinationProbingResult>>()), Times.Once);
+            policy.Verify(p => p.Name);
+            policy.VerifyNoOtherCalls();
+        }
+
+        [Theory]
+        [InlineData(HttpStatusCode.OK,HttpStatusCode.OK,HttpStatusCode.OK)]
+        [InlineData(HttpStatusCode.InternalServerError,HttpStatusCode.OK,HttpStatusCode.OK)]
+        [InlineData(HttpStatusCode.InternalServerError,HttpStatusCode.InternalServerError,HttpStatusCode.InternalServerError)]
+        [InlineData(HttpStatusCode.OK,HttpStatusCode.InternalServerError,HttpStatusCode.OK)]
+        [InlineData(HttpStatusCode.BadRequest,HttpStatusCode.OK,HttpStatusCode.OK)]
+        [InlineData(HttpStatusCode.OK,HttpStatusCode.OK,HttpStatusCode.BadRequest)]
+        public async Task InitialDestinationsProbed_TrueAfterTheFirstProbe_AllReturns(HttpStatusCode firstResult, HttpStatusCode secondResult, HttpStatusCode thirdResult)
+        {
+            var policy = new Mock<IActiveHealthCheckPolicy>();
+            policy.SetupGet(p => p.Name).Returns("policy0");
+            var options = Options.Create(new ActiveHealthCheckMonitorOptions { DefaultInterval = TimeSpan.FromSeconds(60), DefaultTimeout = Timeout.InfiniteTimeSpan });
+            var clusters = new List<ClusterInfo>();
+            var monitor = new ActiveHealthCheckMonitor(options, new[] { policy.Object }, new DefaultProbingRequestFactory(), new Mock<ITimerFactory>().Object, GetLogger());
+
+            var tcs0 = new TaskCompletionSource<HttpResponseMessage>();
+            var httpClient0 = GetHttpClient(tcs0.Task);
+            var cluster0 = GetClusterInfo("cluster0", "policy0", true, httpClient0.Object, destinationCount: 1);
+            clusters.Add(cluster0);
+            var tcs1 = new TaskCompletionSource<HttpResponseMessage>();
+            var httpClient1 = GetHttpClient(tcs1.Task);
+            var cluster1 = GetClusterInfo("cluster1", "policy0", true, httpClient1.Object, destinationCount: 1);
+            clusters.Add(cluster1);
+            var tcs2 = new TaskCompletionSource<HttpResponseMessage>();
+            var httpClient2 = GetHttpClient(tcs2.Task);
+            var cluster2 = GetClusterInfo("cluster2", "policy0", true, httpClient2.Object, destinationCount: 1);
+            clusters.Add(cluster2);
+
+            Assert.False(monitor.InitialDestinationsProbed);
+
+            var healthCheckTask = monitor.CheckHealthAsync(clusters);
+
+            Assert.False(healthCheckTask.IsCompleted);
+            Assert.False(monitor.InitialDestinationsProbed);
+
+            tcs0.SetResult(new HttpResponseMessage(firstResult));
+
+            Assert.False(healthCheckTask.IsCompleted);
+            Assert.False(monitor.InitialDestinationsProbed);
+
+            tcs1.SetResult(new HttpResponseMessage(secondResult));
+
+            Assert.False(healthCheckTask.IsCompleted);
+            Assert.False(monitor.InitialDestinationsProbed);
+
+            tcs2.SetResult(new HttpResponseMessage(thirdResult));
+
+            await healthCheckTask;
+
+            Assert.True(monitor.InitialDestinationsProbed);
+
+            policy.Verify(p => p.ProbingCompleted(It.IsAny<ClusterInfo>(), It.IsAny<IReadOnlyList<DestinationProbingResult>>()), Times.Exactly(3));
+            policy.Verify(p => p.Name);
+            policy.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task InitialDestinationsProbed_TrueAfterTheFirstProbe_OneTimesOut()
+        {
+            var policy = new Mock<IActiveHealthCheckPolicy>();
+            policy.SetupGet(p => p.Name).Returns("policy0");
+            var options = Options.Create(new ActiveHealthCheckMonitorOptions { DefaultInterval = TimeSpan.FromSeconds(60), DefaultTimeout = TimeSpan.FromMilliseconds(1) });
+            var clusters = new List<ClusterInfo>();
+            var monitor = new ActiveHealthCheckMonitor(options, new[] { policy.Object }, new DefaultProbingRequestFactory(), new Mock<ITimerFactory>().Object, GetLogger());
+
+            var tcs0 = new TaskCompletionSource<HttpResponseMessage>();
+            var httpClient0 = GetHttpClient(tcs0.Task);
+            var cluster0 = GetClusterInfo("cluster0", "policy0", true, httpClient0.Object, destinationCount: 1);
+            clusters.Add(cluster0);
+            var tcs1 = new TaskCompletionSource<HttpResponseMessage>();
+            var httpClient1 = GetHttpClient(tcs1.Task, () => tcs1.SetCanceled());
+            var cluster1 = GetClusterInfo("cluster1", "policy0", true, httpClient1.Object, destinationCount: 1);
+            clusters.Add(cluster1);
+
+            Assert.False(monitor.InitialDestinationsProbed);
+
+            var healthCheckTask = monitor.CheckHealthAsync(clusters);
+
+            Assert.False(healthCheckTask.IsCompleted);
+            Assert.False(monitor.InitialDestinationsProbed);
+
+            tcs0.SetResult(new HttpResponseMessage(HttpStatusCode.OK));
+
+            Assert.False(healthCheckTask.IsCompleted);
+            Assert.False(monitor.InitialDestinationsProbed);
+
+            // Never set result to the second destination for it to time out.
+
+            await healthCheckTask;
+
+            Assert.True(monitor.InitialDestinationsProbed);
+
+            policy.Verify(p => p.ProbingCompleted(It.IsAny<ClusterInfo>(), It.IsAny<IReadOnlyList<DestinationProbingResult>>()), Times.Exactly(2));
+            policy.Verify(p => p.Name);
+            policy.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task InitialDestinationsProbed_TrueAfterTheFirstProbe_AllTimeOut()
+        {
+            var policy = new Mock<IActiveHealthCheckPolicy>();
+            policy.SetupGet(p => p.Name).Returns("policy0");
+            var options = Options.Create(new ActiveHealthCheckMonitorOptions { DefaultInterval = TimeSpan.FromSeconds(60), DefaultTimeout = TimeSpan.FromMilliseconds(1) });
+            var clusters = new List<ClusterInfo>();
+            var monitor = new ActiveHealthCheckMonitor(options, new[] { policy.Object }, new DefaultProbingRequestFactory(), new Mock<ITimerFactory>().Object, GetLogger());
+
+            var tcs0 = new TaskCompletionSource<HttpResponseMessage>();
+            var httpClient0 = GetHttpClient(tcs0.Task, () => tcs0.SetCanceled());
+            var cluster0 = GetClusterInfo("cluster0", "policy0", true, httpClient0.Object, destinationCount: 1);
+            clusters.Add(cluster0);
+            var tcs1 = new TaskCompletionSource<HttpResponseMessage>();
+            var httpClient1 = GetHttpClient(tcs1.Task, () => tcs1.SetCanceled());
+            var cluster1 = GetClusterInfo("cluster1", "policy0", true, httpClient1.Object, destinationCount: 1);
+            clusters.Add(cluster1);
+
+            Assert.False(monitor.InitialDestinationsProbed);
+
+            var healthCheckTask = monitor.CheckHealthAsync(clusters);
+
+            // Never set results to the either of the destination for them to time out.
+
+            await healthCheckTask;
+
+            Assert.True(monitor.InitialDestinationsProbed);
+
+            policy.Verify(p => p.ProbingCompleted(It.IsAny<ClusterInfo>(), It.IsAny<IReadOnlyList<DestinationProbingResult>>()), Times.Exactly(2));
+            policy.Verify(p => p.Name);
+            policy.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task InitialDestinationsProbed_TrueAfterTheFirstProbe_OneThrows()
+        {
+            var policy = new Mock<IActiveHealthCheckPolicy>();
+            policy.SetupGet(p => p.Name).Returns("policy0");
+            var options = Options.Create(new ActiveHealthCheckMonitorOptions { DefaultInterval = TimeSpan.FromSeconds(60), DefaultTimeout = Timeout.InfiniteTimeSpan });
+            var clusters = new List<ClusterInfo>();
+            var monitor = new ActiveHealthCheckMonitor(options, new[] { policy.Object }, new DefaultProbingRequestFactory(), new Mock<ITimerFactory>().Object, GetLogger());
+
+            var tcs0 = new TaskCompletionSource<HttpResponseMessage>();
+            var httpClient0 = GetHttpClient(tcs0.Task);
+            var cluster0 = GetClusterInfo("cluster0", "policy0", true, httpClient0.Object, destinationCount: 1);
+            clusters.Add(cluster0);
+            var tcs1 = new TaskCompletionSource<HttpResponseMessage>();
+            var httpClient1 = GetHttpClient(tcs1.Task);
+            var cluster1 = GetClusterInfo("cluster1", "policy0", true, httpClient1.Object, destinationCount: 1);
+            clusters.Add(cluster1);
+
+            Assert.False(monitor.InitialDestinationsProbed);
+
+            var healthCheckTask = monitor.CheckHealthAsync(clusters);
+
+            Assert.False(healthCheckTask.IsCompleted);
+            Assert.False(monitor.InitialDestinationsProbed);
+
+            tcs0.SetException(new Exception());
+
+            Assert.False(healthCheckTask.IsCompleted);
+            Assert.False(monitor.InitialDestinationsProbed);
+
+            tcs1.SetResult(new HttpResponseMessage(HttpStatusCode.OK));
+
+            await healthCheckTask;
+
+            Assert.True(monitor.InitialDestinationsProbed);
+
+            policy.Verify(p => p.ProbingCompleted(It.IsAny<ClusterInfo>(), It.IsAny<IReadOnlyList<DestinationProbingResult>>()), Times.Exactly(2));
+            policy.Verify(p => p.Name);
+            policy.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task InitialDestinationsProbed_TrueAfterTheFirstProbe_AllThrow()
+        {
+            var policy = new Mock<IActiveHealthCheckPolicy>();
+            policy.SetupGet(p => p.Name).Returns("policy0");
+            var options = Options.Create(new ActiveHealthCheckMonitorOptions { DefaultInterval = TimeSpan.FromSeconds(60), DefaultTimeout = Timeout.InfiniteTimeSpan });
+            var clusters = new List<ClusterInfo>();
+            var monitor = new ActiveHealthCheckMonitor(options, new[] { policy.Object }, new DefaultProbingRequestFactory(), new Mock<ITimerFactory>().Object, GetLogger());
+
+            var tcs0 = new TaskCompletionSource<HttpResponseMessage>();
+            var httpClient0 = GetHttpClient(tcs0.Task);
+            var cluster0 = GetClusterInfo("cluster0", "policy0", true, httpClient0.Object, destinationCount: 1);
+            clusters.Add(cluster0);
+            var tcs1 = new TaskCompletionSource<HttpResponseMessage>();
+            var httpClient1 = GetHttpClient(tcs1.Task);
+            var cluster1 = GetClusterInfo("cluster1", "policy0", true, httpClient1.Object, destinationCount: 1);
+            clusters.Add(cluster1);
+
+            Assert.False(monitor.InitialDestinationsProbed);
+
+            var healthCheckTask = monitor.CheckHealthAsync(clusters);
+
+            Assert.False(healthCheckTask.IsCompleted);
+            Assert.False(monitor.InitialDestinationsProbed);
+
+            tcs0.SetException(new Exception());
+
+            Assert.False(healthCheckTask.IsCompleted);
+            Assert.False(monitor.InitialDestinationsProbed);
+
+            tcs1.SetException(new Exception());
+
+            await healthCheckTask;
+
+            Assert.True(monitor.InitialDestinationsProbed);
+
+            policy.Verify(p => p.ProbingCompleted(It.IsAny<ClusterInfo>(), It.IsAny<IReadOnlyList<DestinationProbingResult>>()), Times.Exactly(2));
             policy.Verify(p => p.Name);
             policy.VerifyNoOtherCalls();
         }
@@ -408,11 +656,19 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             return clusterInfo;
         }
 
-        private Mock<HttpMessageInvoker> GetHttpClient()
+        private Mock<HttpMessageInvoker> GetHttpClient(Task<HttpResponseMessage> task = null, Action cancellation = null)
         {
             var httpClient = new Mock<HttpMessageInvoker>(() => new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object));
             httpClient.Setup(c => c.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((HttpRequestMessage m, CancellationToken c) => new HttpResponseMessage(HttpStatusCode.OK) { Version = m.Version });
+                .Returns((HttpRequestMessage m, CancellationToken c) =>
+                {
+                    if (cancellation != null)
+                    {
+                        c.UnsafeRegister(_ => cancellation(), null);
+                    }
+
+                    return task ?? Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK) {Version = m.Version});
+                });
             return httpClient;
         }
 
