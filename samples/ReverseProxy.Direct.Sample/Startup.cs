@@ -11,10 +11,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.ReverseProxy.Service.Proxy;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 
-namespace Microsoft.ReverseProxy.Sample
+namespace YARP.Sample
 {
     /// <summary>
-    /// ASP .NET Core pipeline initialization.
+    /// ASP.NET Core pipeline initialization showing how to use IHttpProxy to directly handle proxying requests.
+    /// With this approach you are responsible for destination discovery, load balancing, and related concerns.
     /// </summary>
     public class Startup
     {
@@ -31,6 +32,7 @@ namespace Microsoft.ReverseProxy.Sample
         /// </summary>
         public void Configure(IApplicationBuilder app, IHttpProxy httpProxy)
         {
+            // Configure our own HttpMessageInvoker for outbound calls for proxy operations
             var httpClient = new HttpMessageInvoker(new SocketsHttpHandler()
             {
                 UseProxy = false,
@@ -39,16 +41,21 @@ namespace Microsoft.ReverseProxy.Sample
                 UseCookies = false
             });
 
+            // Setup our own request transform class
             var transformer = new CustomTransformer(); // or HttpTransformer.Default;
             var requestOptions = new RequestProxyOptions { Timeout = TimeSpan.FromSeconds(100) };
 
             app.UseRouting();
             app.UseEndpoints(endpoints =>
             {
+                // When using IHttpProxy for direct proxying you are responsible for routing, destination discovery, load balancing, affinity, etc..
+                // For an alternate example that includes those features see BasicYarpSample.
                 endpoints.Map("/{**catch-all}", async httpContext =>
                 {
                     await httpProxy.ProxyAsync(httpContext, "https://example.com", httpClient, requestOptions, transformer);
                     var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
+                    
+                    // Check if the proxy operation was successful
                     if (errorFeature != null)
                     {
                         var error = errorFeature.Error;
@@ -58,8 +65,23 @@ namespace Microsoft.ReverseProxy.Sample
             });
         }
 
+        /// <summary>
+        /// Custom request transformation
+        /// </summary>
         private class CustomTransformer : HttpTransformer
         {
+            /// <summary>
+            /// A callback that is invoked prior to sending the proxied request. All HttpRequestMessage
+            /// fields are initialized except RequestUri, which will be initialized after the
+            /// callback if no value is provided. The string parameter represents the destination
+            /// URI prefix that should be used when constructing the RequestUri. The headers
+            /// are copied by the base implementation, excluding some protocol headers like HTTP/2
+            /// pseudo headers (":authority").
+            /// </summary>
+            /// <param name="httpContext">The incoming request.</param>
+            /// <param name="proxyRequest">The outgoing proxy request.</param>
+            /// <param name="destinationPrefix">The uri prefix for the selected destination server which can be used to create
+            /// the RequestUri.</param>
             public override async Task TransformRequestAsync(HttpContext httpContext, HttpRequestMessage proxyRequest, string destinationPrefix)
             {
                 // Copy all request headers

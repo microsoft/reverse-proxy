@@ -46,6 +46,3 @@ The following files are key to implementing the features described above:
   ```InMemoryConfigProvider``` is the implementation of ```IProxyConfigProvider``` that supplies the ```GetConfig()``` method to get the current snapshot of the route and clusters configuration.
 
   ```InMemoryConfig``` is the readonly snapshot of the configuration state. The state of this class should be immutable (never change). When a configuration change is ready, the ChangeToken on the current state should be toggled, and ```GetConfig()``` will be called to supply the new snapshot.
-
-
-  

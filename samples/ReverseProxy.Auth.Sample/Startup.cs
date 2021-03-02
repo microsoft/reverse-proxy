@@ -55,8 +55,7 @@ namespace Microsoft.ReverseProxy.Auth.Sample
                 // Make all routes that do not specify a policy to be anonymous (this is the default).
                 options.FallbackPolicy = null; 
                 // Or make all routes that do not specify a policy require some auth:
-                // options.FallbackPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
-            
+                // options.FallbackPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();            
             });
         }
 
