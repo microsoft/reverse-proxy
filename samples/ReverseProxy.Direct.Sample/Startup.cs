@@ -55,7 +55,7 @@ namespace YARP.Sample
                     await httpProxy.ProxyAsync(httpContext, "https://example.com", httpClient, requestOptions, transformer);
                     var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
                     
-                    //Check if the proxy operation was successful
+                    // Check if the proxy operation was successful
                     if (errorFeature != null)
                     {
                         var error = errorFeature.Error;
