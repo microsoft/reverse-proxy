@@ -64,6 +64,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReverseProxy.Transforms.Sam
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestServer", "testassets\TestServer\TestServer.csproj", "{AE06F9BE-0B8D-4D02-9DC6-FE5A41FA4B5D}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReverseProxy.Direct", "testassets\ReverseProxy.Direct\ReverseProxy.Direct.csproj", "{6FE9874A-87B9-42C6-B19C-065A97CC6360}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -248,6 +250,14 @@ Global
 		{AE06F9BE-0B8D-4D02-9DC6-FE5A41FA4B5D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{AE06F9BE-0B8D-4D02-9DC6-FE5A41FA4B5D}.Release|x64.ActiveCfg = Release|Any CPU
 		{AE06F9BE-0B8D-4D02-9DC6-FE5A41FA4B5D}.Release|x64.Build.0 = Release|Any CPU
+		{6FE9874A-87B9-42C6-B19C-065A97CC6360}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6FE9874A-87B9-42C6-B19C-065A97CC6360}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6FE9874A-87B9-42C6-B19C-065A97CC6360}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6FE9874A-87B9-42C6-B19C-065A97CC6360}.Debug|x64.Build.0 = Debug|Any CPU
+		{6FE9874A-87B9-42C6-B19C-065A97CC6360}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6FE9874A-87B9-42C6-B19C-065A97CC6360}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6FE9874A-87B9-42C6-B19C-065A97CC6360}.Release|x64.ActiveCfg = Release|Any CPU
+		{6FE9874A-87B9-42C6-B19C-065A97CC6360}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -275,6 +285,7 @@ Global
 		{FA62D919-758B-4A84-8F70-393A47A077B3} = {149C61A2-D9F8-49B9-9F9B-3C953FEF53AA}
 		{AD5C2956-760C-4A3F-9894-C1590BEB8D54} = {149C61A2-D9F8-49B9-9F9B-3C953FEF53AA}
 		{AE06F9BE-0B8D-4D02-9DC6-FE5A41FA4B5D} = {CDB73246-0A7E-4116-81E0-828228ECADDD}
+		{6FE9874A-87B9-42C6-B19C-065A97CC6360} = {CDB73246-0A7E-4116-81E0-828228ECADDD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {31F6924A-E427-4830-96E9-B47CEB7BFE78}
