@@ -455,7 +455,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                     {
                         var currentRouteConfig = route.Config;
                         if (currentRouteConfig == null ||
-                            currentRouteConfig.HasConfigChanged(configRoute, cluster))
+                            currentRouteConfig.HasConfigChanged(configRoute, cluster, route.ClusterRevision))
                         {
                             // Config changed, so update runtime route
                             changed = true;
@@ -469,7 +469,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                                 Log.RouteChanged(_logger, configRoute.RouteId);
                             }
 
-                            var newConfig = BuildRouteConfig(configRoute, cluster, route);
+                            var newConfig = BuildRouteConfig(configRoute, cluster);
                             route.Config = newConfig;
                             route.ClusterRevision = cluster?.Revision;
                         }
@@ -525,12 +525,11 @@ namespace Microsoft.ReverseProxy.Service.Management
             }
         }
 
-        private RouteConfig BuildRouteConfig(ProxyRoute source, ClusterInfo cluster, RouteInfo runtimeRoute)
+        private RouteConfig BuildRouteConfig(ProxyRoute source, ClusterInfo cluster)
         {
             var transforms = _transformBuilder.Build(source, cluster?.Config?.Options);
 
             var newRouteConfig = new RouteConfig(
-                runtimeRoute,
                 source,
                 cluster,
                 transforms);

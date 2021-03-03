@@ -51,19 +51,20 @@ namespace Microsoft.ReverseProxy.Middleware
             }
             else
             {
-                var currentPolicy = _loadBalancingPolicies.GetRequiredServiceById(proxyFeature.ClusterConfig.Options.LoadBalancingPolicy, LoadBalancingPolicies.PowerOfTwoChoices);
+                var currentPolicy = _loadBalancingPolicies.GetRequiredServiceById(proxyFeature.ClusterSnapshot.Options.LoadBalancingPolicy, LoadBalancingPolicies.PowerOfTwoChoices);
                 destination = currentPolicy.PickDestination(context, destinations);
             }
 
             if (destination == null)
             {
-                var cluster = context.GetRequiredCluster();
-                Log.NoAvailableDestinations(_logger, cluster.ClusterId);
-                context.Response.StatusCode = 503;
-                return Task.CompletedTask;
+                // We intentionally do not short circuit here, we allow for later middleware to decide how to handle this case.
+                Log.NoAvailableDestinations(_logger, proxyFeature.ClusterSnapshot.Options.Id);
+                proxyFeature.AvailableDestinations = Array.Empty<DestinationInfo>();
             }
-
-            proxyFeature.AvailableDestinations = destination;
+            else
+            {
+                proxyFeature.AvailableDestinations = destination;
+            }
 
             return _next(context);
         }

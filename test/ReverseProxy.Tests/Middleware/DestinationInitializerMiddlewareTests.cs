@@ -12,7 +12,6 @@ using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ReverseProxy.Common.Tests;
 using Microsoft.ReverseProxy.RuntimeModel;
 using Microsoft.ReverseProxy.Service.Management;
-using Microsoft.ReverseProxy.Service.Proxy;
 using Moq;
 using Xunit;
 
@@ -22,7 +21,11 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
     {
         public DestinationInitializerMiddlewareTests()
         {
-            Provide<RequestDelegate>(context => Task.CompletedTask);
+            Provide<RequestDelegate>(context =>
+            {
+                context.Response.StatusCode = StatusCodes.Status418ImATeapot;
+                return Task.CompletedTask;
+            });
         }
 
         [Fact]
@@ -49,7 +52,6 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
 
             var aspNetCoreEndpoints = new List<Endpoint>();
             var routeConfig = new RouteConfig(
-                new RouteInfo("route1"),
                 proxyRoute: new ProxyRoute(),
                 cluster1,
                 transformer: null);
@@ -67,13 +69,13 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             Assert.NotNull(proxyFeature.AvailableDestinations);
             Assert.Equal(1, proxyFeature.AvailableDestinations.Count);
             Assert.Same(destination1, proxyFeature.AvailableDestinations[0]);
-            Assert.Same(cluster1.Config, proxyFeature.ClusterConfig);
+            Assert.Same(cluster1.Config, proxyFeature.ClusterSnapshot);
 
-            Assert.Equal(200, httpContext.Response.StatusCode);
+            Assert.Equal(StatusCodes.Status418ImATeapot, httpContext.Response.StatusCode);
         }
 
         [Fact]
-        public async Task Invoke_NoHealthyEndpoints_503()
+        public async Task Invoke_NoHealthyEndpoints_CallsNext()
         {
             var httpClient = new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object);
             var cluster1 = new ClusterInfo(
@@ -99,12 +101,12 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 destination =>
                 {
                     destination.Config = new DestinationConfig(new Destination { Address = "https://localhost:123/a/b/" });
-                    destination.Health.Passive = DestinationHealth.Unhealthy;
+                    destination.Health.Active = DestinationHealth.Unhealthy;
                 });
+            cluster1.UpdateDynamicState();
 
             var aspNetCoreEndpoints = new List<Endpoint>();
             var routeConfig = new RouteConfig(
-                route: new RouteInfo("route1"),
                 proxyRoute: new ProxyRoute(),
                 cluster: cluster1,
                 transformer: null);
@@ -118,12 +120,11 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             await sut.Invoke(httpContext);
 
             var feature = httpContext.Features.Get<IReverseProxyFeature>();
-            Assert.Null(feature);
+            Assert.NotNull(feature);
+            Assert.Single(feature.AllDestinations);
+            Assert.Empty(feature.AvailableDestinations);
 
-            var cluster = httpContext.Features.Get<ClusterInfo>();
-            Assert.Null(cluster);
-
-            Assert.Equal(503, httpContext.Response.StatusCode);
+            Assert.Equal(StatusCodes.Status418ImATeapot, httpContext.Response.StatusCode);
         }
 
         private static Endpoint CreateAspNetCoreEndpoint(RouteConfig routeConfig)

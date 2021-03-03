@@ -27,12 +27,11 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
             var transform = new AffinitizeTransform(provider.Object);
 
             var context = new DefaultHttpContext();
-            context.Features.Set(cluster);
-
-            var destinationFeature = new Mock<IReverseProxyFeature>(MockBehavior.Strict);
-            destinationFeature.SetupProperty(p => p.ClusterConfig, cluster.Config);
-            destinationFeature.SetupProperty(p => p.SelectedDestination, destination);
-            context.Features.Set(destinationFeature.Object);
+            context.Features.Set<IReverseProxyFeature>(new ReverseProxyFeature()
+            {
+                ClusterSnapshot = cluster.Config,
+                ProxiedDestination = destination,
+            });
 
             var transformContext = new ResponseTransformContext()
             {
