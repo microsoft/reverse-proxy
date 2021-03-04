@@ -143,7 +143,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             clusterInfo.Config = clusterConfig;
             for (var i = 0; i < destinationCount; i++)
             {
-                var destinationConfig = new DestinationConfig($"https://localhost:1000{i}/{id}/", $"https://localhost:2000{i}/{id}/");
+                var destinationConfig = new DestinationConfig(new Destination { Address = $"https://localhost:1000{i}/{id}/", Health = $"https://localhost:2000{i}/{id}/" });
                 var destinationId = $"destination{i}";
                 clusterInfo.DestinationManager.GetOrCreateItem(destinationId, d =>
                 {

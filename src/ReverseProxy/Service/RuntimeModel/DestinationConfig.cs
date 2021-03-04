@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
+using Microsoft.ReverseProxy.Abstractions;
 
 namespace Microsoft.ReverseProxy.RuntimeModel
 {
@@ -17,25 +19,16 @@ namespace Microsoft.ReverseProxy.RuntimeModel
     /// </remarks>
     public sealed class DestinationConfig
     {
-        public DestinationConfig(string address, string health)
+        public DestinationConfig(Destination destination)
         {
-            if (string.IsNullOrEmpty(address))
-            {
-                throw new ArgumentNullException(nameof(address));
-            }
-
-            Address = address;
-            Health = health;
+            Options = destination ?? throw new ArgumentNullException(nameof(destination));
         }
 
-        /// <summary>
-        /// Endpoint accepting proxied requests.
-        /// </summary>
-        public string Address { get; }
+        public Destination Options { get; }
 
-        /// <summary>
-        /// Endpoint accepting active health check probes.
-        /// </summary>
-        public string Health { get; }
+        internal bool HasChanged(Destination destination)
+        {
+            return Options != destination;
+        }
     }
 }
