@@ -187,7 +187,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 
             foreach (var destination in cluster2.DestinationManager.Items)
             {
-                var newDestinationConfig = new DestinationConfig(new Destination { Address = destination.Config.Address });
+                var newDestinationConfig = new DestinationConfig(new Destination { Address = destination.Config.Options.Address });
                 cluster2.DestinationManager.GetOrCreateItem(destination.DestinationId, d =>
                 {
                     d.Config = newDestinationConfig;

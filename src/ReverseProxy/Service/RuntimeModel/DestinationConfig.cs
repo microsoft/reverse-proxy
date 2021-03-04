@@ -22,26 +22,9 @@ namespace Microsoft.ReverseProxy.RuntimeModel
         public DestinationConfig(Destination destination)
         {
             Options = destination ?? throw new ArgumentNullException(nameof(destination));
-
-            if (string.IsNullOrEmpty(destination.Address))
-            {
-                throw new ArgumentNullException(nameof(destination.Address));
-            }
-            Address = destination.Address;
-            Health = destination.Health;
         }
 
         public Destination Options { get; }
-
-        /// <summary>
-        /// Endpoint accepting proxied requests.
-        /// </summary>
-        public string Address { get; }
-
-        /// <summary>
-        /// Endpoint accepting active health check probes.
-        /// </summary>
-        public string Health { get; }
 
         internal bool HasChanged(Destination destination)
         {

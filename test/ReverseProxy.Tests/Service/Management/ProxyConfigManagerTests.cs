@@ -135,7 +135,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             Assert.Single(actualDestinations);
             Assert.Equal("d1", actualDestinations[0].DestinationId);
             Assert.NotNull(actualDestinations[0].Config);
-            Assert.Equal(TestAddress, actualDestinations[0].Config.Address);
+            Assert.Equal(TestAddress, actualDestinations[0].Config.Options.Address);
 
             var routeManager = services.GetRequiredService<IRouteManager>();
             var actualRoutes = routeManager.GetItems();
@@ -365,7 +365,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             Assert.True(clusterInfo.Config.Options.HealthCheck.Enabled);
             Assert.Equal(TimeSpan.FromSeconds(12), clusterInfo.Config.Options.HealthCheck.Active.Interval);
             var destination = Assert.Single(clusterInfo.DynamicState.AllDestinations);
-            Assert.Equal("http://localhost", destination.Config.Address);
+            Assert.Equal("http://localhost", destination.Config.Options.Address);
         }
 
         private class ClusterAndRouteThrows : IProxyConfigFilter
