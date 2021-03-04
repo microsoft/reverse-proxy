@@ -37,7 +37,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         public HttpProxy(ILogger<HttpProxy> logger, IClock clock)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _clock = clock ?? throw new ArgumentNullException(nameof(_clock));
+            _clock = clock ?? throw new ArgumentNullException(nameof(clock));
         }
 
         /// <summary>
