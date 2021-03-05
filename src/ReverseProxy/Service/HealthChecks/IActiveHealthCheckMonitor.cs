@@ -20,7 +20,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         /// <c>true</c> when all the initially configured destinations have been queried, regardless their availability or returned status code.
         /// The property stays <c>true</c> for the rest of the proxy process lifetime.
         /// </returns>
-        public bool InitialDestinationsProbed { get; }
+        bool InitialDestinationsProbed { get; }
 
         /// <summary>
         /// Checks health of all clusters' destinations.
