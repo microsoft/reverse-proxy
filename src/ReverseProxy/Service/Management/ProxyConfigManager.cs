@@ -227,7 +227,7 @@ namespace Microsoft.ReverseProxy.Service.Management
             }
 
             var seenRouteIds = new HashSet<string>();
-            var sortedRoutes = new SortedList<(int, string), ProxyRoute>(routes?.Count ?? 0);
+            var configuredRoutes = new List<ProxyRoute>(routes?.Count ?? 0);
             var errors = new List<Exception>();
 
             foreach (var r in routes)
@@ -260,7 +260,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                     continue;
                 }
 
-                sortedRoutes.Add((route.Order ?? 0, route.RouteId), route);
+                configuredRoutes.Add(route);
             }
 
             if (errors.Count > 0)
@@ -268,7 +268,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                 return (null, errors);
             }
 
-            return (sortedRoutes.Values, errors);
+            return (configuredRoutes, errors);
         }
 
         private async Task<(IList<Cluster>, IList<Exception>)> VerifyClustersAsync(IReadOnlyList<Cluster> clusters, CancellationToken cancellation)
