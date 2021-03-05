@@ -13,7 +13,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
     public interface IActiveHealthCheckMonitor
     {
         /// <summary>
-        /// Whether the initial round of active health check passed, regardless the results.
+        /// Whether the initial round of active health checks have run, regardless of the results.
         /// </summary>
         /// <returns>
         /// <c>false</c> until the initial round of health check requests has been processed.
