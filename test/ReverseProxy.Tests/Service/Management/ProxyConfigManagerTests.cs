@@ -279,7 +279,8 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
         [Fact]
         public async Task LoadAsync_RouteValidationError_Throws()
         {
-            var route1 = new ProxyRoute { RouteId = "route1", Match = new ProxyMatch { Hosts = new[] { "invalid host name" } }, ClusterId = "cluster1" };
+            var routeName = "route1";
+            var route1 = new ProxyRoute { RouteId = routeName, Match = new ProxyMatch { Hosts = null }, ClusterId = "cluster1" };
             var services = CreateServices(new List<ProxyRoute>() { route1 }, new List<Cluster>());
             var configManager = services.GetRequiredService<ProxyConfigManager>();
 
@@ -289,13 +290,13 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
 
             Assert.Single(agex.InnerExceptions);
             var argex = Assert.IsType<ArgumentException>(agex.InnerExceptions.First());
-            Assert.StartsWith("Invalid host", argex.Message);
+            Assert.StartsWith($"Route '{routeName}' requires Hosts or Path specified", argex.Message);
         }
 
         [Fact]
         public async Task LoadAsync_ConfigFilterRouteActions_CanFixBrokenRoute()
         {
-            var route1 = new ProxyRoute { RouteId = "route1", Match = new ProxyMatch { Hosts = new[] { "invalid host name" } }, Order = 1, ClusterId = "cluster1" };
+            var route1 = new ProxyRoute { RouteId = "route1", Match = new ProxyMatch { Hosts = null }, Order = 1, ClusterId = "cluster1" };
             var services = CreateServices(new List<ProxyRoute>() { route1 }, new List<Cluster>(), proxyBuilder =>
             {
                 proxyBuilder.AddProxyConfigFilter<FixRouteHostFilter>();
