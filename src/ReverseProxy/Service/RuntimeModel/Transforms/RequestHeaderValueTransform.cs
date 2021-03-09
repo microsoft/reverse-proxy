@@ -33,17 +33,21 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                 throw new ArgumentNullException(nameof(context));
             }
 
-            var existingValues = TakeHeader(context, HeaderName);
-
+            StringValues values = default;
             if (Append)
             {
-                var values = StringValues.Concat(existingValues, Value);
-                AddHeader(context, HeaderName, values);
+                values = TakeHeader(context, HeaderName);
             }
-            else if (!string.IsNullOrEmpty(Value))
+            else
             {
-                // Set
-                AddHeader(context, HeaderName, Value);
+                RemoveHeader(context, HeaderName);
+            }
+
+            values = StringValues.Concat(values, Value);
+
+            if (!StringValues.IsNullOrEmpty(values))
+            {
+                AddHeader(context, HeaderName, values);
             }
 
             return default;

@@ -28,26 +28,26 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                 throw new System.ArgumentNullException(nameof(context));
             }
 
-            var existingValues = TakeHeader(context, HeaderName);
-
             var pathBase = context.HttpContext.Request.PathBase;
 
-            if (!pathBase.HasValue)
+            StringValues values = default;
+            if (Append)
             {
-                if (Append && !string.IsNullOrEmpty(existingValues))
-                {
-                    AddHeader(context, HeaderName, existingValues);
-                }
-            }
-            else if (Append)
-            {
-                var values = StringValues.Concat(existingValues, pathBase.ToUriComponent());
-                AddHeader(context, HeaderName, values);
+                values = TakeHeader(context, HeaderName);
             }
             else
             {
-                // Set
-                AddHeader(context, HeaderName, pathBase.ToUriComponent());
+                RemoveHeader(context, HeaderName);
+            }
+
+            if (pathBase.HasValue)
+            {
+                values = StringValues.Concat(values, pathBase.ToUriComponent());
+            }
+
+            if (!StringValues.IsNullOrEmpty(values))
+            {
+                AddHeader(context, HeaderName, values);
             }
 
             return default;

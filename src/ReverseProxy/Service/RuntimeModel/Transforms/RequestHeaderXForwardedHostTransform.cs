@@ -32,26 +32,26 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                 throw new System.ArgumentNullException(nameof(context));
             }
 
-            var existingValues = TakeHeader(context, HeaderName);
-
             var host = context.HttpContext.Request.Host;
 
-            if (!host.HasValue)
+            StringValues values = default;
+            if (Append)
             {
-                if (Append && !string.IsNullOrEmpty(existingValues))
-                {
-                    AddHeader(context, HeaderName, existingValues);
-                }
-            }
-            else if (Append)
-            {
-                var values = StringValues.Concat(existingValues, host.ToUriComponent());
-                AddHeader(context, HeaderName, values);
+                values = TakeHeader(context, HeaderName);
             }
             else
             {
-                // Set
-                AddHeader(context, HeaderName, host.ToUriComponent());
+                RemoveHeader(context, HeaderName);
+            }
+
+            if (host.HasValue)
+            {
+                values = StringValues.Concat(values, host.ToUriComponent());
+            }
+
+            if (!StringValues.IsNullOrEmpty(values))
+            {
+                AddHeader(context, HeaderName, values);
             }
 
             return default;

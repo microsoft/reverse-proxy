@@ -59,16 +59,19 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             AppendBy(httpContext, builder);
             var value = builder.ToString();
 
-            var existingValues = TakeHeader(context, ForwardedHeaderName);
+            StringValues values = default;
             if (Append)
             {
-                var values = StringValues.Concat(existingValues, value);
-                AddHeader(context, ForwardedHeaderName, values);
+                values = TakeHeader(context, ForwardedHeaderName);
             }
             else
             {
-                AddHeader(context, ForwardedHeaderName, value);
+                RemoveHeader(context, ForwardedHeaderName);
             }
+
+            values = StringValues.Concat(values, value);
+
+            AddHeader(context, ForwardedHeaderName, values);
 
             return default;
         }

@@ -47,6 +47,14 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             return existingValues;
         }
 
+        internal static void RemoveHeader(RequestTransformContext context, string headerName)
+        {
+            if (!context.ProxyRequest.Headers.Remove(headerName))
+            {
+                context.ProxyRequest.Content?.Headers.Remove(headerName);
+            }
+        }
+
         /// <summary>
         /// Adds the given header to the HttpRequestMessage or HttpContent where applicable.
         /// </summary>

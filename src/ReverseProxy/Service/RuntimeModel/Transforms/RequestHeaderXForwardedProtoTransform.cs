@@ -28,20 +28,19 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
                 throw new System.ArgumentNullException(nameof(context));
             }
 
-            var existingValues = TakeHeader(context, HeaderName);
-
-            var scheme = context.HttpContext.Request.Scheme;
-
+            StringValues values = default;
             if (Append)
             {
-                var values = StringValues.Concat(existingValues, scheme);
-                AddHeader(context, HeaderName, values);
+                values = TakeHeader(context, HeaderName);
             }
             else
             {
-                // Set
-                AddHeader(context, HeaderName, scheme);
+                RemoveHeader(context, HeaderName);
             }
+
+            values = StringValues.Concat(values, context.HttpContext.Request.Scheme);
+
+            AddHeader(context, HeaderName, values);
 
             return default;
         }
