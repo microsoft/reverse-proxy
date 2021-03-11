@@ -66,10 +66,8 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
                 handler.SslOptions.RemoteCertificateValidationCallback = delegate { return true; };
             }
 #if NET
-            if (newClientOptions.EnableMultipleHttp2Connections.HasValue)
-            {
-                handler.EnableMultipleHttp2Connections = newClientOptions.EnableMultipleHttp2Connections.Value;
-            }
+            handler.EnableMultipleHttp2Connections = newClientOptions.EnableMultipleHttp2Connections.GetValueOrDefault(true);
+
             if (newClientOptions.RequestHeaderEncoding != null)
             {
                 handler.RequestHeaderEncodingSelector = (_, _) => newClientOptions.RequestHeaderEncoding;
