@@ -90,7 +90,6 @@ namespace Microsoft.ReverseProxy.DynamicEndpoint
         {
             var endpointBuilder = new RouteEndpointBuilder(context => Task.CompletedTask, RoutePatternFactory.Parse(""), 0);
             var routeConfig = new RouteConfig(
-                new RouteInfo("route-1"),
                 proxyRoute,
                 new ClusterInfo("cluster-1", new DestinationManager())
                 {

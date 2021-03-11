@@ -20,6 +20,7 @@ namespace Microsoft.ReverseProxy.Middleware
         protected const string AffinitizedDestinationName = "dest-B";
         protected readonly ClusterConfig ClusterConfig = new ClusterConfig(new Cluster
             {
+                Id = "cluster-1",
                 SessionAffinity = new SessionAffinityOptions
                 {
                     Enabled = true,
@@ -93,16 +94,17 @@ namespace Microsoft.ReverseProxy.Middleware
 
         internal IReverseProxyFeature GetDestinationsFeature(IReadOnlyList<DestinationInfo> destinations, ClusterConfig clusterConfig)
         {
-            var result = new Mock<IReverseProxyFeature>(MockBehavior.Strict);
-            result.SetupProperty(p => p.AvailableDestinations, destinations);
-            result.SetupProperty(p => p.ClusterConfig, clusterConfig);
-            return result.Object;
+            return new ReverseProxyFeature()
+            {
+                AvailableDestinations = destinations,
+                ClusterSnapshot = clusterConfig,
+            };
         }
 
         internal Endpoint GetEndpoint(ClusterInfo cluster)
         {
             var proxyRoute = new ProxyRoute();
-            var routeConfig = new RouteConfig(new RouteInfo("route-1"), proxyRoute, cluster, HttpTransformer.Default);
+            var routeConfig = new RouteConfig(proxyRoute, cluster, HttpTransformer.Default);
             var endpoint = new Endpoint(default, new EndpointMetadataCollection(routeConfig), string.Empty);
             return endpoint;
         }

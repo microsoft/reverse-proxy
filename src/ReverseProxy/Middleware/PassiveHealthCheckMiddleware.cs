@@ -27,17 +27,17 @@ namespace Microsoft.ReverseProxy.Middleware
             await _next(context);
 
             var proxyFeature = context.GetRequiredProxyFeature();
-            var options = proxyFeature.ClusterConfig.Options.HealthCheck?.Passive;
+            var options = proxyFeature.ClusterSnapshot.Options.HealthCheck?.Passive;
 
             // Do nothing if no target destination has been chosen for the request.
-            if (!(options?.Enabled).GetValueOrDefault() || proxyFeature.SelectedDestination == null)
+            if (!(options?.Enabled).GetValueOrDefault() || proxyFeature.ProxiedDestination == null)
             {
                 return;
             }
 
             var policy = _policies.GetRequiredServiceById(options.Policy, HealthCheckConstants.PassivePolicy.TransportFailureRate);
             var cluster = context.GetRequiredRouteConfig().Cluster;
-            policy.RequestProxied(cluster, proxyFeature.SelectedDestination, context);
+            policy.RequestProxied(cluster, proxyFeature.ProxiedDestination, context);
         }
     }
 }
