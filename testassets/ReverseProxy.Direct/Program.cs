@@ -1,8 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.AspNetCore.Connections;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.ReverseProxy.Sample
 {
@@ -23,6 +26,18 @@ namespace Microsoft.ReverseProxy.Sample
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
+                    webBuilder.ConfigureKestrel(kestrel =>
+                    {
+                        var logger = kestrel.ApplicationServices.GetRequiredService<ILogger<Program>>();
+                        kestrel.ListenAnyIP(5001, portOptions =>
+                        {
+                            portOptions.Use(async (connectionContext, next) =>
+                            {
+                                await TlsFilter.ProcessAsync(connectionContext, next, logger);
+                            });
+                            portOptions.UseHttps();
+                        });
+                    });
                     webBuilder.UseStartup<Startup>();
                 });
     }
