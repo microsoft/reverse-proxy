@@ -3,9 +3,9 @@
 Introduced: preview4
 
 ## Introduction
-The simple samples show proxy confuguration being loaded from appsettings.json. Instead proxy configuration can be loaded programmatically from the source of your choosing. You do this by providing a couple of classes implementing [IProxyConfigProvider](xref:Microsoft.ReverseProxy.Service.IProxyConfigProvider) and [IProxyConfig](xref:Microsoft.ReverseProxy.Service.IProxyConfig). 
+The [Basic Yarp Sample](https://github.com/microsoft/reverse-proxy/tree/main/samples/BasicYarpSample) show proxy confuguration being loaded from appsettings.json. Instead proxy configuration can be loaded programmatically from the source of your choosing. You do this by providing a couple of classes implementing [IProxyConfigProvider](xref:Microsoft.ReverseProxy.Service.IProxyConfigProvider) and [IProxyConfig](xref:Microsoft.ReverseProxy.Service.IProxyConfig). 
 
-See [ReverseProxy.Code.Sample](../../../samples/ReverseProxy.Code.Sample) for an example of a custom configuration provider.
+See [ReverseProxy.Code.Sample](https://github.com/microsoft/reverse-proxy/tree/main/samples/ReverseProxy.Code.Sample) for an example of a custom configuration provider.
 
 ## Structure
 [IProxyConfigProvider](xref:Microsoft.ReverseProxy.Service.IProxyConfigProvider) has a single method `GetConfig()` that should return an [IProxyConfig](xref:Microsoft.ReverseProxy.Service.IProxyConfig) instance. The IProxyConfig has lists of the current routes and clusters, as well as an `IChangeToken` to notify the proxy when this information is out of date and should be reloaded, which will cause `GetConfig()` to be called again.
