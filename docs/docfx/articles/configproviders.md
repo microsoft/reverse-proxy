@@ -1,12 +1,14 @@
-# Configuration Providers
+# Extensibility: Configuration Providers
 
 Introduced: preview4
 
 ## Introduction
-Proxy configuration can be loaded programmatically from the source of your choosing by implementing an [IProxyConfigProvider](xref:Microsoft.ReverseProxy.Service.IProxyConfigProvider).
+The simple samples show proxy confuguration being loaded from appsettings.json. Instead proxy configuration can be loaded programmatically from the source of your choosing. You do this by providing a couple of classes implementing [IProxyConfigProvider](xref:Microsoft.ReverseProxy.Service.IProxyConfigProvider) and [IProxyConfig](xref:Microsoft.ReverseProxy.Service.IProxyConfig). 
+
+See [ReverseProxy.Code.Sample](../../../samples/ReverseProxy.Code.Sample) for an example of a custom configuration provider.
 
 ## Structure
-[IProxyConfigProvider](xref:Microsoft.ReverseProxy.Service.IProxyConfigProvider) has a single method `GetConfig()` that returns an [IProxyConfig](xref:Microsoft.ReverseProxy.Service.IProxyConfig) instance. The IProxyConfig has lists of the current routes and clusters, as well as an `IChangeToken` to notify the proxy when this information is out of date and should be reloaded by calling `GetConfig()` again.
+[IProxyConfigProvider](xref:Microsoft.ReverseProxy.Service.IProxyConfigProvider) has a single method `GetConfig()` that should return an [IProxyConfig](xref:Microsoft.ReverseProxy.Service.IProxyConfig) instance. The IProxyConfig has lists of the current routes and clusters, as well as an `IChangeToken` to notify the proxy when this information is out of date and should be reloaded, which will cause `GetConfig()` to be called again.
 
 ### Routes
 The routes section is an ordered list of route matches and their associated configuration. A route requires at least the following fields:
@@ -33,13 +35,21 @@ The `IProxyConfigProvider` should be registered in the DI container as a singlet
 
 The proxy will validate the given configuration and if it's invalid, an exception will be thrown that prevents the application from starting. The provider can avoid this by using the [IConfigValidator](xref:Microsoft.ReverseProxy.Service.IConfigValidator) to pre-validate routes and clusters and take whatever action it deems appropriate such as excluding invalid entries.
 
+### Atomicity
+
+The configuration objects and collections supplied to the proxy should be read-only and not modified once they have been handed to the proxy via `GetConfig()`. 
+
 ### Reload
 If the `IChangeToken` supports `ActiveChangeCallbacks`, once the proxy has processed the initial set of configuration it will register a callback with this token. Note the proxy does not support polling for changes.
 
-When the provider wants to provide new configuration to the proxy it should first load that configuration in the background, optionally validate it using the [IConfigValidator](xref:Microsoft.ReverseProxy.Service.IConfigValidator), and only then signal the `IChangeToken` from the prior `IProxyConfig` instance that new data is available. The proxy will call `GetConfig()` again to retrieve the new data.
+When the provider wants to provide new configuration to the proxy it should:
+- load that configuration in the background. 
+  - Route and cluster objects are immutable, so new instances have be created for any new data.
+  - Objects for unchanged routes and clusters can be re-used, or new instances can be created - changes will be detected by diffing them.
+- optionally validate the configuration using the [IConfigValidator](xref:Microsoft.ReverseProxy.Service.IConfigValidator), and only then signal the `IChangeToken` from the prior `IProxyConfig` instance that new data is available. The proxy will call `GetConfig()` again to retrieve the new data.
 
 There are important differences when reloading configuration vs the first configuration load.
-- The new configuration will be diffed against the current one and only modified routes or clusters will be updated. The update will be applied atomically and will only affect new requests, not request currently in progress.
+- The new configuration will be diffed against the current one and only modified routes or clusters will be updated. The update will be applied atomically and will only affect new requests, not requests currently in progress.
 - Any errors in the reload process will be logged and suppressed. The application will continue using the last known good configuration.
 - If `GetConfig()` throws the proxy will be unable to listen for future changes because `IChangeToken`s are single-use.
 
