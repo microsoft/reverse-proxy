@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\ReverseProxy\Microsoft.ReverseProxy.csproj" />
+    <ProjectReference Include="..\..\src\ReverseProxy\Yarp.ReverseProxy.csproj" />
   </ItemGroup>
 
 </Project>

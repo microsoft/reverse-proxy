@@ -14,7 +14,7 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="DynamicProxyGenAssembly2" Key="$(MoqPublicKey)" />
-    <InternalsVisibleTo Include="Microsoft.ReverseProxy.ServiceFabric.Tests" />
+    <InternalsVisibleTo Include="Yarp.ReverseProxy.ServiceFabric.Tests" />
   </ItemGroup>
 
   <ItemGroup>
@@ -26,7 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ReverseProxy\Microsoft.ReverseProxy.csproj" />
+    <ProjectReference Include="..\ReverseProxy\Yarp.ReverseProxy.csproj" />
   </ItemGroup>
 
 </Project>
