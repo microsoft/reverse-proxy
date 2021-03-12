@@ -114,7 +114,7 @@ For additional fields see [Cluster](xref:Microsoft.ReverseProxy.Abstractions.Clu
         "ClusterId": "allclusterprops", // Name of one of the clusters
         "Order" : 100, // Lower numbers have higher precidence
         "Authorization Policy" : "Anonymous", // Name of the policy or "Default", "Anonymous"
-        "CorsPolicy" : "Default", name of the CorsPolicy to apply to this route or "Default", "Disable"
+        "CorsPolicy" : "Default", // Name of the CorsPolicy to apply to this route or "Default", "Disable"
         "Match": {
           "Path": "/something/{*any}", // The path to match using ASP.NET syntax. 
           "Hosts" : [ "www.aaaaa.com", "www.bbbbb.com"], // The host names to match, unspecified is any
@@ -160,11 +160,11 @@ For additional fields see [Cluster](xref:Microsoft.ReverseProxy.Abstractions.Clu
         },
         "LoadBalancingPolicy" : "PowerOfTwoChoices", // Alternatively "First", "Random", "RoundRobin", "LeastRequests"
         "SessionAffinity": {
-          "Enabled": "true", // defaults to 'false'
-          "Mode": "Cookie", // default, alternatively "CustomHeader"
+          "Enabled": "true", // Defaults to 'false'
+          "Mode": "Cookie", // Default, alternatively "CustomHeader"
           "FailurePolicy": "Redistribute", // default, Alternatively "Return503"
           "Settings" : {
-              "CustomHeaderName": "MySessionHeaderName" // defaults to 'X-Microsoft-Proxy-Affinity`
+              "CustomHeaderName": "MySessionHeaderName" // Defaults to 'X-Microsoft-Proxy-Affinity`
           }
         },
         "HealthCheck": {
@@ -173,10 +173,10 @@ For additional fields see [Cluster](xref:Microsoft.ReverseProxy.Abstractions.Clu
             "Interval": "00:00:10",
             "Timeout": "00:00:10",
             "Policy": "ConsecutiveFailures",
-            "Path": "/api/health" // API endpoint to validate.
+            "Path": "/api/health" // API endpoint to query for health state
           },
           "Passive": { // Disables destinations based on HTTP response codes
-            "Enabled": true, //Defaults to false
+            "Enabled": true, // Defaults to false
             "Policy" : "TransportFailureRateHealthPolicy", // Required
             "ReactivationPeriod" : "00:00:10" // 10s
           }
