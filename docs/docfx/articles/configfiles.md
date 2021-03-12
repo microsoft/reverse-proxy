@@ -85,10 +85,10 @@ The clusters section is an unordered collection of named clusters. A cluster pri
 For additional fields see [Cluster](xref:Microsoft.ReverseProxy.Abstractions.Cluster).
 
 ## All config properties
-```
+```JSON
 {
   // Base URLs the server listens on, must be configured independently of the routes below
-  "Urls": "http://localhost:6000;https://localhost:6001",
+  "Urls": "http://localhost:5000;https://localhost:5001",
   "Logging": {
     "LogLevel": {
       "Default": "Information",
@@ -160,7 +160,7 @@ For additional fields see [Cluster](xref:Microsoft.ReverseProxy.Abstractions.Clu
         },
         "LoadBalancingPolicy" : "PowerOfTwoChoices", // Alternatively "First", "Random", "RoundRobin", "LeastRequests"
         "SessionAffinity": {
-          "Enabled": "true", // Defaults to 'false'
+          "Enabled": true, // Defaults to 'false'
           "Mode": "Cookie", // Default, alternatively "CustomHeader"
           "FailurePolicy": "Redistribute", // default, Alternatively "Return503"
           "Settings" : {
@@ -184,9 +184,19 @@ For additional fields see [Cluster](xref:Microsoft.ReverseProxy.Abstractions.Clu
         "HttpClient" : { // Configuration of HttpClient instance used to contact destinations
           "SSLProtocols" : "Tls13",
           "DangerousAcceptAnyServerCertificate" : false,
-          "ClientCertificate" : "?? How does this look in config??",
+          "ClientCertificate" : {
+            // From a file use
+            "Path ": "mycert.pfx", 
+            "KeyPath ": null, 
+            "Password ": "myPassword1234",
+            // From the cert store use
+            "Subject ": null, 
+            "Store ": null, 
+            "Location ": null, 
+            "AllowInvalid ": null 
+          },
           "MaxConnectionsPerServer" : 1024,
-          "ActivityContextHeaders" : "???",
+          "ActivityContextHeaders" : "None", // Or "Baggage", "CorrelationContext", "BaggageAndCorrelationContext"
           "EnableMultipleHttp2Connections" : true,
           "RequestHeaderEncoding" : "Latin1" // How to interpret non ASCII characters in header values
         },
@@ -198,6 +208,7 @@ For additional fields see [Cluster](xref:Microsoft.ReverseProxy.Abstractions.Clu
         "MetaData" : { // Custom Key value pairs
           "TransportFailureRateHealthPolicy.RateLimit": "0.5", // Used by Passive health policy
           "MyKey" : "MyValue"
+        }
       }
     }
   }
