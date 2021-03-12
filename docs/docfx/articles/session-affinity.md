@@ -29,7 +29,7 @@ Session affinity is configured per cluster according to the following configurat
                 "Mode": "(Cookie|CustomHeader)", // defaults to 'Cookie'
                 "FailurePolicy": "(Redistribute|Return503)", // defaults to 'Redistribute'
                 "Settings" : {
-                    "CustomHeaderName": "<custom-header-name>" // defaults to 'X-Microsoft-Proxy-Affinity`
+                    "CustomHeaderName": "<custom-header-name>" // defaults to 'X-Yarp-Proxy-Affinity`
                 }
             }
         }
@@ -62,7 +62,7 @@ If a new affinity was established for the request, the affinity key gets attache
 There are two built-in affinity modes differing only in how the affinity key is stored on a request. The default mode is `Cookie`.
 1. `Cookie` - stores the key as a cookie. It expects the request's key to be delivered as a cookie with configured name and sets the same cookie with `Set-Cookie` header on the first response in an affinitized sequence. This mode is implemented by `CookieSessionAffinityProvider`. Cookie's options (e.g. name) can be configured via `CookieSessionAffinityProviderOptions`. The default name is `.Yarp.ReverseProxy.Affinity`
 
-2. `CustomHeader` - stores the key on a header. It expects the request's key to be delivered in a customer header with configured name and sets the same header on the first response in an affinitized sequence. This mode is implemented by `CustomHeaderSessionAffinityProvider`. The header name can be set by the setting `CustomHeaderName` in `SessionAffinityOptions.Settings` as shown in the example below. The default name is `X-Microsoft-Proxy-Affinity`.
+2. `CustomHeader` - stores the key on a header. It expects the request's key to be delivered in a customer header with configured name and sets the same header on the first response in an affinitized sequence. This mode is implemented by `CustomHeaderSessionAffinityProvider`. The header name can be set by the setting `CustomHeaderName` in `SessionAffinityOptions.Settings` as shown in the example below. The default name is `X-Yarp-Proxy-Affinity`.
 
 ## Affinity failure policy
 If the affinity key cannot be decoded or no healthy destination found it's considered as a failure and an affinity failure policy is called to handle it. The policy has the full access to `HttpContext` and can send response to the client by itself. It returns a boolean value indicating whether the request processing can proceed down the pipeline or must be terminated.
