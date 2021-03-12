@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Description>Microsoft.ReverseProxy extension package for in-process telemetry consumption</Description>
+    <Description>Yarp.ReverseProxy extension package for in-process telemetry consumption</Description>
     <TargetFrameworks>net5.0;netcoreapp3.1</TargetFrameworks>
     <OutputType>Library</OutputType>
     <RootNamespace>Microsoft.ReverseProxy.Telemetry.Consumption</RootNamespace>
@@ -9,11 +9,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ReverseProxy\Microsoft.ReverseProxy.csproj" />
+    <ProjectReference Include="..\ReverseProxy\Yarp.ReverseProxy.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <InternalsVisibleTo Include="Microsoft.ReverseProxy.FunctionalTests" />
+    <InternalsVisibleTo Include="Yarp.ReverseProxy.FunctionalTests" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">

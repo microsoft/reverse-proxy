@@ -18,7 +18,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
 {
     public class LoadBalancerMiddlewareTests
     {
-        private static LoadBalancingMiddleware CreateMiddleware(params ILoadBalancingPolicy[] loadBalancingPolicies)
+        private static LoadBalancingMiddleware CreateMiddleware(RequestDelegate next, params ILoadBalancingPolicy[] loadBalancingPolicies)
         {
             var logger = new Mock<ILogger<LoadBalancingMiddleware>>();
             logger
@@ -26,7 +26,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 .Returns(true);
 
             return new LoadBalancingMiddleware(
-                context => Task.CompletedTask,
+                next,
                 logger.Object,
                 loadBalancingPolicies);
         }
@@ -34,7 +34,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
         [Fact]
         public void Constructor_Works()
         {
-            CreateMiddleware();
+            CreateMiddleware(_ => Task.CompletedTask);
         }
 
         [Fact]
@@ -47,7 +47,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 new DestinationInfo("destination2")
             });
 
-            var sut = CreateMiddleware();
+            var sut = CreateMiddleware(_ => Task.CompletedTask);
 
             var ex = await Assert.ThrowsAsync<ArgumentException>(async () => await sut.Invoke(context));
             Assert.Equal($"No {typeof(ILoadBalancingPolicy)} was found for the id '{PolicyName}'. (Parameter 'id')", ex.Message);
@@ -61,7 +61,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 new DestinationInfo("destination1")
             });
 
-            var sut = CreateMiddleware();
+            var sut = CreateMiddleware(_ => Task.CompletedTask);
 
             await sut.Invoke(context);
 
@@ -83,7 +83,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 new DestinationInfo("destination2")
             });
 
-            var sut = CreateMiddleware(new FirstLoadBalancingPolicy());
+            var sut = CreateMiddleware(_ => Task.CompletedTask, new FirstLoadBalancingPolicy());
 
             await sut.Invoke(context);
 
@@ -101,20 +101,24 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
         {
             var context = CreateContext(LoadBalancingPolicies.First, Array.Empty<DestinationInfo>());
 
-            var sut = CreateMiddleware();
+            var sut = CreateMiddleware(context =>
+            {
+                context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
+                return Task.CompletedTask;
+            });
 
             await sut.Invoke(context);
 
             var feature = context.Features.Get<IReverseProxyFeature>();
             Assert.NotNull(feature);
             Assert.NotNull(feature.AvailableDestinations);
-            Assert.Equal(0, feature.AvailableDestinations.Count); // Unmodified
+            Assert.Equal(0, feature.AvailableDestinations.Count);
 
             Assert.Equal(503, context.Response.StatusCode);
         }
 
         [Fact]
-        public async Task Invoke_ServiceReturnsNoResults_503()
+        public async Task Invoke_ServiceReturnsNoResults_FallThrough()
         {
             const string PolicyName = "CustomPolicy";
 
@@ -132,14 +136,19 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 .Setup(p => p.PickDestination(It.IsAny<HttpContext>(), It.IsAny<IReadOnlyList<DestinationInfo>>()))
                 .Returns((DestinationInfo)null);
 
-            var sut = CreateMiddleware(policy.Object);
+            var sut = CreateMiddleware(context =>
+            {
+                context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
+                return Task.CompletedTask;
+            },
+            policy.Object);
 
             await sut.Invoke(context);
 
             var feature = context.Features.Get<IReverseProxyFeature>();
             Assert.NotNull(feature);
             Assert.NotNull(feature.AvailableDestinations);
-            Assert.Equal(2, feature.AvailableDestinations.Count); // Unmodified
+            Assert.Equal(0, feature.AvailableDestinations.Count);
 
             Assert.Equal(503, context.Response.StatusCode);
         }
@@ -162,7 +171,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 .Setup(p => p.PickDestination(It.IsAny<HttpContext>(), It.IsAny<IReadOnlyList<DestinationInfo>>()))
                 .Returns(destinations[0]);
 
-            var sut = CreateMiddleware(policy.Object);
+            var sut = CreateMiddleware(_ => Task.CompletedTask, policy.Object);
 
             await sut.Invoke(context);
 
@@ -182,11 +191,11 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 new ReverseProxyFeature()
                 {
                     AvailableDestinations = destinations,
-                    ClusterConfig = cluster.Config
+                    ClusterSnapshot = cluster.Config
                 });
             context.Features.Set(cluster);
 
-            var routeConfig = new RouteConfig(new RouteInfo("route-1"), new ProxyRoute(), cluster, transformer: null);
+            var routeConfig = new RouteConfig(new ProxyRoute(), cluster, transformer: null);
             var endpoint = new Endpoint(default, new EndpointMetadataCollection(routeConfig), string.Empty);
             context.SetEndpoint(endpoint);
 

@@ -40,15 +40,15 @@ namespace Microsoft.ReverseProxy.Middleware
         {
             var proxyFeature = context.GetRequiredProxyFeature();
 
-            var options = proxyFeature.ClusterConfig.Options.SessionAffinity;
+            var cluster = proxyFeature.ClusterSnapshot.Options;
+            var options = cluster.SessionAffinity;
 
             if (!(options?.Enabled).GetValueOrDefault())
             {
                 return _next(context);
             }
 
-            var cluster = context.GetRequiredCluster();
-            return InvokeInternal(context, proxyFeature, options, cluster.ClusterId);
+            return InvokeInternal(context, proxyFeature, options, cluster.Id);
         }
 
         private async Task InvokeInternal(HttpContext context, IReverseProxyFeature proxyFeature, SessionAffinityOptions options, string clusterId)
