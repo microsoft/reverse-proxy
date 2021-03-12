@@ -4,9 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
-using Microsoft.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.RuntimeModel;
 
-namespace Microsoft.ReverseProxy.Service.HealthChecks
+namespace Yarp.ReverseProxy.Service.HealthChecks
 {
     /// <summary>
     /// Active health check evaulation policy.

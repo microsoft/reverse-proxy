@@ -3,7 +3,7 @@
 
 using Xunit;
 
-namespace Microsoft.ReverseProxy.Utilities
+namespace Yarp.ReverseProxy.Utilities
 {
     public class CaseInsensitiveEqualHelperTests
     {

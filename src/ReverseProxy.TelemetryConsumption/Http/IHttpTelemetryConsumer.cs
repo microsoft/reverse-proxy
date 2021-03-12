@@ -4,7 +4,7 @@
 using System;
 using System.Net.Http;
 
-namespace Microsoft.ReverseProxy.Telemetry.Consumption
+namespace Yarp.ReverseProxy.Telemetry.Consumption
 {
     /// <summary>
     /// A consumer of System.Net.Http EventSource events.

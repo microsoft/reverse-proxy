@@ -4,15 +4,15 @@
 using System;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Common.Tests;
-using Microsoft.ReverseProxy.RuntimeModel;
-using Microsoft.ReverseProxy.Service.LoadBalancing;
-using Microsoft.ReverseProxy.Service.Management;
-using Microsoft.ReverseProxy.Utilities;
 using Xunit;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Common.Tests;
+using Yarp.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Service.LoadBalancing;
+using Yarp.ReverseProxy.Service.Management;
+using Yarp.ReverseProxy.Utilities;
 
-namespace Microsoft.ReverseProxy.Service.Proxy.Tests
+namespace Yarp.ReverseProxy.Service.Proxy.Tests
 {
     public class LoadBalancingPoliciesTests : TestAutoMockBase
     {

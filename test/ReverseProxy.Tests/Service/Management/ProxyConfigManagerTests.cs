@@ -9,19 +9,20 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Configuration;
-using Microsoft.ReverseProxy.Service.HealthChecks;
-using Microsoft.ReverseProxy.Service.Proxy;
-using Microsoft.ReverseProxy.Utilities;
-using Microsoft.ReverseProxy.Utilities.Tests;
 using Moq;
 using Xunit;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Configuration;
+using Yarp.ReverseProxy.Service.HealthChecks;
+using Yarp.ReverseProxy.Service.Proxy;
+using Yarp.ReverseProxy.Utilities;
+using Yarp.ReverseProxy.Utilities.Tests;
 
-namespace Microsoft.ReverseProxy.Service.Management.Tests
+namespace Yarp.ReverseProxy.Service.Management.Tests
 {
     public class ProxyConfigManagerTests
     {
@@ -216,8 +217,8 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
 
             var signaled1 = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
             var signaled2 = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
-            IReadOnlyList<AspNetCore.Http.Endpoint> readEndpoints1 = null;
-            IReadOnlyList<AspNetCore.Http.Endpoint> readEndpoints2 = null;
+            IReadOnlyList<Endpoint> readEndpoints1 = null;
+            IReadOnlyList<Endpoint> readEndpoints2 = null;
 
             var changeToken1 = dataSource.GetChangeToken();
             changeToken1.RegisterChangeCallback(

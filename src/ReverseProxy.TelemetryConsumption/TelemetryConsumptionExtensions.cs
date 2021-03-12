@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.ReverseProxy.Telemetry.Consumption;
+using Yarp.ReverseProxy.Telemetry.Consumption;
 
 namespace Microsoft.Extensions.DependencyInjection
 {

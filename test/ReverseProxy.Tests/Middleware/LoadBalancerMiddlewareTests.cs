@@ -6,15 +6,15 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
-using Microsoft.ReverseProxy.RuntimeModel;
-using Microsoft.ReverseProxy.Service.LoadBalancing;
-using Microsoft.ReverseProxy.Service.Management;
 using Moq;
 using Xunit;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
+using Yarp.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Service.LoadBalancing;
+using Yarp.ReverseProxy.Service.Management;
 
-namespace Microsoft.ReverseProxy.Middleware.Tests
+namespace Yarp.ReverseProxy.Middleware.Tests
 {
     public class LoadBalancerMiddlewareTests
     {

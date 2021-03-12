@@ -11,7 +11,7 @@ using System.Security.Authentication;
 using System.Text;
 
 #nullable enable
-namespace Microsoft.ReverseProxy.Utilities.Tls
+namespace Yarp.ReverseProxy.Utilities.Tls
 {
     // SSL3/TLS protocol frames definitions.
     public enum TlsContentType : byte

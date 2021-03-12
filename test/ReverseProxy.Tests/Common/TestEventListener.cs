@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Tracing;
 using System.Threading;
 
-namespace Microsoft.ReverseProxy.Common.Tests
+namespace Yarp.ReverseProxy.Common.Tests
 {
     internal static class TestEventListener
     {
@@ -22,7 +22,7 @@ namespace Microsoft.ReverseProxy.Common.Tests
         {
             protected override void OnEventSourceCreated(EventSource eventSource)
             {
-                if (eventSource.Name == "Microsoft.ReverseProxy")
+                if (eventSource.Name == "Yarp.ReverseProxy")
                 {
                     EnableEvents(eventSource, EventLevel.LogAlways, EventKeywords.All);
                 }

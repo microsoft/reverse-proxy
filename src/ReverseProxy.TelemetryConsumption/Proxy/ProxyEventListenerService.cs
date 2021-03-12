@@ -11,9 +11,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.ReverseProxy.Service.Proxy;
+using Yarp.ReverseProxy.Service.Proxy;
 
-namespace Microsoft.ReverseProxy.Telemetry.Consumption
+namespace Yarp.ReverseProxy.Telemetry.Consumption
 {
     internal sealed class ProxyEventListenerService : EventListener, IHostedService
     {
@@ -38,7 +38,7 @@ namespace Microsoft.ReverseProxy.Telemetry.Consumption
 
         protected override void OnEventSourceCreated(EventSource eventSource)
         {
-            if (eventSource.Name == "Microsoft.ReverseProxy")
+            if (eventSource.Name == "Yarp.ReverseProxy")
             {
                 var arguments = new Dictionary<string, string> { { "EventCounterIntervalSec", MetricsOptions.Interval.TotalSeconds.ToString() } };
                 EnableEvents(eventSource, EventLevel.LogAlways, EventKeywords.None, arguments);

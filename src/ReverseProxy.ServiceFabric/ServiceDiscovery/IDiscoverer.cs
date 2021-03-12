@@ -4,9 +4,9 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Abstractions;
 
-namespace Microsoft.ReverseProxy.ServiceFabric
+namespace Yarp.ReverseProxy.ServiceFabric
 {
     /// <summary>
     /// Discovers Service Fabric services and builds the corresponding

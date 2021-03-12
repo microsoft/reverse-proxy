@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Microsoft.ReverseProxy.Common.Tests
+namespace Yarp.ReverseProxy.Common.Tests
 {
     public class TestRandom : Random
     {

@@ -3,9 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.RuntimeModel;
 
-namespace Microsoft.ReverseProxy.Service.HealthChecks
+namespace Yarp.ReverseProxy.Service.HealthChecks
 {
     /// <summary>
     /// Updates destinations' health states when it's requested by a health check policy

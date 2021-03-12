@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>net5.0;netcoreapp3.1</TargetFrameworks>
     <OutputType>Library</OutputType>
-    <RootNamespace>Microsoft.ReverseProxy</RootNamespace>
+    <RootNamespace>Yarp.ReverseProxy</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

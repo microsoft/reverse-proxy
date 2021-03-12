@@ -3,11 +3,12 @@
 
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Template;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
+namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
 {
     public class PathRouteValuesTransformTests
     {
@@ -23,7 +24,7 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
             using var services = serviceCollection.BuildServiceProvider();
 
             var httpContext = new DefaultHttpContext();
-            httpContext.Request.RouteValues = new AspNetCore.Routing.RouteValueDictionary()
+            httpContext.Request.RouteValues = new RouteValueDictionary()
             {
                 { "a", "6" },
                 { "b", "7" },

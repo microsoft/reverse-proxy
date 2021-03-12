@@ -3,9 +3,9 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Abstractions;
 
-namespace Microsoft.ReverseProxy.Service
+namespace Yarp.ReverseProxy.Service
 {
     /// <summary>
     /// A configuration filter that will run each time the proxy configuration is loaded.

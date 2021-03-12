@@ -40,7 +40,7 @@ And then add:
  
  ```XML
 <ItemGroup> 
-  <PackageReference Include="Microsoft.ReverseProxy" Version="1.0.0-preview.9.*" />
+  <PackageReference Include="Yarp.ReverseProxy" Version="1.0.0-preview.9.*" />
 </ItemGroup> 
 ```
 
@@ -91,7 +91,7 @@ The configuration for YARP is defined in the appsettings.json file. See [Configu
 
 The configuration can also be provided programmatically. See [Configuration Providers](configproviders.md) for details.
 
-You can find out more about the available configuration options by looking at [ProxyRoute](xref:Microsoft.ReverseProxy.Abstractions.ProxyRoute) and [Cluster](xref:Microsoft.ReverseProxy.Abstractions.Cluster).
+You can find out more about the available configuration options by looking at [ProxyRoute](xref:Yarp.ReverseProxy.Abstractions.ProxyRoute) and [Cluster](xref:Yarp.ReverseProxy.Abstractions.Cluster).
  
  ```JSON
  {

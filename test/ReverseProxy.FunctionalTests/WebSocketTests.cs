@@ -1,5 +1,7 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -11,10 +13,10 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.ReverseProxy.Common;
 using Xunit;
+using Yarp.ReverseProxy.Common;
 
-namespace Microsoft.ReverseProxy
+namespace Yarp.ReverseProxy
 {
     public class WebSocketTests
     {

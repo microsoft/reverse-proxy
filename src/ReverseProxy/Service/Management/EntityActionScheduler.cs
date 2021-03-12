@@ -5,9 +5,9 @@ using System;
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.ReverseProxy.Utilities;
+using Yarp.ReverseProxy.Utilities;
 
-namespace Microsoft.ReverseProxy.Service.Management
+namespace Yarp.ReverseProxy.Service.Management
 {
     /// <summary>
     /// Periodically invokes specified actions on registered entities.

@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.ReverseProxy.Service.Proxy;
 using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 
-namespace YARP.Sample
+namespace Yarp.Sample
 {
     /// <summary>
     /// ASP.NET Core pipeline initialization showing how to use IHttpProxy to directly handle proxying requests.

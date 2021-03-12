@@ -2,11 +2,10 @@
 // Licensed under the MIT License.
 
 using System;
-
 using Microsoft.Extensions.Logging;
 using Xunit.Abstractions;
 
-namespace Microsoft.ReverseProxy.Common.Tests
+namespace Yarp.ReverseProxy.Common.Tests
 {
     public class XunitLogger<TCategoryName> : ILogger<TCategoryName>
     {

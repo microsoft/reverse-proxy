@@ -6,7 +6,7 @@ using System.Fabric;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Microsoft.ReverseProxy.ServiceFabric
+namespace Yarp.ReverseProxy.ServiceFabric
 {
     internal static class ExceptionsHelper
     {

@@ -14,12 +14,12 @@ using System.Security.Authentication;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.ReverseProxy.Common;
-using Microsoft.ReverseProxy.Service.Proxy;
-using Microsoft.ReverseProxy.Telemetry.Consumption;
 using Xunit;
+using Yarp.ReverseProxy.Common;
+using Yarp.ReverseProxy.Service.Proxy;
+using Yarp.ReverseProxy.Telemetry.Consumption;
 
-namespace Microsoft.ReverseProxy
+namespace Yarp.ReverseProxy
 {
     public class TelemetryConsumptionTests
     {

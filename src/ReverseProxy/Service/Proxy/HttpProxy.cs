@@ -16,10 +16,10 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
-using Microsoft.ReverseProxy.Telemetry;
-using Microsoft.ReverseProxy.Utilities;
+using Yarp.ReverseProxy.Telemetry;
+using Yarp.ReverseProxy.Utilities;
 
-namespace Microsoft.ReverseProxy.Service.Proxy
+namespace Yarp.ReverseProxy.Service.Proxy
 {
     /// <summary>
     /// Default implementation of <see cref="IHttpProxy"/>.

@@ -2,16 +2,14 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.RuntimeModel;
-using Microsoft.ReverseProxy.Service.Proxy;
 using Xunit;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Service.Proxy;
 
-namespace Microsoft.ReverseProxy.Service.HealthChecks
+namespace Yarp.ReverseProxy.Service.HealthChecks
 {
     public class DefaultProbingRequestFactoryTests
     {

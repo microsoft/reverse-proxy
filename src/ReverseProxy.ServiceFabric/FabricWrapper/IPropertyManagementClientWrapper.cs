@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Microsoft.ReverseProxy.ServiceFabric
+namespace Yarp.ReverseProxy.ServiceFabric
 {
     /// <summary>
     /// A wrapper for the service fabric property management client SDK to make service fabric API unit testable.

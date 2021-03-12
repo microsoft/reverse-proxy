@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>net5.0;netcoreapp3.1</TargetFrameworks>
     <OutputType>Exe</OutputType>
-    <RootNamespace>YARP.Sample</RootNamespace>
+    <RootNamespace>Yarp.Sample</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Microsoft.ReverseProxy.ServiceFabric
+namespace Yarp.ReverseProxy.ServiceFabric
 {
     /// <summary>
     /// TODO .

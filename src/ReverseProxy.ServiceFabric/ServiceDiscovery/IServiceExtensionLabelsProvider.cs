@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Microsoft.ReverseProxy.ServiceFabric
+namespace Yarp.ReverseProxy.ServiceFabric
 {
     /// <summary>
     /// Provides the Proxy configuration labels as gathered from Service Fabric.

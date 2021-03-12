@@ -13,10 +13,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Utilities.Tests;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Utilities.Tests;
 
-namespace Microsoft.ReverseProxy.Common
+namespace Yarp.ReverseProxy.Common
 {
     public class TestEnvironment
     {

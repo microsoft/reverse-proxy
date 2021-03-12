@@ -3,9 +3,9 @@
 
 using System.Collections.Generic;
 using Microsoft.Extensions.Primitives;
-using Microsoft.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Abstractions;
 
-namespace Microsoft.ReverseProxy.Service
+namespace Yarp.ReverseProxy.Service
 {
     /// <summary>
     /// Represents a snapshot of proxy configuration data.

@@ -7,7 +7,7 @@ using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 using Xunit;
 
-namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
+namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
 {
     public class RequestTransformTests
     {

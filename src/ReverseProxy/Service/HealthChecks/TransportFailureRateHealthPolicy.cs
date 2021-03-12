@@ -7,12 +7,12 @@ using System.Globalization;
 using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.RuntimeModel;
-using Microsoft.ReverseProxy.Service.Proxy;
-using Microsoft.ReverseProxy.Utilities;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Service.Proxy;
+using Yarp.ReverseProxy.Utilities;
 
-namespace Microsoft.ReverseProxy.Service.HealthChecks
+namespace Yarp.ReverseProxy.Service.HealthChecks
 {
     /// <summary>
     /// Calculates the proxied requests failure rate for each destination and marks it as unhealthy if the specified limit is exceeded.

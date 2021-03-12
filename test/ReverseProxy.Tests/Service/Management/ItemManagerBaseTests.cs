@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Microsoft.ReverseProxy.Service.Management.Tests
+namespace Yarp.ReverseProxy.Service.Management.Tests
 {
     public class ItemManagerBaseTests
     {

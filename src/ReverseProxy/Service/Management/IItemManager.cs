@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Microsoft.ReverseProxy.Service.Management
+namespace Yarp.ReverseProxy.Service.Management
 {
     /// <summary>
     /// Manages the runtime state of items.

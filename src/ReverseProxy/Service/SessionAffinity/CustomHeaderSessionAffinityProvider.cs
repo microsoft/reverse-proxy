@@ -6,11 +6,11 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
-using Microsoft.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
+using Yarp.ReverseProxy.RuntimeModel;
 
-namespace Microsoft.ReverseProxy.Service.SessionAffinity
+namespace Yarp.ReverseProxy.Service.SessionAffinity
 {
     internal class CustomHeaderSessionAffinityProvider : BaseSessionAffinityProvider<string>
     {

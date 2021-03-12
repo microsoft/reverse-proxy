@@ -13,11 +13,11 @@ using System.Threading;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Service;
-using Microsoft.ReverseProxy.Service.Proxy;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Service;
+using Yarp.ReverseProxy.Service.Proxy;
 
-namespace Microsoft.ReverseProxy.Configuration
+namespace Yarp.ReverseProxy.Configuration
 {
     /// <summary>
     /// Reacts to configuration changes and applies configurations to the Reverse Proxy core.

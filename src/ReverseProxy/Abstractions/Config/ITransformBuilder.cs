@@ -3,10 +3,10 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Service.Proxy;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Service.Proxy;
 
-namespace Microsoft.ReverseProxy.Service
+namespace Yarp.ReverseProxy.Service
 {
     /// <summary>
     /// Validates and builds request and response transforms for a given route.

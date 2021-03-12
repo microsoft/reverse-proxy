@@ -3,7 +3,7 @@
 
 using Microsoft.AspNetCore.Mvc;
 
-namespace Microsoft.ReverseProxy.Sample.Controllers
+namespace SampleServer.Controllers
 {
     /// <summary>
     /// Controller for active health check probes.

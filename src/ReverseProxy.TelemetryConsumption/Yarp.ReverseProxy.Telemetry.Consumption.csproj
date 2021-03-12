@@ -4,7 +4,7 @@
     <Description>Yarp.ReverseProxy extension package for in-process telemetry consumption</Description>
     <TargetFrameworks>net5.0;netcoreapp3.1</TargetFrameworks>
     <OutputType>Library</OutputType>
-    <RootNamespace>Microsoft.ReverseProxy.Telemetry.Consumption</RootNamespace>
+    <RootNamespace>Yarp.ReverseProxy.Telemetry.Consumption</RootNamespace>
     <LangVersion>9.0</LangVersion>
   </PropertyGroup>
 

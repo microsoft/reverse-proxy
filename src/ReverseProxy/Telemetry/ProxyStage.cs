@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Microsoft.ReverseProxy.Telemetry
+namespace Yarp.ReverseProxy.Telemetry
 {
     internal enum ProxyStage : int
     {

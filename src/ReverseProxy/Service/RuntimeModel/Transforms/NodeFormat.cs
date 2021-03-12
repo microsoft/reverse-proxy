@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
+namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
 {
     /// <summary>
     /// For use with <see cref="RequestHeaderForwardedTransform"/>.

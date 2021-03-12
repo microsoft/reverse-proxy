@@ -6,15 +6,15 @@ using System.Collections.Generic;
 using System.Globalization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Common.Tests;
-using Microsoft.ReverseProxy.RuntimeModel;
-using Microsoft.ReverseProxy.Service.Management;
-using Microsoft.ReverseProxy.Service.Proxy;
 using Moq;
 using Xunit;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Common.Tests;
+using Yarp.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Service.Management;
+using Yarp.ReverseProxy.Service.Proxy;
 
-namespace Microsoft.ReverseProxy.Service.HealthChecks
+namespace Yarp.ReverseProxy.Service.HealthChecks
 {
     public class TransportFailureRateHealthPolicyTests
     {

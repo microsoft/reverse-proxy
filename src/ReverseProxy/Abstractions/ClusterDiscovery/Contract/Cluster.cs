@@ -3,10 +3,10 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.ReverseProxy.Service.Proxy;
-using Microsoft.ReverseProxy.Utilities;
+using Yarp.ReverseProxy.Service.Proxy;
+using Yarp.ReverseProxy.Utilities;
 
-namespace Microsoft.ReverseProxy.Abstractions
+namespace Yarp.ReverseProxy.Abstractions
 {
     /// <summary>
     /// A cluster is a group of equivalent endpoints and associated policies.

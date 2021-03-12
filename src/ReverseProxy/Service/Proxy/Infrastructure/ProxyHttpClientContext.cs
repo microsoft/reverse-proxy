@@ -3,10 +3,10 @@
 
 using System.Collections.Generic;
 using System.Net.Http;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.RuntimeModel;
 
-namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
+namespace Yarp.ReverseProxy.Service.Proxy.Infrastructure
 {
     /// <summary>
     /// Contains the old and the new proxy HTTP client configurations.

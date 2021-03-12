@@ -6,11 +6,11 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Security.Authentication;
 using System.Text;
-using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
-using Microsoft.ReverseProxy.Service.Proxy;
 using Xunit;
+using Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
+using Yarp.ReverseProxy.Service.Proxy;
 
-namespace Microsoft.ReverseProxy.Abstractions.Tests
+namespace Yarp.ReverseProxy.Abstractions.Tests
 {
     public class ClusterTests
     {

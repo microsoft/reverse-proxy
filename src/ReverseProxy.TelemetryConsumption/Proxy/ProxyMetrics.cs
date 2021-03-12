@@ -3,10 +3,10 @@
 
 using System;
 
-namespace Microsoft.ReverseProxy.Telemetry.Consumption
+namespace Yarp.ReverseProxy.Telemetry.Consumption
 {
     /// <summary>
-    /// Represents metrics reported by the Microsoft.ReverseProxy event counters.
+    /// Represents metrics reported by the Yarp.ReverseProxy event counters.
     /// </summary>
     public sealed class ProxyMetrics
     {

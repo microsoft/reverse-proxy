@@ -6,11 +6,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.ReverseProxy.Service.SessionAffinity;
 using Moq;
 using Xunit;
+using Yarp.ReverseProxy.Service.SessionAffinity;
 
-namespace Microsoft.ReverseProxy.Middleware
+namespace Yarp.ReverseProxy.Middleware
 {
     public class AffinitizedDestinationLookupMiddlewareTests : AffinityMiddlewareTestBase
     {

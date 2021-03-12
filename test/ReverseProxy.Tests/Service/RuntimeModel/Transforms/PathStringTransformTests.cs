@@ -5,7 +5,7 @@ using System;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
+namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
 {
     public class PathStringTransformTests
     {

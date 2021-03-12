@@ -14,15 +14,15 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
-using Microsoft.ReverseProxy.Service;
-using Microsoft.ReverseProxy.Service.Proxy;
-using Microsoft.ReverseProxy.Utilities.Tests;
 using Moq;
 using Xunit;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
+using Yarp.ReverseProxy.Service;
+using Yarp.ReverseProxy.Service.Proxy;
+using Yarp.ReverseProxy.Utilities.Tests;
 
-namespace Microsoft.ReverseProxy.Configuration
+namespace Yarp.ReverseProxy.Configuration
 {
     public class ConfigurationConfigProviderTests
     {

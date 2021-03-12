@@ -4,9 +4,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Microsoft.ReverseProxy.Utilities;
+using Yarp.ReverseProxy.Utilities;
 
-namespace Microsoft.ReverseProxy.RuntimeModel
+namespace Yarp.ReverseProxy.RuntimeModel
 {
     /// <summary>
     /// Representation of a cluster's destination for use at runtime.

@@ -4,9 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.ReverseProxy.Utilities;
+using Yarp.ReverseProxy.Utilities;
 
-namespace Microsoft.ReverseProxy.ServiceFabric.Utilities
+namespace Yarp.ReverseProxy.ServiceFabric.Utilities
 {
     public class Cache<T>
     {

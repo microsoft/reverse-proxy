@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 
-namespace Microsoft.ReverseProxy.Utilities
+namespace Yarp.ReverseProxy.Utilities
 {
     internal static class RequestUtilities
     {

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Microsoft.ReverseProxy.Service.SessionAffinity
+namespace Yarp.ReverseProxy.Service.SessionAffinity
 {
     /// <summary>
     /// Affinity resolution status.

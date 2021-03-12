@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 using System;
 using System.Net;
 using System.Net.Http;
@@ -7,10 +10,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
-using Microsoft.ReverseProxy.Common;
 using Xunit;
+using Yarp.ReverseProxy.Common;
 
-namespace Microsoft.ReverseProxy
+namespace Yarp.ReverseProxy
 {
     public abstract class HttpProxyCookieTests
     {

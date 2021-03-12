@@ -4,16 +4,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Net.Http.Headers;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Abstractions.Config;
-using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 using Xunit;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Abstractions.Config;
+using Yarp.ReverseProxy.Service.RuntimeModel.Transforms;
 
-namespace Microsoft.ReverseProxy.Service.Config
+namespace Yarp.ReverseProxy.Service.Config
 {
     public class TransformBuilderTests
     {

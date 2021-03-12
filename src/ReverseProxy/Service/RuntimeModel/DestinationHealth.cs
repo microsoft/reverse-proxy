@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Microsoft.ReverseProxy.RuntimeModel
+namespace Yarp.ReverseProxy.RuntimeModel
 {
     public enum DestinationHealth
     {

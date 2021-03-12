@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Microsoft.ReverseProxy.ServiceFabric
+namespace Yarp.ReverseProxy.ServiceFabric
 {
     public sealed class ServiceFabricDiscoveryOptions
     {

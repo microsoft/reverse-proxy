@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using Microsoft.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.RuntimeModel;
 
-namespace Microsoft.ReverseProxy.Service.SessionAffinity
+namespace Yarp.ReverseProxy.Service.SessionAffinity
 {
     /// <summary>
     /// Affinity resolution result.

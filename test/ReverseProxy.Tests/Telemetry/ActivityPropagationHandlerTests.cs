@@ -5,12 +5,11 @@ using System.Diagnostics;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Common.Tests;
-using Microsoft.ReverseProxy.Telemetry;
 using Xunit;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Common.Tests;
 
-namespace Microsoft.ReverseProxy.Telemetry.Tests
+namespace Yarp.ReverseProxy.Telemetry.Tests
 {
     public class ActivityPropagationHandlerTests
     {

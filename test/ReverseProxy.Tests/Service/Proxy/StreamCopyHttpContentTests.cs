@@ -8,13 +8,12 @@ using System.Net.Http;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Microsoft.ReverseProxy.Common.Tests;
-using Microsoft.ReverseProxy.Utilities;
 using Moq;
 using Xunit;
+using Yarp.ReverseProxy.Common.Tests;
+using Yarp.ReverseProxy.Utilities;
 
-namespace Microsoft.ReverseProxy.Service.Proxy.Tests
+namespace Yarp.ReverseProxy.Service.Proxy.Tests
 {
     public class StreamCopyHttpContentTests
     {

@@ -4,19 +4,19 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.ReverseProxy.Abstractions.RouteDiscovery.Contract;
-using Microsoft.ReverseProxy.RuntimeModel;
-using Microsoft.ReverseProxy.Service.Routing;
-using CorsConstants = Microsoft.ReverseProxy.Abstractions.RouteDiscovery.Contract.CorsConstants;
+using Microsoft.AspNetCore.Routing.Patterns;
+using Yarp.ReverseProxy.Abstractions.RouteDiscovery.Contract;
+using Yarp.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Service.Routing;
+using CorsConstants = Yarp.ReverseProxy.Abstractions.RouteDiscovery.Contract.CorsConstants;
 
-namespace Microsoft.ReverseProxy
+namespace Yarp.ReverseProxy
 {
     internal class ProxyEndpointFactory
     {
@@ -37,7 +37,7 @@ namespace Microsoft.ReverseProxy
 
             var endpointBuilder = new RouteEndpointBuilder(
                 requestDelegate: _pipeline ?? throw new InvalidOperationException("The pipeline hasn't been provided yet."),
-                routePattern: AspNetCore.Routing.Patterns.RoutePatternFactory.Parse(pathPattern),
+                routePattern: RoutePatternFactory.Parse(pathPattern),
                 order: proxyRoute.Order.GetValueOrDefault())
             {
                 DisplayName = proxyRoute.RouteId
