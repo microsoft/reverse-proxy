@@ -14,8 +14,8 @@ Open the Project and find the `ItemGroup` referencing the YARP package, then add
  
  ```XML
 <ItemGroup> 
-  <PackageReference Include="Microsoft.ReverseProxy" Version="1.0.0-preview.8.*" />
-  <PackageReference Include="Microsoft.ReverseProxy.ServiceFabric" Version="1.0.0-preview.8.*" />
+  <PackageReference Include="Yarp.ReverseProxy" Version="1.0.0-preview.8.*" />
+  <PackageReference Include="Yarp.ReverseProxy.ServiceFabric" Version="1.0.0-preview.8.*" />
 </ItemGroup> 
 ```
 
@@ -97,8 +97,8 @@ These are the supported parameters:
 
 ### Route definitions
 Multiple routes can be defined in an SF service configuration with the following parameters:
-- `YARP.Routes.<routeName>.Path` - configures path-based route matching. The value directly assigned to [ProxyMatch.Path](xref:Microsoft.ReverseProxy.Abstractions.ProxyMatch) property and the standard route matching logic will be applied. `{**catch-all}` path may be used to route all requests.
-- `YARP.Routes.<routeName>.Hosts` - configures `Host` header based route matching. Multiple hosts should be separated by comma `,`. The value is split into a list of host names which is then directly assigned to [ProxyMatch.Hosts](xref:Microsoft.ReverseProxy.Abstractions.ProxyMatch) property and the standard route matching logic will be applied.
+- `YARP.Routes.<routeName>.Path` - configures path-based route matching. The value directly assigned to [ProxyMatch.Path](xref:Yarp.ReverseProxy.Abstractions.ProxyMatch) property and the standard route matching logic will be applied. `{**catch-all}` path may be used to route all requests.
+- `YARP.Routes.<routeName>.Hosts` - configures `Host` header based route matching. Multiple hosts should be separated by comma `,`. The value is split into a list of host names which is then directly assigned to [ProxyMatch.Hosts](xref:Yarp.ReverseProxy.Abstractions.ProxyMatch) property and the standard route matching logic will be applied.
 - `<routeName>` can contain an ASCII letter, a number, or '_' and '-' symbols.
 
 Each route requires a `Path` or `Host` (or both). If both of them are specified, then a request is matched to the route only when both of them are matched.
@@ -155,9 +155,9 @@ There is also the [step-by-step guide](https://docs.microsoft.com/en-us/azure/se
 ## Known limitations
 Limitations of the current Service Fabric to YARP configuration model conversion implementation:
 - Partitioning is not supported. Partitions are enumerated to retrieve all of the nested replicas/instances, but the partitioning key is not handled in any way. Specifically, depending on how YARP routing is configured, it's possible to route a request having one partition key (e.g 'A') to a replica of another partition (e.g. 'B').
-- Only one endpoint per each SF service's replica/instance is considered and gets converted to a [Destination](xref:Microsoft.ReverseProxy.Abstractions.Destination).
+- Only one endpoint per each SF service's replica/instance is considered and gets converted to a [Destination](xref:Yarp.ReverseProxy.Abstractions.Destination).
 - All statefull service replica roles are treated equally. No special differentiation logic is applied. Depending on the configuration, active secondary replicas can also be converted to `Destinations` and directly receive client requests.
-- Each of the named service instances get converted to separate YARP [Clusters](xref:Microsoft.ReverseProxy.Abstractions.Cluster) which are completely unrelated to each other.
+- Each of the named service instances get converted to separate YARP [Clusters](xref:Yarp.ReverseProxy.Abstractions.Cluster) which are completely unrelated to each other.
 - Limited error handling. Most failures are logged and suppressed. Some errors will prevent the proxy config from being updated.
 
 ## Replica/instance endpoint selection
@@ -176,9 +176,9 @@ Service Fabric to YARP model conversion starts by enumerating all SF application
 
 Once `Cluster` and all its `Destinations` have been built, `IDiscoverer` calls `IConfigValidator` to check validity of the produced YARP configuration. The validation is performed incrementally on each completed `Cluster` before starting building the next one. In case of validation errors or other service conversion failures, the `Cluster`'s construction gets aborted and a health report gets sent to SF cluster indicating that the respective service is 'unhealthy'. A failure in conversion of one SF service doesn't fail the whole process, so all remaining services in the same SF application will be considered.
 
-If the `Cluster` has been successfully validated, `IDiscoverer` proceeds to the final conversion step where it calls `LabelsParser` to create [ProxyRoutes](xref:Microsoft.ReverseProxy.Abstractions.ProxyRoute) from `YARP.Routes.*` extension labels. New `ProxyRoutes` are also passed down to `IConfigValidator` to ensure their validity. A failure in `ProxyRoute` construction is communicated to SF cluster in form of a service health report similar to other service conversion failures.
+If the `Cluster` has been successfully validated, `IDiscoverer` proceeds to the final conversion step where it calls `LabelsParser` to create [ProxyRoutes](xref:Yarp.ReverseProxy.Abstractions.ProxyRoute) from `YARP.Routes.*` extension labels. New `ProxyRoutes` are also passed down to `IConfigValidator` to ensure their validity. A failure in `ProxyRoute` construction is communicated to SF cluster in form of a service health report similar to other service conversion failures.
 
-After all applications and their services have been processed and a new complete YARP configuration has been constructed, `ServiceFabricConfigProvier` updates [IProxyConfig](xref:Microsoft.ReverseProxy.Service.IProxyConfig) and notifies the rest of YARP about a configuration change.
+After all applications and their services have been processed and a new complete YARP configuration has been constructed, `ServiceFabricConfigProvier` updates [IProxyConfig](xref:Yarp.ReverseProxy.Service.IProxyConfig) and notifies the rest of YARP about a configuration change.
 
 The above process is regularly repeated with the period set in `DiscoveryPeriod` parameter.
 

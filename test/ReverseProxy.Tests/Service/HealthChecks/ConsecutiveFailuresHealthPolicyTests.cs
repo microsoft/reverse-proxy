@@ -5,14 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.RuntimeModel;
-using Microsoft.ReverseProxy.Service.Management;
 using Xunit;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Service.Management;
 
-namespace Microsoft.ReverseProxy.Service.HealthChecks
+namespace Yarp.ReverseProxy.Service.HealthChecks
 {
     public class ConsecutiveFailuresHealthPolicyTests
     {

@@ -4,9 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Abstractions;
 
-namespace Microsoft.ReverseProxy.Service
+namespace Yarp.ReverseProxy.Service
 {
     /// <summary>
     /// Provides methods to validate routes and clusters.

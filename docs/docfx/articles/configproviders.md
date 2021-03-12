@@ -3,10 +3,10 @@
 Introduced: preview4
 
 ## Introduction
-Proxy configuration can be loaded programmatically from the source of your choosing by implementing an [IProxyConfigProvider](xref:Microsoft.ReverseProxy.Service.IProxyConfigProvider).
+Proxy configuration can be loaded programmatically from the source of your choosing by implementing an [IProxyConfigProvider](xref:Yarp.ReverseProxy.Service.IProxyConfigProvider).
 
 ## Structure
-[IProxyConfigProvider](xref:Microsoft.ReverseProxy.Service.IProxyConfigProvider) has a single method `GetConfig()` that returns an [IProxyConfig](xref:Microsoft.ReverseProxy.Service.IProxyConfig) instance. The IProxyConfig has lists of the current routes and clusters, as well as an `IChangeToken` to notify the proxy when this information is out of date and should be reloaded by calling `GetConfig()` again.
+[IProxyConfigProvider](xref:Yarp.ReverseProxy.Service.IProxyConfigProvider) has a single method `GetConfig()` that returns an [IProxyConfig](xref:Yarp.ReverseProxy.Service.IProxyConfig) instance. The IProxyConfig has lists of the current routes and clusters, as well as an `IChangeToken` to notify the proxy when this information is out of date and should be reloaded by calling `GetConfig()` again.
 
 ### Routes
 The routes section is an ordered list of route matches and their associated configuration. A route requires at least the following fields:
@@ -14,14 +14,14 @@ The routes section is an ordered list of route matches and their associated conf
 - ClusterId - Refers to the name of an entry in the clusters section.
 - Match containing either a Hosts array or a Path pattern string.
 
-[Headers](header-routing.md), [Authorization](authn-authz.md), [CORS](cors.md), and other route based policies can be configured on each route entry. For additional fields see [ProxyRoute](xref:Microsoft.ReverseProxy.Abstractions.ProxyRoute).
+[Headers](header-routing.md), [Authorization](authn-authz.md), [CORS](cors.md), and other route based policies can be configured on each route entry. For additional fields see [ProxyRoute](xref:Yarp.ReverseProxy.Abstractions.ProxyRoute).
 
 The proxy will apply the given matching criteria and policies, and then pass off the request to the specified cluster.
 
 ### Clusters
 The clusters section is an unordered collection of named clusters. A cluster primarily contains a collection of named destinations and their addresses, any of which is considered capable of handling requests for a given route. The proxy will process the request according to the route and cluster configuration in order to select a destination.
 
-For additional fields see [Cluster](xref:Microsoft.ReverseProxy.Abstractions.Cluster).
+For additional fields see [Cluster](xref:Yarp.ReverseProxy.Abstractions.Cluster).
 
 ## Lifecycle
 
@@ -31,12 +31,12 @@ The `IProxyConfigProvider` should be registered in the DI container as a singlet
 - Synchronously block while it loads the configuraiton. This will block the application from starting until valid route data is available.
 - Or, it may choose to return an empty `IProxyConfig` instance while it loads the configuration in the background. The provider will need to trigger the `IChangeToken` when the configuration is available.
 
-The proxy will validate the given configuration and if it's invalid, an exception will be thrown that prevents the application from starting. The provider can avoid this by using the [IConfigValidator](xref:Microsoft.ReverseProxy.Service.IConfigValidator) to pre-validate routes and clusters and take whatever action it deems appropriate such as excluding invalid entries.
+The proxy will validate the given configuration and if it's invalid, an exception will be thrown that prevents the application from starting. The provider can avoid this by using the [IConfigValidator](xref:Yarp.ReverseProxy.Service.IConfigValidator) to pre-validate routes and clusters and take whatever action it deems appropriate such as excluding invalid entries.
 
 ### Reload
 If the `IChangeToken` supports `ActiveChangeCallbacks`, once the proxy has processed the initial set of configuration it will register a callback with this token. Note the proxy does not support polling for changes.
 
-When the provider wants to provide new configuration to the proxy it should first load that configuration in the background, optionally validate it using the [IConfigValidator](xref:Microsoft.ReverseProxy.Service.IConfigValidator), and only then signal the `IChangeToken` from the prior `IProxyConfig` instance that new data is available. The proxy will call `GetConfig()` again to retrieve the new data.
+When the provider wants to provide new configuration to the proxy it should first load that configuration in the background, optionally validate it using the [IConfigValidator](xref:Yarp.ReverseProxy.Service.IConfigValidator), and only then signal the `IChangeToken` from the prior `IProxyConfig` instance that new data is available. The proxy will call `GetConfig()` again to retrieve the new data.
 
 There are important differences when reloading configuration vs the first configuration load.
 - The new configuration will be diffed against the current one and only modified routes or clusters will be updated. The update will be applied atomically and will only affect new requests, not request currently in progress.
@@ -52,9 +52,9 @@ The following is an example `IProxyConfigProvider` that has routes and clusters 
 using System.Collections.Generic;
 using System.Threading;
 using Microsoft.Extensions.Primitives;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Configuration;
-using Microsoft.ReverseProxy.Service;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Configuration;
+using Yarp.ReverseProxy.Service;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -68,7 +68,7 @@ namespace Microsoft.Extensions.DependencyInjection
     }
 }
 
-namespace Microsoft.ReverseProxy.Configuration
+namespace Yarp.ReverseProxy.Configuration
 {
     public class InMemoryConfigProvider : IProxyConfigProvider
     {

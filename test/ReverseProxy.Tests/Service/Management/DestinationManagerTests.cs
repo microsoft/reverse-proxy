@@ -3,7 +3,7 @@
 
 using Xunit;
 
-namespace Microsoft.ReverseProxy.Service.Management.Tests
+namespace Yarp.ReverseProxy.Service.Management.Tests
 {
     /// <summary>
     /// Tests for the <see cref="DestinationManager"/> class.

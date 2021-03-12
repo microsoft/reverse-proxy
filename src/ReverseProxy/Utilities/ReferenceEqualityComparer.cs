@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-namespace Microsoft.ReverseProxy.Utilities
+namespace Yarp.ReverseProxy.Utilities
 {
     /// <summary>
     /// A comparer based on the object reference equality only.

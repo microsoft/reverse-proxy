@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Microsoft.ReverseProxy.Abstractions.Config
+namespace Yarp.ReverseProxy.Abstractions.Config
 {
     /// <summary>
     /// State used when validating transforms for the given cluster.

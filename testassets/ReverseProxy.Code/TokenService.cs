@@ -5,7 +5,7 @@ using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace Microsoft.ReverseProxy.Sample
+namespace Yarp.ReverseProxy.Sample
 {
     internal class TokenService
     {

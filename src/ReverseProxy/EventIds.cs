@@ -3,7 +3,7 @@
 
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.ReverseProxy
+namespace Yarp.ReverseProxy
 {
     internal static class EventIds
     {

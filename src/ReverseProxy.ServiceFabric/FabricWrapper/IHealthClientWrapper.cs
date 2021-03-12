@@ -3,7 +3,7 @@
 
 using System.Fabric.Health;
 
-namespace Microsoft.ReverseProxy.ServiceFabric
+namespace Yarp.ReverseProxy.ServiceFabric
 {
     /// <summary>
     /// A wrapper for the service fabric health client SDK to make service fabric API unit testable.

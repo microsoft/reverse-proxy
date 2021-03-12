@@ -8,12 +8,12 @@ using System.Text;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.RuntimeModel;
 using Moq;
 using Xunit;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.RuntimeModel;
 
-namespace Microsoft.ReverseProxy.Service.SessionAffinity
+namespace Yarp.ReverseProxy.Service.SessionAffinity
 {
     public class BaseSesstionAffinityProviderTests
     {

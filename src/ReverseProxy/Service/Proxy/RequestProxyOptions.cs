@@ -4,7 +4,7 @@
 using System;
 using System.Net.Http;
 
-namespace Microsoft.ReverseProxy.Service.Proxy
+namespace Yarp.ReverseProxy.Service.Proxy
 {
     /// <summary>
     /// Options for <see cref="IHttpProxy.ProxyAsync"/>

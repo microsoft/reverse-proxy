@@ -5,9 +5,9 @@ using System;
 using System.Linq;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.ReverseProxy;
-using Microsoft.ReverseProxy.Middleware;
-using Microsoft.ReverseProxy.Service.Management;
+using Yarp.ReverseProxy;
+using Yarp.ReverseProxy.Middleware;
+using Yarp.ReverseProxy.Service.Management;
 
 namespace Microsoft.AspNetCore.Builder
 {

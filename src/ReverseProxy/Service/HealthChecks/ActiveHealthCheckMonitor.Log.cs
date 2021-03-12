@@ -5,7 +5,7 @@ using System;
 using System.Net;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.ReverseProxy.Service.HealthChecks
+namespace Yarp.ReverseProxy.Service.HealthChecks
 {
     internal partial class ActiveHealthCheckMonitor
     {

@@ -3,9 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Abstractions;
 
-namespace Microsoft.ReverseProxy.RuntimeModel
+namespace Yarp.ReverseProxy.RuntimeModel
 {
     /// <summary>
     /// Immutable representation of the portions of a destination

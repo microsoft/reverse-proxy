@@ -3,10 +3,10 @@
 
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.RuntimeModel;
 
-namespace Microsoft.ReverseProxy.Service.SessionAffinity
+namespace Yarp.ReverseProxy.Service.SessionAffinity
 {
     /// <summary>
     /// Affinity failures handling policy.

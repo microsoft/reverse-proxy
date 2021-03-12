@@ -4,9 +4,9 @@
 using System;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.ReverseProxy.Service;
+using Yarp.ReverseProxy.Service;
 
-namespace Microsoft.ReverseProxy.ServiceFabric
+namespace Yarp.ReverseProxy.ServiceFabric
 {
     /// <summary>
     /// Extensions for <see cref="IServiceCollection"/>

@@ -5,12 +5,12 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.ReverseProxy.RuntimeModel;
-using Microsoft.ReverseProxy.Service.Proxy;
-using Microsoft.ReverseProxy.Telemetry;
-using Microsoft.ReverseProxy.Utilities;
+using Yarp.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Service.Proxy;
+using Yarp.ReverseProxy.Telemetry;
+using Yarp.ReverseProxy.Utilities;
 
-namespace Microsoft.ReverseProxy.Middleware
+namespace Yarp.ReverseProxy.Middleware
 {
     /// <summary>
     /// Invokes the proxy at the end of the request processing pipeline.

@@ -3,9 +3,9 @@
 
 using System;
 using Microsoft.AspNetCore.Http;
-using Microsoft.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.RuntimeModel;
 
-namespace Microsoft.ReverseProxy.Middleware
+namespace Yarp.ReverseProxy.Middleware
 {
     /// <summary>
     /// Extension methods for fetching proxy configuration from the current HttpContext.

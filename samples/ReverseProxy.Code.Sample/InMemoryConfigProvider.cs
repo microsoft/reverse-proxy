@@ -3,14 +3,13 @@
 
 using System.Collections.Generic;
 using System.Threading;
-using Microsoft.Extensions.Primitives;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Primitives;
 using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Configuration;
 using Microsoft.ReverseProxy.Service;
 
 
-namespace YARP.Sample
+namespace Yarp.Sample
 {
     /// <summary>
     /// Extends the IReverseProxyBuilder to support the InMemoryConfigProvider

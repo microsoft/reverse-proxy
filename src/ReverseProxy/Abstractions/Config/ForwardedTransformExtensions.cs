@@ -3,11 +3,11 @@
 
 using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.ReverseProxy.Service.Config;
-using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
-using Microsoft.ReverseProxy.Utilities;
+using Yarp.ReverseProxy.Service.Config;
+using Yarp.ReverseProxy.Service.RuntimeModel.Transforms;
+using Yarp.ReverseProxy.Utilities;
 
-namespace Microsoft.ReverseProxy.Abstractions.Config
+namespace Yarp.ReverseProxy.Abstractions.Config
 {
     /// <summary>
     /// Extensions for adding forwarded header transforms.

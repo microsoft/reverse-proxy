@@ -5,7 +5,7 @@ using System;
 using System.Net.Http;
 using Microsoft.AspNetCore.Http;
 
-namespace Microsoft.ReverseProxy.Service.Proxy
+namespace Yarp.ReverseProxy.Service.Proxy
 {
     internal static class HttpUtilities
     {

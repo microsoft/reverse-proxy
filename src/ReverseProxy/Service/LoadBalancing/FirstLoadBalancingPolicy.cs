@@ -3,10 +3,10 @@
 
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
-using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
-using Microsoft.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
+using Yarp.ReverseProxy.RuntimeModel;
 
-namespace Microsoft.ReverseProxy.Service.LoadBalancing
+namespace Yarp.ReverseProxy.Service.LoadBalancing
 {
     internal sealed class FirstLoadBalancingPolicy : ILoadBalancingPolicy
     {

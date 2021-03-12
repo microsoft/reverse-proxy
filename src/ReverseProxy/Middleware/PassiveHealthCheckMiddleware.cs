@@ -5,11 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Service.HealthChecks;
-using Microsoft.ReverseProxy.Utilities;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Service.HealthChecks;
+using Yarp.ReverseProxy.Utilities;
 
-namespace Microsoft.ReverseProxy.Middleware
+namespace Yarp.ReverseProxy.Middleware
 {
     public class PassiveHealthCheckMiddleware
     {

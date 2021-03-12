@@ -1,15 +1,14 @@
-// <copyright file="SFTestHelpers.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using System;
 using System.Collections.Generic;
 using System.Fabric.Health;
 using System.Fabric.Query;
-using Microsoft.ReverseProxy.Abstractions;
 using Microsoft.ServiceFabric.Services.Communication;
+using Yarp.ReverseProxy.Abstractions;
 
-namespace Microsoft.ReverseProxy.ServiceFabric.Tests
+namespace Yarp.ReverseProxy.ServiceFabric.Tests
 {
     /// <summary>
     /// Factory helper class for tests related to Service Fabric integration.

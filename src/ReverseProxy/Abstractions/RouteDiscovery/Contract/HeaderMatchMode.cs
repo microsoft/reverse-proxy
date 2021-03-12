@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.ReverseProxy.Service.Routing;
+using Yarp.ReverseProxy.Service.Routing;
 
-namespace Microsoft.ReverseProxy.Abstractions
+namespace Yarp.ReverseProxy.Abstractions
 {
     /// <summary>
     /// How to match header values.

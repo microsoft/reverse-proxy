@@ -7,7 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 
-namespace SampleServer.Controllers
+namespace Yarp.Sample.Controllers
 {
     /// <summary>
     /// Sample controller.

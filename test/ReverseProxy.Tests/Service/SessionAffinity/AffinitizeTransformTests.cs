@@ -4,15 +4,15 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Middleware;
-using Microsoft.ReverseProxy.RuntimeModel;
-using Microsoft.ReverseProxy.Service.Management;
-using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 using Moq;
 using Xunit;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Middleware;
+using Yarp.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Service.Management;
+using Yarp.ReverseProxy.Service.RuntimeModel.Transforms;
 
-namespace Microsoft.ReverseProxy.Service.SessionAffinity
+namespace Yarp.ReverseProxy.Service.SessionAffinity
 {
     public class AffinitizeTransformTests
     {

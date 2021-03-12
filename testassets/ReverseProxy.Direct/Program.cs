@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.ReverseProxy.Sample
+namespace Yarp.ReverseProxy.Sample
 {
     /// <summary>
     /// Class that contains the entrypoint for the Reverse Proxy sample app.

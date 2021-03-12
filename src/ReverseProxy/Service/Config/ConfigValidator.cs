@@ -11,16 +11,16 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing.Patterns;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
-using Microsoft.ReverseProxy.Abstractions.RouteDiscovery.Contract;
-using Microsoft.ReverseProxy.Service.HealthChecks;
-using Microsoft.ReverseProxy.Service.LoadBalancing;
-using Microsoft.ReverseProxy.Service.SessionAffinity;
-using Microsoft.ReverseProxy.Utilities;
-using CorsConstants = Microsoft.ReverseProxy.Abstractions.RouteDiscovery.Contract.CorsConstants;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
+using Yarp.ReverseProxy.Abstractions.RouteDiscovery.Contract;
+using Yarp.ReverseProxy.Service.HealthChecks;
+using Yarp.ReverseProxy.Service.LoadBalancing;
+using Yarp.ReverseProxy.Service.SessionAffinity;
+using Yarp.ReverseProxy.Utilities;
+using CorsConstants = Yarp.ReverseProxy.Abstractions.RouteDiscovery.Contract.CorsConstants;
 
-namespace Microsoft.ReverseProxy.Service
+namespace Yarp.ReverseProxy.Service
 {
     internal class ConfigValidator : IConfigValidator
     {

@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using Xunit;
 
-namespace Microsoft.ReverseProxy.Abstractions.Tests
+namespace Yarp.ReverseProxy.Abstractions.Tests
 {
     public class ProxyMatchTests
     {

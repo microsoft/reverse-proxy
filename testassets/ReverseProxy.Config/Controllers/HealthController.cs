@@ -3,7 +3,7 @@
 
 using Microsoft.AspNetCore.Mvc;
 
-namespace Microsoft.ReverseProxy.Sample.Controllers
+namespace Yarp.ReverseProxy.Sample.Controllers
 {
     /// <summary>
     /// Controller for health check api.

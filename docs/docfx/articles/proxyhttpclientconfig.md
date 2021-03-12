@@ -4,9 +4,9 @@ Introduced: preview5
 
 ## Introduction
 
-Each [Cluster](xref:Microsoft.ReverseProxy.Abstractions.Cluster) has a dedicated [HttpMessageInvoker](https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httpmessageinvoker?view=netcore-3.1) instance used to proxy requests to its [Destination](xref:Microsoft.ReverseProxy.Abstractions.Destination)s. The configuration is defined per cluster. On YARP startup, all `Clusters` get new `HttpMessageInvoker` instances, however if later the `Cluster` configuration gets changed the [IProxyHttpClientFactory](xref:Microsoft.ReverseProxy.Service.Proxy.Infrastructure.IProxyHttpClientFactory) will re-run and decide if it should create a new `HttpMessageInvoker` or keep using the existing one. The default `IProxyHttpClientFactory` implementation creates a new `HttpMessageInvoker` when there are changes to the [ProxyHttpClientOptions](xref:Microsoft.ReverseProxy.Abstractions.ProxyHttpClientOptions).
+Each [Cluster](xref:Yarp.ReverseProxy.Abstractions.Cluster) has a dedicated [HttpMessageInvoker](https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httpmessageinvoker?view=netcore-3.1) instance used to proxy requests to its [Destination](xref:Yarp.ReverseProxy.Abstractions.Destination)s. The configuration is defined per cluster. On YARP startup, all `Clusters` get new `HttpMessageInvoker` instances, however if later the `Cluster` configuration gets changed the [IProxyHttpClientFactory](xref:Yarp.ReverseProxy.Service.Proxy.Infrastructure.IProxyHttpClientFactory) will re-run and decide if it should create a new `HttpMessageInvoker` or keep using the existing one. The default `IProxyHttpClientFactory` implementation creates a new `HttpMessageInvoker` when there are changes to the [ProxyHttpClientOptions](xref:Yarp.ReverseProxy.Abstractions.ProxyHttpClientOptions).
 
-Properties of outgoing requests for a given cluster can be configured as well. They are defined in [ProxyHttpRequestOptions](xref:Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions).
+Properties of outgoing requests for a given cluster can be configured as well. They are defined in [ProxyHttpRequestOptions](xref:Yarp.ReverseProxy.Abstractions.ProxyHttpRequestOptions).
 
 The configuration is represented differently if you're using the [IConfiguration](https://docs.microsoft.com/en-us/dotnet/api/microsoft.extensions.configuration.iconfiguration?view=dotnet-plat-ext-3.1) model or the code-first model.
 
@@ -14,7 +14,7 @@ The configuration is represented differently if you're using the [IConfiguration
 These types are focused on defining serializable configuration. The code based configuration model is described below in the "Code Configuration" section.
 
 ### HttpClient
-HTTP client configuration is based on [ProxyHttpClientOptions](xref:Microsoft.ReverseProxy.Abstractions.ProxyHttpClientOptions) and represented by the following configuration schema.
+HTTP client configuration is based on [ProxyHttpClientOptions](xref:Yarp.ReverseProxy.Abstractions.ProxyHttpClientOptions) and represented by the following configuration schema.
 ```JSON
 "HttpClient": {
     "SslProtocols": [ "<protocol-names>" ],
@@ -112,7 +112,7 @@ At the moment, there is no solution for changing encoding for response headers i
 
 
 ### HttpRequest
-HTTP request configuration is based on [ProxyHttpRequestOptions](xref:Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions) and represented by the following configuration schema.
+HTTP request configuration is based on [ProxyHttpRequestOptions](xref:Yarp.ReverseProxy.Abstractions.ProxyHttpRequestOptions) and represented by the following configuration schema.
 ```JSON
 "HttpRequest": {
     "Timeout": "<timespan>",
@@ -181,7 +181,7 @@ The below example shows 2 samples of HTTP client and request configurations for 
 ```
 
 ## Code Configuration
-HTTP client configuration abstraction consists of the only type [ProxyHttpClientOptions](xref:Microsoft.ReverseProxy.Abstractions.ProxyHttpClientOptions) defined as follows.
+HTTP client configuration abstraction consists of the only type [ProxyHttpClientOptions](xref:Yarp.ReverseProxy.Abstractions.ProxyHttpClientOptions) defined as follows.
 
 ```C#
 public sealed class ProxyHttpClientOptions
@@ -196,9 +196,9 @@ public sealed class ProxyHttpClientOptions
 }
 ```
 
-Note that instead of defining certificate location as it was in the config model, this type exposes a fully constructed [X509Certificate](xref:System.Security.Cryptography.X509Certificates.X509Certificate) certificate. Conversion from the configuration contract to the abstraction model is done by a [IProxyConfigProvider](xref:Microsoft.ReverseProxy.Service.IProxyConfigProvider) which loads a client certificate into memory.
+Note that instead of defining certificate location as it was in the config model, this type exposes a fully constructed [X509Certificate](xref:System.Security.Cryptography.X509Certificates.X509Certificate) certificate. Conversion from the configuration contract to the abstraction model is done by a [IProxyConfigProvider](xref:Yarp.ReverseProxy.Service.IProxyConfigProvider) which loads a client certificate into memory.
 
-The following is an example of `ProxyHttpClientOptions` using [code based](configproviders.md) configuration. An instance of `ProxyHttpClientOptions` is assigned to the [Cluster.HttpClient](xref:Microsoft.ReverseProxy.Abstractions.Cluster) property before passing the `Cluster` array to `LoadFromMemory` method.
+The following is an example of `ProxyHttpClientOptions` using [code based](configproviders.md) configuration. An instance of `ProxyHttpClientOptions` is assigned to the [Cluster.HttpClient](xref:Yarp.ReverseProxy.Abstractions.Cluster) property before passing the `Cluster` array to `LoadFromMemory` method.
 
 ```C#
 public void ConfigureServices(IServiceCollection services)
@@ -236,7 +236,7 @@ public void ConfigureServices(IServiceCollection services)
 ```
 
 ## Custom IProxyHttpClientFactory
-In case the direct control on a proxy HTTP client construction is necessary, the default [IProxyHttpClientFactory](xref:Microsoft.ReverseProxy.Service.Proxy.Infrastructure.IProxyHttpClientFactory) can be replaced with a custom one. In example, that custom logic can use [Cluster](xref:Microsoft.ReverseProxy.Abstractions.Cluster)'s metadata as an extra data source for [HttpMessageInvoker](https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httpmessageinvoker?view=netcore-3.1) configuration. However, it's still recommended for any custom factory to set the following `HttpMessageInvoker` properties to the same values as the default factory does in order to preserve a correct reverse proxy behavior.
+In case the direct control on a proxy HTTP client construction is necessary, the default [IProxyHttpClientFactory](xref:Yarp.ReverseProxy.Service.Proxy.Infrastructure.IProxyHttpClientFactory) can be replaced with a custom one. In example, that custom logic can use [Cluster](xref:Yarp.ReverseProxy.Abstractions.Cluster)'s metadata as an extra data source for [HttpMessageInvoker](https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httpmessageinvoker?view=netcore-3.1) configuration. However, it's still recommended for any custom factory to set the following `HttpMessageInvoker` properties to the same values as the default factory does in order to preserve a correct reverse proxy behavior.
 
 Always return an HttpMessageInvoker instance rather than an HttpClient instance which derives from HttpMessageInvoker. HttpClient buffers responses by default which breaks streaming scenarios and increases memory usage and latency.
 
