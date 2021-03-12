@@ -664,7 +664,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 {
                     if (cancellation != null)
                     {
-                        c.UnsafeRegister(_ => cancellation(), null);
+                        c.Register(_ => cancellation(), null);
                     }
 
                     return task ?? Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK) {Version = m.Version});
