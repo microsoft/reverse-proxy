@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\ReverseProxy.ServiceFabric\Microsoft.ReverseProxy.ServiceFabric.csproj" />
+    <ProjectReference Include="..\..\src\ReverseProxy.ServiceFabric\Yarp.ReverseProxy.ServiceFabric.csproj" />
   </ItemGroup>
 
   <ItemGroup>
