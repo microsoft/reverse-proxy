@@ -12,7 +12,7 @@ YARP is implemented on top of .NET Core infrastructure and is usable on Windows,
 YARP 1.0.0 Preview 9 supports ASP.NET Core 3.1 and 5.0. You can download the .NET 5 SDK from https://dotnet.microsoft.com/download/dotnet/5.0. 
 Visual Studio support for .NET 5 is included in Visual Studio 2019 v16.8 or newer.
 
-A fully commented varaint of the getting started app can be found at [Basic YARP Sample](https://github.com/microsoft/reverse-proxy/tree/main/samples/BasicYarpSample)
+A fully commented variant of the getting started app can be found at [Basic YARP Sample](https://github.com/microsoft/reverse-proxy/tree/main/samples/BasicYarpSample)
 
 ### Create a new project
 
