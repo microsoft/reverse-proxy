@@ -94,6 +94,7 @@ For additional fields see [Cluster](xref:Microsoft.ReverseProxy.Abstractions.Clu
       "Default": "Information",
       // Uncomment to hide diagnostic messages from runtime and proxy
       // "Microsoft": "Warning",
+      // "Yarp" : "Warning",
       "Microsoft.Hosting.Lifetime": "Information"
     }
   },
