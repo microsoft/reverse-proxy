@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
-using Microsoft.ReverseProxy.Abstractions.Config;
+using Yarp.ReverseProxy.Abstractions.Config;
 
 namespace Yarp.Sample
 {

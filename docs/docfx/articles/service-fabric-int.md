@@ -14,8 +14,8 @@ Open the Project and find the `ItemGroup` referencing the YARP package, then add
  
  ```XML
 <ItemGroup> 
-  <PackageReference Include="Yarp.ReverseProxy" Version="1.0.0-preview.8.*" />
-  <PackageReference Include="Yarp.ReverseProxy.ServiceFabric" Version="1.0.0-preview.8.*" />
+  <PackageReference Include="Yarp.ReverseProxy" Version="1.0.0-preview.10.*" />
+  <PackageReference Include="Yarp.ReverseProxy.ServiceFabric" Version="1.0.0-preview.10.*" />
 </ItemGroup> 
 ```
 

@@ -40,7 +40,7 @@ And then add:
  
  ```XML
 <ItemGroup> 
-  <PackageReference Include="Yarp.ReverseProxy" Version="1.0.0-preview.9.*" />
+  <PackageReference Include="Yarp.ReverseProxy" Version="1.0.0-preview.10.*" />
 </ItemGroup> 
 ```
 
