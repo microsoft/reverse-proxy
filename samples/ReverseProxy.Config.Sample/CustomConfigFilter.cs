@@ -3,8 +3,8 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Service;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Service;
 
 namespace Yarp.Sample
 {

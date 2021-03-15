@@ -14,7 +14,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
 {
     internal class CustomHeaderSessionAffinityProvider : BaseSessionAffinityProvider<string>
     {
-        public static readonly string DefaultCustomHeaderName = "X-Microsoft-Proxy-Affinity";
+        public static readonly string DefaultCustomHeaderName = "X-Yarp-Proxy-Affinity";
         private const string CustomHeaderNameKey = "CustomHeaderName";
 
         public CustomHeaderSessionAffinityProvider(
