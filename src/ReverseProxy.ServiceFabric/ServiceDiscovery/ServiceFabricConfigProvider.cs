@@ -50,18 +50,18 @@ namespace Yarp.ReverseProxy.ServiceFabric
             _backgroundTask = ServiceFabricDiscoveryLoop();
         }
 
-        public IProxyConfig GetConfig()
+        public async ValueTask<IProxyConfig> GetConfig()
         {
             if (_snapshot != null)
             {
                 return _snapshot;
             }
 
-            WaitForDiscoveryOrCreateEmptyConfig();
+            await WaitForDiscoveryOrCreateEmptyConfig();
             Debug.Assert(_snapshot != null);
             return _snapshot;
 
-            void WaitForDiscoveryOrCreateEmptyConfig()
+            async Task WaitForDiscoveryOrCreateEmptyConfig()
             {
                 if (_optionsMonitor.CurrentValue.AllowStartBeforeDiscovery)
                 {
@@ -79,7 +79,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
                     // NOTE: The callstack up to this point is already synchronously blocking.
                     // There isn't much we can do to avoid this blocking wait on startup.
                     Log.WaitingForInitialServiceFabricDiscovery(_logger);
-                    _initalConfigLoadTcs.Task.Wait();
+                    await _initalConfigLoadTcs.Task;
                 }
             }
         }

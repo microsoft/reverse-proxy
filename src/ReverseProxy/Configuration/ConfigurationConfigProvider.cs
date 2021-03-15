@@ -10,6 +10,7 @@ using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
@@ -66,7 +67,7 @@ namespace Yarp.ReverseProxy.Configuration
             }
         }
 
-        public IProxyConfig GetConfig()
+        public ValueTask<IProxyConfig> GetConfig()
         {
             // First time load
             if (_snapshot == null)
@@ -74,7 +75,7 @@ namespace Yarp.ReverseProxy.Configuration
                 _subscription = ChangeToken.OnChange(_configuration.GetReloadToken, UpdateSnapshot);
                 UpdateSnapshot();
             }
-            return _snapshot;
+            return new ValueTask<IProxyConfig>(_snapshot);
         }
 
         private void UpdateSnapshot()

@@ -84,11 +84,10 @@ namespace Yarp.ReverseProxy.Service.Management
         /// <inheritdoc/>
         public override IReadOnlyList<Endpoint> Endpoints
         {
-            get
-            {
+            get {
                 // The Endpoints needs to be lazy the first time to give a chance to ReverseProxyConventionBuilder to add its conventions.
                 // Endpoints are accessed by routing on the first request.
-                Initialize();   
+                Initialize();
                 return _endpoints;
             }
         }
@@ -138,7 +137,7 @@ namespace Yarp.ReverseProxy.Service.Management
             // We intend this to crash the app so we don't try listening for further changes.
             try
             {
-                var config = _provider.GetConfig();
+                var config = await _provider.GetConfig();
                 await ApplyConfigAsync(config);
 
                 if (config.ChangeToken.ActiveChangeCallbacks)
@@ -169,7 +168,7 @@ namespace Yarp.ReverseProxy.Service.Management
             IProxyConfig newConfig;
             try
             {
-                newConfig = _provider.GetConfig();
+                newConfig = await _provider.GetConfig();
             }
             catch (Exception ex)
             {
@@ -344,7 +343,8 @@ namespace Yarp.ReverseProxy.Service.Management
 
                         var currentClusterConfig = currentCluster.Config;
 
-                        var httpClient = _httpClientFactory.CreateClient(new ProxyHttpClientContext {
+                        var httpClient = _httpClientFactory.CreateClient(new ProxyHttpClientContext
+                        {
                             ClusterId = currentCluster.ClusterId,
                             OldOptions = currentClusterConfig?.Options.HttpClient ?? ProxyHttpClientOptions.Empty,
                             OldMetadata = currentClusterConfig?.Options.Metadata,

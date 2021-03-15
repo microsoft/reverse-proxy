@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Threading.Tasks;
+
 namespace Yarp.ReverseProxy.Service
 {
     /// <summary>
@@ -12,6 +14,6 @@ namespace Yarp.ReverseProxy.Service
         /// Returns the current route and cluster data.
         /// </summary>
         /// <returns></returns>
-        IProxyConfig GetConfig();
+        ValueTask<IProxyConfig> GetConfig();
     }
 }

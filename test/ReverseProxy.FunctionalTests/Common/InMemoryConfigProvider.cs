@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Primitives;
 using Yarp.ReverseProxy.Abstractions;
 using Yarp.ReverseProxy.Configuration;
@@ -31,7 +32,7 @@ namespace Yarp.ReverseProxy.Configuration
             _config = new InMemoryConfig(routes, clusters);
         }
 
-        public IProxyConfig GetConfig() => _config;
+        public ValueTask<IProxyConfig> GetConfig() => new ValueTask<IProxyConfig>(_config);
 
         public void Update(IReadOnlyList<ProxyRoute> routes, IReadOnlyList<Cluster> clusters)
         {

@@ -12,6 +12,7 @@ using System.Reflection;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -340,7 +341,7 @@ namespace Yarp.ReverseProxy.Configuration
         #endregion
 
         [Fact]
-        public void GetConfig_ValidSerializedConfiguration_ConvertToAbstractionsSuccessfully()
+        public async Task GetConfig_ValidSerializedConfiguration_ConvertToAbstractionsSuccessfully()
         {
             var builder = new ConfigurationBuilder();
             using var stream = new MemoryStream(Encoding.UTF8.GetBytes(_validJsonConfig));
@@ -352,13 +353,13 @@ namespace Yarp.ReverseProxy.Configuration
 
             var provider = new ConfigurationConfigProvider(logger.Object, proxyConfig, certLoader.Object);
             Assert.NotNull(provider);
-            var abstractConfig = provider.GetConfig();
+            var abstractConfig = await provider.GetConfig();
 
             VerifyValidAbstractConfig(_validConfigurationData, certificate, abstractConfig);
         }
 
         [Fact]
-        public void GetConfig_ValidConfiguration_AllAbstractionsPropertiesAreSet()
+        public async Task GetConfig_ValidConfiguration_AllAbstractionsPropertiesAreSet()
         {
             var builder = new ConfigurationBuilder();
             using var stream = new MemoryStream(Encoding.UTF8.GetBytes(_validJsonConfig));
@@ -369,7 +370,7 @@ namespace Yarp.ReverseProxy.Configuration
             var logger = new Mock<ILogger<ConfigurationConfigProvider>>();
 
             var provider = new ConfigurationConfigProvider(logger.Object, proxyConfig, certLoader.Object);
-            var abstractConfig = (ConfigurationSnapshot)provider.GetConfig();
+            var abstractConfig = (ConfigurationSnapshot)await provider.GetConfig();
 
             var abstractionsNamespace = typeof(Cluster).Namespace;
             // Removed incompletely filled out instances.
@@ -460,7 +461,7 @@ namespace Yarp.ReverseProxy.Configuration
         }
 
         [Fact]
-        public void GetConfig_SecondTime_CertificateLoadingThrewException_ErrorLogged()
+        public async Task GetConfig_SecondTime_CertificateLoadingThrewException_ErrorLogged()
         {
             var builder = new ConfigurationBuilder();
             var proxyConfig = builder.AddInMemoryCollection(new Dictionary<string, string>
@@ -478,7 +479,7 @@ namespace Yarp.ReverseProxy.Configuration
             logger.Setup(l => l.IsEnabled(LogLevel.Error)).Returns(true);
             var provider = new ConfigurationConfigProvider(logger.Object, proxyConfig, certLoader.Object);
 
-            var firstSnapshot = provider.GetConfig();
+            var firstSnapshot = await provider.GetConfig();
             logger.Verify(l => l.Log(LogLevel.Error, It.IsAny<EventId>(), It.IsAny<string>(), It.IsAny<Exception>(), It.IsAny<Func<string, Exception, string>>()), Times.Never);
 
             // Add configuration entry here and trigger a change
@@ -486,13 +487,13 @@ namespace Yarp.ReverseProxy.Configuration
 
             TriggerOnChange(proxyConfig);
 
-            var secondSnapshot = provider.GetConfig();
+            var secondSnapshot = await provider.GetConfig();
             Assert.Same(firstSnapshot, secondSnapshot);
             logger.Verify(l => l.Log(LogLevel.Error, EventIds.ConfigurationDataConversionFailed, It.IsAny<It.IsAnyType>(), It.IsAny<Exception>(), (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Once);
         }
 
         [Fact]
-        public void CachedCertificateIsDisposed_RemoveItFromCache()
+        public async Task CachedCertificateIsDisposed_RemoveItFromCache()
         {
             var builder = new ConfigurationBuilder();
             var proxyConfig = builder.AddInMemoryCollection(new Dictionary<string, string>
@@ -515,7 +516,7 @@ namespace Yarp.ReverseProxy.Configuration
             var certificateConfig = new List<X509Certificate2>();
             for (var i = 0; i < 5; i++)
             {
-                certificateConfig.AddRange(provider.GetConfig().Clusters.Select(c => c.HttpClient.ClientCertificate));
+                certificateConfig.AddRange((await provider.GetConfig()).Clusters.Select(c => c.HttpClient.ClientCertificate));
                 if (i < 4)
                 {
                     TriggerOnChange(proxyConfig);
