@@ -1,0 +1,22 @@
+﻿apply:
+  alpha: [1, 2, 3]
+  beta: [4, 5, 6]
+  gamma: [1, [2, 2], 3]
+  delta: [4, [5, 5], 6]
+lastApplied:
+  alpha: [1, 4, 3]
+  beta: [4, 5, 6]
+  gamma: [1, [2, 4], 3]
+  delta: [4, [5, 5], 6]
+live:
+  alpha: [1, 4, 3]
+  beta: [4, 5, 6]
+  gamma: [1, [2, 4], 3]
+  delta: [4, [5, 5], 6]
+patch:
+  - op: replace
+    path: /alpha
+    value: [1, 2, 3]
+  - op: replace
+    path: /gamma
+    value: [1, [2, 2], 3]

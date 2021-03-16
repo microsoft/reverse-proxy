@@ -1,0 +1,42 @@
+﻿resourceKind:
+  apiVersion: v1
+  kind: Pod
+apply:
+  metadata:
+    name: test-pod
+    namespace: test-namespace
+  spec:
+    containers:
+    - name: gamma
+      image: gamma:v1
+    - name: alpha
+      image: alpha:v1
+lastApplied:
+  metadata:
+    name: test-pod
+    namespace: test-namespace
+  spec:
+    containers:
+    - name: alpha
+      image: alpha:v1
+    - name: beta
+      image: beta:v1
+    - name: gamma
+      image: gamma:v1
+live:
+  metadata:
+    name: test-pod
+    namespace: test-namespace
+  spec:
+    containers:
+    - name: alpha
+      image: alpha:v1
+    - name: delta
+      image: delta:v1
+    - name: beta
+      image: beta:v1
+    - name: gamma
+      image: gamma:v1
+patch:
+- op: remove
+  path: /spec/containers/2 # beta is removed because it is in last applied

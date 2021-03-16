@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <!-- <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>C:\Users\Administrator\projects\github.com\microsoft\OperatorFramework\examples\UsingCustomResources\UsingCustomResources.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>C:\Users\Administrator\projects\github.com\microsoft\OperatorFramework\examples\UsingCustomResources\UsingCustomResources.xml</DocumentationFile>
+  </PropertyGroup> -->
+
+  <ItemGroup>
+    <PackageReference Include="Polly" Version="7.2.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Controller\Microsoft.Kubernetes.Controller.csproj" />
+    <ProjectReference Include="..\..\src\CustomResource\Microsoft.Kubernetes.CustomResources.csproj" />
+  </ItemGroup>
+
+</Project>

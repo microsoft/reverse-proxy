@@ -1,0 +1,10 @@
+﻿apply:
+  alpha: beta
+lastApplied:
+  {}
+live:
+  {}
+patch:
+  - op: add
+    path: /alpha
+    value: beta

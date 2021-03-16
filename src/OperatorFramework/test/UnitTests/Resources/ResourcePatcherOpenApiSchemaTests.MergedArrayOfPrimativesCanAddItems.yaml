@@ -1,0 +1,34 @@
+﻿resourceKind:
+  apiVersion: v1
+  kind: Pod
+apply:
+  metadata:
+    name: test-pod
+    namespace: test-namespace
+    finalizers:
+    - alpha
+    - beta
+    - gamma
+lastApplied:
+  metadata:
+    name: test-pod
+    namespace: test-namespace
+    finalizers:
+    - alpha
+    - gamma
+live:
+  metadata:
+    name: test-pod
+    namespace: test-namespace
+    finalizers:
+    - alpha
+    - gamma
+patch:
+  - op: remove
+    path: /metadata/finalizers/1 # gamma removed to perserve order
+  - op: add
+    path: /metadata/finalizers/- # beta and gamma appended
+    value: beta
+  - op: add
+    path: /metadata/finalizers/-
+    value: gamma
