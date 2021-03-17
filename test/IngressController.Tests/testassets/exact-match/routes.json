@@ -1,0 +1,17 @@
+[
+  {
+    "RouteId": "/foo",
+    "Match": {
+      "Methods": null,
+      "Hosts": [],
+      "Path": "/foo",
+      "Headers": null
+    },
+    "Order": null,
+    "ClusterId": "10.244.2.38",
+    "AuthorizationPolicy": null,
+    "CorsPolicy": null,
+    "Metadata": null,
+    "Transforms": null
+  }
+]

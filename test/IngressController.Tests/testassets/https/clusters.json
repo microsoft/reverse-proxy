@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "10.244.2.38",
+    "LoadBalancingPolicy": null,
+    "SessionAffinity": null,
+    "HealthCheck": null,
+    "HttpClient": null,
+    "HttpRequest": null,
+    "Destinations": {
+      "https://10.244.2.38:443": {
+        "Address": "https://10.244.2.38:443",
+        "Health": null,
+        "Metadata": null
+      }
+    },
+    "Metadata": null
+  }
+]

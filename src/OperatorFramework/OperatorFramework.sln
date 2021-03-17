@@ -38,9 +38,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Kubernetes.Resour
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BasicOperator", "examples\BasicOperator\BasicOperator.csproj", "{255566E4-5C53-425A-8BE7-D099EDF05868}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IngressController", "examples\IngressController\IngressController.csproj", "{217D47C7-1C99-4F64-BCA5-56C2BD813DB9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WatchingServicesController", "examples\WatchingServicesController\WatchingServicesController.csproj", "{217D47C7-1C99-4F64-BCA5-56C2BD813DB9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ingress", "examples\Ingress\Ingress.csproj", "{DFBB6C03-1EC3-4346-A13A-8ED69B53D16C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WatchingServicesWorker", "examples\WatchingServicesWorker\WatchingServicesWorker.csproj", "{DFBB6C03-1EC3-4346-A13A-8ED69B53D16C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WatchingServicesProtocol", "examples\WatchingServicesProtocol\WatchingServicesProtocol.csproj", "{90C63F55-FEEE-4A17-A2F9-B5E6ACE2CA08}"
 EndProject

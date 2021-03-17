@@ -1,6 +1,6 @@
 <Project>
 
-  <Import Project="$(MSBuildThisFileDirectory)..\..\..\Directory.Build.props" Condition="Exists('$(MSBuildThisFileDirectory)..\..\..\Directory.Build.props')" />
+  <Import Project="$(MSBuildThisFileDirectory)..\..\Directory.Build.props" Condition="Exists('$(MSBuildThisFileDirectory)..\..\Directory.Build.props')" />
 
   <PropertyGroup>
     <LangVersion>9.0</LangVersion>

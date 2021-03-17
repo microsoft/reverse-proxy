@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <OutputType>Library</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="testassets\basic-ingress.yaml" />
+    <None Remove="testassets\basic-ingress\routes.json" />
+    <None Remove="testassets\exact-match\clusters.json" />
+    <None Remove="testassets\exact-match\ingress.yaml" />
+    <None Remove="testassets\exact-match\routes.json" />
+    <None Remove="testassets\https\clusters.json" />
+    <None Remove="testassets\https\ingress.yaml" />
+    <None Remove="testassets\https\routes.json" />
+    <None Remove="testassets\multiple-endpoints-ports\clusters.json" />
+    <None Remove="testassets\multiple-endpoints-ports\ingress.yaml" />
+    <None Remove="testassets\multiple-endpoints-ports\routes.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\IngressController\IngressController.csproj" />
+    <ProjectReference Include="..\OperatorFramework\src\Controller\Microsoft.Kubernetes.Controller.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="testassets\**\*" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>
