@@ -38,6 +38,8 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             _scheduler = new EntityActionScheduler<ClusterInfo>(cluster => ProbeCluster(cluster), autoStart: false, runOnce: false, timerFactory);
         }
 
+        public bool InitialDestinationsProbed { get; private set; }
+
         public Task CheckHealthAsync(IEnumerable<ClusterInfo> clusters)
         {
             return Task.Run(async () =>
@@ -58,6 +60,10 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
                 catch (Exception ex)
                 {
                     Log.ExplicitActiveCheckOfAllClustersHealthFailed(_logger, ex);
+                }
+                finally
+                {
+                    InitialDestinationsProbed = true;
                 }
 
                 _scheduler.Start();
