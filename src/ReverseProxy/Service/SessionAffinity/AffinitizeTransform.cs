@@ -4,11 +4,11 @@
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using Microsoft.ReverseProxy.Middleware;
-using Microsoft.ReverseProxy.RuntimeModel;
-using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
+using Yarp.ReverseProxy.Middleware;
+using Yarp.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Service.RuntimeModel.Transforms;
 
-namespace Microsoft.ReverseProxy.Service.SessionAffinity
+namespace Yarp.ReverseProxy.Service.SessionAffinity
 {
     /// <summary>
     /// Affinitizes the request to a chosen <see cref="DestinationInfo"/>.
@@ -25,10 +25,10 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
         public override ValueTask ApplyAsync(ResponseTransformContext context)
         {
             var proxyFeature = context.HttpContext.GetRequiredProxyFeature();
-            var options = proxyFeature.ClusterConfig.Options.SessionAffinity;
+            var options = proxyFeature.ClusterSnapshot.Options.SessionAffinity;
             // The transform should only be added to routes that have affinity enabled.
             Debug.Assert(options?.Enabled ?? true, "Session affinity is not enabled");
-            var selectedDestination = proxyFeature.SelectedDestination;
+            var selectedDestination = proxyFeature.ProxiedDestination;
             _sessionAffinityProvider.AffinitizeRequest(context.HttpContext, options, selectedDestination);
             return default;
         }

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Microsoft.ReverseProxy.Service.Management
+namespace Yarp.ReverseProxy.Service.Management
 {
     /// <summary>
     /// Provides a method <see cref="CreateDestinationManager"/> used to manage

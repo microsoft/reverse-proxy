@@ -4,7 +4,7 @@
 using System.Threading.Tasks;
 using Microsoft.Extensions.Primitives;
 
-namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
+namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
 {
     /// <summary>
     /// Sets or appends the X-Forwarded-PathBase header with the request's original PathBase.

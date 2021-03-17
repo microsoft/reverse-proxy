@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.ReverseProxy.Service.Proxy;
-using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
+using Yarp.ReverseProxy.Service.Proxy;
+using Yarp.ReverseProxy.Service.RuntimeModel.Transforms;
 
-namespace YARP.Sample
+namespace Yarp.Sample
 {
     /// <summary>
     /// ASP.NET Core pipeline initialization showing how to use IHttpProxy to directly handle proxying requests.

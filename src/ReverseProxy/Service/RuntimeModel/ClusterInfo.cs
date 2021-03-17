@@ -4,10 +4,10 @@
 using System;
 using System.Linq;
 using System.Threading;
-using Microsoft.ReverseProxy.Service.Management;
-using Microsoft.ReverseProxy.Utilities;
+using Yarp.ReverseProxy.Service.Management;
+using Yarp.ReverseProxy.Utilities;
 
-namespace Microsoft.ReverseProxy.RuntimeModel
+namespace Yarp.ReverseProxy.RuntimeModel
 {
     /// <summary>
     /// Representation of a cluster for use at runtime.

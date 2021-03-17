@@ -5,9 +5,9 @@ using System;
 using System.Diagnostics;
 using System.Diagnostics.Tracing;
 using System.Threading;
-using Microsoft.ReverseProxy.Service.Proxy;
+using Yarp.ReverseProxy.Service.Proxy;
 
-namespace Microsoft.ReverseProxy.Telemetry
+namespace Yarp.ReverseProxy.Telemetry
 {
     internal sealed class ProxyTelemetry : EventSource
     {
@@ -23,7 +23,7 @@ namespace Microsoft.ReverseProxy.Telemetry
         private long _failedRequests;
 
         private ProxyTelemetry()
-            : base("Microsoft.ReverseProxy")
+            : base("Yarp.ReverseProxy")
         { }
 
         [Event(1, Level = EventLevel.Informational)]

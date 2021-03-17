@@ -1,11 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Microsoft.ReverseProxy.Utilities.Tests
+namespace Yarp.ReverseProxy.Utilities.Tests
 {
     public class AtomicCounterTests
     {

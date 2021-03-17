@@ -5,12 +5,12 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.ReverseProxy.RuntimeModel;
-using Microsoft.ReverseProxy.Service.Proxy;
-using Microsoft.ReverseProxy.Telemetry;
-using Microsoft.ReverseProxy.Utilities;
+using Yarp.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Service.Proxy;
+using Yarp.ReverseProxy.Telemetry;
+using Yarp.ReverseProxy.Utilities;
 
-namespace Microsoft.ReverseProxy.Middleware
+namespace Yarp.ReverseProxy.Middleware
 {
     /// <summary>
     /// Invokes the proxy at the end of the request processing pipeline.
@@ -62,7 +62,7 @@ namespace Microsoft.ReverseProxy.Middleware
                 destination = destinations[random.Next(destinations.Count)];
             }
 
-            reverseProxyFeature.SelectedDestination = destination;
+            reverseProxyFeature.ProxiedDestination = destination;
 
             var destinationConfig = destination.Config;
             if (destinationConfig == null)
@@ -75,10 +75,10 @@ namespace Microsoft.ReverseProxy.Middleware
                 cluster.ConcurrencyCounter.Increment();
                 destination.ConcurrencyCounter.Increment();
 
-                ProxyTelemetry.Log.ProxyInvoke(cluster.ClusterId, routeConfig.Route.RouteId, destination.DestinationId);
+                ProxyTelemetry.Log.ProxyInvoke(cluster.ClusterId, routeConfig.ProxyRoute.RouteId, destination.DestinationId);
 
-                var clusterConfig = reverseProxyFeature.ClusterConfig;
-                await _httpProxy.ProxyAsync(context, destinationConfig.Address, clusterConfig.HttpClient, clusterConfig.Options.HttpRequest, routeConfig.Transformer);
+                var clusterConfig = reverseProxyFeature.ClusterSnapshot;
+                await _httpProxy.ProxyAsync(context, destinationConfig.Options.Address, clusterConfig.HttpClient, clusterConfig.Options.HttpRequest, routeConfig.Transformer);
             }
             finally
             {

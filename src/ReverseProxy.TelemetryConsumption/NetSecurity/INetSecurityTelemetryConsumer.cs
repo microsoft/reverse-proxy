@@ -4,7 +4,7 @@
 using System;
 using System.Security.Authentication;
 
-namespace Microsoft.ReverseProxy.Telemetry.Consumption
+namespace Yarp.ReverseProxy.Telemetry.Consumption
 {
     /// <summary>
     /// A consumer of System.Net.Security EventSource events.

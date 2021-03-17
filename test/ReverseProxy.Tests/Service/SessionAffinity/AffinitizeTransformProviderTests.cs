@@ -3,12 +3,12 @@
 
 using System;
 using System.Linq;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Abstractions.Config;
 using Moq;
 using Xunit;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Abstractions.Config;
 
-namespace Microsoft.ReverseProxy.Service.SessionAffinity
+namespace Yarp.ReverseProxy.Service.SessionAffinity
 {
     public class AffinitizeTransformProviderTests
     {
@@ -80,7 +80,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
             };
 
             ex = Assert.Throws<ArgumentException>(() => transformProvider.Apply(builderContext));
-            Assert.Equal("No Microsoft.ReverseProxy.Service.SessionAffinity.ISessionAffinityProvider was found for the id 'Invalid'. (Parameter 'id')", ex.Message);
+            Assert.Equal("No Yarp.ReverseProxy.Service.SessionAffinity.ISessionAffinityProvider was found for the id 'Invalid'. (Parameter 'id')", ex.Message);
         }
     }
 }

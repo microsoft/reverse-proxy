@@ -9,19 +9,20 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Configuration;
-using Microsoft.ReverseProxy.Service.HealthChecks;
-using Microsoft.ReverseProxy.Service.Proxy;
-using Microsoft.ReverseProxy.Utilities;
-using Microsoft.ReverseProxy.Utilities.Tests;
 using Moq;
 using Xunit;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Configuration;
+using Yarp.ReverseProxy.Service.HealthChecks;
+using Yarp.ReverseProxy.Service.Proxy;
+using Yarp.ReverseProxy.Utilities;
+using Yarp.ReverseProxy.Utilities.Tests;
 
-namespace Microsoft.ReverseProxy.Service.Management.Tests
+namespace Yarp.ReverseProxy.Service.Management.Tests
 {
     public class ProxyConfigManagerTests
     {
@@ -136,7 +137,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             Assert.Single(actualDestinations);
             Assert.Equal("d1", actualDestinations[0].DestinationId);
             Assert.NotNull(actualDestinations[0].Config);
-            Assert.Equal(TestAddress, actualDestinations[0].Config.Address);
+            Assert.Equal(TestAddress, actualDestinations[0].Config.Options.Address);
 
             var routeManager = services.GetRequiredService<IRouteManager>();
             var actualRoutes = routeManager.GetItems();
@@ -216,8 +217,8 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
 
             var signaled1 = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
             var signaled2 = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
-            IReadOnlyList<AspNetCore.Http.Endpoint> readEndpoints1 = null;
-            IReadOnlyList<AspNetCore.Http.Endpoint> readEndpoints2 = null;
+            IReadOnlyList<Endpoint> readEndpoints1 = null;
+            IReadOnlyList<Endpoint> readEndpoints2 = null;
 
             var changeToken1 = dataSource.GetChangeToken();
             changeToken1.RegisterChangeCallback(
@@ -279,7 +280,8 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
         [Fact]
         public async Task LoadAsync_RouteValidationError_Throws()
         {
-            var route1 = new ProxyRoute { RouteId = "route1", Match = new ProxyMatch { Hosts = new[] { "invalid host name" } }, ClusterId = "cluster1" };
+            var routeName = "route1";
+            var route1 = new ProxyRoute { RouteId = routeName, Match = new ProxyMatch { Hosts = null }, ClusterId = "cluster1" };
             var services = CreateServices(new List<ProxyRoute>() { route1 }, new List<Cluster>());
             var configManager = services.GetRequiredService<ProxyConfigManager>();
 
@@ -289,13 +291,13 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
 
             Assert.Single(agex.InnerExceptions);
             var argex = Assert.IsType<ArgumentException>(agex.InnerExceptions.First());
-            Assert.StartsWith("Invalid host", argex.Message);
+            Assert.StartsWith($"Route '{routeName}' requires Hosts or Path specified", argex.Message);
         }
 
         [Fact]
         public async Task LoadAsync_ConfigFilterRouteActions_CanFixBrokenRoute()
         {
-            var route1 = new ProxyRoute { RouteId = "route1", Match = new ProxyMatch { Hosts = new[] { "invalid host name" } }, Order = 1, ClusterId = "cluster1" };
+            var route1 = new ProxyRoute { RouteId = "route1", Match = new ProxyMatch { Hosts = null }, Order = 1, ClusterId = "cluster1" };
             var services = CreateServices(new List<ProxyRoute>() { route1 }, new List<Cluster>(), proxyBuilder =>
             {
                 proxyBuilder.AddProxyConfigFilter<FixRouteHostFilter>();
@@ -376,7 +378,7 @@ namespace Microsoft.ReverseProxy.Service.Management.Tests
             Assert.True(clusterInfo.Config.Options.HealthCheck.Enabled);
             Assert.Equal(TimeSpan.FromSeconds(12), clusterInfo.Config.Options.HealthCheck.Active.Interval);
             var destination = Assert.Single(clusterInfo.DynamicState.AllDestinations);
-            Assert.Equal("http://localhost", destination.Config.Address);
+            Assert.Equal("http://localhost", destination.Config.Options.Address);
         }
 
         private class ClusterAndRouteThrows : IProxyConfigFilter

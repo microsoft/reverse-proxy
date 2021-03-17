@@ -2,12 +2,12 @@
 // Licensed under the MIT License.
 
 using System;
-using Microsoft.ReverseProxy.Service.Proxy;
+using Yarp.ReverseProxy.Service.Proxy;
 
-namespace Microsoft.ReverseProxy.Telemetry.Consumption
+namespace Yarp.ReverseProxy.Telemetry.Consumption
 {
     /// <summary>
-    /// A consumer of Microsoft.ReverseProxy EventSource events.
+    /// A consumer of Yarp.ReverseProxy EventSource events.
     /// </summary>
     public interface IProxyTelemetryConsumer
     {

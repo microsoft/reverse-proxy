@@ -9,15 +9,15 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Patterns;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Common.Tests;
-using Microsoft.ReverseProxy.RuntimeModel;
-using Microsoft.ReverseProxy.Service.Management;
-using Microsoft.ReverseProxy.Service.Proxy;
 using Moq;
 using Xunit;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Common.Tests;
+using Yarp.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Service.Management;
+using Yarp.ReverseProxy.Service.Proxy;
 
-namespace Microsoft.ReverseProxy.Middleware.Tests
+namespace Yarp.ReverseProxy.Middleware.Tests
 {
     public class ProxyInvokerMiddlewareTests : TestAutoMockBase
     {
@@ -57,16 +57,15 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 "destination1",
                 destination =>
                 {
-                    destination.Config = new DestinationConfig("https://localhost:123/a/b/", null);
+                    destination.Config = new DestinationConfig(new Destination { Address = "https://localhost:123/a/b/" });
                 });
             httpContext.Features.Set<IReverseProxyFeature>(
-                new ReverseProxyFeature() { AvailableDestinations = new List<DestinationInfo>() { destination1 }.AsReadOnly(), ClusterConfig = clusterConfig });
+                new ReverseProxyFeature() { AvailableDestinations = new List<DestinationInfo>() { destination1 }.AsReadOnly(), ClusterSnapshot = clusterConfig });
             httpContext.Features.Set(cluster1);
 
             var aspNetCoreEndpoints = new List<Endpoint>();
             var routeConfig = new RouteConfig(
-                route: new RouteInfo("route1"),
-                proxyRoute: new ProxyRoute(),
+                proxyRoute: new ProxyRoute() { RouteId = "Route-1" },
                 cluster: cluster1,
                 transformer: null);
             var aspNetCoreEndpoint = CreateAspNetCoreEndpoint(routeConfig);
@@ -114,7 +113,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             Assert.Equal(1, cluster1.ConcurrencyCounter.Value);
             Assert.Equal(1, destination1.ConcurrencyCounter.Value);
 
-            Assert.Same(destination1, httpContext.GetRequiredProxyFeature().SelectedDestination);
+            Assert.Same(destination1, httpContext.GetRequiredProxyFeature().ProxiedDestination);
 
             tcs2.TrySetResult(true);
             await task;
@@ -124,7 +123,7 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
             var invoke = Assert.Single(events, e => e.EventName == "ProxyInvoke");
             Assert.Equal(3, invoke.Payload.Count);
             Assert.Equal(cluster1.ClusterId, (string)invoke.Payload[0]);
-            Assert.Equal(routeConfig.Route.RouteId, (string)invoke.Payload[1]);
+            Assert.Equal(routeConfig.ProxyRoute.RouteId, (string)invoke.Payload[1]);
             Assert.Equal(destination1.DestinationId, (string)invoke.Payload[2]);
         }
 
@@ -142,12 +141,11 @@ namespace Microsoft.ReverseProxy.Middleware.Tests
                 destinationManager: new DestinationManager());
             var clusterConfig = new ClusterConfig(new Cluster(), httpClient);
             httpContext.Features.Set<IReverseProxyFeature>(
-                new ReverseProxyFeature() { AvailableDestinations = Array.Empty<DestinationInfo>(), ClusterConfig = clusterConfig });
+                new ReverseProxyFeature() { AvailableDestinations = Array.Empty<DestinationInfo>(), ClusterSnapshot = clusterConfig });
             httpContext.Features.Set(cluster1);
 
             var aspNetCoreEndpoints = new List<Endpoint>();
             var routeConfig = new RouteConfig(
-                route: new RouteInfo("route1"),
                 proxyRoute: new ProxyRoute(),
                 cluster: cluster1,
                 transformer: null);

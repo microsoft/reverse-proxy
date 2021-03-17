@@ -6,15 +6,16 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Routing.Patterns;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.RuntimeModel;
-using Microsoft.ReverseProxy.Service.Management;
-using Microsoft.ReverseProxy.Service.Proxy;
-using Microsoft.ReverseProxy.Service.Routing;
 using Xunit;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Service.Management;
+using Yarp.ReverseProxy.Service.Proxy;
+using Yarp.ReverseProxy.Service.Routing;
 
-namespace Microsoft.ReverseProxy.Service.DynamicEndpoint
+namespace Yarp.ReverseProxy.Service.DynamicEndpoint
 {
     public class ProxyEndpointFactoryTests
     {
@@ -59,7 +60,7 @@ namespace Microsoft.ReverseProxy.Service.DynamicEndpoint
             Assert.Same(routeConfig, routeEndpoint.Metadata.GetMetadata<RouteConfig>());
             Assert.Equal("/a", routeEndpoint.RoutePattern.RawText);
             Assert.Equal(12, routeEndpoint.Order);
-            Assert.False(routeConfig.HasConfigChanged(route, cluster));
+            Assert.False(routeConfig.HasConfigChanged(route, cluster, routeInfo.ClusterRevision));
 
             var hostMetadata = routeEndpoint.Metadata.GetMetadata<HostAttribute>();
             Assert.NotNull(hostMetadata);
@@ -70,7 +71,7 @@ namespace Microsoft.ReverseProxy.Service.DynamicEndpoint
         private (RouteEndpoint routeEndpoint, RouteConfig routeConfig) CreateEndpoint(ProxyEndpointFactory factory, RouteInfo routeInfo, ProxyRoute proxyRoute, ClusterInfo clusterInfo)
         {
             routeInfo.ClusterRevision = clusterInfo.Revision;
-            var routeConfig = new RouteConfig(routeInfo, proxyRoute, clusterInfo, HttpTransformer.Default);
+            var routeConfig = new RouteConfig(proxyRoute, clusterInfo, HttpTransformer.Default);
 
             var endpoint = factory.CreateEndpoint(routeConfig, Array.Empty<Action<EndpointBuilder>>());
 
@@ -105,7 +106,7 @@ namespace Microsoft.ReverseProxy.Service.DynamicEndpoint
             Assert.Same(routeConfig, routeEndpoint.Metadata.GetMetadata<RouteConfig>());
             Assert.Equal("/{**catchall}", routeEndpoint.RoutePattern.RawText);
             Assert.Equal(12, routeEndpoint.Order);
-            Assert.False(routeConfig.HasConfigChanged(route, cluster));
+            Assert.False(routeConfig.HasConfigChanged(route, cluster, routeInfo.ClusterRevision));
 
             var hostMetadata = routeEndpoint.Metadata.GetMetadata<HostAttribute>();
             Assert.NotNull(hostMetadata);
@@ -139,7 +140,7 @@ namespace Microsoft.ReverseProxy.Service.DynamicEndpoint
             Assert.Same(routeConfig, routeEndpoint.Metadata.GetMetadata<RouteConfig>());
             Assert.Equal("/{**catchall}", routeEndpoint.RoutePattern.RawText);
             Assert.Equal(12, routeEndpoint.Order);
-            Assert.False(routeConfig.HasConfigChanged(route, cluster));
+            Assert.False(routeConfig.HasConfigChanged(route, cluster, routeInfo.ClusterRevision));
 
             var hostMetadata = routeEndpoint.Metadata.GetMetadata<HostAttribute>();
             Assert.NotNull(hostMetadata);
@@ -173,7 +174,7 @@ namespace Microsoft.ReverseProxy.Service.DynamicEndpoint
             Assert.Same(routeConfig, routeEndpoint.Metadata.GetMetadata<RouteConfig>());
             Assert.Equal("/a", routeEndpoint.RoutePattern.RawText);
             Assert.Equal(12, routeEndpoint.Order);
-            Assert.False(routeConfig.HasConfigChanged(route, cluster));
+            Assert.False(routeConfig.HasConfigChanged(route, cluster, routeInfo.ClusterRevision));
 
             var hostMetadata = routeEndpoint.Metadata.GetMetadata<HostAttribute>();
             Assert.Null(hostMetadata);
@@ -202,7 +203,7 @@ namespace Microsoft.ReverseProxy.Service.DynamicEndpoint
             Assert.Same(routeConfig, routeEndpoint.Metadata.GetMetadata<RouteConfig>());
             Assert.Equal("/{**catchall}", routeEndpoint.RoutePattern.RawText);
             Assert.Equal(12, routeEndpoint.Order);
-            Assert.False(routeConfig.HasConfigChanged(route, cluster));
+            Assert.False(routeConfig.HasConfigChanged(route, cluster, routeInfo.ClusterRevision));
 
             var hostMetadata = routeEndpoint.Metadata.GetMetadata<HostAttribute>();
             Assert.Null(hostMetadata);
@@ -229,7 +230,7 @@ namespace Microsoft.ReverseProxy.Service.DynamicEndpoint
 
             Action action = () => CreateEndpoint(factory, routeInfo, route, cluster);
 
-            Assert.Throws<AspNetCore.Routing.Patterns.RoutePatternException>(action);
+            Assert.Throws<RoutePatternException>(action);
         }
 
         [Fact]
@@ -457,7 +458,7 @@ namespace Microsoft.ReverseProxy.Service.DynamicEndpoint
             Assert.Equal(HeaderMatchMode.HeaderPrefix, matcher.Mode);
             Assert.True(matcher.IsCaseSensitive);
 
-            Assert.False(routeConfig.HasConfigChanged(route, cluster));
+            Assert.False(routeConfig.HasConfigChanged(route, cluster, routeInfo.ClusterRevision));
         }
 
         [Fact]
@@ -514,7 +515,7 @@ namespace Microsoft.ReverseProxy.Service.DynamicEndpoint
             Assert.Equal(HeaderMatchMode.Exists, secondMetadata.Mode);
             Assert.False(secondMetadata.IsCaseSensitive);
 
-            Assert.False(routeConfig.HasConfigChanged(route, cluster));
+            Assert.False(routeConfig.HasConfigChanged(route, cluster, routeInfo.ClusterRevision));
         }
     }
 }

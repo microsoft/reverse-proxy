@@ -4,7 +4,7 @@
 using System;
 using System.Net;
 
-namespace Microsoft.ReverseProxy
+namespace Yarp.ReverseProxy
 {
     internal static class ProtocolHelper
     {

@@ -5,10 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.Tracing;
 using System.Linq;
-using Microsoft.ReverseProxy.Telemetry;
 using Xunit;
+using Yarp.ReverseProxy.Telemetry;
 
-namespace Microsoft.ReverseProxy.Common.Tests
+namespace Yarp.ReverseProxy.Common.Tests
 {
     internal static class EventAssertExtensions
     {

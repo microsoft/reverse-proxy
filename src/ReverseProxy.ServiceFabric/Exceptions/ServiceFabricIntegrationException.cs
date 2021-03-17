@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Microsoft.ReverseProxy.ServiceFabric
+namespace Yarp.ReverseProxy.ServiceFabric
 {
     /// <summary>
     /// Represents errors related to Service Fabric integration with the gateway.

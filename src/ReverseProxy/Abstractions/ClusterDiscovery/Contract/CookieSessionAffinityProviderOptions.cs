@@ -4,7 +4,7 @@
 using System;
 using Microsoft.AspNetCore.Http;
 
-namespace Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract
+namespace Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract
 {
     /// <summary>
     /// Defines cookie-specific affinity provider options.
@@ -13,7 +13,7 @@ namespace Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract
     {
         private CookieBuilder _cookieBuilder = new AffinityCookieBuilder();
 
-        public static readonly string DefaultCookieName = ".Microsoft.ReverseProxy.Affinity";
+        public static readonly string DefaultCookieName = ".Yarp.ReverseProxy.Affinity";
 
         public CookieBuilder Cookie
         {

@@ -5,9 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.ReverseProxy.Abstractions.Config;
+using Yarp.ReverseProxy.Abstractions.Config;
 
-namespace Microsoft.ReverseProxy.Sample
+namespace Yarp.ReverseProxy.Sample
 {
     internal class MyTransformFactory : ITransformFactory
     {

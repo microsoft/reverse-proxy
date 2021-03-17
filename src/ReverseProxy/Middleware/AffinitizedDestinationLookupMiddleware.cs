@@ -6,13 +6,13 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
-using Microsoft.ReverseProxy.RuntimeModel;
-using Microsoft.ReverseProxy.Service.SessionAffinity;
-using Microsoft.ReverseProxy.Utilities;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
+using Yarp.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Service.SessionAffinity;
+using Yarp.ReverseProxy.Utilities;
 
-namespace Microsoft.ReverseProxy.Middleware
+namespace Yarp.ReverseProxy.Middleware
 {
     /// <summary>
     /// Looks up an affinitized <see cref="DestinationInfo"/> matching the request's affinity key if any is set
@@ -40,15 +40,15 @@ namespace Microsoft.ReverseProxy.Middleware
         {
             var proxyFeature = context.GetRequiredProxyFeature();
 
-            var options = proxyFeature.ClusterConfig.Options.SessionAffinity;
+            var cluster = proxyFeature.ClusterSnapshot.Options;
+            var options = cluster.SessionAffinity;
 
             if (!(options?.Enabled).GetValueOrDefault())
             {
                 return _next(context);
             }
 
-            var cluster = context.GetRequiredCluster();
-            return InvokeInternal(context, proxyFeature, options, cluster.ClusterId);
+            return InvokeInternal(context, proxyFeature, options, cluster.Id);
         }
 
         private async Task InvokeInternal(HttpContext context, IReverseProxyFeature proxyFeature, SessionAffinityOptions options, string clusterId)

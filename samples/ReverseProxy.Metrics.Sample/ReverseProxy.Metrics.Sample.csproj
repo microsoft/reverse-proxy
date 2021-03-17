@@ -3,11 +3,11 @@
   <PropertyGroup>
     <TargetFrameworks>net5.0;netcoreapp3.1</TargetFrameworks>
     <OutputType>Exe</OutputType>
-    <RootNamespace>Microsoft.ReverseProxy.Sample</RootNamespace>
+    <RootNamespace>Yarp.Sample</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\ReverseProxy.TelemetryConsumption\Microsoft.ReverseProxy.Telemetry.Consumption.csproj" />
+    <PackageReference Include="Yarp.ReverseProxy.Telemetry.Consumption" Version="1.0.0-preview.10.*" />
   </ItemGroup>
 
   <ItemGroup>

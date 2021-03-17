@@ -5,14 +5,14 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
-using Microsoft.ReverseProxy.Service.HealthChecks;
-using Microsoft.ReverseProxy.Service.Proxy;
 using Moq;
 using Xunit;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
+using Yarp.ReverseProxy.Service.HealthChecks;
+using Yarp.ReverseProxy.Service.Proxy;
 
-namespace Microsoft.ReverseProxy.Service.Tests
+namespace Yarp.ReverseProxy.Service.Tests
 {
     public class ConfigValidatorTests
     {
@@ -129,40 +129,6 @@ namespace Microsoft.ReverseProxy.Service.Tests
 
             Assert.NotEmpty(result);
             Assert.Contains(result, err => err.Message.Equals("Route 'route1' requires Hosts or Path specified. Set the Path to '/{**catchall}' to match all requests."));
-        }
-
-        [Theory]
-        [InlineData(".example.com")]
-        [InlineData("example*.com")]
-        [InlineData("example.*.com")]
-        [InlineData("example.*a.com")]
-        [InlineData("*example.com")]
-        [InlineData("-example.com")]
-        [InlineData("example-.com")]
-        [InlineData("-example-.com")]
-        [InlineData("a.-example.com")]
-        [InlineData("a.example-.com")]
-        [InlineData("a.-example-.com")]
-        [InlineData("example.com,example-.com")]
-        public async Task Rejects_InvalidHost(string host)
-        {
-            var route = new ProxyRoute
-            {
-                RouteId = "route1",
-                Match = new ProxyMatch
-                {
-                    Hosts = host.Split(","),
-                },
-                ClusterId = "cluster1",
-            };
-
-            var services = CreateServices();
-            var validator = services.GetRequiredService<IConfigValidator>();
-
-            var result = await validator.ValidateRouteAsync(route);
-
-            Assert.NotEmpty(result);
-            Assert.Contains(result, err => err.Message.StartsWith("Invalid host name"));
         }
 
         [Theory]

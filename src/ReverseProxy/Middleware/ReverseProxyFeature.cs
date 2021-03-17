@@ -2,29 +2,29 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using Microsoft.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.RuntimeModel;
 
-namespace Microsoft.ReverseProxy.Middleware
+namespace Yarp.ReverseProxy.Middleware
 {
     /// <summary>
-    /// Store current ClusterConfig and Tracks proxy cluster destinations that are available to handle the current request.
+    /// Stores the current proxy configuration used when processing the request.
     /// </summary>
     public class ReverseProxyFeature : IReverseProxyFeature
     {
-        /// <summary>
-        /// Cluster config for the the current request.
-        /// </summary>
-        public ClusterConfig ClusterConfig { get; set; }
+        /// <inheritdoc/>
+        public RouteConfig RouteSnapshot { get; init; }
 
-        /// <summary>
-        /// Cluster destinations that can handle the current request.
-        /// </summary>
+        /// <inheritdoc/>
+        public ClusterConfig ClusterSnapshot { get; set; }
+
+        /// <inheritdoc/>
+        public IReadOnlyList<DestinationInfo> AllDestinations { get; init; }
+
+        /// <inheritdoc/>
         public IReadOnlyList<DestinationInfo> AvailableDestinations { get; set; }
 
-        /// <summary>
-        /// Actual destination chosen as the target that received the current request.
-        /// </summary>
-        public DestinationInfo SelectedDestination { get; set; }
+        /// <inheritdoc/>
+        public DestinationInfo ProxiedDestination { get; set; }
 
     }
 }

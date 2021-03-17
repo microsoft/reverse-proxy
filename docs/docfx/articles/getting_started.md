@@ -7,7 +7,12 @@ title: Getting Started with YARP
 
 YARP is designed as a library that provides the core proxy functionality which you can then customize by adding or replacing modules. YARP is currently provided as a NuGet package and code snippets. We plan on providing a project template and pre-built exe in the future. 
 
-YARP 1.0.0 Preview 9 supports ASP.NET Core 3.1 and 5.0. You can download the .NET 5 SDK from https://dotnet.microsoft.com/download/dotnet/5.0. ASP.NET Core 5.0 on Windows requires Visual Studio 2019 v16.8 or newer.
+YARP is implemented on top of .NET Core infrastructure and is usable on Windows, Linux or MacOS. Development can be done with the SDK and your favorite editor, [Microsoft Visual Studio](https://visualstudio.microsoft.com/vs/) or [Visual Studio Code](https://code.visualstudio.com/).
+
+YARP 1.0.0 Preview 9 supports ASP.NET Core 3.1 and 5.0. You can download the .NET 5 SDK from https://dotnet.microsoft.com/download/dotnet/5.0. 
+Visual Studio support for .NET 5 is included in Visual Studio 2019 v16.8 or newer.
+
+A fully commented variant of the getting started app can be found at [Basic YARP Sample](https://github.com/microsoft/reverse-proxy/tree/main/samples/BasicYarpSample)
 
 ### Create a new project
 
@@ -35,7 +40,7 @@ And then add:
  
  ```XML
 <ItemGroup> 
-  <PackageReference Include="Microsoft.ReverseProxy" Version="1.0.0-preview.9.*" />
+  <PackageReference Include="Yarp.ReverseProxy" Version="1.0.0-preview.10.*" />
 </ItemGroup> 
 ```
 
@@ -43,7 +48,7 @@ And then add:
 
 YARP is implemented as a ASP.NET Core component, and so the majority of the sample code is in Startup.cs. 
 
-YARP currently uses configuration files to define the routes and endpoints for the proxy. That is loaded in the `ConfigureServices` method. 
+YARP can use configuration files or a custom provider to define the routes and endpoints for the proxy. This sample uses config files and is initialized in the `ConfigureServices` method. 
 
 The `Configure` method defines the ASP.NET pipeline for processing requests. The reverse proxy is plugged into ASP.NET endpoint routing, and then has its own sub-pipeline for the proxy. Here proxy pipeline modules, such as load balancing, can be added to customize the handling of the request. 
 
@@ -57,8 +62,10 @@ public Startup(IConfiguration configuration)
 
 public void ConfigureServices(IServiceCollection services) 
 { 
-    services.AddReverseProxy() 
-        .LoadFromConfig(Configuration.GetSection("ReverseProxy")); 
+    // Add the reverse proxy to capability to the server
+    var proxyBuilder = services.AddReverseProxy();
+    // Initialize the reverse proxy from the "ReverseProxy" section of configuration
+    proxyBuilder.LoadFromConfig(Configuration.GetSection("ReverseProxy"));
 } 
 
 public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -67,8 +74,10 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
         app.UseDeveloperExceptionPage();
     }
-
+    
+    // Enable endpoint routing, required for the reverse proxy
     app.UseRouting();
+    // Register the reverse proxy routes
     app.UseEndpoints(endpoints => 
     {
         endpoints.MapReverseProxy(); 
@@ -82,7 +91,7 @@ The configuration for YARP is defined in the appsettings.json file. See [Configu
 
 The configuration can also be provided programmatically. See [Configuration Providers](configproviders.md) for details.
 
-You can find out more about the available configuration options by looking at [ProxyRoute](xref:Microsoft.ReverseProxy.Abstractions.ProxyRoute) and [Cluster](xref:Microsoft.ReverseProxy.Abstractions.Cluster).
+You can find out more about the available configuration options by looking at [ProxyRoute](xref:Yarp.ReverseProxy.Abstractions.ProxyRoute) and [Cluster](xref:Yarp.ReverseProxy.Abstractions.Cluster).
  
  ```JSON
  {
@@ -116,3 +125,7 @@ You can find out more about the available configuration options by looking at [P
   }
 }
 ```
+
+### Running the project
+
+Use `dotnet run` called within the sample's directory or `dotnet run --project <path to .csproj file>`

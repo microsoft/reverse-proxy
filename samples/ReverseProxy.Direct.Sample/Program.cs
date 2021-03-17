@@ -4,7 +4,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
-namespace YARP.Sample
+namespace Yarp.Sample
 {
     /// <summary>
     /// Class that contains the entrypoint for the Reverse Proxy sample app.

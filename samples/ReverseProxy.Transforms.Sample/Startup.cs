@@ -6,9 +6,9 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.ReverseProxy.Abstractions.Config;
+using Yarp.ReverseProxy.Abstractions.Config;
 
-namespace Microsoft.ReverseProxy.Sample
+namespace Yarp.Sample
 {
     /// <summary>
     /// ASP .NET Core pipeline initialization.

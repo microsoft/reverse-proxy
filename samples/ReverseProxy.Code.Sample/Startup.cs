@@ -6,14 +6,13 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Primitives;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Middleware;
-using Microsoft.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Middleware;
+using Yarp.ReverseProxy.RuntimeModel;
 
 
-namespace YARP.Sample
+namespace Yarp.Sample
 {
     /// <summary>
     /// Initialiaztion for ASP.NET using YARP reverse proxy

@@ -4,7 +4,7 @@
 using System;
 using System.Net.Http;
 
-namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
+namespace Yarp.ReverseProxy.Service.Proxy.Infrastructure
 {
     /// <summary>
     /// Provides a method to create instances of <see cref="HttpMessageInvoker"/>

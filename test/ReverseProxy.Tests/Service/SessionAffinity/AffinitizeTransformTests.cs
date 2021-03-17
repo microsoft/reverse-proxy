@@ -4,15 +4,15 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Middleware;
-using Microsoft.ReverseProxy.RuntimeModel;
-using Microsoft.ReverseProxy.Service.Management;
-using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 using Moq;
 using Xunit;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Middleware;
+using Yarp.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Service.Management;
+using Yarp.ReverseProxy.Service.RuntimeModel.Transforms;
 
-namespace Microsoft.ReverseProxy.Service.SessionAffinity
+namespace Yarp.ReverseProxy.Service.SessionAffinity
 {
     public class AffinitizeTransformTests
     {
@@ -27,12 +27,11 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
             var transform = new AffinitizeTransform(provider.Object);
 
             var context = new DefaultHttpContext();
-            context.Features.Set(cluster);
-
-            var destinationFeature = new Mock<IReverseProxyFeature>(MockBehavior.Strict);
-            destinationFeature.SetupProperty(p => p.ClusterConfig, cluster.Config);
-            destinationFeature.SetupProperty(p => p.SelectedDestination, destination);
-            context.Features.Set(destinationFeature.Object);
+            context.Features.Set<IReverseProxyFeature>(new ReverseProxyFeature()
+            {
+                ClusterSnapshot = cluster.Config,
+                ProxiedDestination = destination,
+            });
 
             var transformContext = new ResponseTransformContext()
             {

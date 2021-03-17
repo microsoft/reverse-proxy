@@ -3,10 +3,10 @@
 
 using System.Security.Authentication;
 using System.Text;
-using Microsoft.ReverseProxy.Utilities.Tests;
 using Xunit;
+using Yarp.ReverseProxy.Utilities.Tests;
 
-namespace Microsoft.ReverseProxy.Abstractions.Tests
+namespace Yarp.ReverseProxy.Abstractions.Tests
 {
     public class ProxyHttpClientOptionsTests
     {

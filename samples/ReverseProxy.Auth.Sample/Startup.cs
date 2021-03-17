@@ -2,12 +2,11 @@
 // Licensed under the MIT License.
 
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.ReverseProxy.Auth.Sample
+namespace Yarp.Sample
 {
     /// <summary>
     /// ASP .NET Core pipeline initialization.

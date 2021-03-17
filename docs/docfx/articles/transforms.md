@@ -38,7 +38,7 @@ Transforms can be added to routes either through configuration or programmatical
 
 ## From Configuration
 
-Transforms can be configured on [ProxyRoute.Transforms](xref:Microsoft.ReverseProxy.Abstractions.ProxyRoute) and can be bound from the `Routes` sections of the config file. These can be modified and reloaded without restarting the proxy. A transform is configured using one or more key-value string pairs.
+Transforms can be configured on [ProxyRoute.Transforms](xref:Yarp.ReverseProxy.Abstractions.ProxyRoute) and can be bound from the `Routes` sections of the config file. These can be modified and reloaded without restarting the proxy. A transform is configured using one or more key-value string pairs.
 
 Here is an example of common transforms:
 ```JSON
@@ -110,9 +110,9 @@ Developers that want to integrate their custom transforms with the `Transforms` 
 
 Transforms can be added to routes programmatically by calling the [AddTransforms](xref:Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions) method.
 
-`AddTransforms` can be called from `Startup.ConfigureServices` to provide a callback for configuring transforms. This callback is invoked each time a route is built or rebuilt and allows the developer to inspect the [ProxyRoute](xref:Microsoft.ReverseProxy.Abstractions.ProxyRoute) information and conditionally add transforms for it.
+`AddTransforms` can be called from `Startup.ConfigureServices` to provide a callback for configuring transforms. This callback is invoked each time a route is built or rebuilt and allows the developer to inspect the [ProxyRoute](xref:Yarp.ReverseProxy.Abstractions.ProxyRoute) information and conditionally add transforms for it.
 
-The `AddTransforms` callback provides a [TransformBuilderContext](xref:Microsoft.ReverseProxy.Abstractions.Config.TransformBuilderContext) where transforms can be added or configured. Most transforms provide `TransformBuilderContext` extension methods to make them easier to add. These are extensions documented below with the individual transform descriptions.
+The `AddTransforms` callback provides a [TransformBuilderContext](xref:Yarp.ReverseProxy.Abstractions.Config.TransformBuilderContext) where transforms can be added or configured. Most transforms provide `TransformBuilderContext` extension methods to make them easier to add. These are extensions documented below with the individual transform descriptions.
 
 The `TransformBuilderContext` also includes an `IServiceProvider` for access to any needed services.
 
@@ -139,7 +139,7 @@ For more advanced control see [ITransformProvider](#itransformprovider) describe
 
 ## Request transforms
 
-Request transforms include the request path, query, HTTP version, method, and headers. In code these are represented by the [RequestTransformContext](xref:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestTransformContext) object and processed by implementations of the abstract class [RequestTransform](xref:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestTransform).
+Request transforms include the request path, query, HTTP version, method, and headers. In code these are represented by the [RequestTransformContext](xref:Yarp.ReverseProxy.Service.RuntimeModel.Transforms.RequestTransformContext) object and processed by implementations of the abstract class [RequestTransform](xref:Yarp.ReverseProxy.Service.RuntimeModel.Transforms.RequestTransform).
 
 Notes:
 - The proxy request scheme (http/https), authority, and path base, are taken from the destination server address (`https://localhost:10001/Path/Base` in the example above) and should not be modified by transforms.
@@ -579,7 +579,7 @@ This transform causes the client certificate taken from `HttpContext.Connection.
 
 All response headers and trailers are copied from the proxied response to the outgoing client response by default. Response and response trailer transforms may specify if they should be applied only for successful responses or for all responses.
 
-In code these are implemented as derivations of the abstract classes [ResponseTransform](xref:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseTransform) and [ResponseTrailersTransform](xref:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseTrailersTransform).
+In code these are implemented as derivations of the abstract classes [ResponseTransform](xref:Yarp.ReverseProxy.Service.RuntimeModel.Transforms.ResponseTransform) and [ResponseTrailersTransform](xref:Yarp.ReverseProxy.Service.RuntimeModel.Transforms.ResponseTrailersTransform).
 
 ### ResponseHeadersCopy
 
@@ -689,31 +689,31 @@ ResponseTrailer follows the same structure and guidance as ResponseHeader.
 
 ### AddRequestTransform
 
-[AddRequestTransform](xref:Microsoft.ReverseProxy.Abstractions.Config.TransformBuilderContextFuncExtensions) is a `TransformBuilderContext` extension method that defines a request transform as a `Func<RequestTransformContext, ValueTask>`. This allows creating a custom request transform without implementing a `RequestTransform` derived class.
+[AddRequestTransform](xref:Yarp.ReverseProxy.Abstractions.Config.TransformBuilderContextFuncExtensions) is a `TransformBuilderContext` extension method that defines a request transform as a `Func<RequestTransformContext, ValueTask>`. This allows creating a custom request transform without implementing a `RequestTransform` derived class.
 
 ### AddResponseTransform
 
-[AddResponseTransform](xref:Microsoft.ReverseProxy.Abstractions.Config.TransformBuilderContextFuncExtensions) is a `TransformBuilderContext` extension method that defines a response transform as a `Func<ResponseTransformContext, ValueTask>`. This allows creating a custom response transform without implementing a `ResponseTransform` derived class.
+[AddResponseTransform](xref:Yarp.ReverseProxy.Abstractions.Config.TransformBuilderContextFuncExtensions) is a `TransformBuilderContext` extension method that defines a response transform as a `Func<ResponseTransformContext, ValueTask>`. This allows creating a custom response transform without implementing a `ResponseTransform` derived class.
 
 ### AddResponseTrailersTransform
 
-[AddResponseTrailersTransform](xref:Microsoft.ReverseProxy.Abstractions.Config.TransformBuilderContextFuncExtensions) is a `TransformBuilderContext` extension method that defines a response trailers transform as a `Func<ResponseTrailersTransformContext, ValueTask>`. This allows creating a custom response trailers transform without implementing a `ResponseTrailersTransform` derived class.
+[AddResponseTrailersTransform](xref:Yarp.ReverseProxy.Abstractions.Config.TransformBuilderContextFuncExtensions) is a `TransformBuilderContext` extension method that defines a response trailers transform as a `Func<ResponseTrailersTransformContext, ValueTask>`. This allows creating a custom response trailers transform without implementing a `ResponseTrailersTransform` derived class.
 
 ### RequestTransform
 
-All request transforms must derive from the abstract base class [RequestTransform](xref:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestTransform). These can freely modify the proxy `HttpRequestMessage`. Avoid reading or modifying the request body as this may disrupt the proxying flow. Consider also adding a parametrized extension method on `TransformBuilderContext` for discoverability and easy of use.
+All request transforms must derive from the abstract base class [RequestTransform](xref:Yarp.ReverseProxy.Service.RuntimeModel.Transforms.RequestTransform). These can freely modify the proxy `HttpRequestMessage`. Avoid reading or modifying the request body as this may disrupt the proxying flow. Consider also adding a parametrized extension method on `TransformBuilderContext` for discoverability and easy of use.
 
 ### ResponseTransform
 
-All response transforms must derive from the abstract base class [ResponseTransform](xref:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseTransform). These can freely modify the client `HttpResponse`. Avoid reading or modifying the response body as this may disrupt the proxying flow. Consider also adding a parametrized extension method on `TransformBuilderContext` for discoverability and easy of use.
+All response transforms must derive from the abstract base class [ResponseTransform](xref:Yarp.ReverseProxy.Service.RuntimeModel.Transforms.ResponseTransform). These can freely modify the client `HttpResponse`. Avoid reading or modifying the response body as this may disrupt the proxying flow. Consider also adding a parametrized extension method on `TransformBuilderContext` for discoverability and easy of use.
 
 ### ResponseTrailersTransform
 
-All response trailers transforms must derive from the abstract base class [ResponseTrailersTransform](xref:Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseTrailersTransform). These can freely modify the client HttpResponse trailers. These run after the response body and should not attempt to modify the response headers or body. Consider also adding a parametrized extension method on `TransformBuilderContext` for discoverability and easy of use.
+All response trailers transforms must derive from the abstract base class [ResponseTrailersTransform](xref:Yarp.ReverseProxy.Service.RuntimeModel.Transforms.ResponseTrailersTransform). These can freely modify the client HttpResponse trailers. These run after the response body and should not attempt to modify the response headers or body. Consider also adding a parametrized extension method on `TransformBuilderContext` for discoverability and easy of use.
 
 ### ITransformProvider
 
-[ITransformProvider](xref:Microsoft.ReverseProxy.Abstractions.Config.ITransformProvider) provides the functionality of `AddTransforms` described above as well as DI integration and validation support.
+[ITransformProvider](xref:Yarp.ReverseProxy.Abstractions.Config.ITransformProvider) provides the functionality of `AddTransforms` described above as well as DI integration and validation support.
 
 `ITransformProvider`'s can be registered in DI by calling [AddTransforms&lt;T&gt;()](xref:Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions). Multiple `ITransformProvider` implementations can be registered and all will be run.
 
@@ -767,7 +767,7 @@ services.AddReverseProxy()
 
 ### ITransformFactory
 
-Developers that want to integrate their custom transforms with the `Transforms` section of configuration can implement an [ITransformFactory](xref:Microsoft.ReverseProxy.Abstractions.Config.ITransformFactory). This should be registered in DI using the `AddTransformFactory<T>()` method. Multiple factories can be registered and all will be used.
+Developers that want to integrate their custom transforms with the `Transforms` section of configuration can implement an [ITransformFactory](xref:Yarp.ReverseProxy.Abstractions.Config.ITransformFactory). This should be registered in DI using the `AddTransformFactory<T>()` method. Multiple factories can be registered and all will be used.
 
 `ITransformFactory` provides two methods, `Validate` and `Build`. These process one set of transform values at a time, represented by a `IReadOnlyDictionary<string, string>`.
 

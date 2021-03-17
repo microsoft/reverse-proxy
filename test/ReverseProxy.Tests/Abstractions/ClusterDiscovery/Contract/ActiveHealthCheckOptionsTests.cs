@@ -4,7 +4,7 @@
 using System;
 using Xunit;
 
-namespace Microsoft.ReverseProxy.Abstractions.Tests
+namespace Yarp.ReverseProxy.Abstractions.Tests
 {
     public class ActiveHealthCheckOptionsTests
     {

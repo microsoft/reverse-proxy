@@ -10,9 +10,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		NuGet.config = NuGet.config
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ReverseProxy", "src\ReverseProxy\Microsoft.ReverseProxy.csproj", "{568EF8AE-7624-490D-A19F-C25D076FF091}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yarp.ReverseProxy", "src\ReverseProxy\Yarp.ReverseProxy.csproj", "{568EF8AE-7624-490D-A19F-C25D076FF091}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ReverseProxy.Tests", "test\ReverseProxy.Tests\Microsoft.ReverseProxy.Tests.csproj", "{3B188E4C-C926-4BED-94F3-0E83668FBAB0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yarp.ReverseProxy.Tests", "test\ReverseProxy.Tests\Yarp.ReverseProxy.Tests.csproj", "{3B188E4C-C926-4BED-94F3-0E83668FBAB0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleServer", "samples\SampleServer\SampleServer.csproj", "{11D098B2-7116-4F37-817A-E496B8F15C76}"
 EndProject
@@ -28,7 +28,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "docfx", "docs\docfx\docfx.c
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReverseProxy.Auth.Sample", "samples\ReverseProxy.Auth.Sample\ReverseProxy.Auth.Sample.csproj", "{354F2755-A090-4735-A657-726FB6DA92CD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ReverseProxy.FunctionalTests", "test\ReverseProxy.FunctionalTests\Microsoft.ReverseProxy.FunctionalTests.csproj", "{31089146-71DA-45C2-ACA6-EA1E2C916FD0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yarp.ReverseProxy.FunctionalTests", "test\ReverseProxy.FunctionalTests\Yarp.ReverseProxy.FunctionalTests.csproj", "{31089146-71DA-45C2-ACA6-EA1E2C916FD0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReverseProxy.Code.Sample", "samples\ReverseProxy.Code.Sample\ReverseProxy.Code.Sample.csproj", "{F2547357-FB2F-4944-842F-D33D1E7A17FC}"
 EndProject
@@ -36,15 +36,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReverseProxy.Config.Sample"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReverseProxy.Direct.Sample", "samples\ReverseProxy.Direct.Sample\ReverseProxy.Direct.Sample.csproj", "{D6B72704-603C-4C6F-8DFA-BB820B1C6CC0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ReverseProxy.ServiceFabric", "src\ReverseProxy.ServiceFabric\Microsoft.ReverseProxy.ServiceFabric.csproj", "{D7D077C7-CE13-42C3-A26A-DE5F940CBF3D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yarp.ReverseProxy.ServiceFabric", "src\ReverseProxy.ServiceFabric\Yarp.ReverseProxy.ServiceFabric.csproj", "{D7D077C7-CE13-42C3-A26A-DE5F940CBF3D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ReverseProxy.Tests.Common", "test\ReverseProxy.Tests.Common\Microsoft.ReverseProxy.Tests.Common.csproj", "{A6F5DAB3-C9B6-402D-A637-131D56D3AD5E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yarp.ReverseProxy.Tests.Common", "test\ReverseProxy.Tests.Common\Yarp.ReverseProxy.Tests.Common.csproj", "{A6F5DAB3-C9B6-402D-A637-131D56D3AD5E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ReverseProxy.ServiceFabric.Tests", "test\ReverseProxy.ServiceFabric.Tests\Microsoft.ReverseProxy.ServiceFabric.Tests.csproj", "{FC33B6BC-E328-45CD-8589-AF3A5D9450EE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yarp.ReverseProxy.ServiceFabric.Tests", "test\ReverseProxy.ServiceFabric.Tests\Yarp.ReverseProxy.ServiceFabric.Tests.csproj", "{FC33B6BC-E328-45CD-8589-AF3A5D9450EE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReverseProxy.ServiceFabric.Sample", "samples\ReverseProxy.ServiceFabric.Sample\ReverseProxy.ServiceFabric.Sample.csproj", "{46DC2693-5E60-48B4-AC15-329692E2A252}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ReverseProxy.Telemetry.Consumption", "src\ReverseProxy.TelemetryConsumption\Microsoft.ReverseProxy.Telemetry.Consumption.csproj", "{9EE0CBFE-54E0-4189-AF30-BE0BE3185D2A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yarp.ReverseProxy.Telemetry.Consumption", "src\ReverseProxy.TelemetryConsumption\Yarp.ReverseProxy.Telemetry.Consumption.csproj", "{9EE0CBFE-54E0-4189-AF30-BE0BE3185D2A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "testassets", "testassets", "{CDB73246-0A7E-4116-81E0-828228ECADDD}"
 EndProject
@@ -63,6 +63,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReverseProxy.Transforms.Sample", "samples\ReverseProxy.Transforms.Sample\ReverseProxy.Transforms.Sample.csproj", "{AD5C2956-760C-4A3F-9894-C1590BEB8D54}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestServer", "testassets\TestServer\TestServer.csproj", "{AE06F9BE-0B8D-4D02-9DC6-FE5A41FA4B5D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReverseProxy.Direct", "testassets\ReverseProxy.Direct\ReverseProxy.Direct.csproj", "{6FE9874A-87B9-42C6-B19C-065A97CC6360}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -248,6 +250,14 @@ Global
 		{AE06F9BE-0B8D-4D02-9DC6-FE5A41FA4B5D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{AE06F9BE-0B8D-4D02-9DC6-FE5A41FA4B5D}.Release|x64.ActiveCfg = Release|Any CPU
 		{AE06F9BE-0B8D-4D02-9DC6-FE5A41FA4B5D}.Release|x64.Build.0 = Release|Any CPU
+		{6FE9874A-87B9-42C6-B19C-065A97CC6360}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6FE9874A-87B9-42C6-B19C-065A97CC6360}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6FE9874A-87B9-42C6-B19C-065A97CC6360}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6FE9874A-87B9-42C6-B19C-065A97CC6360}.Debug|x64.Build.0 = Debug|Any CPU
+		{6FE9874A-87B9-42C6-B19C-065A97CC6360}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6FE9874A-87B9-42C6-B19C-065A97CC6360}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6FE9874A-87B9-42C6-B19C-065A97CC6360}.Release|x64.ActiveCfg = Release|Any CPU
+		{6FE9874A-87B9-42C6-B19C-065A97CC6360}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -275,6 +285,7 @@ Global
 		{FA62D919-758B-4A84-8F70-393A47A077B3} = {149C61A2-D9F8-49B9-9F9B-3C953FEF53AA}
 		{AD5C2956-760C-4A3F-9894-C1590BEB8D54} = {149C61A2-D9F8-49B9-9F9B-3C953FEF53AA}
 		{AE06F9BE-0B8D-4D02-9DC6-FE5A41FA4B5D} = {CDB73246-0A7E-4116-81E0-828228ECADDD}
+		{6FE9874A-87B9-42C6-B19C-065A97CC6360} = {CDB73246-0A7E-4116-81E0-828228ECADDD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {31F6924A-E427-4830-96E9-B47CEB7BFE78}

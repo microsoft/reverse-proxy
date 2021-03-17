@@ -8,9 +8,9 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Abstractions;
 
-namespace Microsoft.ReverseProxy.Telemetry
+namespace Yarp.ReverseProxy.Telemetry
 {
     /// <summary>
     /// ActivityPropagationHandler propagates the current Activity to the downstream service

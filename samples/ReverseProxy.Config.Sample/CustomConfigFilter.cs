@@ -3,10 +3,10 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Service;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Service;
 
-namespace Microsoft.ReverseProxy.Sample
+namespace Yarp.Sample
 {
     public class CustomConfigFilter : IProxyConfigFilter
     {

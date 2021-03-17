@@ -1,19 +1,16 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Patterns;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.RuntimeModel;
-using Microsoft.ReverseProxy.Service.Management;
-using Microsoft.ReverseProxy.Service.Proxy;
-using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 using Xunit;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Service.Management;
+using Yarp.ReverseProxy.Service.Proxy;
 
-namespace Microsoft.ReverseProxy.DynamicEndpoint
+namespace Yarp.ReverseProxy.DynamicEndpoint
 {
     public class ReverseProxyConventionBuilderTests
     {
@@ -90,7 +87,6 @@ namespace Microsoft.ReverseProxy.DynamicEndpoint
         {
             var endpointBuilder = new RouteEndpointBuilder(context => Task.CompletedTask, RoutePatternFactory.Parse(""), 0);
             var routeConfig = new RouteConfig(
-                new RouteInfo("route-1"),
                 proxyRoute,
                 new ClusterInfo("cluster-1", new DestinationManager())
                 {

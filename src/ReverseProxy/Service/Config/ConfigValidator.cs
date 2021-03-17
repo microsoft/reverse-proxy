@@ -11,43 +11,19 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing.Patterns;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
-using Microsoft.ReverseProxy.Abstractions.RouteDiscovery.Contract;
-using Microsoft.ReverseProxy.Service.HealthChecks;
-using Microsoft.ReverseProxy.Service.LoadBalancing;
-using Microsoft.ReverseProxy.Service.SessionAffinity;
-using Microsoft.ReverseProxy.Utilities;
-using CorsConstants = Microsoft.ReverseProxy.Abstractions.RouteDiscovery.Contract.CorsConstants;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
+using Yarp.ReverseProxy.Abstractions.RouteDiscovery.Contract;
+using Yarp.ReverseProxy.Service.HealthChecks;
+using Yarp.ReverseProxy.Service.LoadBalancing;
+using Yarp.ReverseProxy.Service.SessionAffinity;
+using Yarp.ReverseProxy.Utilities;
+using CorsConstants = Yarp.ReverseProxy.Abstractions.RouteDiscovery.Contract.CorsConstants;
 
-namespace Microsoft.ReverseProxy.Service
+namespace Yarp.ReverseProxy.Service
 {
     internal class ConfigValidator : IConfigValidator
     {
-        // TODO: IDN support. How strictly do we need to validate this anyways? This is app config, not external input.
-        /// <summary>
-        /// Regex explanation:
-        /// Either:
-        ///    A) A simple label without dashes
-        ///    B) A label containing dashes, but not as the first or last character.
-        /// </summary>
-        private const string DnsLabelRegexPattern = @"(?:[a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])";
-
-        /// <summary>
-        /// Regex explanation:
-        ///    - Optionally, allow "*." in the beginning
-        ///    - Then, one or more sequences of (LABEL ".")
-        ///    - Then, one LABEL
-        /// Where LABEL is described above in <see cref="DnsLabelRegexPattern"/>.
-        /// </summary>
-        private const string HostNameRegexPattern =
-            @"^" +
-            @"(?:\*\.)?" +
-            @"(?:" + DnsLabelRegexPattern + @"\.)*" +
-            DnsLabelRegexPattern +
-            @"$";
-        private static readonly Regex _hostNameRegex = new Regex(HostNameRegexPattern, RegexOptions.Compiled);
-
         private static readonly HashSet<string> _validMethods = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "HEAD", "OPTIONS", "GET", "PUT", "POST", "PATCH", "DELETE", "TRACE",
@@ -145,7 +121,7 @@ namespace Microsoft.ReverseProxy.Service
 
             foreach (var host in hosts)
             {
-                if (string.IsNullOrEmpty(host) || !_hostNameRegex.IsMatch(host))
+                if (string.IsNullOrEmpty(host))
                 {
                     errors.Add(new ArgumentException($"Invalid host name '{host}' for route '{routeId}'."));
                 }
