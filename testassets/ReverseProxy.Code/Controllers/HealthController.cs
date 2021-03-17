@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.AspNetCore.Mvc;
+using Yarp.ReverseProxy.Service.HealthChecks;
 
 namespace Yarp.ReverseProxy.Sample.Controllers
 {
@@ -11,6 +12,16 @@ namespace Yarp.ReverseProxy.Sample.Controllers
     [ApiController]
     public class HealthController : ControllerBase
     {
+        private readonly IActiveHealthCheckMonitor _healthCheckMonitor;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="HealthController" /> class.
+        /// </summary>
+        public HealthController(IActiveHealthCheckMonitor healthCheckMonitor)
+        {
+            _healthCheckMonitor = healthCheckMonitor;
+        }
+
         /// <summary>
         /// Returns 200 if Proxy is healthy.
         /// </summary>
@@ -19,7 +30,7 @@ namespace Yarp.ReverseProxy.Sample.Controllers
         public IActionResult CheckHealth()
         {
             // TODO: Implement health controller, use guid in route.
-            return Ok();
+            return _healthCheckMonitor.InitialDestinationsProbed ? Ok() : StatusCode(503);
         }
     }
 }
