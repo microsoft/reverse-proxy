@@ -11,12 +11,12 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Yarp.ReverseProxy.Abstractions;
-using Yarp.ReverseProxy.KubernetesController.Caching;
-using Yarp.ReverseProxy.KubernetesController.Dispatching;
-using Yarp.ReverseProxy.KubernetesController.Converters;
-using Yarp.ReverseProxy.KubernetesProtocol;
+using Yarp.ReverseProxy.Kubernetes.Controller.Caching;
+using Yarp.ReverseProxy.Kubernetes.Controller.Dispatching;
+using Yarp.ReverseProxy.Kubernetes.Controller.Converters;
+using Yarp.ReverseProxy.Kubernetes.Protocol;
 
-namespace Yarp.ReverseProxy.KubernetesController.Services
+namespace Yarp.ReverseProxy.Kubernetes.Controller.Services
 {
     /// <summary>
     /// IReconciler is a service interface called by the <see cref="Controller"/> to process

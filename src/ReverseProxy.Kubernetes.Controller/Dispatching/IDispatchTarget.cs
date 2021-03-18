@@ -4,7 +4,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Yarp.ReverseProxy.KubernetesController.Dispatching
+namespace Yarp.ReverseProxy.Kubernetes.Controller.Dispatching
 {
     /// <summary>
     /// IDispatchTarget is what an <see cref="IDispatcher"/> will use to

@@ -7,7 +7,7 @@ using Microsoft.Extensions.Primitives;
 using Yarp.ReverseProxy.Abstractions;
 using Yarp.ReverseProxy.Service;
 
-namespace Yarp.ReverseProxy.WebApp
+namespace Yarp.ReverseProxy.Kubernetes.Protocol
 {
     public class MessageConfigProvider : IProxyConfigProvider, IUpdateConfig
     {

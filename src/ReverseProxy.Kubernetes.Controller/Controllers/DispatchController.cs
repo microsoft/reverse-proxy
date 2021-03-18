@@ -5,9 +5,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
-using Yarp.ReverseProxy.KubernetesController.Dispatching;
+using Yarp.ReverseProxy.Kubernetes.Controller.Dispatching;
 
-namespace Yarp.ReverseProxy.KubernetesController.Controllers
+namespace Yarp.ReverseProxy.Kubernetes.Controller.Controllers
 {
     /// <summary>
     /// DispatchController provides API used by callers to begin streaming
@@ -25,9 +25,9 @@ namespace Yarp.ReverseProxy.KubernetesController.Controllers
         }
 
         [HttpGet("/api/dispatch")]
-        public async Task<IActionResult> WatchAsync()
+        public Task<IActionResult> WatchAsync()
         {
-            return new DispatchActionResult(_dispatcher, HttpContext.RequestAborted);
+            return new Task<IActionResult>(() => new DispatchActionResult(_dispatcher, HttpContext.RequestAborted));
         }
     }
 }

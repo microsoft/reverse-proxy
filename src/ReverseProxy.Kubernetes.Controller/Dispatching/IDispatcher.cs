@@ -5,7 +5,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Yarp.ReverseProxy.KubernetesController.Dispatching
+namespace Yarp.ReverseProxy.Kubernetes.Controller.Dispatching
 {
     /// <summary>
     /// IDispatcher is a service interface to bridge outgoing data to the

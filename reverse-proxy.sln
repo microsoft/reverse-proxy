@@ -66,27 +66,29 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestServer", "testassets\Te
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReverseProxy.Direct", "testassets\ReverseProxy.Direct\ReverseProxy.Direct.csproj", "{6FE9874A-87B9-42C6-B19C-065A97CC6360}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yarp.ReverseProxy.KubernetesController", "src\ReverseProxy.KubernetesController\Yarp.ReverseProxy.KubernetesController.csproj", "{5C8E9658-39DA-4C27-A939-68F94B62110B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yarp.ReverseProxy.Kubernetes.Controller", "src\ReverseProxy.Kubernetes.Controller\Yarp.ReverseProxy.Kubernetes.Controller.csproj", "{5C8E9658-39DA-4C27-A939-68F94B62110B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yarp.ReverseProxy.KubernetesProtocol", "src\ReverseProxy.KubernetesProtocol\Yarp.ReverseProxy.KubernetesProtocol.csproj", "{4188D742-AC87-4CF4-86A0-3AB7AF034764}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yarp.ReverseProxy.Kubernetes.Protocol", "src\ReverseProxy.Kubernetes.Protocol\Yarp.ReverseProxy.Kubernetes.Protocol.csproj", "{4188D742-AC87-4CF4-86A0-3AB7AF034764}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yarp.ReverseProxy.WebApp", "src\ReverseProxy.WebApp\Yarp.ReverseProxy.WebApp.csproj", "{E2EF2CBC-94F0-47F4-87AD-00EACD0570AB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yarp.ReverseProxy.Kubernetes.Ingress", "src\ReverseProxy.Kubernetes.Ingress\Yarp.ReverseProxy.Kubernetes.Ingress.csproj", "{E2EF2CBC-94F0-47F4-87AD-00EACD0570AB}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OperatorFramework", "OperatorFramework", "{3A8C7CF8-1F32-474E-B68A-B548A3384BB4}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{E96BB4D7-EECC-4A78-BC7D-E167663FD6F2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Kubernetes.Core", "src\OperatorFramework\src\Core\Microsoft.Kubernetes.Core.csproj", "{EC716F93-C710-4D0E-BEB2-EB29BBD5F426}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Kubernetes.Core", "src\OperatorFramework\src\Core\Microsoft.Kubernetes.Core.csproj", "{EC716F93-C710-4D0E-BEB2-EB29BBD5F426}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Kubernetes.Controller", "src\OperatorFramework\src\Controller\Microsoft.Kubernetes.Controller.csproj", "{E6A1D5FD-F7E2-4683-9384-F30A1981953C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Kubernetes.Controller", "src\OperatorFramework\src\Controller\Microsoft.Kubernetes.Controller.csproj", "{E6A1D5FD-F7E2-4683-9384-F30A1981953C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Kubernetes.CustomResources", "src\OperatorFramework\src\CustomResource\Microsoft.Kubernetes.CustomResources.csproj", "{85EE0BDC-6962-448A-B317-041441513124}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Kubernetes.CustomResources", "src\OperatorFramework\src\CustomResource\Microsoft.Kubernetes.CustomResources.csproj", "{85EE0BDC-6962-448A-B317-041441513124}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Kubernetes.Operator", "src\OperatorFramework\src\Operator\Microsoft.Kubernetes.Operator.csproj", "{B7BAB851-42BA-474A-9F48-ED74F88B610D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Kubernetes.Operator", "src\OperatorFramework\src\Operator\Microsoft.Kubernetes.Operator.csproj", "{B7BAB851-42BA-474A-9F48-ED74F88B610D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Kubernetes.ResourceKinds.OpenApi", "src\OperatorFramework\src\ResourceKinds.OpenApi\Microsoft.Kubernetes.ResourceKinds.OpenApi.csproj", "{EF2D9D76-C230-4880-8B6A-2286F48D868A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Kubernetes.ResourceKinds.OpenApi", "src\OperatorFramework\src\ResourceKinds.OpenApi\Microsoft.Kubernetes.ResourceKinds.OpenApi.csproj", "{EF2D9D76-C230-4880-8B6A-2286F48D868A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Kubernetes.Testing", "src\OperatorFramework\src\Testing\Microsoft.Kubernetes.Testing.csproj", "{A91475F7-6CF0-4564-A585-071D95CDC3A1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Kubernetes.Testing", "src\OperatorFramework\src\Testing\Microsoft.Kubernetes.Testing.csproj", "{A91475F7-6CF0-4564-A585-071D95CDC3A1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yarp.ReverseProxy.Kubernetes.Tests", "test\ReverseProxy.Kubernetes.Tests\Yarp.ReverseProxy.Kubernetes.Tests.csproj", "{46E9889F-7355-433A-98D8-972D8D90C6D0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -352,6 +354,14 @@ Global
 		{A91475F7-6CF0-4564-A585-071D95CDC3A1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A91475F7-6CF0-4564-A585-071D95CDC3A1}.Release|x64.ActiveCfg = Release|Any CPU
 		{A91475F7-6CF0-4564-A585-071D95CDC3A1}.Release|x64.Build.0 = Release|Any CPU
+		{46E9889F-7355-433A-98D8-972D8D90C6D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{46E9889F-7355-433A-98D8-972D8D90C6D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{46E9889F-7355-433A-98D8-972D8D90C6D0}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{46E9889F-7355-433A-98D8-972D8D90C6D0}.Debug|x64.Build.0 = Debug|Any CPU
+		{46E9889F-7355-433A-98D8-972D8D90C6D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{46E9889F-7355-433A-98D8-972D8D90C6D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{46E9889F-7355-433A-98D8-972D8D90C6D0}.Release|x64.ActiveCfg = Release|Any CPU
+		{46E9889F-7355-433A-98D8-972D8D90C6D0}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -391,6 +401,7 @@ Global
 		{B7BAB851-42BA-474A-9F48-ED74F88B610D} = {E96BB4D7-EECC-4A78-BC7D-E167663FD6F2}
 		{EF2D9D76-C230-4880-8B6A-2286F48D868A} = {E96BB4D7-EECC-4A78-BC7D-E167663FD6F2}
 		{A91475F7-6CF0-4564-A585-071D95CDC3A1} = {E96BB4D7-EECC-4A78-BC7D-E167663FD6F2}
+		{46E9889F-7355-433A-98D8-972D8D90C6D0} = {0631147E-34BB-456D-B214-5B202C516D5C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {31F6924A-E427-4830-96E9-B47CEB7BFE78}

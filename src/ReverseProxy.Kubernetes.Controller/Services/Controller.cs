@@ -15,10 +15,10 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Yarp.ReverseProxy.KubernetesController.Caching;
-using Yarp.ReverseProxy.KubernetesController.Dispatching;
+using Yarp.ReverseProxy.Kubernetes.Controller.Caching;
+using Yarp.ReverseProxy.Kubernetes.Controller.Dispatching;
 
-namespace Yarp.ReverseProxy.KubernetesController.Services
+namespace Yarp.ReverseProxy.Kubernetes.Controller.Services
 {
     /// <summary>
     /// Controller receives notifications from informers. The data which is needed for processing is

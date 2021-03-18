@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Yarp.ReverseProxy.KubernetesController.Caching;
+using Yarp.ReverseProxy.Kubernetes.Controller.Caching;
 using Yarp.ReverseProxy.Abstractions;
 using System.Collections.Generic;
 
-namespace Yarp.ReverseProxy.KubernetesController.Services
+namespace Yarp.ReverseProxy.Kubernetes.Controller.Services
 {
     internal class YarpIngressContext
     {

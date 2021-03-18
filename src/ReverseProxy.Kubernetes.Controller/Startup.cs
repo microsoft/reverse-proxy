@@ -6,11 +6,11 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Yarp.ReverseProxy.KubernetesController.Caching;
-using Yarp.ReverseProxy.KubernetesController.Dispatching;
-using Yarp.ReverseProxy.KubernetesController.Services;
+using Yarp.ReverseProxy.Kubernetes.Controller.Caching;
+using Yarp.ReverseProxy.Kubernetes.Controller.Dispatching;
+using Yarp.ReverseProxy.Kubernetes.Controller.Services;
 
-namespace Yarp.ReverseProxy.KubernetesController
+namespace Yarp.ReverseProxy.Kubernetes.Controller
 {
     public class Startup
     {
@@ -22,7 +22,7 @@ namespace Yarp.ReverseProxy.KubernetesController
             services.AddKubernetesControllerRuntime();
 
             // Add components implemented by this application
-            services.AddHostedService<Controller>();
+            services.AddHostedService<Services.Controller>();
             services.AddSingleton<ICache, Cache>();
             services.AddTransient<IReconciler, Reconciler>();
             services.AddSingleton<IDispatcher, Dispatcher>();

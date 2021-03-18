@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using Yarp.ReverseProxy.Abstractions;
 
-namespace Yarp.ReverseProxy.KubernetesProtocol
+namespace Yarp.ReverseProxy.Kubernetes.Protocol
 {
     public enum MessageType
     {

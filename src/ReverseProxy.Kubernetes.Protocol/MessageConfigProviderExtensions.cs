@@ -6,7 +6,7 @@ using System;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Service;
 
-namespace Yarp.ReverseProxy.WebApp
+namespace Yarp.ReverseProxy.Kubernetes.Protocol
 {
     public static class MessageConfigProviderExtensions
     {

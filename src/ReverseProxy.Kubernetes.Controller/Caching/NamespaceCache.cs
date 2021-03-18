@@ -8,9 +8,9 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using Yarp.ReverseProxy.KubernetesController.Services;
+using Yarp.ReverseProxy.Kubernetes.Controller.Services;
 
-namespace Yarp.ReverseProxy.KubernetesController.Caching
+namespace Yarp.ReverseProxy.Kubernetes.Controller.Caching
 {
     /// <summary>
     /// Per-namespace cache data. Implicitly scopes name-based lookups to same namespace. Also

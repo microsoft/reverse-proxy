@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Ingress.Services;
+using Yarp.ReverseProxy.Configuration;
+using Yarp.ReverseProxy.Kubernetes.Ingress.Services;
+using Yarp.ReverseProxy.Kubernetes.Protocol;
 
-namespace Ingress
+namespace Yarp.ReverseProxy.Kubernetes.Ingress
 {
     public class Startup
     {
@@ -25,6 +27,8 @@ namespace Ingress
         {
             services.Configure<ReceiverOptions>(_configuration.Bind);
             services.AddHostedService<Receiver>();
+            services.AddReverseProxy()
+                .LoadFromMessages();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -39,10 +43,7 @@ namespace Ingress
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapGet("/", async context =>
-                {
-                    await context.Response.WriteAsync("Hello World!");
-                });
+                endpoints.MapReverseProxy();
             });
         }
     }

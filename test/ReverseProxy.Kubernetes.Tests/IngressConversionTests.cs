@@ -1,17 +1,20 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 using System;
 using System.Collections.Generic;
-using IngressController.Converters;
-using IngressController.Caching;
-using Xunit;
-using IngressController.Services;
-using k8s;
-using YamlDotNet.Serialization;
-using k8s.Models;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Text.Json;
+using k8s;
+using k8s.Models;
 using Newtonsoft.Json.Linq;
+using YamlDotNet.Serialization;
+using Yarp.ReverseProxy.Kubernetes.Controller.Caching;
+using Yarp.ReverseProxy.Kubernetes.Controller.Converters;
+using Yarp.ReverseProxy.Kubernetes.Controller.Services;
+using Xunit;
 
 namespace IngressController.Tests
 {

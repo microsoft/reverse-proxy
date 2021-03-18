@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using Yarp.ReverseProxy.KubernetesController.Caching;
+using Yarp.ReverseProxy.Kubernetes.Controller.Caching;
 
-namespace Yarp.ReverseProxy.KubernetesController.Services
+namespace Yarp.ReverseProxy.Kubernetes.Controller.Services
 {
     /// <summary>
     /// ReconcileData is the information returned from <see cref="ICache.TryGetReconcileData(Microsoft.Kubernetes.NamespacedName, out ReconcileData)"/>

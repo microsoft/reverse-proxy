@@ -4,7 +4,7 @@
 using k8s.Models;
 using System;
 
-namespace Yarp.ReverseProxy.KubernetesController.Caching
+namespace Yarp.ReverseProxy.Kubernetes.Controller.Caching
 {
     /// <summary>
     /// Holds data needed from a <see cref="V1Ingress"/> resource.

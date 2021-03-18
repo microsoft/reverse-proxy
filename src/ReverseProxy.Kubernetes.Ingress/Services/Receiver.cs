@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Microsoft.Extensions.Hosting;
@@ -7,25 +7,31 @@ using Microsoft.Extensions.Options;
 using Microsoft.Kubernetes.Controller.Hosting;
 using Microsoft.Kubernetes.Controller.Rate;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using WatchingServicesProtocol;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Configuration;
+using Yarp.ReverseProxy.Service;
+using Yarp.ReverseProxy.Kubernetes.Protocol;
 
-namespace Ingress.Services
+namespace Yarp.ReverseProxy.Kubernetes.Ingress.Services
 {
     public class Receiver : BackgroundHostedService
     {
         private readonly ReceiverOptions _options;
         private readonly Limiter _limiter;
+        private readonly IUpdateConfig _proxyConfigProvider;
 
         public Receiver(
             IOptions<ReceiverOptions> options,
             IHostApplicationLifetime hostApplicationLifetime,
-            ILogger<Receiver> logger) : base(hostApplicationLifetime, logger)
+            ILogger<Receiver> logger,
+            IUpdateConfig proxyConfigProvider) : base(hostApplicationLifetime, logger)
         {
             if (options is null)
             {
@@ -36,6 +42,7 @@ namespace Ingress.Services
 
             // two requests per second after third failure
             _limiter = new Limiter(new Limit(2), 3);
+            _proxyConfigProvider = proxyConfigProvider;
         }
 
         public override async Task RunAsync(CancellationToken cancellationToken)
@@ -66,15 +73,13 @@ namespace Ingress.Services
 
                         var message = System.Text.Json.JsonSerializer.Deserialize<Message>(json);
                         Logger.LogInformation("Received {MessageType} for {MessageKey}", message.MessageType, message.Key);
-                        foreach (var rule in message.Rules ?? Enumerable.Empty<Rule>())
+
+                        Logger.LogInformation(json);
+                        Logger.LogInformation(message.MessageType.ToString());
+
+                        if (message.MessageType == MessageType.Update)
                         {
-                            Logger.LogInformation("{MessageKey} http(s)://{Host}{Path} goes to port {Port} on {Ready} -- not ready {NotReady}",
-                                message.Key,
-                                rule.Host ?? "*",
-                                rule.Path,
-                                rule.Port,
-                                rule.Ready,
-                                rule.NotReady);
+                            _proxyConfigProvider.Update(message.Routes, message.Cluster);
                         }
                     }
                 }

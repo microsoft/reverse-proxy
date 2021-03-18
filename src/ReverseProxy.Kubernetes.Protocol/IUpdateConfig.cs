@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Yarp.ReverseProxy.Abstractions;
 
-namespace Yarp.ReverseProxy.WebApp
+namespace Yarp.ReverseProxy.Kubernetes.Protocol
 {
     public interface IUpdateConfig
     {
