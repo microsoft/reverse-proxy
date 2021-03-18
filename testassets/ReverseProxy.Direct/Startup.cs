@@ -61,7 +61,7 @@ namespace Yarp.ReverseProxy.Sample
 
         private class CustomTransformer : HttpTransformer
         {
-            public override async Task TransformRequestAsync(HttpContext httpContext, HttpRequestMessage proxyRequest, string destinationPrefix)
+            public override async ValueTask TransformRequestAsync(HttpContext httpContext, HttpRequestMessage proxyRequest, string destinationPrefix)
             {
                 // Copy all request headers
                 await base.TransformRequestAsync(httpContext, proxyRequest, destinationPrefix);
@@ -76,6 +76,18 @@ namespace Yarp.ReverseProxy.Sample
 
                 // Suppress the original request header, use the one from the destination Uri.
                 proxyRequest.Headers.Host = null;
+            }
+
+            public override ValueTask<bool> TransformResponseAsync(HttpContext httpContext, HttpResponseMessage proxyResponse)
+            {
+                // Suppress the response body from errors.
+                // The status code was already copied.
+                if (!proxyResponse.IsSuccessStatusCode)
+                {
+                    return new ValueTask<bool>(false);
+                }
+
+                return base.TransformResponseAsync(httpContext, proxyResponse);
             }
         }
     }

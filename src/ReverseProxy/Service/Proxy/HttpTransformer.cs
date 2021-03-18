@@ -35,7 +35,7 @@ namespace Yarp.ReverseProxy.Service.Proxy
         /// <param name="httpContext">The incoming request.</param>
         /// <param name="proxyRequest">The outgoing proxy request.</param>
         /// <param name="destinationPrefix">The uri prefix for the selected destination server which can be used to create the RequestUri.</param>
-        public virtual Task TransformRequestAsync(HttpContext httpContext, HttpRequestMessage proxyRequest, string destinationPrefix)
+        public virtual ValueTask TransformRequestAsync(HttpContext httpContext, HttpRequestMessage proxyRequest, string destinationPrefix)
         {
             foreach (var header in httpContext.Request.Headers)
             {
@@ -55,7 +55,7 @@ namespace Yarp.ReverseProxy.Service.Proxy
                 RequestUtilities.AddHeader(proxyRequest, headerName, headerValue);
             }
 
-            return Task.CompletedTask;
+            return default;
         }
 
         /// <summary>
@@ -66,7 +66,8 @@ namespace Yarp.ReverseProxy.Service.Proxy
         /// </summary>
         /// <param name="httpContext">The incoming request.</param>
         /// <param name="proxyResponse">The response from the destination.</param>
-        public virtual Task TransformResponseAsync(HttpContext httpContext, HttpResponseMessage proxyResponse)
+        /// <returns>A bool indicating if the response should be proxied to the client or not.</returns>
+        public virtual ValueTask<bool> TransformResponseAsync(HttpContext httpContext, HttpResponseMessage proxyResponse)
         {
             var responseHeaders = httpContext.Response.Headers;
             CopyResponseHeaders(httpContext, proxyResponse.Headers, responseHeaders);
@@ -75,7 +76,7 @@ namespace Yarp.ReverseProxy.Service.Proxy
                 CopyResponseHeaders(httpContext, proxyResponse.Content.Headers, responseHeaders);
             }
 
-            return Task.CompletedTask;
+            return new ValueTask<bool>(true);
         }
 
         /// <summary>
@@ -84,7 +85,7 @@ namespace Yarp.ReverseProxy.Service.Proxy
         /// </summary>
         /// <param name="httpContext">The incoming request.</param>
         /// <param name="proxyResponse">The response from the destination.</param>
-        public virtual Task TransformResponseTrailersAsync(HttpContext httpContext, HttpResponseMessage proxyResponse)
+        public virtual ValueTask TransformResponseTrailersAsync(HttpContext httpContext, HttpResponseMessage proxyResponse)
         {
             // NOTE: Deliberately not using `context.Response.SupportsTrailers()`, `context.Response.AppendTrailer(...)`
             // because they lookup `IHttpResponseTrailersFeature` for every call. Here we do it just once instead.
@@ -97,7 +98,7 @@ namespace Yarp.ReverseProxy.Service.Proxy
                 CopyResponseHeaders(httpContext, proxyResponse.TrailingHeaders, outgoingTrailers);
             }
 
-            return Task.CompletedTask;
+            return default;
         }
 
 

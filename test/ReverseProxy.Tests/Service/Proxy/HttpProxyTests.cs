@@ -154,7 +154,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                 {
                     context.Response.Headers["transformHeader"] = "value";
                     context.Response.Headers.Append("x-ms-response-test", "value");
-                    return Task.CompletedTask;
+                    return new (true);
                 },
                 OnResponseTrailers = (context, response) =>
                 {
@@ -1093,6 +1093,51 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
         }
 
         [Fact]
+        public async Task ProxyAsync_ResponseBodySuppressedByTransform_ReturnsStatusCodeAndHeaders()
+        {
+            var events = TestEventListener.Collect();
+
+            var httpContext = new DefaultHttpContext();
+            httpContext.Request.Method = "GET";
+            httpContext.Request.Host = new HostString("example.com:3456");
+
+            var proxyResponseStream = new MemoryStream();
+            httpContext.Response.Body = proxyResponseStream;
+
+            var destinationPrefix = "https://localhost:123/";
+            var sut = CreateProxy();
+            var client = MockHttpHandler.CreateClient(
+                (HttpRequestMessage request, CancellationToken cancellationToken) =>
+                {
+                    var message = new HttpResponseMessage()
+                    {
+                        StatusCode = HttpStatusCode.UnprocessableEntity,
+                        Content = new StreamContent(new ThrowStream(throwOnFirstRead: true))
+                    };
+                    message.Headers.AcceptRanges.Add("bytes");
+                    return Task.FromResult(message);
+                });
+
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, requestOptions: default, new DelegateHttpTransforms()
+            {
+                OnResponse = (context, proxyResponse) =>
+                {
+                    Assert.Equal(HttpStatusCode.UnprocessableEntity, proxyResponse.StatusCode);
+                    Assert.Equal(StatusCodes.Status422UnprocessableEntity, context.Response.StatusCode);
+                    return new (false);
+                }
+            });
+
+            Assert.Equal(StatusCodes.Status422UnprocessableEntity, httpContext.Response.StatusCode);
+            Assert.Equal(0, proxyResponseStream.Length);
+            Assert.Equal("bytes", httpContext.Response.Headers[HeaderNames.AcceptRanges]);
+            Assert.Null(httpContext.Features.Get<IProxyErrorFeature>());
+
+            AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
+            events.AssertContainProxyStages(hasRequestContent: false, hasResponseContent: false);
+        }
+
+        [Fact]
         public async Task ProxyAsync_ResponseBodyDestionationErrorFirstRead_Returns502()
         {
             var events = TestEventListener.Collect();
@@ -1888,10 +1933,10 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
             public bool CopyRequestHeaders { get; set; } = true;
 
             public Func<HttpContext, HttpRequestMessage, string, Task> OnRequest { get; set; } = (_, _, _) => Task.CompletedTask;
-            public Func<HttpContext, HttpResponseMessage, Task> OnResponse { get; set; } = (_, _) => Task.CompletedTask;
+            public Func<HttpContext, HttpResponseMessage, ValueTask<bool>> OnResponse { get; set; } = (_, _) => new (true);
             public Func<HttpContext, HttpResponseMessage, Task> OnResponseTrailers { get; set; } = (_, _) => Task.CompletedTask;
 
-            public override async Task TransformRequestAsync(HttpContext httpContext, HttpRequestMessage proxyRequest, string destinationPrefix)
+            public override async ValueTask TransformRequestAsync(HttpContext httpContext, HttpRequestMessage proxyRequest, string destinationPrefix)
             {
                 if (CopyRequestHeaders)
                 {
@@ -1901,14 +1946,14 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                 await OnRequest(httpContext, proxyRequest, destinationPrefix);
             }
 
-            public override async Task TransformResponseAsync(HttpContext httpContext, HttpResponseMessage proxyResponse)
+            public override async ValueTask<bool> TransformResponseAsync(HttpContext httpContext, HttpResponseMessage proxyResponse)
             {
                 await base.TransformResponseAsync(httpContext, proxyResponse);
 
-                await OnResponse(httpContext, proxyResponse);
+                return await OnResponse(httpContext, proxyResponse);
             }
 
-            public override async Task TransformResponseTrailersAsync(HttpContext httpContext, HttpResponseMessage proxyResponse)
+            public override async ValueTask TransformResponseTrailersAsync(HttpContext httpContext, HttpResponseMessage proxyResponse)
             {
                 await base.TransformResponseTrailersAsync(httpContext, proxyResponse);
 
