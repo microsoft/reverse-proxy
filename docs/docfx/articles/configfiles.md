@@ -117,7 +117,7 @@ For additional fields see [Cluster](xref:Microsoft.ReverseProxy.Abstractions.Clu
         "Authorization Policy" : "Anonymous", // Name of the policy or "Default", "Anonymous"
         "CorsPolicy" : "Default", // Name of the CorsPolicy to apply to this route or "Default", "Disable"
         "Match": {
-          "Path": "/something/{*any}", // The path to match using ASP.NET syntax. 
+          "Path": "/something/{**remainder}", // The path to match using ASP.NET syntax. 
           "Hosts" : [ "www.aaaaa.com", "www.bbbbb.com"], // The host names to match, unspecified is any
           "Methods" : [ "GET", "PUT" ], // The HTTP methods that match, uspecified is all
           "Headers" : [ // The headers to match, unspecified is any
