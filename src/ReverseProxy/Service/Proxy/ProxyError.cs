@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Microsoft.ReverseProxy.Service.Proxy
+namespace Yarp.ReverseProxy.Service.Proxy
 {
     /// <summary>
     /// Errors reported when proxying a request to the destination.
@@ -42,6 +42,11 @@ namespace Microsoft.ReverseProxy.Service.Proxy
         /// Failed writing the request body to the destination.
         /// </summary>
         RequestBodyDestination,
+
+        /// <summary>
+        /// Failed to copy response headers.
+        /// </summary>
+        ResponseHeaders,
 
         /// <summary>
         /// Canceled while copying the response body.

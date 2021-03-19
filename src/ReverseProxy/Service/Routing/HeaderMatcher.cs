@@ -3,9 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Abstractions;
 
-namespace Microsoft.ReverseProxy.Service.Routing
+namespace Yarp.ReverseProxy.Service.Routing
 {
     /// <summary>
     /// A request header matcher used during routing.

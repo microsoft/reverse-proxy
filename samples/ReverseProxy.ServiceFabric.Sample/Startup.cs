@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Yarp.ReverseProxy.ServiceFabric;
 
-namespace Microsoft.ReverseProxy.ServiceFabric.Sample
+namespace Yarp.Sample
 {
     /// <summary>
     /// ASP .NET Core pipeline initialization.
@@ -38,14 +38,7 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Sample
         /// </summary>
         public void Configure(IApplicationBuilder app)
         {
-            app.Use((context, next) =>
-            {
-                context.Response.Headers.Add("x-yarp-sf", Environment.MachineName);
-                return next();
-            });
-
             app.UseRouting();
-            app.UseAuthorization();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

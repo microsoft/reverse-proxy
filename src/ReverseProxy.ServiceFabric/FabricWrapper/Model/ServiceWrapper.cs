@@ -4,7 +4,7 @@
 using System;
 using System.Fabric.Query;
 
-namespace Microsoft.ReverseProxy.ServiceFabric
+namespace Yarp.ReverseProxy.ServiceFabric
 {
     /// <summary>
     /// TODO .

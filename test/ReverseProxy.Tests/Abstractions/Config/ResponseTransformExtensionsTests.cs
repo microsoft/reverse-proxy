@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.ReverseProxy.Service.Config;
-using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 using Xunit;
+using Yarp.ReverseProxy.Service.Config;
+using Yarp.ReverseProxy.Service.RuntimeModel.Transforms;
 
-namespace Microsoft.ReverseProxy.Abstractions.Config
+namespace Yarp.ReverseProxy.Abstractions.Config
 {
     public class ResponseTransformExtensionsTests : TransformExtentionsTestsBase
     {

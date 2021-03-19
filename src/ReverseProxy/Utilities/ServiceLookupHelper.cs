@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Microsoft.ReverseProxy.Utilities
+namespace Yarp.ReverseProxy.Utilities
 {
     internal static class ServiceLookupHelper
     {
@@ -26,11 +26,6 @@ namespace Microsoft.ReverseProxy.Utilities
             }
 
             return result;
-        }
-
-        public static T GetRequiredServiceById<T>(this IDictionary<string, T> services, string id)
-        {
-            return services.GetRequiredServiceById(id, id);
         }
 
         public static T GetRequiredServiceById<T>(this IDictionary<string, T> services, string id, string defaultId)

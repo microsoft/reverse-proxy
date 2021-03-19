@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract
+namespace Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract
 {
     /// <summary>
     /// Names of built-in load balancing policies.

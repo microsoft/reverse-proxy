@@ -3,10 +3,11 @@
 
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Template;
 using Xunit;
 
-namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
+namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
 {
     public class QueryParameterFromRouteTransformTests
     {
@@ -18,8 +19,8 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         {
             const string path = "/6/7/8";
 
-            var routeValues = new AspNetCore.Routing.RouteValueDictionary();
-            var templateMatcher = new TemplateMatcher(TemplateParser.Parse(pattern), new AspNetCore.Routing.RouteValueDictionary());
+            var routeValues = new RouteValueDictionary();
+            var templateMatcher = new TemplateMatcher(TemplateParser.Parse(pattern), new RouteValueDictionary());
             templateMatcher.TryMatch(path, routeValues);
 
             var httpContext = new DefaultHttpContext();
@@ -40,8 +41,8 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         {
             const string path = "/6/7/8";
 
-            var routeValues = new AspNetCore.Routing.RouteValueDictionary();
-            var templateMatcher = new TemplateMatcher(TemplateParser.Parse("/{a}/{b}/{c}"), new AspNetCore.Routing.RouteValueDictionary());
+            var routeValues = new RouteValueDictionary();
+            var templateMatcher = new TemplateMatcher(TemplateParser.Parse("/{a}/{b}/{c}"), new RouteValueDictionary());
             templateMatcher.TryMatch(path, routeValues);
 
             var httpContext = new DefaultHttpContext();
@@ -63,8 +64,8 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         {
             const string path = "/6/7/8";
 
-            var routeValues = new AspNetCore.Routing.RouteValueDictionary();
-            var templateMatcher = new TemplateMatcher(TemplateParser.Parse("/{a}/{b}/{c}"), new AspNetCore.Routing.RouteValueDictionary());
+            var routeValues = new RouteValueDictionary();
+            var templateMatcher = new TemplateMatcher(TemplateParser.Parse("/{a}/{b}/{c}"), new RouteValueDictionary());
             templateMatcher.TryMatch(path, routeValues);
 
             var httpContext = new DefaultHttpContext();
@@ -86,8 +87,8 @@ namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
         {
             const string path = "/6/7/8";
 
-            var routeValues = new AspNetCore.Routing.RouteValueDictionary();
-            var templateMatcher = new TemplateMatcher(TemplateParser.Parse("/{a}/{b}/{c}"), new AspNetCore.Routing.RouteValueDictionary());
+            var routeValues = new RouteValueDictionary();
+            var templateMatcher = new TemplateMatcher(TemplateParser.Parse("/{a}/{b}/{c}"), new RouteValueDictionary());
             templateMatcher.TryMatch(path, routeValues);
 
             var httpContext = new DefaultHttpContext();

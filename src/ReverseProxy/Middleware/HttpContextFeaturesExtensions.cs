@@ -3,12 +3,18 @@
 
 using System;
 using Microsoft.AspNetCore.Http;
-using Microsoft.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.RuntimeModel;
 
-namespace Microsoft.ReverseProxy.Middleware
+namespace Yarp.ReverseProxy.Middleware
 {
-    internal static class HttpContextFeaturesExtensions
+    /// <summary>
+    /// Extension methods for fetching proxy configuration from the current HttpContext.
+    /// </summary>
+    public static class HttpContextFeaturesExtensions
     {
+        /// <summary>
+        /// Retrieves the ClusterInfo instance associated with the current request.
+        /// </summary>
         public static ClusterInfo GetRequiredCluster(this HttpContext context)
         {
             var routeConfig = context.GetRequiredRouteConfig();
@@ -16,6 +22,9 @@ namespace Microsoft.ReverseProxy.Middleware
             return cluster;
         }
 
+        /// <summary>
+        /// Retrieves the RouteConfig instance associated with the current request.
+        /// </summary>
         public static RouteConfig GetRequiredRouteConfig(this HttpContext context)
         {
             var endpoint = context.GetEndpoint()
@@ -27,6 +36,9 @@ namespace Microsoft.ReverseProxy.Middleware
             return routeConfig;
         }
 
+        /// <summary>
+        /// Retrieves the IReverseProxyFeature instance associated with the current request.
+        /// </summary>
         public static IReverseProxyFeature GetRequiredProxyFeature(this HttpContext context)
         {
             return context.Features.Get<IReverseProxyFeature>() ?? throw new InvalidOperationException("ReverseProxyFeature unspecified.");

@@ -8,12 +8,12 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.ReverseProxy.Common.Tests;
-using Microsoft.ReverseProxy.Telemetry;
-using Microsoft.ReverseProxy.Utilities;
 using Xunit;
+using Yarp.ReverseProxy.Common.Tests;
+using Yarp.ReverseProxy.Telemetry;
+using Yarp.ReverseProxy.Utilities;
 
-namespace Microsoft.ReverseProxy.Service.Proxy.Tests
+namespace Yarp.ReverseProxy.Service.Proxy.Tests
 {
     public class StreamCopierTests : TestAutoMockBase
     {

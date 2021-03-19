@@ -5,11 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.ReverseProxy.Service.HealthChecks;
-using Microsoft.ReverseProxy.Service.Proxy;
-using Microsoft.ReverseProxy.Utilities;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Service.HealthChecks;
+using Yarp.ReverseProxy.Utilities;
 
-namespace Microsoft.ReverseProxy.Middleware
+namespace Yarp.ReverseProxy.Middleware
 {
     public class PassiveHealthCheckMiddleware
     {
@@ -27,19 +27,17 @@ namespace Microsoft.ReverseProxy.Middleware
             await _next(context);
 
             var proxyFeature = context.GetRequiredProxyFeature();
-            var options = proxyFeature.ClusterConfig.Options.HealthCheck?.Passive;
+            var options = proxyFeature.ClusterSnapshot.Options.HealthCheck?.Passive;
 
             // Do nothing if no target destination has been chosen for the request.
-            if (!(options?.Enabled).GetValueOrDefault() || proxyFeature.SelectedDestination == null)
+            if (!(options?.Enabled).GetValueOrDefault() || proxyFeature.ProxiedDestination == null)
             {
                 return;
             }
 
-            // Policy must always be present if the passive health check is enabled for a cluster.
-            // It's validated and ensured by a configuration validator.
-            var policy = _policies.GetRequiredServiceById(options.Policy);
+            var policy = _policies.GetRequiredServiceById(options.Policy, HealthCheckConstants.PassivePolicy.TransportFailureRate);
             var cluster = context.GetRequiredRouteConfig().Cluster;
-            policy.RequestProxied(cluster, proxyFeature.SelectedDestination, context);
+            policy.RequestProxied(cluster, proxyFeature.ProxiedDestination, context);
         }
     }
 }

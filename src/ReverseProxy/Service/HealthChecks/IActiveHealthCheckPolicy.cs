@@ -4,12 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
-using Microsoft.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.RuntimeModel;
 
-namespace Microsoft.ReverseProxy.Service.HealthChecks
+namespace Yarp.ReverseProxy.Service.HealthChecks
 {
     /// <summary>
-    /// Active health check evaulation policy.
+    /// Active health check evaluation policy.
     /// </summary>
     public interface IActiveHealthCheckPolicy
     {
@@ -19,7 +19,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
         string Name { get; }
 
         /// <summary>
-        /// Anaylizes results of active health probes sent to destinations and calculates their new health states.
+        /// Analyzes results of active health probes sent to destinations and calculates their new health states.
         /// </summary>
         /// <param name="cluster">Cluster.</param>
         /// <param name="probingResults">Destination probing results.</param>

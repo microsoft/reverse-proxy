@@ -3,10 +3,10 @@
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.RuntimeModel;
-using Microsoft.ReverseProxy.Service.Management;
-using Microsoft.ReverseProxy.Utilities;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Service.Management;
+using Yarp.ReverseProxy.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -14,7 +14,7 @@ using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Microsoft.ReverseProxy.Service.HealthChecks
+namespace Yarp.ReverseProxy.Service.HealthChecks
 {
     internal partial class ActiveHealthCheckMonitor : IActiveHealthCheckMonitor, IClusterChangeListener, IDisposable
     {
@@ -38,6 +38,8 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             _scheduler = new EntityActionScheduler<ClusterInfo>(cluster => ProbeCluster(cluster), autoStart: false, runOnce: false, timerFactory);
         }
 
+        public bool InitialDestinationsProbed { get; private set; }
+
         public Task CheckHealthAsync(IEnumerable<ClusterInfo> clusters)
         {
             return Task.Run(async () =>
@@ -58,6 +60,10 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
                 catch (Exception ex)
                 {
                     Log.ExplicitActiveCheckOfAllClustersHealthFailed(_logger, ex);
+                }
+                finally
+                {
+                    InitialDestinationsProbed = true;
                 }
 
                 _scheduler.Start();
@@ -107,9 +113,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
 
             Log.StartingActiveHealthProbingOnCluster(_logger, cluster.ClusterId);
 
-            // Policy must always be present if the active health check is enabled for a cluster.
-            // It's validated and ensured by a configuration validator.
-            var policy = _policies.GetRequiredServiceById(activeHealthOptions.Policy);
+            var policy = _policies.GetRequiredServiceById(activeHealthOptions.Policy, HealthCheckConstants.ActivePolicy.ConsecutiveFailures);
             var allDestinations = cluster.DynamicState.AllDestinations;
             var probeTasks = new List<(Task<HttpResponseMessage> Task, CancellationTokenSource Cts)>(allDestinations.Count);
             try

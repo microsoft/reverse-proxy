@@ -3,9 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.ReverseProxy.Abstractions.Config;
+using Yarp.ReverseProxy.Abstractions.Config;
 
-namespace Microsoft.ReverseProxy.Service.Config
+namespace Yarp.ReverseProxy.Service.Config
 {
     internal class ResponseTransformFactory : ITransformFactory
     {

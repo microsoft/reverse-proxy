@@ -5,7 +5,7 @@ using System;
 using System.Net.Http;
 using Xunit;
 
-namespace Microsoft.ReverseProxy.Service.Proxy.Tests
+namespace Yarp.ReverseProxy.Service.Proxy.Tests
 {
     public class HttpUtilitiesTests
     {

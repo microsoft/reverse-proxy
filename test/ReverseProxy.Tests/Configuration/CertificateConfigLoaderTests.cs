@@ -9,11 +9,11 @@ using System.Security.Cryptography;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Primitives;
-using Microsoft.ReverseProxy.Utilities.Tests;
 using Moq;
 using Xunit;
+using Yarp.ReverseProxy.Utilities.Tests;
 
-namespace Microsoft.ReverseProxy.Configuration
+namespace Yarp.ReverseProxy.Configuration
 {
     public class CertificateConfigLoaderTests
     {

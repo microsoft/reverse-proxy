@@ -6,7 +6,10 @@ To keep track of the process, open a [release checklist issue](https://github.co
 
 ## Ensure there's a release branch created.
 
-See [Branching](Branching.md).
+See [Branching](Branching.md):
+- Make the next preview branch.
+- Update the branding in main.
+- Update the global.json runtime and SDK versions in main.
 
 ## Identify the Final Build
 
@@ -79,6 +82,10 @@ Push the tag change to the upstream repo (**not your fork**)
 ## Draft release notes
 
 Create a draft release at https://github.com/microsoft/reverse-proxy/releases using the new tag. See prior releases for the recommended content and format.
+
+## Update references to the package version
+Some samples may include the package version as part of the references in the project file, which makes it easier to clone and run. Those should be updated to the new package version that has just been published. Locations include:
+1. [BasicYarpSample.csproj](../../samples/BasicYarpSample/BasicYarpSample.csproj)
 
 ## Publish the docs
 

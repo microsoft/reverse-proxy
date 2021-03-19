@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 
 using System.Net.Http;
-using Microsoft.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.RuntimeModel;
 
-namespace Microsoft.ReverseProxy.Service.HealthChecks
+namespace Yarp.ReverseProxy.Service.HealthChecks
 {
     /// <summary>
     /// A factory for creating <see cref="HttpRequestMessage"/>s for active health probes to be sent to destinations.

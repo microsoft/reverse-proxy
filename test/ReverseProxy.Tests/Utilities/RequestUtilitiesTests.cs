@@ -4,7 +4,7 @@
 using Microsoft.AspNetCore.Http;
 using Xunit;
 
-namespace Microsoft.ReverseProxy.Utilities
+namespace Yarp.ReverseProxy.Utilities
 {
     public class RequestUtilitiesTests
     {

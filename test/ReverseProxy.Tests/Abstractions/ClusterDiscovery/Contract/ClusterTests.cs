@@ -5,11 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Security.Authentication;
-using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
-using Microsoft.ReverseProxy.Service.Proxy;
+using System.Text;
 using Xunit;
+using Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
+using Yarp.ReverseProxy.Service.Proxy;
 
-namespace Microsoft.ReverseProxy.Abstractions.Tests
+namespace Yarp.ReverseProxy.Abstractions.Tests
 {
     public class ClusterTests
     {
@@ -71,6 +72,9 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
                     MaxConnectionsPerServer = 10,
                     DangerousAcceptAnyServerCertificate = true,
                     ActivityContextHeaders = ActivityContextHeaders.CorrelationContext,
+#if NET
+                    RequestHeaderEncoding = Encoding.UTF8
+#endif
                 },
                 HttpRequest = new RequestProxyOptions
                 {
@@ -138,6 +142,9 @@ namespace Microsoft.ReverseProxy.Abstractions.Tests
                     MaxConnectionsPerServer = 10,
                     DangerousAcceptAnyServerCertificate = true,
                     ActivityContextHeaders = ActivityContextHeaders.CorrelationContext,
+#if NET
+                    RequestHeaderEncoding = Encoding.UTF8
+#endif
                 },
                 HttpRequest = new RequestProxyOptions
                 {

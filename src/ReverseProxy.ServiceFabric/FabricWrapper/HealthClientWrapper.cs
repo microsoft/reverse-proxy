@@ -4,7 +4,7 @@
 using System.Fabric;
 using System.Fabric.Health;
 
-namespace Microsoft.ReverseProxy.ServiceFabric
+namespace Yarp.ReverseProxy.ServiceFabric
 {
     /// <inheritdoc/>
     internal class HealthClientWrapper : IHealthClientWrapper

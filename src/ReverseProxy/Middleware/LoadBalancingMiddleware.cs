@@ -6,12 +6,12 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
-using Microsoft.ReverseProxy.RuntimeModel;
-using Microsoft.ReverseProxy.Service.LoadBalancing;
-using Microsoft.ReverseProxy.Utilities;
+using Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
+using Yarp.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Service.LoadBalancing;
+using Yarp.ReverseProxy.Utilities;
 
-namespace Microsoft.ReverseProxy.Middleware
+namespace Yarp.ReverseProxy.Middleware
 {
     /// <summary>
     /// Load balances across the available destinations.
@@ -51,19 +51,20 @@ namespace Microsoft.ReverseProxy.Middleware
             }
             else
             {
-                var currentPolicy = _loadBalancingPolicies.GetRequiredServiceById(proxyFeature.ClusterConfig.Options.LoadBalancingPolicy, LoadBalancingPolicies.PowerOfTwoChoices);
+                var currentPolicy = _loadBalancingPolicies.GetRequiredServiceById(proxyFeature.ClusterSnapshot.Options.LoadBalancingPolicy, LoadBalancingPolicies.PowerOfTwoChoices);
                 destination = currentPolicy.PickDestination(context, destinations);
             }
 
             if (destination == null)
             {
-                var cluster = context.GetRequiredCluster();
-                Log.NoAvailableDestinations(_logger, cluster.ClusterId);
-                context.Response.StatusCode = 503;
-                return Task.CompletedTask;
+                // We intentionally do not short circuit here, we allow for later middleware to decide how to handle this case.
+                Log.NoAvailableDestinations(_logger, proxyFeature.ClusterSnapshot.Options.Id);
+                proxyFeature.AvailableDestinations = Array.Empty<DestinationInfo>();
             }
-
-            proxyFeature.AvailableDestinations = destination;
+            else
+            {
+                proxyFeature.AvailableDestinations = destination;
+            }
 
             return _next(context);
         }

@@ -6,10 +6,10 @@ using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.Extensions.Logging;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Telemetry;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Telemetry;
 
-namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
+namespace Yarp.ReverseProxy.Service.Proxy.Infrastructure
 {
     /// <summary>
     /// Default implementation of <see cref="IProxyHttpClientFactory"/>.
@@ -66,9 +66,11 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
                 handler.SslOptions.RemoteCertificateValidationCallback = delegate { return true; };
             }
 #if NET
-            if (newClientOptions.EnableMultipleHttp2Connections.HasValue)
+            handler.EnableMultipleHttp2Connections = newClientOptions.EnableMultipleHttp2Connections.GetValueOrDefault(true);
+
+            if (newClientOptions.RequestHeaderEncoding != null)
             {
-                handler.EnableMultipleHttp2Connections = newClientOptions.EnableMultipleHttp2Connections.Value;
+                handler.RequestHeaderEncodingSelector = (_, _) => newClientOptions.RequestHeaderEncoding;
             }
 #endif
 
@@ -83,7 +85,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
             return new HttpMessageInvoker(handler, disposeHandler: true);
         }
 
-        private bool CanReuseOldClient(ProxyHttpClientContext context)
+        private static bool CanReuseOldClient(ProxyHttpClientContext context)
         {
             return context.OldClient != null && context.NewOptions == context.OldOptions;
         }

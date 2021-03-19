@@ -11,13 +11,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.RuntimeModel;
-using Microsoft.ReverseProxy.Service.HealthChecks;
-using Microsoft.ReverseProxy.Service.Proxy;
-using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Service.HealthChecks;
+using Yarp.ReverseProxy.Service.Proxy;
+using Yarp.ReverseProxy.Service.Proxy.Infrastructure;
 
-namespace Microsoft.ReverseProxy.Service.Management
+namespace Yarp.ReverseProxy.Service.Management
 {
     /// <summary>
     /// Provides a method to apply Proxy configuration changes
@@ -26,7 +26,7 @@ namespace Microsoft.ReverseProxy.Service.Management
     /// in a thread-safe manner while avoiding locks on the hot path.
     /// </summary>
     /// <remarks>
-    /// This takes inspiration from <a https://github.com/dotnet/aspnetcore/blob/cbe16474ce9db7ff588aed89596ff4df5c3f62e1/src/Mvc/Mvc.Core/src/Routing/ActionEndpointDataSourceBase.cs"/>.
+    /// This takes inspiration from <a "https://github.com/dotnet/aspnetcore/blob/cbe16474ce9db7ff588aed89596ff4df5c3f62e1/src/Mvc/Mvc.Core/src/Routing/ActionEndpointDataSourceBase.cs"/>.
     /// </remarks>
     internal class ProxyConfigManager : EndpointDataSource, IDisposable
     {
@@ -227,7 +227,7 @@ namespace Microsoft.ReverseProxy.Service.Management
             }
 
             var seenRouteIds = new HashSet<string>();
-            var sortedRoutes = new SortedList<(int, string), ProxyRoute>(routes?.Count ?? 0);
+            var configuredRoutes = new List<ProxyRoute>(routes?.Count ?? 0);
             var errors = new List<Exception>();
 
             foreach (var r in routes)
@@ -260,7 +260,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                     continue;
                 }
 
-                sortedRoutes.Add((route.Order ?? 0, route.RouteId), route);
+                configuredRoutes.Add(route);
             }
 
             if (errors.Count > 0)
@@ -268,7 +268,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                 return (null, errors);
             }
 
-            return (sortedRoutes.Values, errors);
+            return (configuredRoutes, errors);
         }
 
         private async Task<(IList<Cluster>, IList<Exception>)> VerifyClustersAsync(IReadOnlyList<Cluster> clusters, CancellationToken cancellation)
@@ -404,7 +404,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                     setupAction: destination =>
                     {
                         var destinationConfig = destination.Config;
-                        if (destinationConfig?.Address != newDestination.Value.Address || destinationConfig?.Health != newDestination.Value.Health)
+                        if (destinationConfig == null || destinationConfig.HasChanged(newDestination.Value))
                         {
                             if (destinationConfig == null)
                             {
@@ -414,7 +414,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                             {
                                 Log.DestinationChanged(_logger, newDestination.Key);
                             }
-                            destination.Config = new DestinationConfig(newDestination.Value.Address, newDestination.Value.Health);
+                            destination.Config = new DestinationConfig(newDestination.Value);
                         }
                     });
             }
@@ -455,7 +455,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                     {
                         var currentRouteConfig = route.Config;
                         if (currentRouteConfig == null ||
-                            currentRouteConfig.HasConfigChanged(configRoute, cluster))
+                            currentRouteConfig.HasConfigChanged(configRoute, cluster, route.ClusterRevision))
                         {
                             // Config changed, so update runtime route
                             changed = true;
@@ -469,7 +469,7 @@ namespace Microsoft.ReverseProxy.Service.Management
                                 Log.RouteChanged(_logger, configRoute.RouteId);
                             }
 
-                            var newConfig = BuildRouteConfig(configRoute, cluster, route);
+                            var newConfig = BuildRouteConfig(configRoute, cluster);
                             route.Config = newConfig;
                             route.ClusterRevision = cluster?.Revision;
                         }
@@ -525,12 +525,11 @@ namespace Microsoft.ReverseProxy.Service.Management
             }
         }
 
-        private RouteConfig BuildRouteConfig(ProxyRoute source, ClusterInfo cluster, RouteInfo runtimeRoute)
+        private RouteConfig BuildRouteConfig(ProxyRoute source, ClusterInfo cluster)
         {
             var transforms = _transformBuilder.Build(source, cluster?.Config?.Options);
 
             var newRouteConfig = new RouteConfig(
-                runtimeRoute,
                 source,
                 cluster,
                 transforms);

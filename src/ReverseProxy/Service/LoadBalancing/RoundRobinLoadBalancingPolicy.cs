@@ -4,12 +4,12 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Http;
-using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
-using Microsoft.ReverseProxy.Middleware;
-using Microsoft.ReverseProxy.RuntimeModel;
-using Microsoft.ReverseProxy.Utilities;
+using Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
+using Yarp.ReverseProxy.Middleware;
+using Yarp.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Utilities;
 
-namespace Microsoft.ReverseProxy.Service.LoadBalancing
+namespace Yarp.ReverseProxy.Service.LoadBalancing
 {
     internal sealed class RoundRobinLoadBalancingPolicy : ILoadBalancingPolicy
     {

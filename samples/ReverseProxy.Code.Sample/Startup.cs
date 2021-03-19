@@ -3,82 +3,35 @@
 
 using System;
 using System.Collections.Generic;
-using System.Net.Http.Headers;
-using Microsoft.AspNetCore.Authentication;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Abstractions.Config;
-using Microsoft.ReverseProxy.Middleware;
-using Microsoft.ReverseProxy.Telemetry.Consumption;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Middleware;
+using Yarp.ReverseProxy.RuntimeModel;
 
-namespace Microsoft.ReverseProxy.Sample
+
+namespace Yarp.Sample
 {
     /// <summary>
-    /// ASP .NET Core pipeline initialization.
+    /// Initialiaztion for ASP.NET using YARP reverse proxy
     /// </summary>
     public class Startup
     {
+        private const string DEBUG_HEADER = "Debug";
+        private const string DEBUG_METADATA_KEY = "debug";
+        private const string DEBUG_VALUE = "true";
+
         /// <summary>
         /// This method gets called by the runtime. Use this method to add services to the container.
         /// </summary>
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
-            var routes = new[]
-            {
-                new ProxyRoute()
-                {
-                    RouteId = "route1",
-                    ClusterId = "cluster1",
-                    Match = new ProxyMatch
-                    {
-                        Path = "{**catch-all}"
-                    }
-                }
-            };
-            var clusters = new[]
-            {
-                new Cluster()
-                {
-                    Id = "cluster1",
-                    SessionAffinity = new SessionAffinityOptions { Enabled = true, Mode = "Cookie" },
-                    Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
-                    {
-                        { "destination1", new Destination() { Address = "https://localhost:10000" } }
-                    }
-                }
-            };
-
+            // Specify a custom proxy config provider, in this case defined in InMemoryConfigProvider.cs
+            // Programatically creating route and cluster configs. This allows loading the data from an arbitrary source.
             services.AddReverseProxy()
-                .LoadFromMemory(routes, clusters)
-                .AddTransformFactory<MyTransformFactory>()
-                .AddTransforms<MyTransformProvider>()
-                .AddTransforms(transformBuilderContext =>
-                {
-                    // For each route+cluster pair decide if we want to add transforms, and if so, which?
-                    // This logic is re-run each time a route is rebuilt.
-
-                    transformBuilderContext.AddPathPrefix("/prefix");
-
-                    // Only do this for routes that require auth.
-                    if (string.Equals("token", transformBuilderContext.Route.AuthorizationPolicy))
-                    {
-                        transformBuilderContext.AddRequestTransform(async transformContext =>
-                        {
-                            // AuthN and AuthZ will have already been completed after request routing.
-                            var ticket = await transformContext.HttpContext.AuthenticateAsync("token");
-                            var tokenService = transformContext.HttpContext.RequestServices.GetRequiredService<TokenService>();
-                            var token = await tokenService.GetAuthTokenAsync(ticket.Principal);
-                            transformContext.ProxyRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-                        });
-                    }
-                });
-
-            services.AddHttpContextAccessor();
-            services.AddSingleton<IProxyMetricsConsumer, ProxyMetricsConsumer>();
-            services.AddScoped<IProxyTelemetryConsumer, ProxyTelemetryConsumer>();
-            services.AddProxyTelemetryListener();
+                .LoadFromMemory(GetRoutes(), GetClusters());
         }
 
         /// <summary>
@@ -87,30 +40,83 @@ namespace Microsoft.ReverseProxy.Sample
         public void Configure(IApplicationBuilder app)
         {
             app.UseRouting();
-            app.UseAuthorization();
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();
+                // We can customize the proxy pipeline and add/remove/replace steps
                 endpoints.MapReverseProxy(proxyPipeline =>
                 {
-                    // Custom endpoint selection
-                    proxyPipeline.Use((context, next) =>
-                    {
-                        var someCriteria = false; // MeetsCriteria(context);
-                        if (someCriteria)
-                        {
-                            var availableDestinationsFeature = context.Features.Get<IReverseProxyFeature>();
-                            var destination = availableDestinationsFeature.AvailableDestinations[0]; // PickDestination(availableDestinationsFeature.Destinations);
-                            // Load balancing will no-op if we've already reduced the list of available destinations to 1.
-                            availableDestinationsFeature.AvailableDestinations = destination;
-                        }
-
-                        return next();
-                    });
+                    // Use a custom proxy middleware, defined below
+                    proxyPipeline.Use(MyCustomProxyStep);
+                    // Don't forget to include these two middleware when you make a custom proxy pipeline (if you need them).
                     proxyPipeline.UseAffinitizedDestinationLookup();
                     proxyPipeline.UseProxyLoadBalancing();
                 });
             });
+        }
+
+        private ProxyRoute[] GetRoutes()
+        {
+            return new[]
+            {
+                new ProxyRoute()
+                {
+                    RouteId = "route1",
+                    ClusterId = "cluster1",
+                    Match = new ProxyMatch
+                    {
+                        // Path or Hosts are required for each route. This catch-all pattern matches all request paths.
+                        Path = "{**catch-all}"
+                    }
+                }
+            };
+        }
+        private Cluster[] GetClusters()
+        {
+            var debugMetadata = new Dictionary<string, string>();
+            debugMetadata.Add(DEBUG_METADATA_KEY, DEBUG_VALUE);
+
+            return new[]
+            {
+                new Cluster()
+                {
+                    Id = "cluster1",
+                    SessionAffinity = new SessionAffinityOptions { Enabled = true, Mode = "Cookie" },
+                    Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        { "destination1", new Destination() { Address = "https://example.com" } },
+                        { "debugdestination1", new Destination() {
+                            Address = "https://bing.com",
+                            Metadata = debugMetadata  }
+                        },
+                    }
+                }
+            };
+        }
+
+
+        /// <summary>
+        /// Custom proxy step that filters destinations based on a header in the inbound request
+        /// Looks at each destination metadata, and filters in/out based on their debug flag and the inbound header
+        /// </summary>
+        public Task MyCustomProxyStep(HttpContext context, Func<Task> next)
+        {
+            // Can read data from the request via the context
+            var useDebugDestinations = context.Request.Headers.TryGetValue(DEBUG_HEADER, out var headerValues) && headerValues.Count == 1 && headerValues[0] == DEBUG_VALUE;
+
+            // The context also stores a ReverseProxyFeature which holds proxy specific data such as the cluster, route and destinations
+            var availableDestinationsFeature = context.Features.Get<IReverseProxyFeature>();
+            var filteredDestinations = new List<DestinationInfo>();
+
+            // Filter destinations based on criteria
+            foreach (var d in availableDestinationsFeature.AvailableDestinations)
+            {
+                //Todo: Replace with a lookup of metadata - but not currently exposed correctly here
+                if (d.DestinationId.Contains("debug") == useDebugDestinations) { filteredDestinations.Add(d); }
+            }
+            availableDestinationsFeature.AvailableDestinations = filteredDestinations;
+
+            // Important - required to move to the next step in the proxy pipeline
+            return next();
         }
     }
 }

@@ -3,7 +3,7 @@
 
 using Xunit;
 
-namespace Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract
+namespace Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract
 {
     public class SessionAffinityOptionsTests
     {

@@ -4,9 +4,9 @@ Introduced: preview5
 
 ## Introduction
 
-Each [Cluster](xref:Microsoft.ReverseProxy.Abstractions.Cluster) has a dedicated [HttpMessageInvoker](https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httpmessageinvoker?view=netcore-3.1) instance used to proxy requests to its [Destination](xref:Microsoft.ReverseProxy.Abstractions.Destination)s. The configuration is defined per cluster. On YARP startup, all `Clusters` get new `HttpMessageInvoker` instances, however if later the `Cluster` configuration gets changed the [IProxyHttpClientFactory](xref:Microsoft.ReverseProxy.Service.Proxy.Infrastructure.IProxyHttpClientFactory) will re-run and decide if it should create a new `HttpMessageInvoker` or keep using the existing one. The default `IProxyHttpClientFactory` implementation creates a new `HttpMessageInvoker` when there are changes to the [ProxyHttpClientOptions](xref:Microsoft.ReverseProxy.Abstractions.ProxyHttpClientOptions).
+Each [Cluster](xref:Yarp.ReverseProxy.Abstractions.Cluster) has a dedicated [HttpMessageInvoker](https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httpmessageinvoker?view=netcore-3.1) instance used to proxy requests to its [Destination](xref:Yarp.ReverseProxy.Abstractions.Destination)s. The configuration is defined per cluster. On YARP startup, all `Clusters` get new `HttpMessageInvoker` instances, however if later the `Cluster` configuration gets changed the [IProxyHttpClientFactory](xref:Yarp.ReverseProxy.Service.Proxy.Infrastructure.IProxyHttpClientFactory) will re-run and decide if it should create a new `HttpMessageInvoker` or keep using the existing one. The default `IProxyHttpClientFactory` implementation creates a new `HttpMessageInvoker` when there are changes to the [ProxyHttpClientOptions](xref:Yarp.ReverseProxy.Abstractions.ProxyHttpClientOptions).
 
-Properties of outgoing requests for a given cluster can be configured as well. They are defined in [ProxyHttpRequestOptions](xref:Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions).
+Properties of outgoing requests for a given cluster can be configured as well. They are defined in [ProxyHttpRequestOptions](xref:Yarp.ReverseProxy.Abstractions.ProxyHttpRequestOptions).
 
 The configuration is represented differently if you're using the [IConfiguration](https://docs.microsoft.com/en-us/dotnet/api/microsoft.extensions.configuration.iconfiguration?view=dotnet-plat-ext-3.1) model or the code-first model.
 
@@ -14,7 +14,7 @@ The configuration is represented differently if you're using the [IConfiguration
 These types are focused on defining serializable configuration. The code based configuration model is described below in the "Code Configuration" section.
 
 ### HttpClient
-HTTP client configuration is based on [ProxyHttpClientOptions](xref:Microsoft.ReverseProxy.Abstractions.ProxyHttpClientOptions) and represented by the following configuration schema.
+HTTP client configuration is based on [ProxyHttpClientOptions](xref:Yarp.ReverseProxy.Abstractions.ProxyHttpClientOptions) and represented by the following configuration schema.
 ```JSON
 "HttpClient": {
     "SslProtocols": [ "<protocol-names>" ],
@@ -28,7 +28,8 @@ HTTP client configuration is based on [ProxyHttpClientOptions](xref:Microsoft.Re
         "Store": "<string>",
         "Location": "<string>",
         "AllowInvalid": "<bool>"
-    }
+    },
+    "RequestHeaderEncoding": "<encoding-name>"
 }
 ```
 
@@ -75,9 +76,43 @@ Configuration settings:
 }
 
 ```
+- RequestHeaderEncoding - enables other than ASCII encoding for outgoing request headers. Setting this value will leverage [`SocketsHttpHandler.RequestHeaderEncodingSelector`](https://docs.microsoft.com/en-us/dotnet/api/system.net.http.socketshttphandler.requestheaderencodingselector?view=net-5.0) and use the selected encoding for all headers. If you need more granular approach, please use custom `IProxyHttpClientFactory`. The value is then parsed by [`Encoding.GetEncoding`](https://docs.microsoft.com/en-us/dotnet/api/system.text.encoding.getencoding?view=net-5.0#System_Text_Encoding_GetEncoding_System_String_), use values like: "utf-8", "iso-8859-1", etc. **This setting is only available for .NET 5.0.**
+```JSON
+"RequestHeaderEncoding": "utf-8"
+```
+If you're using an encoding other than ASCII (or UTF-8 for Kestrel) you also need to set your server to accept requests with such headers. For example, use [`KestrelServerOptions.RequestHeaderEncodingSelector`](https://docs.microsoft.com/en-us/dotnet/api/Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerOptions.RequestHeaderEncodingSelector?view=aspnetcore-5.0) to set up Kestrel to accept Latin1 ("iso-8859-1") headers:
+```C#
+private static IHostBuilder CreateHostBuilder(string[] args) =>
+    Host.CreateDefaultBuilder(args)
+        .ConfigureWebHostDefaults(webBuilder =>
+        {
+            webBuilder.UseStartup<Startup>()
+                      .ConfigureKestrel(kestrel =>
+                      {
+                          kestrel.RequestHeaderEncodingSelector = _ => Encoding.Latin1;
+                      });
+        );
+```
+
+For .NET Core 3.1, Latin1 ("iso-8859-1") is the only non-ASCII header encoding that can be accepted and only via `appsettings.json`:
+```JSON
+{
+    "Kestrel":
+    {
+        "Latin1RequestHeaders": true
+    }
+}
+```
+together with an application wide switch:
+```C#
+AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.AllowLatin1Headers", true);
+```
+
+At the moment, there is no solution for changing encoding for response headers in Kestrel (see [aspnetcore#26334](https://github.com/dotnet/aspnetcore/issues/26334)), only ASCII is accepted.
+
 
 ### HttpRequest
-HTTP request configuration is based on [ProxyHttpRequestOptions](xref:Microsoft.ReverseProxy.Abstractions.ProxyHttpRequestOptions) and represented by the following configuration schema.
+HTTP request configuration is based on [ProxyHttpRequestOptions](xref:Yarp.ReverseProxy.Abstractions.ProxyHttpRequestOptions) and represented by the following configuration schema.
 ```JSON
 "HttpRequest": {
     "Timeout": "<timespan>",
@@ -146,7 +181,7 @@ The below example shows 2 samples of HTTP client and request configurations for 
 ```
 
 ## Code Configuration
-HTTP client configuration abstraction consists of the only type [ProxyHttpClientOptions](xref:Microsoft.ReverseProxy.Abstractions.ProxyHttpClientOptions) defined as follows.
+HTTP client configuration abstraction consists of the only type [ProxyHttpClientOptions](xref:Yarp.ReverseProxy.Abstractions.ProxyHttpClientOptions) defined as follows.
 
 ```C#
 public sealed class ProxyHttpClientOptions
@@ -161,9 +196,9 @@ public sealed class ProxyHttpClientOptions
 }
 ```
 
-Note that instead of defining certificate location as it was in the config model, this type exposes a fully constructed [X509Certificate](xref:System.Security.Cryptography.X509Certificates.X509Certificate) certificate. Conversion from the configuration contract to the abstraction model is done by a [IProxyConfigProvider](xref:Microsoft.ReverseProxy.Service.IProxyConfigProvider) which loads a client certificate into memory.
+Note that instead of defining certificate location as it was in the config model, this type exposes a fully constructed [X509Certificate](xref:System.Security.Cryptography.X509Certificates.X509Certificate) certificate. Conversion from the configuration contract to the abstraction model is done by a [IProxyConfigProvider](xref:Yarp.ReverseProxy.Service.IProxyConfigProvider) which loads a client certificate into memory.
 
-The following is an example of `ProxyHttpClientOptions` using [code based](configproviders.md) configuration. An instance of `ProxyHttpClientOptions` is assigned to the [Cluster.HttpClient](xref:Microsoft.ReverseProxy.Abstractions.Cluster) property before passing the `Cluster` array to `LoadFromMemory` method.
+The following is an example of `ProxyHttpClientOptions` using [code based](configproviders.md) configuration. An instance of `ProxyHttpClientOptions` is assigned to the [Cluster.HttpClient](xref:Yarp.ReverseProxy.Abstractions.Cluster) property before passing the `Cluster` array to `LoadFromMemory` method.
 
 ```C#
 public void ConfigureServices(IServiceCollection services)
@@ -201,7 +236,7 @@ public void ConfigureServices(IServiceCollection services)
 ```
 
 ## Custom IProxyHttpClientFactory
-In case the direct control on a proxy HTTP client construction is necessary, the default [IProxyHttpClientFactory](xref:Microsoft.ReverseProxy.Service.Proxy.Infrastructure.IProxyHttpClientFactory) can be replaced with a custom one. In example, that custom logic can use [Cluster](xref:Microsoft.ReverseProxy.Abstractions.Cluster)'s metadata as an extra data source for [HttpMessageInvoker](https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httpmessageinvoker?view=netcore-3.1) configuration. However, it's still recommended for any custom factory to set the following `HttpMessageInvoker` properties to the same values as the default factory does in order to preserve a correct reverse proxy behavior.
+In case the direct control on a proxy HTTP client construction is necessary, the default [IProxyHttpClientFactory](xref:Yarp.ReverseProxy.Service.Proxy.Infrastructure.IProxyHttpClientFactory) can be replaced with a custom one. In example, that custom logic can use [Cluster](xref:Yarp.ReverseProxy.Abstractions.Cluster)'s metadata as an extra data source for [HttpMessageInvoker](https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httpmessageinvoker?view=netcore-3.1) configuration. However, it's still recommended for any custom factory to set the following `HttpMessageInvoker` properties to the same values as the default factory does in order to preserve a correct reverse proxy behavior.
 
 Always return an HttpMessageInvoker instance rather than an HttpClient instance which derives from HttpMessageInvoker. HttpClient buffers responses by default which breaks streaming scenarios and increases memory usage and latency.
 
@@ -256,6 +291,12 @@ public class CustomProxyHttpClientFactory : IProxyHttpClientFactory
         {
             handler.SslOptions.RemoteCertificateValidationCallback = (sender, cert, chain, errors) => cert.Subject == "dev.mydomain";
         }
+#if NET
+        if (newClientOptions.RequestHeaderEncoding != null)
+        {
+            handler.RequestHeaderEncodingSelector = (_, _) => newClientOptions.RequestHeaderEncoding;
+        }
+#endif
 
         return new HttpMessageInvoker(handler, disposeHandler: true);
     }

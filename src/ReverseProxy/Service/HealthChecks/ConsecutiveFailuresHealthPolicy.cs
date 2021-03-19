@@ -7,11 +7,11 @@ using System.Globalization;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Options;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.RuntimeModel;
-using Microsoft.ReverseProxy.Utilities;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Utilities;
 
-namespace Microsoft.ReverseProxy.Service.HealthChecks
+namespace Yarp.ReverseProxy.Service.HealthChecks
 {
     internal class ConsecutiveFailuresHealthPolicy : IActiveHealthCheckPolicy
     {
@@ -56,7 +56,7 @@ namespace Microsoft.ReverseProxy.Service.HealthChecks
             return thresholdEntry.GetParsedOrDefault(_options.DefaultThreshold);
         }
 
-        private DestinationHealth EvaluateHealthState(double threshold, HttpResponseMessage response, AtomicCounter count)
+        private static DestinationHealth EvaluateHealthState(double threshold, HttpResponseMessage response, AtomicCounter count)
         {
             DestinationHealth newHealth;
             if (response != null && response.IsSuccessStatusCode)

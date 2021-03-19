@@ -5,16 +5,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.RuntimeModel;
-using Microsoft.ReverseProxy.Service.HealthChecks;
-using Microsoft.ReverseProxy.Service.Management;
-using Microsoft.ReverseProxy.Service.Proxy;
-using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
 using Moq;
 using Xunit;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Service.HealthChecks;
+using Yarp.ReverseProxy.Service.Management;
+using Yarp.ReverseProxy.Service.Proxy;
 
-namespace Microsoft.ReverseProxy.Middleware
+namespace Yarp.ReverseProxy.Middleware
 {
     public class PassiveHealthCheckMiddlewareTests
     {
@@ -85,7 +84,7 @@ namespace Microsoft.ReverseProxy.Middleware
             }, policies.Select(p => p.Object));
 
             var context0 = GetContext(cluster0, selectedDestination: 1, error: null);
-            context0.GetRequiredProxyFeature().SelectedDestination = null;
+            context0.GetRequiredProxyFeature().ProxiedDestination = null;
             await middleware.Invoke(context0);
 
             Assert.True(nextInvoked);
@@ -113,10 +112,11 @@ namespace Microsoft.ReverseProxy.Middleware
 
         private IReverseProxyFeature GetProxyFeature(ClusterConfig clusterConfig, DestinationInfo destination)
         {
-            var result = new Mock<IReverseProxyFeature>(MockBehavior.Strict);
-            result.SetupProperty(p => p.SelectedDestination, destination);
-            result.SetupProperty(p => p.ClusterConfig, clusterConfig);
-            return result.Object;
+            return new ReverseProxyFeature()
+            {
+                ProxiedDestination = destination,
+                ClusterSnapshot = clusterConfig,
+            };
         }
 
         private ClusterInfo GetClusterInfo(string id, string policy, bool enabled = true)
@@ -148,7 +148,7 @@ namespace Microsoft.ReverseProxy.Middleware
         private Endpoint GetEndpoint(ClusterInfo cluster)
         {
             var endpoints = new List<Endpoint>(1);
-            var routeConfig = new RouteConfig(new RouteInfo("route-1"), new ProxyRoute(), cluster, HttpTransformer.Default);
+            var routeConfig = new RouteConfig(new ProxyRoute(), cluster, HttpTransformer.Default);
             var endpoint = new Endpoint(default, new EndpointMetadataCollection(routeConfig), string.Empty);
             endpoints.Add(endpoint);
             return endpoint;

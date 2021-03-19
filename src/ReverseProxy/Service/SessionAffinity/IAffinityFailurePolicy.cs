@@ -3,10 +3,10 @@
 
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.RuntimeModel;
 
-namespace Microsoft.ReverseProxy.Service.SessionAffinity
+namespace Yarp.ReverseProxy.Service.SessionAffinity
 {
     /// <summary>
     /// Affinity failures handling policy.
@@ -16,7 +16,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
         /// <summary>
         ///  A unique identifier for this failure policy. This will be referenced from config.
         /// </summary>
-        public string Name { get; }
+        string Name { get; }
 
         /// <summary>
         /// Handles affinity failures. This method assumes the full control on <see cref="HttpContext"/>
@@ -29,6 +29,6 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
         /// 'true' if the failure is considered recoverable and the request processing can proceed.
         /// Otherwise, 'false' indicating that an error response has been generated and the request's processing must be terminated.
         /// </returns>
-        public Task<bool> Handle(HttpContext context, SessionAffinityOptions options, AffinityStatus affinityStatus);
+        Task<bool> Handle(HttpContext context, SessionAffinityOptions options, AffinityStatus affinityStatus);
     }
 }

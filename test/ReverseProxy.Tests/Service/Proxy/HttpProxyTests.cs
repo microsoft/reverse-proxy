@@ -16,15 +16,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Net.Http.Headers;
-using Microsoft.ReverseProxy.Common.Tests;
-using Microsoft.ReverseProxy.RuntimeModel;
-using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
-using Microsoft.ReverseProxy.Telemetry;
-using Microsoft.ReverseProxy.Utilities;
 using Moq;
 using Xunit;
+using Yarp.ReverseProxy.Common.Tests;
+using Yarp.ReverseProxy.Telemetry;
+using Yarp.ReverseProxy.Utilities;
 
-namespace Microsoft.ReverseProxy.Service.Proxy.Tests
+namespace Yarp.ReverseProxy.Service.Proxy.Tests
 {
     public class HttpProxyTests
     {
@@ -203,7 +201,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
 
             Assert.Equal(234, httpContext.Response.StatusCode);
             var reasonPhrase = httpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase;
-            Assert.Equal("Test Reason Phrase", reasonPhrase);
+            Assert.Null(reasonPhrase); // We don't set the ReasonPhrase for HTTP/2+
             Assert.Equal(new[] { "response", "value" }, httpContext.Response.Headers["x-ms-response-test"].ToArray());
             Assert.Contains("responseLanguage", httpContext.Response.Headers["Content-Language"].ToArray());
             Assert.Contains("value", httpContext.Response.Headers["transformHeader"].ToArray());
@@ -457,7 +455,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         [InlineData("DELETE", "HTTP/1.1", "")]
         [InlineData("Unknown", "HTTP/1.1", "")]
         // [InlineData("CONNECT", "HTTP/1.1", "")] Blocked in HttpUtilities.GetHttpMethod
-        public async Task ProxyAsync_RequetsWithoutBodies_NoHttpContent(string method, string protocol, string headers)
+        public async Task ProxyAsync_RequestWithoutBodies_NoHttpContent(string method, string protocol, string headers)
         {
             var events = TestEventListener.Collect();
 
@@ -504,7 +502,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
         [InlineData("GET", "HTTP/2", "Content-Length:10")]
         [InlineData("HEAD", "HTTP/1.1", "transfer-encoding:Chunked")]
         [InlineData("HEAD", "HTTP/2", "transfer-encoding:Chunked")]
-        public async Task ProxyAsync_RequetsWithBodies_HasHttpContent(string method, string protocol, string headers)
+        public async Task ProxyAsync_RequestWithBodies_HasHttpContent(string method, string protocol, string headers)
         {
             var events = TestEventListener.Collect();
 
@@ -542,6 +540,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
             events.AssertContainProxyStages();
         }
+
 #if NET
         [Fact]
         public async Task ProxyAsync_BodyDetectionFeatureSaysNo_NoHttpContent()
@@ -610,6 +609,7 @@ namespace Microsoft.ReverseProxy.Service.Proxy.Tests
             public bool CanHaveBody { get; set; }
         }
 #endif
+
         [Fact]
         public async Task ProxyAsync_RequestWithCookieHeaders()
         {

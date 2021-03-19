@@ -2,18 +2,16 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Common.Tests;
-using Microsoft.ReverseProxy.Service.Management;
 using Moq;
 using Xunit;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Service.Management;
 
-namespace Microsoft.ReverseProxy.RuntimeModel.Tests
+namespace Yarp.ReverseProxy.RuntimeModel.Tests
 {
     public class ClusterInfoTests
     {

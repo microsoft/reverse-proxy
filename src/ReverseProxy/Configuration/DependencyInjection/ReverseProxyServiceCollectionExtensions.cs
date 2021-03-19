@@ -5,14 +5,14 @@ using System;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
-using Microsoft.ReverseProxy;
-using Microsoft.ReverseProxy.Abstractions.Config;
-using Microsoft.ReverseProxy.Configuration;
-using Microsoft.ReverseProxy.Configuration.DependencyInjection;
-using Microsoft.ReverseProxy.Service;
-using Microsoft.ReverseProxy.Service.Config;
-using Microsoft.ReverseProxy.Service.Proxy;
-using Microsoft.ReverseProxy.Utilities;
+using Yarp.ReverseProxy;
+using Yarp.ReverseProxy.Abstractions.Config;
+using Yarp.ReverseProxy.Configuration;
+using Yarp.ReverseProxy.Configuration.DependencyInjection;
+using Yarp.ReverseProxy.Service;
+using Yarp.ReverseProxy.Service.Config;
+using Yarp.ReverseProxy.Service.Proxy;
+using Yarp.ReverseProxy.Utilities;
 
 namespace Microsoft.Extensions.DependencyInjection
 {

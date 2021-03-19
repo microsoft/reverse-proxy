@@ -1,16 +1,17 @@
-// <copyright file="LabelsParserTests.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using System;
 using System.Collections.Generic;
+using System.Security.Authentication;
+using System.Text;
 using FluentAssertions;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
-using Microsoft.ReverseProxy.Service.Proxy;
 using Xunit;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
+using Yarp.ReverseProxy.Service.Proxy;
 
-namespace Microsoft.ReverseProxy.ServiceFabric.Tests
+namespace Yarp.ReverseProxy.ServiceFabric.Tests
 {
     public class LabelsParserTests
     {
@@ -43,6 +44,15 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 { "YARP.Backend.HealthCheck.Passive.Policy", "MyPassiveHealthPolicy" },
                 { "YARP.Backend.HealthCheck.Passive.ReactivationPeriod", "00:00:07" },
                 { "YARP.Backend.Metadata.Foo", "Bar" },
+
+                { "YARP.Backend.HttpClient.DangerousAcceptAnyServerCertificate", "true" },
+                { "YARP.Backend.HttpClient.MaxConnectionsPerServer", "1000" },
+                { "YARP.Backend.HttpClient.SslProtocols", "Tls12" },
+                { "YARP.Backend.HttpClient.ActivityContextHeaders", "BaggageAndCorrelationContext" },
+#if NET
+                { "YARP.Backend.HttpClient.EnableMultipleHttp2Connections", "false" },
+                { "YARP.Backend.HttpClient.RequestHeaderEncoding", "utf-8" },
+#endif
             };
 
             var cluster = LabelsParser.BuildCluster(_testServiceName, labels, null);
@@ -91,6 +101,17 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                 {
                     { "Foo", "Bar" },
                 },
+                HttpClient = new ProxyHttpClientOptions
+                {
+                    ActivityContextHeaders = ActivityContextHeaders.BaggageAndCorrelationContext,
+                    DangerousAcceptAnyServerCertificate = true,
+#if NET
+                    EnableMultipleHttp2Connections = false,
+                    RequestHeaderEncoding = Encoding.GetEncoding("utf-8"),
+#endif
+                    MaxConnectionsPerServer = 1000,
+                    SslProtocols = SslProtocols.Tls12
+                }
             };
             cluster.Should().BeEquivalentTo(expectedCluster);
         }
@@ -125,6 +146,10 @@ namespace Microsoft.ReverseProxy.ServiceFabric.Tests
                     }
                 },
                 Metadata = new Dictionary<string, string>(),
+                HttpClient = new ProxyHttpClientOptions
+                {
+
+                }
             };
             cluster.Should().BeEquivalentTo(expectedCluster);
         }

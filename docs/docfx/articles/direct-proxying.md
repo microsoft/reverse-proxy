@@ -11,7 +11,7 @@ Some applications only need the ability to take a specific request and proxy it 
 
 ## IHttpProxy
 
-[IHttpProxy](xref:Microsoft.ReverseProxy.Service.Proxy.IHttpProxy) serves as the core proxy adapter between incoming AspNetCore and outgoing System.Net.Http requests. It handles the mechanics of creating a HttpRequestMessage from a HttpContext, sending it, and relaying the response.
+[IHttpProxy](xref:Yarp.ReverseProxy.Service.Proxy.IHttpProxy) serves as the core proxy adapter between incoming AspNetCore and outgoing System.Net.Http requests. It handles the mechanics of creating a HttpRequestMessage from a HttpContext, sending it, and relaying the response.
 
 IHttpProxy supports:
 - Dynamic destination selection, you specify the destination for each request
@@ -28,9 +28,11 @@ It does not include:
 
 ## Example
 
+See [ReverseProxy.Direct.Sample](https://github.com/microsoft/reverse-proxy/tree/release/docs/samples/ReverseProxy.Direct.Sample) as a pre-built sample, or use the steps below.
+
 ### Create a new project
 
-Follow the [Getting Started](xref:getting_started) guide to create a project and add the Microsoft.ReverseProxy nuget dependency.
+Follow the [Getting Started](xref:getting_started) guide to create a project and add the Yarp.ReverseProxy nuget dependency.
 
 ### Update Startup
 
@@ -100,8 +102,8 @@ Re-using a client for requests to the same destination is recommended for perfor
 
 ### Transforms
 
-The request and response can be modified by providing a derived [HttpTransformer](xref:Microsoft.ReverseProxy.Service.Proxy.HttpTransformer) as a parameter to [`ProxyAsync`](xref:Microsoft.ReverseProxy.Service.Proxy.IHttpProxy) method.
+The request and response can be modified by providing a derived [HttpTransformer](xref:Yarp.ReverseProxy.Service.Proxy.HttpTransformer) as a parameter to [`ProxyAsync`](xref:Yarp.ReverseProxy.Service.Proxy.IHttpProxy) method.
 
 ### Error handling
 
-IHttpProxy catches exceptions and timeouts from the HTTP client, logs them, and converts them to 5xx status codes or aborts the response. The error details, if any, can be accessed from the [IProxyErrorFeature](xref:Microsoft.ReverseProxy.Service.Proxy.IProxyErrorFeature) as shown above.
+IHttpProxy catches exceptions and timeouts from the HTTP client, logs them, and converts them to 5xx status codes or aborts the response. The error details, if any, can be accessed from the [IProxyErrorFeature](xref:Yarp.ReverseProxy.Service.Proxy.IProxyErrorFeature) as shown above.

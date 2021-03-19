@@ -4,7 +4,7 @@
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.Extensions.Configuration;
 
-namespace Microsoft.ReverseProxy.Configuration
+namespace Yarp.ReverseProxy.Configuration
 {
     /// <summary>
     /// Loads an <see cref="X509Certificate2"/> specified in a <see cref="CertificateConfigOptions"/>.
