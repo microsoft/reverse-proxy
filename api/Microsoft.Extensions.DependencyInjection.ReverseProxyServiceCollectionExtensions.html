@@ -107,7 +107,7 @@ used to register the ReverseProxy's components.</p>
     </div>
   </div>
   <h6><strong>Namespace</strong>: <a class="xref" href="Microsoft.Extensions.DependencyInjection.html">Microsoft.Extensions.DependencyInjection</a></h6>
-  <h6><strong>Assembly</strong>: Microsoft.ReverseProxy.dll</h6>
+  <h6><strong>Assembly</strong>: Yarp.ReverseProxy.dll</h6>
   <h5 id="Microsoft_Extensions_DependencyInjection_ReverseProxyServiceCollectionExtensions_syntax">Syntax</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public static class ReverseProxyServiceCollectionExtensions</code></pre>
@@ -123,7 +123,7 @@ used to register the ReverseProxy's components.</p>
   </span>
   <a id="Microsoft_Extensions_DependencyInjection_ReverseProxyServiceCollectionExtensions_AddHttpProxy_" data-uid="Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.AddHttpProxy*"></a>
   <h4 id="Microsoft_Extensions_DependencyInjection_ReverseProxyServiceCollectionExtensions_AddHttpProxy_Microsoft_Extensions_DependencyInjection_IServiceCollection_" data-uid="Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.AddHttpProxy(Microsoft.Extensions.DependencyInjection.IServiceCollection)">AddHttpProxy(IServiceCollection)</h4>
-  <div class="markdown level1 summary"><p>Registers the <a class="xref" href="Microsoft.ReverseProxy.Service.Proxy.IHttpProxy.html">IHttpProxy</a> service for direct proxying scenarios.</p>
+  <div class="markdown level1 summary"><p>Registers the <a class="xref" href="Yarp.ReverseProxy.Service.Proxy.IHttpProxy.html">IHttpProxy</a> service for direct proxying scenarios.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
@@ -284,7 +284,7 @@ used to register the ReverseProxy's components.</p>
   </span>
   <a id="Microsoft_Extensions_DependencyInjection_ReverseProxyServiceCollectionExtensions_AddTransformFactory_" data-uid="Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.AddTransformFactory*"></a>
   <h4 id="Microsoft_Extensions_DependencyInjection_ReverseProxyServiceCollectionExtensions_AddTransformFactory__1_Microsoft_Extensions_DependencyInjection_IReverseProxyBuilder_" data-uid="Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.AddTransformFactory``1(Microsoft.Extensions.DependencyInjection.IReverseProxyBuilder)">AddTransformFactory&lt;T&gt;(IReverseProxyBuilder)</h4>
-  <div class="markdown level1 summary"><p>Adds a <a class="xref" href="Microsoft.ReverseProxy.Abstractions.Config.ITransformFactory.html">ITransformFactory</a> implementation that will be used to read route transform config and generate
+  <div class="markdown level1 summary"><p>Adds a <a class="xref" href="Yarp.ReverseProxy.Abstractions.Config.ITransformFactory.html">ITransformFactory</a> implementation that will be used to read route transform config and generate
 the associated transform actions. <a class="xref" href="Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.html#Microsoft_Extensions_DependencyInjection_ReverseProxyServiceCollectionExtensions_AddTransformFactory__1_Microsoft_Extensions_DependencyInjection_IReverseProxyBuilder_">AddTransformFactory&lt;T&gt;(IReverseProxyBuilder)</a> can be called multiple
 times to provide multiple distinct types.</p>
 </div>
@@ -343,15 +343,15 @@ times to provide multiple distinct types.</p>
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/microsoft/reverse-proxy/new/release/docs/apiSpec/new?filename=Microsoft_Extensions_DependencyInjection_ReverseProxyServiceCollectionExtensions_AddTransforms_Microsoft_Extensions_DependencyInjection_IReverseProxyBuilder_System_Action_Microsoft_ReverseProxy_Abstractions_Config_TransformBuilderContext__.md&amp;value=---%0Auid%3A%20Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.AddTransforms(Microsoft.Extensions.DependencyInjection.IReverseProxyBuilder%2CSystem.Action%7BMicrosoft.ReverseProxy.Abstractions.Config.TransformBuilderContext%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/docs/apiSpec/new?filename=Microsoft_Extensions_DependencyInjection_ReverseProxyServiceCollectionExtensions_AddTransforms_Microsoft_Extensions_DependencyInjection_IReverseProxyBuilder_System_Action_Yarp_ReverseProxy_Abstractions_Config_TransformBuilderContext__.md&amp;value=---%0Auid%3A%20Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.AddTransforms(Microsoft.Extensions.DependencyInjection.IReverseProxyBuilder%2CSystem.Action%7BYarp.ReverseProxy.Abstractions.Config.TransformBuilderContext%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
     <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/src/ReverseProxy/Configuration/DependencyInjection/ReverseProxyServiceCollectionExtensions.cs/#L96">View Source</a>
   </span>
   <a id="Microsoft_Extensions_DependencyInjection_ReverseProxyServiceCollectionExtensions_AddTransforms_" data-uid="Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.AddTransforms*"></a>
-  <h4 id="Microsoft_Extensions_DependencyInjection_ReverseProxyServiceCollectionExtensions_AddTransforms_Microsoft_Extensions_DependencyInjection_IReverseProxyBuilder_System_Action_Microsoft_ReverseProxy_Abstractions_Config_TransformBuilderContext__" data-uid="Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.AddTransforms(Microsoft.Extensions.DependencyInjection.IReverseProxyBuilder,System.Action{Microsoft.ReverseProxy.Abstractions.Config.TransformBuilderContext})">AddTransforms(IReverseProxyBuilder, Action&lt;TransformBuilderContext&gt;)</h4>
+  <h4 id="Microsoft_Extensions_DependencyInjection_ReverseProxyServiceCollectionExtensions_AddTransforms_Microsoft_Extensions_DependencyInjection_IReverseProxyBuilder_System_Action_Yarp_ReverseProxy_Abstractions_Config_TransformBuilderContext__" data-uid="Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.AddTransforms(Microsoft.Extensions.DependencyInjection.IReverseProxyBuilder,System.Action{Yarp.ReverseProxy.Abstractions.Config.TransformBuilderContext})">AddTransforms(IReverseProxyBuilder, Action&lt;TransformBuilderContext&gt;)</h4>
   <div class="markdown level1 summary"><p>Provides a callback that will be run for each route to conditionally add transforms.
-<a class="xref" href="Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.html#Microsoft_Extensions_DependencyInjection_ReverseProxyServiceCollectionExtensions_AddTransforms_Microsoft_Extensions_DependencyInjection_IReverseProxyBuilder_System_Action_Microsoft_ReverseProxy_Abstractions_Config_TransformBuilderContext__">AddTransforms(IReverseProxyBuilder, Action&lt;TransformBuilderContext&gt;)</a> can be called multiple times to
+<a class="xref" href="Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.html#Microsoft_Extensions_DependencyInjection_ReverseProxyServiceCollectionExtensions_AddTransforms_Microsoft_Extensions_DependencyInjection_IReverseProxyBuilder_System_Action_Yarp_ReverseProxy_Abstractions_Config_TransformBuilderContext__">AddTransforms(IReverseProxyBuilder, Action&lt;TransformBuilderContext&gt;)</a> can be called multiple times to
 provide multiple callbacks.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
@@ -375,7 +375,7 @@ provide multiple callbacks.</p>
         <td></td>
       </tr>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.action-1">Action</a>&lt;<a class="xref" href="Microsoft.ReverseProxy.Abstractions.Config.TransformBuilderContext.html">TransformBuilderContext</a>&gt;</td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.action-1">Action</a>&lt;<a class="xref" href="Yarp.ReverseProxy.Abstractions.Config.TransformBuilderContext.html">TransformBuilderContext</a>&gt;</td>
         <td><span class="parametername">action</span></td>
         <td></td>
       </tr>
@@ -405,7 +405,7 @@ provide multiple callbacks.</p>
   </span>
   <a id="Microsoft_Extensions_DependencyInjection_ReverseProxyServiceCollectionExtensions_AddTransforms_" data-uid="Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.AddTransforms*"></a>
   <h4 id="Microsoft_Extensions_DependencyInjection_ReverseProxyServiceCollectionExtensions_AddTransforms__1_Microsoft_Extensions_DependencyInjection_IReverseProxyBuilder_" data-uid="Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.AddTransforms``1(Microsoft.Extensions.DependencyInjection.IReverseProxyBuilder)">AddTransforms&lt;T&gt;(IReverseProxyBuilder)</h4>
-  <div class="markdown level1 summary"><p>Provides a <a class="xref" href="Microsoft.ReverseProxy.Abstractions.Config.ITransformProvider.html">ITransformProvider</a> implementation that will be run for each route to conditionally add transforms.
+  <div class="markdown level1 summary"><p>Provides a <a class="xref" href="Yarp.ReverseProxy.Abstractions.Config.ITransformProvider.html">ITransformProvider</a> implementation that will be run for each route to conditionally add transforms.
 <a class="xref" href="Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.html#Microsoft_Extensions_DependencyInjection_ReverseProxyServiceCollectionExtensions_AddTransforms__1_Microsoft_Extensions_DependencyInjection_IReverseProxyBuilder_">AddTransforms&lt;T&gt;(IReverseProxyBuilder)</a> can be called multiple times to provide multiple distinct types.</p>
 </div>
   <div class="markdown level1 conceptual"></div>

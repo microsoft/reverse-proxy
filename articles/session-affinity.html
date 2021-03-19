@@ -92,7 +92,7 @@
                 &quot;Mode&quot;: &quot;(Cookie|CustomHeader)&quot;, // defaults to 'Cookie'
                 &quot;FailurePolicy&quot;: &quot;(Redistribute|Return503)&quot;, // defaults to 'Redistribute'
                 &quot;Settings&quot; : {
-                    &quot;CustomHeaderName&quot;: &quot;&lt;custom-header-name&gt;&quot; // defaults to 'X-Microsoft-Proxy-Affinity`
+                    &quot;CustomHeaderName&quot;: &quot;&lt;custom-header-name&gt;&quot; // defaults to 'X-Yarp-Proxy-Affinity`
                 }
             }
         }
@@ -122,9 +122,9 @@
 <p>If a new affinity was established for the request, the affinity key gets attached to a response where exact key representation and location depends on the implementation. Currently, there are two built-in providers storing the key on a cookie or custom header. Once the response gets delivered to the client, it's the client responsibility to attach the key to all following requests in the same session. Further, when the next request carrying the key arrives to the proxy, it resolves the existing affinity, but affinity key does not get again attached to the response. Thus, only the first response carries the affinity key.</p>
 <p>There are two built-in affinity modes differing only in how the affinity key is stored on a request. The default mode is <code>Cookie</code>.</p>
 <ol>
-<li><p><code>Cookie</code> - stores the key as a cookie. It expects the request's key to be delivered as a cookie with configured name and sets the same cookie with <code>Set-Cookie</code> header on the first response in an affinitized sequence. This mode is implemented by <code>CookieSessionAffinityProvider</code>. Cookie's options (e.g. name) can be configured via <code>CookieSessionAffinityProviderOptions</code>. The default name is <code>.Microsoft.ReverseProxy.Affinity</code></p>
+<li><p><code>Cookie</code> - stores the key as a cookie. It expects the request's key to be delivered as a cookie with configured name and sets the same cookie with <code>Set-Cookie</code> header on the first response in an affinitized sequence. This mode is implemented by <code>CookieSessionAffinityProvider</code>. Cookie's options (e.g. name) can be configured via <code>CookieSessionAffinityProviderOptions</code>. The default name is <code>.Yarp.ReverseProxy.Affinity</code></p>
 </li>
-<li><p><code>CustomHeader</code> - stores the key on a header. It expects the request's key to be delivered in a customer header with configured name and sets the same header on the first response in an affinitized sequence. This mode is implemented by <code>CustomHeaderSessionAffinityProvider</code>. The header name can be set by the setting <code>CustomHeaderName</code> in <code>SessionAffinityOptions.Settings</code> as shown in the example below. The default name is <code>X-Microsoft-Proxy-Affinity</code>.</p>
+<li><p><code>CustomHeader</code> - stores the key on a header. It expects the request's key to be delivered in a customer header with configured name and sets the same header on the first response in an affinitized sequence. This mode is implemented by <code>CustomHeaderSessionAffinityProvider</code>. The header name can be set by the setting <code>CustomHeaderName</code> in <code>SessionAffinityOptions.Settings</code> as shown in the example below. The default name is <code>X-Yarp-Proxy-Affinity</code>.</p>
 </li>
 </ol>
 <h2 id="affinity-failure-policy">Affinity failure policy</h2>

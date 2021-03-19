@@ -99,7 +99,7 @@ X-Forwarded-Host: IncomingHost:5000
 <p>Transforms fall into a few categories: request, response, and response trailers. Request and response body transforms are not supported by YARP but you can write middleware to do this. Request trailers are not supported because they are not supported by the underlying HttpClient.</p>
 <p>Transforms can be added to routes either through configuration or programmatically.</p>
 <h2 id="from-configuration">From Configuration</h2>
-<p>Transforms can be configured on <a href="xref:Microsoft.ReverseProxy.Abstractions.ProxyRoute">ProxyRoute.Transforms</a> and can be bound from the <code>Routes</code> sections of the config file. These can be modified and reloaded without restarting the proxy. A transform is configured using one or more key-value string pairs.</p>
+<p>Transforms can be configured on <a href="xref:Yarp.ReverseProxy.Abstractions.ProxyRoute">ProxyRoute.Transforms</a> and can be bound from the <code>Routes</code> sections of the config file. These can be modified and reloaded without restarting the proxy. A transform is configured using one or more key-value string pairs.</p>
 <p>Here is an example of common transforms:</p>
 <pre><code class="lang-JSON">{
   &quot;ReverseProxy&quot;: {
@@ -163,8 +163,8 @@ X-Forwarded-Host: IncomingHost:5000
 <p>Developers that want to integrate their custom transforms with the <code>Transforms</code> section of configuration can do so using <a href="#itransformfactory">ITransformFactory</a> described below.</p>
 <h2 id="from-code">From Code</h2>
 <p>Transforms can be added to routes programmatically by calling the <a class="xref" href="../api/Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.html">AddTransforms</a> method.</p>
-<p><code>AddTransforms</code> can be called from <code>Startup.ConfigureServices</code> to provide a callback for configuring transforms. This callback is invoked each time a route is built or rebuilt and allows the developer to inspect the <a href="xref:Microsoft.ReverseProxy.Abstractions.ProxyRoute">ProxyRoute</a> information and conditionally add transforms for it.</p>
-<p>The <code>AddTransforms</code> callback provides a <a class="xref" href="../api/Microsoft.ReverseProxy.Abstractions.Config.TransformBuilderContext.html">TransformBuilderContext</a> where transforms can be added or configured. Most transforms provide <code>TransformBuilderContext</code> extension methods to make them easier to add. These are extensions documented below with the individual transform descriptions.</p>
+<p><code>AddTransforms</code> can be called from <code>Startup.ConfigureServices</code> to provide a callback for configuring transforms. This callback is invoked each time a route is built or rebuilt and allows the developer to inspect the <a href="xref:Yarp.ReverseProxy.Abstractions.ProxyRoute">ProxyRoute</a> information and conditionally add transforms for it.</p>
+<p>The <code>AddTransforms</code> callback provides a <a class="xref" href="../api/Yarp.ReverseProxy.Abstractions.Config.TransformBuilderContext.html">TransformBuilderContext</a> where transforms can be added or configured. Most transforms provide <code>TransformBuilderContext</code> extension methods to make them easier to add. These are extensions documented below with the individual transform descriptions.</p>
 <p>The <code>TransformBuilderContext</code> also includes an <code>IServiceProvider</code> for access to any needed services.</p>
 <pre><code class="lang-C#">services.AddReverseProxy()
     .LoadFromConfig(_configuration.GetSection(&quot;ReverseProxy&quot;))
@@ -185,7 +185,7 @@ X-Forwarded-Host: IncomingHost:5000
 </code></pre>
 <p>For more advanced control see <a href="#itransformprovider">ITransformProvider</a> described below.</p>
 <h2 id="request-transforms">Request transforms</h2>
-<p>Request transforms include the request path, query, HTTP version, method, and headers. In code these are represented by the <a class="xref" href="../api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestTransformContext.html">RequestTransformContext</a> object and processed by implementations of the abstract class <a class="xref" href="../api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestTransform.html">RequestTransform</a>.</p>
+<p>Request transforms include the request path, query, HTTP version, method, and headers. In code these are represented by the <a class="xref" href="../api/Yarp.ReverseProxy.Service.RuntimeModel.Transforms.RequestTransformContext.html">RequestTransformContext</a> object and processed by implementations of the abstract class <a class="xref" href="../api/Yarp.ReverseProxy.Service.RuntimeModel.Transforms.RequestTransform.html">RequestTransform</a>.</p>
 <p>Notes:</p>
 <ul>
 <li>The proxy request scheme (http/https), authority, and path base, are taken from the destination server address (<code>https://localhost:10001/Path/Base</code> in the example above) and should not be modified by transforms.</li>
@@ -727,13 +727,13 @@ X-Forwarded-PathBase: /path/base
 </tr>
 <tr>
 <td>ForFormat</td>
-<td>Random/RandomAndPort/Unknown/UnknownAndPort/Ip/IpAndPort</td>
+<td>Random/RandomAndPort/RandomAndRandomPort/Unknown/UnknownAndPort/UnknownAndRandomPort/Ip/IpAndPort/IpAndRandomPort</td>
 <td>Random</td>
 <td>no</td>
 </tr>
 <tr>
 <td>ByFormat</td>
-<td>Random/RandomAndPort/Unknown/UnknownAndPort/Ip/IpAndPort</td>
+<td>Random/RandomAndPort/RandomAndRandomPort/Unknown/UnknownAndPort/UnknownAndRandomPort/Ip/IpAndPort/IpAndRandomPort</td>
 <td>Random</td>
 <td>no</td>
 </tr>
@@ -789,6 +789,11 @@ X-Forwarded-PathBase: /path/base
 <td><code>by=&quot;_YQuN68tm6:80&quot;</code></td>
 </tr>
 <tr>
+<td>RandomAndRandomPort</td>
+<td>The Random identifier plus another random identifier for the port.</td>
+<td><code>by=&quot;_YQuN68tm6:_jDw5Cf3tQ&quot;</code></td>
+</tr>
+<tr>
 <td>Unknown</td>
 <td>This can be used when the identity of the preceding entity is not known, but the proxy server still wants to signal that the request was forwarded.</td>
 <td><code>by=unknown</code></td>
@@ -799,6 +804,11 @@ X-Forwarded-PathBase: /path/base
 <td><code>by=&quot;unknown:80&quot;</code></td>
 </tr>
 <tr>
+<td>UnknownAndRandomPort</td>
+<td>The Unknown identifier plus random identifier for the port.</td>
+<td><code>by=&quot;unknown:_jDw5Cf3tQ&quot;</code></td>
+</tr>
+<tr>
 <td>Ip</td>
 <td>An IPv4 address or an IPv6 address including brackets.</td>
 <td><code>by=&quot;[::1]&quot;</code></td>
@@ -807,6 +817,11 @@ X-Forwarded-PathBase: /path/base
 <td>IpAndPort</td>
 <td>The IP address plus the port.</td>
 <td><code>by=&quot;[::1]:80&quot;</code></td>
+</tr>
+<tr>
+<td>IpAndRandomPort</td>
+<td>The IP address plus random identifier for the port.</td>
+<td><code>by=&quot;[::1]:_jDw5Cf3tQ&quot;</code></td>
 </tr>
 </tbody>
 </table>
@@ -841,7 +856,7 @@ X-Forwarded-PathBase: /path/base
 <p>This transform causes the client certificate taken from <code>HttpContext.Connection.ClientCertificate</code> to be Base64 encoded and set as the value for the given header name. This is needed because client certificates from incoming connections are not used when making connections to the destination server. The destination server may need that certificate to authenticate the client. There is no standard that defines this header and implementations vary, check your destination server for support.</p>
 <h2 id="response-and-response-trailers">Response and Response Trailers</h2>
 <p>All response headers and trailers are copied from the proxied response to the outgoing client response by default. Response and response trailer transforms may specify if they should be applied only for successful responses or for all responses.</p>
-<p>In code these are implemented as derivations of the abstract classes <a class="xref" href="../api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseTransform.html">ResponseTransform</a> and <a class="xref" href="../api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseTrailersTransform.html">ResponseTrailersTransform</a>.</p>
+<p>In code these are implemented as derivations of the abstract classes <a class="xref" href="../api/Yarp.ReverseProxy.Service.RuntimeModel.Transforms.ResponseTransform.html">ResponseTransform</a> and <a class="xref" href="../api/Yarp.ReverseProxy.Service.RuntimeModel.Transforms.ResponseTrailersTransform.html">ResponseTrailersTransform</a>.</p>
 <h3 id="responseheaderscopy">ResponseHeadersCopy</h3>
 <table>
 <thead>
@@ -996,19 +1011,19 @@ X-Forwarded-PathBase: /path/base
 <p>ResponseTrailer follows the same structure and guidance as ResponseHeader.</p>
 <h2 id="extensibility">Extensibility</h2>
 <h3 id="addrequesttransform">AddRequestTransform</h3>
-<p><a class="xref" href="../api/Microsoft.ReverseProxy.Abstractions.Config.TransformBuilderContextFuncExtensions.html">AddRequestTransform</a> is a <code>TransformBuilderContext</code> extension method that defines a request transform as a <code>Func&lt;RequestTransformContext, ValueTask&gt;</code>. This allows creating a custom request transform without implementing a <code>RequestTransform</code> derived class.</p>
+<p><a class="xref" href="../api/Yarp.ReverseProxy.Abstractions.Config.TransformBuilderContextFuncExtensions.html">AddRequestTransform</a> is a <code>TransformBuilderContext</code> extension method that defines a request transform as a <code>Func&lt;RequestTransformContext, ValueTask&gt;</code>. This allows creating a custom request transform without implementing a <code>RequestTransform</code> derived class.</p>
 <h3 id="addresponsetransform">AddResponseTransform</h3>
-<p><a class="xref" href="../api/Microsoft.ReverseProxy.Abstractions.Config.TransformBuilderContextFuncExtensions.html">AddResponseTransform</a> is a <code>TransformBuilderContext</code> extension method that defines a response transform as a <code>Func&lt;ResponseTransformContext, ValueTask&gt;</code>. This allows creating a custom response transform without implementing a <code>ResponseTransform</code> derived class.</p>
+<p><a class="xref" href="../api/Yarp.ReverseProxy.Abstractions.Config.TransformBuilderContextFuncExtensions.html">AddResponseTransform</a> is a <code>TransformBuilderContext</code> extension method that defines a response transform as a <code>Func&lt;ResponseTransformContext, ValueTask&gt;</code>. This allows creating a custom response transform without implementing a <code>ResponseTransform</code> derived class.</p>
 <h3 id="addresponsetrailerstransform">AddResponseTrailersTransform</h3>
-<p><a class="xref" href="../api/Microsoft.ReverseProxy.Abstractions.Config.TransformBuilderContextFuncExtensions.html">AddResponseTrailersTransform</a> is a <code>TransformBuilderContext</code> extension method that defines a response trailers transform as a <code>Func&lt;ResponseTrailersTransformContext, ValueTask&gt;</code>. This allows creating a custom response trailers transform without implementing a <code>ResponseTrailersTransform</code> derived class.</p>
+<p><a class="xref" href="../api/Yarp.ReverseProxy.Abstractions.Config.TransformBuilderContextFuncExtensions.html">AddResponseTrailersTransform</a> is a <code>TransformBuilderContext</code> extension method that defines a response trailers transform as a <code>Func&lt;ResponseTrailersTransformContext, ValueTask&gt;</code>. This allows creating a custom response trailers transform without implementing a <code>ResponseTrailersTransform</code> derived class.</p>
 <h3 id="requesttransform">RequestTransform</h3>
-<p>All request transforms must derive from the abstract base class <a class="xref" href="../api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.RequestTransform.html">RequestTransform</a>. These can freely modify the proxy <code>HttpRequestMessage</code>. Avoid reading or modifying the request body as this may disrupt the proxying flow. Consider also adding a parametrized extension method on <code>TransformBuilderContext</code> for discoverability and easy of use.</p>
+<p>All request transforms must derive from the abstract base class <a class="xref" href="../api/Yarp.ReverseProxy.Service.RuntimeModel.Transforms.RequestTransform.html">RequestTransform</a>. These can freely modify the proxy <code>HttpRequestMessage</code>. Avoid reading or modifying the request body as this may disrupt the proxying flow. Consider also adding a parametrized extension method on <code>TransformBuilderContext</code> for discoverability and easy of use.</p>
 <h3 id="responsetransform">ResponseTransform</h3>
-<p>All response transforms must derive from the abstract base class <a class="xref" href="../api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseTransform.html">ResponseTransform</a>. These can freely modify the client <code>HttpResponse</code>. Avoid reading or modifying the response body as this may disrupt the proxying flow. Consider also adding a parametrized extension method on <code>TransformBuilderContext</code> for discoverability and easy of use.</p>
+<p>All response transforms must derive from the abstract base class <a class="xref" href="../api/Yarp.ReverseProxy.Service.RuntimeModel.Transforms.ResponseTransform.html">ResponseTransform</a>. These can freely modify the client <code>HttpResponse</code>. Avoid reading or modifying the response body as this may disrupt the proxying flow. Consider also adding a parametrized extension method on <code>TransformBuilderContext</code> for discoverability and easy of use.</p>
 <h3 id="responsetrailerstransform">ResponseTrailersTransform</h3>
-<p>All response trailers transforms must derive from the abstract base class <a class="xref" href="../api/Microsoft.ReverseProxy.Service.RuntimeModel.Transforms.ResponseTrailersTransform.html">ResponseTrailersTransform</a>. These can freely modify the client HttpResponse trailers. These run after the response body and should not attempt to modify the response headers or body. Consider also adding a parametrized extension method on <code>TransformBuilderContext</code> for discoverability and easy of use.</p>
+<p>All response trailers transforms must derive from the abstract base class <a class="xref" href="../api/Yarp.ReverseProxy.Service.RuntimeModel.Transforms.ResponseTrailersTransform.html">ResponseTrailersTransform</a>. These can freely modify the client HttpResponse trailers. These run after the response body and should not attempt to modify the response headers or body. Consider also adding a parametrized extension method on <code>TransformBuilderContext</code> for discoverability and easy of use.</p>
 <h3 id="itransformprovider">ITransformProvider</h3>
-<p><a class="xref" href="../api/Microsoft.ReverseProxy.Abstractions.Config.ITransformProvider.html">ITransformProvider</a> provides the functionality of <code>AddTransforms</code> described above as well as DI integration and validation support.</p>
+<p><a class="xref" href="../api/Yarp.ReverseProxy.Abstractions.Config.ITransformProvider.html">ITransformProvider</a> provides the functionality of <code>AddTransforms</code> described above as well as DI integration and validation support.</p>
 <p><code>ITransformProvider</code>'s can be registered in DI by calling <a class="xref" href="../api/Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.html">AddTransforms&lt;T&gt;()</a>. Multiple <code>ITransformProvider</code> implementations can be registered and all will be run.</p>
 <p><code>ITransformProvider</code> has two methods, <code>Validate</code> and <code>Apply</code>. <code>Validate</code> gives you the opportunity to inspect the route for any parameters that are needed to configure a transform, such as custom metadata, and to return validation errors on the context if any needed values are missing or invalid. The <code>Apply</code> method provides the same functionality as AddTransform as discussed above, adding and configuring transforms per route.</p>
 <pre><code class="lang-C#">services.AddReverseProxy()
@@ -1055,7 +1070,7 @@ X-Forwarded-PathBase: /path/base
     }
 </code></pre>
 <h3 id="itransformfactory">ITransformFactory</h3>
-<p>Developers that want to integrate their custom transforms with the <code>Transforms</code> section of configuration can implement an <a class="xref" href="../api/Microsoft.ReverseProxy.Abstractions.Config.ITransformFactory.html">ITransformFactory</a>. This should be registered in DI using the <code>AddTransformFactory&lt;T&gt;()</code> method. Multiple factories can be registered and all will be used.</p>
+<p>Developers that want to integrate their custom transforms with the <code>Transforms</code> section of configuration can implement an <a class="xref" href="../api/Yarp.ReverseProxy.Abstractions.Config.ITransformFactory.html">ITransformFactory</a>. This should be registered in DI using the <code>AddTransformFactory&lt;T&gt;()</code> method. Multiple factories can be registered and all will be used.</p>
 <p><code>ITransformFactory</code> provides two methods, <code>Validate</code> and <code>Build</code>. These process one set of transform values at a time, represented by a <code>IReadOnlyDictionary&lt;string, string&gt;</code>.</p>
 <p>The <code>Validate</code> method is called when loading a configuration to verify the contents and report all errors. Any reported errors will prevent the configuration from being applied.</p>
 <p>The <code>Build</code> method takes the given configuration and produces the associated transform instances for the route.</p>
