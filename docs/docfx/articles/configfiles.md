@@ -165,7 +165,7 @@ For additional fields see [Cluster](xref:Microsoft.ReverseProxy.Abstractions.Clu
           "Mode": "Cookie", // Default, alternatively "CustomHeader"
           "FailurePolicy": "Redistribute", // default, Alternatively "Return503"
           "Settings" : {
-              "CustomHeaderName": "MySessionHeaderName" // Defaults to 'X-Microsoft-Proxy-Affinity`
+              "CustomHeaderName": "MySessionHeaderName" // Defaults to 'X-Yarp-Proxy-Affinity`
           }
         },
         "HealthCheck": {
