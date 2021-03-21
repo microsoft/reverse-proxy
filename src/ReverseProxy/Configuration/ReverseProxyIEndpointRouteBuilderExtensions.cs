@@ -20,9 +20,9 @@ namespace Microsoft.AspNetCore.Builder
         /// <summary>
         /// Adds Reverse Proxy routes to the route table using the default processing pipeline.
         /// </summary>
-        public static void MapReverseProxy(this IEndpointRouteBuilder endpoints)
+        public static ReverseProxyConventionBuilder MapReverseProxy(this IEndpointRouteBuilder endpoints)
         {
-            endpoints.MapReverseProxy(app =>
+            return endpoints.MapReverseProxy(app =>
             {
                 app.UseAffinitizedDestinationLookup();
                 app.UseProxyLoadBalancing();
