@@ -27,7 +27,9 @@ namespace Yarp.ReverseProxy.Kubernetes.Protocol
             oldConfig.SignalChange();
         }
 
+#pragma warning disable CA1001 // Types that own disposable fields should be disposable
         private class MessageConfig : IProxyConfig
+#pragma warning restore CA1001 // Types that own disposable fields should be disposable
         {
             private readonly CancellationTokenSource _cts = new CancellationTokenSource();
 
