@@ -19,7 +19,7 @@ using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Service;
 using Yarp.ReverseProxy.Kubernetes.Protocol;
 
-namespace Yarp.ReverseProxy.Kubernetes.Ingress.Services
+namespace Yarp.ReverseProxy.Kubernetes.Protocol
 {
     public class Receiver : BackgroundHostedService
     {
@@ -47,6 +47,8 @@ namespace Yarp.ReverseProxy.Kubernetes.Ingress.Services
 
         public override async Task RunAsync(CancellationToken cancellationToken)
         {
+            using var client = new HttpClient();
+
             while (!cancellationToken.IsCancellationRequested)
             {
                 await _limiter.WaitAsync(cancellationToken).ConfigureAwait(false);
@@ -56,12 +58,7 @@ namespace Yarp.ReverseProxy.Kubernetes.Ingress.Services
 
                 try
                 {
-                    using var client = new HttpClient();
-                    using var request = new HttpRequestMessage();
-                    request.RequestUri = _options.ControllerUrl;
-                    request.Method = HttpMethod.Get;
-                    using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+                    using var stream = await client.GetStreamAsync(_options.ControllerUrl, cancellationToken).ConfigureAwait(false);
                     using var reader = new StreamReader(stream, Encoding.UTF8, leaveOpen: true);
                     using var cancellation = cancellationToken.Register(stream.Close);
                     while (true)

@@ -8,7 +8,7 @@
       "Headers": null
     },
     "Order": null,
-    "ClusterId": "10.244.2.38",
+    "ClusterId": "frontend:443",
     "AuthorizationPolicy": null,
     "CorsPolicy": null,
     "Metadata": null,

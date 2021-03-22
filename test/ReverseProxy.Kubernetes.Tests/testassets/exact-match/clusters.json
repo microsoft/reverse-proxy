@@ -1,6 +1,6 @@
 [
   {
-    "Id": "10.244.2.38",
+    "Id": "frontend:80",
     "LoadBalancingPolicy": null,
     "SessionAffinity": null,
     "HealthCheck": null,

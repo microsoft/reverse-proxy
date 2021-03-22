@@ -72,19 +72,21 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Converters
             // make sure cluster is present
             foreach (var subset in subsets ?? Enumerable.Empty<V1EndpointSubset>())
             {
-                foreach (var address in subset.Addresses ?? Enumerable.Empty<V1EndpointAddress>())
+                foreach (var port in subset.Ports ?? Enumerable.Empty<V1EndpointPort>())
                 {
-                    if (!clusters.ContainsKey(service?.Name))
+                    var key = $"{service?.Name}:{port.Port}";
+
+                    if (!clusters.ContainsKey(key))
                     {
-                        clusters.Add(service.Name, new ClusterTrasfer());
+                        clusters.Add(key, new ClusterTrasfer());
                     }
+                    var cluster = clusters[key];
+                    cluster.ClusterId = key;
 
-                    var ip = address.Ip;
-                    var cluster = clusters[service.Name];
-                    cluster.ClusterId = ip;
-
-                    foreach (var port in subset.Ports ?? Enumerable.Empty<V1EndpointPort>())
+                    foreach (var address in subset.Addresses ?? Enumerable.Empty<V1EndpointAddress>())
                     {
+                        var ip = address.Ip;
+
                         if (!MatchesPort(port, service?.Port))
                         {
                             continue;
