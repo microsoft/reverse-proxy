@@ -38,7 +38,7 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 ```
 
 ## Configuration contract
-File-based configuration is dynamically mapped to the types in [Microsoft.ReverseProxy.Abstractions](xref:Microsoft.ReverseProxy.Abstractions) namespace by an [IProxyConfigProvider](xref:Microsoft.ReverseProxy.Service.IProxyConfigProvider) implementation converts at application start and each time the configuration changes.
+File-based configuration is dynamically mapped to the types in [Yarp.ReverseProxy.Abstractions](xref:Yarp.ReverseProxy.Abstractions) namespace by an [IProxyConfigProvider](xref:Yarp.ReverseProxy.Service.IProxyConfigProvider) implementation converts at application start and each time the configuration changes.
 
 ## Configuration Structure
 The configuration consists of a named section that you specified above via `Configuration.GetSection("ReverseProxy")`, and contains subsections for routes and clusters.
@@ -75,14 +75,14 @@ The routes section is an ordered list of route matches and their associated conf
 - ClusterId - Refers to the name of an entry in the clusters section.
 - Match containing either a Hosts array or a Path pattern string.
 
-[Headers](header-routing.md), [Authorization](authn-authz.md), [CORS](cors.md), and other route based policies can be configured on each route entry. For additional fields see [ProxyRoute](xref:Microsoft.ReverseProxy.Abstractions.ProxyRoute).
+[Headers](header-routing.md), [Authorization](authn-authz.md), [CORS](cors.md), and other route based policies can be configured on each route entry. For additional fields see [ProxyRoute](xref:Yarp.ReverseProxy.Abstractions.ProxyRoute).
 
 The proxy will apply the given matching criteria and policies, and then pass off the request to the specified cluster.
 
 ### Clusters
 The clusters section is an unordered collection of named clusters. A cluster primarily contains a collection of named destinations and their addresses, any of which is considered capable of handling requests for a given route. The proxy will process the request according to the route and cluster configuration in order to select a destination.
 
-For additional fields see [Cluster](xref:Microsoft.ReverseProxy.Abstractions.Cluster).
+For additional fields see [Cluster](xref:Yarp.ReverseProxy.Abstractions.Cluster).
 
 ## All config properties
 ```JSON

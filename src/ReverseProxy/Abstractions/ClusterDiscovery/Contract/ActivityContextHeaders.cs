@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Microsoft.ReverseProxy.Abstractions
+namespace Yarp.ReverseProxy.Abstractions
 {
     [Flags]
     public enum ActivityContextHeaders

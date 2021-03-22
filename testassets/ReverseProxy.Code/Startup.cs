@@ -7,12 +7,12 @@ using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Abstractions.Config;
-using Microsoft.ReverseProxy.Middleware;
-using Microsoft.ReverseProxy.Telemetry.Consumption;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Abstractions.Config;
+using Yarp.ReverseProxy.Middleware;
+using Yarp.ReverseProxy.Telemetry.Consumption;
 
-namespace Microsoft.ReverseProxy.Sample
+namespace Yarp.ReverseProxy.Sample
 {
     /// <summary>
     /// ASP .NET Core pipeline initialization.

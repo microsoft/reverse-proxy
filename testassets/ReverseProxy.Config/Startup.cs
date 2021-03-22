@@ -5,9 +5,9 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.ReverseProxy.Middleware;
+using Yarp.ReverseProxy.Middleware;
 
-namespace Microsoft.ReverseProxy.Sample
+namespace Yarp.ReverseProxy.Sample
 {
     /// <summary>
     /// ASP .NET Core pipeline initialization.

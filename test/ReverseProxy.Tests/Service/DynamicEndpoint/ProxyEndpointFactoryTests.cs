@@ -6,15 +6,16 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Routing.Patterns;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.RuntimeModel;
-using Microsoft.ReverseProxy.Service.Management;
-using Microsoft.ReverseProxy.Service.Proxy;
-using Microsoft.ReverseProxy.Service.Routing;
 using Xunit;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Service.Management;
+using Yarp.ReverseProxy.Service.Proxy;
+using Yarp.ReverseProxy.Service.Routing;
 
-namespace Microsoft.ReverseProxy.Service.DynamicEndpoint
+namespace Yarp.ReverseProxy.Service.DynamicEndpoint
 {
     public class ProxyEndpointFactoryTests
     {
@@ -229,7 +230,7 @@ namespace Microsoft.ReverseProxy.Service.DynamicEndpoint
 
             Action action = () => CreateEndpoint(factory, routeInfo, route, cluster);
 
-            Assert.Throws<AspNetCore.Routing.Patterns.RoutePatternException>(action);
+            Assert.Throws<RoutePatternException>(action);
         }
 
         [Fact]

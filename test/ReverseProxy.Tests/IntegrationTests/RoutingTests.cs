@@ -13,10 +13,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.ReverseProxy.Abstractions;
 using Xunit;
+using Yarp.ReverseProxy.Abstractions;
 
-namespace Microsoft.ReverseProxy.IntegrationTests
+namespace Yarp.ReverseProxy.IntegrationTests
 {
     public class RoutingTests
     {

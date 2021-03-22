@@ -1,11 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace Microsoft.ReverseProxy.Sample
+namespace Yarp.Sample
 {
     internal class TokenService
     {

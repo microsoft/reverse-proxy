@@ -4,7 +4,7 @@
 using System;
 using System.Threading;
 
-namespace Microsoft.ReverseProxy.Utilities
+namespace Yarp.ReverseProxy.Utilities
 {
     internal class TimerFactory : ITimerFactory
     {

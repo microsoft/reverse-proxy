@@ -1,20 +1,19 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using Xunit;
 
-namespace Microsoft.ReverseProxy.Utilities.Tests
+namespace Yarp.ReverseProxy.Utilities.Tests
 {
     public static class TestResources
     {
         private const int MutexTimeout = 120 * 1000;
         private static readonly Mutex importPfxMutex = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ?
-            new Mutex(initiallyOwned: false, "Global\\Microsoft.ReverseProxy.Tests.Certificates.LoadPfxCertificate") :
+            new Mutex(initiallyOwned: false, "Global\\Yarp.ReverseProxy.Tests.Certificates.LoadPfxCertificate") :
             null;
 
         public static X509Certificate2 GetTestCertificate(string certName = "testCert.pfx")

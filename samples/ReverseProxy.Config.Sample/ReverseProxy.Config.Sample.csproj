@@ -3,11 +3,11 @@
   <PropertyGroup>
     <TargetFrameworks>net5.0;netcoreapp3.1</TargetFrameworks>
     <OutputType>Exe</OutputType>
-    <RootNamespace>Microsoft.ReverseProxy.Sample</RootNamespace>
+    <RootNamespace>Yarp.Sample</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.ReverseProxy" Version="1.0.0-preview.9.*" />
+    <PackageReference Include="Yarp.ReverseProxy" Version="1.0.0-preview.10.*" />
   </ItemGroup>
 
   <ItemGroup>

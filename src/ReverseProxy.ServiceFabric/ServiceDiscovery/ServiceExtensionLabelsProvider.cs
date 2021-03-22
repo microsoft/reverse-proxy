@@ -11,7 +11,7 @@ using System.Xml;
 using System.Xml.Linq;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.ReverseProxy.ServiceFabric
+namespace Yarp.ReverseProxy.ServiceFabric
 {
     /// <inheritdoc/>
     internal class ServiceExtensionLabelsProvider : IServiceExtensionLabelsProvider

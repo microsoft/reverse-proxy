@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.ReverseProxy.Common.Tests;
-using Microsoft.ReverseProxy.RuntimeModel;
 using Moq;
 using Xunit;
+using Yarp.ReverseProxy.Common.Tests;
+using Yarp.ReverseProxy.RuntimeModel;
 
-namespace Microsoft.ReverseProxy.Service.Management.Tests
+namespace Yarp.ReverseProxy.Service.Management.Tests
 {
     /// <summary>
     /// Tests for the <see cref="ClusterManager"/> class.

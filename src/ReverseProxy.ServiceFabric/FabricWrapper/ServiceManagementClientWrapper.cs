@@ -6,7 +6,7 @@ using System.Fabric;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Microsoft.ReverseProxy.ServiceFabric
+namespace Yarp.ReverseProxy.ServiceFabric
 {
     /// <summary>
     /// A wrapper class for the service fabric client SDK.

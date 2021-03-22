@@ -1,6 +1,9 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 using System;
 
-namespace Microsoft.ReverseProxy
+namespace Yarp.ReverseProxy
 {
     public static class TestUrlHelper
     {

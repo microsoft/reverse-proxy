@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Service;
-using Microsoft.ReverseProxy.Utilities;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Service;
+using Yarp.ReverseProxy.Utilities;
 
-namespace Microsoft.ReverseProxy.ServiceFabric
+namespace Yarp.ReverseProxy.ServiceFabric
 {
     /// <summary>
     /// Periodically calls Service Fabric API's to discover services and their configurations.

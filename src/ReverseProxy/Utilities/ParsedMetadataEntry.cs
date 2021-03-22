@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 
 using System;
-using Microsoft.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.RuntimeModel;
 
-namespace Microsoft.ReverseProxy.Utilities
+namespace Yarp.ReverseProxy.Utilities
 {
     internal class ParsedMetadataEntry<T>
     {

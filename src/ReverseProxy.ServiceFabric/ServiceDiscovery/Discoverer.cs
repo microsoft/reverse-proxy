@@ -12,11 +12,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Service;
 using Microsoft.ServiceFabric.Services.Communication;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Service;
 
-namespace Microsoft.ReverseProxy.ServiceFabric
+namespace Yarp.ReverseProxy.ServiceFabric
 {
     /// Default implementation of the <see cref="IDiscoverer"/> class.
     internal class Discoverer : IDiscoverer

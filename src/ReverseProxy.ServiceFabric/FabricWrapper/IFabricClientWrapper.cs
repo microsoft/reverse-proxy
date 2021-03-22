@@ -3,7 +3,7 @@
 
 using System.Fabric;
 
-namespace Microsoft.ReverseProxy.ServiceFabric
+namespace Yarp.ReverseProxy.ServiceFabric
 {
     internal interface IFabricClientWrapper
     {

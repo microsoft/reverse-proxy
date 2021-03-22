@@ -3,9 +3,9 @@
 
 using System;
 using System.Net.Http;
-using Microsoft.ReverseProxy.Abstractions.Config;
+using Yarp.ReverseProxy.Abstractions.Config;
 
-namespace Microsoft.ReverseProxy.Sample
+namespace Yarp.ReverseProxy.Sample
 {
     internal class MyTransformProvider : ITransformProvider
     {

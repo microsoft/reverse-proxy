@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Microsoft.ReverseProxy.Auth.Sample.Controllers
+namespace Yarp.Sample.Controllers
 {
     [AllowAnonymous]
     [Route("[controller]/[action]")]

@@ -1,17 +1,16 @@
-// <copyright file="ServiceFabricExtensionConfigProviderTests.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Microsoft.ReverseProxy.Common.Tests;
 using Moq;
 using Xunit;
+using Yarp.ReverseProxy.Common.Tests;
 
-namespace Microsoft.ReverseProxy.ServiceFabric.Tests
+namespace Yarp.ReverseProxy.ServiceFabric.Tests
 {
     public class ServiceExtensionLabelsProviderTests : TestAutoMockBase
     {

@@ -6,10 +6,10 @@ using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.Extensions.Logging;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Telemetry;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Telemetry;
 
-namespace Microsoft.ReverseProxy.Service.Proxy.Infrastructure
+namespace Yarp.ReverseProxy.Service.Proxy.Infrastructure
 {
     /// <summary>
     /// Default implementation of <see cref="IProxyHttpClientFactory"/>.

@@ -2,10 +2,10 @@
 // Licensed under the MIT License.
 
 using System;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Service.Proxy;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Service.Proxy;
 
-namespace Microsoft.ReverseProxy.RuntimeModel
+namespace Yarp.ReverseProxy.RuntimeModel
 {
     /// <summary>
     /// Immutable representation of the portions of a route

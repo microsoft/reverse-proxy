@@ -4,9 +4,9 @@
 using System.Net;
 using System.Net.Http;
 using Microsoft.AspNetCore.Http.Extensions;
-using Microsoft.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.RuntimeModel;
 
-namespace Microsoft.ReverseProxy.Service.HealthChecks
+namespace Yarp.ReverseProxy.Service.HealthChecks
 {
     internal class DefaultProbingRequestFactory : IProbingRequestFactory
     {

@@ -4,11 +4,11 @@
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using Microsoft.ReverseProxy.Middleware;
-using Microsoft.ReverseProxy.RuntimeModel;
-using Microsoft.ReverseProxy.Service.RuntimeModel.Transforms;
+using Yarp.ReverseProxy.Middleware;
+using Yarp.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Service.RuntimeModel.Transforms;
 
-namespace Microsoft.ReverseProxy.Service.SessionAffinity
+namespace Yarp.ReverseProxy.Service.SessionAffinity
 {
     /// <summary>
     /// Affinitizes the request to a chosen <see cref="DestinationInfo"/>.

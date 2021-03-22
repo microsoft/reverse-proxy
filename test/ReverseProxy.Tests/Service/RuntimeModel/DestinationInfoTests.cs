@@ -3,11 +3,10 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.ReverseProxy.RuntimeModel;
 using Xunit;
+using Yarp.ReverseProxy.RuntimeModel;
 
-
-namespace Microsoft.ReverseProxy.Service.RuntimeModel
+namespace Yarp.ReverseProxy.Service.RuntimeModel
 {
     public class DestinationInfoTests
     {

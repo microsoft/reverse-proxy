@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Microsoft.ReverseProxy.Telemetry.Consumption
+namespace Yarp.ReverseProxy.Telemetry.Consumption
 {
     /// <summary>
     /// A consumer of Microsoft-AspNetCore-Server-Kestrel EventSource events.

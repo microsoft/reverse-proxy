@@ -13,7 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.ReverseProxy.Telemetry.Consumption
+namespace Yarp.ReverseProxy.Telemetry.Consumption
 {
     internal sealed class NetSecurityEventListenerService : EventListener, IHostedService
     {

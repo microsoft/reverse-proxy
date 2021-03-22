@@ -2,13 +2,12 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Xunit;
+using Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 
-namespace Microsoft.ReverseProxy.Service.SessionAffinity
+namespace Yarp.ReverseProxy.Service.SessionAffinity
 {
     public class RedistributeAffinityFailurePolicyTests
     {

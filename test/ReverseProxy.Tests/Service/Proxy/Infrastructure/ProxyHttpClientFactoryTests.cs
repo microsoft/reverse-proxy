@@ -9,14 +9,14 @@ using System.Reflection;
 using System.Security.Authentication;
 using System.Text;
 using Microsoft.Extensions.Logging;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Common.Tests;
-using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
-using Microsoft.ReverseProxy.Telemetry;
-using Microsoft.ReverseProxy.Utilities.Tests;
 using Xunit;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Common.Tests;
+using Yarp.ReverseProxy.Service.Proxy.Infrastructure;
+using Yarp.ReverseProxy.Telemetry;
+using Yarp.ReverseProxy.Utilities.Tests;
 
-namespace Microsoft.ReverseProxy.Service.Proxy.Tests
+namespace Yarp.ReverseProxy.Service.Proxy.Tests
 {
     public class ProxyHttpClientFactoryTests : TestAutoMockBase
     {

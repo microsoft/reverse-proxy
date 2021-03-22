@@ -4,7 +4,7 @@
 using System;
 using Xunit;
 
-namespace Microsoft.ReverseProxy.Abstractions.Config
+namespace Yarp.ReverseProxy.Abstractions.Config
 {
     public abstract class TransformExtentionsTestsBase
     {

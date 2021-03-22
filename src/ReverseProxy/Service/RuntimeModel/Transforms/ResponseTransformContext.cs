@@ -4,7 +4,7 @@
 using System.Net.Http;
 using Microsoft.AspNetCore.Http;
 
-namespace Microsoft.ReverseProxy.Service.RuntimeModel.Transforms
+namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
 {
     /// <summary>
     /// Transform state for use with <see cref="ResponseTransform"/>

@@ -10,10 +10,10 @@ using System.Security.Authentication;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Primitives;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Service.Proxy;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Service.Proxy;
 
-namespace Microsoft.ReverseProxy.ServiceFabric
+namespace Yarp.ReverseProxy.ServiceFabric
 {
     /// <summary>
     /// Helper class to parse configuration labels of the gateway into actual objects.

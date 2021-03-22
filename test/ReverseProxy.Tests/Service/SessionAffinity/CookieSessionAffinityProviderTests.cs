@@ -5,12 +5,12 @@ using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
-using Microsoft.ReverseProxy.RuntimeModel;
 using Xunit;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
+using Yarp.ReverseProxy.RuntimeModel;
 
-namespace Microsoft.ReverseProxy.Service.SessionAffinity
+namespace Yarp.ReverseProxy.Service.SessionAffinity
 {
     public class CookieSessionAffinityProviderTests
     {
@@ -72,7 +72,7 @@ namespace Microsoft.ReverseProxy.Service.SessionAffinity
             provider.AffinitizeRequest(context, _defaultOptions, _destinations[1]);
 
             var affinityCookieHeader = context.Response.Headers["Set-Cookie"];
-            Assert.Equal(".Microsoft.ReverseProxy.Affinity=ZGVzdC1C; path=/; httponly", affinityCookieHeader);
+            Assert.Equal(".Yarp.ReverseProxy.Affinity=ZGVzdC1C; path=/; httponly", affinityCookieHeader);
         }
 
         [Fact]

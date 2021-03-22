@@ -3,7 +3,7 @@
 
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.ReverseProxy.Common.Tests
+namespace Yarp.ReverseProxy.Common.Tests
 {
     public class TestLoggerFactory : ILoggerFactory
     {

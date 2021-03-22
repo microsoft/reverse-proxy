@@ -7,10 +7,10 @@ using System.Fabric.Health;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Microsoft.ReverseProxy.ServiceFabric.Utilities;
-using Microsoft.ReverseProxy.Utilities;
+using Yarp.ReverseProxy.ServiceFabric.Utilities;
+using Yarp.ReverseProxy.Utilities;
 
-namespace Microsoft.ReverseProxy.ServiceFabric
+namespace Yarp.ReverseProxy.ServiceFabric
 {
     internal sealed class CachedServiceFabricCaller : ICachedServiceFabricCaller
     {

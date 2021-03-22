@@ -3,10 +3,10 @@
 
 using System;
 using Microsoft.AspNetCore.Http;
-using Microsoft.ReverseProxy.Service.Proxy;
-using Microsoft.ReverseProxy.Telemetry.Consumption;
+using Yarp.ReverseProxy.Service.Proxy;
+using Yarp.ReverseProxy.Telemetry.Consumption;
 
-namespace Microsoft.ReverseProxy.Sample
+namespace Yarp.Sample
 {
     public sealed class ProxyTelemetryConsumer : IProxyTelemetryConsumer
     {

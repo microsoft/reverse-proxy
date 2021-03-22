@@ -6,12 +6,12 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
-using Microsoft.ReverseProxy.RuntimeModel;
-using Microsoft.ReverseProxy.Service.LoadBalancing;
-using Microsoft.ReverseProxy.Utilities;
+using Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
+using Yarp.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Service.LoadBalancing;
+using Yarp.ReverseProxy.Utilities;
 
-namespace Microsoft.ReverseProxy.Middleware
+namespace Yarp.ReverseProxy.Middleware
 {
     /// <summary>
     /// Load balances across the available destinations.

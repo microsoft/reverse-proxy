@@ -6,9 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.ReverseProxy.Utilities;
+using Yarp.ReverseProxy.Utilities;
 
-namespace Microsoft.ReverseProxy.Common.Tests
+namespace Yarp.ReverseProxy.Common.Tests
 {
     /// <summary>
     /// Simulates passage of time, used for testing.

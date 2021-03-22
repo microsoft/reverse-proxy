@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 
 using System;
-using Microsoft.ReverseProxy.Telemetry.Consumption;
+using Yarp.ReverseProxy.Telemetry.Consumption;
 
-namespace Microsoft.ReverseProxy.Sample
+namespace Yarp.ReverseProxy.Sample
 {
     public sealed class ProxyMetricsConsumer : IProxyMetricsConsumer
     {

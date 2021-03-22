@@ -11,13 +11,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
-using Microsoft.ReverseProxy.Abstractions;
-using Microsoft.ReverseProxy.RuntimeModel;
-using Microsoft.ReverseProxy.Service.HealthChecks;
-using Microsoft.ReverseProxy.Service.Proxy;
-using Microsoft.ReverseProxy.Service.Proxy.Infrastructure;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Service.HealthChecks;
+using Yarp.ReverseProxy.Service.Proxy;
+using Yarp.ReverseProxy.Service.Proxy.Infrastructure;
 
-namespace Microsoft.ReverseProxy.Service.Management
+namespace Yarp.ReverseProxy.Service.Management
 {
     /// <summary>
     /// Provides a method to apply Proxy configuration changes
