@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using k8s;
@@ -15,7 +15,7 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Caching
     /// ICache service interface holds onto least amount of data necessary
     /// for <see cref="IReconciler"/> to process work.
     /// </summary>
-    public class Cache : ICache
+    public class IngressCache : ICache
     {
         private readonly object _sync = new object();
         private readonly Dictionary<string, NamespaceCache> _namespaceCaches = new Dictionary<string, NamespaceCache>();

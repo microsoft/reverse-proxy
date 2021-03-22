@@ -186,7 +186,7 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Caching
                     }
                 }
 
-                data = new ReconcileData { Ingress = ingress, EndpointsList = endspointsList };
+                data = new ReconcileData(ingress, endspointsList);
                 return true;
             }
         }

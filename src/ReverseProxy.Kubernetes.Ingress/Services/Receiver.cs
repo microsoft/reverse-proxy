@@ -49,23 +49,24 @@ namespace Yarp.ReverseProxy.Kubernetes.Ingress.Services
         {
             while (!cancellationToken.IsCancellationRequested)
             {
-                await _limiter.WaitAsync(cancellationToken);
+                await _limiter.WaitAsync(cancellationToken).ConfigureAwait(false);
 
-                Logger.LogInformation("Connecting with {ControllerUrl}", _options.ControllerUrl);
+#pragma warning disable CA1303 // Do not pass literals as localized parameters
+                Logger.LogInformation("Connecting with {ControllerUrl}", _options.ControllerUrl.ToString());
 
                 try
                 {
                     using var client = new HttpClient();
-                    var request = new HttpRequestMessage();
-                    request.RequestUri = new Uri(_options.ControllerUrl);
+                    using var request = new HttpRequestMessage();
+                    request.RequestUri = _options.ControllerUrl;
                     request.Method = HttpMethod.Get;
-                    using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
-                    using var stream = await response.Content.ReadAsStreamAsync();
+                    using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
                     using var reader = new StreamReader(stream, Encoding.UTF8, leaveOpen: true);
                     using var cancellation = cancellationToken.Register(stream.Close);
                     while (true)
                     {
-                        var json = await reader.ReadLineAsync();
+                        var json = await reader.ReadLineAsync().ConfigureAwait(false);
                         if (string.IsNullOrEmpty(json))
                         {
                             break;
@@ -89,6 +90,7 @@ namespace Yarp.ReverseProxy.Kubernetes.Ingress.Services
                 {
                     Logger.LogInformation("Stream ended: {Message}", ex.Message);
                 }
+#pragma warning restore CA1303 // Do not pass literals as localized parameters
             }
         }
     }

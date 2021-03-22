@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Microsoft.Extensions.Logging;
@@ -32,7 +32,9 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Dispatching
 
         public void Attach(IDispatchTarget target)
         {
+#pragma warning disable CA1303 // Do not pass literals as localized parameters
             _logger.LogDebug("Attaching {DispatchTarget}", target?.ToString());
+#pragma warning restore CA1303 // Do not pass literals as localized parameters
 
             lock (_targetsSync)
             {
@@ -44,7 +46,9 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Dispatching
 
         public void Detach(IDispatchTarget target)
         {
+#pragma warning disable CA1303 // Do not pass literals as localized parameters
             _logger.LogDebug("Detaching {DispatchTarget}", target?.ToString());
+#pragma warning restore CA1303 // Do not pass literals as localized parameters
 
             lock (_targetsSync)
             {
@@ -56,13 +60,13 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Dispatching
         {
             if (specificTarget != null)
             {
-                await specificTarget.SendAsync(utf8Bytes, cancellationToken);
+                await specificTarget.SendAsync(utf8Bytes, cancellationToken).ConfigureAwait(false);
             }
             else
             {
                 foreach (var target in _targets)
                 {
-                    await target.SendAsync(utf8Bytes, cancellationToken);
+                    await target.SendAsync(utf8Bytes, cancellationToken).ConfigureAwait(false);
                 }
             }
         }

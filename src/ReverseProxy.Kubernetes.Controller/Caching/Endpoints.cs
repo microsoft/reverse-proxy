@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using k8s.Models;
@@ -10,7 +10,9 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Caching
     /// <summary>
     /// Holds data needed from a <see cref="V1Endpoints"/> resource.
     /// </summary>
+#pragma warning disable CA1815 // Override equals and operator equals on value types
     public struct Endpoints
+#pragma warning restore CA1815 // Override equals and operator equals on value types
     {
         public Endpoints(V1Endpoints endpoints)
         {
@@ -24,6 +26,6 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Caching
         }
 
         public string Name { get; set; }
-        public IList<V1EndpointSubset> Subsets { get; set; }
+        public IList<V1EndpointSubset> Subsets { get; }
     }
 }

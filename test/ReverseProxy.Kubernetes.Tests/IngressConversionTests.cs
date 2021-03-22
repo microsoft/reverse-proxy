@@ -27,7 +27,7 @@ namespace IngressController.Tests
         [InlineData("exact-match")]
         public async Task ParsingTests(string name)
         {
-            var (ingress, endpoints) = await GetKubernetesInfo(name);
+            var (ingress, endpoints) = await GetKubernetesInfo(name).ConfigureAwait(false);
             var context = new YarpIngressContext(ingress, endpoints);
 
             YarpParser.CovertFromKubernetesIngress(context);
@@ -36,17 +36,17 @@ namespace IngressController.Tests
             VerifyRoutes(JsonSerializer.Serialize(context.Routes), name);
         }
 
-        private void VerifyClusters(string clusterJson, string name)
+        private static void VerifyClusters(string clusterJson, string name)
         {
             VerifyJson(clusterJson, name, "clusters.json");
         }
 
-        private void VerifyRoutes(string routesJson, string name)
+        private static void VerifyRoutes(string routesJson, string name)
         {
             VerifyJson(routesJson, name, "routes.json");
         }
 
-        private void VerifyJson(string json, string name, string fileName)
+        private static void VerifyJson(string json, string name, string fileName)
         {
             var other = File.ReadAllText(Path.Combine("testassets", name, fileName));
 
@@ -59,7 +59,7 @@ namespace IngressController.Tests
             typeMap.Add("networking.k8s.io/v1/Ingress", typeof(V1Ingress));
             typeMap.Add("v1/Endpoints", typeof(V1Endpoints));
 
-            var kubeObjects = await Yaml.LoadAllFromFileAsync(Path.Combine("testassets", name, "ingress.yaml"), typeMap);
+            var kubeObjects = await Yaml.LoadAllFromFileAsync(Path.Combine("testassets", name, "ingress.yaml"), typeMap).ConfigureAwait(false);
             IngressData ingressData = default;
             var endpointList = new List<Endpoints>();
             foreach (var obj in kubeObjects)

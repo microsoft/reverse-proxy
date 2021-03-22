@@ -26,20 +26,20 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Services
     /// added to an <see cref="IRateLimitingQueue{QueueItem}"/>. The background task dequeues
     /// items and passes them to an <see cref="IReconciler"/> service for processing.
     /// </summary>
-    public class Controller : BackgroundHostedService
+    public class IngressController : BackgroundHostedService
     {
         private readonly IResourceInformerRegistration[] _registrations;
         private readonly IRateLimitingQueue<QueueItem> _queue;
         private readonly ICache _cache;
         private readonly IReconciler _reconciler;
 
-        public Controller(
+        public IngressController(
             ICache cache,
             IReconciler reconciler,
             IResourceInformer<V1Ingress> ingressInformer,
             IResourceInformer<V1Endpoints> endpointsInformer,
             IHostApplicationLifetime hostApplicationLifetime,
-            ILogger<Controller> logger)
+            ILogger<IngressController> logger)
             : base(hostApplicationLifetime, logger)
         {
             if (ingressInformer is null)
@@ -153,7 +153,7 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Services
             // First wait for all informers to fully List resources before processing begins.
             foreach (var registration in _registrations)
             {
-                await registration.ReadyAsync(cancellationToken);
+                await registration.ReadyAsync(cancellationToken).ConfigureAwait(false);
             }
 
             // At this point we know that all of the Ingress and Endpoint caches are at least in sync
@@ -163,7 +163,7 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Services
             while (!cancellationToken.IsCancellationRequested)
             {
                 // Dequeue the next item to process
-                var (item, shutdown) = await _queue.GetAsync(cancellationToken);
+                var (item, shutdown) = await _queue.GetAsync(cancellationToken).ConfigureAwait(false);
                 if (shutdown)
                 {
                     return;
@@ -174,18 +174,24 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Services
                     // Fetch the currently known information about this Ingress
                     if (_cache.TryGetReconcileData(item.NamespacedName, out var data))
                     {
+#pragma warning disable CA1303 // Do not pass literals as localized parameters
                         Logger.LogInformation("Processing {IngressNamespace} {IngressName}", item.NamespacedName.Namespace, item.NamespacedName.Name);
+#pragma warning restore CA1303 // Do not pass literals as localized parameters
 
                         // Pass the information to the reconciler to process and dispatch
-                        await _reconciler.ProcessAsync(item.DispatchTarget, item.NamespacedName, data, cancellationToken);
+                        await _reconciler.ProcessAsync(item.DispatchTarget, item.NamespacedName, data, cancellationToken).ConfigureAwait(false);
                     }
 
                     // Tell the queue to forget any exponential backoff details like attempt count
                     _queue.Forget(item);
                 }
+#pragma warning disable CA1031 // Do not catch general exception types
                 catch
+#pragma warning restore CA1031 // Do not catch general exception types
                 {
+#pragma warning disable CA1303 // Do not pass literals as localized parameters
                     Logger.LogInformation("Rescheduling {IngressNamespace} {IngressName}", item.NamespacedName.Namespace, item.NamespacedName.Name);
+#pragma warning restore CA1303 // Do not pass literals as localized parameters
 
                     // Any failure to process this item results in being re-queued after
                     // a per-item exponential backoff delay combined with
@@ -198,55 +204,6 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Services
                     // that the item is no longer being actively processed
                     _queue.Done(item);
                 }
-            }
-        }
-
-        /// <summary>
-        /// QueueItem acts as the "Key" for the _queue to manage items.
-        /// </summary>
-        public struct QueueItem : IEquatable<QueueItem>
-        {
-            public QueueItem(NamespacedName namespacedName, IDispatchTarget dispatchTarget)
-            {
-                NamespacedName = namespacedName;
-                DispatchTarget = dispatchTarget;
-            }
-
-            /// <summary>
-            /// This identifies an Ingress which must be dispatched because it, or a related resource, has changed.
-            /// </summary>
-            public NamespacedName NamespacedName;
-
-            /// <summary>
-            /// This idenitifies a single target if the work item is caused by a new connection, otherwise null
-            /// if the information should be sent to all current connections.
-            /// </summary>
-            public IDispatchTarget DispatchTarget;
-
-            public override bool Equals(object obj)
-            {
-                return obj is QueueItem item && Equals(item);
-            }
-
-            public bool Equals(QueueItem other)
-            {
-                return NamespacedName.Equals(other.NamespacedName) &&
-                       EqualityComparer<IDispatchTarget>.Default.Equals(DispatchTarget, other.DispatchTarget);
-            }
-
-            public override int GetHashCode()
-            {
-                return HashCode.Combine(NamespacedName, DispatchTarget);
-            }
-
-            public static bool operator ==(QueueItem left, QueueItem right)
-            {
-                return left.Equals(right);
-            }
-
-            public static bool operator !=(QueueItem left, QueueItem right)
-            {
-                return !(left == right);
             }
         }
     }

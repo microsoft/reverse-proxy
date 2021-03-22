@@ -19,7 +19,7 @@ using Yarp.ReverseProxy.Kubernetes.Protocol;
 namespace Yarp.ReverseProxy.Kubernetes.Controller.Services
 {
     /// <summary>
-    /// IReconciler is a service interface called by the <see cref="Controller"/> to process
+    /// IReconciler is a service interface called by the <see cref="IngressController"/> to process
     /// the work items as they are dequeued.
     /// </summary>
     public partial class Reconciler : IReconciler

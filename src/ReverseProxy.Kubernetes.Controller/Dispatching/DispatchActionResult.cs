@@ -47,7 +47,7 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Dispatching
             _httpContext = context.HttpContext;
             _httpContext.Response.ContentType = "text/plain";
             _httpContext.Response.Headers["Connection"] = "close";
-            await _httpContext.Response.Body.FlushAsync(cancellationToken);
+            await _httpContext.Response.Body.FlushAsync(cancellationToken).ConfigureAwait(false);
 
             _dispatcher.Attach(this);
 
@@ -60,8 +60,8 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Dispatching
 
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    await Task.Delay(TimeSpan.FromSeconds(35), cancellationToken);
-                    await SendAsync(utf8Bytes, cancellationToken);
+                    await Task.Delay(TimeSpan.FromSeconds(35), cancellationToken).ConfigureAwait(false);
+                    await SendAsync(utf8Bytes, cancellationToken).ConfigureAwait(false);
                 }
             }
             catch (TaskCanceledException)
@@ -93,14 +93,14 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Dispatching
 
                 async Task DoSendAsync(Task task, byte[] bytes)
                 {
-                    await task;
-                    await _httpContext.Response.BodyWriter.WriteAsync(bytes);
-                    await _httpContext.Response.BodyWriter.WriteAsync(new[] { (byte)'\n' });
-                    await _httpContext.Response.BodyWriter.FlushAsync();
+                    await task.ConfigureAwait(false);
+                    await _httpContext.Response.BodyWriter.WriteAsync(bytes, cancellationToken);
+                    await _httpContext.Response.BodyWriter.WriteAsync(new[] { (byte)'\n' }, cancellationToken);
+                    await _httpContext.Response.BodyWriter.FlushAsync(cancellationToken);
                 }
             }
 
-            await result;
+            await result.ConfigureAwait(false);
         }
     }
 }

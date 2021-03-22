@@ -9,7 +9,9 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Caching
     /// <summary>
     /// Holds data needed from a <see cref="V1Ingress"/> resource.
     /// </summary>
+#pragma warning disable CA1815 // Override equals and operator equals on value types
     public struct IngressData
+#pragma warning restore CA1815 // Override equals and operator equals on value types
     {
         public IngressData(V1Ingress ingress)
         {
