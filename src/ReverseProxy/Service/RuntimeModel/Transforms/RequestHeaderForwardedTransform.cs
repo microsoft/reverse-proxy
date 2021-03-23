@@ -52,11 +52,11 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
 
             var httpContext = context.HttpContext;
 
-            var builder = new StringBuilder();
-            AppendProto(httpContext, builder);
-            AppendHost(httpContext, builder);
-            AppendFor(httpContext, builder);
-            AppendBy(httpContext, builder);
+            var builder = new ValueStringBuilder();
+            AppendProto(httpContext, ref builder);
+            AppendHost(httpContext, ref builder);
+            AppendFor(httpContext, ref builder);
+            AppendBy(httpContext, ref builder);
             var value = builder.ToString();
 
             var existingValues = TakeHeader(context, ForwardedHeaderName);
@@ -73,7 +73,7 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
             return default;
         }
 
-        private void AppendProto(HttpContext context, StringBuilder builder)
+        private void AppendProto(HttpContext context, ref ValueStringBuilder builder)
         {
             if (ProtoEnabled)
             {
@@ -83,7 +83,7 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
             }
         }
 
-        private void AppendHost(HttpContext context, StringBuilder builder)
+        private void AppendHost(HttpContext context, ref ValueStringBuilder builder)
         {
             if (HostEnabled)
             {
@@ -98,7 +98,7 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
             }
         }
 
-        private void AppendFor(HttpContext context, StringBuilder builder)
+        private void AppendFor(HttpContext context, ref ValueStringBuilder builder)
         {
             if (ForFormat > NodeFormat.None)
             {
@@ -107,11 +107,11 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
                     builder.Append(';');
                 }
                 builder.Append("for=");
-                AppendNode(context.Connection.RemoteIpAddress, context.Connection.RemotePort, ForFormat, builder);
+                AppendNode(context.Connection.RemoteIpAddress, context.Connection.RemotePort, ForFormat, ref builder);
             }
         }
 
-        private void AppendBy(HttpContext context, StringBuilder builder)
+        private void AppendBy(HttpContext context, ref ValueStringBuilder builder)
         {
             if (ByFormat > NodeFormat.None)
             {
@@ -120,12 +120,12 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
                     builder.Append(';');
                 }
                 builder.Append("by=");
-                AppendNode(context.Connection.LocalIpAddress, context.Connection.LocalPort, ByFormat, builder);
+                AppendNode(context.Connection.LocalIpAddress, context.Connection.LocalPort, ByFormat, ref builder);
             }
         }
 
         // https://tools.ietf.org/html/rfc7239#section-6
-        private void AppendNode(IPAddress ipAddress, int port, NodeFormat format, StringBuilder builder)
+        private void AppendNode(IPAddress ipAddress, int port, NodeFormat format, ref ValueStringBuilder builder)
         {
             // "It is important to note that an IPv6 address and any nodename with
             // node-port specified MUST be quoted, since ":" is not an allowed
@@ -169,7 +169,7 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
                 case NodeFormat.Random:
                 case NodeFormat.RandomAndPort:
                 case NodeFormat.RandomAndRandomPort:
-                    AppendRandom(builder);
+                    AppendRandom(ref builder);
                     break;
                 default:
                     throw new NotImplementedException(format.ToString());
@@ -178,12 +178,12 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
             if (addPort)
             {
                 builder.Append(':');
-                builder.Append(port);
+                builder.Append(port.ToString());
             }
             else if (addRandomPort)
             {
                 builder.Append(':');
-                AppendRandom(builder);
+                AppendRandom(ref builder);
             }
 
             if (quote)
@@ -193,7 +193,7 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
         }
 
         // https://tools.ietf.org/html/rfc7239#section-6.3
-        private void AppendRandom(StringBuilder builder)
+        private void AppendRandom(ref ValueStringBuilder builder)
         {
             var random = _randomFactory.CreateRandomInstance();
             builder.Append('_');
