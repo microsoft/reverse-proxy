@@ -10,12 +10,10 @@ namespace Yarp.ReverseProxy.Service.Management
 {
     internal sealed class ClusterManager : ItemManagerBase<ClusterInfo>, IClusterManager
     {
-        private readonly IDestinationManagerFactory _destinationManagerFactory;
         private readonly IReadOnlyList<IClusterChangeListener> _changeListeners;
 
-        public ClusterManager(IDestinationManagerFactory destinationManagerFactory, IEnumerable<IClusterChangeListener> changeListeners)
+        public ClusterManager(IEnumerable<IClusterChangeListener> changeListeners)
         {
-            _destinationManagerFactory = destinationManagerFactory ?? throw new ArgumentNullException(nameof(destinationManagerFactory));
             _changeListeners = changeListeners?.ToArray() ?? Array.Empty<IClusterChangeListener>();
         }
 
@@ -45,8 +43,7 @@ namespace Yarp.ReverseProxy.Service.Management
         /// <inheritdoc/>
         protected override ClusterInfo InstantiateItem(string itemId)
         {
-            var destinationManager = _destinationManagerFactory.CreateDestinationManager();
-            return new ClusterInfo(itemId, destinationManager);
+            return new ClusterInfo(itemId);
         }
     }
 }

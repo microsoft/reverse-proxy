@@ -24,9 +24,6 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
         public void GetOrCreateItem_NonExistentItem_CreatesNewItem()
         {
             var endpointManager = new DestinationManager();
-            Mock<IDestinationManagerFactory>()
-                .Setup(e => e.CreateDestinationManager())
-                .Returns(endpointManager);
             var changeListener = new Mock<IClusterChangeListener>();
             Provide(changeListener.Object);
             var manager = Create<ClusterManager>();
@@ -43,9 +40,6 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
         [Fact]
         public void GetOrCreateItem_ExistingItem_ChangesItem()
         {
-            Mock<IDestinationManagerFactory>()
-                .Setup(e => e.CreateDestinationManager())
-                .Returns(new DestinationManager());
             var changeListener = new Mock<IClusterChangeListener>();
             Provide(changeListener.Object);
             var manager = Create<ClusterManager>();
@@ -66,9 +60,6 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
         [Fact]
         public void RemoveItem_ExistingItem_RemovesItem()
         {
-            Mock<IDestinationManagerFactory>()
-                .Setup(e => e.CreateDestinationManager())
-                .Returns(new DestinationManager());
             var changeListener = new Mock<IClusterChangeListener>();
             Provide(changeListener.Object);
             var manager = Create<ClusterManager>();
@@ -89,9 +80,6 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
         [Fact]
         public void RemoveItem_NonExistentItem_DoNothing()
         {
-            Mock<IDestinationManagerFactory>()
-                .Setup(e => e.CreateDestinationManager())
-                .Returns(new DestinationManager());
             var changeListener = new Mock<IClusterChangeListener>();
             Provide(changeListener.Object);
             var manager = Create<ClusterManager>();

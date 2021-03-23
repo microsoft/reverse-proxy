@@ -17,7 +17,7 @@ namespace Yarp.ReverseProxy.RuntimeModel.Tests
     {
         private static IClusterManager CreateClusterManager()
         {
-            return new ClusterManager(new DestinationManagerFactory(), Array.Empty<IClusterChangeListener>());
+            return new ClusterManager(Array.Empty<IClusterChangeListener>());
         }
 
         [Fact]

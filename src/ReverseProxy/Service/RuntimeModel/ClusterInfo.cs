@@ -26,10 +26,9 @@ namespace Yarp.ReverseProxy.RuntimeModel
         private volatile ClusterConfig _config;
         private readonly SemaphoreSlim _updateRequests = new SemaphoreSlim(2);
 
-        internal ClusterInfo(string clusterId, IDestinationManager destinationManager)
+        internal ClusterInfo(string clusterId)
         {
             ClusterId = clusterId ?? throw new ArgumentNullException(nameof(clusterId));
-            DestinationManager = destinationManager ?? throw new ArgumentNullException(nameof(destinationManager));
         }
 
         public string ClusterId { get; }
@@ -44,7 +43,7 @@ namespace Yarp.ReverseProxy.RuntimeModel
             internal set => _config = value ?? throw new ArgumentNullException(nameof(value));
         }
 
-        internal IDestinationManager DestinationManager { get; }
+        internal IDestinationManager DestinationManager { get; } = new DestinationManager();
 
         /// <summary>
         /// Encapsulates parts of a cluster that can change atomically
