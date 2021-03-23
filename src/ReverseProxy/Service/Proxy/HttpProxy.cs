@@ -34,6 +34,8 @@ namespace Yarp.ReverseProxy.Service.Proxy
         private readonly ILogger _logger;
         private readonly IClock _clock;
 
+        private static readonly TimeoutCtsPool _ctsPool = new(DefaultTimeout, resolution: TimeSpan.FromSeconds(2));
+
         public HttpProxy(ILogger<HttpProxy> logger, IClock clock)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -122,8 +124,8 @@ namespace Yarp.ReverseProxy.Service.Proxy
 
                 // :: Step 4: Send the outgoing request using HttpClient
                 HttpResponseMessage destinationResponse;
-                var requestTimeoutSource = CancellationTokenSource.CreateLinkedTokenSource(requestAborted);
-                requestTimeoutSource.CancelAfter(requestOptions?.Timeout ?? DefaultTimeout);
+
+                var requestTimeoutSource = _ctsPool.Rent(requestOptions?.Timeout ?? DefaultTimeout, requestAborted);
                 var requestTimeoutToken = requestTimeoutSource.Token;
                 try
                 {
@@ -151,7 +153,7 @@ namespace Yarp.ReverseProxy.Service.Proxy
                 }
                 finally
                 {
-                    requestTimeoutSource.Dispose();
+                    requestTimeoutSource.Return();
                 }
 
                 // Detect connection downgrade, which may be problematic for e.g. gRPC.
