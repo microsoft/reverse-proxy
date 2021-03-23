@@ -4,6 +4,7 @@
 using System;
 using System.Buffers;
 using System.Diagnostics;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 
 namespace Yarp.ReverseProxy.Utilities
@@ -91,7 +92,7 @@ namespace Yarp.ReverseProxy.Utilities
             }
             else
             {
-                Append(i.ToString());
+                Append(i.ToString(CultureInfo.InvariantCulture));
             }
         }
 
