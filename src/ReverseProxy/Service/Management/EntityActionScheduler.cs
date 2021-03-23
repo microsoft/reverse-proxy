@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Yarp.ReverseProxy.Utilities;
@@ -62,7 +63,8 @@ namespace Yarp.ReverseProxy.Service.Management
         public void ScheduleEntity(T entity, TimeSpan period)
         {
             var entry = new SchedulerEntry(entity, (long)period.TotalMilliseconds, _timerCallback, Volatile.Read(ref _isStarted) == 1, _timerFactory);
-            _entries.TryAdd(entity, entry);
+            var added = _entries.TryAdd(entity, entry);
+            Debug.Assert(added);
         }
 
         public void ChangePeriod(T entity, TimeSpan newPeriod)
