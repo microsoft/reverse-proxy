@@ -62,7 +62,11 @@ namespace Yarp.ReverseProxy.Service.Management
         public void ScheduleEntity(T entity, TimeSpan period)
         {
             var entry = new SchedulerEntry(entity, (long)period.TotalMilliseconds, _timerCallback, Volatile.Read(ref _isStarted) == 1, _timerFactory);
-            _entries.TryAdd(entity, entry);
+            if (!_entries.TryAdd(entity, entry))
+            {
+                //Dispose the Timer if it has already been added to the dictionary.
+                entry.Timer.Dispose();
+            }
         }
 
         public void ChangePeriod(T entity, TimeSpan newPeriod)
