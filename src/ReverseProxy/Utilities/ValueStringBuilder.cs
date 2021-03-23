@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 using System;
 using System.Buffers;
 using System.Diagnostics;
@@ -5,6 +8,7 @@ using System.Runtime.CompilerServices;
 
 namespace Yarp.ReverseProxy.Utilities
 {
+    //Copied from https://github.com/dotnet/runtime/blob/1ee59da9f6104c611b137c9d14add04becefdf14/src/libraries/Common/src/System/Text/ValueStringBuilder.cs
     internal ref partial struct ValueStringBuilder
     {
         private char[] _arrayToReturnToPool;
@@ -75,6 +79,20 @@ namespace Yarp.ReverseProxy.Utilities
 
             s.AsSpan().CopyTo(RawChars.Slice(pos));
             _pos += s.Length;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Append(int i)
+        {
+            var pos = _pos;
+            if (i.TryFormat(RawChars.Slice(pos), out var charsWritten, default, null))
+            {
+                _pos = pos + charsWritten;
+            }
+            else
+            {
+                Append(i.ToString());
+            }
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
