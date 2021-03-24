@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="swagger.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="swagger.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NSwag.Core" Version="13.9.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Core\Microsoft.Kubernetes.Core.csproj" />
+  </ItemGroup>
+
+</Project>

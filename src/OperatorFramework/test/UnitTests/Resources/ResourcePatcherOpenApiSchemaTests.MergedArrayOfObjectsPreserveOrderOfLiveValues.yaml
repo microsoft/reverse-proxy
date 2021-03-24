@@ -1,0 +1,49 @@
+﻿resourceKind:
+  apiVersion: v1
+  kind: Pod
+apply:
+  metadata:
+    name: test-pod
+    namespace: test-namespace
+  spec:
+    containers:
+    - name: gamma
+      image: gamma:v2
+    - name: alpha
+      image: alpha:v2
+    - name: beta
+      image: beta:v2
+lastApplied:
+  metadata:
+    name: test-pod
+    namespace: test-namespace
+  spec:
+    containers:
+    - name: alpha
+      image: alpha:v1
+    - name: beta
+      image: beta:v1
+    - name: gamma
+      image: gamma:v1
+live:
+  metadata:
+    name: test-pod
+    namespace: test-namespace
+  spec:
+    containers:
+    - name: alpha
+      image: alpha:v1
+    - name: beta
+      image: beta:v1
+    - name: gamma
+      image: gamma:v1
+patch:
+- op: replace
+  path: /spec/containers/2/image
+  value: gamma:v2
+- op: replace
+  path: /spec/containers/0/image
+  value: alpha:v2
+- op: replace
+  path: /spec/containers/1/image
+  value: beta:v2

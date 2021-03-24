@@ -1,0 +1,14 @@
+﻿apply:
+  things:
+    alpha: beta
+    gamma: delta
+lastApplied:
+  things:
+    alpha: beta
+live:
+  things:
+    alpha: beta
+patch:
+  - op: add
+    path: /things/gamma
+    value: delta

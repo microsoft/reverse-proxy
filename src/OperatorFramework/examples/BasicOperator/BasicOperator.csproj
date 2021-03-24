@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Serilog.Extensions.Logging" Version="3.0.1" />
+        <PackageReference Include="Serilog.Formatting.Compact" Version="1.1.0" />
+        <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\CustomResource\Microsoft.Kubernetes.CustomResources.csproj" />
+        <ProjectReference Include="..\..\src\Operator\Microsoft.Kubernetes.Operator.csproj" />
+        <ProjectReference Include="..\..\src\ResourceKinds.OpenApi\Microsoft.Kubernetes.ResourceKinds.OpenApi.csproj" />
+    </ItemGroup>
+
+</Project>

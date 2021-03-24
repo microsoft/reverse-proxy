@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <IsPackable>false</IsPackable>
+        <RootNamespace>Microsoft.Kubernetes</RootNamespace>
+        <DocumentationFile>Microsoft.Kubernetes.UnitTests.xml</DocumentationFile>
+        <NoWarn>$(NoWarn);CS1591</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Remove="Controller\Informers\*.yaml" />
+        <None Remove="Resources\*.yaml" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Include="Controller\Informers\*.yaml" />
+        <EmbeddedResource Include="Resources\*.yaml" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.1" />
+        <PackageReference Include="Moq" Version="4.15.2" />
+        <PackageReference Include="MSTest.TestAdapter" Version="2.1.0" />
+        <PackageReference Include="MSTest.TestFramework" Version="2.1.0" />
+        <PackageReference Include="coverlet.collector" Version="1.2.0" />
+        <PackageReference Include="Shouldly" Version="4.0.0" />
+        <PackageReference Include="Polly" Version="7.2.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\Controller\Microsoft.Kubernetes.Controller.csproj" />
+        <ProjectReference Include="..\..\src\Core\Microsoft.Kubernetes.Core.csproj" />
+        <ProjectReference Include="..\..\src\CustomResource\Microsoft.Kubernetes.CustomResources.csproj" />
+        <ProjectReference Include="..\..\src\Operator\Microsoft.Kubernetes.Operator.csproj" />
+        <ProjectReference Include="..\..\src\ResourceKinds.OpenApi\Microsoft.Kubernetes.ResourceKinds.OpenApi.csproj" />
+        <ProjectReference Include="..\..\src\Testing\Microsoft.Kubernetes.Testing.csproj" />
+    </ItemGroup>
+
+</Project>
