@@ -235,10 +235,22 @@ public void ConfigureServices(IServiceCollection services)
 }
 ```
 
-## Custom IProxyHttpClientFactory
-In case the direct control on a proxy HTTP client construction is necessary, the default [IProxyHttpClientFactory](xref:Yarp.ReverseProxy.Service.Proxy.Infrastructure.IProxyHttpClientFactory) can be replaced with a custom one. In example, that custom logic can use [Cluster](xref:Yarp.ReverseProxy.Abstractions.Cluster)'s metadata as an extra data source for [HttpMessageInvoker](https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httpmessageinvoker?view=netcore-3.1) configuration. However, it's still recommended for any custom factory to set the following `HttpMessageInvoker` properties to the same values as the default factory does in order to preserve a correct reverse proxy behavior.
+## Configuring the http client
 
-Always return an HttpMessageInvoker instance rather than an HttpClient instance which derives from HttpMessageInvoker. HttpClient buffers responses by default which breaks streaming scenarios and increases memory usage and latency.
+`ConfigureClient` provides a callback to customize the `SocketsHttpHandler` settings used for proxying requests. This will be called each time a cluster is added or changed. Cluster settings are applied to the handler before the callback. Custom data can be provided in the cluster metadata.
+
+```C#
+    services.AddReverseProxy()
+        .ConfigureClient((context, handler) =>
+        {
+            handler.Expect100ContinueTimeout = TimeSpan.FromMilliseconds(300);
+        })
+```
+
+## Custom IProxyHttpClientFactory
+In case the direct control on a proxy HTTP client construction is necessary, the default [IProxyHttpClientFactory](xref:Yarp.ReverseProxy.Service.Proxy.Infrastructure.IProxyHttpClientFactory) can be replaced with a custom one. For some customizations you can derive from the default [ProxyHttpClientFactory](xref:Yarp.ReverseProxy.Service.Proxy.Infrastructure.ProxyHttpClientFactory) and override the methods that configure the client.
+
+It's recommended that any custom factory set the following `SocketsHttpHandler` properties to the same values as the default factory does in order to preserve a correct reverse proxy behavior and avoid unnecessary overhead.
 
 ```C#
 new SocketsHttpHandler
@@ -250,6 +262,10 @@ new SocketsHttpHandler
 };
 ```
 
+Always return an HttpMessageInvoker instance rather than an HttpClient instance which derives from HttpMessageInvoker. HttpClient buffers responses by default which breaks streaming scenarios and increases memory usage and latency.
+
+Custom data can be provided in the cluster metadata.
+
 The below is an example of a custom `IProxyHttpClientFactory` implementation.
 
 ```C#
@@ -257,13 +273,6 @@ public class CustomProxyHttpClientFactory : IProxyHttpClientFactory
 {
     public HttpMessageInvoker CreateClient(ProxyHttpClientContext context)
     {
-        if (context.OldClient != null && context.NewOptions == context.OldOptions)
-        {
-            return context.OldClient;
-        }
-
-        var newClientOptions = context.NewOptions;
-        
         var handler = new SocketsHttpHandler
         {
             UseProxy = false,
@@ -271,32 +280,6 @@ public class CustomProxyHttpClientFactory : IProxyHttpClientFactory
             AutomaticDecompression = DecompressionMethods.None,
             UseCookies = false
         };
-
-        if (newClientOptions.SslProtocols.HasValue)
-        {
-            handler.SslOptions.EnabledSslProtocols = newClientOptions.SslProtocols.Value;
-        }
-        if (newClientOptions.ClientCertificate != null)
-        {
-            handler.SslOptions.ClientCertificates = new X509CertificateCollection
-            {
-                newClientOptions.ClientCertificate
-            };
-        }
-        if (newClientOptions.MaxConnectionsPerServer != null)
-        {
-            handler.MaxConnectionsPerServer = newClientOptions.MaxConnectionsPerServer.Value;
-        }
-        if (newClientOptions.DangerousAcceptAnyServerCertificate)
-        {
-            handler.SslOptions.RemoteCertificateValidationCallback = (sender, cert, chain, errors) => cert.Subject == "dev.mydomain";
-        }
-#if NET
-        if (newClientOptions.RequestHeaderEncoding != null)
-        {
-            handler.RequestHeaderEncodingSelector = (_, _) => newClientOptions.RequestHeaderEncoding;
-        }
-#endif
 
         return new HttpMessageInvoker(handler, disposeHandler: true);
     }

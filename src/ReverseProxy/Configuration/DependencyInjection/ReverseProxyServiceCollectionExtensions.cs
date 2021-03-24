@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Net.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
@@ -12,6 +13,7 @@ using Yarp.ReverseProxy.Configuration.DependencyInjection;
 using Yarp.ReverseProxy.Service;
 using Yarp.ReverseProxy.Service.Config;
 using Yarp.ReverseProxy.Service.Proxy;
+using Yarp.ReverseProxy.Service.Proxy.Infrastructure;
 using Yarp.ReverseProxy.Utilities;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -119,6 +121,21 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IReverseProxyBuilder AddTransformFactory<T>(this IReverseProxyBuilder builder) where T : class, ITransformFactory
         {
             builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<ITransformFactory, T>());
+            return builder;
+        }
+
+        /// <summary>
+        /// Provides a callback to customize <see cref="SocketsHttpHandler"/> settings used for proxying requests.
+        /// This will be called each time a cluster is added or changed. Cluster settings are applied to the handler before
+        /// the callback. Custom data can be provided in the cluster metadata.
+        /// </summary>
+        public static IReverseProxyBuilder ConfigureClient(this IReverseProxyBuilder builder, Action<ProxyHttpClientContext, SocketsHttpHandler> configure)
+        {
+            builder.Services.AddSingleton<IProxyHttpClientFactory>(services =>
+            {
+                var logger = services.GetRequiredService<ILogger<ProxyHttpClientFactory>>();
+                return new CallbackProxyHttpClientFactory(logger, configure);
+            });
             return builder;
         }
     }

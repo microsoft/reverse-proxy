@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Yarp.ReverseProxy.Abstractions;
 using Yarp.ReverseProxy.Telemetry;
 
@@ -14,9 +15,14 @@ namespace Yarp.ReverseProxy.Service.Proxy.Infrastructure
     /// <summary>
     /// Default implementation of <see cref="IProxyHttpClientFactory"/>.
     /// </summary>
-    internal class ProxyHttpClientFactory : IProxyHttpClientFactory
+    public class ProxyHttpClientFactory : IProxyHttpClientFactory
     {
         private readonly ILogger<ProxyHttpClientFactory> _logger;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ProxyHttpClientFactory"/> class.
+        /// </summary>
+        public ProxyHttpClientFactory() : this(NullLogger<ProxyHttpClientFactory>.Instance) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ProxyHttpClientFactory"/> class.
@@ -35,7 +41,6 @@ namespace Yarp.ReverseProxy.Service.Proxy.Infrastructure
                 return context.OldClient;
             }
 
-            var newClientOptions = context.NewOptions;
             var handler = new SocketsHttpHandler
             {
                 UseProxy = false,
@@ -46,6 +51,34 @@ namespace Yarp.ReverseProxy.Service.Proxy.Infrastructure
                 // NOTE: MaxResponseHeadersLength = 64, which means up to 64 KB of headers are allowed by default as of .NET Core 3.1.
             };
 
+            ConfigureHandler(context, handler);
+
+            var middleware = WrapHandler(context, handler);
+
+            Log.ProxyClientCreated(_logger, context.ClusterId);
+
+            return new HttpMessageInvoker(middleware, disposeHandler: true);
+        }
+
+        /// <summary>
+        /// Checks if the options have changed since the old client was created. If not then the
+        /// old client will be re-used. Re-use can avoid the latency of creating new connections.
+        /// </summary>
+        protected virtual bool CanReuseOldClient(ProxyHttpClientContext context)
+        {
+            return context.OldClient != null && context.NewOptions == context.OldOptions;
+        }
+
+        /// <summary>
+        /// Allows configuring the <see cref="SocketsHttpHandler"/> instance. The base implementation
+        /// applies settings from <see cref="ProxyHttpClientContext.NewOptions"/>.
+        /// <see cref="SocketsHttpHandler.UseProxy"/>, <see cref="SocketsHttpHandler.AllowAutoRedirect"/>,
+        /// <see cref="SocketsHttpHandler.AutomaticDecompression"/>, and <see cref="SocketsHttpHandler.UseCookies"/>
+        /// are disabled prior to this call.
+        /// </summary>
+        protected virtual void ConfigureHandler(ProxyHttpClientContext context, SocketsHttpHandler handler)
+        {
+            var newClientOptions = context.NewOptions;
             if (newClientOptions.SslProtocols.HasValue)
             {
                 handler.SslOptions.EnabledSslProtocols = newClientOptions.SslProtocols.Value;
@@ -73,23 +106,12 @@ namespace Yarp.ReverseProxy.Service.Proxy.Infrastructure
                 handler.RequestHeaderEncodingSelector = (_, _) => newClientOptions.RequestHeaderEncoding;
             }
 #endif
-
             var webProxy = TryCreateWebProxy(newClientOptions.WebProxy);
             if (webProxy != null)
             {
                 handler.Proxy = webProxy;
                 handler.UseProxy = true;
             }
-
-            Log.ProxyClientCreated(_logger, context.ClusterId);
-
-            var activityContextHeaders = newClientOptions.ActivityContextHeaders.GetValueOrDefault(ActivityContextHeaders.BaggageAndCorrelationContext);
-            if (activityContextHeaders != ActivityContextHeaders.None)
-            {
-                return new HttpMessageInvoker(new ActivityPropagationHandler(activityContextHeaders, handler), disposeHandler: true);
-            }
-
-            return new HttpMessageInvoker(handler, disposeHandler: true);
         }
 
         private static IWebProxy TryCreateWebProxy(WebProxyOptions webProxyOptions)
@@ -107,9 +129,19 @@ namespace Yarp.ReverseProxy.Service.Proxy.Infrastructure
             return webProxy;
         }
 
-        private static bool CanReuseOldClient(ProxyHttpClientContext context)
+        /// <summary>
+        /// Adds any wrapping middleware around the <see cref="HttpMessageHandler"/>.
+        /// The base implementation conditionally includes the <see cref="ActivityPropagationHandler"/>.
+        /// </summary>
+        protected virtual HttpMessageHandler WrapHandler(ProxyHttpClientContext context, HttpMessageHandler handler)
         {
-            return context.OldClient != null && context.NewOptions == context.OldOptions;
+            var activityContextHeaders = context.NewOptions.ActivityContextHeaders.GetValueOrDefault(ActivityContextHeaders.BaggageAndCorrelationContext);
+            if (activityContextHeaders != ActivityContextHeaders.None)
+            {
+                handler = new ActivityPropagationHandler(activityContextHeaders, handler);
+            }
+
+            return handler;
         }
 
         private static class Log
