@@ -29,6 +29,7 @@ namespace Yarp.ReverseProxy.Service.Proxy
         /// <summary>
         /// A callback that is invoked prior to sending the proxied request. All HttpRequestMessage fields are
         /// initialized except RequestUri, which will be initialized after the callback if no value is provided.
+        /// See <see cref="RequestUtilities.MakeDestinationAddress(string, PathString, QueryString)"/> for constructing a custom request Uri.
         /// The string parameter represents the destination URI prefix that should be used when constructing the RequestUri.
         /// The headers are copied by the base implementation, excluding some protocol headers like HTTP/2 pseudo headers (":authority").
         /// </summary>
