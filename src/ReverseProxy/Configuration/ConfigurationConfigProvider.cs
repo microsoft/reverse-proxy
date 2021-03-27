@@ -30,6 +30,7 @@ namespace Yarp.ReverseProxy.Configuration
         private readonly ILogger<ConfigurationConfigProvider> _logger;
         private readonly IConfiguration _configuration;
         private readonly ICertificateConfigLoader _certificateConfigLoader;
+        private readonly IWebProxyConfigLoader _webProxyConfigLoader;
         private ConfigurationSnapshot _snapshot;
         private CancellationTokenSource _changeToken;
         private bool _disposed;
@@ -38,11 +39,13 @@ namespace Yarp.ReverseProxy.Configuration
         public ConfigurationConfigProvider(
             ILogger<ConfigurationConfigProvider> logger,
             IConfiguration configuration,
-            ICertificateConfigLoader certificateConfigLoader)
+            ICertificateConfigLoader certificateConfigLoader,
+            IWebProxyConfigLoader webProxyConfigLoader)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             _certificateConfigLoader = certificateConfigLoader ?? throw new ArgumentNullException(nameof(certificateConfigLoader));
+            _webProxyConfigLoader = webProxyConfigLoader ?? throw new ArgumentNullException(nameof(webProxyConfigLoader));
         }
 
         // Used by tests
@@ -320,6 +323,14 @@ namespace Yarp.ReverseProxy.Configuration
                 }
             }
 
+            System.Net.IWebProxy webProxy = null;
+
+            var webProxySection = section.GetSection(nameof(ProxyHttpClientOptions.WebProxy));
+            if (webProxySection.Exists())
+            {
+                webProxy = _webProxyConfigLoader.LoadWebProxy(webProxySection);
+            }
+
             return new ProxyHttpClientOptions
             {
                 SslProtocols = sslProtocols,
@@ -330,7 +341,8 @@ namespace Yarp.ReverseProxy.Configuration
                 EnableMultipleHttp2Connections = section.ReadBool(nameof(ProxyHttpClientOptions.EnableMultipleHttp2Connections)),
                 RequestHeaderEncoding = section[nameof(ProxyHttpClientOptions.RequestHeaderEncoding)] is string encoding ? Encoding.GetEncoding(encoding) : null,
 #endif
-                ActivityContextHeaders = section.ReadEnum<ActivityContextHeaders>(nameof(ProxyHttpClientOptions.ActivityContextHeaders))
+                ActivityContextHeaders = section.ReadEnum<ActivityContextHeaders>(nameof(ProxyHttpClientOptions.ActivityContextHeaders)),
+                WebProxy = webProxy
             };
         }
 

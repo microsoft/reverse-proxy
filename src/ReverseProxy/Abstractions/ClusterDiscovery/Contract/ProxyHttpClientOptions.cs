@@ -44,6 +44,11 @@ namespace Yarp.ReverseProxy.Abstractions
         /// </summary>
         public ActivityContextHeaders? ActivityContextHeaders { get; init; }
 
+        /// <summary>
+        /// Optional web proxy used when communicating with the destination server. 
+        /// </summary>
+        public System.Net.IWebProxy WebProxy { get; init; }
+
 #if NET
         /// <summary>
         /// Gets or sets a value that indicates whether additional HTTP/2 connections can
@@ -75,7 +80,8 @@ namespace Yarp.ReverseProxy.Abstractions
                    // Comparing by reference is fine here since Encoding.GetEncoding returns the same instance for each encoding.
                    && RequestHeaderEncoding == other.RequestHeaderEncoding
 #endif
-                   && ActivityContextHeaders == other.ActivityContextHeaders;
+                   && ActivityContextHeaders == other.ActivityContextHeaders
+                   && WebProxyEquals(WebProxy, other.WebProxy);
         }
 
         private static bool CertEquals(X509Certificate2 certificate1, X509Certificate2 certificate2)
@@ -93,6 +99,48 @@ namespace Yarp.ReverseProxy.Abstractions
             return string.Equals(certificate1.Thumbprint, certificate2.Thumbprint, StringComparison.OrdinalIgnoreCase);
         }
 
+        private static bool WebProxyEquals(System.Net.IWebProxy proxy1, System.Net.IWebProxy proxy2)
+        {
+            if (proxy1 == null && proxy2 == null)
+            {
+                return true;
+            }
+
+            if (proxy1 == null || proxy2 == null)
+            {
+                return false;
+            }
+
+            if (proxy1.GetType() != proxy2.GetType())
+            {
+                return false;
+            }
+
+            //same types
+            if (proxy1 is System.Net.WebProxy webProxy1 && proxy2 is System.Net.WebProxy webProxy2)
+            {
+                if (webProxy1.Address != webProxy2.Address)
+                {
+                    return false;
+                }
+
+                if (webProxy1.UseDefaultCredentials != webProxy2.UseDefaultCredentials)
+                {
+                    return false;
+                }
+
+                if (webProxy1.BypassProxyOnLocal != webProxy2.BypassProxyOnLocal)
+                {
+                    return false;
+                }
+
+                return true;
+            }
+
+            //fallback
+            return proxy1.Equals(proxy2);
+        }
+
         /// <inheritdoc />
         public override int GetHashCode()
         {
@@ -104,7 +152,8 @@ namespace Yarp.ReverseProxy.Abstractions
                 EnableMultipleHttp2Connections,
                 RequestHeaderEncoding,
 #endif
-                ActivityContextHeaders);
+                ActivityContextHeaders,
+                WebProxy);
         }
     }
 }

@@ -19,6 +19,7 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
                 DangerousAcceptAnyServerCertificate = false,
                 ClientCertificate = TestResources.GetTestCertificate(),
                 MaxConnectionsPerServer = 20,
+                WebProxy = TestResources.GetTestWebProxy(),
 #if NET
                 RequestHeaderEncoding = Encoding.UTF8
 #endif
@@ -30,6 +31,7 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
                 DangerousAcceptAnyServerCertificate = false,
                 ClientCertificate = TestResources.GetTestCertificate(),
                 MaxConnectionsPerServer = 20,
+                WebProxy = TestResources.GetTestWebProxy(),
 #if NET
                 RequestHeaderEncoding = Encoding.UTF8
 #endif
@@ -63,6 +65,42 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
 #if NET
                 RequestHeaderEncoding = Encoding.Latin1
 #endif
+            };
+
+            var equals = options1.Equals(options2);
+
+            Assert.False(equals);
+        }
+
+        [Fact]
+        public void Equals_Same_WebProxyAddress_Returns_True()
+        {
+            var options1 = new ProxyHttpClientOptions
+            {
+                WebProxy = TestResources.GetTestWebProxy("http://localhost:8080")
+            };
+
+            var options2 = new ProxyHttpClientOptions
+            {
+                WebProxy = TestResources.GetTestWebProxy("http://localhost:8080")
+            };
+
+            var equals = options1.Equals(options2);
+
+            Assert.True(equals);
+        }
+
+        [Fact]
+        public void Equals_Different_WebProxyAddress_Returns_False()
+        {
+            var options1 = new ProxyHttpClientOptions
+            {
+                WebProxy = TestResources.GetTestWebProxy("http://localhost:8080")
+            };
+
+            var options2 = new ProxyHttpClientOptions
+            {
+                WebProxy = TestResources.GetTestWebProxy("http://localhost:9999")
             };
 
             var equals = options1.Equals(options2);

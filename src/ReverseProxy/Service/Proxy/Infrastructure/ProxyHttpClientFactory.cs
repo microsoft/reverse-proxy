@@ -74,6 +74,12 @@ namespace Yarp.ReverseProxy.Service.Proxy.Infrastructure
             }
 #endif
 
+            if (newClientOptions.WebProxy != null)
+            {
+                handler.Proxy = newClientOptions.WebProxy;
+                handler.UseProxy = true;
+            }
+
             Log.ProxyClientCreated(_logger, context.ClusterId);
 
             var activityContextHeaders = newClientOptions.ActivityContextHeaders.GetValueOrDefault(ActivityContextHeaders.BaggageAndCorrelationContext);
