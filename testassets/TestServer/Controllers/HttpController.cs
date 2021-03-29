@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace SampleServer.Controllers
@@ -23,6 +24,17 @@ namespace SampleServer.Controllers
         [Route("/api/noop")]
         public void NoOp()
         {
+        }
+
+        /// <summary>
+        /// Returns a 409 response without consuming the request body.
+        /// This is used to exercise <c>Expect:100-continue</c> behavior.
+        /// </summary>
+        [HttpPost]
+        [Route("/api/skipbody")]
+        public IActionResult SkipBody()
+        {
+            return StatusCode(StatusCodes.Status409Conflict);
         }
 
         /// <summary>
