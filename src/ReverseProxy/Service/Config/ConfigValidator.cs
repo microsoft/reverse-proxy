@@ -121,7 +121,7 @@ namespace Yarp.ReverseProxy.Service
 
             foreach (var host in hosts)
             {
-                if (string.IsNullOrWhiteSpace(host))
+                if (string.IsNullOrEmpty(host))
                 {
                     errors.Add(new ArgumentException($"Empty host name has been set for route '{routeId}'."));
                 }

@@ -112,7 +112,6 @@ namespace Yarp.ReverseProxy.Service.Tests
         [Theory]
         [InlineData(null)]
         [InlineData("")]
-        [InlineData("  ")]
         [InlineData("xn--nicode-2ya")]
         [InlineData("Xn--nicode-2ya")]
         public async Task Rejects_InvalidHost(string host)
