@@ -67,7 +67,9 @@ namespace Yarp.ReverseProxy.Service.Proxy
         /// </summary>
         /// <param name="httpContext">The incoming request.</param>
         /// <param name="proxyResponse">The response from the destination.</param>
-        /// <returns>A bool indicating if the response should be proxied to the client or not.</returns>
+        /// <returns>A bool indicating if the response should be proxied to the client or not. A derived implementation 
+        /// that returns false may send an alternate response inline or return control to the caller for it to retry, respond, 
+        /// etc.</returns>
         public virtual ValueTask<bool> TransformResponseAsync(HttpContext httpContext, HttpResponseMessage proxyResponse)
         {
             var responseHeaders = httpContext.Response.Headers;
