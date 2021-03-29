@@ -64,13 +64,11 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IReverseProxyBuilder LoadFromConfig(this IReverseProxyBuilder builder, IConfiguration config)
         {
             builder.Services.AddSingleton<ICertificateConfigLoader, CertificateConfigLoader>();
-            builder.Services.AddSingleton<IWebProxyConfigLoader, WebProxyConfigLoader>();
             builder.Services.AddSingleton<IProxyConfigProvider>(sp =>
             {
                 // This is required because we're capturing the configuration via a closure
                 return new ConfigurationConfigProvider(sp.GetService<ILogger<ConfigurationConfigProvider>>(), config,
-                    sp.GetService<ICertificateConfigLoader>(),
-                    sp.GetService<IWebProxyConfigLoader>()
+                    sp.GetService<ICertificateConfigLoader>()
                 );
             });
 

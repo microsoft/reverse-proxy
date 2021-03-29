@@ -125,8 +125,13 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
         public void CreateClient_ApplyWebProxy_Success()
         {
             var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
-            var mockWebProxy = Mock<System.Net.IWebProxy>().Object;
-            var options = new ProxyHttpClientOptions { WebProxy = mockWebProxy };
+            var options = new ProxyHttpClientOptions {
+                WebProxy = new WebProxyOptions() {
+                    Address = new Uri("http://localhost:8080"),
+                    BypassOnLocal = true,
+                    UseDefaultCredentials = true
+                }
+            };
             var client = factory.CreateClient(new ProxyHttpClientContext { NewOptions = options });
 
             var handler = GetHandler(client);

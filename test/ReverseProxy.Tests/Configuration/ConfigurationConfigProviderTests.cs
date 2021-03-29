@@ -344,17 +344,6 @@ namespace Yarp.ReverseProxy.Configuration
 
         #endregion
 
-        private static IWebProxyConfigLoader CreateMockWebProxyLoader()
-        {
-            var webProxyLoader = new Mock<IWebProxyConfigLoader>(MockBehavior.Strict);
-
-            webProxyLoader
-                .Setup(l => l.LoadWebProxy(It.Is<IConfigurationSection>(o => o["Address"] == "http://localhost:8080" && string.Compare(o["BypassOnLocal"], "true", StringComparison.OrdinalIgnoreCase) == 0 && string.Compare(o["UseDefaultCredentials"], "true", StringComparison.OrdinalIgnoreCase) == 0)))
-                .Returns(new Mock<IWebProxy>(MockBehavior.Strict).Object);
-
-            return webProxyLoader.Object;
-        }
-
         [Fact]
         public void GetConfig_ValidSerializedConfiguration_ConvertToAbstractionsSuccessfully()
         {
@@ -366,7 +355,7 @@ namespace Yarp.ReverseProxy.Configuration
             certLoader.Setup(l => l.LoadCertificate(It.Is<IConfigurationSection>(o => o["Path"] == "mycert.pfx" && o["Password"] == "myPassword1234"))).Returns(certificate);
             var logger = new Mock<ILogger<ConfigurationConfigProvider>>();
 
-            var provider = new ConfigurationConfigProvider(logger.Object, proxyConfig, certLoader.Object, CreateMockWebProxyLoader());
+            var provider = new ConfigurationConfigProvider(logger.Object, proxyConfig, certLoader.Object);
             Assert.NotNull(provider);
             var abstractConfig = provider.GetConfig();
 
@@ -384,7 +373,7 @@ namespace Yarp.ReverseProxy.Configuration
             certLoader.Setup(l => l.LoadCertificate(It.Is<IConfigurationSection>(o => o["Path"] == "mycert.pfx" && o["Password"] == "myPassword1234"))).Returns(certificate);
             var logger = new Mock<ILogger<ConfigurationConfigProvider>>();
 
-            var provider = new ConfigurationConfigProvider(logger.Object, proxyConfig, certLoader.Object, CreateMockWebProxyLoader());
+            var provider = new ConfigurationConfigProvider(logger.Object, proxyConfig, certLoader.Object);
             var abstractConfig = (ConfigurationSnapshot)provider.GetConfig();
 
             var abstractionsNamespace = typeof(Cluster).Namespace;
@@ -468,11 +457,10 @@ namespace Yarp.ReverseProxy.Configuration
                 ["Routes:0:Match:Hosts:0"] = "host-B",
             }).Build();
             var certLoader = new Mock<ICertificateConfigLoader>(MockBehavior.Strict);
-            var webProxyLoader = new Mock<IWebProxyConfigLoader>(MockBehavior.Strict);
             using var certificate = TestResources.GetTestCertificate();
             certLoader.Setup(l => l.LoadCertificate(It.IsAny<IConfigurationSection>())).Throws(new FileNotFoundException());
             var logger = new Mock<ILogger<ConfigurationConfigProvider>>();
-            var provider = new ConfigurationConfigProvider(logger.Object, proxyConfig, certLoader.Object, webProxyLoader.Object);
+            var provider = new ConfigurationConfigProvider(logger.Object, proxyConfig, certLoader.Object);
             Assert.ThrowsAny<FileNotFoundException>(() => provider.GetConfig());
         }
 
@@ -489,12 +477,11 @@ namespace Yarp.ReverseProxy.Configuration
                 ["Routes:0:Match:Hosts:0"] = "host-B",
             }).Build();
             var certLoader = new Mock<ICertificateConfigLoader>(MockBehavior.Strict);
-            var webProxyLoader = new Mock<IWebProxyConfigLoader>(MockBehavior.Strict);
             using var certificate = TestResources.GetTestCertificate();
             certLoader.Setup(l => l.LoadCertificate(It.IsAny<IConfigurationSection>())).Throws(new FileNotFoundException());
             var logger = new Mock<ILogger<ConfigurationConfigProvider>>();
             logger.Setup(l => l.IsEnabled(LogLevel.Error)).Returns(true);
-            var provider = new ConfigurationConfigProvider(logger.Object, proxyConfig, certLoader.Object, webProxyLoader.Object);
+            var provider = new ConfigurationConfigProvider(logger.Object, proxyConfig, certLoader.Object);
 
             var firstSnapshot = provider.GetConfig();
             logger.Verify(l => l.Log(LogLevel.Error, It.IsAny<EventId>(), It.IsAny<string>(), It.IsAny<Exception>(), It.IsAny<Func<string, Exception, string>>()), Times.Never);
@@ -523,12 +510,11 @@ namespace Yarp.ReverseProxy.Configuration
                 ["Routes:0:Match:Hosts:0"] = "host-B",
             }).Build();
             var certLoader = new Mock<ICertificateConfigLoader>(MockBehavior.Strict);
-            var webProxyLoader = new Mock<IWebProxyConfigLoader>(MockBehavior.Strict);
             using var certificate = TestResources.GetTestCertificate();
             certLoader.Setup(l => l.LoadCertificate(It.IsAny<IConfigurationSection>())).Returns(() => TestResources.GetTestCertificate());
             var logger = new Mock<ILogger<ConfigurationConfigProvider>>();
             logger.Setup(l => l.IsEnabled(LogLevel.Error)).Returns(true);
-            var provider = new ConfigurationConfigProvider(logger.Object, proxyConfig, certLoader.Object, webProxyLoader.Object);
+            var provider = new ConfigurationConfigProvider(logger.Object, proxyConfig, certLoader.Object);
 
             // Get several certificates.
             var certificateConfig = new List<X509Certificate2>();

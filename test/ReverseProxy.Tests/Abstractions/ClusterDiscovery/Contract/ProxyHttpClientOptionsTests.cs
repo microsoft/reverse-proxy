@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Security.Authentication;
 using System.Text;
 using Xunit;
@@ -19,7 +20,7 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
                 DangerousAcceptAnyServerCertificate = false,
                 ClientCertificate = TestResources.GetTestCertificate(),
                 MaxConnectionsPerServer = 20,
-                WebProxy = TestResources.GetTestWebProxy(),
+                WebProxy = new WebProxyOptions() { Address = new Uri("http://localhost:8080"), BypassOnLocal = true, UseDefaultCredentials = true },
 #if NET
                 RequestHeaderEncoding = Encoding.UTF8
 #endif
@@ -31,7 +32,7 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
                 DangerousAcceptAnyServerCertificate = false,
                 ClientCertificate = TestResources.GetTestCertificate(),
                 MaxConnectionsPerServer = 20,
-                WebProxy = TestResources.GetTestWebProxy(),
+                WebProxy = new WebProxyOptions() { Address = new Uri("http://localhost:8080"), BypassOnLocal = true, UseDefaultCredentials = true },
 #if NET
                 RequestHeaderEncoding = Encoding.UTF8
 #endif
@@ -77,12 +78,12 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
         {
             var options1 = new ProxyHttpClientOptions
             {
-                WebProxy = TestResources.GetTestWebProxy("http://localhost:8080")
+                WebProxy = new WebProxyOptions() { Address = new Uri("http://localhost:8080"), BypassOnLocal = true, UseDefaultCredentials = true }
             };
 
             var options2 = new ProxyHttpClientOptions
             {
-                WebProxy = TestResources.GetTestWebProxy("http://localhost:8080")
+                WebProxy = new WebProxyOptions() { Address = new Uri("http://localhost:8080"), BypassOnLocal = true, UseDefaultCredentials = true }
             };
 
             var equals = options1.Equals(options2);
@@ -95,12 +96,12 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
         {
             var options1 = new ProxyHttpClientOptions
             {
-                WebProxy = TestResources.GetTestWebProxy("http://localhost:8080")
+                WebProxy = new WebProxyOptions() { Address = new Uri("http://localhost:8080"), BypassOnLocal = true, UseDefaultCredentials = true }
             };
 
             var options2 = new ProxyHttpClientOptions
             {
-                WebProxy = TestResources.GetTestWebProxy("http://localhost:9999")
+                WebProxy = new WebProxyOptions() { Address = new Uri("http://localhost:9999"), BypassOnLocal = true, UseDefaultCredentials = true }
             };
 
             var equals = options1.Equals(options2);
