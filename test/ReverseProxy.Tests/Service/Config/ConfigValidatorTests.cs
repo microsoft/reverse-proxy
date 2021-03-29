@@ -39,6 +39,9 @@ namespace Yarp.ReverseProxy.Service.Tests
 
         [Theory]
         [InlineData("example.com", "/a/", null)]
+        [InlineData("example.com:80", "/a/", null)]
+        [InlineData("\u00FCnicode", "/a/", null)]
+        [InlineData("\u00FCnicode:443", "/a/", null)]
         [InlineData("example.com", "/a/**", null)]
         [InlineData("example.com", "/a/**", "GET")]
         [InlineData(null, "/a/", null)]
@@ -104,6 +107,33 @@ namespace Yarp.ReverseProxy.Service.Tests
 
             Assert.NotEmpty(result);
             Assert.Contains(result, err => err.Message.Equals("Route 'route1' did not set any match criteria, it requires Hosts or Path specified. Set the Path to '/{**catchall}' to match all requests."));
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData("  ")]
+        [InlineData("xn--nicode-2ya")]
+        [InlineData("Xn--nicode-2ya")]
+        public async Task Rejects_InvalidHost(string host)
+        {
+            var route = new ProxyRoute
+            {
+                RouteId = "route1",
+                Match = new ProxyMatch
+                {
+                    Hosts = new[] { host }
+                },
+                ClusterId = "cluster1",
+            };
+
+            var services = CreateServices();
+            var validator = services.GetRequiredService<IConfigValidator>();
+
+            var result = await validator.ValidateRouteAsync(route);
+
+            Assert.NotEmpty(result);
+            Assert.Contains(result, err => err.Message.Contains("host name"));
         }
 
         [Theory]

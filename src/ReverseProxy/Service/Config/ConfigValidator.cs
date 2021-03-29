@@ -121,9 +121,13 @@ namespace Yarp.ReverseProxy.Service
 
             foreach (var host in hosts)
             {
-                if (string.IsNullOrEmpty(host))
+                if (string.IsNullOrWhiteSpace(host))
                 {
-                    errors.Add(new ArgumentException($"Invalid host name '{host}' for route '{routeId}'."));
+                    errors.Add(new ArgumentException($"Empty host name has been set for route '{routeId}'."));
+                }
+                else if (host.Contains("xn--", StringComparison.OrdinalIgnoreCase))
+                {
+                    errors.Add(new ArgumentException($"Punycode host name '{host}' has been set for route '{routeId}'. Use the unicode host name instead."));
                 }
             }
         }
