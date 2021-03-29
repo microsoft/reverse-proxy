@@ -41,6 +41,8 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
             var equals = options1.Equals(options2);
 
             Assert.True(equals);
+            Assert.True(options1 == options2);
+            Assert.False(options1 != options2);
         }
 
         [Fact]
@@ -89,6 +91,8 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
             var equals = options1.Equals(options2);
 
             Assert.True(equals);
+            Assert.True(options1 == options2);
+            Assert.False(options1 != options2);
         }
 
         [Fact]
@@ -107,6 +111,8 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
             var equals = options1.Equals(options2);
 
             Assert.False(equals);
+            Assert.True(options1 != options2);
+            Assert.False(options1 == options2);
         }
 
         [Fact]
