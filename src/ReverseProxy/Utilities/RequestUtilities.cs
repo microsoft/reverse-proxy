@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Net.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
@@ -11,7 +10,10 @@ using Microsoft.Net.Http.Headers;
 
 namespace Yarp.ReverseProxy.Utilities
 {
-    internal static class RequestUtilities
+    /// <summary>
+    /// APIs that can be used when transforming requests.
+    /// </summary>
+    public static class RequestUtilities
     {
         internal static bool ShouldSkipResponseHeader(string headerName, bool isHttp2OrGreater)
         {
@@ -37,10 +39,11 @@ namespace Yarp.ReverseProxy.Utilities
         /// <summary>
         /// Appends the given path and query to the destination prefix while avoiding duplicate '/'.
         /// </summary>
-        /// <param name="destinationPrefix">The scheme, host, port, and possibly path base for the destination server.</param>
+        /// <param name="destinationPrefix">The scheme, host, port, and optional path base for the destination server.
+        /// e.g. "http://example.com:80/path/prefix"</param>
         /// <param name="path">The path to append.</param>
         /// <param name="query">The query to append</param>
-        internal static Uri MakeDestinationAddress(string destinationPrefix, PathString path, QueryString query)
+        public static Uri MakeDestinationAddress(string destinationPrefix, PathString path, QueryString query)
         {
             ReadOnlySpan<char> prefixSpan = destinationPrefix;
 

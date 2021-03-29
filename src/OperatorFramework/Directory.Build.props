@@ -1,0 +1,26 @@
+<Project>
+
+  <Import Project="$(MSBuildThisFileDirectory)..\..\Directory.Build.props" Condition="Exists('$(MSBuildThisFileDirectory)..\..\Directory.Build.props')" />
+
+  <PropertyGroup>
+    <LangVersion>9.0</LangVersion>
+    <NoWarn>$(NoWarn);CA1716</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <VersionPrefix>0.2.0</VersionPrefix>
+    <Authors>Microsoft</Authors>
+    <Company>Microsoft</Company>
+    <Copyright>Copyright (c) Microsoft Corporation.</Copyright>
+    <Description>Kubernetes operator framework for DotNet.</Description>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>Kubernetes;Operator;Controller</PackageTags>
+    <!-- PackageIcon -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.3" />
+  </ItemGroup>
+
+</Project>

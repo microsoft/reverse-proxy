@@ -1,0 +1,41 @@
+﻿resourceKind:
+  apiVersion: v1
+  kind: Pod
+apply:
+  metadata:
+    name: alpha
+    namespace: beta
+  spec:
+    containers:
+    - name: gamma
+      args:
+      - one
+      - two
+      - three
+lastApplied:
+  metadata:
+    name: alpha
+    namespace: beta
+  spec:
+    containers:
+    - name: gamma
+      args:
+      - one
+      - two
+live:
+  metadata:
+    name: alpha
+    namespace: beta
+  spec:
+    containers:
+    - name: gamma
+      args:
+      - one
+      - two
+patch:
+  - op: replace
+    path: /spec/containers/0/args
+    value:
+    - one
+    - two
+    - three

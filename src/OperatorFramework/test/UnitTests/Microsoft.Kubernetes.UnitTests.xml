@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Microsoft.Kubernetes.UnitTests</name>
+    </assembly>
+    <members>
+        <member name="T:Microsoft.Kubernetes.CustomResources.TypicalResource">
+            <summary>
+            TypicalResource doc comment
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kubernetes.CustomResources.TypicalResource.ApiVersion">
+            <inheritdoc/>
+        </member>
+        <member name="P:Microsoft.Kubernetes.CustomResources.TypicalResource.Kind">
+            <inheritdoc/>
+        </member>
+        <member name="P:Microsoft.Kubernetes.CustomResources.TypicalResource.Metadata">
+            <inheritdoc/>
+        </member>
+        <member name="P:Microsoft.Kubernetes.CustomResources.TypicalResource.Spec">
+            <summary>
+            Spec doc comment
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kubernetes.CustomResources.TypicalResource.Status">
+            <summary>
+            Status doc comment
+            </summary>
+        </member>
+    </members>
+</doc>

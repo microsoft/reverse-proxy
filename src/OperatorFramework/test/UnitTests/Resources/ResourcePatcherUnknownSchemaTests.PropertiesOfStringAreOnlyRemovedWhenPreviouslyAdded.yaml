@@ -1,0 +1,46 @@
+﻿apply:
+  things:
+    alpha: A
+    beta: B
+    # gamma: G
+
+    # delta: D
+    # epsilon: E
+    zeta: Z
+
+    eta: H
+lastApplied:
+  things:
+    alpha: A
+    # beta: B
+    gamma: G
+
+    # delta: D
+    epsilon: E
+    # zeta: Z
+
+    eta: H
+live:
+  things:
+    # alpha: A
+    beta: B
+    gamma: G
+
+    delta: D
+    # epsilon: E
+    # zeta: Z
+
+    eta: H
+patch:
+  # apply & last-apply & not live
+  - {op: "add", path: "/things/alpha", value: "A"}
+  # apply & not last-apply & live
+  # - {op: "add", path: "/things/beta", value: "B"}
+  # not apply & last-apply & live
+  - {op: "remove", path: "/things/gamma"}
+  # not apply & not last-apply & live
+  # - {op: "add", path: "/things/delta", value: "D"}
+  # not apply & last-apply & not live
+  # - {op: "add", path: "/things/epsilon", value: "E"}
+  # apply & not last-apply & not live
+  - {op: "add", path: "/things/zeta", value: "Z"}

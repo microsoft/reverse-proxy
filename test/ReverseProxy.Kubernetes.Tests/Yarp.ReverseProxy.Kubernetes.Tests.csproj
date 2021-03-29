@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net5.0;netcoreapp3.1</TargetFrameworks>
+    <OutputType>Library</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\ReverseProxy.Kubernetes.Controller\Yarp.ReverseProxy.Kubernetes.Controller.csproj" />
+    <ProjectReference Include="..\..\src\OperatorFramework\src\Controller\Microsoft.Kubernetes.Controller.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="testassets\**\*" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

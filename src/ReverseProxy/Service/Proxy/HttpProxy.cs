@@ -161,18 +161,6 @@ namespace Yarp.ReverseProxy.Service.Proxy
                     Log.HttpDowngradeDetected(_logger);
                 }
 
-                // Assert that, if we are proxying content to the destination, it must have started by now
-                // (since HttpClient.SendAsync has already completed asynchronously).
-                // If this check fails, there is a coding defect which would otherwise
-                // cause us to wait forever in step 9, so fail fast here.
-                if (requestContent != null && !requestContent.Started)
-                {
-                    // TODO: HttpClient might not need to read the body in some scenarios, such as an early auth failure with Expect: 100-continue.
-                    // https://github.com/microsoft/reverse-proxy/issues/617
-                    destinationResponse.Dispose();
-                    throw new InvalidOperationException("Proxying the Client request body to the Destination server hasn't started. This is a coding defect.");
-                }
-
                 try
                 {
                     // :: Step 5: Copy response status line Client ◄-- Proxy ◄-- Destination
@@ -237,7 +225,11 @@ namespace Yarp.ReverseProxy.Service.Proxy
                 }
 
                 // :: Step 9: Wait for completion of step 2: copying request body Client --► Proxy --► Destination
-                if (requestContent != null)
+                // NOTE: It is possible for the request body to NOT be copied even when there was an incoming requet body,
+                // e.g. when the request includes header `Expect: 100-continue` and the destination produced a non-1xx response.
+                // We must only wait for the request body to complete if it actually started,
+                // otherwise we run the risk of waiting indefinitely for a task that will never complete.
+                if (requestContent != null && requestContent.Started)
                 {
                     var (requestBodyCopyResult, requestBodyException) = await requestContent.ConsumptionTask;
 

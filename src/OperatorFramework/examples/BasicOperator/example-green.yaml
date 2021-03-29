@@ -1,0 +1,15 @@
+﻿apiVersion: v1
+kind: Namespace
+metadata:
+  name: example-basicoperator
+---
+apiVersion: basic-operator.example.io/v1alpha1
+kind: HelloWorld
+metadata:
+  name: example
+  namespace: example-basicoperator
+spec:
+  kuardLabel: green
+  createLoadBalancer: true
+  nodeSelector:
+    kubernetes.io/os: linux

@@ -1,0 +1,15 @@
+﻿apply:
+  things:
+    this.is~tilda: alpha
+    this.is/slash: beta
+lastApplied:
+  things: {}
+live:
+  things: {}
+patch:
+  - op: add
+    path: /things/this.is~0tilda
+    value: alpha
+  - op: add
+    path: /things/this.is~1slash
+    value: beta

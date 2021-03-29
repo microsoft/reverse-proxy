@@ -1,0 +1,30 @@
+﻿resourceKind:
+  apiVersion: v1
+  kind: Pod
+apply:
+  metadata:
+    name: alpha
+    namespace: beta
+    labels:
+      delta: two
+      epsilon: three
+lastApplied:
+  metadata:
+    name: alpha
+    namespace: beta
+    labels:
+      gamma: one
+      delta: two
+live:
+  metadata:
+    name: alpha
+    namespace: beta
+    labels:
+      gamma: one
+      delta: two
+patch:
+  - op: add
+    path: /metadata/labels/epsilon
+    value: three
+  - op: remove
+    path: /metadata/labels/gamma
