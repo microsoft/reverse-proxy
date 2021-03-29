@@ -25,13 +25,12 @@ namespace Yarp.ReverseProxy.Common.Tests
                 .ToArray();
         }
 
-        public static void AssertContainProxyStages(this List<EventWrittenEventArgs> events, bool hasRequestContent = true, bool upgrade = false)
+        public static void AssertContainProxyStages(this List<EventWrittenEventArgs> events, bool hasRequestContent = true, bool upgrade = false, bool hasResponseContent = true)
         {
             var stages = new List<ProxyStage>()
             {
                 ProxyStage.SendAsyncStart,
                 ProxyStage.SendAsyncStop,
-                ProxyStage.ResponseContentTransferStart,
             };
 
             if (hasRequestContent)
@@ -42,6 +41,11 @@ namespace Yarp.ReverseProxy.Common.Tests
             if (upgrade)
             {
                 stages.Add(ProxyStage.ResponseUpgrade);
+            }
+
+            if (hasResponseContent)
+            {
+                stages.Add(ProxyStage.ResponseContentTransferStart);
             }
 
             events.AssertContainProxyStages(stages.ToArray());

@@ -73,6 +73,18 @@ namespace Yarp.ReverseProxy.Sample
                             transformContext.ProxyRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
                         });
                     }
+
+                    transformBuilderContext.AddResponseTransform(context =>
+                    {
+                        // Suppress the response body from errors.
+                        // The status code was already copied.
+                        if (!context.ProxyResponse.IsSuccessStatusCode)
+                        {
+                            context.SuppressResponseBody = true;
+                        }
+
+                        return default;
+                    });
                 });
 
             services.AddHttpContextAccessor();

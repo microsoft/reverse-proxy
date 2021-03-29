@@ -165,7 +165,14 @@ namespace Yarp.ReverseProxy.Service.Proxy
                 {
                     // :: Step 5: Copy response status line Client ◄-- Proxy ◄-- Destination
                     // :: Step 6: Copy response headers Client ◄-- Proxy ◄-- Destination
-                    await CopyResponseStatusAndHeadersAsync(destinationResponse, context, transformer);
+                    var copyBody = await CopyResponseStatusAndHeadersAsync(destinationResponse, context, transformer);
+
+                    if (!copyBody)
+                    {
+                        // The transforms callback decided that the response body should be discarded.
+                        destinationResponse.Dispose();
+                        return;
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -440,7 +447,7 @@ namespace Yarp.ReverseProxy.Service.Proxy
             context.Response.StatusCode = StatusCodes.Status502BadGateway;
         }
 
-        private static Task CopyResponseStatusAndHeadersAsync(HttpResponseMessage source, HttpContext context, HttpTransformer transformer)
+        private static ValueTask<bool> CopyResponseStatusAndHeadersAsync(HttpResponseMessage source, HttpContext context, HttpTransformer transformer)
         {
             context.Response.StatusCode = (int)source.StatusCode;
 
@@ -581,7 +588,7 @@ namespace Yarp.ReverseProxy.Service.Proxy
             ResetOrAbort(context, isCancelled: responseBodyCopyResult == StreamCopyResult.Canceled);
         }
 
-        private static Task CopyResponseTrailingHeadersAsync(HttpResponseMessage source, HttpContext context, HttpTransformer transformer)
+        private static ValueTask CopyResponseTrailingHeadersAsync(HttpResponseMessage source, HttpContext context, HttpTransformer transformer)
         {
             // Copies trailers
             return transformer.TransformResponseTrailersAsync(context, source);

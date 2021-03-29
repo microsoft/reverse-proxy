@@ -63,7 +63,7 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
         /// </summary>
         internal IList<ResponseTrailersTransform> ResponseTrailerTransforms { get; }
 
-        public override async Task TransformRequestAsync(HttpContext httpContext, HttpRequestMessage proxyRequest, string destinationPrefix)
+        public override async ValueTask TransformRequestAsync(HttpContext httpContext, HttpRequestMessage proxyRequest, string destinationPrefix)
         {
             if (ShouldCopyRequestHeaders.GetValueOrDefault(true))
             {
@@ -95,7 +95,7 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
                 transformContext.DestinationPrefix, transformContext.Path, transformContext.Query.QueryString);
         }
 
-        public override async Task TransformResponseAsync(HttpContext httpContext, HttpResponseMessage proxyResponse)
+        public override async ValueTask<bool> TransformResponseAsync(HttpContext httpContext, HttpResponseMessage proxyResponse)
         {
             if (ShouldCopyResponseHeaders.GetValueOrDefault(true))
             {
@@ -104,7 +104,7 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
 
             if (ResponseTransforms.Count == 0)
             {
-                return;
+                return true;
             }
 
             var transformContext = new ResponseTransformContext()
@@ -118,9 +118,11 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
             {
                 await responseTransform.ApplyAsync(transformContext);
             }
+
+            return !transformContext.SuppressResponseBody;
         }
 
-        public override async Task TransformResponseTrailersAsync(HttpContext httpContext, HttpResponseMessage proxyResponse)
+        public override async ValueTask TransformResponseTrailersAsync(HttpContext httpContext, HttpResponseMessage proxyResponse)
         {
             if (ShouldCopyResponseTrailers.GetValueOrDefault(true))
             {

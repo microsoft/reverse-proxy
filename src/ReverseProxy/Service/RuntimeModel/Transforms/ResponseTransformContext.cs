@@ -27,5 +27,11 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
         /// should operate on.
         /// </summary>
         public bool HeadersCopied { get; set; }
+
+        /// <summary>
+        /// Set to true if the proxy should exclude the body and trailing headers when proxying this response.
+        /// Defaults to false.
+        /// </summary>
+        public bool SuppressResponseBody { get; set; }
     }
 }
