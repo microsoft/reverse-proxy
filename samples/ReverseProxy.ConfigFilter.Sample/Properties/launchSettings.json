@@ -10,8 +10,9 @@
   "profiles": {
     "ReverseProxy.Sample": {
       "commandName": "Project",
-      "launchBrowser": false,
       "environmentVariables": {
+        "Key": "Value",
+        "contoso": "https://contoso.com",
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },

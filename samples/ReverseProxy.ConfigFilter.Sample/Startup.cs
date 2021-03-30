@@ -28,6 +28,8 @@ namespace Yarp.Sample
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+
+            // Load the configuration and initialize the config filter
             services.AddReverseProxy()
                 .LoadFromConfig(_configuration.GetSection("ReverseProxy"))
                 .AddProxyConfigFilter<CustomConfigFilter>();
