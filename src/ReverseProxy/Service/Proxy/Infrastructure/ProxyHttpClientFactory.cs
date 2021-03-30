@@ -105,7 +105,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Infrastructure
                 webProxy.UseDefaultCredentials = webProxyOptions.UseDefaultCredentials.Value;
             }
 
-            if (webProxyOptions.BypassOnLocal != null)
+            if (webProxyOptions.BypassOnLocal.HasValue)
             {
                 webProxy.BypassProxyOnLocal = webProxyOptions.BypassOnLocal.Value;
             }
