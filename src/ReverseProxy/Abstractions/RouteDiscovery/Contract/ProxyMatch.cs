@@ -19,6 +19,7 @@ namespace Yarp.ReverseProxy.Abstractions
 
         /// <summary>
         /// Only match requests with the given Host header.
+        /// Supports wildcards and ports. For unicode host names, do not use punycode.
         /// </summary>
         public IReadOnlyList<string> Hosts { get; init; }
 
