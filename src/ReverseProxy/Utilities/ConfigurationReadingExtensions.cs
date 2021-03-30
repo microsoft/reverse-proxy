@@ -23,6 +23,16 @@ namespace Microsoft.Extensions.Configuration
             return configuration[name] is string value ? TimeSpan.Parse(value, CultureInfo.InvariantCulture) : null;
         }
 
+        internal static Uri ReadUri(this IConfiguration configuration, string name)
+        {
+            if (configuration[name] is string value && Uri.TryCreate(value, UriKind.Absolute, out var parsedUri))
+            {
+                return parsedUri;
+            }
+
+            return null;
+        }
+
         internal static TEnum? ReadEnum<TEnum>(this IConfiguration configuration, string name) where TEnum : struct
         {
             return configuration[name] is string value ? Enum.Parse<TEnum>(value, ignoreCase: true) : null;

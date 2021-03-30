@@ -337,16 +337,19 @@ namespace Yarp.ReverseProxy.Configuration
             };
         }
 
-        private static WebProxyOptions TryGetWebProxyOptions(IConfigurationSection webProxyConfig)
+        private static WebProxyOptions TryGetWebProxyOptions(IConfigurationSection section)
         {
-            if (webProxyConfig == null || !webProxyConfig.Exists())
+            if (section == null || !section.Exists())
             {
                 return null;
             }
 
-            var options = new WebProxyOptions();
-            webProxyConfig.Bind(options);
-            return options;
+            return new WebProxyOptions()
+            {
+                Address = section.ReadUri(nameof(WebProxyOptions.Address)),
+                BypassOnLocal = section.ReadBool(nameof(WebProxyOptions.BypassOnLocal)),
+                UseDefaultCredentials = section.ReadBool(nameof(WebProxyOptions.UseDefaultCredentials))
+            };
         }
 
         private static RequestProxyOptions CreateProxyRequestOptions(IConfigurationSection section)
