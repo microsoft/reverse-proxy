@@ -106,7 +106,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Infrastructure
             }
             else
             {
-                webProxy.UseDefaultCredentials = WebProxyOptions.UseDefaultCredentialsDefaultValue;
+                webProxy.UseDefaultCredentials = false; //use default value
             }
 
             if (webProxyOptions.BypassOnLocal.HasValue)
@@ -115,7 +115,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Infrastructure
             }
             else
             {
-                webProxy.BypassProxyOnLocal = WebProxyOptions.BypassOnLocalDefaultValue;
+                webProxy.BypassProxyOnLocal = false; //use default value
             }
 
             return webProxy;
