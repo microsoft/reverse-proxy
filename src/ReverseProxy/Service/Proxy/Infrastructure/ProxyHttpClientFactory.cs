@@ -100,7 +100,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Infrastructure
             }
 
             var webProxy = new WebProxy(webProxyOptions.Address);
-            if (webProxyOptions.UseDefaultCredentials != null)
+            if (webProxyOptions.UseDefaultCredentials.HasValue)
             {
                 webProxy.UseDefaultCredentials = webProxyOptions.UseDefaultCredentials.Value;
             }
