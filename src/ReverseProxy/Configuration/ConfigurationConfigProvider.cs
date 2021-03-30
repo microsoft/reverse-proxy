@@ -320,7 +320,7 @@ namespace Yarp.ReverseProxy.Configuration
                 }
             }
 
-            var webProxy = TryGetWebProxyOptions(section.GetSection(nameof(ProxyHttpClientOptions.WebProxy)));
+            var webProxy = CreateWebProxyOptions(section.GetSection(nameof(ProxyHttpClientOptions.WebProxy)));
 
             return new ProxyHttpClientOptions
             {
@@ -337,9 +337,9 @@ namespace Yarp.ReverseProxy.Configuration
             };
         }
 
-        private static WebProxyOptions TryGetWebProxyOptions(IConfigurationSection section)
+        private static WebProxyOptions CreateWebProxyOptions(IConfigurationSection section)
         {
-            if (section == null || !section.Exists())
+            if (!section.Exists())
             {
                 return null;
             }
