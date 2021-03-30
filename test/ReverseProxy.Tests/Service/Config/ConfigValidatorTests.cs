@@ -136,10 +136,12 @@ namespace Yarp.ReverseProxy.Service.Tests
         }
 
         [Theory]
-        [InlineData(null)]
-        [InlineData("")]
-        [InlineData("example.com,")]
-        public async Task Rejects_MissingHostAndPath(string host)
+        [InlineData(null, null)]
+        [InlineData(null, "")]
+        [InlineData("", null)]
+        [InlineData(",", null)]
+        [InlineData("", "")]
+        public async Task Rejects_MissingHostAndPath(string host, string path)
         {
             var route = new ProxyRoute
             {
@@ -147,7 +149,8 @@ namespace Yarp.ReverseProxy.Service.Tests
                 ClusterId = "cluster1",
                 Match = new ProxyMatch
                 {
-                    Hosts = host?.Split(",")
+                    Hosts = host?.Split(","),
+                    Path = path
                 },
             };
 

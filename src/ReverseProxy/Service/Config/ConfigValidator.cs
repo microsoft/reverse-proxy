@@ -76,7 +76,7 @@ namespace Yarp.ReverseProxy.Service
                 return errors;
             }
 
-            if ((route.Match.Hosts == null || route.Match.Hosts.Count == 0 || route.Match.Hosts.Any(host => string.IsNullOrEmpty(host))) && string.IsNullOrEmpty(route.Match.Path))
+            if ((route.Match.Hosts == null || !route.Match.Hosts.Any(host => !string.IsNullOrEmpty(host))) && string.IsNullOrEmpty(route.Match.Path))
             {
                 errors.Add(new ArgumentException($"Route '{route.RouteId}' requires Hosts or Path specified. Set the Path to '/{{**catchall}}' to match all requests."));
             }
