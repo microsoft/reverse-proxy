@@ -48,9 +48,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
                 VersionPolicy = HttpVersionPolicy.RequestVersionExact,
 #endif
             };
-            var cluster1 = new ClusterInfo(
-                clusterId: "cluster1",
-                destinationManager: new DestinationManager());
+            var cluster1 = new ClusterInfo(clusterId: "cluster1");
             var clusterConfig = new ClusterConfig(new Cluster() { HttpRequest = httpRequestOptions },
                 httpClient);
             var destination1 = cluster1.DestinationManager.GetOrCreateItem(
@@ -137,9 +135,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
             httpContext.Request.Host = new HostString("example.com");
 
             var httpClient = new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object);
-            var cluster1 = new ClusterInfo(
-                clusterId: "cluster1",
-                destinationManager: new DestinationManager());
+            var cluster1 = new ClusterInfo(clusterId: "cluster1");
             var clusterConfig = new ClusterConfig(new Cluster(), httpClient);
             var routeConfig = new RouteConfig(
                 proxyRoute: new ProxyRoute(),

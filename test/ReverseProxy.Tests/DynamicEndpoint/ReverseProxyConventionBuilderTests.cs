@@ -88,7 +88,7 @@ namespace Yarp.ReverseProxy.DynamicEndpoint
             var endpointBuilder = new RouteEndpointBuilder(context => Task.CompletedTask, RoutePatternFactory.Parse(""), 0);
             var routeConfig = new RouteConfig(
                 proxyRoute,
-                new ClusterInfo("cluster-1", new DestinationManager())
+                new ClusterInfo("cluster-1")
                 {
                     Config = new ClusterConfig(cluster, default)
                 },

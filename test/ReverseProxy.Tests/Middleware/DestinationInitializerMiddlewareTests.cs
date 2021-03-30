@@ -38,9 +38,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
         public async Task Invoke_SetsFeatures()
         {
             var httpClient = new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object);
-            var cluster1 = new ClusterInfo(
-                clusterId: "cluster1",
-                destinationManager: new DestinationManager());
+            var cluster1 = new ClusterInfo(clusterId: "cluster1");
             cluster1.Config = new ClusterConfig(new Cluster(), httpClient);
             var destination1 = cluster1.DestinationManager.GetOrCreateItem(
                 "destination1",
@@ -78,9 +76,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
         public async Task Invoke_NoHealthyEndpoints_CallsNext()
         {
             var httpClient = new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object);
-            var cluster1 = new ClusterInfo(
-                clusterId: "cluster1",
-                destinationManager: new DestinationManager());
+            var cluster1 = new ClusterInfo(clusterId: "cluster1");
             cluster1.Config = new ClusterConfig(
                 new Cluster()
                 {

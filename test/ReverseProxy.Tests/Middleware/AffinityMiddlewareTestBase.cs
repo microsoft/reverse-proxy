@@ -31,12 +31,11 @@ namespace Yarp.ReverseProxy.Middleware
 
         internal ClusterInfo GetCluster()
         {
-            var destinationManager = new DestinationManager();
+            var cluster = new ClusterInfo("cluster-1");
+            var destinationManager = cluster.DestinationManager;
             destinationManager.GetOrCreateItem("dest-A", d => { });
             destinationManager.GetOrCreateItem(AffinitizedDestinationName, d => { });
             destinationManager.GetOrCreateItem("dest-C", d => { });
-
-            var cluster = new ClusterInfo("cluster-1", destinationManager);
             cluster.Config = ClusterConfig;
             cluster.UpdateDynamicState();
             return cluster;
