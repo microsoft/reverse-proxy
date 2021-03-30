@@ -14,15 +14,19 @@ namespace Yarp.ReverseProxy.Abstractions
 
         /// <summary>
         /// true to bypass the proxy for local addresses; otherwise, false.
-        /// If null, default value for <seealso cref="System.Net.WebProxy"/> implementation will be used.
+        /// If null, default value will be used: false
         /// </summary>
         public bool? BypassOnLocal { get; init; }
 
+        internal const bool BypassOnLocalDefaultValue = false;
+
         /// <summary>
         /// Controls whether the <seealso cref="System.Net.CredentialCache.DefaultCredentials"/> are sent with requests.
-        /// If null, default value for <seealso cref="System.Net.WebProxy"/> implementation will be used.
+        /// If null, default value will be used: false
         /// </summary>
         public bool? UseDefaultCredentials { get; init; }
+
+        internal const bool UseDefaultCredentialsDefaultValue = false;
 
         public bool Equals(WebProxyOptions other)
         {

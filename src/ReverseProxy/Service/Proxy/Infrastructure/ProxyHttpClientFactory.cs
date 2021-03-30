@@ -100,14 +100,22 @@ namespace Yarp.ReverseProxy.Service.Proxy.Infrastructure
             }
 
             var webProxy = new WebProxy(webProxyOptions.Address);
-            if (webProxyOptions.UseDefaultCredentials != null)
+            if (webProxyOptions.UseDefaultCredentials.HasValue)
             {
                 webProxy.UseDefaultCredentials = webProxyOptions.UseDefaultCredentials.Value;
             }
+            else
+            {
+                webProxy.UseDefaultCredentials = WebProxyOptions.UseDefaultCredentialsDefaultValue;
+            }
 
-            if (webProxyOptions.BypassOnLocal != null)
+            if (webProxyOptions.BypassOnLocal.HasValue)
             {
                 webProxy.BypassProxyOnLocal = webProxyOptions.BypassOnLocal.Value;
+            }
+            else
+            {
+                webProxy.BypassProxyOnLocal = WebProxyOptions.BypassOnLocalDefaultValue;
             }
 
             return webProxy;
