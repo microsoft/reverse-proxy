@@ -7,5 +7,3 @@ YARP can be integrated with Kubernetes as a reverse proxy managing HTTP/HTTPS tr
 ## Get Started
 
 The Kubernetes ingress controller runs as a separate process/pod inside of your Kubernetes cluster.
-
-TODO image vs template. Is there anything someone would want to customize in the controller? Should we just push the controller somewhere?
