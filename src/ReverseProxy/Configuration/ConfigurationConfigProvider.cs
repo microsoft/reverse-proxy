@@ -320,7 +320,21 @@ namespace Yarp.ReverseProxy.Configuration
                 }
             }
 
-            var webProxy = CreateWebProxyOptions(section.GetSection(nameof(ProxyHttpClientOptions.WebProxy)));
+            WebProxyOptions webProxy;
+            var webProxySection = section.GetSection(nameof(ProxyHttpClientOptions.WebProxy));
+            if (webProxySection.Exists())
+            {
+                webProxy = new WebProxyOptions()
+                {
+                    Address = webProxySection.ReadUri(nameof(WebProxyOptions.Address)),
+                    BypassOnLocal = webProxySection.ReadBool(nameof(WebProxyOptions.BypassOnLocal)),
+                    UseDefaultCredentials = webProxySection.ReadBool(nameof(WebProxyOptions.UseDefaultCredentials))
+                };
+            }
+            else
+            {
+                webProxy = null;
+            }
 
             return new ProxyHttpClientOptions
             {
@@ -334,21 +348,6 @@ namespace Yarp.ReverseProxy.Configuration
 #endif
                 ActivityContextHeaders = section.ReadEnum<ActivityContextHeaders>(nameof(ProxyHttpClientOptions.ActivityContextHeaders)),
                 WebProxy = webProxy
-            };
-        }
-
-        private static WebProxyOptions CreateWebProxyOptions(IConfigurationSection section)
-        {
-            if (!section.Exists())
-            {
-                return null;
-            }
-
-            return new WebProxyOptions()
-            {
-                Address = section.ReadUri(nameof(WebProxyOptions.Address)),
-                BypassOnLocal = section.ReadBool(nameof(WebProxyOptions.BypassOnLocal)),
-                UseDefaultCredentials = section.ReadBool(nameof(WebProxyOptions.UseDefaultCredentials))
             };
         }
 
