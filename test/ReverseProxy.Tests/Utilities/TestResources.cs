@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.IO;
+using System.Net;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
@@ -33,6 +34,23 @@ namespace Yarp.ReverseProxy.Utilities.Tests
             {
                 importPfxMutex?.ReleaseMutex();
             }
+        }
+
+        public static IWebProxy GetTestWebProxy(string address = "http://localhost:8080", bool? bypassOnLocal = null, bool? useDefaultCredentials = null)
+        {
+            var webProxy = new WebProxy(new System.Uri(address));
+
+            if (bypassOnLocal != null)
+            {
+                webProxy.BypassProxyOnLocal = bypassOnLocal.Value;
+            }
+
+            if (useDefaultCredentials != null)
+            {
+                webProxy.UseDefaultCredentials = useDefaultCredentials.Value;
+            }
+
+            return webProxy;
         }
 
         public static string GetCertPath(string fileName)

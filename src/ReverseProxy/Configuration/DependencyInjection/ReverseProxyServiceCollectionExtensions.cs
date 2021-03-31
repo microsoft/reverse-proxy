@@ -67,7 +67,9 @@ namespace Microsoft.Extensions.DependencyInjection
             builder.Services.AddSingleton<IProxyConfigProvider>(sp =>
             {
                 // This is required because we're capturing the configuration via a closure
-                return new ConfigurationConfigProvider(sp.GetService<ILogger<ConfigurationConfigProvider>>(), config, sp.GetService<ICertificateConfigLoader>());
+                return new ConfigurationConfigProvider(sp.GetService<ILogger<ConfigurationConfigProvider>>(), config,
+                    sp.GetService<ICertificateConfigLoader>()
+                );
             });
 
             return builder;

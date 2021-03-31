@@ -218,7 +218,12 @@ namespace Yarp.ReverseProxy.Configuration
                 ""MaxConnectionsPerServer"": 10,
                 ""EnableMultipleHttp2Connections"": true,
                 ""ActivityContextHeaders"": ""Baggage"",
-                ""RequestHeaderEncoding"": ""utf-8""
+                ""RequestHeaderEncoding"": ""utf-8"",
+                ""WebProxy"": {
+                    ""Address"": ""http://localhost:8080"",
+                    ""BypassOnLocal"": true,
+                    ""UseDefaultCredentials"": true
+                }
             },
             ""HttpRequest"": {
                 ""Timeout"": ""00:01:00"",

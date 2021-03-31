@@ -74,6 +74,13 @@ namespace Yarp.ReverseProxy.Service.Proxy.Infrastructure
             }
 #endif
 
+            var webProxy = TryCreateWebProxy(newClientOptions.WebProxy);
+            if (webProxy != null)
+            {
+                handler.Proxy = webProxy;
+                handler.UseProxy = true;
+            }
+
             Log.ProxyClientCreated(_logger, context.ClusterId);
 
             var activityContextHeaders = newClientOptions.ActivityContextHeaders.GetValueOrDefault(ActivityContextHeaders.BaggageAndCorrelationContext);
@@ -83,6 +90,21 @@ namespace Yarp.ReverseProxy.Service.Proxy.Infrastructure
             }
 
             return new HttpMessageInvoker(handler, disposeHandler: true);
+        }
+
+        private static IWebProxy TryCreateWebProxy(WebProxyOptions webProxyOptions)
+        {
+            if (webProxyOptions == null || webProxyOptions.Address == null)
+            {
+                return null;
+            }
+
+            var webProxy = new WebProxy(webProxyOptions.Address);
+
+            webProxy.UseDefaultCredentials = webProxyOptions.UseDefaultCredentials.GetValueOrDefault(false);
+            webProxy.BypassProxyOnLocal = webProxyOptions.BypassOnLocal.GetValueOrDefault(false);
+
+            return webProxy;
         }
 
         private static bool CanReuseOldClient(ProxyHttpClientContext context)

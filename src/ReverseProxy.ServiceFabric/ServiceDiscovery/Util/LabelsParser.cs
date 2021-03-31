@@ -317,7 +317,8 @@ namespace Yarp.ReverseProxy.ServiceFabric
                     EnableMultipleHttp2Connections = GetLabel<bool?>(labels, "YARP.Backend.HttpClient.EnableMultipleHttp2Connections", null),
                     RequestHeaderEncoding = !string.IsNullOrEmpty(requestHeaderEncodingLabel) ? Encoding.GetEncoding(requestHeaderEncodingLabel) : null,
 #endif
-                    //TODO: ClientCertificate = 
+                    //TODO: ClientCertificate =
+                    //TODO: WebProxy = 
                 },
                 Metadata = clusterMetadata,
                 Destinations = destinations,

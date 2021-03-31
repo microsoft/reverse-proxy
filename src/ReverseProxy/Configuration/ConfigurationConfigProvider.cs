@@ -320,6 +320,22 @@ namespace Yarp.ReverseProxy.Configuration
                 }
             }
 
+            WebProxyOptions webProxy;
+            var webProxySection = section.GetSection(nameof(ProxyHttpClientOptions.WebProxy));
+            if (webProxySection.Exists())
+            {
+                webProxy = new WebProxyOptions()
+                {
+                    Address = webProxySection.ReadUri(nameof(WebProxyOptions.Address)),
+                    BypassOnLocal = webProxySection.ReadBool(nameof(WebProxyOptions.BypassOnLocal)),
+                    UseDefaultCredentials = webProxySection.ReadBool(nameof(WebProxyOptions.UseDefaultCredentials))
+                };
+            }
+            else
+            {
+                webProxy = null;
+            }
+
             return new ProxyHttpClientOptions
             {
                 SslProtocols = sslProtocols,
@@ -330,7 +346,8 @@ namespace Yarp.ReverseProxy.Configuration
                 EnableMultipleHttp2Connections = section.ReadBool(nameof(ProxyHttpClientOptions.EnableMultipleHttp2Connections)),
                 RequestHeaderEncoding = section[nameof(ProxyHttpClientOptions.RequestHeaderEncoding)] is string encoding ? Encoding.GetEncoding(encoding) : null,
 #endif
-                ActivityContextHeaders = section.ReadEnum<ActivityContextHeaders>(nameof(ProxyHttpClientOptions.ActivityContextHeaders))
+                ActivityContextHeaders = section.ReadEnum<ActivityContextHeaders>(nameof(ProxyHttpClientOptions.ActivityContextHeaders)),
+                WebProxy = webProxy
             };
         }
 

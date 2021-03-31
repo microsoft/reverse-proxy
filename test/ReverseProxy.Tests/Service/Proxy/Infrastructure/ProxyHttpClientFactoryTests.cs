@@ -121,6 +121,27 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
             Assert.NotNull(handler);
         }
 
+        [Fact]
+        public void CreateClient_ApplyWebProxy_Success()
+        {
+            var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
+            var options = new ProxyHttpClientOptions {
+                WebProxy = new WebProxyOptions() {
+                    Address = new Uri("http://localhost:8080"),
+                    BypassOnLocal = true,
+                    UseDefaultCredentials = true
+                }
+            };
+            var client = factory.CreateClient(new ProxyHttpClientContext { NewOptions = options });
+
+            var handler = GetHandler(client);
+
+            Assert.NotNull(handler);
+            Assert.NotNull(handler.Proxy);
+            Assert.True(handler.UseProxy);
+            VerifyDefaultValues(handler, "WebProxy");
+        }
+
 #if NET
         [Fact]
         public void CreateClient_ApplyRequestHeaderEncoding_Success()
@@ -479,7 +500,8 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                 ("SslProtocols", h => h.SslOptions.EnabledSslProtocols),
                 ("DangerousAcceptAnyServerCertificate", h => h.SslOptions.RemoteCertificateValidationCallback),
                 ("ClientCertificate", h => h.SslOptions.ClientCertificates),
-                ("MaxConnectionsPerServer", h => h.MaxConnectionsPerServer)
+                ("MaxConnectionsPerServer", h => h.MaxConnectionsPerServer),
+                ("WebProxy", h => h.Proxy)
             };
         }
     }

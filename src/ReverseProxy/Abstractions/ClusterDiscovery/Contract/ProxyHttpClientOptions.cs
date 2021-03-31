@@ -44,6 +44,11 @@ namespace Yarp.ReverseProxy.Abstractions
         /// </summary>
         public ActivityContextHeaders? ActivityContextHeaders { get; init; }
 
+        /// <summary>
+        /// Optional web proxy used when communicating with the destination server. 
+        /// </summary>
+        public WebProxyOptions WebProxy { get; init; }
+
 #if NET
         /// <summary>
         /// Gets or sets a value that indicates whether additional HTTP/2 connections can
@@ -75,7 +80,8 @@ namespace Yarp.ReverseProxy.Abstractions
                    // Comparing by reference is fine here since Encoding.GetEncoding returns the same instance for each encoding.
                    && RequestHeaderEncoding == other.RequestHeaderEncoding
 #endif
-                   && ActivityContextHeaders == other.ActivityContextHeaders;
+                   && ActivityContextHeaders == other.ActivityContextHeaders
+                   && WebProxy == other.WebProxy;
         }
 
         private static bool CertEquals(X509Certificate2 certificate1, X509Certificate2 certificate2)
@@ -104,7 +110,8 @@ namespace Yarp.ReverseProxy.Abstractions
                 EnableMultipleHttp2Connections,
                 RequestHeaderEncoding,
 #endif
-                ActivityContextHeaders);
+                ActivityContextHeaders,
+                WebProxy);
         }
     }
 }
