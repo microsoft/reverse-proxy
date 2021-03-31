@@ -25,12 +25,7 @@ namespace Microsoft.Extensions.Configuration
 
         internal static Uri ReadUri(this IConfiguration configuration, string name)
         {
-            if (configuration[name] is string value && Uri.TryCreate(value, UriKind.Absolute, out var parsedUri))
-            {
-                return parsedUri;
-            }
-
-            return null;
+            return configuration[name] is string value ? new Uri(value) : null;
         }
 
         internal static TEnum? ReadEnum<TEnum>(this IConfiguration configuration, string name) where TEnum : struct
