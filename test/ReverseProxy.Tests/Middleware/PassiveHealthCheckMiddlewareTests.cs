@@ -137,8 +137,8 @@ namespace Yarp.ReverseProxy.Middleware
                 null);
             var clusterInfo = new ClusterInfo(id);
             clusterInfo.Config = clusterConfig;
-            clusterInfo.DestinationManager.GetOrCreateItem("destination0", d => { });
-            clusterInfo.DestinationManager.GetOrCreateItem("destination1", d => { });
+            clusterInfo.Destinations.GetOrAdd("destination0", id => new DestinationInfo(id));
+            clusterInfo.Destinations.GetOrAdd("destination1", id => new DestinationInfo(id));
 
             clusterInfo.UpdateDynamicState();
 

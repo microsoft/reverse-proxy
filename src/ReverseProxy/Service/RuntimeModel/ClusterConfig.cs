@@ -34,9 +34,12 @@ namespace Yarp.ReverseProxy.RuntimeModel
         /// </summary>
         public HttpMessageInvoker HttpClient { get; }
 
+        // We intentionally do not consider destination changes when updating the cluster Revision.
+        // Revision is used to rebuild routing endpoints which should be unrelated to destinations,
+        // and destinations are the most likely to change.
         internal bool HasConfigChanged(ClusterConfig newClusterConfig)
         {
-            return !Options.Equals(newClusterConfig.Options);
+            return !Options.EqualsExcludingDestinations(newClusterConfig.Options) || newClusterConfig.HttpClient != HttpClient;
         }
     }
 }

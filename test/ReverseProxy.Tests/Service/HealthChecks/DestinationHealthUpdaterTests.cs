@@ -117,9 +117,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
 
         private static ClusterInfo CreateCluster(bool passive, bool active, params DestinationInfo[] destinations)
         {
-            var destinationManager = new Mock<IDestinationManager>();
-            destinationManager.SetupGet(m => m.Items).Returns(destinations);
-            var cluster = new ClusterInfo("cluster0", destinationManager.Object);
+            var cluster = new ClusterInfo("cluster0");
             cluster.Config = new ClusterConfig(
                 new Cluster
                 {
@@ -139,6 +137,12 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
                     },
                 },
                 default);
+
+            foreach (var destination in destinations)
+            {
+                cluster.Destinations.TryAdd(destination.DestinationId, destination);
+            }
+
             return cluster;
         }
     }

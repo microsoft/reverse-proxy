@@ -2,9 +2,10 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Yarp.ReverseProxy.Service.Management;
 using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.RuntimeModel
@@ -26,11 +27,18 @@ namespace Yarp.ReverseProxy.RuntimeModel
         private volatile ClusterConfig _config;
         private readonly SemaphoreSlim _updateRequests = new SemaphoreSlim(2);
 
-        internal ClusterInfo(string clusterId)
+        /// <summary>
+        /// Creates a new ClusterInfo. This constructor is for tests and infrastructure, ClusterInfo are normally constructed by the configuration
+        /// loading infrastructure.
+        /// </summary>
+        public ClusterInfo(string clusterId)
         {
             ClusterId = clusterId ?? throw new ArgumentNullException(nameof(clusterId));
         }
 
+        /// <summary>
+        /// The clusters unique id.
+        /// </summary>
         public string ClusterId { get; }
 
         /// <summary>
@@ -43,7 +51,11 @@ namespace Yarp.ReverseProxy.RuntimeModel
             internal set => _config = value ?? throw new ArgumentNullException(nameof(value));
         }
 
-        internal IDestinationManager DestinationManager { get; } = new DestinationManager();
+        /// <summary>
+        /// All of the destinations associated with this cluster. This collection is populated by the configuration system
+        /// and should only be directly modified in a test environment.
+        /// </summary>
+        public ConcurrentDictionary<string, DestinationInfo> Destinations { get; } = new(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// Encapsulates parts of a cluster that can change atomically
@@ -105,7 +117,9 @@ namespace Yarp.ReverseProxy.RuntimeModel
                 try
                 {
                     var healthChecks = _config?.Options.HealthCheck;
-                    var allDestinations = DestinationManager.Items;
+                    // Values already makes a copy of the collection, downcast to avoid making a second copy.
+                    // https://github.com/dotnet/runtime/blob/e164551f1c96138521b4e58f14f8ac1e4369005d/src/libraries/System.Collections.Concurrent/src/System/Collections/Concurrent/ConcurrentDictionary.cs#L2145-L2168
+                    var allDestinations = (IReadOnlyList<DestinationInfo>)Destinations.Values;
                     var healthyDestinations = allDestinations;
 
                     if ((healthChecks?.Enabled).GetValueOrDefault())
@@ -115,14 +129,14 @@ namespace Yarp.ReverseProxy.RuntimeModel
 
                         healthyDestinations = allDestinations.Where(destination =>
                         {
-                                // Only consider the current state if those checks are enabled.
-                                var healthState = destination.Health;
+                            // Only consider the current state if those checks are enabled.
+                            var healthState = destination.Health;
                             var active = activeEnabled ? healthState.Active : DestinationHealth.Unknown;
                             var passive = passiveEnabled ? healthState.Passive : DestinationHealth.Unknown;
 
-                                // Filter out unhealthy ones. Unknown state is OK, all destinations start that way.
-                                return passive != DestinationHealth.Unhealthy && active != DestinationHealth.Unhealthy;
-                        }).ToList().AsReadOnly();
+                            // Filter out unhealthy ones. Unknown state is OK, all destinations start that way.
+                            return passive != DestinationHealth.Unhealthy && active != DestinationHealth.Unhealthy;
+                        }).ToList();
                     }
 
                     _dynamicState = new ClusterDynamicState(allDestinations, healthyDestinations);

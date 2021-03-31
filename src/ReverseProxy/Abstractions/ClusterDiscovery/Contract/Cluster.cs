@@ -64,6 +64,17 @@ namespace Yarp.ReverseProxy.Abstractions
                 return false;
             }
 
+            return EqualsExcludingDestinations(other)
+                && CaseInsensitiveEqualHelper.Equals(Destinations, other.Destinations, (a, b) => a == b);
+        }
+
+        internal bool EqualsExcludingDestinations(Cluster other)
+        {
+            if (other == null)
+            {
+                return false;
+            }
+
             return string.Equals(Id, other.Id, StringComparison.OrdinalIgnoreCase)
                 && string.Equals(LoadBalancingPolicy, other.LoadBalancingPolicy, StringComparison.OrdinalIgnoreCase)
                 // CS0252 warning only shows up in VS https://github.com/dotnet/roslyn/issues/49302
@@ -71,7 +82,6 @@ namespace Yarp.ReverseProxy.Abstractions
                 && HealthCheck == other.HealthCheck
                 && HttpClient == other.HttpClient
                 && HttpRequest == other.HttpRequest
-                && CaseInsensitiveEqualHelper.Equals(Destinations, other.Destinations, (a, b) => a == b)
                 && CaseInsensitiveEqualHelper.Equals(Metadata, other.Metadata);
         }
 

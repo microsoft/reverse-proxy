@@ -37,8 +37,6 @@ namespace Yarp.ReverseProxy.Configuration.DependencyInjection
 
         public static IReverseProxyBuilder AddRuntimeStateManagers(this IReverseProxyBuilder builder)
         {
-            builder.Services.TryAddSingleton<IClusterManager, ClusterManager>();
-            builder.Services.TryAddSingleton<IRouteManager, RouteManager>();
             builder.Services.TryAddSingleton<ITimerFactory, TimerFactory>();
             builder.Services.TryAddSingleton<IDestinationHealthUpdater, DestinationHealthUpdater>();
             return builder;
