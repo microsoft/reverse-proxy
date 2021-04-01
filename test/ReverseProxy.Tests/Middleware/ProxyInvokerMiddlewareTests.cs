@@ -98,7 +98,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
             var sut = Create<ProxyInvokerMiddleware>();
 
             Assert.Equal(0, cluster1.ConcurrencyCounter.Value);
-            Assert.Equal(0, destination1.ConcurrencyCounter.Value);
+            Assert.Equal(0, destination1.ConcurrentRequestCount);
 
             var task = sut.Invoke(httpContext);
             if (task.IsFaulted)
@@ -111,14 +111,14 @@ namespace Yarp.ReverseProxy.Middleware.Tests
 
             await tcs1.Task; // Wait until we get to the proxying step.
             Assert.Equal(1, cluster1.ConcurrencyCounter.Value);
-            Assert.Equal(1, destination1.ConcurrencyCounter.Value);
+            Assert.Equal(1, destination1.ConcurrentRequestCount);
 
             Assert.Same(destination1, httpContext.GetRequiredProxyFeature().ProxiedDestination);
 
             tcs2.TrySetResult(true);
             await task;
             Assert.Equal(0, cluster1.ConcurrencyCounter.Value);
-            Assert.Equal(0, destination1.ConcurrencyCounter.Value);
+            Assert.Equal(0, destination1.ConcurrentRequestCount);
 
             var invoke = Assert.Single(events, e => e.EventName == "ProxyInvoke");
             Assert.Equal(3, invoke.Payload.Count);
