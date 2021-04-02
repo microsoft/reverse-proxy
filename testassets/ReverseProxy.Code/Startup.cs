@@ -11,6 +11,7 @@ using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Model;
 using Yarp.Telemetry.Consumption;
 using Yarp.ReverseProxy.Transforms;
+using Yarp.ReverseProxy.Forwarder;
 
 namespace Yarp.ReverseProxy.Sample
 {
@@ -95,6 +96,7 @@ namespace Yarp.ReverseProxy.Sample
             services.AddSingleton<IMetricsConsumer<ForwarderMetrics>, ForwarderMetricsConsumer>();
             services.AddTelemetryConsumer<ForwarderTelemetryConsumer>();
             services.AddTelemetryListeners();
+            services.AddSingleton<IForwarderHttpClientFactory, InterceptorFactory>();
         }
 
         /// <summary>
