@@ -53,6 +53,9 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                 { "YARP.Backend.HttpClient.EnableMultipleHttp2Connections", "false" },
                 { "YARP.Backend.HttpClient.RequestHeaderEncoding", "utf-8" },
 #endif
+                { "YARP.Backend.HttpClient.WebProxy.Address", "https://10.20.30.40" },
+                { "YARP.Backend.HttpClient.WebProxy.BypassOnLocal", "true" },
+                { "YARP.Backend.HttpClient.WebProxy.UseDefaultCredentials", "false" },
             };
 
             var cluster = LabelsParser.BuildCluster(_testServiceName, labels, null);
@@ -110,7 +113,13 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                     RequestHeaderEncoding = Encoding.GetEncoding("utf-8"),
 #endif
                     MaxConnectionsPerServer = 1000,
-                    SslProtocols = SslProtocols.Tls12
+                    SslProtocols = SslProtocols.Tls12,
+                    WebProxy = new WebProxyOptions
+                    {
+                        Address = new Uri("https://10.20.30.40"),
+                        BypassOnLocal = true,
+                        UseDefaultCredentials = false,
+                    }
                 }
             };
             cluster.Should().BeEquivalentTo(expectedCluster);
@@ -148,7 +157,9 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                 Metadata = new Dictionary<string, string>(),
                 HttpClient = new ProxyHttpClientOptions
                 {
-
+                    WebProxy = new WebProxyOptions
+                    {
+                    }
                 }
             };
             cluster.Should().BeEquivalentTo(expectedCluster);
@@ -250,7 +261,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                 { "YARP.Routes.MyRoute.MatchHeaders.[0].Name", "x-company-key" },
                 { "YARP.Routes.MyRoute.MatchHeaders.[0].Values", "contoso" },
                 { "YARP.Routes.MyRoute.MatchHeaders.[0].IsCaseSensitive", "true" },
-                { "YARP.Routes.MyRoute.MatchHeaders.[1].Mode", "ExactHeader" }, 
+                { "YARP.Routes.MyRoute.MatchHeaders.[1].Mode", "ExactHeader" },
                 { "YARP.Routes.MyRoute.MatchHeaders.[1].Name", "x-environment" },
                 { "YARP.Routes.MyRoute.MatchHeaders.[1].Values", "dev, uat" },
                 { "YARP.Routes.MyRoute.Metadata.Foo", "Bar" },
@@ -584,8 +595,8 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
         }
 
         [Theory]
-        [InlineData("YARP.Routes.MyRoute0.MatchHeaders.[0].Values", "apples, oranges, grapes", new string[] {"apples", "oranges", "grapes"})]
-        [InlineData("YARP.Routes.MyRoute0.MatchHeaders.[0].Values", "apples,,oranges,grapes", new string[] {"apples", "", "oranges", "grapes"})]
+        [InlineData("YARP.Routes.MyRoute0.MatchHeaders.[0].Values", "apples, oranges, grapes", new string[] { "apples", "oranges", "grapes" })]
+        [InlineData("YARP.Routes.MyRoute0.MatchHeaders.[0].Values", "apples,,oranges,grapes", new string[] { "apples", "", "oranges", "grapes" })]
         public void BuildRoutes_MatchHeadersWithCSVs_Works(string invalidKey, string value, string[] expected)
         {
             var labels = new Dictionary<string, string>()

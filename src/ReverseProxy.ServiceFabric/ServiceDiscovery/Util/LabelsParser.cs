@@ -317,8 +317,13 @@ namespace Yarp.ReverseProxy.ServiceFabric
                     EnableMultipleHttp2Connections = GetLabel<bool?>(labels, "YARP.Backend.HttpClient.EnableMultipleHttp2Connections", null),
                     RequestHeaderEncoding = !string.IsNullOrEmpty(requestHeaderEncodingLabel) ? Encoding.GetEncoding(requestHeaderEncodingLabel) : null,
 #endif
+                    WebProxy = new WebProxyOptions
+                    {
+                        Address = GetLabel<Uri>(labels, "YARP.Backend.HttpClient.WebProxy.Address", null),
+                        BypassOnLocal = GetLabel<bool?>(labels, "YARP.Backend.HttpClient.WebProxy.BypassOnLocal", null),
+                        UseDefaultCredentials = GetLabel<bool?>(labels, "YARP.Backend.HttpClient.WebProxy.UseDefaultCredentials", null),
+                    }
                     //TODO: ClientCertificate =
-                    //TODO: WebProxy = 
                 },
                 Metadata = clusterMetadata,
                 Destinations = destinations,
