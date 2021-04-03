@@ -27,7 +27,8 @@ namespace Yarp.ReverseProxy.Middleware
         IReadOnlyList<DestinationInfo> AllDestinations { get; }
 
         /// <summary>
-        /// Cluster destinations that can handle the current request.
+        /// Cluster destinations that can handle the current request. This will initially include all destinations except those
+        /// currently marked as unhealth if health checks are enabled.
         /// </summary>
         IReadOnlyList<DestinationInfo> AvailableDestinations { get; set; }
 

@@ -4,6 +4,7 @@
 using System;
 using Microsoft.AspNetCore.Http;
 using Yarp.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Service.Proxy;
 
 namespace Yarp.ReverseProxy.Middleware
 {
@@ -17,6 +18,7 @@ namespace Yarp.ReverseProxy.Middleware
         /// </summary>
         public static ClusterInfo GetRequiredCluster(this HttpContext context)
         {
+            // TODO: Retarget these to wrap GetRequiredProxyFeature
             var routeConfig = context.GetRequiredRouteConfig();
             var cluster = routeConfig.Cluster ?? throw new InvalidOperationException("Cluster unspecified.");
             return cluster;
@@ -27,6 +29,7 @@ namespace Yarp.ReverseProxy.Middleware
         /// </summary>
         public static RouteConfig GetRequiredRouteConfig(this HttpContext context)
         {
+            // TODO: Retarget these to wrap GetRequiredProxyFeature
             var endpoint = context.GetEndpoint()
                ?? throw new InvalidOperationException($"Routing Endpoint wasn't set for the current request.");
 
@@ -42,6 +45,14 @@ namespace Yarp.ReverseProxy.Middleware
         public static IReverseProxyFeature GetRequiredProxyFeature(this HttpContext context)
         {
             return context.Features.Get<IReverseProxyFeature>() ?? throw new InvalidOperationException("ReverseProxyFeature unspecified.");
+        }
+
+        /// <summary>
+        /// Retrieves the IProxyErrorFeature instance associated with the current request, if any.
+        /// </summary>
+        public static IProxyErrorFeature GetProxyErrorFeature(this HttpContext context)
+        {
+            return context.Features.Get<IProxyErrorFeature>();
         }
     }
 }

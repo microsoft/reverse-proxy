@@ -20,6 +20,8 @@
   href: session-affinity.md
 - name: Load Balancing
   href: load-balancing.md
+- name: Middleware
+  href: middleware.md
 - name: Transforms
   href: transforms.md
 - name: Destinations Health Checks
