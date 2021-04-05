@@ -24,7 +24,7 @@ namespace Yarp.Sample
         public ValueTask<Cluster> ConfigureClusterAsync(Cluster origCluster, CancellationToken cancel)
         {
             // Each cluster has a dictionary of destinations, which is read-only, so we'll create a new one with our updates 
-            var newDests = new Dictionary<string, Destination>();
+            var newDests = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var d in origCluster.Destinations)
             {
