@@ -26,7 +26,11 @@ namespace Yarp.ReverseProxy.Middleware
 
         public Task Invoke(HttpContext context)
         {
-            var routeConfig = context.GetRequiredRouteConfig();
+            var endpoint = context.GetEndpoint()
+               ?? throw new InvalidOperationException($"Routing Endpoint wasn't set for the current request.");
+
+            var routeConfig = endpoint.Metadata.GetMetadata<RouteConfig>()
+                ?? throw new InvalidOperationException($"Routing Endpoint is missing {typeof(RouteConfig).FullName} metadata.");
 
             var cluster = routeConfig.Cluster;
             // TODO: Validate on load https://github.com/microsoft/reverse-proxy/issues/797

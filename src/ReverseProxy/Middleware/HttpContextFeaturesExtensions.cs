@@ -2,11 +2,11 @@
 // Licensed under the MIT License.
 
 using System;
-using Microsoft.AspNetCore.Http;
+using Yarp.ReverseProxy.Middleware;
 using Yarp.ReverseProxy.RuntimeModel;
 using Yarp.ReverseProxy.Service.Proxy;
 
-namespace Yarp.ReverseProxy.Middleware
+namespace Microsoft.AspNetCore.Http
 {
     /// <summary>
     /// Extension methods for fetching proxy configuration from the current HttpContext.
@@ -29,12 +29,10 @@ namespace Yarp.ReverseProxy.Middleware
         /// </summary>
         public static RouteConfig GetRequiredRouteConfig(this HttpContext context)
         {
-            // TODO: Retarget these to wrap GetRequiredProxyFeature
-            var endpoint = context.GetEndpoint()
-               ?? throw new InvalidOperationException($"Routing Endpoint wasn't set for the current request.");
+            var proxyFeature = context.GetRequiredProxyFeature();
 
-            var routeConfig = endpoint.Metadata.GetMetadata<RouteConfig>()
-                ?? throw new InvalidOperationException($"Routing Endpoint is missing {typeof(RouteConfig).FullName} metadata.");
+            var routeConfig = proxyFeature.RouteSnapshot
+                ?? throw new InvalidOperationException($"Proxy feature is missing {typeof(RouteConfig).FullName}.");
 
             return routeConfig;
         }

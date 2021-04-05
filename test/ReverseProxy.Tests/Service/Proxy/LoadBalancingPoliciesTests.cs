@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Xunit;
 using Yarp.ReverseProxy.Abstractions;
 using Yarp.ReverseProxy.Common.Tests;
+using Yarp.ReverseProxy.Middleware;
 using Yarp.ReverseProxy.RuntimeModel;
 using Yarp.ReverseProxy.Service.LoadBalancing;
 using Yarp.ReverseProxy.Service.Management;
@@ -137,8 +138,11 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
             var context = new DefaultHttpContext();
 
             var routeConfig = new RouteConfig(new ProxyRoute(), new ClusterInfo("cluster1", new DestinationManager()), transformer: null);
-            var endpoint = new Endpoint(default, new EndpointMetadataCollection(routeConfig), string.Empty);
-            context.SetEndpoint(endpoint);
+            var feature = new ReverseProxyFeature()
+            {
+                RouteSnapshot = routeConfig,
+            };
+            context.Features.Set<IReverseProxyFeature>(feature);
 
             var loadBalancer = Create<RoundRobinLoadBalancingPolicy>();
 
