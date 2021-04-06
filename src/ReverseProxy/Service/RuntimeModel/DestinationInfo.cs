@@ -49,8 +49,13 @@ namespace Yarp.ReverseProxy.RuntimeModel
 
         /// <summary>
         /// Keeps track of the total number of concurrent requests on this endpoint.
+        /// The setter should only be used for testing purposes.
         /// </summary>
-        public int ConcurrentRequestCount => ConcurrencyCounter.Value;
+        public int ConcurrentRequestCount
+        {
+            get => ConcurrencyCounter.Value;
+            set => ConcurrencyCounter.Value = value;
+        }
 
         internal AtomicCounter ConcurrencyCounter { get; } = new AtomicCounter();
 
