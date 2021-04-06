@@ -28,8 +28,11 @@ namespace Yarp.Sample
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+
+            // Load the configuration and initialize the config filter
             services.AddReverseProxy()
-                .LoadFromConfig(_configuration.GetSection("ReverseProxy"));
+                .LoadFromConfig(_configuration.GetSection("ReverseProxy"))
+                .AddProxyConfigFilter<CustomConfigFilter>();
         }
 
         /// <summary>
@@ -38,7 +41,6 @@ namespace Yarp.Sample
         public void Configure(IApplicationBuilder app)
         {
             app.UseRouting();
-            app.UseCors();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapReverseProxy();
