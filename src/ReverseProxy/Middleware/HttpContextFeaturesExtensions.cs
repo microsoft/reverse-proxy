@@ -18,7 +18,6 @@ namespace Microsoft.AspNetCore.Http
         /// </summary>
         public static ClusterInfo GetRequiredCluster(this HttpContext context)
         {
-            // TODO: Retarget these to wrap GetRequiredProxyFeature
             var routeConfig = context.GetRequiredRouteConfig();
             var cluster = routeConfig.Cluster ?? throw new InvalidOperationException("Cluster unspecified.");
             return cluster;
