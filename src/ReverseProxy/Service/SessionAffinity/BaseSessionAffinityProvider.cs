@@ -26,9 +26,9 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
 
         public abstract string Mode { get; }
 
-        public virtual void AffinitizeRequest(HttpContext context, SessionAffinityOptions options, DestinationInfo destination)
+        public virtual void AffinitizeRequest(HttpContext context, ClusterConfig clusterConfig, DestinationInfo destination)
         {
-            if (!options.Enabled.GetValueOrDefault())
+            if (!clusterConfig.Options.SessionAffinity.Enabled.GetValueOrDefault())
             {
                 throw new InvalidOperationException($"Session affinity is disabled for cluster.");
             }
@@ -37,18 +37,19 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             if (!context.Items.ContainsKey(AffinityKeyId))
             {
                 var affinityKey = GetDestinationAffinityKey(destination);
-                SetAffinityKey(context, options, affinityKey);
+                SetAffinityKey(context, clusterConfig, affinityKey);
             }
         }
 
-        public virtual AffinityResult FindAffinitizedDestinations(HttpContext context, IReadOnlyList<DestinationInfo> destinations, string clusterId, SessionAffinityOptions options)
+        public virtual AffinityResult FindAffinitizedDestinations(HttpContext context, IReadOnlyList<DestinationInfo> destinations, ClusterConfig clusterConfig)
         {
-            if (!options.Enabled.GetValueOrDefault())
+            var clusterId = clusterConfig.Options.Id;
+            if (!clusterConfig.Options.SessionAffinity.Enabled.GetValueOrDefault())
             {
                 throw new InvalidOperationException($"Session affinity is disabled for cluster {clusterId}.");
             }
 
-            var requestAffinityKey = GetRequestAffinityKey(context, options);
+            var requestAffinityKey = GetRequestAffinityKey(context, clusterConfig);
 
             if (requestAffinityKey.Key == null)
             {
@@ -102,9 +103,9 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
 
         protected abstract T GetDestinationAffinityKey(DestinationInfo destination);
 
-        protected abstract (T Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, SessionAffinityOptions options);
+        protected abstract (T Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, ClusterConfig cluserConfig);
 
-        protected abstract void SetAffinityKey(HttpContext context, SessionAffinityOptions options, T unencryptedKey);
+        protected abstract void SetAffinityKey(HttpContext context, ClusterConfig clusterConfig, T unencryptedKey);
 
         protected string Protect(string unencryptedKey)
         {

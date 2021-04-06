@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
-using Yarp.ReverseProxy.Abstractions;
 using Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Yarp.ReverseProxy.RuntimeModel;
 
@@ -15,7 +14,6 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
     internal class CustomHeaderSessionAffinityProvider : BaseSessionAffinityProvider<string>
     {
         public static readonly string DefaultCustomHeaderName = "X-Yarp-Proxy-Affinity";
-        private const string CustomHeaderNameKey = "CustomHeaderName";
 
         public CustomHeaderSessionAffinityProvider(
             IDataProtectionProvider dataProtectionProvider,
@@ -30,10 +28,10 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             return destination.DestinationId;
         }
 
-        protected override (string Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, SessionAffinityOptions options)
+        protected override (string Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, ClusterConfig cluserConfig)
         {
-            var customHeaderName = options.Settings != null && options.Settings.TryGetValue(CustomHeaderNameKey, out var nameInSettings) ? nameInSettings : DefaultCustomHeaderName;
-            var keyHeaderValues = context.Request.Headers[customHeaderName];
+            var headerName = cluserConfig.GetSettings<CustomHeaderSessionAffinitySettings>()?.CustomHeaderName ?? DefaultCustomHeaderName;
+            var keyHeaderValues = context.Request.Headers[headerName];
 
             if (StringValues.IsNullOrEmpty(keyHeaderValues))
             {
@@ -44,17 +42,18 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             if (keyHeaderValues.Count > 1)
             {
                 // Multiple values is an ambiguous case which is considered a key extraction failure
-                Log.RequestAffinityHeaderHasMultipleValues(Logger, customHeaderName, keyHeaderValues.Count);
+                Log.RequestAffinityHeaderHasMultipleValues(Logger, headerName, keyHeaderValues.Count);
                 return (Key: null, ExtractedSuccessfully: false);
             }
 
             return Unprotect(keyHeaderValues[0]);
         }
 
-        protected override void SetAffinityKey(HttpContext context, SessionAffinityOptions options, string unencryptedKey)
+        protected override void SetAffinityKey(HttpContext context, ClusterConfig clusterConfig, string unencryptedKey)
         {
-            var customHeaderName = GetSettingValue(CustomHeaderNameKey, options);
-            context.Response.Headers.Append(customHeaderName, Protect(unencryptedKey));
+            var settings = clusterConfig.GetSettings<CustomHeaderSessionAffinitySettings>();
+            // Validation could have happened at config load time.
+            context.Response.Headers.Append(settings.CustomHeaderName, Protect(unencryptedKey));
         }
 
         private static class Log

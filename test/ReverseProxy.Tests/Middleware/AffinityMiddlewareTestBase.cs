@@ -45,7 +45,6 @@ namespace Yarp.ReverseProxy.Middleware
         internal IReadOnlyList<Mock<ISessionAffinityProvider>> RegisterAffinityProviders(
             bool lookupMiddlewareTest,
             IReadOnlyList<DestinationInfo> expectedDestinations,
-            string expectedCluster,
             params (string Mode, AffinityStatus? Status, DestinationInfo[] Destinations, Action<ISessionAffinityProvider> Callback)[] prototypes)
         {
             var result = new List<Mock<ISessionAffinityProvider>>();
@@ -58,8 +57,7 @@ namespace Yarp.ReverseProxy.Middleware
                     provider.Setup(p => p.FindAffinitizedDestinations(
                         It.IsAny<HttpContext>(),
                         expectedDestinations,
-                        expectedCluster,
-                        ClusterConfig.Options.SessionAffinity))
+                        ClusterConfig))
                     .Returns(new AffinityResult(destinations, status.Value))
                     .Callback(() => callback(provider.Object));
                 }
@@ -67,7 +65,7 @@ namespace Yarp.ReverseProxy.Middleware
                 {
                     provider.Setup(p => p.AffinitizeRequest(
                         It.IsAny<HttpContext>(),
-                        ClusterConfig.Options.SessionAffinity,
+                        ClusterConfig,
                         expectedDestinations[0]))
                     .Callback(() => callback(provider.Object));
                 }

@@ -27,7 +27,6 @@ namespace Yarp.ReverseProxy.Middleware
             var providers = RegisterAffinityProviders(
                 true,
                 cluster.DestinationManager.Items,
-                cluster.ClusterId,
                 ("Mode-A", AffinityStatus.DestinationNotFound, (RuntimeModel.DestinationInfo[])null, (Action<ISessionAffinityProvider>)(p => throw new InvalidOperationException($"Provider {p.Mode} call is not expected."))),
                 (expectedMode, status, foundDestinations, p => invokedMode = p.Mode));
             var nextInvoked = false;
@@ -70,7 +69,7 @@ namespace Yarp.ReverseProxy.Middleware
         {
             var cluster = GetCluster();
             var endpoint = GetEndpoint(cluster);
-            var providers = RegisterAffinityProviders(true, cluster.DestinationManager.Items, cluster.ClusterId, ("Mode-B", affinityStatus, null, _ => { }));
+            var providers = RegisterAffinityProviders(true, cluster.DestinationManager.Items, ("Mode-B", affinityStatus, null, _ => { }));
             var invokedPolicy = string.Empty;
             const string expectedPolicy = "Policy-1";
             var failurePolicies = RegisterFailurePolicies(

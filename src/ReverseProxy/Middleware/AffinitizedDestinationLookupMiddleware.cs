@@ -39,24 +39,25 @@ namespace Yarp.ReverseProxy.Middleware
         public Task Invoke(HttpContext context)
         {
             var proxyFeature = context.GetRequiredProxyFeature();
-
-            var cluster = proxyFeature.ClusterSnapshot.Options;
-            var options = cluster.SessionAffinity;
+            var options = proxyFeature.ClusterSnapshot.Options.SessionAffinity;
 
             if (!(options?.Enabled).GetValueOrDefault())
             {
                 return _next(context);
             }
 
-            return InvokeInternal(context, proxyFeature, options, cluster.Id);
+            return InvokeInternal(context, proxyFeature);
         }
 
-        private async Task InvokeInternal(HttpContext context, IReverseProxyFeature proxyFeature, SessionAffinityOptions options, string clusterId)
+        private async Task InvokeInternal(HttpContext context, IReverseProxyFeature proxyFeature)
         {
+            var clusterConfig = proxyFeature.ClusterSnapshot;
+            var clusterId = clusterConfig.Options.Id;
+            var affinityOptions = clusterConfig.Options.SessionAffinity;
             var destinations = proxyFeature.AvailableDestinations;
 
-            var currentProvider = _sessionAffinityProviders.GetRequiredServiceById(options.Mode, SessionAffinityConstants.Modes.Cookie);
-            var affinityResult = currentProvider.FindAffinitizedDestinations(context, destinations, clusterId, options);
+            var currentProvider = _sessionAffinityProviders.GetRequiredServiceById(affinityOptions.Mode, SessionAffinityConstants.Modes.Cookie);
+            var affinityResult = currentProvider.FindAffinitizedDestinations(context, destinations, clusterConfig);
 
             switch (affinityResult.Status)
             {
@@ -69,8 +70,8 @@ namespace Yarp.ReverseProxy.Middleware
                 case AffinityStatus.AffinityKeyExtractionFailed:
                 case AffinityStatus.DestinationNotFound:
 
-                    var failurePolicy = _affinityFailurePolicies.GetRequiredServiceById(options.FailurePolicy, SessionAffinityConstants.AffinityFailurePolicies.Redistribute);
-                    var keepProcessing = await failurePolicy.Handle(context, options, affinityResult.Status);
+                    var failurePolicy = _affinityFailurePolicies.GetRequiredServiceById(affinityOptions.FailurePolicy, SessionAffinityConstants.AffinityFailurePolicies.Redistribute);
+                    var keepProcessing = await failurePolicy.Handle(context, affinityOptions, affinityResult.Status);
 
                     if (!keepProcessing)
                     {
@@ -80,7 +81,7 @@ namespace Yarp.ReverseProxy.Middleware
                         return;
                     }
 
-                    Log.AffinityResolutionFailureWasHandledProcessingWillBeContinued(_logger, clusterId, options.FailurePolicy);
+                    Log.AffinityResolutionFailureWasHandledProcessingWillBeContinued(_logger, clusterId, affinityOptions.FailurePolicy);
 
                     break;
                 default:

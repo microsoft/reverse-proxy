@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using Yarp.ReverseProxy.Abstractions;
 
@@ -19,6 +20,8 @@ namespace Yarp.ReverseProxy.RuntimeModel
     /// </remarks>
     public sealed class ClusterConfig
     {
+        private readonly Dictionary<Type, object> _settings;
+
         public ClusterConfig(
             Cluster cluster,
             HttpMessageInvoker httpClient)
@@ -27,7 +30,21 @@ namespace Yarp.ReverseProxy.RuntimeModel
             HttpClient = httpClient;
         }
 
+        public ClusterConfig(
+            Cluster cluster,
+            HttpMessageInvoker httpClient,
+            IEnumerable<KeyValuePair<Type, object>> settings)
+            : this(cluster,httpClient)
+        {
+            if (_settings != null)
+            {
+                _settings = new Dictionary<Type, object>(settings);
+            }
+        }
+
         public Cluster Options { get; }
+
+        public T GetSettings<T>() => _settings != null && _settings.TryGetValue(typeof(T), out var value) ? (T)value : default;
 
         /// <summary>
         /// An <see cref="HttpMessageInvoker"/> that used for proxying requests to an upstream server.

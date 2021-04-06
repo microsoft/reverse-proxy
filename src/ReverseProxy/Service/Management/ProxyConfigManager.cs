@@ -12,9 +12,9 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Abstractions.Config;
 using Yarp.ReverseProxy.RuntimeModel;
 using Yarp.ReverseProxy.Service.HealthChecks;
-using Yarp.ReverseProxy.Service.Proxy;
 using Yarp.ReverseProxy.Service.Proxy.Infrastructure;
 
 namespace Yarp.ReverseProxy.Service.Management
@@ -42,6 +42,7 @@ namespace Yarp.ReverseProxy.Service.Management
         private readonly ITransformBuilder _transformBuilder;
         private readonly List<Action<EndpointBuilder>> _conventions;
         private readonly IActiveHealthCheckMonitor _activeHealthCheckMonitor;
+        private readonly IEnumerable<IProxySettingsReader> _settingsReaders;
         private IDisposable _changeSubscription;
 
         private List<Endpoint> _endpoints;
@@ -58,7 +59,8 @@ namespace Yarp.ReverseProxy.Service.Management
             ProxyEndpointFactory proxyEndpointFactory,
             ITransformBuilder transformBuilder,
             IProxyHttpClientFactory httpClientFactory,
-            IActiveHealthCheckMonitor activeHealthCheckMonitor)
+            IActiveHealthCheckMonitor activeHealthCheckMonitor,
+            IEnumerable<IProxySettingsReader> settingsReaders)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _provider = provider ?? throw new ArgumentNullException(nameof(provider));
@@ -70,7 +72,7 @@ namespace Yarp.ReverseProxy.Service.Management
             _transformBuilder = transformBuilder ?? throw new ArgumentNullException(nameof(transformBuilder));
             _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
             _activeHealthCheckMonitor = activeHealthCheckMonitor ?? throw new ArgumentNullException(nameof(activeHealthCheckMonitor));
-
+            _settingsReaders = settingsReaders ?? throw new ArgumentNullException(nameof(settingsReaders));
             _conventions = new List<Action<EndpointBuilder>>();
             DefaultBuilder = new ReverseProxyConventionBuilder(_conventions);
 
@@ -353,7 +355,18 @@ namespace Yarp.ReverseProxy.Service.Management
                             NewMetadata = newCluster.Metadata
                         });
 
-                        var newClusterConfig = new ClusterConfig(newCluster, httpClient);
+                        List<KeyValuePair<Type, object>> settings = null;
+                        foreach (var reader in _settingsReaders)
+                        {
+                            var setting = reader.ReadSettings(newCluster);
+                            if (setting.Key != null)
+                            {
+                                settings ??= new List<KeyValuePair<Type, object>>();
+                                settings.Add(setting);
+                            }
+                        }
+
+                        var newClusterConfig = new ClusterConfig(newCluster, httpClient, settings);
 
                         if (currentClusterConfig == null ||
                             currentClusterConfig.HasConfigChanged(newClusterConfig))

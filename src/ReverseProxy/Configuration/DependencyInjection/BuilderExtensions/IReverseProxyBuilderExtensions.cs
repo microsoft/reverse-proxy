@@ -5,6 +5,7 @@ using System.Linq;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Yarp.ReverseProxy.Abstractions.Config;
 using Yarp.ReverseProxy.RuntimeModel;
 using Yarp.ReverseProxy.Service;
 using Yarp.ReverseProxy.Service.Config;
@@ -82,7 +83,8 @@ namespace Yarp.ReverseProxy.Configuration.DependencyInjection
             });
             builder.Services.TryAddEnumerable(new[] {
                 new ServiceDescriptor(typeof(ISessionAffinityProvider), typeof(CookieSessionAffinityProvider), ServiceLifetime.Singleton),
-                new ServiceDescriptor(typeof(ISessionAffinityProvider), typeof(CustomHeaderSessionAffinityProvider), ServiceLifetime.Singleton)
+                new ServiceDescriptor(typeof(ISessionAffinityProvider), typeof(CustomHeaderSessionAffinityProvider), ServiceLifetime.Singleton),
+                new ServiceDescriptor(typeof(IProxySettingsReader), typeof(CustomHeaderSettingsReader), ServiceLifetime.Singleton)
             });
             builder.AddTransforms<AffinitizeTransformProvider>();
 

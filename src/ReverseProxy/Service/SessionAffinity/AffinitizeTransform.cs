@@ -25,11 +25,11 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
         public override ValueTask ApplyAsync(ResponseTransformContext context)
         {
             var proxyFeature = context.HttpContext.GetRequiredProxyFeature();
-            var options = proxyFeature.ClusterSnapshot.Options.SessionAffinity;
+            var config = proxyFeature.ClusterSnapshot;
             // The transform should only be added to routes that have affinity enabled.
-            Debug.Assert(options?.Enabled ?? true, "Session affinity is not enabled");
+            Debug.Assert(config.Options.SessionAffinity?.Enabled ?? false, "Session affinity is not enabled");
             var selectedDestination = proxyFeature.ProxiedDestination;
-            _sessionAffinityProvider.AffinitizeRequest(context.HttpContext, options, selectedDestination);
+            _sessionAffinityProvider.AffinitizeRequest(context.HttpContext, proxyFeature.ClusterSnapshot, selectedDestination);
             return default;
         }
     }
