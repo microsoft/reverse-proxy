@@ -39,6 +39,9 @@ namespace Yarp.ReverseProxy.Service.Tests
 
         [Theory]
         [InlineData("example.com", "/a/", null)]
+        [InlineData("example.com:80", "/a/", null)]
+        [InlineData("\u00FCnicode", "/a/", null)]
+        [InlineData("\u00FCnicode:443", "/a/", null)]
         [InlineData("example.com", "/a/**", null)]
         [InlineData("example.com", "/a/**", "GET")]
         [InlineData(null, "/a/", null)]
@@ -109,8 +112,36 @@ namespace Yarp.ReverseProxy.Service.Tests
         [Theory]
         [InlineData(null)]
         [InlineData("")]
-        [InlineData("example.com,")]
-        public async Task Rejects_MissingHostAndPath(string host)
+        [InlineData("xn--nicode-2ya")]
+        [InlineData("Xn--nicode-2ya")]
+        public async Task Rejects_InvalidHost(string host)
+        {
+            var route = new ProxyRoute
+            {
+                RouteId = "route1",
+                Match = new ProxyMatch
+                {
+                    Hosts = new[] { host }
+                },
+                ClusterId = "cluster1",
+            };
+
+            var services = CreateServices();
+            var validator = services.GetRequiredService<IConfigValidator>();
+
+            var result = await validator.ValidateRouteAsync(route);
+
+            Assert.NotEmpty(result);
+            Assert.Contains(result, err => err.Message.Contains("host name"));
+        }
+
+        [Theory]
+        [InlineData(null, null)]
+        [InlineData(null, "")]
+        [InlineData("", null)]
+        [InlineData(",", null)]
+        [InlineData("", "")]
+        public async Task Rejects_MissingHostAndPath(string host, string path)
         {
             var route = new ProxyRoute
             {
@@ -118,7 +149,8 @@ namespace Yarp.ReverseProxy.Service.Tests
                 ClusterId = "cluster1",
                 Match = new ProxyMatch
                 {
-                    Hosts = host?.Split(",")
+                    Hosts = host?.Split(","),
+                    Path = path
                 },
             };
 

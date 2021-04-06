@@ -76,7 +76,7 @@ namespace Yarp.ReverseProxy.Service
                 return errors;
             }
 
-            if ((route.Match.Hosts == null || route.Match.Hosts.Count == 0 || route.Match.Hosts.Any(host => string.IsNullOrEmpty(host))) && string.IsNullOrEmpty(route.Match.Path))
+            if ((route.Match.Hosts == null || !route.Match.Hosts.Any(host => !string.IsNullOrEmpty(host))) && string.IsNullOrEmpty(route.Match.Path))
             {
                 errors.Add(new ArgumentException($"Route '{route.RouteId}' requires Hosts or Path specified. Set the Path to '/{{**catchall}}' to match all requests."));
             }
@@ -123,7 +123,11 @@ namespace Yarp.ReverseProxy.Service
             {
                 if (string.IsNullOrEmpty(host))
                 {
-                    errors.Add(new ArgumentException($"Invalid host name '{host}' for route '{routeId}'."));
+                    errors.Add(new ArgumentException($"Empty host name has been set for route '{routeId}'."));
+                }
+                else if (host.Contains("xn--", StringComparison.OrdinalIgnoreCase))
+                {
+                    errors.Add(new ArgumentException($"Punycode host name '{host}' has been set for route '{routeId}'. Use the unicode host name instead."));
                 }
             }
         }
