@@ -97,9 +97,8 @@ namespace Yarp.ReverseProxy.Middleware
         private HttpContext GetContext(ClusterInfo cluster, int selectedDestination, IProxyErrorFeature error)
         {
             var context = new DefaultHttpContext();
-            context.Features.Set(GetProxyFeature(cluster.Config, cluster.DynamicState.AllDestinations[selectedDestination]));
+            context.Features.Set(GetProxyFeature(cluster, cluster.DynamicState.AllDestinations[selectedDestination]));
             context.Features.Set(error);
-            context.SetEndpoint(GetEndpoint(cluster));
             return context;
         }
 
@@ -110,12 +109,13 @@ namespace Yarp.ReverseProxy.Middleware
             return policy;
         }
 
-        private IReverseProxyFeature GetProxyFeature(ClusterConfig clusterConfig, DestinationInfo destination)
+        private IReverseProxyFeature GetProxyFeature(ClusterInfo clusterInfo, DestinationInfo destination)
         {
             return new ReverseProxyFeature()
             {
                 ProxiedDestination = destination,
-                ClusterSnapshot = clusterConfig,
+                ClusterSnapshot = clusterInfo.Config,
+                RouteSnapshot = new RouteConfig(new ProxyRoute(), clusterInfo, HttpTransformer.Default),
             };
         }
 
@@ -143,15 +143,6 @@ namespace Yarp.ReverseProxy.Middleware
             clusterInfo.UpdateDynamicState();
 
             return clusterInfo;
-        }
-
-        private Endpoint GetEndpoint(ClusterInfo cluster)
-        {
-            var endpoints = new List<Endpoint>(1);
-            var routeConfig = new RouteConfig(new ProxyRoute(), cluster, HttpTransformer.Default);
-            var endpoint = new Endpoint(default, new EndpointMetadataCollection(routeConfig), string.Empty);
-            endpoints.Add(endpoint);
-            return endpoint;
         }
     }
 }

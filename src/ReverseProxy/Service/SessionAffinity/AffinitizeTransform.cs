@@ -4,7 +4,7 @@
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using Yarp.ReverseProxy.Middleware;
+using Microsoft.AspNetCore.Http;
 using Yarp.ReverseProxy.RuntimeModel;
 using Yarp.ReverseProxy.Service.RuntimeModel.Transforms;
 

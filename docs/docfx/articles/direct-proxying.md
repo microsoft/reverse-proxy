@@ -67,7 +67,7 @@ public void Configure(IApplicationBuilder app, IHttpProxy httpProxy)
             await httpProxy.ProxyAsync(httpContext, "https://localhost:10000/", httpClient,
                 requestOptions, transformer);
 
-            var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
+            var errorFeature = httpContext.GetProxyErrorFeature();
             if (errorFeature != null)
             {
                 var error = errorFeature.Error;

@@ -59,18 +59,19 @@ namespace Yarp.ReverseProxy.Middleware.Tests
                 {
                     destination.Config = new DestinationConfig(new Destination { Address = "https://localhost:123/a/b/" });
                 });
-            httpContext.Features.Set<IReverseProxyFeature>(
-                new ReverseProxyFeature() { AvailableDestinations = new List<DestinationInfo>() { destination1 }.AsReadOnly(), ClusterSnapshot = clusterConfig });
-            httpContext.Features.Set(cluster1);
-
-            var aspNetCoreEndpoints = new List<Endpoint>();
             var routeConfig = new RouteConfig(
                 proxyRoute: new ProxyRoute() { RouteId = "Route-1" },
                 cluster: cluster1,
                 transformer: null);
-            var aspNetCoreEndpoint = CreateAspNetCoreEndpoint(routeConfig);
-            aspNetCoreEndpoints.Add(aspNetCoreEndpoint);
-            httpContext.SetEndpoint(aspNetCoreEndpoint);
+
+            httpContext.Features.Set<IReverseProxyFeature>(
+                new ReverseProxyFeature()
+            {
+                    AvailableDestinations = new List<DestinationInfo>() { destination1 }.AsReadOnly(),
+                    ClusterSnapshot = clusterConfig,
+                    RouteSnapshot = routeConfig,
+                });
+            httpContext.Features.Set(cluster1);
 
             var tcs1 = new TaskCompletionSource<bool>();
             var tcs2 = new TaskCompletionSource<bool>();
@@ -140,18 +141,17 @@ namespace Yarp.ReverseProxy.Middleware.Tests
                 clusterId: "cluster1",
                 destinationManager: new DestinationManager());
             var clusterConfig = new ClusterConfig(new Cluster(), httpClient);
-            httpContext.Features.Set<IReverseProxyFeature>(
-                new ReverseProxyFeature() { AvailableDestinations = Array.Empty<DestinationInfo>(), ClusterSnapshot = clusterConfig });
-            httpContext.Features.Set(cluster1);
-
-            var aspNetCoreEndpoints = new List<Endpoint>();
             var routeConfig = new RouteConfig(
                 proxyRoute: new ProxyRoute(),
                 cluster: cluster1,
                 transformer: null);
-            var aspNetCoreEndpoint = CreateAspNetCoreEndpoint(routeConfig);
-            aspNetCoreEndpoints.Add(aspNetCoreEndpoint);
-            httpContext.SetEndpoint(aspNetCoreEndpoint);
+            httpContext.Features.Set<IReverseProxyFeature>(
+                new ReverseProxyFeature()
+                {
+                    AvailableDestinations = Array.Empty<DestinationInfo>(),
+                    ClusterSnapshot = clusterConfig,
+                    RouteSnapshot = routeConfig,
+                });
 
             Mock<IHttpProxy>()
                 .Setup(h => h.ProxyAsync(
@@ -174,16 +174,6 @@ namespace Yarp.ReverseProxy.Middleware.Tests
             var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
             Assert.Equal(ProxyError.NoAvailableDestinations, errorFeature?.Error);
             Assert.Null(errorFeature.Exception);
-        }
-
-        private static Endpoint CreateAspNetCoreEndpoint(RouteConfig routeConfig)
-        {
-            var endpointBuilder = new RouteEndpointBuilder(
-                requestDelegate: httpContext => Task.CompletedTask,
-                routePattern: RoutePatternFactory.Parse("/"),
-                order: 0);
-            endpointBuilder.Metadata.Add(routeConfig);
-            return endpointBuilder.Build();
         }
     }
 }

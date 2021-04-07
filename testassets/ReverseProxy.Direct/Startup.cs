@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Yarp.ReverseProxy.Middleware;
 using Yarp.ReverseProxy.Service.Proxy;
 using Yarp.ReverseProxy.Service.RuntimeModel.Transforms;
 
@@ -49,7 +50,7 @@ namespace Yarp.ReverseProxy.Sample
                 endpoints.Map("/{**catch-all}", async httpContext =>
                 {
                     await httpProxy.ProxyAsync(httpContext, "https://example.com", httpClient, requestOptions, transformer);
-                    var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
+                    var errorFeature = httpContext.GetProxyErrorFeature();
                     if (errorFeature != null)
                     {
                         var error = errorFeature.Error;
