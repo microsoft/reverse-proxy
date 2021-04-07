@@ -35,7 +35,10 @@ namespace Yarp.ReverseProxy.Abstractions.Config
 
             var builderContext = ValidateAndBuild(proxyRoute, _factory);
 
-            Assert.Equal(useOriginal, builderContext.UseOriginalHost);
+            var transform = Assert.Single(builderContext.RequestTransforms);
+            var hostTransform = Assert.IsType<RequestHeaderOriginalHostTransform>(transform);
+
+            Assert.Equal(useOriginal, hostTransform.UseOriginalHost);
         }
 
         [Theory]

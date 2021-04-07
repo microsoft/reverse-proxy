@@ -4,6 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Net.Http.Headers;
@@ -51,9 +54,8 @@ namespace Yarp.ReverseProxy.Service.Config
             Assert.Empty(results.ResponseTrailerTransforms);
 
             Assert.Equal(5, results.RequestTransforms.Count);
-            var hostTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderValueTransform>());
-            Assert.Equal(HeaderNames.Host, hostTransform.HeaderName);
-            Assert.Equal(string.Empty, hostTransform.Value);
+            var hostTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderOriginalHostTransform>());
+            Assert.False(hostTransform.UseOriginalHost);
             var forTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderXForwardedForTransform>());
             Assert.Equal(ForwardedHeadersDefaults.XForwardedForHeaderName, forTransform.HeaderName);
             var xHostTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderXForwardedHostTransform>());
@@ -177,7 +179,7 @@ namespace Yarp.ReverseProxy.Service.Config
             {
                 new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                 {
-                    {  "RequestHeaderOriginalHost", "true" }
+                    {  "RequestHeadersCopy", "false" }
                 },
                 new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                 {
@@ -191,35 +193,45 @@ namespace Yarp.ReverseProxy.Service.Config
 
             var results = transformBuilder.BuildInternal(route, new Cluster());
             Assert.NotNull(results);
-            Assert.Null(results.ShouldCopyRequestHeaders);
+            Assert.False(results.ShouldCopyRequestHeaders);
             Assert.Empty(results.RequestTransforms);
             Assert.Empty(results.ResponseTransforms);
             Assert.Empty(results.ResponseTrailerTransforms);
         }
 
         [Theory]
+        [InlineData(null, null)]
+        [InlineData(null, true)]
+        [InlineData(null, false)]
+        [InlineData(true, null)]
+        [InlineData(false, null)]
         [InlineData(true, true)]
         [InlineData(true, false)]
         [InlineData(false, true)]
         [InlineData(false, false)]
-        public void UseOriginalHost(bool useOriginalHost, bool copyHeaders)
+        public async Task UseOriginalHost(bool? useOriginalHost, bool? copyHeaders)
         {
             var transformBuilder = CreateTransformBuilder();
-            var transforms = new[]
+            var transforms = new List<Dictionary<string, string>>();
+            // Disable default forwarders
+            transforms.Add(new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
-                new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {  "X-Forwarded", "" }
+            });
+            if (useOriginalHost.HasValue)
+            {
+                transforms.Add(new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                 {
                     {  "RequestHeaderOriginalHost", useOriginalHost.ToString() }
-                },
-                new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                });
+            }
+            if (copyHeaders.HasValue)
+            {
+                transforms.Add(new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                 {
                     {  "RequestHeadersCopy", copyHeaders.ToString() }
-                },
-                new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-                {
-                    {  "X-Forwarded", "" }
-                },
-            };
+                });
+            }
 
             var route = new ProxyRoute() { Transforms = transforms };
             var errors = transformBuilder.ValidateRoute(route);
@@ -231,23 +243,96 @@ namespace Yarp.ReverseProxy.Service.Config
             Assert.Empty(results.ResponseTransforms);
             Assert.Empty(results.ResponseTrailerTransforms);
 
-            if (useOriginalHost && !copyHeaders)
+            if (useOriginalHost.HasValue)
             {
                 var transform = Assert.Single(results.RequestTransforms);
-                Assert.IsType<RequestCopyHostTransform>(transform);
+                var hostTransform = Assert.IsType<RequestHeaderOriginalHostTransform>(transform);
+                Assert.Equal(useOriginalHost.Value, hostTransform.UseOriginalHost);
             }
-            else if (!useOriginalHost && copyHeaders)
+            else if (copyHeaders.GetValueOrDefault(true))
             {
                 var transform = Assert.Single(results.RequestTransforms);
-                var headerTransform = Assert.IsType<RequestHeaderValueTransform>(transform);
-                Assert.Equal(HeaderNames.Host, headerTransform.HeaderName);
-                Assert.Equal(string.Empty, headerTransform.Value);
-                Assert.False(headerTransform.Append);
+                var hostTransform = Assert.IsType<RequestHeaderOriginalHostTransform>(transform);
+                Assert.False(hostTransform.UseOriginalHost);
             }
             else
             {
                 Assert.Empty(results.RequestTransforms);
             }
+
+            var httpContext = new DefaultHttpContext();
+            httpContext.Request.Host = new HostString("StartHost");
+            var proxyRequest = new HttpRequestMessage();
+            var destinationPrefix = "http://destinationhost:9090/path";
+            await results.TransformRequestAsync(httpContext, proxyRequest, destinationPrefix);
+
+            if (useOriginalHost.GetValueOrDefault(false))
+            {
+                Assert.Equal("StartHost", proxyRequest.Headers.Host);
+            }
+            else
+            {
+                Assert.Null(proxyRequest.Headers.Host);
+            }
+        }
+
+        [Theory]
+        [InlineData(null, null)]
+        [InlineData(null, true)]
+        [InlineData(null, false)]
+        [InlineData(true, null)]
+        [InlineData(false, null)]
+        [InlineData(true, true)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(false, false)]
+        // https://github.com/microsoft/reverse-proxy/issues/859
+        // Verify that a custom host works no matter what combination of
+        // useOriginalHost and copyHeaders is used.
+        public async Task UseCustomHost(bool? useOriginalHost, bool? copyHeaders)
+        {
+            var transformBuilder = CreateTransformBuilder();
+            var transforms = new List<Dictionary<string, string>>();
+            // Disable default forwarders
+            transforms.Add(new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                {  "X-Forwarded", "" }
+            });
+            transforms.Add(new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                {  "RequestHeader", "Host" },
+                {  "Set", "CustomHost" }
+            });
+            if (useOriginalHost.HasValue)
+            {
+                transforms.Add(new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    {  "RequestHeaderOriginalHost", useOriginalHost.ToString() }
+                });
+            }
+            if (copyHeaders.HasValue)
+            {
+                transforms.Add(new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    {  "RequestHeadersCopy", copyHeaders.ToString() }
+                });
+            }
+
+            var route = new ProxyRoute() { Transforms = transforms };
+            var errors = transformBuilder.ValidateRoute(route);
+            Assert.Empty(errors);
+
+            var results = transformBuilder.BuildInternal(route, new Cluster());
+            Assert.Equal(copyHeaders, results.ShouldCopyRequestHeaders);
+
+            var httpContext = new DefaultHttpContext();
+            httpContext.Request.Host = new HostString("StartHost");
+            var proxyRequest = new HttpRequestMessage();
+            var destinationPrefix = "http://destinationhost:9090/path";
+
+            await results.TransformRequestAsync(httpContext, proxyRequest, destinationPrefix);
+
+            Assert.Equal("CustomHost", proxyRequest.Headers.Host);
         }
 
         [Fact]
@@ -258,7 +343,7 @@ namespace Yarp.ReverseProxy.Service.Config
             {
                 new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                 {
-                    {  "RequestHeaderOriginalHost", "true" }
+                    {  "RequestHeadersCopy", "false" }
                 },
                 new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                 {

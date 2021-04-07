@@ -136,16 +136,14 @@ namespace Yarp.ReverseProxy.Service.Config
                 transformProvider.Apply(context);
             }
 
-            // Suppress the host by default
-            if (context.CopyRequestHeaders.GetValueOrDefault(true) && !context.UseOriginalHost.GetValueOrDefault())
+            // RequestHeaderOriginalHostKey defaults to false, and CopyRequestHeaders defaults to true.
+            // If RequestHeaderOriginalHostKey was not specified then we need to make sure the transform gets
+            // added anyways to remove the original host. If CopyRequestHeaders is false then we can omit the
+            // transform.
+            if (context.CopyRequestHeaders.GetValueOrDefault(true)
+                && !context.RequestTransforms.Any(item => item is RequestHeaderOriginalHostTransform))
             {
-                // Headers were automatically copied, remove the Host header afterwards.
-                context.RequestTransforms.Add(new RequestHeaderValueTransform(HeaderNames.Host, string.Empty, append: false));
-            }
-            else if (!context.CopyRequestHeaders.GetValueOrDefault(true) && context.UseOriginalHost.GetValueOrDefault())
-            {
-                // Headers were not copied, copy the Host manually.
-                context.RequestTransforms.Add(RequestCopyHostTransform.Instance);
+                context.AddOriginalHost(false);
             }
 
             // Add default forwarders only if they haven't already been added or disabled.
