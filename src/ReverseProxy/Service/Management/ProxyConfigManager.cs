@@ -109,16 +109,16 @@ namespace Yarp.ReverseProxy.Service.Management
 
         private void CreateEndpoints()
         {
-            var routes = _routes.Values;
-            var endpoints = new List<Endpoint>(routes.Count);
-            foreach (var existingRoute in routes)
+            var endpoints = new List<Endpoint>();
+            // Directly enumerate the ConcurrentDictionary to limit locking and copying.
+            foreach (var existingRoute in _routes)
             {
                 // Only rebuild the endpoint for modified routes or clusters.
-                var endpoint = existingRoute.CachedEndpoint;
+                var endpoint = existingRoute.Value.CachedEndpoint;
                 if (endpoint == null)
                 {
-                    endpoint = _proxyEndpointFactory.CreateEndpoint(existingRoute.Config, _conventions);
-                    existingRoute.CachedEndpoint = endpoint;
+                    endpoint = _proxyEndpointFactory.CreateEndpoint(existingRoute.Value.Config, _conventions);
+                    existingRoute.Value.CachedEndpoint = endpoint;
                 }
                 endpoints.Add(endpoint);
             }
@@ -152,7 +152,8 @@ namespace Yarp.ReverseProxy.Service.Management
             }
 
             // Initial active health check is run in the background.
-            _ = _activeHealthCheckMonitor.CheckHealthAsync(_clusters.Values);
+            // Directly enumerate the ConcurrentDictionary to limit locking and copying.
+            _ = _activeHealthCheckMonitor.CheckHealthAsync(_clusters.Select(pair => pair.Value));
             return this;
         }
 
@@ -401,14 +402,15 @@ namespace Yarp.ReverseProxy.Service.Management
                 }
             }
 
-            foreach (var existingCluster in _clusters.Values)
+            // Directly enumerate the ConcurrentDictionary to limit locking and copying.
+            foreach (var existingClusterPair in _clusters)
             {
+                var existingCluster = existingClusterPair.Value;
                 if (!desiredClusters.Contains(existingCluster.ClusterId))
                 {
-                    // NOTE 1: This is safe to do within the `foreach` loop
-                    // because _clusterManager.Values returns a copy of the list of clusters.
+                    // NOTE 1: Remove is safe to do within the `foreach` loop on ConcurrentDictionary
                     //
-                    // NOTE 2: Removing the cluster from _clusterManager is safe and existing
+                    // NOTE 2: Removing the cluster from _clusters is safe and existing
                     // ASP .NET Core endpoints will continue to work with their existing behavior (until those endpoints are updated)
                     // and the Garbage Collector won't destroy this cluster object while it's referenced elsewhere.
                     Log.ClusterRemoved(_logger, existingCluster.ClusterId);
@@ -423,7 +425,7 @@ namespace Yarp.ReverseProxy.Service.Management
             }
         }
 
-        private bool UpdateRuntimeDestinations(IReadOnlyDictionary<string, Destination> incomingDestinations, ConcurrentDictionary<string, DestinationInfo> destinationManager)
+        private bool UpdateRuntimeDestinations(IReadOnlyDictionary<string, Destination> incomingDestinations, ConcurrentDictionary<string, DestinationInfo> currentDestinations)
         {
             var desiredDestinations = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             var changed = false;
@@ -432,7 +434,7 @@ namespace Yarp.ReverseProxy.Service.Management
             {
                 desiredDestinations.Add(incomingDestination.Key);
 
-                if (destinationManager.TryGetValue(incomingDestination.Key, out var currentDestination))
+                if (currentDestinations.TryGetValue(incomingDestination.Key, out var currentDestination))
                 {
                     if (currentDestination.Config.HasChanged(incomingDestination.Value))
                     {
@@ -448,24 +450,25 @@ namespace Yarp.ReverseProxy.Service.Management
                     {
                         Config = new DestinationConfig(incomingDestination.Value),
                     };
-                    var added = destinationManager.TryAdd(newDestination.DestinationId, newDestination);
+                    var added = currentDestinations.TryAdd(newDestination.DestinationId, newDestination);
                     Debug.Assert(added);
                     changed = true;
                 }
             }
 
-            foreach (var existingDestination in destinationManager.Values)
+            // Directly enumerate the ConcurrentDictionary to limit locking and copying.
+            foreach (var existingDestinationPair in currentDestinations)
             {
-                if (!desiredDestinations.Contains(existingDestination.DestinationId))
+                var id = existingDestinationPair.Value.DestinationId;
+                if (!desiredDestinations.Contains(id))
                 {
-                    // NOTE 1: This is safe to do within the `foreach` loop
-                    // because `IDestinationManager.GetItems` returns a copy of the list of destinations.
+                    // NOTE 1: Remove is safe to do within the `foreach` loop on ConcurrentDictionary
                     //
                     // NOTE 2: Removing the endpoint from `IEndpointManager` is safe and existing
                     // clusters will continue to work with their existing behavior (until those clusters are updated)
                     // and the Garbage Collector won't destroy this cluster object while it's referenced elsewhere.
-                    Log.DestinationRemoved(_logger, existingDestination.DestinationId);
-                    var removed = destinationManager.TryRemove(existingDestination.DestinationId, out var _);
+                    Log.DestinationRemoved(_logger, id);
+                    var removed = currentDestinations.TryRemove(id, out var _);
                     Debug.Assert(removed);
                     changed = true;
                 }
@@ -515,18 +518,19 @@ namespace Yarp.ReverseProxy.Service.Management
                 }
             }
 
-            foreach (var existingRoute in _routes.Values)
+            // Directly enumerate the ConcurrentDictionary to limit locking and copying.
+            foreach (var existingRoutePair in _routes)
             {
-                if (!desiredRoutes.Contains(existingRoute.RouteId))
+                var routeId = existingRoutePair.Value.RouteId;
+                if (!desiredRoutes.Contains(routeId))
                 {
-                    // NOTE 1: This is safe to do within the `foreach` loop
-                    // because _routeManager.Values returns a copy of the list of routes.
+                    // NOTE 1: Remove is safe to do within the `foreach` loop on ConcurrentDictionary
                     //
-                    // NOTE 2: Removing the route from _routeManager is safe and existing
+                    // NOTE 2: Removing the route from _routes is safe and existing
                     // ASP .NET Core endpoints will continue to work with their existing behavior since
                     // their copy of `RouteConfig` is immutable and remains operational in whichever state is was in.
-                    Log.RouteRemoved(_logger, existingRoute.RouteId);
-                    var removed = _routes.TryRemove(existingRoute.RouteId, out var _);
+                    Log.RouteRemoved(_logger, routeId);
+                    var removed = _routes.TryRemove(routeId, out var _);
                     Debug.Assert(removed);
                     changed = true;
                 }
