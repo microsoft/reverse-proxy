@@ -82,7 +82,7 @@ namespace Yarp.Sample
             /// <param name="proxyRequest">The outgoing proxy request.</param>
             /// <param name="destinationPrefix">The uri prefix for the selected destination server which can be used to create
             /// the RequestUri.</param>
-            public override async Task TransformRequestAsync(HttpContext httpContext, HttpRequestMessage proxyRequest, string destinationPrefix)
+            public override async ValueTask TransformRequestAsync(HttpContext httpContext, HttpRequestMessage proxyRequest, string destinationPrefix)
             {
                 // Copy all request headers
                 await base.TransformRequestAsync(httpContext, proxyRequest, destinationPrefix);

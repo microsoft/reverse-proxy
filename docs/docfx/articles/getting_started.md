@@ -104,15 +104,14 @@ You can find out more about the available configuration options by looking at [P
   },
   "AllowedHosts": "*",
   "ReverseProxy": {
-    "Routes": [
-      {
-        "RouteId": "route1",
+    "Routes": {
+      "route1" : {
         "ClusterId": "cluster1",
         "Match": {
           "Path": "{**catch-all}"
         },
       }
-    ],
+    },
     "Clusters": {
       "cluster1": {
         "Destinations": {

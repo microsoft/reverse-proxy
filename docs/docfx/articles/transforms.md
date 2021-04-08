@@ -44,9 +44,8 @@ Here is an example of common transforms:
 ```JSON
 {
   "ReverseProxy": {
-    "Routes": [
-      {
-        "RouteId": "route1",
+    "Routes": {
+      "route1" : {
         "ClusterId": "cluster1",
         "Match": {
           "Hosts": [ "localhost" ]
@@ -72,8 +71,7 @@ Here is an example of common transforms:
           }
         ]
       },
-      {
-        "RouteId": "route2",
+      "route2" : {
         "ClusterId": "cluster1",
         "Match": {
           "Path": "/api/{plugin}/stuff/{*remainder}"
@@ -86,7 +84,7 @@ Here is an example of common transforms:
           }
         ]
       }
-    ],
+    },
     "Clusters": {
       "cluster1": {
         "Destinations": {

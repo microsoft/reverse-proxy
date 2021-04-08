@@ -47,15 +47,14 @@ Example:
 ```JSON
 {
   "ReverseProxy": {
-    "Routes": [
-      {
-        "RouteId": "route1",
+    "Routes": {
+      "route1" : {
         "ClusterId": "cluster1",
         "Match": {
           "Path": "{**catch-all}"
         },
       }
-    ],
+    },
     "Clusters": {
       "cluster1": {
         "Destinations": {
@@ -100,18 +99,16 @@ For additional fields see [Cluster](xref:Yarp.ReverseProxy.Abstractions.Cluster)
   },
   "ReverseProxy": {
     // Routes tell the proxy which requests to forward
-    "Routes": [ 
-      {
+    "Routes": { 
+      "minimumroute" : {
         // Matches anything and routes it to www.example.com
-        "RouteId": "minimumroute",
         "ClusterId": "minimumcluster",
         "Match": {
           "Path": "{**catch-all}"
         }
       },
-      {
+      "allrouteprops" : {
         // matches /something/* and routes to "allclusterprops"
-        "RouteId": "allrouteprops",
         "ClusterId": "allclusterprops", // Name of one of the clusters
         "Order" : 100, // Lower numbers have higher precidence
         "Authorization Policy" : "Anonymous", // Name of the policy or "Default", "Anonymous"
@@ -139,7 +136,7 @@ For additional fields see [Cluster](xref:Yarp.ReverseProxy.Abstractions.Cluster)
           } 
         ]
       }
-    ],
+    },
     // Clusters tell the proxy where and how to forward requests
     "Clusters": {
       "minimumcluster": {

@@ -169,7 +169,7 @@ namespace Yarp.ReverseProxy.Configuration
         {
             return new ProxyRoute
             {
-                RouteId = section[nameof(ProxyRoute.RouteId)],
+                RouteId = section.Key,
                 Order = section.ReadInt32(nameof(ProxyRoute.Order)),
                 ClusterId = section[nameof(ProxyRoute.ClusterId)],
                 AuthorizationPolicy = section[nameof(ProxyRoute.AuthorizationPolicy)],

@@ -274,9 +274,8 @@ namespace Yarp.ReverseProxy.Configuration
             ""Metadata"": null
         }
     },
-    ""Routes"": [
-        {
-            ""RouteId"": ""routeA"",
+    ""Routes"": {
+        ""routeA"" : {   
             ""Match"": {
                 ""Methods"": [
                     ""GET"",
@@ -314,8 +313,7 @@ namespace Yarp.ReverseProxy.Configuration
                 }
             ]
         },
-        {
-            ""RouteId"": ""routeB"",
+        ""routeB"" : {
             ""Match"": {
                 ""Methods"": [
                     ""GET""
@@ -338,7 +336,7 @@ namespace Yarp.ReverseProxy.Configuration
             ""Metadata"": null,
             ""Transforms"": null
         }
-    ]
+    }
 }
 ";
 
