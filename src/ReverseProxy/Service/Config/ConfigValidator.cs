@@ -217,11 +217,21 @@ namespace Yarp.ReverseProxy.Service
 
             if (string.Equals(AuthorizationConstants.Default, authorizationPolicyName, StringComparison.OrdinalIgnoreCase))
             {
+                var policy = await _authorizationPolicyProvider.GetPolicyAsync(authorizationPolicyName);
+                if (policy != null)
+                {
+                    errors.Add(new ArgumentException($"Authorization policy '{authorizationPolicyName}' is reserved for yarp and needs to be changed"));
+                }
                 return;
             }
 
             if (string.Equals(AuthorizationConstants.Anonymous, authorizationPolicyName, StringComparison.OrdinalIgnoreCase))
             {
+                var policy = await _authorizationPolicyProvider.GetPolicyAsync(authorizationPolicyName);
+                if (policy != null)
+                {
+                    errors.Add(new ArgumentException($"Authorization policy '{authorizationPolicyName}' is reserved for yarp and needs to be changed"));
+                }
                 return;
             }
 
@@ -248,11 +258,23 @@ namespace Yarp.ReverseProxy.Service
 
             if (string.Equals(CorsConstants.Default, corsPolicyName, StringComparison.OrdinalIgnoreCase))
             {
+                var dummyHttpContext = new DefaultHttpContext();
+                var policy = await _corsPolicyProvider.GetPolicyAsync(dummyHttpContext, corsPolicyName);
+                if (policy != null)
+                {
+                    errors.Add(new ArgumentException($"CORS policy '{corsPolicyName}' is reserved for yarp and needs to be changed"));
+                }
                 return;
             }
 
             if (string.Equals(CorsConstants.Disable, corsPolicyName, StringComparison.OrdinalIgnoreCase))
             {
+                var dummyHttpContext = new DefaultHttpContext();
+                var policy = await _corsPolicyProvider.GetPolicyAsync(dummyHttpContext, corsPolicyName);
+                if (policy != null)
+                {
+                    errors.Add(new ArgumentException($"CORS policy '{corsPolicyName}' is reserved for yarp and needs to be changed"));
+                }
                 return;
             }
 

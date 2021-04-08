@@ -425,6 +425,37 @@ namespace Yarp.ReverseProxy.Service.Tests
         }
 
         [Theory]
+        [InlineData("Default")]
+        [InlineData("Anonymous")]
+        public async Task Rejects_ReservedAuthorizationPolicyIsUsed(string authorizationPolicy)
+        {
+            var route = new ProxyRoute
+            {
+                RouteId = "route1",
+                AuthorizationPolicy = authorizationPolicy,
+                ClusterId = "cluster1",
+                Match = new ProxyMatch(),
+            };
+
+            var services = CreateServices(serviceCollection=>
+            {
+                serviceCollection.AddAuthorization(options =>
+                {
+                    options.AddPolicy(authorizationPolicy, builder =>
+                    {
+                        builder.RequireAuthenticatedUser();
+                    });
+                });
+            });
+            var validator = services.GetRequiredService<IConfigValidator>();
+
+            var result = await validator.ValidateRouteAsync(route);
+
+            Assert.NotEmpty(result);
+            Assert.Contains(result, err => err.Message.Equals($"Authorization policy '{authorizationPolicy}' is reserved for yarp and needs to be changed"));
+        }
+
+        [Theory]
         [InlineData(null)]
         [InlineData("")]
         [InlineData("defaulT")]
@@ -496,6 +527,40 @@ namespace Yarp.ReverseProxy.Service.Tests
 
             Assert.NotEmpty(result);
             Assert.Contains(result, err => err.Message.Equals("CORS policy 'unknown' not found for route 'route1'."));
+        }
+
+        [Theory]
+        [InlineData("Default")]
+        [InlineData("Disable")]
+        public async Task Rejects_ReservedCorsPolicyIsUsed(string corsPolicy)
+        {
+            var route = new ProxyRoute
+            {
+                RouteId = "route1",
+                CorsPolicy = corsPolicy,
+                ClusterId = "cluster1",
+                Match = new ProxyMatch
+                {
+                    Hosts = new[] { "localhost" },
+                },
+            };
+
+            var services = CreateServices(serviceCollection =>
+            {
+                serviceCollection.AddCors(options =>
+                {
+                    options.AddPolicy(corsPolicy, builder =>
+                    {
+
+                    });
+                });
+            });
+            var validator = services.GetRequiredService<IConfigValidator>();
+
+            var result = await validator.ValidateRouteAsync(route);
+
+            Assert.NotEmpty(result);
+            Assert.Contains(result, err => err.Message.Equals($"CORS policy '{corsPolicy}' is reserved for yarp and needs to be changed"));
         }
 
         [Fact]
