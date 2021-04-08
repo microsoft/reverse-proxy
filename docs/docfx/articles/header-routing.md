@@ -19,9 +19,8 @@ If multiple headers rules are specified on a route then all must match for a rou
 
 Configuration:
 ```JSON
-    "Routes": [
-      {
-        "RouteId": "route1",
+    "Routes": {
+      "route1" : {
         "ClusterId": "cluster1",
         "Match": {
           "Path": "{**catch-all}",
@@ -34,8 +33,7 @@ Configuration:
           ]
         }
       },
-      {
-        "RouteId": "route2",
+      "route2" : {
         "ClusterId": "cluster1",
         "Match": {
           "Path": "{**catch-all}",
@@ -48,8 +46,7 @@ Configuration:
           ]
         }
       },
-      {
-        "RouteId": "route3",
+      "route3" : {
         "ClusterId": "cluster1",
         "Match": {
           "Path": "{**catch-all}",
@@ -61,8 +58,7 @@ Configuration:
           ]
         }
       },
-      {
-        "RouteId": "route4",
+      "route4" : {
         "ClusterId": "cluster1",
         "Match": {
           "Path": "{**catch-all}",
@@ -79,7 +75,7 @@ Configuration:
           ]
         }
       }
-    ]
+    }
 ```
 
 Code:

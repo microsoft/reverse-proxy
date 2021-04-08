@@ -11,8 +11,7 @@ See [ReverseProxy.Code.Sample](https://github.com/microsoft/reverse-proxy/tree/m
 [IProxyConfigProvider](xref:Yarp.ReverseProxy.Service.IProxyConfigProvider) has a single method `GetConfig()` that should return an [IProxyConfig](xref:Yarp.ReverseProxy.Service.IProxyConfig) instance. The IProxyConfig has lists of the current routes and clusters, as well as an `IChangeToken` to notify the proxy when this information is out of date and should be reloaded, which will cause `GetConfig()` to be called again.
 
 ### Routes
-The routes section is an ordered list of route matches and their associated configuration. A route requires at least the following fields:
-- RouteId - A unique name
+The routes section is an unordered collection of named routes. A route contains matches and their associated configuration. A route requires at least the following fields:
 - ClusterId - Refers to the name of an entry in the clusters section.
 - Match containing either a Hosts array or a Path pattern string.
 

@@ -16,16 +16,15 @@ Example:
 ```JSON
 {
   "ReverseProxy": {
-    "Routes": [
-      {
-        "RouteId": "route1",
+    "Routes": {
+      "route1" : {
         "ClusterId": "cluster1",
         "CorsPolicy": "customPolicy",
         "Match": {
           "Hosts": [ "localhost" ]
         },
       }
-    ],
+    },
     "Clusters": {
       "cluster1": {
         "Destinations": {
