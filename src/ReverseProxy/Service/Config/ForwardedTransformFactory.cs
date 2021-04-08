@@ -14,12 +14,12 @@ namespace Yarp.ReverseProxy.Service.Config
         internal static readonly string XForwardedKey = "X-Forwarded";
         internal static readonly string ForwardedKey = "Forwarded";
         internal static readonly string AppendKey = "Append";
-        internal static readonly string PrefixKey = "Prefix";
+        internal static readonly string PrefixForwardedKey = "Prefix";
         internal static readonly string ForKey = "For";
         internal static readonly string ByKey = "By";
         internal static readonly string HostKey = "Host";
         internal static readonly string ProtoKey = "Proto";
-        internal static readonly string PathBaseKey = "PathBase";
+        internal static readonly string PrefixKey = "Prefix";
         internal static readonly string ForFormatKey = "ForFormat";
         internal static readonly string ByFormatKey = "ByFormat";
         internal static readonly string ClientCertKey = "ClientCert";
@@ -46,14 +46,14 @@ namespace Yarp.ReverseProxy.Service.Config
                     }
                 }
 
-                if (transformValues.TryGetValue(PrefixKey, out var _))
+                if (transformValues.TryGetValue(PrefixForwardedKey, out var _))
                 {
                     expected++;
                 }
 
                 TransformHelpers.TryCheckTooManyParameters(context, transformValues, expected);
 
-                // for, host, proto, PathBase
+                // for, host, proto, Prefix
                 var tokens = xforwardedHeaders.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
                 foreach (var token in tokens)
@@ -61,9 +61,9 @@ namespace Yarp.ReverseProxy.Service.Config
                     if (!string.Equals(token, ForKey, StringComparison.OrdinalIgnoreCase)
                         && !string.Equals(token, HostKey, StringComparison.OrdinalIgnoreCase)
                         && !string.Equals(token, ProtoKey, StringComparison.OrdinalIgnoreCase)
-                        && !string.Equals(token, PathBaseKey, StringComparison.OrdinalIgnoreCase))
+                        && !string.Equals(token, PrefixKey, StringComparison.OrdinalIgnoreCase))
                     {
-                        context.Errors.Add(new ArgumentException($"Unexpected value for X-Forwarded: {token}. Expected 'for', 'host', 'proto', or 'PathBase'"));
+                        context.Errors.Add(new ArgumentException($"Unexpected value for X-Forwarded: {token}. Expected 'for', 'host', 'proto', or 'Prefix'"));
                     }
                 }
             }
@@ -141,7 +141,7 @@ namespace Yarp.ReverseProxy.Service.Config
                 }
 
                 var prefix = "X-Forwarded-";
-                if (transformValues.TryGetValue(PrefixKey, out var prefixValue))
+                if (transformValues.TryGetValue(PrefixForwardedKey, out var prefixValue))
                 {
                     expected++;
                     prefix = prefixValue;
@@ -149,10 +149,10 @@ namespace Yarp.ReverseProxy.Service.Config
 
                 TransformHelpers.CheckTooManyParameters(transformValues, expected);
 
-                // for, host, proto, PathBase
+                // for, host, proto, Prefix
                 var tokens = xforwardedHeaders.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                bool useFor, useHost, useProto, usePathBase;
-                useFor = useHost = useProto = usePathBase = false;
+                bool useFor, useHost, useProto, usePrefix;
+                useFor = useHost = useProto = usePrefix = false;
 
                 foreach (var token in tokens)
                 {
@@ -168,17 +168,17 @@ namespace Yarp.ReverseProxy.Service.Config
                     {
                         useProto = true;
                     }
-                    else if (string.Equals(token, PathBaseKey, StringComparison.OrdinalIgnoreCase))
+                    else if (string.Equals(token, PrefixKey, StringComparison.OrdinalIgnoreCase))
                     {
-                        usePathBase = true;
+                        usePrefix = true;
                     }
                     else
                     {
-                        throw new ArgumentException($"Unexpected value for X-Forwarded: {token}. Expected 'for', 'host', 'proto', or 'PathBase'");
+                        throw new ArgumentException($"Unexpected value for X-Forwarded: {token}. Expected 'for', 'host', 'proto', or 'Prefix'");
                     }
                 }
 
-                context.AddXForwarded(prefix, useFor, useHost, useProto, usePathBase, append);
+                context.AddXForwarded(prefix, useFor, useHost, useProto, usePrefix, append);
             }
             else if (transformValues.TryGetValue(ForwardedKey, out var forwardedHeader))
             {
@@ -189,7 +189,7 @@ namespace Yarp.ReverseProxy.Service.Config
                 var forFormat = NodeFormat.None;
                 var byFormat = NodeFormat.None;
 
-                // for, host, proto, PathBase
+                // for, host, proto, Prefix
                 var tokens = forwardedHeader.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
                 foreach (var token in tokens)

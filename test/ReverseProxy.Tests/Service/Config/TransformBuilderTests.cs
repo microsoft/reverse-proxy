@@ -58,8 +58,8 @@ namespace Yarp.ReverseProxy.Service.Config
             Assert.Equal(ForwardedHeadersDefaults.XForwardedForHeaderName, forTransform.HeaderName);
             var xHostTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderXForwardedHostTransform>());
             Assert.Equal(ForwardedHeadersDefaults.XForwardedHostHeaderName, xHostTransform.HeaderName);
-            var pathBaseTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderXForwardedPathBaseTransform>());
-            Assert.Equal("X-Forwarded-PathBase", pathBaseTransform.HeaderName);
+            var prefixTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderXForwardedPrefixTransform>());
+            Assert.Equal("X-Forwarded-Prefix", prefixTransform.HeaderName);
             var protoTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderXForwardedProtoTransform>());
             Assert.Equal(ForwardedHeadersDefaults.XForwardedProtoHeaderName, protoTransform.HeaderName);
         }
