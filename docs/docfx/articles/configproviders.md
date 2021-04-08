@@ -12,6 +12,7 @@ See [ReverseProxy.Code.Sample](https://github.com/microsoft/reverse-proxy/tree/m
 
 ### Routes
 The routes section is an unordered collection of named routes. A route contains matches and their associated configuration. A route requires at least the following fields:
+- RouteId - A unique name
 - ClusterId - Refers to the name of an entry in the clusters section.
 - Match containing either a Hosts array or a Path pattern string.
 

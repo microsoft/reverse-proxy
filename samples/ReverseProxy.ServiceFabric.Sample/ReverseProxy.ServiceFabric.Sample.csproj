@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Yarp.ReverseProxy.ServiceFabric" Version="1.0.0-preview.10.*" />
+    <PackageReference Include="Yarp.ReverseProxy.ServiceFabric" Version="1.0.0-preview.11.*" />
   </ItemGroup>
 
   <ItemGroup>
