@@ -34,8 +34,6 @@ namespace Yarp.ReverseProxy.Service.Proxy
         private readonly ILogger _logger;
         private readonly IClock _clock;
 
-        private static readonly TimeoutCtsPool _ctsPool = new(DefaultTimeout, resolution: TimeSpan.FromSeconds(2));
-
         public HttpProxy(ILogger<HttpProxy> logger, IClock clock)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -125,7 +123,7 @@ namespace Yarp.ReverseProxy.Service.Proxy
                 // :: Step 4: Send the outgoing request using HttpClient
                 HttpResponseMessage destinationResponse;
 
-                var requestTimeoutSource = _ctsPool.Rent(requestOptions?.Timeout ?? DefaultTimeout, requestAborted);
+                var requestTimeoutSource = PooledCTS.Rent(requestOptions?.Timeout ?? DefaultTimeout, requestAborted);
                 var requestTimeoutToken = requestTimeoutSource.Token;
                 try
                 {
