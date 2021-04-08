@@ -7,11 +7,12 @@ using Microsoft.Extensions.Primitives;
 namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
 {
     /// <summary>
-    /// Sets or appends the X-Forwarded-PathBase header with the request's original PathBase.
+    /// Sets or appends the X-Forwarded-Prefix header with the request's original PathBase.
     /// </summary>
-    public class RequestHeaderXForwardedPathBaseTransform : RequestTransform
+    public class RequestHeaderXForwardedPrefixTransform : RequestTransform
     {
-        public RequestHeaderXForwardedPathBaseTransform(string headerName, bool append)
+        public RequestHeaderXForwardedPrefixTransform
+            (string headerName, bool append)
         {
             HeaderName = headerName ?? throw new System.ArgumentNullException(nameof(headerName));
             Append = append;

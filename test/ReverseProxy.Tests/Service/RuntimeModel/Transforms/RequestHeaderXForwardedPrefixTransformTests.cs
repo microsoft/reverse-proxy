@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
 {
-    public class RequestHeaderXForwardedPathBaseTransformTests
+    public class RequestHeaderXForwardedPrefixTransformTests
     {
         [Theory]
         // Using ";" to represent multi-line headers
@@ -36,7 +36,7 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
             httpContext.Request.PathBase = string.IsNullOrEmpty(pathBase) ? new PathString() : new PathString(pathBase);
             var proxyRequest = new HttpRequestMessage();
             proxyRequest.Headers.Add("name", startValue.Split(";", StringSplitOptions.RemoveEmptyEntries));
-            var transform = new RequestHeaderXForwardedPathBaseTransform("name", append);
+            var transform = new RequestHeaderXForwardedPrefixTransform("name", append);
             await transform.ApplyAsync(new RequestTransformContext()
             {
                 HttpContext = httpContext,

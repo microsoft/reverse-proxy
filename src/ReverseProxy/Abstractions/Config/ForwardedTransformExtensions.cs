@@ -18,7 +18,7 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         /// Clones the route and adds the transform which will add X-Forwarded-* headers.
         /// </summary>
         public static ProxyRoute WithTransformXForwarded(this ProxyRoute proxyRoute, string headerPrefix = "X-Forwarded-", bool useFor = true,
-            bool useHost = true, bool useProto = true, bool usePathBase = true, bool append = true)
+            bool useHost = true, bool useProto = true, bool usePrefix = true, bool append = true)
         {
             var headers = new List<string>();
 
@@ -27,9 +27,9 @@ namespace Yarp.ReverseProxy.Abstractions.Config
                 headers.Add(ForwardedTransformFactory.ForKey);
             }
 
-            if (usePathBase)
+            if (usePrefix)
             {
-                headers.Add(ForwardedTransformFactory.PathBaseKey);
+                headers.Add(ForwardedTransformFactory.PrefixKey);
             }
 
             if (useHost)
@@ -46,7 +46,7 @@ namespace Yarp.ReverseProxy.Abstractions.Config
             {
                 transform[ForwardedTransformFactory.XForwardedKey] = string.Join(',', headers);
                 transform[ForwardedTransformFactory.AppendKey] = append.ToString();
-                transform[ForwardedTransformFactory.PrefixKey] = headerPrefix;
+                transform[ForwardedTransformFactory.PrefixForwardedKey] = headerPrefix;
             });
         }
 
@@ -54,7 +54,7 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         /// Adds the transform which will add X-Forwarded-* request headers.
         /// </summary>
         public static TransformBuilderContext AddXForwarded(this TransformBuilderContext context, string headerPrefix = "X-Forwarded-",
-            bool useFor = true, bool useHost = true, bool useProto = true, bool usePathBase = true, bool append = true)
+            bool useFor = true, bool useHost = true, bool useProto = true, bool usePrefix = true, bool append = true)
         {
             context.UseDefaultForwarders = false;
             if (useFor)
@@ -69,9 +69,9 @@ namespace Yarp.ReverseProxy.Abstractions.Config
             {
                 context.RequestTransforms.Add(new RequestHeaderXForwardedProtoTransform(headerPrefix + ForwardedTransformFactory.ProtoKey, append));
             }
-            if (usePathBase)
+            if (usePrefix)
             {
-                context.RequestTransforms.Add(new RequestHeaderXForwardedPathBaseTransform(headerPrefix + ForwardedTransformFactory.PathBaseKey, append));
+                context.RequestTransforms.Add(new RequestHeaderXForwardedPrefixTransform(headerPrefix + ForwardedTransformFactory.PrefixKey, append));
             }
             return context;
         }

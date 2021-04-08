@@ -11,7 +11,7 @@ The following transforms are enabled by default for all routes. They can be conf
 - X-Forwarded-For - Appends the client's IP address to the X-Forwarded-For header. See [X-Forwarded](#x-forwarded) below.
 - X-Forwarded-Proto - Appends the request's original scheme (http/https) to the X-Forwarded-Proto header. See [X-Forwarded](#x-forwarded) below.
 - X-Forwarded-Host - Appends the request's original Host to the X-Forwarded-Host header. See [X-Forwarded](#x-forwarded) below.
-- X-Forwarded-PathBase - Appends the request's original PathBase, if any, to the X-Forwarded-Proto header. See [X-Forwarded](#x-forwarded) below.
+- X-Forwarded-Prefix - Appends the request's original PathBase, if any, to the X-Forwarded-Prefix header. See [X-Forwarded](#x-forwarded) below.
 
 For example the following incoming request to `http://IncomingHost:5000/path`:
 ```
@@ -66,7 +66,7 @@ Here is an example of common transforms:
           { "RequestHeadersCopy": "true" },
           { "RequestHeaderOriginalHost": "true" },
           {
-            "X-Forwarded": "proto,host,for,pathbase",
+            "X-Forwarded": "proto,host,for,prefix",
             "Append": "true",
             "Prefix": "X-Forwarded-"
           }
@@ -439,24 +439,24 @@ This sets or appends the value for the named header. Set replaces any existing h
 
 | Key | Value | Default | Required |
 |-----|-------|---------|----------|
-| X-Forwarded | A comma separated list containing any of these values: for,proto,host,PathBase | "for,proto,host,PathBase" | yes |
+| X-Forwarded | A comma separated list containing any of these values: for,proto,host,Prefix | "for,proto,host,Prefix" | yes |
 | Prefix | The header name prefix | "X-Forwarded-" | no |
 | Append | true/false | true | no |
 
 Config:
 ```JSON
 {
-  "X-Forwarded": "for,proto,host,PathBase",
+  "X-Forwarded": "for,proto,host,Prefix",
   "Prefix": "X-Forwarded-",
   "Append": "true"
 }
 ```
 Code:
 ```csharp
-proxyRoute = proxyRoute.WithTransformXForwarded(headerPrefix: "X-Forwarded-", useFor: true, useHost: true, useProto: true, usePathBase: true, append: true);
+proxyRoute = proxyRoute.WithTransformXForwarded(headerPrefix: "X-Forwarded-", useFor: true, useHost: true, useProto: true, usePrefix: true, append: true);
 ```
 ```C#
-transformBuilderContext.AddXForwarded(headerPrefix: "X-Forwarded-", useFor: true, useHost: true, useProto: true, usePathBase: true, append: true);
+transformBuilderContext.AddXForwarded(headerPrefix: "X-Forwarded-", useFor: true, useHost: true, useProto: true, usePrefix: true, append: true);
 ```
 
 Example:
@@ -464,7 +464,7 @@ Example:
 X-Forwarded-For: 5.5.5.5
 X-Forwarded-Proto: https
 X-Forwarded-Host: IncomingHost:5000
-X-Forwarded-PathBase: /path/base
+X-Forwarded-Prefix: /path/base
 ```
 Disable default headers:
 ```JSON
@@ -490,7 +490,7 @@ The {Prefix}Proto header value is taken from `HttpContext.Request.Scheme` indica
 
 The {Prefix}Host header value is taken from the incoming request's Host header. This is independent of RequestHeaderOriginalHost specified above. Unicode/IDN hosts are punycode encoded.
 
-The {Prefix}PathBase header value is taken from `HttpContext.Request.PathBase`. The PathBase property is not used when generating the proxy request so the destination server will need the original value to correctly generate links and directs. The value is in the percent encoded Uri format.
+The {Prefix}Prefix header value is taken from `HttpContext.Request.PathBase`. The PathBase property is not used when generating the proxy request so the destination server will need the original value to correctly generate links and directs. The value is in the percent encoded Uri format.
 
 ### Forwarded
 

@@ -23,14 +23,14 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         [InlineData(true, true, true, true, true)]
         [InlineData(true, true, false, false, true)]
         [InlineData(true, true, false, false, false)]
-        public void WithTransformXForwarded(bool useFor, bool useHost, bool useProto, bool usePathBase, bool append)
+        public void WithTransformXForwarded(bool useFor, bool useHost, bool useProto, bool usePrefix, bool append)
         {
             var proxyRoute = new ProxyRoute();
-            proxyRoute = proxyRoute.WithTransformXForwarded("prefix-", useFor, useHost, useProto, usePathBase, append);
+            proxyRoute = proxyRoute.WithTransformXForwarded("prefix-", useFor, useHost, useProto, usePrefix, append);
 
             var builderContext = ValidateAndBuild(proxyRoute, _factory);
 
-            ValidateXForwarded(builderContext, useFor, useHost, useProto, usePathBase, append);
+            ValidateXForwarded(builderContext, useFor, useHost, useProto, usePrefix, append);
         }
 
         [Theory]
@@ -40,15 +40,15 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         [InlineData(true, true, true, true, true)]
         [InlineData(true, true, false, false, true)]
         [InlineData(true, true, false, false, false)]
-        public void AddXForwarded(bool useFor, bool useHost, bool useProto, bool usePathBase, bool append)
+        public void AddXForwarded(bool useFor, bool useHost, bool useProto, bool usePrefix, bool append)
         {
             var builderContext = CreateBuilderContext();
-            builderContext.AddXForwarded("prefix-", useFor, useHost, useProto, usePathBase, append);
+            builderContext.AddXForwarded("prefix-", useFor, useHost, useProto, usePrefix, append);
 
-            ValidateXForwarded(builderContext, useFor, useHost, useProto, usePathBase, append);
+            ValidateXForwarded(builderContext, useFor, useHost, useProto, usePrefix, append);
         }
 
-        private static void ValidateXForwarded(TransformBuilderContext builderContext, bool useFor, bool useHost, bool useProto, bool usePathBase, bool append)
+        private static void ValidateXForwarded(TransformBuilderContext builderContext, bool useFor, bool useHost, bool useProto, bool usePrefix, bool append)
         {
             Assert.False(builderContext.UseDefaultForwarders);
 
@@ -85,15 +85,15 @@ namespace Yarp.ReverseProxy.Abstractions.Config
                 Assert.Empty(builderContext.RequestTransforms.OfType<RequestHeaderXForwardedProtoTransform>());
             }
 
-            if (usePathBase)
+            if (usePrefix)
             {
-                var requestHeaderXForwardedPathBaseTransform = Assert.Single(builderContext.RequestTransforms.OfType<RequestHeaderXForwardedPathBaseTransform>());
-                Assert.Equal("prefix-PathBase", requestHeaderXForwardedPathBaseTransform.HeaderName);
-                Assert.Equal(append, requestHeaderXForwardedPathBaseTransform.Append);
+                var requestHeaderXForwardedPrefixTransform = Assert.Single(builderContext.RequestTransforms.OfType<RequestHeaderXForwardedPrefixTransform>());
+                Assert.Equal("prefix-Prefix", requestHeaderXForwardedPrefixTransform.HeaderName);
+                Assert.Equal(append, requestHeaderXForwardedPrefixTransform.Append);
             }
             else
             {
-                Assert.Empty(builderContext.RequestTransforms.OfType<RequestHeaderXForwardedPathBaseTransform>());
+                Assert.Empty(builderContext.RequestTransforms.OfType<RequestHeaderXForwardedPrefixTransform>());
             }
         }
 
