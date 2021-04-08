@@ -43,7 +43,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
             var destination1 = cluster1.Destinations.GetOrAdd(
                 "destination1",
                 id => new DestinationInfo(id) { Config = new DestinationConfig(new Destination { Address = "https://localhost:123/a/b/" }) });
-            cluster1.UpdateDynamicState();
+            cluster1.ProcessDestinationChanges();
 
             var aspNetCoreEndpoints = new List<Endpoint>();
             var routeConfig = new RouteConfig(
@@ -96,7 +96,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
                     Config = new DestinationConfig(new Destination { Address = "https://localhost:123/a/b/" }),
                     Health = { Active = DestinationHealth.Unhealthy },
                 });
-            cluster1.UpdateDynamicState();
+            cluster1.ProcessDestinationChanges();
 
             var aspNetCoreEndpoints = new List<Endpoint>();
             var routeConfig = new RouteConfig(

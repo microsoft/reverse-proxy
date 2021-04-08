@@ -151,6 +151,8 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
                 });
             }
 
+            clusterInfo.ProcessDestinationChanges();
+
             return clusterInfo;
         }
 

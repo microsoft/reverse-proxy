@@ -23,7 +23,7 @@ namespace Yarp.ReverseProxy.RuntimeModel.Tests
             var destination2 = cluster.Destinations.GetOrAdd("d2", id => new DestinationInfo(id) { Health = { Active = DestinationHealth.Unhealthy } });
             var destination3 = cluster.Destinations.GetOrAdd("d3", id => new DestinationInfo(id)); // Unknown health state
             var destination4 = cluster.Destinations.GetOrAdd("d4", id => new DestinationInfo(id) { Health = { Passive = DestinationHealth.Healthy } });
-            cluster.UpdateDynamicState();
+            cluster.ProcessDestinationChanges();
 
             var sorted = cluster.DynamicState.AllDestinations.OrderBy(d => d.DestinationId).ToList();
             Assert.Same(destination1, sorted[0]);
@@ -48,7 +48,7 @@ namespace Yarp.ReverseProxy.RuntimeModel.Tests
             var destination3 = cluster.Destinations.GetOrAdd("d3", id => new DestinationInfo(id)); // Unknown health state
             var destination4 = cluster.Destinations.GetOrAdd("d4", id => new DestinationInfo(id) { Health = { Passive = DestinationHealth.Healthy } });
             var destination5 = cluster.Destinations.GetOrAdd("d5", id => new DestinationInfo(id) { Health = { Passive = DestinationHealth.Unhealthy } });
-            cluster.UpdateDynamicState();
+            cluster.ProcessDestinationChanges();
 
             Assert.Equal(5, cluster.DynamicState.AllDestinations.Count);
             var sorted = cluster.DynamicState.AllDestinations.OrderBy(d => d.DestinationId).ToList();
@@ -75,7 +75,7 @@ namespace Yarp.ReverseProxy.RuntimeModel.Tests
             Assert.NotNull(state1);
             Assert.Empty(state1.AllDestinations);
 
-            cluster.UpdateDynamicState();
+            cluster.ProcessDestinationChanges();
             var state2 = cluster.DynamicState;
             Assert.NotSame(state1, state2);
             Assert.NotNull(state2);
@@ -94,20 +94,20 @@ namespace Yarp.ReverseProxy.RuntimeModel.Tests
         public void DynamicState_ReactsToDestinationChanges()
         {
             var cluster = new ClusterInfo("abc");
-            cluster.UpdateDynamicState();
+            cluster.ProcessDestinationChanges();
 
             var state1 = cluster.DynamicState;
             Assert.NotNull(state1);
             Assert.Empty(state1.AllDestinations);
 
             var destination = cluster.Destinations.GetOrAdd("d1", id => new DestinationInfo(id));
-            cluster.UpdateDynamicState();
+            cluster.ProcessDestinationChanges();
             Assert.NotSame(state1, cluster.DynamicState);
             var state2 = cluster.DynamicState;
             Assert.Contains(destination, state2.AllDestinations);
 
             cluster.Destinations.TryRemove("d1", out var _);
-            cluster.UpdateDynamicState();
+            cluster.ProcessDestinationChanges();
             Assert.NotSame(state2, cluster.DynamicState);
             var state3 = cluster.DynamicState;
             Assert.Empty(state3.AllDestinations);
@@ -119,14 +119,14 @@ namespace Yarp.ReverseProxy.RuntimeModel.Tests
         {
             var cluster = new ClusterInfo("abc");
             EnableHealthChecks(cluster);
-            cluster.UpdateDynamicState();
+            cluster.ProcessDestinationChanges();
 
             var state1 = cluster.DynamicState;
             Assert.NotNull(state1);
             Assert.Empty(state1.AllDestinations);
 
             var destination = cluster.Destinations.GetOrAdd("d1", id => new DestinationInfo(id));
-            cluster.UpdateDynamicState();
+            cluster.ProcessDestinationChanges();
             Assert.NotSame(state1, cluster.DynamicState);
             var state2 = cluster.DynamicState;
 

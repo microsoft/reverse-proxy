@@ -143,6 +143,8 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
                 cluster.Destinations.TryAdd(destination.DestinationId, destination);
             }
 
+            cluster.ProcessDestinationChanges();
+
             return cluster;
         }
     }

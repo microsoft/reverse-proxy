@@ -37,7 +37,7 @@ namespace Yarp.ReverseProxy.Middleware
             destinationManager.GetOrAdd(AffinitizedDestinationName, id => new DestinationInfo(id));
             destinationManager.GetOrAdd("dest-C", id => new DestinationInfo(id));
             cluster.Config = ClusterConfig;
-            cluster.UpdateDynamicState();
+            cluster.ProcessDestinationChanges();
             return cluster;
         }
 

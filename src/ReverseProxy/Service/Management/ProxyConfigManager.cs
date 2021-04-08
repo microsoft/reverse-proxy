@@ -365,7 +365,7 @@ namespace Yarp.ReverseProxy.Service.Management
 
                     if (destinationsChanged || configChanged)
                     {
-                        currentCluster.ForceUpdateDynamicState();
+                        currentCluster.ProcessDestinationChanges();
 
                         foreach (var listener in _clusterChangeListeners)
                         {
@@ -390,7 +390,7 @@ namespace Yarp.ReverseProxy.Service.Management
                     newCluster.Revision++;
                     Log.ClusterAdded(_logger, incomingCluster.Id);
 
-                    newCluster.ForceUpdateDynamicState();
+                    newCluster.ProcessDestinationChanges();
 
                     var added = _clusters.TryAdd(newCluster.ClusterId, newCluster);
                     Debug.Assert(added);

@@ -24,6 +24,7 @@ namespace Yarp.ReverseProxy.RuntimeModel
     {
         private readonly object _stateLock = new object();
         private volatile ClusterDynamicState _dynamicState = new ClusterDynamicState(Array.Empty<DestinationInfo>(), Array.Empty<DestinationInfo>());
+        private volatile IReadOnlyList<DestinationInfo> _destinationsSnapshot;
         private volatile ClusterConfig _config;
         private readonly SemaphoreSlim _updateRequests = new SemaphoreSlim(2);
 
@@ -54,6 +55,7 @@ namespace Yarp.ReverseProxy.RuntimeModel
         /// <summary>
         /// All of the destinations associated with this cluster. This collection is populated by the configuration system
         /// and should only be directly modified in a test environment.
+        /// Call <see cref="ProcessDestinationChanges"/> after modifying this collection.
         /// </summary>
         public ConcurrentDictionary<string, DestinationInfo> Destinations { get; } = new(StringComparer.OrdinalIgnoreCase);
 
@@ -74,15 +76,24 @@ namespace Yarp.ReverseProxy.RuntimeModel
         internal int Revision { get; set; }
 
         /// <summary>
-        /// Recreates the DynamicState data.
+        /// Recreates the DynamicState data. Call this if health state has changed for any destinations.
         /// </summary>
         public void UpdateDynamicState()
         {
             UpdateDynamicStateInternal(force: false);
         }
 
-        internal void ForceUpdateDynamicState()
+        /// <summary>
+        /// Call this after destinations have been added, removed, or their configuration changed.
+        /// This does not need to be called for state updates like health,
+        /// use UpdateDynamicState for state updates.
+        /// The destinations will be snapshotted and DynamicState updated.
+        /// </summary>
+        public void ProcessDestinationChanges()
         {
+            // Values already makes a copy of the collection, downcast to avoid making a second copy.
+            // https://github.com/dotnet/runtime/blob/e164551f1c96138521b4e58f14f8ac1e4369005d/src/libraries/System.Collections.Concurrent/src/System/Collections/Concurrent/ConcurrentDictionary.cs#L2145-L2168
+            _destinationsSnapshot = (IReadOnlyList<DestinationInfo>)Destinations.Values;
             UpdateDynamicStateInternal(force: true);
         }
 
@@ -117,17 +128,19 @@ namespace Yarp.ReverseProxy.RuntimeModel
                 try
                 {
                     var healthChecks = _config?.Options.HealthCheck;
-                    // Values already makes a copy of the collection, downcast to avoid making a second copy.
-                    // https://github.com/dotnet/runtime/blob/e164551f1c96138521b4e58f14f8ac1e4369005d/src/libraries/System.Collections.Concurrent/src/System/Collections/Concurrent/ConcurrentDictionary.cs#L2145-L2168
-                    var allDestinations = (IReadOnlyList<DestinationInfo>)Destinations.Values;
-                    var healthyDestinations = allDestinations;
+                    var allDestinations = _destinationsSnapshot;
+                    var availableDestinations = allDestinations;
+                    if (allDestinations == null)
+                    {
+                        throw new InvalidOperationException("ProcessDestinationChanges must be called first.");
+                    }
 
                     if ((healthChecks?.Enabled).GetValueOrDefault())
                     {
                         var activeEnabled = (healthChecks.Active?.Enabled).GetValueOrDefault();
                         var passiveEnabled = (healthChecks.Passive?.Enabled).GetValueOrDefault();
 
-                        healthyDestinations = allDestinations.Where(destination =>
+                        availableDestinations = allDestinations.Where(destination =>
                         {
                             // Only consider the current state if those checks are enabled.
                             var healthState = destination.Health;
@@ -139,7 +152,7 @@ namespace Yarp.ReverseProxy.RuntimeModel
                         }).ToList();
                     }
 
-                    _dynamicState = new ClusterDynamicState(allDestinations, healthyDestinations);
+                    _dynamicState = new ClusterDynamicState(allDestinations, availableDestinations);
                 }
                 finally
                 {

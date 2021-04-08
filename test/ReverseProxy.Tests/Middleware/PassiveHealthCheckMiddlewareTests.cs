@@ -140,7 +140,7 @@ namespace Yarp.ReverseProxy.Middleware
             clusterInfo.Destinations.GetOrAdd("destination0", id => new DestinationInfo(id));
             clusterInfo.Destinations.GetOrAdd("destination1", id => new DestinationInfo(id));
 
-            clusterInfo.UpdateDynamicState();
+            clusterInfo.ProcessDestinationChanges();
 
             return clusterInfo;
         }
