@@ -34,10 +34,10 @@ namespace Yarp.ReverseProxy.Service.Management
         private readonly object _syncRoot = new object();
         private readonly ILogger<ProxyConfigManager> _logger;
         private readonly IProxyConfigProvider _provider;
-        private readonly IEnumerable<IClusterChangeListener> _clusterChangeListeners;
+        private readonly IClusterChangeListener[] _clusterChangeListeners;
         private readonly ConcurrentDictionary<string, ClusterInfo> _clusters = new(StringComparer.OrdinalIgnoreCase);
         private readonly ConcurrentDictionary<string, RouteInfo> _routes = new(StringComparer.OrdinalIgnoreCase);
-        private readonly IEnumerable<IProxyConfigFilter> _filters;
+        private readonly IProxyConfigFilter[] _filters;
         private readonly IConfigValidator _configValidator;
         private readonly IProxyHttpClientFactory _httpClientFactory;
         private readonly ProxyEndpointFactory _proxyEndpointFactory;
@@ -63,8 +63,9 @@ namespace Yarp.ReverseProxy.Service.Management
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _provider = provider ?? throw new ArgumentNullException(nameof(provider));
-            _clusterChangeListeners = clusterChangeListeners ?? throw new ArgumentNullException(nameof(clusterChangeListeners));
-            _filters = filters ?? throw new ArgumentNullException(nameof(filters));
+            _clusterChangeListeners = (clusterChangeListeners as IClusterChangeListener[])
+                ?? clusterChangeListeners?.ToArray() ?? throw new ArgumentNullException(nameof(clusterChangeListeners));
+            _filters = (filters as IProxyConfigFilter[]) ?? filters?.ToArray() ?? throw new ArgumentNullException(nameof(filters));
             _configValidator = configValidator ?? throw new ArgumentNullException(nameof(configValidator));
             _proxyEndpointFactory = proxyEndpointFactory ?? throw new ArgumentNullException(nameof(proxyEndpointFactory));
             _transformBuilder = transformBuilder ?? throw new ArgumentNullException(nameof(transformBuilder));
