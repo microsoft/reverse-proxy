@@ -452,7 +452,7 @@ namespace Yarp.ReverseProxy.Service.Tests
             var result = await validator.ValidateRouteAsync(route);
 
             Assert.NotEmpty(result);
-            Assert.Contains(result, err => err.Message.Equals($"Authorization policy '{authorizationPolicy}' is reserved for yarp and needs to be changed"));
+            Assert.Contains(result, err => err.Message.Equals($"The application has registered an authorization policy named '{authorizationPolicy}' that conflicts with the reserved authorization policy name used on this route. The registered policy name needs to be changed for this route to function."));
         }
 
         [Theory]
@@ -560,7 +560,7 @@ namespace Yarp.ReverseProxy.Service.Tests
             var result = await validator.ValidateRouteAsync(route);
 
             Assert.NotEmpty(result);
-            Assert.Contains(result, err => err.Message.Equals($"CORS policy '{corsPolicy}' is reserved for yarp and needs to be changed"));
+            Assert.Contains(result, err => err.Message.Equals($"The application has registered a CORS policy named '{corsPolicy}' that conflicts with the reserved CORS policy name used on this route. The registered policy name needs to be changed for this route to function."));
         }
 
         [Fact]

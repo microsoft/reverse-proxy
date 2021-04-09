@@ -220,7 +220,7 @@ namespace Yarp.ReverseProxy.Service
                 var policy = await _authorizationPolicyProvider.GetPolicyAsync(authorizationPolicyName);
                 if (policy != null)
                 {
-                    errors.Add(new ArgumentException($"Authorization policy '{authorizationPolicyName}' is reserved for yarp and needs to be changed"));
+                    errors.Add(new ArgumentException($"The application has registered an authorization policy named '{authorizationPolicyName}' that conflicts with the reserved authorization policy name used on this route. The registered policy name needs to be changed for this route to function."));
                 }
                 return;
             }
@@ -230,7 +230,7 @@ namespace Yarp.ReverseProxy.Service
                 var policy = await _authorizationPolicyProvider.GetPolicyAsync(authorizationPolicyName);
                 if (policy != null)
                 {
-                    errors.Add(new ArgumentException($"Authorization policy '{authorizationPolicyName}' is reserved for yarp and needs to be changed"));
+                    errors.Add(new ArgumentException($"The application has registered an authorization policy named '{authorizationPolicyName}' that conflicts with the reserved authorization policy name used on this route. The registered policy name needs to be changed for this route to function."));
                 }
                 return;
             }
@@ -262,7 +262,7 @@ namespace Yarp.ReverseProxy.Service
                 var policy = await _corsPolicyProvider.GetPolicyAsync(dummyHttpContext, corsPolicyName);
                 if (policy != null)
                 {
-                    errors.Add(new ArgumentException($"CORS policy '{corsPolicyName}' is reserved for yarp and needs to be changed"));
+                    errors.Add(new ArgumentException($"The application has registered a CORS policy named '{corsPolicyName}' that conflicts with the reserved CORS policy name used on this route. The registered policy name needs to be changed for this route to function."));
                 }
                 return;
             }
@@ -273,7 +273,7 @@ namespace Yarp.ReverseProxy.Service
                 var policy = await _corsPolicyProvider.GetPolicyAsync(dummyHttpContext, corsPolicyName);
                 if (policy != null)
                 {
-                    errors.Add(new ArgumentException($"CORS policy '{corsPolicyName}' is reserved for yarp and needs to be changed"));
+                    errors.Add(new ArgumentException($"The application has registered a CORS policy named '{corsPolicyName}' that conflicts with the reserved CORS policy name used on this route. The registered policy name needs to be changed for this route to function."));
                 }
                 return;
             }
