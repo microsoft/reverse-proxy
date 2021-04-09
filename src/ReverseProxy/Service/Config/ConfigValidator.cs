@@ -217,11 +217,21 @@ namespace Yarp.ReverseProxy.Service
 
             if (string.Equals(AuthorizationConstants.Default, authorizationPolicyName, StringComparison.OrdinalIgnoreCase))
             {
+                var policy = await _authorizationPolicyProvider.GetPolicyAsync(authorizationPolicyName);
+                if (policy != null)
+                {
+                    errors.Add(new ArgumentException($"The application has registered an authorization policy named '{authorizationPolicyName}' that conflicts with the reserved authorization policy name used on this route. The registered policy name needs to be changed for this route to function."));
+                }
                 return;
             }
 
             if (string.Equals(AuthorizationConstants.Anonymous, authorizationPolicyName, StringComparison.OrdinalIgnoreCase))
             {
+                var policy = await _authorizationPolicyProvider.GetPolicyAsync(authorizationPolicyName);
+                if (policy != null)
+                {
+                    errors.Add(new ArgumentException($"The application has registered an authorization policy named '{authorizationPolicyName}' that conflicts with the reserved authorization policy name used on this route. The registered policy name needs to be changed for this route to function."));
+                }
                 return;
             }
 
@@ -248,11 +258,23 @@ namespace Yarp.ReverseProxy.Service
 
             if (string.Equals(CorsConstants.Default, corsPolicyName, StringComparison.OrdinalIgnoreCase))
             {
+                var dummyHttpContext = new DefaultHttpContext();
+                var policy = await _corsPolicyProvider.GetPolicyAsync(dummyHttpContext, corsPolicyName);
+                if (policy != null)
+                {
+                    errors.Add(new ArgumentException($"The application has registered a CORS policy named '{corsPolicyName}' that conflicts with the reserved CORS policy name used on this route. The registered policy name needs to be changed for this route to function."));
+                }
                 return;
             }
 
             if (string.Equals(CorsConstants.Disable, corsPolicyName, StringComparison.OrdinalIgnoreCase))
             {
+                var dummyHttpContext = new DefaultHttpContext();
+                var policy = await _corsPolicyProvider.GetPolicyAsync(dummyHttpContext, corsPolicyName);
+                if (policy != null)
+                {
+                    errors.Add(new ArgumentException($"The application has registered a CORS policy named '{corsPolicyName}' that conflicts with the reserved CORS policy name used on this route. The registered policy name needs to be changed for this route to function."));
+                }
                 return;
             }
 
