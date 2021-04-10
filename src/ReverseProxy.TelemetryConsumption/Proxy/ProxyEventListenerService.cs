@@ -49,6 +49,7 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
         {
             const int MinEventId = 1;
             const int MaxEventId = 7;
+            var hasTelemetryConsumers = false;
 
             if (eventData.EventId < MinEventId || eventData.EventId > MaxEventId)
             {
@@ -67,10 +68,15 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
             }
 
             using var consumers = context.RequestServices.GetServices<IProxyTelemetryConsumer>().GetEnumerator();
+            var perRequestMetrics = context.Features.Get<ProxyRequestMetrics>();
 
             if (!consumers.MoveNext())
             {
-                return;
+                if (perRequestMetrics == null) { return; }
+            }
+            else
+            {
+                hasTelemetryConsumers = true;
             }
 
             var payload = eventData.Payload;
@@ -81,11 +87,18 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                     Debug.Assert(eventData.EventName == "ProxyStart" && payload.Count == 1);
                     {
                         var destinationPrefix = (string)payload[0];
-                        do
+                        if (hasTelemetryConsumers)
                         {
-                            consumers.Current.OnProxyStart(eventData.TimeStamp, destinationPrefix);
+                            do
+                            {
+                                consumers.Current.OnProxyStart(eventData.TimeStamp, destinationPrefix);
+                            }
+                            while (consumers.MoveNext());
                         }
-                        while (consumers.MoveNext());
+                        if (perRequestMetrics != null)
+                        {
+                            perRequestMetrics.TimeProxyRequestStarted = eventData.TimeStamp;
+                        }
                     }
                     break;
 
@@ -93,11 +106,18 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                     Debug.Assert(eventData.EventName == "ProxyStop" && payload.Count == 1);
                     {
                         var statusCode = (int)payload[0];
-                        do
+                        if (hasTelemetryConsumers)
                         {
-                            consumers.Current.OnProxyStop(eventData.TimeStamp, statusCode);
+                            do
+                            {
+                                consumers.Current.OnProxyStop(eventData.TimeStamp, statusCode);
+                            }
+                            while (consumers.MoveNext());
                         }
-                        while (consumers.MoveNext());
+                        if (perRequestMetrics != null)
+                        {
+                            perRequestMetrics.TimeProxyRequestStop = eventData.TimeStamp;
+                        }
                     }
                     break;
 
@@ -150,11 +170,29 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                         var readTime = new TimeSpan((long)payload[3]);
                         var writeTime = new TimeSpan((long)payload[4]);
                         var firstReadTime = new TimeSpan((long)payload[5]);
-                        do
+                        if (hasTelemetryConsumers)
                         {
-                            consumers.Current.OnContentTransferred(eventData.TimeStamp, isRequest, contentLength, iops, readTime, writeTime, firstReadTime);
+                            do
+                            {
+                                consumers.Current.OnContentTransferred(eventData.TimeStamp, isRequest, contentLength, iops, readTime, writeTime, firstReadTime);
+                            }
+                            while (consumers.MoveNext());
                         }
-                        while (consumers.MoveNext());
+                        if (perRequestMetrics != null)
+                        {
+                            if (isRequest)
+                            {
+                                perRequestMetrics.RequestBytes = contentLength;
+                                perRequestMetrics.RequestOps = iops;
+                            }
+                            else
+                            {
+                                perRequestMetrics.ResponseBytes = contentLength;
+                                perRequestMetrics.ResponseOps = iops;
+                                perRequestMetrics.TimeDestinationResponseContentStart = eventData.TimeStamp.AddTicks(-(long)payload[4]);
+                                perRequestMetrics.TimeDestinationResponseContentStop = eventData.TimeStamp;
+                            }
+                        }
                     }
                     break;
 

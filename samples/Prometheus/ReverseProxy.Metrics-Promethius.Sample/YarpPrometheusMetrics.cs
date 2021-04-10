@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Yarp.ReverseProxy.Middleware;
 using Prometheus;
+using Yarp.ReverseProxy.Telemetry.Consumption;
+using System.Text.Json;
 
 namespace Yarp.Sample
 {
@@ -63,11 +65,18 @@ namespace Yarp.Sample
         {
             var started = DateTime.Now;
             var proxyFeature = context.GetRequiredProxyFeature();
+
+            var requestMetrics = new ProxyRequestMetrics();
+            context.Features[typeof(ProxyRequestMetrics)] = requestMetrics;
+
+            // Complete the rest of the request pipeline
             await next();
-            var duration = (DateTime.Now - started).TotalMilliseconds;
+
+            System.Console.WriteLine(JsonSerializer.Serialize(requestMetrics, new JsonSerializerOptions() { WriteIndented = true }));
 
             string[] labelvalues = { proxyFeature.RouteSnapshot.ProxyRoute.RouteId, proxyFeature.ClusterSnapshot.Options.Id, proxyFeature.ProxiedDestination.Config.Options.Address };
-            _requestDuration.WithLabels(labelvalues).Observe(duration);
+
+            _requestDuration.WithLabels(labelvalues).Observe((requestMetrics.TimeProxyRequestStarted - requestMetrics.TimeProxyRequestStop).TotalMilliseconds);
             _requestsProcessed.WithLabels(labelvalues).Inc();
             if (context.Request.ContentLength.HasValue) { _requestContentBytes.WithLabels(labelvalues).Inc(context.Request.ContentLength.Value); }
             if (context.Response.ContentLength.HasValue) { _responseContentBytes.WithLabels(labelvalues).Inc(context.Response.ContentLength.Value); }

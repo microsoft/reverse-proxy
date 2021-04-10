@@ -49,6 +49,7 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
         {
             const int MinEventId = 1;
             const int MaxEventId = 12;
+            var hasTelemetryConsumers = false;
 
             if (eventData.EventId < MinEventId || eventData.EventId > MaxEventId)
             {
@@ -67,10 +68,15 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
             }
 
             using var consumers = context.RequestServices.GetServices<IHttpTelemetryConsumer>().GetEnumerator();
+            var perRequestMetrics = context.Features.Get<ProxyRequestMetrics>();
 
             if (!consumers.MoveNext())
             {
-                return;
+                if (perRequestMetrics == null) { return; }
+            }
+            else
+            {
+                hasTelemetryConsumers = true;
             }
 
             var payload = eventData.Payload;
@@ -87,33 +93,54 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                         var versionMajor = (int)(byte)payload[4];
                         var versionMinor = (int)(byte)payload[5];
                         var versionPolicy = (HttpVersionPolicy)payload[6];
-                        do
+                        if (hasTelemetryConsumers)
                         {
-                            consumers.Current.OnRequestStart(eventData.TimeStamp, scheme, host, port, pathAndQuery, versionMajor, versionMinor, versionPolicy);
+                            do
+                            {
+                                consumers.Current.OnRequestStart(eventData.TimeStamp, scheme, host, port, pathAndQuery, versionMajor, versionMinor, versionPolicy);
+                            }
+                            while (consumers.MoveNext());
                         }
-                        while (consumers.MoveNext());
+                        if (perRequestMetrics != null)
+                        {
+                            perRequestMetrics.TimeDestinationRequestStarted = eventData.TimeStamp;
+                        }
                     }
                     break;
 
                 case 2:
                     Debug.Assert(eventData.EventName == "RequestStop" && payload.Count == 0);
                     {
-                        do
+                        if (hasTelemetryConsumers)
                         {
-                            consumers.Current.OnRequestStop(eventData.TimeStamp);
+                            do
+                            {
+                                consumers.Current.OnRequestStop(eventData.TimeStamp);
+                            }
+                            while (consumers.MoveNext());
                         }
-                        while (consumers.MoveNext());
+                        if (perRequestMetrics != null)
+                        {
+                            perRequestMetrics.TimeProxyRequestStop = eventData.TimeStamp;
+                        }
                     }
                     break;
 
                 case 3:
                     Debug.Assert(eventData.EventName == "RequestFailed" && payload.Count == 0);
                     {
-                        do
+                        if (hasTelemetryConsumers)
                         {
-                            consumers.Current.OnRequestFailed(eventData.TimeStamp);
+                            do
+                            {
+                                consumers.Current.OnRequestFailed(eventData.TimeStamp);
+                            }
+                            while (consumers.MoveNext());
                         }
-                        while (consumers.MoveNext());
+                        if (perRequestMetrics != null)
+                        {
+                            perRequestMetrics.TimeProxyRequestStop = eventData.TimeStamp;
+                        }
                     }
                     break;
 
@@ -122,11 +149,18 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                     {
                         var versionMajor = (int)(byte)payload[0];
                         var versionMinor = (int)(byte)payload[1];
-                        do
+                        if (hasTelemetryConsumers)
                         {
-                            consumers.Current.OnConnectionEstablished(eventData.TimeStamp, versionMajor, versionMinor);
+                            do
+                            {
+                                consumers.Current.OnConnectionEstablished(eventData.TimeStamp, versionMajor, versionMinor);
+                            }
+                            while (consumers.MoveNext());
                         }
-                        while (consumers.MoveNext());
+                        if (perRequestMetrics != null)
+                        {
+                            perRequestMetrics.TimeDestinationConnectionCreated = eventData.TimeStamp;
+                        }
                     }
                     break;
 
@@ -140,44 +174,72 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                         var timeOnQueue = TimeSpan.FromMilliseconds((double)payload[0]);
                         var versionMajor = (int)(byte)payload[1];
                         var versionMinor = (int)(byte)payload[2];
-                        do
+                        if (hasTelemetryConsumers)
                         {
-                            consumers.Current.OnRequestLeftQueue(eventData.TimeStamp, timeOnQueue, versionMajor, versionMinor);
+                            do
+                            {
+                                consumers.Current.OnRequestLeftQueue(eventData.TimeStamp, timeOnQueue, versionMajor, versionMinor);
+                            }
+                            while (consumers.MoveNext());
                         }
-                        while (consumers.MoveNext());
+                        if (perRequestMetrics != null)
+                        {
+                            perRequestMetrics.TimeDestinationRequestLeftQueue = eventData.TimeStamp;
+                        }
                     }
                     break;
 
                 case 7:
                     Debug.Assert(eventData.EventName == "RequestHeadersStart" && payload.Count == 0);
                     {
-                        do
+                        if (hasTelemetryConsumers)
                         {
-                            consumers.Current.OnRequestHeadersStart(eventData.TimeStamp);
+                            do
+                            {
+                                consumers.Current.OnRequestHeadersStart(eventData.TimeStamp);
+                            }
+                            while (consumers.MoveNext());
                         }
-                        while (consumers.MoveNext());
+                        if (perRequestMetrics != null)
+                        {
+                            perRequestMetrics.TimeDestinationRequestHeadersStart = eventData.TimeStamp;
+                        }
                     }
                     break;
 
                 case 8:
                     Debug.Assert(eventData.EventName == "RequestHeadersStop" && payload.Count == 0);
                     {
-                        do
+                        if (hasTelemetryConsumers)
                         {
-                            consumers.Current.OnRequestHeadersStop(eventData.TimeStamp);
+                            do
+                            {
+                                consumers.Current.OnRequestHeadersStop(eventData.TimeStamp);
+                            }
+                            while (consumers.MoveNext());
                         }
-                        while (consumers.MoveNext());
+                        if (perRequestMetrics != null)
+                        {
+                            perRequestMetrics.TimeDestinationRequestHeadersStop = eventData.TimeStamp;
+                        }
                     }
                     break;
 
                 case 9:
                     Debug.Assert(eventData.EventName == "RequestContentStart" && payload.Count == 0);
                     {
-                        do
+                        if (hasTelemetryConsumers)
                         {
-                            consumers.Current.OnRequestContentStart(eventData.TimeStamp);
+                            do
+                            {
+                                consumers.Current.OnRequestContentStart(eventData.TimeStamp);
+                            }
+                            while (consumers.MoveNext());
                         }
-                        while (consumers.MoveNext());
+                        if (perRequestMetrics != null)
+                        {
+                            perRequestMetrics.TimeDestinationRequestContentStart = eventData.TimeStamp;
+                        }
                     }
                     break;
 
@@ -185,33 +247,54 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                     Debug.Assert(eventData.EventName == "RequestContentStop" && payload.Count == 1);
                     {
                         var contentLength = (long)payload[0];
-                        do
+                        if (hasTelemetryConsumers)
                         {
-                            consumers.Current.OnRequestContentStop(eventData.TimeStamp, contentLength);
+                            do
+                            {
+                                consumers.Current.OnRequestContentStop(eventData.TimeStamp, contentLength);
+                            }
+                            while (consumers.MoveNext());
                         }
-                        while (consumers.MoveNext());
+                        if (perRequestMetrics != null)
+                        {
+                            perRequestMetrics.TimeDestinationRequestContentStop = eventData.TimeStamp;
+                        }
                     }
                     break;
 
                 case 11:
                     Debug.Assert(eventData.EventName == "ResponseHeadersStart" && payload.Count == 0);
                     {
-                        do
+                        if (hasTelemetryConsumers)
                         {
-                            consumers.Current.OnResponseHeadersStart(eventData.TimeStamp);
+                            do
+                            {
+                                consumers.Current.OnResponseHeadersStart(eventData.TimeStamp);
+                            }
+                            while (consumers.MoveNext());
                         }
-                        while (consumers.MoveNext());
+                        if (perRequestMetrics != null)
+                        {
+                            perRequestMetrics.TimeDestinationResponseHeadersStart = eventData.TimeStamp;
+                        }
                     }
                     break;
 
                 case 12:
                     Debug.Assert(eventData.EventName == "ResponseHeadersStop" && payload.Count == 0);
                     {
-                        do
+                        if (hasTelemetryConsumers)
                         {
-                            consumers.Current.OnResponseHeadersStop(eventData.TimeStamp);
+                            do
+                            {
+                                consumers.Current.OnResponseHeadersStop(eventData.TimeStamp);
+                            }
+                            while (consumers.MoveNext());
                         }
-                        while (consumers.MoveNext());
+                        if (perRequestMetrics != null)
+                        {
+                            perRequestMetrics.TimeDestinationResponseHeadersStop = eventData.TimeStamp;
+                        }
                     }
                     break;
             }

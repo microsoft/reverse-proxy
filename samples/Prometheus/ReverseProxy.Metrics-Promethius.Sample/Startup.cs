@@ -44,8 +44,15 @@ namespace Yarp.Sample
 
             services.AddHttpContextAccessor();
             services.AddSingleton<IProxyMetricsConsumer, ProxyMetricsConsumer>();
+
+
+            // Register our telemetry consumers for each of the types of proxy telemetry
             services.AddScoped<IProxyTelemetryConsumer, ProxyTelemetryConsumer>();
             services.AddProxyTelemetryListener();
+
+#if NET5_0
+            services.AddHttpTelemetryListener();
+#endif
         }
 
         /// <summary>
