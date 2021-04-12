@@ -52,6 +52,10 @@ namespace Yarp.ReverseProxy.Sample
 
             services.AddReverseProxy()
                 .LoadFromMemory(routes, clusters)
+                .ConfigureClient((context, handler) =>
+                {
+                    handler.Expect100ContinueTimeout = TimeSpan.FromMilliseconds(300);
+                })
                 .AddTransformFactory<MyTransformFactory>()
                 .AddTransforms<MyTransformProvider>()
                 .AddTransforms(transformBuilderContext =>
