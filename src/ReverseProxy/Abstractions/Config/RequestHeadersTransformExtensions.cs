@@ -54,5 +54,14 @@ namespace Yarp.ReverseProxy.Abstractions.Config
             context.RequestTransforms.Add(new RequestHeaderValueTransform(headerName, value, append));
             return context;
         }
+
+        /// <summary>
+        /// Adds the transform which will copy or remove the original host header.
+        /// </summary>
+        public static TransformBuilderContext AddOriginalHost(this TransformBuilderContext context, bool useOriginal = true)
+        {
+            context.RequestTransforms.Add(new RequestHeaderOriginalHostTransform(useOriginal));
+            return context;
+        }
     }
 }

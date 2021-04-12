@@ -43,11 +43,6 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         public bool? CopyResponseTrailers { get; set; }
 
         /// <summary>
-        /// Indicates if the proxy request should use the host header from the client request or from the destination url.
-        /// </summary>
-        public bool? UseOriginalHost { get; set; }
-
-        /// <summary>
         /// Indicates if default x-fowarded-* transforms should be added to this route. Disable this if you do not want
         /// x-forwarded-* headers or have configured your own.
         /// </summary>

@@ -59,7 +59,7 @@ namespace Yarp.ReverseProxy.Service.Config
             else if (transformValues.TryGetValue(RequestHeaderOriginalHostKey, out var originalHost))
             {
                 TransformHelpers.CheckTooManyParameters(transformValues, expected: 1);
-                context.UseOriginalHost = bool.Parse(originalHost);
+                context.AddOriginalHost(bool.Parse(originalHost));
             }
             else if (transformValues.TryGetValue(RequestHeaderKey, out var headerName))
             {
