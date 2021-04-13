@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Threading;
 
 namespace Yarp.ReverseProxy.Utilities
@@ -18,6 +19,10 @@ namespace Yarp.ReverseProxy.Utilities
             ((CancellationTokenSource)s!).Cancel(throwOnFirstException: false);
         };
 
+        private const long SafeToReuseTicks = TimeSpan.TicksPerSecond * 10;
+        private static readonly double _stopwatchTicksPerTimeSpanTick = Stopwatch.Frequency / (double)TimeSpan.TicksPerSecond;
+
+        private long _safeToReuseBeforeTimestamp;
         private CancellationTokenRegistration _registration;
 
         public static PooledCTS Rent(TimeSpan timeout, CancellationToken linkedToken)
@@ -29,6 +34,8 @@ namespace Yarp.ReverseProxy.Utilities
 
             cts._registration = linkedToken.UnsafeRegister(_linkedTokenCancelDelegate, cts);
 
+            cts._safeToReuseBeforeTimestamp = Stopwatch.GetTimestamp() + (long)((timeout.Ticks - SafeToReuseTicks) * _stopwatchTicksPerTimeSpanTick);
+
             cts.CancelAfter(timeout);
 
             return cts;
@@ -39,11 +46,10 @@ namespace Yarp.ReverseProxy.Utilities
             _registration.Dispose();
             _registration = default;
 
-            // TODO: Replace CancelAfter(Timeout.Infinite) & IsCancellationRequested with TryReset in 6.0+
-
+            // TODO: Use TryReset in 6.0+
             CancelAfter(Timeout.Infinite);
 
-            if (IsCancellationRequested)
+            if (IsCancellationRequested || Stopwatch.GetTimestamp() > _safeToReuseBeforeTimestamp)
             {
                 Dispose();
             }
