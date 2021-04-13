@@ -83,7 +83,7 @@ namespace Yarp.Sample
 
         public async Task InvokeAsync(HttpContext context)
         {
-            var startTime = DateTime.Now;
+            var startTime = DateTime.UtcNow;
 
             await _next(context);
 
@@ -91,14 +91,14 @@ namespace Yarp.Sample
             if (proxyFeature != null)
             {
                 string[] labelvalues = { proxyFeature.RouteSnapshot.ProxyRoute.RouteId, proxyFeature.ClusterSnapshot.Options.Id, proxyFeature.ProxiedDestination.Config.Options.Address };
-                _requestDuration.WithLabels(labelvalues).Observe((startTime - DateTime.Now).TotalMilliseconds);
+                _requestDuration.WithLabels(labelvalues).Observe((startTime - DateTime.UtcNow).TotalMilliseconds);
                 _requestsProcessed.WithLabels(labelvalues).Inc();
                 if (context.Request.ContentLength.HasValue) { _requestContentBytes.WithLabels(labelvalues).Observe(context.Request.ContentLength.Value); }
                 if (context.Response.ContentLength.HasValue) { _responseContentBytes.WithLabels(labelvalues).Observe(context.Response.ContentLength.Value); }
 
-                if (context.Response.StatusCode >= 200 && context.Response.StatusCode < 300) { _requestsSuccessfull.Inc(); }
-                else if (context.Response.StatusCode >= 400 && context.Response.StatusCode < 500) { _requests_error_4xx.Inc(); }
-                else if (context.Response.StatusCode >= 500 && context.Response.StatusCode < 600) { _requests_error_5xx.Inc(); }
+                if (context.Response.StatusCode >= 200 && context.Response.StatusCode < 300) { _requestsSuccessfull.WithLabels(labelvalues).Inc(); }
+                else if (context.Response.StatusCode >= 400 && context.Response.StatusCode < 500) { _requests_error_4xx.WithLabels(labelvalues).Inc(); }
+                else if (context.Response.StatusCode >= 500 && context.Response.StatusCode < 600) { _requests_error_5xx.WithLabels(labelvalues).Inc(); }
             }
         }
     }
