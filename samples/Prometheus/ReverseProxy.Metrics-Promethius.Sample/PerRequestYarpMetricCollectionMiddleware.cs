@@ -87,7 +87,7 @@ namespace Yarp.Sample
 
             await _next(context);
 
-            var proxyFeature = context.Features[typeof(IReverseProxyFeature)] as IReverseProxyFeature; 
+            var proxyFeature = context.Features.Get<IReverseProxyFeature>();
             if (proxyFeature != null)
             {
                 string[] labelvalues = { proxyFeature.RouteSnapshot.ProxyRoute.RouteId, proxyFeature.ClusterSnapshot.Options.Id, proxyFeature.ProxiedDestination.Config.Options.Address };
