@@ -20,8 +20,6 @@ namespace Yarp.Sample
     {
         private readonly IConfiguration _configuration;
 
-        private readonly YarpPrometheusMetrics metrics;
-
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Startup" /> class.
@@ -29,7 +27,6 @@ namespace Yarp.Sample
         public Startup(IConfiguration configuration)
         {
             _configuration = configuration;
-            metrics = new YarpPrometheusMetrics();
         }
 
         /// <summary>
@@ -38,21 +35,13 @@ namespace Yarp.Sample
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-
             services.AddReverseProxy()
                 .LoadFromConfig(_configuration.GetSection("ReverseProxy"));
 
             services.AddHttpContextAccessor();
-            services.AddSingleton<IProxyMetricsConsumer, ProxyMetricsConsumer>();
 
-
-            // Register our telemetry consumers for each of the types of proxy telemetry
-            services.AddScoped<IProxyTelemetryConsumer, ProxyTelemetryConsumer>();
-            services.AddProxyTelemetryListener();
-
-#if NET5_0
-            services.AddHttpTelemetryListener();
-#endif
+            //Enable metric collection for all the underlying event counters used by YARP
+            services.AddAllPrometheusMetrics();
         }
 
         /// <summary>
@@ -61,19 +50,17 @@ namespace Yarp.Sample
         public void Configure(IApplicationBuilder app)
         {
             app.UseRouting();
-            app.UseHttpMetrics();
+
+            //Initialize our metrics collection
+            app.UsePerRequestMetricCollection();
+
+            //Configure the endpoint routing including the proxy
             app.UseEndpoints(endpoints =>
             {
                 // We can customize the proxy pipeline and add/remove/replace steps
-                endpoints.MapReverseProxy(proxyPipeline =>
-                {
-                
-                    // Don't forget to include these two middleware when you make a custom proxy pipeline (if you need them).
-                    proxyPipeline.UseAffinitizedDestinationLookup();
-                    proxyPipeline.UseProxyLoadBalancing();
-                    // Use a custom proxy middleware, defined below
-                    proxyPipeline.Use(metrics.ReportForYarp);
-                });
+                endpoints.MapReverseProxy();
+
+                // Add the /Metrics endpoint for prometheus to query on
                 endpoints.MapMetrics();
             });
         }
