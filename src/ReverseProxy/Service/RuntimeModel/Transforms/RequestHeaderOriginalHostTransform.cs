@@ -11,12 +11,16 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
     /// </summary>
     public class RequestHeaderOriginalHostTransform : RequestTransform
     {
+        public static readonly RequestHeaderOriginalHostTransform OriginalHost = new(true);
+
+        public static readonly RequestHeaderOriginalHostTransform CustomHost = new(false);
+
         /// <summary>
         /// Creates a new <see cref="RequestHeaderOriginalHostTransform"/>.
         /// </summary>
         /// <param name="useOriginalHost">True of the original request host header should be used,
         /// false otherwise.</param>
-        public RequestHeaderOriginalHostTransform(bool useOriginalHost)
+        private RequestHeaderOriginalHostTransform(bool useOriginalHost)
         {
             UseOriginalHost = useOriginalHost;
         }
