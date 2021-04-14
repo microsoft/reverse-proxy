@@ -99,6 +99,11 @@ namespace Yarp.ReverseProxy
             {
                 Assert.True(stages[i - 1].Timestamp <= stages[i].Timestamp);
             }
+
+
+            // As a workaround for https://github.com/dotnet/runtime/pull/51227, run the metrics test after telemetry finishes
+            // It should otherwise be a separate test
+            await MetricsConsumptionWorks();
         }
 
         private sealed class TelemetryConsumer :
@@ -114,7 +119,7 @@ namespace Yarp.ReverseProxy
         {
             public string ClusterId { get; set; }
 
-            public readonly List<(string Stage, DateTime Timestamp)> Stages = new List<(string, DateTime)>(16);
+            public readonly List<(string Stage, DateTime Timestamp)> Stages = new();
 
             private void AddStage(string stage, DateTime timestamp)
             {
@@ -164,8 +169,7 @@ namespace Yarp.ReverseProxy
 #endif
         }
 
-        [Fact]
-        public async Task MetricsConsumptionWorks()
+        private async Task MetricsConsumptionWorks()
         {
             MetricsOptions.Interval = TimeSpan.FromMilliseconds(10);
 

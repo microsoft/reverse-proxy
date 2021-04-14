@@ -5,45 +5,24 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Tracing;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Yarp.ReverseProxy.Service.Proxy;
 
 namespace Yarp.ReverseProxy.Telemetry.Consumption
 {
-    internal sealed class ProxyEventListenerService : EventListener, IHostedService
+    internal sealed class ProxyEventListenerService : EventListenerService<ProxyEventListenerService, IProxyTelemetryConsumer, IProxyMetricsConsumer>
     {
-        private readonly ILogger<ProxyEventListenerService> _logger;
-        private readonly IServiceProvider _serviceProvider;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-
         private ProxyMetrics _previousMetrics;
         private ProxyMetrics _currentMetrics = new();
         private int _eventCountersCount;
 
-        public ProxyEventListenerService(ILogger<ProxyEventListenerService> logger, IServiceProvider serviceProvider, IHttpContextAccessor httpContextAccessor)
-        {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
-            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
-        }
+        protected override string EventSourceName => "Yarp.ReverseProxy";
 
-        public Task StartAsync(CancellationToken cancellationToken) => Task.CompletedTask;
-
-        public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
-
-        protected override void OnEventSourceCreated(EventSource eventSource)
-        {
-            if (eventSource.Name == "Yarp.ReverseProxy")
-            {
-                var arguments = new Dictionary<string, string> { { "EventCounterIntervalSec", MetricsOptions.Interval.TotalSeconds.ToString() } };
-                EnableEvents(eventSource, EventLevel.LogAlways, EventKeywords.None, arguments);
-            }
-        }
+        public ProxyEventListenerService(ILogger<ProxyEventListenerService> logger, IServiceProvider serviceProvider, IHttpContextAccessor httpContextAccessor, ServiceCollectionInternal services)
+            : base(logger, serviceProvider, httpContextAccessor, services)
+        { }
 
         protected override void OnEventWritten(EventWrittenEventArgs eventData)
         {
@@ -60,7 +39,7 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                 return;
             }
 
-            var context = _httpContextAccessor?.HttpContext;
+            var context = HttpContextAccessor.HttpContext;
             if (context is null)
             {
                 return;
@@ -221,14 +200,14 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                 _previousMetrics = metrics;
                 _currentMetrics = new ProxyMetrics();
 
-                if (previous is null || _serviceProvider is null)
+                if (previous is null)
                 {
                     return;
                 }
 
                 try
                 {
-                    foreach (var consumer in _serviceProvider.GetServices<IProxyMetricsConsumer>())
+                    foreach (var consumer in ServiceProvider.GetServices<IProxyMetricsConsumer>())
                     {
                         consumer.OnProxyMetrics(previous, metrics);
                     }
@@ -236,7 +215,7 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                 catch (Exception ex)
                 {
                     // We can't let an uncaught exception propagate as that would crash the process
-                    _logger.LogError(ex, $"Uncaught exception occured while processing {nameof(ProxyMetrics)}.");
+                    Logger.LogError(ex, $"Uncaught exception occured while processing {nameof(ProxyMetrics)}.");
                 }
             }
         }

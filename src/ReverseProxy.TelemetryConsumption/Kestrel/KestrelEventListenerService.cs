@@ -5,53 +5,34 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Tracing;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace Yarp.ReverseProxy.Telemetry.Consumption
 {
-    internal sealed class KestrelEventListenerService : EventListener, IHostedService
+#if !NET5_0
+    internal sealed class DummyClassNotInTheServiceCollection { }
+#endif
+
+    internal sealed class KestrelEventListenerService
+#if NET5_0
+        : EventListenerService<KestrelEventListenerService, IKestrelTelemetryConsumer, IKestrelMetricsConsumer>
+#else
+        : EventListenerService<KestrelEventListenerService, IKestrelTelemetryConsumer, DummyClassNotInTheServiceCollection>
+#endif
     {
 #if NET5_0
-        private readonly ILogger<KestrelEventListenerService> _logger;
-        private readonly IServiceProvider _serviceProvider;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-
         private KestrelMetrics _previousMetrics;
         private KestrelMetrics _currentMetrics = new();
         private int _eventCountersCount;
-
-        public KestrelEventListenerService(ILogger<KestrelEventListenerService> logger, IServiceProvider serviceProvider, IHttpContextAccessor httpContextAccessor)
-        {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
-            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
-        }
-#else
-        private readonly IHttpContextAccessor _httpContextAccessor;
-
-        public KestrelEventListenerService(IHttpContextAccessor httpContextAccessor)
-        {
-            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
-        }
 #endif
 
-        public Task StartAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+        protected override string EventSourceName => "Microsoft-AspNetCore-Server-Kestrel";
 
-        public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
-
-        protected override void OnEventSourceCreated(EventSource eventSource)
-        {
-            if (eventSource.Name == "Microsoft-AspNetCore-Server-Kestrel")
-            {
-                var arguments = new Dictionary<string, string> { { "EventCounterIntervalSec", MetricsOptions.Interval.TotalSeconds.ToString() } };
-                EnableEvents(eventSource, EventLevel.LogAlways, EventKeywords.None, arguments);
-            }
-        }
+        public KestrelEventListenerService(ILogger<KestrelEventListenerService> logger, IServiceProvider serviceProvider, IHttpContextAccessor httpContextAccessor, ServiceCollectionInternal services)
+            : base(logger, serviceProvider, httpContextAccessor, services)
+        { }
 
         protected override void OnEventWritten(EventWrittenEventArgs eventData)
         {
@@ -70,7 +51,7 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                 return;
             }
 
-            var context = _httpContextAccessor?.HttpContext;
+            var context = HttpContextAccessor.HttpContext;
             if (context is null)
             {
                 return;
@@ -224,14 +205,14 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                 _previousMetrics = metrics;
                 _currentMetrics = new KestrelMetrics();
 
-                if (previous is null || _serviceProvider is null)
+                if (previous is null)
                 {
                     return;
                 }
 
                 try
                 {
-                    foreach (var consumer in _serviceProvider.GetServices<IKestrelMetricsConsumer>())
+                    foreach (var consumer in ServiceProvider.GetServices<IKestrelMetricsConsumer>())
                     {
                         consumer.OnKestrelMetrics(previous, metrics);
                     }
@@ -239,7 +220,7 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                 catch (Exception ex)
                 {
                     // We can't let an uncaught exception propagate as that would crash the process
-                    _logger.LogError(ex, $"Uncaught exception occured while processing {nameof(KestrelMetrics)}.");
+                    Logger.LogError(ex, $"Uncaught exception occured while processing {nameof(KestrelMetrics)}.");
                 }
             }
         }

@@ -6,44 +6,23 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Tracing;
 using System.Security.Authentication;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace Yarp.ReverseProxy.Telemetry.Consumption
 {
-    internal sealed class NetSecurityEventListenerService : EventListener, IHostedService
+    internal sealed class NetSecurityEventListenerService : EventListenerService<NetSecurityEventListenerService, INetSecurityTelemetryConsumer, INetSecurityMetricsConsumer>
     {
-        private readonly ILogger<NetSecurityEventListenerService> _logger;
-        private readonly IServiceProvider _serviceProvider;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-
         private NetSecurityMetrics _previousMetrics;
         private NetSecurityMetrics _currentMetrics = new();
         private int _eventCountersCount;
 
-        public NetSecurityEventListenerService(ILogger<NetSecurityEventListenerService> logger, IServiceProvider serviceProvider, IHttpContextAccessor httpContextAccessor)
-        {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
-            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
-        }
+        protected override string EventSourceName => "System.Net.Security";
 
-        public Task StartAsync(CancellationToken cancellationToken) => Task.CompletedTask;
-
-        public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
-
-        protected override void OnEventSourceCreated(EventSource eventSource)
-        {
-            if (eventSource.Name == "System.Net.Security")
-            {
-                var arguments = new Dictionary<string, string> { { "EventCounterIntervalSec", MetricsOptions.Interval.TotalSeconds.ToString() } };
-                EnableEvents(eventSource, EventLevel.LogAlways, EventKeywords.None, arguments);
-            }
-        }
+        public NetSecurityEventListenerService(ILogger<NetSecurityEventListenerService> logger, IServiceProvider serviceProvider, IHttpContextAccessor httpContextAccessor, ServiceCollectionInternal services)
+            : base(logger, serviceProvider, httpContextAccessor, services)
+        { }
 
         protected override void OnEventWritten(EventWrittenEventArgs eventData)
         {
@@ -60,7 +39,7 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                 return;
             }
 
-            var context = _httpContextAccessor?.HttpContext;
+            var context = HttpContextAccessor.HttpContext;
             if (context is null)
             {
                 return;
@@ -205,14 +184,14 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                 _previousMetrics = metrics;
                 _currentMetrics = new NetSecurityMetrics();
 
-                if (previous is null || _serviceProvider is null)
+                if (previous is null)
                 {
                     return;
                 }
 
                 try
                 {
-                    foreach (var consumer in _serviceProvider.GetServices<INetSecurityMetricsConsumer>())
+                    foreach (var consumer in ServiceProvider.GetServices<INetSecurityMetricsConsumer>())
                     {
                         consumer.OnNetSecurityMetrics(previous, metrics);
                     }
@@ -220,7 +199,7 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                 catch (Exception ex)
                 {
                     // We can't let an uncaught exception propagate as that would crash the process
-                    _logger.LogError(ex, $"Uncaught exception occured while processing {nameof(NetSecurityMetrics)}.");
+                    Logger.LogError(ex, $"Uncaught exception occured while processing {nameof(NetSecurityMetrics)}.");
                 }
             }
         }
