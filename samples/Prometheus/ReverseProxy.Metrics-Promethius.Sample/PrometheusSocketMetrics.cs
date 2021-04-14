@@ -1,8 +1,10 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 #if NET5_0_OR_GREATER
 
 using Yarp.ReverseProxy.Telemetry.Consumption;
 using Prometheus;
-
 
 namespace Yarp.Sample
 {
@@ -49,7 +51,6 @@ namespace Yarp.Sample
             _datagramsReceived.IncTo(newMetrics.DatagramsReceived);
             _datagramsSent.IncTo(newMetrics.DatagramsSent);
         }
-
     }
 }
 #endif

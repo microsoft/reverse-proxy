@@ -23,7 +23,6 @@ namespace HttpLoadApp
 
         private static async void CreateLoad(string UrlPrefix)
         {
-            var rnd = new Random();
             var i = 0;
             while(true)
             {

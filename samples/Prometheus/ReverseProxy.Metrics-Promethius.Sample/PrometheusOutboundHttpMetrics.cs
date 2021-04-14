@@ -14,6 +14,8 @@ namespace Yarp.Sample
     /// </summary>
     public sealed class PrometheusOutboundHttpMetrics: IHttpMetricsConsumer
     {
+        private static readonly double CUBE_ROOT_10 = Math.Pow(10, (1.0 / 3));
+
         private static readonly Counter _outboundRequestsStarted = Metrics.CreateCounter(
             "yarp_outbound_http_requests_started",
             "Number of outbound requests inititated by the proxy"
@@ -40,15 +42,20 @@ namespace Yarp.Sample
             );
 
         private static readonly Histogram _outboundHttp11RequestQueueDuration= Metrics.CreateHistogram(
-            "yarp_outbound_http11_request_queue_duration",
-            "Average time spent on queue for HTTP 1.1 requests that hit the MaxConnectionsPerServer limit in the last metrics interval"
-            );
+            "yarp_outbound_http11_request_queue_duration (ms)",
+            "Average time spent on queue for HTTP 1.1 requests that hit the MaxConnectionsPerServer limit in the last metrics interval",
+            new HistogramConfiguration
+            {
+                Buckets = Histogram.ExponentialBuckets(10, CUBE_ROOT_10, 10)
+            });
 
         private static readonly Histogram _outboundHttp20RequestQueueDuration = Metrics.CreateHistogram(
-            "yarp_outbound_http20_request_queue_duration",
-            "Average time spent on queue for HTTP 2.0 requests that hit the MAX_CONCURRENT_STREAMS limit on the connection in the last metrics interval"
-            );
-
+            "yarp_outbound_http20_request_queue_duration (ms)",
+            "Average time spent on queue for HTTP 2.0 requests that hit the MAX_CONCURRENT_STREAMS limit on the connection in the last metrics interval",
+            new HistogramConfiguration
+            {
+                Buckets = Histogram.ExponentialBuckets(10, CUBE_ROOT_10, 10)
+            });
 
         public void OnHttpMetrics(HttpMetrics oldMetrics, HttpMetrics newMetrics)
         {

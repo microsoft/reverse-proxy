@@ -11,11 +11,11 @@ using System.Text.Json;
 namespace Yarp.Sample
 {
     public class PerRequestYarpMetricCollectionMiddleware
-
     {
         // Required for middleware
         private readonly RequestDelegate _next;
-
+        private static readonly double CUBE_ROOT_10 = Math.Pow(10, (1.0 / 3));
+        private static readonly double SQUARE_ROOT_10 = Math.Pow(10, (1.0 / 2));
 
         // Prometheus-net metric registration
         private static readonly string[] _labelNames = new[] { "Route", "Cluster", "Destination" };
@@ -26,51 +26,52 @@ namespace Yarp.Sample
         };
 
         private static readonly Counter _requestsProcessed = Metrics.CreateCounter(
-            "yarp_requests_processed",
+            "yarp_dimensioned_requests_processed",
             "Number of requests through the proxy",
             counterConfig
         );
 
         private static readonly Histogram _requestContentBytes = Metrics.CreateHistogram(
-            "yarp_request_content_bytes",
+            "yarp_dimensioned_request_content_bytes",
             "Bytes for request bodies sent through the proxy",
             new HistogramConfiguration
             {
-                LabelNames = _labelNames
-            }
-         );
+                LabelNames = _labelNames,
+                Buckets = Histogram.ExponentialBuckets(1, SQUARE_ROOT_10, 10)
+            });
 
         private static readonly Histogram _responseContentBytes = Metrics.CreateHistogram(
-            "yarp_response_content_bytes",
+            "yarp_dimensioned_response_content_bytes",
             "Bytes for request bodies sent through the proxy",
-                    new HistogramConfiguration
-                    {
-                        LabelNames = _labelNames
-                    }
-        );
-
-        private static readonly Histogram _requestDuration = Metrics.CreateHistogram(
-            "yarp_request_duration",
-            "Histogram of request processing durations.",
             new HistogramConfiguration
             {
-                LabelNames = _labelNames
+                LabelNames = _labelNames,
+                Buckets = Histogram.ExponentialBuckets(1, SQUARE_ROOT_10, 10)
+            });
+
+        private static readonly Histogram _requestDuration = Metrics.CreateHistogram(
+            "yarp_dimensioned_request_duration",
+            "Histogram of request processing durations (ms)",
+            new HistogramConfiguration
+            {
+                LabelNames = _labelNames,
+                Buckets = Histogram.ExponentialBuckets(1, CUBE_ROOT_10, 10)
             });
 
         private static readonly Counter _requestsSuccessfull = Metrics.CreateCounter(
-            "yarp_requests_success",
+            "yarp_dimensioned_requests_success",
             "Number of requests with a 2xx status code",
             counterConfig
         );
 
         private static readonly Counter _requests_error_4xx = Metrics.CreateCounter(
-            "yarp_requests_error_4xx",
+            "yarp_dimensioned_requests_error_4xx",
             "Number of requests with a 4xx status code",
             counterConfig
         );
 
         private static readonly Counter _requests_error_5xx = Metrics.CreateCounter(
-            "yarp_requests_error_5xx",
+            "yarp_dimensioned_requests_error_5xx",
             "Number of requests with a 5xx status code",
             counterConfig
         );
@@ -84,14 +85,14 @@ namespace Yarp.Sample
         public async Task InvokeAsync(HttpContext context)
         {
             var startTime = DateTime.UtcNow;
-
+           
             await _next(context);
 
             var proxyFeature = context.Features.Get<IReverseProxyFeature>();
             if (proxyFeature != null)
             {
                 string[] labelvalues = { proxyFeature.RouteSnapshot.ProxyRoute.RouteId, proxyFeature.ClusterSnapshot.Options.Id, proxyFeature.ProxiedDestination.Config.Options.Address };
-                _requestDuration.WithLabels(labelvalues).Observe((startTime - DateTime.UtcNow).TotalMilliseconds);
+                _requestDuration.WithLabels(labelvalues).Observe((DateTime.UtcNow-startTime).TotalMilliseconds);
                 _requestsProcessed.WithLabels(labelvalues).Inc();
                 if (context.Request.ContentLength.HasValue) { _requestContentBytes.WithLabels(labelvalues).Observe(context.Request.ContentLength.Value); }
                 if (context.Response.ContentLength.HasValue) { _responseContentBytes.WithLabels(labelvalues).Observe(context.Response.ContentLength.Value); }

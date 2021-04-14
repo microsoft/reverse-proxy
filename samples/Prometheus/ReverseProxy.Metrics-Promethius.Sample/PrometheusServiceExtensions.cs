@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,12 +21,27 @@ namespace Yarp.Sample
         }
 
 #if NET5_0_OR_GREATER
+        public static IServiceCollection AddPrometheusDnsMetrics(this IServiceCollection services)
+        {
+            services.AddSocketsTelemetryListener();
+            services.AddSingleton<INameResolutionMetricsConsumer, PrometheusDnsMetrics>();
+            return services;
+        }
+
+        public static IServiceCollection AddPrometheusKestrelMetrics(this IServiceCollection services)
+        {
+            services.AddKestrelTelemetryListener();
+            services.AddSingleton<IKestrelMetricsConsumer, PrometheusKestrelMetrics>();
+            return services;
+        }
+
         public static IServiceCollection AddPrometheusOutboundHttpMetrics(this IServiceCollection services)
         {
             services.AddHttpTelemetryListener();
             services.AddSingleton<IHttpMetricsConsumer, PrometheusOutboundHttpMetrics>();
             return services;
         }
+
         public static IServiceCollection AddPrometheusSocketsMetrics(this IServiceCollection services)
         {
             services.AddSocketsTelemetryListener();
@@ -36,8 +54,10 @@ namespace Yarp.Sample
         {
             services.AddPrometheusProxyMetrics();
 #if NET5_0_OR_GREATER
-            services.AddPrometheusSocketsMetrics();
+            services.AddPrometheusDnsMetrics();
+            services.AddPrometheusKestrelMetrics();
             services.AddPrometheusOutboundHttpMetrics();
+            services.AddPrometheusSocketsMetrics();
 #endif
             return services;
         }
