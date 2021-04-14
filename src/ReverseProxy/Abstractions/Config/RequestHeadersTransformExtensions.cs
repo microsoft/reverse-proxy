@@ -60,7 +60,14 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         /// </summary>
         public static TransformBuilderContext AddOriginalHost(this TransformBuilderContext context, bool useOriginal = true)
         {
-            context.RequestTransforms.Add(new RequestHeaderOriginalHostTransform(useOriginal));
+            if (useOriginal)
+            {
+                context.RequestTransforms.Add(RequestHeaderOriginalHostTransform.OriginalHost);
+            }
+            else
+            {
+                context.RequestTransforms.Add(RequestHeaderOriginalHostTransform.SuppressHost);
+            }
             return context;
         }
     }
