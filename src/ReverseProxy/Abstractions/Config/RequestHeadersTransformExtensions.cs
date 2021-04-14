@@ -66,7 +66,7 @@ namespace Yarp.ReverseProxy.Abstractions.Config
             }
             else
             {
-                context.RequestTransforms.Add(RequestHeaderOriginalHostTransform.CustomHost);
+                context.RequestTransforms.Add(RequestHeaderOriginalHostTransform.SuppressHost);
             }
             return context;
         }

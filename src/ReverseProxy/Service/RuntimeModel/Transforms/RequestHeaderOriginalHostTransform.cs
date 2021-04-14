@@ -13,7 +13,7 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
     {
         public static readonly RequestHeaderOriginalHostTransform OriginalHost = new(true);
 
-        public static readonly RequestHeaderOriginalHostTransform CustomHost = new(false);
+        public static readonly RequestHeaderOriginalHostTransform SuppressHost = new(false);
 
         /// <summary>
         /// Creates a new <see cref="RequestHeaderOriginalHostTransform"/>.
