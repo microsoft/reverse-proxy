@@ -49,7 +49,6 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
         private EventSource _eventSource;
         private readonly object _syncObject = new();
         private readonly ManualResetEventSlim _initializedMre = _threadStaticInitializedMre;
-        private readonly int _ctorThreadId = Environment.CurrentManagedThreadId;
         private readonly bool _enableEvents;
         private readonly bool _enableMetrics;
 
@@ -91,10 +90,11 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                 }
 
                 // Ensure that the constructor finishes before exiting this method (so that the first events aren't dropped)
-                // It's possible that we are executing as a part of the base ctor - check the Thread ID to avoid a deadlock
-                if (Environment.CurrentManagedThreadId != _ctorThreadId)
+                // It's possible that we are executing as a part of the base ctor - only block if we're running on a different thread
+                var mre = _initializedMre;
+                if (mre is not null && !ReferenceEquals(mre, _threadStaticInitializedMre))
                 {
-                    _initializedMre?.Wait();
+                    mre.Wait();
                 }
             }
         }
