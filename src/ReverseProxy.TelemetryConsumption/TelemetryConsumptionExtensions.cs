@@ -22,13 +22,13 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddHttpContextAccessor();
             services.TryAddSingleton(new ServiceCollectionInternal(services));
 
-            services.AddHostedService<ProxyEventListenerService>();
-            services.AddHostedService<KestrelEventListenerService>();
+            services.AddHostedService(provider => ProxyEventListenerService.Create<ProxyEventListenerService>(provider));
+            services.AddHostedService(provider => KestrelEventListenerService.Create<KestrelEventListenerService>(provider));
 #if NET5_0
-            services.AddHostedService<HttpEventListenerService>();
-            services.AddHostedService<NameResolutionEventListenerService>();
-            services.AddHostedService<NetSecurityEventListenerService>();
-            services.AddHostedService<SocketsEventListenerService>();
+            services.AddHostedService(provider => HttpEventListenerService.Create<HttpEventListenerService>(provider));
+            services.AddHostedService(provider => NameResolutionEventListenerService.Create<NameResolutionEventListenerService>(provider));
+            services.AddHostedService(provider => NetSecurityEventListenerService.Create<NetSecurityEventListenerService>(provider));
+            services.AddHostedService(provider => SocketsEventListenerService.Create<SocketsEventListenerService>(provider));
 #endif
             return services;
         }

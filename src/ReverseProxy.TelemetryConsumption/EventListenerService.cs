@@ -3,11 +3,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -15,6 +17,29 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
 {
     internal abstract class EventListenerService<TService, TTelemetryConsumer, TMetricsConsumer> : EventListener, IHostedService
     {
+        // We need a way to signal to OnEventSourceCreated that the EventListenerService constructor finished
+        // OnEventSourceCreated may be called before we even reach the derived ctor (as it's exposed from the base ctor)
+        // Because of that, we can't assign the MRE as part of the ctor, we have to do it as part of the object initializer
+        // But since the ctor itself may throw here, we need a way to observe the same MRE instance from outside the ctor
+        // We pull the MRE from a ThreadStatic that a ctor wrapper (Create) can observe
+        [ThreadStatic]
+        private static ManualResetEventSlim _threadStaticInitializedMre;
+
+        public static TEventListener Create<TEventListener>(IServiceProvider serviceProvider)
+            where TEventListener : EventListenerService<TService, TTelemetryConsumer, TMetricsConsumer>
+        {
+            _threadStaticInitializedMre = new();
+            try
+            {
+                return ActivatorUtilities.CreateInstance<TEventListener>(serviceProvider);
+            }
+            finally
+            {
+                _threadStaticInitializedMre.Set();
+                _threadStaticInitializedMre = null;
+            }
+        }
+
         protected abstract string EventSourceName { get; }
 
         protected readonly ILogger<TService> Logger;
@@ -22,7 +47,8 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
         protected readonly IHttpContextAccessor HttpContextAccessor;
 
         private EventSource _eventSource;
-        private readonly ManualResetEventSlim _initializedMre = new();
+        private readonly object _syncObject = new();
+        private readonly ManualResetEventSlim _initializedMre = _threadStaticInitializedMre;
         private readonly int _ctorThreadId = Environment.CurrentManagedThreadId;
         private readonly bool _enableEvents;
         private readonly bool _enableMetrics;
@@ -37,15 +63,14 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
             _enableEvents = services.Services.Any(s => s.ServiceType == typeof(TTelemetryConsumer));
             _enableMetrics = services.Services.Any(s => s.ServiceType == typeof(TMetricsConsumer));
 
-            lock (this)
+            lock (_syncObject)
             {
                 if (_eventSource is not null)
                 {
                     EnableEventSource();
                 }
 
-                // A different thread could be waiting for the ctor to finish, signal it that we're done
-                _initializedMre.Set();
+                Debug.Assert(_initializedMre is not null);
                 _initializedMre = null;
             }
         }
@@ -54,7 +79,7 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
         {
             if (eventSource.Name == EventSourceName)
             {
-                lock (this)
+                lock (_syncObject)
                 {
                     _eventSource = eventSource;
 
@@ -69,14 +94,7 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                 // It's possible that we are executing as a part of the base ctor - check the Thread ID to avoid a deadlock
                 if (Environment.CurrentManagedThreadId != _ctorThreadId)
                 {
-                    var mre = _initializedMre;
-                    if (mre is not null)
-                    {
-                        // This wait will generally be very short (waiting for the ctor on a different thread to finish)
-                        // If the ctor throws, the MRE will never be released - add a short timeout
-                        mre.Wait(TimeSpan.FromSeconds(15));
-                        mre.Dispose();
-                    }
+                    _initializedMre?.Wait();
                 }
             }
         }
