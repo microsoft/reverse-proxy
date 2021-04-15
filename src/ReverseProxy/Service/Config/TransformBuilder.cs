@@ -136,6 +136,28 @@ namespace Yarp.ReverseProxy.Service.Config
                 transformProvider.Apply(context);
             }
 
+            return CreateTransformer(context);
+        }
+
+        public HttpTransformer Create(Action<TransformBuilderContext> action)
+        {
+            return CreateInternal(action);
+        }
+
+        internal StructuredTransformer CreateInternal(Action<TransformBuilderContext> action)
+        {
+            var context = new TransformBuilderContext
+            {
+                Services = _services,
+            };
+
+            action(context);
+
+            return CreateTransformer(context);
+        }
+
+        private static StructuredTransformer CreateTransformer(TransformBuilderContext context)
+        {
             // RequestHeaderOriginalHostKey defaults to false, and CopyRequestHeaders defaults to true.
             // If RequestHeaderOriginalHostKey was not specified then we need to make sure the transform gets
             // added anyways to remove the original host. If CopyRequestHeaders is false then we can omit the
@@ -159,24 +181,6 @@ namespace Yarp.ReverseProxy.Service.Config
                 context.RequestTransforms,
                 context.ResponseTransforms,
                 context.ResponseTrailersTransforms);
-        }
-
-        public HttpTransformer Create(Action<TransformBuilderContext> action)
-        {
-            var context = new TransformBuilderContext
-            {
-                Services = _services,
-            };
-
-            action(context);
-
-            return new StructuredTransformer(
-               context.CopyRequestHeaders,
-               context.CopyResponseHeaders,
-               context.CopyResponseTrailers,
-               context.RequestTransforms,
-               context.ResponseTransforms,
-               context.ResponseTrailersTransforms);
         }
     }
 }

@@ -67,6 +67,46 @@ namespace Yarp.ReverseProxy.Service.Config
         }
 
         [Fact]
+        public void CreateTransforms_ExecutesAction()
+        {
+            var transformBuilder = CreateTransformBuilder();
+
+            var executed = false;
+            var results = transformBuilder.CreateInternal(_ =>
+            {
+                executed = true;
+            });
+
+            Assert.True(executed);
+        }
+
+        [Fact]
+        public void CreateTransforms_AddsDefaults()
+        {
+            var transformBuilder = CreateTransformBuilder();
+
+            var results = transformBuilder.CreateInternal(_ => { });
+            Assert.NotNull(results);
+            Assert.Null(results.ShouldCopyRequestHeaders);
+            Assert.Null(results.ShouldCopyResponseHeaders);
+            Assert.Null(results.ShouldCopyResponseTrailers);
+            Assert.Empty(results.ResponseTransforms);
+            Assert.Empty(results.ResponseTrailerTransforms);
+
+            Assert.Equal(5, results.RequestTransforms.Count);
+            var hostTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderOriginalHostTransform>());
+            Assert.False(hostTransform.UseOriginalHost);
+            var forTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderXForwardedForTransform>());
+            Assert.Equal(ForwardedHeadersDefaults.XForwardedForHeaderName, forTransform.HeaderName);
+            var xHostTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderXForwardedHostTransform>());
+            Assert.Equal(ForwardedHeadersDefaults.XForwardedHostHeaderName, xHostTransform.HeaderName);
+            var prefixTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderXForwardedPrefixTransform>());
+            Assert.Equal("X-Forwarded-Prefix", prefixTransform.HeaderName);
+            var protoTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderXForwardedProtoTransform>());
+            Assert.Equal(ForwardedHeadersDefaults.XForwardedProtoHeaderName, protoTransform.HeaderName);
+        }
+
+        [Fact]
         public void EmptyTransform_Error()
         {
             var transformBuilder = CreateTransformBuilder();
