@@ -19,7 +19,7 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
     {
         // We need a way to signal to OnEventSourceCreated that the EventListenerService constructor finished
         // OnEventSourceCreated may be called before we even reach the derived ctor (as it's exposed from the base ctor)
-        // Because of that, we can't assign the MRE as part of the ctor, we have to do it as part of the object initializer
+        // Because of that, we can't assign the MRE as part of the ctor, we have to do it as part of the _initializedMre field initializer
         // But since the ctor itself may throw here, we need a way to observe the same MRE instance from outside the ctor
         // We pull the MRE from a ThreadStatic that a ctor wrapper (Create) can observe
         [ThreadStatic]
