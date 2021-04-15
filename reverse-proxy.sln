@@ -92,7 +92,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReverseProxy.ConfigFilter.S
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReverseProxy.Config.Sample", "samples\ReverseProxy.Config.Sample\ReverseProxy.Config.Sample.csproj", "{A19FDE35-C2BB-4326-BA29-C77975FAD4A9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReverseProxy.Metrics-Promethius.Sample", "samples\Prometheus\ReverseProxy.Metrics-Promethius.Sample\ReverseProxy.Metrics-Promethius.Sample.csproj", "{31D7E62F-532B-4FAF-87A9-C1BB63AF222A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReverseProxy.Metrics.Promethius.Sample", "samples\Prometheus\ReverseProxy.Metrics-Promethius.Sample\ReverseProxy.Metrics.Promethius.Sample.csproj", "{31D7E62F-532B-4FAF-87A9-C1BB63AF222A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
