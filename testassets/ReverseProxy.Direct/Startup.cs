@@ -2,14 +2,14 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Yarp.ReverseProxy.Middleware;
+using Yarp.ReverseProxy.Abstractions.Config;
+using Yarp.ReverseProxy.Service;
 using Yarp.ReverseProxy.Service.Proxy;
 using Yarp.ReverseProxy.Service.RuntimeModel.Transforms;
 
@@ -41,7 +41,17 @@ namespace Yarp.ReverseProxy.Sample
                 UseCookies = false
             });
 
-            var transformer = new CustomTransformer(); // or HttpTransformer.Default;
+            var transformBuilder = app.ApplicationServices.GetRequiredService<ITransformBuilder>();
+            var transformer = transformBuilder.Create(context =>
+            {
+                context.AddQueryRemoveKey("param1");
+                context.AddQueryValue("area", "xx2", false);
+                context.AddOriginalHost(false);
+            });
+
+            // or var transformer = new CustomTransformer();
+            // or var transformer = HttpTransformer.Default;
+
             var requestOptions = new RequestProxyOptions { Timeout = TimeSpan.FromSeconds(100) };
 
             app.UseRouting();

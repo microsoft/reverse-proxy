@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Abstractions.Config;
 using Yarp.ReverseProxy.Service.Proxy;
 
 namespace Yarp.ReverseProxy.Service
@@ -28,5 +29,7 @@ namespace Yarp.ReverseProxy.Service
         /// Builds the transforms for the given route into executable rules.
         /// </summary>
         HttpTransformer Build(ProxyRoute route, Cluster cluster);
+
+        HttpTransformer Create(Action<TransformBuilderContext> action);
     }
 }

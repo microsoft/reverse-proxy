@@ -160,5 +160,23 @@ namespace Yarp.ReverseProxy.Service.Config
                 context.ResponseTransforms,
                 context.ResponseTrailersTransforms);
         }
+
+        public HttpTransformer Create(Action<TransformBuilderContext> action)
+        {
+            var context = new TransformBuilderContext
+            {
+                Services = _services,
+            };
+
+            action(context);
+
+            return new StructuredTransformer(
+               context.CopyRequestHeaders,
+               context.CopyResponseHeaders,
+               context.CopyResponseTrailers,
+               context.RequestTransforms,
+               context.ResponseTransforms,
+               context.ResponseTrailersTransforms);
+        }
     }
 }
