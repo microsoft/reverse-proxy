@@ -29,7 +29,7 @@ namespace Yarp.ReverseProxy.RuntimeModel
         private readonly SemaphoreSlim _updateRequests = new SemaphoreSlim(2);
 
         /// <summary>
-        /// Creates a new ClusterInfo. This constructor is for tests and infrastructure, ClusterInfo are normally constructed by the configuration
+        /// Creates a new ClusterInfo. This constructor is for tests and infrastructure, ClusterInfo is normally constructed by the configuration
         /// loading infrastructure.
         /// </summary>
         public ClusterInfo(string clusterId)
@@ -38,7 +38,7 @@ namespace Yarp.ReverseProxy.RuntimeModel
         }
 
         /// <summary>
-        /// The clusters unique id.
+        /// The cluster's unique id.
         /// </summary>
         public string ClusterId { get; }
 
