@@ -13,7 +13,7 @@ namespace Microsoft.AspNetCore.Builder
         /// <summary>
         /// Load balances across the available endpoints.
         /// </summary>
-        public static IApplicationBuilder UseProxyLoadBalancing(this IApplicationBuilder builder)
+        public static IApplicationBuilder UseLoadBalancing(this IApplicationBuilder builder)
         {
             return builder.UseMiddleware<LoadBalancingMiddleware>();
         }
@@ -24,9 +24,9 @@ namespace Microsoft.AspNetCore.Builder
         /// Requests without an affinity relationship will be processed normally and have the affinity relationship
         /// established by a later component.
         /// </summary>
-        public static IApplicationBuilder UseAffinitizedDestinationLookup(this IApplicationBuilder builder)
+        public static IApplicationBuilder UseSessionAffinity(this IApplicationBuilder builder)
         {
-            return builder.UseMiddleware<AffinitizedDestinationLookupMiddleware>();
+            return builder.UseMiddleware<SessionAffinityMiddleware>();
         }
 
         /// <summary>

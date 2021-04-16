@@ -2,19 +2,36 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
+using Yarp.ReverseProxy.Abstractions;
 using Yarp.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Service.Proxy;
 using Yarp.ReverseProxy.Service.SessionAffinity;
 
 namespace Yarp.ReverseProxy.Middleware
 {
-    public class AffinitizedDestinationLookupMiddlewareTests : AffinityMiddlewareTestBase
+    public class SessionAffinityMiddlewareTests
     {
+        protected const string AffinitizedDestinationName = "dest-B";
+        protected readonly ClusterConfig ClusterConfig = new ClusterConfig(new Cluster
+        {
+            Id = "cluster-1",
+            SessionAffinity = new SessionAffinityOptions
+            {
+                Enabled = true,
+                Mode = "Mode-B",
+                FailurePolicy = "Policy-1",
+            }
+        },
+            new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object));
+
         [Theory]
         [InlineData(AffinityStatus.AffinityKeyNotSet, null)]
         [InlineData(AffinityStatus.OK, AffinitizedDestinationName)]
@@ -36,12 +53,12 @@ namespace Yarp.ReverseProxy.Middleware
                 ("Mode-A", AffinityStatus.DestinationNotFound, (DestinationInfo)null, (Action<ISessionAffinityProvider>)(p => throw new InvalidOperationException($"Provider {p.Mode} call is not expected."))),
                 (expectedMode, status, foundDestination, p => invokedMode = p.Mode));
             var nextInvoked = false;
-            var middleware = new AffinitizedDestinationLookupMiddleware(c => {
+            var middleware = new SessionAffinityMiddleware(c => {
                     nextInvoked = true;
                     return Task.CompletedTask;
                 },
                 providers.Select(p => p.Object), new IAffinityFailurePolicy[0],
-                new Mock<ILogger<AffinitizedDestinationLookupMiddleware>>().Object);
+                new Mock<ILogger<SessionAffinityMiddleware>>().Object);
             var context = new DefaultHttpContext();
             context.SetEndpoint(endpoint);
             var destinationFeature = GetDestinationsFeature(cluster.Destinations.Values.ToList(), cluster.Config);
@@ -83,8 +100,8 @@ namespace Yarp.ReverseProxy.Middleware
                 ("Policy-0", false, p => throw new InvalidOperationException($"Policy {p.Name} call is not expected.")),
                 (expectedPolicy, keepProcessing, p => invokedPolicy = p.Name));
             var nextInvoked = false;
-            var logger = AffinityTestHelper.GetLogger<AffinitizedDestinationLookupMiddleware>();
-            var middleware = new AffinitizedDestinationLookupMiddleware(c => {
+            var logger = AffinityTestHelper.GetLogger<SessionAffinityMiddleware>();
+            var middleware = new SessionAffinityMiddleware(c => {
                     nextInvoked = true;
                     return Task.CompletedTask;
                 },
@@ -109,6 +126,84 @@ namespace Yarp.ReverseProxy.Middleware
                     l => l.Log(LogLevel.Warning, EventIds.AffinityResolutionFailedForCluster, It.IsAny<It.IsAnyType>(), null, (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
                     Times.Once);
             }
+        }
+
+        internal ClusterInfo GetCluster()
+        {
+            var cluster = new ClusterInfo("cluster-1");
+            var destinationManager = cluster.Destinations;
+            destinationManager.GetOrAdd("dest-A", id => new DestinationInfo(id));
+            destinationManager.GetOrAdd(AffinitizedDestinationName, id => new DestinationInfo(id));
+            destinationManager.GetOrAdd("dest-C", id => new DestinationInfo(id));
+            cluster.Config = ClusterConfig;
+            cluster.ProcessDestinationChanges();
+            return cluster;
+        }
+
+        internal IReadOnlyList<Mock<ISessionAffinityProvider>> RegisterAffinityProviders(
+            bool lookupMiddlewareTest,
+            IReadOnlyList<DestinationInfo> expectedDestinations,
+            string expectedCluster,
+            params (string Mode, AffinityStatus? Status, DestinationInfo Destination, Action<ISessionAffinityProvider> Callback)[] prototypes)
+        {
+            var result = new List<Mock<ISessionAffinityProvider>>();
+            foreach (var (mode, status, destinations, callback) in prototypes)
+            {
+                var provider = new Mock<ISessionAffinityProvider>(MockBehavior.Strict);
+                provider.SetupGet(p => p.Mode).Returns(mode);
+                if (lookupMiddlewareTest)
+                {
+                    provider.Setup(p => p.FindAffinitizedDestinations(
+                        It.IsAny<HttpContext>(),
+                        expectedDestinations,
+                        expectedCluster,
+                        ClusterConfig.Options.SessionAffinity))
+                    .Returns(new AffinityResult(destinations, status.Value))
+                    .Callback(() => callback(provider.Object));
+                }
+                else
+                {
+                    provider.Setup(p => p.AffinitizeRequest(
+                        It.IsAny<HttpContext>(),
+                        ClusterConfig.Options.SessionAffinity,
+                        expectedDestinations[0]))
+                    .Callback(() => callback(provider.Object));
+                }
+                result.Add(provider);
+            }
+            return result.AsReadOnly();
+        }
+
+        internal IReadOnlyList<Mock<IAffinityFailurePolicy>> RegisterFailurePolicies(AffinityStatus expectedStatus, params (string Name, bool Handled, Action<IAffinityFailurePolicy> Callback)[] prototypes)
+        {
+            var result = new List<Mock<IAffinityFailurePolicy>>();
+            foreach (var (name, handled, callback) in prototypes)
+            {
+                var policy = new Mock<IAffinityFailurePolicy>(MockBehavior.Strict);
+                policy.SetupGet(p => p.Name).Returns(name);
+                policy.Setup(p => p.Handle(It.IsAny<HttpContext>(), It.Is<SessionAffinityOptions>(o => o.FailurePolicy == name), expectedStatus))
+                    .ReturnsAsync(handled)
+                    .Callback(() => callback(policy.Object));
+                result.Add(policy);
+            }
+            return result.AsReadOnly();
+        }
+
+        internal IReverseProxyFeature GetDestinationsFeature(IReadOnlyList<DestinationInfo> destinations, ClusterConfig clusterConfig)
+        {
+            return new ReverseProxyFeature()
+            {
+                AvailableDestinations = destinations,
+                ClusterSnapshot = clusterConfig,
+            };
+        }
+
+        internal Endpoint GetEndpoint(ClusterInfo cluster)
+        {
+            var proxyRoute = new ProxyRoute();
+            var routeConfig = new RouteConfig(proxyRoute, cluster, HttpTransformer.Default);
+            var endpoint = new Endpoint(default, new EndpointMetadataCollection(routeConfig), string.Empty);
+            return endpoint;
         }
     }
 }

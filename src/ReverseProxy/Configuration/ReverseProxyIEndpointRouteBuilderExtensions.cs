@@ -24,8 +24,8 @@ namespace Microsoft.AspNetCore.Builder
         {
             return endpoints.MapReverseProxy(app =>
             {
-                app.UseAffinitizedDestinationLookup();
-                app.UseProxyLoadBalancing();
+                app.UseSessionAffinity();
+                app.UseLoadBalancing();
                 app.UsePassiveHealthChecks();
             });
         }
@@ -46,7 +46,7 @@ namespace Microsoft.AspNetCore.Builder
             }
 
             var appBuilder = endpoints.CreateApplicationBuilder();
-            appBuilder.UseMiddleware<DestinationInitializerMiddleware>();
+            appBuilder.UseMiddleware<ProxyPipelineInitializerMiddleware>();
             configureApp(appBuilder);
             appBuilder.UseMiddleware<ProxyInvokerMiddleware>();
             var app = appBuilder.Build();

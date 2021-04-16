@@ -13,7 +13,7 @@ YARP ships with built-in load-balancing algorithms, but also offers extensibilit
 
 Load balancing policies are registered in the DI container via the `AddLoadBalancingPolicies()` method, which is automatically called by `AddReverseProxy()`.
 
-The middleware is added with `UseProxyLoadBalancing()`, which is included by default in the parameterless `MapReverseProxy` method.
+The middleware is added with `UseLoadBalancing()`, which is included by default in the parameterless `MapReverseProxy` method.
 
 ### Cluster configuration
 

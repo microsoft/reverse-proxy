@@ -7,14 +7,14 @@ Session affinity is a mechanism to bind (affinitize) a causally related request 
 
 ## Configuration
 ### Services and middleware registration
-Session affinity services are registered in the DI container via `AddSessionAffinityProvider()` method which is automatically called by `AddReverseProxy()`. The middleware `UseAffinitizedDestinationLookup()` is included by default in the parameterless MapReverseProxy method. If you are customizing the proxy pipeline, place the first middleware **before** adding `LoadBalancingMiddleware` load balancing.
+Session affinity services are registered in the DI container via `AddSessionAffinityProvider()` method which is automatically called by `AddReverseProxy()`. The middleware `UseSessionAffinity()` is included by default in the parameterless MapReverseProxy method. If you are customizing the proxy pipeline, place the first middleware **before** adding `UseLoadBalancing()`.
 
 Example:
 ```C#
 endpoints.MapReverseProxy(proxyPipeline =>
 {
-    proxyPipeline.UseAffinitizedDestinationLookup();
-    proxyPipeline.UseProxyLoadBalancing();
+    proxyPipeline.UseSessionAffinity();
+    proxyPipeline.UseLoadBalancing();
 });
 ```
 
@@ -74,6 +74,6 @@ There are two built-in failure policies.  The default is `Redistribute`.
 
 ## Request pipeline
 The session affinity mechanisms are implemented by the services (mentioned above) and the two following middleware:
-1. `AffinitizedDestinationLookupMiddleware` - coordinates the request's affinity resolution process. First, it calls a provider implementing the mode specified for the given cluster on `ClusterConfig.SessionAffinity.Mode` property. Then, it checks the affinity resolution status returned by the provider, and calls a failure handling policy set on `ClusterConfig.SessionAffinity.FailurePolicy` in case of failures. It must be added to the pipeline **before** the load balancer.
+1. `SessionAffinityMiddleware` - coordinates the request's affinity resolution process. First, it calls a provider implementing the mode specified for the given cluster on `ClusterConfig.SessionAffinity.Mode` property. Then, it checks the affinity resolution status returned by the provider, and calls a failure handling policy set on `ClusterConfig.SessionAffinity.FailurePolicy` in case of failures. It must be added to the pipeline **before** the load balancer.
 
 2. `AffinitizeTransform` - sets the key on the response if a new affinity has been established for the request. Otherwise, if the request follows an existing affinity, it does nothing. This is automatically added as a response transform.
