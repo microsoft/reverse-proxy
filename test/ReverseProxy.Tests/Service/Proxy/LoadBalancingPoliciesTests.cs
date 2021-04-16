@@ -137,7 +137,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
 
             var context = new DefaultHttpContext();
 
-            var routeConfig = new RouteConfig(new ProxyRoute(), new ClusterInfo("cluster1", new DestinationManager()), transformer: null);
+            var routeConfig = new RouteConfig(new ProxyRoute(), new ClusterInfo("cluster1"), transformer: null);
             var feature = new ReverseProxyFeature()
             {
                 RouteSnapshot = routeConfig,

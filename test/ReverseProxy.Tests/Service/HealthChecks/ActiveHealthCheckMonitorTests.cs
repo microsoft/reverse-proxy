@@ -205,13 +205,10 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             VerifySentProbeAndResult(cluster0, httpClient0, policy0, new[] { ("https://localhost:20000/cluster0/api/health/", 1), ("https://localhost:20001/cluster0/api/health/", 1) }, policyCallTimes: 1);
             VerifySentProbeAndResult(cluster2, httpClient2, policy1, new[] { ("https://localhost:20000/cluster2/api/health/", 1), ("https://localhost:20001/cluster2/api/health/", 1) }, policyCallTimes: 1);
 
-            foreach (var destination in cluster2.DestinationManager.Items)
+            foreach (var destination in cluster2.Destinations.Values)
             {
-                var newDestinationConfig = new DestinationConfig(new Destination { Address = destination.Config.Options.Address });
-                cluster2.DestinationManager.GetOrCreateItem(destination.DestinationId, d =>
-                {
-                    d.Config = newDestinationConfig;
-                });
+                var d = cluster2.Destinations.GetOrAdd(destination.DestinationId, id => new DestinationInfo(id));
+                d.Config = new DestinationConfig(new Destination { Address = destination.Config.Options.Address });
             }
 
             monitor.OnClusterChanged(cluster2);
@@ -616,7 +613,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             policy.Verify(
                 p => p.ProbingCompleted(
                     cluster,
-                    It.Is<IReadOnlyList<DestinationProbingResult>>(r => cluster.DestinationManager.Items.All(d => r.Any(i => i.Destination == d && i.Response.StatusCode == HttpStatusCode.OK)))),
+                    It.Is<IReadOnlyList<DestinationProbingResult>>(r => cluster.Destinations.Values.All(d => r.Any(i => i.Destination == d && i.Response.StatusCode == HttpStatusCode.OK)))),
                 Times.Exactly(policyCallTimes));
             policy.Verify(p => p.Name);
             policy.VerifyNoOtherCalls();
@@ -641,18 +638,18 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
                     }
                 },
                 httpClient);
-            var clusterInfo = new ClusterInfo(id, new DestinationManager());
+            var clusterInfo = new ClusterInfo(id);
             clusterInfo.Config = clusterConfig;
             for (var i = 0; i < destinationCount; i++)
             {
                 var destinationConfig = new DestinationConfig(new Destination { Address = $"https://localhost:1000{i}/{id}/", Health = $"https://localhost:2000{i}/{id}/" });
                 var destinationId = $"destination{i}";
-                clusterInfo.DestinationManager.GetOrCreateItem(destinationId, d =>
+                clusterInfo.Destinations.GetOrAdd(destinationId, id => new DestinationInfo(id)
                 {
-                    d.Config = destinationConfig;
+                    Config = destinationConfig
                 });
             }
-            clusterInfo.UpdateDynamicState();
+            clusterInfo.ProcessDestinationChanges();
 
             return clusterInfo;
         }

@@ -17,6 +17,7 @@ using Moq;
 using Xunit;
 using Yarp.ReverseProxy.Abstractions;
 using Yarp.ReverseProxy.Configuration;
+using Yarp.ReverseProxy.RuntimeModel;
 using Yarp.ReverseProxy.Service.HealthChecks;
 using Yarp.ReverseProxy.Service.Proxy;
 using Yarp.ReverseProxy.Utilities;
@@ -123,28 +124,25 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
 
             Assert.NotNull(dataSource);
             var endpoints = dataSource.Endpoints;
-            Assert.Single(endpoints);
+            var endpoint = Assert.Single(endpoints);
+            var routeConfig = endpoint.Metadata.GetMetadata<RouteConfig>();
+            Assert.NotNull(routeConfig);
+            Assert.Equal("route1", routeConfig.ProxyRoute.RouteId);
 
-            var clusterManager = services.GetRequiredService<IClusterManager>();
-            var actualClusters = clusterManager.GetItems();
-            Assert.Single(actualClusters);
-            Assert.Equal("cluster1", actualClusters[0].ClusterId);
-            Assert.NotNull(actualClusters[0].DestinationManager);
-            Assert.NotNull(actualClusters[0].Config);
-            Assert.NotNull(actualClusters[0].Config.HttpClient);
+            var clusterInfo = routeConfig.Cluster;
+            Assert.NotNull(clusterInfo);
 
-            var actualDestinations = actualClusters[0].DestinationManager.GetItems();
-            Assert.Single(actualDestinations);
-            Assert.Equal("d1", actualDestinations[0].DestinationId);
-            Assert.NotNull(actualDestinations[0].Config);
-            Assert.Equal(TestAddress, actualDestinations[0].Config.Options.Address);
+            Assert.Equal("cluster1", clusterInfo.ClusterId);
+            Assert.NotNull(clusterInfo.Destinations);
+            Assert.NotNull(clusterInfo.Config);
+            Assert.NotNull(clusterInfo.Config.HttpClient);
+            Assert.Same(clusterInfo, routeConfig.Cluster);
 
-            var routeManager = services.GetRequiredService<IRouteManager>();
-            var actualRoutes = routeManager.GetItems();
-            Assert.Single(actualRoutes);
-            Assert.Equal("route1", actualRoutes[0].RouteId);
-            Assert.NotNull(actualRoutes[0].Config);
-            Assert.Same(actualClusters[0], actualRoutes[0].Config.Cluster);
+            var actualDestinations = clusterInfo.Destinations.Values;
+            var destination = Assert.Single(actualDestinations);
+            Assert.Equal("d1", destination.DestinationId);
+            Assert.NotNull(destination.Config);
+            Assert.Equal(TestAddress, destination.Config.Options.Address);
         }
 
         [Fact]
@@ -183,12 +181,11 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
             var dataSource = await manager.InitialLoadAsync();
 
             Assert.NotNull(dataSource);
-
-            var clusterManager = services.GetRequiredService<IClusterManager>();
-            var actualClusters = clusterManager.GetItems();
-            Assert.Single(actualClusters);
-            Assert.Equal("cluster1", actualClusters[0].ClusterId);
-            var clusterConfig = actualClusters[0].Config;
+            var endpoint = Assert.Single(dataSource.Endpoints);
+            var routeConfig = endpoint.Metadata.GetMetadata<RouteConfig>();
+            var clusterInfo = routeConfig.Cluster;
+            Assert.Equal("cluster1", clusterInfo.ClusterId);
+            var clusterConfig = clusterInfo.Config;
             Assert.NotNull(clusterConfig.HttpClient);
             Assert.Equal(SslProtocols.Tls11 | SslProtocols.Tls12, clusterConfig.Options.HttpClient.SslProtocols);
             Assert.Equal(10, clusterConfig.Options.HttpClient.MaxConnectionsPerServer);
@@ -354,6 +351,12 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
         [Fact]
         public async Task LoadAsync_ConfigFilterConfiguresCluster_Works()
         {
+            var route = new ProxyRoute
+            {
+                RouteId = "route1",
+                ClusterId = "cluster1",
+                Match = new ProxyMatch { Path = "/" }
+            };
             var cluster = new Cluster()
             {
                 Id = "cluster1",
@@ -362,18 +365,17 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
                     { "d1", new Destination() { Address = "http://localhost" } }
                 }
             };
-            var services = CreateServices(new List<ProxyRoute>(), new List<Cluster>() { cluster }, proxyBuilder =>
+            var services = CreateServices(new List<ProxyRoute>() { route }, new List<Cluster>() { cluster }, proxyBuilder =>
             {
                 proxyBuilder.AddProxyConfigFilter<ClusterAndRouteFilter>();
             });
-            var configManager = services.GetRequiredService<ProxyConfigManager>();
-            var clusterManager = services.GetRequiredService<IClusterManager>();
+            var manager = services.GetRequiredService<ProxyConfigManager>();
+            var dataSource = await manager.InitialLoadAsync();
 
-            var dataSource = await configManager.InitialLoadAsync();
-            var endpoints = dataSource.Endpoints;
-
-            var clusterInfo = clusterManager.TryGetItem("cluster1");
-
+            Assert.NotNull(dataSource);
+            var endpoint = Assert.Single(dataSource.Endpoints);
+            var routeConfig = endpoint.Metadata.GetMetadata<RouteConfig>();
+            var clusterInfo = routeConfig.Cluster;
             Assert.NotNull(clusterInfo);
             Assert.True(clusterInfo.Config.Options.HealthCheck.Enabled);
             Assert.Equal(TimeSpan.FromSeconds(12), clusterInfo.Config.Options.HealthCheck.Active.Interval);

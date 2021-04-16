@@ -31,14 +31,13 @@ namespace Yarp.ReverseProxy.Middleware
 
         internal ClusterInfo GetCluster()
         {
-            var destinationManager = new DestinationManager();
-            destinationManager.GetOrCreateItem("dest-A", d => { });
-            destinationManager.GetOrCreateItem(AffinitizedDestinationName, d => { });
-            destinationManager.GetOrCreateItem("dest-C", d => { });
-
-            var cluster = new ClusterInfo("cluster-1", destinationManager);
+            var cluster = new ClusterInfo("cluster-1");
+            var destinationManager = cluster.Destinations;
+            destinationManager.GetOrAdd("dest-A", id => new DestinationInfo(id));
+            destinationManager.GetOrAdd(AffinitizedDestinationName, id => new DestinationInfo(id));
+            destinationManager.GetOrAdd("dest-C", id => new DestinationInfo(id));
             cluster.Config = ClusterConfig;
-            cluster.UpdateDynamicState();
+            cluster.ProcessDestinationChanges();
             return cluster;
         }
 
@@ -46,7 +45,7 @@ namespace Yarp.ReverseProxy.Middleware
             bool lookupMiddlewareTest,
             IReadOnlyList<DestinationInfo> expectedDestinations,
             string expectedCluster,
-            params (string Mode, AffinityStatus? Status, DestinationInfo[] Destinations, Action<ISessionAffinityProvider> Callback)[] prototypes)
+            params (string Mode, AffinityStatus? Status, DestinationInfo Destinations, Action<ISessionAffinityProvider> Callback)[] prototypes)
         {
             var result = new List<Mock<ISessionAffinityProvider>>();
             foreach (var (mode, status, destinations, callback) in prototypes)

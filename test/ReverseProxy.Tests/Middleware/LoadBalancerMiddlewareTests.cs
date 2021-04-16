@@ -180,7 +180,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
 
         private static HttpContext CreateContext(string loadBalancingPolicy, IReadOnlyList<DestinationInfo> destinations)
         {
-            var cluster = new ClusterInfo("cluster1", new DestinationManager())
+            var cluster = new ClusterInfo("cluster1")
             {
                 Config = new ClusterConfig(new Cluster { LoadBalancingPolicy = loadBalancingPolicy }, default)
             };

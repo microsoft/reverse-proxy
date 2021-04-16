@@ -38,17 +38,12 @@ namespace Yarp.ReverseProxy.Middleware.Tests
         public async Task Invoke_SetsFeatures()
         {
             var httpClient = new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object);
-            var cluster1 = new ClusterInfo(
-                clusterId: "cluster1",
-                destinationManager: new DestinationManager());
+            var cluster1 = new ClusterInfo(clusterId: "cluster1");
             cluster1.Config = new ClusterConfig(new Cluster(), httpClient);
-            var destination1 = cluster1.DestinationManager.GetOrCreateItem(
+            var destination1 = cluster1.Destinations.GetOrAdd(
                 "destination1",
-                destination =>
-                {
-                    destination.Config = new DestinationConfig(new Destination { Address = "https://localhost:123/a/b/" });
-                });
-            cluster1.UpdateDynamicState();
+                id => new DestinationInfo(id) { Config = new DestinationConfig(new Destination { Address = "https://localhost:123/a/b/" }) });
+            cluster1.ProcessDestinationChanges();
 
             var aspNetCoreEndpoints = new List<Endpoint>();
             var routeConfig = new RouteConfig(
@@ -78,9 +73,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
         public async Task Invoke_NoHealthyEndpoints_CallsNext()
         {
             var httpClient = new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object);
-            var cluster1 = new ClusterInfo(
-                clusterId: "cluster1",
-                destinationManager: new DestinationManager());
+            var cluster1 = new ClusterInfo(clusterId: "cluster1");
             cluster1.Config = new ClusterConfig(
                 new Cluster()
                 {
@@ -96,14 +89,14 @@ namespace Yarp.ReverseProxy.Middleware.Tests
                     }
                 },
                 httpClient);
-            var destination1 = cluster1.DestinationManager.GetOrCreateItem(
+            var destination1 = cluster1.Destinations.GetOrAdd(
                 "destination1",
-                destination =>
+                id => new DestinationInfo(id)
                 {
-                    destination.Config = new DestinationConfig(new Destination { Address = "https://localhost:123/a/b/" });
-                    destination.Health.Active = DestinationHealth.Unhealthy;
+                    Config = new DestinationConfig(new Destination { Address = "https://localhost:123/a/b/" }),
+                    Health = { Active = DestinationHealth.Unhealthy },
                 });
-            cluster1.UpdateDynamicState();
+            cluster1.ProcessDestinationChanges();
 
             var aspNetCoreEndpoints = new List<Endpoint>();
             var routeConfig = new RouteConfig(

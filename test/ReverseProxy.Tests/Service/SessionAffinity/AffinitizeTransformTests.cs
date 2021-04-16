@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -20,7 +21,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
         public async Task ApplyAsync_InvokeAffinitizeRequest()
         {
             var cluster = GetCluster();
-            var destination = cluster.DestinationManager.Items[0];
+            var destination = cluster.Destinations.Values.First();
             var provider = new Mock<ISessionAffinityProvider>(MockBehavior.Strict);
             provider.Setup(p => p.AffinitizeRequest(It.IsAny<HttpContext>(), It.IsNotNull<SessionAffinityOptions>(), It.IsAny<DestinationInfo>()));
 
@@ -44,10 +45,8 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
 
         internal ClusterInfo GetCluster()
         {
-            var destinationManager = new DestinationManager();
-            destinationManager.GetOrCreateItem("dest-A", d => { });
-
-            var cluster = new ClusterInfo("cluster-1", destinationManager);
+            var cluster = new ClusterInfo("cluster-1");
+            cluster.Destinations.GetOrAdd("dest-A", id => new DestinationInfo(id));
             cluster.Config = new ClusterConfig(new Cluster
             {
                 SessionAffinity = new SessionAffinityOptions
@@ -59,7 +58,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             },
             new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object));
 
-            cluster.UpdateDynamicState();
+            cluster.ProcessDestinationChanges();
             return cluster;
         }
     }

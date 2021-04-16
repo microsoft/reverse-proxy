@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
+using Yarp.ReverseProxy.RuntimeModel;
 using Yarp.ReverseProxy.Service.SessionAffinity;
 
 namespace Yarp.ReverseProxy.Middleware
@@ -21,15 +22,19 @@ namespace Yarp.ReverseProxy.Middleware
         {
             var cluster = GetCluster();
             var endpoint = GetEndpoint(cluster);
-            var foundDestinations = foundDestinationId != null ? cluster.DestinationManager.Items.Where(d => d.DestinationId == foundDestinationId).ToArray() : null;
+            DestinationInfo foundDestination = null;
+            if (foundDestinationId != null)
+            {
+                cluster.Destinations.TryGetValue(foundDestinationId, out foundDestination);
+            }
             var invokedMode = string.Empty;
             const string expectedMode = "Mode-B";
             var providers = RegisterAffinityProviders(
                 true,
-                cluster.DestinationManager.Items,
+                cluster.Destinations.Values.ToList(),
                 cluster.ClusterId,
-                ("Mode-A", AffinityStatus.DestinationNotFound, (RuntimeModel.DestinationInfo[])null, (Action<ISessionAffinityProvider>)(p => throw new InvalidOperationException($"Provider {p.Mode} call is not expected."))),
-                (expectedMode, status, foundDestinations, p => invokedMode = p.Mode));
+                ("Mode-A", AffinityStatus.DestinationNotFound, (DestinationInfo)null, (Action<ISessionAffinityProvider>)(p => throw new InvalidOperationException($"Provider {p.Mode} call is not expected."))),
+                (expectedMode, status, foundDestination, p => invokedMode = p.Mode));
             var nextInvoked = false;
             var middleware = new AffinitizedDestinationLookupMiddleware(c => {
                     nextInvoked = true;
@@ -39,7 +44,7 @@ namespace Yarp.ReverseProxy.Middleware
                 new Mock<ILogger<AffinitizedDestinationLookupMiddleware>>().Object);
             var context = new DefaultHttpContext();
             context.SetEndpoint(endpoint);
-            var destinationFeature = GetDestinationsFeature(cluster.DestinationManager.Items, cluster.Config);
+            var destinationFeature = GetDestinationsFeature(cluster.Destinations.Values.ToList(), cluster.Config);
             context.Features.Set(destinationFeature);
 
             await middleware.Invoke(context);
@@ -57,7 +62,7 @@ namespace Yarp.ReverseProxy.Middleware
             }
             else
             {
-                Assert.Same(cluster.DestinationManager.Items, destinationFeature.AvailableDestinations);
+                Assert.True(cluster.Destinations.Values.SequenceEqual(destinationFeature.AvailableDestinations));
             }
         }
 
@@ -70,7 +75,7 @@ namespace Yarp.ReverseProxy.Middleware
         {
             var cluster = GetCluster();
             var endpoint = GetEndpoint(cluster);
-            var providers = RegisterAffinityProviders(true, cluster.DestinationManager.Items, cluster.ClusterId, ("Mode-B", affinityStatus, null, _ => { }));
+            var providers = RegisterAffinityProviders(true, cluster.Destinations.Values.ToList(), cluster.ClusterId, ("Mode-B", affinityStatus, null, _ => { }));
             var invokedPolicy = string.Empty;
             const string expectedPolicy = "Policy-1";
             var failurePolicies = RegisterFailurePolicies(
@@ -86,7 +91,7 @@ namespace Yarp.ReverseProxy.Middleware
                 providers.Select(p => p.Object), failurePolicies.Select(p => p.Object),
                 logger.Object);
             var context = new DefaultHttpContext();
-            var destinationFeature = GetDestinationsFeature(cluster.DestinationManager.Items, cluster.Config);
+            var destinationFeature = GetDestinationsFeature(cluster.Destinations.Values.ToList(), cluster.Config);
 
             context.SetEndpoint(endpoint);
             context.Features.Set(destinationFeature);
