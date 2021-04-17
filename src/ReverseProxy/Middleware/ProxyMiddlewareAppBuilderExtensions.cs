@@ -13,9 +13,10 @@ namespace Microsoft.AspNetCore.Builder
         /// <summary>
         /// Load balances across the available endpoints.
         /// </summary>
-        public static IApplicationBuilder UseLoadBalancing(this IApplicationBuilder builder)
+        public static IReverseProxyApplicationBuilder UseLoadBalancing(this IReverseProxyApplicationBuilder builder)
         {
-            return builder.UseMiddleware<LoadBalancingMiddleware>();
+            builder.UseMiddleware<LoadBalancingMiddleware>();
+            return builder;
         }
 
         /// <summary>
@@ -24,17 +25,19 @@ namespace Microsoft.AspNetCore.Builder
         /// Requests without an affinity relationship will be processed normally and have the affinity relationship
         /// established by a later component.
         /// </summary>
-        public static IApplicationBuilder UseSessionAffinity(this IApplicationBuilder builder)
+        public static IReverseProxyApplicationBuilder UseSessionAffinity(this IReverseProxyApplicationBuilder builder)
         {
-            return builder.UseMiddleware<SessionAffinityMiddleware>();
+            builder.UseMiddleware<SessionAffinityMiddleware>();
+            return builder;
         }
 
         /// <summary>
         /// Passively checks destinations health by watching for successes and failures in client request proxying.
         /// </summary>
-        public static IApplicationBuilder UsePassiveHealthChecks(this IApplicationBuilder builder)
+        public static IReverseProxyApplicationBuilder UsePassiveHealthChecks(this IReverseProxyApplicationBuilder builder)
         {
-            return builder.UseMiddleware<PassiveHealthCheckMiddleware>();
+            builder.UseMiddleware<PassiveHealthCheckMiddleware>();
+            return builder;
         }
     }
 }
