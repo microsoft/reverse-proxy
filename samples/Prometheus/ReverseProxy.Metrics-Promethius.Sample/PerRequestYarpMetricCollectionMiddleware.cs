@@ -103,7 +103,7 @@ namespace Yarp.Sample
                         tags += $"{t.Key}:{t.Value?.ToString()},";
                     }
                 }
-                Console.WriteLine($"Name: {evt.Name}, TimeStamp: {evt.Timestamp}, Tags=[{tags}]");
+                Console.WriteLine($"Name: {evt.Name}, Offset: {(evt.Timestamp- startTime).TotalMilliseconds}, Tags=[{tags}]");
             }
 #endif
 
