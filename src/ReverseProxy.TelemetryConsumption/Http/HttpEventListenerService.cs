@@ -114,7 +114,6 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                         {
                             consumers.Current.OnRequestFailed(eventData.TimeStamp);
                         }
-                        
                     }
                     break;
 
@@ -127,8 +126,6 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                         {
                             consumers.Current.OnConnectionEstablished(eventData.TimeStamp, versionMajor, versionMinor);
                         }
-                       
-
                         tags = new ActivityTagsCollection();
                         tags.Add("Version", $"{versionMajor}.{versionMinor}");
                     }
@@ -183,8 +180,7 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                         {
                             consumers.Current.OnRequestContentStart(eventData.TimeStamp);
                         }
-                       
-                    }
+                                           }
                     break;
 
                 case 10:
@@ -195,18 +191,18 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                         {
                             consumers.Current.OnRequestContentStop(eventData.TimeStamp, contentLength);
                         }
-                        
+                        tags = new ActivityTagsCollection();
+                        tags.Add("ContentLength", contentLength);
                     }
                     break;
 
                 case 11:
                     Debug.Assert(eventData.EventName == "ResponseHeadersStart" && payload.Count == 0);
                     {
-                        while (consumers.MoveNext()) 
+                        while (consumers.MoveNext())
                         {
                             consumers.Current.OnResponseHeadersStart(eventData.TimeStamp);
                         }
-                        
                     }
                     break;
 
@@ -217,7 +213,6 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                         {
                             consumers.Current.OnResponseHeadersStop(eventData.TimeStamp);
                         }
-                      
                     }
                     break;
             }
