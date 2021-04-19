@@ -7,6 +7,7 @@ using Yarp.ReverseProxy.Middleware;
 using Prometheus;
 using Yarp.ReverseProxy.Telemetry.Consumption;
 using System.Text.Json;
+using System.Diagnostics;
 
 namespace Yarp.Sample
 {
@@ -89,6 +90,23 @@ namespace Yarp.Sample
             await _next(context);
 
             var proxyFeature = context.Features.Get<IReverseProxyFeature>();
+            var activity = Activity.Current;
+
+#if NET5_0_OR_GREATER
+            foreach (var evt in activity.Events)
+            {
+                string tags ="";
+                if (evt.Tags !=null)
+                {
+                    foreach (var t in evt.Tags)
+                    {
+                        tags += $"{t.Key}:{t.Value?.ToString()},";
+                    }
+                }
+                Console.WriteLine($"Name: {evt.Name}, TimeStamp: {evt.Timestamp}, Tags=[{tags}]");
+            }
+#endif
+
             if (proxyFeature != null)
             {
                 string[] labelvalues = { proxyFeature.RouteSnapshot.ProxyRoute.RouteId, proxyFeature.ClusterSnapshot.Options.Id, proxyFeature.ProxiedDestination.Config.Options.Address };
