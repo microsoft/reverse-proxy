@@ -48,8 +48,8 @@ namespace Yarp.Sample
                     // Use a custom proxy middleware, defined below
                     proxyPipeline.Use(MyCustomProxyStep);
                     // Don't forget to include these two middleware when you make a custom proxy pipeline (if you need them).
-                    proxyPipeline.UseAffinitizedDestinationLookup();
-                    proxyPipeline.UseProxyLoadBalancing();
+                    proxyPipeline.UseSessionAffinity();
+                    proxyPipeline.UseLoadBalancing();
                 });
             });
         }
