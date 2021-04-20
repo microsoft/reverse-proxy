@@ -1,12 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
 
 namespace Yarp.ReverseProxy.Middleware
 {
+    /// <summary>
+    /// An <see cref="IApplicationBuilder"/> for building the `MapReverseProxy` pipeline.
+    /// </summary>
     public interface IReverseProxyApplicationBuilder : IApplicationBuilder
     {
     }

@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http.Features;
 
 namespace Yarp.ReverseProxy.Middleware
 {
+    /// <inheritdoc/>
     public class ReverseProxyApplicationBuilder : IReverseProxyApplicationBuilder
     {
         private readonly IApplicationBuilder _applicationBuilder;
