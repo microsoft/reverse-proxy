@@ -23,7 +23,7 @@ namespace Yarp.Sample
 #if NET5_0_OR_GREATER
         public static IServiceCollection AddPrometheusDnsMetrics(this IServiceCollection services)
         {
-            services.AddSocketsTelemetryListener();
+            services.AddNameResolutionTelemetryListener();
             services.AddSingleton<INameResolutionMetricsConsumer, PrometheusDnsMetrics>();
             return services;
         }
@@ -63,4 +63,3 @@ namespace Yarp.Sample
         }
     }
 }
-
