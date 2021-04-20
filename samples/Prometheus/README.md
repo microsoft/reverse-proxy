@@ -39,7 +39,6 @@ The subsystems are:
     - PrometheusProxyMetrics.cs
     - PrometheusSocketMetrics.cs
   - PrometheusServiceExtensions.cs - Includes helper extension methods to perform the service registration for the above classes.
-  - PerRequestYarpMetricCollectionMiddleware.cs - Implements proxy pipeline middleware that can monitor the requests and has access to contextual data such as the route, cluster and destination so it can create metrics that add those as dimensions.
 - **HttpLoadApp**
   - A simple app that uses HttpClient to create load against the 5 default routes defined by the proxy sample
 - **run10destinations**

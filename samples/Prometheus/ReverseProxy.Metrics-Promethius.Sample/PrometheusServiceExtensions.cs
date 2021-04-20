@@ -61,13 +61,6 @@ namespace Yarp.Sample
 #endif
             return services;
         }
-
-        public static IApplicationBuilder UsePerRequestMetricCollection(
-            this IApplicationBuilder builder)
-        {
-            return builder.UseMiddleware<PerRequestYarpMetricCollectionMiddleware>();
-        }
     }
-
 }
 

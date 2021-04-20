@@ -54,16 +54,8 @@ namespace Yarp.Sample
             //Configure the endpoint routing including the proxy
             app.UseEndpoints(endpoints =>
             {
-                // We can customize the proxy pipeline and add/remove/replace steps
-                endpoints.MapReverseProxy(proxyPipeline =>
-                {
-                    //Initialize our metrics collection
-                    proxyPipeline.UsePerRequestMetricCollection();
-
-                    // Don't forget to include these two middleware when you make a custom proxy pipeline (if you need them).
-                    proxyPipeline.UseAffinitizedDestinationLookup();
-                    proxyPipeline.UseProxyLoadBalancing();
-                });
+                // Add the reverse proxy endpoints based on routes
+                endpoints.MapReverseProxy();
 
                 // Add the /Metrics endpoint for prometheus to query on
                 endpoints.MapMetrics();

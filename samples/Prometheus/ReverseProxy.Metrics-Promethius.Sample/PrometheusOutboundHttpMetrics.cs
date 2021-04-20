@@ -42,7 +42,7 @@ namespace Yarp.Sample
             );
 
         private static readonly Histogram _outboundHttp11RequestQueueDuration= Metrics.CreateHistogram(
-            "yarp_outbound_http11_request_queue_duration (ms)",
+            "yarp_outbound_http11_request_queue_duration",
             "Average time spent on queue for HTTP 1.1 requests that hit the MaxConnectionsPerServer limit in the last metrics interval",
             new HistogramConfiguration
             {
@@ -50,7 +50,7 @@ namespace Yarp.Sample
             });
 
         private static readonly Histogram _outboundHttp20RequestQueueDuration = Metrics.CreateHistogram(
-            "yarp_outbound_http20_request_queue_duration (ms)",
+            "yarp_outbound_http20_request_queue_duration",
             "Average time spent on queue for HTTP 2.0 requests that hit the MAX_CONCURRENT_STREAMS limit on the connection in the last metrics interval",
             new HistogramConfiguration
             {
