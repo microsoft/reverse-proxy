@@ -24,8 +24,8 @@ namespace Microsoft.AspNetCore.Builder
         {
             return endpoints.MapReverseProxy(app =>
             {
-                app.UseAffinitizedDestinationLookup();
-                app.UseProxyLoadBalancing();
+                app.UseSessionAffinity();
+                app.UseLoadBalancing();
                 app.UsePassiveHealthChecks();
             });
         }
@@ -34,7 +34,7 @@ namespace Microsoft.AspNetCore.Builder
         /// Adds Reverse Proxy routes to the route table with the customized processing pipeline. The pipeline includes
         /// by default the initialization step and the final proxy step, but not LoadBalancingMiddleware or other intermediate components.
         /// </summary>
-        public static ReverseProxyConventionBuilder MapReverseProxy(this IEndpointRouteBuilder endpoints, Action<IApplicationBuilder> configureApp)
+        public static ReverseProxyConventionBuilder MapReverseProxy(this IEndpointRouteBuilder endpoints, Action<IReverseProxyApplicationBuilder> configureApp)
         {
             if (endpoints is null)
             {
@@ -45,11 +45,11 @@ namespace Microsoft.AspNetCore.Builder
                 throw new ArgumentNullException(nameof(configureApp));
             }
 
-            var appBuilder = endpoints.CreateApplicationBuilder();
-            appBuilder.UseMiddleware<DestinationInitializerMiddleware>();
-            configureApp(appBuilder);
-            appBuilder.UseMiddleware<ProxyInvokerMiddleware>();
-            var app = appBuilder.Build();
+            var proxyAppBuilder = new ReverseProxyApplicationBuilder(endpoints.CreateApplicationBuilder());
+            proxyAppBuilder.UseMiddleware<ProxyPipelineInitializerMiddleware>();
+            configureApp(proxyAppBuilder);
+            proxyAppBuilder.UseMiddleware<ProxyInvokerMiddleware>();
+            var app = proxyAppBuilder.Build();
 
             var proxyEndpointFactory = endpoints.ServiceProvider.GetRequiredService<ProxyEndpointFactory>();
             proxyEndpointFactory.SetProxyPipeline(app);

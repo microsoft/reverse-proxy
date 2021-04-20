@@ -61,8 +61,8 @@ namespace Yarp.ReverseProxy.Sample
 
                         return next();
                     });
-                    proxyPipeline.UseAffinitizedDestinationLookup();
-                    proxyPipeline.UseProxyLoadBalancing();
+                    proxyPipeline.UseSessionAffinity();
+                    proxyPipeline.UseLoadBalancing();
                     proxyPipeline.UsePassiveHealthChecks();
                 })
                 .ConfigureEndpoints((builder, route) => builder.WithDisplayName($"ReverseProxy {route.RouteId}-{route.ClusterId}"));

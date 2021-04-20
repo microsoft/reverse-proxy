@@ -12,13 +12,13 @@ namespace Yarp.ReverseProxy.Middleware
     /// <summary>
     /// Initializes the proxy processing pipeline with the available healthy destinations.
     /// </summary>
-    internal class DestinationInitializerMiddleware
+    internal class ProxyPipelineInitializerMiddleware
     {
         private readonly ILogger _logger;
         private readonly RequestDelegate _next;
 
-        public DestinationInitializerMiddleware(RequestDelegate next,
-            ILogger<DestinationInitializerMiddleware> logger)
+        public ProxyPipelineInitializerMiddleware(RequestDelegate next,
+            ILogger<ProxyPipelineInitializerMiddleware> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _next = next ?? throw new ArgumentNullException(nameof(next));

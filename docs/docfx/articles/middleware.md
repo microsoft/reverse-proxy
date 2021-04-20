@@ -42,8 +42,8 @@ endpoints.MapReverseProxy(proxyPipeline =>
 
         return next();
     });
-    proxyPipeline.UseAffinitizedDestinationLookup();
-    proxyPipeline.UseProxyLoadBalancing();
+    proxyPipeline.UseSessionAffinity();
+    proxyPipeline.UseLoadBalancing();
     proxyPipeline.UsePassiveHealthChecks();
 });
 ```

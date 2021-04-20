@@ -123,8 +123,8 @@ namespace Yarp.ReverseProxy.Sample
 
                         return next();
                     });
-                    proxyPipeline.UseAffinitizedDestinationLookup();
-                    proxyPipeline.UseProxyLoadBalancing();
+                    proxyPipeline.UseSessionAffinity();
+                    proxyPipeline.UseLoadBalancing();
                 });
             });
         }
