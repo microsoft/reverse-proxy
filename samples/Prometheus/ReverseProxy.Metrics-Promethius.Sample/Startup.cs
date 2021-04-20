@@ -61,8 +61,8 @@ namespace Yarp.Sample
                     proxyPipeline.UsePerRequestMetricCollection();
 
                     // Don't forget to include these two middleware when you make a custom proxy pipeline (if you need them).
-                    proxyPipeline.UseAffinitizedDestinationLookup();
-                    proxyPipeline.UseProxyLoadBalancing();
+                    proxyPipeline.UseSessionAffinity();
+                    proxyPipeline.UseLoadBalancing();
                 });
 
                 // Add the /Metrics endpoint for prometheus to query on
