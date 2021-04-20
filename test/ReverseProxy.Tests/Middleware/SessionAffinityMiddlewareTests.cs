@@ -144,7 +144,7 @@ namespace Yarp.ReverseProxy.Middleware
             bool lookupMiddlewareTest,
             IReadOnlyList<DestinationInfo> expectedDestinations,
             string expectedCluster,
-            params (string Mode, AffinityStatus? Status, DestinationInfo Destination, Action<ISessionAffinityProvider> Callback)[] prototypes)
+            params (string Mode, AffinityStatus? Status, DestinationInfo Destinations, Action<ISessionAffinityProvider> Callback)[] prototypes)
         {
             var result = new List<Mock<ISessionAffinityProvider>>();
             foreach (var (mode, status, destinations, callback) in prototypes)
