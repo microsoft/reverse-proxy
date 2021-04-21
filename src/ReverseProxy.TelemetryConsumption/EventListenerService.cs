@@ -3,12 +3,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -16,29 +14,6 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
 {
     internal abstract class EventListenerService<TService, TTelemetryConsumer, TMetricsConsumer> : EventListener, IHostedService
     {
-        // We need a way to signal to OnEventSourceCreated that the EventListenerService constructor finished
-        // OnEventSourceCreated may be called before we even reach the derived ctor (as it's exposed from the base ctor)
-        // Because of that, we can't assign the MRE as part of the ctor, we have to do it as part of the _initializedMre field initializer
-        // But since the ctor itself may throw here, we need a way to observe the same MRE instance from outside the ctor
-        // We pull the MRE from a ThreadStatic that a ctor wrapper (Create) can observe
-        [ThreadStatic]
-        private static ManualResetEventSlim _threadStaticInitializedMre;
-
-        public static TEventListener Create<TEventListener>(IServiceProvider serviceProvider)
-            where TEventListener : EventListenerService<TService, TTelemetryConsumer, TMetricsConsumer>
-        {
-            _threadStaticInitializedMre = new();
-            try
-            {
-                return ActivatorUtilities.CreateInstance<TEventListener>(serviceProvider);
-            }
-            finally
-            {
-                _threadStaticInitializedMre.Set();
-                _threadStaticInitializedMre = null;
-            }
-        }
-
         protected abstract string EventSourceName { get; }
 
         protected readonly ILogger<TService> Logger;
@@ -47,7 +22,7 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
 
         private EventSource _eventSource;
         private readonly object _syncObject = new();
-        private readonly ManualResetEventSlim _initializedMre = _threadStaticInitializedMre;
+        private readonly bool _initialized;
 
         public EventListenerService(
             ILogger<TService> logger,
@@ -84,8 +59,7 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                     EnableEventSource();
                 }
 
-                Debug.Assert(_initializedMre is not null);
-                _initializedMre = null;
+                _initialized = true;
             }
         }
 
@@ -97,19 +71,11 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                 {
                     _eventSource = eventSource;
 
-                    if (_initializedMre is null)
+                    if (_initialized)
                     {
                         // Ctor already finished - enable the EventSource here
                         EnableEventSource();
                     }
-                }
-
-                // Ensure that the constructor finishes before exiting this method (so that the first events aren't dropped)
-                // It's possible that we are executing as a part of the base ctor - only block if we're running on a different thread
-                var mre = _initializedMre;
-                if (mre is not null && !ReferenceEquals(mre, _threadStaticInitializedMre))
-                {
-                    mre.Wait();
                 }
             }
         }

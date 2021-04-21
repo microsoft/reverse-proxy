@@ -20,13 +20,13 @@ namespace Microsoft.Extensions.DependencyInjection
 #endif
         public static IServiceCollection AddTelemetryListeners(this IServiceCollection services)
         {
-            services.AddHostedService(provider => ProxyEventListenerService.Create<ProxyEventListenerService>(provider));
-            services.AddHostedService(provider => KestrelEventListenerService.Create<KestrelEventListenerService>(provider));
+            services.AddHostedService<ProxyEventListenerService>();
+            services.AddHostedService<KestrelEventListenerService>();
 #if NET5_0
-            services.AddHostedService(provider => HttpEventListenerService.Create<HttpEventListenerService>(provider));
-            services.AddHostedService(provider => NameResolutionEventListenerService.Create<NameResolutionEventListenerService>(provider));
-            services.AddHostedService(provider => NetSecurityEventListenerService.Create<NetSecurityEventListenerService>(provider));
-            services.AddHostedService(provider => SocketsEventListenerService.Create<SocketsEventListenerService>(provider));
+            services.AddHostedService<HttpEventListenerService>();
+            services.AddHostedService<NameResolutionEventListenerService>();
+            services.AddHostedService<NetSecurityEventListenerService>();
+            services.AddHostedService<SocketsEventListenerService>();
 #endif
             return services;
         }
