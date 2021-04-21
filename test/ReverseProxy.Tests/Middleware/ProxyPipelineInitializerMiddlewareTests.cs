@@ -59,7 +59,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
 
             await sut.Invoke(httpContext);
 
-            var proxyFeature = httpContext.GetRequiredProxyFeature();
+            var proxyFeature = httpContext.GetReverseProxyFeature();
             Assert.NotNull(proxyFeature);
             Assert.NotNull(proxyFeature.AvailableDestinations);
             Assert.Equal(1, proxyFeature.AvailableDestinations.Count);

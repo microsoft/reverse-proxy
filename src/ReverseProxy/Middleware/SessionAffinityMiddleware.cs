@@ -38,7 +38,7 @@ namespace Yarp.ReverseProxy.Middleware
 
         public Task Invoke(HttpContext context)
         {
-            var proxyFeature = context.GetRequiredProxyFeature();
+            var proxyFeature = context.GetReverseProxyFeature();
 
             var cluster = proxyFeature.ClusterSnapshot.Options;
             var options = cluster.SessionAffinity;
