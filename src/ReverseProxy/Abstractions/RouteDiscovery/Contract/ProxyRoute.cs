@@ -21,7 +21,7 @@ namespace Yarp.ReverseProxy.Abstractions
         /// <summary>
         /// Parameters used to match requests.
         /// </summary>
-        public ProxyMatch Match { get; init; }
+        public RouteMatch Match { get; init; }
 
         /// <summary>
         /// Optionally, an order value for this route. Routes with lower numbers take precedence over higher numbers.

@@ -58,7 +58,7 @@ namespace Yarp.ReverseProxy.Service.Tests
             var route = new ProxyRoute
             {
                 RouteId = "route1",
-                Match = new ProxyMatch
+                Match = new RouteMatch
                 {
                     Hosts = host?.Split(",") ?? Array.Empty<string>(),
                     Path = path,
@@ -119,7 +119,7 @@ namespace Yarp.ReverseProxy.Service.Tests
             var route = new ProxyRoute
             {
                 RouteId = "route1",
-                Match = new ProxyMatch
+                Match = new RouteMatch
                 {
                     Hosts = new[] { host }
                 },
@@ -147,7 +147,7 @@ namespace Yarp.ReverseProxy.Service.Tests
             {
                 RouteId = "route1",
                 ClusterId = "cluster1",
-                Match = new ProxyMatch
+                Match = new RouteMatch
                 {
                     Hosts = host?.Split(","),
                     Path = path
@@ -173,7 +173,7 @@ namespace Yarp.ReverseProxy.Service.Tests
             var route = new ProxyRoute
             {
                 RouteId = "route1",
-                Match = new ProxyMatch()
+                Match = new RouteMatch()
                 {
                     Path = path,
                 },
@@ -197,7 +197,7 @@ namespace Yarp.ReverseProxy.Service.Tests
             var route = new ProxyRoute
             {
                 RouteId = "route1",
-                Match = new ProxyMatch
+                Match = new RouteMatch
                 {
                     Methods = methods.Split(","),
                 },
@@ -221,7 +221,7 @@ namespace Yarp.ReverseProxy.Service.Tests
             var route = new ProxyRoute
             {
                 RouteId = "route1",
-                Match = new ProxyMatch
+                Match = new RouteMatch
                 {
                     Methods = methods.Split(","),
                 },
@@ -243,7 +243,7 @@ namespace Yarp.ReverseProxy.Service.Tests
             var route = new ProxyRoute
             {
                 RouteId = "route1",
-                Match = new ProxyMatch
+                Match = new RouteMatch
                 {
                     Path = "/",
                     Headers = new[]
@@ -272,7 +272,7 @@ namespace Yarp.ReverseProxy.Service.Tests
             var route = new ProxyRoute
             {
                 RouteId = "route1",
-                Match = new ProxyMatch
+                Match = new RouteMatch
                 {
                     Path = "/",
                     Headers = new[]
@@ -301,7 +301,7 @@ namespace Yarp.ReverseProxy.Service.Tests
             var route = new ProxyRoute
             {
                 RouteId = "route1",
-                Match = new ProxyMatch
+                Match = new RouteMatch
                 {
                     Path = "/",
                     Headers = new RouteHeader[] { null },
@@ -334,7 +334,7 @@ namespace Yarp.ReverseProxy.Service.Tests
             var route = new ProxyRoute
             {
                 RouteId = "route1",
-                Match = new ProxyMatch
+                Match = new RouteMatch
                 {
                     Path = "/",
                     Headers = new[] { routeHeader },
@@ -361,7 +361,7 @@ namespace Yarp.ReverseProxy.Service.Tests
             {
                 RouteId = "route1",
                 AuthorizationPolicy = policy,
-                Match = new ProxyMatch
+                Match = new RouteMatch
                 {
                     Hosts = new[] { "localhost" },
                 },
@@ -383,7 +383,7 @@ namespace Yarp.ReverseProxy.Service.Tests
             {
                 RouteId = "route1",
                 AuthorizationPolicy = "custom",
-                Match = new ProxyMatch
+                Match = new RouteMatch
                 {
                     Hosts = new[] { "localhost" },
                 },
@@ -412,7 +412,7 @@ namespace Yarp.ReverseProxy.Service.Tests
                 RouteId = "route1",
                 AuthorizationPolicy = "unknown",
                 ClusterId = "cluster1",
-                Match = new ProxyMatch(),
+                Match = new RouteMatch(),
             };
 
             var services = CreateServices();
@@ -434,7 +434,7 @@ namespace Yarp.ReverseProxy.Service.Tests
                 RouteId = "route1",
                 AuthorizationPolicy = authorizationPolicy,
                 ClusterId = "cluster1",
-                Match = new ProxyMatch(),
+                Match = new RouteMatch(),
             };
 
             var services = CreateServices(serviceCollection=>
@@ -466,7 +466,7 @@ namespace Yarp.ReverseProxy.Service.Tests
             {
                 RouteId = "route1",
                 CorsPolicy = policy,
-                Match = new ProxyMatch
+                Match = new RouteMatch
                 {
                     Hosts = new[] { "localhost" },
                 },
@@ -488,7 +488,7 @@ namespace Yarp.ReverseProxy.Service.Tests
             {
                 RouteId = "route1",
                 CorsPolicy = "custom",
-                Match = new ProxyMatch
+                Match = new RouteMatch
                 {
                     Hosts = new[] { "localhost" },
                 },
@@ -517,7 +517,7 @@ namespace Yarp.ReverseProxy.Service.Tests
                 RouteId = "route1",
                 CorsPolicy = "unknown",
                 ClusterId = "cluster1",
-                Match = new ProxyMatch(),
+                Match = new RouteMatch(),
             };
 
             var services = CreateServices();
@@ -539,7 +539,7 @@ namespace Yarp.ReverseProxy.Service.Tests
                 RouteId = "route1",
                 CorsPolicy = corsPolicy,
                 ClusterId = "cluster1",
-                Match = new ProxyMatch
+                Match = new RouteMatch
                 {
                     Hosts = new[] { "localhost" },
                 },

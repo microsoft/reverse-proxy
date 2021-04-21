@@ -90,7 +90,7 @@ namespace Yarp.ReverseProxy.Common
                     {
                         RouteId = "route1",
                         ClusterId = clusterId,
-                        Match = new ProxyMatch { Path = "/{**catchall}" }
+                        Match = new RouteMatch { Path = "/{**catchall}" }
                     };
 
                     var cluster = new Cluster

@@ -125,7 +125,7 @@ namespace Yarp.ReverseProxy.Configuration
                     AuthorizationPolicy = "Default",
                     CorsPolicy = "Default",
                     Order = -1,
-                    Match = new ProxyMatch
+                    Match = new RouteMatch
                     {
                         Hosts = new List<string> { "host-A" },
                         Methods = new List<string> { "GET", "POST", "DELETE" },
@@ -152,7 +152,7 @@ namespace Yarp.ReverseProxy.Configuration
                     RouteId = "routeB",
                     ClusterId = "cluster2",
                     Order = 2,
-                    Match = new ProxyMatch
+                    Match = new RouteMatch
                     {
                         Hosts = new List<string> { "host-B" },
                         Methods = new List<string> { "GET" },

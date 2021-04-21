@@ -43,7 +43,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
             var route = new ProxyRoute
             {
                 RouteId = "route1",
-                Match = new ProxyMatch
+                Match = new RouteMatch
                 {
                     Hosts = new[] { "example.com" },
                     Path = "/a",
@@ -90,7 +90,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
             var route = new ProxyRoute
             {
                 RouteId = "route1",
-                Match = new ProxyMatch
+                Match = new RouteMatch
                 {
                     Hosts = new[] { "example.com" },
                 },
@@ -124,7 +124,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
             var route = new ProxyRoute
             {
                 RouteId = "route1",
-                Match = new ProxyMatch
+                Match = new RouteMatch
                 {
                     Hosts = new[] { "*.example.com" },
                 },
@@ -158,7 +158,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
             var route = new ProxyRoute
             {
                 RouteId = "route1",
-                Match = new ProxyMatch
+                Match = new RouteMatch
                 {
                     Path = "/a",
                 },
@@ -191,7 +191,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
             {
                 RouteId = "route1",
                 Order = 12,
-                Match = new ProxyMatch()
+                Match = new RouteMatch()
             };
             var cluster = new ClusterInfo("cluster1");
             var routeInfo = new RouteInfo("route1");
@@ -219,7 +219,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
             var route = new ProxyRoute
             {
                 RouteId = "route1",
-                Match = new ProxyMatch
+                Match = new RouteMatch
                 {
                     Path = "/{invalid",
                 },
@@ -245,7 +245,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
                 RouteId = "route1",
                 AuthorizationPolicy = "defaulT",
                 Order = 12,
-                Match = new ProxyMatch(),
+                Match = new RouteMatch(),
             };
             var cluster = new ClusterInfo("cluster1");
             var routeInfo = new RouteInfo("route1");
@@ -268,7 +268,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
                 RouteId = "route1",
                 AuthorizationPolicy = "AnonymouS",
                 Order = 12,
-                Match = new ProxyMatch(),
+                Match = new RouteMatch(),
             };
             var cluster = new ClusterInfo("cluster1");
             var routeInfo = new RouteInfo("route1");
@@ -290,7 +290,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
                 RouteId = "route1",
                 AuthorizationPolicy = "custom",
                 Order = 12,
-                Match = new ProxyMatch(),
+                Match = new RouteMatch(),
             };
             var cluster = new ClusterInfo("cluster1");
             var routeInfo = new RouteInfo("route1");
@@ -312,7 +312,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
             {
                 RouteId = "route1",
                 Order = 12,
-                Match = new ProxyMatch(),
+                Match = new RouteMatch(),
             };
             var cluster = new ClusterInfo("cluster1");
             var routeInfo = new RouteInfo("route1");
@@ -335,7 +335,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
                 RouteId = "route1",
                 CorsPolicy = "defaulT",
                 Order = 12,
-                Match = new ProxyMatch(),
+                Match = new RouteMatch(),
             };
             var cluster = new ClusterInfo("cluster1");
             var routeInfo = new RouteInfo("route1");
@@ -359,7 +359,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
                 RouteId = "route1",
                 CorsPolicy = "custom",
                 Order = 12,
-                Match = new ProxyMatch(),
+                Match = new RouteMatch(),
             };
             var cluster = new ClusterInfo("cluster1");
             var routeInfo = new RouteInfo("route1");
@@ -383,7 +383,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
                 RouteId = "route1",
                 CorsPolicy = "disAble",
                 Order = 12,
-                Match = new ProxyMatch(),
+                Match = new RouteMatch(),
             };
             var cluster = new ClusterInfo("cluster1");
             var routeInfo = new RouteInfo("route1");
@@ -405,7 +405,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
             {
                 RouteId = "route1",
                 Order = 12,
-                Match = new ProxyMatch(),
+                Match = new RouteMatch(),
             };
             var cluster = new ClusterInfo("cluster1");
             var routeInfo = new RouteInfo("route1");
@@ -426,7 +426,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
             var route = new ProxyRoute
             {
                 RouteId = "route1",
-                Match = new ProxyMatch
+                Match = new RouteMatch
                 {
                     Path = "/",
                     Headers = new[]
@@ -471,7 +471,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
             var route = new ProxyRoute
             {
                 RouteId = "route1",
-                Match = new ProxyMatch
+                Match = new RouteMatch
                 {
                     Path = "/",
                     Headers = new[]
