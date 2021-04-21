@@ -43,9 +43,6 @@ namespace Yarp.Sample
 
         public long ProxyStopOffset { get; set; }
 
-        public TimeSpan ProxyStopOffsetSpan => new TimeSpan(ProxyStopOffset);
-        public string ProxyStopOffsetString => ProxyStopOffsetSpan.ToString();
-
         //Info about the request
         public ProxyError Error { get; set; }
         public long RequestBodyLength { get; set; }
