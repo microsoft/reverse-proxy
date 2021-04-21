@@ -10,20 +10,18 @@ using Yarp.ReverseProxy.Telemetry.Consumption;
 
 namespace Yarp.Sample
 {
-#if NET5_0_OR_GREATER
-
-    public sealed class HttpTelemetryConsumer : IHttpTelemetryConsumer
+    public sealed class HttpClientTelemetryConsumer : IHttpTelemetryConsumer
     {
         public void OnRequestStart(DateTime timestamp, string scheme, string host, int port, string pathAndQuery, int versionMajor, int versionMinor, HttpVersionPolicy versionPolicy)
         {
             var metrics = PerRequestMetrics.Current;
-            metrics.HttpRequestStartOffset = (timestamp - metrics.StartTime).Ticks;
+            metrics.HttpRequestStartOffset = metrics.CalcOffset(timestamp);
         }
 
         public void OnRequestStop(DateTime timestamp)
         {
             var metrics = PerRequestMetrics.Current;
-            metrics.HttpRequestContentStopOffset = (timestamp - metrics.StartTime).Ticks;
+            metrics.HttpRequestContentStopOffset = metrics.CalcOffset(timestamp);
         }
 
         public void OnRequestFailed(DateTime timestamp)
@@ -33,50 +31,49 @@ namespace Yarp.Sample
         public void OnConnectionEstablished(DateTime timestamp, int versionMajor, int versionMinor)
         {
             var metrics = PerRequestMetrics.Current;
-            metrics.HttpConnectionEstablishedOffset = (timestamp - metrics.StartTime).Ticks;
+            metrics.HttpConnectionEstablishedOffset = metrics.CalcOffset(timestamp);
         }
 
         public void OnRequestLeftQueue(DateTime timestamp, TimeSpan timeOnQueue, int versionMajor, int versionMinor)
         {
             var metrics = PerRequestMetrics.Current;
-            metrics.HttpRequestLeftQueueOffset = (timestamp - metrics.StartTime).Ticks;
+            metrics.HttpRequestLeftQueueOffset = metrics.CalcOffset(timestamp);
         }
 
         public void OnRequestHeadersStart(DateTime timestamp)
         {
             var metrics = PerRequestMetrics.Current;
-            metrics.HttpRequestHeadersStartOffset = (timestamp - metrics.StartTime).Ticks;
+            metrics.HttpRequestHeadersStartOffset = metrics.CalcOffset(timestamp);
         }
 
         public void OnRequestHeadersStop(DateTime timestamp)
         {
             var metrics = PerRequestMetrics.Current;
-            metrics.HttpRequestHeadersStopOffset = (timestamp - metrics.StartTime).Ticks;
+            metrics.HttpRequestHeadersStopOffset = metrics.CalcOffset(timestamp);
         }
 
         public void OnRequestContentStart(DateTime timestamp)
         {
             var metrics = PerRequestMetrics.Current;
-            metrics.HttpRequestContentStartOffset = (timestamp - metrics.StartTime).Ticks;
+            metrics.HttpRequestContentStartOffset = metrics.CalcOffset(timestamp);
         }
 
         public void OnRequestContentStop(DateTime timestamp, long contentLength)
         {
             var metrics = PerRequestMetrics.Current;
-            metrics.HttpRequestContentStopOffset = (timestamp - metrics.StartTime).Ticks;
+            metrics.HttpRequestContentStopOffset = metrics.CalcOffset(timestamp);
         }
 
         public void OnResponseHeadersStart(DateTime timestamp)
         {
             var metrics = PerRequestMetrics.Current;
-            metrics.HttpResponseHeadersStartOffset = (timestamp - metrics.StartTime).Ticks;
+            metrics.HttpResponseHeadersStartOffset = metrics.CalcOffset(timestamp);
         }
 
         public void OnResponseHeadersStop(DateTime timestamp)
         {
             var metrics = PerRequestMetrics.Current;
-            metrics.HttpResponseHeadersStopOffset = (timestamp - metrics.StartTime).Ticks;
+            metrics.HttpResponseHeadersStopOffset = metrics.CalcOffset(timestamp);
         }
     }
-#endif
 }

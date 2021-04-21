@@ -14,19 +14,19 @@ namespace Yarp.Sample
         public void OnProxyStart(DateTime timestamp, string destinationPrefix)
         {
             var metrics = PerRequestMetrics.Current;
-            metrics.ProxyStartOffset = (timestamp - metrics.StartTime).Ticks;
+            metrics.ProxyStartOffset = metrics.CalcOffset(timestamp);
         }
 
         public void OnProxyStop(DateTime timestamp, int statusCode)
         {
             var metrics = PerRequestMetrics.Current;
-            metrics.ProxyStopOffset = (timestamp - metrics.StartTime).Ticks;
+            metrics.ProxyStopOffset = metrics.CalcOffset(timestamp);
         }
 
         public void OnProxyFailed(DateTime timestamp, ProxyError error)
         {
             var metrics = PerRequestMetrics.Current;
-            metrics.ProxyStopOffset = (timestamp - metrics.StartTime).Ticks;
+            metrics.ProxyStopOffset = metrics.CalcOffset(timestamp);
             metrics.Error = error;
         }
 
@@ -47,7 +47,7 @@ namespace Yarp.Sample
             {
                 // We don't get a content stop from http as its returning a stream that is up to the consumer to
                 // read, but we know its ended here.
-                metrics.HttpResponseContentStopOffset = (timestamp - metrics.StartTime).Ticks;
+                metrics.HttpResponseContentStopOffset = metrics.CalcOffset(timestamp);
                 metrics.ResponseBodyLength = contentLength;
                 metrics.ResponseContentIops = iops;
             }
@@ -56,7 +56,7 @@ namespace Yarp.Sample
         public void OnProxyInvoke(DateTime timestamp, string clusterId, string routeId, string destinationId)
         {
             var metrics = PerRequestMetrics.Current;
-            metrics.RouteInvokeOffset = (timestamp - metrics.StartTime).Ticks;
+            metrics.RouteInvokeOffset = metrics.CalcOffset(timestamp);
             metrics.RouteId = routeId;
             metrics.ClusterId = clusterId;
             metrics.DestinationId = destinationId;

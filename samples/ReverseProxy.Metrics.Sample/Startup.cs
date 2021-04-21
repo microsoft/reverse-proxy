@@ -39,15 +39,13 @@ namespace Yarp.Sample
             services.AddSingleton<IProxyMetricsConsumer, ProxyMetricsConsumer>();
 
             // Registration of a listener to events for proxy telemetry 
-            services.AddScoped<IProxyTelemetryConsumer, ProxyTelemetryConsumer>();
+            services.AddSingleton<IProxyTelemetryConsumer, ProxyTelemetryConsumer>();
             services.AddProxyTelemetryListener();
 
             // Registration of a listener to events for HttpClient telemetry
             // Note: this depends on changes implemented in .NET 5 
-#if NET5_0_OR_GREATER
-            services.AddScoped<IHttpTelemetryConsumer, HttpTelemetryConsumer>();
+            services.AddSingleton<IHttpTelemetryConsumer, HttpClientTelemetryConsumer>();
             services.AddHttpTelemetryListener();
-#endif
         }
 
         /// <summary>

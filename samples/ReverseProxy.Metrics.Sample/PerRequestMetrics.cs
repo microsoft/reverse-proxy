@@ -26,22 +26,22 @@ namespace Yarp.Sample
 
 
         // Offset Tics for each part of the proxy operation
-        public long RouteInvokeOffset { get; set; }
-        public long ProxyStartOffset { get; set; }
-        public long HttpRequestStartOffset { get; set; }
-        public long HttpConnectionEstablishedOffset { get; set; }
-        public long HttpRequestLeftQueueOffset { get; set; }
+        public float RouteInvokeOffset { get; set; }
+        public float ProxyStartOffset { get; set; }
+        public float HttpRequestStartOffset { get; set; }
+        public float HttpConnectionEstablishedOffset { get; set; }
+        public float HttpRequestLeftQueueOffset { get; set; }
 
-        public long HttpRequestHeadersStartOffset { get; set; }
-        public long HttpRequestHeadersStopOffset { get; set; }
-        public long HttpRequestContentStartOffset { get; set; }
-        public long HttpRequestContentStopOffset { get; set; }
+        public float HttpRequestHeadersStartOffset { get; set; }
+        public float HttpRequestHeadersStopOffset { get; set; }
+        public float HttpRequestContentStartOffset { get; set; }
+        public float HttpRequestContentStopOffset { get; set; }
 
-        public long HttpResponseHeadersStartOffset { get; set; }
-        public long HttpResponseHeadersStopOffset { get; set; }
-        public long HttpResponseContentStopOffset { get; set; }
+        public float HttpResponseHeadersStartOffset { get; set; }
+        public float HttpResponseHeadersStopOffset { get; set; }
+        public float HttpResponseContentStopOffset { get; set; }
 
-        public long ProxyStopOffset { get; set; }
+        public float ProxyStopOffset { get; set; }
 
         //Info about the request
         public ProxyError Error { get; set; }
@@ -56,6 +56,11 @@ namespace Yarp.Sample
         public string ToJson()
         {
             return JsonSerializer.Serialize(this, _jsonOptions);
+        }
+
+        public float CalcOffset(DateTime timestamp)
+        {
+            return (float)(timestamp - StartTime).TotalMilliseconds;
         }
     }
 }
