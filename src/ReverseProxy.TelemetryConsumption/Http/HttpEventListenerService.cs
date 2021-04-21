@@ -6,44 +6,21 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Tracing;
 using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace Yarp.ReverseProxy.Telemetry.Consumption
 {
-    internal sealed class HttpEventListenerService : EventListener, IHostedService
+    internal sealed class HttpEventListenerService : EventListenerService<HttpEventListenerService, IHttpTelemetryConsumer, IHttpMetricsConsumer>
     {
-        private readonly ILogger<HttpEventListenerService> _logger;
-        private readonly IServiceProvider _serviceProvider;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-
         private HttpMetrics _previousMetrics;
         private HttpMetrics _currentMetrics = new();
         private int _eventCountersCount;
 
-        public HttpEventListenerService(ILogger<HttpEventListenerService> logger, IServiceProvider serviceProvider, IHttpContextAccessor httpContextAccessor)
-        {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
-            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
-        }
+        protected override string EventSourceName => "System.Net.Http";
 
-        public Task StartAsync(CancellationToken cancellationToken) => Task.CompletedTask;
-
-        public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
-
-        protected override void OnEventSourceCreated(EventSource eventSource)
-        {
-            if (eventSource.Name == "System.Net.Http")
-            {
-                var arguments = new Dictionary<string, string> { { "EventCounterIntervalSec", MetricsOptions.Interval.TotalSeconds.ToString() } };
-                EnableEvents(eventSource, EventLevel.LogAlways, EventKeywords.None, arguments);
-            }
-        }
+        public HttpEventListenerService(ILogger<HttpEventListenerService> logger, IEnumerable<IHttpTelemetryConsumer> telemetryConsumers, IEnumerable<IHttpMetricsConsumer> metricsConsumers)
+            : base(logger, telemetryConsumers, metricsConsumers)
+        { }
 
         protected override void OnEventWritten(EventWrittenEventArgs eventData)
         {
@@ -60,15 +37,7 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                 return;
             }
 
-            var context = _httpContextAccessor?.HttpContext;
-            if (context is null)
-            {
-                return;
-            }
-
-            using var consumers = context.RequestServices.GetServices<IHttpTelemetryConsumer>().GetEnumerator();
-
-            if (!consumers.MoveNext())
+            if (TelemetryConsumers is null)
             {
                 return;
             }
@@ -87,33 +56,30 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                         var versionMajor = (int)(byte)payload[4];
                         var versionMinor = (int)(byte)payload[5];
                         var versionPolicy = (HttpVersionPolicy)payload[6];
-                        do
+                        foreach (var consumer in TelemetryConsumers)
                         {
-                            consumers.Current.OnRequestStart(eventData.TimeStamp, scheme, host, port, pathAndQuery, versionMajor, versionMinor, versionPolicy);
+                            consumer.OnRequestStart(eventData.TimeStamp, scheme, host, port, pathAndQuery, versionMajor, versionMinor, versionPolicy);
                         }
-                        while (consumers.MoveNext());
                     }
                     break;
 
                 case 2:
                     Debug.Assert(eventData.EventName == "RequestStop" && payload.Count == 0);
                     {
-                        do
+                        foreach (var consumer in TelemetryConsumers)
                         {
-                            consumers.Current.OnRequestStop(eventData.TimeStamp);
+                            consumer.OnRequestStop(eventData.TimeStamp);
                         }
-                        while (consumers.MoveNext());
                     }
                     break;
 
                 case 3:
                     Debug.Assert(eventData.EventName == "RequestFailed" && payload.Count == 0);
                     {
-                        do
+                        foreach (var consumer in TelemetryConsumers)
                         {
-                            consumers.Current.OnRequestFailed(eventData.TimeStamp);
+                            consumer.OnRequestFailed(eventData.TimeStamp);
                         }
-                        while (consumers.MoveNext());
                     }
                     break;
 
@@ -122,11 +88,10 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                     {
                         var versionMajor = (int)(byte)payload[0];
                         var versionMinor = (int)(byte)payload[1];
-                        do
+                        foreach (var consumer in TelemetryConsumers)
                         {
-                            consumers.Current.OnConnectionEstablished(eventData.TimeStamp, versionMajor, versionMinor);
+                            consumer.OnConnectionEstablished(eventData.TimeStamp, versionMajor, versionMinor);
                         }
-                        while (consumers.MoveNext());
                     }
                     break;
 
@@ -140,44 +105,40 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                         var timeOnQueue = TimeSpan.FromMilliseconds((double)payload[0]);
                         var versionMajor = (int)(byte)payload[1];
                         var versionMinor = (int)(byte)payload[2];
-                        do
+                        foreach (var consumer in TelemetryConsumers)
                         {
-                            consumers.Current.OnRequestLeftQueue(eventData.TimeStamp, timeOnQueue, versionMajor, versionMinor);
+                            consumer.OnRequestLeftQueue(eventData.TimeStamp, timeOnQueue, versionMajor, versionMinor);
                         }
-                        while (consumers.MoveNext());
                     }
                     break;
 
                 case 7:
                     Debug.Assert(eventData.EventName == "RequestHeadersStart" && payload.Count == 0);
                     {
-                        do
+                        foreach (var consumer in TelemetryConsumers)
                         {
-                            consumers.Current.OnRequestHeadersStart(eventData.TimeStamp);
+                            consumer.OnRequestHeadersStart(eventData.TimeStamp);
                         }
-                        while (consumers.MoveNext());
                     }
                     break;
 
                 case 8:
                     Debug.Assert(eventData.EventName == "RequestHeadersStop" && payload.Count == 0);
                     {
-                        do
+                        foreach (var consumer in TelemetryConsumers)
                         {
-                            consumers.Current.OnRequestHeadersStop(eventData.TimeStamp);
+                            consumer.OnRequestHeadersStop(eventData.TimeStamp);
                         }
-                        while (consumers.MoveNext());
                     }
                     break;
 
                 case 9:
                     Debug.Assert(eventData.EventName == "RequestContentStart" && payload.Count == 0);
                     {
-                        do
+                        foreach (var consumer in TelemetryConsumers)
                         {
-                            consumers.Current.OnRequestContentStart(eventData.TimeStamp);
+                            consumer.OnRequestContentStart(eventData.TimeStamp);
                         }
-                        while (consumers.MoveNext());
                     }
                     break;
 
@@ -185,33 +146,30 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                     Debug.Assert(eventData.EventName == "RequestContentStop" && payload.Count == 1);
                     {
                         var contentLength = (long)payload[0];
-                        do
+                        foreach (var consumer in TelemetryConsumers)
                         {
-                            consumers.Current.OnRequestContentStop(eventData.TimeStamp, contentLength);
+                            consumer.OnRequestContentStop(eventData.TimeStamp, contentLength);
                         }
-                        while (consumers.MoveNext());
                     }
                     break;
 
                 case 11:
                     Debug.Assert(eventData.EventName == "ResponseHeadersStart" && payload.Count == 0);
                     {
-                        do
+                        foreach (var consumer in TelemetryConsumers)
                         {
-                            consumers.Current.OnResponseHeadersStart(eventData.TimeStamp);
+                            consumer.OnResponseHeadersStart(eventData.TimeStamp);
                         }
-                        while (consumers.MoveNext());
                     }
                     break;
 
                 case 12:
                     Debug.Assert(eventData.EventName == "ResponseHeadersStop" && payload.Count == 0);
                     {
-                        do
+                        foreach (var consumer in TelemetryConsumers)
                         {
-                            consumers.Current.OnResponseHeadersStop(eventData.TimeStamp);
+                            consumer.OnResponseHeadersStop(eventData.TimeStamp);
                         }
-                        while (consumers.MoveNext());
                     }
                     break;
             }
@@ -219,6 +177,11 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
 
         private void OnEventCounters(EventWrittenEventArgs eventData)
         {
+            if (MetricsConsumers is null)
+            {
+                return;
+            }
+
             Debug.Assert(eventData.EventName == "EventCounters" && eventData.Payload.Count == 1);
             var counters = (IDictionary<string, object>)eventData.Payload[0];
 
@@ -284,14 +247,14 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                 _previousMetrics = metrics;
                 _currentMetrics = new HttpMetrics();
 
-                if (previous is null || _serviceProvider is null)
+                if (previous is null)
                 {
                     return;
                 }
 
                 try
                 {
-                    foreach (var consumer in _serviceProvider.GetServices<IHttpMetricsConsumer>())
+                    foreach (var consumer in MetricsConsumers)
                     {
                         consumer.OnHttpMetrics(previous, metrics);
                     }
@@ -299,7 +262,7 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                 catch (Exception ex)
                 {
                     // We can't let an uncaught exception propagate as that would crash the process
-                    _logger.LogError(ex, $"Uncaught exception occured while processing {nameof(HttpMetrics)}.");
+                    Logger.LogError(ex, $"Uncaught exception occured while processing {nameof(HttpMetrics)}.");
                 }
             }
         }

@@ -17,14 +17,14 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
         /// <param name="timestamp">Timestamp when the event was fired.</param>
         /// <param name="isServer">Indicates whether we are authenticating as the server.</param>
         /// <param name="targetHost">Name of the host we are authenticating with.</param>
-        void OnHandshakeStart(DateTime timestamp, bool isServer, string targetHost);
+        void OnHandshakeStart(DateTime timestamp, bool isServer, string targetHost) { }
 
         /// <summary>
         /// Called after a handshake.
         /// </summary>
         /// <param name="timestamp">Timestamp when the event was fired.</param>
         /// <param name="protocol">The protocol established by the handshake.</param>
-        void OnHandshakeStop(DateTime timestamp, SslProtocols protocol);
+        void OnHandshakeStop(DateTime timestamp, SslProtocols protocol) { }
 
         /// <summary>
         /// Called before <see cref="OnHandshakeStop(DateTime, SslProtocols)"/> if the handshake failed.
@@ -33,6 +33,6 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
         /// <param name="isServer">Indicates whether we were authenticating as the server.</param>
         /// <param name="elapsed">Time elapsed since the start of the handshake.</param>
         /// <param name="exceptionMessage">Exception information for the handshake failure.</param>
-        void OnHandshakeFailed(DateTime timestamp, bool isServer, TimeSpan elapsed, string exceptionMessage);
+        void OnHandshakeFailed(DateTime timestamp, bool isServer, TimeSpan elapsed, string exceptionMessage) { }
     }
 }

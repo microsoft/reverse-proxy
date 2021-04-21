@@ -16,28 +16,28 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
         /// </summary>
         /// <param name="timestamp">Timestamp when the event was fired.</param>
         /// <param name="destinationPrefix"></param>
-        void OnProxyStart(DateTime timestamp, string destinationPrefix);
+        void OnProxyStart(DateTime timestamp, string destinationPrefix) { }
 
         /// <summary>
         /// Called after proxying a request.
         /// </summary>
         /// <param name="timestamp">Timestamp when the event was fired.</param>
         /// <param name="statusCode">The status code returned in the response.</param>
-        void OnProxyStop(DateTime timestamp, int statusCode);
+        void OnProxyStop(DateTime timestamp, int statusCode) { }
 
         /// <summary>
         /// Called before <see cref="OnProxyStop(DateTime, int)"/> if proxying the request failed.
         /// </summary>
         /// <param name="timestamp">Timestamp when the event was fired.</param>
         /// <param name="error"><see cref="ProxyError"/> information for the proxy failure.</param>
-        void OnProxyFailed(DateTime timestamp, ProxyError error);
+        void OnProxyFailed(DateTime timestamp, ProxyError error) { }
 
         /// <summary>
         /// Called when reaching a given stage of proxying a request.
         /// </summary>
         /// <param name="timestamp">Timestamp when the event was fired.</param>
         /// <param name="stage">Stage of the proxy operation.</param>
-        void OnProxyStage(DateTime timestamp, ProxyStage stage);
+        void OnProxyStage(DateTime timestamp, ProxyStage stage) { }
 
         /// <summary>
         /// Called periodically while a content transfer is active.
@@ -48,7 +48,7 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
         /// <param name="iops">Number of read/write pairs performed.</param>
         /// <param name="readTime">Time spent reading from the source.</param>
         /// <param name="writeTime">Time spent writing to the destination.</param>
-        void OnContentTransferring(DateTime timestamp, bool isRequest, long contentLength, long iops, TimeSpan readTime, TimeSpan writeTime);
+        void OnContentTransferring(DateTime timestamp, bool isRequest, long contentLength, long iops, TimeSpan readTime, TimeSpan writeTime) { }
 
         /// <summary>
         /// Called after transferring the request or response content.
@@ -60,7 +60,7 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
         /// <param name="readTime">Time spent reading from the source.</param>
         /// <param name="writeTime">Time spent writing to the destination.</param>
         /// <param name="firstReadTime">Time spent on the first read of the source.</param>
-        void OnContentTransferred(DateTime timestamp, bool isRequest, long contentLength, long iops, TimeSpan readTime, TimeSpan writeTime, TimeSpan firstReadTime);
+        void OnContentTransferred(DateTime timestamp, bool isRequest, long contentLength, long iops, TimeSpan readTime, TimeSpan writeTime, TimeSpan firstReadTime) { }
 
         /// <summary>
         /// Called before proxying a request.
@@ -69,6 +69,6 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
         /// <param name="clusterId">Cluster ID</param>
         /// <param name="routeId">Route ID</param>
         /// <param name="destinationId">Destination ID</param>
-        void OnProxyInvoke(DateTime timestamp, string clusterId, string routeId, string destinationId);
+        void OnProxyInvoke(DateTime timestamp, string clusterId, string routeId, string destinationId) { }
     }
 }
