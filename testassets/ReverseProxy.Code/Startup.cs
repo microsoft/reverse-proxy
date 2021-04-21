@@ -52,7 +52,7 @@ namespace Yarp.ReverseProxy.Sample
 
             services.AddReverseProxy()
                 .LoadFromMemory(routes, clusters)
-                .ConfigureClient((context, handler) =>
+                .ConfigureHttpClient((context, handler) =>
                 {
                     handler.Expect100ContinueTimeout = TimeSpan.FromMilliseconds(300);
                 })

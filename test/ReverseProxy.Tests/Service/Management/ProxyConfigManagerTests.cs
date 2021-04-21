@@ -297,7 +297,7 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
             var route1 = new ProxyRoute { RouteId = "route1", Match = new ProxyMatch { Hosts = null }, Order = 1, ClusterId = "cluster1" };
             var services = CreateServices(new List<ProxyRoute>() { route1 }, new List<Cluster>(), proxyBuilder =>
             {
-                proxyBuilder.AddProxyConfigFilter<FixRouteHostFilter>();
+                proxyBuilder.AddConfigFilter<FixRouteHostFilter>();
             });
             var configManager = services.GetRequiredService<ProxyConfigManager>();
 
@@ -367,7 +367,7 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
             };
             var services = CreateServices(new List<ProxyRoute>() { route }, new List<Cluster>() { cluster }, proxyBuilder =>
             {
-                proxyBuilder.AddProxyConfigFilter<ClusterAndRouteFilter>();
+                proxyBuilder.AddConfigFilter<ClusterAndRouteFilter>();
             });
             var manager = services.GetRequiredService<ProxyConfigManager>();
             var dataSource = await manager.InitialLoadAsync();
@@ -409,8 +409,8 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
             };
             var services = CreateServices(new List<ProxyRoute>(), new List<Cluster>() { cluster }, proxyBuilder =>
             {
-                proxyBuilder.AddProxyConfigFilter<ClusterAndRouteThrows>();
-                proxyBuilder.AddProxyConfigFilter<ClusterAndRouteThrows>();
+                proxyBuilder.AddConfigFilter<ClusterAndRouteThrows>();
+                proxyBuilder.AddConfigFilter<ClusterAndRouteThrows>();
             });
             var configManager = services.GetRequiredService<ProxyConfigManager>();
 
@@ -430,8 +430,8 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
             var route2 = new ProxyRoute { RouteId = "route2", Match = new ProxyMatch { Hosts = new[] { "example2.com" } }, Order = 1, ClusterId = "cluster2" };
             var services = CreateServices(new List<ProxyRoute>() { route1, route2 }, new List<Cluster>(), proxyBuilder =>
             {
-                proxyBuilder.AddProxyConfigFilter<ClusterAndRouteThrows>();
-                proxyBuilder.AddProxyConfigFilter<ClusterAndRouteThrows>();
+                proxyBuilder.AddConfigFilter<ClusterAndRouteThrows>();
+                proxyBuilder.AddConfigFilter<ClusterAndRouteThrows>();
             });
             var configManager = services.GetRequiredService<ProxyConfigManager>();
 

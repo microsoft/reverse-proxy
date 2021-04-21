@@ -32,7 +32,7 @@ namespace Yarp.ReverseProxy.Sample
             services.AddControllers();
             services.AddReverseProxy()
                 .LoadFromConfig(_configuration.GetSection("ReverseProxy"))
-                .AddProxyConfigFilter<CustomConfigFilter>();
+                .AddConfigFilter<CustomConfigFilter>();
         }
 
         /// <summary>
