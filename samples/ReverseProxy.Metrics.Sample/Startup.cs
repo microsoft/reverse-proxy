@@ -34,9 +34,20 @@ namespace Yarp.Sample
                 .LoadFromConfig(_configuration.GetSection("ReverseProxy"));
 
             services.AddHttpContextAccessor();
+
+            // Interface that collects general metrics about the proxy
             services.AddSingleton<IProxyMetricsConsumer, ProxyMetricsConsumer>();
+
+            // Registration of a listener to events for proxy telemetry 
             services.AddScoped<IProxyTelemetryConsumer, ProxyTelemetryConsumer>();
             services.AddProxyTelemetryListener();
+
+            // Registration of a listener to events for HttpClient telemetry
+            // Note: this depends on changes implemented in .NET 5 
+#if NET5_0_OR_GREATER
+            services.AddScoped<IHttpTelemetryConsumer, HttpTelemetryConsumer>();
+            services.AddHttpTelemetryListener();
+#endif
         }
 
         /// <summary>
@@ -44,6 +55,10 @@ namespace Yarp.Sample
         /// </summary>
         public void Configure(IApplicationBuilder app)
         {
+            // Custom middleware that collects and reports the proxy metrics
+            // Placed at the beginning so it is the first and last thing run for each request
+            app.UsePerRequestMetricCollection();
+
             app.UseRouting();
             app.UseEndpoints(endpoints =>
             {
