@@ -39,6 +39,8 @@ namespace Yarp.Sample
             await _next(context);
 
             // Called after the other middleware steps have completed
+            // Write the info to the console via ILogger. In a production scenario you probably want
+            // to write the results to your telemetry systems directly.
             _logger.LogInformation("PerRequestMetrics: "+ metrics.ToJson());
         }
     }

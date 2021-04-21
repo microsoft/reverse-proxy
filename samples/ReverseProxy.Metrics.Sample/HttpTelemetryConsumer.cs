@@ -14,13 +14,6 @@ namespace Yarp.Sample
 
     public sealed class HttpTelemetryConsumer : IHttpTelemetryConsumer
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
-
-        public HttpTelemetryConsumer(IHttpContextAccessor httpContextAccessor)
-        {
-            _httpContextAccessor = httpContextAccessor;
-        }
-
         public void OnRequestStart(DateTime timestamp, string scheme, string host, int port, string pathAndQuery, int versionMajor, int versionMinor, HttpVersionPolicy versionPolicy)
         {
             var metrics = PerRequestMetrics.Current;
@@ -30,7 +23,7 @@ namespace Yarp.Sample
         public void OnRequestStop(DateTime timestamp)
         {
             var metrics = PerRequestMetrics.Current;
-            Console.WriteLine($"requeststop {(timestamp - metrics.StartTime).Ticks}");
+            metrics.HttpRequestContentStopOffset = (timestamp - metrics.StartTime).Ticks;
         }
 
         public void OnRequestFailed(DateTime timestamp)

@@ -2,7 +2,7 @@
 
 This sample demonstrates how to use the ReverseProxy.Telemetry.Consumption library to listen to telemetry data from YARP. In this case it uses the events to create a per-request data structure with detailed timings for each operation that takes place as part of the proxy operation.
 
-Internally YARP uses EventSource to collect telemetry events and metrics from a number of subsystems that are used toprocess the requests. The YARP telemetry library provides wrapper classes that collect these events metrics and make them available for Consumption. To listen for the metrics you register classes with DI that implement an interface for each subsystem. Event/metric listeners will only be created for the subsystems that you register for, as each registration has performance implications.
+Internally YARP uses EventSource to collect telemetry events and metrics from a number of subsystems that are used to process the requests. The YARP telemetry library provides wrapper classes that collect these events metrics and make them available for Consumption. To listen for the metrics you register classes with DI that implement an interface for each subsystem. Event/metric listeners will only be created for the subsystems that you register for, as each registration has performance implications.
 
 The subsystems are:
 - **Proxy** which represents the overall proxy operation, and success or failure. 
@@ -15,16 +15,17 @@ The subsystems are:
     - Number of requests started
     - Number of request in flight
     - Number of requests that have failed
+
 - **Kestrel** which is the web server that handles incomming requests. 
 
   Events include:
-    - When the a request is started and stopped
+    - When a request is started and stopped
     
   Metrics include:
     - Connection Rate - how many connections are opened a second
     - Total number of connections
     - Number of TLS handshakes
-    - Incomming queue lengths
+    - Incomming queue length
 
 - **Http** which is the HttpClient which makes outgoing requests to the destination servers. 
 
@@ -36,11 +37,11 @@ The subsystems are:
 
   Metrics include:
     - Number of outgoing requests started
-    - Number of Requests failed
+    - Number of requests failed
     - Number of active requests
     - Number of outbound connections
 
-- **Sockets** which collects metrics about the amount of data send and received
+- **Sockets** which collects metrics about the amount of data sent and received
 - **NameResolution** which collects metrics for DNS lookup of destinations
 
 ## Key Files

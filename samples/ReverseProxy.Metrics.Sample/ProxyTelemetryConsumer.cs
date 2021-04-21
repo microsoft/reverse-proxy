@@ -11,13 +11,6 @@ namespace Yarp.Sample
 {
     public sealed class ProxyTelemetryConsumer : IProxyTelemetryConsumer
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
-
-        public ProxyTelemetryConsumer(IHttpContextAccessor httpContextAccessor)
-        {
-            _httpContextAccessor = httpContextAccessor;
-        }
-
         public void OnProxyStart(DateTime timestamp, string destinationPrefix)
         {
             var metrics = PerRequestMetrics.Current;
@@ -47,12 +40,13 @@ namespace Yarp.Sample
 
             if (isRequest)
             {
-                metrics.HttpRequestContentStopOffset = (timestamp - metrics.StartTime).Ticks;
                 metrics.RequestBodyLength = contentLength;
                 metrics.RequestContentIops = iops;
             }
             else
             {
+                // We don't get a content stop from http as its returning a stream that is up to the consumer to
+                // read, but we know its ended here.
                 metrics.HttpResponseContentStopOffset = (timestamp - metrics.StartTime).Ticks;
                 metrics.ResponseBodyLength = contentLength;
                 metrics.ResponseContentIops = iops;

@@ -11,25 +11,15 @@ namespace Yarp.Sample
     public class PerRequestMetrics
     {
         private static readonly AsyncLocal<PerRequestMetrics> _local = new AsyncLocal<PerRequestMetrics>();
+        private static readonly JsonSerializerOptions _jsonOptions = new JsonSerializerOptions { WriteIndented = true };
+
+        // Ensure we are only fetched via the factory
+        private PerRequestMetrics() { }
 
         /// <summary>
         /// Factory to instantiate or restore the metrics from AsyncLocal storage
         /// </summary>
-        public static PerRequestMetrics Current
-        {
-            get {
-                var current = _local.Value;
-                if ( current == null)
-                {
-                    current = new PerRequestMetrics();
-                    _local.Value = current;
-                }
-                return current;
-            }
-        }
-
-        // Ensure we are only fetched via the factory
-        private PerRequestMetrics() { }
+        public static PerRequestMetrics Current => _local.Value ??= new PerRequestMetrics();
 
         // Time the request was started via the pipeline
         public DateTime StartTime { get; set; }
@@ -53,6 +43,8 @@ namespace Yarp.Sample
 
         public long ProxyStopOffset { get; set; }
 
+        public TimeSpan ProxyStopOffsetSpan => new TimeSpan(ProxyStopOffset);
+        public string ProxyStopOffsetString => ProxyStopOffsetSpan.ToString();
 
         //Info about the request
         public ProxyError Error { get; set; }
@@ -66,7 +58,7 @@ namespace Yarp.Sample
 
         public string ToJson()
         {
-            return JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true });
+            return JsonSerializer.Serialize(this, _jsonOptions);
         }
     }
 }
