@@ -29,7 +29,7 @@ namespace Yarp.ReverseProxy.IntegrationTests
                 {
                     RouteId = "route1",
                     ClusterId = "cluster1",
-                    Match = new ProxyMatch { Path = "/api/{**catchall}" }
+                    Match = new RouteMatch { Path = "/api/{**catchall}" }
                 }
             };
 
@@ -55,7 +55,7 @@ namespace Yarp.ReverseProxy.IntegrationTests
                 {
                     RouteId = "route1",
                     ClusterId = "cluster1",
-                    Match = new ProxyMatch { Hosts = new[] { "*.example.com" } }
+                    Match = new RouteMatch { Hosts = new[] { "*.example.com" } }
                 }
             };
 
@@ -81,7 +81,7 @@ namespace Yarp.ReverseProxy.IntegrationTests
                 {
                     RouteId = "route1",
                     ClusterId = "cluster1",
-                    Match = new ProxyMatch
+                    Match = new RouteMatch
                     {
                         Path = "/{**catchall}",
                         Headers = new[]
@@ -135,7 +135,7 @@ namespace Yarp.ReverseProxy.IntegrationTests
                 {
                     RouteId = "route1",
                     ClusterId = "cluster1",
-                    Match = new ProxyMatch
+                    Match = new RouteMatch
                     {
                         Path = "/{**catchall}",
                         Headers = new[]
@@ -152,7 +152,7 @@ namespace Yarp.ReverseProxy.IntegrationTests
                 {
                     RouteId = "route2",
                     ClusterId = "cluster1",
-                    Match = new ProxyMatch
+                    Match = new RouteMatch
                     {
                         Path = "/{**catchall}",
                         Headers = new[]
@@ -169,7 +169,7 @@ namespace Yarp.ReverseProxy.IntegrationTests
                 {
                     RouteId = "route3",
                     ClusterId = "cluster1",
-                    Match = new ProxyMatch
+                    Match = new RouteMatch
                     {
                         Path = "/{**catchall}",
                         Headers = new[]
@@ -246,13 +246,13 @@ namespace Yarp.ReverseProxy.IntegrationTests
                 {
                     RouteId = "route1",
                     ClusterId = "cluster1",
-                    Match = new ProxyMatch { Path = "/route1" }
+                    Match = new RouteMatch { Path = "/route1" }
                 },
                 new ProxyRoute()
                 {
                     RouteId = "route2",
                     ClusterId = "cluster1",
-                    Match = new ProxyMatch
+                    Match = new RouteMatch
                     {
                         Path = "/{**catchall}",
                         Methods = new[] { "GET" },
@@ -262,7 +262,7 @@ namespace Yarp.ReverseProxy.IntegrationTests
                 {
                     RouteId = "route3",
                     ClusterId = "cluster1",
-                    Match = new ProxyMatch
+                    Match = new RouteMatch
                     {
                         Hosts = new[] { "localhost" }
                     }
@@ -271,7 +271,7 @@ namespace Yarp.ReverseProxy.IntegrationTests
                 {
                     RouteId = "route4",
                     ClusterId = "cluster1",
-                    Match = new ProxyMatch
+                    Match = new RouteMatch
                     {
                         Path = "/{**catchall}",
                         Headers = new[]

@@ -112,7 +112,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
             Assert.Equal(1, cluster1.ConcurrencyCounter.Value);
             Assert.Equal(1, destination1.ConcurrentRequestCount);
 
-            Assert.Same(destination1, httpContext.GetRequiredProxyFeature().ProxiedDestination);
+            Assert.Same(destination1, httpContext.GetReverseProxyFeature().ProxiedDestination);
 
             tcs2.TrySetResult(true);
             await task;

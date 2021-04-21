@@ -31,7 +31,7 @@ namespace Yarp.ReverseProxy.Sample
                 {
                     RouteId = "route1",
                     ClusterId = "cluster1",
-                    Match = new ProxyMatch
+                    Match = new RouteMatch
                     {
                         Path = "{**catch-all}"
                     }
@@ -52,7 +52,7 @@ namespace Yarp.ReverseProxy.Sample
 
             services.AddReverseProxy()
                 .LoadFromMemory(routes, clusters)
-                .ConfigureClient((context, handler) =>
+                .ConfigureHttpClient((context, handler) =>
                 {
                     handler.Expect100ContinueTimeout = TimeSpan.FromMilliseconds(300);
                 })

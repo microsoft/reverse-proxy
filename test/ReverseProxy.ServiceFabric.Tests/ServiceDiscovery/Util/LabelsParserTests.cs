@@ -280,7 +280,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                 new ProxyRoute
                 {
                     RouteId = "MyCoolClusterId:MyRoute",
-                    Match = new ProxyMatch
+                    Match = new RouteMatch
                     {
                         Hosts = new[] { "example.com" },
                         Headers = new List<RouteHeader>
@@ -343,7 +343,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                 new ProxyRoute
                 {
                     RouteId = "MyCoolClusterId:MyRoute",
-                    Match = new ProxyMatch
+                    Match = new RouteMatch
                     {
                         Hosts = new[] { "example.com" },
                     },
@@ -373,7 +373,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                 new ProxyRoute
                 {
                     RouteId = "MyCoolClusterId:MyRoute",
-                    Match = new ProxyMatch
+                    Match = new RouteMatch
                     {
                         Hosts = new[] { "'this invalid thing" },
                     },
@@ -407,7 +407,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                 new ProxyRoute
                 {
                     RouteId = $"{Uri.EscapeDataString(_testServiceName.ToString())}:MyRoute",
-                    Match = new ProxyMatch
+                    Match = new RouteMatch
                     {
                         Hosts = new[] { "example.com" },
                     },
@@ -434,7 +434,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                 new ProxyRoute
                 {
                     RouteId = $"{Uri.EscapeDataString(_testServiceName.ToString())}:MyRoute",
-                    Match = new ProxyMatch
+                    Match = new RouteMatch
                     {
                         Path = "/{**catchall}",
                     },
@@ -484,7 +484,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                 new ProxyRoute
                 {
                     RouteId = $"MyCoolClusterId:{routeName}",
-                    Match = new ProxyMatch
+                    Match = new RouteMatch
                     {
                         Hosts = new[] { "example.com" },
                     },
@@ -616,7 +616,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                 new ProxyRoute
                 {
                     RouteId = $"MyCoolClusterId:MyRoute0",
-                    Match = new ProxyMatch
+                    Match = new RouteMatch
                     {
                         Hosts = new[] { "example0.com" },
                         Headers = new List<RouteHeader>() {
@@ -666,7 +666,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                 new ProxyRoute
                 {
                     RouteId = "MyCoolClusterId:MyRoute",
-                    Match = new ProxyMatch
+                    Match = new RouteMatch
                     {
                         Hosts = new[] { "example.com" },
                     },
@@ -704,7 +704,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                 new ProxyRoute
                 {
                     RouteId = "MyCoolClusterId:MyRoute",
-                    Match = new ProxyMatch
+                    Match = new RouteMatch
                     {
                         Hosts = new[] { "example.com" },
                         Path = "v2/{**rest}",
@@ -716,7 +716,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                 new ProxyRoute
                 {
                     RouteId = "MyCoolClusterId:CoolRoute",
-                    Match = new ProxyMatch
+                    Match = new RouteMatch
                     {
                         Hosts = new[] { "example.net" },
                     },
@@ -727,7 +727,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                 new ProxyRoute
                 {
                     RouteId = "MyCoolClusterId:EvenCoolerRoute",
-                    Match = new ProxyMatch
+                    Match = new RouteMatch
                     {
                         Hosts = new[] { "example.org" },
                     },

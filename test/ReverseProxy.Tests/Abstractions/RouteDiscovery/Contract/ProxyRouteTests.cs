@@ -16,7 +16,7 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
                 AuthorizationPolicy = "a",
                 ClusterId = "c",
                 CorsPolicy = "co",
-                Match = new ProxyMatch()
+                Match = new RouteMatch()
                 {
                     Headers = new[]
                     {
@@ -44,7 +44,7 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
                 AuthorizationPolicy = "a",
                 ClusterId = "c",
                 CorsPolicy = "co",
-                Match = new ProxyMatch()
+                Match = new RouteMatch()
                 {
                     Headers = new[]
                     {
@@ -81,7 +81,7 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
                 AuthorizationPolicy = "a",
                 ClusterId = "c",
                 CorsPolicy = "co",
-                Match = new ProxyMatch()
+                Match = new RouteMatch()
                 {
                     Headers = new[]
                     {
@@ -107,7 +107,7 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
             var b = a with { AuthorizationPolicy = "b" };
             var c = a with { ClusterId = "d" };
             var d = a with { CorsPolicy = "p" };
-            var e = a with { Match = new ProxyMatch() };
+            var e = a with { Match = new RouteMatch() };
             var f = a with { Metadata = new Dictionary<string, string>() { { "f", "f1" } } };
             var g = a with { Order = null };
             var h = a with { RouteId = "h" };

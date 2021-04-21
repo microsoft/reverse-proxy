@@ -10,7 +10,7 @@ namespace Yarp.ReverseProxy.Abstractions
     /// <summary>
     /// Describes the matching criteria for a route.
     /// </summary>
-    public sealed record ProxyMatch
+    public sealed record RouteMatch
     {
         /// <summary>
         /// Only match requests that use these optional HTTP methods. E.g. GET, POST.
@@ -40,7 +40,7 @@ namespace Yarp.ReverseProxy.Abstractions
         public IReadOnlyList<RouteHeader> Headers { get; init; }
 
         /// <inheritdoc />
-        public bool Equals(ProxyMatch other)
+        public bool Equals(RouteMatch other)
         {
             if (other == null)
             {

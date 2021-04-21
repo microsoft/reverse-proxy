@@ -81,7 +81,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// Registers a singleton IProxyConfigFilter service. Multiple filters are allowed and they will be run in registration order.
         /// </summary>
         /// <typeparam name="TService">A class that implements IProxyConfigFilter.</typeparam>
-        public static IReverseProxyBuilder AddProxyConfigFilter<TService>(this IReverseProxyBuilder builder) where TService : class, IProxyConfigFilter
+        public static IReverseProxyBuilder AddConfigFilter<TService>(this IReverseProxyBuilder builder) where TService : class, IProxyConfigFilter
         {
             if (builder is null)
             {
@@ -129,7 +129,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// This will be called each time a cluster is added or changed. Cluster settings are applied to the handler before
         /// the callback. Custom data can be provided in the cluster metadata.
         /// </summary>
-        public static IReverseProxyBuilder ConfigureClient(this IReverseProxyBuilder builder, Action<ProxyHttpClientContext, SocketsHttpHandler> configure)
+        public static IReverseProxyBuilder ConfigureHttpClient(this IReverseProxyBuilder builder, Action<ProxyHttpClientContext, SocketsHttpHandler> configure)
         {
             builder.Services.AddSingleton<IProxyHttpClientFactory>(services =>
             {

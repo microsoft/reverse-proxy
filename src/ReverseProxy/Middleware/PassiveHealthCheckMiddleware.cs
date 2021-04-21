@@ -26,7 +26,7 @@ namespace Yarp.ReverseProxy.Middleware
         {
             await _next(context);
 
-            var proxyFeature = context.GetRequiredProxyFeature();
+            var proxyFeature = context.GetReverseProxyFeature();
             var options = proxyFeature.ClusterSnapshot.Options.HealthCheck?.Passive;
 
             // Do nothing if no target destination has been chosen for the request.
@@ -36,7 +36,7 @@ namespace Yarp.ReverseProxy.Middleware
             }
 
             var policy = _policies.GetRequiredServiceById(options.Policy, HealthCheckConstants.PassivePolicy.TransportFailureRate);
-            var cluster = context.GetRequiredRouteConfig().Cluster;
+            var cluster = context.GetRouteConfig().Cluster;
             policy.RequestProxied(cluster, proxyFeature.ProxiedDestination, context);
         }
     }

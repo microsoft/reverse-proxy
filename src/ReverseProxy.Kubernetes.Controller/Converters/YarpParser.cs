@@ -104,7 +104,7 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Converters
 
                         routes.Add(new ProxyRoute()
                         {
-                            Match = new ProxyMatch()
+                            Match = new RouteMatch()
                             {
                                 Hosts = host != null ? new[] { host } : Array.Empty<string>(),
                                 Path = pathMatch

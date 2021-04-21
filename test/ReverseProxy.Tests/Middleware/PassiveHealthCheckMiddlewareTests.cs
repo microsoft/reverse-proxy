@@ -84,7 +84,7 @@ namespace Yarp.ReverseProxy.Middleware
             }, policies.Select(p => p.Object));
 
             var context0 = GetContext(cluster0, selectedDestination: 1, error: null);
-            context0.GetRequiredProxyFeature().ProxiedDestination = null;
+            context0.GetReverseProxyFeature().ProxiedDestination = null;
             await middleware.Invoke(context0);
 
             Assert.True(nextInvoked);

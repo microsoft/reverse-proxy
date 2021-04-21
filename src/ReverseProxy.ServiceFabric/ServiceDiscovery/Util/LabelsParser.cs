@@ -213,7 +213,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
                 var route = new ProxyRoute
                 {
                     RouteId = $"{Uri.EscapeDataString(backendId)}:{Uri.EscapeDataString(routeNamePair.Value)}",
-                    Match = new ProxyMatch
+                    Match = new RouteMatch
                     {
                         Hosts = SplitHosts(hosts),
                         Path = path,

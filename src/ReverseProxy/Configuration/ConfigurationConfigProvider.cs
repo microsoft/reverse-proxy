@@ -176,7 +176,7 @@ namespace Yarp.ReverseProxy.Configuration
                 CorsPolicy = section[nameof(ProxyRoute.CorsPolicy)],
                 Metadata = section.GetSection(nameof(ProxyRoute.Metadata)).ReadStringDictionary(),
                 Transforms = CreateTransforms(section.GetSection(nameof(ProxyRoute.Transforms))),
-                Match = CreateProxyMatch(section.GetSection(nameof(ProxyRoute.Match))),
+                Match = CreateRouteMatch(section.GetSection(nameof(ProxyRoute.Match))),
             };
         }
 
@@ -191,19 +191,19 @@ namespace Yarp.ReverseProxy.Configuration
                     subSection.GetChildren().ToDictionary(d => d.Key, d => d.Value, StringComparer.OrdinalIgnoreCase)).ToList();
         }
 
-        private static ProxyMatch CreateProxyMatch(IConfigurationSection section)
+        private static RouteMatch CreateRouteMatch(IConfigurationSection section)
         {
             if (!section.Exists())
             {
                 return null;
             }
 
-            return new ProxyMatch()
+            return new RouteMatch()
             {
-                Methods = section.GetSection(nameof(ProxyMatch.Methods)).ReadStringArray(),
-                Hosts = section.GetSection(nameof(ProxyMatch.Hosts)).ReadStringArray(),
-                Path = section[nameof(ProxyMatch.Path)],
-                Headers = CreateRouteHeaders(section.GetSection(nameof(ProxyMatch.Headers))),
+                Methods = section.GetSection(nameof(RouteMatch.Methods)).ReadStringArray(),
+                Hosts = section.GetSection(nameof(RouteMatch.Hosts)).ReadStringArray(),
+                Path = section[nameof(RouteMatch.Path)],
+                Headers = CreateRouteHeaders(section.GetSection(nameof(RouteMatch.Headers))),
             };
         }
 
