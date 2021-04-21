@@ -5,11 +5,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Prometheus;
-using Yarp.ReverseProxy.Telemetry.Consumption;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using System;
-using Yarp.ReverseProxy.Middleware;
 
 namespace Yarp.Sample
 {
@@ -19,7 +14,6 @@ namespace Yarp.Sample
     public class Startup
     {
         private readonly IConfiguration _configuration;
-
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Startup" /> class.
@@ -37,8 +31,6 @@ namespace Yarp.Sample
             services.AddControllers();
             services.AddReverseProxy()
                 .LoadFromConfig(_configuration.GetSection("ReverseProxy"));
-
-            services.AddHttpContextAccessor();
 
             //Enable metric collection for all the underlying event counters used by YARP
             services.AddAllPrometheusMetrics();
