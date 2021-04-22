@@ -86,7 +86,7 @@ Code:
         {
             RouteId = "route1",
             ClusterId = "cluster1",
-            Match = new ProxyMatch
+            Match = new RouteMatch
             {
                 Path = "{**catch-all}",
                 Headers = new[]
@@ -104,7 +104,7 @@ Code:
         {
             RouteId = "route2",
             ClusterId = "cluster1",
-            Match = new ProxyMatch
+            Match = new RouteMatch
             {
                 Path = "{**catch-all}",
                 Headers = new[]
@@ -122,7 +122,7 @@ Code:
         {
             RouteId = "route3",
             ClusterId = "cluster1",
-            Match = new ProxyMatch
+            Match = new RouteMatch
             {
                 Path = "{**catch-all}",
                 Headers = new[]
@@ -139,7 +139,7 @@ Code:
         {
             RouteId = "route4",
             ClusterId = "cluster1",
-            Match = new ProxyMatch
+            Match = new RouteMatch
             {
                 Path = "{**catch-all}",
                 Headers = new[]
