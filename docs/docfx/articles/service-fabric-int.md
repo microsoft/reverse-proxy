@@ -97,8 +97,8 @@ These are the supported parameters:
 
 ### Route definitions
 Multiple routes can be defined in an SF service configuration with the following parameters:
-- `YARP.Routes.<routeName>.Path` - configures path-based route matching. The value directly assigned to [ProxyMatch.Path](xref:Yarp.ReverseProxy.Abstractions.ProxyMatch) property and the standard route matching logic will be applied. `{**catch-all}` path may be used to route all requests.
-- `YARP.Routes.<routeName>.Hosts` - configures `Host` header based route matching. Multiple hosts should be separated by comma `,`. The value is split into a list of host names which is then directly assigned to [ProxyMatch.Hosts](xref:Yarp.ReverseProxy.Abstractions.ProxyMatch) property and the standard route matching logic will be applied.
+- `YARP.Routes.<routeName>.Path` - configures path-based route matching. The value directly assigned to [RouteMatch.Path](xref:Yarp.ReverseProxy.Abstractions.RouteMatch) property and the standard route matching logic will be applied. `{**catch-all}` path may be used to route all requests.
+- `YARP.Routes.<routeName>.Hosts` - configures `Host` header based route matching. Multiple hosts should be separated by comma `,`. The value is split into a list of host names which is then directly assigned to [RouteMatch.Hosts](xref:Yarp.ReverseProxy.Abstractions.RouteMatch) property and the standard route matching logic will be applied.
 - `<routeName>` can contain an ASCII letter, a number, or '_' and '-' symbols.
 
 Each route requires a `Path` or `Host` (or both). If both of them are specified, then a request is matched to the route only when both of them are matched.
