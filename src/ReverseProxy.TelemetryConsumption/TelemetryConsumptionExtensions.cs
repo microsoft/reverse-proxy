@@ -96,38 +96,38 @@ namespace Microsoft.Extensions.DependencyInjection
 
             if (typeof(IProxyTelemetryConsumer).IsAssignableFrom(typeof(TConsumer)))
             {
-                services.TryAddEnumerable(new ServiceDescriptor(typeof(IProxyTelemetryConsumer), provider => provider.GetRequiredService<TConsumer>(), ServiceLifetime.Singleton));
+                services.AddSingleton(services => (IProxyTelemetryConsumer)services.GetRequiredService<TConsumer>());
                 implementsAny = true;
             }
 
             if (typeof(IKestrelTelemetryConsumer).IsAssignableFrom(typeof(TConsumer)))
             {
-                services.TryAddEnumerable(new ServiceDescriptor(typeof(IKestrelTelemetryConsumer), provider => provider.GetRequiredService<TConsumer>(), ServiceLifetime.Singleton));
+                services.AddSingleton(services => (IKestrelTelemetryConsumer)services.GetRequiredService<TConsumer>());
                 implementsAny = true;
             }
 
 #if NET5_0
             if (typeof(IHttpTelemetryConsumer).IsAssignableFrom(typeof(TConsumer)))
             {
-                services.TryAddEnumerable(new ServiceDescriptor(typeof(IHttpTelemetryConsumer), provider => provider.GetRequiredService<TConsumer>(), ServiceLifetime.Singleton));
+                services.AddSingleton(services => (IHttpTelemetryConsumer)services.GetRequiredService<TConsumer>());
                 implementsAny = true;
             }
 
             if (typeof(INameResolutionTelemetryConsumer).IsAssignableFrom(typeof(TConsumer)))
             {
-                services.TryAddEnumerable(new ServiceDescriptor(typeof(INameResolutionTelemetryConsumer), provider => provider.GetRequiredService<TConsumer>(), ServiceLifetime.Singleton));
+                services.AddSingleton(services => (INameResolutionTelemetryConsumer)services.GetRequiredService<TConsumer>());
                 implementsAny = true;
             }
 
             if (typeof(INetSecurityTelemetryConsumer).IsAssignableFrom(typeof(TConsumer)))
             {
-                services.TryAddEnumerable(new ServiceDescriptor(typeof(INetSecurityTelemetryConsumer), provider => provider.GetRequiredService<TConsumer>(), ServiceLifetime.Singleton));
+                services.AddSingleton(services => (INetSecurityTelemetryConsumer)services.GetRequiredService<TConsumer>());
                 implementsAny = true;
             }
 
             if (typeof(ISocketsTelemetryConsumer).IsAssignableFrom(typeof(TConsumer)))
             {
-                services.TryAddEnumerable(new ServiceDescriptor(typeof(ISocketsTelemetryConsumer), provider => provider.GetRequiredService<TConsumer>(), ServiceLifetime.Singleton));
+                services.AddSingleton(services => (ISocketsTelemetryConsumer)services.GetRequiredService<TConsumer>());
                 implementsAny = true;
             }
 #endif
