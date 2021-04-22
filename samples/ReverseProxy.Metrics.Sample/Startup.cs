@@ -38,14 +38,12 @@ namespace Yarp.Sample
             // Interface that collects general metrics about the proxy
             services.AddSingleton<IProxyMetricsConsumer, ProxyMetricsConsumer>();
 
-            // Registration of a listener to events for proxy telemetry 
-            services.AddSingleton<IProxyTelemetryConsumer, ProxyTelemetryConsumer>();
-            services.AddProxyTelemetryListener();
+            // Registration of a consumer to events for proxy telemetry
+            services.AddTelemetryConsumer<ProxyTelemetryConsumer>();
 
-            // Registration of a listener to events for HttpClient telemetry
-            // Note: this depends on changes implemented in .NET 5 
-            services.AddSingleton<IHttpTelemetryConsumer, HttpClientTelemetryConsumer>();
-            services.AddHttpTelemetryListener();
+            // Registration of a consumer to events for HttpClient telemetry
+            // Note: this depends on changes implemented in .NET 5
+            services.AddTelemetryConsumer<HttpClientTelemetryConsumer>();
         }
 
         /// <summary>
