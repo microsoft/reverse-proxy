@@ -134,7 +134,7 @@ public void ConfigureServices(IServiceCollection services)
         {
             RouteId = "route1",
             ClusterId = "cluster1",
-            Match = new ProxyMatch
+            Match = new RouteMatch
             {
                 Path = "{**catch-all}"
             }
