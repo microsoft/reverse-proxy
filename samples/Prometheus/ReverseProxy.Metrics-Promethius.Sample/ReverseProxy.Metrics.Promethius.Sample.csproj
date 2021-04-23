@@ -4,6 +4,7 @@
     <TargetFrameworks>net5.0</TargetFrameworks>
     <OutputType>Exe</OutputType>
     <RootNamespace>Yarp.Sample</RootNamespace>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
