@@ -7,7 +7,7 @@ using System.Fabric.Health;
 namespace Yarp.ReverseProxy.ServiceFabric
 {
     /// <inheritdoc/>
-    internal class HealthClientWrapper : IHealthClientWrapper
+    internal sealed class HealthClientWrapper : IHealthClientWrapper
     {
         private readonly FabricClient.HealthClient _healthClient;
 

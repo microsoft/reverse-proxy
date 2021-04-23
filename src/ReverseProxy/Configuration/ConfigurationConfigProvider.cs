@@ -24,7 +24,7 @@ namespace Yarp.ReverseProxy.Configuration
     /// When configs are loaded from appsettings.json, this takes care of hot updates
     /// when appsettings.json is modified on disk.
     /// </summary>
-    internal class ConfigurationConfigProvider : IProxyConfigProvider, IDisposable
+    internal sealed class ConfigurationConfigProvider : IProxyConfigProvider, IDisposable
     {
         private readonly object _lockObject = new object();
         private readonly ILogger<ConfigurationConfigProvider> _logger;

@@ -21,7 +21,7 @@ namespace Yarp.ReverseProxy.Service.Management
     /// in "infinite run" entities get repeatedly rescheduled until either they are explicitly removed
     /// or the <see cref="EntityActionScheduler{T}"/> instance is disposed.
     /// </remarks>
-    internal class EntityActionScheduler<T> : IDisposable
+    internal sealed class EntityActionScheduler<T> : IDisposable
     {
         private readonly ConcurrentDictionary<T, SchedulerEntry> _entries = new ConcurrentDictionary<T, SchedulerEntry>();
         private readonly Func<T, Task> _action;

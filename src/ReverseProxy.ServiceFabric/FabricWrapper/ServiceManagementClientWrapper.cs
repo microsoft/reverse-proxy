@@ -12,7 +12,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
     /// A wrapper class for the service fabric client SDK.
     /// See Microsoft documentation: https://docs.microsoft.com/en-us/dotnet/api/system.fabric.fabricclient.servicemanagementclient?view=azure-dotnet .
     /// </summary>
-    internal class ServiceManagementClientWrapper : IServiceManagementClientWrapper
+    internal sealed class ServiceManagementClientWrapper : IServiceManagementClientWrapper
     {
         // Represents the enabling of the services to be managed.
         private readonly FabricClient.ServiceManagementClient _serviceManagementClient;

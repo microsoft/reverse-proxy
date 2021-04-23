@@ -17,7 +17,7 @@ namespace Yarp.ReverseProxy.Middleware
     /// <summary>
     /// Looks up an affinitized <see cref="DestinationInfo"/> matching the request's affinity key if any is set
     /// </summary>
-    internal class SessionAffinityMiddleware
+    internal sealed class SessionAffinityMiddleware
     {
         private readonly RequestDelegate _next;
         private readonly IDictionary<string, ISessionAffinityProvider> _sessionAffinityProviders;

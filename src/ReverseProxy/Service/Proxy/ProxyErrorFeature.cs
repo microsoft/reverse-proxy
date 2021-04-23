@@ -5,7 +5,7 @@ using System;
 
 namespace Yarp.ReverseProxy.Service.Proxy
 {
-    internal class ProxyErrorFeature : IProxyErrorFeature
+    internal sealed class ProxyErrorFeature : IProxyErrorFeature
     {
         internal ProxyErrorFeature(ProxyError error, Exception ex)
         {

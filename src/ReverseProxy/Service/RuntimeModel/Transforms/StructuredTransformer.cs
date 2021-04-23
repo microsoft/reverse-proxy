@@ -15,7 +15,7 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
     /// <summary>
     /// Transforms for a given route.
     /// </summary>
-    internal class StructuredTransformer : HttpTransformer
+    internal sealed class StructuredTransformer : HttpTransformer
     {
         /// <summary>
         /// Creates a new <see cref="StructuredTransformer"/> instance.

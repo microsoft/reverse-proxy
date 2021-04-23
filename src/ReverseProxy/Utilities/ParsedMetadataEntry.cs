@@ -6,7 +6,7 @@ using Yarp.ReverseProxy.RuntimeModel;
 
 namespace Yarp.ReverseProxy.Utilities
 {
-    internal class ParsedMetadataEntry<T>
+    internal sealed class ParsedMetadataEntry<T>
     {
         private readonly Parser _parser;
         private readonly string _metadataName;

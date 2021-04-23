@@ -13,7 +13,7 @@ using Microsoft.Extensions.Configuration;
 namespace Yarp.ReverseProxy.Configuration
 {
     /// <inheritdoc/>
-    internal class CertificateConfigLoader : ICertificateConfigLoader
+    internal sealed class CertificateConfigLoader : ICertificateConfigLoader
     {
         private readonly IWebHostEnvironment _hostEnvironment;
 

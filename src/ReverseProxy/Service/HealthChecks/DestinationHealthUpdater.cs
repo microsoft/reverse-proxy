@@ -11,7 +11,7 @@ using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.Service.HealthChecks
 {
-    internal class DestinationHealthUpdater : IDestinationHealthUpdater, IDisposable
+    internal sealed class DestinationHealthUpdater : IDestinationHealthUpdater, IDisposable
     {
         private readonly EntityActionScheduler<(ClusterInfo Cluster, DestinationInfo Destination)> _scheduler;
         private readonly ILogger<DestinationHealthUpdater> _logger;

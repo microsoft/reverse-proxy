@@ -6,7 +6,7 @@ using System;
 namespace Yarp.ReverseProxy.Utilities
 {
     /// <inheritdoc/>
-    internal class RandomFactory : IRandomFactory
+    internal sealed class RandomFactory : IRandomFactory
     {
         /// <inheritdoc/>
         public Random CreateRandomInstance()

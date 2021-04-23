@@ -9,7 +9,7 @@ using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.Service.SessionAffinity
 {
-    internal class AffinitizeTransformProvider : ITransformProvider
+    internal sealed class AffinitizeTransformProvider : ITransformProvider
     {
         private readonly IDictionary<string, ISessionAffinityProvider> _sessionAffinityProviders;
 

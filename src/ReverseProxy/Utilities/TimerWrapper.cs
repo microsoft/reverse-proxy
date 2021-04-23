@@ -5,7 +5,7 @@ using System.Threading;
 
 namespace Yarp.ReverseProxy.Utilities
 {
-    internal class TimerWrapper : ITimer
+    internal sealed class TimerWrapper : ITimer
     {
         private readonly Timer _realTimer;
 

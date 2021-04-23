@@ -24,7 +24,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
     /// to enable a fast calculation of the current failure rate. When a new proxied request is reported, its status firstly affects those 2 aggregated counters and then also gets put
     /// in the record history. Once some record moves out of the detection time window, the failed and total counter deltas stored on it get subtracted from the respective aggregated counters.
     /// </remarks>
-    internal class TransportFailureRateHealthPolicy : IPassiveHealthCheckPolicy
+    internal sealed class TransportFailureRateHealthPolicy : IPassiveHealthCheckPolicy
     {
         private static readonly TimeSpan _defaultReactivationPeriod = TimeSpan.FromSeconds(60);
         private readonly IDestinationHealthUpdater _healthUpdater;

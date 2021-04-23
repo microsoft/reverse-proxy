@@ -9,7 +9,7 @@ using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.Service.Config
 {
-    internal class ForwardedTransformFactory : ITransformFactory
+    internal sealed class ForwardedTransformFactory : ITransformFactory
     {
         internal static readonly string XForwardedKey = "X-Forwarded";
         internal static readonly string ForwardedKey = "Forwarded";

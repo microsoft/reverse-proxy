@@ -9,7 +9,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
     /// <summary>
     /// TODO .
     /// </summary>
-    internal class ServiceWrapper
+    internal sealed class ServiceWrapper
     {
         public Uri ServiceName { get; set; }
 

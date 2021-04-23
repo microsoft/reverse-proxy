@@ -22,7 +22,7 @@ using CorsConstants = Yarp.ReverseProxy.Abstractions.RouteDiscovery.Contract.Cor
 
 namespace Yarp.ReverseProxy.Service
 {
-    internal class ConfigValidator : IConfigValidator
+    internal sealed class ConfigValidator : IConfigValidator
     {
         private static readonly HashSet<string> _validMethods = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {

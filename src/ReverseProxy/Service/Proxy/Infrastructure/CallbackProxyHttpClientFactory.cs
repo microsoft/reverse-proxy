@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Yarp.ReverseProxy.Service.Proxy.Infrastructure
 {
-    internal class CallbackProxyHttpClientFactory : ProxyHttpClientFactory
+    internal sealed class CallbackProxyHttpClientFactory : ProxyHttpClientFactory
     {
         private readonly Action<ProxyHttpClientContext, SocketsHttpHandler> _configureClient;
 

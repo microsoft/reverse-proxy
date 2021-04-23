@@ -10,7 +10,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
     /// <summary>
     /// TODO .
     /// </summary>
-    internal class ReplicaWrapper
+    internal sealed class ReplicaWrapper
     {
         public long Id { get; set; }
         public string ReplicaAddress { get; set; }

@@ -18,7 +18,7 @@ using CorsConstants = Yarp.ReverseProxy.Abstractions.RouteDiscovery.Contract.Cor
 
 namespace Yarp.ReverseProxy
 {
-    internal class ProxyEndpointFactory
+    internal sealed class ProxyEndpointFactory
     {
         private static readonly IAuthorizeData _defaultAuthorization = new AuthorizeAttribute();
         private static readonly IEnableCorsAttribute _defaultCors = new EnableCorsAttribute();

@@ -14,7 +14,7 @@ using Microsoft.Extensions.Logging;
 namespace Yarp.ReverseProxy.ServiceFabric
 {
     /// <inheritdoc/>
-    internal class ServiceExtensionLabelsProvider : IServiceExtensionLabelsProvider
+    internal sealed class ServiceExtensionLabelsProvider : IServiceExtensionLabelsProvider
     {
         internal static readonly XNamespace XNSServiceManifest = "http://schemas.microsoft.com/2011/01/fabric";
         internal static readonly XNamespace XNSFabricNoSchema = "http://schemas.microsoft.com/2015/03/fabact-no-schema";

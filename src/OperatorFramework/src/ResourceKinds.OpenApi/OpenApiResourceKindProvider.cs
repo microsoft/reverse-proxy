@@ -111,7 +111,7 @@ namespace Microsoft.Kubernetes.ResourceKinds.OpenApi
             return schemas;
         }
 
-        internal class ApiVersionKindSchemasDictionary : Dictionary<(string apiVersion, string kind), JsonSchema>
+        internal sealed class ApiVersionKindSchemasDictionary : Dictionary<(string apiVersion, string kind), JsonSchema>
         {
         }
     }

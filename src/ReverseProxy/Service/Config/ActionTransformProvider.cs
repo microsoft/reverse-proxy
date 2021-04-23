@@ -6,7 +6,7 @@ using Yarp.ReverseProxy.Abstractions.Config;
 
 namespace Yarp.ReverseProxy.Service.Config
 {
-    internal class ActionTransformProvider : ITransformProvider
+    internal sealed class ActionTransformProvider : ITransformProvider
     {
         private readonly Action<TransformBuilderContext> _action;
 
