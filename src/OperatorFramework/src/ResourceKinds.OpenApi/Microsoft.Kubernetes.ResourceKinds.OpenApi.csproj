@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <IsPackable>$('System.TeamProject') != 'internal'</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
