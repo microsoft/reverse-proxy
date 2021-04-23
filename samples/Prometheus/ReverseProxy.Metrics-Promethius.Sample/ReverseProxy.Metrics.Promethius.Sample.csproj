@@ -4,12 +4,13 @@
     <TargetFrameworks>net5.0</TargetFrameworks>
     <OutputType>Exe</OutputType>
     <RootNamespace>Yarp.Sample</RootNamespace>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="prometheus-net" Version="4.1.1" />
     <PackageReference Include="prometheus-net.AspNetCore" Version="4.1.1" />
-    <PackageReference Include="Yarp.ReverseProxy.Telemetry.Consumption" Version="1.0.0-preview.11.21222.6*" />
+    <PackageReference Include="Yarp.ReverseProxy.Telemetry.Consumption" Version="1.0.0-preview.11.21223.5" />
   </ItemGroup>
 
   <ItemGroup>

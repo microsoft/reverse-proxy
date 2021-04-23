@@ -4,10 +4,11 @@
     <TargetFrameworks>net5.0;netcoreapp3.1</TargetFrameworks>
     <OutputType>Exe</OutputType>
     <RootNamespace>Yarp.Sample</RootNamespace>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Yarp.ReverseProxy" Version="1.0.0-preview.11.21222.6" />
+    <PackageReference Include="Yarp.ReverseProxy" Version="1.0.0-preview.11.21223.5" />
   </ItemGroup>
 
   <ItemGroup>

@@ -28,7 +28,7 @@ It does not include:
 
 ## Example
 
-See [ReverseProxy.Direct.Sample](https://github.com/microsoft/reverse-proxy/tree/release/docs/samples/ReverseProxy.Direct.Sample) as a pre-built sample, or use the steps below.
+See [ReverseProxy.Direct.Sample](https://github.com/microsoft/reverse-proxy/tree/release/latest/samples/ReverseProxy.Direct.Sample) as a pre-built sample, or use the steps below.
 
 ### Create a new project
 
