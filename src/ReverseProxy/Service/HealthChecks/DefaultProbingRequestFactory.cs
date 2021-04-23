@@ -8,7 +8,7 @@ using Yarp.ReverseProxy.RuntimeModel;
 
 namespace Yarp.ReverseProxy.Service.HealthChecks
 {
-    internal class DefaultProbingRequestFactory : IProbingRequestFactory
+    internal sealed class DefaultProbingRequestFactory : IProbingRequestFactory
     {
         public HttpRequestMessage CreateRequest(ClusterConfig clusterConfig, DestinationConfig destinationConfig)
         {

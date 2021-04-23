@@ -12,7 +12,7 @@ using Yarp.ReverseProxy.RuntimeModel;
 
 namespace Yarp.ReverseProxy.Service.SessionAffinity
 {
-    internal class CookieSessionAffinityProvider : BaseSessionAffinityProvider<string>
+    internal sealed class CookieSessionAffinityProvider : BaseSessionAffinityProvider<string>
     {
         private readonly CookieSessionAffinityProviderOptions _providerOptions;
 

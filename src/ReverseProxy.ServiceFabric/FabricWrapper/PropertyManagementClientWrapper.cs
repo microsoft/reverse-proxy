@@ -14,7 +14,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
     /// A wrapper class for the service fabric client SDK.
     /// See Microsoft documentation: https://docs.microsoft.com/en-us/dotnet/api/system.fabric.fabricclient.propertymanagementclient?view=azure-dotnet .
     /// </summary>
-    internal class PropertyManagementClientWrapper : IPropertyManagementClientWrapper
+    internal sealed class PropertyManagementClientWrapper : IPropertyManagementClientWrapper
     {
         // Represents the property management client used to perform management of names and properties.
         private readonly FabricClient.PropertyManagementClient _propertyManagementClient;

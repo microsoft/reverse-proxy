@@ -9,7 +9,7 @@ namespace Yarp.ReverseProxy.Configuration.DependencyInjection
     /// <summary>
     /// Reverse Proxy builder for DI configuration.
     /// </summary>
-    internal class ReverseProxyBuilder : IReverseProxyBuilder
+    internal sealed class ReverseProxyBuilder : IReverseProxyBuilder
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ReverseProxyBuilder"/> class.

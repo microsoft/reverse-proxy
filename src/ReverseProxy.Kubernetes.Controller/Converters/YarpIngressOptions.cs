@@ -3,7 +3,7 @@
 
 namespace Yarp.ReverseProxy.Kubernetes.Controller.Services
 {
-    internal class YarpIngressOptions
+    internal sealed class YarpIngressOptions
     {
         public bool Https { get; set; }
     }

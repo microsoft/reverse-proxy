@@ -35,7 +35,7 @@ namespace Yarp.ReverseProxy.Service.Proxy
     /// this class will need to be updated.
     /// </para>
     /// </remarks>
-    internal class StreamCopyHttpContent : HttpContent
+    internal sealed class StreamCopyHttpContent : HttpContent
     {
         private readonly Stream _source;
         private readonly bool _autoFlushHttpClientOutgoingStream;

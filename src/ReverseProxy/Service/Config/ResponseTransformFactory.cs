@@ -7,7 +7,7 @@ using Yarp.ReverseProxy.Abstractions.Config;
 
 namespace Yarp.ReverseProxy.Service.Config
 {
-    internal class ResponseTransformFactory : ITransformFactory
+    internal sealed class ResponseTransformFactory : ITransformFactory
     {
         internal static readonly string ResponseHeadersCopyKey = "ResponseHeadersCopy";
         internal static readonly string ResponseTrailersCopyKey = "ResponseTrailersCopy";

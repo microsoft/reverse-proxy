@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Yarp.ReverseProxy.Kubernetes.Controller.Services
 {
-    internal class ClusterTrasfer
+    internal sealed class ClusterTrasfer
     {
         public Dictionary<string, Destination> Destinations { get; set; } = new Dictionary<string, Destination>();
         public string ClusterId { get; set; }

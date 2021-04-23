@@ -7,7 +7,7 @@ using Yarp.ReverseProxy.Abstractions.Config;
 
 namespace Yarp.ReverseProxy.Service.Config
 {
-    internal class HttpMethodTransformFactory : ITransformFactory
+    internal sealed class HttpMethodTransformFactory : ITransformFactory
     {
         internal static readonly string HttpMethodChangeKey = "HttpMethodChange";
         internal static readonly string SetKey = "Set";

@@ -15,7 +15,7 @@ namespace Yarp.ReverseProxy.Service.Config
     /// <summary>
     /// Validates and builds request and response transforms for a given route.
     /// </summary>
-    internal class TransformBuilder : ITransformBuilder
+    internal sealed class TransformBuilder : ITransformBuilder
     {
         private readonly IServiceProvider _services;
         private readonly List<ITransformFactory> _factories;

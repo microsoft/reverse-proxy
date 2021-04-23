@@ -13,7 +13,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
     /// <summary>
     /// Affinitizes the request to a chosen <see cref="DestinationInfo"/>.
     /// </summary>
-    internal class AffinitizeTransform : ResponseTransform
+    internal sealed class AffinitizeTransform : ResponseTransform
     {
         private readonly ISessionAffinityProvider _sessionAffinityProvider;
 

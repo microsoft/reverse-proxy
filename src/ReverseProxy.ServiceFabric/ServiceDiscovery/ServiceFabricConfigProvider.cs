@@ -19,7 +19,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
     /// Periodically calls Service Fabric API's to discover services and their configurations.
     /// Use <see cref="ServiceFabricDiscoveryOptions"/> to configure Service Fabric service discovery.
     /// </summary>
-    internal class ServiceFabricConfigProvider : IProxyConfigProvider, IAsyncDisposable
+    internal sealed class ServiceFabricConfigProvider : IProxyConfigProvider, IAsyncDisposable
     {
         private readonly object _lockObject = new object();
         private readonly TaskCompletionSource<int> _initalConfigLoadTcs = new TaskCompletionSource<int>();

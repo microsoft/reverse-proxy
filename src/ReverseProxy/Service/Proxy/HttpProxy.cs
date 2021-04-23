@@ -24,7 +24,7 @@ namespace Yarp.ReverseProxy.Service.Proxy
     /// <summary>
     /// Default implementation of <see cref="IHttpProxy"/>.
     /// </summary>
-    internal class HttpProxy : IHttpProxy
+    internal sealed class HttpProxy : IHttpProxy
     {
         private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(100);
         private static readonly Version DefaultVersion = HttpVersion.Version20;

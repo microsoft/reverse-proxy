@@ -7,7 +7,7 @@ using Yarp.ReverseProxy.Abstractions.Config;
 
 namespace Yarp.ReverseProxy.Service.Config
 {
-    internal class QueryTransformFactory : ITransformFactory
+    internal sealed class QueryTransformFactory : ITransformFactory
     {
         internal static readonly string QueryValueParameterKey = "QueryValueParameter";
         internal static readonly string QueryRouteParameterKey = "QueryRouteParameter";

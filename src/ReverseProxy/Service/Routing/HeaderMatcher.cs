@@ -10,7 +10,7 @@ namespace Yarp.ReverseProxy.Service.Routing
     /// <summary>
     /// A request header matcher used during routing.
     /// </summary>
-    internal class HeaderMatcher
+    internal sealed class HeaderMatcher
     {
         /// <summary>
         /// Creates a new instance.

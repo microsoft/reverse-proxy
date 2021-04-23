@@ -19,7 +19,7 @@ using Yarp.ReverseProxy.Service;
 namespace Yarp.ReverseProxy.ServiceFabric
 {
     /// Default implementation of the <see cref="IDiscoverer"/> class.
-    internal class Discoverer : IDiscoverer
+    internal sealed class Discoverer : IDiscoverer
     {
         public static readonly string HealthReportSourceId = "YARP";
         public static readonly string HealthReportProperty = "DynamicConfig";

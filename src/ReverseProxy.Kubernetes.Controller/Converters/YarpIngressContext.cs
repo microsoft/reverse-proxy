@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Yarp.ReverseProxy.Kubernetes.Controller.Services
 {
-    internal class YarpIngressContext
+    internal sealed class YarpIngressContext
     {
         public YarpIngressContext(IngressData ingress, List<Endpoints> endpoints)
         {

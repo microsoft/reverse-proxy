@@ -15,7 +15,7 @@ namespace Yarp.ReverseProxy.Middleware
     /// <summary>
     /// Invokes the proxy at the end of the request processing pipeline.
     /// </summary>
-    internal class ProxyInvokerMiddleware
+    internal sealed class ProxyInvokerMiddleware
     {
         private readonly IRandomFactory _randomFactory;
         private readonly RequestDelegate _next; // Unused, this middleware is always terminal

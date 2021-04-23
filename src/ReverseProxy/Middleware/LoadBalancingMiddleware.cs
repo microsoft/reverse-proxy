@@ -16,7 +16,7 @@ namespace Yarp.ReverseProxy.Middleware
     /// <summary>
     /// Load balances across the available destinations.
     /// </summary>
-    internal class LoadBalancingMiddleware
+    internal sealed class LoadBalancingMiddleware
     {
         private readonly ILogger _logger;
         private readonly IDictionary<string, ILoadBalancingPolicy> _loadBalancingPolicies;

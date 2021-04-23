@@ -13,7 +13,7 @@ using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.Service.HealthChecks
 {
-    internal class ConsecutiveFailuresHealthPolicy : IActiveHealthCheckPolicy
+    internal sealed class ConsecutiveFailuresHealthPolicy : IActiveHealthCheckPolicy
     {
         private readonly ConsecutiveFailuresHealthPolicyOptions _options;
         private readonly ConditionalWeakTable<ClusterInfo, ParsedMetadataEntry<double>> _clusterThresholds = new ConditionalWeakTable<ClusterInfo, ParsedMetadataEntry<double>>();

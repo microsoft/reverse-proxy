@@ -10,7 +10,7 @@ using Yarp.ReverseProxy.Service.RuntimeModel.Transforms;
 
 namespace Yarp.ReverseProxy.Service.Config
 {
-    internal class PathTransformFactory : ITransformFactory
+    internal sealed class PathTransformFactory : ITransformFactory
     {
         internal static readonly string PathSetKey = "PathSet";
         internal static readonly string PathPrefixKey = "PathPrefix";

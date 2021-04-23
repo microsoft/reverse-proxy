@@ -11,7 +11,7 @@ using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.Service.SessionAffinity
 {
-    internal class RedistributeAffinityFailurePolicy : IAffinityFailurePolicy
+    internal sealed class RedistributeAffinityFailurePolicy : IAffinityFailurePolicy
     {
         public string Name => SessionAffinityConstants.AffinityFailurePolicies.Redistribute;
 

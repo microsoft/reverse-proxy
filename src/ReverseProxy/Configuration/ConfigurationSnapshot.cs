@@ -8,7 +8,7 @@ using Yarp.ReverseProxy.Service;
 
 namespace Yarp.ReverseProxy.Configuration
 {
-    internal class ConfigurationSnapshot : IProxyConfig
+    internal sealed class ConfigurationSnapshot : IProxyConfig
     {
         public List<ProxyRoute> Routes { get; internal set; } = new List<ProxyRoute>();
 

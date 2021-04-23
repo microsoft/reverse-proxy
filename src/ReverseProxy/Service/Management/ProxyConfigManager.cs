@@ -29,7 +29,7 @@ namespace Yarp.ReverseProxy.Service.Management
     /// <remarks>
     /// This takes inspiration from <a "https://github.com/dotnet/aspnetcore/blob/cbe16474ce9db7ff588aed89596ff4df5c3f62e1/src/Mvc/Mvc.Core/src/Routing/ActionEndpointDataSourceBase.cs"/>.
     /// </remarks>
-    internal class ProxyConfigManager : EndpointDataSource, IDisposable
+    internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
     {
         private readonly object _syncRoot = new object();
         private readonly ILogger<ProxyConfigManager> _logger;

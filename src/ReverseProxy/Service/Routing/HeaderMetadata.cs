@@ -9,7 +9,7 @@ namespace Yarp.ReverseProxy.Service.Routing
     /// <summary>
     /// Represents request header metadata used during routing.
     /// </summary>
-    internal class HeaderMetadata : IHeaderMetadata
+    internal sealed class HeaderMetadata : IHeaderMetadata
     {
         public HeaderMetadata(IReadOnlyList<HeaderMatcher> matchers)
         {

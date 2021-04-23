@@ -11,7 +11,7 @@ using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.Service.SessionAffinity
 {
-    internal class Return503ErrorAffinityFailurePolicy : IAffinityFailurePolicy
+    internal sealed class Return503ErrorAffinityFailurePolicy : IAffinityFailurePolicy
     {
         public string Name => SessionAffinityConstants.AffinityFailurePolicies.Return503Error;
 
