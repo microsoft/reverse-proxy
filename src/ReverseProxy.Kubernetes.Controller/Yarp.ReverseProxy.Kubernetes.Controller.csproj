@@ -4,6 +4,7 @@
     <TargetFrameworks>net5.0;netcoreapp3.1</TargetFrameworks>
       <UserSecretsId>8436591a-094d-47de-973a-d41a5d91b895</UserSecretsId>
       <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+      <IsPackable>$('System.TeamProject') != 'internal'</IsPackable>
     </PropertyGroup>
 
     <ItemGroup>
