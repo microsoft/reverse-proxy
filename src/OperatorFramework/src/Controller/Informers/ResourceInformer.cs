@@ -411,7 +411,7 @@ namespace Microsoft.Kubernetes.Controller.Informers
             }
         }
 
-        internal sealed class Registration : IResourceInformerRegistration
+        internal class Registration : IResourceInformerRegistration
         {
             private bool _disposedValue;
 
@@ -436,7 +436,7 @@ namespace Microsoft.Kubernetes.Controller.Informers
 
             public Task ReadyAsync(CancellationToken cancellationToken) => ResourceInformer.ReadyAsync(cancellationToken);
 
-            private void Dispose(bool disposing)
+            protected virtual void Dispose(bool disposing)
             {
                 if (!_disposedValue)
                 {
