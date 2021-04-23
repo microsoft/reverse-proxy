@@ -1,0 +1,166 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Namespace Microsoft.Kubernetes.Controller.Queues
+   </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Namespace Microsoft.Kubernetes.Controller.Queues
+   ">
+    <meta name="generator" content="docfx 2.52.0.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="Microsoft.Kubernetes.Controller.Queues">
+  
+  <h1 id="Microsoft_Kubernetes_Controller_Queues" data-uid="Microsoft.Kubernetes.Controller.Queues" class="text-break">Namespace Microsoft.Kubernetes.Controller.Queues
+  </h1>
+  <div class="markdown level0 summary"></div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="markdown level0 remarks"></div>
+    <h3 id="classes">Classes
+  </h3>
+      <h4><a class="xref" href="Microsoft.Kubernetes.Controller.Queues.DelayingQueue-1.html">DelayingQueue&lt;TItem&gt;</a></h4>
+      <section><p>Class DelayingQueue is the default implementation of <a class="xref" href="Microsoft.Kubernetes.Controller.Queues.IDelayingQueue-1.html">IDelayingQueue&lt;TItem&gt;</a>.
+Implements the <a class="xref" href="Microsoft.Kubernetes.Controller.Queues.Composition.WorkQueueBase-1.html">WorkQueueBase&lt;TItem&gt;</a>.
+Implements the <a class="xref" href="Microsoft.Kubernetes.Controller.Queues.IDelayingQueue-1.html">IDelayingQueue&lt;TItem&gt;</a>.</p>
+</section>
+      <h4><a class="xref" href="Microsoft.Kubernetes.Controller.Queues.DelayingQueueTests.html">DelayingQueueTests</a></h4>
+      <section></section>
+      <h4><a class="xref" href="Microsoft.Kubernetes.Controller.Queues.Heap-1.html">Heap&lt;T&gt;</a></h4>
+      <section><p>Class Heap is a list adapter structure that can add data into the
+collection by <a class="xref" href="Microsoft.Kubernetes.Controller.Queues.Heap-1.html#Microsoft_Kubernetes_Controller_Queues_Heap_1_Push__0_">Push(T)</a> in a way that can be removed in sorted
+order by <a class="xref" href="Microsoft.Kubernetes.Controller.Queues.Heap-1.html#Microsoft_Kubernetes_Controller_Queues_Heap_1_Pop">Pop()</a>.
+Package heap provides heap operations for any type that implements
+heap.Interface. A heap is a tree with the property that each node is the
+minimum-valued node in its subtree.
+The minimum element in the tree is the root, at index 0.
+A heap is a common way to implement a priority queue. To build a priority
+queue, implement the Heap interface with the (negative) priority as the
+ordering for the Less method, so Push adds items while Pop removes the
+highest-priority item from the queue. The Examples include such an
+implementation; the file example_pq_test.go has the complete source.</p>
+</section>
+      <h4><a class="xref" href="Microsoft.Kubernetes.Controller.Queues.RateLimitingQueue-1.html">RateLimitingQueue&lt;TItem&gt;</a></h4>
+      <section><p>Class RateLimitingQueue is the default implemenation of <a class="xref" href="Microsoft.Kubernetes.Controller.Queues.IRateLimitingQueue-1.html">IRateLimitingQueue&lt;TItem&gt;</a> interface.
+Implements the <a class="xref" href="Microsoft.Kubernetes.Controller.Queues.Composition.DelayingQueueBase-1.html">DelayingQueueBase&lt;TItem&gt;</a>.
+Implements the <a class="xref" href="Microsoft.Kubernetes.Controller.Queues.IRateLimitingQueue-1.html">IRateLimitingQueue&lt;TItem&gt;</a>.</p>
+</section>
+      <h4><a class="xref" href="Microsoft.Kubernetes.Controller.Queues.RateLimitingQueueTests.html">RateLimitingQueueTests</a></h4>
+      <section></section>
+      <h4><a class="xref" href="Microsoft.Kubernetes.Controller.Queues.WorkQueue-1.html">WorkQueue&lt;TItem&gt;</a></h4>
+      <section><p>Class WorkQueue is the default implementation of a work queue.
+Implements the <a class="xref" href="Microsoft.Kubernetes.Controller.Queues.IWorkQueue-1.html">IWorkQueue&lt;TItem&gt;</a>.</p>
+</section>
+      <h4><a class="xref" href="Microsoft.Kubernetes.Controller.Queues.WorkQueueTests.html">WorkQueueTests</a></h4>
+      <section></section>
+    <h3 id="interfaces">Interfaces
+  </h3>
+      <h4><a class="xref" href="Microsoft.Kubernetes.Controller.Queues.IDelayingQueue-1.html">IDelayingQueue&lt;TItem&gt;</a></h4>
+      <section><p>Interface IDelayingQueue
+Implements the <a class="xref" href="Microsoft.Kubernetes.Controller.Queues.IWorkQueue-1.html">IWorkQueue&lt;TItem&gt;</a>.</p>
+</section>
+      <h4><a class="xref" href="Microsoft.Kubernetes.Controller.Queues.IRateLimitingQueue-1.html">IRateLimitingQueue&lt;TItem&gt;</a></h4>
+      <section><p>Interface IRateLimitingQueue
+Implements the <a class="xref" href="Microsoft.Kubernetes.Controller.Queues.IDelayingQueue-1.html">IDelayingQueue&lt;TItem&gt;</a>.</p>
+</section>
+      <h4><a class="xref" href="Microsoft.Kubernetes.Controller.Queues.IWorkQueue-1.html">IWorkQueue&lt;TItem&gt;</a></h4>
+      <section><p>Interface IWorkQueue holds a series of work item objects. When objects are removed from the queue they are noted
+as well in a processing set. If new items arrive while processing they are not added to the queue until
+the processing of that item is <a class="xref" href="Microsoft.Kubernetes.Controller.Queues.IWorkQueue-1.html#Microsoft_Kubernetes_Controller_Queues_IWorkQueue_1_Done__0_">Done(TItem)</a>. In this way processing the same item twice simultaneously due to
+incoming event notifications is not possible.
+Ported from <a href="https://github.com/kubernetes/client-go/blob/master/util/workqueue/queue.go">https://github.com/kubernetes/client-go/blob/master/util/workqueue/queue.go</a>.</p>
+</section>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

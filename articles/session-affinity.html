@@ -74,12 +74,12 @@
 <p>Session affinity is a mechanism to bind (affinitize) a causally related request sequence to the destination handled the first request when the load is balanced among several destinations. It is useful in scenarios where the most requests in a sequence work with the same data and the cost of data access differs for different nodes (destinations) handling requests. The most common example is a transient caching (e.g. in-memory) where the first request fetches data from a slower persistent storage into a fast local cache and the others work only with the cached data thus increasing throughput.</p>
 <h2 id="configuration">Configuration</h2>
 <h3 id="services-and-middleware-registration">Services and middleware registration</h3>
-<p>Session affinity services are registered in the DI container via <code>AddSessionAffinityProvider()</code> method which is automatically called by <code>AddReverseProxy()</code>. The middleware <code>UseAffinitizedDestinationLookup()</code> is included by default in the parameterless MapReverseProxy method. If you are customizing the proxy pipeline, place the first middleware <strong>before</strong> adding <code>LoadBalancingMiddleware</code> load balancing.</p>
+<p>Session affinity services are registered in the DI container via <code>AddSessionAffinityProvider()</code> method which is automatically called by <code>AddReverseProxy()</code>. The middleware <code>UseSessionAffinity()</code> is included by default in the parameterless MapReverseProxy method. If you are customizing the proxy pipeline, place the first middleware <strong>before</strong> adding <code>UseLoadBalancing()</code>.</p>
 <p>Example:</p>
 <pre><code class="lang-C#">endpoints.MapReverseProxy(proxyPipeline =&gt;
 {
-    proxyPipeline.UseAffinitizedDestinationLookup();
-    proxyPipeline.UseProxyLoadBalancing();
+    proxyPipeline.UseSessionAffinity();
+    proxyPipeline.UseLoadBalancing();
 });
 </code></pre>
 <h3 id="cluster-configuration">Cluster configuration</h3>
@@ -139,7 +139,7 @@
 <h2 id="request-pipeline">Request pipeline</h2>
 <p>The session affinity mechanisms are implemented by the services (mentioned above) and the two following middleware:</p>
 <ol>
-<li><p><code>AffinitizedDestinationLookupMiddleware</code> - coordinates the request's affinity resolution process. First, it calls a provider implementing the mode specified for the given cluster on <code>ClusterConfig.SessionAffinity.Mode</code> property. Then, it checks the affinity resolution status returned by the provider, and calls a failure handling policy set on <code>ClusterConfig.SessionAffinity.FailurePolicy</code> in case of failures. It must be added to the pipeline <strong>before</strong> the load balancer.</p>
+<li><p><code>SessionAffinityMiddleware</code> - coordinates the request's affinity resolution process. First, it calls a provider implementing the mode specified for the given cluster on <code>ClusterConfig.SessionAffinity.Mode</code> property. Then, it checks the affinity resolution status returned by the provider, and calls a failure handling policy set on <code>ClusterConfig.SessionAffinity.FailurePolicy</code> in case of failures. It must be added to the pipeline <strong>before</strong> the load balancer.</p>
 </li>
 <li><p><code>AffinitizeTransform</code> - sets the key on the response if a new affinity has been established for the request. Otherwise, if the request follows an existing affinity, it does nothing. This is automatically added as a response transform.</p>
 </li>
@@ -152,7 +152,7 @@
               <div class="contribution">
                 <ul class="nav">
                   <li>
-                    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/docs/docfx/articles/session-affinity.md/#L1" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/docs/docfx/articles/session-affinity.md/#L1" class="contribution-link">Improve this Doc</a>
                   </li>
                 </ul>
               </div>

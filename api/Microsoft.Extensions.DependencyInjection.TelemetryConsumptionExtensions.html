@@ -114,19 +114,73 @@
   </h3>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/microsoft/reverse-proxy/new/release/docs/apiSpec/new?filename=Microsoft_Extensions_DependencyInjection_TelemetryConsumptionExtensions_AddHttpTelemetryListener_IServiceCollection_.md&amp;value=---%0Auid%3A%20Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions.AddHttpTelemetryListener(IServiceCollection)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Microsoft_Extensions_DependencyInjection_TelemetryConsumptionExtensions_AddTelemetryConsumer_IServiceCollection_System_Object_.md&amp;value=---%0Auid%3A%20Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions.AddTelemetryConsumer(IServiceCollection%2CSystem.Object)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/src/ReverseProxy.TelemetryConsumption/TelemetryConsumptionExtensions.cs/#L62">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy.TelemetryConsumption/TelemetryConsumptionExtensions.cs/#L37">View Source</a>
   </span>
-  <a id="Microsoft_Extensions_DependencyInjection_TelemetryConsumptionExtensions_AddHttpTelemetryListener_" data-uid="Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions.AddHttpTelemetryListener*"></a>
-  <h4 id="Microsoft_Extensions_DependencyInjection_TelemetryConsumptionExtensions_AddHttpTelemetryListener_IServiceCollection_" data-uid="Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions.AddHttpTelemetryListener(IServiceCollection)">AddHttpTelemetryListener(IServiceCollection)</h4>
-  <div class="markdown level1 summary"><p>Registers a service responsible for calling <a class="xref" href="Yarp.ReverseProxy.Telemetry.Consumption.IHttpTelemetryConsumer.html">IHttpTelemetryConsumer</a>s and <a class="xref" href="Yarp.ReverseProxy.Telemetry.Consumption.IHttpMetricsConsumer.html">IHttpMetricsConsumer</a>s.</p>
+  <a id="Microsoft_Extensions_DependencyInjection_TelemetryConsumptionExtensions_AddTelemetryConsumer_" data-uid="Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions.AddTelemetryConsumer*"></a>
+  <h4 id="Microsoft_Extensions_DependencyInjection_TelemetryConsumptionExtensions_AddTelemetryConsumer_IServiceCollection_System_Object_" data-uid="Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions.AddTelemetryConsumer(IServiceCollection,System.Object)">AddTelemetryConsumer(IServiceCollection, Object)</h4>
+  <div class="markdown level1 summary"><p>Registers a consumer singleton for every I*TelemetryConsumer interface it implements.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static IServiceCollection AddHttpTelemetryListener(this IServiceCollection services)</code></pre>
+    <pre><code class="lang-csharp hljs">public static IServiceCollection AddTelemetryConsumer(this IServiceCollection services, object consumer)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IServiceCollection</span></td>
+        <td><span class="parametername">services</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object">Object</a></td>
+        <td><span class="parametername">consumer</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IServiceCollection</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Microsoft_Extensions_DependencyInjection_TelemetryConsumptionExtensions_AddTelemetryConsumer__1_IServiceCollection_.md&amp;value=---%0Auid%3A%20Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions.AddTelemetryConsumer%60%601(IServiceCollection)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy.TelemetryConsumption/TelemetryConsumptionExtensions.cs/#L92">View Source</a>
+  </span>
+  <a id="Microsoft_Extensions_DependencyInjection_TelemetryConsumptionExtensions_AddTelemetryConsumer_" data-uid="Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions.AddTelemetryConsumer*"></a>
+  <h4 id="Microsoft_Extensions_DependencyInjection_TelemetryConsumptionExtensions_AddTelemetryConsumer__1_IServiceCollection_" data-uid="Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions.AddTelemetryConsumer``1(IServiceCollection)">AddTelemetryConsumer&lt;TConsumer&gt;(IServiceCollection)</h4>
+  <div class="markdown level1 summary"><p>Registers a <code data-dev-comment-type="typeparamref" class="typeparamref">TConsumer</code> singleton for every I*TelemetryConsumer interface it implements.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IServiceCollection AddTelemetryConsumer&lt;TConsumer&gt;(this IServiceCollection services)
+    where TConsumer : class</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -160,256 +214,31 @@
       </tr>
     </tbody>
   </table>
-  <span class="small pull-right mobile-hide">
-    <span class="divider">|</span>
-    <a href="https://github.com/microsoft/reverse-proxy/new/release/docs/apiSpec/new?filename=Microsoft_Extensions_DependencyInjection_TelemetryConsumptionExtensions_AddKestrelTelemetryListener_IServiceCollection_.md&amp;value=---%0Auid%3A%20Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions.AddKestrelTelemetryListener(IServiceCollection)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
-  </span>
-  <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/src/ReverseProxy.TelemetryConsumption/TelemetryConsumptionExtensions.cs/#L51">View Source</a>
-  </span>
-  <a id="Microsoft_Extensions_DependencyInjection_TelemetryConsumptionExtensions_AddKestrelTelemetryListener_" data-uid="Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions.AddKestrelTelemetryListener*"></a>
-  <h4 id="Microsoft_Extensions_DependencyInjection_TelemetryConsumptionExtensions_AddKestrelTelemetryListener_IServiceCollection_" data-uid="Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions.AddKestrelTelemetryListener(IServiceCollection)">AddKestrelTelemetryListener(IServiceCollection)</h4>
-  <div class="markdown level1 summary"><p>Registers a service responsible for calling <a class="xref" href="Yarp.ReverseProxy.Telemetry.Consumption.IKestrelTelemetryConsumer.html">IKestrelTelemetryConsumer</a>s and <a class="xref" href="Yarp.ReverseProxy.Telemetry.Consumption.IKestrelMetricsConsumer.html">IKestrelMetricsConsumer</a>s.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static IServiceCollection AddKestrelTelemetryListener(this IServiceCollection services)</code></pre>
-  </div>
-  <h5 class="parameters">Parameters</h5>
+  <h5 class="typeParameters">Type Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
     <thead>
       <tr>
-        <th>Type</th>
         <th>Name</th>
         <th>Description</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">IServiceCollection</span></td>
-        <td><span class="parametername">services</span></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  <h5 class="returns">Returns</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">IServiceCollection</span></td>
+        <td><span class="parametername">TConsumer</span></td>
         <td></td>
       </tr>
     </tbody>
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/microsoft/reverse-proxy/new/release/docs/apiSpec/new?filename=Microsoft_Extensions_DependencyInjection_TelemetryConsumptionExtensions_AddNameResolutionTelemetryListener_IServiceCollection_.md&amp;value=---%0Auid%3A%20Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions.AddNameResolutionTelemetryListener(IServiceCollection)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Microsoft_Extensions_DependencyInjection_TelemetryConsumptionExtensions_AddTelemetryListeners_IServiceCollection_.md&amp;value=---%0Auid%3A%20Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions.AddTelemetryListeners(IServiceCollection)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/src/ReverseProxy.TelemetryConsumption/TelemetryConsumptionExtensions.cs/#L72">View Source</a>
-  </span>
-  <a id="Microsoft_Extensions_DependencyInjection_TelemetryConsumptionExtensions_AddNameResolutionTelemetryListener_" data-uid="Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions.AddNameResolutionTelemetryListener*"></a>
-  <h4 id="Microsoft_Extensions_DependencyInjection_TelemetryConsumptionExtensions_AddNameResolutionTelemetryListener_IServiceCollection_" data-uid="Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions.AddNameResolutionTelemetryListener(IServiceCollection)">AddNameResolutionTelemetryListener(IServiceCollection)</h4>
-  <div class="markdown level1 summary"><p>Registers a service responsible for calling <a class="xref" href="Yarp.ReverseProxy.Telemetry.Consumption.INameResolutionTelemetryConsumer.html">INameResolutionTelemetryConsumer</a>s and <a class="xref" href="Yarp.ReverseProxy.Telemetry.Consumption.INameResolutionMetricsConsumer.html">INameResolutionMetricsConsumer</a>s.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static IServiceCollection AddNameResolutionTelemetryListener(this IServiceCollection services)</code></pre>
-  </div>
-  <h5 class="parameters">Parameters</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Name</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">IServiceCollection</span></td>
-        <td><span class="parametername">services</span></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  <h5 class="returns">Returns</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">IServiceCollection</span></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  <span class="small pull-right mobile-hide">
-    <span class="divider">|</span>
-    <a href="https://github.com/microsoft/reverse-proxy/new/release/docs/apiSpec/new?filename=Microsoft_Extensions_DependencyInjection_TelemetryConsumptionExtensions_AddNetSecurityTelemetryListener_IServiceCollection_.md&amp;value=---%0Auid%3A%20Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions.AddNetSecurityTelemetryListener(IServiceCollection)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
-  </span>
-  <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/src/ReverseProxy.TelemetryConsumption/TelemetryConsumptionExtensions.cs/#L82">View Source</a>
-  </span>
-  <a id="Microsoft_Extensions_DependencyInjection_TelemetryConsumptionExtensions_AddNetSecurityTelemetryListener_" data-uid="Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions.AddNetSecurityTelemetryListener*"></a>
-  <h4 id="Microsoft_Extensions_DependencyInjection_TelemetryConsumptionExtensions_AddNetSecurityTelemetryListener_IServiceCollection_" data-uid="Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions.AddNetSecurityTelemetryListener(IServiceCollection)">AddNetSecurityTelemetryListener(IServiceCollection)</h4>
-  <div class="markdown level1 summary"><p>Registers a service responsible for calling <a class="xref" href="Yarp.ReverseProxy.Telemetry.Consumption.INetSecurityTelemetryConsumer.html">INetSecurityTelemetryConsumer</a>s and <a class="xref" href="Yarp.ReverseProxy.Telemetry.Consumption.INetSecurityMetricsConsumer.html">INetSecurityMetricsConsumer</a>s.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static IServiceCollection AddNetSecurityTelemetryListener(this IServiceCollection services)</code></pre>
-  </div>
-  <h5 class="parameters">Parameters</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Name</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">IServiceCollection</span></td>
-        <td><span class="parametername">services</span></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  <h5 class="returns">Returns</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">IServiceCollection</span></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  <span class="small pull-right mobile-hide">
-    <span class="divider">|</span>
-    <a href="https://github.com/microsoft/reverse-proxy/new/release/docs/apiSpec/new?filename=Microsoft_Extensions_DependencyInjection_TelemetryConsumptionExtensions_AddProxyTelemetryListener_IServiceCollection_.md&amp;value=---%0Auid%3A%20Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions.AddProxyTelemetryListener(IServiceCollection)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
-  </span>
-  <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/src/ReverseProxy.TelemetryConsumption/TelemetryConsumptionExtensions.cs/#L35">View Source</a>
-  </span>
-  <a id="Microsoft_Extensions_DependencyInjection_TelemetryConsumptionExtensions_AddProxyTelemetryListener_" data-uid="Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions.AddProxyTelemetryListener*"></a>
-  <h4 id="Microsoft_Extensions_DependencyInjection_TelemetryConsumptionExtensions_AddProxyTelemetryListener_IServiceCollection_" data-uid="Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions.AddProxyTelemetryListener(IServiceCollection)">AddProxyTelemetryListener(IServiceCollection)</h4>
-  <div class="markdown level1 summary"><p>Registers a service responsible for calling <a class="xref" href="Yarp.ReverseProxy.Telemetry.Consumption.IProxyTelemetryConsumer.html">IProxyTelemetryConsumer</a>s and <a class="xref" href="Yarp.ReverseProxy.Telemetry.Consumption.IProxyMetricsConsumer.html">IProxyMetricsConsumer</a>s.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static IServiceCollection AddProxyTelemetryListener(this IServiceCollection services)</code></pre>
-  </div>
-  <h5 class="parameters">Parameters</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Name</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">IServiceCollection</span></td>
-        <td><span class="parametername">services</span></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  <h5 class="returns">Returns</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">IServiceCollection</span></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  <span class="small pull-right mobile-hide">
-    <span class="divider">|</span>
-    <a href="https://github.com/microsoft/reverse-proxy/new/release/docs/apiSpec/new?filename=Microsoft_Extensions_DependencyInjection_TelemetryConsumptionExtensions_AddSocketsTelemetryListener_IServiceCollection_.md&amp;value=---%0Auid%3A%20Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions.AddSocketsTelemetryListener(IServiceCollection)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
-  </span>
-  <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/src/ReverseProxy.TelemetryConsumption/TelemetryConsumptionExtensions.cs/#L92">View Source</a>
-  </span>
-  <a id="Microsoft_Extensions_DependencyInjection_TelemetryConsumptionExtensions_AddSocketsTelemetryListener_" data-uid="Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions.AddSocketsTelemetryListener*"></a>
-  <h4 id="Microsoft_Extensions_DependencyInjection_TelemetryConsumptionExtensions_AddSocketsTelemetryListener_IServiceCollection_" data-uid="Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions.AddSocketsTelemetryListener(IServiceCollection)">AddSocketsTelemetryListener(IServiceCollection)</h4>
-  <div class="markdown level1 summary"><p>Registers a service responsible for calling <a class="xref" href="Yarp.ReverseProxy.Telemetry.Consumption.ISocketsTelemetryConsumer.html">ISocketsTelemetryConsumer</a>s and <a class="xref" href="Yarp.ReverseProxy.Telemetry.Consumption.ISocketsMetricsConsumer.html">ISocketsMetricsConsumer</a>s.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static IServiceCollection AddSocketsTelemetryListener(this IServiceCollection services)</code></pre>
-  </div>
-  <h5 class="parameters">Parameters</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Name</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">IServiceCollection</span></td>
-        <td><span class="parametername">services</span></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  <h5 class="returns">Returns</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">IServiceCollection</span></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  <span class="small pull-right mobile-hide">
-    <span class="divider">|</span>
-    <a href="https://github.com/microsoft/reverse-proxy/new/release/docs/apiSpec/new?filename=Microsoft_Extensions_DependencyInjection_TelemetryConsumptionExtensions_AddTelemetryListeners_IServiceCollection_.md&amp;value=---%0Auid%3A%20Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions.AddTelemetryListeners(IServiceCollection)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
-  </span>
-  <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/src/ReverseProxy.TelemetryConsumption/TelemetryConsumptionExtensions.cs/#L19">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy.TelemetryConsumption/TelemetryConsumptionExtensions.cs/#L21">View Source</a>
   </span>
   <a id="Microsoft_Extensions_DependencyInjection_TelemetryConsumptionExtensions_AddTelemetryListeners_" data-uid="Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions.AddTelemetryListeners*"></a>
   <h4 id="Microsoft_Extensions_DependencyInjection_TelemetryConsumptionExtensions_AddTelemetryListeners_IServiceCollection_" data-uid="Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions.AddTelemetryListeners(IServiceCollection)">AddTelemetryListeners(IServiceCollection)</h4>
-  <div class="markdown level1 summary"><p>Shortcut for registering all (Proxy, Kestrel, Http, NameResolution, NetSecurity and Sockets) telemetry listeners.</p>
+  <div class="markdown level1 summary"><p>Registers all telemetry listeners (Proxy, Kestrel, Http, NameResolution, NetSecurity and Sockets).</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
@@ -456,10 +285,10 @@
               <div class="contribution">
                 <ul class="nav">
                   <li>
-                    <a href="https://github.com/microsoft/reverse-proxy/new/release/docs/apiSpec/new?filename=Microsoft_Extensions_DependencyInjection_TelemetryConsumptionExtensions.md&amp;value=---%0Auid%3A%20Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Microsoft_Extensions_DependencyInjection_TelemetryConsumptionExtensions.md&amp;value=---%0Auid%3A%20Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
                   </li>
                   <li>
-                    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/src/ReverseProxy.TelemetryConsumption/TelemetryConsumptionExtensions.cs/#L8" class="contribution-link">View Source</a>
+                    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy.TelemetryConsumption/TelemetryConsumptionExtensions.cs/#L10" class="contribution-link">View Source</a>
                   </li>
                 </ul>
               </div>

@@ -1,0 +1,572 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Struct GroupKindNamespacedName
+   </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Struct GroupKindNamespacedName
+   ">
+    <meta name="generator" content="docfx 2.52.0.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="Microsoft.Kubernetes.GroupKindNamespacedName">
+  
+  
+  <h1 id="Microsoft_Kubernetes_GroupKindNamespacedName" data-uid="Microsoft.Kubernetes.GroupKindNamespacedName" class="text-break">Struct GroupKindNamespacedName
+  </h1>
+  <div class="markdown level0 summary"><p>Struct GroupKindNamespacedName is a value that acts as a dictionary key. It is a comparable
+combination of a Kubernetes resource's apiGroup and kind in addition to the metadata namespace and name.
+Implements the <see cref="!:IEquatable&lt;T>"></see>.</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div classs="implements">
+    <h5>Implements</h5>
+    <div><span class="xref">IEquatable</span>&lt;<a class="xref" href="Microsoft.Kubernetes.GroupKindNamespacedName.html">GroupKindNamespacedName</a>&gt;</div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="Microsoft.Kubernetes.html">Microsoft.Kubernetes</a></h6>
+  <h6><strong>Assembly</strong>: Microsoft.Kubernetes.Core.dll</h6>
+  <h5 id="Microsoft_Kubernetes_GroupKindNamespacedName_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public struct GroupKindNamespacedName : IEquatable&lt;GroupKindNamespacedName&gt;</code></pre>
+  </div>
+  <h3 id="constructors">Constructors
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Microsoft_Kubernetes_GroupKindNamespacedName__ctor_System_String_System_String_Microsoft_Kubernetes_NamespacedName_.md&amp;value=---%0Auid%3A%20Microsoft.Kubernetes.GroupKindNamespacedName.%23ctor(System.String%2CSystem.String%2CMicrosoft.Kubernetes.NamespacedName)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/OperatorFramework/src/Core/GroupKindNamespacedName.cs/#L25">View Source</a>
+  </span>
+  <a id="Microsoft_Kubernetes_GroupKindNamespacedName__ctor_" data-uid="Microsoft.Kubernetes.GroupKindNamespacedName.#ctor*"></a>
+  <h4 id="Microsoft_Kubernetes_GroupKindNamespacedName__ctor_System_String_System_String_Microsoft_Kubernetes_NamespacedName_" data-uid="Microsoft.Kubernetes.GroupKindNamespacedName.#ctor(System.String,System.String,Microsoft.Kubernetes.NamespacedName)">GroupKindNamespacedName(String, String, NamespacedName)</h4>
+  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="Microsoft.Kubernetes.GroupKindNamespacedName.html">GroupKindNamespacedName</a> struct.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public GroupKindNamespacedName(string group, string kind, NamespacedName namespacedName)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.string">String</a></td>
+        <td><span class="parametername">group</span></td>
+        <td><p>The group.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.string">String</a></td>
+        <td><span class="parametername">kind</span></td>
+        <td><p>The kind.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Microsoft.Kubernetes.NamespacedName.html">NamespacedName</a></td>
+        <td><span class="parametername">namespacedName</span></td>
+        <td><p>Name of the namespaced.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="properties">Properties
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Microsoft_Kubernetes_GroupKindNamespacedName_Group.md&amp;value=---%0Auid%3A%20Microsoft.Kubernetes.GroupKindNamespacedName.Group%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/OperatorFramework/src/Core/GroupKindNamespacedName.cs/#L36">View Source</a>
+  </span>
+  <a id="Microsoft_Kubernetes_GroupKindNamespacedName_Group_" data-uid="Microsoft.Kubernetes.GroupKindNamespacedName.Group*"></a>
+  <h4 id="Microsoft_Kubernetes_GroupKindNamespacedName_Group" data-uid="Microsoft.Kubernetes.GroupKindNamespacedName.Group">Group</h4>
+  <div class="markdown level1 summary"><p>Gets the group.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string Group { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.string">String</a></td>
+        <td><p>The group.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Microsoft_Kubernetes_GroupKindNamespacedName_Kind.md&amp;value=---%0Auid%3A%20Microsoft.Kubernetes.GroupKindNamespacedName.Kind%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/OperatorFramework/src/Core/GroupKindNamespacedName.cs/#L42">View Source</a>
+  </span>
+  <a id="Microsoft_Kubernetes_GroupKindNamespacedName_Kind_" data-uid="Microsoft.Kubernetes.GroupKindNamespacedName.Kind*"></a>
+  <h4 id="Microsoft_Kubernetes_GroupKindNamespacedName_Kind" data-uid="Microsoft.Kubernetes.GroupKindNamespacedName.Kind">Kind</h4>
+  <div class="markdown level1 summary"><p>Gets the kind.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string Kind { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.string">String</a></td>
+        <td><p>The kind.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Microsoft_Kubernetes_GroupKindNamespacedName_NamespacedName.md&amp;value=---%0Auid%3A%20Microsoft.Kubernetes.GroupKindNamespacedName.NamespacedName%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/OperatorFramework/src/Core/GroupKindNamespacedName.cs/#L48">View Source</a>
+  </span>
+  <a id="Microsoft_Kubernetes_GroupKindNamespacedName_NamespacedName_" data-uid="Microsoft.Kubernetes.GroupKindNamespacedName.NamespacedName*"></a>
+  <h4 id="Microsoft_Kubernetes_GroupKindNamespacedName_NamespacedName" data-uid="Microsoft.Kubernetes.GroupKindNamespacedName.NamespacedName">NamespacedName</h4>
+  <div class="markdown level1 summary"><p>Gets the name of the namespaced.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public NamespacedName NamespacedName { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Microsoft.Kubernetes.NamespacedName.html">NamespacedName</a></td>
+        <td><p>The name of the namespaced.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="methods">Methods
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Microsoft_Kubernetes_GroupKindNamespacedName_Equals_Microsoft_Kubernetes_GroupKindNamespacedName_.md&amp;value=---%0Auid%3A%20Microsoft.Kubernetes.GroupKindNamespacedName.Equals(Microsoft.Kubernetes.GroupKindNamespacedName)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/OperatorFramework/src/Core/GroupKindNamespacedName.cs/#L97">View Source</a>
+  </span>
+  <a id="Microsoft_Kubernetes_GroupKindNamespacedName_Equals_" data-uid="Microsoft.Kubernetes.GroupKindNamespacedName.Equals*"></a>
+  <h4 id="Microsoft_Kubernetes_GroupKindNamespacedName_Equals_Microsoft_Kubernetes_GroupKindNamespacedName_" data-uid="Microsoft.Kubernetes.GroupKindNamespacedName.Equals(Microsoft.Kubernetes.GroupKindNamespacedName)">Equals(GroupKindNamespacedName)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool Equals(GroupKindNamespacedName other)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Microsoft.Kubernetes.GroupKindNamespacedName.html">GroupKindNamespacedName</a></td>
+        <td><span class="parametername">other</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.boolean">Boolean</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Microsoft_Kubernetes_GroupKindNamespacedName_Equals_System_Object_.md&amp;value=---%0Auid%3A%20Microsoft.Kubernetes.GroupKindNamespacedName.Equals(System.Object)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/OperatorFramework/src/Core/GroupKindNamespacedName.cs/#L91">View Source</a>
+  </span>
+  <a id="Microsoft_Kubernetes_GroupKindNamespacedName_Equals_" data-uid="Microsoft.Kubernetes.GroupKindNamespacedName.Equals*"></a>
+  <h4 id="Microsoft_Kubernetes_GroupKindNamespacedName_Equals_System_Object_" data-uid="Microsoft.Kubernetes.GroupKindNamespacedName.Equals(System.Object)">Equals(Object)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override bool Equals(object obj)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object">Object</a></td>
+        <td><span class="parametername">obj</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.boolean">Boolean</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Microsoft_Kubernetes_GroupKindNamespacedName_From_IKubernetesObject_V1ObjectMeta__.md&amp;value=---%0Auid%3A%20Microsoft.Kubernetes.GroupKindNamespacedName.From(IKubernetesObject%7BV1ObjectMeta%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/OperatorFramework/src/Core/GroupKindNamespacedName.cs/#L77">View Source</a>
+  </span>
+  <a id="Microsoft_Kubernetes_GroupKindNamespacedName_From_" data-uid="Microsoft.Kubernetes.GroupKindNamespacedName.From*"></a>
+  <h4 id="Microsoft_Kubernetes_GroupKindNamespacedName_From_IKubernetesObject_V1ObjectMeta__" data-uid="Microsoft.Kubernetes.GroupKindNamespacedName.From(IKubernetesObject{V1ObjectMeta})">From(IKubernetesObject&lt;V1ObjectMeta&gt;)</h4>
+  <div class="markdown level1 summary"><p>Gets key values from the specified resource.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static GroupKindNamespacedName From(IKubernetesObject&lt;V1ObjectMeta&gt; resource)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IKubernetesObject</span>&lt;<span class="xref">V1ObjectMeta</span>&gt;</td>
+        <td><span class="parametername">resource</span></td>
+        <td><p>The resource.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Microsoft.Kubernetes.GroupKindNamespacedName.html">GroupKindNamespacedName</a></td>
+        <td><p>GroupKindNamespacedName.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Microsoft_Kubernetes_GroupKindNamespacedName_GetHashCode.md&amp;value=---%0Auid%3A%20Microsoft.Kubernetes.GroupKindNamespacedName.GetHashCode%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/OperatorFramework/src/Core/GroupKindNamespacedName.cs/#L105">View Source</a>
+  </span>
+  <a id="Microsoft_Kubernetes_GroupKindNamespacedName_GetHashCode_" data-uid="Microsoft.Kubernetes.GroupKindNamespacedName.GetHashCode*"></a>
+  <h4 id="Microsoft_Kubernetes_GroupKindNamespacedName_GetHashCode" data-uid="Microsoft.Kubernetes.GroupKindNamespacedName.GetHashCode">GetHashCode()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override int GetHashCode()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.int32">Int32</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="operators">Operators
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Microsoft_Kubernetes_GroupKindNamespacedName_op_Equality_Microsoft_Kubernetes_GroupKindNamespacedName_Microsoft_Kubernetes_GroupKindNamespacedName_.md&amp;value=---%0Auid%3A%20Microsoft.Kubernetes.GroupKindNamespacedName.op_Equality(Microsoft.Kubernetes.GroupKindNamespacedName%2CMicrosoft.Kubernetes.GroupKindNamespacedName)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/OperatorFramework/src/Core/GroupKindNamespacedName.cs/#L56">View Source</a>
+  </span>
+  <a id="Microsoft_Kubernetes_GroupKindNamespacedName_op_Equality_" data-uid="Microsoft.Kubernetes.GroupKindNamespacedName.op_Equality*"></a>
+  <h4 id="Microsoft_Kubernetes_GroupKindNamespacedName_op_Equality_Microsoft_Kubernetes_GroupKindNamespacedName_Microsoft_Kubernetes_GroupKindNamespacedName_" data-uid="Microsoft.Kubernetes.GroupKindNamespacedName.op_Equality(Microsoft.Kubernetes.GroupKindNamespacedName,Microsoft.Kubernetes.GroupKindNamespacedName)">Equality(GroupKindNamespacedName, GroupKindNamespacedName)</h4>
+  <div class="markdown level1 summary"><p>Implements the == operator.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static bool operator ==(GroupKindNamespacedName left, GroupKindNamespacedName right)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Microsoft.Kubernetes.GroupKindNamespacedName.html">GroupKindNamespacedName</a></td>
+        <td><span class="parametername">left</span></td>
+        <td><p>The left.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Microsoft.Kubernetes.GroupKindNamespacedName.html">GroupKindNamespacedName</a></td>
+        <td><span class="parametername">right</span></td>
+        <td><p>The right.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.boolean">Boolean</a></td>
+        <td><p>The result of the operator.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Microsoft_Kubernetes_GroupKindNamespacedName_op_Inequality_Microsoft_Kubernetes_GroupKindNamespacedName_Microsoft_Kubernetes_GroupKindNamespacedName_.md&amp;value=---%0Auid%3A%20Microsoft.Kubernetes.GroupKindNamespacedName.op_Inequality(Microsoft.Kubernetes.GroupKindNamespacedName%2CMicrosoft.Kubernetes.GroupKindNamespacedName)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/OperatorFramework/src/Core/GroupKindNamespacedName.cs/#L67">View Source</a>
+  </span>
+  <a id="Microsoft_Kubernetes_GroupKindNamespacedName_op_Inequality_" data-uid="Microsoft.Kubernetes.GroupKindNamespacedName.op_Inequality*"></a>
+  <h4 id="Microsoft_Kubernetes_GroupKindNamespacedName_op_Inequality_Microsoft_Kubernetes_GroupKindNamespacedName_Microsoft_Kubernetes_GroupKindNamespacedName_" data-uid="Microsoft.Kubernetes.GroupKindNamespacedName.op_Inequality(Microsoft.Kubernetes.GroupKindNamespacedName,Microsoft.Kubernetes.GroupKindNamespacedName)">Inequality(GroupKindNamespacedName, GroupKindNamespacedName)</h4>
+  <div class="markdown level1 summary"><p>Implements the != operator.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static bool operator !=(GroupKindNamespacedName left, GroupKindNamespacedName right)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Microsoft.Kubernetes.GroupKindNamespacedName.html">GroupKindNamespacedName</a></td>
+        <td><span class="parametername">left</span></td>
+        <td><p>The left.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Microsoft.Kubernetes.GroupKindNamespacedName.html">GroupKindNamespacedName</a></td>
+        <td><span class="parametername">right</span></td>
+        <td><p>The right.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.boolean">Boolean</a></td>
+        <td><p>The result of the operator.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="implements">Implements</h3>
+  <div>
+      <span class="xref">IEquatable&lt;&gt;</span>
+  </div>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Microsoft_Kubernetes_GroupKindNamespacedName.md&amp;value=---%0Auid%3A%20Microsoft.Kubernetes.GroupKindNamespacedName%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                  </li>
+                  <li>
+                    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/OperatorFramework/src/Core/GroupKindNamespacedName.cs/#L17" class="contribution-link">View Source</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

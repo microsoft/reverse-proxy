@@ -285,9 +285,17 @@
         .AddProxyConfigFilter&lt;CustomConfigFilter&gt;();
 }
 </code></pre>
+<h2 id="configuring-the-http-client">Configuring the http client</h2>
+<p><code>ConfigureClient</code> provides a callback to customize the <code>SocketsHttpHandler</code> settings used for proxying requests. This will be called each time a cluster is added or changed. Cluster settings are applied to the handler before the callback. Custom data can be provided in the cluster metadata.</p>
+<pre><code class="lang-C#">    services.AddReverseProxy()
+        .ConfigureClient((context, handler) =&gt;
+        {
+            handler.Expect100ContinueTimeout = TimeSpan.FromMilliseconds(300);
+        })
+</code></pre>
 <h2 id="custom-iproxyhttpclientfactory">Custom IProxyHttpClientFactory</h2>
-<p>In case the direct control on a proxy HTTP client construction is necessary, the default <a class="xref" href="../api/Yarp.ReverseProxy.Service.Proxy.Infrastructure.IProxyHttpClientFactory.html">IProxyHttpClientFactory</a> can be replaced with a custom one. In example, that custom logic can use <a href="xref:Yarp.ReverseProxy.Abstractions.Cluster">Cluster</a>'s metadata as an extra data source for <a href="https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httpmessageinvoker?view=netcore-3.1">HttpMessageInvoker</a> configuration. However, it's still recommended for any custom factory to set the following <code>HttpMessageInvoker</code> properties to the same values as the default factory does in order to preserve a correct reverse proxy behavior.</p>
-<p>Always return an HttpMessageInvoker instance rather than an HttpClient instance which derives from HttpMessageInvoker. HttpClient buffers responses by default which breaks streaming scenarios and increases memory usage and latency.</p>
+<p>In case the direct control on a proxy HTTP client construction is necessary, the default <a class="xref" href="../api/Yarp.ReverseProxy.Service.Proxy.Infrastructure.IProxyHttpClientFactory.html">IProxyHttpClientFactory</a> can be replaced with a custom one. For some customizations you can derive from the default <a class="xref" href="../api/Yarp.ReverseProxy.Service.Proxy.Infrastructure.ProxyHttpClientFactory.html">ProxyHttpClientFactory</a> and override the methods that configure the client.</p>
+<p>It's recommended that any custom factory set the following <code>SocketsHttpHandler</code> properties to the same values as the default factory does in order to preserve a correct reverse proxy behavior and avoid unnecessary overhead.</p>
 <pre><code class="lang-C#">new SocketsHttpHandler
 {
     UseProxy = false,
@@ -296,18 +304,13 @@
     UseCookies = false
 };
 </code></pre>
+<p>Always return an HttpMessageInvoker instance rather than an HttpClient instance which derives from HttpMessageInvoker. HttpClient buffers responses by default which breaks streaming scenarios and increases memory usage and latency.</p>
+<p>Custom data can be provided in the cluster metadata.</p>
 <p>The below is an example of a custom <code>IProxyHttpClientFactory</code> implementation.</p>
 <pre><code class="lang-C#">public class CustomProxyHttpClientFactory : IProxyHttpClientFactory
 {
     public HttpMessageInvoker CreateClient(ProxyHttpClientContext context)
     {
-        if (context.OldClient != null &amp;&amp; context.NewOptions == context.OldOptions)
-        {
-            return context.OldClient;
-        }
-
-        var newClientOptions = context.NewOptions;
-        
         var handler = new SocketsHttpHandler
         {
             UseProxy = false,
@@ -315,32 +318,6 @@
             AutomaticDecompression = DecompressionMethods.None,
             UseCookies = false
         };
-
-        if (newClientOptions.SslProtocols.HasValue)
-        {
-            handler.SslOptions.EnabledSslProtocols = newClientOptions.SslProtocols.Value;
-        }
-        if (newClientOptions.ClientCertificate != null)
-        {
-            handler.SslOptions.ClientCertificates = new X509CertificateCollection
-            {
-                newClientOptions.ClientCertificate
-            };
-        }
-        if (newClientOptions.MaxConnectionsPerServer != null)
-        {
-            handler.MaxConnectionsPerServer = newClientOptions.MaxConnectionsPerServer.Value;
-        }
-        if (newClientOptions.DangerousAcceptAnyServerCertificate)
-        {
-            handler.SslOptions.RemoteCertificateValidationCallback = (sender, cert, chain, errors) =&gt; cert.Subject == &quot;dev.mydomain&quot;;
-        }
-#if NET
-        if (newClientOptions.RequestHeaderEncoding != null)
-        {
-            handler.RequestHeaderEncodingSelector = (_, _) =&gt; newClientOptions.RequestHeaderEncoding;
-        }
-#endif
 
         return new HttpMessageInvoker(handler, disposeHandler: true);
     }
@@ -354,7 +331,7 @@
               <div class="contribution">
                 <ul class="nav">
                   <li>
-                    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/docs/docfx/articles/proxyhttpclientconfig.md/#L1" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/docs/docfx/articles/proxyhttpclientconfig.md/#L1" class="contribution-link">Improve this Doc</a>
                   </li>
                 </ul>
               </div>

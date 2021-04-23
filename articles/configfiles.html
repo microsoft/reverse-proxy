@@ -109,15 +109,14 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 <p>Example:</p>
 <pre><code class="lang-JSON">{
   &quot;ReverseProxy&quot;: {
-    &quot;Routes&quot;: [
-      {
-        &quot;RouteId&quot;: &quot;route1&quot;,
+    &quot;Routes&quot;: {
+      &quot;route1&quot; : {
         &quot;ClusterId&quot;: &quot;cluster1&quot;,
         &quot;Match&quot;: {
           &quot;Path&quot;: &quot;{**catch-all}&quot;
         },
       }
-    ],
+    },
     &quot;Clusters&quot;: {
       &quot;cluster1&quot;: {
         &quot;Destinations&quot;: {
@@ -142,6 +141,134 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 <h3 id="clusters">Clusters</h3>
 <p>The clusters section is an unordered collection of named clusters. A cluster primarily contains a collection of named destinations and their addresses, any of which is considered capable of handling requests for a given route. The proxy will process the request according to the route and cluster configuration in order to select a destination.</p>
 <p>For additional fields see <a href="xref:Yarp.ReverseProxy.Abstractions.Cluster">Cluster</a>.</p>
+<h2 id="all-config-properties">All config properties</h2>
+<pre><code class="lang-JSON">{
+  // Base URLs the server listens on, must be configured independently of the routes below
+  &quot;Urls&quot;: &quot;http://localhost:5000;https://localhost:5001&quot;,
+  &quot;Logging&quot;: {
+    &quot;LogLevel&quot;: {
+      &quot;Default&quot;: &quot;Information&quot;,
+      // Uncomment to hide diagnostic messages from runtime and proxy
+      // &quot;Microsoft&quot;: &quot;Warning&quot;,
+      // &quot;Yarp&quot; : &quot;Warning&quot;,
+      &quot;Microsoft.Hosting.Lifetime&quot;: &quot;Information&quot;
+    }
+  },
+  &quot;ReverseProxy&quot;: {
+    // Routes tell the proxy which requests to forward
+    &quot;Routes&quot;: { 
+      &quot;minimumroute&quot; : {
+        // Matches anything and routes it to www.example.com
+        &quot;ClusterId&quot;: &quot;minimumcluster&quot;,
+        &quot;Match&quot;: {
+          &quot;Path&quot;: &quot;{**catch-all}&quot;
+        }
+      },
+      &quot;allrouteprops&quot; : {
+        // matches /something/* and routes to &quot;allclusterprops&quot;
+        &quot;ClusterId&quot;: &quot;allclusterprops&quot;, // Name of one of the clusters
+        &quot;Order&quot; : 100, // Lower numbers have higher precidence
+        &quot;Authorization Policy&quot; : &quot;Anonymous&quot;, // Name of the policy or &quot;Default&quot;, &quot;Anonymous&quot;
+        &quot;CorsPolicy&quot; : &quot;Default&quot;, // Name of the CorsPolicy to apply to this route or &quot;Default&quot;, &quot;Disable&quot;
+        &quot;Match&quot;: {
+          &quot;Path&quot;: &quot;/something/{**remainder}&quot;, // The path to match using ASP.NET syntax. 
+          &quot;Hosts&quot; : [ &quot;www.aaaaa.com&quot;, &quot;www.bbbbb.com&quot;], // The host names to match, unspecified is any
+          &quot;Methods&quot; : [ &quot;GET&quot;, &quot;PUT&quot; ], // The HTTP methods that match, uspecified is all
+          &quot;Headers&quot; : [ // The headers to match, unspecified is any
+            {
+              &quot;Name&quot; : &quot;MyCustomHeader&quot;, // Name of the header
+              &quot;Values&quot; : [&quot;value1&quot;, &quot;value2&quot;, &quot;another value&quot;], // Matches are against any of these values
+              &quot;Mode&quot; : &quot;ExactHeader&quot;, // or &quot;HeaderPrefix&quot;, &quot;Exists&quot;
+              &quot;IsCaseSensitive&quot; : true
+            }
+          ],
+        },
+        &quot;MetaData&quot; : { // List of key value pairs that can be used by custom extensions
+          &quot;MyName&quot; : &quot;MyValue&quot;
+        },
+        &quot;Transforms&quot; : [ // List of transforms. See ./Transforms.html for more details
+          {
+            &quot;RequestHeader&quot;: &quot;MyHeader&quot;,
+            &quot;Set&quot;: &quot;MyValue&quot;,
+          } 
+        ]
+      }
+    },
+    // Clusters tell the proxy where and how to forward requests
+    &quot;Clusters&quot;: {
+      &quot;minimumcluster&quot;: {
+        &quot;Destinations&quot;: {
+          &quot;example.com&quot;: {
+            &quot;Address&quot;: &quot;http://www.example.com/&quot;
+          }
+        }
+      },
+      &quot;allclusterprops&quot;: {
+        &quot;Destinations&quot;: {
+          &quot;first_destination&quot;: {
+            &quot;Address&quot;: &quot;https://contoso.com&quot;
+          },
+          &quot;another_destination&quot;: {
+            &quot;Address&quot;: &quot;https://10.20.30.40&quot;,
+            &quot;Health&quot; : &quot;https://10.20.30.40:12345/test&quot; // override for active health checks
+          }
+        },
+        &quot;LoadBalancingPolicy&quot; : &quot;PowerOfTwoChoices&quot;, // Alternatively &quot;First&quot;, &quot;Random&quot;, &quot;RoundRobin&quot;, &quot;LeastRequests&quot;
+        &quot;SessionAffinity&quot;: {
+          &quot;Enabled&quot;: true, // Defaults to 'false'
+          &quot;Mode&quot;: &quot;Cookie&quot;, // Default, alternatively &quot;CustomHeader&quot;
+          &quot;FailurePolicy&quot;: &quot;Redistribute&quot;, // default, Alternatively &quot;Return503&quot;
+          &quot;Settings&quot; : {
+              &quot;CustomHeaderName&quot;: &quot;MySessionHeaderName&quot; // Defaults to 'X-Yarp-Proxy-Affinity`
+          }
+        },
+        &quot;HealthCheck&quot;: {
+          &quot;Active&quot;: { // Makes API calls to validate the health. 
+            &quot;Enabled&quot;: &quot;true&quot;,
+            &quot;Interval&quot;: &quot;00:00:10&quot;,
+            &quot;Timeout&quot;: &quot;00:00:10&quot;,
+            &quot;Policy&quot;: &quot;ConsecutiveFailures&quot;,
+            &quot;Path&quot;: &quot;/api/health&quot; // API endpoint to query for health state
+          },
+          &quot;Passive&quot;: { // Disables destinations based on HTTP response codes
+            &quot;Enabled&quot;: true, // Defaults to false
+            &quot;Policy&quot; : &quot;TransportFailureRateHealthPolicy&quot;, // Required
+            &quot;ReactivationPeriod&quot; : &quot;00:00:10&quot; // 10s
+          }
+        },
+        &quot;HttpClient&quot; : { // Configuration of HttpClient instance used to contact destinations
+          &quot;SSLProtocols&quot; : &quot;Tls13&quot;,
+          &quot;DangerousAcceptAnyServerCertificate&quot; : false,
+          &quot;ClientCertificate&quot; : {
+            // From a file use
+            &quot;Path &quot;: &quot;mycert.pfx&quot;, 
+            &quot;KeyPath &quot;: null, 
+            &quot;Password &quot;: &quot;myPassword1234&quot;,
+            // From the cert store use
+            &quot;Subject &quot;: null, 
+            &quot;Store &quot;: null, 
+            &quot;Location &quot;: null, 
+            &quot;AllowInvalid &quot;: null 
+          },
+          &quot;MaxConnectionsPerServer&quot; : 1024,
+          &quot;ActivityContextHeaders&quot; : &quot;None&quot;, // Or &quot;Baggage&quot;, &quot;CorrelationContext&quot;, &quot;BaggageAndCorrelationContext&quot;
+          &quot;EnableMultipleHttp2Connections&quot; : true,
+          &quot;RequestHeaderEncoding&quot; : &quot;Latin1&quot; // How to interpret non ASCII characters in header values
+        },
+        &quot;HttpRequest&quot; : { // Options for sending request to destination
+          &quot;Timeout&quot; : &quot;00:02:00&quot;,
+          &quot;Version&quot; : &quot;2&quot;,
+          &quot;VersionPolicy&quot; : &quot;RequestVersionOrLower&quot;
+        },
+        &quot;MetaData&quot; : { // Custom Key value pairs
+          &quot;TransportFailureRateHealthPolicy.RateLimit&quot;: &quot;0.5&quot;, // Used by Passive health policy
+          &quot;MyKey&quot; : &quot;MyValue&quot;
+        }
+      }
+    }
+  }
+}
+</code></pre>
 </article>
           </div>
           
@@ -150,7 +277,7 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
               <div class="contribution">
                 <ul class="nav">
                   <li>
-                    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/docs/docfx/articles/configfiles.md/#L1" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/docs/docfx/articles/configfiles.md/#L1" class="contribution-link">Improve this Doc</a>
                   </li>
                 </ul>
               </div>

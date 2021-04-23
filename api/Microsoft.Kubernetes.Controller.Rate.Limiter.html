@@ -1,0 +1,505 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class Limiter
+   </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class Limiter
+   ">
+    <meta name="generator" content="docfx 2.52.0.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="Microsoft.Kubernetes.Controller.Rate.Limiter">
+  
+  
+  <h1 id="Microsoft_Kubernetes_Controller_Rate_Limiter" data-uid="Microsoft.Kubernetes.Controller.Rate.Limiter" class="text-break">Class Limiter
+  </h1>
+  <div class="markdown level0 summary"><p>
+Class Limiter controls how frequently events are allowed to happen.
+It implements a &quot;token bucket&quot; of size b, initially full and refilled
+at rate r tokens per second.
+Informally, in any large enough time interval, the Limiter limits the
+rate to r tokens per second, with a maximum burst size of b events.
+As a special case, if r == Inf (the infinite rate), b is ignored.
+See https://en.wikipedia.org/wiki/Token_bucket for more about token buckets.
+</p>
+<p>
+The zero value is a valid Limiter, but it will reject all events.
+Use NewLimiter to create non-zero Limiters.
+</p>
+<p>
+Limiter has three main methods, Allow, Reserve, and Wait.
+Most callers should use Wait.
+</p>
+<p>
+Each of the three methods consumes a single token.
+They differ in their behavior when no token is available.
+If no token is available, Allow returns false.
+If no token is available, Reserve returns a reservation for a future token
+and the amount of time the caller must wait before using it.
+If no token is available, Wait blocks until one can be obtained
+or its associated context.Context is canceled.
+The methods AllowN, ReserveN, and WaitN consume n tokens.
+</p>
+https://github.com/golang/time/blob/master/rate/rate.go#L55.
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object">Object</a></div>
+    <div class="level1"><span class="xref">Limiter</span></div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="Microsoft.Kubernetes.Controller.Rate.html">Microsoft.Kubernetes.Controller.Rate</a></h6>
+  <h6><strong>Assembly</strong>: Microsoft.Kubernetes.Controller.dll</h6>
+  <h5 id="Microsoft_Kubernetes_Controller_Rate_Limiter_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public class Limiter : object</code></pre>
+  </div>
+  <h3 id="constructors">Constructors
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Microsoft_Kubernetes_Controller_Rate_Limiter__ctor_Microsoft_Kubernetes_Controller_Rate_Limit_System_Int32_ISystemClock_.md&amp;value=---%0Auid%3A%20Microsoft.Kubernetes.Controller.Rate.Limiter.%23ctor(Microsoft.Kubernetes.Controller.Rate.Limit%2CSystem.Int32%2CISystemClock)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/OperatorFramework/src/Controller/Rate/Limiter.cs/#L67">View Source</a>
+  </span>
+  <a id="Microsoft_Kubernetes_Controller_Rate_Limiter__ctor_" data-uid="Microsoft.Kubernetes.Controller.Rate.Limiter.#ctor*"></a>
+  <h4 id="Microsoft_Kubernetes_Controller_Rate_Limiter__ctor_Microsoft_Kubernetes_Controller_Rate_Limit_System_Int32_ISystemClock_" data-uid="Microsoft.Kubernetes.Controller.Rate.Limiter.#ctor(Microsoft.Kubernetes.Controller.Rate.Limit,System.Int32,ISystemClock)">Limiter(Limit, Int32, ISystemClock)</h4>
+  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="Microsoft.Kubernetes.Controller.Rate.Limiter.html">Limiter</a> class.
+Allows events up to <a class="xref" href="Microsoft.Kubernetes.Controller.Rate.Limit.html">Limit</a><code data-dev-comment-type="paramref" class="paramref">limit</code> and permits bursts of
+at most <code data-dev-comment-type="paramref" class="paramref">burst</code> tokens.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Limiter(Limit limit, int burst, ISystemClock systemClock = null)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Microsoft.Kubernetes.Controller.Rate.Limit.html">Limit</a></td>
+        <td><span class="parametername">limit</span></td>
+        <td><p>The count per second which is allowed.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.int32">Int32</a></td>
+        <td><span class="parametername">burst</span></td>
+        <td><p>The burst.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">ISystemClock</span></td>
+        <td><span class="parametername">systemClock</span></td>
+        <td><p>Accessor for the current UTC time.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="methods">Methods
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Microsoft_Kubernetes_Controller_Rate_Limiter_Allow.md&amp;value=---%0Auid%3A%20Microsoft.Kubernetes.Controller.Rate.Limiter.Allow%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/OperatorFramework/src/Controller/Rate/Limiter.cs/#L78">View Source</a>
+  </span>
+  <a id="Microsoft_Kubernetes_Controller_Rate_Limiter_Allow_" data-uid="Microsoft.Kubernetes.Controller.Rate.Limiter.Allow*"></a>
+  <h4 id="Microsoft_Kubernetes_Controller_Rate_Limiter_Allow" data-uid="Microsoft.Kubernetes.Controller.Rate.Limiter.Allow">Allow()</h4>
+  <div class="markdown level1 summary"><p>Check to allow one token effective immediately.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool Allow()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.boolean">Boolean</a></td>
+        <td><p><code>true</code> if a token is available and used, <code>false</code> otherwise.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Microsoft_Kubernetes_Controller_Rate_Limiter_AllowN_DateTimeOffset_System_Int32_.md&amp;value=---%0Auid%3A%20Microsoft.Kubernetes.Controller.Rate.Limiter.AllowN(DateTimeOffset%2CSystem.Int32)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/OperatorFramework/src/Controller/Rate/Limiter.cs/#L90">View Source</a>
+  </span>
+  <a id="Microsoft_Kubernetes_Controller_Rate_Limiter_AllowN_" data-uid="Microsoft.Kubernetes.Controller.Rate.Limiter.AllowN*"></a>
+  <h4 id="Microsoft_Kubernetes_Controller_Rate_Limiter_AllowN_DateTimeOffset_System_Int32_" data-uid="Microsoft.Kubernetes.Controller.Rate.Limiter.AllowN(DateTimeOffset,System.Int32)">AllowN(DateTimeOffset, Int32)</h4>
+  <div class="markdown level1 summary"><p>Checks if a number of tokens are available by a given time.
+They are consumed if available.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool AllowN(DateTimeOffset now, int number)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">DateTimeOffset</span></td>
+        <td><span class="parametername">now</span></td>
+        <td><p>The now.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.int32">Int32</a></td>
+        <td><span class="parametername">number</span></td>
+        <td><p>The number.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.boolean">Boolean</a></td>
+        <td><p><code>true</code> if a number token is available and used, <code>false</code> otherwise.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Microsoft_Kubernetes_Controller_Rate_Limiter_Reserve.md&amp;value=---%0Auid%3A%20Microsoft.Kubernetes.Controller.Rate.Limiter.Reserve%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/OperatorFramework/src/Controller/Rate/Limiter.cs/#L99">View Source</a>
+  </span>
+  <a id="Microsoft_Kubernetes_Controller_Rate_Limiter_Reserve_" data-uid="Microsoft.Kubernetes.Controller.Rate.Limiter.Reserve*"></a>
+  <h4 id="Microsoft_Kubernetes_Controller_Rate_Limiter_Reserve" data-uid="Microsoft.Kubernetes.Controller.Rate.Limiter.Reserve">Reserve()</h4>
+  <div class="markdown level1 summary"><p>Reserves this instance.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Reservation Reserve()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Microsoft.Kubernetes.Controller.Rate.Reservation.html">Reservation</a></td>
+        <td><p>Reservation.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Microsoft_Kubernetes_Controller_Rate_Limiter_Reserve_DateTimeOffset_System_Int32_.md&amp;value=---%0Auid%3A%20Microsoft.Kubernetes.Controller.Rate.Limiter.Reserve(DateTimeOffset%2CSystem.Int32)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/OperatorFramework/src/Controller/Rate/Limiter.cs/#L122">View Source</a>
+  </span>
+  <a id="Microsoft_Kubernetes_Controller_Rate_Limiter_Reserve_" data-uid="Microsoft.Kubernetes.Controller.Rate.Limiter.Reserve*"></a>
+  <h4 id="Microsoft_Kubernetes_Controller_Rate_Limiter_Reserve_DateTimeOffset_System_Int32_" data-uid="Microsoft.Kubernetes.Controller.Rate.Limiter.Reserve(DateTimeOffset,System.Int32)">Reserve(DateTimeOffset, Int32)</h4>
+  <div class="markdown level1 summary"><p>ReserveN returns a Reservation that indicates how long the caller must wait before n events happen.
+The Limiter takes this Reservation into account when allowing future events.
+The returned Reservation’s OK() method returns false if n exceeds the Limiter's burst size.
+Usage example:
+r := lim.ReserveN(time.Now(), 1)
+if !r.OK() {
+return
+}
+time.Sleep(r.Delay())
+Act()
+Use this method if you wish to wait and slow down in accordance with the rate limit without dropping events.
+If you need to respect a deadline or cancel the delay, use Wait instead.
+To drop or skip events exceeding rate limit, use Allow instead.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Reservation Reserve(DateTimeOffset now, int count)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">DateTimeOffset</span></td>
+        <td><span class="parametername">now</span></td>
+        <td><p>The now.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.int32">Int32</a></td>
+        <td><span class="parametername">count</span></td>
+        <td><p>The number.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Microsoft.Kubernetes.Controller.Rate.Reservation.html">Reservation</a></td>
+        <td><p>Reservation.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Microsoft_Kubernetes_Controller_Rate_Limiter_WaitAsync_CancellationToken_.md&amp;value=---%0Auid%3A%20Microsoft.Kubernetes.Controller.Rate.Limiter.WaitAsync(CancellationToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/OperatorFramework/src/Controller/Rate/Limiter.cs/#L132">View Source</a>
+  </span>
+  <a id="Microsoft_Kubernetes_Controller_Rate_Limiter_WaitAsync_" data-uid="Microsoft.Kubernetes.Controller.Rate.Limiter.WaitAsync*"></a>
+  <h4 id="Microsoft_Kubernetes_Controller_Rate_Limiter_WaitAsync_CancellationToken_" data-uid="Microsoft.Kubernetes.Controller.Rate.Limiter.WaitAsync(CancellationToken)">WaitAsync(CancellationToken)</h4>
+  <div class="markdown level1 summary"><p>Waits the asynchronous.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Task WaitAsync(CancellationToken cancellationToken)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">CancellationToken</span></td>
+        <td><span class="parametername">cancellationToken</span></td>
+        <td><p>The cancellation token that can be used by other objects or threads to receive notice of cancellation.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Task</span></td>
+        <td><p>Task.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Microsoft_Kubernetes_Controller_Rate_Limiter_WaitAsync_System_Int32_CancellationToken_.md&amp;value=---%0Auid%3A%20Microsoft.Kubernetes.Controller.Rate.Limiter.WaitAsync(System.Int32%2CCancellationToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/OperatorFramework/src/Controller/Rate/Limiter.cs/#L144">View Source</a>
+  </span>
+  <a id="Microsoft_Kubernetes_Controller_Rate_Limiter_WaitAsync_" data-uid="Microsoft.Kubernetes.Controller.Rate.Limiter.WaitAsync*"></a>
+  <h4 id="Microsoft_Kubernetes_Controller_Rate_Limiter_WaitAsync_System_Int32_CancellationToken_" data-uid="Microsoft.Kubernetes.Controller.Rate.Limiter.WaitAsync(System.Int32,CancellationToken)">WaitAsync(Int32, CancellationToken)</h4>
+  <div class="markdown level1 summary"><p>wait as an asynchronous operation.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Task WaitAsync(int count, CancellationToken cancellationToken)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.int32">Int32</a></td>
+        <td><span class="parametername">count</span></td>
+        <td><p>The count.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">CancellationToken</span></td>
+        <td><span class="parametername">cancellationToken</span></td>
+        <td><p>The cancellation token that can be used by other objects or threads to receive notice of cancellation.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Task</span></td>
+        <td><p>A <see cref="!:Task"></see> representing the asynchronous operation.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Microsoft_Kubernetes_Controller_Rate_Limiter.md&amp;value=---%0Auid%3A%20Microsoft.Kubernetes.Controller.Rate.Limiter%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                  </li>
+                  <li>
+                    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/OperatorFramework/src/Controller/Rate/Limiter.cs/#L41" class="contribution-link">View Source</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

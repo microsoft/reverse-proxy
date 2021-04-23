@@ -79,16 +79,15 @@
 <p>Example:</p>
 <pre><code class="lang-JSON">{
   &quot;ReverseProxy&quot;: {
-    &quot;Routes&quot;: [
-      {
-        &quot;RouteId&quot;: &quot;route1&quot;,
+    &quot;Routes&quot;: {
+      &quot;route1&quot; : {
         &quot;ClusterId&quot;: &quot;cluster1&quot;,
         &quot;CorsPolicy&quot;: &quot;customPolicy&quot;,
         &quot;Match&quot;: {
           &quot;Hosts&quot;: [ &quot;localhost&quot; ]
         },
       }
-    ],
+    },
     &quot;Clusters&quot;: {
       &quot;cluster1&quot;: {
         &quot;Destinations&quot;: {
@@ -139,7 +138,7 @@
               <div class="contribution">
                 <ul class="nav">
                   <li>
-                    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/docs/docfx/articles/cors.md/#L1" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/docs/docfx/articles/cors.md/#L1" class="contribution-link">Improve this Doc</a>
                   </li>
                 </ul>
               </div>

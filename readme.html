@@ -70,7 +70,7 @@
 <h2 id="publishing-the-docs">Publishing the docs</h2>
 <p>The docs are automatically built and published by a <a href="https://github.com/microsoft/reverse-proxy/blob/main/.github/workflows/docfx_build.yml">GitHub Action</a> on every push to <code>release/docs</code>. The built <code>_site</code> directory is pushed to the <code>gh-pages</code> branch and served by <a href="https://microsoft.github.io/reverse-proxy/">https://microsoft.github.io/reverse-proxy/</a>. Maintaining a seperate branch for the released docs allows us to choose when to publish them and with what content, and without modifying the build scripts each release.</p>
 <p>Doc edits for the current public release should go into that release's branch (e.g. <code>release/1.0.0-preview3</code>) and merged forward into <code>main</code> and <code>release/docs</code>.</p>
-<p>When publishing a new product version (e.g. <code>release/1.0.0-preview4</code>) <code>release/docs</code> should be reset to that position after the docs have been updated.</p>
+<p>When publishing a new product version (e.g. <code>release/1.0.0-preview4</code>) <code>release/latest</code> should be reset to that position after the docs have been updated.</p>
 </article>
           </div>
           
@@ -79,7 +79,7 @@
               <div class="contribution">
                 <ul class="nav">
                   <li>
-                    <a href="https://github.com/microsoft/reverse-proxy/blob/release/docs/docs/docfx/readme.md/#L1" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/docs/docfx/readme.md/#L1" class="contribution-link">Improve this Doc</a>
                   </li>
                 </ul>
               </div>
