@@ -89,7 +89,7 @@ Some samples may include the package version as part of the references in the pr
 
 ## Publish the docs
 
-Reset the `release/docs` branch to the head of the current preview branch to publish the latest docs. See [docs](../docfx/readme.md).
+Reset the `release/latest` branch to the head of the current preview branch to publish the latest docs. See [docs](../docfx/readme.md).
 
 ## Publish the release notes
 
