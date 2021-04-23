@@ -16,4 +16,4 @@ The docs are automatically built and published by a [GitHub Action](https://gith
 
 Doc edits for the current public release should go into that release's branch (e.g. `release/1.0.0-preview3`) and merged forward into `main` and `release/docs`.
 
-When publishing a new product version (e.g. `release/1.0.0-preview4`) `release/docs` should be reset to that position after the docs have been updated.
+When publishing a new product version (e.g. `release/1.0.0-preview4`) `release/latest` should be reset to that position after the docs have been updated.
