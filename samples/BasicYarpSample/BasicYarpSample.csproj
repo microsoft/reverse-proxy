@@ -4,8 +4,12 @@
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(SamplesReferenceProject)'!= 'true'">
     <PackageReference Include="Yarp.ReverseProxy" Version="1.0.0-preview.11.21222.6" />
   </ItemGroup>
+
+  <ItemGroup Condition="'$(SamplesReferenceProject)'== 'true'">
+    <ProjectReference Include="..\..\src\ReverseProxy\Yarp.ReverseProxy.csproj" />
+</ItemGroup>
 
 </Project>
