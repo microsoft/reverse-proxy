@@ -49,13 +49,11 @@ namespace Yarp.ReverseProxy.Utilities
         /// <summary>
         /// Atomically increments the counter value by 1.
         /// </summary>
-        /// <remarks>
-        /// Note: getting the value is allocating.
-        /// </remarks>
-        public long IncrementAndGetValue()
+        public long IncrementAndGetLocalValue()
         {
-            _values.Value++;
-            return Value;
+            var value = _values.Value + 1;
+            _values.Value = value;
+            return value;
         }
 
         /// <summary>

@@ -27,7 +27,7 @@ namespace Yarp.ReverseProxy.Service.LoadBalancing
             var counter = _counters.GetOrCreateValue(context.GetClusterInfo());
 
             // Increment returns the new value and we want the first return value to be 0.
-            var offset = counter.IncrementAndGetValue() - 1;
+            var offset = counter.IncrementAndGetLocalValue() - 1;
 
             // Preventing negative indicies from being computed by masking off sign.
             // Ordering of index selection is consistent across all offsets.
