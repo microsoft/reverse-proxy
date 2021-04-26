@@ -68,7 +68,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             else
             {
                 // Failure
-                var currentFailureCount = count.Increment();
+                var currentFailureCount = count.IncrementAndGetValue();
                 newHealth = currentFailureCount < threshold ? DestinationHealth.Healthy : DestinationHealth.Unhealthy;
             }
 

@@ -7,30 +7,63 @@ namespace Yarp.ReverseProxy.Utilities
 {
     internal sealed class AtomicCounter
     {
-        private int _value;
+        private ThreadLocal<long> _values = new(trackAllValues: true);
 
         /// <summary>
         /// Gets the current value of the counter.
         /// </summary>
-        public int Value {
-            get => Volatile.Read(ref _value);
-            set => Volatile.Write(ref _value, value);
+        /// <remarks>
+        /// Note: getting the value is allocating.
+        /// </remarks>
+        public long Value
+        {
+            get
+            {
+                var sum = 0L;
+                foreach (var value in _values.Values)
+                {
+                    sum += value;
+                }
+
+                return sum;
+            }
+            set
+            {
+                var values = new ThreadLocal<long>(trackAllValues: true)
+                {
+                    Value = value
+                };
+
+                Volatile.Write(ref _values, values);
+            }
         }
 
         /// <summary>
         /// Atomically increments the counter value by 1.
         /// </summary>
-        public int Increment()
+        public void Increment()
         {
-            return Interlocked.Increment(ref _value);
+            _values.Value++;
+        }
+
+        /// <summary>
+        /// Atomically increments the counter value by 1.
+        /// </summary>
+        /// <remarks>
+        /// Note: getting the value is allocating.
+        /// </remarks>
+        public long IncrementAndGetValue()
+        {
+            _values.Value++;
+            return Value;
         }
 
         /// <summary>
         /// Atomically decrements the counter value by 1.
         /// </summary>
-        public int Decrement()
+        public void Decrement()
         {
-            return Interlocked.Decrement(ref _value);
+            _values.Value--;
         }
 
         /// <summary>
@@ -38,7 +71,8 @@ namespace Yarp.ReverseProxy.Utilities
         /// </summary>
         public void Reset()
         {
-            Interlocked.Exchange(ref _value, 0);
+            var values = new ThreadLocal<long>(trackAllValues: true);
+            Volatile.Write(ref _values, values);
         }
     }
 }

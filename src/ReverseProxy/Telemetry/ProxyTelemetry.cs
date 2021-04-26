@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Diagnostics.Tracing;
 using System.Threading;
 using Yarp.ReverseProxy.Service.Proxy;
+using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.Telemetry
 {
@@ -18,9 +19,9 @@ namespace Yarp.ReverseProxy.Telemetry
         private PollingCounter _currentRequestsCounter;
         private PollingCounter _failedRequestsCounter;
 
-        private long _startedRequests;
-        private long _stoppedRequests;
-        private long _failedRequests;
+        private readonly AtomicCounter _startedRequests = new();
+        private readonly AtomicCounter _stoppedRequests = new();
+        private readonly AtomicCounter _failedRequests = new();
 
         private ProxyTelemetry()
             : base("Yarp.ReverseProxy")
@@ -29,7 +30,7 @@ namespace Yarp.ReverseProxy.Telemetry
         [Event(1, Level = EventLevel.Informational)]
         public void ProxyStart(string destinationPrefix)
         {
-            Interlocked.Increment(ref _startedRequests);
+            _startedRequests.Increment();
 
             if (IsEnabled(EventLevel.Informational, EventKeywords.All))
             {
@@ -40,7 +41,7 @@ namespace Yarp.ReverseProxy.Telemetry
         [Event(2, Level = EventLevel.Informational)]
         public void ProxyStop(int statusCode)
         {
-            Interlocked.Increment(ref _stoppedRequests);
+            _stoppedRequests.Increment();
 
             if (IsEnabled(EventLevel.Informational, EventKeywords.All))
             {
@@ -51,7 +52,7 @@ namespace Yarp.ReverseProxy.Telemetry
         [Event(3, Level = EventLevel.Informational)]
         public void ProxyFailed(ProxyError error)
         {
-            Interlocked.Increment(ref _failedRequests);
+            _failedRequests.Increment();
 
             if (IsEnabled(EventLevel.Informational, EventKeywords.All))
             {
@@ -102,23 +103,23 @@ namespace Yarp.ReverseProxy.Telemetry
         {
             if (command.Command == EventCommand.Enable)
             {
-                _startedRequestsCounter ??= new PollingCounter("requests-started", this, () => Volatile.Read(ref _startedRequests))
+                _startedRequestsCounter ??= new PollingCounter("requests-started", this, () => _startedRequests.Value)
                 {
                     DisplayName = "Requests Started",
                 };
 
-                _startedRequestsPerSecondCounter ??= new IncrementingPollingCounter("requests-started-rate", this, () => Volatile.Read(ref _startedRequests))
+                _startedRequestsPerSecondCounter ??= new IncrementingPollingCounter("requests-started-rate", this, () => _startedRequests.Value)
                 {
                     DisplayName = "Requests Started Rate",
                     DisplayRateTimeScale = TimeSpan.FromSeconds(1)
                 };
 
-                _failedRequestsCounter ??= new PollingCounter("requests-failed", this, () => Volatile.Read(ref _failedRequests))
+                _failedRequestsCounter ??= new PollingCounter("requests-failed", this, () => _failedRequests.Value)
                 {
                     DisplayName = "Requests Failed"
                 };
 
-                _currentRequestsCounter ??= new PollingCounter("current-requests", this, () => -Volatile.Read(ref _stoppedRequests) + Volatile.Read(ref _startedRequests))
+                _currentRequestsCounter ??= new PollingCounter("current-requests", this, () => -_stoppedRequests.Value + _startedRequests.Value)
                 {
                     DisplayName = "Current Requests"
                 };
