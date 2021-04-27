@@ -4,7 +4,7 @@
         {
             "_justification": "Legitimate key/cert used for testing",
             "file": [
-                "samples/BenchmarkApp/testCert.pfx",
+                "testassets/BenchmarkApp/testCert.pfx",
                 "test/TestCertificates/testCert.pfx",
                 "test/TestCertificates/aspnetdevcert.pfx",
                 "test/TestCertificates/https-aspnet.key",
