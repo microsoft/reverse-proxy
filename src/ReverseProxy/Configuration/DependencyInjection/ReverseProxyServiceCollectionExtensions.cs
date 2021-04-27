@@ -31,6 +31,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             services.TryAddSingleton<IClock, Clock>();
             services.TryAddSingleton<IHttpProxy, HttpProxy>();
+            services.TryAddSingleton<ITransformBuilder, TransformBuilder>();
             return services;
         }
 

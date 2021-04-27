@@ -23,7 +23,6 @@ namespace Yarp.ReverseProxy.Configuration.DependencyInjection
         public static IReverseProxyBuilder AddConfigBuilder(this IReverseProxyBuilder builder)
         {
             builder.Services.TryAddSingleton<IConfigValidator, ConfigValidator>();
-            builder.Services.TryAddSingleton<ITransformBuilder, TransformBuilder>();
             builder.Services.TryAddSingleton<IRandomFactory, RandomFactory>();
             builder.AddTransformFactory<ForwardedTransformFactory>();
             builder.AddTransformFactory<HttpMethodTransformFactory>();
