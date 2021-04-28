@@ -20,7 +20,7 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         /// <summary>
         /// The route these transforms will be associated with.
         /// </summary>
-        public ProxyRoute Route { get; init; }
+        public RouteConfig Route { get; init; }
 
         /// <summary>
         /// The cluster config the route is associated with.

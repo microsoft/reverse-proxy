@@ -10,11 +10,11 @@ namespace Yarp.ReverseProxy.Abstractions.Config
     {
         protected static TransformBuilderContext CreateBuilderContext(IServiceProvider services = null) => new()
         {
-            Route = new ProxyRoute(),
+            Route = new RouteConfig(),
             Services = services,
         };
 
-        protected static TransformBuilderContext ValidateAndBuild(ProxyRoute proxyRoute, ITransformFactory factory, IServiceProvider serviceProvider = null)
+        protected static TransformBuilderContext ValidateAndBuild(RouteConfig proxyRoute, ITransformFactory factory, IServiceProvider serviceProvider = null)
         {
             var transformValues = Assert.Single(proxyRoute.Transforms);
 

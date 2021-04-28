@@ -118,7 +118,7 @@ namespace Yarp.ReverseProxy.Configuration
             },
             Routes =
             {
-                new ProxyRoute
+                new RouteConfig
                 {
                     RouteId = "routeA",
                     ClusterId = "cluster1",
@@ -147,7 +147,7 @@ namespace Yarp.ReverseProxy.Configuration
                     },
                     Metadata = new Dictionary<string, string> { { "routeA-K1", "routeA-V1" }, { "routeA-K2", "routeA-V2" } }
                 },
-                new ProxyRoute
+                new RouteConfig
                 {
                     RouteId = "routeB",
                     ClusterId = "cluster2",

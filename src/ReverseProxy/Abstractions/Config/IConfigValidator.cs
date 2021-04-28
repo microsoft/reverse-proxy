@@ -16,7 +16,7 @@ namespace Yarp.ReverseProxy.Service
         /// <summary>
         /// Validates a route and returns all errors
         /// </summary>
-        ValueTask<IList<Exception>> ValidateRouteAsync(ProxyRoute route);
+        ValueTask<IList<Exception>> ValidateRouteAsync(RouteConfig route);
 
         /// <summary>
         /// Validates a cluster and returns all errors.

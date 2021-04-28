@@ -14,9 +14,9 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         /// <summary>
         /// Clones the route and adds the transform that will replace the HTTP method if it matches.
         /// </summary>
-        public static ProxyRoute WithTransformHttpMethodChange(this ProxyRoute proxyRoute, string fromHttpMethod, string toHttpMethod)
+        public static RouteConfig WithTransformHttpMethodChange(this RouteConfig route, string fromHttpMethod, string toHttpMethod)
         {
-            return proxyRoute.WithTransform(transform =>
+            return route.WithTransform(transform =>
             {
                 transform[HttpMethodTransformFactory.HttpMethodChangeKey] = fromHttpMethod;
                 transform[HttpMethodTransformFactory.SetKey] = toHttpMethod;

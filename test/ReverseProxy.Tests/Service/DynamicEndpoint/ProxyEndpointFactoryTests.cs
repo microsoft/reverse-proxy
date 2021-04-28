@@ -40,7 +40,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
             var factory = services.GetRequiredService<ProxyEndpointFactory>();
             factory.SetProxyPipeline(context => Task.CompletedTask);
 
-            var route = new ProxyRoute
+            var route = new RouteConfig
             {
                 RouteId = "route1",
                 Match = new RouteMatch
@@ -68,7 +68,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
             Assert.Equal("example.com", hostMetadata.Hosts[0]);
         }
 
-        private (RouteEndpoint routeEndpoint, RouteState routeConfig) CreateEndpoint(ProxyEndpointFactory factory, RouteEntity routeInfo, ProxyRoute proxyRoute, ClusterInfo clusterInfo)
+        private (RouteEndpoint routeEndpoint, RouteState routeConfig) CreateEndpoint(ProxyEndpointFactory factory, RouteEntity routeInfo, RouteConfig proxyRoute, ClusterInfo clusterInfo)
         {
             routeInfo.ClusterRevision = clusterInfo.Revision;
             var routeConfig = new RouteState(proxyRoute, clusterInfo, HttpTransformer.Default);
@@ -87,7 +87,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
             var factory = services.GetRequiredService<ProxyEndpointFactory>();
             factory.SetProxyPipeline(context => Task.CompletedTask);
 
-            var route = new ProxyRoute
+            var route = new RouteConfig
             {
                 RouteId = "route1",
                 Match = new RouteMatch
@@ -121,7 +121,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
             var factory = services.GetRequiredService<ProxyEndpointFactory>();
             factory.SetProxyPipeline(context => Task.CompletedTask);
 
-            var route = new ProxyRoute
+            var route = new RouteConfig
             {
                 RouteId = "route1",
                 Match = new RouteMatch
@@ -155,7 +155,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
             var factory = services.GetRequiredService<ProxyEndpointFactory>();
             factory.SetProxyPipeline(context => Task.CompletedTask);
 
-            var route = new ProxyRoute
+            var route = new RouteConfig
             {
                 RouteId = "route1",
                 Match = new RouteMatch
@@ -187,7 +187,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
             var factory = services.GetRequiredService<ProxyEndpointFactory>();
             factory.SetProxyPipeline(context => Task.CompletedTask);
 
-            var route = new ProxyRoute
+            var route = new RouteConfig
             {
                 RouteId = "route1",
                 Order = 12,
@@ -216,7 +216,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
             var factory = services.GetRequiredService<ProxyEndpointFactory>();
             factory.SetProxyPipeline(context => Task.CompletedTask);
 
-            var route = new ProxyRoute
+            var route = new RouteConfig
             {
                 RouteId = "route1",
                 Match = new RouteMatch
@@ -240,7 +240,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
             var factory = services.GetRequiredService<ProxyEndpointFactory>();
             factory.SetProxyPipeline(context => Task.CompletedTask);
 
-            var route = new ProxyRoute
+            var route = new RouteConfig
             {
                 RouteId = "route1",
                 AuthorizationPolicy = "defaulT",
@@ -263,7 +263,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
             var factory = services.GetRequiredService<ProxyEndpointFactory>();
             factory.SetProxyPipeline(context => Task.CompletedTask);
 
-            var route = new ProxyRoute
+            var route = new RouteConfig
             {
                 RouteId = "route1",
                 AuthorizationPolicy = "AnonymouS",
@@ -285,7 +285,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
             var factory = services.GetRequiredService<ProxyEndpointFactory>();
             factory.SetProxyPipeline(context => Task.CompletedTask);
 
-            var route = new ProxyRoute
+            var route = new RouteConfig
             {
                 RouteId = "route1",
                 AuthorizationPolicy = "custom",
@@ -308,7 +308,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
             var factory = services.GetRequiredService<ProxyEndpointFactory>();
             factory.SetProxyPipeline(context => Task.CompletedTask);
 
-            var route = new ProxyRoute
+            var route = new RouteConfig
             {
                 RouteId = "route1",
                 Order = 12,
@@ -330,7 +330,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
             var factory = services.GetRequiredService<ProxyEndpointFactory>();
             factory.SetProxyPipeline(context => Task.CompletedTask);
 
-            var route = new ProxyRoute
+            var route = new RouteConfig
             {
                 RouteId = "route1",
                 CorsPolicy = "defaulT",
@@ -354,7 +354,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
             var factory = services.GetRequiredService<ProxyEndpointFactory>();
             factory.SetProxyPipeline(context => Task.CompletedTask);
 
-            var route = new ProxyRoute
+            var route = new RouteConfig
             {
                 RouteId = "route1",
                 CorsPolicy = "custom",
@@ -378,7 +378,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
             var factory = services.GetRequiredService<ProxyEndpointFactory>();
             factory.SetProxyPipeline(context => Task.CompletedTask);
 
-            var route = new ProxyRoute
+            var route = new RouteConfig
             {
                 RouteId = "route1",
                 CorsPolicy = "disAble",
@@ -401,7 +401,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
             var factory = services.GetRequiredService<ProxyEndpointFactory>();
             factory.SetProxyPipeline(context => Task.CompletedTask);
 
-            var route = new ProxyRoute
+            var route = new RouteConfig
             {
                 RouteId = "route1",
                 Order = 12,
@@ -423,7 +423,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
             var factory = services.GetRequiredService<ProxyEndpointFactory>();
             factory.SetProxyPipeline(context => Task.CompletedTask);
 
-            var route = new ProxyRoute
+            var route = new RouteConfig
             {
                 RouteId = "route1",
                 Match = new RouteMatch
@@ -468,7 +468,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
             var factory = services.GetRequiredService<ProxyEndpointFactory>();
             factory.SetProxyPipeline(context => Task.CompletedTask);
 
-            var route = new ProxyRoute
+            var route = new RouteConfig
             {
                 RouteId = "route1",
                 Match = new RouteMatch

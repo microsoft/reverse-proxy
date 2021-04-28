@@ -16,7 +16,7 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         [InlineData(true)]
         public void WithTransformQueryRouteValue(bool append)
         {
-            var proxyRoute = new ProxyRoute();
+            var proxyRoute = new RouteConfig();
             proxyRoute = proxyRoute.WithTransformQueryRouteValue("key", "value", append);
 
             var builderContext = ValidateAndBuild(proxyRoute, _factory);
@@ -50,7 +50,7 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         [InlineData(true)]
         public void WithTransformQueryValue(bool append)
         {
-            var proxyRoute = new ProxyRoute();
+            var proxyRoute = new RouteConfig();
             proxyRoute = proxyRoute.WithTransformQueryValue("key", "value", append);
 
             var builderContext = ValidateAndBuild(proxyRoute, _factory);
@@ -82,7 +82,7 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         [Fact]
         public void WithTransformQueryRemoveKey()
         {
-            var proxyRoute = new ProxyRoute();
+            var proxyRoute = new RouteConfig();
             proxyRoute = proxyRoute.WithTransformQueryRemoveKey("key");
 
             var builderContext = ValidateAndBuild(proxyRoute, _factory);

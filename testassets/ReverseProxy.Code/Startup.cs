@@ -27,7 +27,7 @@ namespace Yarp.ReverseProxy.Sample
             services.AddControllers();
             var routes = new[]
             {
-                new ProxyRoute()
+                new RouteConfig()
                 {
                     RouteId = "route1",
                     ClusterId = "cluster1",

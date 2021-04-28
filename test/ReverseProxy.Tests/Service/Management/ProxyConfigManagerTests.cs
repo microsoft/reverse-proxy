@@ -27,7 +27,7 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
 {
     public class ProxyConfigManagerTests
     {
-        private IServiceProvider CreateServices(List<ProxyRoute> routes, List<Cluster> clusters, Action<IReverseProxyBuilder> configureProxy = null)
+        private IServiceProvider CreateServices(List<RouteConfig> routes, List<Cluster> clusters, Action<IReverseProxyBuilder> configureProxy = null)
         {
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddLogging();
@@ -47,7 +47,7 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
         [Fact]
         public void Constructor_Works()
         {
-            var services = CreateServices(new List<ProxyRoute>(), new List<Cluster>());
+            var services = CreateServices(new List<RouteConfig>(), new List<Cluster>());
             _ = services.GetRequiredService<ProxyConfigManager>();
         }
 
@@ -65,7 +65,7 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
         [Fact]
         public async Task NullClusters_StartsEmpty()
         {
-            var services = CreateServices(new List<ProxyRoute>(), null);
+            var services = CreateServices(new List<RouteConfig>(), null);
             var manager = services.GetRequiredService<ProxyConfigManager>();
             var dataSource = await manager.InitialLoadAsync();
             Assert.NotNull(dataSource);
@@ -76,7 +76,7 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
         [Fact]
         public async Task Endpoints_StartsEmpty()
         {
-            var services = CreateServices(new List<ProxyRoute>(), new List<Cluster>());
+            var services = CreateServices(new List<RouteConfig>(), new List<Cluster>());
             var manager = services.GetRequiredService<ProxyConfigManager>();
             var dataSource = await manager.InitialLoadAsync();
             Assert.NotNull(dataSource);
@@ -87,7 +87,7 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
         [Fact]
         public async Task GetChangeToken_InitialValue()
         {
-            var services = CreateServices(new List<ProxyRoute>(), new List<Cluster>());
+            var services = CreateServices(new List<RouteConfig>(), new List<Cluster>());
             var manager = services.GetRequiredService<ProxyConfigManager>();
             var dataSource = await manager.InitialLoadAsync();
             Assert.NotNull(dataSource);
@@ -110,14 +110,14 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
                     { "d1", new Destination { Address = TestAddress } }
                 }
             };
-            var route = new ProxyRoute
+            var route = new RouteConfig
             {
                 RouteId = "route1",
                 ClusterId = "cluster1",
                 Match = new RouteMatch { Path = "/" }
             };
 
-            var services = CreateServices(new List<ProxyRoute>() { route }, new List<Cluster>() { cluster });
+            var services = CreateServices(new List<RouteConfig>() { route }, new List<Cluster>() { cluster });
 
             var manager = services.GetRequiredService<ProxyConfigManager>();
             var dataSource = await manager.InitialLoadAsync();
@@ -168,14 +168,14 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
 #endif
                 }
             };
-            var route = new ProxyRoute
+            var route = new RouteConfig
             {
                 RouteId = "route1",
                 ClusterId = "cluster1",
                 Match = new RouteMatch { Path = "/" }
             };
 
-            var services = CreateServices(new List<ProxyRoute>() { route }, new List<Cluster>() { cluster });
+            var services = CreateServices(new List<RouteConfig>() { route }, new List<Cluster>() { cluster });
 
             var manager = services.GetRequiredService<ProxyConfigManager>();
             var dataSource = await manager.InitialLoadAsync();
@@ -206,7 +206,7 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
         [Fact]
         public async Task GetChangeToken_SignalsChange()
         {
-            var services = CreateServices(new List<ProxyRoute>(), new List<Cluster>());
+            var services = CreateServices(new List<RouteConfig>(), new List<Cluster>());
             var inMemoryConfig = (InMemoryConfigProvider)services.GetRequiredService<IProxyConfigProvider>();
             var configManager = services.GetRequiredService<ProxyConfigManager>();
             var dataSource = await configManager.InitialLoadAsync();
@@ -227,7 +227,7 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
 
             // updating should signal the current change token
             Assert.False(signaled1.Task.IsCompleted);
-            inMemoryConfig.Update(new List<ProxyRoute>() { new ProxyRoute() { RouteId = "r1", Match = new RouteMatch { Path = "/" } } }, new List<Cluster>());
+            inMemoryConfig.Update(new List<RouteConfig>() { new RouteConfig() { RouteId = "r1", Match = new RouteMatch { Path = "/" } } }, new List<Cluster>());
             await signaled1.Task.DefaultTimeout();
 
             var changeToken2 = dataSource.GetChangeToken();
@@ -240,7 +240,7 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
 
             // updating again should only signal the new change token
             Assert.False(signaled2.Task.IsCompleted);
-            inMemoryConfig.Update(new List<ProxyRoute>() { new ProxyRoute() { RouteId = "r2", Match = new RouteMatch { Path = "/" } } }, new List<Cluster>());
+            inMemoryConfig.Update(new List<RouteConfig>() { new RouteConfig() { RouteId = "r2", Match = new RouteMatch { Path = "/" } } }, new List<Cluster>());
             await signaled2.Task.DefaultTimeout();
 
             Assert.NotNull(readEndpoints1);
@@ -262,7 +262,7 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
                 HttpRequest = new RequestProxyOptions() { Version = new Version(1, 2) }
             };
 
-            var services = CreateServices(new List<ProxyRoute>(), new List<Cluster>() { cluster });
+            var services = CreateServices(new List<RouteConfig>(), new List<Cluster>() { cluster });
             var configManager = services.GetRequiredService<ProxyConfigManager>();
 
             var ioEx = await Assert.ThrowsAsync<InvalidOperationException>(() => configManager.InitialLoadAsync());
@@ -278,8 +278,8 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
         public async Task LoadAsync_RouteValidationError_Throws()
         {
             var routeName = "route1";
-            var route1 = new ProxyRoute { RouteId = routeName, Match = new RouteMatch { Hosts = null }, ClusterId = "cluster1" };
-            var services = CreateServices(new List<ProxyRoute>() { route1 }, new List<Cluster>());
+            var route1 = new RouteConfig { RouteId = routeName, Match = new RouteMatch { Hosts = null }, ClusterId = "cluster1" };
+            var services = CreateServices(new List<RouteConfig>() { route1 }, new List<Cluster>());
             var configManager = services.GetRequiredService<ProxyConfigManager>();
 
             var ioEx = await Assert.ThrowsAsync<InvalidOperationException>(() => configManager.InitialLoadAsync());
@@ -294,8 +294,8 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
         [Fact]
         public async Task LoadAsync_ConfigFilterRouteActions_CanFixBrokenRoute()
         {
-            var route1 = new ProxyRoute { RouteId = "route1", Match = new RouteMatch { Hosts = null }, Order = 1, ClusterId = "cluster1" };
-            var services = CreateServices(new List<ProxyRoute>() { route1 }, new List<Cluster>(), proxyBuilder =>
+            var route1 = new RouteConfig { RouteId = "route1", Match = new RouteMatch { Hosts = null }, Order = 1, ClusterId = "cluster1" };
+            var services = CreateServices(new List<RouteConfig>() { route1 }, new List<Cluster>(), proxyBuilder =>
             {
                 proxyBuilder.AddConfigFilter<FixRouteHostFilter>();
             });
@@ -320,9 +320,9 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
                 return new ValueTask<Cluster>(cluster);
             }
 
-            public ValueTask<ProxyRoute> ConfigureRouteAsync(ProxyRoute route, CancellationToken cancel)
+            public ValueTask<RouteConfig> ConfigureRouteAsync(RouteConfig route, CancellationToken cancel)
             {
-                return new ValueTask<ProxyRoute>(route with
+                return new ValueTask<RouteConfig>(route with
                 {
                     Match = route.Match with { Hosts = new[] { "example.com" } }
                 });
@@ -342,16 +342,16 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
                 });
             }
 
-            public ValueTask<ProxyRoute> ConfigureRouteAsync(ProxyRoute route, CancellationToken cancel)
+            public ValueTask<RouteConfig> ConfigureRouteAsync(RouteConfig route, CancellationToken cancel)
             {
-                return new ValueTask<ProxyRoute>(route with { Order = 12 });
+                return new ValueTask<RouteConfig>(route with { Order = 12 });
             }
         }
 
         [Fact]
         public async Task LoadAsync_ConfigFilterConfiguresCluster_Works()
         {
-            var route = new ProxyRoute
+            var route = new RouteConfig
             {
                 RouteId = "route1",
                 ClusterId = "cluster1",
@@ -365,7 +365,7 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
                     { "d1", new Destination() { Address = "http://localhost" } }
                 }
             };
-            var services = CreateServices(new List<ProxyRoute>() { route }, new List<Cluster>() { cluster }, proxyBuilder =>
+            var services = CreateServices(new List<RouteConfig>() { route }, new List<Cluster>() { cluster }, proxyBuilder =>
             {
                 proxyBuilder.AddConfigFilter<ClusterAndRouteFilter>();
             });
@@ -390,7 +390,7 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
                 throw new NotFiniteNumberException("Test exception");
             }
 
-            public ValueTask<ProxyRoute> ConfigureRouteAsync(ProxyRoute route, CancellationToken cancel)
+            public ValueTask<RouteConfig> ConfigureRouteAsync(RouteConfig route, CancellationToken cancel)
             {
                 throw new NotFiniteNumberException("Test exception");
             }
@@ -407,7 +407,7 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
                     { "d1", new Destination() { Address = "http://localhost" } }
                 }
             };
-            var services = CreateServices(new List<ProxyRoute>(), new List<Cluster>() { cluster }, proxyBuilder =>
+            var services = CreateServices(new List<RouteConfig>(), new List<Cluster>() { cluster }, proxyBuilder =>
             {
                 proxyBuilder.AddConfigFilter<ClusterAndRouteThrows>();
                 proxyBuilder.AddConfigFilter<ClusterAndRouteThrows>();
@@ -426,9 +426,9 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
         [Fact]
         public async Task LoadAsync_ConfigFilterRouteActionThrows_Throws()
         {
-            var route1 = new ProxyRoute { RouteId = "route1", Match = new RouteMatch { Hosts = new[] { "example.com" } }, Order = 1, ClusterId = "cluster1" };
-            var route2 = new ProxyRoute { RouteId = "route2", Match = new RouteMatch { Hosts = new[] { "example2.com" } }, Order = 1, ClusterId = "cluster2" };
-            var services = CreateServices(new List<ProxyRoute>() { route1, route2 }, new List<Cluster>(), proxyBuilder =>
+            var route1 = new RouteConfig { RouteId = "route1", Match = new RouteMatch { Hosts = new[] { "example.com" } }, Order = 1, ClusterId = "cluster1" };
+            var route2 = new RouteConfig { RouteId = "route2", Match = new RouteMatch { Hosts = new[] { "example2.com" } }, Order = 1, ClusterId = "cluster2" };
+            var services = CreateServices(new List<RouteConfig>() { route1, route2 }, new List<Cluster>(), proxyBuilder =>
             {
                 proxyBuilder.AddConfigFilter<ClusterAndRouteThrows>();
                 proxyBuilder.AddConfigFilter<ClusterAndRouteThrows>();

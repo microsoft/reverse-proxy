@@ -27,7 +27,7 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         [Fact]
         public void WithTransformPathSet()
         {
-            var proxyRoute = new ProxyRoute();
+            var proxyRoute = new RouteConfig();
             proxyRoute = proxyRoute.WithTransformPathSet(new PathString("/path#"));
 
             var builderContext = ValidateAndBuild(proxyRoute, _factory);
@@ -55,7 +55,7 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         [Fact]
         public void WithTransformPathRemovePrefix()
         {
-            var proxyRoute = new ProxyRoute();
+            var proxyRoute = new RouteConfig();
             proxyRoute = proxyRoute.WithTransformPathRemovePrefix(new PathString("/path#"));
 
             var builderContext = ValidateAndBuild(proxyRoute, _factory);
@@ -83,7 +83,7 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         [Fact]
         public void WithTransformPathPrefix()
         {
-            var proxyRoute = new ProxyRoute();
+            var proxyRoute = new RouteConfig();
             proxyRoute = proxyRoute.WithTransformPathPrefix(new PathString("/path#"));
 
             var builderContext = ValidateAndBuild(proxyRoute, _factory);
@@ -111,7 +111,7 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         [Fact]
         public void WithTransformPathRouteValues()
         {
-            var proxyRoute = new ProxyRoute();
+            var proxyRoute = new RouteConfig();
             proxyRoute = proxyRoute.WithTransformPathRouteValues(new PathString("/path#"));
 
             var builderContext = ValidateAndBuild(proxyRoute, _factory);

@@ -55,7 +55,7 @@ namespace Yarp.ReverseProxy.Service.Tests
         [InlineData("a-b.b-c.example.com", null, null)]
         public async Task Accepts_ValidRules(string host, string path, string methods)
         {
-            var route = new ProxyRoute
+            var route = new RouteConfig
             {
                 RouteId = "route1",
                 Match = new RouteMatch
@@ -80,7 +80,7 @@ namespace Yarp.ReverseProxy.Service.Tests
         [InlineData(null)]
         public async Task Rejects_MissingRouteId(string routeId)
         {
-            var route = new ProxyRoute { RouteId = routeId };
+            var route = new RouteConfig { RouteId = routeId };
 
             var services = CreateServices();
             var validator = services.GetRequiredService<IConfigValidator>();
@@ -94,7 +94,7 @@ namespace Yarp.ReverseProxy.Service.Tests
         [Fact]
         public async Task Rejects_MissingMatch()
         {
-            var route = new ProxyRoute
+            var route = new RouteConfig
             {
                 RouteId = "route1",
                 ClusterId = "cluster1",
@@ -116,7 +116,7 @@ namespace Yarp.ReverseProxy.Service.Tests
         [InlineData("Xn--nicode-2ya")]
         public async Task Rejects_InvalidHost(string host)
         {
-            var route = new ProxyRoute
+            var route = new RouteConfig
             {
                 RouteId = "route1",
                 Match = new RouteMatch
@@ -143,7 +143,7 @@ namespace Yarp.ReverseProxy.Service.Tests
         [InlineData("", "")]
         public async Task Rejects_MissingHostAndPath(string host, string path)
         {
-            var route = new ProxyRoute
+            var route = new RouteConfig
             {
                 RouteId = "route1",
                 ClusterId = "cluster1",
@@ -170,7 +170,7 @@ namespace Yarp.ReverseProxy.Service.Tests
         [InlineData("/{ab/c}")]
         public async Task Rejects_InvalidPath(string path)
         {
-            var route = new ProxyRoute
+            var route = new RouteConfig
             {
                 RouteId = "route1",
                 Match = new RouteMatch()
@@ -194,7 +194,7 @@ namespace Yarp.ReverseProxy.Service.Tests
         [InlineData("gett")]
         public async Task Rejects_InvalidMethod(string methods)
         {
-            var route = new ProxyRoute
+            var route = new RouteConfig
             {
                 RouteId = "route1",
                 Match = new RouteMatch
@@ -218,7 +218,7 @@ namespace Yarp.ReverseProxy.Service.Tests
         [InlineData("get,post,get")]
         public async Task Rejects_DuplicateMethod(string methods)
         {
-            var route = new ProxyRoute
+            var route = new RouteConfig
             {
                 RouteId = "route1",
                 Match = new RouteMatch
@@ -240,7 +240,7 @@ namespace Yarp.ReverseProxy.Service.Tests
         [Fact]
         public async Task Accepts_RouteHeader()
         {
-            var route = new ProxyRoute
+            var route = new RouteConfig
             {
                 RouteId = "route1",
                 Match = new RouteMatch
@@ -269,7 +269,7 @@ namespace Yarp.ReverseProxy.Service.Tests
         [Fact]
         public async Task Accepts_RouteHeader_ExistsWithNoValue()
         {
-            var route = new ProxyRoute
+            var route = new RouteConfig
             {
                 RouteId = "route1",
                 Match = new RouteMatch
@@ -298,7 +298,7 @@ namespace Yarp.ReverseProxy.Service.Tests
         [Fact]
         public async Task Rejects_NullRouteHeader()
         {
-            var route = new ProxyRoute
+            var route = new RouteConfig
             {
                 RouteId = "route1",
                 Match = new RouteMatch
@@ -331,7 +331,7 @@ namespace Yarp.ReverseProxy.Service.Tests
                 Values = value == null ? null : new[] { value },
             };
 
-            var route = new ProxyRoute
+            var route = new RouteConfig
             {
                 RouteId = "route1",
                 Match = new RouteMatch
@@ -357,7 +357,7 @@ namespace Yarp.ReverseProxy.Service.Tests
         [InlineData("defaulT")]
         public async Task Accepts_ReservedAuthorizationPolicy(string policy)
         {
-            var route = new ProxyRoute
+            var route = new RouteConfig
             {
                 RouteId = "route1",
                 AuthorizationPolicy = policy,
@@ -379,7 +379,7 @@ namespace Yarp.ReverseProxy.Service.Tests
         [Fact]
         public async Task Accepts_CustomAuthorizationPolicy()
         {
-            var route = new ProxyRoute
+            var route = new RouteConfig
             {
                 RouteId = "route1",
                 AuthorizationPolicy = "custom",
@@ -407,7 +407,7 @@ namespace Yarp.ReverseProxy.Service.Tests
         [Fact]
         public async Task Rejects_UnknownAuthorizationPolicy()
         {
-            var route = new ProxyRoute
+            var route = new RouteConfig
             {
                 RouteId = "route1",
                 AuthorizationPolicy = "unknown",
@@ -429,7 +429,7 @@ namespace Yarp.ReverseProxy.Service.Tests
         [InlineData("Anonymous")]
         public async Task Rejects_ReservedAuthorizationPolicyIsUsed(string authorizationPolicy)
         {
-            var route = new ProxyRoute
+            var route = new RouteConfig
             {
                 RouteId = "route1",
                 AuthorizationPolicy = authorizationPolicy,
@@ -462,7 +462,7 @@ namespace Yarp.ReverseProxy.Service.Tests
         [InlineData("disAble")]
         public async Task Accepts_ReservedCorsPolicy(string policy)
         {
-            var route = new ProxyRoute
+            var route = new RouteConfig
             {
                 RouteId = "route1",
                 CorsPolicy = policy,
@@ -484,7 +484,7 @@ namespace Yarp.ReverseProxy.Service.Tests
         [Fact]
         public async Task Accepts_CustomCorsPolicy()
         {
-            var route = new ProxyRoute
+            var route = new RouteConfig
             {
                 RouteId = "route1",
                 CorsPolicy = "custom",
@@ -512,7 +512,7 @@ namespace Yarp.ReverseProxy.Service.Tests
         [Fact]
         public async Task Rejects_UnknownCorsPolicy()
         {
-            var route = new ProxyRoute
+            var route = new RouteConfig
             {
                 RouteId = "route1",
                 CorsPolicy = "unknown",
@@ -534,7 +534,7 @@ namespace Yarp.ReverseProxy.Service.Tests
         [InlineData("Disable")]
         public async Task Rejects_ReservedCorsPolicyIsUsed(string corsPolicy)
         {
-            var route = new ProxyRoute
+            var route = new RouteConfig
             {
                 RouteId = "route1",
                 CorsPolicy = corsPolicy,

@@ -16,7 +16,7 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         [InlineData(false)]
         public void WithTransformCopyResponseHeaders(bool copy)
         {
-            var proxyRoute = new ProxyRoute();
+            var proxyRoute = new RouteConfig();
             proxyRoute = proxyRoute.WithTransformCopyResponseHeaders(copy);
 
             var builderContext = ValidateAndBuild(proxyRoute, _factory);
@@ -29,7 +29,7 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         [InlineData(false)]
         public void WithTransformCopyResponseTrailers(bool copy)
         {
-            var proxyRoute = new ProxyRoute();
+            var proxyRoute = new RouteConfig();
             proxyRoute = proxyRoute.WithTransformCopyResponseTrailers(copy);
 
             var builderContext = ValidateAndBuild(proxyRoute, _factory);
@@ -44,7 +44,7 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         [InlineData(true, true)]
         public void WithTransformResponseHeader(bool append, bool always)
         {
-            var proxyRoute = new ProxyRoute();
+            var proxyRoute = new RouteConfig();
             proxyRoute = proxyRoute.WithTransformResponseHeader("name", "value", append, always);
 
             var builderContext = ValidateAndBuild(proxyRoute, _factory);
@@ -82,7 +82,7 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         [InlineData(true, true)]
         public void WithTransformResponseTrailer(bool append, bool always)
         {
-            var proxyRoute = new ProxyRoute();
+            var proxyRoute = new RouteConfig();
             proxyRoute = proxyRoute.WithTransformResponseTrailer("name", "value", append, always);
 
             var builderContext = ValidateAndBuild(proxyRoute, _factory);

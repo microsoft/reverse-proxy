@@ -195,7 +195,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
                 });
             context.Features.Set(cluster);
 
-            var routeConfig = new RouteState(new ProxyRoute(), cluster, transformer: null);
+            var routeConfig = new RouteState(new RouteConfig(), cluster, transformer: null);
             var endpoint = new Endpoint(default, new EndpointMetadataCollection(routeConfig), string.Empty);
             context.SetEndpoint(endpoint);
 

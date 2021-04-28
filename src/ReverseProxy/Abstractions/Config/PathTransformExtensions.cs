@@ -17,9 +17,9 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         /// <summary>
         /// Clones the route and adds the transform which sets the request path with the given value.
         /// </summary>
-        public static ProxyRoute WithTransformPathSet(this ProxyRoute proxyRoute, PathString path)
+        public static RouteConfig WithTransformPathSet(this RouteConfig route, PathString path)
         {
-            return proxyRoute.WithTransform(transform =>
+            return route.WithTransform(transform =>
             {
                 transform[PathTransformFactory.PathSetKey] = path.Value;
             });
@@ -37,9 +37,9 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         /// <summary>
         /// Clones the route and adds the transform which will prefix the request path with the given value.
         /// </summary>
-        public static ProxyRoute WithTransformPathPrefix(this ProxyRoute proxyRoute, PathString prefix)
+        public static RouteConfig WithTransformPathPrefix(this RouteConfig route, PathString prefix)
         {
-            return proxyRoute.WithTransform(transform =>
+            return route.WithTransform(transform =>
             {
                 transform[PathTransformFactory.PathPrefixKey] = prefix.Value;
             });
@@ -57,9 +57,9 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         /// <summary>
         /// Clones the route and adds the transform which will remove the matching prefix from the request path.
         /// </summary>
-        public static ProxyRoute WithTransformPathRemovePrefix(this ProxyRoute proxyRoute, PathString prefix)
+        public static RouteConfig WithTransformPathRemovePrefix(this RouteConfig route, PathString prefix)
         {
-            return proxyRoute.WithTransform(transform =>
+            return route.WithTransform(transform =>
             {
                 transform[PathTransformFactory.PathRemovePrefixKey] = prefix.Value;
             });
@@ -77,9 +77,9 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         /// <summary>
         /// Clones the route and adds the transform which will set the request path with the given value.
         /// </summary>
-        public static ProxyRoute WithTransformPathRouteValues(this ProxyRoute proxyRoute, PathString pattern)
+        public static RouteConfig WithTransformPathRouteValues(this RouteConfig route, PathString pattern)
         {
-            return proxyRoute.WithTransform(transform =>
+            return route.WithTransform(transform =>
             {
                 transform[PathTransformFactory.PathPatternKey] = pattern.Value;
             });

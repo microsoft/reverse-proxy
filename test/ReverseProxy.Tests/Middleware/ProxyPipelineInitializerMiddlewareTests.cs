@@ -47,7 +47,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
 
             var aspNetCoreEndpoints = new List<Endpoint>();
             var routeConfig = new RouteState(
-                proxyRoute: new ProxyRoute(),
+                proxyRoute: new RouteConfig(),
                 cluster1,
                 transformer: null);
             var aspNetCoreEndpoint = CreateAspNetCoreEndpoint(routeConfig);
@@ -100,7 +100,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
 
             var aspNetCoreEndpoints = new List<Endpoint>();
             var routeConfig = new RouteState(
-                proxyRoute: new ProxyRoute(),
+                proxyRoute: new RouteConfig(),
                 cluster: cluster1,
                 transformer: null);
             var aspNetCoreEndpoint = CreateAspNetCoreEndpoint(routeConfig);

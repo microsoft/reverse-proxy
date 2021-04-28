@@ -55,7 +55,7 @@ namespace Yarp.ReverseProxy
         /// </summary>
         /// <param name="convention">The convention to add to the builder.</param>
         /// <returns></returns>
-        public ReverseProxyConventionBuilder ConfigureEndpoints(Action<IEndpointConventionBuilder, ProxyRoute> convention)
+        public ReverseProxyConventionBuilder ConfigureEndpoints(Action<IEndpointConventionBuilder, RouteConfig> convention)
         {
             _ = convention ?? throw new ArgumentNullException(nameof(convention));
 
@@ -76,7 +76,7 @@ namespace Yarp.ReverseProxy
         /// </summary>
         /// <param name="convention">The convention to add to the builder.</param>
         /// <returns></returns>
-        public ReverseProxyConventionBuilder ConfigureEndpoints(Action<IEndpointConventionBuilder, ProxyRoute, Cluster> convention)
+        public ReverseProxyConventionBuilder ConfigureEndpoints(Action<IEndpointConventionBuilder, RouteConfig, Cluster> convention)
         {
             _ = convention ?? throw new ArgumentNullException(nameof(convention));
 

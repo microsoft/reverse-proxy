@@ -25,7 +25,7 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         [InlineData(true, true, false, false, false)]
         public void WithTransformXForwarded(bool useFor, bool useHost, bool useProto, bool usePrefix, bool append)
         {
-            var proxyRoute = new ProxyRoute();
+            var proxyRoute = new RouteConfig();
             proxyRoute = proxyRoute.WithTransformXForwarded("prefix-", useFor, useHost, useProto, usePrefix, append);
 
             var builderContext = ValidateAndBuild(proxyRoute, _factory);
@@ -112,7 +112,7 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         [InlineData(NodeFormat.None, false, true, NodeFormat.IpAndPort, false)]
         public void WithTransformForwarded(NodeFormat forFormat, bool useHost, bool useProto, NodeFormat byFormat, bool append)
         {
-            var proxyRoute = new ProxyRoute();
+            var proxyRoute = new RouteConfig();
             proxyRoute = proxyRoute.WithTransformForwarded(useHost, useProto, forFormat, byFormat, append);
 
             var builderContext = ValidateAndBuild(proxyRoute, _factory, CreateServices());
@@ -165,7 +165,7 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         [Fact]
         public void WithTransformClientCertHeader()
         {
-            var proxyRoute = new ProxyRoute();
+            var proxyRoute = new RouteConfig();
             proxyRoute = proxyRoute.WithTransformClientCertHeader("name");
 
             var builderContext = ValidateAndBuild(proxyRoute, _factory);

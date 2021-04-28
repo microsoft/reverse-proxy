@@ -32,7 +32,7 @@ namespace Yarp.ReverseProxy.Service.Config
         }
 
         /// <inheritdoc/>
-        public IReadOnlyList<Exception> ValidateRoute(ProxyRoute route)
+        public IReadOnlyList<Exception> ValidateRoute(RouteConfig route)
         {
             var context = new TransformRouteValidationContext()
             {
@@ -92,13 +92,13 @@ namespace Yarp.ReverseProxy.Service.Config
         }
 
         /// <inheritdoc/>
-        public HttpTransformer Build(ProxyRoute route, Cluster cluster)
+        public HttpTransformer Build(RouteConfig route, Cluster cluster)
         {
             return BuildInternal(route, cluster);
         }
 
         // This is separate from Build for testing purposes.
-        internal StructuredTransformer BuildInternal(ProxyRoute route, Cluster cluster)
+        internal StructuredTransformer BuildInternal(RouteConfig route, Cluster cluster)
         {
             var rawTransforms = route.Transforms;
 

@@ -16,7 +16,7 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         [Fact]
         public void WithTransformHttpMethodChange()
         {
-            var proxyRoute = new ProxyRoute();
+            var proxyRoute = new RouteConfig();
             proxyRoute = proxyRoute.WithTransformHttpMethodChange(HttpMethods.Put, HttpMethods.Post);
 
             var builderContext = ValidateAndBuild(proxyRoute, _factory);

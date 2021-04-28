@@ -11,7 +11,7 @@ namespace Yarp.ReverseProxy.Abstractions
     /// Describes a route that matches incoming requests based on a the <see cref="Match"/> criteria
     /// and proxies matching requests to the cluster identified by its <see cref="ClusterId"/>.
     /// </summary>
-    public sealed record ProxyRoute
+    public sealed record RouteConfig
     {
         /// <summary>
         /// Globally unique identifier of the route.
@@ -61,7 +61,7 @@ namespace Yarp.ReverseProxy.Abstractions
         public IReadOnlyList<IReadOnlyDictionary<string, string>> Transforms { get; init; }
 
         /// <inheritdoc />
-        public bool Equals(ProxyRoute other)
+        public bool Equals(RouteConfig other)
         {
             if (other == null)
             {

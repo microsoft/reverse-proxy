@@ -221,15 +221,15 @@ namespace Yarp.ReverseProxy.Service.Management
             return routesChanged;
         }
 
-        private async Task<(IList<ProxyRoute>, IList<Exception>)> VerifyRoutesAsync(IReadOnlyList<ProxyRoute> routes, CancellationToken cancellation)
+        private async Task<(IList<RouteConfig>, IList<Exception>)> VerifyRoutesAsync(IReadOnlyList<RouteConfig> routes, CancellationToken cancellation)
         {
             if (routes == null)
             {
-                return (Array.Empty<ProxyRoute>(), Array.Empty<Exception>());
+                return (Array.Empty<RouteConfig>(), Array.Empty<Exception>());
             }
 
             var seenRouteIds = new HashSet<string>();
-            var configuredRoutes = new List<ProxyRoute>(routes?.Count ?? 0);
+            var configuredRoutes = new List<RouteConfig>(routes?.Count ?? 0);
             var errors = new List<Exception>();
 
             foreach (var r in routes)
@@ -478,7 +478,7 @@ namespace Yarp.ReverseProxy.Service.Management
             return changed;
         }
 
-        private bool UpdateRuntimeRoutes(IList<ProxyRoute> incomingRoutes)
+        private bool UpdateRuntimeRoutes(IList<RouteConfig> incomingRoutes)
         {
             var desiredRoutes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             var changed = false;
@@ -570,7 +570,7 @@ namespace Yarp.ReverseProxy.Service.Management
             }
         }
 
-        private RouteState BuildRouteState(ProxyRoute source, ClusterInfo cluster)
+        private RouteState BuildRouteState(RouteConfig source, ClusterInfo cluster)
         {
             var transforms = _transformBuilder.Build(source, cluster?.Config?.Options);
 

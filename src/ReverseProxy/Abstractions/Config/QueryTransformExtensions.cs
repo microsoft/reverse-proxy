@@ -14,10 +14,10 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         /// <summary>
         /// Clones the route and adds the transform that will append or set the query parameter from the given value.
         /// </summary>
-        public static ProxyRoute WithTransformQueryValue(this ProxyRoute proxyRoute, string queryKey, string value, bool append = true)
+        public static RouteConfig WithTransformQueryValue(this RouteConfig route, string queryKey, string value, bool append = true)
         {
             var type = append ? QueryTransformFactory.AppendKey : QueryTransformFactory.SetKey;
-            return proxyRoute.WithTransform(transform =>
+            return route.WithTransform(transform =>
             {
                 transform[QueryTransformFactory.QueryValueParameterKey] = queryKey;
                 transform[type] = value;
@@ -38,10 +38,10 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         /// <summary>
         /// Clones the route and adds the transform that will append or set the query parameter from a route value.
         /// </summary>
-        public static ProxyRoute WithTransformQueryRouteValue(this ProxyRoute proxyRoute, string queryKey, string routeValueKey, bool append = true)
+        public static RouteConfig WithTransformQueryRouteValue(this RouteConfig route, string queryKey, string routeValueKey, bool append = true)
         {
             var type = append ? QueryTransformFactory.AppendKey : QueryTransformFactory.SetKey;
-            return proxyRoute.WithTransform(transform =>
+            return route.WithTransform(transform =>
             {
                 transform[QueryTransformFactory.QueryRouteParameterKey] = queryKey;
                 transform[type] = routeValueKey;
@@ -62,9 +62,9 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         /// <summary>
         /// Clones the route and adds the transform that will remove the given query key.
         /// </summary>
-        public static ProxyRoute WithTransformQueryRemoveKey(this ProxyRoute proxyRoute, string queryKey)
+        public static RouteConfig WithTransformQueryRemoveKey(this RouteConfig route, string queryKey)
         {
-            return proxyRoute.WithTransform(transform =>
+            return route.WithTransform(transform =>
             {
                 transform[QueryTransformFactory.QueryRemoveParameterKey] = queryKey;
             });

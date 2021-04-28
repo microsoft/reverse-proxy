@@ -27,7 +27,7 @@ namespace Yarp.ReverseProxy.DynamicEndpoint
                 configured = true;
             });
 
-            var proxyRoute = new ProxyRoute();
+            var proxyRoute = new RouteConfig();
             var cluster = new Cluster();
             var endpointBuilder = CreateEndpointBuilder(proxyRoute, cluster);
 
@@ -50,7 +50,7 @@ namespace Yarp.ReverseProxy.DynamicEndpoint
                 configured = true;
             });
 
-            var proxyRoute = new ProxyRoute();
+            var proxyRoute = new RouteConfig();
             var cluster = new Cluster();
             var endpointBuilder = CreateEndpointBuilder(proxyRoute, cluster);
 
@@ -73,7 +73,7 @@ namespace Yarp.ReverseProxy.DynamicEndpoint
                 configured = true;
             });
 
-            var proxyRoute = new ProxyRoute();
+            var proxyRoute = new RouteConfig();
             var cluster = new Cluster();
             var endpointBuilder = CreateEndpointBuilder(proxyRoute, cluster);
 
@@ -83,7 +83,7 @@ namespace Yarp.ReverseProxy.DynamicEndpoint
             Assert.True(configured);
         }
 
-        private static RouteEndpointBuilder CreateEndpointBuilder(ProxyRoute proxyRoute, Cluster cluster)
+        private static RouteEndpointBuilder CreateEndpointBuilder(RouteConfig proxyRoute, Cluster cluster)
         {
             var endpointBuilder = new RouteEndpointBuilder(context => Task.CompletedTask, RoutePatternFactory.Parse(""), 0);
             var routeConfig = new RouteState(

@@ -165,18 +165,18 @@ namespace Yarp.ReverseProxy.Configuration
             };
         }
 
-        private static ProxyRoute CreateRoute(IConfigurationSection section)
+        private static RouteConfig CreateRoute(IConfigurationSection section)
         {
-            return new ProxyRoute
+            return new RouteConfig
             {
                 RouteId = section.Key,
-                Order = section.ReadInt32(nameof(ProxyRoute.Order)),
-                ClusterId = section[nameof(ProxyRoute.ClusterId)],
-                AuthorizationPolicy = section[nameof(ProxyRoute.AuthorizationPolicy)],
-                CorsPolicy = section[nameof(ProxyRoute.CorsPolicy)],
-                Metadata = section.GetSection(nameof(ProxyRoute.Metadata)).ReadStringDictionary(),
-                Transforms = CreateTransforms(section.GetSection(nameof(ProxyRoute.Transforms))),
-                Match = CreateRouteMatch(section.GetSection(nameof(ProxyRoute.Match))),
+                Order = section.ReadInt32(nameof(RouteConfig.Order)),
+                ClusterId = section[nameof(RouteConfig.ClusterId)],
+                AuthorizationPolicy = section[nameof(RouteConfig.AuthorizationPolicy)],
+                CorsPolicy = section[nameof(RouteConfig.CorsPolicy)],
+                Metadata = section.GetSection(nameof(RouteConfig.Metadata)).ReadStringDictionary(),
+                Transforms = CreateTransforms(section.GetSection(nameof(RouteConfig.Transforms))),
+                Match = CreateRouteMatch(section.GetSection(nameof(RouteConfig.Match))),
             };
         }
 

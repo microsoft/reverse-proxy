@@ -115,7 +115,7 @@ namespace Yarp.ReverseProxy.Middleware
             {
                 ProxiedDestination = destination,
                 ClusterSnapshot = clusterInfo.Config,
-                RouteState = new RouteState(new ProxyRoute(), clusterInfo, HttpTransformer.Default),
+                RouteState = new RouteState(new RouteConfig(), clusterInfo, HttpTransformer.Default),
             };
         }
 

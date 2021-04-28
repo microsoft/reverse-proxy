@@ -15,7 +15,7 @@ namespace Yarp.ReverseProxy.Service
         /// <summary>
         /// Route information for matching requests to clusters.
         /// </summary>
-        IReadOnlyList<ProxyRoute> Routes { get; }
+        IReadOnlyList<RouteConfig> Routes { get; }
 
         /// <summary>
         /// Cluster information for where to proxy requests to.

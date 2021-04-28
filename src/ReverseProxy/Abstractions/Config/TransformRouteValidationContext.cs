@@ -19,7 +19,7 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         /// <summary>
         /// The route these transforms are associated with.
         /// </summary>
-        public ProxyRoute Route { get; init; }
+        public RouteConfig Route { get; init; }
 
         /// <summary>
         /// The accumulated list of validation errors for this route.

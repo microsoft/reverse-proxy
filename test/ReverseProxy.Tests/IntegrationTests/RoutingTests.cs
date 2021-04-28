@@ -25,7 +25,7 @@ namespace Yarp.ReverseProxy.IntegrationTests
         {
             var routes = new[]
             {
-                new ProxyRoute()
+                new RouteConfig()
                 {
                     RouteId = "route1",
                     ClusterId = "cluster1",
@@ -51,7 +51,7 @@ namespace Yarp.ReverseProxy.IntegrationTests
         {
             var routes = new[]
             {
-                new ProxyRoute()
+                new RouteConfig()
                 {
                     RouteId = "route1",
                     ClusterId = "cluster1",
@@ -77,7 +77,7 @@ namespace Yarp.ReverseProxy.IntegrationTests
         {
             var routes = new[]
             {
-                new ProxyRoute()
+                new RouteConfig()
                 {
                     RouteId = "route1",
                     ClusterId = "cluster1",
@@ -131,7 +131,7 @@ namespace Yarp.ReverseProxy.IntegrationTests
         {
             var routes = new[]
             {
-                new ProxyRoute()
+                new RouteConfig()
                 {
                     RouteId = "route1",
                     ClusterId = "cluster1",
@@ -148,7 +148,7 @@ namespace Yarp.ReverseProxy.IntegrationTests
                         }
                     }
                 },
-                new ProxyRoute()
+                new RouteConfig()
                 {
                     RouteId = "route2",
                     ClusterId = "cluster1",
@@ -165,7 +165,7 @@ namespace Yarp.ReverseProxy.IntegrationTests
                         }
                     }
                 },
-                new ProxyRoute()
+                new RouteConfig()
                 {
                     RouteId = "route3",
                     ClusterId = "cluster1",
@@ -242,13 +242,13 @@ namespace Yarp.ReverseProxy.IntegrationTests
         {
             var routes = new[]
             {
-                new ProxyRoute()
+                new RouteConfig()
                 {
                     RouteId = "route1",
                     ClusterId = "cluster1",
                     Match = new RouteMatch { Path = "/route1" }
                 },
-                new ProxyRoute()
+                new RouteConfig()
                 {
                     RouteId = "route2",
                     ClusterId = "cluster1",
@@ -258,7 +258,7 @@ namespace Yarp.ReverseProxy.IntegrationTests
                         Methods = new[] { "GET" },
                     }
                 },
-                new ProxyRoute()
+                new RouteConfig()
                 {
                     RouteId = "route3",
                     ClusterId = "cluster1",
@@ -267,7 +267,7 @@ namespace Yarp.ReverseProxy.IntegrationTests
                         Hosts = new[] { "localhost" }
                     }
                 },
-                new ProxyRoute()
+                new RouteConfig()
                 {
                     RouteId = "route4",
                     ClusterId = "cluster1",
@@ -320,7 +320,7 @@ namespace Yarp.ReverseProxy.IntegrationTests
             Assert.Equal("route4", response.Headers.GetValues("route").SingleOrDefault());
         }
 
-        public static Task<IHost> CreateHostAsync(IReadOnlyList<ProxyRoute> routes)
+        public static Task<IHost> CreateHostAsync(IReadOnlyList<RouteConfig> routes)
         {
             var clusters = new[]
             {

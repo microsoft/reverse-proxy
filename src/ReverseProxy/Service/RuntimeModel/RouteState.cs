@@ -22,7 +22,7 @@ namespace Yarp.ReverseProxy.RuntimeModel
         /// Creates a new instance.
         /// </summary>
         public RouteState(
-            ProxyRoute proxyRoute,
+            RouteConfig proxyRoute,
             ClusterInfo cluster,
             HttpTransformer transformer)
         {
@@ -45,9 +45,9 @@ namespace Yarp.ReverseProxy.RuntimeModel
         /// <summary>
         /// The configuration data used to build this route.
         /// </summary>
-        public ProxyRoute ProxyRoute { get; }
+        public RouteConfig ProxyRoute { get; }
 
-        internal bool HasConfigChanged(ProxyRoute newConfig, ClusterInfo cluster, int? routeRevision)
+        internal bool HasConfigChanged(RouteConfig newConfig, ClusterInfo cluster, int? routeRevision)
         {
             return Cluster != cluster || routeRevision != cluster?.Revision || !ProxyRoute.Equals(newConfig);
         }
