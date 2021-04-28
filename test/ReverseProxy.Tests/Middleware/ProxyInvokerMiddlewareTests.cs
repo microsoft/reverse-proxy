@@ -57,7 +57,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
                 {
                     Config = new DestinationConfig(new Destination { Address = "https://localhost:123/a/b/" })
                 });
-            var routeConfig = new RouteConfig(
+            var routeConfig = new RouteState(
                 proxyRoute: new ProxyRoute() { RouteId = "Route-1" },
                 cluster: cluster1,
                 transformer: null);
@@ -67,7 +67,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
             {
                     AvailableDestinations = new List<DestinationInfo>() { destination1 }.AsReadOnly(),
                     ClusterSnapshot = clusterConfig,
-                    RouteSnapshot = routeConfig,
+                    RouteState = routeConfig,
                 });
             httpContext.Features.Set(cluster1);
 
@@ -137,7 +137,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
             var httpClient = new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object);
             var cluster1 = new ClusterInfo(clusterId: "cluster1");
             var clusterConfig = new ClusterConfig(new Cluster(), httpClient);
-            var routeConfig = new RouteConfig(
+            var routeConfig = new RouteState(
                 proxyRoute: new ProxyRoute(),
                 cluster: cluster1,
                 transformer: null);
@@ -146,7 +146,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
                 {
                     AvailableDestinations = Array.Empty<DestinationInfo>(),
                     ClusterSnapshot = clusterConfig,
-                    RouteSnapshot = routeConfig,
+                    RouteState = routeConfig,
                 });
 
             Mock<IHttpProxy>()

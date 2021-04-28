@@ -12,9 +12,9 @@ namespace Yarp.ReverseProxy.Middleware
     public interface IReverseProxyFeature
     {
         /// <summary>
-        /// Route config for the current request.
+        /// Route state for the current request.
         /// </summary>
-        RouteConfig RouteSnapshot { get; }
+        RouteState RouteState { get; }
 
         /// <summary>
         /// Cluster config for the current request.

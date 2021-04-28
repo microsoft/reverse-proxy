@@ -13,15 +13,15 @@ namespace Yarp.ReverseProxy.RuntimeModel
     /// </summary>
     /// <remarks>
     /// All members must remain immutable to avoid thread safety issues.
-    /// Instead, instances of <see cref="RouteConfig"/> are replaced
+    /// Instead, instances of <see cref="RouteState"/> are replaced
     /// in their entirety when values need to change.
     /// </remarks>
-    public sealed class RouteConfig
+    public sealed class RouteState
     {
         /// <summary>
-        /// Creates a new RouteConfig instance.
+        /// Creates a new instance.
         /// </summary>
-        public RouteConfig(
+        public RouteState(
             ProxyRoute proxyRoute,
             ClusterInfo cluster,
             HttpTransformer transformer)

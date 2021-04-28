@@ -61,9 +61,9 @@ namespace Yarp.ReverseProxy
 
             void Action(EndpointBuilder endpointBuilder)
             {
-                var routeConfig = endpointBuilder.Metadata.OfType<RouteConfig>().Single();
+                var routeState = endpointBuilder.Metadata.OfType<RouteState>().Single();
                 var conventionBuilder = new EndpointBuilderConventionBuilder(endpointBuilder);
-                convention(conventionBuilder, routeConfig.ProxyRoute);
+                convention(conventionBuilder, routeState.ProxyRoute);
             }
 
             Add(Action);
@@ -82,10 +82,10 @@ namespace Yarp.ReverseProxy
 
             void Action(EndpointBuilder endpointBuilder)
             {
-                var routeConfig = endpointBuilder.Metadata.OfType<RouteConfig>().Single();
+                var routeState = endpointBuilder.Metadata.OfType<RouteState>().Single();
 
-                var cluster = routeConfig.Cluster?.Config.Options;
-                var proxyRoute = routeConfig.ProxyRoute;
+                var cluster = routeState.Cluster?.Config.Options;
+                var proxyRoute = routeState.ProxyRoute;
                 var conventionBuilder = new EndpointBuilderConventionBuilder(endpointBuilder);
                 convention(conventionBuilder, proxyRoute, cluster);
             }

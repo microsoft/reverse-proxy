@@ -43,8 +43,8 @@ namespace Yarp.ReverseProxy.Middleware
             var destinations = reverseProxyFeature.AvailableDestinations
                 ?? throw new InvalidOperationException($"The {nameof(IReverseProxyFeature)} Destinations collection was not set.");
 
-            var routeConfig = context.GetRouteConfig();
-            var cluster = routeConfig.Cluster;
+            var routeState = context.GetRouteState();
+            var cluster = routeState.Cluster;
 
             if (destinations.Count == 0)
             {
@@ -75,10 +75,10 @@ namespace Yarp.ReverseProxy.Middleware
                 cluster.ConcurrencyCounter.Increment();
                 destination.ConcurrencyCounter.Increment();
 
-                ProxyTelemetry.Log.ProxyInvoke(cluster.ClusterId, routeConfig.ProxyRoute.RouteId, destination.DestinationId);
+                ProxyTelemetry.Log.ProxyInvoke(cluster.ClusterId, routeState.ProxyRoute.RouteId, destination.DestinationId);
 
                 var clusterConfig = reverseProxyFeature.ClusterSnapshot;
-                await _httpProxy.ProxyAsync(context, destinationConfig.Options.Address, clusterConfig.HttpClient, clusterConfig.Options.HttpRequest, routeConfig.Transformer);
+                await _httpProxy.ProxyAsync(context, destinationConfig.Options.Address, clusterConfig.HttpClient, clusterConfig.Options.HttpRequest, routeState.Transformer);
             }
             finally
             {

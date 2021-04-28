@@ -27,7 +27,7 @@ namespace Yarp.ReverseProxy
 
         private RequestDelegate _pipeline;
 
-        public Endpoint CreateEndpoint(RouteConfig route, IReadOnlyList<Action<EndpointBuilder>> conventions)
+        public Endpoint CreateEndpoint(RouteState route, IReadOnlyList<Action<EndpointBuilder>> conventions)
         {
             var proxyRoute = route.ProxyRoute;
             var proxyMatch = proxyRoute.Match;

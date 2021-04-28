@@ -16,38 +16,38 @@ namespace Microsoft.AspNetCore.Http
     public static class HttpContextFeaturesExtensions
     {
         /// <summary>
-        /// Retrieves the ClusterInfo instance associated with the current request.
+        /// Retrieves the <see cref="ClusterInfo"/> instance associated with the current request.
         /// </summary>
         public static ClusterInfo GetClusterInfo(this HttpContext context)
         {
-            var routeConfig = context.GetRouteConfig();
-            var cluster = routeConfig.Cluster ?? throw new InvalidOperationException("Cluster unspecified.");
+            var routeState = context.GetRouteState();
+            var cluster = routeState.Cluster ?? throw new InvalidOperationException($"The {typeof(RouteState).FullName} is missing the {typeof(ClusterInfo).FullName}.");
             return cluster;
         }
 
         /// <summary>
-        /// Retrieves the RouteConfig instance associated with the current request.
+        /// Retrieves the <see cref="RouteState"/> instance associated with the current request.
         /// </summary>
-        public static RouteConfig GetRouteConfig(this HttpContext context)
+        public static RouteState GetRouteState(this HttpContext context)
         {
             var proxyFeature = context.GetReverseProxyFeature();
 
-            var routeConfig = proxyFeature.RouteSnapshot
-                ?? throw new InvalidOperationException($"Proxy feature is missing {typeof(RouteConfig).FullName}.");
+            var routeState = proxyFeature.RouteState
+                ?? throw new InvalidOperationException($"The {typeof(IReverseProxyFeature).FullName} is missing the {typeof(RouteState).FullName}.");
 
-            return routeConfig;
+            return routeState;
         }
 
         /// <summary>
-        /// Retrieves the IReverseProxyFeature instance associated with the current request.
+        /// Retrieves the <see cref="IReverseProxyFeature"/> instance associated with the current request.
         /// </summary>
         public static IReverseProxyFeature GetReverseProxyFeature(this HttpContext context)
         {
-            return context.Features.Get<IReverseProxyFeature>() ?? throw new InvalidOperationException("ReverseProxyFeature unspecified.");
+            return context.Features.Get<IReverseProxyFeature>() ?? throw new InvalidOperationException($"{typeof(IReverseProxyFeature).FullName} is missing.");
         }
 
         /// <summary>
-        /// Retrieves the IProxyErrorFeature instance associated with the current request, if any.
+        /// Retrieves the <see cref="IProxyErrorFeature"/> instance associated with the current request, if any.
         /// </summary>
         public static IProxyErrorFeature? GetProxyErrorFeature(this HttpContext context)
         {
