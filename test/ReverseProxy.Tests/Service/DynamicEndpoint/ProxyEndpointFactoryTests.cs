@@ -51,7 +51,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
                 Order = 12,
             };
             var cluster = new ClusterInfo("cluster1");
-            var routeInfo = new RouteInfo("route1");
+            var routeInfo = new RouteEntity("route1");
 
             var (routeEndpoint, routeConfig) = CreateEndpoint(factory, routeInfo, route, cluster);
 
@@ -68,7 +68,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
             Assert.Equal("example.com", hostMetadata.Hosts[0]);
         }
 
-        private (RouteEndpoint routeEndpoint, RouteConfig routeConfig) CreateEndpoint(ProxyEndpointFactory factory, RouteInfo routeInfo, ProxyRoute proxyRoute, ClusterInfo clusterInfo)
+        private (RouteEndpoint routeEndpoint, RouteConfig routeConfig) CreateEndpoint(ProxyEndpointFactory factory, RouteEntity routeInfo, ProxyRoute proxyRoute, ClusterInfo clusterInfo)
         {
             routeInfo.ClusterRevision = clusterInfo.Revision;
             var routeConfig = new RouteConfig(proxyRoute, clusterInfo, HttpTransformer.Default);
@@ -97,7 +97,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
                 Order = 12,
             };
             var cluster = new ClusterInfo("cluster1");
-            var routeInfo = new RouteInfo("route1");
+            var routeInfo = new RouteEntity("route1");
 
             var (routeEndpoint, routeConfig) = CreateEndpoint(factory, routeInfo, route, cluster);
 
@@ -131,7 +131,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
                 Order = 12,
             };
             var cluster = new ClusterInfo("cluster1");
-            var routeInfo = new RouteInfo("route1");
+            var routeInfo = new RouteEntity("route1");
 
             var (routeEndpoint, routeConfig) = CreateEndpoint(factory, routeInfo, route, cluster);
 
@@ -165,7 +165,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
                 Order = 12,
             };
             var cluster = new ClusterInfo("cluster1");
-            var routeInfo = new RouteInfo("route1");
+            var routeInfo = new RouteEntity("route1");
 
             var (routeEndpoint, routeConfig) = CreateEndpoint(factory, routeInfo, route, cluster);
 
@@ -194,7 +194,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
                 Match = new RouteMatch()
             };
             var cluster = new ClusterInfo("cluster1");
-            var routeInfo = new RouteInfo("route1");
+            var routeInfo = new RouteEntity("route1");
 
             var (routeEndpoint, routeConfig) = CreateEndpoint(factory, routeInfo, route, cluster);
 
@@ -226,7 +226,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
                 Order = 12,
             };
             var cluster = new ClusterInfo("cluster1");
-            var routeInfo = new RouteInfo("route1");
+            var routeInfo = new RouteEntity("route1");
 
             Action action = () => CreateEndpoint(factory, routeInfo, route, cluster);
 
@@ -248,7 +248,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
                 Match = new RouteMatch(),
             };
             var cluster = new ClusterInfo("cluster1");
-            var routeInfo = new RouteInfo("route1");
+            var routeInfo = new RouteEntity("route1");
 
             var (routeEndpoint, _) = CreateEndpoint(factory, routeInfo, route, cluster);
 
@@ -271,7 +271,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
                 Match = new RouteMatch(),
             };
             var cluster = new ClusterInfo("cluster1");
-            var routeInfo = new RouteInfo("route1");
+            var routeInfo = new RouteEntity("route1");
 
             var (routeEndpoint, _) = CreateEndpoint(factory, routeInfo, route, cluster);
 
@@ -293,7 +293,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
                 Match = new RouteMatch(),
             };
             var cluster = new ClusterInfo("cluster1");
-            var routeInfo = new RouteInfo("route1");
+            var routeInfo = new RouteEntity("route1");
 
             var (routeEndpoint, _) = CreateEndpoint(factory, routeInfo, route, cluster);
 
@@ -315,7 +315,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
                 Match = new RouteMatch(),
             };
             var cluster = new ClusterInfo("cluster1");
-            var routeInfo = new RouteInfo("route1");
+            var routeInfo = new RouteEntity("route1");
 
             var (routeEndpoint, _) = CreateEndpoint(factory, routeInfo, route, cluster);
 
@@ -338,7 +338,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
                 Match = new RouteMatch(),
             };
             var cluster = new ClusterInfo("cluster1");
-            var routeInfo = new RouteInfo("route1");
+            var routeInfo = new RouteEntity("route1");
 
             var (routeEndpoint, _) = CreateEndpoint(factory, routeInfo, route, cluster);
 
@@ -362,7 +362,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
                 Match = new RouteMatch(),
             };
             var cluster = new ClusterInfo("cluster1");
-            var routeInfo = new RouteInfo("route1");
+            var routeInfo = new RouteEntity("route1");
 
             var (routeEndpoint, _) = CreateEndpoint(factory, routeInfo, route, cluster);
 
@@ -386,7 +386,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
                 Match = new RouteMatch(),
             };
             var cluster = new ClusterInfo("cluster1");
-            var routeInfo = new RouteInfo("route1");
+            var routeInfo = new RouteEntity("route1");
 
             var (routeEndpoint, _) = CreateEndpoint(factory, routeInfo, route, cluster);
 
@@ -408,7 +408,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
                 Match = new RouteMatch(),
             };
             var cluster = new ClusterInfo("cluster1");
-            var routeInfo = new RouteInfo("route1");
+            var routeInfo = new RouteEntity("route1");
 
             var (routeEndpoint, _) = CreateEndpoint(factory, routeInfo, route, cluster);
 
@@ -442,7 +442,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
                 },
             };
             var cluster = new ClusterInfo("cluster1");
-            var routeInfo = new RouteInfo("route1");
+            var routeInfo = new RouteEntity("route1");
 
             var (routeEndpoint, routeConfig) = CreateEndpoint(factory, routeInfo, route, cluster);
 
@@ -492,7 +492,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
                 },
             };
             var cluster = new ClusterInfo("cluster1");
-            var routeInfo = new RouteInfo("route1");
+            var routeInfo = new RouteEntity("route1");
 
             var (routeEndpoint, routeConfig) = CreateEndpoint(factory, routeInfo, route, cluster);
 

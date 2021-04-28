@@ -14,11 +14,11 @@ namespace Yarp.ReverseProxy.RuntimeModel
     /// references that can be updated atomically and which will always have latest information.
     /// All members are thread safe.
     /// </remarks>
-    internal sealed class RouteInfo
+    internal sealed class RouteEntity
     {
         private volatile RouteConfig _config;
 
-        public RouteInfo(string routeId)
+        public RouteEntity(string routeId)
         {
             if (string.IsNullOrEmpty(routeId))
             {
