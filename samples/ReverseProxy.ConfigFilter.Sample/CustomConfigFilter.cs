@@ -21,7 +21,7 @@ namespace Yarp.Sample
         //
         // This sample looks at the destination addresses and any of the form {{key}} will be modified, looking up the key
         // as an environment variable. This is useful when hosted in Azure etc, as it enables a simple way to replace
-        // destination addresses via the management console, without using crazy paths to try and poke values into config.
+        // destination addresses via the management console
         public ValueTask<Cluster> ConfigureClusterAsync(Cluster origCluster, CancellationToken cancel)
         {
             // Each cluster has a dictionary of destinations, which is read-only, so we'll create a new one with our updates 
