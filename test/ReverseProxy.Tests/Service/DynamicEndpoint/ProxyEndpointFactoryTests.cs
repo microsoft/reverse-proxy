@@ -68,16 +68,16 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
             Assert.Equal("example.com", hostMetadata.Hosts[0]);
         }
 
-        private (RouteEndpoint routeEndpoint, RouteModel routeConfig) CreateEndpoint(ProxyEndpointFactory factory, RouteState routeState, RouteConfig proxyRoute, ClusterInfo clusterInfo)
+        private (RouteEndpoint routeEndpoint, RouteModel routeConfig) CreateEndpoint(ProxyEndpointFactory factory, RouteState routeState, RouteConfig routeConfig, ClusterInfo clusterInfo)
         {
             routeState.ClusterRevision = clusterInfo.Revision;
-            var routeConfig = new RouteModel(proxyRoute, clusterInfo, HttpTransformer.Default);
+            var routeModel = new RouteModel(routeConfig, clusterInfo, HttpTransformer.Default);
 
-            var endpoint = factory.CreateEndpoint(routeConfig, Array.Empty<Action<EndpointBuilder>>());
+            var endpoint = factory.CreateEndpoint(routeModel, Array.Empty<Action<EndpointBuilder>>());
 
             var routeEndpoint = Assert.IsType<RouteEndpoint>(endpoint);
 
-            return (routeEndpoint, routeConfig);
+            return (routeEndpoint, routeModel);
         }
 
         [Fact]

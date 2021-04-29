@@ -7,12 +7,12 @@ using System.Collections.Generic;
 namespace Yarp.ReverseProxy.Abstractions.Config
 {
     /// <summary>
-    /// Extensions for adding transforms to ProxyRoute.
+    /// Extensions for adding transforms to <see cref="RouteConfig"/>.
     /// </summary>
-    public static class ProxyRouteTransformExtensions
+    public static class RouteConfigTransformExtensions
     {
         /// <summary>
-        /// Clones the ProxyRoute and adds the transform.
+        /// Clones the <see cref="RouteConfig"/> and adds the transform.
         /// </summary>
         /// <returns>The cloned route with the new transform.</returns>
         public static RouteConfig WithTransform(this RouteConfig route, Action<IDictionary<string, string>> createTransform)

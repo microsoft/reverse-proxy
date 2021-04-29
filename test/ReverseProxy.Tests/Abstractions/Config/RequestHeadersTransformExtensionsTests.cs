@@ -17,10 +17,10 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         [InlineData(false)]
         public void WithTransformCopyRequestHeaders(bool copy)
         {
-            var proxyRoute = new RouteConfig();
-            proxyRoute = proxyRoute.WithTransformCopyRequestHeaders(copy);
+            var routeConfig = new RouteConfig();
+            routeConfig = routeConfig.WithTransformCopyRequestHeaders(copy);
 
-            var builderContext = ValidateAndBuild(proxyRoute, _factory);
+            var builderContext = ValidateAndBuild(routeConfig, _factory);
 
             Assert.Equal(copy, builderContext.CopyRequestHeaders);
         }
@@ -30,10 +30,10 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         [InlineData(false)]
         public void WithTransformUseOriginalHostHeader(bool useOriginal)
         {
-            var proxyRoute = new RouteConfig();
-            proxyRoute = proxyRoute.WithTransformUseOriginalHostHeader(useOriginal);
+            var routeConfig = new RouteConfig();
+            routeConfig = routeConfig.WithTransformUseOriginalHostHeader(useOriginal);
 
-            var builderContext = ValidateAndBuild(proxyRoute, _factory);
+            var builderContext = ValidateAndBuild(routeConfig, _factory);
 
             var transform = Assert.Single(builderContext.RequestTransforms);
             var hostTransform = Assert.IsType<RequestHeaderOriginalHostTransform>(transform);
@@ -46,10 +46,10 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         [InlineData(false)]
         public void WithTransformRequestHeader(bool append)
         {
-            var proxyRoute = new RouteConfig();
-            proxyRoute = proxyRoute.WithTransformRequestHeader("name", "value", append);
+            var routeConfig = new RouteConfig();
+            routeConfig = routeConfig.WithTransformRequestHeader("name", "value", append);
 
-            var builderContext = ValidateAndBuild(proxyRoute, _factory);
+            var builderContext = ValidateAndBuild(routeConfig, _factory);
 
             ValidateRequestHeader(append, builderContext);
         }
