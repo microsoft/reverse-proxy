@@ -51,16 +51,16 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
                 Order = 12,
             };
             var cluster = new ClusterInfo("cluster1");
-            var routeInfo = new RouteEntity("route1");
+            var routeState = new RouteState("route1");
 
-            var (routeEndpoint, routeConfig) = CreateEndpoint(factory, routeInfo, route, cluster);
+            var (routeEndpoint, routeConfig) = CreateEndpoint(factory, routeState, route, cluster);
 
             Assert.Same(cluster, routeConfig.Cluster);
             Assert.Equal("route1", routeEndpoint.DisplayName);
             Assert.Same(routeConfig, routeEndpoint.Metadata.GetMetadata<RouteModel>());
             Assert.Equal("/a", routeEndpoint.RoutePattern.RawText);
             Assert.Equal(12, routeEndpoint.Order);
-            Assert.False(routeConfig.HasConfigChanged(route, cluster, routeInfo.ClusterRevision));
+            Assert.False(routeConfig.HasConfigChanged(route, cluster, routeState.ClusterRevision));
 
             var hostMetadata = routeEndpoint.Metadata.GetMetadata<HostAttribute>();
             Assert.NotNull(hostMetadata);
@@ -68,9 +68,9 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
             Assert.Equal("example.com", hostMetadata.Hosts[0]);
         }
 
-        private (RouteEndpoint routeEndpoint, RouteModel routeConfig) CreateEndpoint(ProxyEndpointFactory factory, RouteEntity routeInfo, RouteConfig proxyRoute, ClusterInfo clusterInfo)
+        private (RouteEndpoint routeEndpoint, RouteModel routeConfig) CreateEndpoint(ProxyEndpointFactory factory, RouteState routeState, RouteConfig proxyRoute, ClusterInfo clusterInfo)
         {
-            routeInfo.ClusterRevision = clusterInfo.Revision;
+            routeState.ClusterRevision = clusterInfo.Revision;
             var routeConfig = new RouteModel(proxyRoute, clusterInfo, HttpTransformer.Default);
 
             var endpoint = factory.CreateEndpoint(routeConfig, Array.Empty<Action<EndpointBuilder>>());
@@ -97,16 +97,16 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
                 Order = 12,
             };
             var cluster = new ClusterInfo("cluster1");
-            var routeInfo = new RouteEntity("route1");
+            var routeState = new RouteState("route1");
 
-            var (routeEndpoint, routeConfig) = CreateEndpoint(factory, routeInfo, route, cluster);
+            var (routeEndpoint, routeConfig) = CreateEndpoint(factory, routeState, route, cluster);
 
             Assert.Same(cluster, routeConfig.Cluster);
             Assert.Equal("route1", routeEndpoint.DisplayName);
             Assert.Same(routeConfig, routeEndpoint.Metadata.GetMetadata<RouteModel>());
             Assert.Equal("/{**catchall}", routeEndpoint.RoutePattern.RawText);
             Assert.Equal(12, routeEndpoint.Order);
-            Assert.False(routeConfig.HasConfigChanged(route, cluster, routeInfo.ClusterRevision));
+            Assert.False(routeConfig.HasConfigChanged(route, cluster, routeState.ClusterRevision));
 
             var hostMetadata = routeEndpoint.Metadata.GetMetadata<HostAttribute>();
             Assert.NotNull(hostMetadata);
@@ -131,16 +131,16 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
                 Order = 12,
             };
             var cluster = new ClusterInfo("cluster1");
-            var routeInfo = new RouteEntity("route1");
+            var routeState = new RouteState("route1");
 
-            var (routeEndpoint, routeConfig) = CreateEndpoint(factory, routeInfo, route, cluster);
+            var (routeEndpoint, routeConfig) = CreateEndpoint(factory, routeState, route, cluster);
 
             Assert.Same(cluster, routeConfig.Cluster);
             Assert.Equal("route1", routeEndpoint.DisplayName);
             Assert.Same(routeConfig, routeEndpoint.Metadata.GetMetadata<RouteModel>());
             Assert.Equal("/{**catchall}", routeEndpoint.RoutePattern.RawText);
             Assert.Equal(12, routeEndpoint.Order);
-            Assert.False(routeConfig.HasConfigChanged(route, cluster, routeInfo.ClusterRevision));
+            Assert.False(routeConfig.HasConfigChanged(route, cluster, routeState.ClusterRevision));
 
             var hostMetadata = routeEndpoint.Metadata.GetMetadata<HostAttribute>();
             Assert.NotNull(hostMetadata);
@@ -165,16 +165,16 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
                 Order = 12,
             };
             var cluster = new ClusterInfo("cluster1");
-            var routeInfo = new RouteEntity("route1");
+            var routeState = new RouteState("route1");
 
-            var (routeEndpoint, routeConfig) = CreateEndpoint(factory, routeInfo, route, cluster);
+            var (routeEndpoint, routeConfig) = CreateEndpoint(factory, routeState, route, cluster);
 
             Assert.Same(cluster, routeConfig.Cluster);
             Assert.Equal("route1", routeEndpoint.DisplayName);
             Assert.Same(routeConfig, routeEndpoint.Metadata.GetMetadata<RouteModel>());
             Assert.Equal("/a", routeEndpoint.RoutePattern.RawText);
             Assert.Equal(12, routeEndpoint.Order);
-            Assert.False(routeConfig.HasConfigChanged(route, cluster, routeInfo.ClusterRevision));
+            Assert.False(routeConfig.HasConfigChanged(route, cluster, routeState.ClusterRevision));
 
             var hostMetadata = routeEndpoint.Metadata.GetMetadata<HostAttribute>();
             Assert.Null(hostMetadata);
@@ -194,16 +194,16 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
                 Match = new RouteMatch()
             };
             var cluster = new ClusterInfo("cluster1");
-            var routeInfo = new RouteEntity("route1");
+            var routeState = new RouteState("route1");
 
-            var (routeEndpoint, routeConfig) = CreateEndpoint(factory, routeInfo, route, cluster);
+            var (routeEndpoint, routeConfig) = CreateEndpoint(factory, routeState, route, cluster);
 
             Assert.Same(cluster, routeConfig.Cluster);
             Assert.Equal("route1", routeEndpoint.DisplayName);
             Assert.Same(routeConfig, routeEndpoint.Metadata.GetMetadata<RouteModel>());
             Assert.Equal("/{**catchall}", routeEndpoint.RoutePattern.RawText);
             Assert.Equal(12, routeEndpoint.Order);
-            Assert.False(routeConfig.HasConfigChanged(route, cluster, routeInfo.ClusterRevision));
+            Assert.False(routeConfig.HasConfigChanged(route, cluster, routeState.ClusterRevision));
 
             var hostMetadata = routeEndpoint.Metadata.GetMetadata<HostAttribute>();
             Assert.Null(hostMetadata);
@@ -226,9 +226,9 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
                 Order = 12,
             };
             var cluster = new ClusterInfo("cluster1");
-            var routeInfo = new RouteEntity("route1");
+            var routeState = new RouteState("route1");
 
-            Action action = () => CreateEndpoint(factory, routeInfo, route, cluster);
+            Action action = () => CreateEndpoint(factory, routeState, route, cluster);
 
             Assert.Throws<RoutePatternException>(action);
         }
@@ -248,9 +248,9 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
                 Match = new RouteMatch(),
             };
             var cluster = new ClusterInfo("cluster1");
-            var routeInfo = new RouteEntity("route1");
+            var routeState = new RouteState("route1");
 
-            var (routeEndpoint, _) = CreateEndpoint(factory, routeInfo, route, cluster);
+            var (routeEndpoint, _) = CreateEndpoint(factory, routeState, route, cluster);
 
             var attribute = Assert.IsType<AuthorizeAttribute>(routeEndpoint.Metadata.GetMetadata<IAuthorizeData>());
             Assert.Null(attribute.Policy);
@@ -271,9 +271,9 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
                 Match = new RouteMatch(),
             };
             var cluster = new ClusterInfo("cluster1");
-            var routeInfo = new RouteEntity("route1");
+            var routeState = new RouteState("route1");
 
-            var (routeEndpoint, _) = CreateEndpoint(factory, routeInfo, route, cluster);
+            var (routeEndpoint, _) = CreateEndpoint(factory, routeState, route, cluster);
 
             Assert.IsType<AllowAnonymousAttribute>(routeEndpoint.Metadata.GetMetadata<IAllowAnonymous>());
         }
@@ -293,9 +293,9 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
                 Match = new RouteMatch(),
             };
             var cluster = new ClusterInfo("cluster1");
-            var routeInfo = new RouteEntity("route1");
+            var routeState = new RouteState("route1");
 
-            var (routeEndpoint, _) = CreateEndpoint(factory, routeInfo, route, cluster);
+            var (routeEndpoint, _) = CreateEndpoint(factory, routeState, route, cluster);
 
             var attribute = Assert.IsType<AuthorizeAttribute>(routeEndpoint.Metadata.GetMetadata<IAuthorizeData>());
             Assert.Equal("custom", attribute.Policy);
@@ -315,9 +315,9 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
                 Match = new RouteMatch(),
             };
             var cluster = new ClusterInfo("cluster1");
-            var routeInfo = new RouteEntity("route1");
+            var routeState = new RouteState("route1");
 
-            var (routeEndpoint, _) = CreateEndpoint(factory, routeInfo, route, cluster);
+            var (routeEndpoint, _) = CreateEndpoint(factory, routeState, route, cluster);
 
             Assert.Null(routeEndpoint.Metadata.GetMetadata<IAuthorizeData>());
             Assert.Null(routeEndpoint.Metadata.GetMetadata<IAllowAnonymous>());
@@ -338,9 +338,9 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
                 Match = new RouteMatch(),
             };
             var cluster = new ClusterInfo("cluster1");
-            var routeInfo = new RouteEntity("route1");
+            var routeState = new RouteState("route1");
 
-            var (routeEndpoint, _) = CreateEndpoint(factory, routeInfo, route, cluster);
+            var (routeEndpoint, _) = CreateEndpoint(factory, routeState, route, cluster);
 
             var attribute = Assert.IsType<EnableCorsAttribute>(routeEndpoint.Metadata.GetMetadata<IEnableCorsAttribute>());
             Assert.Null(attribute.PolicyName);
@@ -362,9 +362,9 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
                 Match = new RouteMatch(),
             };
             var cluster = new ClusterInfo("cluster1");
-            var routeInfo = new RouteEntity("route1");
+            var routeState = new RouteState("route1");
 
-            var (routeEndpoint, _) = CreateEndpoint(factory, routeInfo, route, cluster);
+            var (routeEndpoint, _) = CreateEndpoint(factory, routeState, route, cluster);
 
             var attribute = Assert.IsType<EnableCorsAttribute>(routeEndpoint.Metadata.GetMetadata<IEnableCorsAttribute>());
             Assert.Equal("custom", attribute.PolicyName);
@@ -386,9 +386,9 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
                 Match = new RouteMatch(),
             };
             var cluster = new ClusterInfo("cluster1");
-            var routeInfo = new RouteEntity("route1");
+            var routeState = new RouteState("route1");
 
-            var (routeEndpoint, _) = CreateEndpoint(factory, routeInfo, route, cluster);
+            var (routeEndpoint, _) = CreateEndpoint(factory, routeState, route, cluster);
 
             Assert.IsType<DisableCorsAttribute>(routeEndpoint.Metadata.GetMetadata<IDisableCorsAttribute>());
             Assert.Null(routeEndpoint.Metadata.GetMetadata<IEnableCorsAttribute>());
@@ -408,9 +408,9 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
                 Match = new RouteMatch(),
             };
             var cluster = new ClusterInfo("cluster1");
-            var routeInfo = new RouteEntity("route1");
+            var routeState = new RouteState("route1");
 
-            var (routeEndpoint, _) = CreateEndpoint(factory, routeInfo, route, cluster);
+            var (routeEndpoint, _) = CreateEndpoint(factory, routeState, route, cluster);
 
             Assert.Null(routeEndpoint.Metadata.GetMetadata<IEnableCorsAttribute>());
             Assert.Null(routeEndpoint.Metadata.GetMetadata<IDisableCorsAttribute>());
@@ -442,9 +442,9 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
                 },
             };
             var cluster = new ClusterInfo("cluster1");
-            var routeInfo = new RouteEntity("route1");
+            var routeState = new RouteState("route1");
 
-            var (routeEndpoint, routeConfig) = CreateEndpoint(factory, routeInfo, route, cluster);
+            var (routeEndpoint, routeConfig) = CreateEndpoint(factory, routeState, route, cluster);
 
             Assert.Same(cluster, routeConfig.Cluster);
             Assert.Equal("route1", routeEndpoint.DisplayName);
@@ -458,7 +458,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
             Assert.Equal(HeaderMatchMode.HeaderPrefix, matcher.Mode);
             Assert.True(matcher.IsCaseSensitive);
 
-            Assert.False(routeConfig.HasConfigChanged(route, cluster, routeInfo.ClusterRevision));
+            Assert.False(routeConfig.HasConfigChanged(route, cluster, routeState.ClusterRevision));
         }
 
         [Fact]
@@ -492,9 +492,9 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
                 },
             };
             var cluster = new ClusterInfo("cluster1");
-            var routeInfo = new RouteEntity("route1");
+            var routeState = new RouteState("route1");
 
-            var (routeEndpoint, routeConfig) = CreateEndpoint(factory, routeInfo, route, cluster);
+            var (routeEndpoint, routeConfig) = CreateEndpoint(factory, routeState, route, cluster);
 
             Assert.Same(cluster, routeConfig.Cluster);
             Assert.Equal("route1", routeEndpoint.DisplayName);
@@ -515,7 +515,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
             Assert.Equal(HeaderMatchMode.Exists, secondMetadata.Mode);
             Assert.False(secondMetadata.IsCaseSensitive);
 
-            Assert.False(routeConfig.HasConfigChanged(route, cluster, routeInfo.ClusterRevision));
+            Assert.False(routeConfig.HasConfigChanged(route, cluster, routeState.ClusterRevision));
         }
     }
 }

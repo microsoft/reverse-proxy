@@ -9,16 +9,11 @@ namespace Yarp.ReverseProxy.RuntimeModel
     /// <summary>
     /// Representation of a route for use at runtime.
     /// </summary>
-    /// <remarks>
-    /// Note that while this class is immutable, specific members such as <see cref="Model"/> hold mutable
-    /// references that can be updated atomically and which will always have latest information.
-    /// All members are thread safe.
-    /// </remarks>
-    internal sealed class RouteEntity
+    internal sealed class RouteState
     {
         private volatile RouteModel _model;
 
-        public RouteEntity(string routeId)
+        public RouteState(string routeId)
         {
             if (string.IsNullOrEmpty(routeId))
             {
