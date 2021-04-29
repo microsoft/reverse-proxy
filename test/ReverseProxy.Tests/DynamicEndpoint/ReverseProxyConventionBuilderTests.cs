@@ -86,7 +86,7 @@ namespace Yarp.ReverseProxy.DynamicEndpoint
         private static RouteEndpointBuilder CreateEndpointBuilder(RouteConfig routeConfig, Cluster cluster)
         {
             var endpointBuilder = new RouteEndpointBuilder(context => Task.CompletedTask, RoutePatternFactory.Parse(""), 0);
-            var routeConfig = new RouteModel(
+            var routeModel = new RouteModel(
                 routeConfig,
                 new ClusterInfo("cluster-1")
                 {
@@ -94,7 +94,7 @@ namespace Yarp.ReverseProxy.DynamicEndpoint
                 },
                 HttpTransformer.Default);
 
-            endpointBuilder.Metadata.Add(routeConfig);
+            endpointBuilder.Metadata.Add(routeModel);
 
             return endpointBuilder;
         }

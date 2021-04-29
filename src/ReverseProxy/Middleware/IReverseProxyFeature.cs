@@ -12,7 +12,7 @@ namespace Yarp.ReverseProxy.Middleware
     public interface IReverseProxyFeature
     {
         /// <summary>
-        /// Route state for the current request.
+        /// The route model for the current request.
         /// </summary>
         RouteModel Route { get; }
 

@@ -50,10 +50,10 @@ namespace Yarp.ReverseProxy
                 endpointBuilder.Metadata.Add(new HostAttribute(match.Hosts.ToArray()));
             }
 
-            if (config.Match.Headers != null && config.Match.Headers.Count > 0)
+            if (match.Headers != null && match.Headers.Count > 0)
             {
-                var matchers = new List<HeaderMatcher>(config.Match.Headers.Count);
-                foreach (var header in config.Match.Headers)
+                var matchers = new List<HeaderMatcher>(match.Headers.Count);
+                foreach (var header in match.Headers)
                 {
                     matchers.Add(new HeaderMatcher(header.Name, header.Values, header.Mode, header.IsCaseSensitive));
                 }

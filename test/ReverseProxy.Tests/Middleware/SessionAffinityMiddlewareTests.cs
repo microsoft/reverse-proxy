@@ -201,8 +201,8 @@ namespace Yarp.ReverseProxy.Middleware
         internal Endpoint GetEndpoint(ClusterInfo cluster)
         {
             var routeConfig = new RouteConfig();
-            var routeConfig = new RouteModel(routeConfig, cluster, HttpTransformer.Default);
-            var endpoint = new Endpoint(default, new EndpointMetadataCollection(routeConfig), string.Empty);
+            var routeModel = new RouteModel(routeConfig, cluster, HttpTransformer.Default);
+            var endpoint = new Endpoint(default, new EndpointMetadataCollection(routeModel), string.Empty);
             return endpoint;
         }
     }
