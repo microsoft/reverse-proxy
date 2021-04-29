@@ -20,22 +20,22 @@ namespace Microsoft.AspNetCore.Http
         /// </summary>
         public static ClusterInfo GetClusterInfo(this HttpContext context)
         {
-            var routeState = context.GetRouteState();
-            var cluster = routeState.Cluster ?? throw new InvalidOperationException($"The {typeof(RouteState).FullName} is missing the {typeof(ClusterInfo).FullName}.");
+            var routeModel = context.GetRouteModel();
+            var cluster = routeModel.Cluster ?? throw new InvalidOperationException($"The {typeof(RouteModel).FullName} is missing the {typeof(ClusterInfo).FullName}.");
             return cluster;
         }
 
         /// <summary>
-        /// Retrieves the <see cref="RouteState"/> instance associated with the current request.
+        /// Retrieves the <see cref="RouteModel"/> instance associated with the current request.
         /// </summary>
-        public static RouteState GetRouteState(this HttpContext context)
+        public static RouteModel GetRouteModel(this HttpContext context)
         {
             var proxyFeature = context.GetReverseProxyFeature();
 
-            var routeState = proxyFeature.RouteState
-                ?? throw new InvalidOperationException($"The {typeof(IReverseProxyFeature).FullName} is missing the {typeof(RouteState).FullName}.");
+            var routeModel = proxyFeature.Route
+                ?? throw new InvalidOperationException($"The {typeof(IReverseProxyFeature).FullName} is missing the {typeof(RouteModel).FullName}.");
 
-            return routeState;
+            return routeModel;
         }
 
         /// <summary>

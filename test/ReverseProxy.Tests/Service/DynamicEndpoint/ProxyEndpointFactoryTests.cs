@@ -57,7 +57,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
 
             Assert.Same(cluster, routeConfig.Cluster);
             Assert.Equal("route1", routeEndpoint.DisplayName);
-            Assert.Same(routeConfig, routeEndpoint.Metadata.GetMetadata<RouteState>());
+            Assert.Same(routeConfig, routeEndpoint.Metadata.GetMetadata<RouteModel>());
             Assert.Equal("/a", routeEndpoint.RoutePattern.RawText);
             Assert.Equal(12, routeEndpoint.Order);
             Assert.False(routeConfig.HasConfigChanged(route, cluster, routeInfo.ClusterRevision));
@@ -68,10 +68,10 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
             Assert.Equal("example.com", hostMetadata.Hosts[0]);
         }
 
-        private (RouteEndpoint routeEndpoint, RouteState routeConfig) CreateEndpoint(ProxyEndpointFactory factory, RouteEntity routeInfo, RouteConfig proxyRoute, ClusterInfo clusterInfo)
+        private (RouteEndpoint routeEndpoint, RouteModel routeConfig) CreateEndpoint(ProxyEndpointFactory factory, RouteEntity routeInfo, RouteConfig proxyRoute, ClusterInfo clusterInfo)
         {
             routeInfo.ClusterRevision = clusterInfo.Revision;
-            var routeConfig = new RouteState(proxyRoute, clusterInfo, HttpTransformer.Default);
+            var routeConfig = new RouteModel(proxyRoute, clusterInfo, HttpTransformer.Default);
 
             var endpoint = factory.CreateEndpoint(routeConfig, Array.Empty<Action<EndpointBuilder>>());
 
@@ -103,7 +103,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
 
             Assert.Same(cluster, routeConfig.Cluster);
             Assert.Equal("route1", routeEndpoint.DisplayName);
-            Assert.Same(routeConfig, routeEndpoint.Metadata.GetMetadata<RouteState>());
+            Assert.Same(routeConfig, routeEndpoint.Metadata.GetMetadata<RouteModel>());
             Assert.Equal("/{**catchall}", routeEndpoint.RoutePattern.RawText);
             Assert.Equal(12, routeEndpoint.Order);
             Assert.False(routeConfig.HasConfigChanged(route, cluster, routeInfo.ClusterRevision));
@@ -137,7 +137,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
 
             Assert.Same(cluster, routeConfig.Cluster);
             Assert.Equal("route1", routeEndpoint.DisplayName);
-            Assert.Same(routeConfig, routeEndpoint.Metadata.GetMetadata<RouteState>());
+            Assert.Same(routeConfig, routeEndpoint.Metadata.GetMetadata<RouteModel>());
             Assert.Equal("/{**catchall}", routeEndpoint.RoutePattern.RawText);
             Assert.Equal(12, routeEndpoint.Order);
             Assert.False(routeConfig.HasConfigChanged(route, cluster, routeInfo.ClusterRevision));
@@ -171,7 +171,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
 
             Assert.Same(cluster, routeConfig.Cluster);
             Assert.Equal("route1", routeEndpoint.DisplayName);
-            Assert.Same(routeConfig, routeEndpoint.Metadata.GetMetadata<RouteState>());
+            Assert.Same(routeConfig, routeEndpoint.Metadata.GetMetadata<RouteModel>());
             Assert.Equal("/a", routeEndpoint.RoutePattern.RawText);
             Assert.Equal(12, routeEndpoint.Order);
             Assert.False(routeConfig.HasConfigChanged(route, cluster, routeInfo.ClusterRevision));
@@ -200,7 +200,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
 
             Assert.Same(cluster, routeConfig.Cluster);
             Assert.Equal("route1", routeEndpoint.DisplayName);
-            Assert.Same(routeConfig, routeEndpoint.Metadata.GetMetadata<RouteState>());
+            Assert.Same(routeConfig, routeEndpoint.Metadata.GetMetadata<RouteModel>());
             Assert.Equal("/{**catchall}", routeEndpoint.RoutePattern.RawText);
             Assert.Equal(12, routeEndpoint.Order);
             Assert.False(routeConfig.HasConfigChanged(route, cluster, routeInfo.ClusterRevision));

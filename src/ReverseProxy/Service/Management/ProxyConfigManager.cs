@@ -118,7 +118,7 @@ namespace Yarp.ReverseProxy.Service.Management
                 var endpoint = existingRoute.Value.CachedEndpoint;
                 if (endpoint == null)
                 {
-                    endpoint = _proxyEndpointFactory.CreateEndpoint(existingRoute.Value.State, _conventions);
+                    endpoint = _proxyEndpointFactory.CreateEndpoint(existingRoute.Value.Model, _conventions);
                     existingRoute.Value.CachedEndpoint = endpoint;
                 }
                 endpoints.Add(endpoint);
@@ -494,11 +494,11 @@ namespace Yarp.ReverseProxy.Service.Management
 
                 if (_routes.TryGetValue(incomingRoute.RouteId, out var currentRoute))
                 {
-                    if (currentRoute.State.HasConfigChanged(incomingRoute, cluster, currentRoute.ClusterRevision))
+                    if (currentRoute.Model.HasConfigChanged(incomingRoute, cluster, currentRoute.ClusterRevision))
                     {
                         currentRoute.CachedEndpoint = null; // Recreate endpoint
-                        var newState = BuildRouteState(incomingRoute, cluster);
-                        currentRoute.State = newState;
+                        var newModel = BuildRouteModel(incomingRoute, cluster);
+                        currentRoute.Model = newModel;
                         currentRoute.ClusterRevision = cluster?.Revision;
                         changed = true;
                         Log.RouteChanged(_logger, currentRoute.RouteId);
@@ -506,10 +506,10 @@ namespace Yarp.ReverseProxy.Service.Management
                 }
                 else
                 {
-                    var newState = BuildRouteState(incomingRoute, cluster);
+                    var newModel = BuildRouteModel(incomingRoute, cluster);
                     var newRoute = new RouteEntity(incomingRoute.RouteId)
                     {
-                        State = newState,
+                        Model = newModel,
                         ClusterRevision = cluster?.Revision,
                     };
                     var added = _routes.TryAdd(newRoute.RouteId, newRoute);
@@ -529,7 +529,7 @@ namespace Yarp.ReverseProxy.Service.Management
                     //
                     // NOTE 2: Removing the route from _routes is safe and existing
                     // ASP .NET Core endpoints will continue to work with their existing behavior since
-                    // their copy of `RouteState` is immutable and remains operational in whichever state is was in.
+                    // their copy of `RouteModel` is immutable and remains operational in whichever state is was in.
                     Log.RouteRemoved(_logger, routeId);
                     var removed = _routes.TryRemove(routeId, out var _);
                     Debug.Assert(removed);
@@ -570,16 +570,11 @@ namespace Yarp.ReverseProxy.Service.Management
             }
         }
 
-        private RouteState BuildRouteState(RouteConfig source, ClusterInfo cluster)
+        private RouteModel BuildRouteModel(RouteConfig source, ClusterInfo cluster)
         {
             var transforms = _transformBuilder.Build(source, cluster?.Config?.Options);
 
-            var newRouteConfig = new RouteState(
-                source,
-                cluster,
-                transforms);
-
-            return newRouteConfig;
+            return new RouteModel(source, cluster, transforms);
         }
 
         public void Dispose()

@@ -12,7 +12,7 @@ namespace Yarp.ReverseProxy.Middleware
     public class ReverseProxyFeature : IReverseProxyFeature
     {
         /// <inheritdoc/>
-        public RouteState RouteState { get; init; }
+        public RouteModel Route { get; init; }
 
         /// <inheritdoc/>
         public ClusterConfig ClusterSnapshot { get; set; }
@@ -25,6 +25,5 @@ namespace Yarp.ReverseProxy.Middleware
 
         /// <inheritdoc/>
         public DestinationInfo ProxiedDestination { get; set; }
-
     }
 }

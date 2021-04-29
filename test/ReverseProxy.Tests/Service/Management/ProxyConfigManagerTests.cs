@@ -125,9 +125,9 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
             Assert.NotNull(dataSource);
             var endpoints = dataSource.Endpoints;
             var endpoint = Assert.Single(endpoints);
-            var routeConfig = endpoint.Metadata.GetMetadata<RouteState>();
+            var routeConfig = endpoint.Metadata.GetMetadata<RouteModel>();
             Assert.NotNull(routeConfig);
-            Assert.Equal("route1", routeConfig.ProxyRoute.RouteId);
+            Assert.Equal("route1", routeConfig.Config.RouteId);
 
             var clusterInfo = routeConfig.Cluster;
             Assert.NotNull(clusterInfo);
@@ -182,7 +182,7 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
 
             Assert.NotNull(dataSource);
             var endpoint = Assert.Single(dataSource.Endpoints);
-            var routeConfig = endpoint.Metadata.GetMetadata<RouteState>();
+            var routeConfig = endpoint.Metadata.GetMetadata<RouteModel>();
             var clusterInfo = routeConfig.Cluster;
             Assert.Equal("cluster1", clusterInfo.ClusterId);
             var clusterConfig = clusterInfo.Config;
@@ -374,7 +374,7 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
 
             Assert.NotNull(dataSource);
             var endpoint = Assert.Single(dataSource.Endpoints);
-            var routeConfig = endpoint.Metadata.GetMetadata<RouteState>();
+            var routeConfig = endpoint.Metadata.GetMetadata<RouteModel>();
             var clusterInfo = routeConfig.Cluster;
             Assert.NotNull(clusterInfo);
             Assert.True(clusterInfo.Config.Options.HealthCheck.Enabled);
