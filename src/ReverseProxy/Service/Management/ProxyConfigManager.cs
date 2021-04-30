@@ -376,29 +376,29 @@ namespace Yarp.ReverseProxy.Service.Management
                 }
                 else
                 {
-                    var newCluster = new ClusterState(incomingCluster.ClusterId);
+                    var newClusterState = new ClusterState(incomingCluster.ClusterId);
 
-                    UpdateRuntimeDestinations(incomingCluster.Destinations, newCluster.Destinations);
+                    UpdateRuntimeDestinations(incomingCluster.Destinations, newClusterState.Destinations);
 
                     var httpClient = _httpClientFactory.CreateClient(new ProxyHttpClientContext
                     {
-                        ClusterId = newCluster.ClusterId,
+                        ClusterId = newClusterState.ClusterId,
                         NewOptions = incomingCluster.HttpClient ?? ProxyHttpClientOptions.Empty,
                         NewMetadata = incomingCluster.Metadata
                     });
 
-                    newCluster.Model = new ClusterModel(incomingCluster, httpClient);
-                    newCluster.Revision++;
+                    newClusterState.Model = new ClusterModel(incomingCluster, httpClient);
+                    newClusterState.Revision++;
                     Log.ClusterAdded(_logger, incomingCluster.ClusterId);
 
-                    newCluster.ProcessDestinationChanges();
+                    newClusterState.ProcessDestinationChanges();
 
-                    var added = _clusters.TryAdd(newCluster.ClusterId, newCluster);
+                    var added = _clusters.TryAdd(newClusterState.ClusterId, newClusterState);
                     Debug.Assert(added);
 
                     foreach (var listener in _clusterChangeListeners)
                     {
-                        listener.OnClusterAdded(newCluster);
+                        listener.OnClusterAdded(newClusterState);
                     }
                 }
             }
