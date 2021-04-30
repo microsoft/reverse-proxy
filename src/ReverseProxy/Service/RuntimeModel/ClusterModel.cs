@@ -10,16 +10,16 @@ namespace Yarp.ReverseProxy.RuntimeModel
     /// <summary>
     /// Immutable representation of the portions of a cluster
     /// that only change in reaction to configuration changes
-    /// (e.g. health check options).
+    /// (e.g. http client options).
     /// </summary>
     /// <remarks>
     /// All members must remain immutable to avoid thread safety issues.
-    /// Instead, instances of <see cref="ClusterConfig"/> are replaced
+    /// Instead, instances of <see cref="ClusterModel"/> are replaced
     /// in their entirety when values need to change.
     /// </remarks>
-    public sealed class ClusterConfig
+    public sealed class ClusterModel
     {
-        public ClusterConfig(
+        public ClusterModel(
             Cluster cluster,
             HttpMessageInvoker httpClient)
         {
@@ -37,9 +37,9 @@ namespace Yarp.ReverseProxy.RuntimeModel
         // We intentionally do not consider destination changes when updating the cluster Revision.
         // Revision is used to rebuild routing endpoints which should be unrelated to destinations,
         // and destinations are the most likely to change.
-        internal bool HasConfigChanged(ClusterConfig newClusterConfig)
+        internal bool HasConfigChanged(ClusterModel newModel)
         {
-            return !Options.EqualsExcludingDestinations(newClusterConfig.Options) || newClusterConfig.HttpClient != HttpClient;
+            return !Options.EqualsExcludingDestinations(newModel.Options) || newModel.HttpClient != HttpClient;
         }
     }
 }

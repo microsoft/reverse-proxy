@@ -20,7 +20,7 @@ namespace Yarp.ReverseProxy.Middleware
     public class SessionAffinityMiddlewareTests
     {
         protected const string AffinitizedDestinationName = "dest-B";
-        protected readonly ClusterConfig ClusterConfig = new ClusterConfig(new Cluster
+        protected readonly ClusterModel ClusterConfig = new ClusterModel(new Cluster
         {
             Id = "cluster-1",
             SessionAffinity = new SessionAffinityOptions
@@ -61,7 +61,7 @@ namespace Yarp.ReverseProxy.Middleware
                 new Mock<ILogger<SessionAffinityMiddleware>>().Object);
             var context = new DefaultHttpContext();
             context.SetEndpoint(endpoint);
-            var destinationFeature = GetDestinationsFeature(cluster.Destinations.Values.ToList(), cluster.Config);
+            var destinationFeature = GetDestinationsFeature(cluster.Destinations.Values.ToList(), cluster.Model);
             context.Features.Set(destinationFeature);
 
             await middleware.Invoke(context);
@@ -108,7 +108,7 @@ namespace Yarp.ReverseProxy.Middleware
                 providers.Select(p => p.Object), failurePolicies.Select(p => p.Object),
                 logger.Object);
             var context = new DefaultHttpContext();
-            var destinationFeature = GetDestinationsFeature(cluster.Destinations.Values.ToList(), cluster.Config);
+            var destinationFeature = GetDestinationsFeature(cluster.Destinations.Values.ToList(), cluster.Model);
 
             context.SetEndpoint(endpoint);
             context.Features.Set(destinationFeature);
@@ -135,7 +135,7 @@ namespace Yarp.ReverseProxy.Middleware
             destinationManager.GetOrAdd("dest-A", id => new DestinationInfo(id));
             destinationManager.GetOrAdd(AffinitizedDestinationName, id => new DestinationInfo(id));
             destinationManager.GetOrAdd("dest-C", id => new DestinationInfo(id));
-            cluster.Config = ClusterConfig;
+            cluster.Model = ClusterConfig;
             cluster.ProcessDestinationChanges();
             return cluster;
         }
@@ -189,12 +189,12 @@ namespace Yarp.ReverseProxy.Middleware
             return result.AsReadOnly();
         }
 
-        internal IReverseProxyFeature GetDestinationsFeature(IReadOnlyList<DestinationInfo> destinations, ClusterConfig clusterConfig)
+        internal IReverseProxyFeature GetDestinationsFeature(IReadOnlyList<DestinationInfo> destinations, ClusterModel clusterModel)
         {
             return new ReverseProxyFeature()
             {
                 AvailableDestinations = destinations,
-                ClusterSnapshot = clusterConfig,
+                Cluster = clusterModel,
             };
         }
 

@@ -45,7 +45,7 @@ namespace Yarp.ReverseProxy.Middleware
             context.Features.Set<IReverseProxyFeature>(new ReverseProxyFeature
             {
                 Route = route,
-                ClusterSnapshot = cluster.Config,
+                Cluster = cluster.Model,
                 AllDestinations = dynamicState.AllDestinations,
                 AvailableDestinations = dynamicState.HealthyDestinations
             });

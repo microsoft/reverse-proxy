@@ -114,14 +114,14 @@ namespace Yarp.ReverseProxy.Middleware
             return new ReverseProxyFeature()
             {
                 ProxiedDestination = destination,
-                ClusterSnapshot = clusterState.Config,
+                Cluster = clusterState.Model,
                 Route = new RouteModel(new RouteConfig(), clusterState, HttpTransformer.Default),
             };
         }
 
         private ClusterState GetClusterInfo(string id, string policy, bool enabled = true)
         {
-            var clusterConfig = new ClusterConfig(
+            var clusterModel = new ClusterModel(
                 new Cluster
                 {
                     Id = id,
@@ -136,7 +136,7 @@ namespace Yarp.ReverseProxy.Middleware
                 },
                 null);
             var clusterState = new ClusterState(id);
-            clusterState.Config = clusterConfig;
+            clusterState.Model = clusterModel;
             clusterState.Destinations.GetOrAdd("destination0", id => new DestinationInfo(id));
             clusterState.Destinations.GetOrAdd("destination1", id => new DestinationInfo(id));
 

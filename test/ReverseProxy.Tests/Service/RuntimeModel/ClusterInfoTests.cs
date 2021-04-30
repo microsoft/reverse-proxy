@@ -81,7 +81,7 @@ namespace Yarp.ReverseProxy.RuntimeModel.Tests
             Assert.NotNull(state2);
             Assert.Empty(state2.AllDestinations);
 
-            cluster.Config = new ClusterConfig(new Cluster(), httpClient: new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object));
+            cluster.Model = new ClusterModel(new Cluster(), httpClient: new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object));
             Assert.Same(state2, cluster.DynamicState);
 
             cluster.UpdateDynamicState();
@@ -150,7 +150,7 @@ namespace Yarp.ReverseProxy.RuntimeModel.Tests
         private static void EnableHealthChecks(ClusterState cluster)
         {
             // Pretend that health checks are enabled so that destination health states are honored
-            cluster.Config = new ClusterConfig(
+            cluster.Model = new ClusterModel(
                 new Cluster
                 {
                     HealthCheck = new HealthCheckOptions

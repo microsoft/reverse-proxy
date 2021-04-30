@@ -26,7 +26,7 @@ namespace Yarp.ReverseProxy.Utilities
         public T GetParsedOrDefault(T defaultValue)
         {
             var currentValue = _value;
-            if (_cluster.Config.Options.Metadata != null && _cluster.Config.Options.Metadata.TryGetValue(_metadataName, out var stringValue))
+            if (_cluster.Model.Options.Metadata != null && _cluster.Model.Options.Metadata.TryGetValue(_metadataName, out var stringValue))
             {
                 if (currentValue == null || currentValue.Item1 != stringValue)
                 {

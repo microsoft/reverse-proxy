@@ -90,7 +90,7 @@ namespace Yarp.ReverseProxy.DynamicEndpoint
                 routeConfig,
                 new ClusterState("cluster-1")
                 {
-                    Config = new ClusterConfig(cluster, default)
+                    Model = new ClusterModel(cluster, default)
                 },
                 HttpTransformer.Default);
 

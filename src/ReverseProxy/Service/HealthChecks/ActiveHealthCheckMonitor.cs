@@ -49,7 +49,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
                     var probeClusterTasks = new List<Task>();
                     foreach (var cluster in clusters)
                     {
-                        if ((cluster.Config.Options.HealthCheck?.Active?.Enabled).GetValueOrDefault())
+                        if ((cluster.Model.Options.HealthCheck?.Active?.Enabled).GetValueOrDefault())
                         {
                             probeClusterTasks.Add(ProbeCluster(cluster));
                         }
@@ -72,7 +72,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
 
         public void OnClusterAdded(ClusterState cluster)
         {
-            var activeHealthCheckOptions = cluster.Config.Options.HealthCheck?.Active;
+            var activeHealthCheckOptions = cluster.Model.Options.HealthCheck?.Active;
             if ((activeHealthCheckOptions?.Enabled).GetValueOrDefault())
             {
                 _scheduler.ScheduleEntity(cluster, activeHealthCheckOptions.Interval ?? _monitorOptions.DefaultInterval);
@@ -81,7 +81,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
 
         public void OnClusterChanged(ClusterState cluster)
         {
-            var activeHealthCheckOptions = cluster.Config.Options.HealthCheck?.Active;
+            var activeHealthCheckOptions = cluster.Model.Options.HealthCheck?.Active;
             if ((activeHealthCheckOptions?.Enabled).GetValueOrDefault())
             {
                 _scheduler.ChangePeriod(cluster, activeHealthCheckOptions.Interval ?? _monitorOptions.DefaultInterval);
@@ -104,8 +104,8 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
 
         private async Task ProbeCluster(ClusterState cluster)
         {
-            var clusterConfig = cluster.Config;
-            var activeHealthOptions = clusterConfig.Options.HealthCheck?.Active;
+            var clusterModel = cluster.Model;
+            var activeHealthOptions = clusterModel.Options.HealthCheck?.Active;
             if (!(activeHealthOptions?.Enabled).GetValueOrDefault())
             {
                 return;
@@ -124,11 +124,11 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
                     var cts = new CancellationTokenSource(timeout);
                     try
                     {
-                        var request = _probingRequestFactory.CreateRequest(clusterConfig, destination.Config);
+                        var request = _probingRequestFactory.CreateRequest(clusterModel, destination.Config);
 
                         Log.SendingHealthProbeToEndpointOfDestination(_logger, request.RequestUri, destination.DestinationId, cluster.ClusterId);
 
-                        probeTasks.Add((clusterConfig.HttpClient.SendAsync(request, cts.Token), cts));
+                        probeTasks.Add((clusterModel.HttpClient.SendAsync(request, cts.Token), cts));
                     }
                     catch (Exception ex)
                     {

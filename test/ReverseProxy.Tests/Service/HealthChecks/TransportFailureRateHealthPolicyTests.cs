@@ -209,7 +209,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             var metadata = failureRateLimit != null
                 ? new Dictionary<string, string> { { TransportFailureRateHealthPolicyOptions.FailureRateLimitMetadataName, failureRateLimit?.ToString(CultureInfo.InvariantCulture) } }
                 : null;
-            var clusterConfig = new ClusterConfig(
+            var clusterModel = new ClusterModel(
                 new Cluster
                 {
                     Id = id,
@@ -226,7 +226,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
                 },
                 null);
             var clusterState = new ClusterState(id);
-            clusterState.Config = clusterConfig;
+            clusterState.Model = clusterModel;
             for (var i = 0; i < destinationCount; i++)
             {
                 var destinationConfig = new DestinationConfig(new Destination { Address = $"https://localhost:1000{i}/{id}/", Health = $"https://localhost:2000{i}/{id}/" });

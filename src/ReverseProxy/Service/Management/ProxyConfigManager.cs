@@ -339,29 +339,29 @@ namespace Yarp.ReverseProxy.Service.Management
                 {
                     var destinationsChanged = UpdateRuntimeDestinations(incomingCluster.Destinations, currentCluster.Destinations);
 
-                    var currentClusterConfig = currentCluster.Config;
+                    var currentClusterModel = currentCluster.Model;
 
                     var httpClient = _httpClientFactory.CreateClient(new ProxyHttpClientContext
                     {
                         ClusterId = currentCluster.ClusterId,
-                        OldOptions = currentClusterConfig.Options.HttpClient ?? ProxyHttpClientOptions.Empty,
-                        OldMetadata = currentClusterConfig.Options.Metadata,
-                        OldClient = currentClusterConfig.HttpClient,
+                        OldOptions = currentClusterModel.Options.HttpClient ?? ProxyHttpClientOptions.Empty,
+                        OldMetadata = currentClusterModel.Options.Metadata,
+                        OldClient = currentClusterModel.HttpClient,
                         NewOptions = incomingCluster.HttpClient ?? ProxyHttpClientOptions.Empty,
                         NewMetadata = incomingCluster.Metadata
                     });
 
-                    var newClusterConfig = new ClusterConfig(incomingCluster, httpClient);
+                    var newClusterModel = new ClusterModel(incomingCluster, httpClient);
 
                     // Excludes destination changes, they're tracked separately.
-                    var configChanged = currentClusterConfig.HasConfigChanged(newClusterConfig);
+                    var configChanged = currentClusterModel.HasConfigChanged(newClusterModel);
                     if (configChanged)
                     {
                         currentCluster.Revision++;
                         Log.ClusterChanged(_logger, incomingCluster.Id);
 
                         // Config changed, so update runtime cluster
-                        currentCluster.Config = newClusterConfig;
+                        currentCluster.Model = newClusterModel;
                     }
 
                     if (destinationsChanged || configChanged)
@@ -387,7 +387,7 @@ namespace Yarp.ReverseProxy.Service.Management
                         NewMetadata = incomingCluster.Metadata
                     });
 
-                    newCluster.Config = new ClusterConfig(incomingCluster, httpClient);
+                    newCluster.Model = new ClusterModel(incomingCluster, httpClient);
                     newCluster.Revision++;
                     Log.ClusterAdded(_logger, incomingCluster.Id);
 
@@ -572,7 +572,7 @@ namespace Yarp.ReverseProxy.Service.Management
 
         private RouteModel BuildRouteModel(RouteConfig source, ClusterState cluster)
         {
-            var transforms = _transformBuilder.Build(source, cluster?.Config?.Options);
+            var transforms = _transformBuilder.Build(source, cluster?.Model?.Options);
 
             return new RouteModel(source, cluster, transforms);
         }

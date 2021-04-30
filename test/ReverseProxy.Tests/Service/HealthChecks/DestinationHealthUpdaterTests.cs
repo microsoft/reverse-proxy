@@ -118,7 +118,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
         private static ClusterState CreateCluster(bool passive, bool active, params DestinationInfo[] destinations)
         {
             var cluster = new ClusterState("cluster0");
-            cluster.Config = new ClusterConfig(
+            cluster.Model = new ClusterModel(
                 new Cluster
                 {
                     Id = cluster.ClusterId,

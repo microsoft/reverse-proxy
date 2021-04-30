@@ -182,7 +182,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
         {
             var cluster = new ClusterState("cluster1")
             {
-                Config = new ClusterConfig(new Cluster { LoadBalancingPolicy = loadBalancingPolicy }, default)
+                Model = new ClusterModel(new Cluster { LoadBalancingPolicy = loadBalancingPolicy }, default)
             };
 
             var context = new DefaultHttpContext();
@@ -191,7 +191,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
                 new ReverseProxyFeature()
                 {
                     AvailableDestinations = destinations,
-                    ClusterSnapshot = cluster.Config
+                    Cluster = cluster.Model
                 });
             context.Features.Set(cluster);
 

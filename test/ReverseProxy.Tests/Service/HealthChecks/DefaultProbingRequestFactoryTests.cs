@@ -22,7 +22,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
         [InlineData("https://localhost:10000/", "https://localhost:20000/api", "/health/", "https://localhost:20000/api/health/")]
         public void CreateRequest_HealthEndpointIsNotDefined_UseDestinationAddress(string address, string health, string healthPath, string expectedRequestUri)
         {
-            var clusterConfig = GetClusterConfig("cluster0",
+            var clusterModel = GetClusterConfig("cluster0",
                 new ActiveHealthCheckOptions()
                 {
                     Enabled = true,
@@ -32,7 +32,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             var destinationConfig = new DestinationConfig(new Destination { Address = address, Health = health });
             var factory = new DefaultProbingRequestFactory();
 
-            var request = factory.CreateRequest(clusterConfig, destinationConfig);
+            var request = factory.CreateRequest(clusterModel, destinationConfig);
 
             Assert.Equal(expectedRequestUri, request.RequestUri.AbsoluteUri);
         }
@@ -43,7 +43,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
         public void CreateRequest_RequestVersionProperties(string versionString)
         {
             var version = versionString != null ? Version.Parse(versionString) : null;
-            var clusterConfig = GetClusterConfig("cluster0",
+            var clusterModel = GetClusterConfig("cluster0",
                 new ActiveHealthCheckOptions()
                 {
                     Enabled = true,
@@ -57,7 +57,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             var destinationConfig = new DestinationConfig(new Destination { Address = "https://localhost:10000/" });
             var factory = new DefaultProbingRequestFactory();
 
-            var request = factory.CreateRequest(clusterConfig, destinationConfig);
+            var request = factory.CreateRequest(clusterModel, destinationConfig);
 
             Assert.Equal(version ?? HttpVersion.Version20, request.Version);
 #if NET
@@ -65,13 +65,13 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
 #endif
         }
 
-        private ClusterConfig GetClusterConfig(string id, ActiveHealthCheckOptions healthCheckOptions, Version version
+        private ClusterModel GetClusterConfig(string id, ActiveHealthCheckOptions healthCheckOptions, Version version
 #if NET
             , HttpVersionPolicy versionPolicy = HttpVersionPolicy.RequestVersionExact
 #endif
             )
         {
-            return new ClusterConfig(
+            return new ClusterModel(
                 new Cluster
                 {
                     Id = id,

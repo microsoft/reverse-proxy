@@ -18,7 +18,7 @@ namespace Yarp.ReverseProxy.RuntimeModel
         private readonly object _stateLock = new object();
         private volatile ClusterDynamicState _dynamicState = new ClusterDynamicState(Array.Empty<DestinationInfo>(), Array.Empty<DestinationInfo>());
         private volatile IReadOnlyList<DestinationInfo> _destinationsSnapshot;
-        private volatile ClusterConfig _config;
+        private volatile ClusterModel _model;
         private readonly SemaphoreSlim _updateRequests = new SemaphoreSlim(2);
 
         /// <summary>
@@ -38,10 +38,10 @@ namespace Yarp.ReverseProxy.RuntimeModel
         /// <summary>
         /// Encapsulates parts of a cluster that can change atomically in reaction to config changes.
         /// </summary>
-        public ClusterConfig Config
+        public ClusterModel Model
         {
-            get => _config;
-            internal set => _config = value ?? throw new ArgumentNullException(nameof(value));
+            get => _model;
+            internal set => _model = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         /// <summary>
@@ -119,7 +119,7 @@ namespace Yarp.ReverseProxy.RuntimeModel
             {
                 try
                 {
-                    var healthChecks = _config?.Options.HealthCheck;
+                    var healthChecks = _model?.Options.HealthCheck;
                     var allDestinations = _destinationsSnapshot;
                     var availableDestinations = allDestinations;
                     if (allDestinations == null)

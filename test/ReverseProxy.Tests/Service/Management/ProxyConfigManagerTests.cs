@@ -134,8 +134,8 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
 
             Assert.Equal("cluster1", clusterState.ClusterId);
             Assert.NotNull(clusterState.Destinations);
-            Assert.NotNull(clusterState.Config);
-            Assert.NotNull(clusterState.Config.HttpClient);
+            Assert.NotNull(clusterState.Model);
+            Assert.NotNull(clusterState.Model.HttpClient);
             Assert.Same(clusterState, routeConfig.Cluster);
 
             var actualDestinations = clusterState.Destinations.Values;
@@ -185,16 +185,16 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
             var routeConfig = endpoint.Metadata.GetMetadata<RouteModel>();
             var clusterState = routeConfig.Cluster;
             Assert.Equal("cluster1", clusterState.ClusterId);
-            var clusterConfig = clusterState.Config;
-            Assert.NotNull(clusterConfig.HttpClient);
-            Assert.Equal(SslProtocols.Tls11 | SslProtocols.Tls12, clusterConfig.Options.HttpClient.SslProtocols);
-            Assert.Equal(10, clusterConfig.Options.HttpClient.MaxConnectionsPerServer);
-            Assert.Same(clientCertificate, clusterConfig.Options.HttpClient.ClientCertificate);
+            var clusterModel = clusterState.Model;
+            Assert.NotNull(clusterModel.HttpClient);
+            Assert.Equal(SslProtocols.Tls11 | SslProtocols.Tls12, clusterModel.Options.HttpClient.SslProtocols);
+            Assert.Equal(10, clusterModel.Options.HttpClient.MaxConnectionsPerServer);
+            Assert.Same(clientCertificate, clusterModel.Options.HttpClient.ClientCertificate);
 #if NET
-            Assert.Equal(Encoding.UTF8, clusterConfig.Options.HttpClient.RequestHeaderEncoding);
+            Assert.Equal(Encoding.UTF8, clusterModel.Options.HttpClient.RequestHeaderEncoding);
 #endif
 
-            var handler = Proxy.Tests.ProxyHttpClientFactoryTests.GetHandler(clusterConfig.HttpClient);
+            var handler = Proxy.Tests.ProxyHttpClientFactoryTests.GetHandler(clusterModel.HttpClient);
             Assert.Equal(SslProtocols.Tls11 | SslProtocols.Tls12, handler.SslOptions.EnabledSslProtocols);
             Assert.Equal(10, handler.MaxConnectionsPerServer);
             Assert.Single(handler.SslOptions.ClientCertificates, clientCertificate);
@@ -377,8 +377,8 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
             var routeConfig = endpoint.Metadata.GetMetadata<RouteModel>();
             var clusterState = routeConfig.Cluster;
             Assert.NotNull(clusterState);
-            Assert.True(clusterState.Config.Options.HealthCheck.Enabled);
-            Assert.Equal(TimeSpan.FromSeconds(12), clusterState.Config.Options.HealthCheck.Active.Interval);
+            Assert.True(clusterState.Model.Options.HealthCheck.Enabled);
+            Assert.Equal(TimeSpan.FromSeconds(12), clusterState.Model.Options.HealthCheck.Active.Interval);
             var destination = Assert.Single(clusterState.DynamicState.AllDestinations);
             Assert.Equal("http://localhost", destination.Config.Options.Address);
         }

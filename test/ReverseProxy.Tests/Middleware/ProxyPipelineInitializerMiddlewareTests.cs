@@ -39,7 +39,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
         {
             var httpClient = new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object);
             var cluster1 = new ClusterState(clusterId: "cluster1");
-            cluster1.Config = new ClusterConfig(new Cluster(), httpClient);
+            cluster1.Model = new ClusterModel(new Cluster(), httpClient);
             var destination1 = cluster1.Destinations.GetOrAdd(
                 "destination1",
                 id => new DestinationInfo(id) { Config = new DestinationConfig(new Destination { Address = "https://localhost:123/a/b/" }) });
@@ -64,7 +64,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
             Assert.NotNull(proxyFeature.AvailableDestinations);
             Assert.Equal(1, proxyFeature.AvailableDestinations.Count);
             Assert.Same(destination1, proxyFeature.AvailableDestinations[0]);
-            Assert.Same(cluster1.Config, proxyFeature.ClusterSnapshot);
+            Assert.Same(cluster1.Model, proxyFeature.Cluster);
 
             Assert.Equal(StatusCodes.Status418ImATeapot, httpContext.Response.StatusCode);
         }
@@ -74,7 +74,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
         {
             var httpClient = new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object);
             var cluster1 = new ClusterState(clusterId: "cluster1");
-            cluster1.Config = new ClusterConfig(
+            cluster1.Model = new ClusterModel(
                 new Cluster()
                 {
                     HealthCheck = new HealthCheckOptions
