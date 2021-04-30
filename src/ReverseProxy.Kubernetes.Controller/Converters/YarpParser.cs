@@ -102,7 +102,7 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Converters
                         var pathMatch = FixupPathMatch(path);
                         var host = rule.Host;
 
-                        routes.Add(new ProxyRoute()
+                        routes.Add(new RouteConfig()
                         {
                             Match = new RouteMatch()
                             {

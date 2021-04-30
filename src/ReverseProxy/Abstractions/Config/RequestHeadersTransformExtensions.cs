@@ -14,9 +14,9 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         /// <summary>
         /// Clones the route and adds the transform which will enable or suppress copying request headers to the proxy request.
         /// </summary>
-        public static ProxyRoute WithTransformCopyRequestHeaders(this ProxyRoute proxyRoute, bool copy = true)
+        public static RouteConfig WithTransformCopyRequestHeaders(this RouteConfig route, bool copy = true)
         {
-            return proxyRoute.WithTransform(transform =>
+            return route.WithTransform(transform =>
             {
                 transform[RequestHeadersTransformFactory.RequestHeadersCopyKey] = copy ? bool.TrueString : bool.FalseString;
             });
@@ -25,9 +25,9 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         /// <summary>
         /// Clones the route and adds the transform which will copy the incoming request Host header to the proxy request.
         /// </summary>
-        public static ProxyRoute WithTransformUseOriginalHostHeader(this ProxyRoute proxyRoute, bool useOriginal = true)
+        public static RouteConfig WithTransformUseOriginalHostHeader(this RouteConfig route, bool useOriginal = true)
         {
-            return proxyRoute.WithTransform(transform =>
+            return route.WithTransform(transform =>
             {
                 transform[RequestHeadersTransformFactory.RequestHeaderOriginalHostKey] = useOriginal ? bool.TrueString : bool.FalseString;
             });
@@ -36,10 +36,10 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         /// <summary>
         /// Clones the route and adds the transform which will append or set the request header.
         /// </summary>
-        public static ProxyRoute WithTransformRequestHeader(this ProxyRoute proxyRoute, string headerName, string value, bool append = true)
+        public static RouteConfig WithTransformRequestHeader(this RouteConfig route, string headerName, string value, bool append = true)
         {
             var type = append ? RequestHeadersTransformFactory.AppendKey : RequestHeadersTransformFactory.SetKey;
-            return proxyRoute.WithTransform(transform =>
+            return route.WithTransform(transform =>
             {
                 transform[RequestHeadersTransformFactory.RequestHeaderKey] = headerName;
                 transform[type] = value;

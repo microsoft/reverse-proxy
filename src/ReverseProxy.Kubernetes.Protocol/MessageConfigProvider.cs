@@ -20,7 +20,7 @@ namespace Yarp.ReverseProxy.Kubernetes.Protocol
 
         public IProxyConfig GetConfig() => _config;
 
-        public void Update(IReadOnlyList<ProxyRoute> routes, IReadOnlyList<Cluster> clusters)
+        public void Update(IReadOnlyList<RouteConfig> routes, IReadOnlyList<Cluster> clusters)
         {
             var oldConfig = _config;
             _config = new MessageConfig(routes, clusters);
@@ -33,14 +33,14 @@ namespace Yarp.ReverseProxy.Kubernetes.Protocol
         {
             private readonly CancellationTokenSource _cts = new CancellationTokenSource();
 
-            public MessageConfig(IReadOnlyList<ProxyRoute> routes, IReadOnlyList<Cluster> clusters)
+            public MessageConfig(IReadOnlyList<RouteConfig> routes, IReadOnlyList<Cluster> clusters)
             {
                 Routes = routes;
                 Clusters = clusters;
                 ChangeToken = new CancellationChangeToken(_cts.Token);
             }
 
-            public IReadOnlyList<ProxyRoute> Routes { get; }
+            public IReadOnlyList<RouteConfig> Routes { get; }
 
             public IReadOnlyList<Cluster> Clusters { get; }
 

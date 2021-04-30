@@ -52,7 +52,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                 .Setup(v => v.ValidateClusterAsync(It.IsAny<Cluster>()))
                 .ReturnsAsync(() => new List<Exception>());
             Mock<IConfigValidator>()
-                .Setup(v => v.ValidateRouteAsync(It.IsAny<ProxyRoute>()))
+                .Setup(v => v.ValidateRouteAsync(It.IsAny<RouteConfig>()))
                 .ReturnsAsync(() => new List<Exception>());
         }
 
@@ -193,7 +193,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                 ClusterWithDestinations(_testServiceName, labels3,
                     SFTestHelpers.BuildDestinationFromReplica(replica3)),
             };
-            var expectedRoutes = new List<ProxyRoute>();
+            var expectedRoutes = new List<RouteConfig>();
             expectedRoutes.AddRange(LabelsParser.BuildRoutes(_testServiceName, labels1));
             expectedRoutes.AddRange(LabelsParser.BuildRoutes(_testServiceName, labels2));
             expectedRoutes.AddRange(LabelsParser.BuildRoutes(_testServiceName, labels3));
@@ -305,7 +305,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                 ClusterWithDestinations(_testServiceName, labels,
                     SFTestHelpers.BuildDestinationFromReplica(replica)),
             };
-            var expectedRoutes = new List<ProxyRoute>();
+            var expectedRoutes = new List<RouteConfig>();
 
             clusters.Should().BeEquivalentTo(expectedClusters);
             routes.Should().BeEmpty();
@@ -587,7 +587,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             return LabelsParser.BuildCluster(serviceName, labels, newDestinations);
         }
 
-        private async Task<(IReadOnlyList<ProxyRoute> Routes, IReadOnlyList<Cluster> Clusters)> RunScenarioAsync()
+        private async Task<(IReadOnlyList<RouteConfig> Routes, IReadOnlyList<Cluster> Clusters)> RunScenarioAsync()
         {
             if (_scenarioOptions == null)
             {

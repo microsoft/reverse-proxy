@@ -36,7 +36,7 @@ namespace Yarp.ReverseProxy.Service.Management
         private readonly IProxyConfigProvider _provider;
         private readonly IClusterChangeListener[] _clusterChangeListeners;
         private readonly ConcurrentDictionary<string, ClusterInfo> _clusters = new(StringComparer.OrdinalIgnoreCase);
-        private readonly ConcurrentDictionary<string, RouteInfo> _routes = new(StringComparer.OrdinalIgnoreCase);
+        private readonly ConcurrentDictionary<string, RouteState> _routes = new(StringComparer.OrdinalIgnoreCase);
         private readonly IProxyConfigFilter[] _filters;
         private readonly IConfigValidator _configValidator;
         private readonly IProxyHttpClientFactory _httpClientFactory;
@@ -118,7 +118,7 @@ namespace Yarp.ReverseProxy.Service.Management
                 var endpoint = existingRoute.Value.CachedEndpoint;
                 if (endpoint == null)
                 {
-                    endpoint = _proxyEndpointFactory.CreateEndpoint(existingRoute.Value.Config, _conventions);
+                    endpoint = _proxyEndpointFactory.CreateEndpoint(existingRoute.Value.Model, _conventions);
                     existingRoute.Value.CachedEndpoint = endpoint;
                 }
                 endpoints.Add(endpoint);
@@ -221,15 +221,15 @@ namespace Yarp.ReverseProxy.Service.Management
             return routesChanged;
         }
 
-        private async Task<(IList<ProxyRoute>, IList<Exception>)> VerifyRoutesAsync(IReadOnlyList<ProxyRoute> routes, CancellationToken cancellation)
+        private async Task<(IList<RouteConfig>, IList<Exception>)> VerifyRoutesAsync(IReadOnlyList<RouteConfig> routes, CancellationToken cancellation)
         {
             if (routes == null)
             {
-                return (Array.Empty<ProxyRoute>(), Array.Empty<Exception>());
+                return (Array.Empty<RouteConfig>(), Array.Empty<Exception>());
             }
 
             var seenRouteIds = new HashSet<string>();
-            var configuredRoutes = new List<ProxyRoute>(routes?.Count ?? 0);
+            var configuredRoutes = new List<RouteConfig>(routes?.Count ?? 0);
             var errors = new List<Exception>();
 
             foreach (var r in routes)
@@ -478,7 +478,7 @@ namespace Yarp.ReverseProxy.Service.Management
             return changed;
         }
 
-        private bool UpdateRuntimeRoutes(IList<ProxyRoute> incomingRoutes)
+        private bool UpdateRuntimeRoutes(IList<RouteConfig> incomingRoutes)
         {
             var desiredRoutes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             var changed = false;
@@ -494,11 +494,11 @@ namespace Yarp.ReverseProxy.Service.Management
 
                 if (_routes.TryGetValue(incomingRoute.RouteId, out var currentRoute))
                 {
-                    if (currentRoute.Config.HasConfigChanged(incomingRoute, cluster, currentRoute.ClusterRevision))
+                    if (currentRoute.Model.HasConfigChanged(incomingRoute, cluster, currentRoute.ClusterRevision))
                     {
                         currentRoute.CachedEndpoint = null; // Recreate endpoint
-                        var newConfig = BuildRouteConfig(incomingRoute, cluster);
-                        currentRoute.Config = newConfig;
+                        var newModel = BuildRouteModel(incomingRoute, cluster);
+                        currentRoute.Model = newModel;
                         currentRoute.ClusterRevision = cluster?.Revision;
                         changed = true;
                         Log.RouteChanged(_logger, currentRoute.RouteId);
@@ -506,16 +506,16 @@ namespace Yarp.ReverseProxy.Service.Management
                 }
                 else
                 {
-                    var newConfig = BuildRouteConfig(incomingRoute, cluster);
-                    var newRoute = new RouteInfo(incomingRoute.RouteId)
+                    var newModel = BuildRouteModel(incomingRoute, cluster);
+                    var newState = new RouteState(incomingRoute.RouteId)
                     {
-                        Config = newConfig,
+                        Model = newModel,
                         ClusterRevision = cluster?.Revision,
                     };
-                    var added = _routes.TryAdd(newRoute.RouteId, newRoute);
+                    var added = _routes.TryAdd(newState.RouteId, newState);
                     Debug.Assert(added);
                     changed = true;
-                    Log.RouteAdded(_logger, newRoute.RouteId);
+                    Log.RouteAdded(_logger, newState.RouteId);
                 }
             }
 
@@ -529,7 +529,7 @@ namespace Yarp.ReverseProxy.Service.Management
                     //
                     // NOTE 2: Removing the route from _routes is safe and existing
                     // ASP .NET Core endpoints will continue to work with their existing behavior since
-                    // their copy of `RouteConfig` is immutable and remains operational in whichever state is was in.
+                    // their copy of `RouteModel` is immutable and remains operational in whichever state is was in.
                     Log.RouteRemoved(_logger, routeId);
                     var removed = _routes.TryRemove(routeId, out var _);
                     Debug.Assert(removed);
@@ -570,16 +570,11 @@ namespace Yarp.ReverseProxy.Service.Management
             }
         }
 
-        private RouteConfig BuildRouteConfig(ProxyRoute source, ClusterInfo cluster)
+        private RouteModel BuildRouteModel(RouteConfig source, ClusterInfo cluster)
         {
             var transforms = _transformBuilder.Build(source, cluster?.Config?.Options);
 
-            var newRouteConfig = new RouteConfig(
-                source,
-                cluster,
-                transforms);
-
-            return newRouteConfig;
+            return new RouteModel(source, cluster, transforms);
         }
 
         public void Dispose()

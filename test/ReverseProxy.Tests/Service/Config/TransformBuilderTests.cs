@@ -41,7 +41,7 @@ namespace Yarp.ReverseProxy.Service.Config
         {
             var transformBuilder = CreateTransformBuilder();
 
-            var route = new ProxyRoute { Transforms = transforms };
+            var route = new RouteConfig { Transforms = transforms };
             var errors = transformBuilder.ValidateRoute(route);
             Assert.Empty(errors);
 
@@ -115,7 +115,7 @@ namespace Yarp.ReverseProxy.Service.Config
                 new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase), // Empty
             };
 
-            var route = new ProxyRoute() { Transforms = transforms };
+            var route = new RouteConfig() { Transforms = transforms };
             var errors = transformBuilder.ValidateRoute(route);
             var error = Assert.Single(errors);
             Assert.Equal("Unknown transform: ", error.Message);
@@ -142,7 +142,7 @@ namespace Yarp.ReverseProxy.Service.Config
                 },
             };
 
-            var route = new ProxyRoute() { Transforms = transforms };
+            var route = new RouteConfig() { Transforms = transforms };
             var errors = transformBuilder.ValidateRoute(route);
             //All errors reported
             Assert.Equal(2, errors.Count);
@@ -162,7 +162,7 @@ namespace Yarp.ReverseProxy.Service.Config
             var builder = new TransformBuilder(new ServiceCollection().BuildServiceProvider(),
                 new[] { factory1, factory2, factory3 }, Array.Empty<ITransformProvider>());
 
-            var route = new ProxyRoute().WithTransform(transform =>
+            var route = new RouteConfig().WithTransform(transform =>
             {
                 transform["2"] = "B";
             });
@@ -189,7 +189,7 @@ namespace Yarp.ReverseProxy.Service.Config
             var builder = new TransformBuilder(new ServiceCollection().BuildServiceProvider(),
                 Array.Empty<ITransformFactory>(), new[] { provider1, provider2, provider3 });
 
-            var route = new ProxyRoute();
+            var route = new RouteConfig();
             var errors = builder.ValidateRoute(route);
             Assert.Empty(errors);
             Assert.Equal(1, provider1.ValidateRouteCalls);
@@ -227,7 +227,7 @@ namespace Yarp.ReverseProxy.Service.Config
                 },
             };
 
-            var route = new ProxyRoute() { Transforms = transforms };
+            var route = new RouteConfig() { Transforms = transforms };
             var errors = transformBuilder.ValidateRoute(route);
             Assert.Empty(errors);
 
@@ -273,7 +273,7 @@ namespace Yarp.ReverseProxy.Service.Config
                 });
             }
 
-            var route = new ProxyRoute() { Transforms = transforms };
+            var route = new RouteConfig() { Transforms = transforms };
             var errors = transformBuilder.ValidateRoute(route);
             Assert.Empty(errors);
 
@@ -358,7 +358,7 @@ namespace Yarp.ReverseProxy.Service.Config
                 });
             }
 
-            var route = new ProxyRoute() { Transforms = transforms };
+            var route = new RouteConfig() { Transforms = transforms };
             var errors = transformBuilder.ValidateRoute(route);
             Assert.Empty(errors);
 
@@ -391,7 +391,7 @@ namespace Yarp.ReverseProxy.Service.Config
                 },
             };
 
-            var route = new ProxyRoute() { Transforms = transforms };
+            var route = new RouteConfig() { Transforms = transforms };
             var errors = transformBuilder.ValidateRoute(route);
             Assert.Empty(errors);
 

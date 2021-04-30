@@ -61,7 +61,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
         }
 
         // TODO: optimize this method
-        internal static List<ProxyRoute> BuildRoutes(Uri serviceName, Dictionary<string, string> labels)
+        internal static List<RouteConfig> BuildRoutes(Uri serviceName, Dictionary<string, string> labels)
         {
             var backendId = GetClusterId(serviceName, labels);
 
@@ -94,7 +94,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
             }
 
             // Build the routes
-            var routes = new List<ProxyRoute>(routesNames.Count);
+            var routes = new List<RouteConfig>(routesNames.Count);
             foreach (var routeNamePair in routesNames)
             {
                 string hosts = null;
@@ -210,7 +210,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
                     }
                 }
 
-                var route = new ProxyRoute
+                var route = new RouteConfig
                 {
                     RouteId = $"{Uri.EscapeDataString(backendId)}:{Uri.EscapeDataString(routeNamePair.Value)}",
                     Match = new RouteMatch

@@ -55,15 +55,15 @@ namespace Yarp.ReverseProxy
         /// </summary>
         /// <param name="convention">The convention to add to the builder.</param>
         /// <returns></returns>
-        public ReverseProxyConventionBuilder ConfigureEndpoints(Action<IEndpointConventionBuilder, ProxyRoute> convention)
+        public ReverseProxyConventionBuilder ConfigureEndpoints(Action<IEndpointConventionBuilder, RouteConfig> convention)
         {
             _ = convention ?? throw new ArgumentNullException(nameof(convention));
 
             void Action(EndpointBuilder endpointBuilder)
             {
-                var routeConfig = endpointBuilder.Metadata.OfType<RouteConfig>().Single();
+                var route = endpointBuilder.Metadata.OfType<RouteModel>().Single();
                 var conventionBuilder = new EndpointBuilderConventionBuilder(endpointBuilder);
-                convention(conventionBuilder, routeConfig.ProxyRoute);
+                convention(conventionBuilder, route.Config);
             }
 
             Add(Action);
@@ -76,18 +76,18 @@ namespace Yarp.ReverseProxy
         /// </summary>
         /// <param name="convention">The convention to add to the builder.</param>
         /// <returns></returns>
-        public ReverseProxyConventionBuilder ConfigureEndpoints(Action<IEndpointConventionBuilder, ProxyRoute, Cluster> convention)
+        public ReverseProxyConventionBuilder ConfigureEndpoints(Action<IEndpointConventionBuilder, RouteConfig, Cluster> convention)
         {
             _ = convention ?? throw new ArgumentNullException(nameof(convention));
 
             void Action(EndpointBuilder endpointBuilder)
             {
-                var routeConfig = endpointBuilder.Metadata.OfType<RouteConfig>().Single();
+                var routeModel = endpointBuilder.Metadata.OfType<RouteModel>().Single();
 
-                var cluster = routeConfig.Cluster?.Config.Options;
-                var proxyRoute = routeConfig.ProxyRoute;
+                var clusterConfig = routeModel.Cluster?.Config.Options;
+                var routeConfig = routeModel.Config;
                 var conventionBuilder = new EndpointBuilderConventionBuilder(endpointBuilder);
-                convention(conventionBuilder, proxyRoute, cluster);
+                convention(conventionBuilder, routeConfig, clusterConfig);
             }
 
             Add(Action);

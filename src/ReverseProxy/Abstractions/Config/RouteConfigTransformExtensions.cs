@@ -7,15 +7,15 @@ using System.Collections.Generic;
 namespace Yarp.ReverseProxy.Abstractions.Config
 {
     /// <summary>
-    /// Extensions for adding transforms to ProxyRoute.
+    /// Extensions for adding transforms to <see cref="RouteConfig"/>.
     /// </summary>
-    public static class ProxyRouteTransformExtensions
+    public static class RouteConfigTransformExtensions
     {
         /// <summary>
-        /// Clones the ProxyRoute and adds the transform.
+        /// Clones the <see cref="RouteConfig"/> and adds the transform.
         /// </summary>
         /// <returns>The cloned route with the new transform.</returns>
-        public static ProxyRoute WithTransform(this ProxyRoute proxyRoute, Action<IDictionary<string, string>> createTransform)
+        public static RouteConfig WithTransform(this RouteConfig route, Action<IDictionary<string, string>> createTransform)
         {
             if (createTransform is null)
             {
@@ -23,21 +23,21 @@ namespace Yarp.ReverseProxy.Abstractions.Config
             }
 
             List<IReadOnlyDictionary<string, string>> transforms;
-            if (proxyRoute.Transforms == null)
+            if (route.Transforms == null)
             {
                 transforms = new List<IReadOnlyDictionary<string, string>>();
             }
             else
             {
-                transforms = new List<IReadOnlyDictionary<string, string>>(proxyRoute.Transforms.Count + 1);
-                transforms.AddRange(proxyRoute.Transforms);
+                transforms = new List<IReadOnlyDictionary<string, string>>(route.Transforms.Count + 1);
+                transforms.AddRange(route.Transforms);
             }
 
             var transform = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             createTransform(transform);
             transforms.Add(transform);
 
-            return proxyRoute with { Transforms = transforms };
+            return route with { Transforms = transforms };
         }
     }
 }

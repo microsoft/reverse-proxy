@@ -18,7 +18,7 @@ namespace Yarp.ReverseProxy.Service
         /// Validates that each transform for the given route is known and has the expected parameters. All transforms are validated
         /// so all errors can be reported.
         /// </summary>
-        IReadOnlyList<Exception> ValidateRoute(ProxyRoute route);
+        IReadOnlyList<Exception> ValidateRoute(RouteConfig route);
 
         /// <summary>
         /// Validates that any cluster data needed for transforms is valid.
@@ -28,7 +28,7 @@ namespace Yarp.ReverseProxy.Service
         /// <summary>
         /// Builds the transforms for the given route into executable rules.
         /// </summary>
-        HttpTransformer Build(ProxyRoute route, Cluster cluster);
+        HttpTransformer Build(RouteConfig route, Cluster cluster);
 
         HttpTransformer Create(Action<TransformBuilderContext> action);
     }

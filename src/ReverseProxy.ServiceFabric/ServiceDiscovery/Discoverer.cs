@@ -48,7 +48,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
         }
 
         /// <inheritdoc/>
-        public async Task<(IReadOnlyList<ProxyRoute> Routes, IReadOnlyList<Cluster> Clusters)> DiscoverAsync(CancellationToken cancellation)
+        public async Task<(IReadOnlyList<RouteConfig> Routes, IReadOnlyList<Cluster> Clusters)> DiscoverAsync(CancellationToken cancellation)
         {
             // Take a snapshot of current options and use that consistently for this execution.
             var options = _optionsMonitor.CurrentValue;
@@ -56,7 +56,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
             _serviceFabricCaller.CleanUpExpired();
 
             var discoveredBackends = new Dictionary<string, Cluster>(StringComparer.Ordinal);
-            var discoveredRoutes = new List<ProxyRoute>();
+            var discoveredRoutes = new List<RouteConfig>();
             IEnumerable<ApplicationWrapper> applications;
 
             try

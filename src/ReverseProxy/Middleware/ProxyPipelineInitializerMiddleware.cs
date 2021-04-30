@@ -29,14 +29,14 @@ namespace Yarp.ReverseProxy.Middleware
             var endpoint = context.GetEndpoint()
                ?? throw new InvalidOperationException($"Routing Endpoint wasn't set for the current request.");
 
-            var routeConfig = endpoint.Metadata.GetMetadata<RouteConfig>()
-                ?? throw new InvalidOperationException($"Routing Endpoint is missing {typeof(RouteConfig).FullName} metadata.");
+            var route = endpoint.Metadata.GetMetadata<RouteModel>()
+                ?? throw new InvalidOperationException($"Routing Endpoint is missing {typeof(RouteModel).FullName} metadata.");
 
-            var cluster = routeConfig.Cluster;
+            var cluster = route.Cluster;
             // TODO: Validate on load https://github.com/microsoft/reverse-proxy/issues/797
             if (cluster == null)
             {
-                Log.NoClusterFound(_logger, routeConfig.ProxyRoute.RouteId);
+                Log.NoClusterFound(_logger, route.Config.RouteId);
                 context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
                 return Task.CompletedTask;
             }
@@ -44,7 +44,7 @@ namespace Yarp.ReverseProxy.Middleware
             var dynamicState = cluster.DynamicState;
             context.Features.Set<IReverseProxyFeature>(new ReverseProxyFeature
             {
-                RouteSnapshot = routeConfig,
+                Route = route,
                 ClusterSnapshot = cluster.Config,
                 AllDestinations = dynamicState.AllDestinations,
                 AvailableDestinations = dynamicState.HealthyDestinations

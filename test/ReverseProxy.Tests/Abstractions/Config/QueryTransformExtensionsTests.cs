@@ -16,10 +16,10 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         [InlineData(true)]
         public void WithTransformQueryRouteValue(bool append)
         {
-            var proxyRoute = new ProxyRoute();
-            proxyRoute = proxyRoute.WithTransformQueryRouteValue("key", "value", append);
+            var routeConfig = new RouteConfig();
+            routeConfig = routeConfig.WithTransformQueryRouteValue("key", "value", append);
 
-            var builderContext = ValidateAndBuild(proxyRoute, _factory);
+            var builderContext = ValidateAndBuild(routeConfig, _factory);
 
             ValidateQueryRouteParameter(append, builderContext);
         }
@@ -50,10 +50,10 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         [InlineData(true)]
         public void WithTransformQueryValue(bool append)
         {
-            var proxyRoute = new ProxyRoute();
-            proxyRoute = proxyRoute.WithTransformQueryValue("key", "value", append);
+            var routeConfig = new RouteConfig();
+            routeConfig = routeConfig.WithTransformQueryValue("key", "value", append);
 
-            var builderContext = ValidateAndBuild(proxyRoute, _factory);
+            var builderContext = ValidateAndBuild(routeConfig, _factory);
 
             ValidateQueryValue(append, builderContext);
         }
@@ -82,10 +82,10 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         [Fact]
         public void WithTransformQueryRemoveKey()
         {
-            var proxyRoute = new ProxyRoute();
-            proxyRoute = proxyRoute.WithTransformQueryRemoveKey("key");
+            var routeConfig = new RouteConfig();
+            routeConfig = routeConfig.WithTransformQueryRemoveKey("key");
 
-            var builderContext = ValidateAndBuild(proxyRoute, _factory);
+            var builderContext = ValidateAndBuild(routeConfig, _factory);
 
             ValidateQueryRemoveKey(builderContext);
         }

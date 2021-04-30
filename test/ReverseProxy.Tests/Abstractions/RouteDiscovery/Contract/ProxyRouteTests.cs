@@ -11,7 +11,7 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
         [Fact]
         public void Equals_Positive()
         {
-            var a = new ProxyRoute()
+            var a = new RouteConfig()
             {
                 AuthorizationPolicy = "a",
                 ClusterId = "c",
@@ -39,7 +39,7 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
                 Order = 1,
                 RouteId = "R",
             };
-            var b = new ProxyRoute()
+            var b = new RouteConfig()
             {
                 AuthorizationPolicy = "a",
                 ClusterId = "c",
@@ -76,7 +76,7 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
         [Fact]
         public void Equals_Negative()
         {
-            var a = new ProxyRoute()
+            var a = new RouteConfig()
             {
                 AuthorizationPolicy = "a",
                 ClusterId = "c",
@@ -124,7 +124,7 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
         [Fact]
         public void Equals_Null_False()
         {
-            Assert.False(new ProxyRoute().Equals(null));
+            Assert.False(new RouteConfig().Equals(null));
         }
     }
 }

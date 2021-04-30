@@ -17,7 +17,7 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         /// <summary>
         /// Clones the route and adds the transform which will add X-Forwarded-* headers.
         /// </summary>
-        public static ProxyRoute WithTransformXForwarded(this ProxyRoute proxyRoute, string headerPrefix = "X-Forwarded-", bool useFor = true,
+        public static RouteConfig WithTransformXForwarded(this RouteConfig route, string headerPrefix = "X-Forwarded-", bool useFor = true,
             bool useHost = true, bool useProto = true, bool usePrefix = true, bool append = true)
         {
             var headers = new List<string>();
@@ -42,7 +42,7 @@ namespace Yarp.ReverseProxy.Abstractions.Config
                 headers.Add(ForwardedTransformFactory.ProtoKey);
             }
 
-            return proxyRoute.WithTransform(transform =>
+            return route.WithTransform(transform =>
             {
                 transform[ForwardedTransformFactory.XForwardedKey] = string.Join(',', headers);
                 transform[ForwardedTransformFactory.AppendKey] = append.ToString();
@@ -79,7 +79,7 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         /// <summary>
         /// Clones the route and adds the transform which will add the Forwarded header as defined by [RFC 7239](https://tools.ietf.org/html/rfc7239).
         /// </summary>
-        public static ProxyRoute WithTransformForwarded(this ProxyRoute proxyRoute, bool useHost = true, bool useProto = true,
+        public static RouteConfig WithTransformForwarded(this RouteConfig route, bool useHost = true, bool useProto = true,
             NodeFormat forFormat = NodeFormat.Random, NodeFormat byFormat = NodeFormat.Random, bool append = true)
         {
             var headers = new List<string>();
@@ -104,7 +104,7 @@ namespace Yarp.ReverseProxy.Abstractions.Config
                 headers.Add(ForwardedTransformFactory.ProtoKey);
             }
 
-            return proxyRoute.WithTransform(transform =>
+            return route.WithTransform(transform =>
             {
                 transform[ForwardedTransformFactory.ForwardedKey] = string.Join(',', headers);
                 transform[ForwardedTransformFactory.AppendKey] = append.ToString();
@@ -141,9 +141,9 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         /// <summary>
         /// Clones the route and adds the transform which will set the given header with the Base64 encoded client certificate.
         /// </summary>
-        public static ProxyRoute WithTransformClientCertHeader(this ProxyRoute proxyRoute, string headerName)
+        public static RouteConfig WithTransformClientCertHeader(this RouteConfig route, string headerName)
         {
-            return proxyRoute.WithTransform(transform =>
+            return route.WithTransform(transform =>
             {
                 transform[ForwardedTransformFactory.ClientCertKey] = headerName;
             });

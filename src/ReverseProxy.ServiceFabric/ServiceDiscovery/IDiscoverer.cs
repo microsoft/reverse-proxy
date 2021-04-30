@@ -10,13 +10,13 @@ namespace Yarp.ReverseProxy.ServiceFabric
 {
     /// <summary>
     /// Discovers Service Fabric services and builds the corresponding
-    /// <see cref="ProxyRoute"/> and <see cref="Cluster"/> instances that represent them.
+    /// <see cref="RouteConfig"/> and <see cref="Cluster"/> instances that represent them.
     /// </summary>
     internal interface IDiscoverer
     {
         /// <summary>
         /// Execute the discovery and update entities.
         /// </summary>
-        Task<(IReadOnlyList<ProxyRoute> Routes, IReadOnlyList<Cluster> Clusters)> DiscoverAsync(CancellationToken cancellation);
+        Task<(IReadOnlyList<RouteConfig> Routes, IReadOnlyList<Cluster> Clusters)> DiscoverAsync(CancellationToken cancellation);
     }
 }

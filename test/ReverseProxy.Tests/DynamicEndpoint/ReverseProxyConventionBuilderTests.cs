@@ -27,9 +27,9 @@ namespace Yarp.ReverseProxy.DynamicEndpoint
                 configured = true;
             });
 
-            var proxyRoute = new ProxyRoute();
+            var routeConfig = new RouteConfig();
             var cluster = new Cluster();
-            var endpointBuilder = CreateEndpointBuilder(proxyRoute, cluster);
+            var endpointBuilder = CreateEndpointBuilder(routeConfig, cluster);
 
             var action = Assert.Single(conventions);
             action(endpointBuilder);
@@ -50,9 +50,9 @@ namespace Yarp.ReverseProxy.DynamicEndpoint
                 configured = true;
             });
 
-            var proxyRoute = new ProxyRoute();
+            var routeConfig = new RouteConfig();
             var cluster = new Cluster();
-            var endpointBuilder = CreateEndpointBuilder(proxyRoute, cluster);
+            var endpointBuilder = CreateEndpointBuilder(routeConfig, cluster);
 
             var action = Assert.Single(conventions);
             action(endpointBuilder);
@@ -73,9 +73,9 @@ namespace Yarp.ReverseProxy.DynamicEndpoint
                 configured = true;
             });
 
-            var proxyRoute = new ProxyRoute();
+            var routeConfig = new RouteConfig();
             var cluster = new Cluster();
-            var endpointBuilder = CreateEndpointBuilder(proxyRoute, cluster);
+            var endpointBuilder = CreateEndpointBuilder(routeConfig, cluster);
 
             var action = Assert.Single(conventions);
             action(endpointBuilder);
@@ -83,18 +83,18 @@ namespace Yarp.ReverseProxy.DynamicEndpoint
             Assert.True(configured);
         }
 
-        private static RouteEndpointBuilder CreateEndpointBuilder(ProxyRoute proxyRoute, Cluster cluster)
+        private static RouteEndpointBuilder CreateEndpointBuilder(RouteConfig routeConfig, Cluster cluster)
         {
             var endpointBuilder = new RouteEndpointBuilder(context => Task.CompletedTask, RoutePatternFactory.Parse(""), 0);
-            var routeConfig = new RouteConfig(
-                proxyRoute,
+            var routeModel = new RouteModel(
+                routeConfig,
                 new ClusterInfo("cluster-1")
                 {
                     Config = new ClusterConfig(cluster, default)
                 },
                 HttpTransformer.Default);
 
-            endpointBuilder.Metadata.Add(routeConfig);
+            endpointBuilder.Metadata.Add(routeModel);
 
             return endpointBuilder;
         }

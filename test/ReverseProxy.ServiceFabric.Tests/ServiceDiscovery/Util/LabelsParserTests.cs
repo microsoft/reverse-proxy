@@ -275,9 +275,9 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
 
             var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
-            var expectedRoutes = new List<ProxyRoute>
+            var expectedRoutes = new List<RouteConfig>
             {
-                new ProxyRoute
+                new RouteConfig
                 {
                     RouteId = "MyCoolClusterId:MyRoute",
                     Match = new RouteMatch
@@ -338,9 +338,9 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
 
             var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
-            var expectedRoutes = new List<ProxyRoute>
+            var expectedRoutes = new List<RouteConfig>
             {
-                new ProxyRoute
+                new RouteConfig
                 {
                     RouteId = "MyCoolClusterId:MyRoute",
                     Match = new RouteMatch
@@ -368,9 +368,9 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
 
             var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
-            var expectedRoutes = new List<ProxyRoute>
+            var expectedRoutes = new List<RouteConfig>
             {
-                new ProxyRoute
+                new RouteConfig
                 {
                     RouteId = "MyCoolClusterId:MyRoute",
                     Match = new RouteMatch
@@ -402,9 +402,9 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
 
             var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
-            var expectedRoutes = new List<ProxyRoute>
+            var expectedRoutes = new List<RouteConfig>
             {
-                new ProxyRoute
+                new RouteConfig
                 {
                     RouteId = $"{Uri.EscapeDataString(_testServiceName.ToString())}:MyRoute",
                     Match = new RouteMatch
@@ -429,9 +429,9 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
 
             var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
-            var expectedRoutes = new List<ProxyRoute>
+            var expectedRoutes = new List<RouteConfig>
             {
-                new ProxyRoute
+                new RouteConfig
                 {
                     RouteId = $"{Uri.EscapeDataString(_testServiceName.ToString())}:MyRoute",
                     Match = new RouteMatch
@@ -455,7 +455,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                 { "YARP.Routes.MyRoute.Order", "this is no number" },
             };
 
-            Func<List<ProxyRoute>> func = () => LabelsParser.BuildRoutes(_testServiceName, labels);
+            Func<List<RouteConfig>> func = () => LabelsParser.BuildRoutes(_testServiceName, labels);
 
             func.Should()
                 .Throw<ConfigException>()
@@ -479,9 +479,9 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
 
             var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
-            var expectedRoutes = new List<ProxyRoute>
+            var expectedRoutes = new List<RouteConfig>
             {
-                new ProxyRoute
+                new RouteConfig
                 {
                     RouteId = $"MyCoolClusterId:{routeName}",
                     Match = new RouteMatch
@@ -517,7 +517,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             };
             labels[invalidKey] = value;
 
-            Func<List<ProxyRoute>> func = () => LabelsParser.BuildRoutes(_testServiceName, labels);
+            Func<List<RouteConfig>> func = () => LabelsParser.BuildRoutes(_testServiceName, labels);
 
             func.Should()
                 .Throw<ConfigException>()
@@ -539,7 +539,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             };
             labels[invalidKey] = value;
 
-            Func<List<ProxyRoute>> func = () => LabelsParser.BuildRoutes(_testServiceName, labels);
+            Func<List<RouteConfig>> func = () => LabelsParser.BuildRoutes(_testServiceName, labels);
 
             func.Should()
                 .Throw<ConfigException>()
@@ -563,7 +563,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             labels[invalidKey] = value;
 
             // Act
-            Func<List<ProxyRoute>> func = () => LabelsParser.BuildRoutes(_testServiceName, labels);
+            Func<List<RouteConfig>> func = () => LabelsParser.BuildRoutes(_testServiceName, labels);
 
             // Assert
             func.Should()
@@ -586,7 +586,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             labels[invalidKey] = value;
 
             // Act
-            Func<List<ProxyRoute>> func = () => LabelsParser.BuildRoutes(_testServiceName, labels);
+            Func<List<RouteConfig>> func = () => LabelsParser.BuildRoutes(_testServiceName, labels);
 
             // Assert
             func.Should()
@@ -611,9 +611,9 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
 
             var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
-            var expectedRoutes = new List<ProxyRoute>
+            var expectedRoutes = new List<RouteConfig>
             {
-                new ProxyRoute
+                new RouteConfig
                 {
                     RouteId = $"MyCoolClusterId:MyRoute0",
                     Match = new RouteMatch
@@ -661,9 +661,9 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
 
             var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
-            var expectedRoutes = new List<ProxyRoute>
+            var expectedRoutes = new List<RouteConfig>
             {
-                new ProxyRoute
+                new RouteConfig
                 {
                     RouteId = "MyCoolClusterId:MyRoute",
                     Match = new RouteMatch
@@ -699,9 +699,9 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
 
             var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
-            var expectedRoutes = new List<ProxyRoute>
+            var expectedRoutes = new List<RouteConfig>
             {
-                new ProxyRoute
+                new RouteConfig
                 {
                     RouteId = "MyCoolClusterId:MyRoute",
                     Match = new RouteMatch
@@ -713,7 +713,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                     ClusterId = "MyCoolClusterId",
                     Metadata = new Dictionary<string, string> { { "Foo", "Bar" } },
                 },
-                new ProxyRoute
+                new RouteConfig
                 {
                     RouteId = "MyCoolClusterId:CoolRoute",
                     Match = new RouteMatch
@@ -724,7 +724,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                     ClusterId = "MyCoolClusterId",
                     Metadata = new Dictionary<string, string>(),
                 },
-                new ProxyRoute
+                new RouteConfig
                 {
                     RouteId = "MyCoolClusterId:EvenCoolerRoute",
                     Match = new RouteMatch

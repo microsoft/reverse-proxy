@@ -13,20 +13,20 @@ namespace Yarp.ReverseProxy.RuntimeModel
     /// </summary>
     /// <remarks>
     /// All members must remain immutable to avoid thread safety issues.
-    /// Instead, instances of <see cref="RouteConfig"/> are replaced
+    /// Instead, instances of <see cref="RouteModel"/> are replaced
     /// in their entirety when values need to change.
     /// </remarks>
-    public sealed class RouteConfig
+    public sealed class RouteModel
     {
         /// <summary>
-        /// Creates a new RouteConfig instance.
+        /// Creates a new instance.
         /// </summary>
-        public RouteConfig(
-            ProxyRoute proxyRoute,
+        public RouteModel(
+            RouteConfig config,
             ClusterInfo cluster,
             HttpTransformer transformer)
         {
-            ProxyRoute = proxyRoute ?? throw new ArgumentNullException(nameof(proxyRoute));
+            Config = config ?? throw new ArgumentNullException(nameof(config));
             Cluster = cluster;
             Transformer = transformer;
         }
@@ -45,11 +45,11 @@ namespace Yarp.ReverseProxy.RuntimeModel
         /// <summary>
         /// The configuration data used to build this route.
         /// </summary>
-        public ProxyRoute ProxyRoute { get; }
+        public RouteConfig Config { get; }
 
-        internal bool HasConfigChanged(ProxyRoute newConfig, ClusterInfo cluster, int? routeRevision)
+        internal bool HasConfigChanged(RouteConfig newConfig, ClusterInfo cluster, int? routeRevision)
         {
-            return Cluster != cluster || routeRevision != cluster?.Revision || !ProxyRoute.Equals(newConfig);
+            return Cluster != cluster || routeRevision != cluster?.Revision || !Config.Equals(newConfig);
         }
     }
 }

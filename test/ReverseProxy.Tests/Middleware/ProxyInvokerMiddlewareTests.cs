@@ -57,8 +57,8 @@ namespace Yarp.ReverseProxy.Middleware.Tests
                 {
                     Config = new DestinationConfig(new Destination { Address = "https://localhost:123/a/b/" })
                 });
-            var routeConfig = new RouteConfig(
-                proxyRoute: new ProxyRoute() { RouteId = "Route-1" },
+            var routeConfig = new RouteModel(
+                config: new RouteConfig() { RouteId = "Route-1" },
                 cluster: cluster1,
                 transformer: null);
 
@@ -67,7 +67,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
             {
                     AvailableDestinations = new List<DestinationInfo>() { destination1 }.AsReadOnly(),
                     ClusterSnapshot = clusterConfig,
-                    RouteSnapshot = routeConfig,
+                    Route = routeConfig,
                 });
             httpContext.Features.Set(cluster1);
 
@@ -122,7 +122,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
             var invoke = Assert.Single(events, e => e.EventName == "ProxyInvoke");
             Assert.Equal(3, invoke.Payload.Count);
             Assert.Equal(cluster1.ClusterId, (string)invoke.Payload[0]);
-            Assert.Equal(routeConfig.ProxyRoute.RouteId, (string)invoke.Payload[1]);
+            Assert.Equal(routeConfig.Config.RouteId, (string)invoke.Payload[1]);
             Assert.Equal(destination1.DestinationId, (string)invoke.Payload[2]);
         }
 
@@ -137,8 +137,8 @@ namespace Yarp.ReverseProxy.Middleware.Tests
             var httpClient = new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object);
             var cluster1 = new ClusterInfo(clusterId: "cluster1");
             var clusterConfig = new ClusterConfig(new Cluster(), httpClient);
-            var routeConfig = new RouteConfig(
-                proxyRoute: new ProxyRoute(),
+            var routeConfig = new RouteModel(
+                config: new RouteConfig(),
                 cluster: cluster1,
                 transformer: null);
             httpContext.Features.Set<IReverseProxyFeature>(
@@ -146,7 +146,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
                 {
                     AvailableDestinations = Array.Empty<DestinationInfo>(),
                     ClusterSnapshot = clusterConfig,
-                    RouteSnapshot = routeConfig,
+                    Route = routeConfig,
                 });
 
             Mock<IHttpProxy>()

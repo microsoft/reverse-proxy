@@ -56,7 +56,7 @@ namespace Yarp.ReverseProxy.Service
         }
 
         // Note this performs all validation steps without short circuiting in order to report all possible errors.
-        public async ValueTask<IList<Exception>> ValidateRouteAsync(ProxyRoute route)
+        public async ValueTask<IList<Exception>> ValidateRouteAsync(RouteConfig route)
         {
             _ = route ?? throw new ArgumentNullException(nameof(route));
             var errors = new List<Exception>();

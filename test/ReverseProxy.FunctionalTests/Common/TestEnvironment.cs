@@ -86,7 +86,7 @@ namespace Yarp.ReverseProxy.Common
             return CreateHost(protocols, false, requestHeaderEncoding,
                 services =>
                 {
-                    var proxyRoute = new ProxyRoute
+                    var proxyRoute = new RouteConfig
                     {
                         RouteId = "route1",
                         ClusterId = clusterId,

@@ -25,10 +25,10 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         [InlineData(true, true, false, false, false)]
         public void WithTransformXForwarded(bool useFor, bool useHost, bool useProto, bool usePrefix, bool append)
         {
-            var proxyRoute = new ProxyRoute();
-            proxyRoute = proxyRoute.WithTransformXForwarded("prefix-", useFor, useHost, useProto, usePrefix, append);
+            var routeConfig = new RouteConfig();
+            routeConfig = routeConfig.WithTransformXForwarded("prefix-", useFor, useHost, useProto, usePrefix, append);
 
-            var builderContext = ValidateAndBuild(proxyRoute, _factory);
+            var builderContext = ValidateAndBuild(routeConfig, _factory);
 
             ValidateXForwarded(builderContext, useFor, useHost, useProto, usePrefix, append);
         }
@@ -112,10 +112,10 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         [InlineData(NodeFormat.None, false, true, NodeFormat.IpAndPort, false)]
         public void WithTransformForwarded(NodeFormat forFormat, bool useHost, bool useProto, NodeFormat byFormat, bool append)
         {
-            var proxyRoute = new ProxyRoute();
-            proxyRoute = proxyRoute.WithTransformForwarded(useHost, useProto, forFormat, byFormat, append);
+            var routeConfig = new RouteConfig();
+            routeConfig = routeConfig.WithTransformForwarded(useHost, useProto, forFormat, byFormat, append);
 
-            var builderContext = ValidateAndBuild(proxyRoute, _factory, CreateServices());
+            var builderContext = ValidateAndBuild(routeConfig, _factory, CreateServices());
 
             ValidateForwarded(builderContext, useHost, useProto, forFormat, byFormat, append);
         }
@@ -165,10 +165,10 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         [Fact]
         public void WithTransformClientCertHeader()
         {
-            var proxyRoute = new ProxyRoute();
-            proxyRoute = proxyRoute.WithTransformClientCertHeader("name");
+            var routeConfig = new RouteConfig();
+            routeConfig = routeConfig.WithTransformClientCertHeader("name");
 
-            var builderContext = ValidateAndBuild(proxyRoute, _factory);
+            var builderContext = ValidateAndBuild(routeConfig, _factory);
 
             var transform = Assert.Single(builderContext.RequestTransforms);
             var certTransform = Assert.IsType<RequestHeaderClientCertTransform>(transform);

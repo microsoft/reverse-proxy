@@ -10,11 +10,11 @@ namespace Yarp.ReverseProxy.Configuration
 {
     internal sealed class ConfigurationSnapshot : IProxyConfig
     {
-        public List<ProxyRoute> Routes { get; internal set; } = new List<ProxyRoute>();
+        public List<RouteConfig> Routes { get; internal set; } = new List<RouteConfig>();
 
         public List<Cluster> Clusters { get; internal set; } = new List<Cluster>();
 
-        IReadOnlyList<ProxyRoute> IProxyConfig.Routes => Routes;
+        IReadOnlyList<RouteConfig> IProxyConfig.Routes => Routes;
 
         IReadOnlyList<Cluster> IProxyConfig.Clusters => Clusters;
 

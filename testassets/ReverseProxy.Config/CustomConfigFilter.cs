@@ -53,16 +53,16 @@ namespace Yarp.ReverseProxy.Sample
             return new ValueTask<Cluster>(cluster);
         }
 
-        public ValueTask<ProxyRoute> ConfigureRouteAsync(ProxyRoute route, CancellationToken cancel)
+        public ValueTask<RouteConfig> ConfigureRouteAsync(RouteConfig route, CancellationToken cancel)
         {
             // Do not let config based routes take priority over code based routes.
             // Lower numbers are higher priority. Code routes default to 0.
             if (route.Order.HasValue && route.Order.Value < 1)
             {
-                return new ValueTask<ProxyRoute>(route with { Order = 1 });
+                return new ValueTask<RouteConfig>(route with { Order = 1 });
             }
 
-            return new ValueTask<ProxyRoute>(route);
+            return new ValueTask<RouteConfig>(route);
         }
     }
 }

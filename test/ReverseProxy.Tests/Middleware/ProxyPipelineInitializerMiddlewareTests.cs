@@ -46,8 +46,8 @@ namespace Yarp.ReverseProxy.Middleware.Tests
             cluster1.ProcessDestinationChanges();
 
             var aspNetCoreEndpoints = new List<Endpoint>();
-            var routeConfig = new RouteConfig(
-                proxyRoute: new ProxyRoute(),
+            var routeConfig = new RouteModel(
+                config: new RouteConfig(),
                 cluster1,
                 transformer: null);
             var aspNetCoreEndpoint = CreateAspNetCoreEndpoint(routeConfig);
@@ -99,8 +99,8 @@ namespace Yarp.ReverseProxy.Middleware.Tests
             cluster1.ProcessDestinationChanges();
 
             var aspNetCoreEndpoints = new List<Endpoint>();
-            var routeConfig = new RouteConfig(
-                proxyRoute: new ProxyRoute(),
+            var routeConfig = new RouteModel(
+                config: new RouteConfig(),
                 cluster: cluster1,
                 transformer: null);
             var aspNetCoreEndpoint = CreateAspNetCoreEndpoint(routeConfig);
@@ -120,7 +120,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
             Assert.Equal(StatusCodes.Status418ImATeapot, httpContext.Response.StatusCode);
         }
 
-        private static Endpoint CreateAspNetCoreEndpoint(RouteConfig routeConfig)
+        private static Endpoint CreateAspNetCoreEndpoint(RouteModel routeConfig)
         {
             var endpointBuilder = new RouteEndpointBuilder(
                 requestDelegate: httpContext => Task.CompletedTask,

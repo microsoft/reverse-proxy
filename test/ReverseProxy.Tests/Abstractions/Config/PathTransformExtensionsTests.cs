@@ -27,10 +27,10 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         [Fact]
         public void WithTransformPathSet()
         {
-            var proxyRoute = new ProxyRoute();
-            proxyRoute = proxyRoute.WithTransformPathSet(new PathString("/path#"));
+            var routeConfig = new RouteConfig();
+            routeConfig = routeConfig.WithTransformPathSet(new PathString("/path#"));
 
-            var builderContext = ValidateAndBuild(proxyRoute, _factory);
+            var builderContext = ValidateAndBuild(routeConfig, _factory);
 
             ValidatePathSet(builderContext);
         }
@@ -55,10 +55,10 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         [Fact]
         public void WithTransformPathRemovePrefix()
         {
-            var proxyRoute = new ProxyRoute();
-            proxyRoute = proxyRoute.WithTransformPathRemovePrefix(new PathString("/path#"));
+            var routeConfig = new RouteConfig();
+            routeConfig = routeConfig.WithTransformPathRemovePrefix(new PathString("/path#"));
 
-            var builderContext = ValidateAndBuild(proxyRoute, _factory);
+            var builderContext = ValidateAndBuild(routeConfig, _factory);
 
             ValidatePathRemovePrefix(builderContext);
         }
@@ -83,10 +83,10 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         [Fact]
         public void WithTransformPathPrefix()
         {
-            var proxyRoute = new ProxyRoute();
-            proxyRoute = proxyRoute.WithTransformPathPrefix(new PathString("/path#"));
+            var routeConfig = new RouteConfig();
+            routeConfig = routeConfig.WithTransformPathPrefix(new PathString("/path#"));
 
-            var builderContext = ValidateAndBuild(proxyRoute, _factory);
+            var builderContext = ValidateAndBuild(routeConfig, _factory);
 
             ValidatePathPrefix(builderContext);
         }
@@ -111,10 +111,10 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         [Fact]
         public void WithTransformPathRouteValues()
         {
-            var proxyRoute = new ProxyRoute();
-            proxyRoute = proxyRoute.WithTransformPathRouteValues(new PathString("/path#"));
+            var routeConfig = new RouteConfig();
+            routeConfig = routeConfig.WithTransformPathRouteValues(new PathString("/path#"));
 
-            var builderContext = ValidateAndBuild(proxyRoute, _factory);
+            var builderContext = ValidateAndBuild(routeConfig, _factory);
 
             ValidatePathRouteValues(builderContext);
         }

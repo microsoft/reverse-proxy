@@ -8,6 +8,6 @@ namespace Yarp.ReverseProxy.Kubernetes.Protocol
 {
     public interface IUpdateConfig
     {
-        void Update(IReadOnlyList<ProxyRoute> routes, IReadOnlyList<Cluster> clusters);
+        void Update(IReadOnlyList<RouteConfig> routes, IReadOnlyList<Cluster> clusters);
     }
 }
