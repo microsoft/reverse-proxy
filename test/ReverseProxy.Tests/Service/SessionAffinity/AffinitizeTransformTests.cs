@@ -43,9 +43,9 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             provider.Verify();
         }
 
-        internal ClusterInfo GetCluster()
+        internal ClusterState GetCluster()
         {
-            var cluster = new ClusterInfo("cluster-1");
+            var cluster = new ClusterState("cluster-1");
             cluster.Destinations.GetOrAdd("dest-A", id => new DestinationInfo(id));
             cluster.Config = new ClusterConfig(new Cluster
             {

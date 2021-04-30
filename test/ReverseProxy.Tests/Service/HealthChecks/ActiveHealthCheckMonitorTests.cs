@@ -32,7 +32,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             var policy1 = new Mock<IActiveHealthCheckPolicy>();
             policy1.SetupGet(p => p.Name).Returns("policy1");
             var options = Options.Create(new ActiveHealthCheckMonitorOptions { DefaultInterval = TimeSpan.FromSeconds(60), DefaultTimeout = TimeSpan.FromSeconds(5) });
-            var clusters = new List<ClusterInfo>();
+            var clusters = new List<ClusterState>();
             var monitor = new ActiveHealthCheckMonitor(options, new[] { policy0.Object, policy1.Object }, new DefaultProbingRequestFactory(), new Mock<ITimerFactory>().Object, GetLogger());
 
             var httpClient0 = GetHttpClient();
@@ -78,7 +78,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
 
             Assert.False(monitor.InitialDestinationsProbed);
 
-            await monitor.CheckHealthAsync(new ClusterInfo[0]);
+            await monitor.CheckHealthAsync(new ClusterState[0]);
 
             Assert.True(monitor.InitialDestinationsProbed);
 
@@ -111,7 +111,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
 
             Assert.False(monitor.InitialDestinationsProbed);
 
-            await monitor.CheckHealthAsync(new ClusterInfo[0]);
+            await monitor.CheckHealthAsync(new ClusterState[0]);
 
             Assert.True(monitor.InitialDestinationsProbed);
 
@@ -150,7 +150,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
 
             Assert.False(monitor.InitialDestinationsProbed);
 
-            await monitor.CheckHealthAsync(new ClusterInfo[0]);
+            await monitor.CheckHealthAsync(new ClusterState[0]);
 
             Assert.True(monitor.InitialDestinationsProbed);
 
@@ -193,7 +193,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
 
             Assert.False(monitor.InitialDestinationsProbed);
 
-            await monitor.CheckHealthAsync(new ClusterInfo[0]);
+            await monitor.CheckHealthAsync(new ClusterState[0]);
 
             Assert.True(monitor.InitialDestinationsProbed);
 
@@ -242,7 +242,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
 
             Assert.False(monitor.InitialDestinationsProbed);
 
-            await monitor.CheckHealthAsync(new ClusterInfo[0]);
+            await monitor.CheckHealthAsync(new ClusterState[0]);
 
             Assert.True(monitor.InitialDestinationsProbed);
 
@@ -280,7 +280,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             var policy = new Mock<IActiveHealthCheckPolicy>();
             policy.SetupGet(p => p.Name).Returns("policy0");
             var options = Options.Create(new ActiveHealthCheckMonitorOptions { DefaultInterval = TimeSpan.FromSeconds(60), DefaultTimeout = TimeSpan.FromSeconds(5) });
-            var clusters = new List<ClusterInfo>();
+            var clusters = new List<ClusterState>();
             var monitor = new ActiveHealthCheckMonitor(options, new[] { policy.Object }, new DefaultProbingRequestFactory(), new Mock<ITimerFactory>().Object, GetLogger());
 
             var httpClient = new Mock<HttpMessageInvoker>(() => new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object));
@@ -333,7 +333,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             var policy = new Mock<IActiveHealthCheckPolicy>();
             policy.SetupGet(p => p.Name).Returns("policy0");
             var options = Options.Create(new ActiveHealthCheckMonitorOptions { DefaultInterval = TimeSpan.FromSeconds(60), DefaultTimeout = TimeSpan.FromSeconds(5) });
-            var clusters = new List<ClusterInfo>();
+            var clusters = new List<ClusterState>();
             var monitor = new ActiveHealthCheckMonitor(options, new[] { policy.Object }, new DefaultProbingRequestFactory(), new Mock<ITimerFactory>().Object, GetLogger());
 
             var httpClient = new Mock<HttpMessageInvoker>(() => new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object));
@@ -371,9 +371,9 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
         {
             var policy = new Mock<IActiveHealthCheckPolicy>();
             policy.SetupGet(p => p.Name).Returns("policy0");
-            policy.Setup(p => p.ProbingCompleted(It.IsAny<ClusterInfo>(), It.IsAny<IReadOnlyList<DestinationProbingResult>>())).Throws<InvalidOperationException>();
+            policy.Setup(p => p.ProbingCompleted(It.IsAny<ClusterState>(), It.IsAny<IReadOnlyList<DestinationProbingResult>>())).Throws<InvalidOperationException>();
             var options = Options.Create(new ActiveHealthCheckMonitorOptions { DefaultInterval = TimeSpan.FromSeconds(60), DefaultTimeout = TimeSpan.FromSeconds(5) });
-            var clusters = new List<ClusterInfo>();
+            var clusters = new List<ClusterState>();
             var monitor = new ActiveHealthCheckMonitor(options, new[] { policy.Object }, new DefaultProbingRequestFactory(), new Mock<ITimerFactory>().Object, GetLogger());
 
             var httpClient = GetHttpClient();
@@ -386,7 +386,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
 
             Assert.True(monitor.InitialDestinationsProbed);
 
-            policy.Verify(p => p.ProbingCompleted(It.IsAny<ClusterInfo>(), It.IsAny<IReadOnlyList<DestinationProbingResult>>()), Times.Once);
+            policy.Verify(p => p.ProbingCompleted(It.IsAny<ClusterState>(), It.IsAny<IReadOnlyList<DestinationProbingResult>>()), Times.Once);
             policy.Verify(p => p.Name);
             policy.VerifyNoOtherCalls();
         }
@@ -403,7 +403,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             var policy = new Mock<IActiveHealthCheckPolicy>();
             policy.SetupGet(p => p.Name).Returns("policy0");
             var options = Options.Create(new ActiveHealthCheckMonitorOptions { DefaultInterval = TimeSpan.FromSeconds(60), DefaultTimeout = Timeout.InfiniteTimeSpan });
-            var clusters = new List<ClusterInfo>();
+            var clusters = new List<ClusterState>();
             var monitor = new ActiveHealthCheckMonitor(options, new[] { policy.Object }, new DefaultProbingRequestFactory(), new Mock<ITimerFactory>().Object, GetLogger());
 
             var tcs0 = new TaskCompletionSource<HttpResponseMessage>();
@@ -442,7 +442,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
 
             Assert.True(monitor.InitialDestinationsProbed);
 
-            policy.Verify(p => p.ProbingCompleted(It.IsAny<ClusterInfo>(), It.IsAny<IReadOnlyList<DestinationProbingResult>>()), Times.Exactly(3));
+            policy.Verify(p => p.ProbingCompleted(It.IsAny<ClusterState>(), It.IsAny<IReadOnlyList<DestinationProbingResult>>()), Times.Exactly(3));
             policy.Verify(p => p.Name);
             policy.VerifyNoOtherCalls();
         }
@@ -453,7 +453,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             var policy = new Mock<IActiveHealthCheckPolicy>();
             policy.SetupGet(p => p.Name).Returns("policy0");
             var options = Options.Create(new ActiveHealthCheckMonitorOptions { DefaultInterval = TimeSpan.FromSeconds(60), DefaultTimeout = TimeSpan.FromMilliseconds(1) });
-            var clusters = new List<ClusterInfo>();
+            var clusters = new List<ClusterState>();
             var monitor = new ActiveHealthCheckMonitor(options, new[] { policy.Object }, new DefaultProbingRequestFactory(), new Mock<ITimerFactory>().Object, GetLogger());
 
             var tcs0 = new TaskCompletionSource<HttpResponseMessage>();
@@ -483,7 +483,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
 
             Assert.True(monitor.InitialDestinationsProbed);
 
-            policy.Verify(p => p.ProbingCompleted(It.IsAny<ClusterInfo>(), It.IsAny<IReadOnlyList<DestinationProbingResult>>()), Times.Exactly(2));
+            policy.Verify(p => p.ProbingCompleted(It.IsAny<ClusterState>(), It.IsAny<IReadOnlyList<DestinationProbingResult>>()), Times.Exactly(2));
             policy.Verify(p => p.Name);
             policy.VerifyNoOtherCalls();
         }
@@ -494,7 +494,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             var policy = new Mock<IActiveHealthCheckPolicy>();
             policy.SetupGet(p => p.Name).Returns("policy0");
             var options = Options.Create(new ActiveHealthCheckMonitorOptions { DefaultInterval = TimeSpan.FromSeconds(60), DefaultTimeout = TimeSpan.FromMilliseconds(1) });
-            var clusters = new List<ClusterInfo>();
+            var clusters = new List<ClusterState>();
             var monitor = new ActiveHealthCheckMonitor(options, new[] { policy.Object }, new DefaultProbingRequestFactory(), new Mock<ITimerFactory>().Object, GetLogger());
 
             var tcs0 = new TaskCompletionSource<HttpResponseMessage>();
@@ -516,7 +516,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
 
             Assert.True(monitor.InitialDestinationsProbed);
 
-            policy.Verify(p => p.ProbingCompleted(It.IsAny<ClusterInfo>(), It.IsAny<IReadOnlyList<DestinationProbingResult>>()), Times.Exactly(2));
+            policy.Verify(p => p.ProbingCompleted(It.IsAny<ClusterState>(), It.IsAny<IReadOnlyList<DestinationProbingResult>>()), Times.Exactly(2));
             policy.Verify(p => p.Name);
             policy.VerifyNoOtherCalls();
         }
@@ -527,7 +527,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             var policy = new Mock<IActiveHealthCheckPolicy>();
             policy.SetupGet(p => p.Name).Returns("policy0");
             var options = Options.Create(new ActiveHealthCheckMonitorOptions { DefaultInterval = TimeSpan.FromSeconds(60), DefaultTimeout = Timeout.InfiniteTimeSpan });
-            var clusters = new List<ClusterInfo>();
+            var clusters = new List<ClusterState>();
             var monitor = new ActiveHealthCheckMonitor(options, new[] { policy.Object }, new DefaultProbingRequestFactory(), new Mock<ITimerFactory>().Object, GetLogger());
 
             var tcs0 = new TaskCompletionSource<HttpResponseMessage>();
@@ -557,7 +557,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
 
             Assert.True(monitor.InitialDestinationsProbed);
 
-            policy.Verify(p => p.ProbingCompleted(It.IsAny<ClusterInfo>(), It.IsAny<IReadOnlyList<DestinationProbingResult>>()), Times.Exactly(2));
+            policy.Verify(p => p.ProbingCompleted(It.IsAny<ClusterState>(), It.IsAny<IReadOnlyList<DestinationProbingResult>>()), Times.Exactly(2));
             policy.Verify(p => p.Name);
             policy.VerifyNoOtherCalls();
         }
@@ -568,7 +568,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             var policy = new Mock<IActiveHealthCheckPolicy>();
             policy.SetupGet(p => p.Name).Returns("policy0");
             var options = Options.Create(new ActiveHealthCheckMonitorOptions { DefaultInterval = TimeSpan.FromSeconds(60), DefaultTimeout = Timeout.InfiniteTimeSpan });
-            var clusters = new List<ClusterInfo>();
+            var clusters = new List<ClusterState>();
             var monitor = new ActiveHealthCheckMonitor(options, new[] { policy.Object }, new DefaultProbingRequestFactory(), new Mock<ITimerFactory>().Object, GetLogger());
 
             var tcs0 = new TaskCompletionSource<HttpResponseMessage>();
@@ -598,12 +598,12 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
 
             Assert.True(monitor.InitialDestinationsProbed);
 
-            policy.Verify(p => p.ProbingCompleted(It.IsAny<ClusterInfo>(), It.IsAny<IReadOnlyList<DestinationProbingResult>>()), Times.Exactly(2));
+            policy.Verify(p => p.ProbingCompleted(It.IsAny<ClusterState>(), It.IsAny<IReadOnlyList<DestinationProbingResult>>()), Times.Exactly(2));
             policy.Verify(p => p.Name);
             policy.VerifyNoOtherCalls();
         }
 
-        private static void VerifySentProbeAndResult(ClusterInfo cluster, Mock<HttpMessageInvoker> httpClient, Mock<IActiveHealthCheckPolicy> policy, (string RequestUri, int Times)[] probes, int policyCallTimes = 1)
+        private static void VerifySentProbeAndResult(ClusterState cluster, Mock<HttpMessageInvoker> httpClient, Mock<IActiveHealthCheckPolicy> policy, (string RequestUri, int Times)[] probes, int policyCallTimes = 1)
         {
             foreach (var probe in probes)
             {
@@ -619,7 +619,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             policy.VerifyNoOtherCalls();
         }
 
-        private ClusterInfo GetClusterInfo(string id, string policy, bool activeCheckEnabled, HttpMessageInvoker httpClient, TimeSpan? interval = null, TimeSpan? timeout = null, int destinationCount = 2)
+        private ClusterState GetClusterInfo(string id, string policy, bool activeCheckEnabled, HttpMessageInvoker httpClient, TimeSpan? interval = null, TimeSpan? timeout = null, int destinationCount = 2)
         {
             var clusterConfig = new ClusterConfig(
                 new Cluster
@@ -638,20 +638,20 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
                     }
                 },
                 httpClient);
-            var clusterInfo = new ClusterInfo(id);
-            clusterInfo.Config = clusterConfig;
+            var clusterState = new ClusterState(id);
+            clusterState.Config = clusterConfig;
             for (var i = 0; i < destinationCount; i++)
             {
                 var destinationConfig = new DestinationConfig(new Destination { Address = $"https://localhost:1000{i}/{id}/", Health = $"https://localhost:2000{i}/{id}/" });
                 var destinationId = $"destination{i}";
-                clusterInfo.Destinations.GetOrAdd(destinationId, id => new DestinationInfo(id)
+                clusterState.Destinations.GetOrAdd(destinationId, id => new DestinationInfo(id)
                 {
                     Config = destinationConfig
                 });
             }
-            clusterInfo.ProcessDestinationChanges();
+            clusterState.ProcessDestinationChanges();
 
-            return clusterInfo;
+            return clusterState;
         }
 
         private Mock<HttpMessageInvoker> GetHttpClient(Task<HttpResponseMessage> task = null, Action cancellation = null)

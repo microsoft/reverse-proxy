@@ -115,9 +115,9 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             Assert.Contains(cluster.DynamicState.HealthyDestinations, d => d == destination3);
         }
 
-        private static ClusterInfo CreateCluster(bool passive, bool active, params DestinationInfo[] destinations)
+        private static ClusterState CreateCluster(bool passive, bool active, params DestinationInfo[] destinations)
         {
-            var cluster = new ClusterInfo("cluster0");
+            var cluster = new ClusterState("cluster0");
             cluster.Config = new ClusterConfig(
                 new Cluster
                 {

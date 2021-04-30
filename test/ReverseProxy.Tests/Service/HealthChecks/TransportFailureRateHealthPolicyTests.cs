@@ -204,7 +204,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             return context;
         }
 
-        private ClusterInfo GetClusterInfo(string id, int destinationCount, double? failureRateLimit = null, TimeSpan? reactivationPeriod = null)
+        private ClusterState GetClusterInfo(string id, int destinationCount, double? failureRateLimit = null, TimeSpan? reactivationPeriod = null)
         {
             var metadata = failureRateLimit != null
                 ? new Dictionary<string, string> { { TransportFailureRateHealthPolicyOptions.FailureRateLimitMetadataName, failureRateLimit?.ToString(CultureInfo.InvariantCulture) } }
@@ -225,19 +225,19 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
                     Metadata = metadata,
                 },
                 null);
-            var clusterInfo = new ClusterInfo(id);
-            clusterInfo.Config = clusterConfig;
+            var clusterState = new ClusterState(id);
+            clusterState.Config = clusterConfig;
             for (var i = 0; i < destinationCount; i++)
             {
                 var destinationConfig = new DestinationConfig(new Destination { Address = $"https://localhost:1000{i}/{id}/", Health = $"https://localhost:2000{i}/{id}/" });
                 var destinationId = $"destination{i}";
-                clusterInfo.Destinations.GetOrAdd(destinationId, id => new DestinationInfo(id)
+                clusterState.Destinations.GetOrAdd(destinationId, id => new DestinationInfo(id)
                 {
                     Config = destinationConfig
                 });
             }
 
-            return clusterInfo;
+            return clusterState;
         }
     }
 }

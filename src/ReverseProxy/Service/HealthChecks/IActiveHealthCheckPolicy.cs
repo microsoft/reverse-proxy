@@ -23,6 +23,6 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
         /// </summary>
         /// <param name="cluster">Cluster.</param>
         /// <param name="probingResults">Destination probing results.</param>
-        void ProbingCompleted(ClusterInfo cluster, IReadOnlyList<DestinationProbingResult> probingResults);
+        void ProbingCompleted(ClusterState cluster, IReadOnlyList<DestinationProbingResult> probingResults);
     }
 }

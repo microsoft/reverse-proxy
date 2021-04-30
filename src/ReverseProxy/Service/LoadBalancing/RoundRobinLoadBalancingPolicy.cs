@@ -13,7 +13,7 @@ namespace Yarp.ReverseProxy.Service.LoadBalancing
 {
     internal sealed class RoundRobinLoadBalancingPolicy : ILoadBalancingPolicy
     {
-        private readonly ConditionalWeakTable<ClusterInfo, AtomicCounter> _counters = new ();
+        private readonly ConditionalWeakTable<ClusterState, AtomicCounter> _counters = new ();
 
         public string Name => LoadBalancingPolicies.RoundRobin;
 
@@ -24,7 +24,7 @@ namespace Yarp.ReverseProxy.Service.LoadBalancing
                 return null;
             }
 
-            var counter = _counters.GetOrCreateValue(context.GetClusterInfo());
+            var counter = _counters.GetOrCreateValue(context.GetClusterState());
 
             // Increment returns the new value and we want the first return value to be 0.
             var offset = counter.Increment() - 1;

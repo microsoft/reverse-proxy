@@ -94,7 +94,7 @@ namespace Yarp.ReverseProxy.Middleware
             policies[1].VerifyNoOtherCalls();
         }
 
-        private HttpContext GetContext(ClusterInfo cluster, int selectedDestination, IProxyErrorFeature error)
+        private HttpContext GetContext(ClusterState cluster, int selectedDestination, IProxyErrorFeature error)
         {
             var context = new DefaultHttpContext();
             context.Features.Set(GetProxyFeature(cluster, cluster.DynamicState.AllDestinations[selectedDestination]));
@@ -109,17 +109,17 @@ namespace Yarp.ReverseProxy.Middleware
             return policy;
         }
 
-        private IReverseProxyFeature GetProxyFeature(ClusterInfo clusterInfo, DestinationInfo destination)
+        private IReverseProxyFeature GetProxyFeature(ClusterState clusterState, DestinationInfo destination)
         {
             return new ReverseProxyFeature()
             {
                 ProxiedDestination = destination,
-                ClusterSnapshot = clusterInfo.Config,
-                Route = new RouteModel(new RouteConfig(), clusterInfo, HttpTransformer.Default),
+                ClusterSnapshot = clusterState.Config,
+                Route = new RouteModel(new RouteConfig(), clusterState, HttpTransformer.Default),
             };
         }
 
-        private ClusterInfo GetClusterInfo(string id, string policy, bool enabled = true)
+        private ClusterState GetClusterInfo(string id, string policy, bool enabled = true)
         {
             var clusterConfig = new ClusterConfig(
                 new Cluster
@@ -135,14 +135,14 @@ namespace Yarp.ReverseProxy.Middleware
                     }
                 },
                 null);
-            var clusterInfo = new ClusterInfo(id);
-            clusterInfo.Config = clusterConfig;
-            clusterInfo.Destinations.GetOrAdd("destination0", id => new DestinationInfo(id));
-            clusterInfo.Destinations.GetOrAdd("destination1", id => new DestinationInfo(id));
+            var clusterState = new ClusterState(id);
+            clusterState.Config = clusterConfig;
+            clusterState.Destinations.GetOrAdd("destination0", id => new DestinationInfo(id));
+            clusterState.Destinations.GetOrAdd("destination1", id => new DestinationInfo(id));
 
-            clusterInfo.ProcessDestinationChanges();
+            clusterState.ProcessDestinationChanges();
 
-            return clusterInfo;
+            return clusterState;
         }
     }
 }

@@ -10,13 +10,13 @@ namespace Yarp.ReverseProxy.Utilities
     {
         private readonly Parser _parser;
         private readonly string _metadataName;
-        private readonly ClusterInfo _cluster;
+        private readonly ClusterState _cluster;
         // Use a volatile field of a reference Tuple<T1, T2> type to ensure atomicity during concurrent access.
         private volatile Tuple<string, T> _value;
 
         public delegate bool Parser(string stringValue, out T parsedValue);
 
-        public ParsedMetadataEntry(Parser parser, ClusterInfo cluster, string metadataName)
+        public ParsedMetadataEntry(Parser parser, ClusterState cluster, string metadataName)
         {
             _parser = parser ?? throw new ArgumentNullException(nameof(parser));
             _cluster = cluster ?? throw new ArgumentNullException(nameof(cluster));

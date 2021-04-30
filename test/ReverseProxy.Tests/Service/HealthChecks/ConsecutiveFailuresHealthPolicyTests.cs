@@ -118,7 +118,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             Assert.Equal(DestinationHealth.Healthy, cluster.Destinations.Values.Skip(1).First().Health.Active);
         }
 
-        private ClusterInfo GetClusterInfo(string id, int destinationCount, int? failureThreshold = null)
+        private ClusterState GetClusterInfo(string id, int destinationCount, int? failureThreshold = null)
         {
             var metadata = failureThreshold != null
                 ? new Dictionary<string, string> { { ConsecutiveFailuresHealthPolicyOptions.ThresholdMetadataName, failureThreshold.ToString() } }
@@ -139,26 +139,26 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
                     Metadata = metadata,
                 },
                 null);
-            var clusterInfo = new ClusterInfo(id);
-            clusterInfo.Config = clusterConfig;
+            var clusterState = new ClusterState(id);
+            clusterState.Config = clusterConfig;
             for (var i = 0; i < destinationCount; i++)
             {
                 var destinationConfig = new DestinationConfig(new Destination { Address = $"https://localhost:1000{i}/{id}/", Health = $"https://localhost:2000{i}/{id}/" });
                 var destinationId = $"destination{i}";
-                clusterInfo.Destinations.GetOrAdd(destinationId, id => new DestinationInfo(id)
+                clusterState.Destinations.GetOrAdd(destinationId, id => new DestinationInfo(id)
                 {
                     Config = destinationConfig
                 });
             }
 
-            clusterInfo.ProcessDestinationChanges();
+            clusterState.ProcessDestinationChanges();
 
-            return clusterInfo;
+            return clusterState;
         }
 
         private class DestinationHealthUpdaterStub : IDestinationHealthUpdater
         {
-            public void SetActive(ClusterInfo cluster, IEnumerable<NewActiveDestinationHealth> newHealthStates)
+            public void SetActive(ClusterState cluster, IEnumerable<NewActiveDestinationHealth> newHealthStates)
             {
                 foreach(var newHealthState in newHealthStates)
                 {
@@ -168,7 +168,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
                 cluster.UpdateDynamicState();
             }
 
-            public void SetPassive(ClusterInfo cluster, DestinationInfo destination, DestinationHealth newHealth, TimeSpan reactivationPeriod)
+            public void SetPassive(ClusterState cluster, DestinationInfo destination, DestinationHealth newHealth, TimeSpan reactivationPeriod)
             {
                 throw new NotImplementedException();
             }

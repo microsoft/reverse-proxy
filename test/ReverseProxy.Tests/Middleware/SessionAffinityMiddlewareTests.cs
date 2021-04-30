@@ -128,9 +128,9 @@ namespace Yarp.ReverseProxy.Middleware
             }
         }
 
-        internal ClusterInfo GetCluster()
+        internal ClusterState GetCluster()
         {
-            var cluster = new ClusterInfo("cluster-1");
+            var cluster = new ClusterState("cluster-1");
             var destinationManager = cluster.Destinations;
             destinationManager.GetOrAdd("dest-A", id => new DestinationInfo(id));
             destinationManager.GetOrAdd(AffinitizedDestinationName, id => new DestinationInfo(id));
@@ -198,7 +198,7 @@ namespace Yarp.ReverseProxy.Middleware
             };
         }
 
-        internal Endpoint GetEndpoint(ClusterInfo cluster)
+        internal Endpoint GetEndpoint(ClusterState cluster)
         {
             var routeConfig = new RouteConfig();
             var routeModel = new RouteModel(routeConfig, cluster, HttpTransformer.Default);

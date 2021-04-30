@@ -35,7 +35,7 @@ namespace Yarp.ReverseProxy.Service.Management
         private readonly ILogger<ProxyConfigManager> _logger;
         private readonly IProxyConfigProvider _provider;
         private readonly IClusterChangeListener[] _clusterChangeListeners;
-        private readonly ConcurrentDictionary<string, ClusterInfo> _clusters = new(StringComparer.OrdinalIgnoreCase);
+        private readonly ConcurrentDictionary<string, ClusterState> _clusters = new(StringComparer.OrdinalIgnoreCase);
         private readonly ConcurrentDictionary<string, RouteState> _routes = new(StringComparer.OrdinalIgnoreCase);
         private readonly IProxyConfigFilter[] _filters;
         private readonly IConfigValidator _configValidator;
@@ -376,7 +376,7 @@ namespace Yarp.ReverseProxy.Service.Management
                 }
                 else
                 {
-                    var newCluster = new ClusterInfo(incomingCluster.Id);
+                    var newCluster = new ClusterState(incomingCluster.Id);
 
                     UpdateRuntimeDestinations(incomingCluster.Destinations, newCluster.Destinations);
 
@@ -570,7 +570,7 @@ namespace Yarp.ReverseProxy.Service.Management
             }
         }
 
-        private RouteModel BuildRouteModel(RouteConfig source, ClusterInfo cluster)
+        private RouteModel BuildRouteModel(RouteConfig source, ClusterState cluster)
         {
             var transforms = _transformBuilder.Build(source, cluster?.Config?.Options);
 
