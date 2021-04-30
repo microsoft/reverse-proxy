@@ -507,15 +507,15 @@ namespace Yarp.ReverseProxy.Service.Management
                 else
                 {
                     var newModel = BuildRouteModel(incomingRoute, cluster);
-                    var newRoute = new RouteState(incomingRoute.RouteId)
+                    var newState = new RouteState(incomingRoute.RouteId)
                     {
                         Model = newModel,
                         ClusterRevision = cluster?.Revision,
                     };
-                    var added = _routes.TryAdd(newRoute.RouteId, newRoute);
+                    var added = _routes.TryAdd(newState.RouteId, newState);
                     Debug.Assert(added);
                     changed = true;
-                    Log.RouteAdded(_logger, newRoute.RouteId);
+                    Log.RouteAdded(_logger, newState.RouteId);
                 }
             }
 

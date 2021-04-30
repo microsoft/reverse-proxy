@@ -82,12 +82,12 @@ namespace Yarp.ReverseProxy
 
             void Action(EndpointBuilder endpointBuilder)
             {
-                var route = endpointBuilder.Metadata.OfType<RouteModel>().Single();
+                var routeModel = endpointBuilder.Metadata.OfType<RouteModel>().Single();
 
-                var cluster = route.Cluster?.Config.Options;
-                var config = route.Config;
+                var clusterConfig = routeModel.Cluster?.Config.Options;
+                var routeConfig = routeModel.Config;
                 var conventionBuilder = new EndpointBuilderConventionBuilder(endpointBuilder);
-                convention(conventionBuilder, config, cluster);
+                convention(conventionBuilder, routeConfig, clusterConfig);
             }
 
             Add(Action);

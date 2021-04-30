@@ -13,7 +13,7 @@ namespace Yarp.ReverseProxy.Service
     public interface IProxyConfig
     {
         /// <summary>
-        /// Route information for matching requests to clusters.
+        /// Routes matching requests to clusters.
         /// </summary>
         IReadOnlyList<RouteConfig> Routes { get; }
 

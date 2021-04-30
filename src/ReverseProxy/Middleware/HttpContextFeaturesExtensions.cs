@@ -20,8 +20,8 @@ namespace Microsoft.AspNetCore.Http
         /// </summary>
         public static ClusterInfo GetClusterInfo(this HttpContext context)
         {
-            var routeModel = context.GetRouteModel();
-            var cluster = routeModel.Cluster ?? throw new InvalidOperationException($"The {typeof(RouteModel).FullName} is missing the {typeof(ClusterInfo).FullName}.");
+            var route = context.GetRouteModel();
+            var cluster = route.Cluster ?? throw new InvalidOperationException($"The {typeof(RouteModel).FullName} is missing the {typeof(ClusterInfo).FullName}.");
             return cluster;
         }
 
@@ -32,10 +32,10 @@ namespace Microsoft.AspNetCore.Http
         {
             var proxyFeature = context.GetReverseProxyFeature();
 
-            var routeModel = proxyFeature.Route
+            var route = proxyFeature.Route
                 ?? throw new InvalidOperationException($"The {typeof(IReverseProxyFeature).FullName} is missing the {typeof(RouteModel).FullName}.");
 
-            return routeModel;
+            return route;
         }
 
         /// <summary>
