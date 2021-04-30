@@ -182,7 +182,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
         {
             var cluster = new ClusterState("cluster1")
             {
-                Model = new ClusterModel(new Cluster { LoadBalancingPolicy = loadBalancingPolicy }, default)
+                Model = new ClusterModel(new ClusterConfig { LoadBalancingPolicy = loadBalancingPolicy }, default)
             };
 
             var context = new DefaultHttpContext();

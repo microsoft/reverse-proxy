@@ -33,9 +33,9 @@ namespace Yarp.ReverseProxy.Configuration
             Clusters =
             {
                 {
-                    new Cluster
+                    new ClusterConfig
                     {
-                        Id = "cluster1",
+                        ClusterId = "cluster1",
                         Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
                         {
                             {
@@ -104,9 +104,9 @@ namespace Yarp.ReverseProxy.Configuration
                     }
                 },
                 {
-                    new Cluster
+                    new ClusterConfig
                     {
-                        Id = "cluster2",
+                        ClusterId = "cluster2",
                         Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
                         {
                             { "destinationC", new Destination { Address = "https://localhost:10001/destC" } },
@@ -374,9 +374,9 @@ namespace Yarp.ReverseProxy.Configuration
             var provider = new ConfigurationConfigProvider(logger.Object, proxyConfig, certLoader.Object);
             var abstractConfig = (ConfigurationSnapshot)provider.GetConfig();
 
-            var abstractionsNamespace = typeof(Cluster).Namespace;
+            var abstractionsNamespace = typeof(ClusterConfig).Namespace;
             // Removed incompletely filled out instances.
-            abstractConfig.Clusters = abstractConfig.Clusters.Where(c => c.Id == "cluster1").ToList();
+            abstractConfig.Clusters = abstractConfig.Clusters.Where(c => c.ClusterId == "cluster1").ToList();
             abstractConfig.Routes = abstractConfig.Routes.Where(r => r.RouteId == "routeA").ToList();
 
             VerifyAllPropertiesAreSet(abstractConfig);
@@ -579,9 +579,9 @@ namespace Yarp.ReverseProxy.Configuration
             Assert.NotNull(abstractConfig);
             Assert.Equal(2, abstractConfig.Clusters.Count);
 
-            var cluster1 = validConfig.Clusters.First(c => c.Id == "cluster1");
-            Assert.Single(abstractConfig.Clusters.Where(c => c.Id == "cluster1"));
-            var abstractCluster1 = abstractConfig.Clusters.Single(c => c.Id == "cluster1");
+            var cluster1 = validConfig.Clusters.First(c => c.ClusterId == "cluster1");
+            Assert.Single(abstractConfig.Clusters.Where(c => c.ClusterId == "cluster1"));
+            var abstractCluster1 = abstractConfig.Clusters.Single(c => c.ClusterId == "cluster1");
             Assert.Equal(cluster1.Destinations["destinationA"].Address, abstractCluster1.Destinations["destinationA"].Address);
             Assert.Equal(cluster1.Destinations["destinationA"].Health, abstractCluster1.Destinations["destinationA"].Health);
             Assert.Equal(cluster1.Destinations["destinationA"].Metadata, abstractCluster1.Destinations["destinationA"].Metadata);
@@ -617,9 +617,9 @@ namespace Yarp.ReverseProxy.Configuration
             Assert.Equal(cluster1.HttpClient.DangerousAcceptAnyServerCertificate, abstractCluster1.HttpClient.DangerousAcceptAnyServerCertificate);
             Assert.Equal(cluster1.Metadata, abstractCluster1.Metadata);
 
-            var cluster2 = validConfig.Clusters.First(c => c.Id == "cluster2");
-            Assert.Single(abstractConfig.Clusters.Where(c => c.Id == "cluster2"));
-            var abstractCluster2 = abstractConfig.Clusters.Single(c => c.Id == "cluster2");
+            var cluster2 = validConfig.Clusters.First(c => c.ClusterId == "cluster2");
+            Assert.Single(abstractConfig.Clusters.Where(c => c.ClusterId == "cluster2"));
+            var abstractCluster2 = abstractConfig.Clusters.Single(c => c.ClusterId == "cluster2");
             Assert.Equal(cluster2.Destinations["destinationC"].Address, abstractCluster2.Destinations["destinationC"].Address);
             Assert.Equal(cluster2.Destinations["destinationC"].Metadata, abstractCluster2.Destinations["destinationC"].Metadata);
             Assert.Equal(cluster2.Destinations["destinationD"].Address, abstractCluster2.Destinations["destinationD"].Address);

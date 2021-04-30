@@ -17,9 +17,9 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
         [Fact]
         public void Equals_Same_Value_Returns_True()
         {
-            var options1 = new Cluster
+            var options1 = new ClusterConfig
             {
-                Id = "cluster1",
+                ClusterId = "cluster1",
                 Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
                 {
                     {
@@ -87,9 +87,9 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
                 Metadata = new Dictionary<string, string> { { "cluster1-K1", "cluster1-V1" }, { "cluster1-K2", "cluster1-V2" } }
             };
 
-            var options2 = new Cluster
+            var options2 = new ClusterConfig
             {
-                Id = "cluster1",
+                ClusterId = "cluster1",
                 Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
                 {
                     {
@@ -167,9 +167,9 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
         [Fact]
         public void Equals_Different_Value_Returns_False()
         {
-            var options1 = new Cluster
+            var options1 = new ClusterConfig
             {
-                Id = "cluster1",
+                ClusterId = "cluster1",
                 Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
                 {
                     {
@@ -234,7 +234,7 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
                 Metadata = new Dictionary<string, string> { { "cluster1-K1", "cluster1-V1" }, { "cluster1-K2", "cluster1-V2" } }
             };
 
-            Assert.False(options1.Equals(options1 with { Id = "different" }));
+            Assert.False(options1.Equals(options1 with { ClusterId = "different" }));
             Assert.False(options1.Equals(options1 with { Destinations = new Dictionary<string, Destination>() }));
             Assert.False(options1.Equals(options1 with { HealthCheck = new HealthCheckOptions() }));
             Assert.False(options1.Equals(options1 with { LoadBalancingPolicy = "different" }));
@@ -265,7 +265,7 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
         [Fact]
         public void Equals_Second_Null_Returns_False()
         {
-            var options1 = new Cluster();
+            var options1 = new ClusterConfig();
 
             var equals = options1.Equals(null);
 

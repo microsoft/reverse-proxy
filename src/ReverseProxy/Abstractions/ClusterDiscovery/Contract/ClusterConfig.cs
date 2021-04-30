@@ -10,16 +10,13 @@ namespace Yarp.ReverseProxy.Abstractions
 {
     /// <summary>
     /// A cluster is a group of equivalent endpoints and associated policies.
-    /// A route maps requests to a cluster, and Reverse Proxy handles that request
-    /// by proxying to any endpoint within the matching cluster,
-    /// honoring load balancing and partitioning policies when applicable.
     /// </summary>
-    public sealed record Cluster
+    public sealed record ClusterConfig
     {
         /// <summary>
         /// The Id for this cluster. This needs to be globally unique.
         /// </summary>
-        public string Id { get; init; }
+        public string ClusterId { get; init; }
 
         /// <summary>
         /// Load balancing policy.
@@ -57,7 +54,7 @@ namespace Yarp.ReverseProxy.Abstractions
         public IReadOnlyDictionary<string, string> Metadata { get; init; }
 
         /// <inheritdoc />
-        public bool Equals(Cluster other)
+        public bool Equals(ClusterConfig other)
         {
             if (other == null)
             {
@@ -68,14 +65,14 @@ namespace Yarp.ReverseProxy.Abstractions
                 && CaseInsensitiveEqualHelper.Equals(Destinations, other.Destinations, (a, b) => a == b);
         }
 
-        internal bool EqualsExcludingDestinations(Cluster other)
+        internal bool EqualsExcludingDestinations(ClusterConfig other)
         {
             if (other == null)
             {
                 return false;
             }
 
-            return string.Equals(Id, other.Id, StringComparison.OrdinalIgnoreCase)
+            return string.Equals(ClusterId, other.ClusterId, StringComparison.OrdinalIgnoreCase)
                 && string.Equals(LoadBalancingPolicy, other.LoadBalancingPolicy, StringComparison.OrdinalIgnoreCase)
                 // CS0252 warning only shows up in VS https://github.com/dotnet/roslyn/issues/49302
                 && SessionAffinity == other.SessionAffinity
@@ -89,7 +86,7 @@ namespace Yarp.ReverseProxy.Abstractions
         public override int GetHashCode()
         {
             return HashCode.Combine(
-                Id?.GetHashCode(StringComparison.OrdinalIgnoreCase),
+                ClusterId?.GetHashCode(StringComparison.OrdinalIgnoreCase),
                 LoadBalancingPolicy?.GetHashCode(StringComparison.OrdinalIgnoreCase),
                 SessionAffinity,
                 HealthCheck,

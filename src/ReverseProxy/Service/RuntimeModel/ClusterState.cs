@@ -119,7 +119,7 @@ namespace Yarp.ReverseProxy.RuntimeModel
             {
                 try
                 {
-                    var healthChecks = _model?.Options.HealthCheck;
+                    var healthChecks = _model?.Config.HealthCheck;
                     var allDestinations = _destinationsSnapshot;
                     var availableDestinations = allDestinations;
                     if (allDestinations == null)

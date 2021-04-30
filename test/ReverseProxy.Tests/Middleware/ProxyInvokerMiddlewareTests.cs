@@ -49,7 +49,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
 #endif
             };
             var cluster1 = new ClusterState(clusterId: "cluster1");
-            var clusterModel = new ClusterModel(new Cluster() { HttpRequest = httpRequestOptions },
+            var clusterModel = new ClusterModel(new ClusterConfig() { HttpRequest = httpRequestOptions },
                 httpClient);
             var destination1 = cluster1.Destinations.GetOrAdd(
                 "destination1",
@@ -136,7 +136,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
 
             var httpClient = new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object);
             var cluster1 = new ClusterState(clusterId: "cluster1");
-            var clusterModel = new ClusterModel(new Cluster(), httpClient);
+            var clusterModel = new ClusterModel(new ClusterConfig(), httpClient);
             var routeConfig = new RouteModel(
                 config: new RouteConfig(),
                 cluster: cluster1,

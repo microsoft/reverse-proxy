@@ -260,10 +260,10 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
                 },
                 Active = new ActiveHealthCheckOptions
                 {
-                    Policy = cluster2.Model.Options.HealthCheck.Active.Policy,
+                    Policy = cluster2.Model.Config.HealthCheck.Active.Policy,
                 }
             };
-            cluster2.Model = new ClusterModel(new Cluster { Id = cluster2.ClusterId, HealthCheck = healthCheckConfig },
+            cluster2.Model = new ClusterModel(new ClusterConfig { ClusterId = cluster2.ClusterId, HealthCheck = healthCheckConfig },
                 cluster2.Model.HttpClient);
 
             monitor.OnClusterChanged(cluster2);
@@ -622,9 +622,9 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
         private ClusterState GetClusterInfo(string id, string policy, bool activeCheckEnabled, HttpMessageInvoker httpClient, TimeSpan? interval = null, TimeSpan? timeout = null, int destinationCount = 2)
         {
             var clusterModel = new ClusterModel(
-                new Cluster
+                new ClusterConfig
                 {
-                    Id = id,
+                    ClusterId = id,
                     HealthCheck = new HealthCheckOptions
                     {
                         Active = new ActiveHealthCheckOptions

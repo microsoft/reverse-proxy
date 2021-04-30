@@ -60,9 +60,9 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
 
             var cluster = LabelsParser.BuildCluster(_testServiceName, labels, null);
 
-            var expectedCluster = new Cluster
+            var expectedCluster = new ClusterConfig
             {
-                Id = "MyCoolClusterId",
+                ClusterId = "MyCoolClusterId",
                 LoadBalancingPolicy = LoadBalancingPolicies.LeastRequests,
                 SessionAffinity = new SessionAffinityOptions
                 {
@@ -135,9 +135,9 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
 
             var cluster = LabelsParser.BuildCluster(_testServiceName, labels, null);
 
-            var expectedCluster = new Cluster
+            var expectedCluster = new ClusterConfig
             {
-                Id = "MyCoolClusterId",
+                ClusterId = "MyCoolClusterId",
                 SessionAffinity = new SessionAffinityOptions
                 {
                     Enabled = false,
@@ -215,7 +215,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
 
             var cluster = LabelsParser.BuildCluster(_testServiceName, labels, null);
 
-            cluster.Id.Should().Be(_testServiceName.ToString());
+            cluster.ClusterId.Should().Be(_testServiceName.ToString());
         }
 
         [Theory]
@@ -244,7 +244,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                 { key, invalidValue },
             };
 
-            Func<Cluster> func = () => LabelsParser.BuildCluster(_testServiceName, labels, null);
+            Func<ClusterConfig> func = () => LabelsParser.BuildCluster(_testServiceName, labels, null);
 
             func.Should().Throw<ConfigException>().WithMessage($"Could not convert label {key}='{invalidValue}' *");
         }

@@ -1,6 +1,6 @@
 [
   {
-    "Id": "frontend:80",
+    "ClusterId": "frontend:80",
     "LoadBalancingPolicy": null,
     "SessionAffinity": null,
     "HealthCheck": null,
@@ -16,7 +16,7 @@
     "Metadata": null
   },
   {
-    "Id": "frontend:443",
+    "ClusterId": "frontend:443",
     "LoadBalancingPolicy": null,
     "SessionAffinity": null,
     "HealthCheck": null,

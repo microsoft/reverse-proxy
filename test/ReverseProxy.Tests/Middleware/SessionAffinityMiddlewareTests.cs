@@ -20,9 +20,9 @@ namespace Yarp.ReverseProxy.Middleware
     public class SessionAffinityMiddlewareTests
     {
         protected const string AffinitizedDestinationName = "dest-B";
-        protected readonly ClusterModel ClusterConfig = new ClusterModel(new Cluster
+        protected readonly ClusterModel ClusterConfig = new ClusterModel(new ClusterConfig
         {
-            Id = "cluster-1",
+            ClusterId = "cluster-1",
             SessionAffinity = new SessionAffinityOptions
             {
                 Enabled = true,
@@ -157,7 +157,7 @@ namespace Yarp.ReverseProxy.Middleware
                         It.IsAny<HttpContext>(),
                         expectedDestinations,
                         expectedCluster,
-                        ClusterConfig.Options.SessionAffinity))
+                        ClusterConfig.Config.SessionAffinity))
                     .Returns(new AffinityResult(destinations, status.Value))
                     .Callback(() => callback(provider.Object));
                 }
@@ -165,7 +165,7 @@ namespace Yarp.ReverseProxy.Middleware
                 {
                     provider.Setup(p => p.AffinitizeRequest(
                         It.IsAny<HttpContext>(),
-                        ClusterConfig.Options.SessionAffinity,
+                        ClusterConfig.Config.SessionAffinity,
                         expectedDestinations[0]))
                     .Callback(() => callback(provider.Object));
                 }

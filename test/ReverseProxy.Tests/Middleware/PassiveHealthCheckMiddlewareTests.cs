@@ -122,9 +122,9 @@ namespace Yarp.ReverseProxy.Middleware
         private ClusterState GetClusterInfo(string id, string policy, bool enabled = true)
         {
             var clusterModel = new ClusterModel(
-                new Cluster
+                new ClusterConfig
                 {
-                    Id = id,
+                    ClusterId = id,
                     HealthCheck = new HealthCheckOptions
                     {
                         Passive = new PassiveHealthCheckOptions

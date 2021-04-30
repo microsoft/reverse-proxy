@@ -93,9 +93,9 @@ namespace Yarp.ReverseProxy.Common
                         Match = new RouteMatch { Path = "/{**catchall}" }
                     };
 
-                    var cluster = new Cluster
+                    var cluster = new ClusterConfig
                     {
-                        Id = clusterId,
+                        ClusterId = clusterId,
                         Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
                         {
                             { "destination1",  new Destination() { Address = destinationAddress } }

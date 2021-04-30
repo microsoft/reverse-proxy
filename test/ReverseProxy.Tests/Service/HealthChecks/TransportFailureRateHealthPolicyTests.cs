@@ -210,9 +210,9 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
                 ? new Dictionary<string, string> { { TransportFailureRateHealthPolicyOptions.FailureRateLimitMetadataName, failureRateLimit?.ToString(CultureInfo.InvariantCulture) } }
                 : null;
             var clusterModel = new ClusterModel(
-                new Cluster
+                new ClusterConfig
                 {
-                    Id = id,
+                    ClusterId = id,
                     HealthCheck = new HealthCheckOptions
                     {
                         Passive = new PassiveHealthCheckOptions

@@ -49,7 +49,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
                     var probeClusterTasks = new List<Task>();
                     foreach (var cluster in clusters)
                     {
-                        if ((cluster.Model.Options.HealthCheck?.Active?.Enabled).GetValueOrDefault())
+                        if ((cluster.Model.Config.HealthCheck?.Active?.Enabled).GetValueOrDefault())
                         {
                             probeClusterTasks.Add(ProbeCluster(cluster));
                         }
@@ -72,7 +72,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
 
         public void OnClusterAdded(ClusterState cluster)
         {
-            var activeHealthCheckOptions = cluster.Model.Options.HealthCheck?.Active;
+            var activeHealthCheckOptions = cluster.Model.Config.HealthCheck?.Active;
             if ((activeHealthCheckOptions?.Enabled).GetValueOrDefault())
             {
                 _scheduler.ScheduleEntity(cluster, activeHealthCheckOptions.Interval ?? _monitorOptions.DefaultInterval);
@@ -81,7 +81,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
 
         public void OnClusterChanged(ClusterState cluster)
         {
-            var activeHealthCheckOptions = cluster.Model.Options.HealthCheck?.Active;
+            var activeHealthCheckOptions = cluster.Model.Config.HealthCheck?.Active;
             if ((activeHealthCheckOptions?.Enabled).GetValueOrDefault())
             {
                 _scheduler.ChangePeriod(cluster, activeHealthCheckOptions.Interval ?? _monitorOptions.DefaultInterval);
@@ -105,7 +105,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
         private async Task ProbeCluster(ClusterState cluster)
         {
             var clusterModel = cluster.Model;
-            var activeHealthOptions = clusterModel.Options.HealthCheck?.Active;
+            var activeHealthOptions = clusterModel.Config.HealthCheck?.Active;
             if (!(activeHealthOptions?.Enabled).GetValueOrDefault())
             {
                 return;

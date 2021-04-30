@@ -119,9 +119,9 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
         {
             var cluster = new ClusterState("cluster0");
             cluster.Model = new ClusterModel(
-                new Cluster
+                new ClusterConfig
                 {
-                    Id = cluster.ClusterId,
+                    ClusterId = cluster.ClusterId,
                     HealthCheck = new HealthCheckOptions()
                     {
                         Passive = new PassiveHealthCheckOptions()

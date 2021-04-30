@@ -23,12 +23,12 @@ namespace Yarp.ReverseProxy.Service
         /// <summary>
         /// Validates that any cluster data needed for transforms is valid.
         /// </summary>
-        IReadOnlyList<Exception> ValidateCluster(Cluster cluster);
+        IReadOnlyList<Exception> ValidateCluster(ClusterConfig cluster);
 
         /// <summary>
         /// Builds the transforms for the given route into executable rules.
         /// </summary>
-        HttpTransformer Build(RouteConfig route, Cluster cluster);
+        HttpTransformer Build(RouteConfig route, ClusterConfig cluster);
 
         HttpTransformer Create(Action<TransformBuilderContext> action);
     }

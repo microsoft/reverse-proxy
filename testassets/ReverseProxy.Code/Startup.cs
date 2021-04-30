@@ -39,9 +39,9 @@ namespace Yarp.ReverseProxy.Sample
             };
             var clusters = new[]
             {
-                new Cluster()
+                new ClusterConfig()
                 {
-                    Id = "cluster1",
+                    ClusterId = "cluster1",
                     SessionAffinity = new SessionAffinityOptions { Enabled = true, Mode = "Cookie" },
                     Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
                     {

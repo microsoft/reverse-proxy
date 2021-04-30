@@ -25,7 +25,7 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         /// <summary>
         /// The cluster config the route is associated with.
         /// </summary>
-        public Cluster Cluster { get; init; }
+        public ClusterConfig Cluster { get; init; }
 
         /// <summary>
         /// Indicates if request headers should all be copied to the proxy request before transforms are applied.

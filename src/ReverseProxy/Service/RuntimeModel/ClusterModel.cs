@@ -20,14 +20,14 @@ namespace Yarp.ReverseProxy.RuntimeModel
     public sealed class ClusterModel
     {
         public ClusterModel(
-            Cluster cluster,
+            ClusterConfig config,
             HttpMessageInvoker httpClient)
         {
-            Options = cluster ?? throw new ArgumentNullException(nameof(cluster));
+            Config = config ?? throw new ArgumentNullException(nameof(config));
             HttpClient = httpClient;
         }
 
-        public Cluster Options { get; }
+        public ClusterConfig Config { get; }
 
         /// <summary>
         /// An <see cref="HttpMessageInvoker"/> that used for proxying requests to an upstream server.
@@ -39,7 +39,7 @@ namespace Yarp.ReverseProxy.RuntimeModel
         // and destinations are the most likely to change.
         internal bool HasConfigChanged(ClusterModel newModel)
         {
-            return !Options.EqualsExcludingDestinations(newModel.Options) || newModel.HttpClient != HttpClient;
+            return !Config.EqualsExcludingDestinations(newModel.Config) || newModel.HttpClient != HttpClient;
         }
     }
 }

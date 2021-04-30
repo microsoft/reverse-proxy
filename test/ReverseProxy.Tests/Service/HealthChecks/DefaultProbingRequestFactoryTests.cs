@@ -72,9 +72,9 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             )
         {
             return new ClusterModel(
-                new Cluster
+                new ClusterConfig
                 {
-                    Id = id,
+                    ClusterId = id,
                     HealthCheck = new HealthCheckOptions()
                     {
                         Active = healthCheckOptions,

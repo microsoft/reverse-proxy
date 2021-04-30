@@ -273,28 +273,28 @@ namespace Yarp.ReverseProxy.Service.Management
             return (configuredRoutes, errors);
         }
 
-        private async Task<(IList<Cluster>, IList<Exception>)> VerifyClustersAsync(IReadOnlyList<Cluster> clusters, CancellationToken cancellation)
+        private async Task<(IList<ClusterConfig>, IList<Exception>)> VerifyClustersAsync(IReadOnlyList<ClusterConfig> clusters, CancellationToken cancellation)
         {
             if (clusters == null)
             {
-                return (Array.Empty<Cluster>(), Array.Empty<Exception>());
+                return (Array.Empty<ClusterConfig>(), Array.Empty<Exception>());
             }
 
             var seenClusterIds = new HashSet<string>(clusters.Count, StringComparer.OrdinalIgnoreCase);
-            var configuredClusters = new List<Cluster>(clusters.Count);
+            var configuredClusters = new List<ClusterConfig>(clusters.Count);
             var errors = new List<Exception>();
             // The IProxyConfigProvider provides a fresh snapshot that we need to reconfigure each time.
             foreach (var c in clusters)
             {
                 try
                 {
-                    if (seenClusterIds.Contains(c.Id))
+                    if (seenClusterIds.Contains(c.ClusterId))
                     {
-                        errors.Add(new ArgumentException($"Duplicate cluster '{c.Id}'."));
+                        errors.Add(new ArgumentException($"Duplicate cluster '{c.ClusterId}'."));
                         continue;
                     }
 
-                    seenClusterIds.Add(c.Id);
+                    seenClusterIds.Add(c.ClusterId);
 
                     // Don't modify the original
                     var cluster = c;
@@ -315,7 +315,7 @@ namespace Yarp.ReverseProxy.Service.Management
                 }
                 catch (Exception ex)
                 {
-                    errors.Add(new ArgumentException($"An exception was thrown from the configuration callbacks for cluster '{c.Id}'.", ex));
+                    errors.Add(new ArgumentException($"An exception was thrown from the configuration callbacks for cluster '{c.ClusterId}'.", ex));
                 }
             }
 
@@ -327,15 +327,15 @@ namespace Yarp.ReverseProxy.Service.Management
             return (configuredClusters, errors);
         }
 
-        private void UpdateRuntimeClusters(IList<Cluster> incomingClusters)
+        private void UpdateRuntimeClusters(IList<ClusterConfig> incomingClusters)
         {
             var desiredClusters = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var incomingCluster in incomingClusters)
             {
-                desiredClusters.Add(incomingCluster.Id);
+                desiredClusters.Add(incomingCluster.ClusterId);
 
-                if (_clusters.TryGetValue(incomingCluster.Id, out var currentCluster))
+                if (_clusters.TryGetValue(incomingCluster.ClusterId, out var currentCluster))
                 {
                     var destinationsChanged = UpdateRuntimeDestinations(incomingCluster.Destinations, currentCluster.Destinations);
 
@@ -344,8 +344,8 @@ namespace Yarp.ReverseProxy.Service.Management
                     var httpClient = _httpClientFactory.CreateClient(new ProxyHttpClientContext
                     {
                         ClusterId = currentCluster.ClusterId,
-                        OldOptions = currentClusterModel.Options.HttpClient ?? ProxyHttpClientOptions.Empty,
-                        OldMetadata = currentClusterModel.Options.Metadata,
+                        OldOptions = currentClusterModel.Config.HttpClient ?? ProxyHttpClientOptions.Empty,
+                        OldMetadata = currentClusterModel.Config.Metadata,
                         OldClient = currentClusterModel.HttpClient,
                         NewOptions = incomingCluster.HttpClient ?? ProxyHttpClientOptions.Empty,
                         NewMetadata = incomingCluster.Metadata
@@ -358,7 +358,7 @@ namespace Yarp.ReverseProxy.Service.Management
                     if (configChanged)
                     {
                         currentCluster.Revision++;
-                        Log.ClusterChanged(_logger, incomingCluster.Id);
+                        Log.ClusterChanged(_logger, incomingCluster.ClusterId);
 
                         // Config changed, so update runtime cluster
                         currentCluster.Model = newClusterModel;
@@ -376,7 +376,7 @@ namespace Yarp.ReverseProxy.Service.Management
                 }
                 else
                 {
-                    var newCluster = new ClusterState(incomingCluster.Id);
+                    var newCluster = new ClusterState(incomingCluster.ClusterId);
 
                     UpdateRuntimeDestinations(incomingCluster.Destinations, newCluster.Destinations);
 
@@ -389,7 +389,7 @@ namespace Yarp.ReverseProxy.Service.Management
 
                     newCluster.Model = new ClusterModel(incomingCluster, httpClient);
                     newCluster.Revision++;
-                    Log.ClusterAdded(_logger, incomingCluster.Id);
+                    Log.ClusterAdded(_logger, incomingCluster.ClusterId);
 
                     newCluster.ProcessDestinationChanges();
 
@@ -572,7 +572,7 @@ namespace Yarp.ReverseProxy.Service.Management
 
         private RouteModel BuildRouteModel(RouteConfig source, ClusterState cluster)
         {
-            var transforms = _transformBuilder.Build(source, cluster?.Model?.Options);
+            var transforms = _transformBuilder.Build(source, cluster?.Model?.Config);
 
             return new RouteModel(source, cluster, transforms);
         }

@@ -124,9 +124,9 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
                 ? new Dictionary<string, string> { { ConsecutiveFailuresHealthPolicyOptions.ThresholdMetadataName, failureThreshold.ToString() } }
                 : null;
             var clusterModel = new ClusterModel(
-                new Cluster
+                new ClusterConfig
                 {
-                    Id = id,
+                    ClusterId = id,
                     HealthCheck = new HealthCheckOptions()
                     {
                         Active = new ActiveHealthCheckOptions

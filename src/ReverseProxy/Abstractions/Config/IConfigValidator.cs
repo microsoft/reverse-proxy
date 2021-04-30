@@ -21,6 +21,6 @@ namespace Yarp.ReverseProxy.Service
         /// <summary>
         /// Validates a cluster and returns all errors.
         /// </summary>
-        ValueTask<IList<Exception>> ValidateClusterAsync(Cluster cluster);
+        ValueTask<IList<Exception>> ValidateClusterAsync(ClusterConfig cluster);
     }
 }

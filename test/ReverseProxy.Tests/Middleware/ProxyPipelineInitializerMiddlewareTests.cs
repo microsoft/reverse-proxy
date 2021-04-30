@@ -39,7 +39,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
         {
             var httpClient = new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object);
             var cluster1 = new ClusterState(clusterId: "cluster1");
-            cluster1.Model = new ClusterModel(new Cluster(), httpClient);
+            cluster1.Model = new ClusterModel(new ClusterConfig(), httpClient);
             var destination1 = cluster1.Destinations.GetOrAdd(
                 "destination1",
                 id => new DestinationInfo(id) { Config = new DestinationConfig(new Destination { Address = "https://localhost:123/a/b/" }) });
@@ -75,7 +75,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
             var httpClient = new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object);
             var cluster1 = new ClusterState(clusterId: "cluster1");
             cluster1.Model = new ClusterModel(
-                new Cluster()
+                new ClusterConfig()
                 {
                     HealthCheck = new HealthCheckOptions
                     {

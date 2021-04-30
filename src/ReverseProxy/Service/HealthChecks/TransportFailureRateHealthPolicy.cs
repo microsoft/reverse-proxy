@@ -49,7 +49,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
         {
             var error = context.Features.Get<IProxyErrorFeature>();
             var newHealth = EvaluateProxiedRequest(cluster, destination, error != null);
-            var reactivationPeriod = cluster.Model.Options.HealthCheck.Passive.ReactivationPeriod ?? _defaultReactivationPeriod;
+            var reactivationPeriod = cluster.Model.Config.HealthCheck.Passive.ReactivationPeriod ?? _defaultReactivationPeriod;
             _healthUpdater.SetPassive(cluster, destination, newHealth, reactivationPeriod);
         }
 
