@@ -58,7 +58,7 @@ namespace Yarp.ReverseProxy.Kubernetes.Protocol
 
                 try
                 {
-#if NET5_0
+#if NET
                     using var stream = await client.GetStreamAsync(_options.ControllerUrl, cancellationToken).ConfigureAwait(false);
 #else
                     using var stream = await client.GetStreamAsync(_options.ControllerUrl).ConfigureAwait(false);

@@ -48,7 +48,7 @@ namespace Yarp.ReverseProxy
                 services.AddSingleton<TelemetryConsumer>();
                 services.AddSingleton(services => (IProxyTelemetryConsumer)services.GetRequiredService<TelemetryConsumer>());
                 services.AddSingleton(services => (IKestrelTelemetryConsumer)services.GetRequiredService<TelemetryConsumer>());
-#if NET5_0
+#if NET
                 services.AddSingleton(services => (IHttpTelemetryConsumer)services.GetRequiredService<TelemetryConsumer>());
                 services.AddSingleton(services => (INameResolutionTelemetryConsumer)services.GetRequiredService<TelemetryConsumer>());
                 services.AddSingleton(services => (INetSecurityTelemetryConsumer)services.GetRequiredService<TelemetryConsumer>());
@@ -58,7 +58,7 @@ namespace Yarp.ReverseProxy
                 services.AddSingleton<SecondTelemetryConsumer>();
                 services.AddSingleton(services => (IProxyTelemetryConsumer)services.GetRequiredService<SecondTelemetryConsumer>());
                 services.AddSingleton(services => (IKestrelTelemetryConsumer)services.GetRequiredService<SecondTelemetryConsumer>());
-#if NET5_0
+#if NET
                 services.AddSingleton(services => (IHttpTelemetryConsumer)services.GetRequiredService<SecondTelemetryConsumer>());
                 services.AddSingleton(services => (INameResolutionTelemetryConsumer)services.GetRequiredService<SecondTelemetryConsumer>());
                 services.AddSingleton(services => (INetSecurityTelemetryConsumer)services.GetRequiredService<SecondTelemetryConsumer>());
@@ -105,7 +105,7 @@ namespace Yarp.ReverseProxy
                 "OnProxyInvoke",
                 "OnProxyStart",
                 "OnProxyStage-SendAsyncStart",
-#if NET5_0
+#if NET
                 "OnRequestStart",
                 "OnConnectStart",
                 "OnConnectStop",
@@ -132,7 +132,7 @@ namespace Yarp.ReverseProxy
             }
         }
 
-#if NET5_0
+#if NET
         [Theory]
         [InlineData(RegistrationApproach.WithInstanceHelper)]
         [InlineData(RegistrationApproach.WithGenericHelper)]
@@ -179,7 +179,7 @@ namespace Yarp.ReverseProxy
         private class TelemetryConsumer :
             IProxyTelemetryConsumer,
             IKestrelTelemetryConsumer
-#if NET5_0
+#if NET
             ,
             IHttpTelemetryConsumer,
             INameResolutionTelemetryConsumer,
@@ -213,7 +213,7 @@ namespace Yarp.ReverseProxy
                 AddStage(nameof(OnProxyInvoke), timestamp);
                 PerClusterTelemetry.TryAdd((clusterId, GetType()), _stages.Value);
             }
-#if NET5_0
+#if NET
             public void OnRequestStart(DateTime timestamp, string scheme, string host, int port, string pathAndQuery, int versionMajor, int versionMinor, HttpVersionPolicy versionPolicy)
             {
                 AddStage(nameof(OnRequestStart), timestamp);
@@ -263,7 +263,7 @@ namespace Yarp.ReverseProxy
                     var services = proxyBuilder.Services;
 
                     services.AddSingleton<IProxyMetricsConsumer>(consumer);
-#if NET5_0
+#if NET
                     services.AddSingleton<IKestrelMetricsConsumer>(consumer);
                     services.AddSingleton<IHttpMetricsConsumer>(consumer);
                     services.AddSingleton<ISocketsMetricsConsumer>(consumer);
@@ -290,7 +290,7 @@ namespace Yarp.ReverseProxy
 
                 await Task.WhenAll(
                     WaitAsync(() => consumer.ProxyMetrics.LastOrDefault()?.RequestsStarted > 0, nameof(ProxyMetrics))
-#if NET5_0
+#if NET
                     ,
                     WaitAsync(() => consumer.KestrelMetrics.LastOrDefault()?.TotalConnections > 0, nameof(KestrelMetrics)),
                     WaitAsync(() => consumer.HttpMetrics.LastOrDefault()?.RequestsStarted > 0, nameof(HttpMetrics)),
@@ -302,7 +302,7 @@ namespace Yarp.ReverseProxy
             });
 
             VerifyTimestamp(consumer.ProxyMetrics.Last().Timestamp);
-#if NET5_0
+#if NET
             VerifyTimestamp(consumer.KestrelMetrics.Last().Timestamp);
             VerifyTimestamp(consumer.HttpMetrics.Last().Timestamp);
             VerifyTimestamp(consumer.SocketsMetrics.Last().Timestamp);
@@ -332,7 +332,7 @@ namespace Yarp.ReverseProxy
 
         private sealed class MetricsConsumer :
             IProxyMetricsConsumer
-#if NET5_0
+#if NET
             ,
             IKestrelMetricsConsumer,
             IHttpMetricsConsumer,
@@ -342,7 +342,7 @@ namespace Yarp.ReverseProxy
 #endif
         {
             public readonly ConcurrentQueue<ProxyMetrics> ProxyMetrics = new ConcurrentQueue<ProxyMetrics>();
-#if NET5_0
+#if NET
             public readonly ConcurrentQueue<KestrelMetrics> KestrelMetrics = new();
             public readonly ConcurrentQueue<HttpMetrics> HttpMetrics = new();
             public readonly ConcurrentQueue<SocketsMetrics> SocketsMetrics = new();
@@ -351,7 +351,7 @@ namespace Yarp.ReverseProxy
 #endif
 
             public void OnProxyMetrics(ProxyMetrics oldMetrics, ProxyMetrics newMetrics) => ProxyMetrics.Enqueue(newMetrics);
-#if NET5_0
+#if NET
             public void OnKestrelMetrics(KestrelMetrics oldMetrics, KestrelMetrics newMetrics) => KestrelMetrics.Enqueue(newMetrics);
             public void OnSocketsMetrics(SocketsMetrics oldMetrics, SocketsMetrics newMetrics) => SocketsMetrics.Enqueue(newMetrics);
             public void OnNetSecurityMetrics(NetSecurityMetrics oldMetrics, NetSecurityMetrics newMetrics) => NetSecurityMetrics.Enqueue(newMetrics);

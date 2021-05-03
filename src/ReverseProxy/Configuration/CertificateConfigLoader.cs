@@ -55,7 +55,7 @@ namespace Yarp.ReverseProxy.Configuration
                 }
                 else
                 {
-#if NET5_0
+#if NET
                     return LoadPEMCertificate(certificateConfig, certificatePath);
 #elif NETCOREAPP3_1
                     throw new NotSupportedException("PEM certificate format is only supported on .NET 5 or higher.");
@@ -72,7 +72,7 @@ namespace Yarp.ReverseProxy.Configuration
             throw new ArgumentException($"Passed {nameof(CertificateConfigData)} doesn't define a certificate in any known format.");
         }
 
-#if NET5_0
+#if NET
         private X509Certificate2 LoadPEMCertificate(CertificateConfigData certificateConfig, string certificatePath)
         {
             var certificateKeyPath = Path.Combine(_hostEnvironment.ContentRootPath, certificateConfig.KeyPath);

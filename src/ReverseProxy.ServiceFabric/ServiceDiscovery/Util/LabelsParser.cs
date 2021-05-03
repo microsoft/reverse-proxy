@@ -148,7 +148,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
                         }
                         else if (propertyName.Equals("Values", StringComparison.Ordinal))
                         {
-#if NET5_0
+#if NET
                             headerMatches[headerIndex].Values = kvp.Value.Split(',', StringSplitOptions.TrimEntries);
 #elif NETCOREAPP3_1
                             headerMatches[headerIndex].Values = kvp.Value.Split(',').Select(val => val.Trim()).ToList();

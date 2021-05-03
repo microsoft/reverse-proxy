@@ -115,7 +115,6 @@ namespace Yarp.ReverseProxy.Utilities.Tls
             None = 0,
             Http11 = 1,
             Http2 = 2,
-            Http3 = 4,
             Other = 128
         }
 
@@ -168,8 +167,8 @@ namespace Yarp.ReverseProxy.Utilities.Tls
         private const int ProtocolVersionTlsMajorValue = 3;
 
         // Per spec "AllowUnassigned flag MUST be set". See comment above DecodeString() for more details.
-        private static readonly IdnMapping IdnMapping = new IdnMapping() { AllowUnassigned = true };
-        private static readonly Encoding Utf8Encoding = Encoding.GetEncoding("utf-8", new EncoderExceptionFallback(), new DecoderExceptionFallback());
+        private static readonly IdnMapping s_idnMapping = new IdnMapping() { AllowUnassigned = true };
+        private static readonly Encoding s_encoding = Encoding.GetEncoding("utf-8", new EncoderExceptionFallback(), new DecoderExceptionFallback());
 
         public static bool TryGetFrameHeader(ReadOnlySpan<byte> frame, ref TlsFrameHeader header)
         {
@@ -207,7 +206,7 @@ namespace Yarp.ReverseProxy.Utilities.Tls
         {
             if (frame.Length < 5 || frame[1] < 3)
             {
-                return - 1;
+                return -1;
             }
 
             return ((frame[3] << 8) | frame[4]) + HeaderSize;
@@ -566,7 +565,6 @@ namespace Yarp.ReverseProxy.Utilities.Tls
             }
 
             // Following can underflow but it is ok due to equality check below
-            int hostNameStructLength = BinaryPrimitives.ReadUInt16BigEndian(serverName) - sizeof(NameType);
             NameType nameType = (NameType)serverName[NameTypeOffset];
             ReadOnlySpan<byte> hostNameStruct = serverName.Slice(HostNameStructOffset);
             if (nameType != NameType.HostName)
@@ -677,12 +675,6 @@ namespace Yarp.ReverseProxy.Utilities.Tls
                     {
                         alpn |= ApplicationProtocolInfo.Http2;
                     }
-#if NET5
-                    else if (protocol.SequenceEqual(SslApplicationProtocol.Http3.Protocol.Span))
-                    {
-                        alpn |= ApplicationProtocolInfo.Http3;
-                    }
-#endif
                     else
                     {
                         alpn |= ApplicationProtocolInfo.Other;
@@ -740,7 +732,7 @@ namespace Yarp.ReverseProxy.Utilities.Tls
             string idnEncodedString;
             try
             {
-                idnEncodedString = Utf8Encoding.GetString(bytes);
+                idnEncodedString = s_encoding.GetString(bytes);
             }
             catch (DecoderFallbackException)
             {
@@ -749,7 +741,7 @@ namespace Yarp.ReverseProxy.Utilities.Tls
 
             try
             {
-                return IdnMapping.GetUnicode(idnEncodedString);
+                return s_idnMapping.GetUnicode(idnEncodedString);
             }
             catch (ArgumentException)
             {

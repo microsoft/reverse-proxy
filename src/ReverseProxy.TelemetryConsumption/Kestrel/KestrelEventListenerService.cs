@@ -9,13 +9,13 @@ using Microsoft.Extensions.Logging;
 
 namespace Yarp.ReverseProxy.Telemetry.Consumption
 {
-#if !NET5_0
+#if !NET
     internal interface IKestrelMetricsConsumer { }
 #endif
 
     internal sealed class KestrelEventListenerService : EventListenerService<KestrelEventListenerService, IKestrelTelemetryConsumer, IKestrelMetricsConsumer>
     {
-#if NET5_0
+#if NET
         private KestrelMetrics _previousMetrics;
         private KestrelMetrics _currentMetrics = new();
         private int _eventCountersCount;
@@ -34,7 +34,7 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
 
             if (eventData.EventId < MinEventId || eventData.EventId > MaxEventId)
             {
-#if NET5_0
+#if NET
                 if (eventData.EventId == -1)
                 {
                     OnEventCounters(eventData);
@@ -51,7 +51,7 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
 
             var payload = eventData.Payload;
 
-#if NET5_0
+#if NET
             switch (eventData.EventId)
             {
                 case 3:
@@ -114,7 +114,7 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
 #endif
         }
 
-#if NET5_0
+#if NET
         private void OnEventCounters(EventWrittenEventArgs eventData)
         {
             if (MetricsConsumers is null)
