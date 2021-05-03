@@ -22,19 +22,19 @@ namespace Yarp.ReverseProxy.RuntimeModel
         /// Creates a new instance. This constructor is for tests and infrastructure, this type is normally constructed by
         /// the configuration loading infrastructure.
         /// </summary>
-        public DestinationModel(Destination destination)
+        public DestinationModel(DestinationConfig destination)
         {
-            Options = destination ?? throw new ArgumentNullException(nameof(destination));
+            Config = destination ?? throw new ArgumentNullException(nameof(destination));
         }
 
         /// <summary>
         /// This destination's configuration.
         /// </summary>
-        public Destination Options { get; }
+        public DestinationConfig Config { get; }
 
-        internal bool HasChanged(Destination destination)
+        internal bool HasChanged(DestinationConfig destination)
         {
-            return Options != destination;
+            return Config != destination;
         }
     }
 }

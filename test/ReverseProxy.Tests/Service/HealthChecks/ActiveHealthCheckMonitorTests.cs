@@ -208,7 +208,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             foreach (var destination in cluster2.Destinations.Values)
             {
                 var d = cluster2.Destinations.GetOrAdd(destination.DestinationId, id => new DestinationState(id));
-                d.Model = new DestinationModel(new Destination { Address = destination.Model.Options.Address });
+                d.Model = new DestinationModel(new DestinationConfig { Address = destination.Model.Config.Address });
             }
 
             monitor.OnClusterChanged(cluster2);
@@ -642,7 +642,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             clusterState.Model = clusterModel;
             for (var i = 0; i < destinationCount; i++)
             {
-                var destinationModel = new DestinationModel(new Destination { Address = $"https://localhost:1000{i}/{id}/", Health = $"https://localhost:2000{i}/{id}/" });
+                var destinationModel = new DestinationModel(new DestinationConfig { Address = $"https://localhost:1000{i}/{id}/", Health = $"https://localhost:2000{i}/{id}/" });
                 var destinationId = $"destination{i}";
                 clusterState.Destinations.GetOrAdd(destinationId, id => new DestinationState(id)
                 {

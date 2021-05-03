@@ -10,7 +10,7 @@ namespace Yarp.ReverseProxy.Abstractions
     /// <summary>
     /// Describes a destination of a cluster.
     /// </summary>
-    public sealed record Destination
+    public sealed record DestinationConfig
     {
         /// <summary>
         /// Address of this destination. E.g. <c>https://127.0.0.1:123/abcd1234/</c>.
@@ -28,7 +28,7 @@ namespace Yarp.ReverseProxy.Abstractions
         public IReadOnlyDictionary<string, string> Metadata { get; init; }
 
         /// <inheritdoc />
-        public bool Equals(Destination other)
+        public bool Equals(DestinationConfig other)
         {
             if (other == null)
             {

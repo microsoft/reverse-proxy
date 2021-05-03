@@ -146,7 +146,7 @@ namespace Yarp.ReverseProxy.Configuration
 
         private ClusterConfig CreateCluster(IConfigurationSection section)
         {
-            var destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase);
+            var destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase);
             foreach (var destination in section.GetSection(nameof(ClusterConfig.Destinations)).GetChildren())
             {
                 destinations.Add(destination.Key, CreateDestination(destination));
@@ -368,18 +368,18 @@ namespace Yarp.ReverseProxy.Configuration
             };
         }
 
-        private static Destination CreateDestination(IConfigurationSection section)
+        private static DestinationConfig CreateDestination(IConfigurationSection section)
         {
             if (!section.Exists())
             {
                 return null;
             }
 
-            return new Destination
+            return new DestinationConfig
             {
-                Address = section[nameof(Destination.Address)],
-                Health = section[nameof(Destination.Health)],
-                Metadata = section.GetSection(nameof(Destination.Metadata)).ReadStringDictionary(),
+                Address = section[nameof(DestinationConfig.Address)],
+                Health = section[nameof(DestinationConfig.Health)],
+                Metadata = section.GetSection(nameof(DestinationConfig.Metadata)).ReadStringDictionary(),
             };
         }
 

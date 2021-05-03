@@ -94,7 +94,7 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Converters
 
                         var protocol = context.Options.Https ? "https" : "http";
                         var uri = $"{protocol}://{address.Ip}:{port.Port}";
-                        cluster.Destinations[uri] = new Destination()
+                        cluster.Destinations[uri] = new DestinationConfig()
                         {
                             Address = uri
                         };

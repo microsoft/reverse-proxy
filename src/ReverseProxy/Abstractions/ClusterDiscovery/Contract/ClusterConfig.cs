@@ -46,7 +46,7 @@ namespace Yarp.ReverseProxy.Abstractions
         /// <summary>
         /// The set of destinations associated with this cluster.
         /// </summary>
-        public IReadOnlyDictionary<string, Destination> Destinations { get; init; }
+        public IReadOnlyDictionary<string, DestinationConfig> Destinations { get; init; }
 
         /// <summary>
         /// Arbitrary key-value pairs that further describe this cluster.

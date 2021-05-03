@@ -20,11 +20,11 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
             var options1 = new ClusterConfig
             {
                 ClusterId = "cluster1",
-                Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
+                Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
                 {
                     {
                         "destinationA",
-                        new Destination
+                        new DestinationConfig
                         {
                             Address = "https://localhost:10000/destA",
                             Health = "https://localhost:20000/destA",
@@ -33,7 +33,7 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
                     },
                     {
                         "destinationB",
-                        new Destination
+                        new DestinationConfig
                         {
                             Address = "https://localhost:10000/destB",
                             Health = "https://localhost:20000/destB",
@@ -90,11 +90,11 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
             var options2 = new ClusterConfig
             {
                 ClusterId = "cluster1",
-                Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
+                Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
                 {
                     {
                         "destinationA",
-                        new Destination
+                        new DestinationConfig
                         {
                             Address = "https://localhost:10000/destA",
                             Health = "https://localhost:20000/destA",
@@ -103,7 +103,7 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
                     },
                     {
                         "destinationB",
-                        new Destination
+                        new DestinationConfig
                         {
                             Address = "https://localhost:10000/destB",
                             Health = "https://localhost:20000/destB",
@@ -170,11 +170,11 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
             var options1 = new ClusterConfig
             {
                 ClusterId = "cluster1",
-                Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
+                Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
                 {
                     {
                         "destinationA",
-                        new Destination
+                        new DestinationConfig
                         {
                             Address = "https://localhost:10000/destA",
                             Health = "https://localhost:20000/destA",
@@ -183,7 +183,7 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
                     },
                     {
                         "destinationB",
-                        new Destination
+                        new DestinationConfig
                         {
                             Address = "https://localhost:10000/destB",
                             Health = "https://localhost:20000/destB",
@@ -235,7 +235,7 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
             };
 
             Assert.False(options1.Equals(options1 with { ClusterId = "different" }));
-            Assert.False(options1.Equals(options1 with { Destinations = new Dictionary<string, Destination>() }));
+            Assert.False(options1.Equals(options1 with { Destinations = new Dictionary<string, DestinationConfig>() }));
             Assert.False(options1.Equals(options1 with { HealthCheck = new HealthCheckOptions() }));
             Assert.False(options1.Equals(options1 with { LoadBalancingPolicy = "different" }));
             Assert.False(options1.Equals(options1 with

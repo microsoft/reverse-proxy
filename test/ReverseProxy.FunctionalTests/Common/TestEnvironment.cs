@@ -96,9 +96,9 @@ namespace Yarp.ReverseProxy.Common
                     var cluster = new ClusterConfig
                     {
                         ClusterId = clusterId,
-                        Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
+                        Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
                         {
-                            { "destination1",  new Destination() { Address = destinationAddress } }
+                            { "destination1",  new DestinationConfig() { Address = destinationAddress } }
                         },
                         HttpClient = new ProxyHttpClientOptions
                         {

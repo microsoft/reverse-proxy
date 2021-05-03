@@ -29,7 +29,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
                     Policy = "policy",
                     Path = healthPath,
                 }, HttpVersion.Version20);
-            var destinationModel = new DestinationModel(new Destination { Address = address, Health = health });
+            var destinationModel = new DestinationModel(new DestinationConfig { Address = address, Health = health });
             var factory = new DefaultProbingRequestFactory();
 
             var request = factory.CreateRequest(clusterModel, destinationModel);
@@ -54,7 +54,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
                 , HttpVersionPolicy.RequestVersionExact
 #endif
                 );
-            var destinationModel = new DestinationModel(new Destination { Address = "https://localhost:10000/" });
+            var destinationModel = new DestinationModel(new DestinationConfig { Address = "https://localhost:10000/" });
             var factory = new DefaultProbingRequestFactory();
 
             var request = factory.CreateRequest(clusterModel, destinationModel);

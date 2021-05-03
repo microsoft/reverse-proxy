@@ -188,7 +188,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
             };
         }
 
-        private Destination BuildDestination(ReplicaWrapper replica, string listenerName, string healthListenerName)
+        private DestinationConfig BuildDestination(ReplicaWrapper replica, string listenerName, string healthListenerName)
         {
             if (!ServiceEndpointCollection.TryParseEndpointsString(replica.ReplicaAddress, out var serviceEndpointCollection))
             {
@@ -219,7 +219,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
                 }
             }
 
-            return new Destination
+            return new DestinationConfig
             {
                 Address = endpointUri.ToString(),
                 Health = healthEndpointUri?.ToString(),
@@ -242,7 +242,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
         /// and populates the specified <paramref name="cluster"/>'s <see cref="ClusterConfig.Destinations"/> accordingly.
         /// </summary>
         /// <remarks>All non-fatal exceptions are caught and logged.</remarks>
-        private async Task<IReadOnlyDictionary<string, Destination>> DiscoverDestinationsAsync(
+        private async Task<IReadOnlyDictionary<string, DestinationConfig>> DiscoverDestinationsAsync(
             ServiceFabricDiscoveryOptions options,
             ServiceWrapper service,
             Dictionary<string, string> serviceExtensionLabels,
@@ -259,7 +259,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
                 return null;
             }
 
-            var destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase);
+            var destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase);
 
             var listenerName = serviceExtensionLabels.GetValueOrDefault("YARP.Backend.ServiceFabric.ListenerName", string.Empty);
             var healthListenerName = serviceExtensionLabels.GetValueOrDefault("YARP.Backend.HealthCheck.Active.ServiceFabric.ListenerName", string.Empty);

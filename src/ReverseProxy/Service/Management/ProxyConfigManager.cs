@@ -426,7 +426,7 @@ namespace Yarp.ReverseProxy.Service.Management
             }
         }
 
-        private bool UpdateRuntimeDestinations(IReadOnlyDictionary<string, Destination> incomingDestinations, ConcurrentDictionary<string, DestinationState> currentDestinations)
+        private bool UpdateRuntimeDestinations(IReadOnlyDictionary<string, DestinationConfig> incomingDestinations, ConcurrentDictionary<string, DestinationState> currentDestinations)
         {
             var desiredDestinations = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             var changed = false;

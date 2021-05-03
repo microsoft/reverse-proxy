@@ -327,9 +327,9 @@ namespace Yarp.ReverseProxy.IntegrationTests
                 new ClusterConfig()
                 {
                     ClusterId = "cluster1",
-                    Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
+                    Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
                     {
-                        { "d1", new Destination() { Address = "http://localhost/" }  }
+                        { "d1", new DestinationConfig() { Address = "http://localhost/" }  }
                     }
                 }
             };

@@ -78,7 +78,7 @@ namespace Yarp.ReverseProxy.Middleware
                 ProxyTelemetry.Log.ProxyInvoke(cluster.ClusterId, route.Config.RouteId, destination.DestinationId);
 
                 var clusterConfig = reverseProxyFeature.Cluster;
-                await _httpProxy.ProxyAsync(context, destinationModel.Options.Address, clusterConfig.HttpClient, clusterConfig.Config.HttpRequest, route.Transformer);
+                await _httpProxy.ProxyAsync(context, destinationModel.Config.Address, clusterConfig.HttpClient, clusterConfig.Config.HttpRequest, route.Transformer);
             }
             finally
             {
