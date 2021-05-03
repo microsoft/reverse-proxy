@@ -53,7 +53,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
                 httpClient);
             var destination1 = cluster1.Destinations.GetOrAdd(
                 "destination1",
-                id => new DestinationInfo(id)
+                id => new DestinationState(id)
                 {
                     Config = new DestinationConfig(new Destination { Address = "https://localhost:123/a/b/" })
                 });
@@ -65,7 +65,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
             httpContext.Features.Set<IReverseProxyFeature>(
                 new ReverseProxyFeature()
             {
-                    AvailableDestinations = new List<DestinationInfo>() { destination1 }.AsReadOnly(),
+                    AvailableDestinations = new List<DestinationState>() { destination1 }.AsReadOnly(),
                     Cluster = clusterModel,
                     Route = routeConfig,
                 });
@@ -144,7 +144,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
             httpContext.Features.Set<IReverseProxyFeature>(
                 new ReverseProxyFeature()
                 {
-                    AvailableDestinations = Array.Empty<DestinationInfo>(),
+                    AvailableDestinations = Array.Empty<DestinationState>(),
                     Cluster = clusterModel,
                     Route = routeConfig,
                 });

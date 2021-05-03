@@ -9,15 +9,15 @@ namespace Yarp.ReverseProxy.RuntimeModel
     public sealed class ClusterDynamicState
     {
         public ClusterDynamicState(
-            IReadOnlyList<DestinationInfo> allDestinations,
-            IReadOnlyList<DestinationInfo> healthyDestinations)
+            IReadOnlyList<DestinationState> allDestinations,
+            IReadOnlyList<DestinationState> healthyDestinations)
         {
             AllDestinations = allDestinations ?? throw new ArgumentNullException(nameof(allDestinations));
             HealthyDestinations = healthyDestinations ?? throw new ArgumentNullException(nameof(healthyDestinations));
         }
 
-        public IReadOnlyList<DestinationInfo> AllDestinations { get; }
+        public IReadOnlyList<DestinationState> AllDestinations { get; }
 
-        public IReadOnlyList<DestinationInfo> HealthyDestinations { get; }
+        public IReadOnlyList<DestinationState> HealthyDestinations { get; }
     }
 }

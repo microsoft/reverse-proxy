@@ -19,10 +19,10 @@ namespace Yarp.ReverseProxy.RuntimeModel.Tests
         public void DynamicState_WithoutHealthChecks_AssumesAllHealthy()
         {
             var cluster = new ClusterState("abc");
-            var destination1 = cluster.Destinations.GetOrAdd("d1", id => new DestinationInfo(id) { Health = { Active = DestinationHealth.Healthy } });
-            var destination2 = cluster.Destinations.GetOrAdd("d2", id => new DestinationInfo(id) { Health = { Active = DestinationHealth.Unhealthy } });
-            var destination3 = cluster.Destinations.GetOrAdd("d3", id => new DestinationInfo(id)); // Unknown health state
-            var destination4 = cluster.Destinations.GetOrAdd("d4", id => new DestinationInfo(id) { Health = { Passive = DestinationHealth.Healthy } });
+            var destination1 = cluster.Destinations.GetOrAdd("d1", id => new DestinationState(id) { Health = { Active = DestinationHealth.Healthy } });
+            var destination2 = cluster.Destinations.GetOrAdd("d2", id => new DestinationState(id) { Health = { Active = DestinationHealth.Unhealthy } });
+            var destination3 = cluster.Destinations.GetOrAdd("d3", id => new DestinationState(id)); // Unknown health state
+            var destination4 = cluster.Destinations.GetOrAdd("d4", id => new DestinationState(id) { Health = { Passive = DestinationHealth.Healthy } });
             cluster.ProcessDestinationChanges();
 
             var sorted = cluster.DynamicState.AllDestinations.OrderBy(d => d.DestinationId).ToList();
@@ -43,11 +43,11 @@ namespace Yarp.ReverseProxy.RuntimeModel.Tests
         {
             var cluster = new ClusterState("abc");
             EnableHealthChecks(cluster);
-            var destination1 = cluster.Destinations.GetOrAdd("d1", id => new DestinationInfo(id) { Health = { Active = DestinationHealth.Healthy } });
-            var destination2 = cluster.Destinations.GetOrAdd("d2", id => new DestinationInfo(id) { Health = { Active = DestinationHealth.Unhealthy } });
-            var destination3 = cluster.Destinations.GetOrAdd("d3", id => new DestinationInfo(id)); // Unknown health state
-            var destination4 = cluster.Destinations.GetOrAdd("d4", id => new DestinationInfo(id) { Health = { Passive = DestinationHealth.Healthy } });
-            var destination5 = cluster.Destinations.GetOrAdd("d5", id => new DestinationInfo(id) { Health = { Passive = DestinationHealth.Unhealthy } });
+            var destination1 = cluster.Destinations.GetOrAdd("d1", id => new DestinationState(id) { Health = { Active = DestinationHealth.Healthy } });
+            var destination2 = cluster.Destinations.GetOrAdd("d2", id => new DestinationState(id) { Health = { Active = DestinationHealth.Unhealthy } });
+            var destination3 = cluster.Destinations.GetOrAdd("d3", id => new DestinationState(id)); // Unknown health state
+            var destination4 = cluster.Destinations.GetOrAdd("d4", id => new DestinationState(id) { Health = { Passive = DestinationHealth.Healthy } });
+            var destination5 = cluster.Destinations.GetOrAdd("d5", id => new DestinationState(id) { Health = { Passive = DestinationHealth.Unhealthy } });
             cluster.ProcessDestinationChanges();
 
             Assert.Equal(5, cluster.DynamicState.AllDestinations.Count);
@@ -100,7 +100,7 @@ namespace Yarp.ReverseProxy.RuntimeModel.Tests
             Assert.NotNull(state1);
             Assert.Empty(state1.AllDestinations);
 
-            var destination = cluster.Destinations.GetOrAdd("d1", id => new DestinationInfo(id));
+            var destination = cluster.Destinations.GetOrAdd("d1", id => new DestinationState(id));
             cluster.ProcessDestinationChanges();
             Assert.NotSame(state1, cluster.DynamicState);
             var state2 = cluster.DynamicState;
@@ -125,7 +125,7 @@ namespace Yarp.ReverseProxy.RuntimeModel.Tests
             Assert.NotNull(state1);
             Assert.Empty(state1.AllDestinations);
 
-            var destination = cluster.Destinations.GetOrAdd("d1", id => new DestinationInfo(id));
+            var destination = cluster.Destinations.GetOrAdd("d1", id => new DestinationState(id));
             cluster.ProcessDestinationChanges();
             Assert.NotSame(state1, cluster.DynamicState);
             var state2 = cluster.DynamicState;

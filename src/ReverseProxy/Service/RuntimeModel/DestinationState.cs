@@ -11,18 +11,15 @@ namespace Yarp.ReverseProxy.RuntimeModel
     /// <summary>
     /// Representation of a cluster's destination for use at runtime.
     /// </summary>
-    /// <remarks>
-    /// Note that while this class is immutable, specific members such as
-    /// <see cref="Config"/> and <see cref="Health"/> hold mutable references
-    /// that can be updated and which will always have latest information
-    /// relevant to this endpoint.
-    /// All members are thread safe.
-    /// </remarks>
-    public sealed class DestinationInfo : IReadOnlyList<DestinationInfo>
+    public sealed class DestinationState : IReadOnlyList<DestinationState>
     {
         private volatile DestinationConfig _config;
 
-        public DestinationInfo(string destinationId)
+        /// <summary>
+        /// Creates a new instance. This constructor is for tests and infrastructure, this type is normally constructed by
+        /// the configuration loading infrastructure.
+        /// </summary>
+        public DestinationState(string destinationId)
         {
             if (string.IsNullOrEmpty(destinationId))
             {
@@ -31,6 +28,9 @@ namespace Yarp.ReverseProxy.RuntimeModel
             DestinationId = destinationId;
         }
 
+        /// <summary>
+        /// The destination's unique id.
+        /// </summary>
         public string DestinationId { get; }
 
         /// <summary>
@@ -59,37 +59,41 @@ namespace Yarp.ReverseProxy.RuntimeModel
 
         internal AtomicCounter ConcurrencyCounter { get; } = new AtomicCounter();
 
-        DestinationInfo IReadOnlyList<DestinationInfo>.this[int index]
+        /// <inheritdoc/>
+        DestinationState IReadOnlyList<DestinationState>.this[int index]
             => index == 0 ? this : throw new IndexOutOfRangeException();
 
-        int IReadOnlyCollection<DestinationInfo>.Count => 1;
+        /// <inheritdoc/>
+        int IReadOnlyCollection<DestinationState>.Count => 1;
 
-        public Enumerator GetEnumerator()
+        private Enumerator GetEnumerator()
         {
             return new Enumerator(this);
         }
 
-        IEnumerator<DestinationInfo> IEnumerable<DestinationInfo>.GetEnumerator()
+        /// <inheritdoc/>
+        IEnumerator<DestinationState> IEnumerable<DestinationState>.GetEnumerator()
         {
             return GetEnumerator();
         }
 
+        /// <inheritdoc/>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
         }
 
-        public struct Enumerator : IEnumerator<DestinationInfo>
+        private struct Enumerator : IEnumerator<DestinationState>
         {
             private bool _read;
 
-            internal Enumerator(DestinationInfo destinationInfo)
+            internal Enumerator(DestinationState destinationInfo)
             {
                 Current = destinationInfo;
                 _read = false;
             }
 
-            public DestinationInfo Current { get; }
+            public DestinationState Current { get; }
 
             object IEnumerator.Current => Current;
 

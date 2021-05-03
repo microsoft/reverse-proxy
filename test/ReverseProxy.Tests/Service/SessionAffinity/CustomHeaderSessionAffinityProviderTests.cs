@@ -20,7 +20,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             FailurePolicy = "Return503",
             Settings = new Dictionary<string, string> { { "CustomHeaderName", AffinityHeaderName } },
         };
-        private readonly IReadOnlyList<DestinationInfo> _destinations = new[] { new DestinationInfo("dest-A"), new DestinationInfo("dest-B"), new DestinationInfo("dest-C") };
+        private readonly IReadOnlyList<DestinationState> _destinations = new[] { new DestinationState("dest-A"), new DestinationState("dest-B"), new DestinationState("dest-C") };
 
         [Fact]
         public void FindAffinitizedDestination_AffinityKeyIsNotSetOnRequest_ReturnKeyNotSet()

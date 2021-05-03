@@ -23,6 +23,6 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
         /// <param name="cluster">Request's cluster.</param>
         /// <param name="destination">Request's destination.</param>
         /// <param name="context">Context.</param>
-        void RequestProxied(ClusterState cluster, DestinationInfo destination, HttpContext context);
+        void RequestProxied(ClusterState cluster, DestinationState destination, HttpContext context);
     }
 }

@@ -22,8 +22,8 @@ namespace Yarp.ReverseProxy.Service.LoadBalancing
         /// Picks a destination to send traffic to.
         /// </summary>
         // TODO: How to ensure retries pick a different destination when available?
-        DestinationInfo PickDestination(
+        DestinationState PickDestination(
             HttpContext context,
-            IReadOnlyList<DestinationInfo> availableDestinations);
+            IReadOnlyList<DestinationState> availableDestinations);
     }
 }

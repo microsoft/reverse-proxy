@@ -15,7 +15,7 @@ using Yarp.ReverseProxy.Utilities;
 namespace Yarp.ReverseProxy.Middleware
 {
     /// <summary>
-    /// Looks up an affinitized <see cref="DestinationInfo"/> matching the request's affinity key if any is set
+    /// Looks up an affinitized <see cref="DestinationState"/> matching the request's affinity key if any is set
     /// </summary>
     internal sealed class SessionAffinityMiddleware
     {

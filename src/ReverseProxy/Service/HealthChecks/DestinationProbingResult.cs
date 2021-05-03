@@ -12,7 +12,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
     /// </summary>
     public readonly struct DestinationProbingResult
     {
-        public DestinationProbingResult(DestinationInfo destination, HttpResponseMessage response, Exception exception)
+        public DestinationProbingResult(DestinationState destination, HttpResponseMessage response, Exception exception)
         {
             Destination = destination;
             Response = response;
@@ -22,7 +22,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
         /// <summary>
         /// Probed destination.
         /// </summary>
-        public DestinationInfo Destination { get; }
+        public DestinationState Destination { get; }
 
         /// <summary>
         /// Response recieved.

@@ -17,7 +17,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
     {
         private readonly ConsecutiveFailuresHealthPolicyOptions _options;
         private readonly ConditionalWeakTable<ClusterState, ParsedMetadataEntry<double>> _clusterThresholds = new ConditionalWeakTable<ClusterState, ParsedMetadataEntry<double>>();
-        private readonly ConditionalWeakTable<DestinationInfo, AtomicCounter> _failureCounters = new ConditionalWeakTable<DestinationInfo, AtomicCounter>();
+        private readonly ConditionalWeakTable<DestinationState, AtomicCounter> _failureCounters = new ConditionalWeakTable<DestinationState, AtomicCounter>();
         private readonly IDestinationHealthUpdater _healthUpdater;
 
         public string Name => HealthCheckConstants.ActivePolicy.ConsecutiveFailures;

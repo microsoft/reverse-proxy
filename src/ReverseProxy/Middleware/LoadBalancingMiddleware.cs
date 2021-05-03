@@ -39,7 +39,7 @@ namespace Yarp.ReverseProxy.Middleware
             var destinations = proxyFeature.AvailableDestinations;
             var destinationCount = destinations.Count;
 
-            DestinationInfo destination;
+            DestinationState destination;
 
             if (destinationCount == 0)
             {
@@ -59,7 +59,7 @@ namespace Yarp.ReverseProxy.Middleware
             {
                 // We intentionally do not short circuit here, we allow for later middleware to decide how to handle this case.
                 Log.NoAvailableDestinations(_logger, proxyFeature.Cluster.Config.ClusterId);
-                proxyFeature.AvailableDestinations = Array.Empty<DestinationInfo>();
+                proxyFeature.AvailableDestinations = Array.Empty<DestinationState>();
             }
             else
             {

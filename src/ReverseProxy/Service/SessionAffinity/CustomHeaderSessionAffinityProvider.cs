@@ -25,7 +25,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
 
         public override string Mode => SessionAffinityConstants.Modes.CustomHeader;
 
-        protected override string GetDestinationAffinityKey(DestinationInfo destination)
+        protected override string GetDestinationAffinityKey(DestinationState destination)
         {
             return destination.DestinationId;
         }

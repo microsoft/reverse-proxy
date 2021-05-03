@@ -231,7 +231,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             {
                 var destinationConfig = new DestinationConfig(new Destination { Address = $"https://localhost:1000{i}/{id}/", Health = $"https://localhost:2000{i}/{id}/" });
                 var destinationId = $"destination{i}";
-                clusterState.Destinations.GetOrAdd(destinationId, id => new DestinationInfo(id)
+                clusterState.Destinations.GetOrAdd(destinationId, id => new DestinationState(id)
                 {
                     Config = destinationConfig
                 });

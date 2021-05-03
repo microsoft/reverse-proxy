@@ -16,8 +16,8 @@ namespace Yarp.ReverseProxy.RuntimeModel
     public sealed class ClusterState
     {
         private readonly object _stateLock = new object();
-        private volatile ClusterDynamicState _dynamicState = new ClusterDynamicState(Array.Empty<DestinationInfo>(), Array.Empty<DestinationInfo>());
-        private volatile IReadOnlyList<DestinationInfo> _destinationsSnapshot;
+        private volatile ClusterDynamicState _dynamicState = new ClusterDynamicState(Array.Empty<DestinationState>(), Array.Empty<DestinationState>());
+        private volatile IReadOnlyList<DestinationState> _destinationsSnapshot;
         private volatile ClusterModel _model;
         private readonly SemaphoreSlim _updateRequests = new SemaphoreSlim(2);
 
@@ -49,7 +49,7 @@ namespace Yarp.ReverseProxy.RuntimeModel
         /// and should only be directly modified in a test environment.
         /// Call <see cref="ProcessDestinationChanges"/> after modifying this collection.
         /// </summary>
-        public ConcurrentDictionary<string, DestinationInfo> Destinations { get; } = new(StringComparer.OrdinalIgnoreCase);
+        public ConcurrentDictionary<string, DestinationState> Destinations { get; } = new(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// Encapsulates parts of a cluster that can change atomically
@@ -85,7 +85,7 @@ namespace Yarp.ReverseProxy.RuntimeModel
         {
             // Values already makes a copy of the collection, downcast to avoid making a second copy.
             // https://github.com/dotnet/runtime/blob/e164551f1c96138521b4e58f14f8ac1e4369005d/src/libraries/System.Collections.Concurrent/src/System/Collections/Concurrent/ConcurrentDictionary.cs#L2145-L2168
-            _destinationsSnapshot = (IReadOnlyList<DestinationInfo>)Destinations.Values;
+            _destinationsSnapshot = (IReadOnlyList<DestinationState>)Destinations.Values;
             UpdateDynamicStateInternal(force: true);
         }
 
