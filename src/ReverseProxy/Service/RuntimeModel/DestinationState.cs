@@ -87,9 +87,9 @@ namespace Yarp.ReverseProxy.RuntimeModel
         {
             private bool _read;
 
-            internal Enumerator(DestinationState destinationInfo)
+            internal Enumerator(DestinationState instance)
             {
-                Current = destinationInfo;
+                Current = instance;
                 _read = false;
             }
 
