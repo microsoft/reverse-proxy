@@ -23,7 +23,7 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         public RouteConfig Route { get; init; }
 
         /// <summary>
-        /// The cluster config the route is associated with.
+        /// The cluster config used by the route.
         /// </summary>
         public ClusterConfig Cluster { get; init; }
 
