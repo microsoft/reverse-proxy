@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using Yarp.ReverseProxy.Abstractions;
 
 namespace Yarp.ReverseProxy.RuntimeModel
@@ -14,16 +13,23 @@ namespace Yarp.ReverseProxy.RuntimeModel
     /// </summary>
     /// <remarks>
     /// All members must remain immutable to avoid thread safety issues.
-    /// Instead, instances of <see cref="DestinationConfig"/> are replaced
-    /// in ther entirety when values need to change.
+    /// Instead, instances of <see cref="DestinationModel"/> are replaced
+    /// in their entirety when values need to change.
     /// </remarks>
-    public sealed class DestinationConfig
+    public sealed class DestinationModel
     {
-        public DestinationConfig(Destination destination)
+        /// <summary>
+        /// Creates a new instance. This constructor is for tests and infrastructure, this type is normally constructed by
+        /// the configuration loading infrastructure.
+        /// </summary>
+        public DestinationModel(Destination destination)
         {
             Options = destination ?? throw new ArgumentNullException(nameof(destination));
         }
 
+        /// <summary>
+        /// This destination's configuration.
+        /// </summary>
         public Destination Options { get; }
 
         internal bool HasChanged(Destination destination)

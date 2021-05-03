@@ -55,7 +55,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
                 "destination1",
                 id => new DestinationState(id)
                 {
-                    Config = new DestinationConfig(new Destination { Address = "https://localhost:123/a/b/" })
+                    Model = new DestinationModel(new Destination { Address = "https://localhost:123/a/b/" })
                 });
             var routeConfig = new RouteModel(
                 config: new RouteConfig() { RouteId = "Route-1" },

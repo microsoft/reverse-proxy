@@ -141,8 +141,8 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
             var actualDestinations = clusterState.Destinations.Values;
             var destination = Assert.Single(actualDestinations);
             Assert.Equal("d1", destination.DestinationId);
-            Assert.NotNull(destination.Config);
-            Assert.Equal(TestAddress, destination.Config.Options.Address);
+            Assert.NotNull(destination.Model);
+            Assert.Equal(TestAddress, destination.Model.Options.Address);
         }
 
         [Fact]
@@ -380,7 +380,7 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
             Assert.True(clusterState.Model.Config.HealthCheck.Enabled);
             Assert.Equal(TimeSpan.FromSeconds(12), clusterState.Model.Config.HealthCheck.Active.Interval);
             var destination = Assert.Single(clusterState.DynamicState.AllDestinations);
-            Assert.Equal("http://localhost", destination.Config.Options.Address);
+            Assert.Equal("http://localhost", destination.Model.Options.Address);
         }
 
         private class ClusterAndRouteThrows : IProxyConfigFilter
