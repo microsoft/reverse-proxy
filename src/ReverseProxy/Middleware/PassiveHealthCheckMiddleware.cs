@@ -27,7 +27,7 @@ namespace Yarp.ReverseProxy.Middleware
             await _next(context);
 
             var proxyFeature = context.GetReverseProxyFeature();
-            var options = proxyFeature.ClusterSnapshot.Options.HealthCheck?.Passive;
+            var options = proxyFeature.Cluster.Config.HealthCheck?.Passive;
 
             // Do nothing if no target destination has been chosen for the request.
             if (!(options?.Enabled).GetValueOrDefault() || proxyFeature.ProxiedDestination == null)

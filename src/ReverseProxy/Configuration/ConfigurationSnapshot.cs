@@ -12,11 +12,11 @@ namespace Yarp.ReverseProxy.Configuration
     {
         public List<RouteConfig> Routes { get; internal set; } = new List<RouteConfig>();
 
-        public List<Cluster> Clusters { get; internal set; } = new List<Cluster>();
+        public List<ClusterConfig> Clusters { get; internal set; } = new List<ClusterConfig>();
 
         IReadOnlyList<RouteConfig> IProxyConfig.Routes => Routes;
 
-        IReadOnlyList<Cluster> IProxyConfig.Clusters => Clusters;
+        IReadOnlyList<ClusterConfig> IProxyConfig.Clusters => Clusters;
 
         public IChangeToken ChangeToken { get; internal set; }
     }

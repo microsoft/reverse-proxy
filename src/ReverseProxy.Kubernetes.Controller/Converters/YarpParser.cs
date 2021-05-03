@@ -38,10 +38,10 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Converters
         {
             foreach (var cluster in context.ClusterTransfers)
             {
-                context.Clusters.Add(new Cluster()
+                context.Clusters.Add(new ClusterConfig()
                 {
                     Destinations = cluster.Value.Destinations,
-                    Id = cluster.Value.ClusterId
+                    ClusterId = cluster.Value.ClusterId
                 });
             }
         }

@@ -569,9 +569,9 @@ namespace Yarp.ReverseProxy.Service.Tests
             var services = CreateServices();
             var validator = services.GetRequiredService<IConfigValidator>();
 
-            var cluster = new Cluster
+            var cluster = new ClusterConfig
             {
-                Id = "cluster1",
+                ClusterId = "cluster1",
             };
 
             var errors = await validator.ValidateClusterAsync(cluster);
@@ -585,9 +585,9 @@ namespace Yarp.ReverseProxy.Service.Tests
             var services = CreateServices();
             var validator = services.GetRequiredService<IConfigValidator>();
 
-            var cluster = new Cluster
+            var cluster = new ClusterConfig
             {
-                Id = "cluster1",
+                ClusterId = "cluster1",
                 LoadBalancingPolicy = LoadBalancingPolicies.RoundRobin
             };
 
@@ -602,9 +602,9 @@ namespace Yarp.ReverseProxy.Service.Tests
             var services = CreateServices();
             var validator = services.GetRequiredService<IConfigValidator>();
 
-            var cluster = new Cluster
+            var cluster = new ClusterConfig
             {
-                Id = "cluster1",
+                ClusterId = "cluster1",
                 LoadBalancingPolicy = "MyCustomPolicy"
             };
 
@@ -620,9 +620,9 @@ namespace Yarp.ReverseProxy.Service.Tests
             var services = CreateServices();
             var validator = services.GetRequiredService<IConfigValidator>();
 
-            var cluster = new Cluster
+            var cluster = new ClusterConfig
             {
-                Id = "cluster1",
+                ClusterId = "cluster1",
                 SessionAffinity = new SessionAffinityOptions()
                 {
                     Enabled = true
@@ -640,9 +640,9 @@ namespace Yarp.ReverseProxy.Service.Tests
             var services = CreateServices();
             var validator = services.GetRequiredService<IConfigValidator>();
 
-            var cluster = new Cluster
+            var cluster = new ClusterConfig
             {
-                Id = "cluster1",
+                ClusterId = "cluster1",
                 SessionAffinity = new SessionAffinityOptions()
                 {
                     Enabled = true,
@@ -662,9 +662,9 @@ namespace Yarp.ReverseProxy.Service.Tests
             var services = CreateServices();
             var validator = services.GetRequiredService<IConfigValidator>();
 
-            var cluster = new Cluster
+            var cluster = new ClusterConfig
             {
-                Id = "cluster1",
+                ClusterId = "cluster1",
                 HttpRequest = new RequestProxyOptions
                 {
                     Version = null,
@@ -686,9 +686,9 @@ namespace Yarp.ReverseProxy.Service.Tests
             var services = CreateServices();
             var validator = services.GetRequiredService<IConfigValidator>();
 
-            var cluster = new Cluster
+            var cluster = new ClusterConfig
             {
-                Id = "cluster1",
+                ClusterId = "cluster1",
                 HttpRequest = new RequestProxyOptions
                 {
                     Version = version,
@@ -710,9 +710,9 @@ namespace Yarp.ReverseProxy.Service.Tests
             var services = CreateServices();
             var validator = services.GetRequiredService<IConfigValidator>();
 
-            var cluster = new Cluster
+            var cluster = new ClusterConfig
             {
-                Id = "cluster1",
+                ClusterId = "cluster1",
                 HttpRequest = new RequestProxyOptions
                 {
                     Version = version,
@@ -738,9 +738,9 @@ namespace Yarp.ReverseProxy.Service.Tests
             var services = CreateServices();
             var validator = services.GetRequiredService<IConfigValidator>();
 
-            var cluster = new Cluster
+            var cluster = new ClusterConfig
             {
-                Id = "cluster1",
+                ClusterId = "cluster1",
                 HealthCheck = new HealthCheckOptions
                 {
                     Active = new ActiveHealthCheckOptions
@@ -768,9 +768,9 @@ namespace Yarp.ReverseProxy.Service.Tests
             var services = CreateServices();
             var validator = services.GetRequiredService<IConfigValidator>();
 
-            var cluster = new Cluster
+            var cluster = new ClusterConfig
             {
-                Id = "cluster1",
+                ClusterId = "cluster1",
                 HealthCheck = new HealthCheckOptions
                 {
                     Active = new ActiveHealthCheckOptions
@@ -800,9 +800,9 @@ namespace Yarp.ReverseProxy.Service.Tests
             var services = CreateServices();
             var validator = services.GetRequiredService<IConfigValidator>();
 
-            var cluster = new Cluster
+            var cluster = new ClusterConfig
             {
-                Id = "cluster1",
+                ClusterId = "cluster1",
                 HealthCheck = new HealthCheckOptions
                 {
                     Passive = new PassiveHealthCheckOptions
@@ -827,9 +827,9 @@ namespace Yarp.ReverseProxy.Service.Tests
             var services = CreateServices();
             var validator = services.GetRequiredService<IConfigValidator>();
 
-            var cluster = new Cluster
+            var cluster = new ClusterConfig
             {
-                Id = "cluster1",
+                ClusterId = "cluster1",
                 HealthCheck = new HealthCheckOptions
                 {
                     Passive = new PassiveHealthCheckOptions

@@ -30,7 +30,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             var context = new DefaultHttpContext();
             context.Features.Set<IReverseProxyFeature>(new ReverseProxyFeature()
             {
-                ClusterSnapshot = cluster.Config,
+                Cluster = cluster.Model,
                 ProxiedDestination = destination,
             });
 
@@ -43,11 +43,11 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             provider.Verify();
         }
 
-        internal ClusterInfo GetCluster()
+        internal ClusterState GetCluster()
         {
-            var cluster = new ClusterInfo("cluster-1");
+            var cluster = new ClusterState("cluster-1");
             cluster.Destinations.GetOrAdd("dest-A", id => new DestinationInfo(id));
-            cluster.Config = new ClusterConfig(new Cluster
+            cluster.Model = new ClusterModel(new ClusterConfig
             {
                 SessionAffinity = new SessionAffinityOptions
                 {

@@ -12,7 +12,7 @@ namespace Yarp.ReverseProxy.Sample
 {
     public class CustomConfigFilter : IProxyConfigFilter
     {
-        public ValueTask<Cluster> ConfigureClusterAsync(Cluster cluster, CancellationToken cancel)
+        public ValueTask<ClusterConfig> ConfigureClusterAsync(ClusterConfig cluster, CancellationToken cancel)
         {
             // How to use custom metadata to configure clusters
             if (cluster.Metadata?.TryGetValue("CustomHealth", out var customHealth) ?? false
@@ -50,7 +50,7 @@ namespace Yarp.ReverseProxy.Sample
                 };
             }
 
-            return new ValueTask<Cluster>(cluster);
+            return new ValueTask<ClusterConfig>(cluster);
         }
 
         public ValueTask<RouteConfig> ConfigureRouteAsync(RouteConfig route, CancellationToken cancel)

@@ -15,7 +15,7 @@ namespace Yarp.ReverseProxy.Middleware
         public RouteModel Route { get; init; }
 
         /// <inheritdoc/>
-        public ClusterConfig ClusterSnapshot { get; set; }
+        public ClusterModel Cluster { get; set; }
 
         /// <inheritdoc/>
         public IReadOnlyList<DestinationInfo> AllDestinations { get; init; }

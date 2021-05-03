@@ -20,9 +20,9 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
 
             var transformProvider = new AffinitizeTransformProvider(new[] { affinityProvider.Object });
             
-            var cluster = new Cluster
+            var cluster = new ClusterConfig
             {
-                Id = "cluster1",
+                ClusterId = "cluster1",
                 SessionAffinity = new SessionAffinityOptions()
                 {
                     Enabled = true,
@@ -55,9 +55,9 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
 
             var transformProvider = new AffinitizeTransformProvider(new[] { affinityProvider.Object });
 
-            var cluster = new Cluster
+            var cluster = new ClusterConfig
             {
-                Id = "cluster1",
+                ClusterId = "cluster1",
                 SessionAffinity = new SessionAffinityOptions()
                 {
                     Enabled = true,

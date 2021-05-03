@@ -13,26 +13,19 @@ namespace Yarp.ReverseProxy.RuntimeModel
     /// <summary>
     /// Representation of a cluster for use at runtime.
     /// </summary>
-    /// <remarks>
-    /// Note that while this class is immutable, specific members such as
-    /// <see cref="Config"/> and <see cref="DynamicState"/> hold mutable references
-    /// that can be updated atomically and which will always have latest information
-    /// relevant to this cluster.
-    /// All members are thread safe.
-    /// </remarks>
-    public sealed class ClusterInfo
+    public sealed class ClusterState
     {
         private readonly object _stateLock = new object();
         private volatile ClusterDynamicState _dynamicState = new ClusterDynamicState(Array.Empty<DestinationInfo>(), Array.Empty<DestinationInfo>());
         private volatile IReadOnlyList<DestinationInfo> _destinationsSnapshot;
-        private volatile ClusterConfig _config;
+        private volatile ClusterModel _model;
         private readonly SemaphoreSlim _updateRequests = new SemaphoreSlim(2);
 
         /// <summary>
-        /// Creates a new ClusterInfo. This constructor is for tests and infrastructure, ClusterInfo is normally constructed by the configuration
+        /// Creates a new instance. This constructor is for tests and infrastructure, this type is normally constructed by the configuration
         /// loading infrastructure.
         /// </summary>
-        public ClusterInfo(string clusterId)
+        public ClusterState(string clusterId)
         {
             ClusterId = clusterId ?? throw new ArgumentNullException(nameof(clusterId));
         }
@@ -43,13 +36,12 @@ namespace Yarp.ReverseProxy.RuntimeModel
         public string ClusterId { get; }
 
         /// <summary>
-        /// Encapsulates parts of a cluster that can change atomically
-        /// in reaction to config changes.
+        /// Encapsulates parts of a cluster that can change atomically in reaction to config changes.
         /// </summary>
-        public ClusterConfig Config
+        public ClusterModel Model
         {
-            get => _config;
-            internal set => _config = value ?? throw new ArgumentNullException(nameof(value));
+            get => _model;
+            internal set => _model = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         /// <summary>
@@ -127,7 +119,7 @@ namespace Yarp.ReverseProxy.RuntimeModel
             {
                 try
                 {
-                    var healthChecks = _config?.Options.HealthCheck;
+                    var healthChecks = _model?.Config.HealthCheck;
                     var allDestinations = _destinationsSnapshot;
                     var availableDestinations = allDestinations;
                     if (allDestinations == null)

@@ -17,9 +17,9 @@ namespace Yarp.ReverseProxy.Middleware
         RouteModel Route { get; }
 
         /// <summary>
-        /// Cluster config for the current request.
+        /// The cluster model for the current request.
         /// </summary>
-        ClusterConfig ClusterSnapshot { get; }
+        ClusterModel Cluster { get; }
 
         /// <summary>
         /// All destinations for the current cluster.

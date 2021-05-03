@@ -48,8 +48,8 @@ namespace Yarp.ReverseProxy.Middleware.Tests
                 VersionPolicy = HttpVersionPolicy.RequestVersionExact,
 #endif
             };
-            var cluster1 = new ClusterInfo(clusterId: "cluster1");
-            var clusterConfig = new ClusterConfig(new Cluster() { HttpRequest = httpRequestOptions },
+            var cluster1 = new ClusterState(clusterId: "cluster1");
+            var clusterModel = new ClusterModel(new ClusterConfig() { HttpRequest = httpRequestOptions },
                 httpClient);
             var destination1 = cluster1.Destinations.GetOrAdd(
                 "destination1",
@@ -66,7 +66,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
                 new ReverseProxyFeature()
             {
                     AvailableDestinations = new List<DestinationInfo>() { destination1 }.AsReadOnly(),
-                    ClusterSnapshot = clusterConfig,
+                    Cluster = clusterModel,
                     Route = routeConfig,
                 });
             httpContext.Features.Set(cluster1);
@@ -135,8 +135,8 @@ namespace Yarp.ReverseProxy.Middleware.Tests
             httpContext.Request.Host = new HostString("example.com");
 
             var httpClient = new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object);
-            var cluster1 = new ClusterInfo(clusterId: "cluster1");
-            var clusterConfig = new ClusterConfig(new Cluster(), httpClient);
+            var cluster1 = new ClusterState(clusterId: "cluster1");
+            var clusterModel = new ClusterModel(new ClusterConfig(), httpClient);
             var routeConfig = new RouteModel(
                 config: new RouteConfig(),
                 cluster: cluster1,
@@ -145,7 +145,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
                 new ReverseProxyFeature()
                 {
                     AvailableDestinations = Array.Empty<DestinationInfo>(),
-                    ClusterSnapshot = clusterConfig,
+                    Cluster = clusterModel,
                     Route = routeConfig,
                 });
 

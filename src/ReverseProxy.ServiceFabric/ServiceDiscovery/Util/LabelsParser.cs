@@ -236,7 +236,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
             return routes;
         }
 
-        internal static Cluster BuildCluster(Uri serviceName, Dictionary<string, string> labels, IReadOnlyDictionary<string, Destination> destinations)
+        internal static ClusterConfig BuildCluster(Uri serviceName, Dictionary<string, string> labels, IReadOnlyDictionary<string, Destination> destinations)
         {
             var clusterMetadata = new Dictionary<string, string>();
             Dictionary<string, string> sessionAffinitySettings = null;
@@ -271,9 +271,9 @@ namespace Yarp.ReverseProxy.ServiceFabric
             var requestHeaderEncodingLabel = GetLabel<string>(labels, "YARP.Backend.HttpClient.RequestHeaderEncoding", null);
 #endif
 
-            var cluster = new Cluster
+            var cluster = new ClusterConfig
             {
-                Id = clusterId,
+                ClusterId = clusterId,
                 LoadBalancingPolicy = GetLabel<string>(labels, "YARP.Backend.LoadBalancingPolicy", null),
                 SessionAffinity = new SessionAffinityOptions
                 {

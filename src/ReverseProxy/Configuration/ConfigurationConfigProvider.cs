@@ -144,23 +144,23 @@ namespace Yarp.ReverseProxy.Configuration
             }
         }
 
-        private Cluster CreateCluster(IConfigurationSection section)
+        private ClusterConfig CreateCluster(IConfigurationSection section)
         {
             var destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase);
-            foreach (var destination in section.GetSection(nameof(Cluster.Destinations)).GetChildren())
+            foreach (var destination in section.GetSection(nameof(ClusterConfig.Destinations)).GetChildren())
             {
                 destinations.Add(destination.Key, CreateDestination(destination));
             }
 
-            return new Cluster
+            return new ClusterConfig
             {
-                Id = section.Key,
-                LoadBalancingPolicy = section[nameof(Cluster.LoadBalancingPolicy)],
-                SessionAffinity = CreateSessionAffinityOptions(section.GetSection(nameof(Cluster.SessionAffinity))),
-                HealthCheck = CreateHealthCheckOptions(section.GetSection(nameof(Cluster.HealthCheck))),
-                HttpClient = CreateProxyHttpClientOptions(section.GetSection(nameof(Cluster.HttpClient))),
-                HttpRequest = CreateProxyRequestOptions(section.GetSection(nameof(Cluster.HttpRequest))),
-                Metadata = section.GetSection(nameof(Cluster.Metadata)).ReadStringDictionary(),
+                ClusterId = section.Key,
+                LoadBalancingPolicy = section[nameof(ClusterConfig.LoadBalancingPolicy)],
+                SessionAffinity = CreateSessionAffinityOptions(section.GetSection(nameof(ClusterConfig.SessionAffinity))),
+                HealthCheck = CreateHealthCheckOptions(section.GetSection(nameof(ClusterConfig.HealthCheck))),
+                HttpClient = CreateProxyHttpClientOptions(section.GetSection(nameof(ClusterConfig.HttpClient))),
+                HttpRequest = CreateProxyRequestOptions(section.GetSection(nameof(ClusterConfig.HttpRequest))),
+                Metadata = section.GetSection(nameof(ClusterConfig.Metadata)).ReadStringDictionary(),
                 Destinations = destinations,
             };
         }

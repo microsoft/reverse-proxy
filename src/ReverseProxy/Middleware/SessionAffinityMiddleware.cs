@@ -40,7 +40,7 @@ namespace Yarp.ReverseProxy.Middleware
         {
             var proxyFeature = context.GetReverseProxyFeature();
 
-            var cluster = proxyFeature.ClusterSnapshot.Options;
+            var cluster = proxyFeature.Cluster.Config;
             var options = cluster.SessionAffinity;
 
             if (!(options?.Enabled).GetValueOrDefault())
@@ -48,7 +48,7 @@ namespace Yarp.ReverseProxy.Middleware
                 return _next(context);
             }
 
-            return InvokeInternal(context, proxyFeature, options, cluster.Id);
+            return InvokeInternal(context, proxyFeature, options, cluster.ClusterId);
         }
 
         private async Task InvokeInternal(HttpContext context, IReverseProxyFeature proxyFeature, SessionAffinityOptions options, string clusterId)

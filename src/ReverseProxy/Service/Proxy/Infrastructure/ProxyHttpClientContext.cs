@@ -14,7 +14,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Infrastructure
     public class ProxyHttpClientContext
     {
         /// <summary>
-        /// Id of a <see cref="ClusterConfig"/> HTTP client belongs to.
+        /// Id of a <see cref="ClusterModel"/> HTTP client belongs to.
         /// </summary>
         public string ClusterId { get; set; }
 

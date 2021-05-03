@@ -324,9 +324,9 @@ namespace Yarp.ReverseProxy.IntegrationTests
         {
             var clusters = new[]
             {
-                new Cluster()
+                new ClusterConfig()
                 {
-                    Id = "cluster1",
+                    ClusterId = "cluster1",
                     Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
                     {
                         { "d1", new Destination() { Address = "http://localhost/" }  }
