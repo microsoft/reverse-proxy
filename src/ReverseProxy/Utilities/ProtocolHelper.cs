@@ -8,7 +8,7 @@ namespace Yarp.ReverseProxy
 {
     internal static class ProtocolHelper
     {
-#if NET5_0
+#if NET
         internal static readonly Version Http2Version = HttpVersion.Version20;
         internal static readonly Version Http11Version = HttpVersion.Version11;
 #elif NETCOREAPP3_1
@@ -22,7 +22,7 @@ namespace Yarp.ReverseProxy
 
         public static bool IsHttp2(string protocol)
         {
-#if NET5_0
+#if NET
             return Microsoft.AspNetCore.Http.HttpProtocol.IsHttp2(protocol);
 #elif NETCOREAPP3_1
             return StringComparer.OrdinalIgnoreCase.Equals("HTTP/2", protocol);
@@ -33,7 +33,7 @@ namespace Yarp.ReverseProxy
 
         public static bool IsHttp2OrGreater(string protocol)
         {
-#if NET5_0
+#if NET
             return Microsoft.AspNetCore.Http.HttpProtocol.IsHttp2(protocol) || Microsoft.AspNetCore.Http.HttpProtocol.IsHttp3(protocol);
 #elif NETCOREAPP3_1
             return StringComparer.OrdinalIgnoreCase.Equals("HTTP/2", protocol) || StringComparer.OrdinalIgnoreCase.Equals("HTTP/3", protocol);

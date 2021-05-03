@@ -15,7 +15,7 @@ namespace Yarp.Sample
             return services;
         }
 
-#if NET5_0_OR_GREATER
+#if NET
         public static IServiceCollection AddPrometheusDnsMetrics(this IServiceCollection services)
         {
             services.AddTelemetryListeners();
@@ -48,7 +48,7 @@ namespace Yarp.Sample
         public static IServiceCollection AddAllPrometheusMetrics(this IServiceCollection services)
         {
             services.AddPrometheusProxyMetrics();
-#if NET5_0_OR_GREATER
+#if NET
             services.AddPrometheusDnsMetrics();
             services.AddPrometheusKestrelMetrics();
             services.AddPrometheusOutboundHttpMetrics();

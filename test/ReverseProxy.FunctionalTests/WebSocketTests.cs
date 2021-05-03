@@ -88,7 +88,7 @@ namespace Yarp.ReverseProxy
 
                 Assert.Equal(HttpStatusCode.SwitchingProtocols, response.StatusCode);
 
-#if NET5_0
+#if NET
                 using var rawStream = await response.Content.ReadAsStreamAsync(cts.Token);
 #elif NETCOREAPP3_1
                 using var rawStream = await response.Content.ReadAsStreamAsync();
@@ -137,7 +137,7 @@ namespace Yarp.ReverseProxy
                 var response = await client.SendAsync(request, cts.Token);
 
                 Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-#if NET5_0
+#if NET
                 Assert.Equal("Hello World", await response.Content.ReadAsStringAsync(cts.Token));
 #elif NETCOREAPP3_1
                 Assert.Equal("Hello World", await response.Content.ReadAsStringAsync());

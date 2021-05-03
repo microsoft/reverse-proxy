@@ -9,7 +9,7 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class TelemetryConsumptionExtensions
     {
-#if NET5_0
+#if NET
         /// <summary>
         /// Registers all telemetry listeners (Proxy, Kestrel, Http, NameResolution, NetSecurity and Sockets).
         /// </summary>
@@ -22,7 +22,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             services.AddHostedService<ProxyEventListenerService>();
             services.AddHostedService<KestrelEventListenerService>();
-#if NET5_0
+#if NET
             services.AddHostedService<HttpEventListenerService>();
             services.AddHostedService<NameResolutionEventListenerService>();
             services.AddHostedService<NetSecurityEventListenerService>();
@@ -50,7 +50,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 implementsAny = true;
             }
 
-#if NET5_0
+#if NET
             if (consumer is IHttpTelemetryConsumer)
             {
                 services.TryAddEnumerable(new ServiceDescriptor(typeof(IHttpTelemetryConsumer), consumer));
@@ -106,7 +106,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 implementsAny = true;
             }
 
-#if NET5_0
+#if NET
             if (typeof(IHttpTelemetryConsumer).IsAssignableFrom(typeof(TConsumer)))
             {
                 services.AddSingleton(services => (IHttpTelemetryConsumer)services.GetRequiredService<TConsumer>());

@@ -63,7 +63,7 @@ namespace Yarp.ReverseProxy.Configuration
             }
         }
 
-#if NET5_0
+#if NET
         [Fact]
         public void LoadCertificate_PemPathAndKeySpecifiedButPasswordIsMissing_Throws()
         {
