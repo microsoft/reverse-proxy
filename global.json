@@ -5,19 +5,14 @@
   "tools": {
     "dotnet": "6.0.100-preview.3.21202.5",
     "runtimes": {
-      "dotnet/x64": [
+      "dotnet": [
         "$(MicrosoftNETCoreAppPackageVersion)",
-        "3.1.14"
+        "3.1.14",
+        "5.0.5"
       ],
-      "dotnet/x86": [
-        "$(MicrosoftNETCoreAppPackageVersion)",
-        "3.1.14"
-      ],
-      "aspnetcore/x64": [
-        "3.1.14"
-      ],
-      "aspnetcore/x86": [
-        "3.1.14"
+      "aspnetcore": [
+        "3.1.14",
+        "5.0.5"
       ]
     }
   },
