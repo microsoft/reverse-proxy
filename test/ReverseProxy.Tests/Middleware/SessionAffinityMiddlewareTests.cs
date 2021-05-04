@@ -39,7 +39,7 @@ namespace Yarp.ReverseProxy.Middleware
         {
             var cluster = GetCluster();
             var endpoint = GetEndpoint(cluster);
-            DestinationInfo foundDestination = null;
+            DestinationState foundDestination = null;
             if (foundDestinationId != null)
             {
                 cluster.Destinations.TryGetValue(foundDestinationId, out foundDestination);
@@ -50,7 +50,7 @@ namespace Yarp.ReverseProxy.Middleware
                 true,
                 cluster.Destinations.Values.ToList(),
                 cluster.ClusterId,
-                ("Mode-A", AffinityStatus.DestinationNotFound, (DestinationInfo)null, (Action<ISessionAffinityProvider>)(p => throw new InvalidOperationException($"Provider {p.Mode} call is not expected."))),
+                ("Mode-A", AffinityStatus.DestinationNotFound, (DestinationState)null, (Action<ISessionAffinityProvider>)(p => throw new InvalidOperationException($"Provider {p.Mode} call is not expected."))),
                 (expectedMode, status, foundDestination, p => invokedMode = p.Mode));
             var nextInvoked = false;
             var middleware = new SessionAffinityMiddleware(c => {
@@ -132,9 +132,9 @@ namespace Yarp.ReverseProxy.Middleware
         {
             var cluster = new ClusterState("cluster-1");
             var destinationManager = cluster.Destinations;
-            destinationManager.GetOrAdd("dest-A", id => new DestinationInfo(id));
-            destinationManager.GetOrAdd(AffinitizedDestinationName, id => new DestinationInfo(id));
-            destinationManager.GetOrAdd("dest-C", id => new DestinationInfo(id));
+            destinationManager.GetOrAdd("dest-A", id => new DestinationState(id));
+            destinationManager.GetOrAdd(AffinitizedDestinationName, id => new DestinationState(id));
+            destinationManager.GetOrAdd("dest-C", id => new DestinationState(id));
             cluster.Model = ClusterConfig;
             cluster.ProcessDestinationChanges();
             return cluster;
@@ -142,9 +142,9 @@ namespace Yarp.ReverseProxy.Middleware
 
         internal IReadOnlyList<Mock<ISessionAffinityProvider>> RegisterAffinityProviders(
             bool lookupMiddlewareTest,
-            IReadOnlyList<DestinationInfo> expectedDestinations,
+            IReadOnlyList<DestinationState> expectedDestinations,
             string expectedCluster,
-            params (string Mode, AffinityStatus? Status, DestinationInfo Destinations, Action<ISessionAffinityProvider> Callback)[] prototypes)
+            params (string Mode, AffinityStatus? Status, DestinationState Destinations, Action<ISessionAffinityProvider> Callback)[] prototypes)
         {
             var result = new List<Mock<ISessionAffinityProvider>>();
             foreach (var (mode, status, destinations, callback) in prototypes)
@@ -189,7 +189,7 @@ namespace Yarp.ReverseProxy.Middleware
             return result.AsReadOnly();
         }
 
-        internal IReverseProxyFeature GetDestinationsFeature(IReadOnlyList<DestinationInfo> destinations, ClusterModel clusterModel)
+        internal IReverseProxyFeature GetDestinationsFeature(IReadOnlyList<DestinationState> destinations, ClusterModel clusterModel)
         {
             return new ReverseProxyFeature()
             {

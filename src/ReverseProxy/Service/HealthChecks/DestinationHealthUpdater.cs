@@ -13,12 +13,12 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
 {
     internal sealed class DestinationHealthUpdater : IDestinationHealthUpdater, IDisposable
     {
-        private readonly EntityActionScheduler<(ClusterState Cluster, DestinationInfo Destination)> _scheduler;
+        private readonly EntityActionScheduler<(ClusterState Cluster, DestinationState Destination)> _scheduler;
         private readonly ILogger<DestinationHealthUpdater> _logger;
 
         public DestinationHealthUpdater(ITimerFactory timerFactory, ILogger<DestinationHealthUpdater> logger)
         {
-            _scheduler = new EntityActionScheduler<(ClusterState Cluster, DestinationInfo Destination)>(d => Reactivate(d.Cluster, d.Destination), autoStart: true, runOnce: true, timerFactory);
+            _scheduler = new EntityActionScheduler<(ClusterState Cluster, DestinationState Destination)>(d => Reactivate(d.Cluster, d.Destination), autoStart: true, runOnce: true, timerFactory);
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -52,12 +52,12 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             }
         }
 
-        public void SetPassive(ClusterState cluster, DestinationInfo destination, DestinationHealth newHealth, TimeSpan reactivationPeriod)
+        public void SetPassive(ClusterState cluster, DestinationState destination, DestinationHealth newHealth, TimeSpan reactivationPeriod)
         {
             _ = SetPassiveAsync(cluster, destination, newHealth, reactivationPeriod);
         }
 
-        internal Task SetPassiveAsync(ClusterState cluster, DestinationInfo destination, DestinationHealth newHealth, TimeSpan reactivationPeriod)
+        internal Task SetPassiveAsync(ClusterState cluster, DestinationState destination, DestinationHealth newHealth, TimeSpan reactivationPeriod)
         {
             var healthState = destination.Health;
             if (newHealth != healthState.Passive)
@@ -69,7 +69,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             return Task.CompletedTask;
         }
 
-        private void ScheduleReactivation(ClusterState cluster, DestinationInfo destination, DestinationHealth newHealth, TimeSpan reactivationPeriod)
+        private void ScheduleReactivation(ClusterState cluster, DestinationState destination, DestinationHealth newHealth, TimeSpan reactivationPeriod)
         {
             if (newHealth == DestinationHealth.Unhealthy)
             {
@@ -83,7 +83,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             _scheduler.Dispose();
         }
 
-        private Task Reactivate(ClusterState cluster, DestinationInfo destination)
+        private Task Reactivate(ClusterState cluster, DestinationState destination)
         {
             var healthState = destination.Health;
             if (healthState.Passive == DestinationHealth.Unhealthy)

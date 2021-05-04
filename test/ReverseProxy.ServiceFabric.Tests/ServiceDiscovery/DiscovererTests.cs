@@ -331,7 +331,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
 
             var expectedClusters = new[]
             {
-                LabelsParser.BuildCluster(_testServiceName, labels, new Dictionary<string, Destination>()),
+                LabelsParser.BuildCluster(_testServiceName, labels, new Dictionary<string, DestinationConfig>()),
             };
             var expectedRoutes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
@@ -361,7 +361,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
 
             var expectedClusters = new[]
             {
-                LabelsParser.BuildCluster(_testServiceName, labels, new Dictionary<string, Destination>()),
+                LabelsParser.BuildCluster(_testServiceName, labels, new Dictionary<string, DestinationConfig>()),
             };
             var expectedRoutes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
@@ -393,7 +393,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
 
             var expectedClusters = new[]
             {
-                LabelsParser.BuildCluster(_testServiceName, labels, new Dictionary<string, Destination>()),
+                LabelsParser.BuildCluster(_testServiceName, labels, new Dictionary<string, DestinationConfig>()),
             };
             var expectedRoutes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
@@ -568,7 +568,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
 
             var expectedClusters = new[]
             {
-                LabelsParser.BuildCluster(_testServiceName, labels, new Dictionary<string, Destination>()),
+                LabelsParser.BuildCluster(_testServiceName, labels, new Dictionary<string, DestinationConfig>()),
             };
 
             clusters.Should().BeEquivalentTo(expectedClusters);
@@ -576,9 +576,9 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
         }
 
         private static ClusterConfig ClusterWithDestinations(Uri serviceName, Dictionary<string, string> labels,
-            params KeyValuePair<string, Destination>[] destinations)
+            params KeyValuePair<string, DestinationConfig>[] destinations)
         {
-            var newDestinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase);
+            var newDestinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase);
             foreach (var destination in destinations)
             {
                 newDestinations.Add(destination.Key, destination.Value);

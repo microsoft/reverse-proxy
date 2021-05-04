@@ -17,6 +17,6 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
         /// <param name="cluster">The cluster being probed.</param>
         /// <param name="destination">The destination being probed.</param>
         /// <returns>Probing <see cref="HttpRequestMessage"/>.</returns>
-        HttpRequestMessage CreateRequest(ClusterModel cluster, DestinationConfig destination);
+        HttpRequestMessage CreateRequest(ClusterModel cluster, DestinationModel destination);
     }
 }

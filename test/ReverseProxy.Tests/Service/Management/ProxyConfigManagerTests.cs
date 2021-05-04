@@ -105,9 +105,9 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
             var cluster = new ClusterConfig
             {
                 ClusterId = "cluster1",
-                Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
+                Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
                 {
-                    { "d1", new Destination { Address = TestAddress } }
+                    { "d1", new DestinationConfig { Address = TestAddress } }
                 }
             };
             var route = new RouteConfig
@@ -141,8 +141,8 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
             var actualDestinations = clusterState.Destinations.Values;
             var destination = Assert.Single(actualDestinations);
             Assert.Equal("d1", destination.DestinationId);
-            Assert.NotNull(destination.Config);
-            Assert.Equal(TestAddress, destination.Config.Options.Address);
+            Assert.NotNull(destination.Model);
+            Assert.Equal(TestAddress, destination.Model.Config.Address);
         }
 
         [Fact]
@@ -154,9 +154,9 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
             var cluster = new ClusterConfig
             {
                 ClusterId = "cluster1",
-                Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
+                Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
                 {
-                    { "d1", new Destination { Address = TestAddress } }
+                    { "d1", new DestinationConfig { Address = TestAddress } }
                 },
                 HttpClient = new ProxyHttpClientOptions
                 {
@@ -255,9 +255,9 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
             var cluster = new ClusterConfig
             {
                 ClusterId = "cluster1",
-                Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
+                Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
                 {
-                    { "d1", new Destination { Address = TestAddress } }
+                    { "d1", new DestinationConfig { Address = TestAddress } }
                 },
                 HttpRequest = new RequestProxyOptions() { Version = new Version(1, 2) }
             };
@@ -360,9 +360,9 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
             var cluster = new ClusterConfig()
             {
                 ClusterId = "cluster1",
-                Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
+                Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
                 {
-                    { "d1", new Destination() { Address = "http://localhost" } }
+                    { "d1", new DestinationConfig() { Address = "http://localhost" } }
                 }
             };
             var services = CreateServices(new List<RouteConfig>() { route }, new List<ClusterConfig>() { cluster }, proxyBuilder =>
@@ -380,7 +380,7 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
             Assert.True(clusterState.Model.Config.HealthCheck.Enabled);
             Assert.Equal(TimeSpan.FromSeconds(12), clusterState.Model.Config.HealthCheck.Active.Interval);
             var destination = Assert.Single(clusterState.DynamicState.AllDestinations);
-            Assert.Equal("http://localhost", destination.Config.Options.Address);
+            Assert.Equal("http://localhost", destination.Model.Config.Address);
         }
 
         private class ClusterAndRouteThrows : IProxyConfigFilter
@@ -402,9 +402,9 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
             var cluster = new ClusterConfig()
             {
                 ClusterId = "cluster1",
-                Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
+                Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
                 {
-                    { "d1", new Destination() { Address = "http://localhost" } }
+                    { "d1", new DestinationConfig() { Address = "http://localhost" } }
                 }
             };
             var services = CreateServices(new List<RouteConfig>(), new List<ClusterConfig>() { cluster }, proxyBuilder =>

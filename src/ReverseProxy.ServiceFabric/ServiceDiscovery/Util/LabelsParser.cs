@@ -236,7 +236,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
             return routes;
         }
 
-        internal static ClusterConfig BuildCluster(Uri serviceName, Dictionary<string, string> labels, IReadOnlyDictionary<string, Destination> destinations)
+        internal static ClusterConfig BuildCluster(Uri serviceName, Dictionary<string, string> labels, IReadOnlyDictionary<string, DestinationConfig> destinations)
         {
             var clusterMetadata = new Dictionary<string, string>();
             Dictionary<string, string> sessionAffinitySettings = null;

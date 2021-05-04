@@ -11,11 +11,11 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
     /// </summary>
     public readonly struct AffinityResult
     {
-        public IReadOnlyList<DestinationInfo> Destinations { get; }
+        public IReadOnlyList<DestinationState> Destinations { get; }
 
         public AffinityStatus Status { get; }
 
-        public AffinityResult(IReadOnlyList<DestinationInfo> destinations, AffinityStatus status)
+        public AffinityResult(IReadOnlyList<DestinationState> destinations, AffinityStatus status)
         {
             Destinations = destinations;
             Status = status;

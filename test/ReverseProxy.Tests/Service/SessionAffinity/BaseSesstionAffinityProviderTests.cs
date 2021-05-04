@@ -32,9 +32,9 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
         [MemberData(nameof(FindAffinitizedDestinationsCases))]
         public void Request_FindAffinitizedDestinations(
             HttpContext context,
-            DestinationInfo[] allDestinations,
+            DestinationState[] allDestinations,
             AffinityStatus expectedStatus,
-            DestinationInfo expectedDestination,
+            DestinationState expectedDestination,
             byte[] expectedEncryptedKey,
             bool unprotectCalled,
             LogLevel? expectedLogLevel,
@@ -81,7 +81,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
                 FailurePolicy = _defaultOptions.FailurePolicy,
                 Settings = _defaultOptions.Settings,
             };
-            Assert.Throws<InvalidOperationException>(() => provider.FindAffinitizedDestinations(new DefaultHttpContext(), new[] { new DestinationInfo("1") }, "cluster-1", options));
+            Assert.Throws<InvalidOperationException>(() => provider.FindAffinitizedDestinations(new DefaultHttpContext(), new[] { new DestinationState("1") }, "cluster-1", options));
         }
 
         [Fact]
@@ -89,7 +89,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
         {
             var dataProtector = GetDataProtector();
             var provider = new ProviderStub(dataProtector.Object, AffinityTestHelper.GetLogger<BaseSessionAffinityProvider<string>>().Object);
-            Assert.Throws<InvalidOperationException>(() => provider.AffinitizeRequest(new DefaultHttpContext(), new SessionAffinityOptions(), new DestinationInfo("id")));
+            Assert.Throws<InvalidOperationException>(() => provider.AffinitizeRequest(new DefaultHttpContext(), new SessionAffinityOptions(), new DestinationState("id")));
         }
 
         [Fact]
@@ -99,7 +99,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             var provider = new ProviderStub(dataProtector.Object, AffinityTestHelper.GetLogger<BaseSessionAffinityProvider<string>>().Object);
             var context = new DefaultHttpContext();
             provider.DirectlySetExtractedKeyOnContext(context, "ExtractedKey");
-            provider.AffinitizeRequest(context, _defaultOptions, new DestinationInfo("id"));
+            provider.AffinitizeRequest(context, _defaultOptions, new DestinationState("id"));
             Assert.Null(provider.LastSetEncryptedKey);
             dataProtector.Verify(p => p.Protect(It.IsAny<byte[]>()), Times.Never);
         }
@@ -109,7 +109,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
         {
             var dataProtector = GetDataProtector();
             var provider = new ProviderStub(dataProtector.Object, AffinityTestHelper.GetLogger<BaseSessionAffinityProvider<string>>().Object);
-            var destination = new DestinationInfo("dest-A");
+            var destination = new DestinationState("dest-A");
             provider.AffinitizeRequest(new DefaultHttpContext(), _defaultOptions, destination);
             Assert.Equal("ZGVzdC1B", provider.LastSetEncryptedKey);
             var keyBytes = Encoding.UTF8.GetBytes(destination.DestinationId);
@@ -121,7 +121,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
         {
             var provider = new ProviderStub(GetDataProtector().Object, AffinityTestHelper.GetLogger<BaseSessionAffinityProvider<string>>().Object);
             var options = GetOptionsWithUnknownSetting();
-            Assert.Throws<ArgumentException>(() => provider.FindAffinitizedDestinations(new DefaultHttpContext(), new[] { new DestinationInfo("dest-A") }, "cluster-1", options));
+            Assert.Throws<ArgumentException>(() => provider.FindAffinitizedDestinations(new DefaultHttpContext(), new[] { new DestinationState("dest-A") }, "cluster-1", options));
         }
 
         [Fact]
@@ -129,7 +129,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
         {
             var provider = new ProviderStub(GetDataProtector().Object, AffinityTestHelper.GetLogger<BaseSessionAffinityProvider<string>>().Object);
             var options = GetOptionsWithUnknownSetting();
-            Assert.Throws<ArgumentException>(() => provider.AffinitizeRequest(new DefaultHttpContext(), options, new DestinationInfo("dest-A")));
+            Assert.Throws<ArgumentException>(() => provider.AffinitizeRequest(new DefaultHttpContext(), options, new DestinationState("dest-A")));
         }
 
         [Fact]
@@ -143,11 +143,11 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
 
         public static IEnumerable<object[]> FindAffinitizedDestinationsCases()
         {
-            var destinations = new[] { new DestinationInfo("dest-A"), new DestinationInfo("dest-B"), new DestinationInfo("dest-C") };
+            var destinations = new[] { new DestinationState("dest-A"), new DestinationState("dest-B"), new DestinationState("dest-C") };
             yield return new object[] { GetHttpContext(new[] { ("SomeKey", "SomeValue") }), destinations, AffinityStatus.AffinityKeyNotSet, null, null, false, null, null };
             yield return new object[] { GetHttpContext(new[] { (KeyName, "dest-B") }), destinations, AffinityStatus.OK, destinations[1], Encoding.UTF8.GetBytes("dest-B"), true, null, null };
             yield return new object[] { GetHttpContext(new[] { (KeyName, "dest-Z") }), destinations, AffinityStatus.DestinationNotFound, null, Encoding.UTF8.GetBytes("dest-Z"), true, LogLevel.Warning, EventIds.DestinationMatchingToAffinityKeyNotFound };
-            yield return new object[] { GetHttpContext(new[] { (KeyName, "dest-B") }), new DestinationInfo[0], AffinityStatus.DestinationNotFound, null, Encoding.UTF8.GetBytes("dest-B"), true, LogLevel.Warning, EventIds.AffinityCannotBeEstablishedBecauseNoDestinationsFoundOnCluster };
+            yield return new object[] { GetHttpContext(new[] { (KeyName, "dest-B") }), new DestinationState[0], AffinityStatus.DestinationNotFound, null, Encoding.UTF8.GetBytes("dest-B"), true, LogLevel.Warning, EventIds.AffinityCannotBeEstablishedBecauseNoDestinationsFoundOnCluster };
             yield return new object[] { GetHttpContext(new[] { (KeyName, "/////") }, false), destinations, AffinityStatus.AffinityKeyExtractionFailed, null, Encoding.UTF8.GetBytes(InvalidKeyNull), false, LogLevel.Error, EventIds.RequestAffinityKeyDecryptionFailed };
             yield return new object[] { GetHttpContext(new[] { (KeyName, InvalidKeyNull) }), destinations, AffinityStatus.AffinityKeyExtractionFailed, null, Encoding.UTF8.GetBytes(InvalidKeyNull), true, LogLevel.Error, EventIds.RequestAffinityKeyDecryptionFailed };
             yield return new object[] { GetHttpContext(new[] { (KeyName, InvalidKeyThrow) }), destinations, AffinityStatus.AffinityKeyExtractionFailed, null, Encoding.UTF8.GetBytes(InvalidKeyThrow), true, LogLevel.Error, EventIds.RequestAffinityKeyDecryptionFailed };
@@ -203,7 +203,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
                 context.Items[AffinityKeyId] = key;
             }
 
-            protected override string GetDestinationAffinityKey(DestinationInfo destination)
+            protected override string GetDestinationAffinityKey(DestinationState destination)
             {
                 return destination.DestinationId;
             }

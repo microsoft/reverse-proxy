@@ -36,11 +36,11 @@ namespace Yarp.ReverseProxy.Configuration
                     new ClusterConfig
                     {
                         ClusterId = "cluster1",
-                        Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
+                        Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
                         {
                             {
                                 "destinationA",
-                                new Destination
+                                new DestinationConfig
                                 {
                                     Address = "https://localhost:10000/destA",
                                     Health = "https://localhost:20000/destA",
@@ -49,7 +49,7 @@ namespace Yarp.ReverseProxy.Configuration
                             },
                             {
                                 "destinationB",
-                                new Destination
+                                new DestinationConfig
                                 {
                                     Address = "https://localhost:10000/destB",
                                     Health = "https://localhost:20000/destB",
@@ -107,10 +107,10 @@ namespace Yarp.ReverseProxy.Configuration
                     new ClusterConfig
                     {
                         ClusterId = "cluster2",
-                        Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
+                        Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
                         {
-                            { "destinationC", new Destination { Address = "https://localhost:10001/destC" } },
-                            { "destinationD", new Destination { Address = "https://localhost:10000/destB" } }
+                            { "destinationC", new DestinationConfig { Address = "https://localhost:10001/destC" } },
+                            { "destinationD", new DestinationConfig { Address = "https://localhost:10000/destB" } }
                         },
                         LoadBalancingPolicy = LoadBalancingPolicies.RoundRobin
                     }

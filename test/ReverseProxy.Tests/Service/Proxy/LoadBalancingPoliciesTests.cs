@@ -32,9 +32,9 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
         {
             var destinations = new[]
             {
-                new DestinationInfo("d1"),
-                new DestinationInfo("d2"),
-                new DestinationInfo("d3")
+                new DestinationState("d1"),
+                new DestinationState("d2"),
+                new DestinationState("d3")
             };
 
             var context = new DefaultHttpContext();
@@ -53,9 +53,9 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
         {
             var destinations = new[]
             {
-                new DestinationInfo("d1"),
-                new DestinationInfo("d2"),
-                new DestinationInfo("d3")
+                new DestinationState("d1"),
+                new DestinationState("d2"),
+                new DestinationState("d3")
             };
 
             const int Iterations = 10;
@@ -78,9 +78,9 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
         {
             var destinations = new[]
             {
-                new DestinationInfo("d1"),
-                new DestinationInfo("d2"),
-                new DestinationInfo("d3")
+                new DestinationState("d1"),
+                new DestinationState("d2"),
+                new DestinationState("d3")
             };
             destinations[0].ConcurrentRequestCount++;
 
@@ -107,9 +107,9 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
         {
             var destinations = new[]
             {
-                new DestinationInfo("d1"),
-                new DestinationInfo("d2"),
-                new DestinationInfo("d3")
+                new DestinationState("d1"),
+                new DestinationState("d2"),
+                new DestinationState("d3")
             };
             destinations[0].ConcurrentRequestCount++;
 
@@ -129,9 +129,9 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
         {
             var destinations = new[]
             {
-                new DestinationInfo("d1"),
-                new DestinationInfo("d2"),
-                new DestinationInfo("d3")
+                new DestinationState("d1"),
+                new DestinationState("d2"),
+                new DestinationState("d3")
             };
             destinations[0].ConcurrentRequestCount++;
 

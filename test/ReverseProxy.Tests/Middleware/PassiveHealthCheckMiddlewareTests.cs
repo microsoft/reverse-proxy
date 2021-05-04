@@ -109,7 +109,7 @@ namespace Yarp.ReverseProxy.Middleware
             return policy;
         }
 
-        private IReverseProxyFeature GetProxyFeature(ClusterState clusterState, DestinationInfo destination)
+        private IReverseProxyFeature GetProxyFeature(ClusterState clusterState, DestinationState destination)
         {
             return new ReverseProxyFeature()
             {
@@ -137,8 +137,8 @@ namespace Yarp.ReverseProxy.Middleware
                 null);
             var clusterState = new ClusterState(id);
             clusterState.Model = clusterModel;
-            clusterState.Destinations.GetOrAdd("destination0", id => new DestinationInfo(id));
-            clusterState.Destinations.GetOrAdd("destination1", id => new DestinationInfo(id));
+            clusterState.Destinations.GetOrAdd("destination0", id => new DestinationState(id));
+            clusterState.Destinations.GetOrAdd("destination1", id => new DestinationState(id));
 
             clusterState.ProcessDestinationChanges();
 

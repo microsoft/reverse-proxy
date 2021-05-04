@@ -8,7 +8,7 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Services
 {
     internal sealed class ClusterTrasfer
     {
-        public Dictionary<string, Destination> Destinations { get; set; } = new Dictionary<string, Destination>();
+        public Dictionary<string, DestinationConfig> Destinations { get; set; } = new Dictionary<string, DestinationConfig>();
         public string ClusterId { get; set; }
     }
 }

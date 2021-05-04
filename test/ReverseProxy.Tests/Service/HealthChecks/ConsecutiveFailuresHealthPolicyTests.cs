@@ -143,11 +143,11 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             clusterState.Model = clusterModel;
             for (var i = 0; i < destinationCount; i++)
             {
-                var destinationConfig = new DestinationConfig(new Destination { Address = $"https://localhost:1000{i}/{id}/", Health = $"https://localhost:2000{i}/{id}/" });
+                var destinationModel = new DestinationModel(new DestinationConfig { Address = $"https://localhost:1000{i}/{id}/", Health = $"https://localhost:2000{i}/{id}/" });
                 var destinationId = $"destination{i}";
-                clusterState.Destinations.GetOrAdd(destinationId, id => new DestinationInfo(id)
+                clusterState.Destinations.GetOrAdd(destinationId, id => new DestinationState(id)
                 {
-                    Config = destinationConfig
+                    Model = destinationModel
                 });
             }
 
@@ -168,7 +168,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
                 cluster.UpdateDynamicState();
             }
 
-            public void SetPassive(ClusterState cluster, DestinationInfo destination, DestinationHealth newHealth, TimeSpan reactivationPeriod)
+            public void SetPassive(ClusterState cluster, DestinationState destination, DestinationHealth newHealth, TimeSpan reactivationPeriod)
             {
                 throw new NotImplementedException();
             }

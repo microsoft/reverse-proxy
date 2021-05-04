@@ -11,7 +11,7 @@ using Yarp.ReverseProxy.Service.RuntimeModel.Transforms;
 namespace Yarp.ReverseProxy.Service.SessionAffinity
 {
     /// <summary>
-    /// Affinitizes the request to a chosen <see cref="DestinationInfo"/>.
+    /// Affinitizes the request to a chosen <see cref="DestinationState"/>.
     /// </summary>
     internal sealed class AffinitizeTransform : ResponseTransform
     {

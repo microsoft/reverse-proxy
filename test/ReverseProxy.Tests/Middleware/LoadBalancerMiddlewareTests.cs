@@ -43,8 +43,8 @@ namespace Yarp.ReverseProxy.Middleware.Tests
             const string PolicyName = "NonExistentPolicy";
             var context = CreateContext(PolicyName, new[]
             {
-                new DestinationInfo("destination1"),
-                new DestinationInfo("destination2")
+                new DestinationState("destination1"),
+                new DestinationState("destination2")
             });
 
             var sut = CreateMiddleware(_ => Task.CompletedTask);
@@ -58,7 +58,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
         {
             var context = CreateContext(LoadBalancingPolicies.First, new[]
             {
-                new DestinationInfo("destination1")
+                new DestinationState("destination1")
             });
 
             var sut = CreateMiddleware(_ => Task.CompletedTask);
@@ -79,8 +79,8 @@ namespace Yarp.ReverseProxy.Middleware.Tests
         {
             var context = CreateContext(LoadBalancingPolicies.First, new[]
             {
-                new DestinationInfo("destination1"),
-                new DestinationInfo("destination2")
+                new DestinationState("destination1"),
+                new DestinationState("destination2")
             });
 
             var sut = CreateMiddleware(_ => Task.CompletedTask, new FirstLoadBalancingPolicy());
@@ -99,7 +99,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
         [Fact]
         public async Task Invoke_WithoutDestinations_503()
         {
-            var context = CreateContext(LoadBalancingPolicies.First, Array.Empty<DestinationInfo>());
+            var context = CreateContext(LoadBalancingPolicies.First, Array.Empty<DestinationState>());
 
             var sut = CreateMiddleware(context =>
             {
@@ -124,8 +124,8 @@ namespace Yarp.ReverseProxy.Middleware.Tests
 
             var context = CreateContext(PolicyName, new[]
             {
-                new DestinationInfo("destination1"),
-                new DestinationInfo("destination2")
+                new DestinationState("destination1"),
+                new DestinationState("destination2")
             });
 
             var policy = new Mock<ILoadBalancingPolicy>();
@@ -133,8 +133,8 @@ namespace Yarp.ReverseProxy.Middleware.Tests
                 .Setup(p => p.Name)
                 .Returns(PolicyName);
             policy
-                .Setup(p => p.PickDestination(It.IsAny<HttpContext>(), It.IsAny<IReadOnlyList<DestinationInfo>>()))
-                .Returns((DestinationInfo)null);
+                .Setup(p => p.PickDestination(It.IsAny<HttpContext>(), It.IsAny<IReadOnlyList<DestinationState>>()))
+                .Returns((DestinationState)null);
 
             var sut = CreateMiddleware(context =>
             {
@@ -158,8 +158,8 @@ namespace Yarp.ReverseProxy.Middleware.Tests
         {
             var destinations = new[]
             {
-                new DestinationInfo("destination1"),
-                new DestinationInfo("destination2")
+                new DestinationState("destination1"),
+                new DestinationState("destination2")
             };
             var context = CreateContext(loadBalancingPolicy: null, destinations);
 
@@ -168,8 +168,8 @@ namespace Yarp.ReverseProxy.Middleware.Tests
                 .Setup(p => p.Name)
                 .Returns(LoadBalancingPolicies.PowerOfTwoChoices);
             policy
-                .Setup(p => p.PickDestination(It.IsAny<HttpContext>(), It.IsAny<IReadOnlyList<DestinationInfo>>()))
-                .Returns(destinations[0]);
+                .Setup(p => p.PickDestination(It.IsAny<HttpContext>(), It.IsAny<IReadOnlyList<DestinationState>>()))
+                .Returns((DestinationState)destinations[0]);
 
             var sut = CreateMiddleware(_ => Task.CompletedTask, policy.Object);
 
@@ -178,7 +178,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
             policy.Verify(p => p.PickDestination(context, destinations), Times.Once);
         }
 
-        private static HttpContext CreateContext(string loadBalancingPolicy, IReadOnlyList<DestinationInfo> destinations)
+        private static HttpContext CreateContext(string loadBalancingPolicy, IReadOnlyList<DestinationState> destinations)
         {
             var cluster = new ClusterState("cluster1")
             {

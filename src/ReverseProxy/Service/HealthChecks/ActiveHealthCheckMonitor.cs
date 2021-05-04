@@ -124,7 +124,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
                     var cts = new CancellationTokenSource(timeout);
                     try
                     {
-                        var request = _probingRequestFactory.CreateRequest(clusterModel, destination.Config);
+                        var request = _probingRequestFactory.CreateRequest(clusterModel, destination.Model);
 
                         Log.SendingHealthProbeToEndpointOfDestination(_logger, request.RequestUri, destination.DestinationId, cluster.ClusterId);
 

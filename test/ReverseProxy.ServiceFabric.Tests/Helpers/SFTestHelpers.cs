@@ -70,12 +70,12 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
         }
 
         /// <summary>
-        /// Build a <see cref="Destination" /> from a Service Fabric <see cref="ReplicaWrapper" />.
+        /// Build a <see cref="DestinationConfig" /> from a Service Fabric <see cref="ReplicaWrapper" />.
         /// </summary>
         /// <remarks>
         /// The address JSON of the replica is expected to have exactly one endpoint, and that one will be used.
         /// </remarks>
-        internal static KeyValuePair<string, Destination> BuildDestinationFromReplica(ReplicaWrapper replica, string healthListenerName = null)
+        internal static KeyValuePair<string, DestinationConfig> BuildDestinationFromReplica(ReplicaWrapper replica, string healthListenerName = null)
         {
             ServiceEndpointCollection.TryParseEndpointsString(replica.ReplicaAddress, out var endpoints);
             endpoints.TryGetFirstEndpointAddress(out var address);
@@ -88,7 +88,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
 
             return KeyValuePair.Create(
                 replica.Id.ToString(),
-                new Destination
+                new DestinationConfig
                 {
                     Address = address,
                     Health = healthAddressUri,

@@ -26,7 +26,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
 
         public abstract string Mode { get; }
 
-        public virtual void AffinitizeRequest(HttpContext context, SessionAffinityOptions options, DestinationInfo destination)
+        public virtual void AffinitizeRequest(HttpContext context, SessionAffinityOptions options, DestinationState destination)
         {
             if (!options.Enabled.GetValueOrDefault())
             {
@@ -41,7 +41,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             }
         }
 
-        public virtual AffinityResult FindAffinitizedDestinations(HttpContext context, IReadOnlyList<DestinationInfo> destinations, string clusterId, SessionAffinityOptions options)
+        public virtual AffinityResult FindAffinitizedDestinations(HttpContext context, IReadOnlyList<DestinationState> destinations, string clusterId, SessionAffinityOptions options)
         {
             if (!options.Enabled.GetValueOrDefault())
             {
@@ -55,7 +55,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
                 return new AffinityResult(null, requestAffinityKey.ExtractedSuccessfully ? AffinityStatus.AffinityKeyNotSet : AffinityStatus.AffinityKeyExtractionFailed);
             }
 
-            IReadOnlyList<DestinationInfo> matchingDestinations = null;
+            IReadOnlyList<DestinationState> matchingDestinations = null;
             if (destinations.Count > 0)
             {
                 for (var i = 0; i < destinations.Count; i++)
@@ -100,7 +100,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             return value;
         }
 
-        protected abstract T GetDestinationAffinityKey(DestinationInfo destination);
+        protected abstract T GetDestinationAffinityKey(DestinationState destination);
 
         protected abstract (T Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, SessionAffinityOptions options);
 
