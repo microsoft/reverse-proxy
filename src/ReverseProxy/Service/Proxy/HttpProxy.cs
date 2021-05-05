@@ -294,6 +294,8 @@ namespace Yarp.ReverseProxy.Service.Proxy
             // :: Step 3: Copy request headers Client --► Proxy --► Destination
             await transformer.TransformRequestAsync(context, destinationRequest, destinationPrefix);
 
+            FilterConnectionHeaders(destinationRequest, isUpgradeRequest);
+
             // Allow someone to custom build the request uri, otherwise provide a default for them.
             var request = context.Request;
             destinationRequest.RequestUri ??= RequestUtilities.MakeDestinationAddress(destinationPrefix, request.Path, request.QueryString);
@@ -302,6 +304,27 @@ namespace Yarp.ReverseProxy.Service.Proxy
 
             // TODO: What if they replace the HttpContent object? That would mess with our tracking and error handling.
             return (destinationRequest, requestContent);
+        }
+
+        private static void FilterConnectionHeaders(HttpRequestMessage destinationRequest, bool isUpgradeRequest)
+        {
+            if (isUpgradeRequest)
+            {
+                var connectionHeader = destinationRequest.Headers.Connection;
+                var hasUpgrade = connectionHeader.Contains("upgrade");
+                destinationRequest.Headers.Remove(HeaderNames.Connection);
+                if (hasUpgrade)
+                {
+                    destinationRequest.Headers.TryAddWithoutValidation(HeaderNames.Connection, "upgrade");
+                }
+            }
+            else
+            {
+                destinationRequest.Headers.Remove(HeaderNames.Connection);
+                destinationRequest.Headers.Remove(HeaderNames.Upgrade);
+            }
+
+            destinationRequest.Headers.Remove(HeaderNames.KeepAlive);
         }
 
         private StreamCopyHttpContent SetupRequestBodyCopy(HttpRequest request, bool isStreamingRequest, CancellationToken cancellation)

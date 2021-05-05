@@ -1631,6 +1631,72 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
             events.AssertContainProxyStages(hasRequestContent: false);
         }
 
+        [Theory]
+        [InlineData("1.1", false, "Connection: upgrade; Upgrade: test123", null, "Connection; Upgrade")]
+        [InlineData("1.1", false, "Connection: keep-alive; Keep-Alive: timeout=100", null, "Connection; Keep-Alive")]
+        [InlineData("1.1", true, "Connection: upgrade; Upgrade: websocket", "Connection: upgrade; Upgrade: websocket", null)]
+        [InlineData("1.1", true, "Connection: upgrade; Upgrade: SPDY/", "Connection: upgrade; Upgrade: SPDY/", null)]
+        [InlineData("1.1", true, "Connection: upgrade, keep-alive; Upgrade: websocket; Keep-Alive: timeout=100", "Connection: upgrade; Upgrade: websocket", "Keep-Alive")]
+        [InlineData("1.1", false, "Foo: bar", "Foo: bar", null)]
+        [InlineData("2.0", false, "Connection: keep-alive; Keep-Alive: timeout=100", null, "Connection; Keep-Alive")]
+        [InlineData("2.0", false, "Connection: upgrade; Upgrade: websocket", null, "Connection: upgrade; Upgrade: websocket")]
+        [InlineData("2.0", false, "Foo: bar", "Foo: bar", null)]
+        public async Task ProxyAsync_NonUpgradableRequest_RemoveAllConnectionHeaders(string protocol, bool upgrade, string addHeadersList, string preservedHeadersList, string removedHeadersList)
+        {
+            var addHeaders = addHeadersList.Split("; ");
+            var preservedHeaders = preservedHeadersList?.Split("; ") ?? Enumerable.Empty<string>();
+            var removedHeaders = removedHeadersList?.Split("; ") ?? Enumerable.Empty<string>();
+
+            var httpContext = new DefaultHttpContext();
+            httpContext.Request.Method = "GET";
+
+            if (upgrade)
+            {
+                var upgradeFeature = new Mock<IHttpUpgradeFeature>();
+                upgradeFeature.SetupGet(f => f.IsUpgradableRequest).Returns(true);
+                httpContext.Features.Set(upgradeFeature.Object);
+            }
+
+            foreach (var header in addHeaders)
+            {
+                (var headerName, var headerValues) = GetHeaderNameAndValues(header);
+                httpContext.Request.Headers[headerName] = headerValues;
+            }
+
+            var destinationPrefix = "https://localhost:123/a/b/";
+            var sut = CreateProxy();
+            var client = MockHttpHandler.CreateClient(
+                async (HttpRequestMessage request, CancellationToken cancellationToken) =>
+                {
+                    await Task.Yield();
+
+                    foreach(var preservedHeader in preservedHeaders)
+                    {
+                        (var headerName, var expectedValues) = GetHeaderNameAndValues(preservedHeader);
+                        var actualValues = string.Join(", ", request.Headers.GetValues(headerName));
+                        Assert.Equal(expectedValues, actualValues);
+                    }
+
+                    foreach (var removedHeaderName in removedHeaders)
+                    {
+                        Assert.False(request.Headers.TryGetValues(removedHeaderName, out _));
+                    }
+
+                    var response = new HttpResponseMessage(HttpStatusCode.OK);
+                    return response;
+                });
+
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions { Version = Version.Parse(protocol) });
+
+            Assert.Equal((int)HttpStatusCode.OK, httpContext.Response.StatusCode);
+
+            (string name, string values) GetHeaderNameAndValues(string fullHeader)
+            {
+                var headerNameEnd = fullHeader.IndexOf(": ");
+                return (fullHeader.Substring(0, headerNameEnd), fullHeader.Substring(headerNameEnd + 2));
+            }
+        }
+
         private static void AssertProxyStartStop(List<EventWrittenEventArgs> events, string destinationPrefix, int statusCode)
         {
             AssertProxyStartFailedStop(events, destinationPrefix, statusCode, error: null);
