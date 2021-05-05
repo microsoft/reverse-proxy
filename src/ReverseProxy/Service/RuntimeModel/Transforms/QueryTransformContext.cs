@@ -15,6 +15,7 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
     /// </summary>
     public class QueryTransformContext
     {
+        private static readonly IEnumerable<string> _emptyString = new[] { string.Empty };
         private readonly HttpRequest _request;
         private readonly QueryString _originalQueryString;
         private Dictionary<string, StringValues> _modifiedQueryParameters;
@@ -35,13 +36,8 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
                     return _originalQueryString;
                 }
 
-#if NET
-                var queryBuilder = new QueryBuilder(_modifiedQueryParameters);
-#elif NETCOREAPP3_1
-                var queryBuilder = new QueryBuilder(_modifiedQueryParameters.SelectMany(kvp => kvp.Value, (kvp, v) => KeyValuePair.Create(kvp.Key, v)));
-#else
-#error A target framework was added to the project and needs to be added to this condition.
-#endif
+                var queryBuilder = new QueryBuilder(_modifiedQueryParameters
+                    .SelectMany(kvp => StringValues.IsNullOrEmpty(kvp.Value) ? _emptyString : kvp.Value, (kvp, v) => KeyValuePair.Create(kvp.Key, v)));
                 return queryBuilder.ToQueryString();
             }
         }
