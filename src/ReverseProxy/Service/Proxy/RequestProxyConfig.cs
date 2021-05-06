@@ -7,9 +7,9 @@ using System.Net.Http;
 namespace Yarp.ReverseProxy.Service.Proxy
 {
     /// <summary>
-    /// Options for <see cref="IHttpProxy.ProxyAsync"/>
+    /// Config for <see cref="IHttpProxy.ProxyAsync"/>
     /// </summary>
-    public sealed record RequestProxyOptions
+    public sealed record RequestProxyConfig
     {
         /// <summary>
         /// The time allowed to send the request and receive the response headers. This may include
@@ -32,7 +32,7 @@ namespace Yarp.ReverseProxy.Service.Proxy
 #endif
 
         /// <inheritdoc />
-        public bool Equals(RequestProxyOptions other)
+        public bool Equals(RequestProxyConfig other)
         {
             if (other == null)
             {

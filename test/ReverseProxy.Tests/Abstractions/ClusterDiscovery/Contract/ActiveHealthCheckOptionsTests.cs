@@ -11,7 +11,7 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
         [Fact]
         public void Equals_Same_Value_Returns_True()
         {
-            var options1 = new ActiveHealthCheckOptions
+            var options1 = new ActiveHealthCheckConfig
             {
                 Enabled = true,
                 Interval = TimeSpan.FromSeconds(2),
@@ -20,7 +20,7 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
                 Path = "/a",
             };
 
-            var options2 = new ActiveHealthCheckOptions
+            var options2 = new ActiveHealthCheckConfig
             {
                 Enabled = true,
                 Interval = TimeSpan.FromSeconds(2),
@@ -37,7 +37,7 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
         [Fact]
         public void Equals_Different_Value_Returns_False()
         {
-            var options1 = new ActiveHealthCheckOptions
+            var options1 = new ActiveHealthCheckConfig
             {
                 Enabled = true,
                 Interval = TimeSpan.FromSeconds(2),
@@ -46,7 +46,7 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
                 Path = "/a",
             };
 
-            var options2 = new ActiveHealthCheckOptions
+            var options2 = new ActiveHealthCheckConfig
             {
                 Enabled = false,
                 Interval = TimeSpan.FromSeconds(4),
@@ -63,7 +63,7 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
         [Fact]
         public void Equals_Second_Null_Returns_False()
         {
-            var options1 = new ActiveHealthCheckOptions();
+            var options1 = new ActiveHealthCheckConfig();
 
             var equals = options1.Equals(null);
 

@@ -19,6 +19,7 @@ using Xunit;
 using Yarp.ReverseProxy.Abstractions;
 using Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Yarp.ReverseProxy.Service;
+using Yarp.ReverseProxy.Service.LoadBalancing;
 using Yarp.ReverseProxy.Service.Proxy;
 using Yarp.ReverseProxy.Utilities.Tests;
 
@@ -57,15 +58,15 @@ namespace Yarp.ReverseProxy.Configuration
                                 }
                             }
                         },
-                        HealthCheck = new HealthCheckOptions
+                        HealthCheck = new HealthCheckConfig
                         {
-                            Passive = new PassiveHealthCheckOptions
+                            Passive = new PassiveHealthCheckConfig
                             {
                                 Enabled = true,
                                 Policy = "FailureRate",
                                 ReactivationPeriod = TimeSpan.FromMinutes(5)
                             },
-                            Active = new ActiveHealthCheckOptions
+                            Active = new ActiveHealthCheckConfig
                             {
                                 Enabled = true,
                                 Interval = TimeSpan.FromSeconds(4),
@@ -75,14 +76,14 @@ namespace Yarp.ReverseProxy.Configuration
                             }
                         },
                         LoadBalancingPolicy = LoadBalancingPolicies.Random,
-                        SessionAffinity = new SessionAffinityOptions
+                        SessionAffinity = new SessionAffinityConfig
                         {
                             Enabled = true,
                             FailurePolicy = "Return503Error",
                             Mode = "Cookie",
                             Settings = new Dictionary<string, string> { { "affinity1-K1", "affinity1-V1" }, { "affinity1-K2", "affinity1-V2" } }
                         },
-                        HttpClient = new ProxyHttpClientOptions
+                        HttpClient = new HttpClientConfig
                         {
                             SslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12,
                             MaxConnectionsPerServer = 10,
@@ -92,7 +93,7 @@ namespace Yarp.ReverseProxy.Configuration
                             EnableMultipleHttp2Connections = true,
 #endif
                         },
-                        HttpRequest = new RequestProxyOptions()
+                        HttpRequest = new RequestProxyConfig()
                         {
                             Timeout = TimeSpan.FromSeconds(60),
                             Version = Version.Parse("1.0"),

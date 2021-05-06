@@ -122,14 +122,14 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
                 new ClusterConfig
                 {
                     ClusterId = cluster.ClusterId,
-                    HealthCheck = new HealthCheckOptions()
+                    HealthCheck = new HealthCheckConfig()
                     {
-                        Passive = new PassiveHealthCheckOptions()
+                        Passive = new PassiveHealthCheckConfig()
                         {
                             Policy = "policy0",
                             Enabled = passive,
                         },
-                        Active = new ActiveHealthCheckOptions()
+                        Active = new ActiveHealthCheckConfig()
                         {
                             Enabled = active,
                             Policy = "policy1",

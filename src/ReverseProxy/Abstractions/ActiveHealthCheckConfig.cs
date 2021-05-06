@@ -6,9 +6,9 @@ using System;
 namespace Yarp.ReverseProxy.Abstractions
 {
     /// <summary>
-    /// Active health check options.
+    /// Active health check config.
     /// </summary>
-    public sealed record ActiveHealthCheckOptions
+    public sealed record ActiveHealthCheckConfig
     {
         /// <summary>
         /// Whether active health checks are enabled.
@@ -36,7 +36,7 @@ namespace Yarp.ReverseProxy.Abstractions
         public string Path { get; init; }
 
         /// <inheritdoc />
-        public bool Equals(ActiveHealthCheckOptions other)
+        public bool Equals(ActiveHealthCheckConfig other)
         {
             if (other == null)
             {

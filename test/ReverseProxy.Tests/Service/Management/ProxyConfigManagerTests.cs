@@ -158,7 +158,7 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
                 {
                     { "d1", new DestinationConfig { Address = TestAddress } }
                 },
-                HttpClient = new ProxyHttpClientOptions
+                HttpClient = new HttpClientConfig
                 {
                     SslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12,
                     MaxConnectionsPerServer = 10,
@@ -259,7 +259,7 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
                 {
                     { "d1", new DestinationConfig { Address = TestAddress } }
                 },
-                HttpRequest = new RequestProxyOptions() { Version = new Version(1, 2) }
+                HttpRequest = new RequestProxyConfig() { Version = new Version(1, 2) }
             };
 
             var services = CreateServices(new List<RouteConfig>(), new List<ClusterConfig>() { cluster });
@@ -335,9 +335,9 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
             {
                 return new ValueTask<ClusterConfig>(cluster with
                 {
-                    HealthCheck = new HealthCheckOptions()
+                    HealthCheck = new HealthCheckConfig()
                     {
-                        Active = new ActiveHealthCheckOptions { Enabled = true, Interval = TimeSpan.FromSeconds(12), Policy = "activePolicyA" }
+                        Active = new ActiveHealthCheckConfig { Enabled = true, Interval = TimeSpan.FromSeconds(12), Policy = "activePolicyA" }
                     }
                 });
             }
@@ -377,7 +377,7 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
             var routeConfig = endpoint.Metadata.GetMetadata<RouteModel>();
             var clusterState = routeConfig.Cluster;
             Assert.NotNull(clusterState);
-            Assert.True(clusterState.Model.Config.HealthCheck.Enabled);
+            Assert.True(clusterState.Model.Config.HealthCheck.Active.Enabled);
             Assert.Equal(TimeSpan.FromSeconds(12), clusterState.Model.Config.HealthCheck.Active.Interval);
             var destination = Assert.Single(clusterState.DynamicState.AllDestinations);
             Assert.Equal("http://localhost", destination.Model.Config.Address);

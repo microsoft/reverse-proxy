@@ -8,8 +8,9 @@ using System.Text;
 using FluentAssertions;
 using Xunit;
 using Yarp.ReverseProxy.Abstractions;
-using Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
+using Yarp.ReverseProxy.Service.LoadBalancing;
 using Yarp.ReverseProxy.Service.Proxy;
+using Yarp.ReverseProxy.Service.SessionAffinity;
 
 namespace Yarp.ReverseProxy.ServiceFabric.Tests
 {
@@ -64,7 +65,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             {
                 ClusterId = "MyCoolClusterId",
                 LoadBalancingPolicy = LoadBalancingPolicies.LeastRequests,
-                SessionAffinity = new SessionAffinityOptions
+                SessionAffinity = new SessionAffinityConfig
                 {
                     Enabled = true,
                     Mode = SessionAffinityConstants.Modes.Cookie,
@@ -75,7 +76,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                         { "ParameterB", "ValueB" }
                     }
                 },
-                HttpRequest = new RequestProxyOptions
+                HttpRequest = new RequestProxyConfig
                 {
                     Timeout = TimeSpan.FromSeconds(17),
                     Version = new Version(1, 1),
@@ -83,9 +84,9 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                     VersionPolicy = System.Net.Http.HttpVersionPolicy.RequestVersionExact
 #endif
                 },
-                HealthCheck = new HealthCheckOptions
+                HealthCheck = new HealthCheckConfig
                 {
-                    Active = new ActiveHealthCheckOptions
+                    Active = new ActiveHealthCheckConfig
                     {
                         Enabled = true,
                         Interval = TimeSpan.FromSeconds(5),
@@ -93,7 +94,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                         Path = "/api/health",
                         Policy = "MyActiveHealthPolicy"
                     },
-                    Passive = new PassiveHealthCheckOptions
+                    Passive = new PassiveHealthCheckConfig
                     {
                         Enabled = true,
                         Policy = "MyPassiveHealthPolicy",
@@ -104,7 +105,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                 {
                     { "Foo", "Bar" },
                 },
-                HttpClient = new ProxyHttpClientOptions
+                HttpClient = new HttpClientConfig
                 {
                     ActivityContextHeaders = ActivityContextHeaders.BaggageAndCorrelationContext,
                     DangerousAcceptAnyServerCertificate = true,
@@ -114,7 +115,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
 #endif
                     MaxConnectionsPerServer = 1000,
                     SslProtocols = SslProtocols.Tls12,
-                    WebProxy = new WebProxyOptions
+                    WebProxy = new WebProxyConfig
                     {
                         Address = new Uri("https://10.20.30.40"),
                         BypassOnLocal = true,
@@ -138,26 +139,17 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             var expectedCluster = new ClusterConfig
             {
                 ClusterId = "MyCoolClusterId",
-                SessionAffinity = new SessionAffinityOptions
+                SessionAffinity = new SessionAffinityConfig(),
+                HttpRequest = new RequestProxyConfig(),
+                HealthCheck = new HealthCheckConfig
                 {
-                    Enabled = false,
-                },
-                HttpRequest = new RequestProxyOptions(),
-                HealthCheck = new HealthCheckOptions
-                {
-                    Active = new ActiveHealthCheckOptions
-                    {
-                        Enabled = false,
-                    },
-                    Passive = new PassiveHealthCheckOptions
-                    {
-                        Enabled = false,
-                    }
+                    Active = new ActiveHealthCheckConfig(),
+                    Passive = new PassiveHealthCheckConfig()
                 },
                 Metadata = new Dictionary<string, string>(),
-                HttpClient = new ProxyHttpClientOptions
+                HttpClient = new HttpClientConfig
                 {
-                    WebProxy = new WebProxyOptions
+                    WebProxy = new WebProxyConfig
                     {
                     }
                 }
@@ -172,7 +164,9 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
         [InlineData("false", false)]
         [InlineData("False", false)]
         [InlineData("FALSE", false)]
-        public void BuildCluster_HealthCheckOptions_Enabled_Valid(string label, bool expected)
+        [InlineData(null, null)]
+        [InlineData("", null)]
+        public void BuildCluster_HealthCheckOptions_Enabled_Valid(string label, bool? expected)
         {
             var labels = new Dictionary<string, string>()
             {
@@ -186,8 +180,8 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
         }
 
         [Theory]
-        [InlineData(null)]
-        [InlineData("")]
+        [InlineData("notbool")]
+        [InlineData(" ")]
         public void BuildCluster_HealthCheckOptions_Enabled_Invalid(string label)
         {
             var labels = new Dictionary<string, string>()

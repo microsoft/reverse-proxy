@@ -125,9 +125,9 @@ namespace Yarp.ReverseProxy.Middleware
                 new ClusterConfig
                 {
                     ClusterId = id,
-                    HealthCheck = new HealthCheckOptions
+                    HealthCheck = new HealthCheckConfig
                     {
-                        Passive = new PassiveHealthCheckOptions
+                        Passive = new PassiveHealthCheckConfig
                         {
                             Enabled = enabled,
                             Policy = policy,

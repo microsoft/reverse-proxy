@@ -6,9 +6,9 @@ using System;
 namespace Yarp.ReverseProxy.Abstractions
 {
     /// <summary>
-    /// Passive health check options.
+    /// Passive health check config.
     /// </summary>
-    public sealed record PassiveHealthCheckOptions
+    public sealed record PassiveHealthCheckConfig
     {
         /// <summary>
         /// Whether passive health checks are enabled.
@@ -26,7 +26,7 @@ namespace Yarp.ReverseProxy.Abstractions
         public TimeSpan? ReactivationPeriod { get; init; }
 
         /// <inheritdoc />
-        public bool Equals(PassiveHealthCheckOptions other)
+        public bool Equals(PassiveHealthCheckConfig other)
         {
             if (other == null)
             {

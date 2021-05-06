@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Yarp.ReverseProxy.Abstractions;
 using Yarp.ReverseProxy.Service;
+using Yarp.ReverseProxy.Service.HealthChecks;
 
 namespace Yarp.ReverseProxy.Sample
 {
@@ -20,9 +21,9 @@ namespace Yarp.ReverseProxy.Sample
             {
                 cluster = cluster with
                 {
-                    HealthCheck = new HealthCheckOptions
+                    HealthCheck = new HealthCheckConfig
                     {
-                        Active = new ActiveHealthCheckOptions
+                        Active = new ActiveHealthCheckConfig
                         {
                             Enabled = true,
                             Policy = HealthCheckConstants.ActivePolicy.ConsecutiveFailures,
@@ -38,9 +39,9 @@ namespace Yarp.ReverseProxy.Sample
             {
                 cluster = cluster with
                 {
-                    HealthCheck = new HealthCheckOptions
+                    HealthCheck = new HealthCheckConfig
                     {
-                        Active = new ActiveHealthCheckOptions
+                        Active = new ActiveHealthCheckConfig
                         {
                             Enabled = true,
                             Policy = HealthCheckConstants.ActivePolicy.ConsecutiveFailures,
