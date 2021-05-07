@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Yarp.ReverseProxy.Abstractions.Config;
 using Yarp.ReverseProxy.Utilities;
 

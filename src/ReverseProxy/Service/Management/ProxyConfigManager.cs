@@ -344,10 +344,10 @@ namespace Yarp.ReverseProxy.Service.Management
                     var httpClient = _httpClientFactory.CreateClient(new ProxyHttpClientContext
                     {
                         ClusterId = currentCluster.ClusterId,
-                        OldOptions = currentClusterModel.Config.HttpClient ?? ProxyHttpClientOptions.Empty,
+                        OldConfig = currentClusterModel.Config.HttpClient ?? HttpClientConfig.Empty,
                         OldMetadata = currentClusterModel.Config.Metadata,
                         OldClient = currentClusterModel.HttpClient,
-                        NewOptions = incomingCluster.HttpClient ?? ProxyHttpClientOptions.Empty,
+                        NewConfig = incomingCluster.HttpClient ?? HttpClientConfig.Empty,
                         NewMetadata = incomingCluster.Metadata
                     });
 
@@ -383,7 +383,7 @@ namespace Yarp.ReverseProxy.Service.Management
                     var httpClient = _httpClientFactory.CreateClient(new ProxyHttpClientContext
                     {
                         ClusterId = newClusterState.ClusterId,
-                        NewOptions = incomingCluster.HttpClient ?? ProxyHttpClientOptions.Empty,
+                        NewConfig = incomingCluster.HttpClient ?? HttpClientConfig.Empty,
                         NewMetadata = incomingCluster.Metadata
                     });
 

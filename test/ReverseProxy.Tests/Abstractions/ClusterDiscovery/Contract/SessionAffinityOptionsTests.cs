@@ -10,14 +10,14 @@ namespace Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract
         [Fact]
         public void Equals_Same_Value_Returns_True()
         {
-            var options1 = new SessionAffinityOptions
+            var options1 = new SessionAffinityConfig
             {
                 Enabled = true,
                 FailurePolicy = "policy1",
                 Mode = "mode1"
             };
 
-            var options2 = new SessionAffinityOptions
+            var options2 = new SessionAffinityConfig
             {
                 Enabled = true,
                 FailurePolicy = "policy1",
@@ -32,14 +32,14 @@ namespace Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract
         [Fact]
         public void Equals_Different_Value_Returns_False()
         {
-            var options1 = new SessionAffinityOptions
+            var options1 = new SessionAffinityConfig
             {
                 Enabled = true,
                 FailurePolicy = "policy1",
                 Mode = "mode1"
             };
 
-            var options2 = new SessionAffinityOptions
+            var options2 = new SessionAffinityConfig
             {
                 Enabled = false,
                 FailurePolicy = "policy2",
@@ -54,7 +54,7 @@ namespace Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract
         [Fact]
         public void Equals_Second_Null_Returns_False()
         {
-            var options1 = new SessionAffinityOptions
+            var options1 = new SessionAffinityConfig
             {
                 Enabled = true,
                 FailurePolicy = "policy1",

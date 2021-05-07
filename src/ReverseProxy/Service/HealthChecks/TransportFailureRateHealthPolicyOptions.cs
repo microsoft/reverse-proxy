@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Yarp.ReverseProxy.Abstractions
+namespace Yarp.ReverseProxy.Service.HealthChecks
 {
     /// <summary>
     /// Defines options for the transport failure rate passive health policy.

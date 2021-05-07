@@ -11,14 +11,14 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
         [Fact]
         public void Equals_Same_Value_Returns_True()
         {
-            var options1 = new PassiveHealthCheckOptions
+            var options1 = new PassiveHealthCheckConfig
             {
                 Enabled = true,
                 Policy = "Passive",
                 ReactivationPeriod = TimeSpan.FromSeconds(5),
             };
 
-            var options2 = new PassiveHealthCheckOptions
+            var options2 = new PassiveHealthCheckConfig
             {
                 Enabled = true,
                 Policy = "Passive",
@@ -33,14 +33,14 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
         [Fact]
         public void Equals_Different_Value_Returns_False()
         {
-            var options1 = new PassiveHealthCheckOptions
+            var options1 = new PassiveHealthCheckConfig
             {
                 Enabled = true,
                 Policy = "Passive",
                 ReactivationPeriod = TimeSpan.FromSeconds(5),
             };
 
-            var options2 = new PassiveHealthCheckOptions
+            var options2 = new PassiveHealthCheckConfig
             {
                 Enabled = false,
                 Policy = "Passive",
@@ -55,7 +55,7 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
         [Fact]
         public void Equals_Second_Null_Returns_False()
         {
-            var options1 = new PassiveHealthCheckOptions();
+            var options1 = new PassiveHealthCheckConfig();
 
             var equals = options1.Equals(null);
 

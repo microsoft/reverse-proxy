@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Yarp.ReverseProxy.Abstractions;
-using Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Yarp.ReverseProxy.RuntimeModel;
 
 namespace Yarp.ReverseProxy.Service.SessionAffinity
@@ -30,9 +29,9 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             return destination.DestinationId;
         }
 
-        protected override (string Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, SessionAffinityOptions options)
+        protected override (string Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, SessionAffinityConfig config)
         {
-            var customHeaderName = options.Settings != null && options.Settings.TryGetValue(CustomHeaderNameKey, out var nameInSettings) ? nameInSettings : DefaultCustomHeaderName;
+            var customHeaderName = config.Settings != null && config.Settings.TryGetValue(CustomHeaderNameKey, out var nameInSettings) ? nameInSettings : DefaultCustomHeaderName;
             var keyHeaderValues = context.Request.Headers[customHeaderName];
 
             if (StringValues.IsNullOrEmpty(keyHeaderValues))
@@ -51,9 +50,9 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             return Unprotect(keyHeaderValues[0]);
         }
 
-        protected override void SetAffinityKey(HttpContext context, SessionAffinityOptions options, string unencryptedKey)
+        protected override void SetAffinityKey(HttpContext context, SessionAffinityConfig config, string unencryptedKey)
         {
-            var customHeaderName = GetSettingValue(CustomHeaderNameKey, options);
+            var customHeaderName = GetSettingValue(CustomHeaderNameKey, config);
             context.Response.Headers.Append(customHeaderName, Protect(unencryptedKey));
         }
 

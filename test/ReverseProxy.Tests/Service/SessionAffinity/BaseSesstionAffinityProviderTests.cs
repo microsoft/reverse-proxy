@@ -20,7 +20,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
         private const string InvalidKeyNull = "!invalid key - null!";
         private const string InvalidKeyThrow = "!invalid key - throw!";
         private const string KeyName = "StubAffinityKey";
-        private readonly SessionAffinityOptions _defaultOptions = new SessionAffinityOptions
+        private readonly SessionAffinityConfig _defaultOptions = new SessionAffinityConfig
         {
             Enabled = true,
             Mode = "Stub",
@@ -74,7 +74,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
         public void FindAffinitizedDestination_AffinityDisabledOnCluster_ReturnsAffinityDisabled()
         {
             var provider = new ProviderStub(GetDataProtector().Object, AffinityTestHelper.GetLogger<BaseSessionAffinityProvider<string>>().Object);
-            var options = new SessionAffinityOptions
+            var options = new SessionAffinityConfig
             {
                 Enabled = false,
                 Mode = _defaultOptions.Mode,
@@ -89,7 +89,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
         {
             var dataProtector = GetDataProtector();
             var provider = new ProviderStub(dataProtector.Object, AffinityTestHelper.GetLogger<BaseSessionAffinityProvider<string>>().Object);
-            Assert.Throws<InvalidOperationException>(() => provider.AffinitizeRequest(new DefaultHttpContext(), new SessionAffinityOptions(), new DestinationState("id")));
+            Assert.Throws<InvalidOperationException>(() => provider.AffinitizeRequest(new DefaultHttpContext(), new SessionAffinityConfig(), new DestinationState("id")));
         }
 
         [Fact]
@@ -153,9 +153,9 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             yield return new object[] { GetHttpContext(new[] { (KeyName, InvalidKeyThrow) }), destinations, AffinityStatus.AffinityKeyExtractionFailed, null, Encoding.UTF8.GetBytes(InvalidKeyThrow), true, LogLevel.Error, EventIds.RequestAffinityKeyDecryptionFailed };
         }
 
-        private static SessionAffinityOptions GetOptionsWithUnknownSetting()
+        private static SessionAffinityConfig GetOptionsWithUnknownSetting()
         {
-            return new SessionAffinityOptions
+            return new SessionAffinityConfig
             {
                 Enabled = true,
                 Mode = "Stub",
@@ -208,7 +208,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
                 return destination.DestinationId;
             }
 
-            protected override (string Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, SessionAffinityOptions options)
+            protected override (string Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, SessionAffinityConfig options)
             {
                 Assert.Equal(Mode, options.Mode);
                 var keyName = GetSettingValue(KeyNameSetting, options);
@@ -218,7 +218,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
                 return Unprotect((string)encryptedKey);
             }
 
-            protected override void SetAffinityKey(HttpContext context, SessionAffinityOptions options, string unencryptedKey)
+            protected override void SetAffinityKey(HttpContext context, SessionAffinityConfig options, string unencryptedKey)
             {
                 var keyName = GetSettingValue(KeyNameSetting, options);
                 var encryptedKey = Protect(unencryptedKey);

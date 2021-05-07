@@ -23,12 +23,12 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
         /// and can change it in any way.
         /// </summary>
         /// <param name="context">Current request's context.</param>
-        /// <param name="options">Session affinity options set for the cluster.</param>
+        /// <param name="config">Session affinity config for the cluster.</param>
         /// <param name="affinityStatus">Affinity resolution status.</param>
         /// <returns>
         /// 'true' if the failure is considered recoverable and the request processing can proceed.
         /// Otherwise, 'false' indicating that an error response has been generated and the request's processing must be terminated.
         /// </returns>
-        Task<bool> Handle(HttpContext context, SessionAffinityOptions options, AffinityStatus affinityStatus);
+        Task<bool> Handle(HttpContext context, SessionAffinityConfig config, AffinityStatus affinityStatus);
     }
 }

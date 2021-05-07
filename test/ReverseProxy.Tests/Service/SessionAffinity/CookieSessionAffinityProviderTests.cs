@@ -15,7 +15,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
     public class CookieSessionAffinityProviderTests
     {
         private readonly CookieSessionAffinityProviderOptions _defaultProviderOptions = new CookieSessionAffinityProviderOptions();
-        private readonly SessionAffinityOptions _defaultOptions = new SessionAffinityOptions
+        private readonly SessionAffinityConfig _defaultOptions = new SessionAffinityConfig
         {
             Enabled = true,
             Mode = "Cookie",

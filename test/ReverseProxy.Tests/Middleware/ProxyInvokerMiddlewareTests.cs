@@ -40,7 +40,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
             httpContext.Request.QueryString = new QueryString("?a=b&c=d");
 
             var httpClient = new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object);
-            var httpRequestOptions = new RequestProxyOptions
+            var httpRequestOptions = new RequestProxyConfig
             {
                 Timeout = TimeSpan.FromSeconds(60),
                 Version = HttpVersion.Version11,
@@ -78,7 +78,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
                     httpContext,
                     It.Is<string>(uri => uri == "https://localhost:123/a/b/"),
                     httpClient,
-                    It.Is<RequestProxyOptions>(requestOptions =>
+                    It.Is<RequestProxyConfig>(requestOptions =>
                         requestOptions.Timeout == httpRequestOptions.Timeout
                         && requestOptions.Version == httpRequestOptions.Version
 #if NET
@@ -154,7 +154,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
                     httpContext,
                     It.IsAny<string>(),
                     httpClient,
-                    It.IsAny<RequestProxyOptions>(),
+                    It.IsAny<RequestProxyConfig>(),
                     It.IsAny<HttpTransformer>()))
                 .Returns(() => throw new NotImplementedException());
 

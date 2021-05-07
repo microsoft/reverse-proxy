@@ -23,7 +23,7 @@ namespace Yarp.ReverseProxy.Middleware
         protected readonly ClusterModel ClusterConfig = new ClusterModel(new ClusterConfig
         {
             ClusterId = "cluster-1",
-            SessionAffinity = new SessionAffinityOptions
+            SessionAffinity = new SessionAffinityConfig
             {
                 Enabled = true,
                 Mode = "Mode-B",
@@ -181,7 +181,7 @@ namespace Yarp.ReverseProxy.Middleware
             {
                 var policy = new Mock<IAffinityFailurePolicy>(MockBehavior.Strict);
                 policy.SetupGet(p => p.Name).Returns(name);
-                policy.Setup(p => p.Handle(It.IsAny<HttpContext>(), It.Is<SessionAffinityOptions>(o => o.FailurePolicy == name), expectedStatus))
+                policy.Setup(p => p.Handle(It.IsAny<HttpContext>(), It.Is<SessionAffinityConfig>(o => o.FailurePolicy == name), expectedStatus))
                     .ReturnsAsync(handled)
                     .Callback(() => callback(policy.Object));
                 result.Add(policy);

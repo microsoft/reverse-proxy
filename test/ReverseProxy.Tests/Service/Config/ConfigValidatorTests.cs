@@ -10,6 +10,7 @@ using Xunit;
 using Yarp.ReverseProxy.Abstractions;
 using Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Yarp.ReverseProxy.Service.HealthChecks;
+using Yarp.ReverseProxy.Service.LoadBalancing;
 using Yarp.ReverseProxy.Service.Proxy;
 
 namespace Yarp.ReverseProxy.Service.Tests
@@ -623,7 +624,7 @@ namespace Yarp.ReverseProxy.Service.Tests
             var cluster = new ClusterConfig
             {
                 ClusterId = "cluster1",
-                SessionAffinity = new SessionAffinityOptions()
+                SessionAffinity = new SessionAffinityConfig()
                 {
                     Enabled = true
                 }
@@ -643,7 +644,7 @@ namespace Yarp.ReverseProxy.Service.Tests
             var cluster = new ClusterConfig
             {
                 ClusterId = "cluster1",
-                SessionAffinity = new SessionAffinityOptions()
+                SessionAffinity = new SessionAffinityConfig()
                 {
                     Enabled = true,
                     FailurePolicy = "Invalid"
@@ -665,7 +666,7 @@ namespace Yarp.ReverseProxy.Service.Tests
             var cluster = new ClusterConfig
             {
                 ClusterId = "cluster1",
-                HttpRequest = new RequestProxyOptions
+                HttpRequest = new RequestProxyConfig
                 {
                     Version = null,
                 }
@@ -689,7 +690,7 @@ namespace Yarp.ReverseProxy.Service.Tests
             var cluster = new ClusterConfig
             {
                 ClusterId = "cluster1",
-                HttpRequest = new RequestProxyOptions
+                HttpRequest = new RequestProxyConfig
                 {
                     Version = version,
                 }
@@ -713,7 +714,7 @@ namespace Yarp.ReverseProxy.Service.Tests
             var cluster = new ClusterConfig
             {
                 ClusterId = "cluster1",
-                HttpRequest = new RequestProxyOptions
+                HttpRequest = new RequestProxyConfig
                 {
                     Version = version,
                 }
@@ -741,9 +742,9 @@ namespace Yarp.ReverseProxy.Service.Tests
             var cluster = new ClusterConfig
             {
                 ClusterId = "cluster1",
-                HealthCheck = new HealthCheckOptions
+                HealthCheck = new HealthCheckConfig
                 {
-                    Active = new ActiveHealthCheckOptions
+                    Active = new ActiveHealthCheckConfig
                     {
                         Enabled = true,
                         Interval = interval != null ? TimeSpan.FromSeconds(interval.Value) : (TimeSpan?)null,
@@ -771,9 +772,9 @@ namespace Yarp.ReverseProxy.Service.Tests
             var cluster = new ClusterConfig
             {
                 ClusterId = "cluster1",
-                HealthCheck = new HealthCheckOptions
+                HealthCheck = new HealthCheckConfig
                 {
-                    Active = new ActiveHealthCheckOptions
+                    Active = new ActiveHealthCheckConfig
                     {
                         Enabled = true,
                         Interval = interval != null ? TimeSpan.FromSeconds(interval.Value) : (TimeSpan?)null,
@@ -803,9 +804,9 @@ namespace Yarp.ReverseProxy.Service.Tests
             var cluster = new ClusterConfig
             {
                 ClusterId = "cluster1",
-                HealthCheck = new HealthCheckOptions
+                HealthCheck = new HealthCheckConfig
                 {
-                    Passive = new PassiveHealthCheckOptions
+                    Passive = new PassiveHealthCheckConfig
                     {
                         Enabled = true,
                         Policy = policy,
@@ -830,9 +831,9 @@ namespace Yarp.ReverseProxy.Service.Tests
             var cluster = new ClusterConfig
             {
                 ClusterId = "cluster1",
-                HealthCheck = new HealthCheckOptions
+                HealthCheck = new HealthCheckConfig
                 {
-                    Passive = new PassiveHealthCheckOptions
+                    Passive = new PassiveHealthCheckConfig
                     {
                         Enabled = true,
                         Policy = policy,

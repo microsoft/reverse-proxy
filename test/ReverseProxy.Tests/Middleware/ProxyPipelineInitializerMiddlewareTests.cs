@@ -77,9 +77,9 @@ namespace Yarp.ReverseProxy.Middleware.Tests
             cluster1.Model = new ClusterModel(
                 new ClusterConfig()
                 {
-                    HealthCheck = new HealthCheckOptions
+                    HealthCheck = new HealthCheckConfig
                     {
-                        Active = new ActiveHealthCheckOptions
+                        Active = new ActiveHealthCheckConfig
                         {
                             Enabled = true,
                             Timeout = Timeout.InfiniteTimeSpan,

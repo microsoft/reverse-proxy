@@ -14,25 +14,25 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
         [Fact]
         public void Equals_Same_Value_Returns_True()
         {
-            var options1 = new ProxyHttpClientOptions
+            var options1 = new HttpClientConfig
             {
                 SslProtocols = SslProtocols.Tls11,
                 DangerousAcceptAnyServerCertificate = false,
                 ClientCertificate = TestResources.GetTestCertificate(),
                 MaxConnectionsPerServer = 20,
-                WebProxy = new WebProxyOptions() { Address = new Uri("http://localhost:8080"), BypassOnLocal = true, UseDefaultCredentials = true },
+                WebProxy = new WebProxyConfig() { Address = new Uri("http://localhost:8080"), BypassOnLocal = true, UseDefaultCredentials = true },
 #if NET
                 RequestHeaderEncoding = Encoding.UTF8
 #endif
             };
 
-            var options2 = new ProxyHttpClientOptions
+            var options2 = new HttpClientConfig
             {
                 SslProtocols = SslProtocols.Tls11,
                 DangerousAcceptAnyServerCertificate = false,
                 ClientCertificate = TestResources.GetTestCertificate(),
                 MaxConnectionsPerServer = 20,
-                WebProxy = new WebProxyOptions() { Address = new Uri("http://localhost:8080"), BypassOnLocal = true, UseDefaultCredentials = true },
+                WebProxy = new WebProxyConfig() { Address = new Uri("http://localhost:8080"), BypassOnLocal = true, UseDefaultCredentials = true },
 #if NET
                 RequestHeaderEncoding = Encoding.UTF8
 #endif
@@ -48,7 +48,7 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
         [Fact]
         public void Equals_Different_Value_Returns_False()
         {
-            var options1 = new ProxyHttpClientOptions
+            var options1 = new HttpClientConfig
             {
                 SslProtocols = SslProtocols.Tls11,
                 DangerousAcceptAnyServerCertificate = false,
@@ -59,7 +59,7 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
 #endif
             };
 
-            var options2 = new ProxyHttpClientOptions
+            var options2 = new HttpClientConfig
             {
                 SslProtocols = SslProtocols.Tls12,
                 DangerousAcceptAnyServerCertificate = true,
@@ -78,14 +78,14 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
         [Fact]
         public void Equals_Same_WebProxyAddress_Returns_True()
         {
-            var options1 = new ProxyHttpClientOptions
+            var options1 = new HttpClientConfig
             {
-                WebProxy = new WebProxyOptions() { Address = new Uri("http://localhost:8080"), BypassOnLocal = true, UseDefaultCredentials = true }
+                WebProxy = new WebProxyConfig() { Address = new Uri("http://localhost:8080"), BypassOnLocal = true, UseDefaultCredentials = true }
             };
 
-            var options2 = new ProxyHttpClientOptions
+            var options2 = new HttpClientConfig
             {
-                WebProxy = new WebProxyOptions() { Address = new Uri("http://localhost:8080"), BypassOnLocal = true, UseDefaultCredentials = true }
+                WebProxy = new WebProxyConfig() { Address = new Uri("http://localhost:8080"), BypassOnLocal = true, UseDefaultCredentials = true }
             };
 
             var equals = options1.Equals(options2);
@@ -98,14 +98,14 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
         [Fact]
         public void Equals_Different_WebProxyAddress_Returns_False()
         {
-            var options1 = new ProxyHttpClientOptions
+            var options1 = new HttpClientConfig
             {
-                WebProxy = new WebProxyOptions() { Address = new Uri("http://localhost:8080"), BypassOnLocal = true, UseDefaultCredentials = true }
+                WebProxy = new WebProxyConfig() { Address = new Uri("http://localhost:8080"), BypassOnLocal = true, UseDefaultCredentials = true }
             };
 
-            var options2 = new ProxyHttpClientOptions
+            var options2 = new HttpClientConfig
             {
-                WebProxy = new WebProxyOptions() { Address = new Uri("http://localhost:9999"), BypassOnLocal = true, UseDefaultCredentials = true }
+                WebProxy = new WebProxyConfig() { Address = new Uri("http://localhost:9999"), BypassOnLocal = true, UseDefaultCredentials = true }
             };
 
             var equals = options1.Equals(options2);
@@ -118,7 +118,7 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
         [Fact]
         public void Equals_Second_Null_Returns_False()
         {
-            var options1 = new ProxyHttpClientOptions
+            var options1 = new HttpClientConfig
             {
                 SslProtocols = SslProtocols.Tls11,
                 DangerousAcceptAnyServerCertificate = false,
