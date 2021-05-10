@@ -9,7 +9,7 @@ The reverse proxy can be used to authenticate and authorize requests before they
 No authentication or authorization is performed on requests unless enabled in the route or application configuration.
 
 ## Configuration
-Authorization policies can be specified per route via [ProxyRoute.AuthorizationPolicy](xref:Yarp.ReverseProxy.Abstractions.ProxyRoute) and can be bound from the `Routes` sections of the config file. As with other route properties, this can be modified and reloaded without restarting the proxy. Policy names are case insensitive.
+Authorization policies can be specified per route via [RouteConfig.AuthorizationPolicy](xref:Yarp.ReverseProxy.Abstractions.RouteConfig) and can be bound from the `Routes` sections of the config file. As with other route properties, this can be modified and reloaded without restarting the proxy. Policy names are case insensitive.
 
 Example:
 ```JSON

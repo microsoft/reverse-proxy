@@ -46,14 +46,14 @@ If no policy is specified, `PowerOfTwoChoices` will be used.
 ```C#
 var clusters = new[]
 {
-    new Cluster()
+    new ClusterConfig()
     {
-        Id = "cluster1",
+        ClusterId = "cluster1",
         LoadBalancingPolicy = LoadBalancingPolicies.RoundRobin,
         Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
         {
-            { "destination1", new Destination() { Address = "https://localhost:10000" } },
-            { "destination2", new Destination() { Address = "https://localhost:10010" } }
+            { "destination1", new DestinationConfig() { Address = "https://localhost:10000" } },
+            { "destination2", new DestinationConfig() { Address = "https://localhost:10010" } }
         }
     }
 };
@@ -91,7 +91,7 @@ public sealed class LastLoadBalancingPolicy : ILoadBalancingPolicy
 {
     public string Name => "Last";
 
-    public DestinationInfo PickDestination(HttpContext context, IReadOnlyList<DestinationInfo> availableDestinations)
+    public DestinationState PickDestination(HttpContext context, IReadOnlyList<DestinationState> availableDestinations)
     {
         return availableDestinations[^1];
     }
@@ -107,10 +107,10 @@ cluster.LoadBalancingPolicy = "Last";
 Other information that may be necessary to decide on a destination, such as cluster configuration, can be accessed from the `HttpContext`:
 
 ```c#
-public DestinationInfo PickDestination(HttpContext context, IReadOnlyList<DestinationInfo> availableDestinations)
+public DestinationState PickDestination(HttpContext context, IReadOnlyList<DestinationState> availableDestinations)
 {
-    var proxyFeature = context.Features.Get<IReverseProxyFeature>();
-    var clusterConfig = proxyFeature.ClusterConfig;
+    var proxyFeature = context.GetProxyErrorFeature();
+    var cluster = proxyFeature.Cluster;
     // ...
 }
 ```
