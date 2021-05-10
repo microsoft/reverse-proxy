@@ -122,6 +122,7 @@ There should only be one [preview branch on the repo](https://github.com/microso
 8. Replace the `prod` word to `portal`
 9. Navigate to the fixed link and check that the ticket is actually created
 10. That's all the actions needed to be done immediately. Afterwards, periodically track the ticket progress. It might take many hours.
+11. [Offline] Wait for the archival completion report to arrive. Check that the size and number of archived files match the YARP repo.
 
 ## Troubleshooting
 
