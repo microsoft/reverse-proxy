@@ -109,7 +109,7 @@ Other information that may be necessary to decide on a destination, such as clus
 ```c#
 public DestinationState PickDestination(HttpContext context, IReadOnlyList<DestinationState> availableDestinations)
 {
-    var proxyFeature = context.GetProxyErrorFeature();
+    var proxyFeature = context.GetReverseProxyFeature();
     var cluster = proxyFeature.Cluster;
     // ...
 }
