@@ -432,6 +432,7 @@ MyHeader: MyValue
 ```
 
 This sets or appends the value for the named header. Set replaces any existing header. Append adds an additional header with the given value.
+Note: setting "" as a header value is not recommended and can cause an undefined behavior.
 
 ### RequestHeaderRemove
 
@@ -656,6 +657,7 @@ HeaderName: value
 ```
 
 This sets or appends the value for the named header. Set replaces any existing header. Append adds an additional header with the given value.
+Note: setting "" as a header value is not recommended and can cause an undefined behavior.
 
 `When` specifies if the response header should be included for successful responses or for all responses. Any response with a status code less than 400 is considered a success.
 
