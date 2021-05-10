@@ -111,6 +111,18 @@ This is to avoid accidental pushes to/deletions of the preview branch.
 
 There should only be one [preview branch on the repo](https://github.com/microsoft/reverse-proxy/branches) after this point.
 
+## Request source code archival
+1. Go to the internal https://aka.ms/dpsrequestforms portal
+2. Switch to "Source Code Archival Request Page"
+3. Proceed through steps 1,2 till the step 3 (all prerequisites are already fulfilled)
+4. Fill in the required fields on the steps 3, 4, 5. Ask in the YARP channel for the specific field values.
+5. At the last step, check all the info and and submit the request
+6. Go to "My Request" tab and wait for a new ticket to appear on the list
+7. Copy the ticket link from "Ticket ID" column which will look like `https://prod.******`
+8. Replace the `prod` word to `portal`
+9. Navigate to the fixed link and check that the ticket is actually created
+10. That's all the actions needed to be done immediately. Afterwards, periodically track the ticket progress. It might take many hours.
+
 ## Troubleshooting
 
 ### Authentication Errors
