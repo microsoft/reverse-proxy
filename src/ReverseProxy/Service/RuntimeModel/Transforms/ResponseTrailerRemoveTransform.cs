@@ -2,31 +2,26 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Primitives;
+using Microsoft.AspNetCore.Http.Features;
 
 namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
 {
     /// <summary>
-    /// Sets or appends simple response trailer values.
+    /// Removes a response trailer.
     /// </summary>
-    public class ResponseTrailerValueTransform : ResponseTrailersTransform
+    public class ResponseTrailerRemoveTransform : ResponseTrailersTransform
     {
-        public ResponseTrailerValueTransform(string headerName, string value, bool append, bool always)
+        public ResponseTrailerRemoveTransform(string headerName, bool always)
         {
             HeaderName = headerName ?? throw new ArgumentNullException(nameof(headerName));
-            Value = value ?? throw new ArgumentNullException(nameof(value));
-            Append = append;
             Always = always;
         }
 
-        internal bool Always { get; }
-
-        internal bool Append { get; }
-
         internal string HeaderName { get; }
 
-        internal string Value { get; }
+        internal bool Always { get; }
 
         // Assumes the response status code has been set on the HttpContext already.
         /// <inheritdoc/>
@@ -39,15 +34,15 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
 
             if (Always || Success(context))
             {
-                var existingHeader = TakeHeader(context, HeaderName);
-                if (Append)
+                var responseTrailersFeature = context.HttpContext.Features.Get<IHttpResponseTrailersFeature>();
+                var responseTrailers = responseTrailersFeature.Trailers;
+                // Support should have already been checked by the caller.
+                Debug.Assert(responseTrailers != null);
+                Debug.Assert(!responseTrailers.IsReadOnly);
+
+                if (!responseTrailers.Remove(HeaderName) && !context.HeadersCopied)
                 {
-                    var value = StringValues.Concat(existingHeader, Value);
-                    SetHeader(context, HeaderName, value);
-                }
-                else
-                {
-                    SetHeader(context, HeaderName, Value);
+                    context.ProxyResponse.TrailingHeaders.Remove(HeaderName);
                 }
             }
 

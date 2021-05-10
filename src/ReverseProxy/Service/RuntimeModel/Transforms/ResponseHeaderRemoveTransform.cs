@@ -3,30 +3,23 @@
 
 using System;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Primitives;
 
 namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
 {
     /// <summary>
-    /// Sets or appends simple response header values.
+    /// Removes a response header.
     /// </summary>
-    public class ResponseHeaderValueTransform : ResponseTransform
+    public class ResponseHeaderRemoveTransform : ResponseTransform
     {
-        public ResponseHeaderValueTransform(string headerName, string value, bool append, bool always)
+        public ResponseHeaderRemoveTransform(string headerName, bool always)
         {
             HeaderName = headerName ?? throw new ArgumentNullException(nameof(headerName));
-            Value = value ?? throw new ArgumentNullException(nameof(value));
-            Append = append;
             Always = always;
         }
 
-        internal bool Always { get; }
-
-        internal bool Append { get; }
-
         internal string HeaderName { get; }
 
-        internal string Value { get; }
+        internal bool Always { get; }
 
         // Assumes the response status code has been set on the HttpContext already.
         /// <inheritdoc/>
@@ -39,15 +32,9 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
 
             if (Always || Success(context))
             {
-                var existingHeader = TakeHeader(context, HeaderName);
-                if (Append)
+                if (!context.ProxyResponse.Headers.Remove(HeaderName))
                 {
-                    var value = StringValues.Concat(existingHeader, Value);
-                    SetHeader(context, HeaderName, value);
-                }
-                else
-                {
-                    SetHeader(context, HeaderName, Value);
+                    context.ProxyResponse.Content?.Headers.Remove(HeaderName);
                 }
             }
 

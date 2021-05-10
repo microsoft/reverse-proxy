@@ -65,5 +65,11 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
 
             responseTrailers[headerName] = values;
         }
+
+        internal static bool Success(ResponseTrailersTransformContext context)
+        {
+            // TODO: How complex should this get? Compare with http://nginx.org/en/docs/http/ngx_http_headers_module.html#add_header
+            return context.HttpContext.Response.StatusCode < 400;
+        }
     }
 }
