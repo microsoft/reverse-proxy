@@ -16,14 +16,14 @@ The routes section is an unordered collection of named routes. A route contains 
 - ClusterId - Refers to the name of an entry in the clusters section.
 - Match containing either a Hosts array or a Path pattern string.
 
-[Headers](header-routing.md), [Authorization](authn-authz.md), [CORS](cors.md), and other route based policies can be configured on each route entry. For additional fields see [ProxyRoute](xref:Yarp.ReverseProxy.Abstractions.ProxyRoute).
+[Headers](header-routing.md), [Authorization](authn-authz.md), [CORS](cors.md), and other route based policies can be configured on each route entry. For additional fields see [RouteConfig](xref:Yarp.ReverseProxy.Abstractions.RouteConfig).
 
 The proxy will apply the given matching criteria and policies, and then pass off the request to the specified cluster.
 
 ### Clusters
 The clusters section is an unordered collection of named clusters. A cluster primarily contains a collection of named destinations and their addresses, any of which is considered capable of handling requests for a given route. The proxy will process the request according to the route and cluster configuration in order to select a destination.
 
-For additional fields see [Cluster](xref:Yarp.ReverseProxy.Abstractions.Cluster).
+For additional fields see [ClusterConfig](xref:Yarp.ReverseProxy.Abstractions.ClusterConfig).
 
 ## Lifecycle
 
@@ -70,7 +70,7 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class InMemoryConfigProviderExtensions
     {
-        public static IReverseProxyBuilder LoadFromMemory(this IReverseProxyBuilder builder, IReadOnlyList<ProxyRoute> routes, IReadOnlyList<Cluster> clusters)
+        public static IReverseProxyBuilder LoadFromMemory(this IReverseProxyBuilder builder, IReadOnlyList<RouteConfig> routes, IReadOnlyList<ClusterConfig> clusters)
         {
             builder.Services.AddSingleton<IProxyConfigProvider>(new InMemoryConfigProvider(routes, clusters));
             return builder;
@@ -84,14 +84,14 @@ namespace Yarp.ReverseProxy.Configuration
     {
         private volatile InMemoryConfig _config;
 
-        public InMemoryConfigProvider(IReadOnlyList<ProxyRoute> routes, IReadOnlyList<Cluster> clusters)
+        public InMemoryConfigProvider(IReadOnlyList<RouteConfig> routes, IReadOnlyList<ClusterConfig> clusters)
         {
             _config = new InMemoryConfig(routes, clusters);
         }
 
         public IProxyConfig GetConfig() => _config;
 
-        public void Update(IReadOnlyList<ProxyRoute> routes, IReadOnlyList<Cluster> clusters)
+        public void Update(IReadOnlyList<RouteConfig> routes, IReadOnlyList<ClusterConfig> clusters)
         {
             var oldConfig = _config;
             _config = new InMemoryConfig(routes, clusters);
@@ -102,16 +102,16 @@ namespace Yarp.ReverseProxy.Configuration
         {
             private readonly CancellationTokenSource _cts = new CancellationTokenSource();
 
-            public InMemoryConfig(IReadOnlyList<ProxyRoute> routes, IReadOnlyList<Cluster> clusters)
+            public InMemoryConfig(IReadOnlyList<RouteConfig> routes, IReadOnlyList<ClusterConfig> clusters)
             {
                 Routes = routes;
                 Clusters = clusters;
                 ChangeToken = new CancellationChangeToken(_cts.Token);
             }
 
-            public IReadOnlyList<ProxyRoute> Routes { get; }
+            public IReadOnlyList<RouteConfig> Routes { get; }
 
-            public IReadOnlyList<Cluster> Clusters { get; }
+            public IReadOnlyList<ClusterConfig> Clusters { get; }
 
             public IChangeToken ChangeToken { get; }
 
@@ -130,7 +130,7 @@ public void ConfigureServices(IServiceCollection services)
 {
     var routes = new[]
     {
-        new ProxyRoute()
+        new RouteConfig()
         {
             RouteId = "route1",
             ClusterId = "cluster1",
@@ -142,12 +142,12 @@ public void ConfigureServices(IServiceCollection services)
     };
     var clusters = new[]
     {
-        new Cluster()
+        new ClusterConfig()
         {
-            Id = "cluster1",
-            Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
+            ClusterId = "cluster1",
+            Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
             {
-                { "destination1", new Destination() { Address = "https://example.com" } }
+                { "destination1", new DestinationConfig() { Address = "https://example.com" } }
             }
         }
     };
