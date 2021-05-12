@@ -15,7 +15,6 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
     /// </summary>
     public class QueryTransformContext
     {
-        private static readonly IEnumerable<string> _emptyString = new[] { string.Empty };
         private readonly HttpRequest _request;
         private readonly QueryString _originalQueryString;
         private Dictionary<string, StringValues> _modifiedQueryParameters;
