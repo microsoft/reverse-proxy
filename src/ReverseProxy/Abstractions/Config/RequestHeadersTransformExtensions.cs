@@ -47,11 +47,31 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         }
 
         /// <summary>
+        /// Clones the route and adds the transform which will remove the request header.
+        /// </summary>
+        public static RouteConfig WithTransformRequestHeaderRemove(this RouteConfig route, string headerName)
+        {
+            return route.WithTransform(transform =>
+            {
+                transform[RequestHeadersTransformFactory.RequestHeaderRemoveKey] = headerName;
+            });
+        }
+
+        /// <summary>
         /// Adds the transform which will append or set the request header.
         /// </summary>
         public static TransformBuilderContext AddRequestHeader(this TransformBuilderContext context, string headerName, string value, bool append = true)
         {
             context.RequestTransforms.Add(new RequestHeaderValueTransform(headerName, value, append));
+            return context;
+        }
+
+        /// <summary>
+        /// Adds the transform which will remove the request header.
+        /// </summary>
+        public static TransformBuilderContext AddRequestHeaderRemove(this TransformBuilderContext context, string headerName)
+        {
+            context.RequestTransforms.Add(new RequestHeaderRemoveTransform(headerName));
             return context;
         }
 

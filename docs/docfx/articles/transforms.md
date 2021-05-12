@@ -431,7 +431,36 @@ Example:
 MyHeader: MyValue
 ```
 
-This sets or appends the value for the named header. Set replaces any existing header. Set a header to empty to remove it (e.g. `"Set": ""`). Append adds an additional header with the given value.
+This sets or appends the value for the named header. Set replaces any existing header. Append adds an additional header with the given value.
+Note: setting "" as a header value is not recommended and can cause an undefined behavior.
+
+### RequestHeaderRemove
+
+| Key | Value | Required |
+|-----|-------|----------|
+| RequestHeaderRemove | The header name | yes |
+
+Config:
+```JSON
+{
+  "RequestHeaderRemove": "MyHeader"
+}
+```
+Code:
+```csharp
+proxyRoute = proxyRoute.WithTransformRequestHeaderRemove(headerName: "MyHeader");
+```
+```C#
+transformBuilderContext.AddRequestHeaderRemove(headerName: "MyHeader");
+```
+
+Example:
+```
+MyHeader: MyValue
+AnotherHeader: AnotherValue
+```
+
+This removes the named header.
 
 ### X-Forwarded
 
@@ -627,7 +656,39 @@ Example:
 HeaderName: value
 ```
 
-This sets or appends the value for the named header. Set replaces any existing header. Set a header to empty to remove it (e.g. `"Set": ""`). Append adds an additional header with the given value.
+This sets or appends the value for the named header. Set replaces any existing header. Append adds an additional header with the given value.
+Note: setting "" as a header value is not recommended and can cause an undefined behavior.
+
+`When` specifies if the response header should be included for successful responses or for all responses. Any response with a status code less than 400 is considered a success.
+
+### ResponseHeaderRemove
+
+| Key | Value | Default | Required |
+|-----|-------|---------|----------|
+| ResponseHeaderRemove | The header name | (none) | yes |
+| When | Success/Always | Success | no |
+
+Config:
+```JSON
+{
+  "ResponseHeaderRemove": "HeaderName",
+  "When": "Success"
+}
+```
+Code:
+```csharp
+proxyRoute = proxyRoute.WithTransformResponseHeaderRemove(headerName: "HeaderName", always: false);
+```
+```C#
+transformBuilderContext.AddResponseHeaderRemove(headerName: "HeaderName", always: false);
+```
+Example:
+```
+HeaderName: value
+AnotherHeader: another-value
+```
+
+This removes the named header.
 
 `When` specifies if the response header should be included for successful responses or for all responses. Any response with a status code less than 400 is considered a success.
 
@@ -682,6 +743,37 @@ HeaderName: value
 Response trailers are headers sent at the end of the response body. Support for trailers is uncommon in HTTP/1.1 implementations but is becoming common in HTTP/2 implementations. Check your client and server for support.
 
 ResponseTrailer follows the same structure and guidance as ResponseHeader.
+
+### ResponseTrailerRemove
+
+| Key | Value | Default | Required |
+|-----|-------|---------|----------|
+| ResponseTrailerRemove | The header name | (none) | yes |
+| When | Success/Always | Success | no |
+
+Config:
+```JSON
+{
+  "ResponseTrailerRemove": "HeaderName",
+  "When": "Success"
+}
+```
+Code:
+```csharp
+proxyRoute = proxyRoute.WithTransformResponseTrailerRemove(headerName: "HeaderName", always: false);
+```
+```C#
+transformBuilderContext.AddResponseTrailerRemove(headerName: "HeaderName", always: false);
+```
+Example:
+```
+HeaderName: value
+AnotherHeader: another-value
+```
+
+This removes the named trailing header.
+
+ResponseTrailerRemove follows the same structure and guidance as ResponseHeaderRemove.
 
 ## Extensibility
 
