@@ -32,10 +32,7 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
 
             if (Always || Success(context))
             {
-                if (!context.ProxyResponse.Headers.Remove(HeaderName))
-                {
-                    context.ProxyResponse.Content?.Headers.Remove(HeaderName);
-                }
+                context.HttpContext.Response.Headers.Remove(HeaderName);
             }
 
             return default;

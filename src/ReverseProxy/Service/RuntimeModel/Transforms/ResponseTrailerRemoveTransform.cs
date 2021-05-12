@@ -40,10 +40,7 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
                 Debug.Assert(responseTrailers != null);
                 Debug.Assert(!responseTrailers.IsReadOnly);
 
-                if (!responseTrailers.Remove(HeaderName) && !context.HeadersCopied)
-                {
-                    context.ProxyResponse.TrailingHeaders.Remove(HeaderName);
-                }
+                responseTrailers.Remove(HeaderName);
             }
 
             return default;

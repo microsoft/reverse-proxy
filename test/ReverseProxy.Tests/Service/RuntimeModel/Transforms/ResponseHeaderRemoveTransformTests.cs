@@ -41,7 +41,7 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
             var proxyResponse = new HttpResponseMessage();
             foreach (var pair in TestResources.ParseNameAndValues(names, values))
             {
-                proxyResponse.Headers.Add(pair.Name, pair.Values);
+                httpContext.Response.Headers.Add(pair.Name, pair.Values);
             }
 
             var transform = new ResponseHeaderRemoveTransform(removedHeader, always);
@@ -53,7 +53,7 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
             });
 
             var expectedHeaders = expected.Split("; ", StringSplitOptions.RemoveEmptyEntries);
-            Assert.Equal(expectedHeaders, proxyResponse.Headers.Select(h => h.Key));
+            Assert.Equal(expectedHeaders, httpContext.Response.Headers.Select(h => h.Key));
         }
     }
 }
