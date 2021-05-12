@@ -36,8 +36,13 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
                     return _originalQueryString;
                 }
 
-                var queryBuilder = new QueryBuilder(_modifiedQueryParameters
-                    .SelectMany(kvp => StringValues.IsNullOrEmpty(kvp.Value) ? _emptyString : kvp.Value, (kvp, v) => KeyValuePair.Create(kvp.Key, v)));
+#if NET
+                var queryBuilder = new QueryBuilder(_modifiedQueryParameters);
+#elif NETCOREAPP3_1
+                var queryBuilder = new QueryBuilder(_modifiedQueryParameters.SelectMany(kvp => kvp.Value, (kvp, v) => KeyValuePair.Create(kvp.Key, v)));
+#else
+#error A target framework was added to the project and needs to be added to this condition.
+#endif
                 return queryBuilder.ToQueryString();
             }
         }
