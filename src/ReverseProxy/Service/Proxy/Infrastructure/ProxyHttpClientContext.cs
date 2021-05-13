@@ -14,16 +14,16 @@ namespace Yarp.ReverseProxy.Service.Proxy.Infrastructure
     public class ProxyHttpClientContext
     {
         /// <summary>
-        /// Id of a <see cref="ClusterConfig"/> HTTP client belongs to.
+        /// Id of a <see cref="ClusterModel"/> HTTP client belongs to.
         /// </summary>
         public string ClusterId { get; set; }
 
         /// <summary>
-        /// Old ProxyHttpClientOptions instance
+        /// Old <see cref="HttpClientConfig"/> instance
         /// from which the <see cref="OldClient"/> was created.
         /// Can be null if a client is getting constructed for the first time.
         /// </summary>
-        public ProxyHttpClientOptions OldOptions { get; set; }
+        public HttpClientConfig OldConfig { get; set; }
 
         /// <summary>
         /// Old metadata instance from which the <see cref="OldClient"/> was created.
@@ -38,11 +38,11 @@ namespace Yarp.ReverseProxy.Service.Proxy.Infrastructure
         public HttpMessageInvoker OldClient { get; set; }
 
         /// <summary>
-        /// New ProxyHttpClientOptions instance
+        /// New <see cref="HttpClientConfig"/> instance
         /// specifying the settings for a new client.
         /// CANNOT be null.
         /// </summary>
-        public ProxyHttpClientOptions NewOptions { get; set; }
+        public HttpClientConfig NewConfig { get; set; }
 
         /// <summary>
         /// New metadata instance used for a new client construction.

@@ -74,14 +74,14 @@ The routes section is an ordered list of route matches and their associated conf
 - ClusterId - Refers to the name of an entry in the clusters section.
 - Match containing either a Hosts array or a Path pattern string.
 
-[Headers](header-routing.md), [Authorization](authn-authz.md), [CORS](cors.md), and other route based policies can be configured on each route entry. For additional fields see [ProxyRoute](xref:Yarp.ReverseProxy.Abstractions.ProxyRoute).
+[Headers](header-routing.md), [Authorization](authn-authz.md), [CORS](cors.md), and other route based policies can be configured on each route entry. For additional fields see [RouteConfig](xref:Yarp.ReverseProxy.Abstractions.RouteConfig).
 
 The proxy will apply the given matching criteria and policies, and then pass off the request to the specified cluster.
 
 ### Clusters
 The clusters section is an unordered collection of named clusters. A cluster primarily contains a collection of named destinations and their addresses, any of which is considered capable of handling requests for a given route. The proxy will process the request according to the route and cluster configuration in order to select a destination.
 
-For additional fields see [Cluster](xref:Yarp.ReverseProxy.Abstractions.Cluster).
+For additional fields see [ClusterConfig](xref:Yarp.ReverseProxy.Abstractions.ClusterConfig).
 
 ## All config properties
 ```JSON

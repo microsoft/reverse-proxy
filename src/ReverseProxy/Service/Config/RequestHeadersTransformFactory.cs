@@ -12,6 +12,7 @@ namespace Yarp.ReverseProxy.Service.Config
         internal static readonly string RequestHeadersCopyKey = "RequestHeadersCopy";
         internal static readonly string RequestHeaderOriginalHostKey = "RequestHeaderOriginalHost";
         internal static readonly string RequestHeaderKey = "RequestHeader";
+        internal static readonly string RequestHeaderRemoveKey = "RequestHeaderRemove";
         internal static readonly string AppendKey = "Append";
         internal static readonly string SetKey = "Set";
 
@@ -40,6 +41,10 @@ namespace Yarp.ReverseProxy.Service.Config
                 {
                     context.Errors.Add(new ArgumentException($"Unexpected parameters for RequestHeader: {string.Join(';', transformValues.Keys)}. Expected 'Set' or 'Append'"));
                 }
+            }
+            else if (transformValues.TryGetValue(RequestHeaderRemoveKey, out var _))
+            {
+                TransformHelpers.TryCheckTooManyParameters(context, transformValues, expected: 1);
             }
             else
             {
@@ -76,6 +81,11 @@ namespace Yarp.ReverseProxy.Service.Config
                 {
                     throw new ArgumentException($"Unexpected parameters for RequestHeader: {string.Join(';', transformValues.Keys)}. Expected 'Set' or 'Append'");
                 }
+            }
+            else if (transformValues.TryGetValue(RequestHeaderOriginalHostKey, out var removeHeaderName))
+            {
+                TransformHelpers.CheckTooManyParameters(transformValues, expected: 1);
+                context.AddRequestHeaderRemove(removeHeaderName);
             }
             else
             {

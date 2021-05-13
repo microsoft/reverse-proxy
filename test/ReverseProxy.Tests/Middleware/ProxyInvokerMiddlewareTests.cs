@@ -40,7 +40,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
             httpContext.Request.QueryString = new QueryString("?a=b&c=d");
 
             var httpClient = new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object);
-            var httpRequestOptions = new RequestProxyOptions
+            var httpRequestOptions = new RequestProxyConfig
             {
                 Timeout = TimeSpan.FromSeconds(60),
                 Version = HttpVersion.Version11,
@@ -48,14 +48,14 @@ namespace Yarp.ReverseProxy.Middleware.Tests
                 VersionPolicy = HttpVersionPolicy.RequestVersionExact,
 #endif
             };
-            var cluster1 = new ClusterInfo(clusterId: "cluster1");
-            var clusterConfig = new ClusterConfig(new Cluster() { HttpRequest = httpRequestOptions },
+            var cluster1 = new ClusterState(clusterId: "cluster1");
+            var clusterModel = new ClusterModel(new ClusterConfig() { HttpRequest = httpRequestOptions },
                 httpClient);
             var destination1 = cluster1.Destinations.GetOrAdd(
                 "destination1",
-                id => new DestinationInfo(id)
+                id => new DestinationState(id)
                 {
-                    Config = new DestinationConfig(new Destination { Address = "https://localhost:123/a/b/" })
+                    Model = new DestinationModel(new DestinationConfig { Address = "https://localhost:123/a/b/" })
                 });
             var routeConfig = new RouteModel(
                 config: new RouteConfig() { RouteId = "Route-1" },
@@ -65,8 +65,8 @@ namespace Yarp.ReverseProxy.Middleware.Tests
             httpContext.Features.Set<IReverseProxyFeature>(
                 new ReverseProxyFeature()
             {
-                    AvailableDestinations = new List<DestinationInfo>() { destination1 }.AsReadOnly(),
-                    ClusterSnapshot = clusterConfig,
+                    AvailableDestinations = new List<DestinationState>() { destination1 }.AsReadOnly(),
+                    Cluster = clusterModel,
                     Route = routeConfig,
                 });
             httpContext.Features.Set(cluster1);
@@ -78,7 +78,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
                     httpContext,
                     It.Is<string>(uri => uri == "https://localhost:123/a/b/"),
                     httpClient,
-                    It.Is<RequestProxyOptions>(requestOptions =>
+                    It.Is<RequestProxyConfig>(requestOptions =>
                         requestOptions.Timeout == httpRequestOptions.Timeout
                         && requestOptions.Version == httpRequestOptions.Version
 #if NET
@@ -135,8 +135,8 @@ namespace Yarp.ReverseProxy.Middleware.Tests
             httpContext.Request.Host = new HostString("example.com");
 
             var httpClient = new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object);
-            var cluster1 = new ClusterInfo(clusterId: "cluster1");
-            var clusterConfig = new ClusterConfig(new Cluster(), httpClient);
+            var cluster1 = new ClusterState(clusterId: "cluster1");
+            var clusterModel = new ClusterModel(new ClusterConfig(), httpClient);
             var routeConfig = new RouteModel(
                 config: new RouteConfig(),
                 cluster: cluster1,
@@ -144,8 +144,8 @@ namespace Yarp.ReverseProxy.Middleware.Tests
             httpContext.Features.Set<IReverseProxyFeature>(
                 new ReverseProxyFeature()
                 {
-                    AvailableDestinations = Array.Empty<DestinationInfo>(),
-                    ClusterSnapshot = clusterConfig,
+                    AvailableDestinations = Array.Empty<DestinationState>(),
+                    Cluster = clusterModel,
                     Route = routeConfig,
                 });
 
@@ -154,7 +154,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
                     httpContext,
                     It.IsAny<string>(),
                     httpClient,
-                    It.IsAny<RequestProxyOptions>(),
+                    It.IsAny<RequestProxyConfig>(),
                     It.IsAny<HttpTransformer>()))
                 .Returns(() => throw new NotImplementedException());
 

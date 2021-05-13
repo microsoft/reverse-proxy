@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
-using Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Yarp.ReverseProxy.RuntimeModel;
 using Yarp.ReverseProxy.Utilities;
 
@@ -20,7 +19,7 @@ namespace Yarp.ReverseProxy.Service.LoadBalancing
 
         public string Name => LoadBalancingPolicies.PowerOfTwoChoices;
 
-        public DestinationInfo PickDestination(HttpContext context, IReadOnlyList<DestinationInfo> availableDestinations)
+        public DestinationState PickDestination(HttpContext context, IReadOnlyList<DestinationState> availableDestinations)
         {
             if (availableDestinations.Count == 0)
             {

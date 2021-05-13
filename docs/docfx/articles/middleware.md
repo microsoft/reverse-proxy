@@ -59,8 +59,8 @@ The data in `IReverseProxyFeature` are snapshotted from the proxy configuration 
 ```C#
 proxyPipeline.Use((context, next) =>
 {
-    var proxyFeature = context.GetRequiredProxyFeature();
-    var cluster = proxyFeature.ClusterSnapshot;
+    var proxyFeature = context.GetReverseProxyFeature();
+    var cluster = proxyFeature.Cluster;
     var destinations = proxyFeature.AvailableDestinations;
 
     return next();
@@ -114,7 +114,7 @@ Middleware like session affinity and load balancing examine the `IReverseProxyFe
 ```C#
 proxyPipeline.Use(async (context, next) =>
 {
-    var proxyFeature = context.GetRequiredProxyFeature();
+    var proxyFeature = context.GetReverseProxyFeature();
     proxyFeature.AvailableDestinations = Filter(proxyFeature.AvailableDestinations);
 
     await next();
@@ -123,7 +123,7 @@ proxyPipeline.Use(async (context, next) =>
 });
 ```
 
-`DestinationInfo` implements `IReadOnlyList<DestinationInfo>` so a single destination can be assigned to `AvailableDestinations` without creating a new list.
+`DestinationState` implements `IReadOnlyList<DestinationState>` so a single destination can be assigned to `AvailableDestinations` without creating a new list.
 
 ### Error handling
 

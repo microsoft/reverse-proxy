@@ -17,24 +17,24 @@ namespace Yarp.ReverseProxy.Middleware
         RouteModel Route { get; }
 
         /// <summary>
-        /// Cluster config for the current request.
+        /// The cluster model for the current request.
         /// </summary>
-        ClusterConfig ClusterSnapshot { get; }
+        ClusterModel Cluster { get; }
 
         /// <summary>
         /// All destinations for the current cluster.
         /// </summary>
-        IReadOnlyList<DestinationInfo> AllDestinations { get; }
+        IReadOnlyList<DestinationState> AllDestinations { get; }
 
         /// <summary>
         /// Cluster destinations that can handle the current request. This will initially include all destinations except those
         /// currently marked as unhealth if health checks are enabled.
         /// </summary>
-        IReadOnlyList<DestinationInfo> AvailableDestinations { get; set; }
+        IReadOnlyList<DestinationState> AvailableDestinations { get; set; }
 
         /// <summary>
         /// The actual destination that the request was proxied to.
         /// </summary>
-        DestinationInfo ProxiedDestination { get; set; }
+        DestinationState ProxiedDestination { get; set; }
     }
 }

@@ -10,13 +10,13 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
     /// </summary>
     public readonly struct NewActiveDestinationHealth
     {
-        public NewActiveDestinationHealth(DestinationInfo destination, DestinationHealth newActiveHealth)
+        public NewActiveDestinationHealth(DestinationState destination, DestinationHealth newActiveHealth)
         {
             Destination = destination;
             NewActiveHealth = newActiveHealth;
         }
 
-        public DestinationInfo Destination { get; }
+        public DestinationState Destination { get; }
 
         public DestinationHealth NewActiveHealth { get; }
     }

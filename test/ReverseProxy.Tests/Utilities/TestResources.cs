@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
@@ -63,5 +65,8 @@ namespace Yarp.ReverseProxy.Utilities.Tests
             var basePath = Path.Combine(Directory.GetCurrentDirectory(), "TestCertificates");
             return Path.Combine(basePath, fileName);
         }
+
+        public static IEnumerable<(string Name, string[] Values)> ParseNameAndValues(string names, string values) =>
+            names.Split("; ").Zip(values.Split(", ")).GroupBy(p => p.First, (k, g) => (Name: k, Values: g.Select(i => i.Second).ToArray()));
     }
 }

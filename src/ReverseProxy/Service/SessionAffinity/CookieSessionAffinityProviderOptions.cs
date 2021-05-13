@@ -4,7 +4,7 @@
 using System;
 using Microsoft.AspNetCore.Http;
 
-namespace Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract
+namespace Yarp.ReverseProxy.Service.SessionAffinity
 {
     /// <summary>
     /// Defines cookie-specific affinity provider options.

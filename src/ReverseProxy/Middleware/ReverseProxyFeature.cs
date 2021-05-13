@@ -15,15 +15,15 @@ namespace Yarp.ReverseProxy.Middleware
         public RouteModel Route { get; init; }
 
         /// <inheritdoc/>
-        public ClusterConfig ClusterSnapshot { get; set; }
+        public ClusterModel Cluster { get; set; }
 
         /// <inheritdoc/>
-        public IReadOnlyList<DestinationInfo> AllDestinations { get; init; }
+        public IReadOnlyList<DestinationState> AllDestinations { get; init; }
 
         /// <inheritdoc/>
-        public IReadOnlyList<DestinationInfo> AvailableDestinations { get; set; }
+        public IReadOnlyList<DestinationState> AvailableDestinations { get; set; }
 
         /// <inheritdoc/>
-        public DestinationInfo ProxiedDestination { get; set; }
+        public DestinationState ProxiedDestination { get; set; }
     }
 }

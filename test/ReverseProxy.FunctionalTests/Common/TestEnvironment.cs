@@ -93,14 +93,14 @@ namespace Yarp.ReverseProxy.Common
                         Match = new RouteMatch { Path = "/{**catchall}" }
                     };
 
-                    var cluster = new Cluster
+                    var cluster = new ClusterConfig
                     {
-                        Id = clusterId,
-                        Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
+                        ClusterId = clusterId,
+                        Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
                         {
-                            { "destination1",  new Destination() { Address = destinationAddress } }
+                            { "destination1",  new DestinationConfig() { Address = destinationAddress } }
                         },
-                        HttpClient = new ProxyHttpClientOptions
+                        HttpClient = new HttpClientConfig
                         {
                             DangerousAcceptAnyServerCertificate = useHttps,
 #if NET

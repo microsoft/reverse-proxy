@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Yarp.ReverseProxy.RuntimeModel;
 using Yarp.ReverseProxy.Service.LoadBalancing;
 using Yarp.ReverseProxy.Utilities;
@@ -39,7 +38,7 @@ namespace Yarp.ReverseProxy.Middleware
             var destinations = proxyFeature.AvailableDestinations;
             var destinationCount = destinations.Count;
 
-            DestinationInfo destination;
+            DestinationState destination;
 
             if (destinationCount == 0)
             {
@@ -51,15 +50,15 @@ namespace Yarp.ReverseProxy.Middleware
             }
             else
             {
-                var currentPolicy = _loadBalancingPolicies.GetRequiredServiceById(proxyFeature.ClusterSnapshot.Options.LoadBalancingPolicy, LoadBalancingPolicies.PowerOfTwoChoices);
+                var currentPolicy = _loadBalancingPolicies.GetRequiredServiceById(proxyFeature.Cluster.Config.LoadBalancingPolicy, LoadBalancingPolicies.PowerOfTwoChoices);
                 destination = currentPolicy.PickDestination(context, destinations);
             }
 
             if (destination == null)
             {
                 // We intentionally do not short circuit here, we allow for later middleware to decide how to handle this case.
-                Log.NoAvailableDestinations(_logger, proxyFeature.ClusterSnapshot.Options.Id);
-                proxyFeature.AvailableDestinations = Array.Empty<DestinationInfo>();
+                Log.NoAvailableDestinations(_logger, proxyFeature.Cluster.Config.ClusterId);
+                proxyFeature.AvailableDestinations = Array.Empty<DestinationState>();
             }
             else
             {

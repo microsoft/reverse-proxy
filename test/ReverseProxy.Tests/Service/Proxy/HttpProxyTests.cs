@@ -680,7 +680,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                     return Task.FromResult(response);
                 });
 
-            var options = new RequestProxyOptions
+            var options = new RequestProxyConfig
             {
                 Version = version,
 #if NET
@@ -744,7 +744,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                 }
             };
 
-            var requestOptions = new RequestProxyOptions
+            var requestOptions = new RequestProxyConfig
             {
                 Version = version,
 #if NET
@@ -850,7 +850,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                 });
 
             // Time out immediately
-            var requestOptions = new RequestProxyOptions { Timeout = TimeSpan.FromTicks(1) };
+            var requestOptions = new RequestProxyConfig { Timeout = TimeSpan.FromTicks(1) };
 
             await sut.ProxyAsync(httpContext, destinationPrefix, client, requestOptions);
 
@@ -923,7 +923,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                 });
 
             // Time out immediately
-            var requestOptions = new RequestProxyOptions { Timeout = TimeSpan.FromTicks(1) };
+            var requestOptions = new RequestProxyConfig { Timeout = TimeSpan.FromTicks(1) };
 
             await sut.ProxyAsync(httpContext, destinationPrefix, client, requestOptions);
 
@@ -1118,7 +1118,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                     return Task.FromResult(message);
                 });
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client, requestOptions: default, new DelegateHttpTransforms()
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, requestConfig: default, new DelegateHttpTransforms()
             {
                 OnResponse = (context, proxyResponse) =>
                 {
@@ -1583,7 +1583,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
             var httpContext = new DefaultHttpContext();
             var destinationPrefix = "";
             var transforms = HttpTransformer.Default;
-            var requestOptions = default(RequestProxyOptions);
+            var requestOptions = default(RequestProxyConfig);
             var proxy = CreateProxy();
 
             await Assert.ThrowsAsync<ArgumentException>(() => proxy.ProxyAsync(httpContext,

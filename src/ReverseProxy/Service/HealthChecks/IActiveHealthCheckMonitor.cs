@@ -27,6 +27,6 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
         /// </summary>
         /// <param name="clusters">Clusters to check the health of their destinations.</param>
         /// <returns><see cref="Task"/> representing the health check process.</returns>
-        Task CheckHealthAsync(IEnumerable<ClusterInfo> clusters);
+        Task CheckHealthAsync(IEnumerable<ClusterState> clusters);
     }
 }

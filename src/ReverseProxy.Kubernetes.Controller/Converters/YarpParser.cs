@@ -38,10 +38,10 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Converters
         {
             foreach (var cluster in context.ClusterTransfers)
             {
-                context.Clusters.Add(new Cluster()
+                context.Clusters.Add(new ClusterConfig()
                 {
                     Destinations = cluster.Value.Destinations,
-                    Id = cluster.Value.ClusterId
+                    ClusterId = cluster.Value.ClusterId
                 });
             }
         }
@@ -94,7 +94,7 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Converters
 
                         var protocol = context.Options.Https ? "https" : "http";
                         var uri = $"{protocol}://{address.Ip}:{port.Port}";
-                        cluster.Destinations[uri] = new Destination()
+                        cluster.Destinations[uri] = new DestinationConfig()
                         {
                             Address = uri
                         };

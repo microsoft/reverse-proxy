@@ -66,47 +66,47 @@ namespace Yarp.ReverseProxy.Service.Proxy.Infrastructure
         /// </summary>
         protected virtual bool CanReuseOldClient(ProxyHttpClientContext context)
         {
-            return context.OldClient != null && context.NewOptions == context.OldOptions;
+            return context.OldClient != null && context.NewConfig == context.OldConfig;
         }
 
         /// <summary>
         /// Allows configuring the <see cref="SocketsHttpHandler"/> instance. The base implementation
-        /// applies settings from <see cref="ProxyHttpClientContext.NewOptions"/>.
+        /// applies settings from <see cref="ProxyHttpClientContext.NewConfig"/>.
         /// <see cref="SocketsHttpHandler.UseProxy"/>, <see cref="SocketsHttpHandler.AllowAutoRedirect"/>,
         /// <see cref="SocketsHttpHandler.AutomaticDecompression"/>, and <see cref="SocketsHttpHandler.UseCookies"/>
         /// are disabled prior to this call.
         /// </summary>
         protected virtual void ConfigureHandler(ProxyHttpClientContext context, SocketsHttpHandler handler)
         {
-            var newClientOptions = context.NewOptions;
-            if (newClientOptions.SslProtocols.HasValue)
+            var newConfig = context.NewConfig;
+            if (newConfig.SslProtocols.HasValue)
             {
-                handler.SslOptions.EnabledSslProtocols = newClientOptions.SslProtocols.Value;
+                handler.SslOptions.EnabledSslProtocols = newConfig.SslProtocols.Value;
             }
-            if (newClientOptions.ClientCertificate != null)
+            if (newConfig.ClientCertificate != null)
             {
                 handler.SslOptions.ClientCertificates = new X509CertificateCollection
                 {
-                    newClientOptions.ClientCertificate
+                    newConfig.ClientCertificate
                 };
             }
-            if (newClientOptions.MaxConnectionsPerServer != null)
+            if (newConfig.MaxConnectionsPerServer != null)
             {
-                handler.MaxConnectionsPerServer = newClientOptions.MaxConnectionsPerServer.Value;
+                handler.MaxConnectionsPerServer = newConfig.MaxConnectionsPerServer.Value;
             }
-            if (newClientOptions.DangerousAcceptAnyServerCertificate ?? false)
+            if (newConfig.DangerousAcceptAnyServerCertificate ?? false)
             {
                 handler.SslOptions.RemoteCertificateValidationCallback = delegate { return true; };
             }
 #if NET
-            handler.EnableMultipleHttp2Connections = newClientOptions.EnableMultipleHttp2Connections.GetValueOrDefault(true);
+            handler.EnableMultipleHttp2Connections = newConfig.EnableMultipleHttp2Connections.GetValueOrDefault(true);
 
-            if (newClientOptions.RequestHeaderEncoding != null)
+            if (newConfig.RequestHeaderEncoding != null)
             {
-                handler.RequestHeaderEncodingSelector = (_, _) => newClientOptions.RequestHeaderEncoding;
+                handler.RequestHeaderEncodingSelector = (_, _) => newConfig.RequestHeaderEncoding;
             }
 #endif
-            var webProxy = TryCreateWebProxy(newClientOptions.WebProxy);
+            var webProxy = TryCreateWebProxy(newConfig.WebProxy);
             if (webProxy != null)
             {
                 handler.Proxy = webProxy;
@@ -114,17 +114,17 @@ namespace Yarp.ReverseProxy.Service.Proxy.Infrastructure
             }
         }
 
-        private static IWebProxy TryCreateWebProxy(WebProxyOptions webProxyOptions)
+        private static IWebProxy TryCreateWebProxy(WebProxyConfig webProxyConfig)
         {
-            if (webProxyOptions == null || webProxyOptions.Address == null)
+            if (webProxyConfig == null || webProxyConfig.Address == null)
             {
                 return null;
             }
 
-            var webProxy = new WebProxy(webProxyOptions.Address);
+            var webProxy = new WebProxy(webProxyConfig.Address);
 
-            webProxy.UseDefaultCredentials = webProxyOptions.UseDefaultCredentials.GetValueOrDefault(false);
-            webProxy.BypassProxyOnLocal = webProxyOptions.BypassOnLocal.GetValueOrDefault(false);
+            webProxy.UseDefaultCredentials = webProxyConfig.UseDefaultCredentials.GetValueOrDefault(false);
+            webProxy.BypassProxyOnLocal = webProxyConfig.BypassOnLocal.GetValueOrDefault(false);
 
             return webProxy;
         }
@@ -135,7 +135,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Infrastructure
         /// </summary>
         protected virtual HttpMessageHandler WrapHandler(ProxyHttpClientContext context, HttpMessageHandler handler)
         {
-            var activityContextHeaders = context.NewOptions.ActivityContextHeaders.GetValueOrDefault(ActivityContextHeaders.BaggageAndCorrelationContext);
+            var activityContextHeaders = context.NewConfig.ActivityContextHeaders.GetValueOrDefault(ActivityContextHeaders.BaggageAndCorrelationContext);
             if (activityContextHeaders != ActivityContextHeaders.None)
             {
                 handler = new ActivityPropagationHandler(activityContextHeaders, handler);

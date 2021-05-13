@@ -324,12 +324,12 @@ namespace Yarp.ReverseProxy.IntegrationTests
         {
             var clusters = new[]
             {
-                new Cluster()
+                new ClusterConfig()
                 {
-                    Id = "cluster1",
-                    Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
+                    ClusterId = "cluster1",
+                    Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
                     {
-                        { "d1", new Destination() { Address = "http://localhost/" }  }
+                        { "d1", new DestinationConfig() { Address = "http://localhost/" }  }
                     }
                 }
             };

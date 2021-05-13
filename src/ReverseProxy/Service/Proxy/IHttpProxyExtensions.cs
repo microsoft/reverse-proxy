@@ -21,7 +21,7 @@ namespace Yarp.ReverseProxy.Service.Proxy
             string destinationPrefix,
             HttpMessageInvoker httpClient)
         {
-            return proxy.ProxyAsync(context, destinationPrefix, httpClient, requestOptions: default, HttpTransformer.Default);
+            return proxy.ProxyAsync(context, destinationPrefix, httpClient, requestConfig: default, HttpTransformer.Default);
         }
 
         /// <summary>
@@ -30,15 +30,15 @@ namespace Yarp.ReverseProxy.Service.Proxy
         /// <param name="context">The HttpContent to proxy from.</param>
         /// <param name="destinationPrefix">The url prefix for where to proxy the request to.</param>
         /// <param name="httpClient">The HTTP client used to send the proxy request.</param>
-        /// <param name="requestOptions">Options for the outgoing request.</param>
+        /// <param name="requestConfig">Config for the outgoing request.</param>
         public static Task ProxyAsync(
             this IHttpProxy proxy,
             HttpContext context,
             string destinationPrefix,
             HttpMessageInvoker httpClient,
-            RequestProxyOptions requestOptions)
+            RequestProxyConfig requestConfig)
         {
-            return proxy.ProxyAsync(context, destinationPrefix, httpClient, requestOptions, HttpTransformer.Default);
+            return proxy.ProxyAsync(context, destinationPrefix, httpClient, requestConfig, HttpTransformer.Default);
         }
     }
 }

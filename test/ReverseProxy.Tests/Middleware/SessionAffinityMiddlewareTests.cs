@@ -20,10 +20,10 @@ namespace Yarp.ReverseProxy.Middleware
     public class SessionAffinityMiddlewareTests
     {
         protected const string AffinitizedDestinationName = "dest-B";
-        protected readonly ClusterConfig ClusterConfig = new ClusterConfig(new Cluster
+        protected readonly ClusterModel ClusterConfig = new ClusterModel(new ClusterConfig
         {
-            Id = "cluster-1",
-            SessionAffinity = new SessionAffinityOptions
+            ClusterId = "cluster-1",
+            SessionAffinity = new SessionAffinityConfig
             {
                 Enabled = true,
                 Mode = "Mode-B",
@@ -39,7 +39,7 @@ namespace Yarp.ReverseProxy.Middleware
         {
             var cluster = GetCluster();
             var endpoint = GetEndpoint(cluster);
-            DestinationInfo foundDestination = null;
+            DestinationState foundDestination = null;
             if (foundDestinationId != null)
             {
                 cluster.Destinations.TryGetValue(foundDestinationId, out foundDestination);
@@ -50,7 +50,7 @@ namespace Yarp.ReverseProxy.Middleware
                 true,
                 cluster.Destinations.Values.ToList(),
                 cluster.ClusterId,
-                ("Mode-A", AffinityStatus.DestinationNotFound, (DestinationInfo)null, (Action<ISessionAffinityProvider>)(p => throw new InvalidOperationException($"Provider {p.Mode} call is not expected."))),
+                ("Mode-A", AffinityStatus.DestinationNotFound, (DestinationState)null, (Action<ISessionAffinityProvider>)(p => throw new InvalidOperationException($"Provider {p.Mode} call is not expected."))),
                 (expectedMode, status, foundDestination, p => invokedMode = p.Mode));
             var nextInvoked = false;
             var middleware = new SessionAffinityMiddleware(c => {
@@ -61,7 +61,7 @@ namespace Yarp.ReverseProxy.Middleware
                 new Mock<ILogger<SessionAffinityMiddleware>>().Object);
             var context = new DefaultHttpContext();
             context.SetEndpoint(endpoint);
-            var destinationFeature = GetDestinationsFeature(cluster.Destinations.Values.ToList(), cluster.Config);
+            var destinationFeature = GetDestinationsFeature(cluster.Destinations.Values.ToList(), cluster.Model);
             context.Features.Set(destinationFeature);
 
             await middleware.Invoke(context);
@@ -108,7 +108,7 @@ namespace Yarp.ReverseProxy.Middleware
                 providers.Select(p => p.Object), failurePolicies.Select(p => p.Object),
                 logger.Object);
             var context = new DefaultHttpContext();
-            var destinationFeature = GetDestinationsFeature(cluster.Destinations.Values.ToList(), cluster.Config);
+            var destinationFeature = GetDestinationsFeature(cluster.Destinations.Values.ToList(), cluster.Model);
 
             context.SetEndpoint(endpoint);
             context.Features.Set(destinationFeature);
@@ -128,23 +128,23 @@ namespace Yarp.ReverseProxy.Middleware
             }
         }
 
-        internal ClusterInfo GetCluster()
+        internal ClusterState GetCluster()
         {
-            var cluster = new ClusterInfo("cluster-1");
+            var cluster = new ClusterState("cluster-1");
             var destinationManager = cluster.Destinations;
-            destinationManager.GetOrAdd("dest-A", id => new DestinationInfo(id));
-            destinationManager.GetOrAdd(AffinitizedDestinationName, id => new DestinationInfo(id));
-            destinationManager.GetOrAdd("dest-C", id => new DestinationInfo(id));
-            cluster.Config = ClusterConfig;
+            destinationManager.GetOrAdd("dest-A", id => new DestinationState(id));
+            destinationManager.GetOrAdd(AffinitizedDestinationName, id => new DestinationState(id));
+            destinationManager.GetOrAdd("dest-C", id => new DestinationState(id));
+            cluster.Model = ClusterConfig;
             cluster.ProcessDestinationChanges();
             return cluster;
         }
 
         internal IReadOnlyList<Mock<ISessionAffinityProvider>> RegisterAffinityProviders(
             bool lookupMiddlewareTest,
-            IReadOnlyList<DestinationInfo> expectedDestinations,
+            IReadOnlyList<DestinationState> expectedDestinations,
             string expectedCluster,
-            params (string Mode, AffinityStatus? Status, DestinationInfo Destinations, Action<ISessionAffinityProvider> Callback)[] prototypes)
+            params (string Mode, AffinityStatus? Status, DestinationState Destinations, Action<ISessionAffinityProvider> Callback)[] prototypes)
         {
             var result = new List<Mock<ISessionAffinityProvider>>();
             foreach (var (mode, status, destinations, callback) in prototypes)
@@ -157,7 +157,7 @@ namespace Yarp.ReverseProxy.Middleware
                         It.IsAny<HttpContext>(),
                         expectedDestinations,
                         expectedCluster,
-                        ClusterConfig.Options.SessionAffinity))
+                        ClusterConfig.Config.SessionAffinity))
                     .Returns(new AffinityResult(destinations, status.Value))
                     .Callback(() => callback(provider.Object));
                 }
@@ -165,7 +165,7 @@ namespace Yarp.ReverseProxy.Middleware
                 {
                     provider.Setup(p => p.AffinitizeRequest(
                         It.IsAny<HttpContext>(),
-                        ClusterConfig.Options.SessionAffinity,
+                        ClusterConfig.Config.SessionAffinity,
                         expectedDestinations[0]))
                     .Callback(() => callback(provider.Object));
                 }
@@ -181,7 +181,7 @@ namespace Yarp.ReverseProxy.Middleware
             {
                 var policy = new Mock<IAffinityFailurePolicy>(MockBehavior.Strict);
                 policy.SetupGet(p => p.Name).Returns(name);
-                policy.Setup(p => p.Handle(It.IsAny<HttpContext>(), It.Is<SessionAffinityOptions>(o => o.FailurePolicy == name), expectedStatus))
+                policy.Setup(p => p.Handle(It.IsAny<HttpContext>(), It.Is<SessionAffinityConfig>(o => o.FailurePolicy == name), expectedStatus))
                     .ReturnsAsync(handled)
                     .Callback(() => callback(policy.Object));
                 result.Add(policy);
@@ -189,16 +189,16 @@ namespace Yarp.ReverseProxy.Middleware
             return result.AsReadOnly();
         }
 
-        internal IReverseProxyFeature GetDestinationsFeature(IReadOnlyList<DestinationInfo> destinations, ClusterConfig clusterConfig)
+        internal IReverseProxyFeature GetDestinationsFeature(IReadOnlyList<DestinationState> destinations, ClusterModel clusterModel)
         {
             return new ReverseProxyFeature()
             {
                 AvailableDestinations = destinations,
-                ClusterSnapshot = clusterConfig,
+                Cluster = clusterModel,
             };
         }
 
-        internal Endpoint GetEndpoint(ClusterInfo cluster)
+        internal Endpoint GetEndpoint(ClusterState cluster)
         {
             var routeConfig = new RouteConfig();
             var routeModel = new RouteModel(routeConfig, cluster, HttpTransformer.Default);

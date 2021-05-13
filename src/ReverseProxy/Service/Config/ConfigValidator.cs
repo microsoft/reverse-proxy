@@ -12,7 +12,6 @@ using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing.Patterns;
 using Yarp.ReverseProxy.Abstractions;
-using Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Yarp.ReverseProxy.Abstractions.RouteDiscovery.Contract;
 using Yarp.ReverseProxy.Service.HealthChecks;
 using Yarp.ReverseProxy.Service.LoadBalancing;
@@ -90,12 +89,12 @@ namespace Yarp.ReverseProxy.Service
         }
 
         // Note this performs all validation steps without short circuiting in order to report all possible errors.
-        public ValueTask<IList<Exception>> ValidateClusterAsync(Cluster cluster)
+        public ValueTask<IList<Exception>> ValidateClusterAsync(ClusterConfig cluster)
         {
             _ = cluster ?? throw new ArgumentNullException(nameof(cluster));
             var errors = new List<Exception>();
 
-            if (string.IsNullOrEmpty(cluster.Id))
+            if (string.IsNullOrEmpty(cluster.ClusterId))
             {
                 errors.Add(new ArgumentException("Missing Cluster Id."));
             }
@@ -293,7 +292,7 @@ namespace Yarp.ReverseProxy.Service
             }
         }
 
-        private void ValidateLoadBalancing(IList<Exception> errors, Cluster cluster)
+        private void ValidateLoadBalancing(IList<Exception> errors, ClusterConfig cluster)
         {
             var loadBalancingPolicy = cluster.LoadBalancingPolicy;
             if (string.IsNullOrEmpty(loadBalancingPolicy))
@@ -304,11 +303,11 @@ namespace Yarp.ReverseProxy.Service
 
             if (!_loadBalancingPolicies.ContainsKey(loadBalancingPolicy))
             {
-                errors.Add(new ArgumentException($"No matching {nameof(ILoadBalancingPolicy)} found for the load balancing policy '{loadBalancingPolicy}' set on the cluster '{cluster.Id}'."));
+                errors.Add(new ArgumentException($"No matching {nameof(ILoadBalancingPolicy)} found for the load balancing policy '{loadBalancingPolicy}' set on the cluster '{cluster.ClusterId}'."));
             }
         }
 
-        private void ValidateSessionAffinity(IList<Exception> errors, Cluster cluster)
+        private void ValidateSessionAffinity(IList<Exception> errors, ClusterConfig cluster)
         {
             if (!(cluster.SessionAffinity?.Enabled ?? false))
             {
@@ -327,11 +326,11 @@ namespace Yarp.ReverseProxy.Service
 
             if (!_affinityFailurePolicies.ContainsKey(affinityFailurePolicy))
             {
-                errors.Add(new ArgumentException($"No matching IAffinityFailurePolicy found for the affinity failure policy name '{affinityFailurePolicy}' set on the cluster '{cluster.Id}'."));
+                errors.Add(new ArgumentException($"No matching IAffinityFailurePolicy found for the affinity failure policy name '{affinityFailurePolicy}' set on the cluster '{cluster.ClusterId}'."));
             }
         }
 
-        private static void ValidateProxyHttpClient(IList<Exception> errors, Cluster cluster)
+        private static void ValidateProxyHttpClient(IList<Exception> errors, ClusterConfig cluster)
         {
             if (cluster.HttpClient == null)
             {
@@ -341,11 +340,11 @@ namespace Yarp.ReverseProxy.Service
 
             if (cluster.HttpClient.MaxConnectionsPerServer != null && cluster.HttpClient.MaxConnectionsPerServer <= 0)
             {
-                errors.Add(new ArgumentException($"Max connections per server limit set on the cluster '{cluster.Id}' must be positive."));
+                errors.Add(new ArgumentException($"Max connections per server limit set on the cluster '{cluster.ClusterId}' must be positive."));
             }
         }
 
-        private static void ValidateProxyHttpRequest(IList<Exception> errors, Cluster cluster)
+        private static void ValidateProxyHttpRequest(IList<Exception> errors, ClusterConfig cluster)
         {
             if (cluster.HttpRequest == null)
             {
@@ -362,7 +361,7 @@ namespace Yarp.ReverseProxy.Service
             }
         }
 
-        private void ValidateActiveHealthCheck(IList<Exception> errors, Cluster cluster)
+        private void ValidateActiveHealthCheck(IList<Exception> errors, ClusterConfig cluster)
         {
             if (!(cluster.HealthCheck?.Active?.Enabled ?? false))
             {
@@ -379,21 +378,21 @@ namespace Yarp.ReverseProxy.Service
             }
             if (!_activeHealthCheckPolicies.ContainsKey(policy))
             {
-                errors.Add(new ArgumentException($"No matching {nameof(IActiveHealthCheckPolicy)} found for the active health check policy name '{policy}' set on the cluster '{cluster.Id}'."));
+                errors.Add(new ArgumentException($"No matching {nameof(IActiveHealthCheckPolicy)} found for the active health check policy name '{policy}' set on the cluster '{cluster.ClusterId}'."));
             }
 
             if (activeOptions.Interval != null && activeOptions.Interval <= TimeSpan.Zero)
             {
-                errors.Add(new ArgumentException($"Destination probing interval set on the cluster '{cluster.Id}' must be positive."));
+                errors.Add(new ArgumentException($"Destination probing interval set on the cluster '{cluster.ClusterId}' must be positive."));
             }
 
             if (activeOptions.Timeout != null && activeOptions.Timeout <= TimeSpan.Zero)
             {
-                errors.Add(new ArgumentException($"Destination probing timeout set on the cluster '{cluster.Id}' must be positive."));
+                errors.Add(new ArgumentException($"Destination probing timeout set on the cluster '{cluster.ClusterId}' must be positive."));
             }
         }
 
-        private void ValidatePassiveHealthCheck(IList<Exception> errors, Cluster cluster)
+        private void ValidatePassiveHealthCheck(IList<Exception> errors, ClusterConfig cluster)
         {
             if (!(cluster.HealthCheck?.Passive?.Enabled ?? false))
             {
@@ -410,12 +409,12 @@ namespace Yarp.ReverseProxy.Service
             }
             if (!_passiveHealthCheckPolicies.ContainsKey(policy))
             {
-                errors.Add(new ArgumentException($"No matching {nameof(IPassiveHealthCheckPolicy)} found for the passive health check policy name '{policy}' set on the cluster '{cluster.Id}'."));
+                errors.Add(new ArgumentException($"No matching {nameof(IPassiveHealthCheckPolicy)} found for the passive health check policy name '{policy}' set on the cluster '{cluster.ClusterId}'."));
             }
 
             if (passiveOptions.ReactivationPeriod != null && passiveOptions.ReactivationPeriod <= TimeSpan.Zero)
             {
-                errors.Add(new ArgumentException($"Unhealthy destination reactivation period set on the cluster '{cluster.Id}' must be positive."));
+                errors.Add(new ArgumentException($"Unhealthy destination reactivation period set on the cluster '{cluster.ClusterId}' must be positive."));
             }
         }
     }

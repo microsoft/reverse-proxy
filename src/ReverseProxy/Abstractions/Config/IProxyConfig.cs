@@ -20,7 +20,7 @@ namespace Yarp.ReverseProxy.Service
         /// <summary>
         /// Cluster information for where to proxy requests to.
         /// </summary>
-        IReadOnlyList<Cluster> Clusters { get; }
+        IReadOnlyList<ClusterConfig> Clusters { get; }
 
         /// <summary>
         /// A notification that triggers when this snapshot expires.

@@ -144,23 +144,23 @@ namespace Yarp.ReverseProxy.Configuration
             }
         }
 
-        private Cluster CreateCluster(IConfigurationSection section)
+        private ClusterConfig CreateCluster(IConfigurationSection section)
         {
-            var destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase);
-            foreach (var destination in section.GetSection(nameof(Cluster.Destinations)).GetChildren())
+            var destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase);
+            foreach (var destination in section.GetSection(nameof(ClusterConfig.Destinations)).GetChildren())
             {
                 destinations.Add(destination.Key, CreateDestination(destination));
             }
 
-            return new Cluster
+            return new ClusterConfig
             {
-                Id = section.Key,
-                LoadBalancingPolicy = section[nameof(Cluster.LoadBalancingPolicy)],
-                SessionAffinity = CreateSessionAffinityOptions(section.GetSection(nameof(Cluster.SessionAffinity))),
-                HealthCheck = CreateHealthCheckOptions(section.GetSection(nameof(Cluster.HealthCheck))),
-                HttpClient = CreateProxyHttpClientOptions(section.GetSection(nameof(Cluster.HttpClient))),
-                HttpRequest = CreateProxyRequestOptions(section.GetSection(nameof(Cluster.HttpRequest))),
-                Metadata = section.GetSection(nameof(Cluster.Metadata)).ReadStringDictionary(),
+                ClusterId = section.Key,
+                LoadBalancingPolicy = section[nameof(ClusterConfig.LoadBalancingPolicy)],
+                SessionAffinity = CreateSessionAffinityOptions(section.GetSection(nameof(ClusterConfig.SessionAffinity))),
+                HealthCheck = CreateHealthCheckOptions(section.GetSection(nameof(ClusterConfig.HealthCheck))),
+                HttpClient = CreateProxyHttpClientOptions(section.GetSection(nameof(ClusterConfig.HttpClient))),
+                HttpRequest = CreateProxyRequestOptions(section.GetSection(nameof(ClusterConfig.HttpRequest))),
+                Metadata = section.GetSection(nameof(ClusterConfig.Metadata)).ReadStringDictionary(),
                 Destinations = destinations,
             };
         }
@@ -228,76 +228,76 @@ namespace Yarp.ReverseProxy.Configuration
             };
         }
 
-        private static SessionAffinityOptions CreateSessionAffinityOptions(IConfigurationSection section)
+        private static SessionAffinityConfig CreateSessionAffinityOptions(IConfigurationSection section)
         {
             if (!section.Exists())
             {
                 return null;
             }
 
-            return new SessionAffinityOptions
+            return new SessionAffinityConfig
             {
-                Enabled = section.ReadBool(nameof(SessionAffinityOptions.Enabled)) ?? false,
-                Mode = section[nameof(SessionAffinityOptions.Mode)],
-                FailurePolicy = section[nameof(SessionAffinityOptions.FailurePolicy)],
-                Settings = section.GetSection(nameof(SessionAffinityOptions.Settings)).ReadStringDictionary()
+                Enabled = section.ReadBool(nameof(SessionAffinityConfig.Enabled)),
+                Mode = section[nameof(SessionAffinityConfig.Mode)],
+                FailurePolicy = section[nameof(SessionAffinityConfig.FailurePolicy)],
+                Settings = section.GetSection(nameof(SessionAffinityConfig.Settings)).ReadStringDictionary()
             };
         }
 
-        private static HealthCheckOptions CreateHealthCheckOptions(IConfigurationSection section)
+        private static HealthCheckConfig CreateHealthCheckOptions(IConfigurationSection section)
         {
             if (!section.Exists())
             {
                 return null;
             }
 
-            return new HealthCheckOptions
+            return new HealthCheckConfig
             {
-                Passive = CreatePassiveHealthCheckOptions(section.GetSection(nameof(HealthCheckOptions.Passive))),
-                Active = CreateActiveHealthCheckOptions(section.GetSection(nameof(HealthCheckOptions.Active)))
+                Passive = CreatePassiveHealthCheckOptions(section.GetSection(nameof(HealthCheckConfig.Passive))),
+                Active = CreateActiveHealthCheckOptions(section.GetSection(nameof(HealthCheckConfig.Active)))
             };
         }
 
-        private static PassiveHealthCheckOptions CreatePassiveHealthCheckOptions(IConfigurationSection section)
+        private static PassiveHealthCheckConfig CreatePassiveHealthCheckOptions(IConfigurationSection section)
         {
             if (!section.Exists())
             {
                 return null;
             }
 
-            return new PassiveHealthCheckOptions
+            return new PassiveHealthCheckConfig
             {
-                Enabled = section.ReadBool(nameof(PassiveHealthCheckOptions.Enabled)) ?? false,
-                Policy = section[nameof(PassiveHealthCheckOptions.Policy)],
-                ReactivationPeriod = section.ReadTimeSpan(nameof(PassiveHealthCheckOptions.ReactivationPeriod))
+                Enabled = section.ReadBool(nameof(PassiveHealthCheckConfig.Enabled)),
+                Policy = section[nameof(PassiveHealthCheckConfig.Policy)],
+                ReactivationPeriod = section.ReadTimeSpan(nameof(PassiveHealthCheckConfig.ReactivationPeriod))
             };
         }
 
-        private static ActiveHealthCheckOptions CreateActiveHealthCheckOptions(IConfigurationSection section)
+        private static ActiveHealthCheckConfig CreateActiveHealthCheckOptions(IConfigurationSection section)
         {
             if (!section.Exists())
             {
                 return null;
             }
 
-            return new ActiveHealthCheckOptions
+            return new ActiveHealthCheckConfig
             {
-                Enabled = section.ReadBool(nameof(ActiveHealthCheckOptions.Enabled)) ?? false,
-                Interval = section.ReadTimeSpan(nameof(ActiveHealthCheckOptions.Interval)),
-                Timeout = section.ReadTimeSpan(nameof(ActiveHealthCheckOptions.Timeout)),
-                Policy = section[nameof(ActiveHealthCheckOptions.Policy)],
-                Path = section[nameof(ActiveHealthCheckOptions.Path)]
+                Enabled = section.ReadBool(nameof(ActiveHealthCheckConfig.Enabled)),
+                Interval = section.ReadTimeSpan(nameof(ActiveHealthCheckConfig.Interval)),
+                Timeout = section.ReadTimeSpan(nameof(ActiveHealthCheckConfig.Timeout)),
+                Policy = section[nameof(ActiveHealthCheckConfig.Policy)],
+                Path = section[nameof(ActiveHealthCheckConfig.Path)]
             };
         }
 
-        private ProxyHttpClientOptions CreateProxyHttpClientOptions(IConfigurationSection section)
+        private HttpClientConfig CreateProxyHttpClientOptions(IConfigurationSection section)
         {
             if (!section.Exists())
             {
                 return null;
             }
 
-            var certSection = section.GetSection(nameof(ProxyHttpClientOptions.ClientCertificate));
+            var certSection = section.GetSection(nameof(HttpClientConfig.ClientCertificate));
 
             X509Certificate2 clientCertificate = null;
 
@@ -312,7 +312,7 @@ namespace Yarp.ReverseProxy.Configuration
             }
 
             SslProtocols? sslProtocols = null;
-            if (section.GetSection(nameof(ProxyHttpClientOptions.SslProtocols)) is IConfigurationSection sslProtocolsSection)
+            if (section.GetSection(nameof(HttpClientConfig.SslProtocols)) is IConfigurationSection sslProtocolsSection)
             {
                 foreach (var protocolConfig in sslProtocolsSection.GetChildren().Select(s => Enum.Parse<SslProtocols>(s.Value, ignoreCase: true)))
                 {
@@ -320,15 +320,15 @@ namespace Yarp.ReverseProxy.Configuration
                 }
             }
 
-            WebProxyOptions webProxy;
-            var webProxySection = section.GetSection(nameof(ProxyHttpClientOptions.WebProxy));
+            WebProxyConfig webProxy;
+            var webProxySection = section.GetSection(nameof(HttpClientConfig.WebProxy));
             if (webProxySection.Exists())
             {
-                webProxy = new WebProxyOptions()
+                webProxy = new WebProxyConfig()
                 {
-                    Address = webProxySection.ReadUri(nameof(WebProxyOptions.Address)),
-                    BypassOnLocal = webProxySection.ReadBool(nameof(WebProxyOptions.BypassOnLocal)),
-                    UseDefaultCredentials = webProxySection.ReadBool(nameof(WebProxyOptions.UseDefaultCredentials))
+                    Address = webProxySection.ReadUri(nameof(WebProxyConfig.Address)),
+                    BypassOnLocal = webProxySection.ReadBool(nameof(WebProxyConfig.BypassOnLocal)),
+                    UseDefaultCredentials = webProxySection.ReadBool(nameof(WebProxyConfig.UseDefaultCredentials))
                 };
             }
             else
@@ -336,50 +336,50 @@ namespace Yarp.ReverseProxy.Configuration
                 webProxy = null;
             }
 
-            return new ProxyHttpClientOptions
+            return new HttpClientConfig
             {
                 SslProtocols = sslProtocols,
-                DangerousAcceptAnyServerCertificate = section.ReadBool(nameof(ProxyHttpClientOptions.DangerousAcceptAnyServerCertificate)),
+                DangerousAcceptAnyServerCertificate = section.ReadBool(nameof(HttpClientConfig.DangerousAcceptAnyServerCertificate)),
                 ClientCertificate = clientCertificate,
-                MaxConnectionsPerServer = section.ReadInt32(nameof(ProxyHttpClientOptions.MaxConnectionsPerServer)),
+                MaxConnectionsPerServer = section.ReadInt32(nameof(HttpClientConfig.MaxConnectionsPerServer)),
 #if NET
-                EnableMultipleHttp2Connections = section.ReadBool(nameof(ProxyHttpClientOptions.EnableMultipleHttp2Connections)),
-                RequestHeaderEncoding = section[nameof(ProxyHttpClientOptions.RequestHeaderEncoding)] is string encoding ? Encoding.GetEncoding(encoding) : null,
+                EnableMultipleHttp2Connections = section.ReadBool(nameof(HttpClientConfig.EnableMultipleHttp2Connections)),
+                RequestHeaderEncoding = section[nameof(HttpClientConfig.RequestHeaderEncoding)] is string encoding ? Encoding.GetEncoding(encoding) : null,
 #endif
-                ActivityContextHeaders = section.ReadEnum<ActivityContextHeaders>(nameof(ProxyHttpClientOptions.ActivityContextHeaders)),
+                ActivityContextHeaders = section.ReadEnum<ActivityContextHeaders>(nameof(HttpClientConfig.ActivityContextHeaders)),
                 WebProxy = webProxy
             };
         }
 
-        private static RequestProxyOptions CreateProxyRequestOptions(IConfigurationSection section)
+        private static RequestProxyConfig CreateProxyRequestOptions(IConfigurationSection section)
         {
             if (!section.Exists())
             {
                 return null;
             }
 
-            return new RequestProxyOptions
+            return new RequestProxyConfig
             {
-                Timeout = section.ReadTimeSpan(nameof(RequestProxyOptions.Timeout)),
-                Version = section.ReadVersion(nameof(RequestProxyOptions.Version)),
+                Timeout = section.ReadTimeSpan(nameof(RequestProxyConfig.Timeout)),
+                Version = section.ReadVersion(nameof(RequestProxyConfig.Version)),
 #if NET
-                VersionPolicy = section.ReadEnum<HttpVersionPolicy>(nameof(RequestProxyOptions.VersionPolicy)),
+                VersionPolicy = section.ReadEnum<HttpVersionPolicy>(nameof(RequestProxyConfig.VersionPolicy)),
 #endif
             };
         }
 
-        private static Destination CreateDestination(IConfigurationSection section)
+        private static DestinationConfig CreateDestination(IConfigurationSection section)
         {
             if (!section.Exists())
             {
                 return null;
             }
 
-            return new Destination
+            return new DestinationConfig
             {
-                Address = section[nameof(Destination.Address)],
-                Health = section[nameof(Destination.Health)],
-                Metadata = section.GetSection(nameof(Destination.Metadata)).ReadStringDictionary(),
+                Address = section[nameof(DestinationConfig.Address)],
+                Health = section[nameof(DestinationConfig.Health)],
+                Metadata = section.GetSection(nameof(DestinationConfig.Metadata)).ReadStringDictionary(),
             };
         }
 

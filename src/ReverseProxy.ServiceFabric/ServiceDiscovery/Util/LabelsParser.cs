@@ -236,7 +236,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
             return routes;
         }
 
-        internal static Cluster BuildCluster(Uri serviceName, Dictionary<string, string> labels, IReadOnlyDictionary<string, Destination> destinations)
+        internal static ClusterConfig BuildCluster(Uri serviceName, Dictionary<string, string> labels, IReadOnlyDictionary<string, DestinationConfig> destinations)
         {
             var clusterMetadata = new Dictionary<string, string>();
             Dictionary<string, string> sessionAffinitySettings = null;
@@ -271,18 +271,18 @@ namespace Yarp.ReverseProxy.ServiceFabric
             var requestHeaderEncodingLabel = GetLabel<string>(labels, "YARP.Backend.HttpClient.RequestHeaderEncoding", null);
 #endif
 
-            var cluster = new Cluster
+            var cluster = new ClusterConfig
             {
-                Id = clusterId,
+                ClusterId = clusterId,
                 LoadBalancingPolicy = GetLabel<string>(labels, "YARP.Backend.LoadBalancingPolicy", null),
-                SessionAffinity = new SessionAffinityOptions
+                SessionAffinity = new SessionAffinityConfig
                 {
-                    Enabled = GetLabel(labels, "YARP.Backend.SessionAffinity.Enabled", false),
+                    Enabled = GetLabel<bool?>(labels, "YARP.Backend.SessionAffinity.Enabled", null),
                     Mode = GetLabel<string>(labels, "YARP.Backend.SessionAffinity.Mode", null),
                     FailurePolicy = GetLabel<string>(labels, "YARP.Backend.SessionAffinity.FailurePolicy", null),
                     Settings = sessionAffinitySettings
                 },
-                HttpRequest = new RequestProxyOptions
+                HttpRequest = new RequestProxyConfig
                 {
                     Timeout = GetLabel<TimeSpan?>(labels, "YARP.Backend.HttpRequest.Timeout", null),
                     Version = !string.IsNullOrEmpty(versionLabel) ? Version.Parse(versionLabel + (versionLabel.Contains('.') ? "" : ".0")) : null,
@@ -290,24 +290,24 @@ namespace Yarp.ReverseProxy.ServiceFabric
                     VersionPolicy = !string.IsNullOrEmpty(versionLabel) ? Enum.Parse<HttpVersionPolicy>(versionPolicyLabel) : null
 #endif
                 },
-                HealthCheck = new HealthCheckOptions
+                HealthCheck = new HealthCheckConfig
                 {
-                    Active = new ActiveHealthCheckOptions
+                    Active = new ActiveHealthCheckConfig
                     {
-                        Enabled = GetLabel(labels, "YARP.Backend.HealthCheck.Active.Enabled", false),
+                        Enabled = GetLabel<bool?>(labels, "YARP.Backend.HealthCheck.Active.Enabled", null),
                         Interval = GetLabel<TimeSpan?>(labels, "YARP.Backend.HealthCheck.Active.Interval", null),
                         Timeout = GetLabel<TimeSpan?>(labels, "YARP.Backend.HealthCheck.Active.Timeout", null),
                         Path = GetLabel<string>(labels, "YARP.Backend.HealthCheck.Active.Path", null),
                         Policy = GetLabel<string>(labels, "YARP.Backend.HealthCheck.Active.Policy", null)
                     },
-                    Passive = new PassiveHealthCheckOptions
+                    Passive = new PassiveHealthCheckConfig
                     {
-                        Enabled = GetLabel(labels, "YARP.Backend.HealthCheck.Passive.Enabled", false),
+                        Enabled = GetLabel<bool?>(labels, "YARP.Backend.HealthCheck.Passive.Enabled", null),
                         Policy = GetLabel<string>(labels, "YARP.Backend.HealthCheck.Passive.Policy", null),
                         ReactivationPeriod = GetLabel<TimeSpan?>(labels, "YARP.Backend.HealthCheck.Passive.ReactivationPeriod", null)
                     }
                 },
-                HttpClient = new ProxyHttpClientOptions
+                HttpClient = new HttpClientConfig
                 {
                     DangerousAcceptAnyServerCertificate = GetLabel<bool?>(labels, "YARP.Backend.HttpClient.DangerousAcceptAnyServerCertificate", null),
                     MaxConnectionsPerServer = GetLabel<int?>(labels, "YARP.Backend.HttpClient.MaxConnectionsPerServer", null),
@@ -317,7 +317,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
                     EnableMultipleHttp2Connections = GetLabel<bool?>(labels, "YARP.Backend.HttpClient.EnableMultipleHttp2Connections", null),
                     RequestHeaderEncoding = !string.IsNullOrEmpty(requestHeaderEncodingLabel) ? Encoding.GetEncoding(requestHeaderEncodingLabel) : null,
 #endif
-                    WebProxy = new WebProxyOptions
+                    WebProxy = new WebProxyConfig
                     {
                         Address = GetLabel<Uri>(labels, "YARP.Backend.HttpClient.WebProxy.Address", null),
                         BypassOnLocal = GetLabel<bool?>(labels, "YARP.Backend.HttpClient.WebProxy.BypassOnLocal", null),

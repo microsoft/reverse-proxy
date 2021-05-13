@@ -9,21 +9,21 @@ namespace Yarp.ReverseProxy.RuntimeModel
     public interface IClusterChangeListener
     {
         /// <summary>
-        /// Gets called after a new <see cref="ClusterInfo"/> has been added.
+        /// Gets called after a new <see cref="ClusterState"/> has been added.
         /// </summary>
-        /// <param name="cluster">Added <see cref="ClusterInfo"/> instance.</param>
-        void OnClusterAdded(ClusterInfo cluster);
+        /// <param name="cluster">Added <see cref="ClusterState"/> instance.</param>
+        void OnClusterAdded(ClusterState cluster);
 
         /// <summary>
-        /// Gets called after an existing <see cref="ClusterInfo"/> has been changed.
+        /// Gets called after an existing <see cref="ClusterState"/> has been changed.
         /// </summary>
-        /// <param name="cluster">Changed <see cref="ClusterInfo"/> instance.</param>
-        void OnClusterChanged(ClusterInfo cluster);
+        /// <param name="cluster">Changed <see cref="ClusterState"/> instance.</param>
+        void OnClusterChanged(ClusterState cluster);
 
         /// <summary>
-        /// Gets called after an existing <see cref="ClusterInfo"/> has been removed.
+        /// Gets called after an existing <see cref="ClusterState"/> has been removed.
         /// </summary>
-        /// <param name="cluster">Removed <see cref="ClusterInfo"/> instance.</param>
-        void OnClusterRemoved(ClusterInfo cluster);
+        /// <param name="cluster">Removed <see cref="ClusterState"/> instance.</param>
+        void OnClusterRemoved(ClusterState cluster);
     }
 }

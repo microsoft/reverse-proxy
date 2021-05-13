@@ -38,11 +38,11 @@ namespace Yarp.ReverseProxy.Middleware.Tests
         public async Task Invoke_SetsFeatures()
         {
             var httpClient = new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object);
-            var cluster1 = new ClusterInfo(clusterId: "cluster1");
-            cluster1.Config = new ClusterConfig(new Cluster(), httpClient);
+            var cluster1 = new ClusterState(clusterId: "cluster1");
+            cluster1.Model = new ClusterModel(new ClusterConfig(), httpClient);
             var destination1 = cluster1.Destinations.GetOrAdd(
                 "destination1",
-                id => new DestinationInfo(id) { Config = new DestinationConfig(new Destination { Address = "https://localhost:123/a/b/" }) });
+                id => new DestinationState(id) { Model = new DestinationModel(new DestinationConfig { Address = "https://localhost:123/a/b/" }) });
             cluster1.ProcessDestinationChanges();
 
             var aspNetCoreEndpoints = new List<Endpoint>();
@@ -64,7 +64,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
             Assert.NotNull(proxyFeature.AvailableDestinations);
             Assert.Equal(1, proxyFeature.AvailableDestinations.Count);
             Assert.Same(destination1, proxyFeature.AvailableDestinations[0]);
-            Assert.Same(cluster1.Config, proxyFeature.ClusterSnapshot);
+            Assert.Same(cluster1.Model, proxyFeature.Cluster);
 
             Assert.Equal(StatusCodes.Status418ImATeapot, httpContext.Response.StatusCode);
         }
@@ -73,13 +73,13 @@ namespace Yarp.ReverseProxy.Middleware.Tests
         public async Task Invoke_NoHealthyEndpoints_CallsNext()
         {
             var httpClient = new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object);
-            var cluster1 = new ClusterInfo(clusterId: "cluster1");
-            cluster1.Config = new ClusterConfig(
-                new Cluster()
+            var cluster1 = new ClusterState(clusterId: "cluster1");
+            cluster1.Model = new ClusterModel(
+                new ClusterConfig()
                 {
-                    HealthCheck = new HealthCheckOptions
+                    HealthCheck = new HealthCheckConfig
                     {
-                        Active = new ActiveHealthCheckOptions
+                        Active = new ActiveHealthCheckConfig
                         {
                             Enabled = true,
                             Timeout = Timeout.InfiniteTimeSpan,
@@ -91,9 +91,9 @@ namespace Yarp.ReverseProxy.Middleware.Tests
                 httpClient);
             var destination1 = cluster1.Destinations.GetOrAdd(
                 "destination1",
-                id => new DestinationInfo(id)
+                id => new DestinationState(id)
                 {
-                    Config = new DestinationConfig(new Destination { Address = "https://localhost:123/a/b/" }),
+                    Model = new DestinationModel(new DestinationConfig { Address = "https://localhost:123/a/b/" }),
                     Health = { Active = DestinationHealth.Unhealthy },
                 });
             cluster1.ProcessDestinationChanges();

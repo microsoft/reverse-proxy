@@ -70,7 +70,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
                         if (_snapshot == null)
                         {
                             Log.StartWithoutInitialServiceFabricDiscovery(_logger);
-                            UpdateSnapshot(new List<RouteConfig>(), new List<Cluster>());
+                            UpdateSnapshot(new List<RouteConfig>(), new List<ClusterConfig>());
                         }
                     }
                 }
@@ -132,7 +132,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
             }
         }
 
-        private void UpdateSnapshot(IReadOnlyList<RouteConfig> routes, IReadOnlyList<Cluster> clusters)
+        private void UpdateSnapshot(IReadOnlyList<RouteConfig> routes, IReadOnlyList<ClusterConfig> clusters)
         {
             // Prevent overlapping updates
             lock (_lockObject)
@@ -164,7 +164,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
         {
             public IReadOnlyList<RouteConfig> Routes { get; internal set; }
 
-            public IReadOnlyList<Cluster> Clusters { get; internal set; }
+            public IReadOnlyList<ClusterConfig> Clusters { get; internal set; }
 
             public IChangeToken ChangeToken { get; internal set; }
         }

@@ -45,7 +45,7 @@ namespace Yarp.ReverseProxy.Service.Config
             var errors = transformBuilder.ValidateRoute(route);
             Assert.Empty(errors);
 
-            var results = transformBuilder.BuildInternal(route, new Cluster());
+            var results = transformBuilder.BuildInternal(route, new ClusterConfig());
             Assert.NotNull(results);
             Assert.Null(results.ShouldCopyRequestHeaders);
             Assert.Null(results.ShouldCopyResponseHeaders);
@@ -120,7 +120,7 @@ namespace Yarp.ReverseProxy.Service.Config
             var error = Assert.Single(errors);
             Assert.Equal("Unknown transform: ", error.Message);
 
-            var nie = Assert.Throws<ArgumentException>(() => transformBuilder.BuildInternal(route, new Cluster()));
+            var nie = Assert.Throws<ArgumentException>(() => transformBuilder.BuildInternal(route, new ClusterConfig()));
             Assert.Equal("Unknown transform: ", nie.Message);
         }
 
@@ -148,7 +148,7 @@ namespace Yarp.ReverseProxy.Service.Config
             Assert.Equal(2, errors.Count);
             Assert.Equal("Unknown transform: string1;string2", errors.First().Message);
             Assert.Equal("Unknown transform: string3;string4", errors.Skip(1).First().Message);
-            var ex = Assert.Throws<ArgumentException>(() => transformBuilder.BuildInternal(route, new Cluster()));
+            var ex = Assert.Throws<ArgumentException>(() => transformBuilder.BuildInternal(route, new ClusterConfig()));
             // First error reported
             Assert.Equal("Unknown transform: string1;string2", ex.Message);
         }
@@ -172,7 +172,7 @@ namespace Yarp.ReverseProxy.Service.Config
             Assert.Equal(1, factory2.ValidationCalls);
             Assert.Equal(0, factory3.ValidationCalls);
 
-            var transforms = builder.BuildInternal(route, new Cluster());
+            var transforms = builder.BuildInternal(route, new ClusterConfig());
             Assert.Equal(1, factory1.BuildCalls);
             Assert.Equal(1, factory2.BuildCalls);
             Assert.Equal(0, factory3.BuildCalls);
@@ -196,7 +196,7 @@ namespace Yarp.ReverseProxy.Service.Config
             Assert.Equal(1, provider2.ValidateRouteCalls);
             Assert.Equal(1, provider3.ValidateRouteCalls);
 
-            var cluster = new Cluster();
+            var cluster = new ClusterConfig();
             errors = builder.ValidateCluster(cluster);
             Assert.Empty(errors);
             Assert.Equal(1, provider1.ValidateClusterCalls);
@@ -231,7 +231,7 @@ namespace Yarp.ReverseProxy.Service.Config
             var errors = transformBuilder.ValidateRoute(route);
             Assert.Empty(errors);
 
-            var results = transformBuilder.BuildInternal(route, new Cluster());
+            var results = transformBuilder.BuildInternal(route, new ClusterConfig());
             Assert.NotNull(results);
             Assert.False(results.ShouldCopyRequestHeaders);
             Assert.Empty(results.RequestTransforms);
@@ -277,7 +277,7 @@ namespace Yarp.ReverseProxy.Service.Config
             var errors = transformBuilder.ValidateRoute(route);
             Assert.Empty(errors);
 
-            var results = transformBuilder.BuildInternal(route, new Cluster());
+            var results = transformBuilder.BuildInternal(route, new ClusterConfig());
             Assert.NotNull(results);
             Assert.Equal(copyHeaders, results.ShouldCopyRequestHeaders);
             Assert.Empty(results.ResponseTransforms);
@@ -362,7 +362,7 @@ namespace Yarp.ReverseProxy.Service.Config
             var errors = transformBuilder.ValidateRoute(route);
             Assert.Empty(errors);
 
-            var results = transformBuilder.BuildInternal(route, new Cluster());
+            var results = transformBuilder.BuildInternal(route, new ClusterConfig());
             Assert.Equal(copyHeaders, results.ShouldCopyRequestHeaders);
 
             var httpContext = new DefaultHttpContext();
@@ -395,7 +395,7 @@ namespace Yarp.ReverseProxy.Service.Config
             var errors = transformBuilder.ValidateRoute(route);
             Assert.Empty(errors);
 
-            var results = transformBuilder.BuildInternal(route, new Cluster());
+            var results = transformBuilder.BuildInternal(route, new ClusterConfig());
             var transform = Assert.Single(results.RequestTransforms);
             var forwardedTransform = Assert.IsType<RequestHeaderForwardedTransform>(transform);
             Assert.True(forwardedTransform.ProtoEnabled);

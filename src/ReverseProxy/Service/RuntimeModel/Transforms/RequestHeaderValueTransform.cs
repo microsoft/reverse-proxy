@@ -40,7 +40,7 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
                 var values = StringValues.Concat(existingValues, Value);
                 AddHeader(context, HeaderName, values);
             }
-            else if (!string.IsNullOrEmpty(Value))
+            else
             {
                 // Set
                 AddHeader(context, HeaderName, Value);

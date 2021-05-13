@@ -11,12 +11,12 @@ namespace Yarp.ReverseProxy.Abstractions
     /// <summary>
     /// Options used for communicating with the destination servers.
     /// </summary>
-    public sealed record ProxyHttpClientOptions
+    public sealed record HttpClientConfig
     {
         /// <summary>
         /// An empty options instance.
         /// </summary>
-        public static readonly ProxyHttpClientOptions Empty = new();
+        public static readonly HttpClientConfig Empty = new();
 
         /// <summary>
         /// What TLS protocols to use.
@@ -47,7 +47,7 @@ namespace Yarp.ReverseProxy.Abstractions
         /// <summary>
         /// Optional web proxy used when communicating with the destination server. 
         /// </summary>
-        public WebProxyOptions WebProxy { get; init; }
+        public WebProxyConfig WebProxy { get; init; }
 
 #if NET
         /// <summary>
@@ -64,7 +64,7 @@ namespace Yarp.ReverseProxy.Abstractions
 #endif
 
         /// <inheritdoc />
-        public bool Equals(ProxyHttpClientOptions other)
+        public bool Equals(HttpClientConfig other)
         {
             if (other == null)
             {

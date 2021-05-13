@@ -30,8 +30,8 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
         private readonly IDestinationHealthUpdater _healthUpdater;
         private readonly TransportFailureRateHealthPolicyOptions _policyOptions;
         private readonly IClock _clock;
-        private readonly ConditionalWeakTable<ClusterInfo, ParsedMetadataEntry<double>> _clusterFailureRateLimits = new ConditionalWeakTable<ClusterInfo, ParsedMetadataEntry<double>>();
-        private readonly ConditionalWeakTable<DestinationInfo, ProxiedRequestHistory> _requestHistories = new ConditionalWeakTable<DestinationInfo, ProxiedRequestHistory>();
+        private readonly ConditionalWeakTable<ClusterState, ParsedMetadataEntry<double>> _clusterFailureRateLimits = new ConditionalWeakTable<ClusterState, ParsedMetadataEntry<double>>();
+        private readonly ConditionalWeakTable<DestinationState, ProxiedRequestHistory> _requestHistories = new ConditionalWeakTable<DestinationState, ProxiedRequestHistory>();
 
         public string Name => HealthCheckConstants.PassivePolicy.TransportFailureRate;
 
@@ -45,15 +45,15 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             _healthUpdater = healthUpdater ?? throw new ArgumentNullException(nameof(healthUpdater));
         }
 
-        public void RequestProxied(ClusterInfo cluster, DestinationInfo destination, HttpContext context)
+        public void RequestProxied(ClusterState cluster, DestinationState destination, HttpContext context)
         {
             var error = context.Features.Get<IProxyErrorFeature>();
             var newHealth = EvaluateProxiedRequest(cluster, destination, error != null);
-            var reactivationPeriod = cluster.Config.Options.HealthCheck.Passive.ReactivationPeriod ?? _defaultReactivationPeriod;
+            var reactivationPeriod = cluster.Model.Config.HealthCheck.Passive.ReactivationPeriod ?? _defaultReactivationPeriod;
             _healthUpdater.SetPassive(cluster, destination, newHealth, reactivationPeriod);
         }
 
-        private DestinationHealth EvaluateProxiedRequest(ClusterInfo cluster, DestinationInfo destination, bool failed)
+        private DestinationHealth EvaluateProxiedRequest(ClusterState cluster, DestinationState destination, bool failed)
         {
             var history = _requestHistories.GetOrCreateValue(destination);
             var rateLimitEntry = _clusterFailureRateLimits.GetValue(cluster, c => new ParsedMetadataEntry<double>(TryParse, c, TransportFailureRateHealthPolicyOptions.FailureRateLimitMetadataName));

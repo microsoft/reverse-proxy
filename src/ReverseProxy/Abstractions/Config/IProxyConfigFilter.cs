@@ -15,9 +15,8 @@ namespace Yarp.ReverseProxy.Service
         /// <summary>
         /// Allows modification of a cluster configuration.
         /// </summary>
-        /// <param name="id">The id for the cluster.</param>
-        /// <param name="cluster">The <see cref="Cluster"/> instance to configure.</param>
-        ValueTask<Cluster> ConfigureClusterAsync(Cluster cluster, CancellationToken cancel);
+        /// <param name="cluster">The <see cref="ClusterConfig"/> instance to configure.</param>
+        ValueTask<ClusterConfig> ConfigureClusterAsync(ClusterConfig cluster, CancellationToken cancel);
 
         /// <summary>
         /// Allows modification of a route configuration.

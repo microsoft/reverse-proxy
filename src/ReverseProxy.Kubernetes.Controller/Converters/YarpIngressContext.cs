@@ -18,7 +18,7 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Services
         public YarpIngressOptions Options { get; set; } = new YarpIngressOptions();
         public Dictionary<string, ClusterTrasfer> ClusterTransfers { get; set; } = new Dictionary<string, ClusterTrasfer>();
         public List<RouteConfig> Routes { get; set; } = new List<RouteConfig>();
-        public List<Cluster> Clusters { get; set; } = new List<Cluster>();
+        public List<ClusterConfig> Clusters { get; set; } = new List<ClusterConfig>();
         public IngressData Ingress { get; }
         public List<Endpoints> Endpoints { get; }
     }

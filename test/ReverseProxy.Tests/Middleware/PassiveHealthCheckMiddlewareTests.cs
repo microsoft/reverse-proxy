@@ -94,7 +94,7 @@ namespace Yarp.ReverseProxy.Middleware
             policies[1].VerifyNoOtherCalls();
         }
 
-        private HttpContext GetContext(ClusterInfo cluster, int selectedDestination, IProxyErrorFeature error)
+        private HttpContext GetContext(ClusterState cluster, int selectedDestination, IProxyErrorFeature error)
         {
             var context = new DefaultHttpContext();
             context.Features.Set(GetProxyFeature(cluster, cluster.DynamicState.AllDestinations[selectedDestination]));
@@ -109,25 +109,25 @@ namespace Yarp.ReverseProxy.Middleware
             return policy;
         }
 
-        private IReverseProxyFeature GetProxyFeature(ClusterInfo clusterInfo, DestinationInfo destination)
+        private IReverseProxyFeature GetProxyFeature(ClusterState clusterState, DestinationState destination)
         {
             return new ReverseProxyFeature()
             {
                 ProxiedDestination = destination,
-                ClusterSnapshot = clusterInfo.Config,
-                Route = new RouteModel(new RouteConfig(), clusterInfo, HttpTransformer.Default),
+                Cluster = clusterState.Model,
+                Route = new RouteModel(new RouteConfig(), clusterState, HttpTransformer.Default),
             };
         }
 
-        private ClusterInfo GetClusterInfo(string id, string policy, bool enabled = true)
+        private ClusterState GetClusterInfo(string id, string policy, bool enabled = true)
         {
-            var clusterConfig = new ClusterConfig(
-                new Cluster
+            var clusterModel = new ClusterModel(
+                new ClusterConfig
                 {
-                    Id = id,
-                    HealthCheck = new HealthCheckOptions
+                    ClusterId = id,
+                    HealthCheck = new HealthCheckConfig
                     {
-                        Passive = new PassiveHealthCheckOptions
+                        Passive = new PassiveHealthCheckConfig
                         {
                             Enabled = enabled,
                             Policy = policy,
@@ -135,14 +135,14 @@ namespace Yarp.ReverseProxy.Middleware
                     }
                 },
                 null);
-            var clusterInfo = new ClusterInfo(id);
-            clusterInfo.Config = clusterConfig;
-            clusterInfo.Destinations.GetOrAdd("destination0", id => new DestinationInfo(id));
-            clusterInfo.Destinations.GetOrAdd("destination1", id => new DestinationInfo(id));
+            var clusterState = new ClusterState(id);
+            clusterState.Model = clusterModel;
+            clusterState.Destinations.GetOrAdd("destination0", id => new DestinationState(id));
+            clusterState.Destinations.GetOrAdd("destination1", id => new DestinationState(id));
 
-            clusterInfo.ProcessDestinationChanges();
+            clusterState.ProcessDestinationChanges();
 
-            return clusterInfo;
+            return clusterState;
         }
     }
 }

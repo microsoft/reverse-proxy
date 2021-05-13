@@ -204,18 +204,18 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             return context;
         }
 
-        private ClusterInfo GetClusterInfo(string id, int destinationCount, double? failureRateLimit = null, TimeSpan? reactivationPeriod = null)
+        private ClusterState GetClusterInfo(string id, int destinationCount, double? failureRateLimit = null, TimeSpan? reactivationPeriod = null)
         {
             var metadata = failureRateLimit != null
                 ? new Dictionary<string, string> { { TransportFailureRateHealthPolicyOptions.FailureRateLimitMetadataName, failureRateLimit?.ToString(CultureInfo.InvariantCulture) } }
                 : null;
-            var clusterConfig = new ClusterConfig(
-                new Cluster
+            var clusterModel = new ClusterModel(
+                new ClusterConfig
                 {
-                    Id = id,
-                    HealthCheck = new HealthCheckOptions
+                    ClusterId = id,
+                    HealthCheck = new HealthCheckConfig
                     {
-                        Passive = new PassiveHealthCheckOptions
+                        Passive = new PassiveHealthCheckConfig
                         {
                             Enabled = true,
                             Policy = "policy",
@@ -225,19 +225,19 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
                     Metadata = metadata,
                 },
                 null);
-            var clusterInfo = new ClusterInfo(id);
-            clusterInfo.Config = clusterConfig;
+            var clusterState = new ClusterState(id);
+            clusterState.Model = clusterModel;
             for (var i = 0; i < destinationCount; i++)
             {
-                var destinationConfig = new DestinationConfig(new Destination { Address = $"https://localhost:1000{i}/{id}/", Health = $"https://localhost:2000{i}/{id}/" });
+                var destinationModel = new DestinationModel(new DestinationConfig { Address = $"https://localhost:1000{i}/{id}/", Health = $"https://localhost:2000{i}/{id}/" });
                 var destinationId = $"destination{i}";
-                clusterInfo.Destinations.GetOrAdd(destinationId, id => new DestinationInfo(id)
+                clusterState.Destinations.GetOrAdd(destinationId, id => new DestinationState(id)
                 {
-                    Config = destinationConfig
+                    Model = destinationModel
                 });
             }
 
-            return clusterInfo;
+            return clusterState;
         }
     }
 }

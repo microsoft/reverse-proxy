@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Yarp.ReverseProxy.Abstractions
+namespace Yarp.ReverseProxy.Service.HealthChecks
 {
     /// <summary>
     /// Defines options for the consecutive failures active health check policy.

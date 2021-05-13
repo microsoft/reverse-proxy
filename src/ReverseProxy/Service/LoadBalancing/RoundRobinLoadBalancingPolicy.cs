@@ -4,8 +4,6 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Http;
-using Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
-using Yarp.ReverseProxy.Middleware;
 using Yarp.ReverseProxy.RuntimeModel;
 using Yarp.ReverseProxy.Utilities;
 
@@ -13,18 +11,18 @@ namespace Yarp.ReverseProxy.Service.LoadBalancing
 {
     internal sealed class RoundRobinLoadBalancingPolicy : ILoadBalancingPolicy
     {
-        private readonly ConditionalWeakTable<ClusterInfo, AtomicCounter> _counters = new ();
+        private readonly ConditionalWeakTable<ClusterState, AtomicCounter> _counters = new ();
 
         public string Name => LoadBalancingPolicies.RoundRobin;
 
-        public DestinationInfo PickDestination(HttpContext context, IReadOnlyList<DestinationInfo> availableDestinations)
+        public DestinationState PickDestination(HttpContext context, IReadOnlyList<DestinationState> availableDestinations)
         {
             if (availableDestinations.Count == 0)
             {
                 return null;
             }
 
-            var counter = _counters.GetOrCreateValue(context.GetClusterInfo());
+            var counter = _counters.GetOrCreateValue(context.GetClusterState());
 
             // Increment returns the new value and we want the first return value to be 0.
             var offset = counter.Increment() - 1;

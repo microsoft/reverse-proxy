@@ -64,10 +64,10 @@ namespace Yarp.ReverseProxy.Middleware
 
             reverseProxyFeature.ProxiedDestination = destination;
 
-            var destinationConfig = destination.Config;
-            if (destinationConfig == null)
+            var destinationModel = destination.Model;
+            if (destinationModel == null)
             {
-                throw new InvalidOperationException($"Chosen destination has no configs set: '{destination.DestinationId}'");
+                throw new InvalidOperationException($"Chosen destination has no model set: '{destination.DestinationId}'");
             }
 
             try
@@ -77,8 +77,8 @@ namespace Yarp.ReverseProxy.Middleware
 
                 ProxyTelemetry.Log.ProxyInvoke(cluster.ClusterId, route.Config.RouteId, destination.DestinationId);
 
-                var clusterConfig = reverseProxyFeature.ClusterSnapshot;
-                await _httpProxy.ProxyAsync(context, destinationConfig.Options.Address, clusterConfig.HttpClient, clusterConfig.Options.HttpRequest, route.Transformer);
+                var clusterConfig = reverseProxyFeature.Cluster;
+                await _httpProxy.ProxyAsync(context, destinationModel.Config.Address, clusterConfig.HttpClient, clusterConfig.Config.HttpRequest, route.Transformer);
             }
             finally
             {

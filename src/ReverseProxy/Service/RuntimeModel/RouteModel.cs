@@ -23,7 +23,7 @@ namespace Yarp.ReverseProxy.RuntimeModel
         /// </summary>
         public RouteModel(
             RouteConfig config,
-            ClusterInfo cluster,
+            ClusterState cluster,
             HttpTransformer transformer)
         {
             Config = config ?? throw new ArgumentNullException(nameof(config));
@@ -35,7 +35,7 @@ namespace Yarp.ReverseProxy.RuntimeModel
         /// <summary>
         /// The ClusterInfo instance associated with this route.
         /// </summary>
-        public ClusterInfo Cluster { get; }
+        public ClusterState Cluster { get; }
 
         /// <summary>
         /// Transforms to apply for this route.
@@ -47,7 +47,7 @@ namespace Yarp.ReverseProxy.RuntimeModel
         /// </summary>
         public RouteConfig Config { get; }
 
-        internal bool HasConfigChanged(RouteConfig newConfig, ClusterInfo cluster, int? routeRevision)
+        internal bool HasConfigChanged(RouteConfig newConfig, ClusterState cluster, int? routeRevision)
         {
             return Cluster != cluster || routeRevision != cluster?.Revision || !Config.Equals(newConfig);
         }

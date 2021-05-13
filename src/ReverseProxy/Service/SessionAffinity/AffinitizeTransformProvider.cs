@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Yarp.ReverseProxy.Abstractions.Config;
 using Yarp.ReverseProxy.Utilities;
 
@@ -40,7 +39,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
 
             if (!_sessionAffinityProviders.ContainsKey(affinityMode))
             {
-                context.Errors.Add(new ArgumentException($"No matching {nameof(ISessionAffinityProvider)} found for the session affinity mode '{affinityMode}' set on the cluster '{context.Cluster.Id}'."));
+                context.Errors.Add(new ArgumentException($"No matching {nameof(ISessionAffinityProvider)} found for the session affinity mode '{affinityMode}' set on the cluster '{context.Cluster.ClusterId}'."));
             }
         }
 

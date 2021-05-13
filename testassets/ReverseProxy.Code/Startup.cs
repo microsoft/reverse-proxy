@@ -39,13 +39,13 @@ namespace Yarp.ReverseProxy.Sample
             };
             var clusters = new[]
             {
-                new Cluster()
+                new ClusterConfig()
                 {
-                    Id = "cluster1",
-                    SessionAffinity = new SessionAffinityOptions { Enabled = true, Mode = "Cookie" },
-                    Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
+                    ClusterId = "cluster1",
+                    SessionAffinity = new SessionAffinityConfig { Enabled = true, Mode = "Cookie" },
+                    Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
                     {
-                        { "destination1", new Destination() { Address = "https://localhost:10000" } }
+                        { "destination1", new DestinationConfig() { Address = "https://localhost:10000" } }
                     }
                 }
             };

@@ -19,6 +19,7 @@ using Xunit;
 using Yarp.ReverseProxy.Abstractions;
 using Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Yarp.ReverseProxy.Service;
+using Yarp.ReverseProxy.Service.LoadBalancing;
 using Yarp.ReverseProxy.Service.Proxy;
 using Yarp.ReverseProxy.Utilities.Tests;
 
@@ -33,14 +34,14 @@ namespace Yarp.ReverseProxy.Configuration
             Clusters =
             {
                 {
-                    new Cluster
+                    new ClusterConfig
                     {
-                        Id = "cluster1",
-                        Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
+                        ClusterId = "cluster1",
+                        Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
                         {
                             {
                                 "destinationA",
-                                new Destination
+                                new DestinationConfig
                                 {
                                     Address = "https://localhost:10000/destA",
                                     Health = "https://localhost:20000/destA",
@@ -49,7 +50,7 @@ namespace Yarp.ReverseProxy.Configuration
                             },
                             {
                                 "destinationB",
-                                new Destination
+                                new DestinationConfig
                                 {
                                     Address = "https://localhost:10000/destB",
                                     Health = "https://localhost:20000/destB",
@@ -57,15 +58,15 @@ namespace Yarp.ReverseProxy.Configuration
                                 }
                             }
                         },
-                        HealthCheck = new HealthCheckOptions
+                        HealthCheck = new HealthCheckConfig
                         {
-                            Passive = new PassiveHealthCheckOptions
+                            Passive = new PassiveHealthCheckConfig
                             {
                                 Enabled = true,
                                 Policy = "FailureRate",
                                 ReactivationPeriod = TimeSpan.FromMinutes(5)
                             },
-                            Active = new ActiveHealthCheckOptions
+                            Active = new ActiveHealthCheckConfig
                             {
                                 Enabled = true,
                                 Interval = TimeSpan.FromSeconds(4),
@@ -75,14 +76,14 @@ namespace Yarp.ReverseProxy.Configuration
                             }
                         },
                         LoadBalancingPolicy = LoadBalancingPolicies.Random,
-                        SessionAffinity = new SessionAffinityOptions
+                        SessionAffinity = new SessionAffinityConfig
                         {
                             Enabled = true,
                             FailurePolicy = "Return503Error",
                             Mode = "Cookie",
                             Settings = new Dictionary<string, string> { { "affinity1-K1", "affinity1-V1" }, { "affinity1-K2", "affinity1-V2" } }
                         },
-                        HttpClient = new ProxyHttpClientOptions
+                        HttpClient = new HttpClientConfig
                         {
                             SslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12,
                             MaxConnectionsPerServer = 10,
@@ -92,7 +93,7 @@ namespace Yarp.ReverseProxy.Configuration
                             EnableMultipleHttp2Connections = true,
 #endif
                         },
-                        HttpRequest = new RequestProxyOptions()
+                        HttpRequest = new RequestProxyConfig()
                         {
                             Timeout = TimeSpan.FromSeconds(60),
                             Version = Version.Parse("1.0"),
@@ -104,13 +105,13 @@ namespace Yarp.ReverseProxy.Configuration
                     }
                 },
                 {
-                    new Cluster
+                    new ClusterConfig
                     {
-                        Id = "cluster2",
-                        Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
+                        ClusterId = "cluster2",
+                        Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
                         {
-                            { "destinationC", new Destination { Address = "https://localhost:10001/destC" } },
-                            { "destinationD", new Destination { Address = "https://localhost:10000/destB" } }
+                            { "destinationC", new DestinationConfig { Address = "https://localhost:10001/destC" } },
+                            { "destinationD", new DestinationConfig { Address = "https://localhost:10000/destB" } }
                         },
                         LoadBalancingPolicy = LoadBalancingPolicies.RoundRobin
                     }
@@ -374,9 +375,9 @@ namespace Yarp.ReverseProxy.Configuration
             var provider = new ConfigurationConfigProvider(logger.Object, proxyConfig, certLoader.Object);
             var abstractConfig = (ConfigurationSnapshot)provider.GetConfig();
 
-            var abstractionsNamespace = typeof(Cluster).Namespace;
+            var abstractionsNamespace = typeof(ClusterConfig).Namespace;
             // Removed incompletely filled out instances.
-            abstractConfig.Clusters = abstractConfig.Clusters.Where(c => c.Id == "cluster1").ToList();
+            abstractConfig.Clusters = abstractConfig.Clusters.Where(c => c.ClusterId == "cluster1").ToList();
             abstractConfig.Routes = abstractConfig.Routes.Where(r => r.RouteId == "routeA").ToList();
 
             VerifyAllPropertiesAreSet(abstractConfig);
@@ -579,9 +580,9 @@ namespace Yarp.ReverseProxy.Configuration
             Assert.NotNull(abstractConfig);
             Assert.Equal(2, abstractConfig.Clusters.Count);
 
-            var cluster1 = validConfig.Clusters.First(c => c.Id == "cluster1");
-            Assert.Single(abstractConfig.Clusters.Where(c => c.Id == "cluster1"));
-            var abstractCluster1 = abstractConfig.Clusters.Single(c => c.Id == "cluster1");
+            var cluster1 = validConfig.Clusters.First(c => c.ClusterId == "cluster1");
+            Assert.Single(abstractConfig.Clusters.Where(c => c.ClusterId == "cluster1"));
+            var abstractCluster1 = abstractConfig.Clusters.Single(c => c.ClusterId == "cluster1");
             Assert.Equal(cluster1.Destinations["destinationA"].Address, abstractCluster1.Destinations["destinationA"].Address);
             Assert.Equal(cluster1.Destinations["destinationA"].Health, abstractCluster1.Destinations["destinationA"].Health);
             Assert.Equal(cluster1.Destinations["destinationA"].Metadata, abstractCluster1.Destinations["destinationA"].Metadata);
@@ -617,9 +618,9 @@ namespace Yarp.ReverseProxy.Configuration
             Assert.Equal(cluster1.HttpClient.DangerousAcceptAnyServerCertificate, abstractCluster1.HttpClient.DangerousAcceptAnyServerCertificate);
             Assert.Equal(cluster1.Metadata, abstractCluster1.Metadata);
 
-            var cluster2 = validConfig.Clusters.First(c => c.Id == "cluster2");
-            Assert.Single(abstractConfig.Clusters.Where(c => c.Id == "cluster2"));
-            var abstractCluster2 = abstractConfig.Clusters.Single(c => c.Id == "cluster2");
+            var cluster2 = validConfig.Clusters.First(c => c.ClusterId == "cluster2");
+            Assert.Single(abstractConfig.Clusters.Where(c => c.ClusterId == "cluster2"));
+            var abstractCluster2 = abstractConfig.Clusters.Single(c => c.ClusterId == "cluster2");
             Assert.Equal(cluster2.Destinations["destinationC"].Address, abstractCluster2.Destinations["destinationC"].Address);
             Assert.Equal(cluster2.Destinations["destinationC"].Metadata, abstractCluster2.Destinations["destinationC"].Metadata);
             Assert.Equal(cluster2.Destinations["destinationD"].Address, abstractCluster2.Destinations["destinationD"].Address);

@@ -49,7 +49,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                 .Returns(() => _scenarioOptions);
 
             Mock<IConfigValidator>()
-                .Setup(v => v.ValidateClusterAsync(It.IsAny<Cluster>()))
+                .Setup(v => v.ValidateClusterAsync(It.IsAny<ClusterConfig>()))
                 .ReturnsAsync(() => new List<Exception>());
             Mock<IConfigValidator>()
                 .Setup(v => v.ValidateRouteAsync(It.IsAny<RouteConfig>()))
@@ -331,7 +331,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
 
             var expectedClusters = new[]
             {
-                LabelsParser.BuildCluster(_testServiceName, labels, new Dictionary<string, Destination>()),
+                LabelsParser.BuildCluster(_testServiceName, labels, new Dictionary<string, DestinationConfig>()),
             };
             var expectedRoutes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
@@ -361,7 +361,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
 
             var expectedClusters = new[]
             {
-                LabelsParser.BuildCluster(_testServiceName, labels, new Dictionary<string, Destination>()),
+                LabelsParser.BuildCluster(_testServiceName, labels, new Dictionary<string, DestinationConfig>()),
             };
             var expectedRoutes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
@@ -393,7 +393,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
 
             var expectedClusters = new[]
             {
-                LabelsParser.BuildCluster(_testServiceName, labels, new Dictionary<string, Destination>()),
+                LabelsParser.BuildCluster(_testServiceName, labels, new Dictionary<string, DestinationConfig>()),
             };
             var expectedRoutes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
@@ -568,17 +568,17 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
 
             var expectedClusters = new[]
             {
-                LabelsParser.BuildCluster(_testServiceName, labels, new Dictionary<string, Destination>()),
+                LabelsParser.BuildCluster(_testServiceName, labels, new Dictionary<string, DestinationConfig>()),
             };
 
             clusters.Should().BeEquivalentTo(expectedClusters);
             _healthReports.Should().HaveCount(1);
         }
 
-        private static Cluster ClusterWithDestinations(Uri serviceName, Dictionary<string, string> labels,
-            params KeyValuePair<string, Destination>[] destinations)
+        private static ClusterConfig ClusterWithDestinations(Uri serviceName, Dictionary<string, string> labels,
+            params KeyValuePair<string, DestinationConfig>[] destinations)
         {
-            var newDestinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase);
+            var newDestinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase);
             foreach (var destination in destinations)
             {
                 newDestinations.Add(destination.Key, destination.Value);
@@ -587,7 +587,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             return LabelsParser.BuildCluster(serviceName, labels, newDestinations);
         }
 
-        private async Task<(IReadOnlyList<RouteConfig> Routes, IReadOnlyList<Cluster> Clusters)> RunScenarioAsync()
+        private async Task<(IReadOnlyList<RouteConfig> Routes, IReadOnlyList<ClusterConfig> Clusters)> RunScenarioAsync()
         {
             if (_scenarioOptions == null)
             {

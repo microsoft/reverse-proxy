@@ -19,7 +19,7 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         /// <summary>
         /// The cluster configuration that may be used when creating transforms.
         /// </summary>
-        public Cluster Cluster { get; init; }
+        public ClusterConfig Cluster { get; init; }
 
         /// <summary>
         /// The accumulated list of validation errors for this cluster.
