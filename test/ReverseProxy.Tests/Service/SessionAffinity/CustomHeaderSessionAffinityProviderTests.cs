@@ -13,7 +13,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
     public class CustomHeaderSessionAffinityProviderTests
     {
         private const string AffinityHeaderName = "X-MyAffinity";
-        private readonly SessionAffinityOptions _defaultOptions = new SessionAffinityOptions
+        private readonly SessionAffinityConfig _defaultOptions = new SessionAffinityConfig
         {
             Enabled = true,
             Mode = "Cookie",
@@ -58,7 +58,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
         [MemberData(nameof(FindAffinitizedDestination_CustomHeaderNameIsNotSpecified_Cases))]
         public void FindAffinitizedDestination_CustomHeaderNameIsNotSpecified_UseDefaultName(Dictionary<string, string> settings)
         {
-            var options = new SessionAffinityOptions
+            var options = new SessionAffinityConfig
             {
                 Enabled = true,
                 Mode = "CustomHeader",

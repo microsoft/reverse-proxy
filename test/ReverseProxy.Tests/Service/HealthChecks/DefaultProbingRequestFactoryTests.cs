@@ -23,7 +23,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
         public void CreateRequest_HealthEndpointIsNotDefined_UseDestinationAddress(string address, string health, string healthPath, string expectedRequestUri)
         {
             var clusterModel = GetClusterConfig("cluster0",
-                new ActiveHealthCheckOptions()
+                new ActiveHealthCheckConfig()
                 {
                     Enabled = true,
                     Policy = "policy",
@@ -44,7 +44,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
         {
             var version = versionString != null ? Version.Parse(versionString) : null;
             var clusterModel = GetClusterConfig("cluster0",
-                new ActiveHealthCheckOptions()
+                new ActiveHealthCheckConfig()
                 {
                     Enabled = true,
                     Policy = "policy",
@@ -65,7 +65,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
 #endif
         }
 
-        private ClusterModel GetClusterConfig(string id, ActiveHealthCheckOptions healthCheckOptions, Version version
+        private ClusterModel GetClusterConfig(string id, ActiveHealthCheckConfig healthCheckOptions, Version version
 #if NET
             , HttpVersionPolicy versionPolicy = HttpVersionPolicy.RequestVersionExact
 #endif
@@ -75,11 +75,11 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
                 new ClusterConfig
                 {
                     ClusterId = id,
-                    HealthCheck = new HealthCheckOptions()
+                    HealthCheck = new HealthCheckConfig()
                     {
                         Active = healthCheckOptions,
                     },
-                    HttpRequest = new RequestProxyOptions
+                    HttpRequest = new RequestProxyConfig
                     {
                         Timeout = TimeSpan.FromSeconds(60),
                         Version = version,

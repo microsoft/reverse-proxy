@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Yarp.ReverseProxy.Abstractions;
-using Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Yarp.ReverseProxy.RuntimeModel;
 using Yarp.ReverseProxy.Service.SessionAffinity;
 using Yarp.ReverseProxy.Utilities;
@@ -41,22 +40,22 @@ namespace Yarp.ReverseProxy.Middleware
             var proxyFeature = context.GetReverseProxyFeature();
 
             var cluster = proxyFeature.Cluster.Config;
-            var options = cluster.SessionAffinity;
+            var config = cluster.SessionAffinity;
 
-            if (!(options?.Enabled).GetValueOrDefault())
+            if (!(config?.Enabled).GetValueOrDefault())
             {
                 return _next(context);
             }
 
-            return InvokeInternal(context, proxyFeature, options, cluster.ClusterId);
+            return InvokeInternal(context, proxyFeature, config, cluster.ClusterId);
         }
 
-        private async Task InvokeInternal(HttpContext context, IReverseProxyFeature proxyFeature, SessionAffinityOptions options, string clusterId)
+        private async Task InvokeInternal(HttpContext context, IReverseProxyFeature proxyFeature, SessionAffinityConfig config, string clusterId)
         {
             var destinations = proxyFeature.AvailableDestinations;
 
-            var currentProvider = _sessionAffinityProviders.GetRequiredServiceById(options.Mode, SessionAffinityConstants.Modes.Cookie);
-            var affinityResult = currentProvider.FindAffinitizedDestinations(context, destinations, clusterId, options);
+            var currentProvider = _sessionAffinityProviders.GetRequiredServiceById(config.Mode, SessionAffinityConstants.Modes.Cookie);
+            var affinityResult = currentProvider.FindAffinitizedDestinations(context, destinations, clusterId, config);
 
             switch (affinityResult.Status)
             {
@@ -69,8 +68,8 @@ namespace Yarp.ReverseProxy.Middleware
                 case AffinityStatus.AffinityKeyExtractionFailed:
                 case AffinityStatus.DestinationNotFound:
 
-                    var failurePolicy = _affinityFailurePolicies.GetRequiredServiceById(options.FailurePolicy, SessionAffinityConstants.AffinityFailurePolicies.Redistribute);
-                    var keepProcessing = await failurePolicy.Handle(context, options, affinityResult.Status);
+                    var failurePolicy = _affinityFailurePolicies.GetRequiredServiceById(config.FailurePolicy, SessionAffinityConstants.AffinityFailurePolicies.Redistribute);
+                    var keepProcessing = await failurePolicy.Handle(context, config, affinityResult.Status);
 
                     if (!keepProcessing)
                     {
@@ -80,7 +79,7 @@ namespace Yarp.ReverseProxy.Middleware
                         return;
                     }
 
-                    Log.AffinityResolutionFailureWasHandledProcessingWillBeContinued(_logger, clusterId, options.FailurePolicy);
+                    Log.AffinityResolutionFailureWasHandledProcessingWillBeContinued(_logger, clusterId, config.FailurePolicy);
 
                     break;
                 default:

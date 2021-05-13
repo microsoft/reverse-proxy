@@ -33,13 +33,13 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
 
             var actual1 = factory.CreateClient(new ProxyHttpClientContext()
             {
-                NewOptions = ProxyHttpClientOptions.Empty,
-                OldOptions = ProxyHttpClientOptions.Empty
+                NewConfig = HttpClientConfig.Empty,
+                OldConfig = HttpClientConfig.Empty
             });
             var actual2 = factory.CreateClient(new ProxyHttpClientContext()
             {
-                NewOptions = ProxyHttpClientOptions.Empty,
-                OldOptions = ProxyHttpClientOptions.Empty
+                NewConfig = HttpClientConfig.Empty,
+                OldConfig = HttpClientConfig.Empty
             });
 
             Assert.NotNull(actual1);
@@ -51,11 +51,11 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
         public void CreateClient_ApplySslProtocols_Success()
         {
             var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
-            var options = new ProxyHttpClientOptions
+            var options = new HttpClientConfig
             {
                 SslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13,
             };
-            var client = factory.CreateClient(new ProxyHttpClientContext { NewOptions = options });
+            var client = factory.CreateClient(new ProxyHttpClientContext { NewConfig = options });
 
             var handler = GetHandler(client);
 
@@ -68,8 +68,8 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
         public void CreateClient_ApplyDangerousAcceptAnyServerCertificate_Success()
         {
             var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
-            var options = new ProxyHttpClientOptions { DangerousAcceptAnyServerCertificate = true };
-            var client = factory.CreateClient(new ProxyHttpClientContext { NewOptions = options });
+            var options = new HttpClientConfig { DangerousAcceptAnyServerCertificate = true };
+            var client = factory.CreateClient(new ProxyHttpClientContext { NewConfig = options });
 
             var handler = GetHandler(client);
 
@@ -84,8 +84,8 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
         {
             var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
             var certificate = TestResources.GetTestCertificate();
-            var options = new ProxyHttpClientOptions { ClientCertificate = certificate };
-            var client = factory.CreateClient(new ProxyHttpClientContext { NewOptions = options });
+            var options = new HttpClientConfig { ClientCertificate = certificate };
+            var client = factory.CreateClient(new ProxyHttpClientContext { NewConfig = options });
 
             var handler = GetHandler(client);
 
@@ -99,8 +99,8 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
         public void CreateClient_ApplyMaxConnectionsPerServer_Success()
         {
             var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
-            var options = new ProxyHttpClientOptions { MaxConnectionsPerServer = 22 };
-            var client = factory.CreateClient(new ProxyHttpClientContext { NewOptions = options });
+            var options = new HttpClientConfig { MaxConnectionsPerServer = 22 };
+            var client = factory.CreateClient(new ProxyHttpClientContext { NewConfig = options });
 
             var handler = GetHandler(client);
 
@@ -113,8 +113,8 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
         public void CreateClient_ApplyPropagateActivityContext_Success()
         {
             var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
-            var options = new ProxyHttpClientOptions { ActivityContextHeaders = ActivityContextHeaders.None };
-            var client = factory.CreateClient(new ProxyHttpClientContext { NewOptions = options });
+            var options = new HttpClientConfig { ActivityContextHeaders = ActivityContextHeaders.None };
+            var client = factory.CreateClient(new ProxyHttpClientContext { NewConfig = options });
 
             var handler = GetHandler(client, expectActivityPropagationHandler: false);
 
@@ -125,14 +125,14 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
         public void CreateClient_ApplyWebProxy_Success()
         {
             var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
-            var options = new ProxyHttpClientOptions {
-                WebProxy = new WebProxyOptions() {
+            var options = new HttpClientConfig {
+                WebProxy = new WebProxyConfig() {
                     Address = new Uri("http://localhost:8080"),
                     BypassOnLocal = true,
                     UseDefaultCredentials = true
                 }
             };
-            var client = factory.CreateClient(new ProxyHttpClientContext { NewOptions = options });
+            var client = factory.CreateClient(new ProxyHttpClientContext { NewConfig = options });
 
             var handler = GetHandler(client);
 
@@ -147,11 +147,11 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
         public void CreateClient_ApplyRequestHeaderEncoding_Success()
         {
             var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
-            var options = new ProxyHttpClientOptions
+            var options = new HttpClientConfig
             {
                 RequestHeaderEncoding = Encoding.Latin1
             };
-            var client = factory.CreateClient(new ProxyHttpClientContext { NewOptions = options });
+            var client = factory.CreateClient(new ProxyHttpClientContext { NewConfig = options });
 
             var handler = GetHandler(client);
 
@@ -168,7 +168,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
             var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
             var oldClient = new HttpMessageInvoker(new SocketsHttpHandler());
             var clientCertificate = TestResources.GetTestCertificate();
-            var oldOptions = new ProxyHttpClientOptions
+            var oldOptions = new HttpClientConfig
             {
                 SslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12,
                 DangerousAcceptAnyServerCertificate = true,
@@ -182,7 +182,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
             var newOptions = oldOptions with { }; // Clone
             var oldMetadata = new Dictionary<string, string> { { "key1", "value1" }, { "key2", "value2" } };
             var newMetadata = new Dictionary<string, string> { { "key1", "value1" }, { "key2", "value2" } };
-            var context = new ProxyHttpClientContext { ClusterId = "cluster1", OldOptions = oldOptions, OldMetadata = oldMetadata, OldClient = oldClient, NewOptions = newOptions, NewMetadata = newMetadata };
+            var context = new ProxyHttpClientContext { ClusterId = "cluster1", OldConfig = oldOptions, OldMetadata = oldMetadata, OldClient = oldClient, NewConfig = newOptions, NewMetadata = newMetadata };
 
             var actualClient = factory.CreateClient(context);
 
@@ -197,8 +197,8 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
         public void CreateClient_ApplyEnableMultipleHttp2Connections_Success(bool enableMultipleHttp2Connections)
         {
             var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
-            var options = new ProxyHttpClientOptions {  EnableMultipleHttp2Connections = enableMultipleHttp2Connections };
-            var client = factory.CreateClient(new ProxyHttpClientContext { NewOptions = options });
+            var options = new HttpClientConfig {  EnableMultipleHttp2Connections = enableMultipleHttp2Connections };
+            var client = factory.CreateClient(new ProxyHttpClientContext { NewConfig = options });
 
             var handler = GetHandler(client);
 
@@ -208,11 +208,11 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
 
         [Theory]
         [MemberData(nameof(GetChangedHttpClientOptions))]
-        public void CreateClient_OldClientExistsHttpClientOptionsChanged_ReturnsNewInstance(ProxyHttpClientOptions oldOptions, ProxyHttpClientOptions newOptions)
+        public void CreateClient_OldClientExistsHttpClientOptionsChanged_ReturnsNewInstance(HttpClientConfig oldOptions, HttpClientConfig newOptions)
         {
             var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
             var oldClient = new HttpMessageInvoker(new SocketsHttpHandler());
-            var context = new ProxyHttpClientContext { ClusterId = "cluster1", OldOptions = oldOptions, OldClient = oldClient, NewOptions = newOptions };
+            var context = new ProxyHttpClientContext { ClusterId = "cluster1", OldConfig = oldOptions, OldClient = oldClient, NewConfig = newOptions };
 
             var actualClient = factory.CreateClient(context);
 
@@ -226,7 +226,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
             return new[]
             {
                 new object[] {
-                    new ProxyHttpClientOptions
+                    new HttpClientConfig
                     {
                         SslProtocols = SslProtocols.Tls11,
                         DangerousAcceptAnyServerCertificate = true,
@@ -234,7 +234,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                         MaxConnectionsPerServer = null,
                         ActivityContextHeaders = ActivityContextHeaders.None,
                     },
-                    new ProxyHttpClientOptions
+                    new HttpClientConfig
                     {
                         SslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12,
                         DangerousAcceptAnyServerCertificate = true,
@@ -244,7 +244,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                     },
                 },
                 new object[] {
-                    new ProxyHttpClientOptions
+                    new HttpClientConfig
                     {
                         SslProtocols = SslProtocols.Tls11,
                         DangerousAcceptAnyServerCertificate = true,
@@ -252,7 +252,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                         MaxConnectionsPerServer = null,
                         ActivityContextHeaders = ActivityContextHeaders.None,
                     },
-                    new ProxyHttpClientOptions
+                    new HttpClientConfig
                     {
                         SslProtocols = SslProtocols.Tls11,
                         DangerousAcceptAnyServerCertificate = false,
@@ -262,7 +262,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                     },
                 },
                 new object[] {
-                    new ProxyHttpClientOptions
+                    new HttpClientConfig
                     {
                         SslProtocols = SslProtocols.Tls11,
                         DangerousAcceptAnyServerCertificate = true,
@@ -270,7 +270,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                         MaxConnectionsPerServer = null,
                         ActivityContextHeaders = ActivityContextHeaders.None,
                     },
-                    new ProxyHttpClientOptions
+                    new HttpClientConfig
                     {
                         SslProtocols = SslProtocols.Tls11,
                         DangerousAcceptAnyServerCertificate = false,
@@ -280,7 +280,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                     },
                 },
                 new object[] {
-                    new ProxyHttpClientOptions
+                    new HttpClientConfig
                     {
                         SslProtocols = SslProtocols.Tls11,
                         DangerousAcceptAnyServerCertificate = true,
@@ -288,7 +288,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                         MaxConnectionsPerServer = null,
                         ActivityContextHeaders = ActivityContextHeaders.None,
                     },
-                    new ProxyHttpClientOptions
+                    new HttpClientConfig
                     {
                         SslProtocols = SslProtocols.Tls11,
                         DangerousAcceptAnyServerCertificate = false,
@@ -298,7 +298,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                     },
                 },
                 new object[] {
-                    new ProxyHttpClientOptions
+                    new HttpClientConfig
                     {
                         SslProtocols = SslProtocols.Tls11,
                         DangerousAcceptAnyServerCertificate = true,
@@ -306,7 +306,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                         MaxConnectionsPerServer = null,
                         ActivityContextHeaders = ActivityContextHeaders.None,
                     },
-                    new ProxyHttpClientOptions
+                    new HttpClientConfig
                     {
                         SslProtocols = SslProtocols.Tls11,
                         DangerousAcceptAnyServerCertificate = true,
@@ -316,7 +316,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                     },
                 },
                 new object[] {
-                    new ProxyHttpClientOptions
+                    new HttpClientConfig
                     {
                         SslProtocols = SslProtocols.Tls11,
                         DangerousAcceptAnyServerCertificate = true,
@@ -324,7 +324,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                         MaxConnectionsPerServer = 10,
                         ActivityContextHeaders = ActivityContextHeaders.None,
                     },
-                    new ProxyHttpClientOptions
+                    new HttpClientConfig
                     {
                         SslProtocols = SslProtocols.Tls11,
                         DangerousAcceptAnyServerCertificate = true,
@@ -334,7 +334,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                     },
                 },
                 new object[] {
-                    new ProxyHttpClientOptions
+                    new HttpClientConfig
                     {
                         SslProtocols = SslProtocols.Tls11,
                         DangerousAcceptAnyServerCertificate = true,
@@ -342,7 +342,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                         MaxConnectionsPerServer = 10,
                         ActivityContextHeaders = ActivityContextHeaders.None,
                     },
-                    new ProxyHttpClientOptions
+                    new HttpClientConfig
                     {
                         SslProtocols = SslProtocols.Tls11,
                         DangerousAcceptAnyServerCertificate = true,
@@ -352,7 +352,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                     },
                 },
                 new object[] {
-                    new ProxyHttpClientOptions
+                    new HttpClientConfig
                     {
                         SslProtocols = SslProtocols.Tls11,
                         DangerousAcceptAnyServerCertificate = true,
@@ -360,7 +360,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                         MaxConnectionsPerServer = 10,
                         ActivityContextHeaders = ActivityContextHeaders.CorrelationContext,
                     },
-                    new ProxyHttpClientOptions
+                    new HttpClientConfig
                     {
                         SslProtocols = SslProtocols.Tls11,
                         DangerousAcceptAnyServerCertificate = true,
@@ -370,7 +370,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                     },
                 },
                 new object[] {
-                    new ProxyHttpClientOptions
+                    new HttpClientConfig
                     {
                         SslProtocols = SslProtocols.Tls11,
                         DangerousAcceptAnyServerCertificate = true,
@@ -378,7 +378,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                         MaxConnectionsPerServer = 10,
                         ActivityContextHeaders = ActivityContextHeaders.Baggage,
                     },
-                    new ProxyHttpClientOptions
+                    new HttpClientConfig
                     {
                         SslProtocols = SslProtocols.Tls11,
                         DangerousAcceptAnyServerCertificate = true,
@@ -388,7 +388,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                     },
                 },
                 new object[] {
-                    new ProxyHttpClientOptions
+                    new HttpClientConfig
                     {
                         SslProtocols = SslProtocols.Tls11,
                         DangerousAcceptAnyServerCertificate = true,
@@ -396,7 +396,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                         MaxConnectionsPerServer = 10,
                         ActivityContextHeaders = ActivityContextHeaders.CorrelationContext,
                     },
-                    new ProxyHttpClientOptions
+                    new HttpClientConfig
                     {
                         SslProtocols = SslProtocols.Tls11,
                         DangerousAcceptAnyServerCertificate = true,
@@ -407,7 +407,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                 },
 #if NET
                 new object[] {
-                    new ProxyHttpClientOptions
+                    new HttpClientConfig
                     {
                         SslProtocols = SslProtocols.Tls11,
                         DangerousAcceptAnyServerCertificate = true,
@@ -416,7 +416,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                         ActivityContextHeaders = ActivityContextHeaders.Baggage,
                         EnableMultipleHttp2Connections = true
                     },
-                    new ProxyHttpClientOptions
+                    new HttpClientConfig
                     {
                         SslProtocols = SslProtocols.Tls11,
                         DangerousAcceptAnyServerCertificate = true,
@@ -427,7 +427,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                     },
                 },
                 new object[] {
-                    new ProxyHttpClientOptions
+                    new HttpClientConfig
                     {
                         SslProtocols = SslProtocols.Tls11,
                         DangerousAcceptAnyServerCertificate = true,
@@ -435,7 +435,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                         MaxConnectionsPerServer = 10,
                         ActivityContextHeaders = ActivityContextHeaders.None,
                     },
-                    new ProxyHttpClientOptions
+                    new HttpClientConfig
                     {
                         SslProtocols = SslProtocols.Tls11,
                         DangerousAcceptAnyServerCertificate = true,
@@ -446,7 +446,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                     },
                 },
                 new object[] {
-                    new ProxyHttpClientOptions
+                    new HttpClientConfig
                     {
                         SslProtocols = SslProtocols.Tls11,
                         DangerousAcceptAnyServerCertificate = true,
@@ -455,7 +455,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                         ActivityContextHeaders = ActivityContextHeaders.None,
                         RequestHeaderEncoding = Encoding.UTF8,
                     },
-                    new ProxyHttpClientOptions
+                    new HttpClientConfig
                     {
                         SslProtocols = SslProtocols.Tls11,
                         DangerousAcceptAnyServerCertificate = true,

@@ -28,7 +28,7 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
             }
 
             var value = GetValue(context);
-            if (!string.IsNullOrEmpty(value))
+            if (value != null)
             {
                 switch (Mode)
                 {

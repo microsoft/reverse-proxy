@@ -4,8 +4,6 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Http;
-using Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
-using Yarp.ReverseProxy.Middleware;
 using Yarp.ReverseProxy.RuntimeModel;
 using Yarp.ReverseProxy.Utilities;
 

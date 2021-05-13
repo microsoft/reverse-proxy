@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract
+namespace Yarp.ReverseProxy.Service.SessionAffinity
 {
     /// <summary>
     /// Names of built-in session affinity services.

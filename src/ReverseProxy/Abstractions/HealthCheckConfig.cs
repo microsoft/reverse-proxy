@@ -6,25 +6,22 @@ using System;
 namespace Yarp.ReverseProxy.Abstractions
 {
     /// <summary>
-    /// All health check options.
+    /// All health check config.
     /// </summary>
-    public sealed record HealthCheckOptions
+    public sealed record HealthCheckConfig
     {
         /// <summary>
-        /// Passive health check options.
+        /// Passive health check config.
         /// </summary>
-        public PassiveHealthCheckOptions Passive { get; init; }
+        public PassiveHealthCheckConfig Passive { get; init; }
 
         /// <summary>
-        /// Active health check options.
+        /// Active health check config.
         /// </summary>
-        public ActiveHealthCheckOptions Active { get; init; }
-
-        public bool Enabled => (Passive?.Enabled).GetValueOrDefault()
-            || (Active?.Enabled).GetValueOrDefault();
+        public ActiveHealthCheckConfig Active { get; init; }
 
         /// <inheritdoc />
-        public bool Equals(HealthCheckOptions other)
+        public bool Equals(HealthCheckConfig other)
         {
             if (other == null)
             {

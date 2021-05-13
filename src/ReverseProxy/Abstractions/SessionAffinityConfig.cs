@@ -10,7 +10,7 @@ namespace Yarp.ReverseProxy.Abstractions
     /// <summary>
     /// Session affinity options.
     /// </summary>
-    public sealed record SessionAffinityOptions
+    public sealed record SessionAffinityConfig
     {
         /// <summary>
         /// Indicates whether session affinity is enabled.
@@ -33,7 +33,7 @@ namespace Yarp.ReverseProxy.Abstractions
         public IReadOnlyDictionary<string, string> Settings { get; init; }
 
         /// <inheritdoc />
-        public bool Equals(SessionAffinityOptions other)
+        public bool Equals(SessionAffinityConfig other)
         {
             if (other == null)
             {

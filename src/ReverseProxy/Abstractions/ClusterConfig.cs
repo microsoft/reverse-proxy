@@ -24,24 +24,24 @@ namespace Yarp.ReverseProxy.Abstractions
         public string LoadBalancingPolicy { get; init; }
 
         /// <summary>
-        /// Session affinity options.
+        /// Session affinity config.
         /// </summary>
-        public SessionAffinityOptions SessionAffinity { get; init; }
+        public SessionAffinityConfig SessionAffinity { get; init; }
 
         /// <summary>
-        /// Health checking options.
+        /// Health checking config.
         /// </summary>
-        public HealthCheckOptions HealthCheck { get; init; }
+        public HealthCheckConfig HealthCheck { get; init; }
 
         /// <summary>
-        /// Options of an HTTP client that is used to call this cluster.
+        /// Config for the HTTP client that is used to call destinations in this cluster.
         /// </summary>
-        public ProxyHttpClientOptions HttpClient { get; init; }
+        public HttpClientConfig HttpClient { get; init; }
 
         /// <summary>
-        /// Options of an outgoing HTTP request.
+        /// Config for outgoing HTTP requests.
         /// </summary>
-        public RequestProxyOptions HttpRequest { get; init; }
+        public RequestProxyConfig HttpRequest { get; init; }
 
         /// <summary>
         /// The set of destinations associated with this cluster.

@@ -153,15 +153,15 @@ namespace Yarp.ReverseProxy.RuntimeModel.Tests
             cluster.Model = new ClusterModel(
                 new ClusterConfig
                 {
-                    HealthCheck = new HealthCheckOptions
+                    HealthCheck = new HealthCheckConfig
                     {
-                        Passive = new PassiveHealthCheckOptions
+                        Passive = new PassiveHealthCheckConfig
                         {
                             Enabled = true,
                             Policy = "FailureRate",
                             ReactivationPeriod = TimeSpan.FromMinutes(5),
                         },
-                        Active = new ActiveHealthCheckOptions
+                        Active = new ActiveHealthCheckConfig
                         {
                             Enabled = true,
                             Interval = TimeSpan.FromSeconds(5),

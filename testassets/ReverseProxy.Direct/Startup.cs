@@ -52,7 +52,7 @@ namespace Yarp.ReverseProxy.Sample
             // or var transformer = new CustomTransformer();
             // or var transformer = HttpTransformer.Default;
 
-            var requestOptions = new RequestProxyOptions { Timeout = TimeSpan.FromSeconds(100) };
+            var requestOptions = new RequestProxyConfig { Timeout = TimeSpan.FromSeconds(100) };
 
             app.UseRouting();
             app.UseEndpoints(endpoints =>

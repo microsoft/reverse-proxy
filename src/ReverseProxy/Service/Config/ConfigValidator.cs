@@ -12,7 +12,6 @@ using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing.Patterns;
 using Yarp.ReverseProxy.Abstractions;
-using Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Yarp.ReverseProxy.Abstractions.RouteDiscovery.Contract;
 using Yarp.ReverseProxy.Service.HealthChecks;
 using Yarp.ReverseProxy.Service.LoadBalancing;

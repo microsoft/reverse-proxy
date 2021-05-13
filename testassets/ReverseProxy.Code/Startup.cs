@@ -42,7 +42,7 @@ namespace Yarp.ReverseProxy.Sample
                 new ClusterConfig()
                 {
                     ClusterId = "cluster1",
-                    SessionAffinity = new SessionAffinityOptions { Enabled = true, Mode = "Cookie" },
+                    SessionAffinity = new SessionAffinityConfig { Enabled = true, Mode = "Cookie" },
                     Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
                     {
                         { "destination1", new DestinationConfig() { Address = "https://localhost:10000" } }

@@ -3,9 +3,9 @@ using System;
 namespace Yarp.ReverseProxy.Abstractions
 {
     /// <summary>
-    /// Options used to construct <seealso cref="System.Net.WebProxy"/> instance.
+    /// Config used to construct <seealso cref="System.Net.WebProxy"/> instance.
     /// </summary>
-    public sealed record WebProxyOptions : IEquatable<WebProxyOptions>
+    public sealed record WebProxyConfig : IEquatable<WebProxyConfig>
     {
         /// <summary>
         /// The URI of the proxy server.
@@ -24,7 +24,8 @@ namespace Yarp.ReverseProxy.Abstractions
         /// </summary>
         public bool? UseDefaultCredentials { get; init; }
 
-        public bool Equals(WebProxyOptions other)
+        /// <inheritdoc/>
+        public bool Equals(WebProxyConfig other)
         {
             if (other == null)
             {
@@ -36,6 +37,7 @@ namespace Yarp.ReverseProxy.Abstractions
                 && UseDefaultCredentials == other.UseDefaultCredentials;
         }
 
+        /// <inheritdoc/>
         public override int GetHashCode()
         {
             return HashCode.Combine(

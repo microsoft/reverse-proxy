@@ -13,6 +13,8 @@ namespace Yarp.ReverseProxy.Service.Config
         internal static readonly string ResponseTrailersCopyKey = "ResponseTrailersCopy";
         internal static readonly string ResponseHeaderKey = "ResponseHeader";
         internal static readonly string ResponseTrailerKey = "ResponseTrailer";
+        internal static readonly string ResponseHeaderRemoveKey = "ResponseHeaderRemove";
+        internal static readonly string ResponseTrailerRemoveKey = "ResponseTrailerRemove";
         internal static readonly string WhenKey = "When";
         internal static readonly string AlwaysValue = "Always";
         internal static readonly string SuccessValue = "Success";
@@ -75,6 +77,36 @@ namespace Yarp.ReverseProxy.Service.Config
                 if (!transformValues.TryGetValue(SetKey, out var _) && !transformValues.TryGetValue(AppendKey, out var _))
                 {
                     context.Errors.Add(new ArgumentException($"Unexpected parameters for ResponseTrailer: {string.Join(';', transformValues.Keys)}. Expected 'Set' or 'Append'"));
+                }
+            }
+            else if (transformValues.TryGetValue(ResponseHeaderRemoveKey, out var _))
+            {
+                if (transformValues.TryGetValue(WhenKey, out var whenValue))
+                {
+                    TransformHelpers.TryCheckTooManyParameters(context, transformValues, expected: 2);
+                    if (!string.Equals(AlwaysValue, whenValue, StringComparison.OrdinalIgnoreCase) && !string.Equals(SuccessValue, whenValue, StringComparison.OrdinalIgnoreCase))
+                    {
+                        context.Errors.Add(new ArgumentException($"Unexpected value for ResponseHeaderRemove:When: {whenValue}. Expected 'Always' or 'Success'"));
+                    }
+                }
+                else
+                {
+                    TransformHelpers.TryCheckTooManyParameters(context, transformValues, expected: 1);
+                }
+            }
+            else if (transformValues.TryGetValue(ResponseTrailerRemoveKey, out var _))
+            {
+                if (transformValues.TryGetValue(WhenKey, out var whenValue))
+                {
+                    TransformHelpers.TryCheckTooManyParameters(context, transformValues, expected: 2);
+                    if (!string.Equals(AlwaysValue, whenValue, StringComparison.OrdinalIgnoreCase) && !string.Equals(SuccessValue, whenValue, StringComparison.OrdinalIgnoreCase))
+                    {
+                        context.Errors.Add(new ArgumentException($"Unexpected value for ResponseTrailerRemove:When: {whenValue}. Expected 'Always' or 'Success'"));
+                    }
+                }
+                else
+                {
+                    TransformHelpers.TryCheckTooManyParameters(context, transformValues, expected: 1);
                 }
             }
             else
@@ -148,6 +180,36 @@ namespace Yarp.ReverseProxy.Service.Config
                 {
                     throw new ArgumentException($"Unexpected parameters for ResponseTrailer: {string.Join(';', transformValues.Keys)}. Expected 'Set' or 'Append'");
                 }
+            }
+            else if (transformValues.TryGetValue(ResponseHeaderKey, out var removeResponseHeaderName))
+            {
+                var always = false;
+                if (transformValues.TryGetValue(WhenKey, out var whenValue))
+                {
+                    TransformHelpers.CheckTooManyParameters(transformValues, expected: 2);
+                    always = string.Equals(AlwaysValue, whenValue, StringComparison.OrdinalIgnoreCase);
+                }
+                else
+                {
+                    TransformHelpers.CheckTooManyParameters(transformValues, expected: 1);
+                }
+
+                context.AddResponseHeaderRemove(removeResponseHeaderName, always);
+            }
+            else if (transformValues.TryGetValue(ResponseTrailerRemoveKey, out var removeResponseTrailerName))
+            {
+                var always = false;
+                if (transformValues.TryGetValue(WhenKey, out var whenValue))
+                {
+                    TransformHelpers.CheckTooManyParameters(transformValues, expected: 2);
+                    always = string.Equals(AlwaysValue, whenValue, StringComparison.OrdinalIgnoreCase);
+                }
+                else
+                {
+                    TransformHelpers.CheckTooManyParameters(transformValues, expected: 1);
+                }
+
+                context.AddResponseTrailerRemove(removeResponseTrailerName, always);
             }
             else
             {

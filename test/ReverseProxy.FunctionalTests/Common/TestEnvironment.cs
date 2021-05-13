@@ -100,7 +100,7 @@ namespace Yarp.ReverseProxy.Common
                         {
                             { "destination1",  new DestinationConfig() { Address = destinationAddress } }
                         },
-                        HttpClient = new ProxyHttpClientOptions
+                        HttpClient = new HttpClientConfig
                         {
                             DangerousAcceptAnyServerCertificate = useHttps,
 #if NET

@@ -251,14 +251,14 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             VerifySentProbeAndResult(cluster0, httpClient0, policy0, new[] { ("https://localhost:20000/cluster0/api/health/", 1), ("https://localhost:20001/cluster0/api/health/", 1) }, policyCallTimes: 1);
             VerifySentProbeAndResult(cluster2, httpClient2, policy1, new[] { ("https://localhost:20000/cluster2/api/health/", 1), ("https://localhost:20001/cluster2/api/health/", 1) }, policyCallTimes: 1);
 
-            var healthCheckConfig = new HealthCheckOptions
+            var healthCheckConfig = new HealthCheckConfig
             {
-                Passive = new PassiveHealthCheckOptions
+                Passive = new PassiveHealthCheckConfig
                 {
                     Enabled = true,
                     Policy = "passive0",
                 },
-                Active = new ActiveHealthCheckOptions
+                Active = new ActiveHealthCheckConfig
                 {
                     Policy = cluster2.Model.Config.HealthCheck.Active.Policy,
                 }
@@ -625,9 +625,9 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
                 new ClusterConfig
                 {
                     ClusterId = id,
-                    HealthCheck = new HealthCheckOptions
+                    HealthCheck = new HealthCheckConfig
                     {
-                        Active = new ActiveHealthCheckOptions
+                        Active = new ActiveHealthCheckConfig
                         {
                             Enabled = activeCheckEnabled,
                             Interval = interval,

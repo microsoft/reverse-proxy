@@ -82,7 +82,7 @@ Code:
 ```C#
     var routes = new[]
     {
-        new ProxyRoute()
+        new RouteConfig()
         {
             RouteId = "route1",
             ClusterId = "cluster1",
@@ -100,7 +100,7 @@ Code:
                 }
             }
         },
-        new ProxyRoute()
+        new RouteConfig()
         {
             RouteId = "route2",
             ClusterId = "cluster1",
@@ -118,7 +118,7 @@ Code:
                 }
             }
         },
-        new ProxyRoute()
+        new RouteConfig()
         {
             RouteId = "route3",
             ClusterId = "cluster1",
@@ -135,7 +135,7 @@ Code:
                 }
             }
         },
-        new ProxyRoute()
+        new RouteConfig()
         {
             RouteId = "route4",
             ClusterId = "cluster1",

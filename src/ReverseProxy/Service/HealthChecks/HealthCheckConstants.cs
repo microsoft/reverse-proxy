@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Yarp.ReverseProxy.Abstractions
+namespace Yarp.ReverseProxy.Service.HealthChecks
 {
     public static class HealthCheckConstants
     {

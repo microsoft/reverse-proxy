@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Yarp.ReverseProxy.Abstractions;
-using Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Yarp.ReverseProxy.RuntimeModel;
 
 namespace Yarp.ReverseProxy.Service.SessionAffinity
@@ -32,13 +31,13 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             return destination.DestinationId;
         }
 
-        protected override (string Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, SessionAffinityOptions options)
+        protected override (string Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, SessionAffinityConfig config)
         {
             var encryptedRequestKey = context.Request.Cookies.TryGetValue(_providerOptions.Cookie.Name, out var keyInCookie) ? keyInCookie : null;
             return Unprotect(encryptedRequestKey);
         }
 
-        protected override void SetAffinityKey(HttpContext context, SessionAffinityOptions options, string unencryptedKey)
+        protected override void SetAffinityKey(HttpContext context, SessionAffinityConfig config, string unencryptedKey)
         {
             var affinityCookieOptions = _providerOptions.Cookie.Build(context);
             context.Response.Cookies.Append(_providerOptions.Cookie.Name, Protect(unencryptedKey), affinityCookieOptions);

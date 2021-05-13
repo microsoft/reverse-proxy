@@ -23,7 +23,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             var cluster = GetCluster();
             var destination = cluster.Destinations.Values.First();
             var provider = new Mock<ISessionAffinityProvider>(MockBehavior.Strict);
-            provider.Setup(p => p.AffinitizeRequest(It.IsAny<HttpContext>(), It.IsNotNull<SessionAffinityOptions>(), It.IsAny<DestinationState>()));
+            provider.Setup(p => p.AffinitizeRequest(It.IsAny<HttpContext>(), It.IsNotNull<SessionAffinityConfig>(), It.IsAny<DestinationState>()));
 
             var transform = new AffinitizeTransform(provider.Object);
 
@@ -49,7 +49,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             cluster.Destinations.GetOrAdd("dest-A", id => new DestinationState(id));
             cluster.Model = new ClusterModel(new ClusterConfig
             {
-                SessionAffinity = new SessionAffinityOptions
+                SessionAffinity = new SessionAffinityConfig
                 {
                     Enabled = true,
                     Mode = "Mode-B",

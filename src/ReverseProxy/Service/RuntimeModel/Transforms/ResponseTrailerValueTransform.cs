@@ -14,8 +14,8 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
     {
         public ResponseTrailerValueTransform(string headerName, string value, bool append, bool always)
         {
-            HeaderName = headerName ?? throw new System.ArgumentNullException(nameof(headerName));
-            Value = value ?? throw new System.ArgumentNullException(nameof(value));
+            HeaderName = headerName ?? throw new ArgumentNullException(nameof(headerName));
+            Value = value ?? throw new ArgumentNullException(nameof(value));
             Append = append;
             Always = always;
         }
@@ -45,20 +45,13 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
                     var value = StringValues.Concat(existingHeader, Value);
                     SetHeader(context, HeaderName, value);
                 }
-                else if (!string.IsNullOrEmpty(Value))
+                else
                 {
                     SetHeader(context, HeaderName, Value);
                 }
-                // If the given value is empty, any existing header is removed.
             }
 
             return default;
-        }
-
-        private static bool Success(ResponseTrailersTransformContext context)
-        {
-            // TODO: How complex should this get? Compare with http://nginx.org/en/docs/http/ngx_http_headers_module.html#add_header
-            return context.HttpContext.Response.StatusCode < 400;
         }
     }
 }

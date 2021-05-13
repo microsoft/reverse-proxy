@@ -54,11 +54,11 @@ namespace Yarp.Sample
             });
         }
 
-        private ProxyRoute[] GetRoutes()
+        private RouteConfig[] GetRoutes()
         {
             return new[]
             {
-                new ProxyRoute()
+                new RouteConfig()
                 {
                     RouteId = "route1",
                     ClusterId = "cluster1",
@@ -70,21 +70,21 @@ namespace Yarp.Sample
                 }
             };
         }
-        private Cluster[] GetClusters()
+        private ClusterConfig[] GetClusters()
         {
             var debugMetadata = new Dictionary<string, string>();
             debugMetadata.Add(DEBUG_METADATA_KEY, DEBUG_VALUE);
 
             return new[]
             {
-                new Cluster()
+                new ClusterConfig()
                 {
-                    Id = "cluster1",
-                    SessionAffinity = new SessionAffinityOptions { Enabled = true, Mode = "Cookie" },
-                    Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
+                    ClusterId = "cluster1",
+                    SessionAffinity = new SessionAffinityConfig { Enabled = true, Mode = "Cookie" },
+                    Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
                     {
-                        { "destination1", new Destination() { Address = "https://example.com" } },
-                        { "debugdestination1", new Destination() {
+                        { "destination1", new DestinationConfig() { Address = "https://example.com" } },
+                        { "debugdestination1", new DestinationConfig() {
                             Address = "https://bing.com",
                             Metadata = debugMetadata  }
                         },
@@ -105,7 +105,7 @@ namespace Yarp.Sample
 
             // The context also stores a ReverseProxyFeature which holds proxy specific data such as the cluster, route and destinations
             var availableDestinationsFeature = context.Features.Get<IReverseProxyFeature>();
-            var filteredDestinations = new List<DestinationInfo>();
+            var filteredDestinations = new List<DestinationState>();
 
             // Filter destinations based on criteria
             foreach (var d in availableDestinationsFeature.AvailableDestinations)

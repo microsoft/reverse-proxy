@@ -127,11 +127,10 @@ namespace Yarp.ReverseProxy.RuntimeModel
                         throw new InvalidOperationException("ProcessDestinationChanges must be called first.");
                     }
 
-                    if ((healthChecks?.Enabled).GetValueOrDefault())
+                    var activeEnabled = (healthChecks?.Active?.Enabled).GetValueOrDefault();
+                    var passiveEnabled = (healthChecks?.Passive?.Enabled).GetValueOrDefault();
+                    if (activeEnabled || passiveEnabled)
                     {
-                        var activeEnabled = (healthChecks.Active?.Enabled).GetValueOrDefault();
-                        var passiveEnabled = (healthChecks.Passive?.Enabled).GetValueOrDefault();
-
                         availableDestinations = allDestinations.Where(destination =>
                         {
                             // Only consider the current state if those checks are enabled.
