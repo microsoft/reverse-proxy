@@ -18,7 +18,6 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
             {
                 SslProtocols = SslProtocols.Tls11,
                 DangerousAcceptAnyServerCertificate = false,
-                ClientCertificate = TestResources.GetTestCertificate(),
                 MaxConnectionsPerServer = 20,
                 WebProxy = new WebProxyConfig() { Address = new Uri("http://localhost:8080"), BypassOnLocal = true, UseDefaultCredentials = true },
 #if NET
@@ -30,7 +29,6 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
             {
                 SslProtocols = SslProtocols.Tls11,
                 DangerousAcceptAnyServerCertificate = false,
-                ClientCertificate = TestResources.GetTestCertificate(),
                 MaxConnectionsPerServer = 20,
                 WebProxy = new WebProxyConfig() { Address = new Uri("http://localhost:8080"), BypassOnLocal = true, UseDefaultCredentials = true },
 #if NET
@@ -52,7 +50,6 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
             {
                 SslProtocols = SslProtocols.Tls11,
                 DangerousAcceptAnyServerCertificate = false,
-                ClientCertificate = TestResources.GetTestCertificate(),
                 MaxConnectionsPerServer = 20,
 #if NET
                 RequestHeaderEncoding = Encoding.UTF8
@@ -63,7 +60,6 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
             {
                 SslProtocols = SslProtocols.Tls12,
                 DangerousAcceptAnyServerCertificate = true,
-                ClientCertificate = TestResources.GetTestCertificate(),
                 MaxConnectionsPerServer = 20,
 #if NET
                 RequestHeaderEncoding = Encoding.Latin1
@@ -122,7 +118,6 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
             {
                 SslProtocols = SslProtocols.Tls11,
                 DangerousAcceptAnyServerCertificate = false,
-                ClientCertificate = TestResources.GetTestCertificate(),
                 MaxConnectionsPerServer = 20
             };
 
