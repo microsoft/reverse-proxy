@@ -60,7 +60,7 @@ namespace Yarp.ReverseProxy.Abstractions
         /// <summary>
         /// Enables non-ASCII header encoding for outgoing requests.
         /// </summary>
-        public Encoding RequestHeaderEncoding { get; init; }
+        public string RequestHeaderEncoding { get; init; }
 #endif
 
         /// <inheritdoc />

@@ -164,7 +164,7 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
                     MaxConnectionsPerServer = 10,
                     ClientCertificate = clientCertificate,
 #if NET
-                    RequestHeaderEncoding = Encoding.UTF8
+                    RequestHeaderEncoding = Encoding.UTF8.WebName
 #endif
                 }
             };
@@ -191,7 +191,7 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
             Assert.Equal(10, clusterModel.Config.HttpClient.MaxConnectionsPerServer);
             Assert.Same(clientCertificate, clusterModel.Config.HttpClient.ClientCertificate);
 #if NET
-            Assert.Equal(Encoding.UTF8, clusterModel.Config.HttpClient.RequestHeaderEncoding);
+            Assert.Equal(Encoding.UTF8.WebName, clusterModel.Config.HttpClient.RequestHeaderEncoding);
 #endif
 
             var handler = Proxy.Tests.ProxyHttpClientFactoryTests.GetHandler(clusterModel.HttpClient);
