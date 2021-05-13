@@ -9,9 +9,4 @@
     -->
     <PreReleaseVersionLabel>preview.12</PreReleaseVersionLabel>
   </PropertyGroup>
-  <!--Package versions-->
-  <PropertyGroup>
-    <MicrosoftNETCoreAppRefPackageVersion>6.0.0-preview.5.21256.3</MicrosoftNETCoreAppRefPackageVersion>
-    <MicrosoftAspNetCoreAppRefPackageVersion>6.0.0-preview.5.21255.10</MicrosoftAspNetCoreAppRefPackageVersion>
-  </PropertyGroup>
 </Project>

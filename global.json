@@ -1,17 +1,15 @@
 {
   "sdk": {
-    "version": "6.0.100-preview.3.21202.5"
+    "version": "6.0.100-preview.5.21263.3"
   },
   "tools": {
-    "dotnet": "6.0.100-preview.3.21202.5",
+    "dotnet": "6.0.100-preview.5.21263.3",
     "runtimes": {
       "dotnet": [
-        "$(MicrosoftNETCoreAppRefPackageVersion)",
         "3.1.14",
         "5.0.5"
       ],
       "aspnetcore": [
-        "$(MicrosoftAspNetCoreAppRefPackageVersion)",
         "3.1.14",
         "5.0.5"
       ]

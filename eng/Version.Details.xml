@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Dependencies>
   <ProductDependencies>
-    <Dependency Name="Microsoft.NETCore.App.Ref" Version="6.0.0-preview.5.21256.3">
-      <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>e795b06c331fa7fd69e8872e3b644587a0badac7</Sha>
-    </Dependency>
-    <Dependency Name="Microsoft.AspNetCore.App.Ref" Version="6.0.0-preview.5.21255.10">
-      <Uri>https://github.com/dotnet/aspnetcore</Uri>
-      <Sha>1db20afa9e2dd47cfc1a935de080f74cebb9ba0b</Sha>
-    </Dependency>
   </ProductDependencies>
   <ToolsetDependencies>
     <Dependency Name="Microsoft.DotNet.Arcade.Sdk" Version="6.0.0-beta.21253.2">
