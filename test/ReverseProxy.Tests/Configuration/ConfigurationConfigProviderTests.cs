@@ -349,14 +349,13 @@ namespace Yarp.ReverseProxy.Configuration
             var builder = new ConfigurationBuilder();
             using var stream = new MemoryStream(Encoding.UTF8.GetBytes(_validJsonConfig));
             var proxyConfig = builder.AddJsonStream(stream).Build();
-            using var certificate = TestResources.GetTestCertificate();
             var logger = new Mock<ILogger<ConfigurationConfigProvider>>();
 
             var provider = new ConfigurationConfigProvider(logger.Object, proxyConfig);
             Assert.NotNull(provider);
             var abstractConfig = provider.GetConfig();
 
-            VerifyValidAbstractConfig(_validConfigurationData, certificate, abstractConfig);
+            VerifyValidAbstractConfig(_validConfigurationData, abstractConfig);
         }
 
         [Fact]
@@ -365,7 +364,6 @@ namespace Yarp.ReverseProxy.Configuration
             var builder = new ConfigurationBuilder();
             using var stream = new MemoryStream(Encoding.UTF8.GetBytes(_validJsonConfig));
             var proxyConfig = builder.AddJsonStream(stream).Build();
-            using var certificate = TestResources.GetTestCertificate();
             var logger = new Mock<ILogger<ConfigurationConfigProvider>>();
 
             var provider = new ConfigurationConfigProvider(logger.Object, proxyConfig);
@@ -455,7 +453,7 @@ namespace Yarp.ReverseProxy.Configuration
             }
         }
 
-        private void VerifyValidAbstractConfig(IProxyConfig validConfig, X509Certificate2 certificate, IProxyConfig abstractConfig)
+        private void VerifyValidAbstractConfig(IProxyConfig validConfig, IProxyConfig abstractConfig)
         {
             Assert.NotNull(abstractConfig);
             Assert.Equal(2, abstractConfig.Clusters.Count);
