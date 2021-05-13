@@ -2,11 +2,10 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -14,7 +13,6 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Server.Kestrel.Core.Features;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 using Yarp.ReverseProxy.Telemetry;
 using Yarp.ReverseProxy.Utilities;
@@ -294,7 +292,7 @@ namespace Yarp.ReverseProxy.Service.Proxy
             // :: Step 3: Copy request headers Client --► Proxy --► Destination
             await transformer.TransformRequestAsync(context, destinationRequest, destinationPrefix);
 
-            FilterConnectionHeaders(destinationRequest, isUpgradeRequest);
+            RestoreUpgradeHeaders(context, destinationRequest, isUpgradeRequest);
 
             // Allow someone to custom build the request uri, otherwise provide a default for them.
             var request = context.Request;
@@ -306,25 +304,26 @@ namespace Yarp.ReverseProxy.Service.Proxy
             return (destinationRequest, requestContent);
         }
 
-        private static void FilterConnectionHeaders(HttpRequestMessage destinationRequest, bool isUpgradeRequest)
+        private static void RestoreUpgradeHeaders(HttpContext context, HttpRequestMessage destinationRequest, bool isUpgradeRequest)
         {
-            if (isUpgradeRequest)
+            if (isUpgradeRequest && context.Request.Headers.TryGetValue(HeaderNames.Connection, out var connectionValue))
             {
-                var connectionHeader = destinationRequest.Headers.Connection;
-                var hasUpgrade = connectionHeader.Contains("upgrade");
-                destinationRequest.Headers.Remove(HeaderNames.Connection);
-                if (hasUpgrade)
+                var hasConnectionUpgrade = false;
+                foreach (var headerValue in connectionValue)
+                {
+                    if (headerValue.Contains("upgrade"))
+                    {
+                        hasConnectionUpgrade = true;
+                        break;
+                    }
+                }
+
+                if (hasConnectionUpgrade && context.Request.Headers.TryGetValue(HeaderNames.Upgrade, out var upgradeValue))
                 {
                     destinationRequest.Headers.TryAddWithoutValidation(HeaderNames.Connection, "upgrade");
+                    destinationRequest.Headers.TryAddWithoutValidation(HeaderNames.Upgrade, (IEnumerable<string>) upgradeValue);
                 }
             }
-            else
-            {
-                destinationRequest.Headers.Remove(HeaderNames.Connection);
-                destinationRequest.Headers.Remove(HeaderNames.Upgrade);
-            }
-
-            destinationRequest.Headers.Remove(HeaderNames.KeepAlive);
         }
 
         private StreamCopyHttpContent SetupRequestBodyCopy(HttpRequest request, bool isStreamingRequest, CancellationToken cancellation)

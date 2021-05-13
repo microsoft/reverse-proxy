@@ -15,11 +15,16 @@ namespace Yarp.ReverseProxy.Utilities
     /// </summary>
     public static class RequestUtilities
     {
+        internal static bool ShouldSkipRequestHeader(string headerName)
+        {
+            return _invalidH2H3Headers.Contains(headerName);
+        }
+
         internal static bool ShouldSkipResponseHeader(string headerName, bool isHttp2OrGreater)
         {
             if (isHttp2OrGreater)
             {
-                return _invalidH2H3ResponseHeaders.Contains(headerName);
+                return _invalidH2H3Headers.Contains(headerName);
             }
             else
             {
@@ -27,7 +32,7 @@ namespace Yarp.ReverseProxy.Utilities
             }
         }
 
-        private static readonly HashSet<string> _invalidH2H3ResponseHeaders = new(StringComparer.OrdinalIgnoreCase)
+        private static readonly HashSet<string> _invalidH2H3Headers = new(StringComparer.OrdinalIgnoreCase)
         {
             HeaderNames.Connection,
             HeaderNames.TransferEncoding,

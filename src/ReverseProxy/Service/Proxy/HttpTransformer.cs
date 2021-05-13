@@ -42,7 +42,8 @@ namespace Yarp.ReverseProxy.Service.Proxy
             {
                 var headerName = header.Key;
                 var headerValue = header.Value;
-                if (StringValues.IsNullOrEmpty(headerValue))
+                if (StringValues.IsNullOrEmpty(headerValue)
+                    || RequestUtilities.ShouldSkipRequestHeader(headerName))
                 {
                     continue;
                 }
