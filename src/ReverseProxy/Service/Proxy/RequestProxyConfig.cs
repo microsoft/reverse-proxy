@@ -12,6 +12,11 @@ namespace Yarp.ReverseProxy.Service.Proxy
     public sealed record RequestProxyConfig
     {
         /// <summary>
+        /// An empty instance of this type.
+        /// </summary>
+        public static RequestProxyConfig Empty { get; } = new();
+
+        /// <summary>
         /// The time allowed to send the request and receive the response headers. This may include
         /// the time needed to send the request body. The default is 100 seconds.
         /// </summary>
@@ -21,7 +26,7 @@ namespace Yarp.ReverseProxy.Service.Proxy
         /// Preferred version of the outgoing request.
         /// The default is HTTP/2.0.
         /// </summary>
-        public Version Version { get; init; }
+        public Version? Version { get; init; }
 
 #if NET
         /// <summary>
@@ -32,7 +37,7 @@ namespace Yarp.ReverseProxy.Service.Proxy
 #endif
 
         /// <inheritdoc />
-        public bool Equals(RequestProxyConfig other)
+        public bool Equals(RequestProxyConfig? other)
         {
             if (other == null)
             {

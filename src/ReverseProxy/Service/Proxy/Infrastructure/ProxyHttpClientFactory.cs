@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
@@ -39,7 +40,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Infrastructure
             if (CanReuseOldClient(context))
             {
                 Log.ProxyClientReused(_logger, context.ClusterId);
-                return context.OldClient;
+                return context.OldClient!;
             }
 
             var handler = new SocketsHttpHandler
@@ -109,7 +110,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Infrastructure
             }
         }
 
-        private static IWebProxy TryCreateWebProxy(WebProxyConfig webProxyConfig)
+        private static IWebProxy? TryCreateWebProxy(WebProxyConfig? webProxyConfig)
         {
             if (webProxyConfig == null || webProxyConfig.Address == null)
             {
@@ -141,12 +142,12 @@ namespace Yarp.ReverseProxy.Service.Proxy.Infrastructure
 
         private static class Log
         {
-            private static readonly Action<ILogger, string, Exception> _proxyClientCreated = LoggerMessage.Define<string>(
+            private static readonly Action<ILogger, string, Exception?> _proxyClientCreated = LoggerMessage.Define<string>(
                   LogLevel.Debug,
                   EventIds.ProxyClientCreated,
                   "New proxy client created for cluster '{clusterId}'.");
 
-            private static readonly Action<ILogger, string, Exception> _proxyClientReused = LoggerMessage.Define<string>(
+            private static readonly Action<ILogger, string, Exception?> _proxyClientReused = LoggerMessage.Define<string>(
                 LogLevel.Debug,
                 EventIds.ProxyClientReused,
                 "Existing proxy client reused for cluster '{clusterId}'.");

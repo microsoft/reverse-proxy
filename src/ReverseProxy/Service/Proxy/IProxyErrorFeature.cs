@@ -16,8 +16,8 @@ namespace Yarp.ReverseProxy.Service.Proxy
         ProxyError Error { get; }
 
         /// <summary>
-        /// An Exception that occurred when proxying the request to the destination.
+        /// An Exception that occurred when proxying the request to the destination, if any.
         /// </summary>
-        Exception Exception { get; }
+        Exception? Exception { get; }
     }
 }

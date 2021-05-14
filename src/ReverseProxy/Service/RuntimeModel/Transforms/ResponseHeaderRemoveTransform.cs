@@ -13,7 +13,12 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
     {
         public ResponseHeaderRemoveTransform(string headerName, bool always)
         {
-            HeaderName = headerName ?? throw new ArgumentNullException(nameof(headerName));
+            if (string.IsNullOrEmpty(headerName))
+            {
+                throw new ArgumentException($"'{nameof(headerName)}' cannot be null or empty.", nameof(headerName));
+            }
+
+            HeaderName = headerName;
             Always = always;
         }
 

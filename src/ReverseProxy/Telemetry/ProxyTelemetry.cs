@@ -13,10 +13,10 @@ namespace Yarp.ReverseProxy.Telemetry
     {
         public static readonly ProxyTelemetry Log = new ProxyTelemetry();
 
-        private IncrementingPollingCounter _startedRequestsPerSecondCounter;
-        private PollingCounter _startedRequestsCounter;
-        private PollingCounter _currentRequestsCounter;
-        private PollingCounter _failedRequestsCounter;
+        private IncrementingPollingCounter? _startedRequestsPerSecondCounter;
+        private PollingCounter? _startedRequestsCounter;
+        private PollingCounter? _currentRequestsCounter;
+        private PollingCounter? _failedRequestsCounter;
 
         private long _startedRequests;
         private long _stoppedRequests;

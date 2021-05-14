@@ -21,9 +21,9 @@ namespace Yarp.ReverseProxy.Service.Management
     /// in "infinite run" entities get repeatedly rescheduled until either they are explicitly removed
     /// or the <see cref="EntityActionScheduler{T}"/> instance is disposed.
     /// </remarks>
-    internal sealed class EntityActionScheduler<T> : IDisposable
+    internal sealed class EntityActionScheduler<T> : IDisposable where T : notnull
     {
-        private readonly ConcurrentDictionary<T, SchedulerEntry> _entries = new ConcurrentDictionary<T, SchedulerEntry>();
+        private readonly ConcurrentDictionary<T, SchedulerEntry> _entries = new();
         private readonly Func<T, Task> _action;
         private readonly bool _runOnce;
         private readonly ITimerFactory _timerFactory;
@@ -35,7 +35,7 @@ namespace Yarp.ReverseProxy.Service.Management
             _action = action ?? throw new ArgumentNullException(nameof(action));
             _runOnce = runOnce;
             _timerFactory = timerFactory ?? throw new ArgumentNullException(nameof(timerFactory));
-            _timerCallback = async o => await Run(o);
+            _timerCallback = async o => await Run(o!);
             _isStarted = autoStart ? 1 : 0;
         }
 

@@ -10,7 +10,7 @@ namespace Yarp.ReverseProxy.Abstractions
         /// <summary>
         /// The URI of the proxy server.
         /// </summary>
-        public Uri Address { get; init; }
+        public Uri? Address { get; init; }
 
         /// <summary>
         /// true to bypass the proxy for local addresses; otherwise, false.
@@ -25,7 +25,7 @@ namespace Yarp.ReverseProxy.Abstractions
         public bool? UseDefaultCredentials { get; init; }
 
         /// <inheritdoc/>
-        public bool Equals(WebProxyConfig other)
+        public bool Equals(WebProxyConfig? other)
         {
             if (other == null)
             {

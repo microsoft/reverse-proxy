@@ -28,7 +28,7 @@ namespace Yarp.ReverseProxy.Service
         /// <summary>
         /// Builds the transforms for the given route into executable rules.
         /// </summary>
-        HttpTransformer Build(RouteConfig route, ClusterConfig cluster);
+        HttpTransformer Build(RouteConfig route, ClusterConfig? cluster);
 
         HttpTransformer Create(Action<TransformBuilderContext> action);
     }

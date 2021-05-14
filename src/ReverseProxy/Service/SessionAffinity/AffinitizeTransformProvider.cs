@@ -47,7 +47,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
         {
             var options = context.Cluster?.SessionAffinity;
 
-            if ((options?.Enabled).GetValueOrDefault())
+            if (options != null && options.Enabled.GetValueOrDefault())
             {
                 var provider = _sessionAffinityProviders.GetRequiredServiceById(options.Mode, SessionAffinityConstants.Modes.Cookie);
                 context.ResponseTransforms.Add(new AffinitizeTransform(provider));

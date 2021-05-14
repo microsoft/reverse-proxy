@@ -125,7 +125,7 @@ namespace Yarp.ReverseProxy.Service.Routing
 
         private class HeaderMetadataEndpointComparer : EndpointMetadataComparer<IHeaderMetadata>
         {
-            protected override int CompareMetadata(IHeaderMetadata x, IHeaderMetadata y)
+            protected override int CompareMetadata(IHeaderMetadata? x, IHeaderMetadata? y)
             {
                 var xCount = x?.Matchers?.Count ?? 0;
                 var yCount = y?.Matchers?.Count ?? 0;

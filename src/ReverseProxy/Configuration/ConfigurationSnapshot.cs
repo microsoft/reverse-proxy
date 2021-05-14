@@ -18,6 +18,7 @@ namespace Yarp.ReverseProxy.Configuration
 
         IReadOnlyList<ClusterConfig> IProxyConfig.Clusters => Clusters;
 
-        public IChangeToken ChangeToken { get; internal set; }
+        // This field is required.
+        public IChangeToken ChangeToken { get; internal set; } = default!;
     }
 }

@@ -35,6 +35,6 @@ namespace Yarp.ReverseProxy.Middleware
         /// <summary>
         /// The actual destination that the request was proxied to.
         /// </summary>
-        DestinationState ProxiedDestination { get; set; }
+        DestinationState? ProxiedDestination { get; set; }
     }
 }

@@ -11,7 +11,7 @@ namespace Yarp.ReverseProxy.Service.LoadBalancing
     {
         public string Name => LoadBalancingPolicies.First;
 
-        public DestinationState PickDestination(HttpContext context, IReadOnlyList<DestinationState> availableDestinations)
+        public DestinationState? PickDestination(HttpContext context, IReadOnlyList<DestinationState> availableDestinations)
         {
             if (availableDestinations.Count == 0)
             {

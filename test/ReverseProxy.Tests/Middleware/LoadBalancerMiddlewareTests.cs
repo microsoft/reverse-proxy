@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -13,6 +14,7 @@ using Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Yarp.ReverseProxy.RuntimeModel;
 using Yarp.ReverseProxy.Service.LoadBalancing;
 using Yarp.ReverseProxy.Service.Management;
+using Yarp.ReverseProxy.Service.Proxy;
 
 namespace Yarp.ReverseProxy.Middleware.Tests
 {
@@ -182,7 +184,8 @@ namespace Yarp.ReverseProxy.Middleware.Tests
         {
             var cluster = new ClusterState("cluster1")
             {
-                Model = new ClusterModel(new ClusterConfig { LoadBalancingPolicy = loadBalancingPolicy }, default)
+                Model = new ClusterModel(new ClusterConfig { LoadBalancingPolicy = loadBalancingPolicy },
+                    new HttpMessageInvoker(new HttpClientHandler()))
             };
 
             var context = new DefaultHttpContext();
@@ -195,7 +198,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
                 });
             context.Features.Set(cluster);
 
-            var routeConfig = new RouteModel(new RouteConfig(), cluster, transformer: null);
+            var routeConfig = new RouteModel(new RouteConfig(), cluster, HttpTransformer.Default);
             var endpoint = new Endpoint(default, new EndpointMetadataCollection(routeConfig), string.Empty);
             context.SetEndpoint(endpoint);
 

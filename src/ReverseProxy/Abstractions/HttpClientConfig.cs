@@ -42,7 +42,7 @@ namespace Yarp.ReverseProxy.Abstractions
         /// <summary>
         /// Optional web proxy used when communicating with the destination server. 
         /// </summary>
-        public WebProxyConfig WebProxy { get; init; }
+        public WebProxyConfig? WebProxy { get; init; }
 
 #if NET
         /// <summary>
@@ -55,11 +55,11 @@ namespace Yarp.ReverseProxy.Abstractions
         /// <summary>
         /// Enables non-ASCII header encoding for outgoing requests.
         /// </summary>
-        public string RequestHeaderEncoding { get; init; }
+        public string? RequestHeaderEncoding { get; init; }
 #endif
 
         /// <inheritdoc />
-        public bool Equals(HttpClientConfig other)
+        public bool Equals(HttpClientConfig? other)
         {
             if (other == null)
             {

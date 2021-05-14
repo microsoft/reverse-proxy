@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Net.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -224,7 +225,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
                     },
                     Metadata = metadata,
                 },
-                null);
+                new HttpMessageInvoker(new HttpClientHandler()));
             var clusterState = new ClusterState(id);
             clusterState.Model = clusterModel;
             for (var i = 0; i < destinationCount; i++)

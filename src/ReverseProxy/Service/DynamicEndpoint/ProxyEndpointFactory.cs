@@ -25,7 +25,7 @@ namespace Yarp.ReverseProxy
         private static readonly IDisableCorsAttribute _disableCors = new DisableCorsAttribute();
         private static readonly IAllowAnonymous _allowAnonymous = new AllowAnonymousAttribute();
 
-        private RequestDelegate _pipeline;
+        private RequestDelegate? _pipeline;
 
         public Endpoint CreateEndpoint(RouteModel route, IReadOnlyList<Action<EndpointBuilder>> conventions)
         {

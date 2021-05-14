@@ -42,7 +42,7 @@ namespace Yarp.ReverseProxy.Service.Proxy
         private readonly IClock _clock;
         // Note this is the long token that should only be canceled in the event of an error, not timed out.
         private readonly CancellationToken _cancellation;
-        private readonly TaskCompletionSource<(StreamCopyResult, Exception)> _tcs = new TaskCompletionSource<(StreamCopyResult, Exception)>(TaskCreationOptions.RunContinuationsAsynchronously);
+        private readonly TaskCompletionSource<(StreamCopyResult, Exception?)> _tcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
         public StreamCopyHttpContent(Stream source, bool autoFlushHttpClientOutgoingStream, IClock clock, CancellationToken cancellation)
         {
@@ -56,7 +56,7 @@ namespace Yarp.ReverseProxy.Service.Proxy
         /// Gets a <see cref="System.Threading.Tasks.Task"/> that completes in successful or failed state
         /// mimicking the result of <see cref="SerializeToStreamAsync"/>.
         /// </summary>
-        public Task<(StreamCopyResult, Exception)> ConsumptionTask => _tcs.Task;
+        public Task<(StreamCopyResult, Exception?)> ConsumptionTask => _tcs.Task;
 
         /// <summary>
         /// Gets a value indicating whether consumption of this content has begun.
@@ -115,7 +115,7 @@ namespace Yarp.ReverseProxy.Service.Proxy
         // Note we do not need to implement the SerializeToStreamAsync(Stream stream, TransportContext context, CancellationToken token) overload
         // because the token it provides is the short request token, not the long body token passed from the constructor. Using the short token
         // would break bidirectional streaming scenarios.
-        protected override async Task SerializeToStreamAsync(Stream stream, TransportContext context)
+        protected override async Task SerializeToStreamAsync(Stream stream, TransportContext? context)
         {
             if (Started)
             {

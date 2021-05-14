@@ -28,7 +28,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             return destination.DestinationId;
         }
 
-        protected override (string Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, SessionAffinityConfig config)
+        protected override (string? Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, SessionAffinityConfig config)
         {
             var customHeaderName = config.AffinityKeyName ?? DefaultCustomHeaderName;
             var keyHeaderValues = context.Request.Headers[customHeaderName];
@@ -56,7 +56,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
 
         private static class Log
         {
-            private static readonly Action<ILogger, string, int, Exception> _requestAffinityHeaderHasMultipleValues = LoggerMessage.Define<string, int>(
+            private static readonly Action<ILogger, string, int, Exception?> _requestAffinityHeaderHasMultipleValues = LoggerMessage.Define<string, int>(
                 LogLevel.Error,
                 EventIds.RequestAffinityHeaderHasMultipleValues,
                 "The request affinity header `{headerName}` has `{valueCount}` values.");

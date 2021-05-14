@@ -17,7 +17,7 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
     {
         private readonly HttpRequest _request;
         private readonly QueryString _originalQueryString;
-        private Dictionary<string, StringValues> _modifiedQueryParameters;
+        private Dictionary<string, StringValues>? _modifiedQueryParameters;
 
         public QueryTransformContext(HttpRequest request)
         {

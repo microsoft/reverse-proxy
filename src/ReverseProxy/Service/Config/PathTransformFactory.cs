@@ -29,18 +29,22 @@ namespace Yarp.ReverseProxy.Service.Config
             if (transformValues.TryGetValue(PathSetKey, out var pathSet))
             {
                 TransformHelpers.TryCheckTooManyParameters(context, transformValues, expected: 1);
+                CheckPathNotNull(context, PathSetKey, pathSet);
             }
             else if (transformValues.TryGetValue(PathPrefixKey, out var pathPrefix))
             {
                 TransformHelpers.TryCheckTooManyParameters(context, transformValues, expected: 1);
+                CheckPathNotNull(context, PathPrefixKey, pathPrefix);
             }
             else if (transformValues.TryGetValue(PathRemovePrefixKey, out var pathRemovePrefix))
             {
                 TransformHelpers.TryCheckTooManyParameters(context, transformValues, expected: 1);
+                CheckPathNotNull(context, PathRemovePrefixKey, pathRemovePrefix);
             }
             else if (transformValues.TryGetValue(PathPatternKey, out var pathPattern))
             {
                 TransformHelpers.TryCheckTooManyParameters(context, transformValues, expected: 1);
+                CheckPathNotNull(context, PathPatternKey, pathPattern);
                 // TODO: Validate the pattern format. Does it build?
             }
             else
@@ -49,6 +53,14 @@ namespace Yarp.ReverseProxy.Service.Config
             }
 
             return true;
+        }
+
+        private void CheckPathNotNull(TransformRouteValidationContext context, string fieldName, string? path)
+        {
+            if (path == null)
+            {
+                context.Errors.Add(new ArgumentNullException(fieldName));
+            }
         }
 
         public bool Build(TransformBuilderContext context, IReadOnlyDictionary<string, string> transformValues)
@@ -76,7 +88,7 @@ namespace Yarp.ReverseProxy.Service.Config
                 TransformHelpers.CheckTooManyParameters(transformValues, expected: 1);
                 var path = MakePathString(pathPattern);
                 // We don't use the extension here because we want to avoid doing a DI lookup for the binder every time.
-                context.RequestTransforms.Add(new PathRouteValuesTransform(path.Value, _binderFactory));
+                context.RequestTransforms.Add(new PathRouteValuesTransform(path.Value!, _binderFactory));
             }
             else
             {
@@ -88,7 +100,11 @@ namespace Yarp.ReverseProxy.Service.Config
 
         private static PathString MakePathString(string path)
         {
-            if (!string.IsNullOrEmpty(path) && !path.StartsWith("/", StringComparison.Ordinal))
+            if (path == null)
+            {
+                throw new ArgumentNullException(nameof(path));
+            }
+            if (!path.StartsWith("/", StringComparison.Ordinal))
             {
                 path = "/" + path;
             }

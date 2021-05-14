@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Moq;
@@ -134,7 +135,7 @@ namespace Yarp.ReverseProxy.Middleware
                         }
                     }
                 },
-                null);
+                new HttpMessageInvoker(new HttpClientHandler()));
             var clusterState = new ClusterState(id);
             clusterState.Model = clusterModel;
             clusterState.Destinations.GetOrAdd("destination0", id => new DestinationState(id));

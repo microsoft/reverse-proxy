@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Threading.Tasks;
 
 namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
@@ -12,6 +13,11 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
     {
         public QueryParameterRemoveTransform(string key)
         {
+            if (string.IsNullOrEmpty(key))
+            {
+                throw new ArgumentException($"'{nameof(key)}' cannot be null or empty.", nameof(key));
+            }
+
             Key = key;
         }
 

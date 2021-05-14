@@ -138,7 +138,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
                     },
                     Metadata = metadata,
                 },
-                null);
+                new HttpMessageInvoker(new HttpClientHandler()));
             var clusterState = new ClusterState(id);
             clusterState.Model = clusterModel;
             for (var i = 0; i < destinationCount; i++)

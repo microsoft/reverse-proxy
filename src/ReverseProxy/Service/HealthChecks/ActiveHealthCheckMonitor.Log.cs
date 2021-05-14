@@ -31,17 +31,17 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
                 EventIds.ActiveHealthProbeConstructionFailedOnCluster,
                 "Construction of an active health probe for destination `{destinationId}` on cluster `{clusterId}` failed.");
 
-            private static readonly Action<ILogger, string, Exception> _startingActiveHealthProbingOnCluster = LoggerMessage.Define<string>(
+            private static readonly Action<ILogger, string, Exception?> _startingActiveHealthProbingOnCluster = LoggerMessage.Define<string>(
                 LogLevel.Debug,
                 EventIds.StartingActiveHealthProbingOnCluster,
                 "Starting active health check probing on cluster `{clusterId}`.");
 
-            private static readonly Action<ILogger, string, Exception> _stoppedActiveHealthProbingOnCluster = LoggerMessage.Define<string>(
+            private static readonly Action<ILogger, string, Exception?> _stoppedActiveHealthProbingOnCluster = LoggerMessage.Define<string>(
                 LogLevel.Debug,
                 EventIds.StoppedActiveHealthProbingOnCluster,
                 "Active health check probing on cluster `{clusterId}` has stopped.");
 
-            private static readonly Action<ILogger, string, string, int, Exception> _destinationProbingCompleted = LoggerMessage.Define<string, string, int>(
+            private static readonly Action<ILogger, string, string, int, Exception?> _destinationProbingCompleted = LoggerMessage.Define<string, string, int>(
                 LogLevel.Information,
                 EventIds.DestinationProbingCompleted,
                 "Probing destination `{destinationId}` on cluster `{clusterId}` completed with the response code `{responseCode}`.");
@@ -51,7 +51,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
                 EventIds.DestinationProbingFailed,
                 "Probing destination `{destinationId}` on cluster `{clusterId}` failed.");
 
-            private static readonly Action<ILogger, Uri, string, string, Exception> _sendingHealthProbeToEndpointOfDestination = LoggerMessage.Define<Uri, string, string>(
+            private static readonly Action<ILogger, Uri?, string, string, Exception?> _sendingHealthProbeToEndpointOfDestination = LoggerMessage.Define<Uri?, string, string>(
                 LogLevel.Debug,
                 EventIds.SendingHealthProbeToEndpointOfDestination,
                 "Sending a health probe to endpoint `{endpointUri}` of destination `{destinationId}` on cluster `{clusterId}`.");
@@ -96,7 +96,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
                 _destinationProbingFailed(logger, destinationId, clusterId, ex);
             }
 
-            public static void SendingHealthProbeToEndpointOfDestination(ILogger logger, Uri endpointUri, string destinationId, string clusterId)
+            public static void SendingHealthProbeToEndpointOfDestination(ILogger logger, Uri? endpointUri, string destinationId, string clusterId)
             {
                 _sendingHealthProbeToEndpointOfDestination(logger, endpointUri, destinationId, clusterId, null);
             }

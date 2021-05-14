@@ -31,6 +31,16 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
         /// <returns>The response header value, or StringValues.Empty if none.</returns>
         public static StringValues TakeHeader(ResponseTrailersTransformContext context, string headerName)
         {
+            if (context is null)
+            {
+                throw new System.ArgumentNullException(nameof(context));
+            }
+
+            if (string.IsNullOrEmpty(headerName))
+            {
+                throw new System.ArgumentException($"'{nameof(headerName)}' cannot be null or empty.", nameof(headerName));
+            }
+
             var existingValues = StringValues.Empty;
             var responseTrailersFeature = context.HttpContext.Features.Get<IHttpResponseTrailersFeature>();
             var responseTrailers = responseTrailersFeature.Trailers;

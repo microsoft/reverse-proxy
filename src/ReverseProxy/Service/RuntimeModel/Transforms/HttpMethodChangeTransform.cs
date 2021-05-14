@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -19,6 +20,16 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
         /// <param name="toMethod">The method to it change to.</param>
         public HttpMethodChangeTransform(string fromMethod, string toMethod)
         {
+            if (string.IsNullOrEmpty(fromMethod))
+            {
+                throw new ArgumentException($"'{nameof(fromMethod)}' cannot be null or empty.", nameof(fromMethod));
+            }
+
+            if (string.IsNullOrEmpty(toMethod))
+            {
+                throw new ArgumentException($"'{nameof(toMethod)}' cannot be null or empty.", nameof(toMethod));
+            }
+
             FromMethod = GetCanonicalizedValue(fromMethod);
             ToMethod = GetCanonicalizedValue(toMethod);
         }

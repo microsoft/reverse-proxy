@@ -16,12 +16,12 @@ namespace Yarp.ReverseProxy.Abstractions
         /// <summary>
         /// The cookie path.
         /// </summary>
-        public string Path { get; init; }
+        public string? Path { get; init; }
 
         /// <summary>
         /// The domain to associate the cookie with.
         /// </summary>
-        public string Domain { get; init; }
+        public string? Domain { get; init; }
 
         /// <summary>
         /// Indicates whether a cookie is accessible by client-side script.
@@ -58,7 +58,7 @@ namespace Yarp.ReverseProxy.Abstractions
         /// <remarks>Defaults to <see cref="false"/>.</remarks>
         public bool? IsEssential { get; init; }
 
-        public bool Equals(SessionAffinityCookieConfig other)
+        public bool Equals(SessionAffinityCookieConfig? other)
         {
             if (other == null)
             {

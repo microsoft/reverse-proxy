@@ -55,7 +55,7 @@ namespace Yarp.ReverseProxy.Middleware
 
         private static class Log
         {
-            private static readonly Action<ILogger, string, Exception> _noClusterFound = LoggerMessage.Define<string>(
+            private static readonly Action<ILogger, string, Exception?> _noClusterFound = LoggerMessage.Define<string>(
                 LogLevel.Information,
                 EventIds.NoClusterFound,
                 "Route '{routeId}' has no cluster information.");

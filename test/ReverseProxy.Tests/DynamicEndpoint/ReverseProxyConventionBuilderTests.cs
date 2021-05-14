@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
@@ -90,7 +91,7 @@ namespace Yarp.ReverseProxy.DynamicEndpoint
                 routeConfig,
                 new ClusterState("cluster-1")
                 {
-                    Model = new ClusterModel(cluster, default)
+                    Model = new ClusterModel(cluster, new HttpMessageInvoker(new HttpClientHandler()))
                 },
                 HttpTransformer.Default);
 

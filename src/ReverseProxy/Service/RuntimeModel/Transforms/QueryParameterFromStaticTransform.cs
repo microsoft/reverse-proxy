@@ -10,6 +10,11 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
         public QueryParameterFromStaticTransform(QueryStringTransformMode mode, string key, string value)
             : base(mode, key)
         {
+            if (string.IsNullOrEmpty(key))
+            {
+                throw new ArgumentException($"'{nameof(key)}' cannot be null or empty.", nameof(key));
+            }
+
             Value = value ?? throw new ArgumentNullException(nameof(value));
         }
 

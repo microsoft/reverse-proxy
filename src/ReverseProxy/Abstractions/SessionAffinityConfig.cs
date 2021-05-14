@@ -18,12 +18,12 @@ namespace Yarp.ReverseProxy.Abstractions
         /// <summary>
         /// Session affinity mode which is implemented by one of providers.
         /// </summary>
-        public string Mode { get; init; }
+        public string? Mode { get; init; }
 
         /// <summary>
         /// Strategy handling missing destination for an affinitized request.
         /// </summary>
-        public string FailurePolicy { get; init; }
+        public string? FailurePolicy { get; init; }
 
         /// <summary>
         /// Identifies the name of the field where the affinity value is stored.
@@ -33,16 +33,16 @@ namespace Yarp.ReverseProxy.Abstractions
         /// This value should be unique across clusters to avoid affinity conflicts.
         /// https://github.com/microsoft/reverse-proxy/issues/976
         /// </summary>
-        public string AffinityKeyName { get; init; }
+        public string? AffinityKeyName { get; init; }
 
         /// <summary>
         /// Configuration of a cookie storing the session affinity key in case
         /// the <see cref="Mode"/> is set to 'Cookie'.
         /// </summary>
-        public SessionAffinityCookieConfig Cookie { get; init; }
+        public SessionAffinityCookieConfig? Cookie { get; init; }
 
         /// <inheritdoc />
-        public bool Equals(SessionAffinityConfig other)
+        public bool Equals(SessionAffinityConfig? other)
         {
             if (other == null)
             {

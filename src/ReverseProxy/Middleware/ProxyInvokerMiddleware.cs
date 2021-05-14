@@ -44,7 +44,7 @@ namespace Yarp.ReverseProxy.Middleware
                 ?? throw new InvalidOperationException($"The {nameof(IReverseProxyFeature)} Destinations collection was not set.");
 
             var route = context.GetRouteModel();
-            var cluster = route.Cluster;
+            var cluster = route.Cluster!;
 
             if (destinations.Count == 0)
             {
@@ -78,7 +78,8 @@ namespace Yarp.ReverseProxy.Middleware
                 ProxyTelemetry.Log.ProxyInvoke(cluster.ClusterId, route.Config.RouteId, destination.DestinationId);
 
                 var clusterConfig = reverseProxyFeature.Cluster;
-                await _httpProxy.ProxyAsync(context, destinationModel.Config.Address, clusterConfig.HttpClient, clusterConfig.Config.HttpRequest, route.Transformer);
+                await _httpProxy.ProxyAsync(context, destinationModel.Config.Address, clusterConfig.HttpClient,
+                    clusterConfig.Config.HttpRequest ?? RequestProxyConfig.Empty, route.Transformer);
             }
             finally
             {
@@ -89,12 +90,12 @@ namespace Yarp.ReverseProxy.Middleware
 
         private static class Log
         {
-            private static readonly Action<ILogger, string, Exception> _noAvailableDestinations = LoggerMessage.Define<string>(
+            private static readonly Action<ILogger, string, Exception?> _noAvailableDestinations = LoggerMessage.Define<string>(
                 LogLevel.Warning,
                 EventIds.NoAvailableDestinations,
                 "No available destinations after load balancing for cluster '{clusterId}'.");
 
-            private static readonly Action<ILogger, string, Exception> _multipleDestinationsAvailable = LoggerMessage.Define<string>(
+            private static readonly Action<ILogger, string, Exception?> _multipleDestinationsAvailable = LoggerMessage.Define<string>(
                 LogLevel.Warning,
                 EventIds.MultipleDestinationsAvailable,
                 "More than one destination available for cluster '{clusterId}', load balancing may not be configured correctly. Choosing randomly.");

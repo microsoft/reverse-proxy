@@ -197,7 +197,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                     return response;
                 });
 
-            var proxyError = await sut.ProxyAsync(httpContext, destinationPrefix, client, default, transforms);
+            var proxyError = await sut.ProxyAsync(httpContext, destinationPrefix, client, RequestProxyConfig.Empty, transforms);
 
             Assert.Equal(ProxyError.None, proxyError);
             Assert.Equal(234, httpContext.Response.StatusCode);
@@ -281,7 +281,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                     return response;
                 });
 
-            var proxyError = await sut.ProxyAsync(httpContext, destinationPrefix, client, default, transforms);
+            var proxyError = await sut.ProxyAsync(httpContext, destinationPrefix, client, RequestProxyConfig.Empty, transforms);
 
             Assert.Equal(ProxyError.None, proxyError);
             Assert.Equal(234, httpContext.Response.StatusCode);
@@ -1131,7 +1131,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                     return Task.FromResult(message);
                 });
 
-            var proxyError = await sut.ProxyAsync(httpContext, destinationPrefix, client, requestConfig: default, new DelegateHttpTransforms()
+            var proxyError = await sut.ProxyAsync(httpContext, destinationPrefix, client, RequestProxyConfig.Empty, new DelegateHttpTransforms()
             {
                 OnResponse = (context, proxyResponse) =>
                 {
@@ -1607,7 +1607,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
             var httpContext = new DefaultHttpContext();
             var destinationPrefix = "";
             var transforms = HttpTransformer.Default;
-            var requestOptions = default(RequestProxyConfig);
+            var requestOptions = RequestProxyConfig.Empty;
             var proxy = CreateProxy();
 
             await Assert.ThrowsAsync<ArgumentException>(async () => await proxy.ProxyAsync(httpContext,

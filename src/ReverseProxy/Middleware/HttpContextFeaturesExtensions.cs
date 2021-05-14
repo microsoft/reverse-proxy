@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-#nullable enable
-
 using System;
 using Yarp.ReverseProxy.Middleware;
 using Yarp.ReverseProxy.RuntimeModel;
