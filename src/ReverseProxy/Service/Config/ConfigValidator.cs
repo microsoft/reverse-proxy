@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors.Infrastructure;
@@ -327,6 +326,23 @@ namespace Yarp.ReverseProxy.Service
             if (!_affinityFailurePolicies.ContainsKey(affinityFailurePolicy))
             {
                 errors.Add(new ArgumentException($"No matching IAffinityFailurePolicy found for the affinity failure policy name '{affinityFailurePolicy}' set on the cluster '{cluster.ClusterId}'."));
+            }
+
+            var cookieConfig = cluster.SessionAffinity.Cookie;
+
+            if (cookieConfig == null)
+            {
+                return;
+            }
+
+            if (cookieConfig.Expiration != null && cookieConfig.Expiration <= TimeSpan.Zero)
+            {
+                errors.Add(new ArgumentException($"Session affinity cookie expiration must be positive or null."));
+            }
+
+            if (cookieConfig.MaxAge != null && cookieConfig.MaxAge <= TimeSpan.Zero)
+            {
+                errors.Add(new ArgumentException($"Session affinity cookie max-age must be positive or null."));
             }
         }
 

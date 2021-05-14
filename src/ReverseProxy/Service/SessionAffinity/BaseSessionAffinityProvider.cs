@@ -90,16 +90,6 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             return new AffinityResult(matchingDestinations, AffinityStatus.OK);
         }
 
-        protected virtual string GetSettingValue(string key, SessionAffinityConfig config)
-        {
-            if (config.Settings == null || !config.Settings.TryGetValue(key, out var value))
-            {
-                throw new ArgumentException($"{nameof(CookieSessionAffinityProvider)} couldn't find the required parameter {key} in session affinity settings.", nameof(config));
-            }
-
-            return value;
-        }
-
         protected abstract T GetDestinationAffinityKey(DestinationState destination);
 
         protected abstract (T Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, SessionAffinityConfig config);

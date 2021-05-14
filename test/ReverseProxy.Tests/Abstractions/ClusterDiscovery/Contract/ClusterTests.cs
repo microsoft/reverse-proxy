@@ -7,7 +7,6 @@ using System.Net.Http;
 using System.Security.Authentication;
 using System.Text;
 using Xunit;
-using Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Yarp.ReverseProxy.Service.LoadBalancing;
 using Yarp.ReverseProxy.Service.Proxy;
 
@@ -18,7 +17,7 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
         [Fact]
         public void Equals_Same_Value_Returns_True()
         {
-            var options1 = new ClusterConfig
+            var config1 = new ClusterConfig
             {
                 ClusterId = "cluster1",
                 Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
@@ -65,7 +64,18 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
                     Enabled = true,
                     FailurePolicy = "Return503Error",
                     Mode = "Cookie",
-                    Settings = new Dictionary<string, string> { { "affinity1-K1", "affinity1-V1" }, { "affinity1-K2", "affinity1-V2" } }
+                    AffinityKeyName = "Key1",
+                    Cookie = new SessionAffinityCookieConfig
+                    {
+                        Domain = "localhost",
+                        Expiration = TimeSpan.FromHours(3),
+                        HttpOnly = true,
+                        IsEssential = true,
+                        MaxAge = TimeSpan.FromDays(1),
+                        Path = "mypath",
+                        SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict,
+                        SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.SameAsRequest
+                    }
                 },
                 HttpClient = new HttpClientConfig
                 {
@@ -88,7 +98,7 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
                 Metadata = new Dictionary<string, string> { { "cluster1-K1", "cluster1-V1" }, { "cluster1-K2", "cluster1-V2" } }
             };
 
-            var options2 = new ClusterConfig
+            var config2 = new ClusterConfig
             {
                 ClusterId = "cluster1",
                 Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
@@ -135,7 +145,18 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
                     Enabled = true,
                     FailurePolicy = "Return503Error",
                     Mode = "Cookie",
-                    Settings = new Dictionary<string, string> { { "affinity1-K1", "affinity1-V1" }, { "affinity1-K2", "affinity1-V2" } }
+                    AffinityKeyName = "Key1",
+                    Cookie = new SessionAffinityCookieConfig
+                    {
+                        Domain = "localhost",
+                        Expiration = TimeSpan.FromHours(3),
+                        HttpOnly = true,
+                        IsEssential = true,
+                        MaxAge = TimeSpan.FromDays(1),
+                        Path = "mypath",
+                        SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict,
+                        SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.SameAsRequest
+                    }
                 },
                 HttpClient = new HttpClientConfig
                 {
@@ -158,17 +179,17 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
                 Metadata = new Dictionary<string, string> { { "cluster1-K1", "cluster1-V1" }, { "cluster1-K2", "cluster1-V2" } }
             };
 
-            var equals = options1.Equals(options2);
+            var equals = config1.Equals(config2);
 
             Assert.True(equals);
 
-            Assert.True(options1.Equals(options1 with { })); // Clone
+            Assert.True(config1.Equals(config1 with { })); // Clone
         }
 
         [Fact]
         public void Equals_Different_Value_Returns_False()
         {
-            var options1 = new ClusterConfig
+            var config1 = new ClusterConfig
             {
                 ClusterId = "cluster1",
                 Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
@@ -215,7 +236,18 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
                     Enabled = true,
                     FailurePolicy = "Return503Error",
                     Mode = "Cookie",
-                    Settings = new Dictionary<string, string> { { "affinity1-K1", "affinity1-V1" }, { "affinity1-K2", "affinity1-V2" } }
+                    AffinityKeyName = "Key1",
+                    Cookie = new SessionAffinityCookieConfig
+                    {
+                        Domain = "localhost",
+                        Expiration = TimeSpan.FromHours(3),
+                        HttpOnly = true,
+                        IsEssential = true,
+                        MaxAge = TimeSpan.FromDays(1),
+                        Path = "mypath",
+                        SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict,
+                        SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.SameAsRequest
+                    }
                 },
                 HttpClient = new HttpClientConfig
                 {
@@ -235,21 +267,32 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
                 Metadata = new Dictionary<string, string> { { "cluster1-K1", "cluster1-V1" }, { "cluster1-K2", "cluster1-V2" } }
             };
 
-            Assert.False(options1.Equals(options1 with { ClusterId = "different" }));
-            Assert.False(options1.Equals(options1 with { Destinations = new Dictionary<string, DestinationConfig>() }));
-            Assert.False(options1.Equals(options1 with { HealthCheck = new HealthCheckConfig() }));
-            Assert.False(options1.Equals(options1 with { LoadBalancingPolicy = "different" }));
-            Assert.False(options1.Equals(options1 with
+            Assert.False(config1.Equals(config1 with { ClusterId = "different" }));
+            Assert.False(config1.Equals(config1 with { Destinations = new Dictionary<string, DestinationConfig>() }));
+            Assert.False(config1.Equals(config1 with { HealthCheck = new HealthCheckConfig() }));
+            Assert.False(config1.Equals(config1 with { LoadBalancingPolicy = "different" }));
+            Assert.False(config1.Equals(config1 with
             {
                 SessionAffinity = new SessionAffinityConfig
                 {
                     Enabled = true,
                     FailurePolicy = "Return503Error",
                     Mode = "Cookie",
-                    Settings = new Dictionary<string, string> { { "affinity1-K1", "affinity1-V1" } }
+                    AffinityKeyName = "Key1",
+                    Cookie = new SessionAffinityCookieConfig
+                    {
+                        Domain = "localhost",
+                        Expiration = TimeSpan.FromHours(3),
+                        HttpOnly = true,
+                        IsEssential = true,
+                        MaxAge = TimeSpan.FromDays(1),
+                        Path = "newpath",
+                        SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict,
+                        SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.SameAsRequest
+                    }
                 }
             }));
-            Assert.False(options1.Equals(options1 with
+            Assert.False(config1.Equals(config1 with
             {
                 HttpClient = new HttpClientConfig
                 {
@@ -259,16 +302,16 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
                     ActivityContextHeaders = ActivityContextHeaders.CorrelationContext,
                 }
             }));
-            Assert.False(options1.Equals(options1 with { HttpRequest = new RequestProxyConfig() { } }));
-            Assert.False(options1.Equals(options1 with { Metadata = null }));
+            Assert.False(config1.Equals(config1 with { HttpRequest = new RequestProxyConfig() { } }));
+            Assert.False(config1.Equals(config1 with { Metadata = null }));
         }
 
         [Fact]
         public void Equals_Second_Null_Returns_False()
         {
-            var options1 = new ClusterConfig();
+            var config1 = new ClusterConfig();
 
-            var equals = options1.Equals(null);
+            var equals = config1.Equals(null);
 
             Assert.False(equals);
         }
