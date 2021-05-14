@@ -83,13 +83,6 @@ namespace Yarp.ReverseProxy.Service.Proxy.Infrastructure
             {
                 handler.SslOptions.EnabledSslProtocols = newConfig.SslProtocols.Value;
             }
-            if (newConfig.ClientCertificate != null)
-            {
-                handler.SslOptions.ClientCertificates = new X509CertificateCollection
-                {
-                    newConfig.ClientCertificate
-                };
-            }
             if (newConfig.MaxConnectionsPerServer != null)
             {
                 handler.MaxConnectionsPerServer = newConfig.MaxConnectionsPerServer.Value;
