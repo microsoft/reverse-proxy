@@ -298,7 +298,7 @@ namespace Yarp.ReverseProxy.Configuration
                 MaxConnectionsPerServer = section.ReadInt32(nameof(HttpClientConfig.MaxConnectionsPerServer)),
 #if NET
                 EnableMultipleHttp2Connections = section.ReadBool(nameof(HttpClientConfig.EnableMultipleHttp2Connections)),
-                RequestHeaderEncoding = section[nameof(HttpClientConfig.RequestHeaderEncoding)] is string encoding ? Encoding.GetEncoding(encoding) : null,
+                RequestHeaderEncoding = section[nameof(HttpClientConfig.RequestHeaderEncoding)],
 #endif
                 ActivityContextHeaders = section.ReadEnum<ActivityContextHeaders>(nameof(HttpClientConfig.ActivityContextHeaders)),
                 WebProxy = webProxy

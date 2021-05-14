@@ -268,7 +268,6 @@ namespace Yarp.ReverseProxy.ServiceFabric
 
 #if NET
             var versionPolicyLabel = GetLabel<string>(labels, "YARP.Backend.HttpRequest.VersionPolicy", null);
-            var requestHeaderEncodingLabel = GetLabel<string>(labels, "YARP.Backend.HttpClient.RequestHeaderEncoding", null);
 #endif
 
             var cluster = new ClusterConfig
@@ -315,7 +314,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
                     SslProtocols = !string.IsNullOrEmpty(sslProtocolsLabel) ? Enum.Parse<SslProtocols>(sslProtocolsLabel) : null,
 #if NET
                     EnableMultipleHttp2Connections = GetLabel<bool?>(labels, "YARP.Backend.HttpClient.EnableMultipleHttp2Connections", null),
-                    RequestHeaderEncoding = !string.IsNullOrEmpty(requestHeaderEncodingLabel) ? Encoding.GetEncoding(requestHeaderEncodingLabel) : null,
+                    RequestHeaderEncoding = GetLabel<string>(labels, "YARP.Backend.HttpClient.RequestHeaderEncoding", null),
 #endif
                     WebProxy = new WebProxyConfig
                     {
@@ -323,7 +322,6 @@ namespace Yarp.ReverseProxy.ServiceFabric
                         BypassOnLocal = GetLabel<bool?>(labels, "YARP.Backend.HttpClient.WebProxy.BypassOnLocal", null),
                         UseDefaultCredentials = GetLabel<bool?>(labels, "YARP.Backend.HttpClient.WebProxy.UseDefaultCredentials", null),
                     }
-                    //TODO: ClientCertificate =
                 },
                 Metadata = clusterMetadata,
                 Destinations = destinations,

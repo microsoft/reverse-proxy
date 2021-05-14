@@ -5,6 +5,7 @@ using System;
 using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Yarp.ReverseProxy.Abstractions;
@@ -96,7 +97,8 @@ namespace Yarp.ReverseProxy.Service.Proxy.Infrastructure
 
             if (newConfig.RequestHeaderEncoding != null)
             {
-                handler.RequestHeaderEncodingSelector = (_, _) => newConfig.RequestHeaderEncoding;
+                var encoding = Encoding.GetEncoding(newConfig.RequestHeaderEncoding);
+                handler.RequestHeaderEncodingSelector = (_, _) => encoding;
             }
 #endif
             var webProxy = TryCreateWebProxy(newConfig.WebProxy);

@@ -21,7 +21,7 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
                 MaxConnectionsPerServer = 20,
                 WebProxy = new WebProxyConfig() { Address = new Uri("http://localhost:8080"), BypassOnLocal = true, UseDefaultCredentials = true },
 #if NET
-                RequestHeaderEncoding = Encoding.UTF8
+                RequestHeaderEncoding = Encoding.UTF8.WebName
 #endif
             };
 
@@ -32,7 +32,7 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
                 MaxConnectionsPerServer = 20,
                 WebProxy = new WebProxyConfig() { Address = new Uri("http://localhost:8080"), BypassOnLocal = true, UseDefaultCredentials = true },
 #if NET
-                RequestHeaderEncoding = Encoding.UTF8
+                RequestHeaderEncoding = Encoding.UTF8.WebName
 #endif
             };
 
@@ -52,7 +52,7 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
                 DangerousAcceptAnyServerCertificate = false,
                 MaxConnectionsPerServer = 20,
 #if NET
-                RequestHeaderEncoding = Encoding.UTF8
+                RequestHeaderEncoding = Encoding.UTF8.WebName
 #endif
             };
 
@@ -62,7 +62,7 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
                 DangerousAcceptAnyServerCertificate = true,
                 MaxConnectionsPerServer = 20,
 #if NET
-                RequestHeaderEncoding = Encoding.Latin1
+                RequestHeaderEncoding = Encoding.Latin1.WebName
 #endif
             };
 

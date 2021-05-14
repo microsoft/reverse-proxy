@@ -133,7 +133,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
             var factory = new ProxyHttpClientFactory(Mock<ILogger<ProxyHttpClientFactory>>().Object);
             var options = new HttpClientConfig
             {
-                RequestHeaderEncoding = Encoding.Latin1
+                RequestHeaderEncoding = Encoding.Latin1.WebName
             };
             var client = factory.CreateClient(new ProxyHttpClientContext { NewConfig = options });
 
@@ -158,7 +158,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                 MaxConnectionsPerServer = 10,
                 ActivityContextHeaders = ActivityContextHeaders.CorrelationContext,
 #if NET
-                RequestHeaderEncoding = Encoding.Latin1,
+                RequestHeaderEncoding = Encoding.Latin1.WebName,
 #endif
             };
             var newOptions = oldOptions with { }; // Clone
@@ -399,7 +399,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                         DangerousAcceptAnyServerCertificate = true,
                         MaxConnectionsPerServer = 10,
                         ActivityContextHeaders = ActivityContextHeaders.None,
-                        RequestHeaderEncoding = Encoding.UTF8,
+                        RequestHeaderEncoding = Encoding.UTF8.WebName,
                     },
                 },
                 new object[] {
@@ -409,7 +409,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                         DangerousAcceptAnyServerCertificate = true,
                         MaxConnectionsPerServer = 10,
                         ActivityContextHeaders = ActivityContextHeaders.None,
-                        RequestHeaderEncoding = Encoding.UTF8,
+                        RequestHeaderEncoding = Encoding.UTF8.WebName,
                     },
                     new HttpClientConfig
                     {
@@ -417,7 +417,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                         DangerousAcceptAnyServerCertificate = true,
                         MaxConnectionsPerServer = 10,
                         ActivityContextHeaders = ActivityContextHeaders.None,
-                        RequestHeaderEncoding = Encoding.Latin1,
+                        RequestHeaderEncoding = Encoding.Latin1.WebName,
                     },
                 }
 #endif

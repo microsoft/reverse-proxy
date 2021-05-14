@@ -74,7 +74,7 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
                     DangerousAcceptAnyServerCertificate = true,
                     ActivityContextHeaders = ActivityContextHeaders.CorrelationContext,
 #if NET
-                    RequestHeaderEncoding = Encoding.UTF8
+                    RequestHeaderEncoding = Encoding.UTF8.WebName
 #endif
                 },
                 HttpRequest = new RequestProxyConfig
@@ -144,7 +144,7 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
                     DangerousAcceptAnyServerCertificate = true,
                     ActivityContextHeaders = ActivityContextHeaders.CorrelationContext,
 #if NET
-                    RequestHeaderEncoding = Encoding.UTF8
+                    RequestHeaderEncoding = Encoding.UTF8.WebName
 #endif
                 },
                 HttpRequest = new RequestProxyConfig
