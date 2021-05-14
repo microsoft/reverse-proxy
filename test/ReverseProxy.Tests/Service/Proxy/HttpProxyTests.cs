@@ -1686,7 +1686,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                     return response;
                 });
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyOptions { Version = Version.Parse(protocol) });
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyConfig { Version = Version.Parse(protocol) });
 
             Assert.Equal((int)HttpStatusCode.OK, httpContext.Response.StatusCode);
 
