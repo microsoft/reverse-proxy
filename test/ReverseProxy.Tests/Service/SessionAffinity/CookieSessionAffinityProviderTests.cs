@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Xunit;
 using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Common.Tests;
 using Yarp.ReverseProxy.RuntimeModel;
 
 namespace Yarp.ReverseProxy.Service.SessionAffinity
@@ -36,6 +37,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
         {
             var provider = new CookieSessionAffinityProvider(
                 AffinityTestHelper.GetDataProtector().Object,
+                new ManualClock(),
                 AffinityTestHelper.GetLogger<CookieSessionAffinityProvider>().Object);
 
             Assert.Equal(SessionAffinityConstants.Modes.Cookie, provider.Mode);
@@ -54,6 +56,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
         {
             var provider = new CookieSessionAffinityProvider(
                 AffinityTestHelper.GetDataProtector().Object,
+                new ManualClock(),
                 AffinityTestHelper.GetLogger<CookieSessionAffinityProvider>().Object);
             var context = new DefaultHttpContext();
             var affinitizedDestination = _destinations[1];
@@ -71,6 +74,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
         {
             var provider = new CookieSessionAffinityProvider(
                 AffinityTestHelper.GetDataProtector().Object,
+                new ManualClock(),
                 AffinityTestHelper.GetLogger<CookieSessionAffinityProvider>().Object);
             var context = new DefaultHttpContext();
 
@@ -86,6 +90,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
         {
             var provider = new CookieSessionAffinityProvider(
                 AffinityTestHelper.GetDataProtector().Object,
+                new ManualClock(),
                 AffinityTestHelper.GetLogger<CookieSessionAffinityProvider>().Object);
             var context = new DefaultHttpContext();
 
@@ -100,6 +105,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
         {
             var provider = new CookieSessionAffinityProvider(
                 AffinityTestHelper.GetDataProtector().Object,
+                new ManualClock(),
                 AffinityTestHelper.GetLogger<CookieSessionAffinityProvider>().Object);
             var context = new DefaultHttpContext();
 
@@ -114,6 +120,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
         {
             var provider = new CookieSessionAffinityProvider(
                 AffinityTestHelper.GetDataProtector().Object,
+                new ManualClock(),
                 AffinityTestHelper.GetLogger<CookieSessionAffinityProvider>().Object);
             var context = new DefaultHttpContext();
             var affinitizedDestination = _destinations[0];
