@@ -848,5 +848,47 @@ namespace Yarp.ReverseProxy.Service.Tests
             Assert.Contains(expectedError, errors[0].Message);
             Assert.IsType<ArgumentException>(errors[0]);
         }
+#if NET
+        [Fact]
+        public async Task HttpClient_HeaderEncoding_Valid()
+        {
+            var services = CreateServices();
+            var validator = services.GetRequiredService<IConfigValidator>();
+
+            var cluster = new ClusterConfig
+            {
+                ClusterId = "cluster1",
+                HttpClient = new HttpClientConfig
+                {
+                    RequestHeaderEncoding = "utf-8"
+                }
+            };
+
+            var errors = await validator.ValidateClusterAsync(cluster);
+
+            Assert.Equal(0, errors.Count);
+        }
+
+        [Fact]
+        public async Task HttpClient_HeaderEncoding_Invalid()
+        {
+            var services = CreateServices();
+            var validator = services.GetRequiredService<IConfigValidator>();
+
+            var cluster = new ClusterConfig
+            {
+                ClusterId = "cluster1",
+                HttpClient = new HttpClientConfig
+                {
+                    RequestHeaderEncoding = "base64"
+                }
+            };
+
+            var errors = await validator.ValidateClusterAsync(cluster);
+
+            Assert.Equal(1, errors.Count);
+            Assert.Equal("Invalid header encoding 'base64'.", errors[0].Message);
+        }
+#endif
     }
 }

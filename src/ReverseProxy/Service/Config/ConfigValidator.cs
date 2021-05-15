@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors.Infrastructure;
@@ -358,6 +360,20 @@ namespace Yarp.ReverseProxy.Service
             {
                 errors.Add(new ArgumentException($"Max connections per server limit set on the cluster '{cluster.ClusterId}' must be positive."));
             }
+#if NET
+            var encoding = cluster.HttpClient.RequestHeaderEncoding;
+            if (encoding != null)
+            {
+                try
+                {
+                    Encoding.GetEncoding(encoding);
+                }
+                catch (ArgumentException aex)
+                {
+                    errors.Add(new ArgumentException($"Invalid header encoding '{encoding}'.", aex));
+                }
+            }
+#endif
         }
 
         private static void ValidateProxyHttpRequest(IList<Exception> errors, ClusterConfig cluster)

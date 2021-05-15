@@ -104,7 +104,7 @@ namespace Yarp.ReverseProxy.Common
                         {
                             DangerousAcceptAnyServerCertificate = useHttps,
 #if NET
-                            RequestHeaderEncoding = requestHeaderEncoding,
+                            RequestHeaderEncoding = requestHeaderEncoding?.WebName,
 #endif
                         }
                     };

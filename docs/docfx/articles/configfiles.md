@@ -182,17 +182,6 @@ For additional fields see [ClusterConfig](xref:Yarp.ReverseProxy.Abstractions.Cl
         "HttpClient" : { // Configuration of HttpClient instance used to contact destinations
           "SSLProtocols" : "Tls13",
           "DangerousAcceptAnyServerCertificate" : false,
-          "ClientCertificate" : {
-            // From a file use
-            "Path ": "mycert.pfx", 
-            "KeyPath ": null, 
-            "Password ": "myPassword1234",
-            // From the cert store use
-            "Subject ": null, 
-            "Store ": null, 
-            "Location ": null, 
-            "AllowInvalid ": null 
-          },
           "MaxConnectionsPerServer" : 1024,
           "ActivityContextHeaders" : "None", // Or "Baggage", "CorrelationContext", "BaggageAndCorrelationContext"
           "EnableMultipleHttp2Connections" : true,

@@ -125,7 +125,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                     DangerousAcceptAnyServerCertificate = true,
 #if NET
                     EnableMultipleHttp2Connections = false,
-                    RequestHeaderEncoding = Encoding.GetEncoding("utf-8"),
+                    RequestHeaderEncoding = "utf-8",
 #endif
                     MaxConnectionsPerServer = 1000,
                     SslProtocols = SslProtocols.Tls12,
