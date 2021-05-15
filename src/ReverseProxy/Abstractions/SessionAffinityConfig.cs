@@ -52,7 +52,7 @@ namespace Yarp.ReverseProxy.Abstractions
             return Enabled == other.Enabled
                 && string.Equals(Mode, other.Mode, StringComparison.OrdinalIgnoreCase)
                 && string.Equals(FailurePolicy, other.FailurePolicy, StringComparison.OrdinalIgnoreCase)
-                && string.Equals(AffinityKeyName, other.AffinityKeyName, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(AffinityKeyName, other.AffinityKeyName, StringComparison.Ordinal)
                 && Cookie == other.Cookie;
         }
 
@@ -62,7 +62,7 @@ namespace Yarp.ReverseProxy.Abstractions
             return HashCode.Combine(Enabled,
                 Mode?.GetHashCode(StringComparison.OrdinalIgnoreCase),
                 FailurePolicy?.GetHashCode(StringComparison.OrdinalIgnoreCase),
-                AffinityKeyName?.GetHashCode(StringComparison.OrdinalIgnoreCase),
+                AffinityKeyName?.GetHashCode(StringComparison.Ordinal),
                 Cookie);
         }
     }

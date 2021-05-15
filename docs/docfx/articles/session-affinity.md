@@ -47,7 +47,7 @@ Session affinity is configured per cluster according to the following configurat
 
 ### Provider-specific configuration
 There is currently one provider-specific strongly-typed configuration section implemented.
-- `SessionAffinityCookieConfig` exposes the same settings as `CookieBuilder` to customize cookie properties which will be used by `CookieSessionAffinityProvider` for creating new affinity cookies. The properties can be JSON config as show above or in code as shown below:
+- `SessionAffinityCookieConfig` exposes settings to customize cookie properties which will be used by `CookieSessionAffinityProvider` for creating new affinity cookies. The properties can be JSON config as show above or in code as shown below:
 ```C#
 new ClusterConfig
 {

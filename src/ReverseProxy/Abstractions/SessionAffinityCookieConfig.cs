@@ -6,9 +6,10 @@ using Microsoft.AspNetCore.Http;
 
 namespace Yarp.ReverseProxy.Abstractions
 {
+    // Mirrors CookieBuilder and CookieOptions
+    // https://github.com/dotnet/aspnetcore/blob/main/src/Http/Http.Abstractions/src/CookieBuilder.cs
     /// <summary>
-    /// Mirrors CookieBuilder and CookieOptions
-    /// https://github.com/dotnet/aspnetcore/blob/main/src/Http/Http.Abstractions/src/CookieBuilder.cs
+    /// Config for session affinity cookies.
     /// </summary>
     public sealed record SessionAffinityCookieConfig
     {
@@ -64,7 +65,7 @@ namespace Yarp.ReverseProxy.Abstractions
                 return false;
             }
 
-            return string.Equals(Path, other.Path, StringComparison.OrdinalIgnoreCase)
+            return string.Equals(Path, other.Path, StringComparison.Ordinal)
                 && string.Equals(Domain, other.Domain, StringComparison.OrdinalIgnoreCase)
                 && HttpOnly == other.HttpOnly
                 && SecurePolicy == other.SecurePolicy
@@ -76,7 +77,7 @@ namespace Yarp.ReverseProxy.Abstractions
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Path?.GetHashCode(StringComparison.OrdinalIgnoreCase),
+            return HashCode.Combine(Path?.GetHashCode(StringComparison.Ordinal),
                 Domain?.GetHashCode(StringComparison.OrdinalIgnoreCase),
                 HttpOnly,
                 SecurePolicy,
