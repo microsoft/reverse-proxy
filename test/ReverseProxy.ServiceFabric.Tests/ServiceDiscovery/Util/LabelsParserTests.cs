@@ -29,8 +29,15 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                 { "YARP.Backend.SessionAffinity.Enabled", "true" },
                 { "YARP.Backend.SessionAffinity.Mode", "Cookie" },
                 { "YARP.Backend.SessionAffinity.FailurePolicy", "Return503Error" },
-                { "YARP.Backend.SessionAffinity.Settings.ParameterA", "ValueA" },
-                { "YARP.Backend.SessionAffinity.Settings.ParameterB", "ValueB" },
+                { "YARP.Backend.SessionAffinity.AffinityKeyName", "Key1" },
+                { "YARP.Backend.SessionAffinity.Cookie.Domain", "localhost" },
+                { "YARP.Backend.SessionAffinity.Cookie.Expiration", "03:00:00" },
+                { "YARP.Backend.SessionAffinity.Cookie.HttpOnly", "true" },
+                { "YARP.Backend.SessionAffinity.Cookie.IsEssential", "true" },
+                { "YARP.Backend.SessionAffinity.Cookie.MaxAge", "1.00:00:00" },
+                { "YARP.Backend.SessionAffinity.Cookie.Path", "mypath" },
+                { "YARP.Backend.SessionAffinity.Cookie.SameSite", "Strict" },
+                { "YARP.Backend.SessionAffinity.Cookie.SecurePolicy", "SameAsRequest" },
                 { "YARP.Backend.HttpRequest.Timeout", "00:00:17" },
                 { "YARP.Backend.HttpRequest.Version", "1.1" },
 #if NET
@@ -70,10 +77,17 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                     Enabled = true,
                     Mode = SessionAffinityConstants.Modes.Cookie,
                     FailurePolicy = SessionAffinityConstants.AffinityFailurePolicies.Return503Error,
-                    Settings = new Dictionary<string, string>
+                    AffinityKeyName = "Key1",
+                    Cookie = new SessionAffinityCookieConfig
                     {
-                        { "ParameterA", "ValueA" },
-                        { "ParameterB", "ValueB" }
+                        Domain = "localhost",
+                        Expiration = TimeSpan.FromHours(3),
+                        HttpOnly = true,
+                        IsEssential = true,
+                        MaxAge = TimeSpan.FromDays(1),
+                        Path = "mypath",
+                        SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict,
+                        SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.SameAsRequest
                     }
                 },
                 HttpRequest = new RequestProxyConfig
@@ -139,7 +153,10 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             var expectedCluster = new ClusterConfig
             {
                 ClusterId = "MyCoolClusterId",
-                SessionAffinity = new SessionAffinityConfig(),
+                SessionAffinity = new SessionAffinityConfig
+                {
+                    Cookie = new SessionAffinityCookieConfig()
+                },
                 HttpRequest = new RequestProxyConfig(),
                 HealthCheck = new HealthCheckConfig
                 {

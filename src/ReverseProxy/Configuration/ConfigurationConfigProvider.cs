@@ -3,13 +3,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net.Http;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
@@ -209,7 +209,28 @@ namespace Yarp.ReverseProxy.Configuration
                 Enabled = section.ReadBool(nameof(SessionAffinityConfig.Enabled)),
                 Mode = section[nameof(SessionAffinityConfig.Mode)],
                 FailurePolicy = section[nameof(SessionAffinityConfig.FailurePolicy)],
-                Settings = section.GetSection(nameof(SessionAffinityConfig.Settings)).ReadStringDictionary()
+                AffinityKeyName = section[nameof(SessionAffinityConfig.AffinityKeyName)],
+                Cookie = CreateSessionAffinityCookieConfig(section.GetSection(nameof(SessionAffinityConfig.Cookie)))
+            };
+        }
+
+        private static SessionAffinityCookieConfig CreateSessionAffinityCookieConfig(IConfigurationSection section)
+        {
+            if (!section.Exists())
+            {
+                return null;
+            }
+
+            return new SessionAffinityCookieConfig
+            {
+                Path = section[nameof(SessionAffinityCookieConfig.Path)],
+                SameSite = section.ReadEnum<SameSiteMode>(nameof(SessionAffinityCookieConfig.SameSite)),
+                HttpOnly = section.ReadBool(nameof(SessionAffinityCookieConfig.HttpOnly)),
+                MaxAge = section.ReadTimeSpan(nameof(SessionAffinityCookieConfig.MaxAge)),
+                Domain = section[nameof(SessionAffinityCookieConfig.Domain)],
+                IsEssential = section.ReadBool(nameof(SessionAffinityCookieConfig.IsEssential)),
+                SecurePolicy = section.ReadEnum<CookieSecurePolicy>(nameof(SessionAffinityCookieConfig.SecurePolicy)),
+                Expiration = section.ReadTimeSpan(nameof(SessionAffinityCookieConfig.Expiration))
             };
         }
 

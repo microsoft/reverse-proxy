@@ -17,7 +17,6 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 using Yarp.ReverseProxy.Abstractions;
-using Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Yarp.ReverseProxy.Service;
 using Yarp.ReverseProxy.Service.LoadBalancing;
 using Yarp.ReverseProxy.Service.Proxy;
@@ -81,7 +80,18 @@ namespace Yarp.ReverseProxy.Configuration
                             Enabled = true,
                             FailurePolicy = "Return503Error",
                             Mode = "Cookie",
-                            Settings = new Dictionary<string, string> { { "affinity1-K1", "affinity1-V1" }, { "affinity1-K2", "affinity1-V2" } }
+                            AffinityKeyName = "Key1",
+                            Cookie = new SessionAffinityCookieConfig
+                            {
+                                Domain = "localhost",
+                                Expiration = TimeSpan.FromHours(3),
+                                HttpOnly = true,
+                                IsEssential = true,
+                                MaxAge = TimeSpan.FromDays(1),
+                                Path = "mypath",
+                                SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict,
+                                SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.None
+                            }
                         },
                         HttpClient = new HttpClientConfig
                         {
@@ -182,9 +192,16 @@ namespace Yarp.ReverseProxy.Configuration
                 ""Enabled"": true,
                 ""Mode"": ""Cookie"",
                 ""FailurePolicy"": ""Return503Error"",
-                ""Settings"": {
-                    ""affinity1-K1"": ""affinity1-V1"",
-                    ""affinity1-K2"": ""affinity1-V2""
+                ""AffinityKeyName"": ""Key1"",
+                ""Cookie"": {
+                    ""Domain"": ""localhost"",
+                    ""Expiration"": ""03:00:00"",
+                    ""HttpOnly"": true,
+                    ""IsEssential"": true,
+                    ""MaxAge"": ""1.00:00:00"",
+                    ""Path"": ""mypath"",
+                    ""SameSite"": ""Strict"",
+                    ""SecurePolicy"": ""None""
                 }
             },
             ""HealthCheck"": {
@@ -479,7 +496,15 @@ namespace Yarp.ReverseProxy.Configuration
             Assert.Equal(cluster1.SessionAffinity.Enabled, abstractCluster1.SessionAffinity.Enabled);
             Assert.Equal(cluster1.SessionAffinity.FailurePolicy, abstractCluster1.SessionAffinity.FailurePolicy);
             Assert.Equal(cluster1.SessionAffinity.Mode, abstractCluster1.SessionAffinity.Mode);
-            Assert.Equal(cluster1.SessionAffinity.Settings, abstractCluster1.SessionAffinity.Settings);
+            Assert.Equal(cluster1.SessionAffinity.AffinityKeyName, abstractCluster1.SessionAffinity.AffinityKeyName);
+            Assert.Equal(cluster1.SessionAffinity.Cookie.Domain, abstractCluster1.SessionAffinity.Cookie.Domain);
+            Assert.Equal(cluster1.SessionAffinity.Cookie.Expiration, abstractCluster1.SessionAffinity.Cookie.Expiration);
+            Assert.Equal(cluster1.SessionAffinity.Cookie.HttpOnly, abstractCluster1.SessionAffinity.Cookie.HttpOnly);
+            Assert.Equal(cluster1.SessionAffinity.Cookie.IsEssential, abstractCluster1.SessionAffinity.Cookie.IsEssential);
+            Assert.Equal(cluster1.SessionAffinity.Cookie.MaxAge, abstractCluster1.SessionAffinity.Cookie.MaxAge);
+            Assert.Equal(cluster1.SessionAffinity.Cookie.Path, abstractCluster1.SessionAffinity.Cookie.Path);
+            Assert.Equal(cluster1.SessionAffinity.Cookie.SameSite, abstractCluster1.SessionAffinity.Cookie.SameSite);
+            Assert.Equal(cluster1.SessionAffinity.Cookie.SecurePolicy, abstractCluster1.SessionAffinity.Cookie.SecurePolicy);
             Assert.Equal(cluster1.HttpClient.MaxConnectionsPerServer, abstractCluster1.HttpClient.MaxConnectionsPerServer);
 #if NET
             Assert.Equal(cluster1.HttpClient.EnableMultipleHttp2Connections, abstractCluster1.HttpClient.EnableMultipleHttp2Connections);

@@ -329,6 +329,23 @@ namespace Yarp.ReverseProxy.Service
             {
                 errors.Add(new ArgumentException($"No matching IAffinityFailurePolicy found for the affinity failure policy name '{affinityFailurePolicy}' set on the cluster '{cluster.ClusterId}'."));
             }
+
+            var cookieConfig = cluster.SessionAffinity.Cookie;
+
+            if (cookieConfig == null)
+            {
+                return;
+            }
+
+            if (cookieConfig.Expiration != null && cookieConfig.Expiration <= TimeSpan.Zero)
+            {
+                errors.Add(new ArgumentException($"Session affinity cookie expiration must be positive or null."));
+            }
+
+            if (cookieConfig.MaxAge != null && cookieConfig.MaxAge <= TimeSpan.Zero)
+            {
+                errors.Add(new ArgumentException($"Session affinity cookie max-age must be positive or null."));
+            }
         }
 
         private static void ValidateProxyHttpClient(IList<Exception> errors, ClusterConfig cluster)
