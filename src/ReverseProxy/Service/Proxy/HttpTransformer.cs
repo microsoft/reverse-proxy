@@ -48,12 +48,6 @@ namespace Yarp.ReverseProxy.Service.Proxy
                     continue;
                 }
 
-                // Filter out HTTP/2 pseudo headers like ":method" and ":path", those go into other fields.
-                if (headerName.Length > 0 && headerName[0] == ':')
-                {
-                    continue;
-                }
-
                 RequestUtilities.AddHeader(proxyRequest, headerName, headerValue);
             }
 
@@ -74,10 +68,10 @@ namespace Yarp.ReverseProxy.Service.Proxy
         public virtual ValueTask<bool> TransformResponseAsync(HttpContext httpContext, HttpResponseMessage proxyResponse)
         {
             var responseHeaders = httpContext.Response.Headers;
-            CopyResponseHeaders(httpContext, proxyResponse.Headers, responseHeaders);
+            CopyResponseHeaders(proxyResponse.Headers, responseHeaders);
             if (proxyResponse.Content != null)
             {
-                CopyResponseHeaders(httpContext, proxyResponse.Content.Headers, responseHeaders);
+                CopyResponseHeaders(proxyResponse.Content.Headers, responseHeaders);
             }
 
             return new ValueTask<bool>(true);
@@ -99,21 +93,19 @@ namespace Yarp.ReverseProxy.Service.Proxy
             {
                 // Note that trailers, if any, should already have been declared in Proxy's response
                 // by virtue of us having proxied all response headers in step 6.
-                CopyResponseHeaders(httpContext, proxyResponse.TrailingHeaders, outgoingTrailers);
+                CopyResponseHeaders(proxyResponse.TrailingHeaders, outgoingTrailers);
             }
 
             return default;
         }
 
 
-        private static void CopyResponseHeaders(HttpContext httpContext, HttpHeaders source, IHeaderDictionary destination)
+        private static void CopyResponseHeaders(HttpHeaders source, IHeaderDictionary destination)
         {
-            var isHttp2OrGreater = ProtocolHelper.IsHttp2OrGreater(httpContext.Request.Protocol);
-
             foreach (var header in source)
             {
                 var headerName = header.Key;
-                if (RequestUtilities.ShouldSkipResponseHeader(headerName, isHttp2OrGreater))
+                if (RequestUtilities.ShouldSkipResponseHeader(headerName))
                 {
                     continue;
                 }

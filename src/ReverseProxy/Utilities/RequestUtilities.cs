@@ -17,22 +17,26 @@ namespace Yarp.ReverseProxy.Utilities
     {
         internal static bool ShouldSkipRequestHeader(string headerName)
         {
-            return _invalidH2H3Headers.Contains(headerName);
+            if (_headersToExclude.Contains(headerName))
+            {
+                return true;
+            }
+
+            // Filter out HTTP/2 pseudo headers like ":method" and ":path", those go into other fields.
+            if (headerName.Length > 0 && headerName[0] == ':')
+            {
+                return true;
+            }
+
+            return false;
         }
 
-        internal static bool ShouldSkipResponseHeader(string headerName, bool isHttp2OrGreater)
+        internal static bool ShouldSkipResponseHeader(string headerName)
         {
-            if (isHttp2OrGreater)
-            {
-                return _invalidH2H3Headers.Contains(headerName);
-            }
-            else
-            {
-                return headerName.Equals(HeaderNames.TransferEncoding, StringComparison.OrdinalIgnoreCase);
-            }
+            return _headersToExclude.Contains(headerName);
         }
 
-        private static readonly HashSet<string> _invalidH2H3Headers = new(StringComparer.OrdinalIgnoreCase)
+        private static readonly HashSet<string> _headersToExclude = new(StringComparer.OrdinalIgnoreCase)
         {
             HeaderNames.Connection,
             HeaderNames.TransferEncoding,
