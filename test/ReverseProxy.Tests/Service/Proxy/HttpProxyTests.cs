@@ -1627,6 +1627,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                     await Task.Yield();
 
                     var response = new HttpResponseMessage(HttpStatusCode.OK);
+                    response.Content = new StringContent("Foo");
 
                     foreach (var header in responseHeaders)
                     {
