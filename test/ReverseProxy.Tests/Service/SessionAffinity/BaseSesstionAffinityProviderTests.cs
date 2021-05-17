@@ -25,7 +25,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             Enabled = true,
             Mode = "Stub",
             FailurePolicy = "Return503",
-            Settings = new Dictionary<string, string> { { "AffinityKeyName", KeyName } },
+            AffinityKeyName = "StubAffinityKey"
         };
 
         [Theory]
@@ -79,13 +79,13 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
                 Enabled = false,
                 Mode = _defaultOptions.Mode,
                 FailurePolicy = _defaultOptions.FailurePolicy,
-                Settings = _defaultOptions.Settings,
+                AffinityKeyName = _defaultOptions.AffinityKeyName,
             };
             Assert.Throws<InvalidOperationException>(() => provider.FindAffinitizedDestinations(new DefaultHttpContext(), new[] { new DestinationState("1") }, "cluster-1", options));
         }
 
         [Fact]
-        public void AffinitizeRequest_AffinitiDisabled_DoNothing()
+        public void AffinitizeRequest_AffinityDisabled_DoNothing()
         {
             var dataProtector = GetDataProtector();
             var provider = new ProviderStub(dataProtector.Object, AffinityTestHelper.GetLogger<BaseSessionAffinityProvider<string>>().Object);
@@ -117,22 +117,6 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
         }
 
         [Fact]
-        public void FindAffinitizedDestinations_AffinityOptionSettingNotFound_Throw()
-        {
-            var provider = new ProviderStub(GetDataProtector().Object, AffinityTestHelper.GetLogger<BaseSessionAffinityProvider<string>>().Object);
-            var options = GetOptionsWithUnknownSetting();
-            Assert.Throws<ArgumentException>(() => provider.FindAffinitizedDestinations(new DefaultHttpContext(), new[] { new DestinationState("dest-A") }, "cluster-1", options));
-        }
-
-        [Fact]
-        public void AffinitizeRequest_AffinityOptionSettingNotFound_Throw()
-        {
-            var provider = new ProviderStub(GetDataProtector().Object, AffinityTestHelper.GetLogger<BaseSessionAffinityProvider<string>>().Object);
-            var options = GetOptionsWithUnknownSetting();
-            Assert.Throws<ArgumentException>(() => provider.AffinitizeRequest(new DefaultHttpContext(), options, new DestinationState("dest-A")));
-        }
-
-        [Fact]
         public void Ctor_MandatoryArgumentIsNull_Throw()
         {
             Assert.Throws<ArgumentNullException>(() => new ProviderStub(null, new Mock<ILogger>().Object));
@@ -151,17 +135,6 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             yield return new object[] { GetHttpContext(new[] { (KeyName, "/////") }, false), destinations, AffinityStatus.AffinityKeyExtractionFailed, null, Encoding.UTF8.GetBytes(InvalidKeyNull), false, LogLevel.Error, EventIds.RequestAffinityKeyDecryptionFailed };
             yield return new object[] { GetHttpContext(new[] { (KeyName, InvalidKeyNull) }), destinations, AffinityStatus.AffinityKeyExtractionFailed, null, Encoding.UTF8.GetBytes(InvalidKeyNull), true, LogLevel.Error, EventIds.RequestAffinityKeyDecryptionFailed };
             yield return new object[] { GetHttpContext(new[] { (KeyName, InvalidKeyThrow) }), destinations, AffinityStatus.AffinityKeyExtractionFailed, null, Encoding.UTF8.GetBytes(InvalidKeyThrow), true, LogLevel.Error, EventIds.RequestAffinityKeyDecryptionFailed };
-        }
-
-        private static SessionAffinityConfig GetOptionsWithUnknownSetting()
-        {
-            return new SessionAffinityConfig
-            {
-                Enabled = true,
-                Mode = "Stub",
-                FailurePolicy = "Return503",
-                Settings = new Dictionary<string, string> { { "Unknown", "ZZZ" } },
-            };
         }
 
         private static HttpContext GetHttpContext((string Key, string Value)[] items, bool encodeToBase64 = true)
@@ -211,18 +184,16 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             protected override (string Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, SessionAffinityConfig options)
             {
                 Assert.Equal(Mode, options.Mode);
-                var keyName = GetSettingValue(KeyNameSetting, options);
                 // HttpContext.Items is used here to store the request affinity key for simplicity.
                 // In real world scenario, a provider will extract it from request (e.g. header, cookie, etc.)
-                var encryptedKey = context.Items.TryGetValue(keyName, out var requestKey) ? requestKey : null;
+                var encryptedKey = context.Items.TryGetValue(options.AffinityKeyName, out var requestKey) ? requestKey : null;
                 return Unprotect((string)encryptedKey);
             }
 
             protected override void SetAffinityKey(HttpContext context, SessionAffinityConfig options, string unencryptedKey)
             {
-                var keyName = GetSettingValue(KeyNameSetting, options);
                 var encryptedKey = Protect(unencryptedKey);
-                context.Items[keyName] = encryptedKey;
+                context.Items[options.AffinityKeyName] = encryptedKey;
                 LastSetEncryptedKey = encryptedKey;
             }
         }

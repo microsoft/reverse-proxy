@@ -150,7 +150,6 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
         {
             const string TestAddress = "https://localhost:123/";
 
-            var clientCertificate = TestResources.GetTestCertificate();
             var cluster = new ClusterConfig
             {
                 ClusterId = "cluster1",
@@ -162,9 +161,8 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
                 {
                     SslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12,
                     MaxConnectionsPerServer = 10,
-                    ClientCertificate = clientCertificate,
 #if NET
-                    RequestHeaderEncoding = Encoding.UTF8
+                    RequestHeaderEncoding = Encoding.UTF8.WebName
 #endif
                 }
             };
@@ -189,15 +187,13 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
             Assert.NotNull(clusterModel.HttpClient);
             Assert.Equal(SslProtocols.Tls11 | SslProtocols.Tls12, clusterModel.Config.HttpClient.SslProtocols);
             Assert.Equal(10, clusterModel.Config.HttpClient.MaxConnectionsPerServer);
-            Assert.Same(clientCertificate, clusterModel.Config.HttpClient.ClientCertificate);
 #if NET
-            Assert.Equal(Encoding.UTF8, clusterModel.Config.HttpClient.RequestHeaderEncoding);
+            Assert.Equal(Encoding.UTF8.WebName, clusterModel.Config.HttpClient.RequestHeaderEncoding);
 #endif
 
             var handler = Proxy.Tests.ProxyHttpClientFactoryTests.GetHandler(clusterModel.HttpClient);
             Assert.Equal(SslProtocols.Tls11 | SslProtocols.Tls12, handler.SslOptions.EnabledSslProtocols);
             Assert.Equal(10, handler.MaxConnectionsPerServer);
-            Assert.Single(handler.SslOptions.ClientCertificates, clientCertificate);
 #if NET
             Assert.Equal(Encoding.UTF8, handler.RequestHeaderEncodingSelector(default, default));
 #endif

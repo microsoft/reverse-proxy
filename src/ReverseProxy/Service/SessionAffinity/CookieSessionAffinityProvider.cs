@@ -5,23 +5,25 @@ using System;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Yarp.ReverseProxy.Abstractions;
 using Yarp.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.Service.SessionAffinity
 {
     internal sealed class CookieSessionAffinityProvider : BaseSessionAffinityProvider<string>
     {
-        private readonly CookieSessionAffinityProviderOptions _providerOptions;
+        public static readonly string DefaultCookieName = ".Yarp.ReverseProxy.Affinity";
+
+        private readonly IClock _clock;
 
         public CookieSessionAffinityProvider(
-            IOptions<CookieSessionAffinityProviderOptions> providerOptions,
             IDataProtectionProvider dataProtectionProvider,
+            IClock clock,
             ILogger<CookieSessionAffinityProvider> logger)
             : base(dataProtectionProvider, logger)
         {
-            _providerOptions = providerOptions?.Value ?? throw new ArgumentNullException(nameof(providerOptions));
+            _clock = clock ?? throw new ArgumentNullException(nameof(clock));
         }
 
         public override string Mode => SessionAffinityConstants.Modes.Cookie;
@@ -33,14 +35,25 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
 
         protected override (string Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, SessionAffinityConfig config)
         {
-            var encryptedRequestKey = context.Request.Cookies.TryGetValue(_providerOptions.Cookie.Name, out var keyInCookie) ? keyInCookie : null;
+            var cookieName = config.AffinityKeyName ?? DefaultCookieName;
+            var encryptedRequestKey = context.Request.Cookies.TryGetValue(cookieName, out var keyInCookie) ? keyInCookie : null;
             return Unprotect(encryptedRequestKey);
         }
 
         protected override void SetAffinityKey(HttpContext context, SessionAffinityConfig config, string unencryptedKey)
         {
-            var affinityCookieOptions = _providerOptions.Cookie.Build(context);
-            context.Response.Cookies.Append(_providerOptions.Cookie.Name, Protect(unencryptedKey), affinityCookieOptions);
+            var affinityCookieOptions = new CookieOptions
+            {
+                Path = config.Cookie?.Path ?? "/",
+                SameSite = config.Cookie?.SameSite ?? SameSiteMode.Unspecified,
+                HttpOnly = config.Cookie?.HttpOnly ?? true,
+                MaxAge = config.Cookie?.MaxAge,
+                Domain = config.Cookie?.Domain,
+                IsEssential = config.Cookie?.IsEssential ?? false,
+                Secure = config.Cookie?.SecurePolicy == CookieSecurePolicy.Always || (config.Cookie?.SecurePolicy == CookieSecurePolicy.SameAsRequest && context.Request.IsHttps),
+                Expires = config.Cookie?.Expiration != null ? _clock.GetUtcNow().Add(config.Cookie.Expiration.Value) : default(DateTimeOffset?),
+            };
+            context.Response.Cookies.Append(config.AffinityKeyName ?? DefaultCookieName, Protect(unencryptedKey), affinityCookieOptions);
         }
     }
 }

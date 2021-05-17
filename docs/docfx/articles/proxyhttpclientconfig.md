@@ -20,15 +20,6 @@ HTTP client configuration is based on [HttpClientConfig](xref:Yarp.ReverseProxy.
     "SslProtocols": [ "<protocol-names>" ],
     "MaxConnectionsPerServer": "<int>",
     "DangerousAcceptAnyServerCertificate": "<bool>",
-    "ClientCertificate": {
-        "Path": "<string>",
-        "KeyPath": "<string>",
-        "Password": "<string>",
-        "Subject": "<string>",
-        "Store": "<string>",
-        "Location": "<string>",
-        "AllowInvalid": "<bool>"
-    },
     "RequestHeaderEncoding": "<encoding-name>"
 }
 ```
@@ -48,33 +39,6 @@ Configuration settings:
 - DangerousAcceptAnyServerCertificate - indicates whether the server's SSL certificate validity is checked by the client. Setting it to `true` completely disables validation. Default value is `false`.
 ```JSON
 "DangerousAcceptAnyServerCertificate": "true"
-```
-- ClientCertificate - specifies a client [X509Certificate](https://docs.microsoft.com/en-us/dotnet/api/system.security.cryptography.x509certificates.x509certificate?view=netcore-3.1) certificate used to authenticate client on the server. Default value is `null`. There are 3 supported certificate formats
-    - PFX file and optional password
-    - PEM file and the key with an optional password
-    - Certificate subject, store and location as well as `AllowInvalid` flag indicating whether or not an invalid certificate accepted
-```JSON
-// PFX file
-"ClientCertificate": {
-    "Path": "my-client-cert.pfx",
-    "Password": "1234abc"
-}
-
-// PEM file
-"ClientCertificate": {
-    "Path": "my-client-cert.pem",
-    "KeyPath": "my-client-cert.key",
-    "Password": "1234abc"
-}
-
-// Subject, store and location
-"ClientCertificate": {
-    "Subject": "MyClientCert",
-    "Store": "AddressBook",
-    "Location": "LocalMachine",
-    "AllowInvalid": "true"
-}
-
 ```
 - RequestHeaderEncoding - enables other than ASCII encoding for outgoing request headers. Setting this value will leverage [`SocketsHttpHandler.RequestHeaderEncodingSelector`](https://docs.microsoft.com/en-us/dotnet/api/system.net.http.socketshttphandler.requestheaderencodingselector?view=net-5.0) and use the selected encoding for all headers. If you need more granular approach, please use custom `IProxyHttpClientFactory`. The value is then parsed by [`Encoding.GetEncoding`](https://docs.microsoft.com/en-us/dotnet/api/system.text.encoding.getencoding?view=net-5.0#System_Text_Encoding_GetEncoding_System_String_), use values like: "utf-8", "iso-8859-1", etc. **This setting is only available for .NET 5.0.**
 ```JSON
@@ -159,12 +123,7 @@ The below example shows 2 samples of HTTP client and request configurations for 
             "HttpClient": {
                 "SslProtocols": [
                     "Tls12"
-                ],
-                "ClientCertificate": {
-                    "Path": "my-client-cert.pem",
-                    "KeyPath": "my-client-cert.key",
-                    "Password": "1234abc"
-                }
+                ]
             },
             "HttpRequest": {
                 "Version": "1.1",
@@ -182,8 +141,6 @@ The below example shows 2 samples of HTTP client and request configurations for 
 
 ## Code Configuration
 HTTP client configuration uses the type [HttpClientConfig](xref:Yarp.ReverseProxy.Abstractions.HttpClientConfig).
-
-Note that instead of defining certificate location as it was in the config model, this type requires a fully constructed [X509Certificate](xref:System.Security.Cryptography.X509Certificates.X509Certificate) certificate. Conversion from the configuration contract to the abstraction model is done by a [IProxyConfigProvider](xref:Yarp.ReverseProxy.Service.IProxyConfigProvider) which loads a client certificate into memory.
 
 The following is an example of `HttpClientConfig` using [code based](configproviders.md) configuration. An instance of `HttpClientConfig` is assigned to the [ClusterConfig.HttpClient](xref:Yarp.ReverseProxy.Abstractions.ClusterConfig) property before passing the cluster array to `LoadFromMemory` method.
 

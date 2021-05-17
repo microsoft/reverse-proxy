@@ -17,7 +17,6 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 using Yarp.ReverseProxy.Abstractions;
-using Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Yarp.ReverseProxy.Service;
 using Yarp.ReverseProxy.Service.LoadBalancing;
 using Yarp.ReverseProxy.Service.Proxy;
@@ -81,7 +80,18 @@ namespace Yarp.ReverseProxy.Configuration
                             Enabled = true,
                             FailurePolicy = "Return503Error",
                             Mode = "Cookie",
-                            Settings = new Dictionary<string, string> { { "affinity1-K1", "affinity1-V1" }, { "affinity1-K2", "affinity1-V2" } }
+                            AffinityKeyName = "Key1",
+                            Cookie = new SessionAffinityCookieConfig
+                            {
+                                Domain = "localhost",
+                                Expiration = TimeSpan.FromHours(3),
+                                HttpOnly = true,
+                                IsEssential = true,
+                                MaxAge = TimeSpan.FromDays(1),
+                                Path = "mypath",
+                                SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict,
+                                SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.None
+                            }
                         },
                         HttpClient = new HttpClientConfig
                         {
@@ -182,9 +192,16 @@ namespace Yarp.ReverseProxy.Configuration
                 ""Enabled"": true,
                 ""Mode"": ""Cookie"",
                 ""FailurePolicy"": ""Return503Error"",
-                ""Settings"": {
-                    ""affinity1-K1"": ""affinity1-V1"",
-                    ""affinity1-K2"": ""affinity1-V2""
+                ""AffinityKeyName"": ""Key1"",
+                ""Cookie"": {
+                    ""Domain"": ""localhost"",
+                    ""Expiration"": ""03:00:00"",
+                    ""HttpOnly"": true,
+                    ""IsEssential"": true,
+                    ""MaxAge"": ""1.00:00:00"",
+                    ""Path"": ""mypath"",
+                    ""SameSite"": ""Strict"",
+                    ""SecurePolicy"": ""None""
                 }
             },
             ""HealthCheck"": {
@@ -349,16 +366,13 @@ namespace Yarp.ReverseProxy.Configuration
             var builder = new ConfigurationBuilder();
             using var stream = new MemoryStream(Encoding.UTF8.GetBytes(_validJsonConfig));
             var proxyConfig = builder.AddJsonStream(stream).Build();
-            var certLoader = new Mock<ICertificateConfigLoader>(MockBehavior.Strict);
-            using var certificate = TestResources.GetTestCertificate();
-            certLoader.Setup(l => l.LoadCertificate(It.Is<IConfigurationSection>(o => o["Path"] == "mycert.pfx" && o["Password"] == "myPassword1234"))).Returns(certificate);
             var logger = new Mock<ILogger<ConfigurationConfigProvider>>();
 
-            var provider = new ConfigurationConfigProvider(logger.Object, proxyConfig, certLoader.Object);
+            var provider = new ConfigurationConfigProvider(logger.Object, proxyConfig);
             Assert.NotNull(provider);
             var abstractConfig = provider.GetConfig();
 
-            VerifyValidAbstractConfig(_validConfigurationData, certificate, abstractConfig);
+            VerifyValidAbstractConfig(_validConfigurationData, abstractConfig);
         }
 
         [Fact]
@@ -367,12 +381,9 @@ namespace Yarp.ReverseProxy.Configuration
             var builder = new ConfigurationBuilder();
             using var stream = new MemoryStream(Encoding.UTF8.GetBytes(_validJsonConfig));
             var proxyConfig = builder.AddJsonStream(stream).Build();
-            var certLoader = new Mock<ICertificateConfigLoader>(MockBehavior.Strict);
-            using var certificate = TestResources.GetTestCertificate();
-            certLoader.Setup(l => l.LoadCertificate(It.Is<IConfigurationSection>(o => o["Path"] == "mycert.pfx" && o["Password"] == "myPassword1234"))).Returns(certificate);
             var logger = new Mock<ILogger<ConfigurationConfigProvider>>();
 
-            var provider = new ConfigurationConfigProvider(logger.Object, proxyConfig, certLoader.Object);
+            var provider = new ConfigurationConfigProvider(logger.Object, proxyConfig);
             var abstractConfig = (ConfigurationSnapshot)provider.GetConfig();
 
             var abstractionsNamespace = typeof(ClusterConfig).Namespace;
@@ -442,113 +453,6 @@ namespace Yarp.ReverseProxy.Configuration
             }
         }
 
-        [Fact]
-        public void GetConfig_FirstTime_CertificateLoadingThrewException_Throws()
-        {
-            var builder = new ConfigurationBuilder();
-            var proxyConfig = builder.AddInMemoryCollection(new Dictionary<string, string>
-            {
-                ["Clusters:cluster1:Destinations:destinationA:Address"] = "https://localhost:10001/destC",
-                ["Clusters:cluster1:HttpClient:ClientCertificate:Path"] = "mycert.pfx",
-                ["Routes:0:RouteId"] = "routeA",
-                ["Routes:0:ClusterId"] = "cluster1",
-                ["Routes:0:Order"] = "1",
-                ["Routes:0:Match:Hosts:0"] = "host-B",
-            }).Build();
-            var certLoader = new Mock<ICertificateConfigLoader>(MockBehavior.Strict);
-            using var certificate = TestResources.GetTestCertificate();
-            certLoader.Setup(l => l.LoadCertificate(It.IsAny<IConfigurationSection>())).Throws(new FileNotFoundException());
-            var logger = new Mock<ILogger<ConfigurationConfigProvider>>();
-            var provider = new ConfigurationConfigProvider(logger.Object, proxyConfig, certLoader.Object);
-            Assert.ThrowsAny<FileNotFoundException>(() => provider.GetConfig());
-        }
-
-        [Fact]
-        public void GetConfig_SecondTime_CertificateLoadingThrewException_ErrorLogged()
-        {
-            var builder = new ConfigurationBuilder();
-            var proxyConfig = builder.AddInMemoryCollection(new Dictionary<string, string>
-            {
-                ["Clusters:cluster1:Destinations:destinationA:Address"] = "https://localhost:10001/destC",
-                ["Routes:0:RouteId"] = "routeA",
-                ["Routes:0:ClusterId"] = "cluster1",
-                ["Routes:0:Order"] = "1",
-                ["Routes:0:Match:Hosts:0"] = "host-B",
-            }).Build();
-            var certLoader = new Mock<ICertificateConfigLoader>(MockBehavior.Strict);
-            using var certificate = TestResources.GetTestCertificate();
-            certLoader.Setup(l => l.LoadCertificate(It.IsAny<IConfigurationSection>())).Throws(new FileNotFoundException());
-            var logger = new Mock<ILogger<ConfigurationConfigProvider>>();
-            logger.Setup(l => l.IsEnabled(LogLevel.Error)).Returns(true);
-            var provider = new ConfigurationConfigProvider(logger.Object, proxyConfig, certLoader.Object);
-
-            var firstSnapshot = provider.GetConfig();
-            logger.Verify(l => l.Log(LogLevel.Error, It.IsAny<EventId>(), It.IsAny<string>(), It.IsAny<Exception>(), It.IsAny<Func<string, Exception, string>>()), Times.Never);
-
-            // Add configuration entry here and trigger a change
-            proxyConfig["Clusters:cluster1:HttpClient:ClientCertificate:Path"] = "mycert.pfx";
-
-            TriggerOnChange(proxyConfig);
-
-            var secondSnapshot = provider.GetConfig();
-            Assert.Same(firstSnapshot, secondSnapshot);
-            logger.Verify(l => l.Log(LogLevel.Error, EventIds.ConfigurationDataConversionFailed, It.IsAny<It.IsAnyType>(), It.IsAny<Exception>(), (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Once);
-        }
-
-        [Fact]
-        public void CachedCertificateIsDisposed_RemoveItFromCache()
-        {
-            var builder = new ConfigurationBuilder();
-            var proxyConfig = builder.AddInMemoryCollection(new Dictionary<string, string>
-            {
-                ["Clusters:cluster1:Destinations:destinationA:Address"] = "https://localhost:10001/destC",
-                ["Clusters:cluster1:HttpClient:ClientCertificate:Path"] = "testCert.pfx",
-                ["Routes:0:RouteId"] = "routeA",
-                ["Routes:0:ClusterId"] = "cluster1",
-                ["Routes:0:Order"] = "1",
-                ["Routes:0:Match:Hosts:0"] = "host-B",
-            }).Build();
-            var certLoader = new Mock<ICertificateConfigLoader>(MockBehavior.Strict);
-            using var certificate = TestResources.GetTestCertificate();
-            certLoader.Setup(l => l.LoadCertificate(It.IsAny<IConfigurationSection>())).Returns(() => TestResources.GetTestCertificate());
-            var logger = new Mock<ILogger<ConfigurationConfigProvider>>();
-            logger.Setup(l => l.IsEnabled(LogLevel.Error)).Returns(true);
-            var provider = new ConfigurationConfigProvider(logger.Object, proxyConfig, certLoader.Object);
-
-            // Get several certificates.
-            var certificateConfig = new List<X509Certificate2>();
-            for (var i = 0; i < 5; i++)
-            {
-                certificateConfig.AddRange(provider.GetConfig().Clusters.Select(c => c.HttpClient.ClientCertificate));
-                if (i < 4)
-                {
-                    TriggerOnChange(proxyConfig);
-                }
-            }
-
-            // Verify cache contents match the configuration objects.
-            var cachedCertificates = GetCachedCertificates(provider);
-            Assert.Equal(certificateConfig.Count, cachedCertificates.Length);
-            for (var i = 0; i < certificateConfig.Count; i++)
-            {
-                Assert.Same(certificateConfig[i], cachedCertificates[i]);
-            }
-
-            // Get several certificates.
-            certificateConfig[1].Dispose();
-            certificateConfig[3].Dispose();
-
-            // Trigger cache compaction.
-            TriggerOnChange(proxyConfig);
-
-            // Verify disposed certificates were purged out.
-            cachedCertificates = GetCachedCertificates(provider);
-            Assert.Equal(4, cachedCertificates.Length);
-            Assert.Same(certificateConfig[0], cachedCertificates[0]);
-            Assert.Same(certificateConfig[2], cachedCertificates[1]);
-            Assert.Same(certificateConfig[4], cachedCertificates[2]);
-        }
-
         private void TriggerOnChange(IConfigurationRoot configurationRoot)
         {
             // This method is protected so we use reflection to trigger it. The alternative is to wrap or implement
@@ -566,16 +470,7 @@ namespace Yarp.ReverseProxy.Configuration
             }
         }
 
-        private X509Certificate2[] GetCachedCertificates(ConfigurationConfigProvider provider)
-        {
-            return provider.Certificates.Select(r =>
-            {
-                Assert.True(r.TryGetTarget(out var certificate));
-                return certificate;
-            }).ToArray();
-        }
-
-        private void VerifyValidAbstractConfig(IProxyConfig validConfig, X509Certificate2 certificate, IProxyConfig abstractConfig)
+        private void VerifyValidAbstractConfig(IProxyConfig validConfig, IProxyConfig abstractConfig)
         {
             Assert.NotNull(abstractConfig);
             Assert.Equal(2, abstractConfig.Clusters.Count);
@@ -601,12 +496,19 @@ namespace Yarp.ReverseProxy.Configuration
             Assert.Equal(cluster1.SessionAffinity.Enabled, abstractCluster1.SessionAffinity.Enabled);
             Assert.Equal(cluster1.SessionAffinity.FailurePolicy, abstractCluster1.SessionAffinity.FailurePolicy);
             Assert.Equal(cluster1.SessionAffinity.Mode, abstractCluster1.SessionAffinity.Mode);
-            Assert.Equal(cluster1.SessionAffinity.Settings, abstractCluster1.SessionAffinity.Settings);
-            Assert.Same(certificate, abstractCluster1.HttpClient.ClientCertificate);
+            Assert.Equal(cluster1.SessionAffinity.AffinityKeyName, abstractCluster1.SessionAffinity.AffinityKeyName);
+            Assert.Equal(cluster1.SessionAffinity.Cookie.Domain, abstractCluster1.SessionAffinity.Cookie.Domain);
+            Assert.Equal(cluster1.SessionAffinity.Cookie.Expiration, abstractCluster1.SessionAffinity.Cookie.Expiration);
+            Assert.Equal(cluster1.SessionAffinity.Cookie.HttpOnly, abstractCluster1.SessionAffinity.Cookie.HttpOnly);
+            Assert.Equal(cluster1.SessionAffinity.Cookie.IsEssential, abstractCluster1.SessionAffinity.Cookie.IsEssential);
+            Assert.Equal(cluster1.SessionAffinity.Cookie.MaxAge, abstractCluster1.SessionAffinity.Cookie.MaxAge);
+            Assert.Equal(cluster1.SessionAffinity.Cookie.Path, abstractCluster1.SessionAffinity.Cookie.Path);
+            Assert.Equal(cluster1.SessionAffinity.Cookie.SameSite, abstractCluster1.SessionAffinity.Cookie.SameSite);
+            Assert.Equal(cluster1.SessionAffinity.Cookie.SecurePolicy, abstractCluster1.SessionAffinity.Cookie.SecurePolicy);
             Assert.Equal(cluster1.HttpClient.MaxConnectionsPerServer, abstractCluster1.HttpClient.MaxConnectionsPerServer);
 #if NET
             Assert.Equal(cluster1.HttpClient.EnableMultipleHttp2Connections, abstractCluster1.HttpClient.EnableMultipleHttp2Connections);
-            Assert.Equal(Encoding.UTF8, abstractCluster1.HttpClient.RequestHeaderEncoding);
+            Assert.Equal(Encoding.UTF8.WebName, abstractCluster1.HttpClient.RequestHeaderEncoding);
 #endif
             Assert.Equal(cluster1.HttpClient.ActivityContextHeaders, abstractCluster1.HttpClient.ActivityContextHeaders);
             Assert.Equal(SslProtocols.Tls11 | SslProtocols.Tls12, abstractCluster1.HttpClient.SslProtocols);

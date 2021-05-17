@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -328,6 +329,23 @@ namespace Yarp.ReverseProxy.Service
             {
                 errors.Add(new ArgumentException($"No matching IAffinityFailurePolicy found for the affinity failure policy name '{affinityFailurePolicy}' set on the cluster '{cluster.ClusterId}'."));
             }
+
+            var cookieConfig = cluster.SessionAffinity.Cookie;
+
+            if (cookieConfig == null)
+            {
+                return;
+            }
+
+            if (cookieConfig.Expiration != null && cookieConfig.Expiration <= TimeSpan.Zero)
+            {
+                errors.Add(new ArgumentException($"Session affinity cookie expiration must be positive or null."));
+            }
+
+            if (cookieConfig.MaxAge != null && cookieConfig.MaxAge <= TimeSpan.Zero)
+            {
+                errors.Add(new ArgumentException($"Session affinity cookie max-age must be positive or null."));
+            }
         }
 
         private static void ValidateProxyHttpClient(IList<Exception> errors, ClusterConfig cluster)
@@ -342,6 +360,20 @@ namespace Yarp.ReverseProxy.Service
             {
                 errors.Add(new ArgumentException($"Max connections per server limit set on the cluster '{cluster.ClusterId}' must be positive."));
             }
+#if NET
+            var encoding = cluster.HttpClient.RequestHeaderEncoding;
+            if (encoding != null)
+            {
+                try
+                {
+                    Encoding.GetEncoding(encoding);
+                }
+                catch (ArgumentException aex)
+                {
+                    errors.Add(new ArgumentException($"Invalid header encoding '{encoding}'.", aex));
+                }
+            }
+#endif
         }
 
         private static void ValidateProxyHttpRequest(IList<Exception> errors, ClusterConfig cluster)

@@ -3,13 +3,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net.Http;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
@@ -29,7 +29,6 @@ namespace Yarp.ReverseProxy.Configuration
         private readonly object _lockObject = new object();
         private readonly ILogger<ConfigurationConfigProvider> _logger;
         private readonly IConfiguration _configuration;
-        private readonly ICertificateConfigLoader _certificateConfigLoader;
         private ConfigurationSnapshot _snapshot;
         private CancellationTokenSource _changeToken;
         private bool _disposed;
@@ -37,29 +36,16 @@ namespace Yarp.ReverseProxy.Configuration
 
         public ConfigurationConfigProvider(
             ILogger<ConfigurationConfigProvider> logger,
-            IConfiguration configuration,
-            ICertificateConfigLoader certificateConfigLoader)
+            IConfiguration configuration)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-            _certificateConfigLoader = certificateConfigLoader ?? throw new ArgumentNullException(nameof(certificateConfigLoader));
         }
-
-        // Used by tests
-        internal LinkedList<WeakReference<X509Certificate2>> Certificates { get; } = new LinkedList<WeakReference<X509Certificate2>>();
 
         public void Dispose()
         {
             if (!_disposed)
             {
-                foreach (var certificateRef in Certificates)
-                {
-                    if (certificateRef.TryGetTarget(out var certificate))
-                    {
-                        certificate.Dispose();
-                    }
-                }
-
                 _subscription?.Dispose();
                 _changeToken?.Dispose();
                 _disposed = true;
@@ -97,8 +83,6 @@ namespace Yarp.ReverseProxy.Configuration
                     {
                         newSnapshot.Routes.Add(CreateRoute(section));
                     }
-
-                    PurgeCertificateList();
                 }
                 catch (Exception ex)
                 {
@@ -125,21 +109,6 @@ namespace Yarp.ReverseProxy.Configuration
                 catch (Exception ex)
                 {
                     Log.ErrorSignalingChange(_logger, ex);
-                }
-            }
-        }
-
-        private void PurgeCertificateList()
-        {
-            var next = Certificates.First;
-            while (next != null)
-            {
-                var current = next;
-                next = next.Next;
-                // Remove a certificate from the collection if either it has been already collected or at least disposed.
-                if (!current.Value.TryGetTarget(out var cert) || cert.Handle == default)
-                {
-                    Certificates.Remove(current);
                 }
             }
         }
@@ -240,7 +209,28 @@ namespace Yarp.ReverseProxy.Configuration
                 Enabled = section.ReadBool(nameof(SessionAffinityConfig.Enabled)),
                 Mode = section[nameof(SessionAffinityConfig.Mode)],
                 FailurePolicy = section[nameof(SessionAffinityConfig.FailurePolicy)],
-                Settings = section.GetSection(nameof(SessionAffinityConfig.Settings)).ReadStringDictionary()
+                AffinityKeyName = section[nameof(SessionAffinityConfig.AffinityKeyName)],
+                Cookie = CreateSessionAffinityCookieConfig(section.GetSection(nameof(SessionAffinityConfig.Cookie)))
+            };
+        }
+
+        private static SessionAffinityCookieConfig CreateSessionAffinityCookieConfig(IConfigurationSection section)
+        {
+            if (!section.Exists())
+            {
+                return null;
+            }
+
+            return new SessionAffinityCookieConfig
+            {
+                Path = section[nameof(SessionAffinityCookieConfig.Path)],
+                SameSite = section.ReadEnum<SameSiteMode>(nameof(SessionAffinityCookieConfig.SameSite)),
+                HttpOnly = section.ReadBool(nameof(SessionAffinityCookieConfig.HttpOnly)),
+                MaxAge = section.ReadTimeSpan(nameof(SessionAffinityCookieConfig.MaxAge)),
+                Domain = section[nameof(SessionAffinityCookieConfig.Domain)],
+                IsEssential = section.ReadBool(nameof(SessionAffinityCookieConfig.IsEssential)),
+                SecurePolicy = section.ReadEnum<CookieSecurePolicy>(nameof(SessionAffinityCookieConfig.SecurePolicy)),
+                Expiration = section.ReadTimeSpan(nameof(SessionAffinityCookieConfig.Expiration))
             };
         }
 
@@ -297,20 +287,6 @@ namespace Yarp.ReverseProxy.Configuration
                 return null;
             }
 
-            var certSection = section.GetSection(nameof(HttpClientConfig.ClientCertificate));
-
-            X509Certificate2 clientCertificate = null;
-
-            if (certSection.Exists())
-            {
-                clientCertificate = _certificateConfigLoader.LoadCertificate(certSection);
-            }
-
-            if (clientCertificate != null)
-            {
-                Certificates.AddLast(new WeakReference<X509Certificate2>(clientCertificate));
-            }
-
             SslProtocols? sslProtocols = null;
             if (section.GetSection(nameof(HttpClientConfig.SslProtocols)) is IConfigurationSection sslProtocolsSection)
             {
@@ -340,11 +316,10 @@ namespace Yarp.ReverseProxy.Configuration
             {
                 SslProtocols = sslProtocols,
                 DangerousAcceptAnyServerCertificate = section.ReadBool(nameof(HttpClientConfig.DangerousAcceptAnyServerCertificate)),
-                ClientCertificate = clientCertificate,
                 MaxConnectionsPerServer = section.ReadInt32(nameof(HttpClientConfig.MaxConnectionsPerServer)),
 #if NET
                 EnableMultipleHttp2Connections = section.ReadBool(nameof(HttpClientConfig.EnableMultipleHttp2Connections)),
-                RequestHeaderEncoding = section[nameof(HttpClientConfig.RequestHeaderEncoding)] is string encoding ? Encoding.GetEncoding(encoding) : null,
+                RequestHeaderEncoding = section[nameof(HttpClientConfig.RequestHeaderEncoding)],
 #endif
                 ActivityContextHeaders = section.ReadEnum<ActivityContextHeaders>(nameof(HttpClientConfig.ActivityContextHeaders)),
                 WebProxy = webProxy
