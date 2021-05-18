@@ -164,7 +164,7 @@ namespace Yarp.ReverseProxy.Service.Proxy
                 {
                     // :: Step 5: Copy response status line Client ◄-- Proxy ◄-- Destination
                     // :: Step 6: Copy response headers Client ◄-- Proxy ◄-- Destination
-                    var copyBody = await CopyResponseStatusAndHeadersAsync(destinationResponse, context, transformer, isUpgradeRequest);
+                    var copyBody = await CopyResponseStatusAndHeadersAsync(destinationResponse, context, transformer);
 
                     if (!copyBody)
                     {
@@ -293,7 +293,10 @@ namespace Yarp.ReverseProxy.Service.Proxy
             // :: Step 3: Copy request headers Client --► Proxy --► Destination
             await transformer.TransformRequestAsync(context, destinationRequest, destinationPrefix);
 
-            RestoreUpgradeHeaders(context, destinationRequest, isUpgradeRequest);
+            if (isUpgradeRequest)
+            {
+                RestoreUpgradeHeaders(context, destinationRequest);
+            }
 
             // Allow someone to custom build the request uri, otherwise provide a default for them.
             var request = context.Request;
@@ -305,26 +308,23 @@ namespace Yarp.ReverseProxy.Service.Proxy
             return (destinationRequest, requestContent, isUpgradeRequest);
         }
 
-        private static void RestoreUpgradeHeaders(HttpContext context, HttpRequestMessage destinationRequest, bool isUpgradeRequest)
+        private static void RestoreUpgradeHeaders(HttpContext context, HttpRequestMessage request)
         {
-            if (isUpgradeRequest)
+            var connectionValues = context.Request.Headers.GetCommaSeparatedValues(HeaderNames.Connection);
+            string connectionUpgradeValue = null;
+            foreach (var headerValue in connectionValues)
             {
-                var connectionValues = context.Request.Headers.GetCommaSeparatedValues(HeaderNames.Connection);
-                string connectionUpgradeValue = null;
-                foreach (var headerValue in connectionValues)
+                if (headerValue.Equals("upgrade", StringComparison.OrdinalIgnoreCase))
                 {
-                    if (headerValue.Equals("upgrade", StringComparison.OrdinalIgnoreCase))
-                    {
-                        connectionUpgradeValue = headerValue;
-                        break;
-                    }
+                    connectionUpgradeValue = headerValue;
+                    break;
                 }
+            }
 
-                if (connectionUpgradeValue != null && context.Request.Headers.TryGetValue(HeaderNames.Upgrade, out var upgradeValue))
-                {
-                    destinationRequest.Headers.TryAddWithoutValidation(HeaderNames.Connection, connectionUpgradeValue);
-                    destinationRequest.Headers.TryAddWithoutValidation(HeaderNames.Upgrade, (IEnumerable<string>) upgradeValue);
-                }
+            if (connectionUpgradeValue != null && context.Request.Headers.TryGetValue(HeaderNames.Upgrade, out var upgradeValue))
+            {
+                request.Headers.TryAddWithoutValidation(HeaderNames.Connection, connectionUpgradeValue);
+                request.Headers.TryAddWithoutValidation(HeaderNames.Upgrade, (IEnumerable<string>)upgradeValue);
             }
         }
 
@@ -471,7 +471,7 @@ namespace Yarp.ReverseProxy.Service.Proxy
             context.Response.StatusCode = StatusCodes.Status502BadGateway;
         }
 
-        private static async ValueTask<bool> CopyResponseStatusAndHeadersAsync(HttpResponseMessage source, HttpContext context, HttpTransformer transformer, bool isUpgradeRequest)
+        private static async ValueTask<bool> CopyResponseStatusAndHeadersAsync(HttpResponseMessage source, HttpContext context, HttpTransformer transformer)
         {
             context.Response.StatusCode = (int)source.StatusCode;
 
@@ -485,23 +485,29 @@ namespace Yarp.ReverseProxy.Service.Proxy
             }
 
             // Copies headers
-            var result = await transformer.TransformResponseAsync(context, source);
-
-            RestoreUpgradeHeaders(context, source, isUpgradeRequest);
-
-            return result;
+            return await transformer.TransformResponseAsync(context, source);
         }
 
-        private static void RestoreUpgradeHeaders(HttpContext context, HttpResponseMessage response, bool isUpgradeRequest)
+        private static void RestoreUpgradeHeaders(HttpContext context, HttpResponseMessage response)
         {
-            if (isUpgradeRequest && response.Headers.TryGetValues(HeaderNames.Upgrade, out var upgradeValues))
+            if (response.Headers.TryGetValues(HeaderNames.Connection, out var connectionValues)
+                && response.Headers.TryGetValues(HeaderNames.Upgrade, out var upgradeValues))
             {
-                var stringValues = StringValues.Empty;
-                foreach(var value in upgradeValues)
+                var upgradeStringValues = StringValues.Empty;
+                foreach (var value in upgradeValues)
                 {
-                    stringValues = StringValues.Concat(stringValues, value);
+                    upgradeStringValues = StringValues.Concat(upgradeStringValues, value);
                 }
-                context.Response.Headers.TryAdd(HeaderNames.Upgrade, stringValues);
+                context.Response.Headers.TryAdd(HeaderNames.Upgrade, upgradeStringValues);
+
+                foreach (var value in connectionValues)
+                {
+                    if (value.Equals("upgrade", StringComparison.OrdinalIgnoreCase))
+                    {
+                        context.Response.Headers.TryAdd(HeaderNames.Connection, value);
+                        break;
+                    }
+                }
             }
         }
 
@@ -517,6 +523,8 @@ namespace Yarp.ReverseProxy.Service.Proxy
             {
                 throw new InvalidOperationException("A response content is required for upgrades.");
             }
+
+            RestoreUpgradeHeaders(context, destinationResponse);
 
             // :: Step 7-A-1: Upgrade the client channel. This will also send response headers.
             var upgradeFeature = context.Features.Get<IHttpUpgradeFeature>();

@@ -1593,9 +1593,10 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
         [Theory]
         [InlineData("1.1", false, "Connection: upgrade; Upgrade: test123", null, "Connection; Upgrade")]
         [InlineData("1.1", false, "Connection: keep-alive; Keep-Alive: timeout=100", null, "Connection; Keep-Alive")]
-        [InlineData("1.1", true, "Connection: upgrade; Upgrade: websocket", "Upgrade: websocket", "Connection")]
-        [InlineData("1.1", true, "Connection: upgrade, keep-alive; Upgrade: websocket; Keep-Alive: timeout=100", "Upgrade: websocket", "Connection; Keep-Alive")]
-        [InlineData("1.1", true, "Foo: bar; Upgrade: websocket", "Foo: bar; Upgrade: websocket", null)]
+        [InlineData("1.1", true, "Connection: upgrade; Upgrade: websocket", "Connection: upgrade; Upgrade: websocket", null)]
+        [InlineData("1.1", true, "Connection: upgrade, keep-alive; Upgrade: websocket; Keep-Alive: timeout=100", "Connection: upgrade; Upgrade: websocket", "Keep-Alive")]
+        [InlineData("1.1", true, "Foo: bar; Upgrade: websocket", "Foo: bar", "Upgrade")]
+        [InlineData("1.1", true, "Foo: bar; Connection: upgrade", "Foo: bar", "Connection")]
         [InlineData("1.1", false, "Foo: bar", "Foo: bar", null)]
         [InlineData("2.0", false, "Connection: keep-alive; Keep-Alive: timeout=100", null, "Connection; Keep-Alive")]
         [InlineData("2.0", false, "Connection: upgrade; Upgrade: websocket", null, "Connection; Upgrade")]
@@ -1615,6 +1616,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
             {
                 var upgradeFeature = new Mock<IHttpUpgradeFeature>();
                 upgradeFeature.SetupGet(f => f.IsUpgradableRequest).Returns(true);
+                upgradeFeature.Setup(f => f.UpgradeAsync()).ReturnsAsync(httpContext.Request.Body);
                 httpContext.Features.Set(upgradeFeature.Object);
                 httpContext.Request.Headers[HeaderNames.Upgrade] = "WebSocket";
             }
@@ -1626,7 +1628,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                 {
                     await Task.Yield();
 
-                    var response = new HttpResponseMessage(HttpStatusCode.OK);
+                    var response = new HttpResponseMessage(upgrade ? HttpStatusCode.SwitchingProtocols : HttpStatusCode.OK);
                     response.Content = new StringContent("Foo");
 
                     foreach (var header in responseHeaders)
@@ -1640,7 +1642,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
 
             await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyConfig { Version = Version.Parse(protocol) });
 
-            Assert.Equal((int)HttpStatusCode.OK, httpContext.Response.StatusCode);
+            Assert.Equal(upgrade ? (int)HttpStatusCode.SwitchingProtocols : (int)HttpStatusCode.OK, httpContext.Response.StatusCode);
 
             foreach (var preservedHeader in preservedHeaders)
             {
@@ -1655,7 +1657,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
             }
 
             AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
-            events.AssertContainProxyStages(hasRequestContent: false);
+            events.AssertContainProxyStages(hasRequestContent: upgrade, upgrade);
         }
 
         [Theory]
