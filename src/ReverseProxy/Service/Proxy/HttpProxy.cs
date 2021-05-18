@@ -2,11 +2,10 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -117,7 +116,7 @@ namespace Yarp.ReverseProxy.Service.Proxy
                 var isStreamingRequest = isClientHttp2 && ProtocolHelper.IsGrpcContentType(context.Request.ContentType);
 
                 // :: Step 1-3: Create outgoing HttpRequestMessage
-                var (destinationRequest, requestContent) = await CreateRequestMessageAsync(
+                var (destinationRequest, requestContent, isUpgradeRequest) = await CreateRequestMessageAsync(
                     context, destinationPrefix, transformer, requestConfig, isStreamingRequest, requestAborted);
 
                 // :: Step 4: Send the outgoing request using HttpClient
@@ -255,7 +254,7 @@ namespace Yarp.ReverseProxy.Service.Proxy
             }
         }
 
-        private async ValueTask<(HttpRequestMessage, StreamCopyHttpContent)> CreateRequestMessageAsync(HttpContext context, string destinationPrefix,
+        private async ValueTask<(HttpRequestMessage, StreamCopyHttpContent, bool)> CreateRequestMessageAsync(HttpContext context, string destinationPrefix,
             HttpTransformer transformer, RequestProxyConfig requestConfig, bool isStreamingRequest, CancellationToken requestAborted)
         {
             // "http://a".Length = 8
@@ -294,6 +293,11 @@ namespace Yarp.ReverseProxy.Service.Proxy
             // :: Step 3: Copy request headers Client --► Proxy --► Destination
             await transformer.TransformRequestAsync(context, destinationRequest, destinationPrefix);
 
+            if (isUpgradeRequest)
+            {
+                RestoreUpgradeHeaders(context, destinationRequest);
+            }
+
             // Allow someone to custom build the request uri, otherwise provide a default for them.
             var request = context.Request;
             destinationRequest.RequestUri ??= RequestUtilities.MakeDestinationAddress(destinationPrefix, request.Path, request.QueryString);
@@ -301,7 +305,27 @@ namespace Yarp.ReverseProxy.Service.Proxy
             Log.Proxying(_logger, destinationRequest.RequestUri);
 
             // TODO: What if they replace the HttpContent object? That would mess with our tracking and error handling.
-            return (destinationRequest, requestContent);
+            return (destinationRequest, requestContent, isUpgradeRequest);
+        }
+
+        private static void RestoreUpgradeHeaders(HttpContext context, HttpRequestMessage request)
+        {
+            var connectionValues = context.Request.Headers.GetCommaSeparatedValues(HeaderNames.Connection);
+            string connectionUpgradeValue = null;
+            foreach (var headerValue in connectionValues)
+            {
+                if (headerValue.Equals("upgrade", StringComparison.OrdinalIgnoreCase))
+                {
+                    connectionUpgradeValue = headerValue;
+                    break;
+                }
+            }
+
+            if (connectionUpgradeValue != null && context.Request.Headers.TryGetValue(HeaderNames.Upgrade, out var upgradeValue))
+            {
+                request.Headers.TryAddWithoutValidation(HeaderNames.Connection, connectionUpgradeValue);
+                request.Headers.TryAddWithoutValidation(HeaderNames.Upgrade, (IEnumerable<string>)upgradeValue);
+            }
         }
 
         private StreamCopyHttpContent SetupRequestBodyCopy(HttpRequest request, bool isStreamingRequest, CancellationToken cancellation)
@@ -447,7 +471,7 @@ namespace Yarp.ReverseProxy.Service.Proxy
             context.Response.StatusCode = StatusCodes.Status502BadGateway;
         }
 
-        private static ValueTask<bool> CopyResponseStatusAndHeadersAsync(HttpResponseMessage source, HttpContext context, HttpTransformer transformer)
+        private static async ValueTask<bool> CopyResponseStatusAndHeadersAsync(HttpResponseMessage source, HttpContext context, HttpTransformer transformer)
         {
             context.Response.StatusCode = (int)source.StatusCode;
 
@@ -461,7 +485,30 @@ namespace Yarp.ReverseProxy.Service.Proxy
             }
 
             // Copies headers
-            return transformer.TransformResponseAsync(context, source);
+            return await transformer.TransformResponseAsync(context, source);
+        }
+
+        private static void RestoreUpgradeHeaders(HttpContext context, HttpResponseMessage response)
+        {
+            if (response.Headers.TryGetValues(HeaderNames.Connection, out var connectionValues)
+                && response.Headers.TryGetValues(HeaderNames.Upgrade, out var upgradeValues))
+            {
+                var upgradeStringValues = StringValues.Empty;
+                foreach (var value in upgradeValues)
+                {
+                    upgradeStringValues = StringValues.Concat(upgradeStringValues, value);
+                }
+                context.Response.Headers.TryAdd(HeaderNames.Upgrade, upgradeStringValues);
+
+                foreach (var value in connectionValues)
+                {
+                    if (value.Equals("upgrade", StringComparison.OrdinalIgnoreCase))
+                    {
+                        context.Response.Headers.TryAdd(HeaderNames.Connection, value);
+                        break;
+                    }
+                }
+            }
         }
 
         private async Task HandleUpgradedResponse(HttpContext context, HttpResponseMessage destinationResponse,
@@ -476,6 +523,8 @@ namespace Yarp.ReverseProxy.Service.Proxy
             {
                 throw new InvalidOperationException("A response content is required for upgrades.");
             }
+
+            RestoreUpgradeHeaders(context, destinationResponse);
 
             // :: Step 7-A-1: Upgrade the client channel. This will also send response headers.
             var upgradeFeature = context.Features.Get<IHttpUpgradeFeature>();

@@ -1591,25 +1591,35 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
         }
 
         [Theory]
-        [InlineData("Foo", "HTTP/1.1", false)]
-        [InlineData("Foo", "HTTP/2", false)]
-        [InlineData("Transfer-Encoding", "HTTP/1.1", true)]
-        [InlineData("Transfer-Encoding", "HTTP/2", true)]
-        [InlineData("Connection", "HTTP/1.1", false)]
-        [InlineData("Connection", "HTTP/2", true)]
-        [InlineData("Keep-Alive", "HTTP/1.1", false)]
-        [InlineData("Keep-Alive", "HTTP/2", true)]
-        [InlineData("Upgrade", "HTTP/1.1", false)]
-        [InlineData("Upgrade", "HTTP/2", true)]
-        [InlineData("Proxy-Connection", "HTTP/1.1", false)]
-        [InlineData("Proxy-Connection", "HTTP/2", true)]
-        public async Task ProxyAsync_DropsInvalidResponseHeaders(string responseHeaderName, string requestProtocol, bool shouldDrop)
+        [InlineData("1.1", false, "Connection: upgrade; Upgrade: test123", null, "Connection; Upgrade")]
+        [InlineData("1.1", false, "Connection: keep-alive; Keep-Alive: timeout=100", null, "Connection; Keep-Alive")]
+        [InlineData("1.1", true, "Connection: upgrade; Upgrade: websocket", "Connection: upgrade; Upgrade: websocket", null)]
+        [InlineData("1.1", true, "Connection: upgrade, keep-alive; Upgrade: websocket; Keep-Alive: timeout=100", "Connection: upgrade; Upgrade: websocket", "Keep-Alive")]
+        [InlineData("1.1", true, "Foo: bar; Upgrade: websocket", "Foo: bar", "Upgrade")]
+        [InlineData("1.1", true, "Foo: bar; Connection: upgrade", "Foo: bar", "Connection")]
+        [InlineData("1.1", false, "Foo: bar", "Foo: bar", null)]
+        [InlineData("2.0", false, "Connection: keep-alive; Keep-Alive: timeout=100", null, "Connection; Keep-Alive")]
+        [InlineData("2.0", false, "Connection: upgrade; Upgrade: websocket", null, "Connection; Upgrade")]
+        [InlineData("2.0", false, "Foo: bar", "Foo: bar", null)]
+        public async Task ProxyAsync_ResponseToNonUpgradeableRequest_RemoveAllConnectionHeaders(string protocol, bool upgrade, string responseHeadersList, string preservedHeadersList, string removedHeadersList)
         {
             var events = TestEventListener.Collect();
 
+            var responseHeaders = responseHeadersList.Split("; ");
+            var preservedHeaders = preservedHeadersList?.Split("; ") ?? Enumerable.Empty<string>();
+            var removedHeaders = removedHeadersList?.Split("; ") ?? Enumerable.Empty<string>();
+
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "GET";
-            httpContext.Request.Protocol = requestProtocol;
+
+            if (upgrade)
+            {
+                var upgradeFeature = new Mock<IHttpUpgradeFeature>();
+                upgradeFeature.SetupGet(f => f.IsUpgradableRequest).Returns(true);
+                upgradeFeature.Setup(f => f.UpgradeAsync()).ReturnsAsync(httpContext.Request.Body);
+                httpContext.Features.Set(upgradeFeature.Object);
+                httpContext.Request.Headers[HeaderNames.Upgrade] = "WebSocket";
+            }
 
             var destinationPrefix = "https://localhost:123/a/b/";
             var sut = CreateProxy();
@@ -1617,18 +1627,97 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                 async (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
                     await Task.Yield();
-                    var response = new HttpResponseMessage(HttpStatusCode.OK);
+
+                    var response = new HttpResponseMessage(upgrade ? HttpStatusCode.SwitchingProtocols : HttpStatusCode.OK);
                     response.Content = new StringContent("Foo");
-                    response.Headers.Add(responseHeaderName, "Bar");
+
+                    foreach (var header in responseHeaders)
+                    {
+                        (var headerName, var headerValues) = GetHeaderNameAndValues(header);
+                        response.Headers.TryAddWithoutValidation(headerName, headerValues);
+                    }
+
                     return response;
                 });
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client);
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyConfig { Version = Version.Parse(protocol) });
 
-            Assert.Equal(!shouldDrop, httpContext.Response.Headers.ContainsKey(responseHeaderName));
+            Assert.Equal(upgrade ? (int)HttpStatusCode.SwitchingProtocols : (int)HttpStatusCode.OK, httpContext.Response.StatusCode);
+
+            foreach (var preservedHeader in preservedHeaders)
+            {
+                (var headerName, var expectedValues) = GetHeaderNameAndValues(preservedHeader);
+                var actualValues = httpContext.Response.Headers[headerName];
+                Assert.Equal(expectedValues, actualValues);
+            }
+
+            foreach (var removedHeaderName in removedHeaders)
+            {
+                Assert.False(httpContext.Response.Headers.TryGetValue(removedHeaderName, out _));
+            }
 
             AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
-            events.AssertContainProxyStages(hasRequestContent: false);
+            events.AssertContainProxyStages(hasRequestContent: upgrade, upgrade);
+        }
+
+        [Theory]
+        [InlineData("1.1", false, "Connection: upgrade; Upgrade: test123", null, "Connection; Upgrade")]
+        [InlineData("1.1", false, "Connection: keep-alive; Keep-Alive: timeout=100", null, "Connection; Keep-Alive")]
+        [InlineData("1.1", true, "Connection: upgrade; Upgrade: websocket", "Connection: upgrade; Upgrade: websocket", null)]
+        [InlineData("1.1", true, "Connection: upgrade; Upgrade: SPDY/", "Connection: upgrade; Upgrade: SPDY/", null)]
+        [InlineData("1.1", true, "Connection: upgrade, keep-alive; Upgrade: websocket; Keep-Alive: timeout=100", "Connection: upgrade; Upgrade: websocket", "Keep-Alive")]
+        [InlineData("1.1", false, "Foo: bar", "Foo: bar", null)]
+        [InlineData("2.0", false, "Connection: keep-alive; Keep-Alive: timeout=100", null, "Connection; Keep-Alive")]
+        [InlineData("2.0", false, "Connection: upgrade; Upgrade: websocket", null, "Connection; Upgrade")]
+        [InlineData("2.0", false, "Foo: bar", "Foo: bar", null)]
+        public async Task ProxyAsync_NonUpgradableRequest_RemoveAllConnectionHeaders(string protocol, bool upgrade, string addHeadersList, string preservedHeadersList, string removedHeadersList)
+        {
+            var addHeaders = addHeadersList.Split("; ");
+            var preservedHeaders = preservedHeadersList?.Split("; ") ?? Enumerable.Empty<string>();
+            var removedHeaders = removedHeadersList?.Split("; ") ?? Enumerable.Empty<string>();
+
+            var httpContext = new DefaultHttpContext();
+            httpContext.Request.Method = "GET";
+
+            if (upgrade)
+            {
+                var upgradeFeature = new Mock<IHttpUpgradeFeature>();
+                upgradeFeature.SetupGet(f => f.IsUpgradableRequest).Returns(true);
+                httpContext.Features.Set(upgradeFeature.Object);
+            }
+
+            foreach (var header in addHeaders)
+            {
+                (var headerName, var headerValues) = GetHeaderNameAndValues(header);
+                httpContext.Request.Headers[headerName] = headerValues;
+            }
+
+            var destinationPrefix = "https://localhost:123/a/b/";
+            var sut = CreateProxy();
+            var client = MockHttpHandler.CreateClient(
+                async (HttpRequestMessage request, CancellationToken cancellationToken) =>
+                {
+                    await Task.Yield();
+
+                    foreach(var preservedHeader in preservedHeaders)
+                    {
+                        (var headerName, var expectedValues) = GetHeaderNameAndValues(preservedHeader);
+                        var actualValues = string.Join(", ", request.Headers.GetValues(headerName));
+                        Assert.Equal(expectedValues, actualValues);
+                    }
+
+                    foreach (var removedHeaderName in removedHeaders)
+                    {
+                        Assert.False(request.Headers.TryGetValues(removedHeaderName, out _));
+                    }
+
+                    var response = new HttpResponseMessage(HttpStatusCode.OK);
+                    return response;
+                });
+
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyConfig { Version = Version.Parse(protocol) });
+
+            Assert.Equal((int)HttpStatusCode.OK, httpContext.Response.StatusCode);
         }
 
         private static void AssertProxyStartStop(List<EventWrittenEventArgs> events, string destinationPrefix, int statusCode)
@@ -1671,6 +1760,12 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
         {
             using var reader = new StreamReader(stream, Encoding.UTF8, leaveOpen: true);
             return reader.ReadToEnd();
+        }
+
+        private (string name, string values) GetHeaderNameAndValues(string fullHeader)
+        {
+            var headerNameEnd = fullHeader.IndexOf(": ");
+            return (fullHeader.Substring(0, headerNameEnd), fullHeader.Substring(headerNameEnd + 2));
         }
 
         private class DuplexStream : Stream
