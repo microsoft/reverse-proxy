@@ -23,7 +23,7 @@ namespace Yarp.ReverseProxy.Utilities
             }
 
             // Filter out HTTP/2 pseudo headers like ":method" and ":path", those go into other fields.
-            if (headerName.Length > 0 && headerName[0] == ':')
+            if (headerName.StartsWith(':'))
             {
                 return true;
             }
