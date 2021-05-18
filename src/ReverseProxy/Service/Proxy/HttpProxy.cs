@@ -116,7 +116,7 @@ namespace Yarp.ReverseProxy.Service.Proxy
                 var isStreamingRequest = isClientHttp2 && ProtocolHelper.IsGrpcContentType(context.Request.ContentType);
 
                 // :: Step 1-3: Create outgoing HttpRequestMessage
-                var (destinationRequest, requestContent, isUpgradeRequest) = await CreateRequestMessageAsync(
+                var (destinationRequest, requestContent) = await CreateRequestMessageAsync(
                     context, destinationPrefix, transformer, requestConfig, isStreamingRequest, requestAborted);
 
                 // :: Step 4: Send the outgoing request using HttpClient
@@ -254,7 +254,7 @@ namespace Yarp.ReverseProxy.Service.Proxy
             }
         }
 
-        private async ValueTask<(HttpRequestMessage, StreamCopyHttpContent, bool)> CreateRequestMessageAsync(HttpContext context, string destinationPrefix,
+        private async ValueTask<(HttpRequestMessage, StreamCopyHttpContent)> CreateRequestMessageAsync(HttpContext context, string destinationPrefix,
             HttpTransformer transformer, RequestProxyConfig requestConfig, bool isStreamingRequest, CancellationToken requestAborted)
         {
             // "http://a".Length = 8
@@ -305,7 +305,7 @@ namespace Yarp.ReverseProxy.Service.Proxy
             Log.Proxying(_logger, destinationRequest.RequestUri);
 
             // TODO: What if they replace the HttpContent object? That would mess with our tracking and error handling.
-            return (destinationRequest, requestContent, isUpgradeRequest);
+            return (destinationRequest, requestContent);
         }
 
         private static void RestoreUpgradeHeaders(HttpContext context, HttpRequestMessage request)
@@ -471,7 +471,7 @@ namespace Yarp.ReverseProxy.Service.Proxy
             context.Response.StatusCode = StatusCodes.Status502BadGateway;
         }
 
-        private static async ValueTask<bool> CopyResponseStatusAndHeadersAsync(HttpResponseMessage source, HttpContext context, HttpTransformer transformer)
+        private static ValueTask<bool> CopyResponseStatusAndHeadersAsync(HttpResponseMessage source, HttpContext context, HttpTransformer transformer)
         {
             context.Response.StatusCode = (int)source.StatusCode;
 
@@ -485,7 +485,7 @@ namespace Yarp.ReverseProxy.Service.Proxy
             }
 
             // Copies headers
-            return await transformer.TransformResponseAsync(context, source);
+            return transformer.TransformResponseAsync(context, source);
         }
 
         private static void RestoreUpgradeHeaders(HttpContext context, HttpResponseMessage response)
