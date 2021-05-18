@@ -19,6 +19,11 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
         /// <param name="value">The path value used to update the existing value.</param>
         public PathStringTransform(PathTransformMode mode, PathString value)
         {
+            if (value.Value == null)
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
+
             Mode = mode;
             Value = value;
         }

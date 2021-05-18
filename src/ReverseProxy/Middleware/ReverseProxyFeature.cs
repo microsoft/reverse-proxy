@@ -29,6 +29,7 @@ namespace Yarp.ReverseProxy.Middleware
             get => _availableDestinations;
             set => _availableDestinations = value ?? throw new ArgumentNullException(nameof(value));
         }
+
         /// <inheritdoc/>
         public DestinationState? ProxiedDestination { get; set; }
     }

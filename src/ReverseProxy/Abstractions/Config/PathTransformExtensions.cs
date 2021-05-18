@@ -20,14 +20,14 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         /// </summary>
         public static RouteConfig WithTransformPathSet(this RouteConfig route, PathString path)
         {
-            if (!path.HasValue)
+            if (path.Value == null)
             {
                 throw new ArgumentNullException(nameof(path));
             }
 
             return route.WithTransform(transform =>
             {
-                transform[PathTransformFactory.PathSetKey] = path.Value!;
+                transform[PathTransformFactory.PathSetKey] = path.Value;
             });
         }
 
@@ -45,14 +45,14 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         /// </summary>
         public static RouteConfig WithTransformPathPrefix(this RouteConfig route, PathString prefix)
         {
-            if (!prefix.HasValue)
+            if (prefix.Value == null)
             {
                 throw new ArgumentNullException(nameof(prefix));
             }
 
             return route.WithTransform(transform =>
             {
-                transform[PathTransformFactory.PathPrefixKey] = prefix.Value!;
+                transform[PathTransformFactory.PathPrefixKey] = prefix.Value;
             });
         }
 
@@ -70,14 +70,14 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         /// </summary>
         public static RouteConfig WithTransformPathRemovePrefix(this RouteConfig route, PathString prefix)
         {
-            if (!prefix.HasValue)
+            if (prefix.Value == null)
             {
                 throw new ArgumentNullException(nameof(prefix));
             }
 
             return route.WithTransform(transform =>
             {
-                transform[PathTransformFactory.PathRemovePrefixKey] = prefix.Value!;
+                transform[PathTransformFactory.PathRemovePrefixKey] = prefix.Value;
             });
         }
 
@@ -95,14 +95,14 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         /// </summary>
         public static RouteConfig WithTransformPathRouteValues(this RouteConfig route, PathString pattern)
         {
-            if (!pattern.HasValue)
+            if (pattern.Value == null)
             {
                 throw new ArgumentNullException(nameof(pattern));
             }
 
             return route.WithTransform(transform =>
             {
-                transform[PathTransformFactory.PathPatternKey] = pattern.Value!;
+                transform[PathTransformFactory.PathPatternKey] = pattern.Value;
             });
         }
 
@@ -111,13 +111,13 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         /// </summary>
         public static TransformBuilderContext AddPathRouteValues(this TransformBuilderContext context, PathString pattern)
         {
-            if (!pattern.HasValue)
+            if (pattern.Value == null)
             {
                 throw new ArgumentNullException(nameof(pattern));
             }
 
             var binder = context.Services.GetRequiredService<TemplateBinderFactory>();
-            context.RequestTransforms.Add(new PathRouteValuesTransform(pattern.Value!, binder));
+            context.RequestTransforms.Add(new PathRouteValuesTransform(pattern.Value, binder));
             return context;
         }
     }
