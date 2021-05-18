@@ -197,8 +197,9 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                     return response;
                 });
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client, default, transforms);
+            var proxyError = await sut.ProxyAsync(httpContext, destinationPrefix, client, default, transforms);
 
+            Assert.Equal(ProxyError.None, proxyError);
             Assert.Equal(234, httpContext.Response.StatusCode);
             var reasonPhrase = httpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase;
             Assert.Null(reasonPhrase); // We don't set the ReasonPhrase for HTTP/2+
@@ -280,8 +281,9 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                     return response;
                 });
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client, default, transforms);
+            var proxyError = await sut.ProxyAsync(httpContext, destinationPrefix, client, default, transforms);
 
+            Assert.Equal(ProxyError.None, proxyError);
             Assert.Equal(234, httpContext.Response.StatusCode);
             var reasonPhrase = httpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase;
             Assert.Equal("Test Reason Phrase", reasonPhrase);
@@ -688,8 +690,9 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
 #endif
             };
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client, options);
+            var proxyError = await sut.ProxyAsync(httpContext, destinationPrefix, client, options);
 
+            Assert.Equal(ProxyError.None, proxyError);
             Assert.Null(httpContext.Features.Get<IProxyErrorFeature>());
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
 
@@ -752,8 +755,9 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
 #endif
             };
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client, requestOptions, transforms);
+            var proxyError = await sut.ProxyAsync(httpContext, destinationPrefix, client, requestOptions, transforms);
 
+            Assert.Equal(ProxyError.None, proxyError);
             Assert.Null(httpContext.Features.Get<IProxyErrorFeature>());
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
 
@@ -781,8 +785,9 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                     throw new HttpRequestException("No connection could be made because the target machine actively refused it.");
                 });
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client);
+            var proxyError = await sut.ProxyAsync(httpContext, destinationPrefix, client);
 
+            Assert.Equal(ProxyError.Request, proxyError);
             Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
             var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
@@ -815,8 +820,9 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                     throw new HttpRequestException("No connection could be made because the target machine actively refused it.");
                 });
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client);
+            var proxyError = await sut.ProxyAsync(httpContext, destinationPrefix, client);
 
+            Assert.Equal(ProxyError.Request, proxyError);
             Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
             var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
@@ -852,8 +858,9 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
             // Time out immediately
             var requestOptions = new RequestProxyConfig { Timeout = TimeSpan.FromTicks(1) };
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client, requestOptions);
+            var proxyError = await sut.ProxyAsync(httpContext, destinationPrefix, client, requestOptions);
 
+            Assert.Equal(ProxyError.RequestTimedOut, proxyError);
             Assert.Equal(StatusCodes.Status504GatewayTimeout, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
             var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
@@ -886,8 +893,9 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                     return Task.FromResult(new HttpResponseMessage());
                 });
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client);
+            var proxyError = await sut.ProxyAsync(httpContext, destinationPrefix, client);
 
+            Assert.Equal(ProxyError.RequestCanceled, proxyError);
             Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
             var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
@@ -925,8 +933,9 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
             // Time out immediately
             var requestOptions = new RequestProxyConfig { Timeout = TimeSpan.FromTicks(1) };
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client, requestOptions);
+            var proxyError = await sut.ProxyAsync(httpContext, destinationPrefix, client, requestOptions);
 
+            Assert.Equal(ProxyError.RequestTimedOut, proxyError);
             Assert.Equal(StatusCodes.Status504GatewayTimeout, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
             var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
@@ -961,8 +970,9 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                     return Task.FromResult(new HttpResponseMessage());
                 });
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client);
+            var proxyError = await sut.ProxyAsync(httpContext, destinationPrefix, client);
 
+            Assert.Equal(ProxyError.RequestCanceled, proxyError);
             Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
             var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
@@ -997,8 +1007,9 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                     return new HttpResponseMessage();
                 });
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client);
+            var proxyError = await sut.ProxyAsync(httpContext, destinationPrefix, client);
 
+            Assert.Equal(ProxyError.RequestBodyClient, proxyError);
             Assert.Equal(StatusCodes.Status400BadRequest, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
             var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
@@ -1036,8 +1047,9 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                     throw new HttpRequestException();
                 });
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client);
+            var proxyError = await sut.ProxyAsync(httpContext, destinationPrefix, client);
 
+            Assert.Equal(ProxyError.RequestBodyDestination, proxyError);
             Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
             var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
@@ -1080,8 +1092,9 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                     throw new HttpRequestException();
                 });
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client);
+            var proxyError = await sut.ProxyAsync(httpContext, destinationPrefix, client);
 
+            Assert.Equal(ProxyError.RequestBodyCanceled, proxyError);
             Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
             var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
@@ -1118,7 +1131,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                     return Task.FromResult(message);
                 });
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client, requestConfig: default, new DelegateHttpTransforms()
+            var proxyError = await sut.ProxyAsync(httpContext, destinationPrefix, client, requestConfig: default, new DelegateHttpTransforms()
             {
                 OnResponse = (context, proxyResponse) =>
                 {
@@ -1128,6 +1141,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                 }
             });
 
+            Assert.Equal(ProxyError.None, proxyError);
             Assert.Equal(StatusCodes.Status422UnprocessableEntity, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
             Assert.Equal("bytes", httpContext.Response.Headers[HeaderNames.AcceptRanges]);
@@ -1162,8 +1176,9 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                     return Task.FromResult(message);
                 });
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client);
+            var proxyError = await sut.ProxyAsync(httpContext, destinationPrefix, client);
 
+            Assert.Equal(ProxyError.ResponseBodyDestination, proxyError);
             Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
             Assert.Empty(httpContext.Response.Headers);
@@ -1201,8 +1216,9 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                     return Task.FromResult(message);
                 });
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client);
+            var proxyError = await sut.ProxyAsync(httpContext, destinationPrefix, client);
 
+            Assert.Equal(ProxyError.ResponseBodyDestination, proxyError);
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
             Assert.Equal(1, responseBody.InnerStream.Length);
             Assert.True(responseBody.Aborted);
@@ -1241,8 +1257,9 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                     return Task.FromResult(message);
                 });
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client);
+            var proxyError = await sut.ProxyAsync(httpContext, destinationPrefix, client);
 
+            Assert.Equal(ProxyError.ResponseBodyClient, proxyError);
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
             Assert.True(responseBody.Aborted);
             Assert.Equal("bytes", httpContext.Response.Headers[HeaderNames.AcceptRanges]);
@@ -1281,8 +1298,9 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                     return Task.FromResult(message);
                 });
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client);
+            var proxyError = await sut.ProxyAsync(httpContext, destinationPrefix, client);
 
+            Assert.Equal(ProxyError.ResponseBodyCanceled, proxyError);
             Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
             Assert.False(responseBody.Aborted);
             Assert.Empty(httpContext.Response.Headers);
@@ -1321,8 +1339,9 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                     return Task.FromResult(message);
                 });
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client);
+            var proxyError = await sut.ProxyAsync(httpContext, destinationPrefix, client);
 
+            Assert.Equal(ProxyError.ResponseBodyCanceled, proxyError);
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
             Assert.True(responseBody.Aborted);
             Assert.Equal("bytes", httpContext.Response.Headers[HeaderNames.AcceptRanges]);
@@ -1370,8 +1389,9 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                     });
                 });
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client);
+            var proxyError = await sut.ProxyAsync(httpContext, destinationPrefix, client);
 
+            Assert.Equal(ProxyError.RequestBodyCanceled, proxyError);
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
             var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
@@ -1411,8 +1431,9 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                     });
                 });
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client);
+            var proxyError = await sut.ProxyAsync(httpContext, destinationPrefix, client);
 
+            Assert.Equal(ProxyError.RequestBodyClient, proxyError);
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
             var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
@@ -1452,8 +1473,9 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                     });
                 });
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client);
+            var proxyError = await sut.ProxyAsync(httpContext, destinationPrefix, client);
 
+            Assert.Equal(ProxyError.RequestBodyDestination, proxyError);
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
             Assert.Equal(0, proxyResponseStream.Length);
             var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
@@ -1509,8 +1531,9 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                     return Task.FromResult(response);
                 });
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client);
+            var proxyError = await sut.ProxyAsync(httpContext, destinationPrefix, client);
 
+            Assert.Equal(ProxyError.UpgradeRequestClient, proxyError);
             Assert.Equal(StatusCodes.Status101SwitchingProtocols, httpContext.Response.StatusCode);
             var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
             Assert.Equal(ProxyError.UpgradeRequestClient, errorFeature.Error);
@@ -1565,8 +1588,9 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                     return Task.FromResult(response);
                 });
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client);
+            var proxyError = await sut.ProxyAsync(httpContext, destinationPrefix, client);
 
+            Assert.Equal(ProxyError.UpgradeResponseDestination, proxyError);
             Assert.Equal(StatusCodes.Status101SwitchingProtocols, httpContext.Response.StatusCode);
             var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
             Assert.Equal(ProxyError.UpgradeResponseDestination, errorFeature.Error);
@@ -1586,7 +1610,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
             var requestOptions = default(RequestProxyConfig);
             var proxy = CreateProxy();
 
-            await Assert.ThrowsAsync<ArgumentException>(() => proxy.ProxyAsync(httpContext,
+            await Assert.ThrowsAsync<ArgumentException>(async () => await proxy.ProxyAsync(httpContext,
                 destinationPrefix, httpClient, requestOptions, transforms));
         }
 

@@ -91,6 +91,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
                     {
                         tcs1.TrySetResult(true);
                         await tcs2.Task;
+                        return ProxyError.None;
                     })
                 .Verifiable();
 
