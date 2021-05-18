@@ -15,6 +15,7 @@ namespace Yarp.ReverseProxy.Service.Proxy
         /// <param name="context">The HttpContent to proxy from.</param>
         /// <param name="destinationPrefix">The url prefix for where to proxy the request to.</param>
         /// <param name="httpClient">The HTTP client used to send the proxy request.</param>
+        /// <returns>The result of the request proxying to the destination.</returns>
         public static ValueTask<ProxyError> ProxyAsync(
             this IHttpProxy proxy,
             HttpContext context,
@@ -31,6 +32,7 @@ namespace Yarp.ReverseProxy.Service.Proxy
         /// <param name="destinationPrefix">The url prefix for where to proxy the request to.</param>
         /// <param name="httpClient">The HTTP client used to send the proxy request.</param>
         /// <param name="requestConfig">Config for the outgoing request.</param>
+        /// <returns>The result of the request proxying to the destination.</returns>
         public static ValueTask<ProxyError> ProxyAsync(
             this IHttpProxy proxy,
             HttpContext context,

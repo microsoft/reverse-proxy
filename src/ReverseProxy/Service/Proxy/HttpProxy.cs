@@ -185,8 +185,7 @@ namespace Yarp.ReverseProxy.Service.Proxy
                 // :: Step 7-A: Check for a 101 upgrade response, this takes care of WebSockets as well as any other upgradeable protocol.
                 if (destinationResponse.StatusCode == HttpStatusCode.SwitchingProtocols)
                 {
-                    var error = await HandleUpgradedResponse(context, destinationResponse, requestAborted);
-                    return error;
+                    return await HandleUpgradedResponse(context, destinationResponse, requestAborted);
                 }
 
                 // NOTE: it may *seem* wise to call `context.Response.StartAsync()` at this point
@@ -204,8 +203,7 @@ namespace Yarp.ReverseProxy.Service.Proxy
 
                 if (responseBodyCopyResult != StreamCopyResult.Success)
                 {
-                    var error = await HandleResponseBodyErrorAsync(context, requestContent, responseBodyCopyResult, responseBodyException);
-                    return error;
+                    return await HandleResponseBodyErrorAsync(context, requestContent, responseBodyCopyResult, responseBodyException);
                 }
 
                 // :: Step 8: Copy response trailer headers and finish response Client ◄-- Proxy ◄-- Destination
