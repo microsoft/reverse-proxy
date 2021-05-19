@@ -11,6 +11,11 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
     {
         public QueryParameterTransform(QueryStringTransformMode mode, string key)
         {
+            if (string.IsNullOrEmpty(key))
+            {
+                throw new ArgumentException($"'{nameof(key)}' cannot be null or empty.", nameof(key));
+            }
+
             Mode = mode;
             Key = key;
         }
@@ -51,7 +56,7 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
             return default;
         }
 
-        protected abstract string GetValue(RequestTransformContext context);
+        protected abstract string? GetValue(RequestTransformContext context);
     }
 
     public enum QueryStringTransformMode

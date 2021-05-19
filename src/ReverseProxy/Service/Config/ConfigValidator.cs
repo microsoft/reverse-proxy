@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors.Infrastructure;
@@ -111,7 +110,7 @@ namespace Yarp.ReverseProxy.Service
             return new ValueTask<IList<Exception>>(errors);
         }
 
-        private static void ValidateHost(IList<Exception> errors, IReadOnlyList<string> hosts, string routeId)
+        private static void ValidateHost(IList<Exception> errors, IReadOnlyList<string>? hosts, string routeId)
         {
             // Host is optional when Path is specified
             if (hosts == null || hosts.Count == 0)
@@ -132,7 +131,7 @@ namespace Yarp.ReverseProxy.Service
             }
         }
 
-        private static void ValidatePath(IList<Exception> errors, string path, string routeId)
+        private static void ValidatePath(IList<Exception> errors, string? path, string routeId)
         {
             // Path is optional when Host is specified
             if (string.IsNullOrEmpty(path))
@@ -150,7 +149,7 @@ namespace Yarp.ReverseProxy.Service
             }
         }
 
-        private static void ValidateMethods(IList<Exception> errors, IReadOnlyList<string> methods, string routeId)
+        private static void ValidateMethods(IList<Exception> errors, IReadOnlyList<string>? methods, string routeId)
         {
             // Methods are optional
             if (methods == null)
@@ -174,7 +173,7 @@ namespace Yarp.ReverseProxy.Service
             }
         }
 
-        private static void ValidateHeaders(List<Exception> errors, IReadOnlyList<RouteHeader> headers, string routeId)
+        private static void ValidateHeaders(List<Exception> errors, IReadOnlyList<RouteHeader>? headers, string routeId)
         {
             // Headers are optional
             if (headers == null)
@@ -208,7 +207,7 @@ namespace Yarp.ReverseProxy.Service
             }
         }
 
-        private async ValueTask ValidateAuthorizationPolicyAsync(IList<Exception> errors, string authorizationPolicyName, string routeId)
+        private async ValueTask ValidateAuthorizationPolicyAsync(IList<Exception> errors, string? authorizationPolicyName, string routeId)
         {
             if (string.IsNullOrEmpty(authorizationPolicyName))
             {
@@ -249,7 +248,7 @@ namespace Yarp.ReverseProxy.Service
             }
         }
 
-        private async ValueTask ValidateCorsPolicyAsync(IList<Exception> errors, string corsPolicyName, string routeId)
+        private async ValueTask ValidateCorsPolicyAsync(IList<Exception> errors, string? corsPolicyName, string routeId)
         {
             if (string.IsNullOrEmpty(corsPolicyName))
             {

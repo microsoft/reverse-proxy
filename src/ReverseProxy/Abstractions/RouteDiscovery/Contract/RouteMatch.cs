@@ -15,32 +15,26 @@ namespace Yarp.ReverseProxy.Abstractions
         /// <summary>
         /// Only match requests that use these optional HTTP methods. E.g. GET, POST.
         /// </summary>
-        public IReadOnlyList<string> Methods { get; init; }
+        public IReadOnlyList<string>? Methods { get; init; }
 
         /// <summary>
         /// Only match requests with the given Host header.
         /// Supports wildcards and ports. For unicode host names, do not use punycode.
         /// </summary>
-        public IReadOnlyList<string> Hosts { get; init; }
+        public IReadOnlyList<string>? Hosts { get; init; }
 
         /// <summary>
         /// Only match requests with the given Path pattern.
         /// </summary>
-        public string Path { get; init; }
-
-        // TODO:
-        /// <summary>
-        /// Only match requests that contain all of these query parameters.
-        /// </summary>
-        // public ICollection<KeyValuePair<string, string>> QueryParameters { get; init; }
+        public string? Path { get; init; }
 
         /// <summary>
         /// Only match requests that contain all of these headers.
         /// </summary>
-        public IReadOnlyList<RouteHeader> Headers { get; init; }
+        public IReadOnlyList<RouteHeader>? Headers { get; init; }
 
         /// <inheritdoc />
-        public bool Equals(RouteMatch other)
+        public bool Equals(RouteMatch? other)
         {
             if (other == null)
             {
@@ -54,7 +48,7 @@ namespace Yarp.ReverseProxy.Abstractions
         }
 
         // Order sensitive to reduce complexity
-        private static bool HeadersEqual(IReadOnlyList<RouteHeader> headers1, IReadOnlyList<RouteHeader> headers2)
+        private static bool HeadersEqual(IReadOnlyList<RouteHeader>? headers1, IReadOnlyList<RouteHeader>? headers2)
         {
             if (ReferenceEquals(headers1, headers2))
             {

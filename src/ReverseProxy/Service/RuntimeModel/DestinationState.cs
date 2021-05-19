@@ -13,7 +13,7 @@ namespace Yarp.ReverseProxy.RuntimeModel
     /// </summary>
     public sealed class DestinationState : IReadOnlyList<DestinationState>
     {
-        private volatile DestinationModel _model;
+        private volatile DestinationModel _model = default!;
 
         /// <summary>
         /// Creates a new instance. This constructor is for tests and infrastructure, this type is normally constructed by

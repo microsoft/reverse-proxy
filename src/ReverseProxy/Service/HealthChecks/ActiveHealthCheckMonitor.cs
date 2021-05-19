@@ -72,19 +72,19 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
 
         public void OnClusterAdded(ClusterState cluster)
         {
-            var activeHealthCheckOptions = cluster.Model.Config.HealthCheck?.Active;
-            if ((activeHealthCheckOptions?.Enabled).GetValueOrDefault())
+            var config = cluster.Model.Config.HealthCheck?.Active;
+            if (config != null && config.Enabled.GetValueOrDefault())
             {
-                _scheduler.ScheduleEntity(cluster, activeHealthCheckOptions.Interval ?? _monitorOptions.DefaultInterval);
+                _scheduler.ScheduleEntity(cluster, config.Interval ?? _monitorOptions.DefaultInterval);
             }
         }
 
         public void OnClusterChanged(ClusterState cluster)
         {
-            var activeHealthCheckOptions = cluster.Model.Config.HealthCheck?.Active;
-            if ((activeHealthCheckOptions?.Enabled).GetValueOrDefault())
+            var config = cluster.Model.Config.HealthCheck?.Active;
+            if (config != null && config.Enabled.GetValueOrDefault())
             {
-                _scheduler.ChangePeriod(cluster, activeHealthCheckOptions.Interval ?? _monitorOptions.DefaultInterval);
+                _scheduler.ChangePeriod(cluster, config.Interval ?? _monitorOptions.DefaultInterval);
             }
             else
             {
@@ -105,22 +105,22 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
         private async Task ProbeCluster(ClusterState cluster)
         {
             var clusterModel = cluster.Model;
-            var activeHealthOptions = clusterModel.Config.HealthCheck?.Active;
-            if (!(activeHealthOptions?.Enabled).GetValueOrDefault())
+            var config = clusterModel.Config.HealthCheck?.Active;
+            if (config == null || !config.Enabled.GetValueOrDefault())
             {
                 return;
             }
 
             Log.StartingActiveHealthProbingOnCluster(_logger, cluster.ClusterId);
 
-            var policy = _policies.GetRequiredServiceById(activeHealthOptions.Policy, HealthCheckConstants.ActivePolicy.ConsecutiveFailures);
+            var policy = _policies.GetRequiredServiceById(config.Policy, HealthCheckConstants.ActivePolicy.ConsecutiveFailures);
             var allDestinations = cluster.DynamicState.AllDestinations;
             var probeTasks = new List<(Task<HttpResponseMessage> Task, CancellationTokenSource Cts)>(allDestinations.Count);
             try
             {
                 foreach (var destination in allDestinations)
                 {
-                    var timeout = activeHealthOptions.Timeout ?? _monitorOptions.DefaultTimeout;
+                    var timeout = config.Timeout ?? _monitorOptions.DefaultTimeout;
                     var cts = new CancellationTokenSource(timeout);
                     try
                     {
@@ -142,8 +142,8 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
                 var probingResults = new DestinationProbingResult[probeTasks.Count];
                 for (var i = 0; i < probeTasks.Count; i++)
                 {
-                    HttpResponseMessage response = null;
-                    ExceptionDispatchInfo edi = null;
+                    HttpResponseMessage? response = null;
+                    ExceptionDispatchInfo? edi = null;
                     try
                     {
                         response = await probeTasks[i].Task;

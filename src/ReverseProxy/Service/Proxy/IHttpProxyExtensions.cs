@@ -22,7 +22,7 @@ namespace Yarp.ReverseProxy.Service.Proxy
             string destinationPrefix,
             HttpMessageInvoker httpClient)
         {
-            return proxy.ProxyAsync(context, destinationPrefix, httpClient, requestConfig: default, HttpTransformer.Default);
+            return proxy.ProxyAsync(context, destinationPrefix, httpClient, RequestProxyConfig.Empty, HttpTransformer.Default);
         }
 
         /// <summary>

@@ -28,6 +28,11 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
         /// <returns>The requested header value, or StringValues.Empty if none.</returns>
         public static StringValues TakeHeader(RequestTransformContext context, string headerName)
         {
+            if (string.IsNullOrEmpty(headerName))
+            {
+                throw new System.ArgumentException($"'{nameof(headerName)}' cannot be null or empty.", nameof(headerName));
+            }
+
             var existingValues = StringValues.Empty;
             if (context.ProxyRequest.Headers.TryGetValues(headerName, out var values))
             {
@@ -37,7 +42,7 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
             else if (context.ProxyRequest.Content?.Headers.TryGetValues(headerName, out values) ?? false)
             {
                 context.ProxyRequest.Content.Headers.Remove(headerName);
-                existingValues = (string[])values;
+                existingValues = (string[])values!;
             }
             else if (!context.HeadersCopied)
             {
@@ -52,6 +57,16 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
         /// </summary>
         public static void AddHeader(RequestTransformContext context, string headerName, StringValues values)
         {
+            if (context is null)
+            {
+                throw new System.ArgumentNullException(nameof(context));
+            }
+
+            if (string.IsNullOrEmpty(headerName))
+            {
+                throw new System.ArgumentException($"'{nameof(headerName)}' cannot be null or empty.", nameof(headerName));
+            }
+
             RequestUtilities.AddHeader(context.ProxyRequest, headerName, values);
         }
     }

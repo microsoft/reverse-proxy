@@ -23,7 +23,7 @@ namespace Microsoft.Extensions.Configuration
             return configuration[name] is string value ? TimeSpan.Parse(value, CultureInfo.InvariantCulture) : null;
         }
 
-        internal static Uri ReadUri(this IConfiguration configuration, string name)
+        internal static Uri? ReadUri(this IConfiguration configuration, string name)
         {
             return configuration[name] is string value ? new Uri(value) : null;
         }
@@ -38,12 +38,12 @@ namespace Microsoft.Extensions.Configuration
             return configuration[name] is string value ? bool.Parse(value) : null;
         }
 
-        internal static Version ReadVersion(this IConfiguration configuration, string name)
+        internal static Version? ReadVersion(this IConfiguration configuration, string name)
         {
             return configuration[name] is string value && !string.IsNullOrEmpty(value) ? Version.Parse(value + (value.Contains('.') ? "" : ".0")) : null;
         }
 
-        internal static IReadOnlyDictionary<string, string> ReadStringDictionary(this IConfigurationSection section)
+        internal static IReadOnlyDictionary<string, string>? ReadStringDictionary(this IConfigurationSection section)
         {
             if (section.GetChildren() is var children && !children.Any())
             {
@@ -53,7 +53,7 @@ namespace Microsoft.Extensions.Configuration
             return new ReadOnlyDictionary<string, string>(children.ToDictionary(s => s.Key, s => s.Value, StringComparer.OrdinalIgnoreCase));
         }
 
-        internal static string[] ReadStringArray(this IConfigurationSection section)
+        internal static string[]? ReadStringArray(this IConfigurationSection section)
         {
             if (section.GetChildren() is var children && !children.Any())
             {

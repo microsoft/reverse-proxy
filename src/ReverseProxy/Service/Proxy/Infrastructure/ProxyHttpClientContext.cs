@@ -16,38 +16,35 @@ namespace Yarp.ReverseProxy.Service.Proxy.Infrastructure
         /// <summary>
         /// Id of a <see cref="ClusterModel"/> HTTP client belongs to.
         /// </summary>
-        public string ClusterId { get; set; }
+        public string ClusterId { get; init; } = default!;
 
         /// <summary>
         /// Old <see cref="HttpClientConfig"/> instance
         /// from which the <see cref="OldClient"/> was created.
-        /// Can be null if a client is getting constructed for the first time.
+        /// Can be empty if a client is getting constructed for the first time.
         /// </summary>
-        public HttpClientConfig OldConfig { get; set; }
+        public HttpClientConfig OldConfig { get; init; } = default!;
 
         /// <summary>
-        /// Old metadata instance from which the <see cref="OldClient"/> was created.
-        /// Can be null if a client is getting constructed for the first time.
+        /// Old metadata instance from which the <see cref="OldClient"/> was created, if any.
         /// </summary>
-        public IReadOnlyDictionary<string, string> OldMetadata { get; set; }
+        public IReadOnlyDictionary<string, string>? OldMetadata { get; init; }
 
         /// <summary>
         /// Old <see cref="HttpMessageInvoker"/> instance.
         /// Can be null if a client is getting constructed for the first time.
         /// </summary>
-        public HttpMessageInvoker OldClient { get; set; }
+        public HttpMessageInvoker? OldClient { get; init; }
 
         /// <summary>
         /// New <see cref="HttpClientConfig"/> instance
         /// specifying the settings for a new client.
-        /// CANNOT be null.
         /// </summary>
-        public HttpClientConfig NewConfig { get; set; }
+        public HttpClientConfig NewConfig { get; init; } = default!;
 
         /// <summary>
-        /// New metadata instance used for a new client construction.
-        /// Can be null.
+        /// New metadata instance used for a new client construction, if any.
         /// </summary>
-        public IReadOnlyDictionary<string, string> NewMetadata { get; set; }
+        public IReadOnlyDictionary<string, string>? NewMetadata { get; init; }
     }
 }

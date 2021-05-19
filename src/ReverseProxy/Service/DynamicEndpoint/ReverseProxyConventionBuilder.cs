@@ -16,7 +16,7 @@ namespace Yarp.ReverseProxy
 
         internal ReverseProxyConventionBuilder(List<Action<EndpointBuilder>> conventions)
         {
-            _conventions = conventions;
+            _conventions = conventions ?? throw new ArgumentNullException(nameof(conventions));
         }
 
         /// <summary>
@@ -76,7 +76,7 @@ namespace Yarp.ReverseProxy
         /// </summary>
         /// <param name="convention">The convention to add to the builder.</param>
         /// <returns></returns>
-        public ReverseProxyConventionBuilder ConfigureEndpoints(Action<IEndpointConventionBuilder, RouteConfig, ClusterConfig> convention)
+        public ReverseProxyConventionBuilder ConfigureEndpoints(Action<IEndpointConventionBuilder, RouteConfig, ClusterConfig?> convention)
         {
             _ = convention ?? throw new ArgumentNullException(nameof(convention));
 

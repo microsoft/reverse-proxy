@@ -14,6 +14,7 @@ using Yarp.ReverseProxy.Abstractions;
 using Yarp.ReverseProxy.Common.Tests;
 using Yarp.ReverseProxy.RuntimeModel;
 using Yarp.ReverseProxy.Service.Management;
+using Yarp.ReverseProxy.Service.Proxy;
 
 namespace Yarp.ReverseProxy.Middleware.Tests
 {
@@ -49,7 +50,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
             var routeConfig = new RouteModel(
                 config: new RouteConfig(),
                 cluster1,
-                transformer: null);
+                HttpTransformer.Default);
             var aspNetCoreEndpoint = CreateAspNetCoreEndpoint(routeConfig);
             aspNetCoreEndpoints.Add(aspNetCoreEndpoint);
             var httpContext = new DefaultHttpContext();
@@ -102,7 +103,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
             var routeConfig = new RouteModel(
                 config: new RouteConfig(),
                 cluster: cluster1,
-                transformer: null);
+                transformer: HttpTransformer.Default);
             var aspNetCoreEndpoint = CreateAspNetCoreEndpoint(routeConfig);
             aspNetCoreEndpoints.Add(aspNetCoreEndpoint);
             var httpContext = new DefaultHttpContext();

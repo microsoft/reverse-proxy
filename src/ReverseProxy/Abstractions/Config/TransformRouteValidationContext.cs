@@ -14,12 +14,12 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         /// <summary>
         /// Application services that can be used to validate transforms.
         /// </summary>
-        public IServiceProvider Services { get; init; }
+        public IServiceProvider Services { get; init; } = default!;
 
         /// <summary>
         /// The route these transforms are associated with.
         /// </summary>
-        public RouteConfig Route { get; init; }
+        public RouteConfig Route { get; init; } = default!;
 
         /// <summary>
         /// The accumulated list of validation errors for this route.

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -44,9 +45,9 @@ namespace Yarp.ReverseProxy.Service.Management
         private readonly ITransformBuilder _transformBuilder;
         private readonly List<Action<EndpointBuilder>> _conventions;
         private readonly IActiveHealthCheckMonitor _activeHealthCheckMonitor;
-        private IDisposable _changeSubscription;
+        private IDisposable? _changeSubscription;
 
-        private List<Endpoint> _endpoints;
+        private List<Endpoint>? _endpoints;
         private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private IChangeToken _changeToken;
 
@@ -89,25 +90,21 @@ namespace Yarp.ReverseProxy.Service.Management
             {
                 // The Endpoints needs to be lazy the first time to give a chance to ReverseProxyConventionBuilder to add its conventions.
                 // Endpoints are accessed by routing on the first request.
-                Initialize();   
+                if (_endpoints == null)
+                {
+                    lock (_syncRoot)
+                    {
+                        if (_endpoints == null)
+                        {
+                            CreateEndpoints();
+                        }
+                    }
+                }
                 return _endpoints;
             }
         }
 
-        private void Initialize()
-        {
-            if (_endpoints == null)
-            {
-                lock (_syncRoot)
-                {
-                    if (_endpoints == null)
-                    {
-                        CreateEndpoints();
-                    }
-                }
-            }
-        }
-
+        [MemberNotNull(nameof(_endpoints))]
         private void CreateEndpoints()
         {
             var endpoints = new List<Endpoint>();
@@ -229,7 +226,7 @@ namespace Yarp.ReverseProxy.Service.Management
             }
 
             var seenRouteIds = new HashSet<string>();
-            var configuredRoutes = new List<RouteConfig>(routes?.Count ?? 0);
+            var configuredRoutes = new List<RouteConfig>(routes.Count);
             var errors = new List<Exception>();
 
             foreach (var r in routes)
@@ -267,7 +264,7 @@ namespace Yarp.ReverseProxy.Service.Management
 
             if (errors.Count > 0)
             {
-                return (null, errors);
+                return (Array.Empty<RouteConfig>(), errors);
             }
 
             return (configuredRoutes, errors);
@@ -321,7 +318,7 @@ namespace Yarp.ReverseProxy.Service.Management
 
             if (errors.Count > 0)
             {
-                return (null, errors);
+                return (Array.Empty<ClusterConfig>(), errors);
             }
 
             return (configuredClusters, errors);
@@ -426,34 +423,37 @@ namespace Yarp.ReverseProxy.Service.Management
             }
         }
 
-        private bool UpdateRuntimeDestinations(IReadOnlyDictionary<string, DestinationConfig> incomingDestinations, ConcurrentDictionary<string, DestinationState> currentDestinations)
+        private bool UpdateRuntimeDestinations(IReadOnlyDictionary<string, DestinationConfig>? incomingDestinations, ConcurrentDictionary<string, DestinationState> currentDestinations)
         {
             var desiredDestinations = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             var changed = false;
 
-            foreach (var incomingDestination in incomingDestinations)
+            if (incomingDestinations != null)
             {
-                desiredDestinations.Add(incomingDestination.Key);
-
-                if (currentDestinations.TryGetValue(incomingDestination.Key, out var currentDestination))
+                foreach (var incomingDestination in incomingDestinations)
                 {
-                    if (currentDestination.Model.HasChanged(incomingDestination.Value))
+                    desiredDestinations.Add(incomingDestination.Key);
+
+                    if (currentDestinations.TryGetValue(incomingDestination.Key, out var currentDestination))
                     {
-                        Log.DestinationChanged(_logger, incomingDestination.Key);
-                        currentDestination.Model = new DestinationModel(incomingDestination.Value);
+                        if (currentDestination.Model.HasChanged(incomingDestination.Value))
+                        {
+                            Log.DestinationChanged(_logger, incomingDestination.Key);
+                            currentDestination.Model = new DestinationModel(incomingDestination.Value);
+                            changed = true;
+                        }
+                    }
+                    else
+                    {
+                        Log.DestinationAdded(_logger, incomingDestination.Key);
+                        var newDestination = new DestinationState(incomingDestination.Key)
+                        {
+                            Model = new DestinationModel(incomingDestination.Value),
+                        };
+                        var added = currentDestinations.TryAdd(newDestination.DestinationId, newDestination);
+                        Debug.Assert(added);
                         changed = true;
                     }
-                }
-                else
-                {
-                    Log.DestinationAdded(_logger, incomingDestination.Key);
-                    var newDestination = new DestinationState(incomingDestination.Key)
-                    {
-                        Model = new DestinationModel(incomingDestination.Value),
-                    };
-                    var added = currentDestinations.TryAdd(newDestination.DestinationId, newDestination);
-                    Debug.Assert(added);
-                    changed = true;
                 }
             }
 
@@ -544,6 +544,7 @@ namespace Yarp.ReverseProxy.Service.Management
         /// Applies a new set of ASP .NET Core endpoints. Changes take effect immediately.
         /// </summary>
         /// <param name="endpoints">New endpoints to apply.</param>
+        [MemberNotNull(nameof(_endpoints))]
         private void UpdateEndpoints(List<Endpoint> endpoints)
         {
             if (endpoints == null)
@@ -570,7 +571,7 @@ namespace Yarp.ReverseProxy.Service.Management
             }
         }
 
-        private RouteModel BuildRouteModel(RouteConfig source, ClusterState cluster)
+        private RouteModel BuildRouteModel(RouteConfig source, ClusterState? cluster)
         {
             var transforms = _transformBuilder.Build(source, cluster?.Model?.Config);
 
@@ -584,47 +585,47 @@ namespace Yarp.ReverseProxy.Service.Management
 
         private static class Log
         {
-            private static readonly Action<ILogger, string, Exception> _clusterAdded = LoggerMessage.Define<string>(
+            private static readonly Action<ILogger, string, Exception?> _clusterAdded = LoggerMessage.Define<string>(
                   LogLevel.Debug,
                   EventIds.ClusterAdded,
                   "Cluster '{clusterId}' has been added.");
 
-            private static readonly Action<ILogger, string, Exception> _clusterChanged = LoggerMessage.Define<string>(
+            private static readonly Action<ILogger, string, Exception?> _clusterChanged = LoggerMessage.Define<string>(
                 LogLevel.Debug,
                 EventIds.ClusterChanged,
                 "Cluster '{clusterId}' has changed.");
 
-            private static readonly Action<ILogger, string, Exception> _clusterRemoved = LoggerMessage.Define<string>(
+            private static readonly Action<ILogger, string, Exception?> _clusterRemoved = LoggerMessage.Define<string>(
                 LogLevel.Debug,
                 EventIds.ClusterRemoved,
                 "Cluster '{clusterId}' has been removed.");
 
-            private static readonly Action<ILogger, string, Exception> _destinationAdded = LoggerMessage.Define<string>(
+            private static readonly Action<ILogger, string, Exception?> _destinationAdded = LoggerMessage.Define<string>(
                 LogLevel.Debug,
                 EventIds.DestinationAdded,
                 "Destination '{destinationId}' has been added.");
 
-            private static readonly Action<ILogger, string, Exception> _destinationChanged = LoggerMessage.Define<string>(
+            private static readonly Action<ILogger, string, Exception?> _destinationChanged = LoggerMessage.Define<string>(
                 LogLevel.Debug,
                 EventIds.DestinationChanged,
                 "Destination '{destinationId}' has changed.");
 
-            private static readonly Action<ILogger, string, Exception> _destinationRemoved = LoggerMessage.Define<string>(
+            private static readonly Action<ILogger, string, Exception?> _destinationRemoved = LoggerMessage.Define<string>(
                 LogLevel.Debug,
                 EventIds.DestinationRemoved,
                 "Destination '{destinationId}' has been removed.");
 
-            private static readonly Action<ILogger, string, Exception> _routeAdded = LoggerMessage.Define<string>(
+            private static readonly Action<ILogger, string, Exception?> _routeAdded = LoggerMessage.Define<string>(
                 LogLevel.Debug,
                 EventIds.RouteAdded,
                 "Route '{routeId}' has been added.");
 
-            private static readonly Action<ILogger, string, Exception> _routeChanged = LoggerMessage.Define<string>(
+            private static readonly Action<ILogger, string, Exception?> _routeChanged = LoggerMessage.Define<string>(
                 LogLevel.Debug,
                 EventIds.RouteChanged,
                 "Route '{routeId}' has changed.");
 
-            private static readonly Action<ILogger, string, Exception> _routeRemoved = LoggerMessage.Define<string>(
+            private static readonly Action<ILogger, string, Exception?> _routeRemoved = LoggerMessage.Define<string>(
                 LogLevel.Debug,
                 EventIds.RouteRemoved,
                 "Route '{routeId}' has been removed.");

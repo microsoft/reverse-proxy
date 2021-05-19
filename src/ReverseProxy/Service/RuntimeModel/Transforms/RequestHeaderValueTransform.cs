@@ -14,7 +14,12 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
     {
         public RequestHeaderValueTransform(string headerName, string value, bool append)
         {
-            HeaderName = headerName ?? throw new ArgumentNullException(nameof(headerName));
+            if (string.IsNullOrEmpty(headerName))
+            {
+                throw new ArgumentException($"'{nameof(headerName)}' cannot be null or empty.", nameof(headerName));
+            }
+
+            HeaderName = headerName;
             Value = value ?? throw new ArgumentNullException(nameof(value));
             Append = append;
         }

@@ -11,7 +11,7 @@ namespace Yarp.ReverseProxy.RuntimeModel
     /// </summary>
     internal sealed class RouteState
     {
-        private volatile RouteModel _model;
+        private volatile RouteModel _model = default!;
 
         public RouteState(string routeId)
         {
@@ -42,6 +42,6 @@ namespace Yarp.ReverseProxy.RuntimeModel
         /// <summary>
         /// A cached Endpoint that will be cleared and rebuilt if the RouteConfig or cluster config change.
         /// </summary>
-        internal Endpoint CachedEndpoint { get; set; }
+        internal Endpoint? CachedEndpoint { get; set; }
     }
 }

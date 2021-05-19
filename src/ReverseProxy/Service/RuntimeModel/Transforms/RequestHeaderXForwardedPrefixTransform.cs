@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Primitives;
 
@@ -14,7 +15,12 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
         public RequestHeaderXForwardedPrefixTransform
             (string headerName, bool append)
         {
-            HeaderName = headerName ?? throw new System.ArgumentNullException(nameof(headerName));
+            if (string.IsNullOrEmpty(headerName))
+            {
+                throw new ArgumentException($"'{nameof(headerName)}' cannot be null or empty.", nameof(headerName));
+            }
+
+            HeaderName = headerName;
             Append = append;
         }
 

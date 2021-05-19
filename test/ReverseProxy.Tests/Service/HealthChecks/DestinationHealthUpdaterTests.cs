@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -136,7 +137,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
                         },
                     },
                 },
-                default);
+                new HttpMessageInvoker(new HttpClientHandler()));
 
             foreach (var destination in destinations)
             {

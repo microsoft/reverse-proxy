@@ -38,7 +38,7 @@ namespace Yarp.ReverseProxy.Middleware
             var destinations = proxyFeature.AvailableDestinations;
             var destinationCount = destinations.Count;
 
-            DestinationState destination;
+            DestinationState? destination;
 
             if (destinationCount == 0)
             {
@@ -70,7 +70,7 @@ namespace Yarp.ReverseProxy.Middleware
 
         private static class Log
         {
-            private static readonly Action<ILogger, string, Exception> _noAvailableDestinations = LoggerMessage.Define<string>(
+            private static readonly Action<ILogger, string, Exception?> _noAvailableDestinations = LoggerMessage.Define<string>(
                 LogLevel.Warning,
                 EventIds.NoAvailableDestinations,
                 "No available destinations after load balancing for cluster '{clusterId}'.");

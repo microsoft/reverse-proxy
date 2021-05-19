@@ -81,7 +81,7 @@ namespace Yarp.ReverseProxy.Telemetry
                     do
                     {
                         var item = e.Current;
-                        baggage.Add(new NameValueHeaderValue(Uri.EscapeDataString(item.Key), Uri.EscapeDataString(item.Value)).ToString());
+                        baggage.Add(new NameValueHeaderValue(Uri.EscapeDataString(item.Key), Uri.EscapeDataString(item.Value ?? string.Empty)).ToString());
                     }
                     while (e.MoveNext());
                     if (_activityContextHeaders.HasFlag(ActivityContextHeaders.Baggage))

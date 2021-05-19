@@ -14,12 +14,12 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         /// <summary>
         /// Application services that can be used to validate transforms.
         /// </summary>
-        public IServiceProvider Services { get; init; }
+        public IServiceProvider Services { get; init; } = default!;
 
         /// <summary>
         /// The cluster configuration that may be used when creating transforms.
         /// </summary>
-        public ClusterConfig Cluster { get; init; }
+        public ClusterConfig Cluster { get; init; } = default!;
 
         /// <summary>
         /// The accumulated list of validation errors for this cluster.

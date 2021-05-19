@@ -16,7 +16,7 @@ namespace Yarp.ReverseProxy.Middleware
 
         public ReverseProxyApplicationBuilder(IApplicationBuilder applicationBuilder)
         {
-            _applicationBuilder = applicationBuilder;
+            _applicationBuilder = applicationBuilder ?? throw new ArgumentNullException(nameof(applicationBuilder));
         }
 
         public IServiceProvider ApplicationServices
@@ -27,7 +27,7 @@ namespace Yarp.ReverseProxy.Middleware
 
         public IFeatureCollection ServerFeatures => _applicationBuilder.ServerFeatures;
 
-        public IDictionary<string, object> Properties => _applicationBuilder.Properties;
+        public IDictionary<string, object?> Properties => _applicationBuilder.Properties;
 
         public RequestDelegate Build() => _applicationBuilder.Build();
 
