@@ -1744,6 +1744,117 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
             Assert.Equal((int)HttpStatusCode.OK, httpContext.Response.StatusCode);
         }
 
+        [Theory]
+        [MemberData(nameof(GetProhibitedHeaders))]
+        public async Task ProxyAsync_Request_RemoveProhibitedHeaders(string protocol, string prohibitedHeadersList)
+        {
+            const string preservedHeaderName = "Foo";
+            const string preservedHeaderValue = "bar";
+            var prohibitedHeaders = prohibitedHeadersList?.Split("; ") ?? Enumerable.Empty<string>();
+
+            var httpContext = new DefaultHttpContext();
+            httpContext.Request.Method = "GET";
+
+            foreach (var header in prohibitedHeaders)
+            {
+                (var headerName, var headerValues) = GetHeaderNameAndValues(header);
+                httpContext.Request.Headers[headerName] = headerValues;
+            }
+            httpContext.Request.Headers[preservedHeaderName] = preservedHeaderValue;
+
+            var destinationPrefix = "https://localhost:123/a/b/";
+            var sut = CreateProxy();
+            var client = MockHttpHandler.CreateClient(
+                async (HttpRequestMessage request, CancellationToken cancellationToken) =>
+                {
+                    await Task.Yield();
+
+                    Assert.Equal(preservedHeaderValue, string.Join(", ", request.Headers.GetValues(preservedHeaderName)));
+
+                    foreach (var removedHeaderName in prohibitedHeaders)
+                    {
+                        Assert.False(request.Headers.TryGetValues(removedHeaderName, out _));
+                    }
+
+                    var response = new HttpResponseMessage(HttpStatusCode.OK);
+                    return response;
+                });
+
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyConfig { Version = Version.Parse(protocol) });
+
+            Assert.Equal((int)HttpStatusCode.OK, httpContext.Response.StatusCode);
+        }
+
+        [Theory]
+        [MemberData(nameof(GetProhibitedHeaders))]
+        public async Task ProxyAsync_Response_RemoveProhibitedHeaders(string protocol, string prohibitedHeadersList)
+        {
+            const string preservedHeaderName = "Foo";
+            const string preservedHeaderValue = "bar";
+            var prohibitedHeaders = prohibitedHeadersList?.Split("; ") ?? Enumerable.Empty<string>();
+
+            var httpContext = new DefaultHttpContext();
+            httpContext.Request.Method = "GET";
+
+            var destinationPrefix = "https://localhost:123/a/b/";
+            var sut = CreateProxy();
+            var client = MockHttpHandler.CreateClient(
+                async (HttpRequestMessage request, CancellationToken cancellationToken) =>
+                {
+                    await Task.Yield();
+
+                    var response = new HttpResponseMessage(HttpStatusCode.OK);
+
+                    foreach (var header in prohibitedHeaders)
+                    {
+                        (var headerName, var headerValues) = GetHeaderNameAndValues(header);
+                        response.Headers.TryAddWithoutValidation(headerName, headerValues);
+                    }
+                    response.Headers.TryAddWithoutValidation(preservedHeaderName, preservedHeaderValue);
+
+                    return response;
+                });
+
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyConfig { Version = Version.Parse(protocol) });
+
+            Assert.Equal((int)HttpStatusCode.OK, httpContext.Response.StatusCode);
+            Assert.Equal(preservedHeaderValue, string.Join(", ", httpContext.Response.Headers[preservedHeaderName]));
+
+            foreach (var headerName in prohibitedHeaders)
+            {
+                Assert.False(httpContext.Response.Headers.TryGetValue(headerName, out _));
+            }
+        }
+
+        public static IEnumerable<object[]> GetProhibitedHeaders()
+        {
+            var headers = new[]
+            {
+                "Connection: close",
+                "Upgrade: test123",
+                "Transfer-Encoding: deflate",
+                "Keep-Alive: timeout=100",
+                "Proxy-Connection: value",
+                "Proxy-Authenticate: value",
+                "Proxy-Authentication-Info: value",
+                "Proxy-Authorization: value",
+                "Proxy-Features: value",
+                "Proxy-Instruction: value",
+                "Security-Scheme: value",
+                "ALPN: value",
+                "Close: value",
+#if NET
+                "AltSvc: value",
+#endif
+            };
+
+            foreach(var header in headers)
+            {
+                yield return new object[] { "1.1", header };
+                yield return new object[] { "2.0", header };
+            }
+        }
+
         private static void AssertProxyStartStop(List<EventWrittenEventArgs> events, string destinationPrefix, int statusCode)
         {
             AssertProxyStartFailedStop(events, destinationPrefix, statusCode, error: null);
