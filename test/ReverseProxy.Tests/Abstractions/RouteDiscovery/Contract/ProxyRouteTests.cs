@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Text.Json;
 using Xunit;
 
 namespace Yarp.ReverseProxy.Abstractions.Tests
@@ -125,6 +126,52 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
         public void Equals_Null_False()
         {
             Assert.False(new RouteConfig().Equals(null));
+        }
+
+        [Fact]
+        public void RouteConfig_CanBeJsonSerialized()
+        {
+            var route1 = new RouteConfig()
+            {
+                AuthorizationPolicy = "a",
+                ClusterId = "c",
+                CorsPolicy = "co",
+                Match = new RouteMatch()
+                {
+                    Headers = new[]
+                    {
+                        new RouteHeader()
+                        {
+                            Name = "Hi",
+                            Values = new[] { "v1", "v2" },
+                            IsCaseSensitive = true,
+                            Mode = HeaderMatchMode.HeaderPrefix,
+                        }
+                    },
+                    Hosts = new[] { "foo:90" },
+                    Methods = new[] { "GET", "POST" },
+                    Path = "/p",
+                },
+                Metadata = new Dictionary<string, string>()
+                {
+                    { "m", "m1" }
+                },
+                Transforms = new[]
+                {
+                    new Dictionary<string, string>
+                    {
+                        { "key", "value" },
+                        { "key1", "" }
+                    }
+                },
+                Order = 1,
+                RouteId = "R",
+            };
+
+            var json = JsonSerializer.Serialize(route1);
+            var route2 = JsonSerializer.Deserialize<RouteConfig>(json);
+
+            Assert.Equal(route1, route2);
         }
     }
 }
