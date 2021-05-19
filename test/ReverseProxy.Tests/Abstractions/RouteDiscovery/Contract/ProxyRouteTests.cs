@@ -129,7 +129,7 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
         }
 
         [Fact]
-        public void RouteConfig_CanBeJsonSerialzied()
+        public void RouteConfig_CanBeJsonSerialized()
         {
             var route1 = new RouteConfig()
             {
