@@ -17,10 +17,10 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
         protected abstract string EventSourceName { get; }
 
         protected readonly ILogger<TService> Logger;
-        protected readonly TMetricsConsumer[] MetricsConsumers;
-        protected readonly TTelemetryConsumer[] TelemetryConsumers;
+        protected readonly TMetricsConsumer[]? MetricsConsumers;
+        protected readonly TTelemetryConsumer[]? TelemetryConsumers;
 
-        private EventSource _eventSource;
+        private EventSource? _eventSource;
         private readonly object _syncObject = new();
         private readonly bool _initialized;
 
@@ -54,9 +54,9 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
 
             lock (_syncObject)
             {
-                if (_eventSource is not null)
+                if (_eventSource is EventSource eventSource)
                 {
-                    EnableEventSource();
+                    EnableEventSource(eventSource);
                 }
 
                 _initialized = true;
@@ -74,13 +74,13 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                     if (_initialized)
                     {
                         // Ctor already finished - enable the EventSource here
-                        EnableEventSource();
+                        EnableEventSource(eventSource);
                     }
                 }
             }
         }
 
-        private void EnableEventSource()
+        private void EnableEventSource(EventSource eventSource)
         {
             var enableEvents = TelemetryConsumers is not null;
             var enableMetrics = MetricsConsumers is not null;
@@ -91,10 +91,9 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
             }
 
             var eventLevel = enableEvents ? EventLevel.Verbose : EventLevel.Critical;
-            var arguments = enableMetrics ? new Dictionary<string, string> { { "EventCounterIntervalSec", MetricsOptions.Interval.TotalSeconds.ToString() } } : null;
+            var arguments = enableMetrics ? new Dictionary<string, string?> { { "EventCounterIntervalSec", MetricsOptions.Interval.TotalSeconds.ToString() } } : null;
 
-            EnableEvents(_eventSource, eventLevel, EventKeywords.None, arguments);
-            _eventSource = null;
+            EnableEvents(eventSource, eventLevel, EventKeywords.None, arguments);
         }
 
         public Task StartAsync(CancellationToken cancellationToken) => Task.CompletedTask;

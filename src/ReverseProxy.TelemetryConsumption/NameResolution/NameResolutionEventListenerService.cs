@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Diagnostics.Tracing;
 using Microsoft.Extensions.Logging;
@@ -11,7 +12,7 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
 {
     internal sealed class NameResolutionEventListenerService : EventListenerService<NameResolutionEventListenerService, INameResolutionTelemetryConsumer, INameResolutionMetricsConsumer>
     {
-        private NameResolutionMetrics _previousMetrics;
+        private NameResolutionMetrics? _previousMetrics;
         private NameResolutionMetrics _currentMetrics = new();
         private int _eventCountersCount;
 
@@ -41,7 +42,10 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                 return;
             }
 
-            var payload = eventData.Payload;
+#pragma warning disable IDE0007 // Use implicit type
+            // Explicit type here to drop the object? signature of payload elements
+            ReadOnlyCollection<object> payload = eventData.Payload!;
+#pragma warning restore IDE0007 // Use implicit type
 
             switch (eventData.EventId)
             {
@@ -85,8 +89,8 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                 return;
             }
 
-            Debug.Assert(eventData.EventName == "EventCounters" && eventData.Payload.Count == 1);
-            var counters = (IDictionary<string, object>)eventData.Payload[0];
+            Debug.Assert(eventData.EventName == "EventCounters" && eventData.Payload!.Count == 1);
+            var counters = (IDictionary<string, object>)eventData.Payload[0]!;
 
             if (!counters.TryGetValue("Mean", out var valueObj))
             {
