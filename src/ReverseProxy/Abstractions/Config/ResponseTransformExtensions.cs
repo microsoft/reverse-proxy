@@ -36,7 +36,7 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         /// <summary>
         /// Clones the route and adds the transform which will append or set the response header.
         /// </summary>
-        public static RouteConfig WithTransformResponseHeader(this RouteConfig route, string headerName, string value, bool append = true, bool always = true)
+        public static RouteConfig WithTransformResponseHeader(this RouteConfig route, string headerName, string value, bool append = true, bool always = false)
         {
             var type = append ? ResponseTransformFactory.AppendKey : ResponseTransformFactory.SetKey;
             var when = always ? ResponseTransformFactory.AlwaysValue : ResponseTransformFactory.SuccessValue;
@@ -51,7 +51,7 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         /// <summary>
         /// Clones the route and adds the transform which will remove the response header.
         /// </summary>
-        public static RouteConfig WithTransformResponseHeaderRemove(this RouteConfig route, string headerName, bool always = true)
+        public static RouteConfig WithTransformResponseHeaderRemove(this RouteConfig route, string headerName, bool always = false)
         {
             var when = always ? ResponseTransformFactory.AlwaysValue : ResponseTransformFactory.SuccessValue;
             return route.WithTransform(transform =>
@@ -64,7 +64,7 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         /// <summary>
         /// Adds the transform which will append or set the response header.
         /// </summary>
-        public static TransformBuilderContext AddResponseHeader(this TransformBuilderContext context, string headerName, string value, bool append = true, bool always = true)
+        public static TransformBuilderContext AddResponseHeader(this TransformBuilderContext context, string headerName, string value, bool append = true, bool always = false)
         {
             context.ResponseTransforms.Add(new ResponseHeaderValueTransform(headerName, value, append, always));
             return context;
@@ -73,7 +73,7 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         /// <summary>
         /// Adds the transform which will remove the response header.
         /// </summary>
-        public static TransformBuilderContext AddResponseHeaderRemove(this TransformBuilderContext context, string headerName, bool always = true)
+        public static TransformBuilderContext AddResponseHeaderRemove(this TransformBuilderContext context, string headerName, bool always = false)
         {
             context.ResponseTransforms.Add(new ResponseHeaderRemoveTransform(headerName, always));
             return context;
@@ -82,7 +82,7 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         /// <summary>
         /// Clones the route and adds the transform which will append or set the response trailer.
         /// </summary>
-        public static RouteConfig WithTransformResponseTrailer(this RouteConfig route, string headerName, string value, bool append = true, bool always = true)
+        public static RouteConfig WithTransformResponseTrailer(this RouteConfig route, string headerName, string value, bool append = true, bool always = false)
         {
             var type = append ? ResponseTransformFactory.AppendKey : ResponseTransformFactory.SetKey;
             var when = always ? ResponseTransformFactory.AlwaysValue : ResponseTransformFactory.SuccessValue;
@@ -97,7 +97,7 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         /// <summary>
         /// Adds the transform which will append or set the response trailer.
         /// </summary>
-        public static TransformBuilderContext AddResponseTrailer(this TransformBuilderContext context, string headerName, string value, bool append = true, bool always = true)
+        public static TransformBuilderContext AddResponseTrailer(this TransformBuilderContext context, string headerName, string value, bool append = true, bool always = false)
         {
             context.ResponseTrailersTransforms.Add(new ResponseTrailerValueTransform(headerName, value, append, always));
             return context;
@@ -106,7 +106,7 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         /// <summary>
         /// Adds the transform which will remove the response trailer.
         /// </summary>
-        public static TransformBuilderContext AddResponseTrailerRemove(this TransformBuilderContext context, string headerName, bool always = true)
+        public static TransformBuilderContext AddResponseTrailerRemove(this TransformBuilderContext context, string headerName, bool always = false)
         {
             context.ResponseTrailersTransforms.Add(new ResponseTrailerRemoveTransform(headerName, always));
             return context;
@@ -115,7 +115,7 @@ namespace Yarp.ReverseProxy.Abstractions.Config
         /// <summary>
         /// Clones the route and adds the transform which will remove the response trailer.
         /// </summary>
-        public static RouteConfig WithTransformResponseTrailerRemove(this RouteConfig route, string headerName, bool always = true)
+        public static RouteConfig WithTransformResponseTrailerRemove(this RouteConfig route, string headerName, bool always = false)
         {
             var when = always ? ResponseTransformFactory.AlwaysValue : ResponseTransformFactory.SuccessValue;
             return route.WithTransform(transform =>
