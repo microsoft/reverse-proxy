@@ -15,12 +15,12 @@ COPY ["src/ReverseProxy.Kubernetes.Protocol/Yarp.ReverseProxy.Kubernetes.Protoco
 RUN dotnet restore "samples/KuberenetesIngress.Sample/Ingress/Yarp.ReverseProxy.Kubernetes.Ingress.csproj"
 COPY . .
 # WORKDIR /samples/KuberenetesIngress.Sample/Ingress/
-RUN dotnet build "samples/KuberenetesIngress.Sample/Ingress/Yarp.ReverseProxy.Kubernetes.Ingress.csproj" -c Release -o /app/build
+RUN dotnet build "samples/KuberenetesIngress.Sample/Ingress/Yarp.ReverseProxy.Kubernetes.Ingress.csproj" -c Release -o /app/build -f net5.0
 
 FROM build AS publish
-RUN dotnet publish "Yarp.ReverseProxy.Kubernetes.Ingress.csproj" -c Release -o /app/publish
+RUN dotnet publish "samples/KuberenetesIngress.Sample/Ingress/Yarp.ReverseProxy.Kubernetes.Ingress.csproj" -c Release -o /app/publish -f net5.0
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "Ingress.dll"]
+ENTRYPOINT ["dotnet", "Yarp.ReverseProxy.Kubernetes.Ingress.dll"]
