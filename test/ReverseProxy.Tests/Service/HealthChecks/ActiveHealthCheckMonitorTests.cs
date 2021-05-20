@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -61,8 +62,6 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
         [Fact]
         public async Task CheckHealthAsync_CustomUserAgentSpecified_UserAgentUnchanged()
         {
-            const string CustomUserAgent = "FooBar/9001";
-
             var policy = new Mock<IActiveHealthCheckPolicy>();
             policy.SetupGet(p => p.Name).Returns("policy");
 
@@ -71,7 +70,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
                 .Returns((ClusterModel cluster, DestinationModel destination) =>
                 {
                     var request = new DefaultProbingRequestFactory().CreateRequest(cluster, destination);
-                    request.Headers.UserAgent.ParseAdd(CustomUserAgent);
+                    request.Headers.UserAgent.ParseAdd("FooBar/9001");
                     return request;
                 });
 
@@ -83,7 +82,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
 
             await monitor.CheckHealthAsync(new[] { cluster });
 
-            VerifySentProbeAndResult(cluster, httpClient, policy, new[] { ("https://localhost:20000/cluster/api/health/", 1), ("https://localhost:20001/cluster/api/health/", 1) }, userAgent: CustomUserAgent);
+            VerifySentProbeAndResult(cluster, httpClient, policy, new[] { ("https://localhost:20000/cluster/api/health/", 1), ("https://localhost:20001/cluster/api/health/", 1) }, userAgent: @"^FooBar\/9001$");
         }
 
         [Fact]
@@ -631,13 +630,13 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             policy.VerifyNoOtherCalls();
         }
 
-        private static void VerifySentProbeAndResult(ClusterState cluster, Mock<HttpMessageInvoker> httpClient, Mock<IActiveHealthCheckPolicy> policy, (string RequestUri, int Times)[] probes, int policyCallTimes = 1, string userAgent = "YARP Active Health Check Monitor")
+        private static void VerifySentProbeAndResult(ClusterState cluster, Mock<HttpMessageInvoker> httpClient, Mock<IActiveHealthCheckPolicy> policy, (string RequestUri, int Times)[] probes, int policyCallTimes = 1, string userAgent = @"^YARP\/\S+? \([^\)]+?\)$")
         {
             foreach (var probe in probes)
             {
                 httpClient.Verify(
                     c => c.SendAsync(
-                        It.Is<HttpRequestMessage>(m => m.RequestUri.AbsoluteUri == probe.RequestUri && m.Headers.UserAgent.ToString() == userAgent),
+                        It.Is<HttpRequestMessage>(m => m.RequestUri.AbsoluteUri == probe.RequestUri && Regex.IsMatch(m.Headers.UserAgent.ToString(), userAgent)),
                         It.IsAny<CancellationToken>()),
                     Times.Exactly(probe.Times));
             }

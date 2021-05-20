@@ -13,11 +13,15 @@ using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Net.Http.Headers;
+using System.Reflection;
 
 namespace Yarp.ReverseProxy.Service.HealthChecks
 {
     internal partial class ActiveHealthCheckMonitor : IActiveHealthCheckMonitor, IClusterChangeListener, IDisposable
     {
+        private static readonly string _version = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion;
+        private static readonly string _defaultUserAgent = $"YARP/{_version.Split('+')[0]} (Active Health Check Monitor)";
+
         private readonly ActiveHealthCheckMonitorOptions _monitorOptions;
         private readonly IDictionary<string, IActiveHealthCheckPolicy> _policies;
         private readonly IProbingRequestFactory _probingRequestFactory;
@@ -130,7 +134,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
 
                         if (!request.Headers.Contains(HeaderNames.UserAgent))
                         {
-                            request.Headers.Add(HeaderNames.UserAgent, "YARP Active Health Check Monitor");
+                            request.Headers.Add(HeaderNames.UserAgent, _defaultUserAgent);
                         }
 
                         probeTasks.Add((clusterModel.HttpClient.SendAsync(request, cts.Token), cts));
