@@ -3,7 +3,6 @@
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Yarp.ReverseProxy.Abstractions;
 using Yarp.ReverseProxy.RuntimeModel;
 using Yarp.ReverseProxy.Service.Management;
 using Yarp.ReverseProxy.Utilities;
@@ -13,6 +12,7 @@ using System.Net.Http;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Net.Http.Headers;
 
 namespace Yarp.ReverseProxy.Service.HealthChecks
 {
@@ -127,6 +127,11 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
                         var request = _probingRequestFactory.CreateRequest(clusterModel, destination.Model);
 
                         Log.SendingHealthProbeToEndpointOfDestination(_logger, request.RequestUri, destination.DestinationId, cluster.ClusterId);
+
+                        if (!request.Headers.Contains(HeaderNames.UserAgent))
+                        {
+                            request.Headers.Add(HeaderNames.UserAgent, "YARP Active Health Check Monitor");
+                        }
 
                         probeTasks.Add((clusterModel.HttpClient.SendAsync(request, cts.Token), cts));
                     }
