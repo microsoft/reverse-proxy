@@ -42,7 +42,21 @@ namespace Yarp.ReverseProxy.Utilities
             HeaderNames.TransferEncoding,
             HeaderNames.KeepAlive,
             HeaderNames.Upgrade,
-            "Proxy-Connection"
+            "Proxy-Connection",
+            "Proxy-Authenticate",
+            "Proxy-Authentication-Info",
+            "Proxy-Authorization",
+            "Proxy-Features",
+            "Proxy-Instruction",
+            "Security-Scheme",
+            "ALPN",
+            "Close",
+#if NET
+            HeaderNames.AltSvc,
+#else
+            "Alt-Svc",
+#endif
+
         };
 
         /// <summary>
