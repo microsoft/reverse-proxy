@@ -53,6 +53,8 @@ namespace Yarp.ReverseProxy.Utilities
             "Close",
 #if NET
             HeaderNames.AltSvc,
+#else
+            "Alt-Svc",
 #endif
 
         };
