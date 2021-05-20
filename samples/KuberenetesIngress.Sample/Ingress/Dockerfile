@@ -7,18 +7,18 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 WORKDIR /src
-COPY ["controller/src/Default/Ingress.csproj", "controller/src/Default/"]
-COPY ["src/ReverseProxy/Microsoft.ReverseProxy.csproj", "src/ReverseProxy/"]
-COPY ["controller/src/OperatorFramework/src/Controller/Microsoft.Kubernetes.Controller.csproj", "controller/src/OperatorFramework/src/Controller/"]
-COPY ["controller/src/OperatorFramework/src/Core/Microsoft.Kubernetes.Core.csproj", "controller/src/OperatorFramework/src/Core/"]
-COPY ["controller/src/WatchingServicesProtocol/WatchingServicesProtocol.csproj", "controller/src/WatchingServicesProtocol/"]
-RUN dotnet restore "controller/src/Default/Ingress.csproj"
+COPY ["samples/KuberenetesIngress.Sample/Ingress/Yarp.ReverseProxy.Kubernetes.Ingress.csproj", "samples/KuberenetesIngress.Sample/Ingress/"]
+COPY ["src/ReverseProxy/Yarp.ReverseProxy.csproj", "src/ReverseProxy/"]
+COPY ["src/OperatorFramework/src/Controller/Microsoft.Kubernetes.Controller.csproj", "src/OperatorFramework/src/Controller/"]
+COPY ["src/OperatorFramework/src/Core/Microsoft.Kubernetes.Core.csproj", "src/OperatorFramework/src/Core/"]
+COPY ["src/ReverseProxy.Kubernetes.Protocol/Yarp.ReverseProxy.Kubernetes.Protocol.csproj", "src/ReverseProxy.Kubernetes.Protocol/"]
+RUN dotnet restore "samples/KuberenetesIngress.Sample/Ingress/Yarp.ReverseProxy.Kubernetes.Ingress.csproj"
 COPY . .
-WORKDIR "/src/controller/src/Default"
-RUN dotnet build "Ingress.csproj" -c Release -o /app/build
+# WORKDIR /samples/KuberenetesIngress.Sample/Ingress/
+RUN dotnet build "samples/KuberenetesIngress.Sample/Ingress/Yarp.ReverseProxy.Kubernetes.Ingress.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "Ingress.csproj" -c Release -o /app/publish
+RUN dotnet publish "Yarp.ReverseProxy.Kubernetes.Ingress.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
