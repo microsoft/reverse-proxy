@@ -8,7 +8,7 @@ namespace Yarp.ReverseProxy.Utilities
     internal class Crc32
     {
         // Table of CRCs of all 8-bit messages.
-        private static readonly ulong[] _crcTable = new ulong[256];
+        private static readonly uint[] _crcTable = new uint[256];
 
         static Crc32()
         {
@@ -19,7 +19,7 @@ namespace Yarp.ReverseProxy.Utilities
         // should be initialized to all 1's, and the transmitted value
         // is the 1's complement of the final running CRC (see the
         // crc() routine below)).
-        public static ulong UpdateCRC(ulong crc, ReadOnlySpan<byte> buf)
+        public static uint UpdateCRC(uint crc, ReadOnlySpan<byte> buf)
         {
             var tmp = crc;
             for (var i = 0; i < buf.Length; i++)
@@ -29,22 +29,22 @@ namespace Yarp.ReverseProxy.Utilities
             return tmp;
         }
 
-        public static ulong CalculateCRC(ReadOnlySpan<byte> buf) => UpdateCRC(0xffffffffL, buf) ^ 0xffffffffL;
+        public static uint CalculateCRC(ReadOnlySpan<byte> buf) => UpdateCRC(0xffffffff, buf) ^ 0xffffffff;
 
         // Make the table for a fast CRC.
         // Derivative work of zlib -- https://github.com/madler/zlib/blob/master/crc32.c (hint: L108)
-        private static ulong[] MakeCrcTable()
+        private static uint[] MakeCrcTable()
         {
-            var result = new ulong[256];
+            var result = new uint[256];
 
-            for (ulong i = 0; i < 256; i++)
+            for (uint i = 0; i < 256; i++)
             {
                 var tmp = i;
                 for (var k = 0; k < 8; k++)
                 {
                     if ((tmp & 1) > 0)
                     {
-                        tmp = 0xedb88320L ^ (tmp >> 1);
+                        tmp = 0xedb88320 ^ (tmp >> 1);
                     }
                     else
                     {
