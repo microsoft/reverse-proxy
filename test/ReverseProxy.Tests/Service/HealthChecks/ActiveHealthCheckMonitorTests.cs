@@ -69,7 +69,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             requestFactory.Setup(p => p.CreateRequest(It.IsAny<ClusterModel>(), It.IsAny<DestinationModel>()))
                 .Returns((ClusterModel cluster, DestinationModel destination) =>
                 {
-                    var request = new DefaultProbingRequestFactory().CreateRequest(cluster, destination);
+                    var request = new HttpRequestMessage(HttpMethod.Get, "https://localhost:20000/cluster/api/health/");
                     request.Headers.UserAgent.ParseAdd("FooBar/9001");
                     return request;
                 });
@@ -78,11 +78,11 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             var monitor = new ActiveHealthCheckMonitor(options, new[] { policy.Object }, requestFactory.Object, new Mock<ITimerFactory>().Object, GetLogger());
 
             var httpClient = GetHttpClient();
-            var cluster = GetClusterInfo("cluster", "policy", true, httpClient.Object);
+            var cluster = GetClusterInfo("cluster", "policy", true, httpClient.Object, destinationCount: 1);
 
             await monitor.CheckHealthAsync(new[] { cluster });
 
-            VerifySentProbeAndResult(cluster, httpClient, policy, new[] { ("https://localhost:20000/cluster/api/health/", 1), ("https://localhost:20001/cluster/api/health/", 1) }, userAgent: @"^FooBar\/9001$");
+            VerifySentProbeAndResult(cluster, httpClient, policy, new[] { ("https://localhost:20000/cluster/api/health/", 1) }, userAgent: @"^FooBar\/9001$");
         }
 
         [Fact]
