@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -13,6 +14,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
 {
     internal sealed class CustomHeaderSessionAffinityProvider : BaseSessionAffinityProvider<string>
     {
+        private readonly ConditionalWeakTable<string, string> _defaultKeyNames = new ConditionalWeakTable<string, string>();
         public static readonly string DefaultCustomHeaderName = "X-Yarp-Proxy-Affinity";
 
         public CustomHeaderSessionAffinityProvider(
@@ -28,9 +30,10 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             return destination.DestinationId;
         }
 
-        protected override (string? Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, SessionAffinityConfig config)
+        protected override (string? Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, SessionAffinityConfig config, string clusterId)
         {
-            var customHeaderName = config.AffinityKeyName ?? DefaultCustomHeaderName;
+            var customHeaderName = config.AffinityKeyName ?? GetUniqueDefaultKeyName(clusterId);
+
             var keyHeaderValues = context.Request.Headers[customHeaderName];
 
             if (StringValues.IsNullOrEmpty(keyHeaderValues))
@@ -49,9 +52,14 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             return Unprotect(keyHeaderValues[0]);
         }
 
-        protected override void SetAffinityKey(HttpContext context, SessionAffinityConfig config, string unencryptedKey)
+        protected override void SetAffinityKey(HttpContext context, SessionAffinityConfig config, string unencryptedKey, string clusterId)
         {
-            context.Response.Headers.Append(config.AffinityKeyName ?? DefaultCustomHeaderName, Protect(unencryptedKey));
+            context.Response.Headers.Append(config.AffinityKeyName ?? GetUniqueDefaultKeyName(clusterId), Protect(unencryptedKey));
+        }
+
+        private string GetUniqueDefaultKeyName(string clusterId)
+        {
+            return _defaultKeyNames.GetValue(clusterId, i => $"{DefaultCustomHeaderName}_{GetDefaultKeyNameSuffix(i)}");
         }
 
         private static class Log

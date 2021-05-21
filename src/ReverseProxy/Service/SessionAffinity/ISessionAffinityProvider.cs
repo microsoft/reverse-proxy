@@ -34,6 +34,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
         /// <param name="context">Current request's context.</param>
         /// <param name="config">Affinity config.</param>
         /// <param name="destination"><see cref="DestinationState"/> to which request is to be affinitized.</param>
-        void AffinitizeRequest(HttpContext context, SessionAffinityConfig config, DestinationState destination);
+        /// /// <param name="clusterId">Target cluster ID.</param>
+        void AffinitizeRequest(HttpContext context, SessionAffinityConfig config, DestinationState destination, string clusterId);
     }
 }

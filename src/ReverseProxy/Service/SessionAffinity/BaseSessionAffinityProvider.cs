@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Yarp.ReverseProxy.Abstractions;
 using Yarp.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.Service.SessionAffinity
 {
@@ -26,7 +27,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
 
         public abstract string Mode { get; }
 
-        public virtual void AffinitizeRequest(HttpContext context, SessionAffinityConfig config, DestinationState destination)
+        public virtual void AffinitizeRequest(HttpContext context, SessionAffinityConfig config, DestinationState destination, string clusterId)
         {
             if (!config.Enabled.GetValueOrDefault())
             {
@@ -37,7 +38,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             if (!context.Items.ContainsKey(AffinityKeyId))
             {
                 var affinityKey = GetDestinationAffinityKey(destination);
-                SetAffinityKey(context, config, affinityKey);
+                SetAffinityKey(context, config, affinityKey, clusterId);
             }
         }
 
@@ -48,7 +49,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
                 throw new InvalidOperationException($"Session affinity is disabled for cluster {clusterId}.");
             }
 
-            var requestAffinityKey = GetRequestAffinityKey(context, config);
+            var requestAffinityKey = GetRequestAffinityKey(context, config, clusterId);
 
             if (requestAffinityKey.Key == null)
             {
@@ -92,9 +93,14 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
 
         protected abstract T GetDestinationAffinityKey(DestinationState destination);
 
-        protected abstract (T? Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, SessionAffinityConfig config);
+        protected abstract (T? Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, SessionAffinityConfig config, string clusterId);
 
-        protected abstract void SetAffinityKey(HttpContext context, SessionAffinityConfig config, T unencryptedKey);
+        protected abstract void SetAffinityKey(HttpContext context, SessionAffinityConfig config, T unencryptedKey, string clusterId);
+
+        protected string GetDefaultKeyNameSuffix(string clusterId)
+        {
+            return Crc32.CalculateCRC(Encoding.UTF8.GetBytes(clusterId)).ToString("X");
+        }
 
         protected string Protect(string unencryptedKey)
         {

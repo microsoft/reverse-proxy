@@ -10,7 +10,6 @@ using Xunit;
 using Yarp.ReverseProxy.Abstractions;
 using Yarp.ReverseProxy.Middleware;
 using Yarp.ReverseProxy.RuntimeModel;
-using Yarp.ReverseProxy.Service.Management;
 using Yarp.ReverseProxy.Service.RuntimeModel.Transforms;
 
 namespace Yarp.ReverseProxy.Service.SessionAffinity
@@ -23,7 +22,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             var cluster = GetCluster();
             var destination = cluster.Destinations.Values.First();
             var provider = new Mock<ISessionAffinityProvider>(MockBehavior.Strict);
-            provider.Setup(p => p.AffinitizeRequest(It.IsAny<HttpContext>(), It.IsNotNull<SessionAffinityConfig>(), It.IsAny<DestinationState>()));
+            provider.Setup(p => p.AffinitizeRequest(It.IsAny<HttpContext>(), It.IsNotNull<SessionAffinityConfig>(), It.IsAny<DestinationState>(), It.IsAny<string>()));
 
             var transform = new AffinitizeTransform(provider.Object);
 

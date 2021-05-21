@@ -166,7 +166,8 @@ namespace Yarp.ReverseProxy.Middleware
                     provider.Setup(p => p.AffinitizeRequest(
                         It.IsAny<HttpContext>(),
                         ClusterConfig.Config.SessionAffinity,
-                        expectedDestinations[0]))
+                        expectedDestinations[0],
+                        ClusterConfig.Config.ClusterId))
                     .Callback(() => callback(provider.Object));
                 }
                 result.Add(provider);
