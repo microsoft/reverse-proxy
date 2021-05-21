@@ -411,7 +411,8 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
 
             var options = new JsonSerializerOptions
             {
-#if !NET6_0_OR_GREATER
+                // Future 6.0 builds will contain the fix to these missing converters
+//#if !NET6_0_OR_GREATER
                 Converters =
                 {
                     // TimeSpans https://github.com/dotnet/runtime/issues/29932
@@ -419,7 +420,7 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
                     // Version https://github.com/dotnet/runtime/pull/41384
                     new VersionConverter()
                 }
-#endif
+//#endif
             };
             var json = JsonSerializer.Serialize(cluster1, options);
             var cluster2 = JsonSerializer.Deserialize<ClusterConfig>(json, options);

@@ -38,7 +38,7 @@ namespace Yarp.ReverseProxy.Common
                   destinationServices => { },
                   destinationApp =>
                   {
-                      destinationApp.Use(async (context, next) => await destinationGetDelegate(context));
+                      destinationApp.Run(destinationGetDelegate);
                   },
                   configureProxy,
                   configureProxyApp,

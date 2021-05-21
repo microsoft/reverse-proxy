@@ -9,8 +9,4 @@
     -->
     <PreReleaseVersionLabel>preview.12</PreReleaseVersionLabel>
   </PropertyGroup>
-  <!--Package versions-->
-  <PropertyGroup>
-    <MicrosoftNETCoreAppPackageVersion>5.0.0-rtm.20529.3</MicrosoftNETCoreAppPackageVersion>
-  </PropertyGroup>
 </Project>
