@@ -1,0 +1,138 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: yarp
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: yarp-config
+  namespace: yarp
+data:
+  yarp.json: |
+    {
+
+    }
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: yarp-serviceaccount
+  namespace: yarp
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: yarp-ingress-clusterrole
+  namespace: yarp
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - endpoints
+  - nodes
+  - pods
+  - secrets
+  - namespaces
+  verbs:
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - nodes
+  verbs:
+  - get
+- apiGroups:
+  - ""
+  resources:
+  - services
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - networking.k8s.io
+  - extensions
+  - networking.internal.knative.dev
+  resources:
+  - ingresses
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+- apiGroups:
+  - networking.k8s.io
+  - extensions
+  - networking.internal.knative.dev
+  resources:
+  - ingresses/status
+  verbs:
+  - update
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: yarp-ingress-clusterrole-nisa-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: yarp-ingress-clusterrole
+subjects:
+- kind: ServiceAccount
+  name: yarp-serviceaccount
+  namespace: yarp
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: yarp-controller
+  namespace: yarp
+spec:
+  ports:
+  - name: api
+    port: 8000
+    protocol: TCP
+    targetPort: 8000
+  selector:
+    app: ingress-yarp-controller
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: ingress-yarp-controller
+  name: yarp-controller
+  namespace: yarp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ingress-yarp-controller
+  template:
+    metadata:
+      labels:
+        app: ingress-yarp-controller
+    spec:
+      containers:
+      - name: yarp-controller
+        imagePullPolicy: Always
+        image: jkotalik/yarp-controller:0.0.0-19c9e0d733
+        ports:
+        - containerPort: 8000
+          name: api
+          protocol: TCP
+        env:
+        - name: ASPNETCORE_URLS
+          value: http://*:8000
+      serviceAccountName: yarp-serviceaccount
+---
+

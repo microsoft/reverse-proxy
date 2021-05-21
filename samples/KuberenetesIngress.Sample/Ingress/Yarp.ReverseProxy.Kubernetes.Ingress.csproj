@@ -8,7 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.12" />
     <PackageReference Include="Nerdbank.GitVersioning" Version="3.3.37" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="3.0.1" />
     <PackageReference Include="Serilog.Formatting.Compact" Version="1.1.0" />
@@ -16,9 +15,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\OperatorFramework\src\Controller\Microsoft.Kubernetes.Controller.csproj" />
-    <ProjectReference Include="..\ReverseProxy.Kubernetes.Protocol\Yarp.ReverseProxy.Kubernetes.Protocol.csproj" />
-    <ProjectReference Include="..\ReverseProxy\Yarp.ReverseProxy.csproj" />
+    <ProjectReference Include="..\..\..\src\OperatorFramework\src\Controller\Microsoft.Kubernetes.Controller.csproj" />
+    <ProjectReference Include="..\..\..\src\ReverseProxy.Kubernetes.Protocol\Yarp.ReverseProxy.Kubernetes.Protocol.csproj" />
+    <ProjectReference Include="..\..\..\src\ReverseProxy\Yarp.ReverseProxy.csproj" />
   </ItemGroup>
 
 </Project>

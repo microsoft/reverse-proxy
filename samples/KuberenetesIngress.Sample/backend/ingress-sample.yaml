@@ -6,14 +6,7 @@ spec:
   rules:
   - http:
       paths:
-      - path: /foo
-        pathType: Prefix
-        backend:
-          service:
-            name: frontend
-            port:
-              number: 80
-      - path: /bar
+      - path: /
         pathType: Prefix
         backend:
           service:

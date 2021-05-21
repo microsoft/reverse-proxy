@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
@@ -49,22 +49,10 @@ namespace Backend
                     context.Response.ContentType = "application/json; charset=utf-8";
                     await JsonSerializer.SerializeAsync(context.Response.Body, backendInfo);
                 });
-
-                endpoints.MapGet("/bar", async context =>
-                {
-                    var backendInfo = new BackendInfo()
-                    {
-                        IP = context.Connection.LocalIpAddress.ToString(),
-                        Hostname = Dns.GetHostName(),
-                    };
-
-                    context.Response.ContentType = "application/json; charset=utf-8";
-                    await JsonSerializer.SerializeAsync(context.Response.Body, backendInfo);
-                });
             });
         }
 
-        class BackendInfo
+        private class BackendInfo
         {
             public string IP { get; set; } = default!;
 
