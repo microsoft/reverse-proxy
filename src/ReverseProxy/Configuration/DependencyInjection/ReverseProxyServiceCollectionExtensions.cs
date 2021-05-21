@@ -66,13 +66,15 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         public static IReverseProxyBuilder LoadFromConfig(this IReverseProxyBuilder builder, IConfiguration config)
         {
-            builder.Services.AddSingleton<ICertificateConfigLoader, CertificateConfigLoader>();
+            if (config is null)
+            {
+                throw new ArgumentNullException(nameof(config));
+            }
+
             builder.Services.AddSingleton<IProxyConfigProvider>(sp =>
             {
                 // This is required because we're capturing the configuration via a closure
-                return new ConfigurationConfigProvider(sp.GetService<ILogger<ConfigurationConfigProvider>>(), config,
-                    sp.GetService<ICertificateConfigLoader>()
-                );
+                return new ConfigurationConfigProvider(sp.GetRequiredService<ILogger<ConfigurationConfigProvider>>(), config);
             });
 
             return builder;
@@ -100,6 +102,11 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         public static IReverseProxyBuilder AddTransforms(this IReverseProxyBuilder builder, Action<TransformBuilderContext> action)
         {
+            if (action is null)
+            {
+                throw new ArgumentNullException(nameof(action));
+            }
+
             builder.Services.AddSingleton<ITransformProvider>(new ActionTransformProvider(action));
             return builder;
         }
@@ -132,6 +139,11 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         public static IReverseProxyBuilder ConfigureHttpClient(this IReverseProxyBuilder builder, Action<ProxyHttpClientContext, SocketsHttpHandler> configure)
         {
+            if (configure is null)
+            {
+                throw new ArgumentNullException(nameof(configure));
+            }
+
             builder.Services.AddSingleton<IProxyHttpClientFactory>(services =>
             {
                 var logger = services.GetRequiredService<ILogger<ProxyHttpClientFactory>>();

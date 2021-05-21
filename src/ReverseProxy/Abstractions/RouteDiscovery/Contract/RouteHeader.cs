@@ -14,14 +14,15 @@ namespace Yarp.ReverseProxy.Abstractions
     {
         /// <summary>
         /// Name of the header to look for.
+        /// This field is required.
         /// </summary>
-        public string Name { get; init; }
+        public string Name { get; init; } = default!;
 
         /// <summary>
         /// A collection of acceptable header values used during routing. Only one value must match.
         /// The list must not be empty unless using <see cref="HeaderMatchMode.Exists"/>.
         /// </summary>
-        public IReadOnlyList<string> Values { get; init; }
+        public IReadOnlyList<string>? Values { get; init; }
 
         /// <summary>
         /// Specifies how header values should be compared (e.g. exact matches Vs. by prefix).
@@ -38,7 +39,7 @@ namespace Yarp.ReverseProxy.Abstractions
         public bool IsCaseSensitive { get; init; }
 
         /// <inheritdoc />
-        public bool Equals(RouteHeader other)
+        public bool Equals(RouteHeader? other)
         {
             if (other == null)
             {

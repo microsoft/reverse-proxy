@@ -2,8 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
-using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.Abstractions
 {
@@ -20,20 +18,31 @@ namespace Yarp.ReverseProxy.Abstractions
         /// <summary>
         /// Session affinity mode which is implemented by one of providers.
         /// </summary>
-        public string Mode { get; init; }
+        public string? Mode { get; init; }
 
         /// <summary>
         /// Strategy handling missing destination for an affinitized request.
         /// </summary>
-        public string FailurePolicy { get; init; }
+        public string? FailurePolicy { get; init; }
 
         /// <summary>
-        /// Key-value pair collection holding extra settings specific to different affinity modes.
+        /// Identifies the name of the field where the affinity value is stored.
+        /// For the cookie affinity provider this will be the cookie name.
+        /// For the header affinity provider this will be the header name.
+        /// The provider will give its own default if no value is set.
+        /// This value should be unique across clusters to avoid affinity conflicts.
+        /// https://github.com/microsoft/reverse-proxy/issues/976
         /// </summary>
-        public IReadOnlyDictionary<string, string> Settings { get; init; }
+        public string? AffinityKeyName { get; init; }
+
+        /// <summary>
+        /// Configuration of a cookie storing the session affinity key in case
+        /// the <see cref="Mode"/> is set to 'Cookie'.
+        /// </summary>
+        public SessionAffinityCookieConfig? Cookie { get; init; }
 
         /// <inheritdoc />
-        public bool Equals(SessionAffinityConfig other)
+        public bool Equals(SessionAffinityConfig? other)
         {
             if (other == null)
             {
@@ -43,7 +52,8 @@ namespace Yarp.ReverseProxy.Abstractions
             return Enabled == other.Enabled
                 && string.Equals(Mode, other.Mode, StringComparison.OrdinalIgnoreCase)
                 && string.Equals(FailurePolicy, other.FailurePolicy, StringComparison.OrdinalIgnoreCase)
-                && CaseInsensitiveEqualHelper.Equals(Settings, other.Settings);
+                && string.Equals(AffinityKeyName, other.AffinityKeyName, StringComparison.Ordinal)
+                && Cookie == other.Cookie;
         }
 
         /// <inheritdoc />
@@ -52,7 +62,8 @@ namespace Yarp.ReverseProxy.Abstractions
             return HashCode.Combine(Enabled,
                 Mode?.GetHashCode(StringComparison.OrdinalIgnoreCase),
                 FailurePolicy?.GetHashCode(StringComparison.OrdinalIgnoreCase),
-                Settings);
+                AffinityKeyName?.GetHashCode(StringComparison.Ordinal),
+                Cookie);
         }
     }
 }

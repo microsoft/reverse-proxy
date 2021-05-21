@@ -19,14 +19,20 @@ namespace Yarp.ReverseProxy.RuntimeModel
     /// </remarks>
     public sealed class ClusterModel
     {
+        /// <summary>
+        /// Creates a new Instance.
+        /// </summary>
         public ClusterModel(
             ClusterConfig config,
             HttpMessageInvoker httpClient)
         {
             Config = config ?? throw new ArgumentNullException(nameof(config));
-            HttpClient = httpClient;
+            HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         }
 
+        /// <summary>
+        /// The config for this cluster.
+        /// </summary>
         public ClusterConfig Config { get; }
 
         /// <summary>

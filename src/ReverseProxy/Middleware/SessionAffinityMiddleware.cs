@@ -42,7 +42,7 @@ namespace Yarp.ReverseProxy.Middleware
             var cluster = proxyFeature.Cluster.Config;
             var config = cluster.SessionAffinity;
 
-            if (!(config?.Enabled).GetValueOrDefault())
+            if (config == null || !config.Enabled.GetValueOrDefault())
             {
                 return _next(context);
             }
@@ -60,7 +60,7 @@ namespace Yarp.ReverseProxy.Middleware
             switch (affinityResult.Status)
             {
                 case AffinityStatus.OK:
-                    proxyFeature.AvailableDestinations = affinityResult.Destinations;
+                    proxyFeature.AvailableDestinations = affinityResult.Destinations!;
                     break;
                 case AffinityStatus.AffinityKeyNotSet:
                     // Nothing to do so just continue processing
@@ -79,7 +79,7 @@ namespace Yarp.ReverseProxy.Middleware
                         return;
                     }
 
-                    Log.AffinityResolutionFailureWasHandledProcessingWillBeContinued(_logger, clusterId, config.FailurePolicy);
+                    Log.AffinityResolutionFailureWasHandledProcessingWillBeContinued(_logger, clusterId, failurePolicy.Name);
 
                     break;
                 default:
@@ -91,12 +91,12 @@ namespace Yarp.ReverseProxy.Middleware
 
         private static class Log
         {
-            private static readonly Action<ILogger, string, Exception> _affinityResolutionFailedForCluster = LoggerMessage.Define<string>(
+            private static readonly Action<ILogger, string, Exception?> _affinityResolutionFailedForCluster = LoggerMessage.Define<string>(
                 LogLevel.Warning,
                 EventIds.AffinityResolutionFailedForCluster,
                 "Affinity resolution failed for cluster '{clusterId}'.");
 
-            private static readonly Action<ILogger, string, string, Exception> _affinityResolutionFailureWasHandledProcessingWillBeContinued = LoggerMessage.Define<string, string>(
+            private static readonly Action<ILogger, string, string, Exception?> _affinityResolutionFailureWasHandledProcessingWillBeContinued = LoggerMessage.Define<string, string>(
                 LogLevel.Debug,
                 EventIds.AffinityResolutionFailureWasHandledProcessingWillBeContinued,
                 "Affinity resolution failure for cluster '{clusterId}' was handled successfully by the policy '{policyName}'. Request processing will be continued.");

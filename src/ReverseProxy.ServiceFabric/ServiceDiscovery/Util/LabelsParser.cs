@@ -9,6 +9,7 @@ using System.Net.Http;
 using System.Security.Authentication;
 using System.Text;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using Yarp.ReverseProxy.Abstractions;
 using Yarp.ReverseProxy.Service.Proxy;
@@ -239,23 +240,12 @@ namespace Yarp.ReverseProxy.ServiceFabric
         internal static ClusterConfig BuildCluster(Uri serviceName, Dictionary<string, string> labels, IReadOnlyDictionary<string, DestinationConfig> destinations)
         {
             var clusterMetadata = new Dictionary<string, string>();
-            Dictionary<string, string> sessionAffinitySettings = null;
             const string BackendMetadataKeyPrefix = "YARP.Backend.Metadata.";
-            const string SessionAffinitySettingsKeyPrefix = "YARP.Backend.SessionAffinity.Settings.";
             foreach (var item in labels)
             {
                 if (item.Key.StartsWith(BackendMetadataKeyPrefix, StringComparison.Ordinal))
                 {
                     clusterMetadata[item.Key.Substring(BackendMetadataKeyPrefix.Length)] = item.Value;
-                }
-                else if (item.Key.StartsWith(SessionAffinitySettingsKeyPrefix, StringComparison.Ordinal))
-                {
-                    if (sessionAffinitySettings == null)
-                    {
-                        sessionAffinitySettings = new Dictionary<string, string>();
-                    }
-
-                    sessionAffinitySettings[item.Key.Substring(SessionAffinitySettingsKeyPrefix.Length)] = item.Value;
                 }
             }
 
@@ -268,7 +258,6 @@ namespace Yarp.ReverseProxy.ServiceFabric
 
 #if NET
             var versionPolicyLabel = GetLabel<string>(labels, "YARP.Backend.HttpRequest.VersionPolicy", null);
-            var requestHeaderEncodingLabel = GetLabel<string>(labels, "YARP.Backend.HttpClient.RequestHeaderEncoding", null);
 #endif
 
             var cluster = new ClusterConfig
@@ -280,7 +269,18 @@ namespace Yarp.ReverseProxy.ServiceFabric
                     Enabled = GetLabel<bool?>(labels, "YARP.Backend.SessionAffinity.Enabled", null),
                     Mode = GetLabel<string>(labels, "YARP.Backend.SessionAffinity.Mode", null),
                     FailurePolicy = GetLabel<string>(labels, "YARP.Backend.SessionAffinity.FailurePolicy", null),
-                    Settings = sessionAffinitySettings
+                    AffinityKeyName = GetLabel<string>(labels, "YARP.Backend.SessionAffinity.AffinityKeyName", null),
+                    Cookie = new SessionAffinityCookieConfig
+                    {
+                        Path = GetLabel<string>(labels, "YARP.Backend.SessionAffinity.Cookie.Path", null),
+                        SameSite = GetLabel<SameSiteMode?>(labels, "YARP.Backend.SessionAffinity.Cookie.SameSite", null),
+                        HttpOnly = GetLabel<bool?>(labels, "YARP.Backend.SessionAffinity.Cookie.HttpOnly", null),
+                        MaxAge = GetLabel<TimeSpan?>(labels, "YARP.Backend.SessionAffinity.Cookie.MaxAge", null),
+                        Domain = GetLabel<string>(labels, "YARP.Backend.SessionAffinity.Cookie.Domain", null),
+                        IsEssential = GetLabel<bool?>(labels, "YARP.Backend.SessionAffinity.Cookie.IsEssential", null),
+                        SecurePolicy = GetLabel<CookieSecurePolicy?>(labels, "YARP.Backend.SessionAffinity.Cookie.SecurePolicy", null),
+                        Expiration = GetLabel<TimeSpan?>(labels, "YARP.Backend.SessionAffinity.Cookie.Expiration", null)
+                    }
                 },
                 HttpRequest = new RequestProxyConfig
                 {
@@ -315,7 +315,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
                     SslProtocols = !string.IsNullOrEmpty(sslProtocolsLabel) ? Enum.Parse<SslProtocols>(sslProtocolsLabel) : null,
 #if NET
                     EnableMultipleHttp2Connections = GetLabel<bool?>(labels, "YARP.Backend.HttpClient.EnableMultipleHttp2Connections", null),
-                    RequestHeaderEncoding = !string.IsNullOrEmpty(requestHeaderEncodingLabel) ? Encoding.GetEncoding(requestHeaderEncodingLabel) : null,
+                    RequestHeaderEncoding = GetLabel<string>(labels, "YARP.Backend.HttpClient.RequestHeaderEncoding", null),
 #endif
                     WebProxy = new WebProxyConfig
                     {
@@ -323,7 +323,6 @@ namespace Yarp.ReverseProxy.ServiceFabric
                         BypassOnLocal = GetLabel<bool?>(labels, "YARP.Backend.HttpClient.WebProxy.BypassOnLocal", null),
                         UseDefaultCredentials = GetLabel<bool?>(labels, "YARP.Backend.HttpClient.WebProxy.UseDefaultCredentials", null),
                     }
-                    //TODO: ClientCertificate =
                 },
                 Metadata = clusterMetadata,
                 Destinations = destinations,

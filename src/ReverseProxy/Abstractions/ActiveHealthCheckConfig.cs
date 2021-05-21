@@ -28,15 +28,15 @@ namespace Yarp.ReverseProxy.Abstractions
         /// <summary>
         /// Active health check policy.
         /// </summary>
-        public string Policy { get; init; }
+        public string? Policy { get; init; }
 
         /// <summary>
         /// HTTP health check endpoint path.
         /// </summary>
-        public string Path { get; init; }
+        public string? Path { get; init; }
 
         /// <inheritdoc />
-        public bool Equals(ActiveHealthCheckConfig other)
+        public bool Equals(ActiveHealthCheckConfig? other)
         {
             if (other == null)
             {

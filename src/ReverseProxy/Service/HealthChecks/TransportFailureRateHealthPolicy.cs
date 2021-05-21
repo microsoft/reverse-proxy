@@ -7,7 +7,6 @@ using System.Globalization;
 using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
-using Yarp.ReverseProxy.Abstractions;
 using Yarp.ReverseProxy.RuntimeModel;
 using Yarp.ReverseProxy.Service.Proxy;
 using Yarp.ReverseProxy.Utilities;
@@ -49,7 +48,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
         {
             var error = context.Features.Get<IProxyErrorFeature>();
             var newHealth = EvaluateProxiedRequest(cluster, destination, error != null);
-            var reactivationPeriod = cluster.Model.Config.HealthCheck.Passive.ReactivationPeriod ?? _defaultReactivationPeriod;
+            var reactivationPeriod = cluster.Model.Config.HealthCheck?.Passive?.ReactivationPeriod ?? _defaultReactivationPeriod;
             _healthUpdater.SetPassive(cluster, destination, newHealth, reactivationPeriod);
         }
 

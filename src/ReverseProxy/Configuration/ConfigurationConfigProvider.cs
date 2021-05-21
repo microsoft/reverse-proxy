@@ -3,13 +3,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net.Http;
 using System.Security.Authentication;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
 using System.Threading;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
@@ -29,37 +28,23 @@ namespace Yarp.ReverseProxy.Configuration
         private readonly object _lockObject = new object();
         private readonly ILogger<ConfigurationConfigProvider> _logger;
         private readonly IConfiguration _configuration;
-        private readonly ICertificateConfigLoader _certificateConfigLoader;
-        private ConfigurationSnapshot _snapshot;
-        private CancellationTokenSource _changeToken;
+        private ConfigurationSnapshot? _snapshot;
+        private CancellationTokenSource? _changeToken;
         private bool _disposed;
-        private IDisposable _subscription;
+        private IDisposable? _subscription;
 
         public ConfigurationConfigProvider(
             ILogger<ConfigurationConfigProvider> logger,
-            IConfiguration configuration,
-            ICertificateConfigLoader certificateConfigLoader)
+            IConfiguration configuration)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-            _certificateConfigLoader = certificateConfigLoader ?? throw new ArgumentNullException(nameof(certificateConfigLoader));
         }
-
-        // Used by tests
-        internal LinkedList<WeakReference<X509Certificate2>> Certificates { get; } = new LinkedList<WeakReference<X509Certificate2>>();
 
         public void Dispose()
         {
             if (!_disposed)
             {
-                foreach (var certificateRef in Certificates)
-                {
-                    if (certificateRef.TryGetTarget(out var certificate))
-                    {
-                        certificate.Dispose();
-                    }
-                }
-
                 _subscription?.Dispose();
                 _changeToken?.Dispose();
                 _disposed = true;
@@ -74,16 +59,18 @@ namespace Yarp.ReverseProxy.Configuration
                 _subscription = ChangeToken.OnChange(_configuration.GetReloadToken, UpdateSnapshot);
                 UpdateSnapshot();
             }
+
             return _snapshot;
         }
 
+        [MemberNotNull(nameof(_snapshot))]
         private void UpdateSnapshot()
         {
             // Prevent overlapping updates, especially on startup.
             lock (_lockObject)
             {
                 Log.LoadData(_logger);
-                ConfigurationSnapshot newSnapshot = null;
+                ConfigurationSnapshot newSnapshot;
                 try
                 {
                     newSnapshot = new ConfigurationSnapshot();
@@ -97,8 +84,6 @@ namespace Yarp.ReverseProxy.Configuration
                     {
                         newSnapshot.Routes.Add(CreateRoute(section));
                     }
-
-                    PurgeCertificateList();
                 }
                 catch (Exception ex)
                 {
@@ -129,21 +114,6 @@ namespace Yarp.ReverseProxy.Configuration
             }
         }
 
-        private void PurgeCertificateList()
-        {
-            var next = Certificates.First;
-            while (next != null)
-            {
-                var current = next;
-                next = next.Next;
-                // Remove a certificate from the collection if either it has been already collected or at least disposed.
-                if (!current.Value.TryGetTarget(out var cert) || cert.Handle == default)
-                {
-                    Certificates.Remove(current);
-                }
-            }
-        }
-
         private ClusterConfig CreateCluster(IConfigurationSection section)
         {
             var destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase);
@@ -156,10 +126,10 @@ namespace Yarp.ReverseProxy.Configuration
             {
                 ClusterId = section.Key,
                 LoadBalancingPolicy = section[nameof(ClusterConfig.LoadBalancingPolicy)],
-                SessionAffinity = CreateSessionAffinityOptions(section.GetSection(nameof(ClusterConfig.SessionAffinity))),
-                HealthCheck = CreateHealthCheckOptions(section.GetSection(nameof(ClusterConfig.HealthCheck))),
-                HttpClient = CreateProxyHttpClientOptions(section.GetSection(nameof(ClusterConfig.HttpClient))),
-                HttpRequest = CreateProxyRequestOptions(section.GetSection(nameof(ClusterConfig.HttpRequest))),
+                SessionAffinity = CreateSessionAffinityConfig(section.GetSection(nameof(ClusterConfig.SessionAffinity))),
+                HealthCheck = CreateHealthCheckConfig(section.GetSection(nameof(ClusterConfig.HealthCheck))),
+                HttpClient = CreateHttpClientConfig(section.GetSection(nameof(ClusterConfig.HttpClient))),
+                HttpRequest = CreateProxyRequestConfig(section.GetSection(nameof(ClusterConfig.HttpRequest))),
                 Metadata = section.GetSection(nameof(ClusterConfig.Metadata)).ReadStringDictionary(),
                 Destinations = destinations,
             };
@@ -180,7 +150,7 @@ namespace Yarp.ReverseProxy.Configuration
             };
         }
 
-        private static IReadOnlyList<IReadOnlyDictionary<string, string>> CreateTransforms(IConfigurationSection section)
+        private static IReadOnlyList<IReadOnlyDictionary<string, string>>? CreateTransforms(IConfigurationSection section)
         {
             if (section.GetChildren() is var children && !children.Any())
             {
@@ -195,7 +165,7 @@ namespace Yarp.ReverseProxy.Configuration
         {
             if (!section.Exists())
             {
-                return null;
+                return new RouteMatch();
             }
 
             return new RouteMatch()
@@ -207,7 +177,7 @@ namespace Yarp.ReverseProxy.Configuration
             };
         }
 
-        private static IReadOnlyList<RouteHeader> CreateRouteHeaders(IConfigurationSection section)
+        private static IReadOnlyList<RouteHeader>? CreateRouteHeaders(IConfigurationSection section)
         {
             if (!section.Exists())
             {
@@ -228,7 +198,7 @@ namespace Yarp.ReverseProxy.Configuration
             };
         }
 
-        private static SessionAffinityConfig CreateSessionAffinityOptions(IConfigurationSection section)
+        private static SessionAffinityConfig? CreateSessionAffinityConfig(IConfigurationSection section)
         {
             if (!section.Exists())
             {
@@ -240,11 +210,32 @@ namespace Yarp.ReverseProxy.Configuration
                 Enabled = section.ReadBool(nameof(SessionAffinityConfig.Enabled)),
                 Mode = section[nameof(SessionAffinityConfig.Mode)],
                 FailurePolicy = section[nameof(SessionAffinityConfig.FailurePolicy)],
-                Settings = section.GetSection(nameof(SessionAffinityConfig.Settings)).ReadStringDictionary()
+                AffinityKeyName = section[nameof(SessionAffinityConfig.AffinityKeyName)],
+                Cookie = CreateSessionAffinityCookieConfig(section.GetSection(nameof(SessionAffinityConfig.Cookie)))
             };
         }
 
-        private static HealthCheckConfig CreateHealthCheckOptions(IConfigurationSection section)
+        private static SessionAffinityCookieConfig? CreateSessionAffinityCookieConfig(IConfigurationSection section)
+        {
+            if (!section.Exists())
+            {
+                return null;
+            }
+
+            return new SessionAffinityCookieConfig
+            {
+                Path = section[nameof(SessionAffinityCookieConfig.Path)],
+                SameSite = section.ReadEnum<SameSiteMode>(nameof(SessionAffinityCookieConfig.SameSite)),
+                HttpOnly = section.ReadBool(nameof(SessionAffinityCookieConfig.HttpOnly)),
+                MaxAge = section.ReadTimeSpan(nameof(SessionAffinityCookieConfig.MaxAge)),
+                Domain = section[nameof(SessionAffinityCookieConfig.Domain)],
+                IsEssential = section.ReadBool(nameof(SessionAffinityCookieConfig.IsEssential)),
+                SecurePolicy = section.ReadEnum<CookieSecurePolicy>(nameof(SessionAffinityCookieConfig.SecurePolicy)),
+                Expiration = section.ReadTimeSpan(nameof(SessionAffinityCookieConfig.Expiration))
+            };
+        }
+
+        private static HealthCheckConfig? CreateHealthCheckConfig(IConfigurationSection section)
         {
             if (!section.Exists())
             {
@@ -253,12 +244,12 @@ namespace Yarp.ReverseProxy.Configuration
 
             return new HealthCheckConfig
             {
-                Passive = CreatePassiveHealthCheckOptions(section.GetSection(nameof(HealthCheckConfig.Passive))),
-                Active = CreateActiveHealthCheckOptions(section.GetSection(nameof(HealthCheckConfig.Active)))
+                Passive = CreatePassiveHealthCheckConfig(section.GetSection(nameof(HealthCheckConfig.Passive))),
+                Active = CreateActiveHealthCheckConfig(section.GetSection(nameof(HealthCheckConfig.Active)))
             };
         }
 
-        private static PassiveHealthCheckConfig CreatePassiveHealthCheckOptions(IConfigurationSection section)
+        private static PassiveHealthCheckConfig? CreatePassiveHealthCheckConfig(IConfigurationSection section)
         {
             if (!section.Exists())
             {
@@ -273,7 +264,7 @@ namespace Yarp.ReverseProxy.Configuration
             };
         }
 
-        private static ActiveHealthCheckConfig CreateActiveHealthCheckOptions(IConfigurationSection section)
+        private static ActiveHealthCheckConfig? CreateActiveHealthCheckConfig(IConfigurationSection section)
         {
             if (!section.Exists())
             {
@@ -290,25 +281,11 @@ namespace Yarp.ReverseProxy.Configuration
             };
         }
 
-        private HttpClientConfig CreateProxyHttpClientOptions(IConfigurationSection section)
+        private static HttpClientConfig? CreateHttpClientConfig(IConfigurationSection section)
         {
             if (!section.Exists())
             {
                 return null;
-            }
-
-            var certSection = section.GetSection(nameof(HttpClientConfig.ClientCertificate));
-
-            X509Certificate2 clientCertificate = null;
-
-            if (certSection.Exists())
-            {
-                clientCertificate = _certificateConfigLoader.LoadCertificate(certSection);
-            }
-
-            if (clientCertificate != null)
-            {
-                Certificates.AddLast(new WeakReference<X509Certificate2>(clientCertificate));
             }
 
             SslProtocols? sslProtocols = null;
@@ -320,7 +297,7 @@ namespace Yarp.ReverseProxy.Configuration
                 }
             }
 
-            WebProxyConfig webProxy;
+            WebProxyConfig? webProxy;
             var webProxySection = section.GetSection(nameof(HttpClientConfig.WebProxy));
             if (webProxySection.Exists())
             {
@@ -340,18 +317,17 @@ namespace Yarp.ReverseProxy.Configuration
             {
                 SslProtocols = sslProtocols,
                 DangerousAcceptAnyServerCertificate = section.ReadBool(nameof(HttpClientConfig.DangerousAcceptAnyServerCertificate)),
-                ClientCertificate = clientCertificate,
                 MaxConnectionsPerServer = section.ReadInt32(nameof(HttpClientConfig.MaxConnectionsPerServer)),
 #if NET
                 EnableMultipleHttp2Connections = section.ReadBool(nameof(HttpClientConfig.EnableMultipleHttp2Connections)),
-                RequestHeaderEncoding = section[nameof(HttpClientConfig.RequestHeaderEncoding)] is string encoding ? Encoding.GetEncoding(encoding) : null,
+                RequestHeaderEncoding = section[nameof(HttpClientConfig.RequestHeaderEncoding)],
 #endif
                 ActivityContextHeaders = section.ReadEnum<ActivityContextHeaders>(nameof(HttpClientConfig.ActivityContextHeaders)),
                 WebProxy = webProxy
             };
         }
 
-        private static RequestProxyConfig CreateProxyRequestOptions(IConfigurationSection section)
+        private static RequestProxyConfig? CreateProxyRequestConfig(IConfigurationSection section)
         {
             if (!section.Exists())
             {
@@ -370,11 +346,6 @@ namespace Yarp.ReverseProxy.Configuration
 
         private static DestinationConfig CreateDestination(IConfigurationSection section)
         {
-            if (!section.Exists())
-            {
-                return null;
-            }
-
             return new DestinationConfig
             {
                 Address = section[nameof(DestinationConfig.Address)],
@@ -390,7 +361,7 @@ namespace Yarp.ReverseProxy.Configuration
                 EventIds.ErrorSignalingChange,
                 "An exception was thrown from the change notification.");
 
-            private static readonly Action<ILogger, Exception> _loadData = LoggerMessage.Define(
+            private static readonly Action<ILogger, Exception?> _loadData = LoggerMessage.Define(
                 LogLevel.Information,
                 EventIds.LoadData,
                 "Loading proxy data from config.");

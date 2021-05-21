@@ -511,7 +511,7 @@ namespace Yarp.ReverseProxy.Service.DynamicEndpoint
             var secondMetadata = metadata.Matchers.Skip(1).Single();
             Assert.NotNull(secondMetadata);
             Assert.Equal("header2", secondMetadata.Name);
-            Assert.Null(secondMetadata.Values);
+            Assert.Same(Array.Empty<string>(), secondMetadata.Values);
             Assert.Equal(HeaderMatchMode.Exists, secondMetadata.Mode);
             Assert.False(secondMetadata.IsCaseSensitive);
 

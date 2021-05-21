@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Text.RegularExpressions;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors.Infrastructure;
@@ -110,7 +110,7 @@ namespace Yarp.ReverseProxy.Service
             return new ValueTask<IList<Exception>>(errors);
         }
 
-        private static void ValidateHost(IList<Exception> errors, IReadOnlyList<string> hosts, string routeId)
+        private static void ValidateHost(IList<Exception> errors, IReadOnlyList<string>? hosts, string routeId)
         {
             // Host is optional when Path is specified
             if (hosts == null || hosts.Count == 0)
@@ -131,7 +131,7 @@ namespace Yarp.ReverseProxy.Service
             }
         }
 
-        private static void ValidatePath(IList<Exception> errors, string path, string routeId)
+        private static void ValidatePath(IList<Exception> errors, string? path, string routeId)
         {
             // Path is optional when Host is specified
             if (string.IsNullOrEmpty(path))
@@ -149,7 +149,7 @@ namespace Yarp.ReverseProxy.Service
             }
         }
 
-        private static void ValidateMethods(IList<Exception> errors, IReadOnlyList<string> methods, string routeId)
+        private static void ValidateMethods(IList<Exception> errors, IReadOnlyList<string>? methods, string routeId)
         {
             // Methods are optional
             if (methods == null)
@@ -173,7 +173,7 @@ namespace Yarp.ReverseProxy.Service
             }
         }
 
-        private static void ValidateHeaders(List<Exception> errors, IReadOnlyList<RouteHeader> headers, string routeId)
+        private static void ValidateHeaders(List<Exception> errors, IReadOnlyList<RouteHeader>? headers, string routeId)
         {
             // Headers are optional
             if (headers == null)
@@ -207,7 +207,7 @@ namespace Yarp.ReverseProxy.Service
             }
         }
 
-        private async ValueTask ValidateAuthorizationPolicyAsync(IList<Exception> errors, string authorizationPolicyName, string routeId)
+        private async ValueTask ValidateAuthorizationPolicyAsync(IList<Exception> errors, string? authorizationPolicyName, string routeId)
         {
             if (string.IsNullOrEmpty(authorizationPolicyName))
             {
@@ -248,7 +248,7 @@ namespace Yarp.ReverseProxy.Service
             }
         }
 
-        private async ValueTask ValidateCorsPolicyAsync(IList<Exception> errors, string corsPolicyName, string routeId)
+        private async ValueTask ValidateCorsPolicyAsync(IList<Exception> errors, string? corsPolicyName, string routeId)
         {
             if (string.IsNullOrEmpty(corsPolicyName))
             {
@@ -328,6 +328,23 @@ namespace Yarp.ReverseProxy.Service
             {
                 errors.Add(new ArgumentException($"No matching IAffinityFailurePolicy found for the affinity failure policy name '{affinityFailurePolicy}' set on the cluster '{cluster.ClusterId}'."));
             }
+
+            var cookieConfig = cluster.SessionAffinity.Cookie;
+
+            if (cookieConfig == null)
+            {
+                return;
+            }
+
+            if (cookieConfig.Expiration != null && cookieConfig.Expiration <= TimeSpan.Zero)
+            {
+                errors.Add(new ArgumentException($"Session affinity cookie expiration must be positive or null."));
+            }
+
+            if (cookieConfig.MaxAge != null && cookieConfig.MaxAge <= TimeSpan.Zero)
+            {
+                errors.Add(new ArgumentException($"Session affinity cookie max-age must be positive or null."));
+            }
         }
 
         private static void ValidateProxyHttpClient(IList<Exception> errors, ClusterConfig cluster)
@@ -342,6 +359,20 @@ namespace Yarp.ReverseProxy.Service
             {
                 errors.Add(new ArgumentException($"Max connections per server limit set on the cluster '{cluster.ClusterId}' must be positive."));
             }
+#if NET
+            var encoding = cluster.HttpClient.RequestHeaderEncoding;
+            if (encoding != null)
+            {
+                try
+                {
+                    Encoding.GetEncoding(encoding);
+                }
+                catch (ArgumentException aex)
+                {
+                    errors.Add(new ArgumentException($"Invalid header encoding '{encoding}'.", aex));
+                }
+            }
+#endif
         }
 
         private static void ValidateProxyHttpRequest(IList<Exception> errors, ClusterConfig cluster)

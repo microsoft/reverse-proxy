@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Yarp.ReverseProxy.Abstractions;
 using Yarp.ReverseProxy.Service.HealthChecks;
 using Yarp.ReverseProxy.Utilities;
 
@@ -30,13 +29,13 @@ namespace Yarp.ReverseProxy.Middleware
             var options = proxyFeature.Cluster.Config.HealthCheck?.Passive;
 
             // Do nothing if no target destination has been chosen for the request.
-            if (!(options?.Enabled).GetValueOrDefault() || proxyFeature.ProxiedDestination == null)
+            if (options == null || !options.Enabled.GetValueOrDefault() || proxyFeature.ProxiedDestination == null)
             {
                 return;
             }
 
             var policy = _policies.GetRequiredServiceById(options.Policy, HealthCheckConstants.PassivePolicy.TransportFailureRate);
-            var cluster = context.GetRouteModel().Cluster;
+            var cluster = context.GetRouteModel().Cluster!;
             policy.RequestProxied(cluster, proxyFeature.ProxiedDestination, context);
         }
     }

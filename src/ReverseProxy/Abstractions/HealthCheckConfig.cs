@@ -13,15 +13,15 @@ namespace Yarp.ReverseProxy.Abstractions
         /// <summary>
         /// Passive health check config.
         /// </summary>
-        public PassiveHealthCheckConfig Passive { get; init; }
+        public PassiveHealthCheckConfig? Passive { get; init; }
 
         /// <summary>
         /// Active health check config.
         /// </summary>
-        public ActiveHealthCheckConfig Active { get; init; }
+        public ActiveHealthCheckConfig? Active { get; init; }
 
         /// <inheritdoc />
-        public bool Equals(HealthCheckConfig other)
+        public bool Equals(HealthCheckConfig? other)
         {
             if (other == null)
             {

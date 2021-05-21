@@ -14,7 +14,6 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
     internal sealed class CustomHeaderSessionAffinityProvider : BaseSessionAffinityProvider<string>
     {
         public static readonly string DefaultCustomHeaderName = "X-Yarp-Proxy-Affinity";
-        private const string CustomHeaderNameKey = "CustomHeaderName";
 
         public CustomHeaderSessionAffinityProvider(
             IDataProtectionProvider dataProtectionProvider,
@@ -29,9 +28,9 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             return destination.DestinationId;
         }
 
-        protected override (string Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, SessionAffinityConfig config)
+        protected override (string? Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, SessionAffinityConfig config)
         {
-            var customHeaderName = config.Settings != null && config.Settings.TryGetValue(CustomHeaderNameKey, out var nameInSettings) ? nameInSettings : DefaultCustomHeaderName;
+            var customHeaderName = config.AffinityKeyName ?? DefaultCustomHeaderName;
             var keyHeaderValues = context.Request.Headers[customHeaderName];
 
             if (StringValues.IsNullOrEmpty(keyHeaderValues))
@@ -52,13 +51,12 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
 
         protected override void SetAffinityKey(HttpContext context, SessionAffinityConfig config, string unencryptedKey)
         {
-            var customHeaderName = GetSettingValue(CustomHeaderNameKey, config);
-            context.Response.Headers.Append(customHeaderName, Protect(unencryptedKey));
+            context.Response.Headers.Append(config.AffinityKeyName ?? DefaultCustomHeaderName, Protect(unencryptedKey));
         }
 
         private static class Log
         {
-            private static readonly Action<ILogger, string, int, Exception> _requestAffinityHeaderHasMultipleValues = LoggerMessage.Define<string, int>(
+            private static readonly Action<ILogger, string, int, Exception?> _requestAffinityHeaderHasMultipleValues = LoggerMessage.Define<string, int>(
                 LogLevel.Error,
                 EventIds.RequestAffinityHeaderHasMultipleValues,
                 "The request affinity header `{headerName}` has `{valueCount}` values.");

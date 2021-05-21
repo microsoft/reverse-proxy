@@ -20,7 +20,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
 
         protected BaseSessionAffinityProvider(IDataProtectionProvider dataProtectionProvider, ILogger logger)
         {
-            _dataProtector = dataProtectionProvider?.CreateProtector(GetType().FullName) ?? throw new ArgumentNullException(nameof(dataProtectionProvider));
+            _dataProtector = dataProtectionProvider?.CreateProtector(GetType().FullName!) ?? throw new ArgumentNullException(nameof(dataProtectionProvider));
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -55,7 +55,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
                 return new AffinityResult(null, requestAffinityKey.ExtractedSuccessfully ? AffinityStatus.AffinityKeyNotSet : AffinityStatus.AffinityKeyExtractionFailed);
             }
 
-            IReadOnlyList<DestinationState> matchingDestinations = null;
+            IReadOnlyList<DestinationState>? matchingDestinations = null;
             if (destinations.Count > 0)
             {
                 for (var i = 0; i < destinations.Count; i++)
@@ -90,19 +90,9 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             return new AffinityResult(matchingDestinations, AffinityStatus.OK);
         }
 
-        protected virtual string GetSettingValue(string key, SessionAffinityConfig config)
-        {
-            if (config.Settings == null || !config.Settings.TryGetValue(key, out var value))
-            {
-                throw new ArgumentException($"{nameof(CookieSessionAffinityProvider)} couldn't find the required parameter {key} in session affinity settings.", nameof(config));
-            }
-
-            return value;
-        }
-
         protected abstract T GetDestinationAffinityKey(DestinationState destination);
 
-        protected abstract (T Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, SessionAffinityConfig config);
+        protected abstract (T? Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, SessionAffinityConfig config);
 
         protected abstract void SetAffinityKey(HttpContext context, SessionAffinityConfig config, T unencryptedKey);
 
@@ -119,7 +109,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             return Convert.ToBase64String(protectedData).TrimEnd('=');
         }
 
-        protected (string Key, bool ExtractedSuccessfully) Unprotect(string encryptedRequestKey)
+        protected (string? Key, bool ExtractedSuccessfully) Unprotect(string? encryptedRequestKey)
         {
             if (string.IsNullOrEmpty(encryptedRequestKey))
             {
@@ -158,17 +148,17 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
 
         private static class Log
         {
-            private static readonly Action<ILogger, string, Exception> _affinityCannotBeEstablishedBecauseNoDestinationsFound = LoggerMessage.Define<string>(
+            private static readonly Action<ILogger, string, Exception?> _affinityCannotBeEstablishedBecauseNoDestinationsFound = LoggerMessage.Define<string>(
                 LogLevel.Warning,
                 EventIds.AffinityCannotBeEstablishedBecauseNoDestinationsFoundOnCluster,
                 "The request affinity cannot be established because no destinations are found on cluster `{clusterId}`.");
 
-            private static readonly Action<ILogger, Exception> _requestAffinityKeyDecryptionFailed = LoggerMessage.Define(
+            private static readonly Action<ILogger, Exception?> _requestAffinityKeyDecryptionFailed = LoggerMessage.Define(
                 LogLevel.Error,
                 EventIds.RequestAffinityKeyDecryptionFailed,
                 "The request affinity key decryption failed.");
 
-            private static readonly Action<ILogger, string, Exception> _destinationMatchingToAffinityKeyNotFound = LoggerMessage.Define<string>(
+            private static readonly Action<ILogger, string, Exception?> _destinationMatchingToAffinityKeyNotFound = LoggerMessage.Define<string>(
                 LogLevel.Warning,
                 EventIds.DestinationMatchingToAffinityKeyNotFound,
                 "Destination matching to the request affinity key is not found on cluster `{backnedId}`. Configured failure policy will be applied.");
@@ -178,7 +168,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
                 _affinityCannotBeEstablishedBecauseNoDestinationsFound(logger, clusterId, null);
             }
 
-            public static void RequestAffinityKeyDecryptionFailed(ILogger logger, Exception ex)
+            public static void RequestAffinityKeyDecryptionFailed(ILogger logger, Exception? ex)
             {
                 _requestAffinityKeyDecryptionFailed(logger, ex);
             }

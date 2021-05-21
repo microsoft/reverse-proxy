@@ -17,8 +17,8 @@ namespace Yarp.ReverseProxy.RuntimeModel
     {
         private readonly object _stateLock = new object();
         private volatile ClusterDynamicState _dynamicState = new ClusterDynamicState(Array.Empty<DestinationState>(), Array.Empty<DestinationState>());
-        private volatile IReadOnlyList<DestinationState> _destinationsSnapshot;
-        private volatile ClusterModel _model;
+        private volatile IReadOnlyList<DestinationState> _destinationsSnapshot = Array.Empty<DestinationState>();
+        private volatile ClusterModel _model = default!; // Initialized right after construction.
         private readonly SemaphoreSlim _updateRequests = new SemaphoreSlim(2);
 
         /// <summary>

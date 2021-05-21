@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using Yarp.ReverseProxy.RuntimeModel;
 
@@ -11,19 +12,25 @@ namespace Yarp.ReverseProxy.Middleware
     /// </summary>
     public class ReverseProxyFeature : IReverseProxyFeature
     {
-        /// <inheritdoc/>
-        public RouteModel Route { get; init; }
+        private IReadOnlyList<DestinationState> _availableDestinations = default!;
 
         /// <inheritdoc/>
-        public ClusterModel Cluster { get; set; }
+        public RouteModel Route { get; init; } = default!;
 
         /// <inheritdoc/>
-        public IReadOnlyList<DestinationState> AllDestinations { get; init; }
+        public ClusterModel Cluster { get; set; } = default!;
 
         /// <inheritdoc/>
-        public IReadOnlyList<DestinationState> AvailableDestinations { get; set; }
+        public IReadOnlyList<DestinationState> AllDestinations { get; init; } = default!;
 
         /// <inheritdoc/>
-        public DestinationState ProxiedDestination { get; set; }
+        public IReadOnlyList<DestinationState> AvailableDestinations
+        {
+            get => _availableDestinations;
+            set => _availableDestinations = value ?? throw new ArgumentNullException(nameof(value));
+        }
+
+        /// <inheritdoc/>
+        public DestinationState? ProxiedDestination { get; set; }
     }
 }

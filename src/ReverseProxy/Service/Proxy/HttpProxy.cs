@@ -2,11 +2,10 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -85,7 +84,7 @@ namespace Yarp.ReverseProxy.Service.Proxy
         /// ASP .NET Core (Kestrel) will finally send response trailers (if any)
         /// after we complete the steps above and relinquish control.
         /// </remarks>
-        public async Task ProxyAsync(
+        public async ValueTask<ProxyError> ProxyAsync(
             HttpContext context,
             string destinationPrefix,
             HttpMessageInvoker httpClient,
@@ -95,8 +94,8 @@ namespace Yarp.ReverseProxy.Service.Proxy
             _ = context ?? throw new ArgumentNullException(nameof(context));
             _ = destinationPrefix ?? throw new ArgumentNullException(nameof(destinationPrefix));
             _ = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-
-            transformer ??= HttpTransformer.Default;
+            _ = requestConfig ?? throw new ArgumentNullException(nameof(requestConfig));
+            _ = transformer ?? throw new ArgumentNullException(nameof(transformer));
 
             // HttpClient overload for SendAsync changes response behavior to fully buffered which impacts performance
             // See discussion in https://github.com/microsoft/reverse-proxy/issues/458
@@ -137,17 +136,16 @@ namespace Yarp.ReverseProxy.Service.Proxy
                     {
                         ReportProxyError(context, ProxyError.RequestTimedOut, canceledException);
                         context.Response.StatusCode = StatusCodes.Status504GatewayTimeout;
-                        return;
+                        return ProxyError.RequestTimedOut;
                     }
 
                     ReportProxyError(context, ProxyError.RequestCanceled, canceledException);
                     context.Response.StatusCode = StatusCodes.Status502BadGateway;
-                    return;
+                    return ProxyError.RequestCanceled;
                 }
                 catch (Exception requestException)
                 {
-                    await HandleRequestFailureAsync(context, requestContent, requestException);
-                    return;
+                    return await HandleRequestFailureAsync(context, requestContent, requestException);
                 }
                 finally
                 {
@@ -171,7 +169,7 @@ namespace Yarp.ReverseProxy.Service.Proxy
                     {
                         // The transforms callback decided that the response body should be discarded.
                         destinationResponse.Dispose();
-                        return;
+                        return ProxyError.None;
                     }
                 }
                 catch (Exception ex)
@@ -181,14 +179,13 @@ namespace Yarp.ReverseProxy.Service.Proxy
                     // Clear the response since status code, reason and some headers might have already been copied and we want clean 502 response.
                     context.Response.Clear();
                     context.Response.StatusCode = StatusCodes.Status502BadGateway;
-                    return;
+                    return ProxyError.ResponseHeaders;
                 }
 
                 // :: Step 7-A: Check for a 101 upgrade response, this takes care of WebSockets as well as any other upgradeable protocol.
                 if (destinationResponse.StatusCode == HttpStatusCode.SwitchingProtocols)
                 {
-                    await HandleUpgradedResponse(context, destinationResponse, requestAborted);
-                    return;
+                    return await HandleUpgradedResponse(context, destinationResponse, requestAborted);
                 }
 
                 // NOTE: it may *seem* wise to call `context.Response.StartAsync()` at this point
@@ -206,8 +203,7 @@ namespace Yarp.ReverseProxy.Service.Proxy
 
                 if (responseBodyCopyResult != StreamCopyResult.Success)
                 {
-                    await HandleResponseBodyErrorAsync(context, requestContent, responseBodyCopyResult, responseBodyException);
-                    return;
+                    return await HandleResponseBodyErrorAsync(context, requestContent, responseBodyCopyResult, responseBodyException!);
                 }
 
                 // :: Step 8: Copy response trailer headers and finish response Client ◄-- Proxy ◄-- Destination
@@ -245,7 +241,8 @@ namespace Yarp.ReverseProxy.Service.Proxy
                             StreamCopyResult.Canceled => ProxyError.RequestBodyCanceled,
                             _ => throw new NotImplementedException(requestBodyCopyResult.ToString())
                         };
-                        ReportProxyError(context, error, requestBodyException);
+                        ReportProxyError(context, error, requestBodyException!);
+                        return error;
                     }
                 }
             }
@@ -253,9 +250,11 @@ namespace Yarp.ReverseProxy.Service.Proxy
             {
                 ProxyTelemetry.Log.ProxyStop(context.Response.StatusCode);
             }
+
+            return ProxyError.None;
         }
 
-        private async ValueTask<(HttpRequestMessage, StreamCopyHttpContent)> CreateRequestMessageAsync(HttpContext context, string destinationPrefix,
+        private async ValueTask<(HttpRequestMessage, StreamCopyHttpContent?)> CreateRequestMessageAsync(HttpContext context, string destinationPrefix,
             HttpTransformer transformer, RequestProxyConfig requestConfig, bool isStreamingRequest, CancellationToken requestAborted)
         {
             // "http://a".Length = 8
@@ -294,6 +293,11 @@ namespace Yarp.ReverseProxy.Service.Proxy
             // :: Step 3: Copy request headers Client --► Proxy --► Destination
             await transformer.TransformRequestAsync(context, destinationRequest, destinationPrefix);
 
+            if (isUpgradeRequest)
+            {
+                RestoreUpgradeHeaders(context, destinationRequest);
+            }
+
             // Allow someone to custom build the request uri, otherwise provide a default for them.
             var request = context.Request;
             destinationRequest.RequestUri ??= RequestUtilities.MakeDestinationAddress(destinationPrefix, request.Path, request.QueryString);
@@ -304,7 +308,27 @@ namespace Yarp.ReverseProxy.Service.Proxy
             return (destinationRequest, requestContent);
         }
 
-        private StreamCopyHttpContent SetupRequestBodyCopy(HttpRequest request, bool isStreamingRequest, CancellationToken cancellation)
+        private static void RestoreUpgradeHeaders(HttpContext context, HttpRequestMessage request)
+        {
+            var connectionValues = context.Request.Headers.GetCommaSeparatedValues(HeaderNames.Connection);
+            string? connectionUpgradeValue = null;
+            foreach (var headerValue in connectionValues)
+            {
+                if (headerValue.Equals("upgrade", StringComparison.OrdinalIgnoreCase))
+                {
+                    connectionUpgradeValue = headerValue;
+                    break;
+                }
+            }
+
+            if (connectionUpgradeValue != null && context.Request.Headers.TryGetValue(HeaderNames.Upgrade, out var upgradeValue))
+            {
+                request.Headers.TryAddWithoutValidation(HeaderNames.Connection, connectionUpgradeValue);
+                request.Headers.TryAddWithoutValidation(HeaderNames.Upgrade, (IEnumerable<string>)upgradeValue);
+            }
+        }
+
+        private StreamCopyHttpContent? SetupRequestBodyCopy(HttpRequest request, bool isStreamingRequest, CancellationToken cancellation)
         {
             // If we generate an HttpContent without a Content-Length then for HTTP/1.1 HttpClient will add a Transfer-Encoding: chunked header
             // even if it's a GET request. Some servers reject requests containing a Transfer-Encoding header if they're not expecting a body.
@@ -360,7 +384,6 @@ namespace Yarp.ReverseProxy.Service.Proxy
             }
             // else hasBody defaults to true
 
-            StreamCopyHttpContent requestContent = null;
             if (hasBody)
             {
                 if (isStreamingRequest)
@@ -377,17 +400,17 @@ namespace Yarp.ReverseProxy.Service.Proxy
                 // Because the sockets aren't flushed, the perf impact of this choice is expected to be small.
                 // Future: It may be wise to set this to true for *all* http2 incoming requests,
                 // but for now, out of an abundance of caution, we only do it for requests that look like gRPC.
-                requestContent = new StreamCopyHttpContent(
+                return new StreamCopyHttpContent(
                     source: request.Body,
                     autoFlushHttpClientOutgoingStream: isStreamingRequest,
                     clock: _clock,
                     cancellation: cancellation);
             }
 
-            return requestContent;
+            return null;
         }
 
-        private void HandleRequestBodyFailure(HttpContext context, StreamCopyResult requestBodyCopyResult, Exception requestBodyException, Exception additionalException)
+        private ProxyError HandleRequestBodyFailure(HttpContext context, StreamCopyResult requestBodyCopyResult, Exception requestBodyException, Exception additionalException)
         {
             ProxyError requestBodyError;
             int statusCode;
@@ -422,13 +445,15 @@ namespace Yarp.ReverseProxy.Service.Proxy
                 // Nothing has been sent to the client yet, we can still send a good error response.
                 context.Response.Clear();
                 context.Response.StatusCode = statusCode;
-                return;
+                return requestBodyError;
             }
 
             ResetOrAbort(context, isCancelled: requestBodyCopyResult == StreamCopyResult.Canceled);
+
+            return requestBodyError;
         }
 
-        private async Task HandleRequestFailureAsync(HttpContext context, StreamCopyHttpContent requestContent, Exception requestException)
+        private async ValueTask<ProxyError> HandleRequestFailureAsync(HttpContext context, StreamCopyHttpContent? requestContent, Exception requestException)
         {
             // Check for request body errors, these may have triggered the response error.
             if (requestContent?.ConsumptionTask.IsCompleted == true)
@@ -437,14 +462,15 @@ namespace Yarp.ReverseProxy.Service.Proxy
 
                 if (requestBodyCopyResult != StreamCopyResult.Success)
                 {
-                    HandleRequestBodyFailure(context, requestBodyCopyResult, requestBodyException, requestException);
-                    return;
+                    return HandleRequestBodyFailure(context, requestBodyCopyResult, requestBodyException!, requestException);
                 }
             }
 
             // We couldn't communicate with the destination.
             ReportProxyError(context, ProxyError.Request, requestException);
             context.Response.StatusCode = StatusCodes.Status502BadGateway;
+
+            return ProxyError.Request;
         }
 
         private static ValueTask<bool> CopyResponseStatusAndHeadersAsync(HttpResponseMessage source, HttpContext context, HttpTransformer transformer)
@@ -464,7 +490,30 @@ namespace Yarp.ReverseProxy.Service.Proxy
             return transformer.TransformResponseAsync(context, source);
         }
 
-        private async Task HandleUpgradedResponse(HttpContext context, HttpResponseMessage destinationResponse,
+        private static void RestoreUpgradeHeaders(HttpContext context, HttpResponseMessage response)
+        {
+            if (response.Headers.TryGetValues(HeaderNames.Connection, out var connectionValues)
+                && response.Headers.TryGetValues(HeaderNames.Upgrade, out var upgradeValues))
+            {
+                var upgradeStringValues = StringValues.Empty;
+                foreach (var value in upgradeValues)
+                {
+                    upgradeStringValues = StringValues.Concat(upgradeStringValues, value);
+                }
+                context.Response.Headers.TryAdd(HeaderNames.Upgrade, upgradeStringValues);
+
+                foreach (var value in connectionValues)
+                {
+                    if (value.Equals("upgrade", StringComparison.OrdinalIgnoreCase))
+                    {
+                        context.Response.Headers.TryAdd(HeaderNames.Connection, value);
+                        break;
+                    }
+                }
+            }
+        }
+
+        private async ValueTask<ProxyError> HandleUpgradedResponse(HttpContext context, HttpResponseMessage destinationResponse,
             CancellationToken longCancellation)
         {
             ProxyTelemetry.Log.ProxyStage(ProxyStage.ResponseUpgrade);
@@ -477,6 +526,8 @@ namespace Yarp.ReverseProxy.Service.Proxy
                 throw new InvalidOperationException("A response content is required for upgrades.");
             }
 
+            RestoreUpgradeHeaders(context, destinationResponse);
+
             // :: Step 7-A-1: Upgrade the client channel. This will also send response headers.
             var upgradeFeature = context.Features.Get<IHttpUpgradeFeature>();
             Stream upgradeResult;
@@ -488,7 +539,7 @@ namespace Yarp.ReverseProxy.Service.Proxy
             {
                 destinationResponse.Dispose();
                 ReportProxyError(context, ProxyError.UpgradeResponseClient, ex);
-                return;
+                return ProxyError.UpgradeResponseClient;
             }
             using var clientStream = upgradeResult;
 
@@ -505,10 +556,12 @@ namespace Yarp.ReverseProxy.Service.Proxy
             var requestFinishedFirst = firstTask == requestTask;
             var secondTask = requestFinishedFirst ? responseTask : requestTask;
 
+            ProxyError error;
+
             var (firstResult, firstException) = await firstTask;
             if (firstResult != StreamCopyResult.Success)
             {
-                ReportResult(context, requestFinishedFirst, firstResult, firstException);
+                error = ReportResult(context, requestFinishedFirst, firstResult, firstException);
                 // Cancel the other direction
                 abortTokenSource.Cancel();
                 // Wait for this to finish before exiting so the resources get cleaned up properly.
@@ -519,11 +572,17 @@ namespace Yarp.ReverseProxy.Service.Proxy
                 var (secondResult, secondException) = await secondTask;
                 if (secondResult != StreamCopyResult.Success)
                 {
-                    ReportResult(context, requestFinishedFirst, secondResult, secondException);
+                    error = ReportResult(context, requestFinishedFirst, secondResult, secondException!);
+                }
+                else
+                {
+                    error = ProxyError.None;
                 }
             }
 
-            void ReportResult(HttpContext context, bool reqeuest, StreamCopyResult result, Exception exception)
+            return error;
+
+            ProxyError ReportResult(HttpContext context, bool reqeuest, StreamCopyResult result, Exception exception)
             {
                 var error = result switch
                 {
@@ -533,10 +592,11 @@ namespace Yarp.ReverseProxy.Service.Proxy
                     _ => throw new NotImplementedException(result.ToString()),
                 };
                 ReportProxyError(context, error, exception);
+                return error;
             }
         }
 
-        private async ValueTask<(StreamCopyResult, Exception)> CopyResponseBodyAsync(HttpContent destinationResponseContent, Stream clientResponseStream,
+        private async ValueTask<(StreamCopyResult, Exception?)> CopyResponseBodyAsync(HttpContent destinationResponseContent, Stream clientResponseStream,
             CancellationToken cancellation)
         {
             // SocketHttpHandler and similar transports always provide an HttpContent object, even if it's empty.
@@ -552,7 +612,7 @@ namespace Yarp.ReverseProxy.Service.Proxy
             return (StreamCopyResult.Success, null);
         }
 
-        private async Task HandleResponseBodyErrorAsync(HttpContext context, StreamCopyHttpContent requestContent, StreamCopyResult responseBodyCopyResult, Exception responseBodyException)
+        private async ValueTask<ProxyError> HandleResponseBodyErrorAsync(HttpContext context, StreamCopyHttpContent? requestContent, StreamCopyResult responseBodyCopyResult, Exception responseBodyException)
         {
             if (requestContent?.ConsumptionTask.IsCompleted == true)
             {
@@ -561,8 +621,7 @@ namespace Yarp.ReverseProxy.Service.Proxy
                 // Check for request body errors, these may have triggered the response error.
                 if (requestBodyCopyResult != StreamCopyResult.Success)
                 {
-                    HandleRequestBodyFailure(context, requestBodyCopyResult, requestBodyError, responseBodyException);
-                    return;
+                    return HandleRequestBodyFailure(context, requestBodyCopyResult, requestBodyError!, responseBodyException);
                 }
             }
 
@@ -580,12 +639,14 @@ namespace Yarp.ReverseProxy.Service.Proxy
                 // Nothing has been sent to the client yet, we can still send a good error response.
                 context.Response.Clear();
                 context.Response.StatusCode = StatusCodes.Status502BadGateway;
-                return;
+                return error;
             }
 
             // The response has already started, we must forcefully terminate it so the client doesn't get the
             // the mistaken impression that the truncated response is complete.
             ResetOrAbort(context, isCancelled: responseBodyCopyResult == StreamCopyResult.Canceled);
+
+            return error;
         }
 
         private static ValueTask CopyResponseTrailingHeadersAsync(HttpResponseMessage source, HttpContext context, HttpTransformer transformer)
@@ -653,12 +714,12 @@ namespace Yarp.ReverseProxy.Service.Proxy
 
         private static class Log
         {
-            private static readonly Action<ILogger, Exception> _httpDowngradeDetected = LoggerMessage.Define(
+            private static readonly Action<ILogger, Exception?> _httpDowngradeDetected = LoggerMessage.Define(
                 LogLevel.Debug,
                 EventIds.HttpDowngradeDetected,
                 "The request was downgraded from HTTP/2.");
 
-            private static readonly Action<ILogger, string, Exception> _proxying = LoggerMessage.Define<string>(
+            private static readonly Action<ILogger, string, Exception?> _proxying = LoggerMessage.Define<string>(
                 LogLevel.Information,
                 EventIds.Proxying,
                 "Proxying to {targetUrl}");

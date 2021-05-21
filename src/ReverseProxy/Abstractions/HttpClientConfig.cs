@@ -30,11 +30,6 @@ namespace Yarp.ReverseProxy.Abstractions
         public bool? DangerousAcceptAnyServerCertificate { get; init; }
 
         /// <summary>
-        /// A client certificate used to authenticate to the destination server.
-        /// </summary>
-        public X509Certificate2 ClientCertificate { get; init; }
-
-        /// <summary>
         /// Limits the number of connections used when communicating with the destination server.
         /// </summary>
         public int? MaxConnectionsPerServer { get; init; }
@@ -47,7 +42,7 @@ namespace Yarp.ReverseProxy.Abstractions
         /// <summary>
         /// Optional web proxy used when communicating with the destination server. 
         /// </summary>
-        public WebProxyConfig WebProxy { get; init; }
+        public WebProxyConfig? WebProxy { get; init; }
 
 #if NET
         /// <summary>
@@ -60,11 +55,11 @@ namespace Yarp.ReverseProxy.Abstractions
         /// <summary>
         /// Enables non-ASCII header encoding for outgoing requests.
         /// </summary>
-        public Encoding RequestHeaderEncoding { get; init; }
+        public string? RequestHeaderEncoding { get; init; }
 #endif
 
         /// <inheritdoc />
-        public bool Equals(HttpClientConfig other)
+        public bool Equals(HttpClientConfig? other)
         {
             if (other == null)
             {
@@ -72,7 +67,6 @@ namespace Yarp.ReverseProxy.Abstractions
             }
 
             return SslProtocols == other.SslProtocols
-                   && CertEquals(ClientCertificate, other.ClientCertificate)
                    && DangerousAcceptAnyServerCertificate == other.DangerousAcceptAnyServerCertificate
                    && MaxConnectionsPerServer == other.MaxConnectionsPerServer
 #if NET
@@ -84,26 +78,10 @@ namespace Yarp.ReverseProxy.Abstractions
                    && WebProxy == other.WebProxy;
         }
 
-        private static bool CertEquals(X509Certificate2 certificate1, X509Certificate2 certificate2)
-        {
-            if (certificate1 == null && certificate2 == null)
-            {
-                return true;
-            }
-
-            if (certificate1 == null || certificate2 == null)
-            {
-                return false;
-            }
-
-            return string.Equals(certificate1.Thumbprint, certificate2.Thumbprint, StringComparison.OrdinalIgnoreCase);
-        }
-
         /// <inheritdoc />
         public override int GetHashCode()
         {
             return HashCode.Combine(SslProtocols,
-                ClientCertificate?.Thumbprint,
                 DangerousAcceptAnyServerCertificate,
                 MaxConnectionsPerServer,
 #if NET

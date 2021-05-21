@@ -7,7 +7,7 @@ namespace Yarp.ReverseProxy.Service.Proxy
 {
     internal sealed class ProxyErrorFeature : IProxyErrorFeature
     {
-        internal ProxyErrorFeature(ProxyError error, Exception ex)
+        internal ProxyErrorFeature(ProxyError error, Exception? ex)
         {
             Error = error;
             Exception = ex;
@@ -21,6 +21,6 @@ namespace Yarp.ReverseProxy.Service.Proxy
         /// <summary>
         /// The error, if any.
         /// </summary>
-        public Exception Exception { get; }
+        public Exception? Exception { get; }
     }
 }

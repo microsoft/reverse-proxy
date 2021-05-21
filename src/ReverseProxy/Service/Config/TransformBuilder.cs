@@ -92,13 +92,13 @@ namespace Yarp.ReverseProxy.Service.Config
         }
 
         /// <inheritdoc/>
-        public HttpTransformer Build(RouteConfig route, ClusterConfig cluster)
+        public HttpTransformer Build(RouteConfig route, ClusterConfig? cluster)
         {
             return BuildInternal(route, cluster);
         }
 
         // This is separate from Build for testing purposes.
-        internal StructuredTransformer BuildInternal(RouteConfig route, ClusterConfig cluster)
+        internal StructuredTransformer BuildInternal(RouteConfig route, ClusterConfig? cluster)
         {
             var rawTransforms = route.Transforms;
 

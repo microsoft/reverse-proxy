@@ -15,7 +15,7 @@ namespace Yarp.ReverseProxy.Service.Routing
         /// <summary>
         /// Creates a new instance.
         /// </summary>
-        public HeaderMatcher(string name, IReadOnlyList<string> values, HeaderMatchMode mode, bool isCaseSensitive)
+        public HeaderMatcher(string name, IReadOnlyList<string>? values, HeaderMatchMode mode, bool isCaseSensitive)
         {
             if (string.IsNullOrEmpty(name))
             {
@@ -32,7 +32,7 @@ namespace Yarp.ReverseProxy.Service.Routing
             }
 
             Name = name;
-            Values = values;
+            Values = values ?? Array.Empty<string>();
             Mode = mode;
             IsCaseSensitive = isCaseSensitive;
         }

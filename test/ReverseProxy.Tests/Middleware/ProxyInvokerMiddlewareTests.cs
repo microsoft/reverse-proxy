@@ -60,7 +60,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
             var routeConfig = new RouteModel(
                 config: new RouteConfig() { RouteId = "Route-1" },
                 cluster: cluster1,
-                transformer: null);
+                transformer: HttpTransformer.Default);
 
             httpContext.Features.Set<IReverseProxyFeature>(
                 new ReverseProxyFeature()
@@ -85,12 +85,13 @@ namespace Yarp.ReverseProxy.Middleware.Tests
                         && requestOptions.VersionPolicy == httpRequestOptions.VersionPolicy
 #endif
                         ),
-                    It.Is<HttpTransformer>(transformer => transformer == null)))
+                    It.IsAny<HttpTransformer>()))
                 .Returns(
                     async () =>
                     {
                         tcs1.TrySetResult(true);
                         await tcs2.Task;
+                        return ProxyError.None;
                     })
                 .Verifiable();
 
@@ -140,7 +141,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
             var routeConfig = new RouteModel(
                 config: new RouteConfig(),
                 cluster: cluster1,
-                transformer: null);
+                transformer: HttpTransformer.Default);
             httpContext.Features.Set<IReverseProxyFeature>(
                 new ReverseProxyFeature()
                 {

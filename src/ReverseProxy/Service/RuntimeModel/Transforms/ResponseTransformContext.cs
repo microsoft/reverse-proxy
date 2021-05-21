@@ -14,12 +14,12 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
         /// <summary>
         /// The current request context.
         /// </summary>
-        public HttpContext HttpContext { get; init; }
+        public HttpContext HttpContext { get; init; } = default!;
 
         /// <summary>
         /// The incoming proxy response.
         /// </summary>
-        public HttpResponseMessage ProxyResponse { get; init; }
+        public HttpResponseMessage ProxyResponse { get; init; } = default!;
 
         /// <summary>
         /// Gets or sets if the response headers have been copied from the HttpResponseMessage and HttpContent

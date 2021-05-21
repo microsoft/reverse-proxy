@@ -6,6 +6,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Yarp.ReverseProxy.Telemetry.Consumption</RootNamespace>
     <LangVersion>9.0</LangVersion>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

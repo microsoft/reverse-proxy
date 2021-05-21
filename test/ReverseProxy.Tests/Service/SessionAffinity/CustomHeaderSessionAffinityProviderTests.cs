@@ -18,7 +18,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             Enabled = true,
             Mode = "Cookie",
             FailurePolicy = "Return503",
-            Settings = new Dictionary<string, string> { { "CustomHeaderName", AffinityHeaderName } },
+            AffinityKeyName = AffinityHeaderName
         };
         private readonly IReadOnlyList<DestinationState> _destinations = new[] { new DestinationState("dest-A"), new DestinationState("dest-B"), new DestinationState("dest-C") };
 
@@ -54,16 +54,14 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             Assert.Same(affinitizedDestination, affinityResult.Destinations[0]);
         }
 
-        [Theory]
-        [MemberData(nameof(FindAffinitizedDestination_CustomHeaderNameIsNotSpecified_Cases))]
-        public void FindAffinitizedDestination_CustomHeaderNameIsNotSpecified_UseDefaultName(Dictionary<string, string> settings)
+        [Fact]
+        public void FindAffinitizedDestination_CustomHeaderNameIsNotSpecified_UseDefaultName()
         {
             var options = new SessionAffinityConfig
             {
                 Enabled = true,
                 Mode = "CustomHeader",
-                FailurePolicy = "Return503",
-                Settings = settings,
+                FailurePolicy = "Return503"
             };
             var provider = new CustomHeaderSessionAffinityProvider(AffinityTestHelper.GetDataProtector().Object, AffinityTestHelper.GetLogger<CustomHeaderSessionAffinityProvider>().Object);
             var context = new DefaultHttpContext();
@@ -107,12 +105,6 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             provider.AffinitizeRequest(context, _defaultOptions, affinitizedDestination);
 
             Assert.False(context.Response.Headers.ContainsKey(AffinityHeaderName));
-        }
-
-        public static IEnumerable<object[]> FindAffinitizedDestination_CustomHeaderNameIsNotSpecified_Cases()
-        {
-            yield return new object[] { null };
-            yield return new object[] { new Dictionary<string, string> { { "SomeSetting", "SomeValue" } } };
         }
     }
 }

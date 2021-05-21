@@ -12,7 +12,7 @@ namespace Yarp.ReverseProxy.Utilities
         private readonly string _metadataName;
         private readonly ClusterState _cluster;
         // Use a volatile field of a reference Tuple<T1, T2> type to ensure atomicity during concurrent access.
-        private volatile Tuple<string, T> _value;
+        private volatile Tuple<string?, T>? _value;
 
         public delegate bool Parser(string stringValue, out T parsedValue);
 
@@ -30,15 +30,15 @@ namespace Yarp.ReverseProxy.Utilities
             {
                 if (currentValue == null || currentValue.Item1 != stringValue)
                 {
-                    _value = Tuple.Create(stringValue, _parser(stringValue, out var parsedValue) ? parsedValue : defaultValue);
+                    _value = Tuple.Create<string?, T>(stringValue, _parser(stringValue, out var parsedValue) ? parsedValue : defaultValue);
                 }
             }
             else if (currentValue == null || currentValue.Item1 != null)
             {
-                _value = Tuple.Create((string) null, defaultValue);
+                _value = Tuple.Create<string?, T>(null, defaultValue);
             }
 
-            return _value.Item2;
+            return _value!.Item2;
         }
     }
 }

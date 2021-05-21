@@ -18,7 +18,7 @@ namespace Yarp.ReverseProxy.Abstractions
         /// <summary>
         /// Passive health check policy.
         /// </summary>
-        public string Policy { get; init; }
+        public string? Policy { get; init; }
 
         /// <summary>
         /// Destination reactivation period after which an unhealthy destination is considered healthy again.
@@ -26,7 +26,7 @@ namespace Yarp.ReverseProxy.Abstractions
         public TimeSpan? ReactivationPeriod { get; init; }
 
         /// <inheritdoc />
-        public bool Equals(PassiveHealthCheckConfig other)
+        public bool Equals(PassiveHealthCheckConfig? other)
         {
             if (other == null)
             {

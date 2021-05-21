@@ -23,7 +23,7 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
 
         public RequestHeaderForwardedTransform(IRandomFactory randomFactory, NodeFormat forFormat, NodeFormat byFormat, bool host, bool proto, bool append)
         {
-            _randomFactory = randomFactory;
+            _randomFactory = randomFactory ?? throw new ArgumentNullException(nameof(randomFactory));
             ForFormat = forFormat;
             ByFormat = byFormat;
             HostEnabled = host;
@@ -124,7 +124,7 @@ namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
         }
 
         // https://tools.ietf.org/html/rfc7239#section-6
-        private void AppendNode(IPAddress ipAddress, int port, NodeFormat format, ref ValueStringBuilder builder)
+        private void AppendNode(IPAddress? ipAddress, int port, NodeFormat format, ref ValueStringBuilder builder)
         {
             // "It is important to note that an IPv6 address and any nodename with
             // node-port specified MUST be quoted, since ":" is not an allowed

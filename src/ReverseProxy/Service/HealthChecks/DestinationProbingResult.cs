@@ -12,9 +12,9 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
     /// </summary>
     public readonly struct DestinationProbingResult
     {
-        public DestinationProbingResult(DestinationState destination, HttpResponseMessage response, Exception exception)
+        public DestinationProbingResult(DestinationState destination, HttpResponseMessage? response, Exception? exception)
         {
-            Destination = destination;
+            Destination = destination ?? throw new ArgumentNullException(nameof(destination));
             Response = response;
             Exception = exception;
         }
@@ -28,12 +28,12 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
         /// Response recieved.
         /// It can be null in case of a failure.
         /// </summary>
-        public HttpResponseMessage Response { get; }
+        public HttpResponseMessage? Response { get; }
 
         /// <summary>
         /// Exception thrown during probing.
         /// It is null in case of a success.
         /// </summary>
-        public Exception Exception { get; }
+        public Exception? Exception { get; }
     }
 }

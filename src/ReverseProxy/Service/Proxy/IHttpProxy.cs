@@ -21,7 +21,8 @@ namespace Yarp.ReverseProxy.Service.Proxy
         /// <param name="requestConfig">Config for the outgoing request.</param>
         /// <param name="transformer">Request and response transforms. Use <see cref="HttpTransformer.Default"/> if
         /// custom transformations are not needed.</param>
-        Task ProxyAsync(
+        /// <returns>The result of the request proxying to the destination.</returns>
+        ValueTask<ProxyError> ProxyAsync(
             HttpContext context,
             string destinationPrefix,
             HttpMessageInvoker httpClient,

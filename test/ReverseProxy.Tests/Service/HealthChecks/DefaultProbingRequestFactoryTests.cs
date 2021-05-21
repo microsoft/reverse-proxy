@@ -88,7 +88,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
 #endif
                     }
                 },
-                null);
+                new HttpMessageInvoker(new HttpClientHandler()));
         }
     }
 }

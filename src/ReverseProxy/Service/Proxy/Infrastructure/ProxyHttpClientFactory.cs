@@ -2,9 +2,11 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Yarp.ReverseProxy.Abstractions;
@@ -38,7 +40,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Infrastructure
             if (CanReuseOldClient(context))
             {
                 Log.ProxyClientReused(_logger, context.ClusterId);
-                return context.OldClient;
+                return context.OldClient!;
             }
 
             var handler = new SocketsHttpHandler
@@ -83,13 +85,6 @@ namespace Yarp.ReverseProxy.Service.Proxy.Infrastructure
             {
                 handler.SslOptions.EnabledSslProtocols = newConfig.SslProtocols.Value;
             }
-            if (newConfig.ClientCertificate != null)
-            {
-                handler.SslOptions.ClientCertificates = new X509CertificateCollection
-                {
-                    newConfig.ClientCertificate
-                };
-            }
             if (newConfig.MaxConnectionsPerServer != null)
             {
                 handler.MaxConnectionsPerServer = newConfig.MaxConnectionsPerServer.Value;
@@ -103,7 +98,8 @@ namespace Yarp.ReverseProxy.Service.Proxy.Infrastructure
 
             if (newConfig.RequestHeaderEncoding != null)
             {
-                handler.RequestHeaderEncodingSelector = (_, _) => newConfig.RequestHeaderEncoding;
+                var encoding = Encoding.GetEncoding(newConfig.RequestHeaderEncoding);
+                handler.RequestHeaderEncodingSelector = (_, _) => encoding;
             }
 #endif
             var webProxy = TryCreateWebProxy(newConfig.WebProxy);
@@ -114,7 +110,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Infrastructure
             }
         }
 
-        private static IWebProxy TryCreateWebProxy(WebProxyConfig webProxyConfig)
+        private static IWebProxy? TryCreateWebProxy(WebProxyConfig? webProxyConfig)
         {
             if (webProxyConfig == null || webProxyConfig.Address == null)
             {
@@ -146,12 +142,12 @@ namespace Yarp.ReverseProxy.Service.Proxy.Infrastructure
 
         private static class Log
         {
-            private static readonly Action<ILogger, string, Exception> _proxyClientCreated = LoggerMessage.Define<string>(
+            private static readonly Action<ILogger, string, Exception?> _proxyClientCreated = LoggerMessage.Define<string>(
                   LogLevel.Debug,
                   EventIds.ProxyClientCreated,
                   "New proxy client created for cluster '{clusterId}'.");
 
-            private static readonly Action<ILogger, string, Exception> _proxyClientReused = LoggerMessage.Define<string>(
+            private static readonly Action<ILogger, string, Exception?> _proxyClientReused = LoggerMessage.Define<string>(
                 LogLevel.Debug,
                 EventIds.ProxyClientReused,
                 "Existing proxy client reused for cluster '{clusterId}'.");
