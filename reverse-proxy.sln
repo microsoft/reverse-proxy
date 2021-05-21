@@ -100,7 +100,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Ingress", "Ingress", "{04E8
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yarp.ReverseProxy.Kubernetes.Ingress", "samples\KuberenetesIngress.Sample\Ingress\Yarp.ReverseProxy.Kubernetes.Ingress.csproj", "{84B920E2-A501-457D-8F1A-9CC7AF8B5F2D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "backend", "samples\KuberenetesIngress.Sample\Sample\backend\backend.csproj", "{EB5663B9-31BA-4930-A302-4B87B8DEB74A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "backend", "samples\KuberenetesIngress.Sample\backend\backend.csproj", "{EB5663B9-31BA-4930-A302-4B87B8DEB74A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
