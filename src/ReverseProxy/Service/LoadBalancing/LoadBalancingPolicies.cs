@@ -9,7 +9,7 @@ namespace Yarp.ReverseProxy.Service.LoadBalancing
     public static class LoadBalancingPolicies
     {
         /// <summary>
-        /// Select the first destination without considering load. This is useful for dual destination fail-over systems.
+        /// Select the alphabetically first available destination without considering load. This is useful for dual destination fail-over systems.
         /// </summary>
         public static string First => nameof(First);
 

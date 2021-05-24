@@ -79,10 +79,11 @@ namespace Yarp.ReverseProxy.Middleware.Tests
         [Fact]
         public async Task Invoke_Works()
         {
+            // Selects the alphabetically first available destination.
             var context = CreateContext(LoadBalancingPolicies.First, new[]
             {
+                new DestinationState("destination2"),
                 new DestinationState("destination1"),
-                new DestinationState("destination2")
             });
 
             var sut = CreateMiddleware(_ => Task.CompletedTask, new FirstLoadBalancingPolicy());
