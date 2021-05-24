@@ -40,22 +40,21 @@ namespace Yarp.ReverseProxy.Middleware
             var proxyFeature = context.GetReverseProxyFeature();
 
             var cluster = proxyFeature.Cluster.Config;
-            var config = cluster.SessionAffinity;
 
-            if (config == null || !config.Enabled.GetValueOrDefault())
+            if (cluster.SessionAffinity == null || !cluster.SessionAffinity.Enabled.GetValueOrDefault())
             {
                 return _next(context);
             }
 
-            return InvokeInternal(context, proxyFeature, config, cluster.ClusterId);
+            return InvokeInternal(context, proxyFeature, cluster);
         }
 
-        private async Task InvokeInternal(HttpContext context, IReverseProxyFeature proxyFeature, SessionAffinityConfig config, string clusterId)
+        private async Task InvokeInternal(HttpContext context, IReverseProxyFeature proxyFeature, ClusterConfig cluster)
         {
             var destinations = proxyFeature.AvailableDestinations;
 
-            var currentProvider = _sessionAffinityProviders.GetRequiredServiceById(config.Mode, SessionAffinityConstants.Modes.Cookie);
-            var affinityResult = currentProvider.FindAffinitizedDestinations(context, destinations, clusterId, config);
+            var currentProvider = _sessionAffinityProviders.GetRequiredServiceById(cluster.SessionAffinity!.Mode, SessionAffinityConstants.Modes.Cookie);
+            var affinityResult = currentProvider.FindAffinitizedDestinations(context, destinations, cluster);
 
             switch (affinityResult.Status)
             {
@@ -68,18 +67,18 @@ namespace Yarp.ReverseProxy.Middleware
                 case AffinityStatus.AffinityKeyExtractionFailed:
                 case AffinityStatus.DestinationNotFound:
 
-                    var failurePolicy = _affinityFailurePolicies.GetRequiredServiceById(config.FailurePolicy, SessionAffinityConstants.AffinityFailurePolicies.Redistribute);
-                    var keepProcessing = await failurePolicy.Handle(context, config, affinityResult.Status);
+                    var failurePolicy = _affinityFailurePolicies.GetRequiredServiceById(cluster.SessionAffinity!.FailurePolicy, SessionAffinityConstants.AffinityFailurePolicies.Redistribute);
+                    var keepProcessing = await failurePolicy.Handle(context, cluster.SessionAffinity, affinityResult.Status);
 
                     if (!keepProcessing)
                     {
                         // Policy reported the failure is unrecoverable and took the full responsibility for its handling,
                         // so we simply stop processing.
-                        Log.AffinityResolutionFailedForCluster(_logger, clusterId);
+                        Log.AffinityResolutionFailedForCluster(_logger, cluster.ClusterId);
                         return;
                     }
 
-                    Log.AffinityResolutionFailureWasHandledProcessingWillBeContinued(_logger, clusterId, failurePolicy.Name);
+                    Log.AffinityResolutionFailureWasHandledProcessingWillBeContinued(_logger, cluster.ClusterId, failurePolicy.Name);
 
                     break;
                 default:

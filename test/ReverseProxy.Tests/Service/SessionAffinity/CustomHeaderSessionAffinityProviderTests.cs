@@ -13,12 +13,16 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
     {
         private const string ClusterId = "cluster1";
         private const string AffinityHeaderName = "X-MyAffinity";
-        private readonly SessionAffinityConfig _defaultOptions = new SessionAffinityConfig
+        private readonly ClusterConfig _defaultConfig = new ClusterConfig
         {
-            Enabled = true,
-            Mode = "Cookie",
-            FailurePolicy = "Return503",
-            AffinityKeyName = AffinityHeaderName
+            ClusterId = ClusterId,
+            SessionAffinity = new SessionAffinityConfig
+            {
+                Enabled = true,
+                Mode = "Cookie",
+                FailurePolicy = "Return503",
+                AffinityKeyName = AffinityHeaderName
+            }
         };
         private readonly IReadOnlyList<DestinationState> _destinations = new[] { new DestinationState("dest-A"), new DestinationState("dest-B"), new DestinationState("dest-C") };
 
@@ -32,7 +36,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             var context = new DefaultHttpContext();
             context.Request.Headers["SomeHeader"] = new[] { "SomeValue" };
 
-            var affinityResult = provider.FindAffinitizedDestinations(context, _destinations, ClusterId, _defaultOptions);
+            var affinityResult = provider.FindAffinitizedDestinations(context, _destinations, _defaultConfig);
 
             Assert.Equal(AffinityStatus.AffinityKeyNotSet, affinityResult.Status);
             Assert.Null(affinityResult.Destinations);
@@ -47,7 +51,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             var affinitizedDestination = _destinations[1];
             context.Request.Headers[AffinityHeaderName] = new[] { affinitizedDestination.DestinationId.ToUTF8BytesInBase64() };
 
-            var affinityResult = provider.FindAffinitizedDestinations(context, _destinations, ClusterId, _defaultOptions);
+            var affinityResult = provider.FindAffinitizedDestinations(context, _destinations, _defaultConfig);
 
             Assert.Equal(AffinityStatus.OK, affinityResult.Status);
             Assert.Equal(1, affinityResult.Destinations.Count);
@@ -57,18 +61,22 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
         [Fact]
         public void FindAffinitizedDestination_CustomHeaderNameIsNotSpecified_UseDefaultName()
         {
-            var options = new SessionAffinityConfig
+            var config = new ClusterConfig
             {
-                Enabled = true,
-                Mode = "CustomHeader",
-                FailurePolicy = "Return503"
+                ClusterId = ClusterId,
+                SessionAffinity = new SessionAffinityConfig
+                {
+                    Enabled = true,
+                    Mode = "CustomHeader",
+                    FailurePolicy = "Return503"
+                }
             };
             var provider = new CustomHeaderSessionAffinityProvider(AffinityTestHelper.GetDataProtector().Object, AffinityTestHelper.GetLogger<CustomHeaderSessionAffinityProvider>().Object);
             var context = new DefaultHttpContext();
             var affinitizedDestination = _destinations[1];
             context.Request.Headers[CustomHeaderSessionAffinityProvider.DefaultCustomHeaderName + "_oUB5HSsgqEfyx0xi"] = new[] { affinitizedDestination.DestinationId.ToUTF8BytesInBase64() };
 
-            var affinityResult = provider.FindAffinitizedDestinations(context, _destinations, ClusterId, options);
+            var affinityResult = provider.FindAffinitizedDestinations(context, _destinations, config);
 
             Assert.Equal(AffinityStatus.OK, affinityResult.Status);
             Assert.Equal(1, affinityResult.Destinations.Count);
@@ -83,7 +91,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             var chosenDestination = _destinations[1];
             var expectedAffinityHeaderValue = chosenDestination.DestinationId.ToUTF8BytesInBase64();
 
-            provider.AffinitizeRequest(context, _defaultOptions, chosenDestination, ClusterId);
+            provider.AffinitizeRequest(context, chosenDestination, _defaultConfig);
 
             Assert.True(context.Response.Headers.ContainsKey(AffinityHeaderName));
             Assert.Equal(expectedAffinityHeaderValue, context.Response.Headers[AffinityHeaderName]);
@@ -98,11 +106,11 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             var affinitizedDestination = _destinations[1];
             context.Request.Headers[AffinityHeaderName] = new[] { affinitizedDestination.DestinationId.ToUTF8BytesInBase64() };
 
-            var affinityResult = provider.FindAffinitizedDestinations(context, _destinations, ClusterId, _defaultOptions);
+            var affinityResult = provider.FindAffinitizedDestinations(context, _destinations, _defaultConfig);
 
             Assert.Equal(AffinityStatus.OK, affinityResult.Status);
 
-            provider.AffinitizeRequest(context, _defaultOptions, affinitizedDestination, ClusterId);
+            provider.AffinitizeRequest(context, affinitizedDestination, _defaultConfig);
 
             Assert.False(context.Response.Headers.ContainsKey(AffinityHeaderName));
         }

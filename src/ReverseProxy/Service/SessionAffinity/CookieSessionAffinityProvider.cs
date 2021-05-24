@@ -36,27 +36,28 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             return destination.DestinationId;
         }
 
-        protected override (string? Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, SessionAffinityConfig config, string clusterId)
+        protected override (string? Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, ClusterConfig config)
         {
-            var cookieName = config.AffinityKeyName ?? GetUniqueDefaultKeyName(clusterId);
+            var cookieName = config.SessionAffinity!.AffinityKeyName ?? GetUniqueDefaultKeyName(config.ClusterId);
             var encryptedRequestKey = context.Request.Cookies.TryGetValue(cookieName, out var keyInCookie) ? keyInCookie : null;
             return Unprotect(encryptedRequestKey);
         }
 
-        protected override void SetAffinityKey(HttpContext context, SessionAffinityConfig config, string unencryptedKey, string clusterId)
+        protected override void SetAffinityKey(HttpContext context, string unencryptedKey, ClusterConfig config)
         {
+            var affinityConfig = config.SessionAffinity!;
             var affinityCookieOptions = new CookieOptions
             {
-                Path = config.Cookie?.Path ?? "/",
-                SameSite = config.Cookie?.SameSite ?? SameSiteMode.Unspecified,
-                HttpOnly = config.Cookie?.HttpOnly ?? true,
-                MaxAge = config.Cookie?.MaxAge,
-                Domain = config.Cookie?.Domain,
-                IsEssential = config.Cookie?.IsEssential ?? false,
-                Secure = config.Cookie?.SecurePolicy == CookieSecurePolicy.Always || (config.Cookie?.SecurePolicy == CookieSecurePolicy.SameAsRequest && context.Request.IsHttps),
-                Expires = config.Cookie?.Expiration != null ? _clock.GetUtcNow().Add(config.Cookie.Expiration.Value) : default(DateTimeOffset?),
+                Path = affinityConfig.Cookie?.Path ?? "/",
+                SameSite = affinityConfig.Cookie?.SameSite ?? SameSiteMode.Unspecified,
+                HttpOnly = affinityConfig.Cookie?.HttpOnly ?? true,
+                MaxAge = affinityConfig.Cookie?.MaxAge,
+                Domain = affinityConfig.Cookie?.Domain,
+                IsEssential = affinityConfig.Cookie?.IsEssential ?? false,
+                Secure = affinityConfig.Cookie?.SecurePolicy == CookieSecurePolicy.Always || (affinityConfig.Cookie?.SecurePolicy == CookieSecurePolicy.SameAsRequest && context.Request.IsHttps),
+                Expires = affinityConfig.Cookie?.Expiration != null ? _clock.GetUtcNow().Add(affinityConfig.Cookie.Expiration.Value) : default(DateTimeOffset?),
             };
-            context.Response.Cookies.Append(config.AffinityKeyName ?? GetUniqueDefaultKeyName(clusterId), Protect(unencryptedKey), affinityCookieOptions);
+            context.Response.Cookies.Append(affinityConfig.AffinityKeyName ?? GetUniqueDefaultKeyName(config.ClusterId), Protect(unencryptedKey), affinityCookieOptions);
         }
 
         private string GetUniqueDefaultKeyName(string clusterId)

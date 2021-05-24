@@ -27,9 +27,9 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
 
         public abstract string Mode { get; }
 
-        public virtual void AffinitizeRequest(HttpContext context, SessionAffinityConfig config, DestinationState destination, string clusterId)
+        public virtual void AffinitizeRequest(HttpContext context, DestinationState destination, ClusterConfig config)
         {
-            if (!config.Enabled.GetValueOrDefault())
+            if (config.SessionAffinity == null || !config.SessionAffinity.Enabled.GetValueOrDefault())
             {
                 throw new InvalidOperationException($"Session affinity is disabled for cluster.");
             }
@@ -38,18 +38,18 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             if (!context.Items.ContainsKey(AffinityKeyId))
             {
                 var affinityKey = GetDestinationAffinityKey(destination);
-                SetAffinityKey(context, config, affinityKey, clusterId);
+                SetAffinityKey(context, affinityKey, config);
             }
         }
 
-        public virtual AffinityResult FindAffinitizedDestinations(HttpContext context, IReadOnlyList<DestinationState> destinations, string clusterId, SessionAffinityConfig config)
+        public virtual AffinityResult FindAffinitizedDestinations(HttpContext context, IReadOnlyList<DestinationState> destinations, ClusterConfig config)
         {
-            if (!config.Enabled.GetValueOrDefault())
+            if (config.SessionAffinity == null || !config.SessionAffinity.Enabled.GetValueOrDefault())
             {
-                throw new InvalidOperationException($"Session affinity is disabled for cluster {clusterId}.");
+                throw new InvalidOperationException($"Session affinity is disabled for cluster {config.ClusterId}.");
             }
 
-            var requestAffinityKey = GetRequestAffinityKey(context, config, clusterId);
+            var requestAffinityKey = GetRequestAffinityKey(context, config);
 
             if (requestAffinityKey.Key == null)
             {
@@ -73,12 +73,12 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
 
                 if (matchingDestinations == null)
                 {
-                    Log.DestinationMatchingToAffinityKeyNotFound(Logger, clusterId);
+                    Log.DestinationMatchingToAffinityKeyNotFound(Logger, config.ClusterId);
                 }
             }
             else
             {
-                Log.AffinityCannotBeEstablishedBecauseNoDestinationsFound(Logger, clusterId);
+                Log.AffinityCannotBeEstablishedBecauseNoDestinationsFound(Logger, config.ClusterId);
             }
 
             // Empty destination list passed to this method is handled the same way as if no matching destinations are found.
@@ -93,17 +93,16 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
 
         protected abstract T GetDestinationAffinityKey(DestinationState destination);
 
-        protected abstract (T? Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, SessionAffinityConfig config, string clusterId);
+        protected abstract (T? Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, ClusterConfig config);
 
-        protected abstract void SetAffinityKey(HttpContext context, SessionAffinityConfig config, T unencryptedKey, string clusterId);
+        protected abstract void SetAffinityKey(HttpContext context, T unencryptedKey, ClusterConfig config);
 
         protected string GetDefaultKeyNameSuffix(string clusterId)
         {
             var bytes = Encoding.UTF8.GetBytes(clusterId);
             using var hashAlgo = SHA256.Create();
             var hash = hashAlgo.ComputeHash(bytes);
-            var hashString = Convert.ToBase64String(hash.AsSpan(0, 12));
-            return hashString.Replace('+', 'a').Replace('-', 'b');
+            return Convert.ToBase64String(hash.AsSpan(0, 12));
         }
 
         protected string Protect(string unencryptedKey)

@@ -30,9 +30,9 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             return destination.DestinationId;
         }
 
-        protected override (string? Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, SessionAffinityConfig config, string clusterId)
+        protected override (string? Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, ClusterConfig config)
         {
-            var customHeaderName = config.AffinityKeyName ?? GetUniqueDefaultKeyName(clusterId);
+            var customHeaderName = config.SessionAffinity!.AffinityKeyName ?? GetUniqueDefaultKeyName(config.ClusterId);
 
             var keyHeaderValues = context.Request.Headers[customHeaderName];
 
@@ -52,9 +52,9 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             return Unprotect(keyHeaderValues[0]);
         }
 
-        protected override void SetAffinityKey(HttpContext context, SessionAffinityConfig config, string unencryptedKey, string clusterId)
+        protected override void SetAffinityKey(HttpContext context, string unencryptedKey, ClusterConfig config)
         {
-            context.Response.Headers.Append(config.AffinityKeyName ?? GetUniqueDefaultKeyName(clusterId), Protect(unencryptedKey));
+            context.Response.Headers.Append(config.SessionAffinity!.AffinityKeyName ?? GetUniqueDefaultKeyName(config.ClusterId), Protect(unencryptedKey));
         }
 
         private string GetUniqueDefaultKeyName(string clusterId)

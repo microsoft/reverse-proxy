@@ -49,7 +49,6 @@ namespace Yarp.ReverseProxy.Middleware
             var providers = RegisterAffinityProviders(
                 true,
                 cluster.Destinations.Values.ToList(),
-                cluster.ClusterId,
                 ("Mode-A", AffinityStatus.DestinationNotFound, (DestinationState)null, (Action<ISessionAffinityProvider>)(p => throw new InvalidOperationException($"Provider {p.Mode} call is not expected."))),
                 (expectedMode, status, foundDestination, p => invokedMode = p.Mode));
             var nextInvoked = false;
@@ -92,7 +91,7 @@ namespace Yarp.ReverseProxy.Middleware
         {
             var cluster = GetCluster();
             var endpoint = GetEndpoint(cluster);
-            var providers = RegisterAffinityProviders(true, cluster.Destinations.Values.ToList(), cluster.ClusterId, ("Mode-B", affinityStatus, null, _ => { }));
+            var providers = RegisterAffinityProviders(true, cluster.Destinations.Values.ToList(), ("Mode-B", affinityStatus, null, _ => { }));
             var invokedPolicy = string.Empty;
             const string expectedPolicy = "Policy-1";
             var failurePolicies = RegisterFailurePolicies(
@@ -143,7 +142,6 @@ namespace Yarp.ReverseProxy.Middleware
         internal IReadOnlyList<Mock<ISessionAffinityProvider>> RegisterAffinityProviders(
             bool lookupMiddlewareTest,
             IReadOnlyList<DestinationState> expectedDestinations,
-            string expectedCluster,
             params (string Mode, AffinityStatus? Status, DestinationState Destinations, Action<ISessionAffinityProvider> Callback)[] prototypes)
         {
             var result = new List<Mock<ISessionAffinityProvider>>();
@@ -156,8 +154,7 @@ namespace Yarp.ReverseProxy.Middleware
                     provider.Setup(p => p.FindAffinitizedDestinations(
                         It.IsAny<HttpContext>(),
                         expectedDestinations,
-                        expectedCluster,
-                        ClusterConfig.Config.SessionAffinity))
+                        ClusterConfig.Config))
                     .Returns(new AffinityResult(destinations, status.Value))
                     .Callback(() => callback(provider.Object));
                 }
@@ -165,9 +162,8 @@ namespace Yarp.ReverseProxy.Middleware
                 {
                     provider.Setup(p => p.AffinitizeRequest(
                         It.IsAny<HttpContext>(),
-                        ClusterConfig.Config.SessionAffinity,
                         expectedDestinations[0],
-                        ClusterConfig.Config.ClusterId))
+                        ClusterConfig.Config))
                     .Callback(() => callback(provider.Object));
                 }
                 result.Add(provider);

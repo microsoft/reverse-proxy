@@ -22,7 +22,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             var cluster = GetCluster();
             var destination = cluster.Destinations.Values.First();
             var provider = new Mock<ISessionAffinityProvider>(MockBehavior.Strict);
-            provider.Setup(p => p.AffinitizeRequest(It.IsAny<HttpContext>(), It.IsNotNull<SessionAffinityConfig>(), It.IsAny<DestinationState>(), It.IsAny<string>()));
+            provider.Setup(p => p.AffinitizeRequest(It.IsAny<HttpContext>(), It.IsAny<DestinationState>(), It.IsNotNull<ClusterConfig>()));
 
             var transform = new AffinitizeTransform(provider.Object);
 

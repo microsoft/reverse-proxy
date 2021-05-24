@@ -23,18 +23,16 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
         /// </summary>
         /// <param name="context">Current request's context.</param>
         /// <param name="destinations"><see cref="DestinationState"/>s available for the request.</param>
-        /// <param name="clusterId">Target cluster ID.</param>
-        /// <param name="config">Affinity config.</param>
+        /// <param name="config">Target cluster's <see cref="ClusterConfig"/>.</param>
         /// <returns><see cref="AffinityResult"/> carrying the found affinitized destinations if any and the <see cref="AffinityStatus"/>.</returns>
-        AffinityResult FindAffinitizedDestinations(HttpContext context, IReadOnlyList<DestinationState> destinations, string clusterId, SessionAffinityConfig config);
+        AffinityResult FindAffinitizedDestinations(HttpContext context, IReadOnlyList<DestinationState> destinations, ClusterConfig config);
 
         /// <summary>
         /// Affinitize the current request to the given <see cref="DestinationState"/> by setting the affinity key extracted from <see cref="DestinationState"/>.
         /// </summary>
         /// <param name="context">Current request's context.</param>
-        /// <param name="config">Affinity config.</param>
         /// <param name="destination"><see cref="DestinationState"/> to which request is to be affinitized.</param>
-        /// /// <param name="clusterId">Target cluster ID.</param>
-        void AffinitizeRequest(HttpContext context, SessionAffinityConfig config, DestinationState destination, string clusterId);
+        /// <param name="config">Target cluster's <see cref="ClusterConfig"/>.</param>
+        void AffinitizeRequest(HttpContext context, DestinationState destination, ClusterConfig config);
     }
 }
