@@ -83,7 +83,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             provider.AffinitizeRequest(context, defaultConfig, _destinations[1], ClusterId);
 
             var affinityCookieHeader = context.Response.Headers["Set-Cookie"];
-            Assert.Equal(".Yarp.Affinity.oUB5HSsgqEfyxwcc=ZGVzdC1C; path=/; httponly", affinityCookieHeader);
+            Assert.Equal(".Yarp.Affinity.oUB5HSsgqEfyx0xi=ZGVzdC1C; path=/; httponly", affinityCookieHeader);
         }
 
         [Fact]

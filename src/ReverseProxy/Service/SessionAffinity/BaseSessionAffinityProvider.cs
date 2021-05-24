@@ -102,8 +102,8 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             var bytes = Encoding.UTF8.GetBytes(clusterId);
             using var hashAlgo = SHA256.Create();
             var hash = hashAlgo.ComputeHash(bytes);
-            var hashString = Convert.ToBase64String(hash.AsSpan(0, 10));
-            return hashString.Replace('+', 'a').Replace('-', 'b').Replace('=', 'c');
+            var hashString = Convert.ToBase64String(hash.AsSpan(0, 12));
+            return hashString.Replace('+', 'a').Replace('-', 'b');
         }
 
         protected string Protect(string unencryptedKey)
