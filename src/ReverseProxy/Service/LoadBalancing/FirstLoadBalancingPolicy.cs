@@ -8,6 +8,9 @@ using Yarp.ReverseProxy.RuntimeModel;
 
 namespace Yarp.ReverseProxy.Service.LoadBalancing
 {
+    /// <summary>
+    /// Select the alphabetically first available destination without considering load. This is useful for dual destination fail-over systems.
+    /// </summary>
     internal sealed class FirstLoadBalancingPolicy : ILoadBalancingPolicy
     {
         public string Name => LoadBalancingPolicies.First;
