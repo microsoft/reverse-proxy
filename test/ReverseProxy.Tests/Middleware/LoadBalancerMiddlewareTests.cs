@@ -81,8 +81,8 @@ namespace Yarp.ReverseProxy.Middleware.Tests
         {
             var context = CreateContext(LoadBalancingPolicies.First, new[]
             {
+                new DestinationState("destination2"),
                 new DestinationState("destination1"),
-                new DestinationState("destination2")
             });
 
             var sut = CreateMiddleware(_ => Task.CompletedTask, new FirstLoadBalancingPolicy());

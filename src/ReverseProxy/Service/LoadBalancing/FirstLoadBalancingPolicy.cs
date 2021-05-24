@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Yarp.ReverseProxy.RuntimeModel;
@@ -18,7 +19,17 @@ namespace Yarp.ReverseProxy.Service.LoadBalancing
                 return null;
             }
 
-            return availableDestinations[0];
+            var selectedDestination = availableDestinations[0];
+            for (var i = 1; i < availableDestinations.Count; i++)
+            {
+                var destination = availableDestinations[i];
+                if (string.Compare(selectedDestination.DestinationId, destination.DestinationId, StringComparison.OrdinalIgnoreCase) > 0)
+                {
+                    selectedDestination = destination;
+                }
+            }
+
+            return selectedDestination;
         }
     }
 }
