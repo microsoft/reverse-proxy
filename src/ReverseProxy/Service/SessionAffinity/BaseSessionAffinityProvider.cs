@@ -3,13 +3,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Yarp.ReverseProxy.Abstractions;
 using Yarp.ReverseProxy.RuntimeModel;
-using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.Service.SessionAffinity
 {
@@ -99,7 +99,11 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
 
         protected string GetDefaultKeyNameSuffix(string clusterId)
         {
-            return Crc32.CalculateCRC(Encoding.UTF8.GetBytes(clusterId)).ToString("X");
+            var bytes = Encoding.UTF8.GetBytes(clusterId);
+            using var hashAlgo = SHA256.Create();
+            var hash = hashAlgo.ComputeHash(bytes);
+            var hashString = Convert.ToBase64String(hash.AsSpan(0, 10));
+            return hashString.Replace('+', 'a').Replace('-', 'b').Replace('=', 'c');
         }
 
         protected string Protect(string unencryptedKey)

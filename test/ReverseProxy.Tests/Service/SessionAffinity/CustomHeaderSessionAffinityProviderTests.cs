@@ -66,7 +66,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             var provider = new CustomHeaderSessionAffinityProvider(AffinityTestHelper.GetDataProtector().Object, AffinityTestHelper.GetLogger<CustomHeaderSessionAffinityProvider>().Object);
             var context = new DefaultHttpContext();
             var affinitizedDestination = _destinations[1];
-            context.Request.Headers[CustomHeaderSessionAffinityProvider.DefaultCustomHeaderName + "_745B7D83"] = new[] { affinitizedDestination.DestinationId.ToUTF8BytesInBase64() };
+            context.Request.Headers[CustomHeaderSessionAffinityProvider.DefaultCustomHeaderName + "_oUB5HSsgqEfyxwcc"] = new[] { affinitizedDestination.DestinationId.ToUTF8BytesInBase64() };
 
             var affinityResult = provider.FindAffinitizedDestinations(context, _destinations, ClusterId, options);
 

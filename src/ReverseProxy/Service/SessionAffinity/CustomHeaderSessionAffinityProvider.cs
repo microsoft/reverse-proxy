@@ -15,7 +15,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
     internal sealed class CustomHeaderSessionAffinityProvider : BaseSessionAffinityProvider<string>
     {
         private readonly ConditionalWeakTable<string, string> _defaultKeyNames = new ConditionalWeakTable<string, string>();
-        public static readonly string DefaultCustomHeaderName = "X-Yarp-Proxy-Affinity";
+        public static readonly string DefaultCustomHeaderName = "X-Yarp-Affinity";
 
         public CustomHeaderSessionAffinityProvider(
             IDataProtectionProvider dataProtectionProvider,

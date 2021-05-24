@@ -16,7 +16,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
     {
         private readonly ConditionalWeakTable<string, string> _defaultKeyNames = new ConditionalWeakTable<string, string>();
 
-        public static readonly string DefaultCookieName = ".Yarp.ReverseProxy.Affinity";
+        public static readonly string DefaultCookieName = ".Yarp.Affinity";
 
         private readonly IClock _clock;
 
