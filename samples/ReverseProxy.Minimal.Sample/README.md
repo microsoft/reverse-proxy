@@ -22,4 +22,4 @@ Turning an empty ASP.NET Core project (`dotnet new web`) into a functioning YARP
 
 [Config-based YARP Sample]: ../ReverseProxy.Config.Sample
 [Config-based YARP Sample configuration]: ../ReverseProxy.Config.Sample/appsettings.json
-[Minimal Hosting for ASP.NET Core]: https://github.com/dotnet/aspnetcore/issues/30354
+[Minimal Hosting for ASP.NET Core]: https://devblogs.microsoft.com/aspnet/asp-net-core-updates-in-net-6-preview-4/#introducing-minimal-apis
