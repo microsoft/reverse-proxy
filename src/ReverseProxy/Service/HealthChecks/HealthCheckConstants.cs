@@ -14,5 +14,12 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
         {
             public static readonly string ConsecutiveFailures = nameof(ConsecutiveFailures);
         }
+
+        public static class AvailableDestinations
+        {
+            public static readonly string StrictHealthyAndUnknown = nameof(StrictHealthyAndUnknown);
+
+            public static readonly string FallbackToAll = nameof(FallbackToAll);
+        }
     }
 }

@@ -15,11 +15,8 @@ namespace Yarp.ReverseProxy.RuntimeModel
     /// </summary>
     public sealed class ClusterState
     {
-        private readonly object _stateLock = new object();
         private volatile ClusterDynamicState _dynamicState = new ClusterDynamicState(Array.Empty<DestinationState>(), Array.Empty<DestinationState>());
-        private volatile IReadOnlyList<DestinationState> _destinationsSnapshot = Array.Empty<DestinationState>();
         private volatile ClusterModel _model = default!; // Initialized right after construction.
-        private readonly SemaphoreSlim _updateRequests = new SemaphoreSlim(2);
 
         /// <summary>
         /// Creates a new instance. This constructor is for tests and infrastructure, this type is normally constructed by the configuration
@@ -47,7 +44,7 @@ namespace Yarp.ReverseProxy.RuntimeModel
         /// <summary>
         /// All of the destinations associated with this cluster. This collection is populated by the configuration system
         /// and should only be directly modified in a test environment.
-        /// Call <see cref="ProcessDestinationChanges"/> after modifying this collection.
+        /// Call <see cref="IClusterDestinationsUpdater"/> after modifying this collection.
         /// </summary>
         public ConcurrentDictionary<string, DestinationState> Destinations { get; } = new(StringComparer.OrdinalIgnoreCase);
 
@@ -55,7 +52,11 @@ namespace Yarp.ReverseProxy.RuntimeModel
         /// Encapsulates parts of a cluster that can change atomically
         /// in reaction to runtime state changes (e.g. dynamic endpoint discovery).
         /// </summary>
-        public ClusterDynamicState DynamicState => _dynamicState;
+        public ClusterDynamicState DynamicState
+        {
+            get => _dynamicState;
+            set => _dynamicState = value;
+        }
 
         /// <summary>
         /// Keeps track of the total number of concurrent requests on this cluster.
@@ -66,98 +67,5 @@ namespace Yarp.ReverseProxy.RuntimeModel
         /// Tracks changes to the cluster configuration for use with rebuilding dependent endpoints.
         /// </summary>
         internal int Revision { get; set; }
-
-        /// <summary>
-        /// Recreates the DynamicState data. Call this if health state has changed for any destinations.
-        /// </summary>
-        public void UpdateDynamicState()
-        {
-            UpdateDynamicStateInternal(force: false);
-        }
-
-        /// <summary>
-        /// Call this after destinations have been added, removed, or their configuration changed.
-        /// This does not need to be called for state updates like health,
-        /// use UpdateDynamicState for state updates.
-        /// The destinations will be snapshotted and DynamicState updated.
-        /// </summary>
-        public void ProcessDestinationChanges()
-        {
-            // Values already makes a copy of the collection, downcast to avoid making a second copy.
-            // https://github.com/dotnet/runtime/blob/e164551f1c96138521b4e58f14f8ac1e4369005d/src/libraries/System.Collections.Concurrent/src/System/Collections/Concurrent/ConcurrentDictionary.cs#L2145-L2168
-            _destinationsSnapshot = (IReadOnlyList<DestinationState>)Destinations.Values;
-            UpdateDynamicStateInternal(force: true);
-        }
-
-        private void UpdateDynamicStateInternal(bool force)
-        {
-            // Prevent overlapping updates and debounce extra concurrent calls.
-            // If there are multiple concurrent calls to rebuild the dynamic state, we want to ensure that
-            // updates don't conflict with each other. Additionally, we debounce extra concurrent calls if
-            // they arrive in a quick succession to avoid spending too much CPU on frequent state rebuilds.
-            // Specifically, only up to two threads are allowed to wait here and actually execute a rebuild,
-            // all others will be debounced and the call will return without updating the _dynamicState.
-            // However, changes made by those debounced threads (e.g. destination health updates) will be
-            // taken into account by one of blocked threads after they get unblocked to run a rebuild.
-            var lockTaken = false;
-            if (force)
-            {
-                lockTaken = true;
-                _updateRequests.Wait();
-            }
-            else
-            {
-                lockTaken = _updateRequests.Wait(0);
-            }
-
-            if (!lockTaken)
-            {
-                return;
-            }
-
-            lock (_stateLock)
-            {
-                try
-                {
-                    var healthChecks = _model?.Config.HealthCheck;
-                    var allDestinations = _destinationsSnapshot;
-                    var availableDestinations = allDestinations;
-                    if (allDestinations == null)
-                    {
-                        throw new InvalidOperationException("ProcessDestinationChanges must be called first.");
-                    }
-
-                    var activeEnabled = (healthChecks?.Active?.Enabled).GetValueOrDefault();
-                    var passiveEnabled = (healthChecks?.Passive?.Enabled).GetValueOrDefault();
-                    if (activeEnabled || passiveEnabled)
-                    {
-                        availableDestinations = allDestinations.Where(destination =>
-                        {
-                            // Only consider the current state if those checks are enabled.
-                            var healthState = destination.Health;
-                            var active = activeEnabled ? healthState.Active : DestinationHealth.Unknown;
-                            var passive = passiveEnabled ? healthState.Passive : DestinationHealth.Unknown;
-
-                            // Filter out unhealthy ones. Unknown state is OK, all destinations start that way.
-                            return passive != DestinationHealth.Unhealthy && active != DestinationHealth.Unhealthy;
-                        }).ToList();
-                    }
-
-                    _dynamicState = new ClusterDynamicState(allDestinations, availableDestinations);
-                }
-                finally
-                {
-                    // Semaphore is released while still holding the lock to AVOID the following case.
-                    // The first thread (T1) finished a rebuild and left the lock while still holding the semaphore. The second thread (T2)
-                    // waiting on the lock gets awaken, proceeds under the lock and begins the next rebuild. If at this exact moment
-                    // the third thread (T3) enters this method and tries to acquire the semaphore, it will be debounced because
-                    // the semaphore's count is still 0. However, T2 could have already made some progress and didnt' observe updates made
-                    // by T3.
-                    // By releasing the semaphore under the lock, we make sure that in the above situation T3 will proceed till the lock and
-                    // its updates will be observed anyways.
-                    _updateRequests.Release();
-                }
-            }
-        }
     }
 }

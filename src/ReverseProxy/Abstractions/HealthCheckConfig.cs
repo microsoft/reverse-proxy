@@ -20,6 +20,11 @@ namespace Yarp.ReverseProxy.Abstractions
         /// </summary>
         public ActiveHealthCheckConfig? Active { get; init; }
 
+        /// <summary>
+        /// Available destinations policy.
+        /// </summary>
+        public string? AvailableDestinationsPolicy { get; init; }
+
         /// <inheritdoc />
         public bool Equals(HealthCheckConfig? other)
         {
@@ -29,13 +34,14 @@ namespace Yarp.ReverseProxy.Abstractions
             }
 
             return Passive == other.Passive
-                && Active == other.Active;
+                && Active == other.Active
+                && string.Equals(AvailableDestinationsPolicy, other.AvailableDestinationsPolicy, StringComparison.OrdinalIgnoreCase);
         }
 
         /// <inheritdoc />
         public override int GetHashCode()
         {
-            return HashCode.Combine(Passive, Active);
+            return HashCode.Combine(Passive, Active, AvailableDestinationsPolicy?.GetHashCode());
         }
     }
 }

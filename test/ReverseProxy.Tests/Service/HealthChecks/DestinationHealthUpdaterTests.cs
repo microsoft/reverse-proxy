@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -24,7 +25,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             destination.Health.Passive = DestinationHealth.Healthy;
             var cluster = CreateCluster(passive: true, active: false, destination);
             using var timerFactory = new TestTimerFactory();
-            var updater = new DestinationHealthUpdater(timerFactory, new Mock<ILogger<DestinationHealthUpdater>>().Object);
+            var updater = new DestinationHealthUpdater(timerFactory, GetClusterUpdater(), new Mock<ILogger<DestinationHealthUpdater>>().Object);
 
             await updater.SetPassiveAsync(cluster, destination, DestinationHealth.Unhealthy, TimeSpan.FromSeconds(2));
 
@@ -50,7 +51,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             destination.Health.Passive = DestinationHealth.Unhealthy;
             var cluster = CreateCluster(passive: true, active: false, destination);
             using var timerFactory = new TestTimerFactory();
-            var updater = new DestinationHealthUpdater(timerFactory, new Mock<ILogger<DestinationHealthUpdater>>().Object);
+            var updater = new DestinationHealthUpdater(timerFactory, GetClusterUpdater(), new Mock<ILogger<DestinationHealthUpdater>>().Object);
 
             await updater.SetPassiveAsync(cluster, destination, DestinationHealth.Healthy, TimeSpan.FromSeconds(2));
 
@@ -72,7 +73,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             destination.Health.Passive = health;
             var cluster = CreateCluster(passive: true, active: false, destination);
             using var timerFactory = new TestTimerFactory();
-            var updater = new DestinationHealthUpdater(timerFactory, new Mock<ILogger<DestinationHealthUpdater>>().Object);
+            var updater = new DestinationHealthUpdater(timerFactory, GetClusterUpdater(), new Mock<ILogger<DestinationHealthUpdater>>().Object);
 
             await updater.SetPassiveAsync(cluster, destination, health, TimeSpan.FromSeconds(2));
 
@@ -97,7 +98,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             destination3.Health.Active = DestinationHealth.Unhealthy;
             destination3.Health.Passive = DestinationHealth.Healthy;
             var cluster = CreateCluster(passive: false, active: true, destination0, destination1, destination2, destination3);
-            var updater = new DestinationHealthUpdater(new Mock<ITimerFactory>().Object, new Mock<ILogger<DestinationHealthUpdater>>().Object);
+            var updater = new DestinationHealthUpdater(new Mock<ITimerFactory>().Object, GetClusterUpdater(), new Mock<ILogger<DestinationHealthUpdater>>().Object);
 
             var newHealthStates = new[] {
                 new NewActiveDestinationHealth(destination0, DestinationHealth.Unhealthy), new NewActiveDestinationHealth(destination1, DestinationHealth.Healthy),
@@ -144,9 +145,19 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
                 cluster.Destinations.TryAdd(destination.DestinationId, destination);
             }
 
-            cluster.ProcessDestinationChanges();
+            cluster.DynamicState = new ClusterDynamicState(destinations, destinations);
 
             return cluster;
+        }
+
+        private IClusterDestinationsUpdater GetClusterUpdater()
+        {
+            var result = new Mock<IClusterDestinationsUpdater>(MockBehavior.Strict);
+            result.Setup(u => u.UpdateAvailableDestinations(It.IsAny<ClusterState>())).Callback((ClusterState c) =>
+            {
+                c.DynamicState = new ClusterDynamicState(c.DynamicState.AllDestinations, c.Destinations.Values.ToList());
+            });
+            return result.Object;
         }
     }
 }

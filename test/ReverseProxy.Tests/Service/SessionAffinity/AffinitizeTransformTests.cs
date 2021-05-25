@@ -58,7 +58,8 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             },
             new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object));
 
-            cluster.ProcessDestinationChanges();
+            var destinations = cluster.Destinations.Values.ToList();
+            cluster.DynamicState = new ClusterDynamicState(destinations, destinations);
             return cluster;
         }
     }

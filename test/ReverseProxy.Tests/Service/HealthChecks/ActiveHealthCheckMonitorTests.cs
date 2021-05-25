@@ -649,7 +649,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
                     Model = destinationModel
                 });
             }
-            clusterState.ProcessDestinationChanges();
+            clusterState.DynamicState = new ClusterDynamicState(clusterState.Destinations.Values.ToList(), clusterState.Destinations.Values.ToList());
 
             return clusterState;
         }

@@ -2,18 +2,15 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Concurrent;
 using System.Linq;
 using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
 using Moq;
 using Xunit;
 using Yarp.ReverseProxy.Abstractions;
 
 namespace Yarp.ReverseProxy.RuntimeModel.Tests
 {
-    public class ClusterInfoTests
+    /*public class ClusterStateTests
     {
         [Fact]
         public void DynamicState_WithoutHealthChecks_AssumesAllHealthy()
@@ -173,5 +170,5 @@ namespace Yarp.ReverseProxy.RuntimeModel.Tests
                 },
                 httpClient: new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object));
         }
-    }
+    }*/
 }

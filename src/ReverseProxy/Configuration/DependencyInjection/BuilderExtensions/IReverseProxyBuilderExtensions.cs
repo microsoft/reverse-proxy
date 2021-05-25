@@ -38,6 +38,12 @@ namespace Yarp.ReverseProxy.Configuration.DependencyInjection
         {
             builder.Services.TryAddSingleton<ITimerFactory, TimerFactory>();
             builder.Services.TryAddSingleton<IDestinationHealthUpdater, DestinationHealthUpdater>();
+
+            builder.Services.TryAddSingleton<IClusterDestinationsUpdater, ClusterDestinationsUpdater>();
+            builder.Services.TryAddEnumerable(new[] {
+                new ServiceDescriptor(typeof(IAvaliableDestinationsPolicy), typeof(StrictHealthyAndUnknownDestinationsPolicy), ServiceLifetime.Singleton),
+                new ServiceDescriptor(typeof(IAvaliableDestinationsPolicy), typeof(FallbackToAllDestinationsPolicy), ServiceLifetime.Singleton)
+            });
             return builder;
         }
 
