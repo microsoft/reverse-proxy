@@ -10,7 +10,7 @@ using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.Service.HealthChecks
 {
-    internal class ClusterDestinationsUpdater : IClusterDestinationsUpdater
+    internal sealed class ClusterDestinationsUpdater : IClusterDestinationsUpdater
     {
         private readonly ConditionalWeakTable<ClusterState, SemaphoreSlim> _clusterLocks = new ConditionalWeakTable<ClusterState, SemaphoreSlim>();
         private readonly IDictionary<string, IAvaliableDestinationsPolicy> _destinationPolicies;

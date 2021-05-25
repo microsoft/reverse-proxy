@@ -155,7 +155,10 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             var result = new Mock<IClusterDestinationsUpdater>(MockBehavior.Strict);
             result.Setup(u => u.UpdateAvailableDestinations(It.IsAny<ClusterState>())).Callback((ClusterState c) =>
             {
-                c.DynamicState = new ClusterDynamicState(c.DynamicState.AllDestinations, c.Destinations.Values.ToList());
+                var availableDestinations = c.Destinations.Values
+                    .Where(d => d.Health.Active != DestinationHealth.Unhealthy && d.Health.Passive != DestinationHealth.Unhealthy)
+                    .ToList();
+                c.DynamicState = new ClusterDynamicState(c.DynamicState.AllDestinations, availableDestinations);
             });
             return result.Object;
         }

@@ -216,7 +216,8 @@ namespace Yarp.ReverseProxy.Configuration
                     ""Timeout"": ""00:00:06"",
                     ""Policy"": ""Any5xxResponse"",
                     ""Path"": ""healthCheckPath""
-                }
+                },
+                ""AvailableDestinationsPolicy"": ""FallbackToAll""
             },
             ""HttpClient"": {
                 ""SslProtocols"": [

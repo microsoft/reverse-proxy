@@ -245,7 +245,8 @@ namespace Yarp.ReverseProxy.Configuration
             return new HealthCheckConfig
             {
                 Passive = CreatePassiveHealthCheckConfig(section.GetSection(nameof(HealthCheckConfig.Passive))),
-                Active = CreateActiveHealthCheckConfig(section.GetSection(nameof(HealthCheckConfig.Active)))
+                Active = CreateActiveHealthCheckConfig(section.GetSection(nameof(HealthCheckConfig.Active))),
+                AvailableDestinationsPolicy = section[nameof(HealthCheckConfig.AvailableDestinationsPolicy)]
             };
         }
 

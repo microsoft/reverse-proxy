@@ -7,7 +7,7 @@ using Yarp.ReverseProxy.RuntimeModel;
 
 namespace Yarp.ReverseProxy.Service.HealthChecks
 {
-    internal class FallbackToAllDestinationsPolicy : StrictHealthyAndUnknownDestinationsPolicy
+    internal sealed class FallbackToAllDestinationsPolicy : StrictHealthyAndUnknownDestinationsPolicy
     {
         public override string Name => HealthCheckConstants.AvailableDestinations.FallbackToAll;
 

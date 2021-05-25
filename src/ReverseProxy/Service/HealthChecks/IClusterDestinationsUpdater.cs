@@ -15,7 +15,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
         /// Call this if health state has changed for any destinations.
         /// </summary>
         /// <param name="cluster">The <see cref="ClusterState"/> owing the destinations.</param>
-        public void UpdateAvailableDestinations(ClusterState cluster);
+        void UpdateAvailableDestinations(ClusterState cluster);
 
         /// <summary>
         /// Updates the cluster's collection of all configured destinations.
@@ -23,6 +23,6 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
         /// This does not need to be called for state updates like health, use UpdateAvailableDestinations for state updates.
         /// </summary>
         /// <param name="cluster">The <see cref="ClusterState"/> owing the destinations.</param>
-        public void UpdateAllDestinations(ClusterState cluster);
+        void UpdateAllDestinations(ClusterState cluster);
     }
 }

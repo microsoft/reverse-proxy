@@ -31,14 +31,13 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
 
             var availableDestinations = policy.GetAvailalableDestinations(cluster, allDestinations);
 
-            Assert.Equal(7, availableDestinations.Count);
+            Assert.Equal(6, availableDestinations.Count);
             Assert.Same(allDestinations[0], availableDestinations[0]);
             Assert.Same(allDestinations[1], availableDestinations[1]);
             Assert.Same(allDestinations[2], availableDestinations[2]);
             Assert.Same(allDestinations[3], availableDestinations[3]);
             Assert.Same(allDestinations[4], availableDestinations[4]);
             Assert.Same(allDestinations[5], availableDestinations[5]);
-            Assert.Same(allDestinations[6], availableDestinations[6]);
         }
 
         [Fact]
@@ -95,8 +94,8 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
 
             policy.GetAvailalableDestinations(cluster, new[] { new DestinationState("d0") { Health = { Active = active, Passive = passive } } });
 
-            Assert.Equal(activeEnabled ? DestinationHealth.Healthy : DestinationHealth.Unknown, policy.LastActiveState);
-            Assert.Equal(passiveEnabled ? DestinationHealth.Healthy : DestinationHealth.Unknown, policy.LastPassiveState);
+            Assert.Equal(activeEnabled ? active : DestinationHealth.Unknown, policy.LastActiveState);
+            Assert.Equal(passiveEnabled ? passive : DestinationHealth.Unknown, policy.LastPassiveState);
         }
 
         private class StubDestinationPolicy : BaseAvailableDestinationsPolicy
