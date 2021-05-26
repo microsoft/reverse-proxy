@@ -29,13 +29,13 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
 
             updater.UpdateAllDestinations(cluster);
 
-            Assert.Equal(cluster.DestinationsState.AllDestinations, expectedAll);
-            Assert.Equal(cluster.DestinationsState.AvailableDestinations, expectedAvailable);
+            AssertEquals(expectedAll, cluster.DestinationsState.AllDestinations);
+            AssertEquals(expectedAvailable, cluster.DestinationsState.AvailableDestinations);
 
             Assert.False(policy0.IsCalled);
             Assert.Null(policy0.TakenDestinations);
             Assert.True(policy1.IsCalled);
-            Assert.Equal(policy1.TakenDestinations, expectedAll);
+            AssertEquals(expectedAll, policy1.TakenDestinations);
         }
 
         [Fact]
@@ -52,13 +52,18 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             updater.UpdateAvailableDestinations(cluster);
 
             Assert.Empty(cluster.Destinations);
-            Assert.Equal(cluster.DestinationsState.AllDestinations, allDestinations);
-            Assert.Equal(cluster.DestinationsState.AvailableDestinations, expectedAvailable);
+            AssertEquals(allDestinations, cluster.DestinationsState.AllDestinations);
+            AssertEquals(expectedAvailable, cluster.DestinationsState.AvailableDestinations);
 
             Assert.False(policy0.IsCalled);
             Assert.Null(policy0.TakenDestinations);
             Assert.True(policy1.IsCalled);
-            Assert.Equal(policy1.TakenDestinations, allDestinations);
+            AssertEquals(allDestinations, policy1.TakenDestinations);
+        }
+
+        private static void AssertEquals(IEnumerable<DestinationState> actual, IEnumerable<DestinationState> expected)
+        {
+            Assert.Equal(actual.OrderBy(d => d.DestinationId).Select(d => d.DestinationId), expected.OrderBy(d => d.DestinationId).Select(d => d.DestinationId));
         }
 
         private static ClusterState GetCluster(string policyName)
