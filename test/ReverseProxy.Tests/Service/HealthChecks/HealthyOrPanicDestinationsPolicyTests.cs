@@ -7,7 +7,7 @@ using Yarp.ReverseProxy.RuntimeModel;
 
 namespace Yarp.ReverseProxy.Service.HealthChecks
 {
-    public class FallbackToAllDestinationsPolicyTests
+    public class HealthyOrPanicDestinationsPolicyTests
     {
         [Fact]
         public void GetAvailableDestinations_SomeDestinationsAreHealthy_ReturnOnlyHealthy()

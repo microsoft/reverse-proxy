@@ -8,7 +8,7 @@ using Yarp.ReverseProxy.RuntimeModel;
 
 namespace Yarp.ReverseProxy.Service.HealthChecks
 {
-    public class StrictHealtyOrUknownDesitnationsPolicyTests
+    public class HealtyOrUknownDesitnationsPolicyTests
     {
         [Fact]
         public void GetAvailableDestinations_HealthChecksEnabled_FilterOutUnhealthy()
