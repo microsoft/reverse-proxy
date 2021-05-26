@@ -41,13 +41,13 @@ namespace Yarp.ReverseProxy.Middleware
                 return Task.CompletedTask;
             }
 
-            var dynamicState = cluster.DestinationsState;
+            var destinationsState = cluster.DestinationsState;
             context.Features.Set<IReverseProxyFeature>(new ReverseProxyFeature
             {
                 Route = route,
                 Cluster = cluster.Model,
-                AllDestinations = dynamicState.AllDestinations,
-                AvailableDestinations = dynamicState.HealthyDestinations
+                AllDestinations = destinationsState.AllDestinations,
+                AvailableDestinations = destinationsState.AvailableDestinations
             });
 
             return _next(context);

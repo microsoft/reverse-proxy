@@ -30,7 +30,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             await updater.SetPassiveAsync(cluster, destination, DestinationHealth.Unhealthy, TimeSpan.FromSeconds(2));
 
             timerFactory.VerifyTimer(0, 2000);
-            Assert.Empty(cluster.DestinationsState.HealthyDestinations);
+            Assert.Empty(cluster.DestinationsState.AvailableDestinations);
             Assert.Equal(DestinationHealth.Healthy, destination.Health.Active);
             Assert.Equal(DestinationHealth.Unhealthy, destination.Health.Passive);
 
@@ -38,8 +38,8 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
 
             Assert.Equal(DestinationHealth.Healthy, destination.Health.Active);
             Assert.Equal(DestinationHealth.Unknown, destination.Health.Passive);
-            Assert.Equal(1, cluster.DestinationsState.HealthyDestinations.Count);
-            Assert.Same(destination, cluster.DestinationsState.HealthyDestinations[0]);
+            Assert.Equal(1, cluster.DestinationsState.AvailableDestinations.Count);
+            Assert.Same(destination, cluster.DestinationsState.AvailableDestinations[0]);
             timerFactory.AssertTimerDisposed(0);
         }
 
@@ -58,8 +58,8 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             Assert.Equal(0, timerFactory.Count);
             Assert.Equal(DestinationHealth.Healthy, destination.Health.Active);
             Assert.Equal(DestinationHealth.Healthy, destination.Health.Passive);
-            Assert.Equal(1, cluster.DestinationsState.HealthyDestinations.Count);
-            Assert.Same(destination, cluster.DestinationsState.HealthyDestinations[0]);
+            Assert.Equal(1, cluster.DestinationsState.AvailableDestinations.Count);
+            Assert.Same(destination, cluster.DestinationsState.AvailableDestinations[0]);
         }
 
         [Theory]
@@ -112,9 +112,9 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
                 Assert.Equal(DestinationHealth.Healthy, newHealthState.Destination.Health.Passive);
             }
 
-            Assert.Equal(2, cluster.DestinationsState.HealthyDestinations.Count);
-            Assert.Contains(cluster.DestinationsState.HealthyDestinations, d => d == destination1);
-            Assert.Contains(cluster.DestinationsState.HealthyDestinations, d => d == destination3);
+            Assert.Equal(2, cluster.DestinationsState.AvailableDestinations.Count);
+            Assert.Contains(cluster.DestinationsState.AvailableDestinations, d => d == destination1);
+            Assert.Contains(cluster.DestinationsState.AvailableDestinations, d => d == destination3);
         }
 
         private static ClusterState CreateCluster(bool passive, bool active, params DestinationState[] destinations)

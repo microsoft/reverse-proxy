@@ -46,7 +46,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             // updates don't conflict with each other. Additionally, we debounce extra concurrent calls if
             // they arrive in a quick succession to avoid spending too much CPU on frequent state rebuilds.
             // Specifically, only up to two threads are allowed to wait here and actually execute a rebuild,
-            // all others will be debounced and the call will return without updating the _dynamicState.
+            // all others will be debounced and the call will return without updating the ClusterState.DestinationsState.
             // However, changes made by those debounced threads (e.g. destination health updates) will be
             // taken into account by one of blocked threads after they get unblocked to run a rebuild.
             var updateLock = _clusterLocks.GetValue(cluster, _ => new SemaphoreSlim(2));

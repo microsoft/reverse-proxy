@@ -405,7 +405,7 @@ namespace Yarp.ReverseProxy.Service
 
             if (!_availableDestinationsPolicies.ContainsKey(availableDestinationsPolicy))
             {
-                errors.Add(new ArgumentException($"No matching {nameof(IAvailableDestinationsPolicy)} found for the available destinations policy '{availableDestinationsPolicy}' set on the cluster '{cluster.ClusterId}'."));
+                errors.Add(new ArgumentException($"No matching {nameof(IAvailableDestinationsPolicy)} found for the available destinations policy '{availableDestinationsPolicy}' set on the cluster.'{cluster.ClusterId}'."));
             }
 
             ValidateActiveHealthCheck(errors, cluster);
