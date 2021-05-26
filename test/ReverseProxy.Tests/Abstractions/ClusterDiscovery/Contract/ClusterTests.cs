@@ -62,12 +62,11 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
                     }
                 },
                 LoadBalancingPolicy = LoadBalancingPolicies.Random,
-                SessionAffinity = new SessionAffinityConfig
+                SessionAffinity = new SessionAffinityConfig("Key1")
                 {
                     Enabled = true,
                     FailurePolicy = "Return503Error",
                     Mode = "Cookie",
-                    AffinityKeyName = "Key1",
                     Cookie = new SessionAffinityCookieConfig
                     {
                         Domain = "localhost",
@@ -143,12 +142,11 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
                     }
                 },
                 LoadBalancingPolicy = LoadBalancingPolicies.Random,
-                SessionAffinity = new SessionAffinityConfig
+                SessionAffinity = new SessionAffinityConfig("Key1")
                 {
                     Enabled = true,
                     FailurePolicy = "Return503Error",
                     Mode = "Cookie",
-                    AffinityKeyName = "Key1",
                     Cookie = new SessionAffinityCookieConfig
                     {
                         Domain = "localhost",
@@ -234,12 +232,11 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
                     }
                 },
                 LoadBalancingPolicy = LoadBalancingPolicies.Random,
-                SessionAffinity = new SessionAffinityConfig
+                SessionAffinity = new SessionAffinityConfig("Key1")
                 {
                     Enabled = true,
                     FailurePolicy = "Return503Error",
                     Mode = "Cookie",
-                    AffinityKeyName = "Key1",
                     Cookie = new SessionAffinityCookieConfig
                     {
                         Domain = "localhost",
@@ -276,12 +273,11 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
             Assert.False(config1.Equals(config1 with { LoadBalancingPolicy = "different" }));
             Assert.False(config1.Equals(config1 with
             {
-                SessionAffinity = new SessionAffinityConfig
+                SessionAffinity = new SessionAffinityConfig("Key1")
                 {
                     Enabled = true,
                     FailurePolicy = "Return503Error",
                     Mode = "Cookie",
-                    AffinityKeyName = "Key1",
                     Cookie = new SessionAffinityCookieConfig
                     {
                         Domain = "localhost",
@@ -326,12 +322,11 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
             {
                 ClusterId = "cluster1",
                 LoadBalancingPolicy = LoadBalancingPolicies.Random,
-                SessionAffinity = new SessionAffinityConfig
+                SessionAffinity = new SessionAffinityConfig("Key1")
                 {
                     Enabled = true,
                     FailurePolicy = "Return503Error",
                     Mode = "Cookie",
-                    AffinityKeyName = "key1",
                     Cookie = new SessionAffinityCookieConfig
                     {
                         Domain = "domain",

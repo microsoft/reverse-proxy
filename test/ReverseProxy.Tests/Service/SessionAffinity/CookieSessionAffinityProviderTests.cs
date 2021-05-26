@@ -13,12 +13,11 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
 {
     public class CookieSessionAffinityProviderTests
     {
-        private readonly SessionAffinityConfig _config = new SessionAffinityConfig
+        private readonly SessionAffinityConfig _config = new SessionAffinityConfig("My.Affinity")
         {
             Enabled = true,
             Mode = "Cookie",
             FailurePolicy = "Return503",
-            AffinityKeyName = "My.Affinity",
             Cookie = new SessionAffinityCookieConfig
             {
                 Domain = "mydomain.my",

@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Xunit;
 using Yarp.ReverseProxy.Abstractions;
-using Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 using Yarp.ReverseProxy.RuntimeModel;
 
 namespace Yarp.ReverseProxy.Service.SessionAffinity
@@ -13,12 +12,11 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
     public class CustomHeaderSessionAffinityProviderTests
     {
         private const string AffinityHeaderName = "X-MyAffinity";
-        private readonly SessionAffinityConfig _defaultOptions = new SessionAffinityConfig
+        private readonly SessionAffinityConfig _defaultOptions = new SessionAffinityConfig(AffinityHeaderName)
         {
             Enabled = true,
             Mode = "Cookie",
-            FailurePolicy = "Return503",
-            AffinityKeyName = AffinityHeaderName
+            FailurePolicy = "Return503"
         };
         private readonly IReadOnlyList<DestinationState> _destinations = new[] { new DestinationState("dest-A"), new DestinationState("dest-B"), new DestinationState("dest-C") };
 

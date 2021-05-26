@@ -49,7 +49,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             cluster.Destinations.GetOrAdd("dest-A", id => new DestinationState(id));
             cluster.Model = new ClusterModel(new ClusterConfig
             {
-                SessionAffinity = new SessionAffinityConfig
+                SessionAffinity = new SessionAffinityConfig("Key1")
                 {
                     Enabled = true,
                     Mode = "Mode-B",

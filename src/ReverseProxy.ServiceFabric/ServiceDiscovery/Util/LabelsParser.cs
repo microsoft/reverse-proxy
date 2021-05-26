@@ -264,12 +264,11 @@ namespace Yarp.ReverseProxy.ServiceFabric
             {
                 ClusterId = clusterId,
                 LoadBalancingPolicy = GetLabel<string>(labels, "YARP.Backend.LoadBalancingPolicy", null),
-                SessionAffinity = new SessionAffinityConfig
+                SessionAffinity = new SessionAffinityConfig(GetLabel<string>(labels, "YARP.Backend.SessionAffinity.AffinityKeyName", null))
                 {
                     Enabled = GetLabel<bool?>(labels, "YARP.Backend.SessionAffinity.Enabled", null),
                     Mode = GetLabel<string>(labels, "YARP.Backend.SessionAffinity.Mode", null),
                     FailurePolicy = GetLabel<string>(labels, "YARP.Backend.SessionAffinity.FailurePolicy", null),
-                    AffinityKeyName = GetLabel<string>(labels, "YARP.Backend.SessionAffinity.AffinityKeyName", null),
                     Cookie = new SessionAffinityCookieConfig
                     {
                         Path = GetLabel<string>(labels, "YARP.Backend.SessionAffinity.Cookie.Path", null),

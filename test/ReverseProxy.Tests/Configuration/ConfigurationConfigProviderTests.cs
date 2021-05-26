@@ -75,12 +75,11 @@ namespace Yarp.ReverseProxy.Configuration
                             }
                         },
                         LoadBalancingPolicy = LoadBalancingPolicies.Random,
-                        SessionAffinity = new SessionAffinityConfig
+                        SessionAffinity = new SessionAffinityConfig("Key1")
                         {
                             Enabled = true,
                             FailurePolicy = "Return503Error",
                             Mode = "Cookie",
-                            AffinityKeyName = "Key1",
                             Cookie = new SessionAffinityCookieConfig
                             {
                                 Domain = "localhost",

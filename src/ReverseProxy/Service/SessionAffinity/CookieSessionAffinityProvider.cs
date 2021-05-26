@@ -33,7 +33,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
 
         protected override (string? Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, SessionAffinityConfig config)
         {
-            var encryptedRequestKey = context.Request.Cookies.TryGetValue(config.AffinityKeyName!, out var keyInCookie) ? keyInCookie : null;
+            var encryptedRequestKey = context.Request.Cookies.TryGetValue(config.AffinityKeyName, out var keyInCookie) ? keyInCookie : null;
             return Unprotect(encryptedRequestKey);
         }
 
@@ -50,7 +50,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
                 Secure = config.Cookie?.SecurePolicy == CookieSecurePolicy.Always || (config.Cookie?.SecurePolicy == CookieSecurePolicy.SameAsRequest && context.Request.IsHttps),
                 Expires = config.Cookie?.Expiration != null ? _clock.GetUtcNow().Add(config.Cookie.Expiration.Value) : default(DateTimeOffset?),
             };
-            context.Response.Cookies.Append(config.AffinityKeyName!, Protect(unencryptedKey), affinityCookieOptions);
+            context.Response.Cookies.Append(config.AffinityKeyName, Protect(unencryptedKey), affinityCookieOptions);
         }
     }
 }

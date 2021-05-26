@@ -23,7 +23,7 @@ namespace Yarp.ReverseProxy.Middleware
         protected readonly ClusterModel ClusterConfig = new ClusterModel(new ClusterConfig
         {
             ClusterId = "cluster-1",
-            SessionAffinity = new SessionAffinityConfig
+            SessionAffinity = new SessionAffinityConfig("Key1")
             {
                 Enabled = true,
                 Mode = "Mode-B",
