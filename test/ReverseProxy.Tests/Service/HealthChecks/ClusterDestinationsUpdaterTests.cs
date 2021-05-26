@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -35,6 +36,29 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             Assert.Null(policy0.TakenDestinations);
             Assert.True(policy1.IsCalled);
             Assert.Equal(policy1.TakenDestinations, expectedAll);
+        }
+
+        [Fact]
+        public void UpdateAvailableDestinations_UseAllDestinationsAsSource()
+        {
+            var cluster = GetCluster("policy1");
+            var allDestinations = new[] { new DestinationState("d0"), new DestinationState("d1"), new DestinationState("d2") };
+            cluster.DestinationsState = new ClusterDestinationsState(allDestinations, new[] { allDestinations[0], allDestinations[1] });
+            var expectedAvailable = new[] { allDestinations[0], allDestinations[2] };
+            var policy0 = new StubPolicy("policy0", allDestinations[1]);
+            var policy1 = new StubPolicy("policy1", allDestinations[1]);
+            var updater = new ClusterDestinationsUpdater(new[] { policy0, policy1 });
+
+            updater.UpdateAvailableDestinations(cluster);
+
+            Assert.Empty(cluster.Destinations);
+            Assert.Equal(cluster.DestinationsState.AllDestinations, allDestinations);
+            Assert.Equal(cluster.DestinationsState.AvailableDestinations, expectedAvailable);
+
+            Assert.False(policy0.IsCalled);
+            Assert.Null(policy0.TakenDestinations);
+            Assert.True(policy1.IsCalled);
+            Assert.Equal(policy1.TakenDestinations, allDestinations);
         }
 
         private static ClusterState GetCluster(string policyName)
