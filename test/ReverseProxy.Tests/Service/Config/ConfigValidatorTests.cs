@@ -626,7 +626,8 @@ namespace Yarp.ReverseProxy.Service.Tests
                 ClusterId = "cluster1",
                 SessionAffinity = new SessionAffinityConfig()
                 {
-                    Enabled = true
+                    Enabled = true,
+                    AffinityKeyName = "SomeKey"
                 }
             };
 
@@ -636,7 +637,7 @@ namespace Yarp.ReverseProxy.Service.Tests
         }
 
         [Fact]
-        public async Task EnableSession_InvalidPolicy_Fails()
+        public async Task EnableSessionAffinity_InvalidPolicy_Fails()
         {
             var services = CreateServices();
             var validator = services.GetRequiredService<IConfigValidator>();
@@ -647,7 +648,8 @@ namespace Yarp.ReverseProxy.Service.Tests
                 SessionAffinity = new SessionAffinityConfig()
                 {
                     Enabled = true,
-                    FailurePolicy = "Invalid"
+                    FailurePolicy = "Invalid",
+                    AffinityKeyName = "SomeKey"
                 }
             };
 
@@ -655,6 +657,30 @@ namespace Yarp.ReverseProxy.Service.Tests
 
             var ex = Assert.Single(errors);
             Assert.Equal("No matching IAffinityFailurePolicy found for the affinity failure policy name 'Invalid' set on the cluster 'cluster1'.", ex.Message);
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData(null)]
+        public async Task EnableSessionAffinity_AffinityIsNotSet_Fails(string key)
+        {
+            var services = CreateServices();
+            var validator = services.GetRequiredService<IConfigValidator>();
+
+            var cluster = new ClusterConfig
+            {
+                ClusterId = "cluster1",
+                SessionAffinity = new SessionAffinityConfig()
+                {
+                    Enabled = true,
+                    AffinityKeyName = key
+                }
+            };
+
+            var errors = await validator.ValidateClusterAsync(cluster);
+
+            var ex = Assert.Single(errors);
+            Assert.Equal("Affinity key name set on the cluster 'cluster1' must not be null.", ex.Message);
         }
 
         [Fact]

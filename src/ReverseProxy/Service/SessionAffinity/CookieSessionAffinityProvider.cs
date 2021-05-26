@@ -13,8 +13,6 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
 {
     internal sealed class CookieSessionAffinityProvider : BaseSessionAffinityProvider<string>
     {
-        public static readonly string DefaultCookieName = ".Yarp.ReverseProxy.Affinity";
-
         private readonly IClock _clock;
 
         public CookieSessionAffinityProvider(
@@ -35,8 +33,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
 
         protected override (string? Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, SessionAffinityConfig config)
         {
-            var cookieName = config.AffinityKeyName ?? DefaultCookieName;
-            var encryptedRequestKey = context.Request.Cookies.TryGetValue(cookieName, out var keyInCookie) ? keyInCookie : null;
+            var encryptedRequestKey = context.Request.Cookies.TryGetValue(config.AffinityKeyName!, out var keyInCookie) ? keyInCookie : null;
             return Unprotect(encryptedRequestKey);
         }
 
@@ -53,7 +50,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
                 Secure = config.Cookie?.SecurePolicy == CookieSecurePolicy.Always || (config.Cookie?.SecurePolicy == CookieSecurePolicy.SameAsRequest && context.Request.IsHttps),
                 Expires = config.Cookie?.Expiration != null ? _clock.GetUtcNow().Add(config.Cookie.Expiration.Value) : default(DateTimeOffset?),
             };
-            context.Response.Cookies.Append(config.AffinityKeyName ?? DefaultCookieName, Protect(unencryptedKey), affinityCookieOptions);
+            context.Response.Cookies.Append(config.AffinityKeyName!, Protect(unencryptedKey), affinityCookieOptions);
         }
     }
 }

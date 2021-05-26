@@ -329,6 +329,11 @@ namespace Yarp.ReverseProxy.Service
                 errors.Add(new ArgumentException($"No matching IAffinityFailurePolicy found for the affinity failure policy name '{affinityFailurePolicy}' set on the cluster '{cluster.ClusterId}'."));
             }
 
+            if (string.IsNullOrEmpty(cluster.SessionAffinity.AffinityKeyName))
+            {
+                errors.Add(new ArgumentException($"Affinity key name set on the cluster '{cluster.ClusterId}' must not be null."));
+            }
+
             var cookieConfig = cluster.SessionAffinity.Cookie;
 
             if (cookieConfig == null)

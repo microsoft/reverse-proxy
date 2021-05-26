@@ -70,22 +70,6 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
         }
 
         [Fact]
-        public void AffinitizedRequest_DefaultConfigAffinityKeyIsNotExtracted_SetKeyOnResponse()
-        {
-            var provider = new CookieSessionAffinityProvider(
-                AffinityTestHelper.GetDataProtector().Object,
-                new ManualClock(),
-                AffinityTestHelper.GetLogger<CookieSessionAffinityProvider>().Object);
-            var context = new DefaultHttpContext();
-
-            var defaultConfig = _config with { AffinityKeyName = null, Cookie = null };
-            provider.AffinitizeRequest(context, defaultConfig, _destinations[1]);
-
-            var affinityCookieHeader = context.Response.Headers["Set-Cookie"];
-            Assert.Equal(".Yarp.ReverseProxy.Affinity=ZGVzdC1C; path=/; httponly", affinityCookieHeader);
-        }
-
-        [Fact]
         public void AffinitizedRequest_CustomConfigAffinityKeyIsNotExtracted_SetKeyOnResponse()
         {
             var provider = new CookieSessionAffinityProvider(
