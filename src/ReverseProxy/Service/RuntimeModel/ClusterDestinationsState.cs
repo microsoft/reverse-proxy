@@ -6,9 +6,9 @@ using System.Collections.Generic;
 
 namespace Yarp.ReverseProxy.RuntimeModel
 {
-    public sealed class ClusterDynamicState
+    public sealed class ClusterDestinationsState
     {
-        public ClusterDynamicState(
+        public ClusterDestinationsState(
             IReadOnlyList<DestinationState> allDestinations,
             IReadOnlyList<DestinationState> healthyDestinations)
         {

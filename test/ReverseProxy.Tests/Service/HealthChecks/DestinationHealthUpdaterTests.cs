@@ -30,7 +30,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             await updater.SetPassiveAsync(cluster, destination, DestinationHealth.Unhealthy, TimeSpan.FromSeconds(2));
 
             timerFactory.VerifyTimer(0, 2000);
-            Assert.Empty(cluster.DynamicState.HealthyDestinations);
+            Assert.Empty(cluster.DestinationsState.HealthyDestinations);
             Assert.Equal(DestinationHealth.Healthy, destination.Health.Active);
             Assert.Equal(DestinationHealth.Unhealthy, destination.Health.Passive);
 
@@ -38,8 +38,8 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
 
             Assert.Equal(DestinationHealth.Healthy, destination.Health.Active);
             Assert.Equal(DestinationHealth.Unknown, destination.Health.Passive);
-            Assert.Equal(1, cluster.DynamicState.HealthyDestinations.Count);
-            Assert.Same(destination, cluster.DynamicState.HealthyDestinations[0]);
+            Assert.Equal(1, cluster.DestinationsState.HealthyDestinations.Count);
+            Assert.Same(destination, cluster.DestinationsState.HealthyDestinations[0]);
             timerFactory.AssertTimerDisposed(0);
         }
 
@@ -58,8 +58,8 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             Assert.Equal(0, timerFactory.Count);
             Assert.Equal(DestinationHealth.Healthy, destination.Health.Active);
             Assert.Equal(DestinationHealth.Healthy, destination.Health.Passive);
-            Assert.Equal(1, cluster.DynamicState.HealthyDestinations.Count);
-            Assert.Same(destination, cluster.DynamicState.HealthyDestinations[0]);
+            Assert.Equal(1, cluster.DestinationsState.HealthyDestinations.Count);
+            Assert.Same(destination, cluster.DestinationsState.HealthyDestinations[0]);
         }
 
         [Theory]
@@ -112,9 +112,9 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
                 Assert.Equal(DestinationHealth.Healthy, newHealthState.Destination.Health.Passive);
             }
 
-            Assert.Equal(2, cluster.DynamicState.HealthyDestinations.Count);
-            Assert.Contains(cluster.DynamicState.HealthyDestinations, d => d == destination1);
-            Assert.Contains(cluster.DynamicState.HealthyDestinations, d => d == destination3);
+            Assert.Equal(2, cluster.DestinationsState.HealthyDestinations.Count);
+            Assert.Contains(cluster.DestinationsState.HealthyDestinations, d => d == destination1);
+            Assert.Contains(cluster.DestinationsState.HealthyDestinations, d => d == destination3);
         }
 
         private static ClusterState CreateCluster(bool passive, bool active, params DestinationState[] destinations)
@@ -145,7 +145,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
                 cluster.Destinations.TryAdd(destination.DestinationId, destination);
             }
 
-            cluster.DynamicState = new ClusterDynamicState(destinations, destinations);
+            cluster.DestinationsState = new ClusterDestinationsState(destinations, destinations);
 
             return cluster;
         }
@@ -158,7 +158,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
                 var availableDestinations = c.Destinations.Values
                     .Where(d => d.Health.Active != DestinationHealth.Unhealthy && d.Health.Passive != DestinationHealth.Unhealthy)
                     .ToList();
-                c.DynamicState = new ClusterDynamicState(c.DynamicState.AllDestinations, availableDestinations);
+                c.DestinationsState = new ClusterDestinationsState(c.DestinationsState.AllDestinations, availableDestinations);
             });
             return result.Object;
         }

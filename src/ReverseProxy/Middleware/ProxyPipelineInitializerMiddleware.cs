@@ -41,7 +41,7 @@ namespace Yarp.ReverseProxy.Middleware
                 return Task.CompletedTask;
             }
 
-            var dynamicState = cluster.DynamicState;
+            var dynamicState = cluster.DestinationsState;
             context.Features.Set<IReverseProxyFeature>(new ReverseProxyFeature
             {
                 Route = route,

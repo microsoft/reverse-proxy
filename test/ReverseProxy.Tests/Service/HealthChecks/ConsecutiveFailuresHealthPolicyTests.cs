@@ -151,7 +151,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
                 });
             }
 
-            clusterState.DynamicState = new ClusterDynamicState(clusterState.Destinations.Values.ToList(), clusterState.Destinations.Values.ToList());
+            clusterState.DestinationsState = new ClusterDestinationsState(clusterState.Destinations.Values.ToList(), clusterState.Destinations.Values.ToList());
 
             return clusterState;
         }
@@ -166,7 +166,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
                 }
 
                 var destinations = cluster.Destinations.Values.ToList();
-                cluster.DynamicState = new ClusterDynamicState(destinations, destinations);
+                cluster.DestinationsState = new ClusterDestinationsState(destinations, destinations);
             }
 
             public void SetPassive(ClusterState cluster, DestinationState destination, DestinationHealth newHealth, TimeSpan reactivationPeriod)

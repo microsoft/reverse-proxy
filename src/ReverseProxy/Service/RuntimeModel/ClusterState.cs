@@ -3,9 +3,6 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.RuntimeModel
@@ -15,7 +12,7 @@ namespace Yarp.ReverseProxy.RuntimeModel
     /// </summary>
     public sealed class ClusterState
     {
-        private volatile ClusterDynamicState _dynamicState = new ClusterDynamicState(Array.Empty<DestinationState>(), Array.Empty<DestinationState>());
+        private volatile ClusterDestinationsState _destinationsState = new ClusterDestinationsState(Array.Empty<DestinationState>(), Array.Empty<DestinationState>());
         private volatile ClusterModel _model = default!; // Initialized right after construction.
 
         /// <summary>
@@ -49,13 +46,13 @@ namespace Yarp.ReverseProxy.RuntimeModel
         public ConcurrentDictionary<string, DestinationState> Destinations { get; } = new(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
-        /// Encapsulates parts of a cluster that can change atomically
-        /// in reaction to runtime state changes (e.g. dynamic endpoint discovery).
+        /// Stores the state of cluster's destinations that can change atomically
+        /// in reaction to runtime state changes (e.g. changes of destinations' health).
         /// </summary>
-        public ClusterDynamicState DynamicState
+        public ClusterDestinationsState DestinationsState
         {
-            get => _dynamicState;
-            set => _dynamicState = value;
+            get => _destinationsState;
+            set => _destinationsState = value;
         }
 
         /// <summary>

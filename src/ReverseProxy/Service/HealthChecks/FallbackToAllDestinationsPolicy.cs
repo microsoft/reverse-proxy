@@ -13,8 +13,8 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
 
         public override IReadOnlyList<DestinationState> GetAvailalableDestinations(ClusterConfig config, IReadOnlyList<DestinationState> allDestinations)
         {
-            var availableDestination = base.GetAvailalableDestinations(config, allDestinations);
-            return availableDestination.Count > 0 ? availableDestination : allDestinations;
+            var availableDestinations = base.GetAvailalableDestinations(config, allDestinations);
+            return availableDestinations.Count > 0 ? availableDestinations : allDestinations;
         }
     }
 }

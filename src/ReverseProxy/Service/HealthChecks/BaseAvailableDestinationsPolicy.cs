@@ -8,7 +8,7 @@ using Yarp.ReverseProxy.RuntimeModel;
 
 namespace Yarp.ReverseProxy.Service.HealthChecks
 {
-    internal abstract class BaseAvailableDestinationsPolicy : IAvaliableDestinationsPolicy
+    internal abstract class BaseAvailableDestinationsPolicy : IAvailableDestinationsPolicy
     {
         public abstract string Name { get; }
 

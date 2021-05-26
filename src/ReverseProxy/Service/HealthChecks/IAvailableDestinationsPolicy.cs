@@ -10,7 +10,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
     /// <summary>
     /// Policy evaluating which destinations should be available for proxying requests to.
     /// </summary>
-    public interface IAvaliableDestinationsPolicy
+    public interface IAvailableDestinationsPolicy
     {
         /// <summary>
         /// Policy name.

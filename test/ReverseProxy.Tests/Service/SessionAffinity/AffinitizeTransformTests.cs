@@ -59,7 +59,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object));
 
             var destinations = cluster.Destinations.Values.ToList();
-            cluster.DynamicState = new ClusterDynamicState(destinations, destinations);
+            cluster.DestinationsState = new ClusterDestinationsState(destinations, destinations);
             return cluster;
         }
     }

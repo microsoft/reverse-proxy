@@ -13,16 +13,16 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
     internal sealed class ClusterDestinationsUpdater : IClusterDestinationsUpdater
     {
         private readonly ConditionalWeakTable<ClusterState, SemaphoreSlim> _clusterLocks = new ConditionalWeakTable<ClusterState, SemaphoreSlim>();
-        private readonly IDictionary<string, IAvaliableDestinationsPolicy> _destinationPolicies;
+        private readonly IDictionary<string, IAvailableDestinationsPolicy> _destinationPolicies;
 
-        public ClusterDestinationsUpdater(IEnumerable<IAvaliableDestinationsPolicy> destinationPolicies)
+        public ClusterDestinationsUpdater(IEnumerable<IAvailableDestinationsPolicy> destinationPolicies)
         {
             _destinationPolicies = destinationPolicies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(destinationPolicies));
         }
 
         public void UpdateAvailableDestinations(ClusterState cluster)
         {
-            UpdateInternal(cluster, cluster.DynamicState?.AllDestinations, force: false);
+            UpdateInternal(cluster, cluster.DestinationsState?.AllDestinations, force: false);
         }
 
         public void UpdateAllDestinations(ClusterState cluster)
@@ -76,7 +76,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
 
                     var availableDestinations = destinationPolicy.GetAvailalableDestinations(config, allDestinations);
 
-                    cluster.DynamicState = new ClusterDynamicState(allDestinations, availableDestinations);
+                    cluster.DestinationsState = new ClusterDestinationsState(allDestinations, availableDestinations);
                 }
                 finally
                 {

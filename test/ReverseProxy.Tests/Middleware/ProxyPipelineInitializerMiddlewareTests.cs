@@ -45,7 +45,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
             var destination1 = cluster1.Destinations.GetOrAdd(
                 "destination1",
                 id => new DestinationState(id) { Model = new DestinationModel(new DestinationConfig { Address = "https://localhost:123/a/b/" }) });
-            cluster1.DynamicState = new ClusterDynamicState(new[] { destination1 }, new[] { destination1 });
+            cluster1.DestinationsState = new ClusterDestinationsState(new[] { destination1 }, new[] { destination1 });
 
             var aspNetCoreEndpoints = new List<Endpoint>();
             var routeConfig = new RouteModel(
@@ -98,7 +98,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
                     Model = new DestinationModel(new DestinationConfig { Address = "https://localhost:123/a/b/" }),
                     Health = { Active = DestinationHealth.Unhealthy },
                 });
-            cluster1.DynamicState = new ClusterDynamicState(new[] { destination1 }, Array.Empty<DestinationState>());
+            cluster1.DestinationsState = new ClusterDestinationsState(new[] { destination1 }, Array.Empty<DestinationState>());
 
             var aspNetCoreEndpoints = new List<Endpoint>();
             var routeConfig = new RouteModel(

@@ -375,7 +375,7 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
             Assert.NotNull(clusterState);
             Assert.True(clusterState.Model.Config.HealthCheck.Active.Enabled);
             Assert.Equal(TimeSpan.FromSeconds(12), clusterState.Model.Config.HealthCheck.Active.Interval);
-            var destination = Assert.Single(clusterState.DynamicState.AllDestinations);
+            var destination = Assert.Single(clusterState.DestinationsState.AllDestinations);
             Assert.Equal("http://localhost", destination.Model.Config.Address);
         }
 
