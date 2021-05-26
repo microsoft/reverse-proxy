@@ -22,7 +22,13 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
 
         public void UpdateAvailableDestinations(ClusterState cluster)
         {
-            UpdateInternal(cluster, cluster.DestinationsState?.AllDestinations, force: false);
+            var allDestinations = cluster.DestinationsState?.AllDestinations;
+            if (allDestinations == null)
+            {
+                throw new InvalidOperationException($"{nameof(UpdateAllDestinations)} must be called first.");
+            }
+
+            UpdateInternal(cluster, allDestinations, force: false);
         }
 
         public void UpdateAllDestinations(ClusterState cluster)
@@ -33,7 +39,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             UpdateInternal(cluster, allDestinations, force: true);
         }
 
-        private void UpdateInternal(ClusterState cluster, IReadOnlyList<DestinationState>? allDestinations, bool force)
+        private void UpdateInternal(ClusterState cluster, IReadOnlyList<DestinationState> allDestinations, bool force)
         {
             // Prevent overlapping updates and debounce extra concurrent calls.
             // If there are multiple concurrent calls to rebuild the dynamic state, we want to ensure that
@@ -64,15 +70,10 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             {
                 try
                 {
-                    if (allDestinations == null)
-                    {
-                        throw new InvalidOperationException($"{nameof(UpdateAllDestinations)} must be called first.");
-                    }
-
                     var config = cluster.Model.Config;
                     var destinationPolicy = _destinationPolicies.GetRequiredServiceById(
                         config.HealthCheck?.AvailableDestinationsPolicy,
-                        HealthCheckConstants.AvailableDestinations.StrictHealthyAndUnknown);
+                        HealthCheckConstants.AvailableDestinations.HealthyAndUnknown);
 
                     var availableDestinations = destinationPolicy.GetAvailalableDestinations(config, allDestinations);
 

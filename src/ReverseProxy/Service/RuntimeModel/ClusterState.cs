@@ -52,7 +52,7 @@ namespace Yarp.ReverseProxy.RuntimeModel
         public ClusterDestinationsState DestinationsState
         {
             get => _destinationsState;
-            set => _destinationsState = value;
+            set => _destinationsState = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         /// <summary>

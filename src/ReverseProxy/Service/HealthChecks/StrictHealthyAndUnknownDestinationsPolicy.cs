@@ -1,20 +1,39 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
+using System.Linq;
+using Yarp.ReverseProxy.Abstractions;
 using Yarp.ReverseProxy.RuntimeModel;
 
 namespace Yarp.ReverseProxy.Service.HealthChecks
 {
     // Policy marking destinations as available only if their active and passive health states
     /// are either 'Healthy' or 'Unknown'/>.
-    internal class StrictHealthyAndUnknownDestinationsPolicy : BaseAvailableDestinationsPolicy
+    internal class StrictHealthyAndUnknownDestinationsPolicy : IAvailableDestinationsPolicy
     {
-        public override string Name => HealthCheckConstants.AvailableDestinations.StrictHealthyAndUnknown;
+        public virtual string Name => HealthCheckConstants.AvailableDestinations.HealthyAndUnknown;
 
-        protected override bool IsDestinationAvailable(DestinationState destination, DestinationHealth activeHealth, DestinationHealth passiveHealth)
+        public virtual IReadOnlyList<DestinationState> GetAvailalableDestinations(ClusterConfig config, IReadOnlyList<DestinationState> allDestinations)
         {
-            // Filter out unhealthy ones. Unknown state is OK, all destinations start that way.
-            return activeHealth != DestinationHealth.Unhealthy && passiveHealth != DestinationHealth.Unhealthy;
+            var availableDestinations = allDestinations;
+            var activeEnabled = (config.HealthCheck?.Active?.Enabled).GetValueOrDefault();
+            var passiveEnabled = (config.HealthCheck?.Passive?.Enabled).GetValueOrDefault();
+
+            if (activeEnabled || passiveEnabled)
+            {
+                availableDestinations = allDestinations.Where(destination =>
+                {
+                    // Only consider the current state if those checks are enabled.
+                    var healthState = destination.Health;
+                    var active = activeEnabled ? healthState.Active : DestinationHealth.Unknown;
+                    var passive = passiveEnabled ? healthState.Passive : DestinationHealth.Unknown;
+
+                    return active != DestinationHealth.Unhealthy && passive != DestinationHealth.Unhealthy;
+                }).ToList();
+            }
+
+            return availableDestinations;
         }
     }
 }

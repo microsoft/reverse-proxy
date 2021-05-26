@@ -9,7 +9,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
 {
     internal sealed class FallbackToAllDestinationsPolicy : StrictHealthyAndUnknownDestinationsPolicy
     {
-        public override string Name => HealthCheckConstants.AvailableDestinations.FallbackToAll;
+        public override string Name => HealthCheckConstants.AvailableDestinations.HealthyOrPanic;
 
         public override IReadOnlyList<DestinationState> GetAvailalableDestinations(ClusterConfig config, IReadOnlyList<DestinationState> allDestinations)
         {
