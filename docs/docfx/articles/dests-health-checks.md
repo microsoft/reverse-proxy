@@ -1,5 +1,5 @@
 # Destination health checks
-In most of the real-world systems, it's expected for their nodes to occasionally experience transient issues and go down completely due to a variety of reasons such as an overload, resource leakage, hardware failures, etc. Ideally, it'd be desirable to completely prevent those unfortunate events from occurring in a proactive way, but the cost of designing and building such an ideal system is generally prohibitively high. However, there is another reactive approach which is cheaper and aimed to minimizing a negative impact failures cause on client requests. The proxy can analyze each nodes health and stop sending client traffic to unhealthy ones until they recover. YARP implements this approach in the form of active and passive destination health checks.
+In most of the real-world systems, it's expected for their nodes to occasionally experience transient issues and go down completely due to a variety of reasons such as an overload, resource leakage, hardware failures, etc. Ideally, it'd be desirable to completely prevent those unfortunate events from occurring in a proactive way, but the cost of designing and building such an ideal system is generally prohibitively high. However, there is another reactive approach which is cheaper and aimed to minimizing a negative impact failures cause on client requests. The proxy can analyze each nodes health and stop sending client traffic to unhealthy ones until they recover. YARP implements this approach in the form of active and passive destination health checks. They are indpendent from each other and stored on the relative properties for each destinations. Health states are initialized with `Unkown` value which can be later changed to either `Healty` or `Unhealthy` by the corresponding polices as explained below.
 
 ## Active health checks
 YARP can proactively monitor destination health by sending periodic probing requests to designated health endpoints and analyzing responses. That analysis is performed by an active health check policy specified for a cluster and results in the calculation of the new destination health states. In the end, the policy marks each destination as healthy or unhealthy based on the HTTP response code (2xx is considered healthy) and rebuilds the cluster's healthy destination collection.
@@ -321,10 +321,58 @@ public class FirstUnsuccessfulResponseHealthPolicy : IPassiveHealthCheckPolicy
 }
 ```
 
-## Healthy destination collection
-Under normal conditions, YARP excludes unhealthy destinations when selecting the one that will receive a request. On each cluster, they are stored in a list which gets rebuilt when any destination's health state changes. Active and passive health states are combined to filter out unhealthy destinations while rebuilding that list. The exact filtering rule as follows.
+## Available destination collection
+Destinations health state is used to determine which of them are eligible for receiving proxied requests. Each cluster maintains it's own list of available destinations on `AvailableDestinations` property of [ClusterDestinationState](xref:Yarp.ReverseProxy.RuntimeModel.ClusterDestinationsState) type. That list gets rebuilt when any destination's health state changes. The [IClusterDestinationsUpdater](xref:Yarp.ReverseProxy.Service.HealthChecks.IClusterDestinationsUpdater) controls that process and calls a [IAvailableDestinationsPolicy](xref:Yarp.ReverseProxy.Service.HealthChecks.IAvailableDestinationsPolicy) configured on the cluster to actually choose the available destinations from the all cluster's destinations. There are the following built-in policies provided and custom ones can be implemented if necessary.
 
-- Active and passive health state are initialized with `Unkown` value which can be later changed to either `Healty` or `Unhealthy` by the corresponding polices.
-- A destination is added on the healthy destination list when all of the following is TRUE:
-  - Active health checks are disabled on the cluster OR `DestinationHealthState.Active != DestinationHealth.Unhealthy`
-  - Passive health checks are disabled on the cluster OR `DestinationHealthState.Passive != DestinationHealth.Unhealthy`
+- `HealthyAndUnknown` - inspects each `DestinationState` and adds it on the available destination list if all of the following statements is TRUE. If no destinations are available then requests will get a 503 error. This is the default policy.
+    - Active health checks are disabled on the cluster OR `DestinationHealthState.Active != DestinationHealth.Unhealthy`
+    - Passive health checks are disabled on the cluster OR `DestinationHealthState.Passive != DestinationHealth.Unhealthy`
+- `HealthyOrPanic` - calls `HealthyAndUnknown` policy at first to get the available destinations. If none of them are returned from this call, it marks all cluster's destinations as available.
+
+**NOTE**: An available destination policy configured on a cluster will be always called regardless of if any health check is enabled on the given cluster. The health state of a disabled health check is set to `Unknown`.
+
+### Configuration
+#### File example
+```JSON
+"Clusters": {
+      "cluster1": {
+        "AvailableDestinationsPolicy": "HealthyOrPanic",
+        "HealthCheck": {
+          "Passive": {
+            "Enabled": "true"
+          }
+        },
+        "Destinations": {
+          "cluster1/destination1": {
+            "Address": "https://localhost:10000/"
+          },
+          "cluster1/destination2": {
+            "Address": "http://localhost:10010/"
+          }
+        }
+      }
+```
+
+#### Code example
+```C#
+var clusters = new[]
+{
+    new ClusterConfig()
+    {
+        ClusterId = "cluster1",
+        HealthCheck = new HealthCheckConfig
+        {
+            AvailableDestinationsPolicy = HealthCheckConstants.AvailableDestinations.HealthyOrPanic;
+            Passive = new PassiveHealthCheckConfig
+            {
+                Enabled = true
+            }
+        },
+        Destinations =
+        {
+            { "destination1", new DestinationConfig() { Address = "https://localhost:10000" } },
+            { "destination2", new DestinationConfig() { Address = "https://localhost:10010" } }
+        }
+    }
+};
+```
