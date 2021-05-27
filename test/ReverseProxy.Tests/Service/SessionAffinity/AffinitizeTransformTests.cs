@@ -49,11 +49,12 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             cluster.Destinations.GetOrAdd("dest-A", id => new DestinationState(id));
             cluster.Model = new ClusterModel(new ClusterConfig
             {
-                SessionAffinity = new SessionAffinityConfig("Key1")
+                SessionAffinity = new SessionAffinityConfig
                 {
                     Enabled = true,
                     Mode = "Mode-B",
                     FailurePolicy = "Policy-1",
+                    AffinityKeyName = "Key1"
                 }
             },
             new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object));

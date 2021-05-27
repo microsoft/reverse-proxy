@@ -624,9 +624,10 @@ namespace Yarp.ReverseProxy.Service.Tests
             var cluster = new ClusterConfig
             {
                 ClusterId = "cluster1",
-                SessionAffinity = new SessionAffinityConfig("SomeKey")
+                SessionAffinity = new SessionAffinityConfig
                 {
-                    Enabled = true
+                    Enabled = true,
+                    AffinityKeyName = "SomeKey"
                 }
             };
 
@@ -644,10 +645,11 @@ namespace Yarp.ReverseProxy.Service.Tests
             var cluster = new ClusterConfig
             {
                 ClusterId = "cluster1",
-                SessionAffinity = new SessionAffinityConfig("SomeKey")
+                SessionAffinity = new SessionAffinityConfig
                 {
                     Enabled = true,
-                    FailurePolicy = "Invalid"
+                    FailurePolicy = "Invalid",
+                    AffinityKeyName = "SomeKey"
                 }
             };
 
@@ -668,9 +670,10 @@ namespace Yarp.ReverseProxy.Service.Tests
             var cluster = new ClusterConfig
             {
                 ClusterId = "cluster1",
-                SessionAffinity = new SessionAffinityConfig(key)
+                SessionAffinity = new SessionAffinityConfig
                 {
-                    Enabled = true
+                    Enabled = true,
+                    AffinityKeyName = key
                 }
             };
 

@@ -72,11 +72,12 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             {
                 ClusterId = "MyCoolClusterId",
                 LoadBalancingPolicy = LoadBalancingPolicies.LeastRequests,
-                SessionAffinity = new SessionAffinityConfig("Key1")
+                SessionAffinity = new SessionAffinityConfig
                 {
                     Enabled = true,
                     Mode = SessionAffinityConstants.Modes.Cookie,
                     FailurePolicy = SessionAffinityConstants.AffinityFailurePolicies.Return503Error,
+                    AffinityKeyName = "Key1",
                     Cookie = new SessionAffinityCookieConfig
                     {
                         Domain = "localhost",
@@ -145,6 +146,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             var labels = new Dictionary<string, string>()
             {
                 { "YARP.Backend.BackendId", "MyCoolClusterId" },
+                { "YARP.Backend.SessionAffinity.AffinityKeyName", "Key1" }
             };
 
             var cluster = LabelsParser.BuildCluster(_testServiceName, labels, null);
@@ -152,8 +154,9 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             var expectedCluster = new ClusterConfig
             {
                 ClusterId = "MyCoolClusterId",
-                SessionAffinity = new SessionAffinityConfig("Key1")
+                SessionAffinity = new SessionAffinityConfig
                 {
+                    AffinityKeyName = "Key1",
                     Cookie = new SessionAffinityCookieConfig()
                 },
                 HttpRequest = new RequestProxyConfig(),

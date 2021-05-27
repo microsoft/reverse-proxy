@@ -205,11 +205,12 @@ namespace Yarp.ReverseProxy.Configuration
                 return null;
             }
 
-            return new SessionAffinityConfig(section[nameof(SessionAffinityConfig.AffinityKeyName)])
+            return new SessionAffinityConfig
             {
                 Enabled = section.ReadBool(nameof(SessionAffinityConfig.Enabled)),
                 Mode = section[nameof(SessionAffinityConfig.Mode)],
                 FailurePolicy = section[nameof(SessionAffinityConfig.FailurePolicy)],
+                AffinityKeyName = section[nameof(SessionAffinityConfig.AffinityKeyName)],
                 Cookie = CreateSessionAffinityCookieConfig(section.GetSection(nameof(SessionAffinityConfig.Cookie)))
             };
         }

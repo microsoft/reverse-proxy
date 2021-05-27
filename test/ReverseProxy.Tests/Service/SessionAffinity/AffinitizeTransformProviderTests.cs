@@ -23,10 +23,11 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             var cluster = new ClusterConfig
             {
                 ClusterId = "cluster1",
-                SessionAffinity = new SessionAffinityConfig("Key1")
+                SessionAffinity = new SessionAffinityConfig
                 {
                     Enabled = true,
-                    Mode = "Mode",                    
+                    Mode = "Mode",
+                    AffinityKeyName = "Key1"
                 }
             };
 
@@ -58,10 +59,11 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
             var cluster = new ClusterConfig
             {
                 ClusterId = "cluster1",
-                SessionAffinity = new SessionAffinityConfig("Key1")
+                SessionAffinity = new SessionAffinityConfig
                 {
                     Enabled = true,
                     Mode = "Invalid",
+                    AffinityKeyName = "Key1"
                 }
             };
 

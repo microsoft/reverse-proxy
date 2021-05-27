@@ -20,11 +20,12 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
         private const string InvalidKeyNull = "!invalid key - null!";
         private const string InvalidKeyThrow = "!invalid key - throw!";
         private const string KeyName = "StubAffinityKey";
-        private readonly SessionAffinityConfig _defaultOptions = new SessionAffinityConfig("StubAffinityKey")
+        private readonly SessionAffinityConfig _defaultOptions = new SessionAffinityConfig
         {
             Enabled = true,
             Mode = "Stub",
-            FailurePolicy = "Return503"
+            FailurePolicy = "Return503",
+            AffinityKeyName = "StubAffinityKey"
         };
 
         [Theory]
@@ -73,11 +74,12 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
         public void FindAffinitizedDestination_AffinityDisabledOnCluster_ReturnsAffinityDisabled()
         {
             var provider = new ProviderStub(GetDataProtector().Object, AffinityTestHelper.GetLogger<BaseSessionAffinityProvider<string>>().Object);
-            var options = new SessionAffinityConfig(_defaultOptions.AffinityKeyName)
+            var options = new SessionAffinityConfig
             {
                 Enabled = false,
                 Mode = _defaultOptions.Mode,
-                FailurePolicy = _defaultOptions.FailurePolicy
+                FailurePolicy = _defaultOptions.FailurePolicy,
+                AffinityKeyName = _defaultOptions.AffinityKeyName
             };
             Assert.Throws<InvalidOperationException>(() => provider.FindAffinitizedDestinations(new DefaultHttpContext(), new[] { new DestinationState("1") }, "cluster-1", options));
         }
@@ -87,7 +89,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
         {
             var dataProtector = GetDataProtector();
             var provider = new ProviderStub(dataProtector.Object, AffinityTestHelper.GetLogger<BaseSessionAffinityProvider<string>>().Object);
-            Assert.Throws<InvalidOperationException>(() => provider.AffinitizeRequest(new DefaultHttpContext(), new SessionAffinityConfig("Key1"), new DestinationState("id")));
+            Assert.Throws<InvalidOperationException>(() => provider.AffinitizeRequest(new DefaultHttpContext(), new SessionAffinityConfig(), new DestinationState("id")));
         }
 
         [Fact]

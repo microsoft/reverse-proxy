@@ -12,11 +12,12 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
     public class CustomHeaderSessionAffinityProviderTests
     {
         private const string AffinityHeaderName = "X-MyAffinity";
-        private readonly SessionAffinityConfig _defaultOptions = new SessionAffinityConfig(AffinityHeaderName)
+        private readonly SessionAffinityConfig _defaultOptions = new SessionAffinityConfig
         {
             Enabled = true,
             Mode = "Cookie",
-            FailurePolicy = "Return503"
+            FailurePolicy = "Return503",
+            AffinityKeyName = AffinityHeaderName
         };
         private readonly IReadOnlyList<DestinationState> _destinations = new[] { new DestinationState("dest-A"), new DestinationState("dest-B"), new DestinationState("dest-C") };
 

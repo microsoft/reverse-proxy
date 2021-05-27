@@ -23,11 +23,12 @@ namespace Yarp.ReverseProxy.Middleware
         protected readonly ClusterModel ClusterConfig = new ClusterModel(new ClusterConfig
         {
             ClusterId = "cluster-1",
-            SessionAffinity = new SessionAffinityConfig("Key1")
+            SessionAffinity = new SessionAffinityConfig
             {
                 Enabled = true,
                 Mode = "Mode-B",
                 FailurePolicy = "Policy-1",
+                AffinityKeyName = "Key1"
             }
         },
             new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object));
