@@ -217,7 +217,7 @@ namespace Yarp.ReverseProxy.Configuration
                     ""Policy"": ""Any5xxResponse"",
                     ""Path"": ""healthCheckPath""
                 },
-                ""AvailableDestinationsPolicy"": ""FallbackToAll""
+                ""AvailableDestinationsPolicy"": ""HealthyOrPanic""
             },
             ""HttpClient"": {
                 ""SslProtocols"": [
