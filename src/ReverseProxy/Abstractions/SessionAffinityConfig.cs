@@ -33,7 +33,7 @@ namespace Yarp.ReverseProxy.Abstractions
         /// The provider will give its own default if no value is set.
         /// This value should be unique across clusters to avoid affinity conflicts.
         /// https://github.com/microsoft/reverse-proxy/issues/976
-        /// This property must be set right after creating a new <see cref="SessionAffinityConfig"/> instance.
+        /// This field is required.
         /// </summary>
         public string AffinityKeyName { get; init; } = default!;
 
