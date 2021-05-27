@@ -495,7 +495,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                     if (headers.Any())
                     {
                         Assert.NotNull(request.Content);
-                        Assert.Equal("EmptyHttpContent", request.Content.GetType().Name);
+                        Assert.IsType<EmptyHttpContent>(request.Content);
                         Assert.Empty(await request.Content.ReadAsByteArrayAsync());
 
                         foreach (var (key, value) in headers)
