@@ -13,8 +13,6 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
 {
     internal sealed class CustomHeaderSessionAffinityProvider : BaseSessionAffinityProvider<string>
     {
-        public static readonly string DefaultCustomHeaderName = "X-Yarp-Proxy-Affinity";
-
         public CustomHeaderSessionAffinityProvider(
             IDataProtectionProvider dataProtectionProvider,
             ILogger<CustomHeaderSessionAffinityProvider> logger)
@@ -30,7 +28,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
 
         protected override (string? Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, SessionAffinityConfig config)
         {
-            var customHeaderName = config.AffinityKeyName ?? DefaultCustomHeaderName;
+            var customHeaderName = config.AffinityKeyName;
             var keyHeaderValues = context.Request.Headers[customHeaderName];
 
             if (StringValues.IsNullOrEmpty(keyHeaderValues))
@@ -51,7 +49,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
 
         protected override void SetAffinityKey(HttpContext context, SessionAffinityConfig config, string unencryptedKey)
         {
-            context.Response.Headers.Append(config.AffinityKeyName ?? DefaultCustomHeaderName, Protect(unencryptedKey));
+            context.Response.Headers.Append(config.AffinityKeyName, Protect(unencryptedKey));
         }
 
         private static class Log

@@ -331,7 +331,7 @@ namespace Yarp.ReverseProxy.Abstractions.Tests
                     Enabled = true,
                     FailurePolicy = "Return503Error",
                     Mode = "Cookie",
-                    AffinityKeyName = "key1",
+                    AffinityKeyName = "Key1",
                     Cookie = new SessionAffinityCookieConfig
                     {
                         Domain = "domain",

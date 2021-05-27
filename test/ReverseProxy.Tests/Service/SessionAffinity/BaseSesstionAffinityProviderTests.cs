@@ -79,7 +79,7 @@ namespace Yarp.ReverseProxy.Service.SessionAffinity
                 Enabled = false,
                 Mode = _defaultOptions.Mode,
                 FailurePolicy = _defaultOptions.FailurePolicy,
-                AffinityKeyName = _defaultOptions.AffinityKeyName,
+                AffinityKeyName = _defaultOptions.AffinityKeyName
             };
             Assert.Throws<InvalidOperationException>(() => provider.FindAffinitizedDestinations(new DefaultHttpContext(), new[] { new DestinationState("1") }, "cluster-1", options));
         }

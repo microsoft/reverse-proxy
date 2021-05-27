@@ -28,6 +28,7 @@ namespace Yarp.ReverseProxy.Middleware
                 Enabled = true,
                 Mode = "Mode-B",
                 FailurePolicy = "Policy-1",
+                AffinityKeyName = "Key1"
             }
         },
             new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object));

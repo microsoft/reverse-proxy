@@ -10,6 +10,7 @@ namespace Yarp.ReverseProxy.Abstractions
     /// </summary>
     public sealed record SessionAffinityConfig
     {
+
         /// <summary>
         /// Indicates whether session affinity is enabled.
         /// </summary>
@@ -32,8 +33,9 @@ namespace Yarp.ReverseProxy.Abstractions
         /// The provider will give its own default if no value is set.
         /// This value should be unique across clusters to avoid affinity conflicts.
         /// https://github.com/microsoft/reverse-proxy/issues/976
+        /// This field is required.
         /// </summary>
-        public string? AffinityKeyName { get; init; }
+        public string AffinityKeyName { get; init; } = default!;
 
         /// <summary>
         /// Configuration of a cookie storing the session affinity key in case

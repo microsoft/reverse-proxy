@@ -146,6 +146,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             var labels = new Dictionary<string, string>()
             {
                 { "YARP.Backend.BackendId", "MyCoolClusterId" },
+                { "YARP.Backend.SessionAffinity.AffinityKeyName", "Key1" }
             };
 
             var cluster = LabelsParser.BuildCluster(_testServiceName, labels, null);
@@ -155,6 +156,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                 ClusterId = "MyCoolClusterId",
                 SessionAffinity = new SessionAffinityConfig
                 {
+                    AffinityKeyName = "Key1",
                     Cookie = new SessionAffinityCookieConfig()
                 },
                 HttpRequest = new RequestProxyConfig(),
