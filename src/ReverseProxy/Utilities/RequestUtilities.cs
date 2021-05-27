@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Net.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
@@ -147,6 +148,13 @@ namespace Yarp.ReverseProxy.Utilities
                     Debug.Assert(added.GetValueOrDefault(), $"A header was dropped; {headerName}: {string.Join(", ", headerValues)}");
                 }
             }
+
+#if DEBUG
+            if (request.Content is EmptyHttpContent content && content.Headers.TryGetValues(HeaderNames.ContentLength, out var contentLength))
+            {
+                Debug.Assert(contentLength.Single() == "0", "An actual content should have been set");
+            }
+#endif
         }
     }
 }
