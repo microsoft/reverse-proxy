@@ -3,10 +3,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Net.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
+using Yarp.ReverseProxy.Service.Proxy;
 
 namespace Yarp.ReverseProxy.Utilities
 {
@@ -36,7 +39,7 @@ namespace Yarp.ReverseProxy.Utilities
             return _headersToExclude.Contains(headerName);
         }
 
-        private static readonly HashSet<string> _headersToExclude = new(StringComparer.OrdinalIgnoreCase)
+        private static readonly HashSet<string> _headersToExclude = new(14, StringComparer.OrdinalIgnoreCase)
         {
             HeaderNames.Connection,
             HeaderNames.TransferEncoding,
@@ -57,6 +60,23 @@ namespace Yarp.ReverseProxy.Utilities
             "Alt-Svc",
 #endif
 
+        };
+
+        // Headers marked as HttpHeaderType.Content in
+        // https://github.com/dotnet/runtime/blob/main/src/libraries/System.Net.Http/src/System/Net/Http/Headers/KnownHeaders.cs
+        private static readonly HashSet<string> _contentHeaders = new(11, StringComparer.OrdinalIgnoreCase)
+        {
+            HeaderNames.Allow,
+            HeaderNames.ContentDisposition,
+            HeaderNames.ContentEncoding,
+            HeaderNames.ContentLanguage,
+            HeaderNames.ContentLength,
+            HeaderNames.ContentLocation,
+            HeaderNames.ContentMD5,
+            HeaderNames.ContentRange,
+            HeaderNames.ContentType,
+            HeaderNames.Expires,
+            HeaderNames.LastModified
         };
 
         /// <summary>
@@ -85,6 +105,8 @@ namespace Yarp.ReverseProxy.Utilities
         // HttpRequestMessage.Headers and HttpRequestMessage.Content.Headers.
         // We don't really care where the proxied headers appear among those 2,
         // as long as they appear in one (and only one, otherwise they would be duplicated).
+        // Some headers may only appear on HttpContentHeaders, in which case we inject
+        // an EmptyHttpContent - dummy 0-length container only used for headers.
         internal static void AddHeader(HttpRequestMessage request, string headerName, StringValues value)
         {
             // HttpClient wrongly uses comma (",") instead of semi-colon (";") as a separator for Cookie headers.
@@ -101,10 +123,14 @@ namespace Yarp.ReverseProxy.Utilities
                 string headerValue = value;
                 if (!request.Headers.TryAddWithoutValidation(headerName, headerValue))
                 {
+                    if (request.Content is null && _contentHeaders.Contains(headerName))
+                    {
+                        request.Content = new EmptyHttpContent();
+                    }
+
                     var added = request.Content?.Headers.TryAddWithoutValidation(headerName, headerValue);
-                    // TODO: Log. Today this assert fails for a POST request with Content-Length: 0 header which is valid.
-                    // https://github.com/microsoft/reverse-proxy/issues/618
-                    // Debug.Assert(added.GetValueOrDefault(), $"A header was dropped; {headerName}: {headerValue}");
+                    // TODO: Log
+                    Debug.Assert(added.GetValueOrDefault(), $"A header was dropped; {headerName}: {headerValue}");
                 }
             }
             else
@@ -112,12 +138,23 @@ namespace Yarp.ReverseProxy.Utilities
                 string[] headerValues = value;
                 if (!request.Headers.TryAddWithoutValidation(headerName, headerValues))
                 {
+                    if (request.Content is null && _contentHeaders.Contains(headerName))
+                    {
+                        request.Content = new EmptyHttpContent();
+                    }
+
                     var added = request.Content?.Headers.TryAddWithoutValidation(headerName, headerValues);
-                    // TODO: Log. Today this assert fails for a POST request with Content-Length: 0 header which is valid.
-                    // https://github.com/microsoft/reverse-proxy/issues/618
-                    // Debug.Assert(added.GetValueOrDefault(), $"A header was dropped; {headerName}: {string.Join(", ", headerValues)}");
+                    // TODO: Log
+                    Debug.Assert(added.GetValueOrDefault(), $"A header was dropped; {headerName}: {string.Join(", ", headerValues)}");
                 }
             }
+
+#if DEBUG
+            if (request.Content is EmptyHttpContent content && content.Headers.TryGetValues(HeaderNames.ContentLength, out var contentLength))
+            {
+                Debug.Assert(contentLength.Single() == "0", "An actual content should have been set");
+            }
+#endif
         }
     }
 }
