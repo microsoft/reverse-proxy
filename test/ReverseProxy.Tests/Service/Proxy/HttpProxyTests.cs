@@ -448,42 +448,72 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
         [InlineData("HEAD", "HTTP/1.1", "")]
         [InlineData("POST", "HTTP/1.1", "")]
         [InlineData("POST", "HTTP/1.1", "Content-Length:0")]
-        // https://github.com/microsoft/reverse-proxy/issues/618
         [InlineData("POST", "HTTP/1.1", "Content-Length:0;Content-Type:text/plain")]
         [InlineData("POST", "HTTP/2", "Content-Length:0")]
-        // https://github.com/microsoft/reverse-proxy/issues/618
         [InlineData("POST", "HTTP/2", "Content-Length:0;Content-Type:text/plain")]
         [InlineData("PATCH", "HTTP/1.1", "")]
         [InlineData("DELETE", "HTTP/1.1", "")]
         [InlineData("Unknown", "HTTP/1.1", "")]
         // [InlineData("CONNECT", "HTTP/1.1", "")] Blocked in HttpUtilities.GetHttpMethod
-        public async Task ProxyAsync_RequestWithoutBodies_NoHttpContent(string method, string protocol, string headers)
+        [InlineData("GET", "HTTP/1.1", "Allow:Foo")]
+        [InlineData("GET", "HTTP/1.1", "Content-Disposition:Foo")]
+        [InlineData("GET", "HTTP/1.1", "Content-Encoding:Foo")]
+        [InlineData("GET", "HTTP/1.1", "Content-Language:Foo")]
+        [InlineData("GET", "HTTP/1.1", "Content-Location:Foo")]
+        [InlineData("GET", "HTTP/1.1", "Content-MD5:Foo")]
+        [InlineData("GET", "HTTP/1.1", "Content-Range:Foo")]
+        [InlineData("GET", "HTTP/1.1", "Content-Type:Foo")]
+        [InlineData("GET", "HTTP/1.1", "Expires:Foo")]
+        [InlineData("GET", "HTTP/1.1", "Last-Modified:Foo")]
+        public async Task ProxyAsync_RequestWithoutBodies_NoHttpContent(string method, string protocol, string headerList)
         {
             var events = TestEventListener.Collect();
 
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = method;
             httpContext.Request.Protocol = protocol;
-            foreach (var header in headers.Split(';', StringSplitOptions.RemoveEmptyEntries))
+
+            var headers = headerList
+                .Split(';', StringSplitOptions.RemoveEmptyEntries)
+                .Select(header => (Key: header.Split(':')[0], Value: header.Split(':')[1]))
+                .ToArray();
+
+            foreach (var (key, value) in headers)
             {
-                var parts = header.Split(':');
-                var key = parts[0];
-                var value = parts[1];
                 httpContext.Request.Headers[key] = value;
             }
 
             var destinationPrefix = "https://localhost/";
             var sut = CreateProxy();
             var client = MockHttpHandler.CreateClient(
-                (HttpRequestMessage request, CancellationToken cancellationToken) =>
+                async (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
                     Assert.Equal(new Version(2, 0), request.Version);
                     Assert.Equal(method, request.Method.Method, StringComparer.OrdinalIgnoreCase);
 
-                    Assert.Null(request.Content);
+                    // When adding content-specific headers, we will inject an EmptyHttpContent if no other content is present
+                    if (headers.Any())
+                    {
+                        Assert.NotNull(request.Content);
+                        Assert.Equal("EmptyHttpContent", request.Content.GetType().Name);
+                        Assert.Empty(await request.Content.ReadAsByteArrayAsync());
 
-                    var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
-                    return Task.FromResult(response);
+                        foreach (var (key, value) in headers)
+                        {
+                            Assert.True(request.Content.Headers.TryGetValues(key, out var values));
+                            Assert.Equal(value, Assert.Single(values));
+                        }
+
+                        // If a custom content is injected, so is a "Content-Length: 0" header
+                        Assert.True(request.Content.Headers.TryGetValues(HeaderNames.ContentLength, out var contentLength));
+                        Assert.Equal("0", Assert.Single(contentLength));
+                    }
+                    else
+                    {
+                        Assert.Null(request.Content);
+                    }
+
+                    return new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
                 });
 
             await sut.ProxyAsync(httpContext, destinationPrefix, client);
