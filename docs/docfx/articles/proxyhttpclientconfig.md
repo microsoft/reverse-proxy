@@ -181,13 +181,14 @@ public void ConfigureServices(IServiceCollection services)
 
 ## Configuring the http client
 
-`ConfigureClient` provides a callback to customize the `SocketsHttpHandler` settings used for proxying requests. This will be called each time a cluster is added or changed. Cluster settings are applied to the handler before the callback. Custom data can be provided in the cluster metadata.
+`ConfigureHttpClient` provides a callback to customize the `SocketsHttpHandler` settings used for proxying requests. This will be called each time a cluster is added or changed. Cluster settings are applied to the handler before the callback. Custom data can be provided in the cluster metadata. This example shows adding a client certificate that will authenticate the proxy to the destination servers.
 
 ```C#
+    var clientCert = new X509Certificate2("path");
     services.AddReverseProxy()
-        .ConfigureClient((context, handler) =>
+        .ConfigureHttpClient((context, handler) =>
         {
-            handler.Expect100ContinueTimeout = TimeSpan.FromMilliseconds(300);
+            handler.SslOptions.ClientCertificates.Add(clientCert);
         })
 ```
 
