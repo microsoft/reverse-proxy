@@ -10,7 +10,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
 {
     // Policy marking destinations as available only if their active and passive health states
     /// are either 'Healthy' or 'Unknown'/>.
-    internal class StrictHealthyAndUnknownDestinationsPolicy : IAvailableDestinationsPolicy
+    internal class HealthyAndUnknownDestinationsPolicy : IAvailableDestinationsPolicy
     {
         public virtual string Name => HealthCheckConstants.AvailableDestinations.HealthyAndUnknown;
 

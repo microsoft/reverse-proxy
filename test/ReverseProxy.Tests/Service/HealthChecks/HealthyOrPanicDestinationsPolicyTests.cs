@@ -21,7 +21,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
                 new DestinationState("d2") { Health = { Passive = DestinationHealth.Healthy } },
                 new DestinationState("d4")
             };
-            var policy = new FallbackToAllDestinationsPolicy();
+            var policy = new HealthyOrPanicDestinationsPolicy();
 
             var availableDestinations = policy.GetAvailalableDestinations(cluster, allDestinations);
 
@@ -43,7 +43,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
                 new DestinationState("d2") { Health = { Active = DestinationHealth.Unhealthy, Passive = DestinationHealth.Healthy } },
                 new DestinationState("d4")  { Health = { Active = DestinationHealth.Unhealthy, Passive = DestinationHealth.Unhealthy } }
             };
-            var policy = new FallbackToAllDestinationsPolicy();
+            var policy = new HealthyOrPanicDestinationsPolicy();
 
             var availableDestinations = policy.GetAvailalableDestinations(cluster, allDestinations);
 

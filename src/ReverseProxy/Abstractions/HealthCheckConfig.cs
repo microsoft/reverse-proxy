@@ -41,7 +41,7 @@ namespace Yarp.ReverseProxy.Abstractions
         /// <inheritdoc />
         public override int GetHashCode()
         {
-            return HashCode.Combine(Passive, Active, AvailableDestinationsPolicy?.GetHashCode());
+            return HashCode.Combine(Passive, Active, AvailableDestinationsPolicy);
         }
     }
 }

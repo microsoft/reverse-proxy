@@ -41,8 +41,8 @@ namespace Yarp.ReverseProxy.Configuration.DependencyInjection
 
             builder.Services.TryAddSingleton<IClusterDestinationsUpdater, ClusterDestinationsUpdater>();
             builder.Services.TryAddEnumerable(new[] {
-                ServiceDescriptor.Singleton<IAvailableDestinationsPolicy, StrictHealthyAndUnknownDestinationsPolicy>(),
-                ServiceDescriptor.Singleton<IAvailableDestinationsPolicy, FallbackToAllDestinationsPolicy>()
+                ServiceDescriptor.Singleton<IAvailableDestinationsPolicy, HealthyAndUnknownDestinationsPolicy>(),
+                ServiceDescriptor.Singleton<IAvailableDestinationsPolicy, HealthyOrPanicDestinationsPolicy>()
             });
             return builder;
         }

@@ -69,15 +69,14 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             {
                 healthState.Passive = newHealth;
                 ScheduleReactivation(cluster, destination, newHealth, reactivationPeriod);
-                return Task.Factory.StartNew(
-                    i => {
-                        var k = ((ClusterState Cluster, IClusterDestinationsUpdater Updater))i!;
-                        k.Updater.UpdateAvailableDestinations(cluster);
-                    },
-                    (cluster, _clusterUpdater),
-                    TaskCreationOptions.RunContinuationsAsynchronously);
+                return Task.Factory.StartNew(c => UpdateDestinations(c!), cluster, TaskCreationOptions.RunContinuationsAsynchronously);
             }
             return Task.CompletedTask;
+        }
+
+        private void UpdateDestinations(object cluster)
+        {
+            _clusterUpdater.UpdateAvailableDestinations((ClusterState)cluster);
         }
 
         private void ScheduleReactivation(ClusterState cluster, DestinationState destination, DestinationHealth newHealth, TimeSpan reactivationPeriod)
