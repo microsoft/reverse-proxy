@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading;
@@ -44,7 +45,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
             var destination1 = cluster1.Destinations.GetOrAdd(
                 "destination1",
                 id => new DestinationState(id) { Model = new DestinationModel(new DestinationConfig { Address = "https://localhost:123/a/b/" }) });
-            cluster1.ProcessDestinationChanges();
+            cluster1.DestinationsState = new ClusterDestinationsState(new[] { destination1 }, new[] { destination1 });
 
             var aspNetCoreEndpoints = new List<Endpoint>();
             var routeConfig = new RouteModel(
@@ -97,7 +98,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
                     Model = new DestinationModel(new DestinationConfig { Address = "https://localhost:123/a/b/" }),
                     Health = { Active = DestinationHealth.Unhealthy },
                 });
-            cluster1.ProcessDestinationChanges();
+            cluster1.DestinationsState = new ClusterDestinationsState(new[] { destination1 }, Array.Empty<DestinationState>());
 
             var aspNetCoreEndpoints = new List<Endpoint>();
             var routeConfig = new RouteModel(
@@ -115,7 +116,7 @@ namespace Yarp.ReverseProxy.Middleware.Tests
 
             var feature = httpContext.Features.Get<IReverseProxyFeature>();
             Assert.NotNull(feature);
-            Assert.Single(feature.AllDestinations);
+            Assert.Single(feature.AllDestinations, destination1);
             Assert.Empty(feature.AvailableDestinations);
 
             Assert.Equal(StatusCodes.Status418ImATeapot, httpContext.Response.StatusCode);

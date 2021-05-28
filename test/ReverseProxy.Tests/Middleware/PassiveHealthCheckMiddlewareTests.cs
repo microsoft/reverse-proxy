@@ -34,7 +34,7 @@ namespace Yarp.ReverseProxy.Middleware
             await middleware.Invoke(context0);
 
             Assert.True(nextInvoked);
-            policies[0].Verify(p => p.RequestProxied(cluster0, cluster0.DynamicState.AllDestinations[1], context0), Times.Once);
+            policies[0].Verify(p => p.RequestProxied(cluster0, cluster0.DestinationsState.AllDestinations[1], context0), Times.Once);
             policies[0].VerifyGet(p => p.Name, Times.Once);
             policies[0].VerifyNoOtherCalls();
             policies[1].VerifyGet(p => p.Name, Times.Once);
@@ -47,7 +47,7 @@ namespace Yarp.ReverseProxy.Middleware
             await middleware.Invoke(context1);
 
             Assert.True(nextInvoked);
-            policies[1].Verify(p => p.RequestProxied(cluster1, cluster1.DynamicState.AllDestinations[0], context1), Times.Once);
+            policies[1].Verify(p => p.RequestProxied(cluster1, cluster1.DestinationsState.AllDestinations[0], context1), Times.Once);
             policies[1].VerifyNoOtherCalls();
             policies[0].VerifyNoOtherCalls();
         }
@@ -98,7 +98,7 @@ namespace Yarp.ReverseProxy.Middleware
         private HttpContext GetContext(ClusterState cluster, int selectedDestination, IProxyErrorFeature error)
         {
             var context = new DefaultHttpContext();
-            context.Features.Set(GetProxyFeature(cluster, cluster.DynamicState.AllDestinations[selectedDestination]));
+            context.Features.Set(GetProxyFeature(cluster, cluster.DestinationsState.AllDestinations[selectedDestination]));
             context.Features.Set(error);
             return context;
         }
@@ -141,7 +141,7 @@ namespace Yarp.ReverseProxy.Middleware
             clusterState.Destinations.GetOrAdd("destination0", id => new DestinationState(id));
             clusterState.Destinations.GetOrAdd("destination1", id => new DestinationState(id));
 
-            clusterState.ProcessDestinationChanges();
+            clusterState.DestinationsState = new ClusterDestinationsState(clusterState.Destinations.Values.ToList(), clusterState.Destinations.Values.ToList());
 
             return clusterState;
         }

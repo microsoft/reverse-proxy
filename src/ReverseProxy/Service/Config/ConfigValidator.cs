@@ -33,6 +33,7 @@ namespace Yarp.ReverseProxy.Service
         private readonly ICorsPolicyProvider _corsPolicyProvider;
         private readonly IDictionary<string, ILoadBalancingPolicy> _loadBalancingPolicies;
         private readonly IDictionary<string, IAffinityFailurePolicy> _affinityFailurePolicies;
+        private readonly IDictionary<string, IAvailableDestinationsPolicy> _availableDestinationsPolicies;
         private readonly IDictionary<string, IActiveHealthCheckPolicy> _activeHealthCheckPolicies;
         private readonly IDictionary<string, IPassiveHealthCheckPolicy> _passiveHealthCheckPolicies;
 
@@ -42,6 +43,7 @@ namespace Yarp.ReverseProxy.Service
             ICorsPolicyProvider corsPolicyProvider,
             IEnumerable<ILoadBalancingPolicy> loadBalancingPolicies,
             IEnumerable<IAffinityFailurePolicy> affinityFailurePolicies,
+            IEnumerable<IAvailableDestinationsPolicy> availableDestinationsPolicies,
             IEnumerable<IActiveHealthCheckPolicy> activeHealthCheckPolicies,
             IEnumerable<IPassiveHealthCheckPolicy> passiveHealthCheckPolicies)
         {
@@ -50,6 +52,7 @@ namespace Yarp.ReverseProxy.Service
             _corsPolicyProvider = corsPolicyProvider ?? throw new ArgumentNullException(nameof(corsPolicyProvider));
             _loadBalancingPolicies = loadBalancingPolicies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(loadBalancingPolicies));
             _affinityFailurePolicies = affinityFailurePolicies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(affinityFailurePolicies));
+            _availableDestinationsPolicies = availableDestinationsPolicies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(availableDestinationsPolicies));
             _activeHealthCheckPolicies = activeHealthCheckPolicies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(activeHealthCheckPolicies));
             _passiveHealthCheckPolicies = passiveHealthCheckPolicies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(passiveHealthCheckPolicies));
         }
@@ -104,8 +107,7 @@ namespace Yarp.ReverseProxy.Service
             ValidateSessionAffinity(errors, cluster);
             ValidateProxyHttpClient(errors, cluster);
             ValidateProxyHttpRequest(errors, cluster);
-            ValidateActiveHealthCheck(errors, cluster);
-            ValidatePassiveHealthCheck(errors, cluster);
+            ValidateHealthChecks(errors, cluster);
 
             return new ValueTask<IList<Exception>>(errors);
         }
@@ -326,7 +328,7 @@ namespace Yarp.ReverseProxy.Service
 
             if (!_affinityFailurePolicies.ContainsKey(affinityFailurePolicy))
             {
-                errors.Add(new ArgumentException($"No matching IAffinityFailurePolicy found for the affinity failure policy name '{affinityFailurePolicy}' set on the cluster '{cluster.ClusterId}'."));
+                errors.Add(new ArgumentException($"No matching {nameof(IAffinityFailurePolicy)} found for the affinity failure policy name '{affinityFailurePolicy}' set on the cluster '{cluster.ClusterId}'."));
             }
 
             if (string.IsNullOrEmpty(cluster.SessionAffinity.AffinityKeyName))
@@ -395,6 +397,24 @@ namespace Yarp.ReverseProxy.Service
             {
                 errors.Add(new ArgumentException($"Outgoing request version '{cluster.HttpRequest.Version}' is not any of supported HTTP versions (1.0, 1.1 and 2)."));
             }
+        }
+
+        private void ValidateHealthChecks(IList<Exception> errors, ClusterConfig cluster)
+        {
+            var availableDestinationsPolicy = cluster.HealthCheck?.AvailableDestinationsPolicy;
+            if (string.IsNullOrEmpty(availableDestinationsPolicy))
+            {
+                // The default.
+                availableDestinationsPolicy = HealthCheckConstants.AvailableDestinations.HealthyAndUnknown;
+            }
+
+            if (!_availableDestinationsPolicies.ContainsKey(availableDestinationsPolicy))
+            {
+                errors.Add(new ArgumentException($"No matching {nameof(IAvailableDestinationsPolicy)} found for the available destinations policy '{availableDestinationsPolicy}' set on the cluster.'{cluster.ClusterId}'."));
+            }
+
+            ValidateActiveHealthCheck(errors, cluster);
+            ValidatePassiveHealthCheck(errors, cluster);
         }
 
         private void ValidateActiveHealthCheck(IList<Exception> errors, ClusterConfig cluster)

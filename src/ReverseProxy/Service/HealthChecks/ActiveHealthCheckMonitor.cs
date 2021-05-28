@@ -114,7 +114,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             Log.StartingActiveHealthProbingOnCluster(_logger, cluster.ClusterId);
 
             var policy = _policies.GetRequiredServiceById(config.Policy, HealthCheckConstants.ActivePolicy.ConsecutiveFailures);
-            var allDestinations = cluster.DynamicState.AllDestinations;
+            var allDestinations = cluster.DestinationsState.AllDestinations;
             var probeTasks = new List<(Task<HttpResponseMessage> Task, CancellationTokenSource Cts)>(allDestinations.Count);
             try
             {

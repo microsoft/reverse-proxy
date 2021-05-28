@@ -6,18 +6,18 @@ using System.Collections.Generic;
 
 namespace Yarp.ReverseProxy.RuntimeModel
 {
-    public sealed class ClusterDynamicState
+    public sealed class ClusterDestinationsState
     {
-        public ClusterDynamicState(
+        public ClusterDestinationsState(
             IReadOnlyList<DestinationState> allDestinations,
-            IReadOnlyList<DestinationState> healthyDestinations)
+            IReadOnlyList<DestinationState> availableDestinations)
         {
             AllDestinations = allDestinations ?? throw new ArgumentNullException(nameof(allDestinations));
-            HealthyDestinations = healthyDestinations ?? throw new ArgumentNullException(nameof(healthyDestinations));
+            AvailableDestinations = availableDestinations ?? throw new ArgumentNullException(nameof(availableDestinations));
         }
 
         public IReadOnlyList<DestinationState> AllDestinations { get; }
 
-        public IReadOnlyList<DestinationState> HealthyDestinations { get; }
+        public IReadOnlyList<DestinationState> AvailableDestinations { get; }
     }
 }

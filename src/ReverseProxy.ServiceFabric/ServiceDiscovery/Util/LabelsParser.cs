@@ -305,7 +305,8 @@ namespace Yarp.ReverseProxy.ServiceFabric
                         Enabled = GetLabel<bool?>(labels, "YARP.Backend.HealthCheck.Passive.Enabled", null),
                         Policy = GetLabel<string>(labels, "YARP.Backend.HealthCheck.Passive.Policy", null),
                         ReactivationPeriod = GetLabel<TimeSpan?>(labels, "YARP.Backend.HealthCheck.Passive.ReactivationPeriod", null)
-                    }
+                    },
+                    AvailableDestinationsPolicy = GetLabel<string>(labels, "YARP.Backend.HealthCheck.AvailableDestinationsPolicy", null)
                 },
                 HttpClient = new HttpClientConfig
                 {

@@ -45,6 +45,7 @@ namespace Yarp.ReverseProxy.Service.Management
         private readonly ITransformBuilder _transformBuilder;
         private readonly List<Action<EndpointBuilder>> _conventions;
         private readonly IActiveHealthCheckMonitor _activeHealthCheckMonitor;
+        private readonly IClusterDestinationsUpdater _clusterDestinationsUpdater;
         private IDisposable? _changeSubscription;
 
         private List<Endpoint>? _endpoints;
@@ -60,7 +61,8 @@ namespace Yarp.ReverseProxy.Service.Management
             ProxyEndpointFactory proxyEndpointFactory,
             ITransformBuilder transformBuilder,
             IProxyHttpClientFactory httpClientFactory,
-            IActiveHealthCheckMonitor activeHealthCheckMonitor)
+            IActiveHealthCheckMonitor activeHealthCheckMonitor,
+            IClusterDestinationsUpdater clusterDestinationsUpdater)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _provider = provider ?? throw new ArgumentNullException(nameof(provider));
@@ -72,6 +74,7 @@ namespace Yarp.ReverseProxy.Service.Management
             _transformBuilder = transformBuilder ?? throw new ArgumentNullException(nameof(transformBuilder));
             _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
             _activeHealthCheckMonitor = activeHealthCheckMonitor ?? throw new ArgumentNullException(nameof(activeHealthCheckMonitor));
+            _clusterDestinationsUpdater = clusterDestinationsUpdater ?? throw new ArgumentNullException(nameof(clusterDestinationsUpdater));
 
             _conventions = new List<Action<EndpointBuilder>>();
             DefaultBuilder = new ReverseProxyConventionBuilder(_conventions);
@@ -363,7 +366,7 @@ namespace Yarp.ReverseProxy.Service.Management
 
                     if (destinationsChanged || configChanged)
                     {
-                        currentCluster.ProcessDestinationChanges();
+                        _clusterDestinationsUpdater.UpdateAllDestinations(currentCluster);
 
                         foreach (var listener in _clusterChangeListeners)
                         {
@@ -388,7 +391,7 @@ namespace Yarp.ReverseProxy.Service.Management
                     newClusterState.Revision++;
                     Log.ClusterAdded(_logger, incomingCluster.ClusterId);
 
-                    newClusterState.ProcessDestinationChanges();
+                    _clusterDestinationsUpdater.UpdateAllDestinations(newClusterState);
 
                     var added = _clusters.TryAdd(newClusterState.ClusterId, newClusterState);
                     Debug.Assert(added);

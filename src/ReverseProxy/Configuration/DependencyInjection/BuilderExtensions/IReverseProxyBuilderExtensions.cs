@@ -38,6 +38,12 @@ namespace Yarp.ReverseProxy.Configuration.DependencyInjection
         {
             builder.Services.TryAddSingleton<ITimerFactory, TimerFactory>();
             builder.Services.TryAddSingleton<IDestinationHealthUpdater, DestinationHealthUpdater>();
+
+            builder.Services.TryAddSingleton<IClusterDestinationsUpdater, ClusterDestinationsUpdater>();
+            builder.Services.TryAddEnumerable(new[] {
+                ServiceDescriptor.Singleton<IAvailableDestinationsPolicy, HealthyAndUnknownDestinationsPolicy>(),
+                ServiceDescriptor.Singleton<IAvailableDestinationsPolicy, HealthyOrPanicDestinationsPolicy>()
+            });
             return builder;
         }
 
@@ -60,11 +66,11 @@ namespace Yarp.ReverseProxy.Configuration.DependencyInjection
             builder.Services.TryAddSingleton<IRandomFactory, RandomFactory>();
 
             builder.Services.TryAddEnumerable(new[] {
-                new ServiceDescriptor(typeof(ILoadBalancingPolicy), typeof(FirstLoadBalancingPolicy), ServiceLifetime.Singleton),
-                new ServiceDescriptor(typeof(ILoadBalancingPolicy), typeof(LeastRequestsLoadBalancingPolicy), ServiceLifetime.Singleton),
-                new ServiceDescriptor(typeof(ILoadBalancingPolicy), typeof(RandomLoadBalancingPolicy), ServiceLifetime.Singleton),
-                new ServiceDescriptor(typeof(ILoadBalancingPolicy), typeof(PowerOfTwoChoicesLoadBalancingPolicy), ServiceLifetime.Singleton),
-                new ServiceDescriptor(typeof(ILoadBalancingPolicy), typeof(RoundRobinLoadBalancingPolicy), ServiceLifetime.Singleton)
+                ServiceDescriptor.Singleton<ILoadBalancingPolicy, FirstLoadBalancingPolicy>(),
+                ServiceDescriptor.Singleton<ILoadBalancingPolicy, LeastRequestsLoadBalancingPolicy>(),
+                ServiceDescriptor.Singleton<ILoadBalancingPolicy, RandomLoadBalancingPolicy>(),
+                ServiceDescriptor.Singleton<ILoadBalancingPolicy, PowerOfTwoChoicesLoadBalancingPolicy>(),
+                ServiceDescriptor.Singleton<ILoadBalancingPolicy, RoundRobinLoadBalancingPolicy>()
             });
 
             return builder;
@@ -73,12 +79,12 @@ namespace Yarp.ReverseProxy.Configuration.DependencyInjection
         public static IReverseProxyBuilder AddSessionAffinityProvider(this IReverseProxyBuilder builder)
         {
             builder.Services.TryAddEnumerable(new[] {
-                new ServiceDescriptor(typeof(IAffinityFailurePolicy), typeof(RedistributeAffinityFailurePolicy), ServiceLifetime.Singleton),
-                new ServiceDescriptor(typeof(IAffinityFailurePolicy), typeof(Return503ErrorAffinityFailurePolicy), ServiceLifetime.Singleton)
+                ServiceDescriptor.Singleton<IAffinityFailurePolicy, RedistributeAffinityFailurePolicy>(),
+                ServiceDescriptor.Singleton<IAffinityFailurePolicy, Return503ErrorAffinityFailurePolicy>()
             });
             builder.Services.TryAddEnumerable(new[] {
-                new ServiceDescriptor(typeof(ISessionAffinityProvider), typeof(CookieSessionAffinityProvider), ServiceLifetime.Singleton),
-                new ServiceDescriptor(typeof(ISessionAffinityProvider), typeof(CustomHeaderSessionAffinityProvider), ServiceLifetime.Singleton)
+                ServiceDescriptor.Singleton<ISessionAffinityProvider, CookieSessionAffinityProvider>(),
+                ServiceDescriptor.Singleton<ISessionAffinityProvider, CustomHeaderSessionAffinityProvider>()
             });
             builder.AddTransforms<AffinitizeTransformProvider>();
 

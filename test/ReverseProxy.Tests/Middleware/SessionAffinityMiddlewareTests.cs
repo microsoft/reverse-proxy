@@ -137,7 +137,7 @@ namespace Yarp.ReverseProxy.Middleware
             destinationManager.GetOrAdd(AffinitizedDestinationName, id => new DestinationState(id));
             destinationManager.GetOrAdd("dest-C", id => new DestinationState(id));
             cluster.Model = ClusterConfig;
-            cluster.ProcessDestinationChanges();
+            cluster.DestinationsState = new ClusterDestinationsState(destinationManager.Values.ToList(), destinationManager.Values.ToList());
             return cluster;
         }
 

@@ -14,11 +14,16 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
     internal sealed class DestinationHealthUpdater : IDestinationHealthUpdater, IDisposable
     {
         private readonly EntityActionScheduler<(ClusterState Cluster, DestinationState Destination)> _scheduler;
+        private readonly IClusterDestinationsUpdater _clusterUpdater;
         private readonly ILogger<DestinationHealthUpdater> _logger;
 
-        public DestinationHealthUpdater(ITimerFactory timerFactory, ILogger<DestinationHealthUpdater> logger)
+        public DestinationHealthUpdater(
+            ITimerFactory timerFactory,
+            IClusterDestinationsUpdater clusterDestinationsUpdater,
+            ILogger<DestinationHealthUpdater> logger)
         {
             _scheduler = new EntityActionScheduler<(ClusterState Cluster, DestinationState Destination)>(d => Reactivate(d.Cluster, d.Destination), autoStart: true, runOnce: true, timerFactory);
+            _clusterUpdater = clusterDestinationsUpdater ?? throw new ArgumentNullException(nameof(clusterDestinationsUpdater));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -48,7 +53,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
 
             if (changed)
             {
-                cluster.UpdateDynamicState();
+                _clusterUpdater.UpdateAvailableDestinations(cluster);
             }
         }
 
@@ -64,9 +69,14 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             {
                 healthState.Passive = newHealth;
                 ScheduleReactivation(cluster, destination, newHealth, reactivationPeriod);
-                return Task.Factory.StartNew(c => ((ClusterState)c!).UpdateDynamicState(), cluster, TaskCreationOptions.RunContinuationsAsynchronously);
+                return Task.Factory.StartNew(c => UpdateDestinations(c!), cluster, TaskCreationOptions.RunContinuationsAsynchronously);
             }
             return Task.CompletedTask;
+        }
+
+        private void UpdateDestinations(object cluster)
+        {
+            _clusterUpdater.UpdateAvailableDestinations((ClusterState)cluster);
         }
 
         private void ScheduleReactivation(ClusterState cluster, DestinationState destination, DestinationHealth newHealth, TimeSpan reactivationPeriod)
@@ -90,7 +100,7 @@ namespace Yarp.ReverseProxy.Service.HealthChecks
             {
                 healthState.Passive = DestinationHealth.Unknown;
                 Log.PassiveDestinationHealthResetToUnkownState(_logger, destination.DestinationId);
-                cluster.UpdateDynamicState();
+                _clusterUpdater.UpdateAvailableDestinations(cluster);
             }
 
             return Task.CompletedTask;

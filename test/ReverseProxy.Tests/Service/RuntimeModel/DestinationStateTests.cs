@@ -8,7 +8,7 @@ using Yarp.ReverseProxy.RuntimeModel;
 
 namespace Yarp.ReverseProxy.Service.RuntimeModel
 {
-    public class DestinationInfoTests
+    public class DestinationStateTests
     {
         [Fact]
         public void DestinationInfoEnumerator()
