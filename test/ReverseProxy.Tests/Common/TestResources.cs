@@ -10,7 +10,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using Xunit;
 
-namespace Yarp.ReverseProxy.Utilities.Tests
+namespace Yarp.ReverseProxy.Common.Tests
 {
     public static class TestResources
     {

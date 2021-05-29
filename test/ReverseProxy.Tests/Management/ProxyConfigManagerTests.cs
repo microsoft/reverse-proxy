@@ -15,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Moq;
 using Xunit;
+using Yarp.ReverseProxy.Common.Tests;
 using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.Discovery.Configuration;
 using Yarp.ReverseProxy.Health;

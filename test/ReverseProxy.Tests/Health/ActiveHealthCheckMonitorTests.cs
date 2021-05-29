@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
+using Yarp.ReverseProxy.Common.Tests;
 using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.Model;
 using Yarp.ReverseProxy.Utilities;

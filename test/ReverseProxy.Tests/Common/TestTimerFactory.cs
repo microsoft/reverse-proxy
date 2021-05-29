@@ -5,8 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using Xunit;
+using Yarp.ReverseProxy.Utilities;
 
-namespace Yarp.ReverseProxy.Utilities.Tests
+namespace Yarp.ReverseProxy.Common.Tests
 {
     internal class TestTimerFactory : ITimerFactory, IDisposable
     {

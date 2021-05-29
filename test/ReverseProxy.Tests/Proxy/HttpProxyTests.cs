@@ -19,7 +19,6 @@ using Microsoft.Net.Http.Headers;
 using Moq;
 using Xunit;
 using Yarp.ReverseProxy.Common.Tests;
-using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.Proxy.Tests
 {
