@@ -3,8 +3,7 @@
 
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using Yarp.ReverseProxy.Configuration;
-using Yarp.ReverseProxy.Service;
+using Yarp.ReverseProxy.Discovery;
 
 namespace Yarp.ReverseProxy.Kubernetes.Protocol
 {

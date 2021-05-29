@@ -5,8 +5,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
-using Yarp.ReverseProxy.Abstractions;
-using Yarp.ReverseProxy.Service;
+using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.Service.HealthChecks;
 
 namespace Yarp.ReverseProxy.Sample

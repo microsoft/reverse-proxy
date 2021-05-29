@@ -13,9 +13,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
-using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.RuntimeModel;
-using Yarp.ReverseProxy.Service.Management;
 using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.Service.HealthChecks

@@ -4,6 +4,7 @@
 using System.Net.Http;
 using Microsoft.AspNetCore.Http;
 using Xunit;
+using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.Service.Config;
 using Yarp.ReverseProxy.Service.RuntimeModel.Transforms;
 

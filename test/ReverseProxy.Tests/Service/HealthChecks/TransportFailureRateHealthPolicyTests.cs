@@ -12,6 +12,7 @@ using Moq;
 using Xunit;
 using Yarp.ReverseProxy.Abstractions;
 using Yarp.ReverseProxy.Common.Tests;
+using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.RuntimeModel;
 using Yarp.ReverseProxy.Service.Management;
 using Yarp.ReverseProxy.Service.Proxy;

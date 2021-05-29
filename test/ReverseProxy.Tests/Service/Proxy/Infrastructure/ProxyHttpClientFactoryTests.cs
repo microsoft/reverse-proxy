@@ -10,11 +10,10 @@ using System.Security.Authentication;
 using System.Text;
 using Microsoft.Extensions.Logging;
 using Xunit;
-using Yarp.ReverseProxy.Abstractions;
 using Yarp.ReverseProxy.Common.Tests;
+using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.Service.Proxy.Infrastructure;
 using Yarp.ReverseProxy.Telemetry;
-using Yarp.ReverseProxy.Utilities.Tests;
 
 namespace Yarp.ReverseProxy.Service.Proxy.Tests
 {

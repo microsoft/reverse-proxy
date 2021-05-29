@@ -6,6 +6,7 @@ using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Yarp.ReverseProxy.Common.Tests;
+using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.Service.Config;
 using Yarp.ReverseProxy.Service.RuntimeModel.Transforms;
 using Yarp.ReverseProxy.Utilities;

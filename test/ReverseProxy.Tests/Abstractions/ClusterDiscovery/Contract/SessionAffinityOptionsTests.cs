@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Xunit;
+using Yarp.ReverseProxy.Discovery;
 
 namespace Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract
 {

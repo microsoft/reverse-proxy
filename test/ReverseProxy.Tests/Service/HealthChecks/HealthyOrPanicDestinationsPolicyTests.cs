@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using Xunit;
-using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.RuntimeModel;
 
 namespace Yarp.ReverseProxy.Service.HealthChecks

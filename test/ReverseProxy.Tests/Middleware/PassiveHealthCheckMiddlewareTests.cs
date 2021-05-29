@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Moq;
 using Xunit;
 using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.RuntimeModel;
 using Yarp.ReverseProxy.Service.HealthChecks;
 using Yarp.ReverseProxy.Service.Management;

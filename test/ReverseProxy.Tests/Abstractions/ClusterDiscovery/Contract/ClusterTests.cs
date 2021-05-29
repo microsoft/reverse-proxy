@@ -10,6 +10,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Xunit;
+using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.Service.LoadBalancing;
 using Yarp.ReverseProxy.Service.Proxy;
 

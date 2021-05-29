@@ -9,8 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
-using Yarp.ReverseProxy.Abstractions;
-using Yarp.ReverseProxy.Service;
+using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.ServiceFabric

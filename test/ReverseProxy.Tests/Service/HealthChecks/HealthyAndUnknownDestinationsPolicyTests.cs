@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 using Xunit;
-using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.RuntimeModel;
 
 namespace Yarp.ReverseProxy.Service.HealthChecks

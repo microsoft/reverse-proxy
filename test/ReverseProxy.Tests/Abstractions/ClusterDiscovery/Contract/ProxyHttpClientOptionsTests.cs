@@ -5,6 +5,7 @@ using System;
 using System.Security.Authentication;
 using System.Text;
 using Xunit;
+using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.Utilities.Tests;
 
 namespace Yarp.ReverseProxy.Abstractions.Tests

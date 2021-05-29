@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using k8s.Models;
-using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.Kubernetes.Controller.Caching;
 using Yarp.ReverseProxy.Kubernetes.Controller.Services;
 using static Yarp.ReverseProxy.Kubernetes.Controller.Services.Reconciler;

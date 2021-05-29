@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing.Template;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
+using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.Service.Config;
 using Yarp.ReverseProxy.Service.RuntimeModel.Transforms;
 

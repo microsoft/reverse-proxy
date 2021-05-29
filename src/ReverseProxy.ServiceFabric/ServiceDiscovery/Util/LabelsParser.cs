@@ -7,11 +7,10 @@ using System.ComponentModel;
 using System.Linq;
 using System.Net.Http;
 using System.Security.Authentication;
-using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
-using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.Service.Proxy;
 
 namespace Yarp.ReverseProxy.ServiceFabric

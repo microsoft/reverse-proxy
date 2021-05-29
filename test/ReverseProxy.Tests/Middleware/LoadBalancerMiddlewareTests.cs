@@ -11,6 +11,7 @@ using Moq;
 using Xunit;
 using Yarp.ReverseProxy.Abstractions;
 using Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
+using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.RuntimeModel;
 using Yarp.ReverseProxy.Service.LoadBalancing;
 using Yarp.ReverseProxy.Service.Management;

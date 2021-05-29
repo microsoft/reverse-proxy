@@ -13,6 +13,7 @@ using Microsoft.Net.Http.Headers;
 using Xunit;
 using Yarp.ReverseProxy.Abstractions;
 using Yarp.ReverseProxy.Abstractions.Config;
+using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.Service.RuntimeModel.Transforms;
 
 namespace Yarp.ReverseProxy.Service.Config

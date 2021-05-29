@@ -10,19 +10,15 @@ using System.Net;
 using System.Net.Http;
 using System.Reflection;
 using System.Security.Authentication;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
-using Yarp.ReverseProxy.Abstractions;
-using Yarp.ReverseProxy.Service;
 using Yarp.ReverseProxy.Service.LoadBalancing;
 using Yarp.ReverseProxy.Service.Proxy;
-using Yarp.ReverseProxy.Utilities.Tests;
 
-namespace Yarp.ReverseProxy.Configuration
+namespace Yarp.ReverseProxy.Discovery.Configuration
 {
     public class ConfigurationConfigProviderTests
     {

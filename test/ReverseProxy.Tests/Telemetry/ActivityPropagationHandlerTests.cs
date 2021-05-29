@@ -6,8 +6,8 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
-using Yarp.ReverseProxy.Abstractions;
 using Yarp.ReverseProxy.Common.Tests;
+using Yarp.ReverseProxy.Discovery;
 
 namespace Yarp.ReverseProxy.Telemetry.Tests
 {

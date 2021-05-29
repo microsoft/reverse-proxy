@@ -3,6 +3,7 @@
 
 using System;
 using Xunit;
+using Yarp.ReverseProxy.Discovery;
 
 namespace Yarp.ReverseProxy.Abstractions.Config
 {

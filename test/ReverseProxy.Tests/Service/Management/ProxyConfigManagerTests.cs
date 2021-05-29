@@ -15,13 +15,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Moq;
 using Xunit;
-using Yarp.ReverseProxy.Abstractions;
 using Yarp.ReverseProxy.Configuration;
+using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.RuntimeModel;
 using Yarp.ReverseProxy.Service.HealthChecks;
 using Yarp.ReverseProxy.Service.Proxy;
 using Yarp.ReverseProxy.Utilities;
-using Yarp.ReverseProxy.Utilities.Tests;
 
 namespace Yarp.ReverseProxy.Service.Management.Tests
 {

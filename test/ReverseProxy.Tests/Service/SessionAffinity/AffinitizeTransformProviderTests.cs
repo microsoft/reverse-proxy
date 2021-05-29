@@ -7,6 +7,7 @@ using Moq;
 using Xunit;
 using Yarp.ReverseProxy.Abstractions;
 using Yarp.ReverseProxy.Abstractions.Config;
+using Yarp.ReverseProxy.Discovery;
 
 namespace Yarp.ReverseProxy.Service.SessionAffinity
 {

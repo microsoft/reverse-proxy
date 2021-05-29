@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Xunit;
+using Yarp.ReverseProxy.Discovery;
 
 namespace Yarp.ReverseProxy.Abstractions.Tests
 {

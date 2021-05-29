@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Xunit;
+using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.Service.Config;
 using Yarp.ReverseProxy.Service.RuntimeModel.Transforms;
 
