@@ -3,11 +3,10 @@
 
 using System;
 using Xunit;
-using Yarp.ReverseProxy.Discovery;
 
-namespace Yarp.ReverseProxy.Abstractions.Tests
+namespace Yarp.ReverseProxy.Discovery.Tests
 {
-    public class PassiveHealthCheckOptionsTests
+    public class PassiveHealthCheckConfigTests
     {
         [Fact]
         public void Equals_Same_Value_Returns_True()

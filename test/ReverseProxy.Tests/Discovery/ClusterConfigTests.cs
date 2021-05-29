@@ -10,13 +10,12 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Xunit;
-using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.Service.LoadBalancing;
 using Yarp.ReverseProxy.Service.Proxy;
 
-namespace Yarp.ReverseProxy.Abstractions.Tests
+namespace Yarp.ReverseProxy.Discovery.Tests
 {
-    public class ClusterTests
+    public class ClusterConfigTests
     {
         [Fact]
         public void Equals_Same_Value_Returns_True()

@@ -5,12 +5,10 @@ using System;
 using System.Security.Authentication;
 using System.Text;
 using Xunit;
-using Yarp.ReverseProxy.Discovery;
-using Yarp.ReverseProxy.Utilities.Tests;
 
-namespace Yarp.ReverseProxy.Abstractions.Tests
+namespace Yarp.ReverseProxy.Discovery.Tests
 {
-    public class ProxyHttpClientOptionsTests
+    public class HttpClientConfigTests
     {
         [Fact]
         public void Equals_Same_Value_Returns_True()

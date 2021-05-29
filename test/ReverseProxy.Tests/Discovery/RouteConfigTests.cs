@@ -4,11 +4,10 @@
 using System.Collections.Generic;
 using System.Text.Json;
 using Xunit;
-using Yarp.ReverseProxy.Discovery;
 
-namespace Yarp.ReverseProxy.Abstractions.Tests
+namespace Yarp.ReverseProxy.Discovery.Tests
 {
-    public class ProxyRouteTests
+    public class RouteConfigTests
     {
         [Fact]
         public void Equals_Positive()

@@ -18,7 +18,7 @@ using Xunit;
 using Yarp.ReverseProxy.Service.LoadBalancing;
 using Yarp.ReverseProxy.Service.Proxy;
 
-namespace Yarp.ReverseProxy.Discovery.Configuration
+namespace Yarp.ReverseProxy.Discovery.Configuration.Tests
 {
     public class ConfigurationConfigProviderTests
     {

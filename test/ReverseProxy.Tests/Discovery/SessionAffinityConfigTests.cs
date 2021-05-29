@@ -2,11 +2,10 @@
 // Licensed under the MIT License.
 
 using Xunit;
-using Yarp.ReverseProxy.Discovery;
 
-namespace Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract
+namespace Yarp.ReverseProxy.Discovery.Tests
 {
-    public class SessionAffinityOptionsTests
+    public class SessionAffinityConfigTests
     {
         [Fact]
         public void Equals_Same_Value_Returns_True()

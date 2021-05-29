@@ -7,12 +7,11 @@ using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Xunit;
-using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.Service.HealthChecks;
 using Yarp.ReverseProxy.Service.LoadBalancing;
 using Yarp.ReverseProxy.Service.Proxy;
 
-namespace Yarp.ReverseProxy.Service.Tests
+namespace Yarp.ReverseProxy.Discovery.Tests
 {
     public class ConfigValidatorTests
     {

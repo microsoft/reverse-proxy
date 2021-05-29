@@ -3,11 +3,10 @@
 
 using System.Collections.Generic;
 using Xunit;
-using Yarp.ReverseProxy.Discovery;
 
-namespace Yarp.ReverseProxy.Abstractions.Tests
+namespace Yarp.ReverseProxy.Discovery.Tests
 {
-    public class DestinationTests
+    public class DestinationConfigTests
     {
         [Fact]
         public void Equals_Same_Value_Returns_True()

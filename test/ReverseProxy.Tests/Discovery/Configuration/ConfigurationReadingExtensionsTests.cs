@@ -2,10 +2,9 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using Microsoft.Extensions.Configuration;
 using Xunit;
 
-namespace Yarp.ReverseProxy.Utilities
+namespace Microsoft.Extensions.Configuration.Tests
 {
     public class ConfigurationReadingExtensionsTests
     {
