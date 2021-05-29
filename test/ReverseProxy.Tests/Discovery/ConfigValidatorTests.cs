@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Xunit;
 using Yarp.ReverseProxy.Health;
-using Yarp.ReverseProxy.Service.LoadBalancing;
+using Yarp.ReverseProxy.LoadBalancing;
 using Yarp.ReverseProxy.Service.Proxy;
 
 namespace Yarp.ReverseProxy.Discovery.Tests

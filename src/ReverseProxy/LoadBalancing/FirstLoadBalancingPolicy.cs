@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Yarp.ReverseProxy.RuntimeModel;
 
-namespace Yarp.ReverseProxy.Service.LoadBalancing
+namespace Yarp.ReverseProxy.LoadBalancing
 {
     /// <summary>
     /// Select the alphabetically first available destination without considering load. This is useful for dual destination fail-over systems.

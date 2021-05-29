@@ -7,10 +7,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Yarp.ReverseProxy.RuntimeModel;
-using Yarp.ReverseProxy.Service.LoadBalancing;
 using Yarp.ReverseProxy.Utilities;
 
-namespace Yarp.ReverseProxy.Middleware
+namespace Yarp.ReverseProxy.LoadBalancing
 {
     /// <summary>
     /// Load balances across the available destinations.

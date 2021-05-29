@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Yarp.ReverseProxy.RuntimeModel;
 
-namespace Yarp.ReverseProxy.Service.LoadBalancing
+namespace Yarp.ReverseProxy.LoadBalancing
 {
     /// <summary>
     /// Provides a method that applies a load balancing policy

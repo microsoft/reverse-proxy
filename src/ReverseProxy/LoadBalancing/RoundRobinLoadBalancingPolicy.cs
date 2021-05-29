@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Yarp.ReverseProxy.RuntimeModel;
 using Yarp.ReverseProxy.Utilities;
 
-namespace Yarp.ReverseProxy.Service.LoadBalancing
+namespace Yarp.ReverseProxy.LoadBalancing
 {
     internal sealed class RoundRobinLoadBalancingPolicy : ILoadBalancingPolicy
     {

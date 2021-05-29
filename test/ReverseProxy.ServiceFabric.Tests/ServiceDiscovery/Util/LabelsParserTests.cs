@@ -7,7 +7,7 @@ using System.Security.Authentication;
 using FluentAssertions;
 using Xunit;
 using Yarp.ReverseProxy.Discovery;
-using Yarp.ReverseProxy.Service.LoadBalancing;
+using Yarp.ReverseProxy.LoadBalancing;
 using Yarp.ReverseProxy.Service.Proxy;
 using Yarp.ReverseProxy.Service.SessionAffinity;
 

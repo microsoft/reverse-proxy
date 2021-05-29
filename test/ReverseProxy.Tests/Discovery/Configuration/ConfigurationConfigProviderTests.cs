@@ -15,7 +15,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
-using Yarp.ReverseProxy.Service.LoadBalancing;
+using Yarp.ReverseProxy.LoadBalancing;
 using Yarp.ReverseProxy.Service.Proxy;
 
 namespace Yarp.ReverseProxy.Discovery.Configuration.Tests

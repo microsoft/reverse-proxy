@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Yarp.ReverseProxy.Service.LoadBalancing
+namespace Yarp.ReverseProxy.LoadBalancing
 {
     /// <summary>
     /// Names of built-in load balancing policies.
