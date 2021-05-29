@@ -4,7 +4,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace Yarp.ReverseProxy.Service.Model.Transforms
+namespace Yarp.ReverseProxy.Transforms
 {
     /// <summary>
     /// A transform used to include or suppress the original request host header.

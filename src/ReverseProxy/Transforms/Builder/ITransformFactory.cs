@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace Yarp.ReverseProxy.Abstractions.Config
+namespace Yarp.ReverseProxy.Transforms.Builder
 {
     /// <summary>
     /// Validates and builds transforms from the given parameters

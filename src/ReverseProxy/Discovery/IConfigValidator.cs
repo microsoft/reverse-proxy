@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Yarp.ReverseProxy.Abstractions;
 
 namespace Yarp.ReverseProxy.Discovery
 {

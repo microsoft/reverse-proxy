@@ -2,9 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
-using Yarp.ReverseProxy.Abstractions.Config;
 
-namespace Yarp.ReverseProxy.Service.Config
+namespace Yarp.ReverseProxy.Transforms.Builder
 {
     internal sealed class ActionTransformProvider : ITransformProvider
     {

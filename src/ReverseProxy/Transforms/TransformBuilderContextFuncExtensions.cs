@@ -4,9 +4,9 @@
 
 using System;
 using System.Threading.Tasks;
-using Yarp.ReverseProxy.Service.Model.Transforms;
+using Yarp.ReverseProxy.Transforms.Builder;
 
-namespace Yarp.ReverseProxy.Abstractions.Config
+namespace Yarp.ReverseProxy.Transforms
 {
     /// <summary>
     /// Extension methods for <see cref="TransformBuilderContext"/>.

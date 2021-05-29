@@ -9,14 +9,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Net.Http.Headers;
 using Xunit;
-using Yarp.ReverseProxy.Abstractions;
-using Yarp.ReverseProxy.Abstractions.Config;
 using Yarp.ReverseProxy.Discovery;
-using Yarp.ReverseProxy.Service.Model.Transforms;
 
-namespace Yarp.ReverseProxy.Service.Config
+namespace Yarp.ReverseProxy.Transforms.Builder.Tests
 {
     public class TransformBuilderTests
     {

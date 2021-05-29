@@ -4,7 +4,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace Yarp.ReverseProxy.Service.Model.Transforms
+namespace Yarp.ReverseProxy.Transforms
 {
     /// <summary>
     /// A request transform that removes the given query parameter.

@@ -5,8 +5,8 @@ using System;
 using System.Linq;
 using Moq;
 using Xunit;
-using Yarp.ReverseProxy.Abstractions.Config;
 using Yarp.ReverseProxy.Discovery;
+using Yarp.ReverseProxy.Transforms.Builder;
 
 namespace Yarp.ReverseProxy.SessionAffinity.Tests
 {

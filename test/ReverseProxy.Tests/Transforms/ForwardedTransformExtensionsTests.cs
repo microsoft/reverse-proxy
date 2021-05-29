@@ -7,11 +7,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Yarp.ReverseProxy.Common.Tests;
 using Yarp.ReverseProxy.Discovery;
-using Yarp.ReverseProxy.Service.Config;
-using Yarp.ReverseProxy.Service.Model.Transforms;
+using Yarp.ReverseProxy.Transforms.Builder;
 using Yarp.ReverseProxy.Utilities;
 
-namespace Yarp.ReverseProxy.Abstractions.Config
+namespace Yarp.ReverseProxy.Transforms.Tests
 {
     public class ForwardedTransformExtensionsTests : TransformExtentionsTestsBase
     {

@@ -2,8 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -11,7 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Xunit;
 using Yarp.ReverseProxy.Utilities.Tests;
 
-namespace Yarp.ReverseProxy.Service.Model.Transforms
+namespace Yarp.ReverseProxy.Transforms.Tests
 {
     public class RequestHeaderRemoveTransformTests
     {

@@ -2,10 +2,9 @@
 // Licensed under the MIT License.
 
 using Yarp.ReverseProxy.Discovery;
-using Yarp.ReverseProxy.Service.Config;
-using Yarp.ReverseProxy.Service.Model.Transforms;
+using Yarp.ReverseProxy.Transforms.Builder;
 
-namespace Yarp.ReverseProxy.Abstractions.Config
+namespace Yarp.ReverseProxy.Transforms
 {
     /// <summary>
     /// Extensions for adding response header and trailer transforms.

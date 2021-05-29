@@ -9,7 +9,7 @@ using Moq;
 using Xunit;
 using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.Model;
-using Yarp.ReverseProxy.Service.Model.Transforms;
+using Yarp.ReverseProxy.Transforms;
 
 namespace Yarp.ReverseProxy.SessionAffinity.Tests
 {

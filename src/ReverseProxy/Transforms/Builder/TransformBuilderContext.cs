@@ -4,9 +4,8 @@
 using System;
 using System.Collections.Generic;
 using Yarp.ReverseProxy.Discovery;
-using Yarp.ReverseProxy.Service.Model.Transforms;
 
-namespace Yarp.ReverseProxy.Abstractions.Config
+namespace Yarp.ReverseProxy.Transforms.Builder
 {
     /// <summary>
     /// State used when building transforms for the given route.

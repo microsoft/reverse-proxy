@@ -2,13 +2,12 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Primitives;
 
-namespace Yarp.ReverseProxy.Service.Model.Transforms
+namespace Yarp.ReverseProxy.Transforms
 {
     /// <summary>
     /// Transforms for response trailers.

@@ -5,11 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Yarp.ReverseProxy.Discovery;
-using Yarp.ReverseProxy.Abstractions.Config;
 using Yarp.ReverseProxy.Proxy;
-using Yarp.ReverseProxy.Service.Model.Transforms;
 
-namespace Yarp.ReverseProxy.Service.Config
+namespace Yarp.ReverseProxy.Transforms.Builder
 {
     /// <summary>
     /// Validates and builds request and response transforms for a given route.

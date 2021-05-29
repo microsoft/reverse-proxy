@@ -19,7 +19,7 @@ using Yarp.ReverseProxy.Health;
 using Yarp.ReverseProxy.Model;
 using Yarp.ReverseProxy.Proxy;
 using Yarp.ReverseProxy.Routing;
-using Yarp.ReverseProxy.Service;
+using Yarp.ReverseProxy.Transforms.Builder;
 
 namespace Yarp.ReverseProxy.Management
 {

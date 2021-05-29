@@ -6,15 +6,13 @@ using System.Net.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
-using Yarp.ReverseProxy.Abstractions.Config;
 using Yarp.ReverseProxy.Configuration.DependencyInjection;
 using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.Discovery.Configuration;
 using Yarp.ReverseProxy.Management;
 using Yarp.ReverseProxy.Proxy;
 using Yarp.ReverseProxy.Routing;
-using Yarp.ReverseProxy.Service;
-using Yarp.ReverseProxy.Service.Config;
+using Yarp.ReverseProxy.Transforms.Builder;
 using Yarp.ReverseProxy.Utilities;
 
 namespace Microsoft.Extensions.DependencyInjection

@@ -7,7 +7,7 @@ using Microsoft.Extensions.Primitives;
 using Yarp.ReverseProxy.Proxy;
 using Yarp.ReverseProxy.Utilities;
 
-namespace Yarp.ReverseProxy.Service.Model.Transforms
+namespace Yarp.ReverseProxy.Transforms
 {
     /// <summary>
     /// The base class for request transforms.

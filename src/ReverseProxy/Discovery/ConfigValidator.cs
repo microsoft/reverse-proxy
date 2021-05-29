@@ -13,8 +13,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing.Patterns;
 using Yarp.ReverseProxy.Health;
 using Yarp.ReverseProxy.LoadBalancing;
-using Yarp.ReverseProxy.Service;
 using Yarp.ReverseProxy.SessionAffinity;
+using Yarp.ReverseProxy.Transforms.Builder;
 using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.Discovery

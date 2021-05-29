@@ -3,9 +3,8 @@
 
 using System;
 using System.Collections.Generic;
-using Yarp.ReverseProxy.Abstractions.Config;
 
-namespace Yarp.ReverseProxy.Service.Config
+namespace Yarp.ReverseProxy.Transforms.Builder
 {
     public static class TransformHelpers
     {

@@ -2,9 +2,8 @@
 // Licensed under the MIT License.
 
 using Xunit;
-using Yarp.ReverseProxy.Service.Model.Transforms;
 
-namespace Yarp.ReverseProxy.Abstractions.Config
+namespace Yarp.ReverseProxy.Transforms.Tests
 {
     public class TransformBuilderContextFuncExtensionsTests : TransformExtentionsTestsBase
     {

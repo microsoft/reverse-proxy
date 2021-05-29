@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Http.Features;
 using Xunit;
 using Yarp.ReverseProxy.Utilities.Tests;
 
-namespace Yarp.ReverseProxy.Service.Model.Transforms
+namespace Yarp.ReverseProxy.Transforms.Tests
 {
     public class ResponseTrailerRemoveTransformTests
     {

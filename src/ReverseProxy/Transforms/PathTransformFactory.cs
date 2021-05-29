@@ -5,10 +5,9 @@ using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing.Template;
-using Yarp.ReverseProxy.Abstractions.Config;
-using Yarp.ReverseProxy.Service.Model.Transforms;
+using Yarp.ReverseProxy.Transforms.Builder;
 
-namespace Yarp.ReverseProxy.Service.Config
+namespace Yarp.ReverseProxy.Transforms
 {
     internal sealed class PathTransformFactory : ITransformFactory
     {

@@ -3,9 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using Yarp.ReverseProxy.Abstractions.Config;
+using Yarp.ReverseProxy.Transforms.Builder;
 
-namespace Yarp.ReverseProxy.Service.Config
+namespace Yarp.ReverseProxy.Transforms
 {
     internal sealed class RequestHeadersTransformFactory : ITransformFactory
     {

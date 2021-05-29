@@ -3,11 +3,10 @@
 
 using System;
 using System.Collections.Generic;
-using Yarp.ReverseProxy.Abstractions.Config;
-using Yarp.ReverseProxy.Service.Model.Transforms;
+using Yarp.ReverseProxy.Transforms.Builder;
 using Yarp.ReverseProxy.Utilities;
 
-namespace Yarp.ReverseProxy.Service.Config
+namespace Yarp.ReverseProxy.Transforms
 {
     internal sealed class ForwardedTransformFactory : ITransformFactory
     {

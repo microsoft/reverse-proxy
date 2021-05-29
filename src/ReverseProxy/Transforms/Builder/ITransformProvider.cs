@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Yarp.ReverseProxy.Abstractions.Config
+namespace Yarp.ReverseProxy.Transforms.Builder
 {
     /// <summary>
     /// Enables the implementor to inspect each route and conditionally add transforms.

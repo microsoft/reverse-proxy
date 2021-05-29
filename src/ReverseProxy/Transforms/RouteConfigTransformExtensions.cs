@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using Yarp.ReverseProxy.Discovery;
 
-namespace Yarp.ReverseProxy.Abstractions.Config
+namespace Yarp.ReverseProxy.Transforms
 {
     /// <summary>
     /// Extensions for adding transforms to <see cref="RouteConfig"/>.

@@ -4,8 +4,9 @@
 using System;
 using Xunit;
 using Yarp.ReverseProxy.Discovery;
+using Yarp.ReverseProxy.Transforms.Builder;
 
-namespace Yarp.ReverseProxy.Abstractions.Config
+namespace Yarp.ReverseProxy.Transforms.Tests
 {
     public abstract class TransformExtentionsTestsBase
     {
