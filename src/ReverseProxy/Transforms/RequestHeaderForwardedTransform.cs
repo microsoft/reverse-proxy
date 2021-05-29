@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using Yarp.ReverseProxy.Utilities;
 
-namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
+namespace Yarp.ReverseProxy.Service.Model.Transforms
 {
     /// <summary>
     /// An implementation of the Forwarded header as defined in https://tools.ietf.org/html/rfc7239.

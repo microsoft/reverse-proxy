@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
-using Yarp.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Model;
 
 namespace Yarp.ReverseProxy.Health
 {

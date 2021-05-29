@@ -5,7 +5,7 @@ using System;
 using System.Collections.Concurrent;
 using Yarp.ReverseProxy.Utilities;
 
-namespace Yarp.ReverseProxy.RuntimeModel
+namespace Yarp.ReverseProxy.Model
 {
     /// <summary>
     /// Representation of a cluster for use at runtime.

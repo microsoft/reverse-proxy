@@ -4,9 +4,8 @@
 using System;
 using System.Collections.Generic;
 using Xunit;
-using Yarp.ReverseProxy.RuntimeModel;
 
-namespace Yarp.ReverseProxy.Service.RuntimeModel
+namespace Yarp.ReverseProxy.Model.Tests
 {
     public class DestinationStateTests
     {

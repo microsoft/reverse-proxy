@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing.Template;
 using Yarp.ReverseProxy.Abstractions.Config;
-using Yarp.ReverseProxy.Service.RuntimeModel.Transforms;
+using Yarp.ReverseProxy.Service.Model.Transforms;
 
 namespace Yarp.ReverseProxy.Service.Config
 {

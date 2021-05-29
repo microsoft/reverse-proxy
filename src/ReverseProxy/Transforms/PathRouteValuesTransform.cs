@@ -5,7 +5,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Routing.Template;
 
-namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
+namespace Yarp.ReverseProxy.Service.Model.Transforms
 {
     /// <summary>
     /// Generates a new request path by plugging matched route parameters into the given pattern.

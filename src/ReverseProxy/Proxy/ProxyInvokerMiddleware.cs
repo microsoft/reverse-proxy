@@ -5,7 +5,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Yarp.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Model;
 using Yarp.ReverseProxy.Service.Proxy;
 using Yarp.ReverseProxy.Telemetry;
 using Yarp.ReverseProxy.Utilities;

@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Yarp.ReverseProxy;
 using Yarp.ReverseProxy.Management;
 using Yarp.ReverseProxy.Middleware;
+using Yarp.ReverseProxy.Model;
 
 namespace Microsoft.AspNetCore.Builder
 {

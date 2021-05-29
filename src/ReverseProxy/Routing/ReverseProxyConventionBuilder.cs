@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Yarp.ReverseProxy.Discovery;
-using Yarp.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Model;
 
 namespace Yarp.ReverseProxy
 {

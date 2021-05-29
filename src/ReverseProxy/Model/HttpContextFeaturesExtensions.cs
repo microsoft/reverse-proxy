@@ -3,7 +3,7 @@
 
 using System;
 using Yarp.ReverseProxy.Middleware;
-using Yarp.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Model;
 using Yarp.ReverseProxy.Service.Proxy;
 
 namespace Microsoft.AspNetCore.Http

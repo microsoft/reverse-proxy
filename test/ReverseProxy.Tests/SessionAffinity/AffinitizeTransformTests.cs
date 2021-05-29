@@ -9,8 +9,8 @@ using Moq;
 using Xunit;
 using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.Middleware;
-using Yarp.ReverseProxy.RuntimeModel;
-using Yarp.ReverseProxy.Service.RuntimeModel.Transforms;
+using Yarp.ReverseProxy.Model;
+using Yarp.ReverseProxy.Service.Model.Transforms;
 
 namespace Yarp.ReverseProxy.Service.SessionAffinity
 {

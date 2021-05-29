@@ -4,7 +4,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
+namespace Yarp.ReverseProxy.Service.Model.Transforms
 {
     /// <summary>
     /// Removes a request header.

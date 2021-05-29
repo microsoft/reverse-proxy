@@ -9,7 +9,7 @@ using System.Net.Http;
 using Microsoft.Extensions.Options;
 using Xunit;
 using Yarp.ReverseProxy.Discovery;
-using Yarp.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Model;
 
 namespace Yarp.ReverseProxy.Health.Tests
 {

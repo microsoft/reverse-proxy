@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.AspNetCore.Http;
-using Yarp.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Model;
 using Yarp.ReverseProxy.Service.Proxy;
 
 namespace Yarp.ReverseProxy.Health

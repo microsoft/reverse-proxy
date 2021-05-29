@@ -5,8 +5,8 @@ using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Yarp.ReverseProxy.RuntimeModel;
-using Yarp.ReverseProxy.Service.RuntimeModel.Transforms;
+using Yarp.ReverseProxy.Model;
+using Yarp.ReverseProxy.Service.Model.Transforms;
 
 namespace Yarp.ReverseProxy.Service.SessionAffinity
 {

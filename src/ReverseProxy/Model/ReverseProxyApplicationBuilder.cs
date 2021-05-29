@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 
-namespace Yarp.ReverseProxy.Middleware
+namespace Yarp.ReverseProxy.Model
 {
     /// <inheritdoc/>
     public class ReverseProxyApplicationBuilder : IReverseProxyApplicationBuilder

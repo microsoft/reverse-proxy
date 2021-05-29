@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Xunit;
 using Yarp.ReverseProxy.Common.Tests;
 using Yarp.ReverseProxy.Discovery;
-using Yarp.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Model;
 
 namespace Yarp.ReverseProxy.Service.SessionAffinity
 {

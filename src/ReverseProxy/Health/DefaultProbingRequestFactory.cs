@@ -6,7 +6,7 @@ using System.Net.Http;
 using System.Reflection;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Net.Http.Headers;
-using Yarp.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Model;
 
 namespace Yarp.ReverseProxy.Health
 {

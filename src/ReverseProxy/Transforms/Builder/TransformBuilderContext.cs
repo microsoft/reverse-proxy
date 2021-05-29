@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Yarp.ReverseProxy.Discovery;
-using Yarp.ReverseProxy.Service.RuntimeModel.Transforms;
+using Yarp.ReverseProxy.Service.Model.Transforms;
 
 namespace Yarp.ReverseProxy.Abstractions.Config
 {

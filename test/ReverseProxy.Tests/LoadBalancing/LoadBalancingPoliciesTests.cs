@@ -8,7 +8,7 @@ using Xunit;
 using Yarp.ReverseProxy.Common.Tests;
 using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.Middleware;
-using Yarp.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Model;
 using Yarp.ReverseProxy.Service.Proxy;
 using Yarp.ReverseProxy.Utilities;
 

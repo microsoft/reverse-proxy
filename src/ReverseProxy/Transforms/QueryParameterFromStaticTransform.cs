@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
+namespace Yarp.ReverseProxy.Service.Model.Transforms
 {
     public class QueryParameterFromStaticTransform : QueryParameterTransform
     {

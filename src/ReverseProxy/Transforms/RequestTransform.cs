@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Primitives;
 using Yarp.ReverseProxy.Utilities;
 
-namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
+namespace Yarp.ReverseProxy.Service.Model.Transforms
 {
     /// <summary>
     /// The base class for request transforms.

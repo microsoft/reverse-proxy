@@ -3,7 +3,7 @@
 
 using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.Service.Config;
-using Yarp.ReverseProxy.Service.RuntimeModel.Transforms;
+using Yarp.ReverseProxy.Service.Model.Transforms;
 
 namespace Yarp.ReverseProxy.Abstractions.Config
 {

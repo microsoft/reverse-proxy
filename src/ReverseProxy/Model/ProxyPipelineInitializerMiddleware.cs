@@ -5,9 +5,8 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Yarp.ReverseProxy.RuntimeModel;
 
-namespace Yarp.ReverseProxy.Middleware
+namespace Yarp.ReverseProxy.Model
 {
     /// <summary>
     /// Initializes the proxy processing pipeline with the available healthy destinations.

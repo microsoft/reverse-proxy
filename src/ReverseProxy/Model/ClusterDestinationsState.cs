@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Yarp.ReverseProxy.RuntimeModel
+namespace Yarp.ReverseProxy.Model
 {
     public sealed class ClusterDestinationsState
     {

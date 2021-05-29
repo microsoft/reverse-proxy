@@ -2,9 +2,8 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using Yarp.ReverseProxy.RuntimeModel;
 
-namespace Yarp.ReverseProxy.Middleware
+namespace Yarp.ReverseProxy.Model
 {
     /// <summary>
     /// Stores the current proxy configuration used when processing the request.

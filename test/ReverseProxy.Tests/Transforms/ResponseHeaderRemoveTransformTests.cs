@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Xunit;
 using Yarp.ReverseProxy.Utilities.Tests;
 
-namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
+namespace Yarp.ReverseProxy.Service.Model.Transforms
 {
     public class ResponseHeaderRemoveTransformTests
     {

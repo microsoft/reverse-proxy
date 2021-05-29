@@ -4,7 +4,7 @@
 using System;
 using Microsoft.AspNetCore.Http;
 
-namespace Yarp.ReverseProxy.RuntimeModel
+namespace Yarp.ReverseProxy.Model
 {
     /// <summary>
     /// Representation of a route for use at runtime.

@@ -5,7 +5,7 @@ using System;
 using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.Service.Proxy;
 
-namespace Yarp.ReverseProxy.RuntimeModel
+namespace Yarp.ReverseProxy.Model
 {
     /// <summary>
     /// Immutable representation of the portions of a route

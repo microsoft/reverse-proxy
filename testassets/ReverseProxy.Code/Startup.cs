@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Yarp.ReverseProxy.Abstractions.Config;
 using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.Middleware;
+using Yarp.ReverseProxy.Model;
 using Yarp.ReverseProxy.Telemetry.Consumption;
 
 namespace Yarp.ReverseProxy.Sample

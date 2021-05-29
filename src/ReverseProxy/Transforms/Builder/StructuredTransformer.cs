@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Http.Features;
 using Yarp.ReverseProxy.Service.Proxy;
 using Yarp.ReverseProxy.Utilities;
 
-namespace Yarp.ReverseProxy.Service.RuntimeModel.Transforms
+namespace Yarp.ReverseProxy.Service.Model.Transforms
 {
     /// <summary>
     /// Transforms for a given route.

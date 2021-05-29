@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using Yarp.ReverseProxy.Discovery;
-using Yarp.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Model;
 
 namespace Yarp.ReverseProxy.Service.Proxy.Infrastructure
 {

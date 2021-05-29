@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Yarp.ReverseProxy.Middleware;
+using Yarp.ReverseProxy.Model;
 
 namespace Yarp.ReverseProxy.Sample
 {

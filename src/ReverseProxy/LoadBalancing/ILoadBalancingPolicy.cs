@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
-using Yarp.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Model;
 
 namespace Yarp.ReverseProxy.LoadBalancing
 {

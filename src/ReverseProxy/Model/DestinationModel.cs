@@ -4,7 +4,7 @@
 using System;
 using Yarp.ReverseProxy.Discovery;
 
-namespace Yarp.ReverseProxy.RuntimeModel
+namespace Yarp.ReverseProxy.Model
 {
     /// <summary>
     /// Immutable representation of the portions of a destination

@@ -13,10 +13,9 @@ using Moq;
 using Xunit;
 using Yarp.ReverseProxy.Common.Tests;
 using Yarp.ReverseProxy.Discovery;
-using Yarp.ReverseProxy.RuntimeModel;
 using Yarp.ReverseProxy.Service.Proxy;
 
-namespace Yarp.ReverseProxy.Middleware.Tests
+namespace Yarp.ReverseProxy.Model.Tests
 {
     public class ProxyPipelineInitializerMiddlewareTests : TestAutoMockBase
     {

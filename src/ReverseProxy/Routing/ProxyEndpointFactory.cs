@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Patterns;
-using Yarp.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Model;
 using Yarp.ReverseProxy.Service.Routing;
 using CorsConstants = Yarp.ReverseProxy.Discovery.CorsConstants;
 using AuthorizationConstants = Yarp.ReverseProxy.Discovery.AuthorizationConstants;

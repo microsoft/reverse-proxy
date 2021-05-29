@@ -3,7 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using Yarp.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Model;
 
 namespace Yarp.ReverseProxy.Health
 {

@@ -7,7 +7,7 @@ using System.Globalization;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Options;
-using Yarp.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Model;
 using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.Health

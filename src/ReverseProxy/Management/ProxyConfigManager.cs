@@ -16,7 +16,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.Health;
-using Yarp.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Model;
 using Yarp.ReverseProxy.Service;
 using Yarp.ReverseProxy.Service.Proxy.Infrastructure;
 

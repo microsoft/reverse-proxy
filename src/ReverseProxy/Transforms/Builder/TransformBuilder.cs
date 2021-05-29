@@ -7,7 +7,7 @@ using System.Linq;
 using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.Abstractions.Config;
 using Yarp.ReverseProxy.Service.Proxy;
-using Yarp.ReverseProxy.Service.RuntimeModel.Transforms;
+using Yarp.ReverseProxy.Service.Model.Transforms;
 
 namespace Yarp.ReverseProxy.Service.Config
 {
