@@ -82,7 +82,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
             };
 
             ex = Assert.Throws<ArgumentException>(() => transformProvider.Apply(builderContext));
-            Assert.Equal("No Yarp.ReverseProxy.Service.SessionAffinity.ISessionAffinityProvider was found for the id 'Invalid'. (Parameter 'id')", ex.Message);
+            Assert.Equal($"No {typeof(ISessionAffinityProvider).FullName} was found for the id 'Invalid'. (Parameter 'id')", ex.Message);
         }
     }
 }
