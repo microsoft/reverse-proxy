@@ -8,11 +8,10 @@ using Microsoft.AspNetCore.Http;
 using Moq;
 using Xunit;
 using Yarp.ReverseProxy.Discovery;
-using Yarp.ReverseProxy.Middleware;
 using Yarp.ReverseProxy.Model;
 using Yarp.ReverseProxy.Service.Model.Transforms;
 
-namespace Yarp.ReverseProxy.Service.SessionAffinity
+namespace Yarp.ReverseProxy.SessionAffinity.Tests
 {
     public class AffinitizeTransformTests
     {

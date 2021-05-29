@@ -12,7 +12,7 @@ using Yarp.ReverseProxy.Management;
 using Yarp.ReverseProxy.Proxy;
 using Yarp.ReverseProxy.Routing;
 using Yarp.ReverseProxy.Service.Config;
-using Yarp.ReverseProxy.Service.SessionAffinity;
+using Yarp.ReverseProxy.SessionAffinity;
 using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.Configuration.DependencyInjection

@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.Model;
 
-namespace Yarp.ReverseProxy.Service.SessionAffinity
+namespace Yarp.ReverseProxy.SessionAffinity
 {
     internal abstract class BaseSessionAffinityProvider<T> : ISessionAffinityProvider
     {

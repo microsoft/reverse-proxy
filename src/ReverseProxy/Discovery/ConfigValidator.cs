@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Routing.Patterns;
 using Yarp.ReverseProxy.Health;
 using Yarp.ReverseProxy.LoadBalancing;
 using Yarp.ReverseProxy.Service;
-using Yarp.ReverseProxy.Service.SessionAffinity;
+using Yarp.ReverseProxy.SessionAffinity;
 using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.Discovery

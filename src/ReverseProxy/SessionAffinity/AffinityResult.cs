@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using Yarp.ReverseProxy.Model;
 
-namespace Yarp.ReverseProxy.Service.SessionAffinity
+namespace Yarp.ReverseProxy.SessionAffinity
 {
     /// <summary>
     /// Affinity resolution result.

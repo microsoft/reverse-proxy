@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.Utilities;
 
-namespace Yarp.ReverseProxy.Service.SessionAffinity
+namespace Yarp.ReverseProxy.SessionAffinity
 {
     internal sealed class RedistributeAffinityFailurePolicy : IAffinityFailurePolicy
     {

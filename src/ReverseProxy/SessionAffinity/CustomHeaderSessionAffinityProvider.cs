@@ -9,7 +9,7 @@ using Microsoft.Extensions.Primitives;
 using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.Model;
 
-namespace Yarp.ReverseProxy.Service.SessionAffinity
+namespace Yarp.ReverseProxy.SessionAffinity
 {
     internal sealed class CustomHeaderSessionAffinityProvider : BaseSessionAffinityProvider<string>
     {

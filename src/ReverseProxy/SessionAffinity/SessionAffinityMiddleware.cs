@@ -8,10 +8,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.Model;
-using Yarp.ReverseProxy.Service.SessionAffinity;
 using Yarp.ReverseProxy.Utilities;
 
-namespace Yarp.ReverseProxy.Middleware
+namespace Yarp.ReverseProxy.SessionAffinity
 {
     /// <summary>
     /// Looks up an affinitized <see cref="DestinationState"/> matching the request's affinity key if any is set

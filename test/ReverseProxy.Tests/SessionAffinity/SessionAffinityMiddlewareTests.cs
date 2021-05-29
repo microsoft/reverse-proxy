@@ -13,9 +13,8 @@ using Xunit;
 using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.Model;
 using Yarp.ReverseProxy.Proxy;
-using Yarp.ReverseProxy.Service.SessionAffinity;
 
-namespace Yarp.ReverseProxy.Middleware
+namespace Yarp.ReverseProxy.SessionAffinity.Tests
 {
     public class SessionAffinityMiddlewareTests
     {

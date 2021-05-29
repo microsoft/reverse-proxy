@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Yarp.ReverseProxy.Middleware;
+using Yarp.ReverseProxy.SessionAffinity;
 
 namespace Microsoft.AspNetCore.Builder
 {

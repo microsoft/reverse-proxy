@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Logging;
 using Moq;
 
-namespace Yarp.ReverseProxy.Service.SessionAffinity
+namespace Yarp.ReverseProxy.SessionAffinity.Tests
 {
     public static class AffinityTestHelper
     {

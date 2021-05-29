@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using Yarp.ReverseProxy.Abstractions.Config;
 using Yarp.ReverseProxy.Utilities;
 
-namespace Yarp.ReverseProxy.Service.SessionAffinity
+namespace Yarp.ReverseProxy.SessionAffinity
 {
     internal sealed class AffinitizeTransformProvider : ITransformProvider
     {

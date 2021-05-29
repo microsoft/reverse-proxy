@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.Model;
 
-namespace Yarp.ReverseProxy.Service.SessionAffinity
+namespace Yarp.ReverseProxy.SessionAffinity
 {
     /// <summary>
     /// Provides session affinity for load-balanced clusters.

@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using Yarp.ReverseProxy.LoadBalancing;
-using Yarp.ReverseProxy.Middleware;
 
 namespace Microsoft.AspNetCore.Builder
 {
