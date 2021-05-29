@@ -10,7 +10,6 @@ using System.Net.Security;
 using System.Security.Authentication;
 using System.Text;
 
-#nullable enable
 namespace Yarp.ReverseProxy.Utilities.Tls
 {
     // SSL3/TLS protocol frames definitions.

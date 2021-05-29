@@ -10,7 +10,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Yarp.ReverseProxy.Utilities
+namespace Yarp.ReverseProxy.Utilities.Tests
 {
     /// <summary>
     /// Extensions for the <see cref="Task"/> class.

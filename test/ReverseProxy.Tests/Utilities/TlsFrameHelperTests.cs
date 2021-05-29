@@ -8,7 +8,7 @@ using System.Linq;
 using System.Security.Authentication;
 using Xunit;
 
-namespace Yarp.ReverseProxy.Utilities.Tls
+namespace Yarp.ReverseProxy.Utilities.Tls.Tests
 {
     public class TlsFrameHelperTests
     {
