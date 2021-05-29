@@ -1,17 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using Moq;
 using Xunit;
-using Yarp.ReverseProxy.Abstractions;
 using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.RuntimeModel;
 
-namespace Yarp.ReverseProxy.Service.HealthChecks
+namespace Yarp.ReverseProxy.Health.Tests
 {
     public class ClusterDestinationsUpdaterTests
     {

@@ -4,7 +4,7 @@
 using System.Net.Http;
 using Yarp.ReverseProxy.RuntimeModel;
 
-namespace Yarp.ReverseProxy.Service.HealthChecks
+namespace Yarp.ReverseProxy.Health
 {
     /// <summary>
     /// A factory for creating <see cref="HttpRequestMessage"/>s for active health probes to be sent to destinations.

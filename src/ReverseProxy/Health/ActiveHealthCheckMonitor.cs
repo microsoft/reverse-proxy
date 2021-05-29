@@ -3,7 +3,6 @@
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Yarp.ReverseProxy.Abstractions;
 using Yarp.ReverseProxy.RuntimeModel;
 using Yarp.ReverseProxy.Service.Management;
 using Yarp.ReverseProxy.Utilities;
@@ -14,7 +13,7 @@ using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Yarp.ReverseProxy.Service.HealthChecks
+namespace Yarp.ReverseProxy.Health
 {
     internal partial class ActiveHealthCheckMonitor : IActiveHealthCheckMonitor, IClusterChangeListener, IDisposable
     {

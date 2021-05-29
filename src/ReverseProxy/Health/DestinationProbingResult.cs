@@ -5,7 +5,7 @@ using System;
 using System.Net.Http;
 using Yarp.ReverseProxy.RuntimeModel;
 
-namespace Yarp.ReverseProxy.Service.HealthChecks
+namespace Yarp.ReverseProxy.Health
 {
     /// <summary>
     /// Result of a destination's active health probing.

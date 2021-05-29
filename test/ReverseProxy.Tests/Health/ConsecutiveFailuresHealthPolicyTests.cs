@@ -8,12 +8,10 @@ using System.Net;
 using System.Net.Http;
 using Microsoft.Extensions.Options;
 using Xunit;
-using Yarp.ReverseProxy.Abstractions;
 using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.RuntimeModel;
-using Yarp.ReverseProxy.Service.Management;
 
-namespace Yarp.ReverseProxy.Service.HealthChecks
+namespace Yarp.ReverseProxy.Health.Tests
 {
     public class ConsecutiveFailuresHealthPolicyTests
     {

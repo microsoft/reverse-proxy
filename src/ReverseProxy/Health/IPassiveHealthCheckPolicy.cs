@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Yarp.ReverseProxy.RuntimeModel;
 using Yarp.ReverseProxy.Service.Proxy;
 
-namespace Yarp.ReverseProxy.Service.HealthChecks
+namespace Yarp.ReverseProxy.Health
 {
     /// <summary>
     /// Passive health check evaluation policy.

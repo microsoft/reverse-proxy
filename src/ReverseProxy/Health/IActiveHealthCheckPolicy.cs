@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using Yarp.ReverseProxy.RuntimeModel;
 
-namespace Yarp.ReverseProxy.Service.HealthChecks
+namespace Yarp.ReverseProxy.Health
 {
     /// <summary>
     /// Active health check evaluation policy.

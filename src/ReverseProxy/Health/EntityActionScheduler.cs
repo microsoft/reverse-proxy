@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Yarp.ReverseProxy.Utilities;
 
-namespace Yarp.ReverseProxy.Service.Management
+namespace Yarp.ReverseProxy.Health
 {
     /// <summary>
     /// Periodically invokes specified actions on registered entities.

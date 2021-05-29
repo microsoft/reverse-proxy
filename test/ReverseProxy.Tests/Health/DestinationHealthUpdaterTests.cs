@@ -8,13 +8,11 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
-using Yarp.ReverseProxy.Abstractions;
 using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.RuntimeModel;
-using Yarp.ReverseProxy.Service.Management;
 using Yarp.ReverseProxy.Utilities;
 
-namespace Yarp.ReverseProxy.Service.HealthChecks
+namespace Yarp.ReverseProxy.Health.Tests
 {
     public class DestinationHealthUpdaterTests
     {

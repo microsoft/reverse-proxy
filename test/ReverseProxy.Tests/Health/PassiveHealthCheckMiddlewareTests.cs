@@ -1,21 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Moq;
 using Xunit;
-using Yarp.ReverseProxy.Abstractions;
 using Yarp.ReverseProxy.Discovery;
+using Yarp.ReverseProxy.Middleware;
 using Yarp.ReverseProxy.RuntimeModel;
-using Yarp.ReverseProxy.Service.HealthChecks;
-using Yarp.ReverseProxy.Service.Management;
 using Yarp.ReverseProxy.Service.Proxy;
 
-namespace Yarp.ReverseProxy.Middleware
+namespace Yarp.ReverseProxy.Health.Tests
 {
     public class PassiveHealthCheckMiddlewareTests
     {

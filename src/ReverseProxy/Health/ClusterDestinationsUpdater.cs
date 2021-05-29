@@ -8,7 +8,7 @@ using System.Threading;
 using Yarp.ReverseProxy.RuntimeModel;
 using Yarp.ReverseProxy.Utilities;
 
-namespace Yarp.ReverseProxy.Service.HealthChecks
+namespace Yarp.ReverseProxy.Health
 {
     internal sealed class ClusterDestinationsUpdater : IClusterDestinationsUpdater
     {

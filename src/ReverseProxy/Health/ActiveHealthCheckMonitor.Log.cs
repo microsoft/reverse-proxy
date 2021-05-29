@@ -2,10 +2,9 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Net;
 using Microsoft.Extensions.Logging;
 
-namespace Yarp.ReverseProxy.Service.HealthChecks
+namespace Yarp.ReverseProxy.Health
 {
     internal partial class ActiveHealthCheckMonitor
     {

@@ -6,7 +6,7 @@ using System.Linq;
 using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.RuntimeModel;
 
-namespace Yarp.ReverseProxy.Service.HealthChecks
+namespace Yarp.ReverseProxy.Health
 {
     // Policy marking destinations as available only if their active and passive health states
     /// are either 'Healthy' or 'Unknown'/>.

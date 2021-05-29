@@ -5,7 +5,6 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Xunit;
-using Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
 
 namespace Yarp.ReverseProxy.Service.SessionAffinity
 {

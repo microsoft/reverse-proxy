@@ -9,7 +9,7 @@ using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.RuntimeModel;
 using Yarp.ReverseProxy.Service.Proxy;
 
-namespace Yarp.ReverseProxy.Service.HealthChecks
+namespace Yarp.ReverseProxy.Health.Tests
 {
     public class DefaultProbingRequestFactoryTests
     {

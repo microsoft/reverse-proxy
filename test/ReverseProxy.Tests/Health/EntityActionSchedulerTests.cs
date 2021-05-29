@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Xunit;
 using Yarp.ReverseProxy.Utilities;
 
-namespace Yarp.ReverseProxy.Service.Management
+namespace Yarp.ReverseProxy.Health.Tests
 {
     // It uses a real TimerFactory to verify scheduling work E2E.
     public class EntityActionSchedulerTests

@@ -9,7 +9,7 @@ using Yarp.ReverseProxy.RuntimeModel;
 using Yarp.ReverseProxy.Service.Management;
 using Yarp.ReverseProxy.Utilities;
 
-namespace Yarp.ReverseProxy.Service.HealthChecks
+namespace Yarp.ReverseProxy.Health
 {
     internal sealed class DestinationHealthUpdater : IDestinationHealthUpdater, IDisposable
     {

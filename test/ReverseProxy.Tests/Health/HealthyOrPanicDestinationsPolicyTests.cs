@@ -5,7 +5,7 @@ using Xunit;
 using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.RuntimeModel;
 
-namespace Yarp.ReverseProxy.Service.HealthChecks
+namespace Yarp.ReverseProxy.Health.Tests
 {
     public class HealthyOrPanicDestinationsPolicyTests
     {

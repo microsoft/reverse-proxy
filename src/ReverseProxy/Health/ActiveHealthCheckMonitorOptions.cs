@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Yarp.ReverseProxy.Service.HealthChecks
+namespace Yarp.ReverseProxy.Health
 {
     /// <summary>
     /// Defines options for the active health check monitor.

@@ -11,7 +11,7 @@ using Yarp.ReverseProxy.RuntimeModel;
 using Yarp.ReverseProxy.Service.Proxy;
 using Yarp.ReverseProxy.Utilities;
 
-namespace Yarp.ReverseProxy.Service.HealthChecks
+namespace Yarp.ReverseProxy.Health
 {
     /// <summary>
     /// Calculates the proxied requests failure rate for each destination and marks it as unhealthy if the specified limit is exceeded.

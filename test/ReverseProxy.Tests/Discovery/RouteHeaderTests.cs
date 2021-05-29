@@ -2,9 +2,8 @@
 // Licensed under the MIT License.
 
 using Xunit;
-using Yarp.ReverseProxy.Discovery;
 
-namespace Yarp.ReverseProxy.Abstractions.Tests
+namespace Yarp.ReverseProxy.Discovery.Tests
 {
     public class RouteHeaderTests
     {
