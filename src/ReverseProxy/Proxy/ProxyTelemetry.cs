@@ -5,9 +5,8 @@ using System;
 using System.Diagnostics;
 using System.Diagnostics.Tracing;
 using System.Threading;
-using Yarp.ReverseProxy.Service.Proxy;
 
-namespace Yarp.ReverseProxy.Telemetry
+namespace Yarp.ReverseProxy.Proxy
 {
     internal sealed class ProxyTelemetry : EventSource
     {

@@ -19,8 +19,8 @@ using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.Discovery.Configuration;
 using Yarp.ReverseProxy.Health;
 using Yarp.ReverseProxy.Model;
-using Yarp.ReverseProxy.Service.Proxy;
-using Yarp.ReverseProxy.Service.Proxy.Tests;
+using Yarp.ReverseProxy.Proxy;
+using Yarp.ReverseProxy.Proxy.Tests;
 using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.Management.Tests

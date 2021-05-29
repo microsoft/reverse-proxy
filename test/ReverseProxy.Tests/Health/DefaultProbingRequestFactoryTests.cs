@@ -7,7 +7,7 @@ using System.Net.Http;
 using Xunit;
 using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.Model;
-using Yarp.ReverseProxy.Service.Proxy;
+using Yarp.ReverseProxy.Proxy;
 
 namespace Yarp.ReverseProxy.Health.Tests
 {

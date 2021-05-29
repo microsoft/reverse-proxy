@@ -7,8 +7,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
-using Yarp.ReverseProxy.Service.Proxy;
-using Yarp.ReverseProxy.Utilities;
+using Yarp.ReverseProxy.Proxy;
 
 namespace Yarp.ReverseProxy.Service.Model.Transforms
 {

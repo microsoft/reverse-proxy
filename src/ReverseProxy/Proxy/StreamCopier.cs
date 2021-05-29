@@ -3,14 +3,12 @@
 
 using System;
 using System.Buffers;
-using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Yarp.ReverseProxy.Telemetry;
 using Yarp.ReverseProxy.Utilities;
 
-namespace Yarp.ReverseProxy.Service.Proxy
+namespace Yarp.ReverseProxy.Proxy
 {
     /// <summary>
     /// A stream copier that captures errors.

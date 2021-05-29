@@ -8,7 +8,7 @@ using FluentAssertions;
 using Xunit;
 using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.LoadBalancing;
-using Yarp.ReverseProxy.Service.Proxy;
+using Yarp.ReverseProxy.Proxy;
 using Yarp.ReverseProxy.Service.SessionAffinity;
 
 namespace Yarp.ReverseProxy.ServiceFabric.Tests

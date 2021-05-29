@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Yarp.ReverseProxy.Service.Proxy
+namespace Yarp.ReverseProxy.Proxy
 {
     /// <summary>
     /// Stores errors and exceptions that occurred when proxying the request to the destination.

@@ -1,10 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Net.Http;
 
-namespace Yarp.ReverseProxy.Service.Proxy.Infrastructure
+namespace Yarp.ReverseProxy.Proxy
 {
     /// <summary>
     /// Provides a method to create instances of <see cref="HttpMessageInvoker"/>

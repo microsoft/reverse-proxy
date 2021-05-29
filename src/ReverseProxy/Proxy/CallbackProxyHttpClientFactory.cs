@@ -5,7 +5,7 @@ using System;
 using System.Net.Http;
 using Microsoft.Extensions.Logging;
 
-namespace Yarp.ReverseProxy.Service.Proxy.Infrastructure
+namespace Yarp.ReverseProxy.Proxy
 {
     internal sealed class CallbackProxyHttpClientFactory : ProxyHttpClientFactory
     {

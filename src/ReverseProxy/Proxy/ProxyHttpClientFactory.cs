@@ -2,18 +2,14 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Http;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Yarp.ReverseProxy.Abstractions;
 using Yarp.ReverseProxy.Discovery;
-using Yarp.ReverseProxy.Telemetry;
 
-namespace Yarp.ReverseProxy.Service.Proxy.Infrastructure
+namespace Yarp.ReverseProxy.Proxy
 {
     /// <summary>
     /// Default implementation of <see cref="IProxyHttpClientFactory"/>.

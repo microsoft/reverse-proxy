@@ -3,7 +3,6 @@
 
 using Microsoft.AspNetCore.Http;
 using Yarp.ReverseProxy.Model;
-using Yarp.ReverseProxy.Service.Proxy;
 
 namespace Yarp.ReverseProxy.Health
 {

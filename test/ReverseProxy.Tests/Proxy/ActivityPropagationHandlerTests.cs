@@ -9,7 +9,7 @@ using Xunit;
 using Yarp.ReverseProxy.Common.Tests;
 using Yarp.ReverseProxy.Discovery;
 
-namespace Yarp.ReverseProxy.Telemetry.Tests
+namespace Yarp.ReverseProxy.Proxy.Tests
 {
     public class ActivityPropagationHandlerTests
     {

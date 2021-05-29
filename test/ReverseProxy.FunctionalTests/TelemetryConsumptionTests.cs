@@ -17,7 +17,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Yarp.ReverseProxy.Common;
-using Yarp.ReverseProxy.Service.Proxy;
+using Yarp.ReverseProxy.Proxy;
 using Yarp.ReverseProxy.Telemetry.Consumption;
 
 namespace Yarp.ReverseProxy

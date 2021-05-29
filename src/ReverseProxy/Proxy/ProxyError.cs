@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Yarp.ReverseProxy.Service.Proxy
+namespace Yarp.ReverseProxy.Proxy
 {
     /// <summary>
     /// Errors reported when proxying a request to the destination.

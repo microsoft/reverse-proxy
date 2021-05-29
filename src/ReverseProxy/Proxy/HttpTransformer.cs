@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Primitives;
 using Yarp.ReverseProxy.Utilities;
 
-namespace Yarp.ReverseProxy.Service.Proxy
+namespace Yarp.ReverseProxy.Proxy
 {
     public class HttpTransformer
     {

@@ -10,10 +10,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
-using Yarp.ReverseProxy.Abstractions;
 using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.Model;
-using Yarp.ReverseProxy.Service.Proxy;
+using Yarp.ReverseProxy.Proxy;
 using Yarp.ReverseProxy.Service.SessionAffinity;
 
 namespace Yarp.ReverseProxy.Middleware

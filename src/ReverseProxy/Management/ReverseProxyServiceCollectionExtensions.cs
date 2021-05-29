@@ -12,10 +12,9 @@ using Yarp.ReverseProxy.Configuration.DependencyInjection;
 using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.Discovery.Configuration;
 using Yarp.ReverseProxy.Management;
+using Yarp.ReverseProxy.Proxy;
 using Yarp.ReverseProxy.Service;
 using Yarp.ReverseProxy.Service.Config;
-using Yarp.ReverseProxy.Service.Proxy;
-using Yarp.ReverseProxy.Service.Proxy.Infrastructure;
 using Yarp.ReverseProxy.Utilities;
 
 namespace Microsoft.Extensions.DependencyInjection

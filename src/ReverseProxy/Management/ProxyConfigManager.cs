@@ -17,8 +17,8 @@ using Microsoft.Extensions.Primitives;
 using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.Health;
 using Yarp.ReverseProxy.Model;
+using Yarp.ReverseProxy.Proxy;
 using Yarp.ReverseProxy.Service;
-using Yarp.ReverseProxy.Service.Proxy.Infrastructure;
 
 namespace Yarp.ReverseProxy.Management
 {

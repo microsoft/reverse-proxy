@@ -12,9 +12,8 @@ using Xunit;
 using Yarp.ReverseProxy.Common.Tests;
 using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.Model;
-using Yarp.ReverseProxy.Service.Proxy;
 
-namespace Yarp.ReverseProxy.Middleware.Tests
+namespace Yarp.ReverseProxy.Proxy.Tests
 {
     public class ProxyInvokerMiddlewareTests : TestAutoMockBase
     {

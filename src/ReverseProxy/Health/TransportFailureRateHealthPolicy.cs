@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Yarp.ReverseProxy.Model;
-using Yarp.ReverseProxy.Service.Proxy;
+using Yarp.ReverseProxy.Proxy;
 using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.Health

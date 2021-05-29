@@ -2,9 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
-using Yarp.ReverseProxy.Middleware;
 using Yarp.ReverseProxy.Model;
-using Yarp.ReverseProxy.Service.Proxy;
+using Yarp.ReverseProxy.Proxy;
 
 namespace Microsoft.AspNetCore.Http
 {

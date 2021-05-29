@@ -9,7 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Yarp.ReverseProxy.Utilities;
 
-namespace Yarp.ReverseProxy.Service.Proxy
+namespace Yarp.ReverseProxy.Proxy
 {
     /// <summary>
     /// Custom <see cref="HttpContent"/>

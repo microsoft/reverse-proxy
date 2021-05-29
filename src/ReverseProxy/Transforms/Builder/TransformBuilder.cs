@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.Abstractions.Config;
-using Yarp.ReverseProxy.Service.Proxy;
+using Yarp.ReverseProxy.Proxy;
 using Yarp.ReverseProxy.Service.Model.Transforms;
 
 namespace Yarp.ReverseProxy.Service.Config

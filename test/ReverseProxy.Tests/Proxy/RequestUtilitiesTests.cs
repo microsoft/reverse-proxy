@@ -6,7 +6,7 @@ using System.Net.Http;
 using Microsoft.AspNetCore.Http;
 using Xunit;
 
-namespace Yarp.ReverseProxy.Utilities
+namespace Yarp.ReverseProxy.Proxy.Tests
 {
     public class RequestUtilitiesTests
     {

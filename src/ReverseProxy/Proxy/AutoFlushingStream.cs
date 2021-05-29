@@ -5,9 +5,8 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Yarp.ReverseProxy.Utilities;
 
-namespace Yarp.ReverseProxy.Service.Proxy
+namespace Yarp.ReverseProxy.Proxy
 {
     /// <summary>
     /// Delegates to a wrapped stream and calls its

@@ -3,7 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using Yarp.ReverseProxy.Service.Proxy;
+using Yarp.ReverseProxy.Proxy;
 using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.Discovery

@@ -9,9 +9,8 @@ using System.Net.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
-using Yarp.ReverseProxy.Service.Proxy;
 
-namespace Yarp.ReverseProxy.Utilities
+namespace Yarp.ReverseProxy.Proxy
 {
     /// <summary>
     /// APIs that can be used when transforming requests.

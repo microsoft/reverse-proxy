@@ -12,10 +12,8 @@ using Microsoft.Extensions.Logging;
 using Xunit;
 using Yarp.ReverseProxy.Common.Tests;
 using Yarp.ReverseProxy.Discovery;
-using Yarp.ReverseProxy.Service.Proxy.Infrastructure;
-using Yarp.ReverseProxy.Telemetry;
 
-namespace Yarp.ReverseProxy.Service.Proxy.Tests
+namespace Yarp.ReverseProxy.Proxy.Tests
 {
     public class ProxyHttpClientFactoryTests : TestAutoMockBase
     {

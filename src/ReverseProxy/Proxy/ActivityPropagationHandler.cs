@@ -10,7 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Yarp.ReverseProxy.Discovery;
 
-namespace Yarp.ReverseProxy.Telemetry
+namespace Yarp.ReverseProxy.Proxy
 {
     /// <summary>
     /// ActivityPropagationHandler propagates the current Activity to the downstream service

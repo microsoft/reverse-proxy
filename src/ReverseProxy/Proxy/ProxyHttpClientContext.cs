@@ -6,7 +6,7 @@ using System.Net.Http;
 using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.Model;
 
-namespace Yarp.ReverseProxy.Service.Proxy.Infrastructure
+namespace Yarp.ReverseProxy.Proxy
 {
     /// <summary>
     /// Contains the old and the new proxy HTTP client configurations.
